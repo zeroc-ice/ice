@@ -34,7 +34,7 @@ local interface ObjectFactory
      * Slice type id for interfaces of type [Bar] in the module
      * [Foo] is [::Foo::Bar].
      *
-     * <note><para>The leading "[::]" is required.</para></note>
+     * <note><p>The leading "[::]" is required.</p></note>
      *
      * @param type The object type.
      *

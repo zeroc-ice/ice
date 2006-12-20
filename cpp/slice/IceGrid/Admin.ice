@@ -360,9 +360,9 @@ struct ApplicationUpdateInfo
 
 /**
  *
- * The IceGrid administrative interface. <warning><para>Allowing
+ * The IceGrid administrative interface. <warning><p>Allowing
  * access to this interface is a security risk! Please see the
- * IceGrid documentation for further information.</para></warning>
+ * IceGrid documentation for further information.</p></warning>
  *
  **/
 interface Admin
@@ -897,7 +897,7 @@ interface Admin
      *
      * @param expr The expression to match against the stringified
      * identities of registered objects. The expression may contain
-     * a trailing wildcard (<literal>*</literal>) character.
+     * a trailing wildcard (<tt>*</tt>) character.
      *
      * @return All the object infos with a stringified identity
      * matching the given expression.
@@ -1235,7 +1235,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *
@@ -1264,7 +1264,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *
@@ -1293,7 +1293,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *
@@ -1322,7 +1322,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *
@@ -1347,7 +1347,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *
@@ -1372,7 +1372,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *
@@ -1398,7 +1398,7 @@ interface AdminSession extends Glacier2::Session
      *
      * @param count Specifies where to start reading the file. If
      * negative, the file is read from the begining. If 0 or positive,
-     * the file is read from the last <literal>count</literal> lines.
+     * the file is read from the last <tt>count</tt> lines.
      *
      * @return An iterator to read the file.
      *

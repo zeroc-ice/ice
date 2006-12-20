@@ -145,8 +145,8 @@ local exception CloneNotImplementedException
  * This exception is raised if an operation call on a server raises an
  * unknown exception. For example, for C++, this exception is raised
  * if the server throws a C++ exception that is not directly or
- * indirectly derived from <literal>Ice::LocalException</literal> or
- * <literal>Ice::UserException</literal>.
+ * indirectly derived from <tt>Ice::LocalException</tt> or
+ * <tt>Ice::UserException</tt>.
  *
  **/
 local exception UnknownException
@@ -182,13 +182,13 @@ local exception UnknownLocalException extends UnknownException
  *
  * This exception is raised if an operation call on a server raises a
  * user exception that is not declared in the exception's
- * <literal>throws</literal> clause. Such undeclared exceptions are
+ * <tt>throws</tt> clause. Such undeclared exceptions are
  * not transmitted from the server to the client by the Ice
  * protocol, but instead the client just gets an
  * [UnknownUserException]. This is necessary in order to not violate
  * the contract established by an operation's signature: Only local
  * exceptions and user exceptions declared in the
- * <literal>throws</literal> clause can be raised.
+ * <tt>throws</tt> clause can be raised.
  *
  **/
 local exception UnknownUserException extends UnknownException
@@ -411,10 +411,10 @@ local exception SyscallException
     /**
      *
      * The error number describing the system exception. For C++ and
-     * Unix, this is equivalent to <literal>errno</literal>. For C++
+     * Unix, this is equivalent to <tt>errno</tt>. For C++
      * and Windows, this is the value returned by
-     * <literal>GetLastError()</literal> or
-     * <literal>WSAGetLastError()</literal>.
+     * <tt>GetLastError()</tt> or
+     * <tt>WSAGetLastError()</tt>.
      *
      **/
     int error; // Don't use errno, as errno is usually a macro.
@@ -484,9 +484,9 @@ local exception DNSException
     /**
      *
      * The error number describing the DNS problem. For C++ and Unix,
-     * this is equivalent to <literal>h_errno</literal>. For C++ and
+     * this is equivalent to <tt>h_errno</tt>. For C++ and
      * Windows, this is the value returned by
-     * <literal>WSAGetLastError()</literal>.
+     * <tt>WSAGetLastError()</tt>.
      *
      **/
     int error; // Don't use h_errno, as h_errno is usually a macro.

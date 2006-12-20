@@ -48,8 +48,8 @@ interface Router
      *
      * Add new proxy information to the router's routing table.
      *
-     * <note><para>This operation is deprecated, and only used for old
-     * Ice clients (older than version 3.1).</para></note>
+     * <note><p>This operation is deprecated, and only used for old
+     * Ice clients (older than version 3.1).</p></note>
      *
      * @param proxy The proxy to add.
      *

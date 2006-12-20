@@ -69,10 +69,10 @@ local interface ObjectAdapter
      * Temporarily hold receiving and dispatching requests. The object
      * adapter can be reactivated with the [activate] operation.
      *
-     * <note><para> Holding is not immediate, i.e., after [hold]
+     * <note><p> Holding is not immediate, i.e., after [hold]
      * returns, the object adapter might still be active for some
      * time. You can use [waitForHold] to wait until holding is
-     * complete. </para></note>
+     * complete. </p></note>
      *
      * @see activate
      * @see deactivate
@@ -105,12 +105,12 @@ local interface ObjectAdapter
      * [deactivate] an already deactivated object adapter are ignored
      * and do nothing.
      *
-     * <note><para> After [deactivate] returns, no new requests are
+     * <note><p> After [deactivate] returns, no new requests are
      * processed by the object adapter. However, requests that have
      * been started before [deactivate] was called might still be
      * active. You can use [waitForDeactivate] to wait for the
      * completion of all requests for this object
-     * adapter. </para></note>
+     * adapter. </p></note>
      *
      * @see activate
      * @see hold
@@ -163,7 +163,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like [add], but with a facet. Calling <literal>add(servant, * id)</literal>
+     * Like [add], but with a facet. Calling <tt>add(servant, * id)</tt>
      * is equivalent to calling [addFacet] with an empty
      * facet.
      *
@@ -211,7 +211,7 @@ local interface ObjectAdapter
     /**
      *
      * Like [addWithUUID], but with a facet. Calling
-     * <literal>addWithUUID(servant)</literal> is equivalent to calling
+     * <tt>addWithUUID(servant)</tt> is equivalent to calling
      * [addFacetWithUUID] with an empty facet.
      *
      * @param servant The servant to add.
@@ -254,7 +254,7 @@ local interface ObjectAdapter
     /**
      *
      * Like [remove], but with a facet. Calling
-     * <literal>remove(id)</literal> is equivalent to calling
+     * <tt>remove(id)</tt> is equivalent to calling
      * [removeFacet] with an empty facet.
      *
      * @param id The identity of the Ice object that is
@@ -295,9 +295,9 @@ local interface ObjectAdapter
      * Look up a servant in this object adapter's Active Servant Map
      * by the identity of the Ice object it implements.
      *
-     * <note><para>This operation only tries to lookup a servant in
+     * <note><p>This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * by using any installed [ServantLocator].</para></note>
+     * by using any installed [ServantLocator].</p></note>
      *
      * @param id The identity of the Ice object for which the
      * servant should be returned.
@@ -315,7 +315,7 @@ local interface ObjectAdapter
     /**
      *
      * Like [find], but with a facet. Calling
-     * <literal>find(id)</literal> is equivalent to calling
+     * <tt>find(id)</tt> is equivalent to calling
      * [findFacet] with an empty facet.
      *
      * @param id The identity of the Ice object for which the
@@ -358,9 +358,9 @@ local interface ObjectAdapter
      * Look up a servant in this object adapter's Active Servant Map,
      * given a proxy.
      *
-     * <note><para>This operation only tries to lookup a servant in
+     * <note><p>This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * via any installed [ServantLocator]s.</para></note>
+     * via any installed [ServantLocator]s.</p></note>
      *
      * @param proxy The proxy for which the servant should be returned.
      *
@@ -382,33 +382,33 @@ local interface ObjectAdapter
      * servant for a given Ice object identity and facet in the
      * following order:
      *
-     * <orderedlist>
+     * <ol>
      *
-     * <listitem><para>The object adapter tries to find a servant for
+     * <li>The object adapter tries to find a servant for
      * the identity and facet in the Active Servant
-     * Map.</para></listitem>
+     * Map.</li>
      *
-     * <listitem><para>If no servant has been found in the Active
+     * <li>If no servant has been found in the Active
      * Servant Map, the object adapter tries to find a locator for the
      * category component of the identity. If a locator is found, the
      * object adapter tries to find a servant using this
-     * locator.</para></listitem>
+     * locator.</li>
      *
-     * <listitem><para>If no servant has been found by any of the
+     * <li>If no servant has been found by any of the
      * preceding steps, the object adapter tries to find a locator for
      * an empty category, regardless of the category contained in the
      * identity. If a locator is found, the object adapter tries to
-     * find a servant using this locator.</para></listitem>
+     * find a servant using this locator.</li>
      *
-     * <listitem><para>If no servant has been found with any of the
+     * <li>If no servant has been found with any of the
      * preceding steps, the object adapter gives up and the caller
      * receives [ObjectNotExistException] or
-     * [FacetNotExistException].</para></listitem>
+     * [FacetNotExistException].</li>
      *
-     * </orderedlist>
+     * </ol>
      *
-     * <note><para>Only one locator for the empty category can be
-     * installed.</para></note>
+     * <note><p>Only one locator for the empty category can be
+     * installed.</p></note>
      *
      * @param locator The locator to add.
      *
@@ -497,9 +497,9 @@ local interface ObjectAdapter
      * A reverse proxy uses the incoming connections that have been
      * established from a client to this object adapter.
      *
-     * <note><para> This operation is intended to be used by special
+     * <note><p> This operation is intended to be used by special
      * services, such as [Router] implementations. Regular user code
-     * should not attempt to use this operation. </para></note>
+     * should not attempt to use this operation. </p></note>
      *
      * @param id The identity for which a proxy is to be created.
      *

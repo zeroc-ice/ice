@@ -18,11 +18,11 @@ module Ice
  * An administrative interface for process management. Managed servers must
  * implement this interface.
  *
- * <note><para> A servant implementing this interface is a potential target
+ * <note><p> A servant implementing this interface is a potential target
  * for denial-of-service attacks, therefore proper security precautions
  * should be taken. For example, the servant can use a UUID to make its
  * identity harder to guess, and be registered in an object adapter with
- * a secured endpoint.</para></note>
+ * a secured endpoint.</p></note>
  *
  **/
 interface Process

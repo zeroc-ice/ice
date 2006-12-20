@@ -37,9 +37,9 @@ interface UserAccountMapper
      * used by IceGrid nodes to figure out the user account to use
      * to run servers.
      *
-     * @param user The value of the server descriptor's <literal>user</literal>
+     * @param user The value of the server descriptor's <tt>user</tt>
      * attribute. If this attribute is not defined, and the server's
-     * activation mode is <literal>session</literal>, the default value of
+     * activation mode is <tt>session</tt>, the default value of
      * [user] is the session identifier.
      *
      * @return The user account name.

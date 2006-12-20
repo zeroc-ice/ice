@@ -198,7 +198,7 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Like [add], but with a facet. Calling <literal>add(servant, id)</literal>
+     * Like [add], but with a facet. Calling <tt>add(servant, id)</tt>
      * is equivalent to calling [addFacet] with an empty
      * facet.
      *
@@ -257,7 +257,7 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Like [remove], but with a facet. Calling <literal>remove(id)</literal> 
+     * Like [remove], but with a facet. Calling <tt>remove(id)</tt> 
      * is equivalent to calling [removeFacet] with an empty facet.
      *
      * @param id The identity of the Ice object.
@@ -304,7 +304,7 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Like [keep], but with a facet. Calling <literal>keep(id)</literal> 
+     * Like [keep], but with a facet. Calling <tt>keep(id)</tt> 
      * is equivalent to calling [keepFacet] with an empty facet.
      *
      * @param id The identity of the Ice object.
@@ -345,7 +345,7 @@ local interface Evictor extends Ice::ServantLocator
     
     /**
      *
-     * Like [release], but with a facet. Calling <literal>release(id)</literal> 
+     * Like [release], but with a facet. Calling <tt>release(id)</tt> 
      * is equivalent to calling [releaseFacet] with an empty facet.
      *
      * @param id The identity of the Ice object.
@@ -381,7 +381,7 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      * 
-     * Like [hasObject], but with a facet. Calling <literal>hasObject(id)</literal>
+     * Like [hasObject], but with a facet. Calling <tt>hasObject(id)</tt>
      * is equivalent to calling [hasFacet] with an empty
      * facet.
      *

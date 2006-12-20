@@ -30,7 +30,7 @@ local dictionary<string, string> PropertyDict;
  * A property set used to configure Ice and Ice applications.
  * Properties are key/value pairs, with both keys and values
  * being [string]s. By convention, property keys should have the form
- * <replaceable>application-name</replaceable>\[.<replaceable>category</replaceable>\[.<replaceable>sub-category</replaceable>]].<replaceable>name</replaceable>.
+ * <em>application-name</em>\[.<em>category</em>\[.<em>sub-category</em>]].<em>name</em>.
  *
  **/
 local interface Properties
@@ -101,8 +101,8 @@ local interface Properties
     /**
      *
      * Get all properties whose keys begins with
-     * <replaceable>prefix</replaceable>. If
-     * <replaceable>prefix</replaceable> is an empty string,
+     * <em>prefix</em>. If
+     * <em>prefix</em> is an empty string,
      * then all properties are returned.
      *
      * @return The matching property set.
@@ -128,7 +128,7 @@ local interface Properties
      * Get a sequence of command-line options that is equivalent to
      * this property set. Each element of the returned sequence is
      * a command-line option of the form
-     * [--<replaceable>key</replaceable>=<replaceable>value</replaceable>].
+     * [--<em>key</em>=<em>value</em>].
      *
      * @return The command line options for this property set.
      *
@@ -139,7 +139,7 @@ local interface Properties
      *
      * Convert a sequence of command-line options into properties.
      * All options that begin with
-     * [--<replaceable>prefix</replaceable>.] are
+     * [--<em>prefix</em>.] are
      * converted into properties. If the prefix is empty, all options
      * that begin with [--] are converted to properties.
      *

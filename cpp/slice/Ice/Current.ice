@@ -64,8 +64,8 @@ enum OperationMode
      * Operations that use the Slice [idempotent] keyword can modify
      * object state, but invoking an operation twice in a row must
      * result in the same object state as invoking it once.  For
-     * example, <literal>x = 1</literal> is an idempotent statement,
-     * whereas <literal>x += 1</literal> is not. For idempotent
+     * example, <tt>x = 1</tt> is an idempotent statement,
+     * whereas <tt>x += 1</tt> is not. For idempotent
      * operations, the Ice run-time uses the same retry behavior
      * as for nonmutating operations in case of a potentially
      * recoverable error.
