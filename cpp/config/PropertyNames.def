@@ -144,7 +144,6 @@ Ice:
     GC.Interval
     ImplicitContext
     InitPlugins
-    Logger.DateFormat
     LoggerPlugin
     MessageSizeMax
     MonitorConnections

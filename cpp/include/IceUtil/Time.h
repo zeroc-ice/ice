@@ -46,7 +46,7 @@ public:
     double toMilliSecondsDouble() const;
     double toMicroSecondsDouble() const;
 
-    std::string toDateTime(const std::string& = "%x %H:%M:%S") const;
+    std::string toDateTime() const;
     std::string toDuration() const;
 
     Time operator-() const
