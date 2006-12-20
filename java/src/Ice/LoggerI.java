@@ -12,17 +12,15 @@ package Ice;
 public final class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
-    LoggerI(String prefix, String dateFormat)
+    LoggerI(String prefix)
     {
 	if(prefix.length() > 0)
 	{
 	    _prefix = prefix + ": ";
 	}
 
-	if(!dateFormat.equals("0"))
-	{
-	    _date = new java.text.SimpleDateFormat(dateFormat);
-	}
+	_date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+	_time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
     }
 
     public void
@@ -40,11 +38,9 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
             StringBuffer s = new StringBuffer("[ ");
-	    if(_date != null)
-	    {
-	        s.append(_date.format(new java.util.Date()));
-	        s.append(' ');
-	    }
+	    s.append(_date.format(new java.util.Date()));
+	    s.append(_time.format(new java.util.Date()));
+	    s.append(' ');
 	    s.append(_prefix);
 	    s.append(category);
 	    s.append(": ");
@@ -66,11 +62,9 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    StringBuffer s = new StringBuffer();
-	    if(_date != null)
-	    {
-	        s.append(_date.format(new java.util.Date()));
-	        s.append(' ');
-	    }
+	    s.append(_date.format(new java.util.Date()));
+	    s.append(_time.format(new java.util.Date()));
+	    s.append(' ');
 	    s.append(_prefix);
 	    s.append("warning: ");
 	    s.append(message);
@@ -84,11 +78,9 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	synchronized(_globalMutex)
 	{
 	    StringBuffer s = new StringBuffer();
-	    if(_date != null)
-	    {
-	        s.append(_date.format(new java.util.Date()));
-	        s.append(' ');
-	    }
+	    s.append(_date.format(new java.util.Date()));
+	    s.append(_time.format(new java.util.Date()));
+	    s.append(' ');
 	    s.append(_prefix);
 	    s.append("error: ");
 	    s.append(message);
@@ -98,5 +90,6 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 
     String _prefix = "";
     static java.lang.Object _globalMutex = new java.lang.Object();
-    java.text.SimpleDateFormat _date = null;
+    java.text.DateFormat _date = null;
+    java.text.SimpleDateFormat _time = null;
 }
