@@ -68,7 +68,7 @@ class PlainServer extends Communicator implements Server
 	    new java.util.LinkedList(),
 	    new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
 	    new java.util.LinkedList(),
-	    new LogDescriptor[0],
+	    new String[0],
 	    "",
 	    "NewServer",
 	    "",
@@ -81,7 +81,8 @@ class PlainServer extends Communicator implements Server
 	    true,
 	    new DistributionDescriptor("", new java.util.LinkedList()),
 	    false, // Allocatable
-	    ""
+	    "",
+	    "" // Ice version
 	    );
     }
 
@@ -96,7 +97,7 @@ class PlainServer extends Communicator implements Server
 	    new java.util.LinkedList(),
 	    new PropertySetDescriptor(new String[0], properties),
 	    new java.util.LinkedList(),
-	    new LogDescriptor[0],
+	    new String[0],
 	    "",
 	    "NewIceBox",
 	    "",
@@ -110,6 +111,7 @@ class PlainServer extends Communicator implements Server
 	    new DistributionDescriptor("", new java.util.LinkedList()),
 	    false, // Allocatable
 	    "",
+	    "", // Ice version
 	    new java.util.LinkedList()
 	    );
     }

@@ -115,7 +115,7 @@ public abstract class TreeNode extends TreeNodeBase
     }
 
     static void writePropertySet(XMLWriter writer, PropertySetDescriptor psd, 
-				 java.util.List adapters, LogDescriptor[] logs)
+				 java.util.List adapters, String[] logs)
 	throws java.io.IOException
     {
 	writePropertySet(writer, "", "", psd, adapters, logs);
@@ -123,7 +123,7 @@ public abstract class TreeNode extends TreeNodeBase
 
     static void writePropertySet(XMLWriter writer, String id, String idAttrName,
 				 PropertySetDescriptor psd, 
-				 java.util.List adapters, LogDescriptor[] logs)
+				 java.util.List adapters, String[] logs)
 	throws java.io.IOException
     {
 	if(id.length() == 0 && psd.references.length == 0 && psd.properties.size() == 0)
@@ -165,7 +165,7 @@ public abstract class TreeNode extends TreeNodeBase
 	{
 	    for(int i = 0; i < logs.length; ++i)
 	    {
-		hiddenPropertyValues.add(logs[i].path);
+		hiddenPropertyValues.add(logs[i]);
 	    }
 	}
 
@@ -216,14 +216,14 @@ public abstract class TreeNode extends TreeNodeBase
 	}
     }
 
-    static void writeLogs(XMLWriter writer, LogDescriptor[] logs, java.util.List properties)
+    static void writeLogs(XMLWriter writer, String[] logs, java.util.List properties)
 	throws java.io.IOException
     {
 	for(int i = 0; i < logs.length; ++i)
 	{
 	    java.util.List attributes = new java.util.LinkedList();
-	    attributes.add(createAttribute("path", logs[i].path));
-	    String prop = lookupName(logs[i].path, properties);
+	    attributes.add(createAttribute("path", logs[i]));
+	    String prop = lookupName(logs[i], properties);
 	    if(prop != null)
 	    {
 		attributes.add(createAttribute("property", prop));

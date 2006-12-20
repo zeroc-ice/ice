@@ -77,7 +77,7 @@ public class PropertiesField extends JTable
 
     public void setProperties(java.util.List properties,
 			      java.util.List adapters,
-			      LogDescriptor[] logs,
+			      String[] logs,
 			      Utils.Resolver resolver, boolean editable)
     {
 	_editable = editable;
@@ -127,7 +127,7 @@ public class PropertiesField extends JTable
 	{
 	    for(int i = 0; i < logs.length; ++i)
 	    {
-		hiddenPropertyValues.add(logs[i].path);
+		hiddenPropertyValues.add(logs[i]);
 	    }
 	}
 	

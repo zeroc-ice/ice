@@ -209,14 +209,14 @@ class Server extends ListArrayTreeNode
 	
 	if(_serverDescriptor.logs.length == 1)
 	{
-	    path = _resolver.substitute(_serverDescriptor.logs[0].path);
+	    path = _resolver.substitute(_serverDescriptor.logs[0]);
 	}
 	else
 	{
 	    Object[] pathArray = new Object[_serverDescriptor.logs.length];
 	    for(int i = 0; i < _serverDescriptor.logs.length; ++i)
 	    {
-		pathArray[i] = _resolver.substitute(_serverDescriptor.logs[i].path);
+		pathArray[i] = _resolver.substitute(_serverDescriptor.logs[i]);
 	    }
 	
 	    path  = (String)JOptionPane.showInputDialog(

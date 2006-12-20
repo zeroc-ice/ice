@@ -98,7 +98,7 @@ class CommunicatorSubEditor
 
 	java.util.TreeMap tm = _logFiles.get();
 	java.util.Iterator p = tm.entrySet().iterator();
-	descriptor.logs = new LogDescriptor[tm.size()];
+	descriptor.logs = new String[tm.size()];
 	int i = 0;
 
 	while(p.hasNext())
@@ -107,7 +107,7 @@ class CommunicatorSubEditor
 	    String path = (String)entry.getKey();
 	    String prop = ((String)entry.getValue()).trim();
 
-	    descriptor.logs[i++] = new LogDescriptor(path, "");
+	    descriptor.logs[i++] = path;
 	    if(!prop.equals(""))
 	    {
 		setProperty((java.util.LinkedList)descriptor.propertySet.properties, prop, path);
@@ -127,8 +127,8 @@ class CommunicatorSubEditor
 	for(int i = 0; i < descriptor.logs.length; ++i)
 	{
 	    String prop = lookupKey(descriptor.propertySet.properties,
-				    descriptor.logs[i].path);
-	    map.put(descriptor.logs[i].path, prop);
+				    descriptor.logs[i]);
+	    map.put(descriptor.logs[i], prop);
 	}
 	_logFiles.set(map, detailResolver, isEditable);
 

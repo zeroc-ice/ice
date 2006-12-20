@@ -44,14 +44,14 @@ class Service extends ListArrayTreeNode
 	
 	if(_serviceDescriptor.logs.length == 1)
 	{
-	    path = _resolver.substitute(_serviceDescriptor.logs[0].path);
+	    path = _resolver.substitute(_serviceDescriptor.logs[0]);
 	}
 	else
 	{
 	    Object[] pathArray = new Object[_serviceDescriptor.logs.length];
 	    for(int i = 0; i < _serviceDescriptor.logs.length; ++i)
 	    {
-		pathArray[i] = _resolver.substitute(_serviceDescriptor.logs[i].path);
+		pathArray[i] = _resolver.substitute(_serviceDescriptor.logs[i]);
 	    }
 	
 	    path = (String)JOptionPane.showInputDialog(

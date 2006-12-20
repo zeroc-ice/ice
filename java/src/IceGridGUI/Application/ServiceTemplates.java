@@ -70,7 +70,7 @@ class ServiceTemplates extends Templates
 	    new java.util.LinkedList(),
 	    new PropertySetDescriptor(new String[0], new java.util.LinkedList()),
 	    new java.util.LinkedList(),
-	    new LogDescriptor[0],
+	    new String[0],
 	    "",
 	    "",
 	    "");

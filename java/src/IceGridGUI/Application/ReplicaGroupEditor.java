@@ -427,7 +427,7 @@ class ReplicaGroupEditor extends Editor
 	    Ice.Identity id = 
 		Ice.Util.stringToIdentity((String)entry.getKey());
 	    String type = (String)entry.getValue();
-	    result.add(new ObjectDescriptor(id, type, "")); // TODO: Bernard: remove property!
+	    result.add(new ObjectDescriptor(id, type));
 	}
 	return result;
     }
