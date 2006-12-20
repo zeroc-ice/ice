@@ -36,12 +36,11 @@ local interface ServantLocator
      * the returned servant into its active servant map. This must be
      * done by the servant locator implementation, if this is desired.
      *
-     * <important><p>If you call [locate] from your own code, you
+     * <p class="Note">If you call [locate] from your own code, you
      * must also call [finished] when you have finished using the
-     * servant, provided that a non-null servant was
-     * returned. Otherwise you will get undefined behavior if you use
-     * Servant Locators such as the
-     * [Freeze::Evictor].</p></important>
+     * servant, provided that [locate] returned a non-null servant;
+     * otherwise, you will get undefined behavior if you use
+     * servant locators such as the [Freeze::Evictor].</p>
      *
      * @param curr Information about the current operation for which
      * a servant is required.

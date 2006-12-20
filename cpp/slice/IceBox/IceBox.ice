@@ -85,8 +85,8 @@ local interface Service
      * also be used by other services, depending on the service
      * configuration.
      *
-     * <note><p>The [ServiceManager] owns this communicator, and is
-     * responsible for destroying it.</p></note>
+     * <p class="Note">The [ServiceManager] owns this communicator, and is
+     * responsible for destroying it.</p>
      *
      * @param name The service's name, as determined by the
      * configuration.

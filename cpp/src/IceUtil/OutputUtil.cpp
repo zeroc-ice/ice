@@ -312,7 +312,6 @@ IceUtil::XMLOutput::XMLOutput() :
     OutputBase(),
     _se(false),
     _text(false),
-    _sgml(false),
     _escape(false)
 {
 }
@@ -321,7 +320,6 @@ IceUtil::XMLOutput::XMLOutput(ostream& os) :
     OutputBase(os),
     _se(false),
     _text(false),
-    _sgml(false),
     _escape(false)
 {
 }
@@ -330,15 +328,8 @@ IceUtil::XMLOutput::XMLOutput(const char* s) :
     OutputBase(s),
     _se(false),
     _text(false),
-    _sgml(false),
     _escape(false)
 {
-}
-
-void
-IceUtil::XMLOutput::setSGML(bool sgml)
-{
-    _sgml = true;
 }
 
 void
@@ -418,17 +409,7 @@ IceUtil::XMLOutput::endElement()
     dec();
     if(_se)
     {
-	//
-	// SGML (docbook) doesn't support <foo/>.
-	//
-	if(_sgml)
-	{
-	    _out << "></" << element << '>';
-	}
-	else
-	{
-	    _out << "/>";
-	}
+	_out << "></" << element << '>';
     }
     else
     {

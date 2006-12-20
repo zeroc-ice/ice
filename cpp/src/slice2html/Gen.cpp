@@ -294,7 +294,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 
     if(!deprecateReason.empty())
     {
-	start("p");
+	start("p", "Deprecated");
 	_out << nl << deprecateReason;
 	end();
     }
@@ -337,7 +337,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	start("h4");
 	_out << "Return Value";
 	end();
-	start("p", "Symbol");
+	start("p");
 	_out << ret.front();
 	end();
     }
@@ -381,7 +381,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
     }
     if(!derivedClasses.empty())
     {
-	start("h4", "Heading");
+	start("h4");
 	_out << "Derived Classes and Interfaces";
 	end();
 	start("dl");
@@ -418,10 +418,10 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	usedBy = p->unit()->findUsedBy(ex);
 	if(!usedBy.empty())
 	{
-	    start("h4", "Heading");
+	    start("h4");
 	    _out << "Used By";
 	    end();
-	    start("dl", "UsedBy");
+	    start("dl");
 	    //
 	    // We first extract the symbol names from the used-by list and sort
 	    // them, otherwise the symbols appear in random order.
@@ -473,10 +473,10 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	strings.sort();
 	strings.unique();
 
-	start("h4", "Heading");
+	start("h4");
 	_out << "Used By";
 	end();
-	start("dl", "UsedBy");
+	start("dl");
 	for(list<string>::const_iterator p = strings.begin(); p != strings.end(); ++p)
 	{
 	    start("dt", "Symbol");
@@ -491,7 +491,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	start("h4");
 	_out << "See Also";
 	end();
-	start("dl", "UsedBy");
+	start("dl");
 	for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
 	{
 	    start("dt", "Symbol");
@@ -540,9 +540,7 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
     }
 
     string summary = getComment(p, container, true, module);
-    start("dd", "Summary");
     _out << nl << summary;
-    end();
 
     if(deprecated)
     {
@@ -697,7 +695,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	return s;
     }
 
-    string ret = "<a ";
+    string ret = "<a class=\"Symbol\" ";
     ret += (asTarget ? "name" : "href");
     ret += "=\"";
     if(asTarget)
@@ -1170,7 +1168,7 @@ Slice::IndexGenerator::~IndexGenerator()
     start("dl");
     for(ModuleDescriptions::const_iterator i = _modules.begin(); i != _modules.end(); ++i)
     {
-	start("dt");
+	start("dt", "Symbol");
 	_out << i->first;
 	end();
 	start("dd");
@@ -1926,7 +1924,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
 	}
     }
 
-    start("h2", "Heading");
+    start("h2");
     _out << "Overview";
     end();
 

@@ -40,7 +40,6 @@ Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool ch
 	cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
 	return;
     }
-    O.setSGML(true);
 }
 
 Slice::Gen::~Gen()

@@ -234,7 +234,6 @@ public:
     XMLOutput(std::ostream&);
     XMLOutput(const char*);
 
-    void setSGML(bool);
     virtual void print(const char*); // Print a string.
 
     virtual void newline(); // Print newline.
@@ -257,7 +256,6 @@ private:
     bool _se;
     bool _text;
 
-    bool _sgml;
     bool _escape;
 };
 

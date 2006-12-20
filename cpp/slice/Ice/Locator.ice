@@ -71,10 +71,10 @@ interface LocatorRegistry;
  * lookup adapters and objects. It is also used by servers to get the
  * locator registry proxy.
  *
- * <note><p> The [Locator] interface is intended to be used by
+ * <p class="Note"> The [Locator] interface is intended to be used by
  * Ice internals and by locator implementations. Regular user code
  * should not attempt to use any functionality of this interface
- * directly.</p></note>
+ * directly.</p>
  *
  **/
 interface Locator
@@ -125,10 +125,10 @@ interface Locator
  * The Ice locator registry interface. This interface is used by
  * servers to register adapter endpoints with the locator.
  *
- * <note><p> The [LocatorRegistry] interface is intended to be used
+ * <p class="Note"> The [LocatorRegistry] interface is intended to be used
  * by Ice internals and by locator implementations. Regular user
  * code should not attempt to use any functionality of this interface
- * directly.</p></note>
+ * directly.</p>
  *
  **/
 interface LocatorRegistry

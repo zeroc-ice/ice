@@ -360,9 +360,10 @@ struct ApplicationUpdateInfo
 
 /**
  *
- * The IceGrid administrative interface. <warning><p>Allowing
- * access to this interface is a security risk! Please see the
- * IceGrid documentation for further information.</p></warning>
+ * The IceGrid administrative interface. </p>
+ * <p class="Warning">Allowing access to this interface
+ * is a security risk! Please see the IceGrid documentation
+ * for further information.
  *
  **/
 interface Admin

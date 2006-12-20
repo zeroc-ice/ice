@@ -37,7 +37,7 @@ module Ice
  *
  * The central object in Ice. One or more communicators can be
  * instantiated for an Ice application. Communicator instantiation
- * is language specific, and not specified in Slice code.
+ * is language-specific, and not specified in Slice code.
  *
  * @see Logger
  * @see Stats
@@ -65,13 +65,13 @@ local interface Communicator
      * Shuts down this communicator's server functionality, including
      * the deactivation of all object adapters. (Attempts to use
      * a deactivated object adapter raise [ObjectAdapterDeactivatedException].)
-     * Subsequent calls to [shutdown] are ignored.
+     * Subsequent calls to [shutdown] are ignored.</p>
      *
      * <p class="Note"> After [shutdown] returns, no new requests are
      * processed. However, requests that have been started before
      * [shutdown] was called might still be active. You can use
      * [waitForShutdown] to wait for the completion of all
-     * requests.</p>
+     * requests.
      *
      * @see destroy
      * @see waitForShutdown
@@ -192,13 +192,13 @@ local interface Communicator
      * the property
      * <tt><em>name</em>.Endpoints</tt>,
      * and then calls [createObjectAdapter]. It is provided as a
-     * convenience function.
+     * convenience function.</p>
      *
      * <p>It is legal to create an object adapter without any endpoints.
      * Such an object adapter cannot be accessed remotely and, therefore,
      * is accessible only for collocated invocations that originate from the
      * the same communicator as is used by the adapter.
-     * space.</p>
+     * space.
      * 
      * @param name The object adapter name.
      *
@@ -243,7 +243,7 @@ local interface Communicator
      * either because no factory was found, or because all factories
      * returned nil, the object is sliced to the next most-derived type
      * and the process repeats. If no factory is found that can create an
-     * instance, the Ice run-time throws [NoObjectFactoryException].</dd>
+     * instance, the Ice run-time throws [NoObjectFactoryException].</p>
      *
      * <p>The following order is used to locate a factory for a type:</p>
      *
@@ -262,6 +262,7 @@ local interface Communicator
      * </li>
      *
      * </ol>
+     * <p>
      *
      * @param factory The factory to add.
      *
@@ -307,10 +308,10 @@ local interface Communicator
      *
      * Set a default context on this communicator. All newly
      * created proxies will use this default context. This operation 
-     * has no effect on existing proxies.
+     * has no effect on existing proxies.</p>
      *
      * <p class="Note"> You can also set a context for an individual proxy
-     * by calling the operation [ice_context] on the proxy.</p>
+     * by calling the operation [ice_context] on the proxy.
      *
      * @param ctx The default context to be set.
      * @see getDefaultContext
@@ -377,10 +378,10 @@ local interface Communicator
      * Set a default router for this communicator. All newly
      * created proxies will use this default router. To disable the
      * default router, null can be used. Note that this
-     * operation has no effect on existing proxies.
+     * operation has no effect on existing proxies.</p>
      *
-     * <note><p> You can also set a router for an individual proxy
-     * by calling the operation [ice_router] on the proxy.</p></note>
+     * <p class="Note">You can also set a router for an individual proxy
+     * by calling the operation [ice_router] on the proxy.
      *
      * @param rtr The default router to use for this communicator.
      *
@@ -409,12 +410,12 @@ local interface Communicator
      * created proxy and object adapters will use this default
      * locator. To disable the default locator, null can be used.
      * Note that this operation has no effect on existing proxies or
-     * object adapters.
+     * object adapters.</p>
      *
-     * <note><p> You can also set a locator for an individual proxy
+     * <p class="Note"> You can also set a locator for an individual proxy
      * by calling the operation [ice_locator] on the proxy, or for an
      * object adapter by calling the operation [setLocator] on the
-     * object adapter.</p></note>
+     * object adapter.
      *
      * @param loc The default locator to use for this communicator.
      *

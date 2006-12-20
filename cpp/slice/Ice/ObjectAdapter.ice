@@ -69,10 +69,10 @@ local interface ObjectAdapter
      * Temporarily hold receiving and dispatching requests. The object
      * adapter can be reactivated with the [activate] operation.
      *
-     * <note><p> Holding is not immediate, i.e., after [hold]
+     * <p class="Note"> Holding is not immediate, i.e., after [hold]
      * returns, the object adapter might still be active for some
      * time. You can use [waitForHold] to wait until holding is
-     * complete. </p></note>
+     * complete.</p>
      *
      * @see activate
      * @see deactivate
@@ -105,12 +105,12 @@ local interface ObjectAdapter
      * [deactivate] an already deactivated object adapter are ignored
      * and do nothing.
      *
-     * <note><p> After [deactivate] returns, no new requests are
+     * <p class="Note"> After [deactivate] returns, no new requests are
      * processed by the object adapter. However, requests that have
      * been started before [deactivate] was called might still be
      * active. You can use [waitForDeactivate] to wait for the
      * completion of all requests for this object
-     * adapter. </p></note>
+     * adapter.</p>
      *
      * @see activate
      * @see hold
@@ -295,9 +295,9 @@ local interface ObjectAdapter
      * Look up a servant in this object adapter's Active Servant Map
      * by the identity of the Ice object it implements.
      *
-     * <note><p>This operation only tries to lookup a servant in
+     * <p class="Note">This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * by using any installed [ServantLocator].</p></note>
+     * by using any installed [ServantLocator].</p>
      *
      * @param id The identity of the Ice object for which the
      * servant should be returned.
@@ -358,9 +358,9 @@ local interface ObjectAdapter
      * Look up a servant in this object adapter's Active Servant Map,
      * given a proxy.
      *
-     * <note><p>This operation only tries to lookup a servant in
+     * <p class="Note">This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * via any installed [ServantLocator]s.</p></note>
+     * via any installed [ServantLocator]s.</p>
      *
      * @param proxy The proxy for which the servant should be returned.
      *
@@ -407,8 +407,8 @@ local interface ObjectAdapter
      *
      * </ol>
      *
-     * <note><p>Only one locator for the empty category can be
-     * installed.</p></note>
+     * <p class="Note">Only one locator for the empty category can be
+     * installed.</p>
      *
      * @param locator The locator to add.
      *
@@ -497,9 +497,9 @@ local interface ObjectAdapter
      * A reverse proxy uses the incoming connections that have been
      * established from a client to this object adapter.
      *
-     * <note><p> This operation is intended to be used by special
+     * <p class="Note"> This operation is intended to be used by special
      * services, such as [Router] implementations. Regular user code
-     * should not attempt to use this operation. </p></note>
+     * should not attempt to use this operation.</p>
      *
      * @param id The identity for which a proxy is to be created.
      *

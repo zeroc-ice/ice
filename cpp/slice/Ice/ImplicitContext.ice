@@ -20,8 +20,8 @@ module Ice
  *
  * When you make a remote invocation without an explicit [Context] parameter,
  * Ice uses the per-proxy [Context] (if any) combined with the [ImplicitContext]
- * associated with the communicator.</p>
- * <p>Ice provides several implementations of [ImplicitContext]. The implementation
+ * associated with the communicator.</dd>
+ * <dd>Ice provides several implementations of [ImplicitContext]. The implementation
  * used depends on the value of the Ice.ImplicitContext property.
  * <dl>
  * <dt>None (default)</dt>
@@ -36,6 +36,7 @@ module Ice
  * [Context] shared by all threads, and does not serialize access to this [Context].</dd>
  * </dt>
  * </dl>
+ * </dd>
  *
  **/
 
