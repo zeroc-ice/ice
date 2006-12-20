@@ -909,10 +909,28 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
 {
     ServerDescriptorBuilder::init(desc, attrs);
     _descriptor = desc;
+}
 
-    addProperty(_hiddenProperties, "IceBox.InstanceName", "${server}");
-    addProperty(_hiddenProperties, "Ice.OA.IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1");
-    addProperty(_hiddenProperties, "Ice.OA.IceBox.ServiceManager.RegisterProcess", "1");
+void
+IceBoxDescriptorBuilder::finish()
+{
+    if(getProperty(_descriptor->propertySet.properties, "IceBox.InstanceName").empty())
+    {
+	_hiddenProperties.push_back(createProperty("IceBox.InstanceName", "${server}"));
+    }
+    if(_descriptor->adapters.empty())
+    {
+	if(getProperty(_descriptor->propertySet.properties, "Ice.OA.IceBox.ServiceManager.Endpoints").empty())
+	{
+	    _hiddenProperties.push_back(createProperty("Ice.OA.IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
+	}
+	if(getProperty(_descriptor->propertySet.properties, "Ice.OA.IceBox.ServiceManager.RegisterProcess").empty())
+	{
+	    _hiddenProperties.push_back(createProperty("Ice.OA.IceBox.ServiceManager.RegisterProcess", "1"));
+	}
+    }
+    
+    ServerDescriptorBuilder::finish();
 }
 
 ServiceDescriptorBuilder*
@@ -933,20 +951,6 @@ IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     if(attrs("name") != "IceBox.ServiceManager")
     {
 	throw "<adapter> element can't be a child of an <icebox> element";
-    }
-
-    PropertyDescriptorSeq::iterator p = _hiddenProperties.begin();
-    while(p != _hiddenProperties.end())
-    {
-	if(p->name == "Ice.OA.IceBox.ServiceManager.Endpoints" || 
-	   p->name == "Ice.OA.IceBox.ServiceManager.RegisterProcess")
-	{
-	    p = _hiddenProperties.erase(p);
-	}
-	else
-	{
-	    ++p;
-	}
     }
 
     ServerDescriptorBuilder::addAdapter(attrs);

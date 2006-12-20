@@ -55,12 +55,7 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
 	//
 	// Add the adapters and their configuration.
 	//
-	string oaPropertyPrefix = "Ice.OA.";
-	if(getMMVersion(_desc->iceVersion) < 30200)
-	{
-	    oaPropertyPrefix = "";
-	}
-
+	string oaPropertyPrefix = getMMVersion(_desc->iceVersion) < 30200 ? "" : "Ice.OA.";
 	for(AdapterDescriptorSeq::const_iterator q = desc->adapters.begin(); q != desc->adapters.end(); ++q)
 	{
 	    _desc->adapters.push_back(new InternalAdapterDescriptor(q->id, q->serverLifetime));
@@ -873,6 +868,10 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     props.push_back(createProperty("# Server configuration"));
     props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
+
+    //
+    // Add IceBox properties.
+    //
     string servicesStr;
     IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
     if(iceBox)

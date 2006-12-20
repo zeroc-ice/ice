@@ -282,6 +282,7 @@ public:
     IceBoxDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
 
     void init(const IceBoxDescriptorPtr&, const XmlAttributesHelper&);
+    virtual void finish();
 
     virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
     virtual ServiceInstanceDescriptorBuilder* createServiceInstance(const XmlAttributesHelper&);
