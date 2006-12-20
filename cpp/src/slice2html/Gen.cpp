@@ -412,7 +412,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
 	{
 	    start("dt", "Symbol");
-	    _out << toString(*q, container, true, inIndex);
+	    _out << toString(*q, container, false, inIndex);
 	    end();
 	}
 	end();
@@ -439,7 +439,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	    for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
 	    {
 		start("dt", "Symbol");
-		_out << toString(*q, container, true, inIndex);
+		_out << toString(*q, container, false, inIndex);
 		end();
 	    }
 	    end();
