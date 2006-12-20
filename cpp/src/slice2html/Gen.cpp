@@ -126,7 +126,7 @@ Slice::GeneratorBase::setHeader(const string& header)
 	XMLOutput O2(hdr2);
 	O2.inc();
 	O2.inc();
-	O2 << nl << "<title/>";
+	O2 << nl << "</title>";
 	O2.dec();
 	O2 << nl << "</head>";
 	O2 << nl << "<body>";
