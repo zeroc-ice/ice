@@ -35,6 +35,11 @@ class ServerSubEditor extends CommunicatorSubEditor
 	    _mainEditor.getUpdateListener());
 	_id.setToolTipText("Must be unique within this IceGrid deployment");
 
+	_iceVersion.getDocument().addDocumentListener(
+	    _mainEditor.getUpdateListener());
+	_iceVersion.setToolTipText("<html>This server's Ice version, such as 3.0 or 3.1.1;<br>"
+				   + "leave blank to use the version of the IceGrid registry.</html>");
+
 	_exe.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
 	_exe.setToolTipText("<html>Path to this server's executable, e.g.:<br>"
@@ -141,6 +146,9 @@ class ServerSubEditor extends CommunicatorSubEditor
 	builder.append("Server ID");
 	builder.append(_id, 3);
 	builder.nextLine();
+	builder.append("Ice Version");
+	builder.append(_iceVersion, 3);
+	builder.nextLine();
 	
 	//
 	// Add Communicator fields
@@ -204,6 +212,7 @@ class ServerSubEditor extends CommunicatorSubEditor
     {
 	ServerDescriptor descriptor = getServerDescriptor();
 	descriptor.id = _id.getText().trim();
+	descriptor.iceVersion = _iceVersion.getText().trim();
 	descriptor.exe = _exe.getText().trim();
 	descriptor.pwd = _pwd.getText().trim();
 
@@ -269,6 +278,10 @@ class ServerSubEditor extends CommunicatorSubEditor
 	}
 	_id.setEditable(isEditable);
 	
+	_iceVersion.setText(
+	    Utils.substitute(descriptor.iceVersion, detailResolver));
+	_iceVersion.setEditable(isEditable);
+
 	_exe.setText(
 	    Utils.substitute(descriptor.exe, detailResolver));
 	_exe.setEditable(isEditable);
@@ -380,6 +393,7 @@ class ServerSubEditor extends CommunicatorSubEditor
     static private final String DEFAULT_DISTRIB = "${application}.IcePatch2/server";
 
     private JTextField _id = new JTextField(20);
+    private JTextField _iceVersion = new JTextField(20);
     private JTextField _exe = new JTextField(20);
     private JTextField _pwd = new JTextField(20);
     private ListTextField _options = new ListTextField(20);

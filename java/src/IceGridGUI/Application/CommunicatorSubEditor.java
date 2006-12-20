@@ -35,9 +35,9 @@ class CommunicatorSubEditor
 
 	_propertySets.getDocument().addDocumentListener(
 	    _mainEditor.getUpdateListener());
-	_properties = new PropertiesField(mainEditor);
-	_description.setToolTipText("Property Set References");
+	_propertySets.setToolTipText("Property Set References");
 
+	_properties = new PropertiesField(mainEditor);
 	_logFiles = new MapField(mainEditor, "Path", "Property",
 				 true);
 	_logFiles.setToolTipText("Log files used by this server or service");

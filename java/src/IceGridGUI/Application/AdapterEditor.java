@@ -298,21 +298,21 @@ class AdapterEditor extends CommunicatorChildEditor
 	Adapter adapter = getAdapter();
 	if(!name.equals(_oldName))
 	{
-	    adapter.removeProperty("Ice.OA." + _oldName, "Endpoints");
-	    adapter.removeProperty("Ice.OA." + _oldName, "PublishedEndpoints");
+	    adapter.removeProperty("Ice.OA." + _oldName + ".Endpoints");
+	    adapter.removeProperty("Ice.OA." + _oldName + ".PublishedEndpoints");
 	    _oldName = name;
 	}
 	
-	adapter.setProperty("Ice.OA." + name, "Endpoints", _endpoints.getText().trim());
+	adapter.setProperty("Ice.OA." + name + ".Endpoints", _endpoints.getText().trim());
 	
 	Object published = _publishedEndpoints.getSelectedItem();
 	if(published == PUBLISH_ACTUAL)
 	{
-	    adapter.removeProperty("Ice.OA." + name, "PublishedEndpoints");
+	    adapter.removeProperty("Ice.OA." + name + ".PublishedEndpoints");
 	}
 	else
 	{
-	    adapter.setProperty("Ice.OA." + name, "PublishedEndpoints",
+	    adapter.setProperty("Ice.OA." + name + ".PublishedEndpoints",
 				published.toString().trim());
 
 	}
@@ -437,6 +437,8 @@ class AdapterEditor extends CommunicatorChildEditor
 	_name.setText(Utils.substitute(descriptor.name, resolver));
 	_name.setEditable(isEditable);
 
+	String oaPrefix = "Ice.OA." + descriptor.name + ".";
+
 	_description.setText(
 	    Utils.substitute(descriptor.description, resolver));
 	_description.setEditable(isEditable);
@@ -501,14 +503,14 @@ class AdapterEditor extends CommunicatorChildEditor
 	}
 	else
 	{
-	    _endpoints.setText(Utils.substitute(adapter.getProperty("Endpoints"), resolver));
+	    _endpoints.setText(Utils.substitute(adapter.getProperty(oaPrefix + "Endpoints"), resolver));
 	}
 	_endpoints.setEditable(isEditable);
 	
 	_publishedEndpoints.setEnabled(true);
 	_publishedEndpoints.setEditable(true);
 	String published = 
-	    Utils.substitute(adapter.getProperty("PublishedEndpoints"), resolver);
+	    Utils.substitute(adapter.getProperty(oaPrefix + "PublishedEndpoints"), resolver);
 	if(published == null || published.equals(""))
 	{
 	    _publishedEndpoints.setSelectedItem(PUBLISH_ACTUAL);

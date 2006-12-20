@@ -103,11 +103,10 @@ class Adapter extends TreeNode implements DescriptorHolder
 	return new AdapterEditor();
     }
 
-
     public void destroy()
     {
-	removeProperty(_id, "Endpoints");
-	removeProperty(_id, "PublishedEndpoints");
+	removeProperty("Ice.OA." + _descriptor.name + ".Endpoints");
+	removeProperty("Ice.OA." + _descriptor.name + ".PublishedEndpoints");
 
 	((Communicator)_parent).getAdapters().destroyChild(this);
     }
@@ -155,7 +154,9 @@ class Adapter extends TreeNode implements DescriptorHolder
 	{
 	    java.util.List attributes = new java.util.LinkedList();
 	    attributes.add(createAttribute("name", _descriptor.name));
-	    attributes.add(createAttribute("endpoints", getProperty("Endpoints")));
+	    String oaPrefix = "Ice.OA." + _descriptor.name + ".";
+
+	    attributes.add(createAttribute("endpoints", getProperty(oaPrefix + "Endpoints")));
 	    attributes.add(createAttribute("id", _descriptor.id));
 	    if(_descriptor.registerProcess)
 	    {
@@ -197,26 +198,20 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     String getProperty(String property)
     {
-	return ((Communicator)_parent).getProperty(_descriptor.name + "." + property);
+	return ((Communicator)_parent).getProperty(property);
     }
     String lookupPropertyValue(String val)
     {
 	return ((Communicator)_parent).lookupPropertyValue(val);
     }
-    void setProperty(String name, String property, String newValue)
-    {
-	((Communicator)_parent).setProperty(name + "." + property, newValue);
-    }
     void setProperty(String property, String newValue)
     {
 	((Communicator)_parent).setProperty(property, newValue);
     }
-    void removeProperty(String name, String property)
+    void removeProperty(String property)
     {
-	((Communicator)_parent).removeProperty(name + "." + property);
+	((Communicator)_parent).removeProperty(property);
     }
-    
-
     String getDefaultAdapterId()
     {
 	return getDefaultAdapterId(_id);
