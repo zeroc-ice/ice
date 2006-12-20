@@ -498,7 +498,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
 	    feedback->failed(_name, failure);
 	}
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::LocalException&)
     {
     }
 }
