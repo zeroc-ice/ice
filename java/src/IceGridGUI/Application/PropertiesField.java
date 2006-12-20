@@ -77,7 +77,7 @@ public class PropertiesField extends JTable
 
     public void setProperties(java.util.List properties,
 			      java.util.List adapters,
-			      java.util.List logProps,
+			      LogDescriptor[] logs,
 			      Utils.Resolver resolver, boolean editable)
     {
 	_editable = editable;
@@ -87,28 +87,50 @@ public class PropertiesField extends JTable
 	// since they already appear in the Adapter pages 
 	//
 	java.util.Set hiddenPropertyNames = new java.util.HashSet();
+
+	//
+	// We also hide properties whose value match an object or allocatable
+	//
+	java.util.Set hiddenPropertyValues = new java.util.HashSet();
+
 	_hiddenProperties.clear();
 
 	if(adapters != null)
 	{
+	    //
+	    // Note that we don't substitute *on purpose*, i.e. the names or values
+	    // must match before substitution.
+	    //
 	    java.util.Iterator p = adapters.iterator();
 	    while(p.hasNext())
 	    {
 		AdapterDescriptor ad = (AdapterDescriptor)p.next();
 		hiddenPropertyNames.add("Ice.OA." + ad.name + ".Endpoints");
 		hiddenPropertyNames.add("Ice.OA." + ad.name + ".PublishedEndpoints");
+
+		java.util.Iterator q = ad.objects.iterator();
+		while(q.hasNext())
+		{
+		    ObjectDescriptor od = (ObjectDescriptor)q.next();
+		    hiddenPropertyValues.add(Ice.Util.identityToString(od.id));
+		}
+		q = ad.allocatables.iterator();
+		while(q.hasNext())
+		{
+		    ObjectDescriptor od = (ObjectDescriptor)q.next();
+		    hiddenPropertyValues.add(Ice.Util.identityToString(od.id));
+		}
 	    }
 	}
 
-	if(logProps != null)
+	if(logs != null)
 	{
-	    java.util.Iterator p = logProps.iterator();
-	    while(p.hasNext())
+	    for(int i = 0; i < logs.length; ++i)
 	    {
-		hiddenPropertyNames.add(p.next());
+		hiddenPropertyValues.add(logs[i].path);
 	    }
 	}
-
+	
 	//
 	// Transform list into vector of vectors
 	//
@@ -131,6 +153,21 @@ public class PropertiesField extends JTable
 		// We hide only the first occurence
 		//
 		hiddenPropertyNames.remove(pd.name);
+	    }
+	    else if(hiddenPropertyValues.contains(pd.value))
+	    {
+		//
+		// We keep them at the top of the list
+		//
+		if(_editable)
+		{
+		    _hiddenProperties.add(pd);
+		}
+
+		//
+		// We hide only the first occurence
+		//
+		hiddenPropertyValues.remove(pd.value);
 	    }
 	    else
 	    {

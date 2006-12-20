@@ -298,21 +298,21 @@ class AdapterEditor extends CommunicatorChildEditor
 	Adapter adapter = getAdapter();
 	if(!name.equals(_oldName))
 	{
-	    adapter.removeProperty(_oldName, "Endpoints");
-	    adapter.removeProperty(_oldName, "PublishedEndpoints");
+	    adapter.removeProperty("Ice.OA." + _oldName, "Endpoints");
+	    adapter.removeProperty("Ice.OA." + _oldName, "PublishedEndpoints");
 	    _oldName = name;
 	}
 	
-	adapter.setProperty(name, "Endpoints", _endpoints.getText().trim());
+	adapter.setProperty("Ice.OA." + name, "Endpoints", _endpoints.getText().trim());
 	
 	Object published = _publishedEndpoints.getSelectedItem();
 	if(published == PUBLISH_ACTUAL)
 	{
-	    adapter.removeProperty(name, "PublishedEndpoints");
+	    adapter.removeProperty("Ice.OA." + name, "PublishedEndpoints");
 	}
 	else
 	{
-	    adapter.setProperty(name, "PublishedEndpoints",
+	    adapter.setProperty("Ice.OA." + name, "PublishedEndpoints",
 				published.toString().trim());
 
 	}

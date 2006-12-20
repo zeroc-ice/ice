@@ -120,20 +120,16 @@ class CommunicatorSubEditor
 	Utils.Resolver detailResolver = _mainEditor.getDetailResolver();
 	isEditable = isEditable && (detailResolver == null);
 
+	//
+	// Note that we don't substitute in the lookup
+	//
 	java.util.Map map = new java.util.TreeMap();
-	java.util.List logProps = new java.util.LinkedList();
 	for(int i = 0; i < descriptor.logs.length; ++i)
 	{
 	    String prop = lookupKey(descriptor.propertySet.properties,
 				    descriptor.logs[i].path);
-	    
 	    map.put(descriptor.logs[i].path, prop);
-	    if(!prop.equals(""))
-	    {
-		logProps.add(prop);
-	    }
 	}
-
 	_logFiles.set(map, detailResolver, isEditable);
 
 	_propertySets.setList(java.util.Arrays.asList(descriptor.propertySet.references),
@@ -141,7 +137,7 @@ class CommunicatorSubEditor
 	_propertySets.setEditable(isEditable);
 	_properties.setProperties(descriptor.propertySet.properties,
 				  descriptor.adapters,
-				  logProps,
+				  descriptor.logs,
 				  detailResolver, isEditable);
 
 	_description.setText(
