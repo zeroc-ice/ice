@@ -13,7 +13,7 @@ top_srcdir	= ..
 
 SUBDIRS		= IceUtil Ice Glacier2 IceGrid
 !if "$(DOTNET_1)" != "yes"
-SUBDIRS         += IceSSL
+SUBDIRS         = $(SUBDIRS) IceSSL
 !endif
 
 $(EVERYTHING)::
