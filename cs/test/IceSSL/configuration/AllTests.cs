@@ -82,12 +82,11 @@ public class AllTests
 	//
 	// When an application loads icesslcs.dll directly, as this one does, we
 	// must ensure that it uses the same DLL as the one loaded dynamically
-	// by Ice. Since Visual Studio copies icesslcs.dll into the test
-	// directory, we'll use that one.
+	// by Ice.
 	//
 	// When Mono supports .NET 2.0, we'll need to fix this.
 	//
-	result.setProperty("Ice.Plugin.IceSSL", testDir + "/icesslcs.dll:IceSSL.PluginFactory");
+	result.setProperty("Ice.Plugin.IceSSL", testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory");
 	result.setProperty("Ice.ThreadPerConnection", "1");
 	if(defaultHost.Length > 0)
 	{
@@ -100,7 +99,7 @@ public class AllTests
     createServerProps(string testDir, string defaultHost)
     {
 	Test.Properties result = new Test.Properties();
-	result["Ice.Plugin.IceSSL"] = testDir + "/icesslcs.dll:IceSSL.PluginFactory";
+	result["Ice.Plugin.IceSSL"] = testDir + "/../../../bin/icesslcs.dll:IceSSL.PluginFactory";
 	result["Ice.ThreadPerConnection"] = "1";
 	if(defaultHost.Length > 0)
 	{
