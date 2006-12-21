@@ -178,7 +178,7 @@ public class Root extends ListArrayTreeNode
 	java.util.Iterator p = applications.iterator();
 	while(p.hasNext())
 	{
-	    applicationAdded((ApplicationDescriptor)p.next());
+	    applicationAdded((ApplicationInfo)p.next());
 	}
     }
     
@@ -262,11 +262,11 @@ public class Root extends ListArrayTreeNode
     //
     // From the Registry Observer:
     //
-    public void applicationAdded(ApplicationDescriptor desc)
+    public void applicationAdded(ApplicationInfo info)
     {
-	_descriptorMap.put(desc.name, desc);
+	_descriptorMap.put(info.descriptor.name, info.descriptor);
 	
-	java.util.Iterator p = desc.nodes.entrySet().iterator();
+	java.util.Iterator p = info.descriptor.nodes.entrySet().iterator();
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
@@ -276,11 +276,11 @@ public class Root extends ListArrayTreeNode
 	    Node node = findNode(nodeName);
 	    if(node == null)
 	    {
-		insertNode(new Node(this, desc, nodeName, nodeDesc));
+		insertNode(new Node(this, info.descriptor, nodeName, nodeDesc));
 	    }
 	    else
 	    {
-		node.add(desc, nodeDesc);
+		node.add(info.descriptor, nodeDesc);
 	    }
 	}
     }
@@ -306,39 +306,39 @@ public class Root extends ListArrayTreeNode
 	removeNodes(resize(toRemoveIndices, toRemove.size()), toRemove);
     }
     
-    public void applicationUpdated(ApplicationUpdateDescriptor update)
+    public void applicationUpdated(ApplicationUpdateInfo update)
     {
-	ApplicationDescriptor appDesc = (ApplicationDescriptor)_descriptorMap.get(update.name);
+	ApplicationDescriptor appDesc = (ApplicationDescriptor)_descriptorMap.get(update.descriptor.name);
 
 	//
 	// Update various fields of appDesc
 	//
-	if(update.description != null)
+	if(update.descriptor.description != null)
 	{
-	    appDesc.description = update.description.value;
+	    appDesc.description = update.descriptor.description.value;
 	}
-	if(update.distrib != null)
+	if(update.descriptor.distrib != null)
 	{
-	    appDesc.distrib = update.distrib.value;
+	    appDesc.distrib = update.descriptor.distrib.value;
 	}
 
-	appDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.removeVariables));
-	appDesc.variables.putAll(update.variables);
-	boolean variablesChanged = update.removeVariables.length > 0 || !update.variables.isEmpty();
+	appDesc.variables.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeVariables));
+	appDesc.variables.putAll(update.descriptor.variables);
+	boolean variablesChanged = update.descriptor.removeVariables.length > 0 || !update.descriptor.variables.isEmpty();
 
 	//
 	// Update only descriptors (no tree node shown in this view)
 	//
 	appDesc.propertySets.keySet().
-	    removeAll(java.util.Arrays.asList(update.removePropertySets));
-	appDesc.propertySets.putAll(update.propertySets);
+	    removeAll(java.util.Arrays.asList(update.descriptor.removePropertySets));
+	appDesc.propertySets.putAll(update.descriptor.propertySets);
 
-	for(int i = 0; i < update.removeReplicaGroups.length; ++i)
+	for(int i = 0; i < update.descriptor.removeReplicaGroups.length; ++i)
 	{
 	    for(int j = 0; j < appDesc.replicaGroups.size(); ++j)
 	    {
 		ReplicaGroupDescriptor rgd = (ReplicaGroupDescriptor)appDesc.replicaGroups.get(j);
-		if(rgd.id.equals(update.removeReplicaGroups[i]))
+		if(rgd.id.equals(update.descriptor.removeReplicaGroups[i]))
 		{
 		    appDesc.replicaGroups.remove(j);
 		    break; // for
@@ -346,9 +346,9 @@ public class Root extends ListArrayTreeNode
 	    }
 	}
 
-	for(int i = 0; i < update.replicaGroups.size(); ++i)
+	for(int i = 0; i < update.descriptor.replicaGroups.size(); ++i)
 	{
-	    ReplicaGroupDescriptor newRgd = (ReplicaGroupDescriptor)update.replicaGroups.get(i);
+	    ReplicaGroupDescriptor newRgd = (ReplicaGroupDescriptor)update.descriptor.replicaGroups.get(i);
 
 	    boolean replaced = false;
 	    int j = 0;
@@ -371,12 +371,12 @@ public class Root extends ListArrayTreeNode
 	}
    
 	appDesc.serviceTemplates.keySet().
-	    removeAll(java.util.Arrays.asList(update.removeServiceTemplates));
-	appDesc.serviceTemplates.putAll(update.serviceTemplates);
+	    removeAll(java.util.Arrays.asList(update.descriptor.removeServiceTemplates));
+	appDesc.serviceTemplates.putAll(update.descriptor.serviceTemplates);
 	
 	appDesc.serverTemplates.keySet().
-	    removeAll(java.util.Arrays.asList(update.removeServerTemplates));
-	appDesc.serverTemplates.putAll(update.serverTemplates);
+	    removeAll(java.util.Arrays.asList(update.descriptor.removeServerTemplates));
+	appDesc.serverTemplates.putAll(update.descriptor.serverTemplates);
 
 	//
 	// Nodes
@@ -385,12 +385,12 @@ public class Root extends ListArrayTreeNode
 	//
 	// Removal 
 	//
-	appDesc.nodes.keySet().removeAll(java.util.Arrays.asList(update.removeNodes));
+	appDesc.nodes.keySet().removeAll(java.util.Arrays.asList(update.descriptor.removeNodes));
 
-	for(int i = 0; i < update.removeNodes.length; ++i)
+	for(int i = 0; i < update.descriptor.removeNodes.length; ++i)
 	{
-	    Node node = findNode(update.removeNodes[i]);
-	    if(node.remove(update.name))
+	    Node node = findNode(update.descriptor.removeNodes[i]);
+	    if(node.remove(update.descriptor.name))
 	    {
 		int index = getIndex(node); 
 		_nodes.remove(node);
@@ -401,7 +401,7 @@ public class Root extends ListArrayTreeNode
 	//
 	// Add/update
 	//
-	java.util.Iterator p = update.nodes.iterator();
+	java.util.Iterator p = update.descriptor.nodes.iterator();
 	java.util.Set freshNodes = new java.util.HashSet();
 	while(p.hasNext())
 	{
@@ -418,7 +418,7 @@ public class Root extends ListArrayTreeNode
 	    else
 	    {
 		node.update(appDesc, nodeUpdateDesc, variablesChanged, 
-			    update.serviceTemplates.keySet(), update.serverTemplates.keySet());
+			    update.descriptor.serviceTemplates.keySet(), update.descriptor.serverTemplates.keySet());
 	    }
 	    freshNodes.add(node);
 	}
@@ -426,7 +426,7 @@ public class Root extends ListArrayTreeNode
 	//
 	// Notify non-fresh nodes if needed
 	//
-	if(variablesChanged || !update.serviceTemplates.isEmpty() || !update.serverTemplates.isEmpty())
+	if(variablesChanged || !update.descriptor.serviceTemplates.isEmpty() || !update.descriptor.serverTemplates.isEmpty())
 	{
 	    p = _nodes.iterator();
 	    while(p.hasNext())
@@ -435,7 +435,7 @@ public class Root extends ListArrayTreeNode
 		if(!freshNodes.contains(node))
 		{
 		    node.update(appDesc, null, variablesChanged,
-				update.serviceTemplates.keySet(), update.serverTemplates.keySet());
+				update.descriptor.serviceTemplates.keySet(), update.descriptor.serverTemplates.keySet());
 		}
 	    }
 	}

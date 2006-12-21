@@ -36,6 +36,8 @@ public class Root extends ListTreeNode
     {
 	super(false, null, desc.name);
 	_coordinator = coordinator;
+	_traceSaveToRegistry = coordinator.traceSaveToRegistry();
+
 	_descriptor = desc;
 
 	_file = file;
@@ -52,6 +54,7 @@ public class Root extends ListTreeNode
     {
 	super(true, null, desc.name);
 	_coordinator = coordinator;
+	_traceSaveToRegistry = coordinator.traceSaveToRegistry();
 	_descriptor = desc;
 
 	_file = null;
@@ -422,6 +425,11 @@ public class Root extends ListTreeNode
 				    {
 					public void ice_response()
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("updateApplication for application " + _id + ": success");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{	
 						    public void run() 
@@ -435,6 +443,11 @@ public class Root extends ListTreeNode
 					
 					public void ice_exception(final Ice.UserException e)
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("updateApplication for application " + _id + ": failed");
+					    }
+					    
 					    SwingUtilities.invokeLater(new Runnable() 
 						{
 						    public void run() 
@@ -449,6 +462,11 @@ public class Root extends ListTreeNode
 					    
 					public void ice_exception(final Ice.LocalException e)
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("updateApplication for application " + _id + ": failed");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{
 						    public void run() 
@@ -461,6 +479,11 @@ public class Root extends ListTreeNode
 					}
 
 				    };
+
+				if(_traceSaveToRegistry)
+				{
+				    _coordinator.traceSaveToRegistry("sending updateApplication for application " + _id);
+				}
 
 				_coordinator.getAdmin().updateApplication_async(cb, updateDescriptor);
 				asyncRelease = true;
@@ -495,6 +518,11 @@ public class Root extends ListTreeNode
 				    {
 					public void ice_response()
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("addApplication for application " + _id + ": success");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{	
 						    public void run() 
@@ -510,6 +538,11 @@ public class Root extends ListTreeNode
 					
 					public void ice_exception(final Ice.UserException e)
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("addApplication for application " + _id + ": failed");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{
 						    public void run() 
@@ -523,6 +556,11 @@ public class Root extends ListTreeNode
 					    
 					public void ice_exception(final Ice.LocalException e)
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("addApplication for application " + _id + ": failed");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{
 						    public void run() 
@@ -534,6 +572,11 @@ public class Root extends ListTreeNode
 					}
 
 				    };
+
+				if(_traceSaveToRegistry)
+				{
+				    _coordinator.traceSaveToRegistry("sending addApplication for application " + _id);
+				}
 
 				_coordinator.getAdmin().addApplication_async(cb, _descriptor);
 				asyncRelease = true;
@@ -547,6 +590,11 @@ public class Root extends ListTreeNode
 				    {
 					public void ice_response()
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("syncApplication for application " + _id + ": failed");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{	
 						    public void run() 
@@ -582,6 +630,11 @@ public class Root extends ListTreeNode
 					
 					public void ice_exception(final Ice.UserException e)
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("syncApplication for application " + _id + ": failed");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{
 						    public void run() 
@@ -600,6 +653,11 @@ public class Root extends ListTreeNode
 					    
 					public void ice_exception(final Ice.LocalException e)
 					{
+					    if(_traceSaveToRegistry)
+					    {
+						_coordinator.traceSaveToRegistry("syncApplication for application " + _id + ": failed");
+					    }
+
 					    SwingUtilities.invokeLater(new Runnable() 
 						{
 						    public void run() 
@@ -616,6 +674,11 @@ public class Root extends ListTreeNode
 					}
 
 				    };
+
+				if(_traceSaveToRegistry)
+				{
+				    _coordinator.traceSaveToRegistry("sending syncApplication for application " + _id);
+				}
 
 				_coordinator.getAdmin().syncApplication_async(cb, _descriptor);
 				asyncRelease = true;
@@ -634,6 +697,11 @@ public class Root extends ListTreeNode
 		    }
 		    catch(Ice.LocalException e)
 		    {
+			if(_traceSaveToRegistry)
+			{
+			    _coordinator.traceSaveToRegistry("Ice communications exception while saving application " + _id);
+			}	
+
 			JOptionPane.showMessageDialog(
 			    _coordinator.getMainFrame(),
 			    e.toString(),
@@ -1367,7 +1435,8 @@ public class Root extends ListTreeNode
 	}
     }
 
-    private Coordinator _coordinator;
+    private final Coordinator _coordinator;
+    private final boolean _traceSaveToRegistry;
 
     //
     // 'this' is the root of the tree

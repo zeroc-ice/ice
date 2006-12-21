@@ -297,7 +297,7 @@ class Node extends ListTreeNode
 	
 	for(int index = 0; index < _children.size(); ++index)
 	{
-	    Server server = (Server)_children.get(i);
+	    Server server = (Server)_children.get(index);
 	    if(server.getApplication().name.equals(appName))
 	    {
 		toRemove.add(server);

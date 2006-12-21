@@ -18,6 +18,7 @@ class ApplicationObserverI extends _ApplicationObserverDisp
     {
 	_instanceName = instanceName;
 	_coordinator = coordinator;
+	_trace = coordinator.traceObservers();
     }
 
     //
@@ -53,15 +54,33 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 
     public synchronized void applicationInit(int serial, java.util.List applications, Ice.Current current)
     {
+	if(_trace)
+	{
+	    if(applications.size() == 0)
+	    {
+		_coordinator.traceObserver("applicationInit (no application);"
+					  + "serial is " + serial);
+	    }
+	    else
+	    {
+		String names = "";
+		java.util.Iterator p = applications.iterator();
+		while(p.hasNext())
+		{
+		    names += " " + ((ApplicationInfo)p.next()).descriptor.name;
+		}
+		
+		_coordinator.traceObserver("applicationInit for application"
+					   + (applications.size() == 1 ? "" : "s")
+					   + names
+					   + "; serial is " + serial);
+	    }
+	}
+
 	_initialized = true;
 	_serial = serial;
 
-	_applications = new java.util.LinkedList();
-	java.util.Iterator p = applications.iterator();
-	while(p.hasNext())
-	{
-	    _applications.add(((ApplicationInfo)p.next()).descriptor); // TODO: XXX: Use ApplicationInfo directly.
-	}
+	_applications = applications;
 
 	notify();
     }
@@ -69,11 +88,18 @@ class ApplicationObserverI extends _ApplicationObserverDisp
     public void applicationAdded(final int serial, final ApplicationInfo info, 
 				 Ice.Current current)
     {
+	if(_trace)
+	{
+	    _coordinator.traceObserver("applicationAdded for application "
+				       + info.descriptor.name
+				       + "; serial is " + serial);
+	}
+
 	SwingUtilities.invokeLater(new Runnable() 
 	    {
 		public void run() 
 		{
-		    _coordinator.applicationAdded(serial, info.descriptor); // TODO: XXX: Use ApplicationInfo directly.
+		    _coordinator.applicationAdded(serial, info);
 		}
 	    });
     }
@@ -81,6 +107,13 @@ class ApplicationObserverI extends _ApplicationObserverDisp
     public void applicationRemoved(final int serial, final String name, 
 				   final Ice.Current current)
     {
+	if(_trace)
+	{
+	    _coordinator.traceObserver("applicationRemoved for application "
+				       + name
+				       + "; serial is " + serial);
+	}
+
 	SwingUtilities.invokeLater(new Runnable() 
 	    {
 		public void run() 
@@ -93,16 +126,24 @@ class ApplicationObserverI extends _ApplicationObserverDisp
     public void applicationUpdated(final int serial, final ApplicationUpdateInfo info, 
 				   Ice.Current current)
     {
+	if(_trace)
+	{
+	    _coordinator.traceObserver("applicationUpdated for application "
+				       + info.descriptor.name
+				       + "; serial is " + serial);
+	}
+
 	SwingUtilities.invokeLater(new Runnable() 
 	    {
 		public void run() 
 		{
-		    _coordinator.applicationUpdated(serial, info.descriptor); // TODO: XXX: Use ApplicationUpdateInfo
+		    _coordinator.applicationUpdated(serial, info);
 		}
 	    });
     }
 
     private final Coordinator _coordinator;
+    private final boolean _trace;
  
     private boolean _initialized = false;
     

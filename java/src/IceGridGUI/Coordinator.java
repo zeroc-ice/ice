@@ -569,10 +569,7 @@ public class Coordinator
 	    add(_substituteTool);
 	}
     }
-
-    //
-    // All Coordinator's methods run in the UI thread
-    //
+    
     public Ice.Communicator getCommunicator()
     {
 	if(_communicator == null)
@@ -716,11 +713,11 @@ public class Coordinator
 	//
     }
 
-    void applicationAdded(int serial, ApplicationDescriptor desc)
+    void applicationAdded(int serial, ApplicationInfo info)
     {
-	_liveDeploymentRoot.applicationAdded(desc);
+	_liveDeploymentRoot.applicationAdded(info);
 	_statusBar.setText(
-	    "Last update: new application '" + desc.name + "'");
+	    "Last update: new application '" + info.descriptor.name + "'");
 	updateSerial(serial);
     }
 
@@ -744,19 +741,19 @@ public class Coordinator
 	updateSerial(serial);
     }
 
-    void applicationUpdated(int serial, ApplicationUpdateDescriptor desc)
+    void applicationUpdated(int serial, ApplicationUpdateInfo update)
     {
-	_liveDeploymentRoot.applicationUpdated(desc);
+	_liveDeploymentRoot.applicationUpdated(update);
 	_liveDeploymentPane.refresh();
 
-	_statusBar.setText("Last update: application  '" + desc.name + "' was updated");
+	_statusBar.setText("Last update: application  '" + update.descriptor.name + "' was updated");
 	
 	ApplicationPane app =
-	    (ApplicationPane)_liveApplications.get(desc.name);
+	    (ApplicationPane)_liveApplications.get(update.descriptor.name);
 
 	if(app != null)
 	{
-	    if(app.getRoot().update(desc))
+	    if(app.getRoot().update(update.descriptor))
 	    {
 		app.refresh();
 	    }
@@ -878,6 +875,11 @@ public class Coordinator
 			    {
 				public void ice_response()
 				{
+				    if(_traceSaveToRegistry)
+				    {
+					traceSaveToRegistry("removeApplication for application " + name + ": success");
+				    }
+
 				    SwingUtilities.invokeLater(new Runnable() 
 					{	
 					    public void run() 
@@ -890,6 +892,11 @@ public class Coordinator
 				
 				public void ice_exception(final Ice.UserException e)
 				{
+				    if(_traceSaveToRegistry)
+				    {
+					traceSaveToRegistry("removeApplication for application " + name + ": failed");
+				    }
+
 				    SwingUtilities.invokeLater(new Runnable() 
 					{
 					    public void run() 
@@ -903,6 +910,11 @@ public class Coordinator
 				
 				public void ice_exception(final Ice.LocalException e)
 				{
+				    if(_traceSaveToRegistry)
+				    {
+					traceSaveToRegistry("removeApplication for application " + name + ": failed");
+				    }
+
 				    SwingUtilities.invokeLater(new Runnable() 
 					{
 					    public void run() 
@@ -914,12 +926,23 @@ public class Coordinator
 				}
 			    };
 
+			if(_traceSaveToRegistry)
+			{
+			    traceSaveToRegistry("sending removeApplication for application " + name);
+			}
+
 			try
 			{
 			    _sessionKeeper.getAdmin().removeApplication_async(cb, name);
+			    asyncRelease = true;
 			}
 			catch(Ice.LocalException e)
 			{
+			    if(_traceSaveToRegistry)
+			    {
+				traceSaveToRegistry("Ice communications exception while removing application " + name);
+			    }
+
 			    JOptionPane.showMessageDialog(
 				getMainFrame(),
 				e.toString(),
@@ -963,6 +986,11 @@ public class Coordinator
 	    try
 	    {
 		_writeSerial = _sessionKeeper.getSession().startUpdate();
+
+		if(_traceSaveToRegistry)
+		{
+		    traceSaveToRegistry("startUpdate returned serial " + _writeSerial);
+		}
 	    }
 	    finally
 	    {
@@ -977,14 +1005,32 @@ public class Coordinator
 	//
 	_writeAccessCount++;
 
+	if(_traceSaveToRegistry)
+	{
+	    traceSaveToRegistry("acquireExclusiveWriteAccess: writeAccessCount is " + _writeAccessCount);
+	}
+
 	if(runnable != null)
 	{
+	    if(_traceSaveToRegistry)
+	    {
+		traceSaveToRegistry("lastestSerial is " + _latestSerial);
+	    }
+
 	    if(_writeSerial <= _latestSerial)
 	    {
+		if(_traceSaveToRegistry)
+		{
+		    traceSaveToRegistry("run update immediately");
+		}
 		runnable.run();
 	    }
 	    else
 	    {
+		if(_traceSaveToRegistry)
+		{
+		    traceSaveToRegistry("wait for updates from ApplicationObserver");
+		}
 		_onExclusiveWrite = runnable;
 		_mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		//
@@ -1002,6 +1048,10 @@ public class Coordinator
 	    {
 		_writeSerial = -1;
 		_sessionKeeper.getSession().finishUpdate();
+		if(_traceSaveToRegistry)
+		{
+		    traceSaveToRegistry("finishUpdate done");
+		}
 	    }
 	    catch(AccessDeniedException e)
 	    {
@@ -1023,6 +1073,11 @@ public class Coordinator
 		    JOptionPane.ERROR_MESSAGE);
 	    }
 	}
+
+	if(_traceSaveToRegistry)
+	{
+	    traceSaveToRegistry("releaseExclusiveWriteAccess: writeAccessCount is " + _writeAccessCount);
+	}
     }
 
     private void updateSerial(int serial)
@@ -1036,12 +1091,16 @@ public class Coordinator
 	{
 	    Runnable runnable = _onExclusiveWrite;
 	    _onExclusiveWrite = null;
+
+	    if(_traceSaveToRegistry)
+	    {
+		traceSaveToRegistry("writeSerial <= latestSerial, running update");
+	    }
 	    runnable.run();
 	    _mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
     }
   
-
     //
     // From the Registry observer:
     //
@@ -1717,6 +1776,9 @@ public class Coordinator
 	    }
 	    _initData.logger.warning(msg);
 	}
+
+	_traceObservers = _initData.properties.getPropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
+	_traceSaveToRegistry = _initData.properties.getPropertyAsInt("IceGridAdmin.Trace.SaveToRegistry") > 0;
 
 	_liveDeploymentRoot = new IceGridGUI.LiveDeployment.Root(this);
 
@@ -2436,11 +2498,47 @@ public class Coordinator
 	_signalMenu.setEnabled(false);
 	_serverMenu.setEnabled(false);
 	_serviceMenu.setEnabled(false);
-    }	
+    }
+
+    
+    public boolean traceObservers()
+    {
+	return _traceObservers;
+    }
+
+    public void traceObserver(String message)
+    {
+	trace("Observers", message);
+    }
+
+    public boolean traceSaveToRegistry()
+    {
+	return _traceSaveToRegistry;
+    }
+    
+    public void traceSaveToRegistry(String message)
+    {
+	trace("SaveToRegistry", message);
+    }
+
+    //
+    // May run in any thread
+    //
+    private void trace(String category, String message)
+    {
+	//
+	// It would be nicer to use the communicator's logger,
+	// but accessing _communicator is not thread-safe.
+	//
+	_initData.logger.trace(category, message);
+    }
 
 
     private final Ice.InitializationData _initData;
     private Ice.Communicator _communicator;
+
+    private boolean _traceObservers;
+    private boolean _traceSaveToRegistry;
 
     private Preferences _prefs;
     private StatusBarI _statusBar = new StatusBarI();
