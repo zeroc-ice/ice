@@ -11,9 +11,6 @@ top_srcdir	= ..
 
 TARGETS		= reference/index.html
 
-SGMLFILES	= reference.sgml \
-		  SliceDoc.sgml
-
 SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 		  $(wildcard ../slice/Freeze/*.ice) \
 		  $(wildcard ../slice/IceBox/*.ice) \
@@ -24,30 +21,12 @@ SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 
 include $(top_srcdir)/config/Make.rules
 
-reference/index.html: $(SGMLFILES)
+reference/index.html: $(SLICEFILES)
 	rm -rf reference
-	db2html reference.sgml
-	(mkdir -p reference/stylesheet-images; \
-	 cd reference/stylesheet-images; \
-	 ln -f -s ../../images/*.gif .)
-
-reference.pdf: $(SGMLFILES)
-	rm -rf reference.pdf
-	db2pdf reference.sgml
-
-reference.dvi: $(SGMLFILES)
-	rm -rf reference.dvi
-	db2dvi reference.sgml
+	slice2html --ice -I../slice --header=htmlHeader --output-dir=reference --index=3 $(SLICEFILES)
 
 clean::
-	rm -rf reference reference.out reference.texi
-
-SliceDoc.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
-	rm -f $@
-	$(SLICE2DOCBOOK) --ice -I$(top_srcdir)/slice $@ $(SLICEFILES)
-
-clean::
-	rm -f SliceDoc.sgml
+	rm -rf reference
 
 install::
 	@if test -f reference/index.html ; \
@@ -67,14 +46,4 @@ install::
 	    fi ; \
 	    echo "Installing images..." ; \
 	    $(call installdata,images/*.gif,$(install_docdir)/reference/stylesheet-images) ; \
-	fi
-	@if test -f reference.pdf ; \
-	then \
-	    echo "Installing reference.pdf..." ; \
-	    $(call installdata,reference.pdf,$(install_docdir)) ; \
-	fi
-	@if test -f reference.dvi ; \
-	then \
-	    echo "Installing reference.dvi..." ; \
-	    $(call installdata,reference.dvi,$(install_docdir)) ; \
 	fi

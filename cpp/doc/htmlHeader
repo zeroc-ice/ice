@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+	<title>
+TITLE
+	</title>
+	<style type="text/css">
+	    body { font-family: Arial, Helvetica, sans-serif; }
+	    td { font-family: Arial, Helvetica, sans-serif; }
+	    th { font-family: Arial, Helvetica, sans-serif; }
+	    .Symbol { font-family: "Courier New", Courier, mono; }
+	    .Synopsis { font-family: "Courier New", Courier, mono; font-weight: bold; }
+	    .Deprecated { font-style: italic; }
+	    .Warning { font-style: italic; }
+	    .Note { font-style: italic; }
+        </style>
+    </head>
+    <body>

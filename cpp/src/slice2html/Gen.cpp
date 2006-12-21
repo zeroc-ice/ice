@@ -1122,17 +1122,23 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     }
 
     string line;
+    bool foundTitle = false;
 
     ostringstream p1;
-    getline(in, line);
-    while(!line.empty() && line != "TITLE")
+    while(!foundTitle && getline(in, line))
     {
-	p1 << line << '\n';
-	getline(in, line);
+	if(line == "TITLE")
+	{
+	    foundTitle = true;
+	}
+	else
+	{
+	    p1 << line << '\n';
+	}
     }
     part1 = p1.str();
 
-    if(line.empty())
+    if(!foundTitle)
     {
 	string err = "no TITLE marker in `" + file + "'";
 	throw err;
@@ -1140,11 +1146,9 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
 
     ostringstream p2;
     p2 << endl;
-    getline(in, line);
-    while(!line.empty())
+    while(getline(in, line))
     {
 	p2 << line << '\n';
-	getline(in, line);
     }
     part2 = p2.str();
 }
