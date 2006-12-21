@@ -297,7 +297,7 @@ namespace IceInternal
 			// Implicit context
 			//
 			Ice.ImplicitContextI implicitContext = 
-			    implicitContext = rf.getInstance().getImplicitContext();
+			    rf.getInstance().getImplicitContext();
 			
 			Ice.Context prxContext = rf.getContext();
 			

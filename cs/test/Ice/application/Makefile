@@ -24,4 +24,7 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
 client.exe: $(C_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
 
+depend::
+	touch .depend
+
 include .depend
