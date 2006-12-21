@@ -222,6 +222,8 @@ IceGridAdmin:
     Routed
     Username
     Password
+    Trace.Observers
+    Trace.SaveToRegistry
 
 IceGrid:
     AdminGUI.Endpoints
