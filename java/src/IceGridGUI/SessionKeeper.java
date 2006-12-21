@@ -399,55 +399,47 @@ class SessionKeeper
 	    }
 	    else
 	    {
-		routerInstanceName = 
-		    _connectionPrefs.get("router.instanceName", routerInstanceName);
-		routerEndpoints = 
-		    _connectionPrefs.get("router.endpoints", routerEndpoints);
+		routerInstanceName = _connectionPrefs.get("router.instanceName", routerInstanceName);
+		routerEndpoints = _connectionPrefs.get("router.endpoints", routerEndpoints);
 	    }
 	    registrySSLEnabled = _connectionPrefs.getBoolean("routerSSLEnabled", registrySSLEnabled);
 
+	    //
+	    // Property, if defined, prevails
+	    //
 	    registryUsername = _connectionPrefs.get("registry.username", registryUsername);
+	    registryUsername = properties.getPropertyWithDefault("IceGridAdmin.Username", registryUsername);
+	    registryPassword = properties.getProperty("IceGridAdmin.Password").toCharArray();
+	         
 	    registryUseSSL = _connectionPrefs.getBoolean("registry.useSSL", registryUseSSL);
-	    registrySSLEnabled = _connectionPrefs.getBoolean("registry.sslEnabled", registryUseSSL); // not a typo!
+	    registryUseSSL = properties.getPropertyAsIntWithDefault("IceGridAdmin.AuthenticateUsingSSL",
+							       registryUseSSL ? 1 : 0) > 0;
+
+	    registrySSLEnabled = registryUseSSL || _connectionPrefs.getBoolean("registry.sslEnabled", registrySSLEnabled);
 
 	    routerUsername = _connectionPrefs.get("router.username", routerUsername);
-	    routerUseSSL = _connectionPrefs.getBoolean("router.useSSL", routerUseSSL);
-	    routerSSLEnabled = _connectionPrefs.getBoolean("router.sslEnabled", routerUseSSL); // not a typo!
+	    routerUsername = properties.getPropertyWithDefault("IceGridAdmin.Username", routerUsername);
+	    routerPassword = properties.getProperty("IceGridAdmin.Password").toCharArray();
 
-	    routed = _connectionPrefs.getBoolean("routed", routed);
+	    routerUseSSL = _connectionPrefs.getBoolean("router.useSSL", routerUseSSL);
+	    routerUseSSL = properties.getPropertyAsIntWithDefault("IceGridAdmin.AuthenticateUsingSSL",
+							     routerUseSSL ? 1 : 0) > 0;
+
+	    routerSSLEnabled = routerUseSSL || _connectionPrefs.getBoolean("router.sslEnabled", routerSSLEnabled);
+
+	    routed = properties.getPropertyAsInt("IceGridAdmin.Routed") > 0 || _connectionPrefs.getBoolean("routed", routed);
 
 	    //
 	    // SSL Configuration
 	    //
-	    String val = properties.getProperty("IceSSL.Keystore"); 
-	    if(val.length() > 0)
-	    {
-		keystore = val;
-	    }
-	    else
-	    {
-		keystore = _connectionPrefs.get("keystore", keystore);
-	    }
+	    keystore = properties.getPropertyWithDefault("IceSSL.Keystore",
+							 _connectionPrefs.get("keystore", keystore));	   
+	    
+	    alias = properties.getPropertyWithDefault("IceSSL.Alias",
+						      _connectionPrefs.get("alias", ""));
 
-	    val = properties.getProperty("IceSSL.Alias");
-	    if(val.length() > 0)
-	    {
-		alias = val;
-	    }
-	    else
-	    {
-		alias = _connectionPrefs.get("alias", "");
-	    }
-
-	    val = properties.getProperty("IceSSL.Truststore"); 
-	    if(val.length() > 0)
-	    {
-		truststore = val;
-	    }
-	    else
-	    {
-		truststore = _connectionPrefs.get("truststore", keystore);
-	    }
+	    truststore = properties.getPropertyWithDefault("IceSSL.Truststore",
+							   _connectionPrefs.get("truststore", truststore));	      
 	}
 
 	void save()
@@ -841,6 +833,8 @@ class SessionKeeper
 		_mainPane.setSelectedIndex(_loginInfo.routed ? 1 : 0);
 
 		_registryUsername.setText(_loginInfo.registryUsername);
+		_registryPassword.setText(new String(_loginInfo.registryPassword));
+
 		selectRegistryUseSSL(_loginInfo.registryUseSSL);
 
 		_registryInstanceName.setText(_loginInfo.registryInstanceName);
@@ -849,6 +843,7 @@ class SessionKeeper
 		_connectToMaster.setSelected(_loginInfo.connectToMaster);
 
 		_routerUsername.setText(_loginInfo.routerUsername);
+		_routerPassword.setText(new String(_loginInfo.routerPassword));
 		selectRouterUseSSL(_loginInfo.routerUseSSL);
 	
 		_routerInstanceName.setText(_loginInfo.routerInstanceName);
@@ -1294,7 +1289,7 @@ class SessionKeeper
     private LoginDialog _loginDialog;
     private LoginInfo _loginInfo;
 
-    private Coordinator _coordinator;
+    private final Coordinator _coordinator;
     private Preferences _loginPrefs;
   
     private Session _session;
