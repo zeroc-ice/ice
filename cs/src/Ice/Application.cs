@@ -19,11 +19,22 @@ namespace Ice
     {
 	public abstract int run(string[] args);
 
+	//
+	// Override this to provide a custom application interrupt
+	// hook. You must call userCallbackOnInterrupt for this method
+	// to be called. Note that the interruptCallback can be called
+	// concurrently with any other thread (including main) in your
+	// application and thus must take appropriate concurrency
+	// precautions.
+	//
+	public virtual void interruptCallback(int sig)
+	{
+	}
+
 	public Application()
 	{
 #if !__MonoCS__
-	    bool rc;
-	    rc = SetConsoleCtrlHandler(_handler, true); 
+	    bool rc = SetConsoleCtrlHandler(_handler, true); 
 	    Debug.Assert(rc);
 #endif
 	}
@@ -103,6 +114,7 @@ namespace Ice
 	    try
 	    {
 		_communicator = Util.initialize(ref args, initData);
+		_application = this;
 		
 		Properties props = _communicator.getProperties();
 		_nohup = props.getPropertyAsInt("Ice.Nohup") != 0;
@@ -127,8 +139,9 @@ namespace Ice
 	    }
 
 	    //
-	    // Don't want any new interrupt. And at this point (post-run), it would not make sense to release a
-	    // held signal to run shutdown or destroy.
+	    // Don't want any new interrupt. And at this point
+	    // (post-run), it would not make sense to release a held
+	    // signal to run shutdown or destroy.
 	    //
 	    ignoreInterrupt();
 
@@ -145,10 +158,12 @@ namespace Ice
 	    {
 	        _destroyed = true;
 		//
-		// And _communicator != 0, meaning will be destroyed next,
-		// _destroyed = true also ensures that any remaining callback won't do anything
+		// And _communicator != 0, meaning will be destroyed
+		// next, _destroyed = true also ensures that any
+		// remaining callback won't do anything
 		//
 	    }
+	    _application = null;
 	    Monitor.Exit(sync);
 
 	    if(_communicator != null)
@@ -171,9 +186,7 @@ namespace Ice
 	    }	
 	    return status;
 	}
-	
 
-	
 	//
 	// Return the application name.
 	//
@@ -196,7 +209,7 @@ namespace Ice
 	}
 	
 	public static void destroyOnInterrupt()
-	{   
+	{
 	    Monitor.Enter(sync);
 	    if(_callback == _holdCallback)
 	    {
@@ -242,6 +255,22 @@ namespace Ice
 	    }
 	    Monitor.Exit(sync);
 	}
+
+	public static void userCallbackOnInterrupt()
+	{   
+	    Monitor.Enter(sync);
+	    if(_callback == _holdCallback)
+	    {
+		_released = true;
+		_callback = _userCallback;
+		Monitor.Pulse(sync);
+	    }
+	    else
+	    {
+		_callback = _userCallback;
+	    }
+	    Monitor.Exit(sync);
+	}
 	
 	public static void holdInterrupt()
 	{
@@ -250,7 +279,7 @@ namespace Ice
 	    {
 		_previousCallback = _callback;
 		_callback = _holdCallback;
-		_released = true;
+		_released = false;
 	    }
 	    // else, we were already holding signals
 	    Monitor.Exit(sync);
@@ -327,6 +356,9 @@ namespace Ice
 	    }
 	}
 
+	//
+	// The callbacks to be invoked from the handler.
+	//
 	private static void destroyOnInterruptCallback(int sig)
 	{
 	    bool ignore = false;
@@ -412,7 +444,51 @@ namespace Ice
 	    Monitor.Exit(sync);
 	}
 
+	private static void userCallbackOnInterruptCallback(int sig)
+	{
+	    bool ignore = false;
+	    Monitor.Enter(sync);
+	    if(_destroyed)
+	    {
+	        //
+		// Being destroyed by main thread
+		//
+	        ignore = true;
+	    }
+	    else if(_nohup && sig == SIGHUP)
+	    {
+	        ignore = true;
+	    }
+	    else
+	    {
+	    	_callbackInProgress = true;
+	        _interrupted = true;
+	    }
+	    Monitor.Exit(sync);
+
+	    if(ignore)
+	    {
+	        return;
+	    }
+
+	    try
+	    {
+		_application.interruptCallback(sig);
+	    }
+	    catch(System.Exception ex)
+	    {
+		Console.Error.WriteLine(_appName + ": while interrupting in response to signal: " + ex);
+	    }
+
+	    Monitor.Enter(sync);
+	    _callbackInProgress = false;
+	    Monitor.Pulse(sync);
+	    Monitor.Exit(sync);
+	}
+
+
 #if !__MonoCS__
+	public delegate void ControlEventHandler(int consoleEvent);
 	[DllImport("kernel32.dll")]
 	private static extern Boolean SetConsoleCtrlHandler(Application.EventHandler eh, Boolean add);
 #endif
@@ -437,6 +513,7 @@ namespace Ice
 	private static readonly Callback _destroyCallback = new Callback(destroyOnInterruptCallback);
 	private static readonly Callback _shutdownCallback = new Callback(shutdownOnInterruptCallback);
 	private static readonly Callback _holdCallback = new Callback(holdInterruptCallback);
+	private static readonly Callback _userCallback = new Callback(userCallbackOnInterruptCallback);
 
 	private static Callback _callback = null; // Current callback
 	private static Callback _previousCallback; // Remembers prev. callback when signals are held
@@ -447,5 +524,6 @@ namespace Ice
 	//
 	private static string _appName = AppDomain.CurrentDomain.FriendlyName;
 	private static Communicator _communicator;
+	private static Application _application;
     }
 }

@@ -11,7 +11,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= adapterDeactivation \
+SUBDIRS		= application \
+		  adapterDeactivation \
 		  exceptions \
 		  facets \
 		  faultTolerance \

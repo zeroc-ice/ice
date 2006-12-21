@@ -22,7 +22,7 @@ public class Client : Ice.Application
 	    "d: send greeting as datagram\n" +
 	    "D: send greeting as batch datagram\n" +
 	    "f: flush all batch requests\n" +
-	    "T: set a timeout" +
+	    "T: set a timeout\n" +
 	    "P: set a server delay");
 	if(_haveSSL)
 	{
@@ -33,7 +33,7 @@ public class Client : Ice.Application
 	    "x: exit\n" +
 	    "?: help\n");
     }
-    
+
     public override int run(string[] args)
     {
 	try
