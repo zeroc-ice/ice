@@ -23,7 +23,7 @@ class Resolver
 {
 public:
 
-    Resolver(const ApplicationDescriptor&, const Ice::CommunicatorPtr&);
+    Resolver(const ApplicationDescriptor&, const Ice::CommunicatorPtr&, bool);
     Resolver(const Resolver&, const std::map<std::string, std::string>&, bool);
     Resolver(const InternalNodeInfoPtr&, const Ice::CommunicatorPtr&);
 
@@ -54,6 +54,7 @@ public:
     bool hasReplicaGroup(const std::string&) const;
     
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
+    bool warningEnabled() const { return _enableWarning; }
 
 private:
 
@@ -67,6 +68,9 @@ private:
     const ApplicationDescriptor* _application;
     const Ice::CommunicatorPtr _communicator;
     const bool _escape;
+public:
+    const bool _enableWarning;
+private:
     std::string _context;
     std::map<std::string, std::string> _variables;
     std::map<std::string, std::string> _parameters;
@@ -295,7 +299,7 @@ class ApplicationHelper
 {
 public:
 
-    ApplicationHelper(const Ice::CommunicatorPtr&, const ApplicationDescriptor&);
+    ApplicationHelper(const Ice::CommunicatorPtr&, const ApplicationDescriptor&, bool = false);
 
     ApplicationUpdateDescriptor diff(const ApplicationHelper&) const;
     ApplicationDescriptor update(const ApplicationUpdateDescriptor&) const;

@@ -55,23 +55,22 @@ struct ToInternalServerDescriptor : std::unary_function<CommunicatorDescriptorPt
 	//
 	// Add the adapters and their configuration.
 	//
-	string oaPropertyPrefix = getMMVersion(_desc->iceVersion) < 30200 ? "" : "Ice.OA.";
 	for(AdapterDescriptorSeq::const_iterator q = desc->adapters.begin(); q != desc->adapters.end(); ++q)
 	{
 	    _desc->adapters.push_back(new InternalAdapterDescriptor(q->id, q->serverLifetime));
 
 	    props.push_back(createProperty("# Object adapter " + q->name));
 	    PropertyDescriptor prop = removeProperty(communicatorProps, "Ice.OA." + q->name + ".Endpoints");
-	    prop.name = oaPropertyPrefix + q->name + ".Endpoints";
+	    prop.name = "Ice.OA." + q->name + ".Endpoints";
 	    props.push_back(prop);
-	    props.push_back(createProperty(oaPropertyPrefix + q->name + ".AdapterId", q->id));
+	    props.push_back(createProperty("Ice.OA." + q->name + ".AdapterId", q->id));
 	    if(!q->replicaGroupId.empty())
 	    {
-		props.push_back(createProperty(oaPropertyPrefix + q->name + ".ReplicaGroupId", q->replicaGroupId));
+		props.push_back(createProperty("Ice.OA." + q->name + ".ReplicaGroupId", q->replicaGroupId));
 	    }
 	    if(q->registerProcess)
 	    {
-		props.push_back(createProperty(oaPropertyPrefix + q->name + ".RegisterProcess", "1"));
+		props.push_back(createProperty("Ice.OA." + q->name + ".RegisterProcess", "1"));
 		_desc->processRegistered = true;
 	    }
 	}
@@ -893,5 +892,25 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     // descriptor.
     //
     forEachCommunicator(ToInternalServerDescriptor(server, _session->getInfo()))(info.descriptor);
+
+    //
+    // Transform the OA properties to the old naming (Ice.OA.XXX.* ->
+    // XXX.*) for server with a version < 3.2.0
+    // 
+    if(getMMVersion(server->iceVersion) < 30200)
+    {
+	const string oaPrefix = "Ice.OA.";
+	for(PropertyDescriptorSeqDict::iterator p = server->properties.begin(); p != server->properties.end(); ++p)
+	{
+	    for(PropertyDescriptorSeq::iterator q = p->second.begin(); q != p->second.end(); ++q)
+	    {
+		if(q->name.find(oaPrefix) == 0)
+		{
+		    q->name = q->name.substr(oaPrefix.size());
+		}
+	    }
+	}
+    }
+
     return server;
 }

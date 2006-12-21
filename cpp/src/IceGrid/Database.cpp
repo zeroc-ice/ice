@@ -290,7 +290,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session)
 	    throw DeploymentException("application `" + info.descriptor.name + "' already exists");
 	}	
 
-	ApplicationHelper helper(_communicator, info.descriptor);
+	ApplicationHelper helper(_communicator, info.descriptor, true);
 	checkForAddition(helper);
 	load(helper, entries, info.uuid, info.revision);
 	startUpdating(info.descriptor.name);
@@ -369,7 +369,7 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, AdminSessionI* se
 	}
 
 	ApplicationHelper previous(_communicator, oldApp.descriptor);
-	ApplicationHelper helper(_communicator, previous.update(update.descriptor));
+	ApplicationHelper helper(_communicator, previous.update(update.descriptor), true);
 
 	checkForUpdate(previous, helper);
 	reload(previous, helper, entries, oldApp.uuid, oldApp.revision + 1);
@@ -405,7 +405,7 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, AdminS
 	oldApp = p->second;
 
 	ApplicationHelper previous(_communicator, oldApp.descriptor);
-	ApplicationHelper helper(_communicator, newDesc);
+	ApplicationHelper helper(_communicator, newDesc, true);
 
 	update.updateTime = IceUtil::Time::now().toMilliSeconds();
 	update.updateUser = _lockUserId;
@@ -448,7 +448,7 @@ Database::instantiateServer(const string& application,
 	oldApp = p->second;
 
 	ApplicationHelper previous(_communicator, oldApp.descriptor);
-	ApplicationHelper helper(_communicator, previous.instantiateServer(node, instance));
+	ApplicationHelper helper(_communicator, previous.instantiateServer(node, instance), true);
 
 	update.updateTime = IceUtil::Time::now().toMilliSeconds();
 	update.updateUser = _lockUserId;

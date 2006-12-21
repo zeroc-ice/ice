@@ -260,10 +260,11 @@ updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remov
 
 }
 
-Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr& communicator) : 
+Resolver::Resolver(const ApplicationDescriptor& app, const Ice::CommunicatorPtr& communicator, bool enableWarning) : 
     _application(&app),
     _communicator(communicator),
     _escape(false),
+    _enableWarning(enableWarning),
     _context("application `" + app.name + "'"),
     _variables(app.variables),
     _reserved(getReserved())
@@ -347,6 +348,7 @@ Resolver::Resolver(const Resolver& resolve,
     _application(resolve._application),
     _communicator(resolve._communicator),
     _escape(resolve._escape),
+    _enableWarning(resolve._enableWarning),
     _context(resolve._context),
     _variables(params ? resolve._variables : values),
     _parameters(!params ? resolve._parameters : values),
@@ -377,6 +379,7 @@ Resolver::Resolver(const InternalNodeInfoPtr& info, const Ice::CommunicatorPtr& 
     _application(0),
     _communicator(com),
     _escape(true),
+    _enableWarning(false),
     _context("node `" + info->name + "'"),
     _reserved(getReserved())
 {
@@ -1451,8 +1454,14 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
 	}
 	else if(version > ICE_INT_VERSION)
 	{
-	    resolve.exception("invalid ice version: " + instance->iceVersion + " is superior to the IceGrid \n"
-			      "registry version (" + ICE_STRING_VERSION + ")");
+	    //resolve.exception("invalid ice version: " + instance->iceVersion + " is superior to the IceGrid \n"
+	    //"registry version (" + ICE_STRING_VERSION + ")");
+	    if(resolve.warningEnabled())
+	    {
+		Ice::Warning out(resolve.getCommunicator()->getLogger());
+		out << "invalid ice version: " << instance->iceVersion << " is superior to the IceGrid ";
+		out << "registry version (" << ICE_STRING_VERSION << ")";
+	    }
 	}
     }
     if(!instance->activation.empty() && 
@@ -2386,7 +2395,9 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
     out << eb;
 }
 
-ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, const ApplicationDescriptor& desc) :
+ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, 
+				     const ApplicationDescriptor& desc,
+				     bool enableWarning) :
     _communicator(communicator),
     _def(desc)
 {
@@ -2395,7 +2406,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator, c
 	throw DeploymentException("invalid application: empty name");
     }
 
-    Resolver resolve(_def, communicator);
+    Resolver resolve(_def, communicator, enableWarning);
 
     //
     // Instantiate the application definition.
@@ -2584,7 +2595,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
     def.serverTemplates = updateDictElts(_def.serverTemplates, updt.serverTemplates, updt.removeServerTemplates);
     def.serviceTemplates = updateDictElts(_def.serviceTemplates, updt.serviceTemplates, updt.removeServiceTemplates);
 
-    Resolver resolve(def, _communicator); // A resolver based on the *updated* application descriptor.
+    Resolver resolve(def, _communicator, false); // A resolver based on the *updated* application descriptor.
     for(NodeUpdateDescriptorSeq::const_iterator p = updt.nodes.begin(); p != updt.nodes.end(); ++p)
     {
 	NodeHelperDict::const_iterator q = _nodes.find(p->name);
