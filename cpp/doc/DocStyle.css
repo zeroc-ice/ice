@@ -1,0 +1,25 @@
+body {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+td {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+th {
+	font-family: Arial, Helvetica, sans-serif;
+}.Symbol {
+	font-family: "Courier New", Courier, mono;
+}
+.Synopsis {
+	font-family: "Courier New", Courier, mono;
+}
+.Deprecated {
+	font-style: italic;
+}
+.Warning {
+	font-style: italic;
+}
+.Note {
+	font-style: italic;
+}
