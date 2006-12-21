@@ -23,7 +23,7 @@
 #
 # The file is organized into labelled sections. The label for a
 # section must be an identifier followed by a colon, such as
-# "ice:". The section label is optionally followed by a boolean
+# "Ice:". The section label is optionally followed by a boolean
 # which is used to determine whether command line processing is
 # done on this section by default. The default is true. If set to
 # true, command line options matching the section label will be
@@ -46,7 +46,7 @@
 #
 
 # The token "<any>" is a wildcard and matches any non-empty sequence
-# of non-whitespace characters, excluding '.'.
+# of non-whitespace characters.
 #
 # Examples:
 #
