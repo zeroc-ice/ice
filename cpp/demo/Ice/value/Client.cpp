@@ -19,6 +19,7 @@ class ValueClient : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 };
 
 int
@@ -31,6 +32,12 @@ main(int argc, char* argv[])
 int
 ValueClient::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     Ice::ObjectPrx base = communicator()->propertyToProxy("Value.Initial");
     InitialPrx initial = InitialPrx::checkedCast(base);
     if(!initial)
@@ -173,4 +180,22 @@ ValueClient::run(int argc, char* argv[])
     initial->shutdown();
 
     return EXIT_SUCCESS;
+}
+
+void
+ValueClient::interruptCallback(int)
+{
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+    exit(EXIT_SUCCESS);
 }

@@ -24,6 +24,7 @@ public:
     }
 
     virtual int run(int argc, char* argv[]);
+    virtual void interruptCallback(int);
 
 private:
 
@@ -40,6 +41,12 @@ main(int argc, char* argv[])
 int
 PhoneBookCollocated::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     //
@@ -100,4 +107,22 @@ PhoneBookCollocated::run(int argc, char* argv[])
     adapter->waitForDeactivate();
 
     return status;
+}
+
+void
+PhoneBookCollocated::interruptCallback(int)
+{
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+    exit(EXIT_SUCCESS);
 }

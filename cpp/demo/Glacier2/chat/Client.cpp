@@ -93,16 +93,23 @@ public:
     virtual int
     run(int argc, char* argv[])
     {
-	Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
-	if(!defaultRouter)
-	{
-	    cerr << argv[0] << ": no default router set" << endl;
-	    return EXIT_FAILURE;
-	}
+	//
+	// Since this is an interactive demo we want the custom interrupt
+	// callback to be called when the process is interrupted.
+	//
+	userCallbackOnInterrupt();
 
-	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(defaultRouter);
 	{
-	    if(!router)
+	    IceUtil::Mutex::Lock sync(_mutex);
+	    Ice::RouterPrx defaultRouter = communicator()->getDefaultRouter();
+	    if(!defaultRouter)
+	    {
+		cerr << argv[0] << ": no default router set" << endl;
+		return EXIT_FAILURE;
+	    }
+	    
+	    _router = Glacier2::RouterPrx::checkedCast(defaultRouter);
+	    if(!_router)
 	    {
 		cerr << argv[0] << ": configured router is not a Glacier2 router" << endl;
 		return EXIT_FAILURE;
@@ -126,7 +133,7 @@ public:
 
 	    try
 	    {
-		session = ChatSessionPrx::uncheckedCast(router->createSession(id, pw));
+		session = ChatSessionPrx::uncheckedCast(_router->createSession(id, pw));
 		break;
 	    }
 	    catch(const Glacier2::PermissionDeniedException& ex)
@@ -135,12 +142,15 @@ public:
 	    }
 	}
 
-	SessionPingThreadPtr ping = new SessionPingThread(session, (long)router->getSessionTimeout() / 2);
-	ping->start();
+	{
+	    IceUtil::Mutex::Lock sync(_mutex);
+	    _ping = new SessionPingThread(session, (long)_router->getSessionTimeout() / 2);
+	    _ping->start();
+	}
 
 	Ice::Identity callbackReceiverIdent;
 	callbackReceiverIdent.name = "callbackReceiver";
-	callbackReceiverIdent.category = router->getCategoryForClient();
+	callbackReceiverIdent.category = _router->getCategoryForClient();
 
 	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Chat.Client");
 	ChatCallbackPrx callback = ChatCallbackPrx::uncheckedCast(
@@ -177,9 +187,47 @@ public:
 	    }
 	    while(cin.good());
 
+	    cleanup();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    cleanup();
+
+	    return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+    }
+
+    virtual void
+    interruptCallback(int)
+    {
+	try
+	{
+	    communicator()->destroy();
+	}
+	catch(const IceUtil::Exception& ex)
+	{
+	    cerr << appName() << ": " << ex << endl;
+	}
+	catch(...)
+	{
+	    cerr << appName() << ": unknown exception" << endl;
+	}
+	exit(EXIT_SUCCESS);
+    }
+
+private:
+
+    void
+    cleanup()
+    {
+	IceUtil::Mutex::Lock sync(_mutex);
+	if(_router)
+	{
 	    try
 	    {
-		router->destroySession();
+		_router->destroySession();
 	    }
 	    catch(const Ice::ConnectionLostException&)
 	    {
@@ -187,24 +235,15 @@ public:
 		// Expected: the router closed the connection.
 		//
 	    }
+	    _router = 0;
 	}
-	catch(const Ice::Exception& ex)
+	if(_ping)
 	{
-	    cerr << ex << endl;
-
-            ping->destroy();
-            ping->getThreadControl().join();
-
-	    return EXIT_FAILURE;
+	    _ping->destroy();
+	    _ping->getThreadControl().join();
+	    _ping = 0;
 	}
-
-        ping->destroy();
-        ping->getThreadControl().join();
-	
-	return EXIT_SUCCESS;
     }
-
-private:
 
     void
     menu()
@@ -223,6 +262,10 @@ private:
 	}
 	return s;
     }
+
+    IceUtil::Mutex _mutex;
+    Glacier2::RouterPrx _router;
+    SessionPingThreadPtr _ping;
 };
 
 int

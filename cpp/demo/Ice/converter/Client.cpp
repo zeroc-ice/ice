@@ -113,7 +113,10 @@ main(int argc, char* argv[])
 	initData.properties->load("config.client");
         communicator1 = Ice::initialize(argc, argv, initData);
 
-        communicator2 = Ice::initialize(argc, argv);
+        Ice::InitializationData initData2;
+	initData2.properties = Ice::createProperties();
+	initData2.properties->load("config.client");
+        communicator2 = Ice::initialize(argc, argv, initData2);
 
         status = run(argc, argv, communicator1, communicator2);
     }

@@ -18,6 +18,7 @@ class InvokeClient : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 
 private:
 
@@ -52,6 +53,12 @@ operator<<(ostream& out, Demo::Color c)
 int
 InvokeClient::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     Ice::ObjectPrx obj = communicator()->propertyToProxy("Printer.Proxy");
 
     menu();
@@ -290,6 +297,24 @@ InvokeClient::run(int argc, char* argv[])
     while(cin.good() && ch != 'x');
 
     return EXIT_SUCCESS;
+}
+
+void
+InvokeClient::interruptCallback(int)
+{
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+    exit(EXIT_SUCCESS);
 }
 
 void

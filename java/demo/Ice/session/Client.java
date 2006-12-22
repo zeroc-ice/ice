@@ -11,6 +11,24 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
+    class ShutdownHook extends Thread
+    {
+	public void
+	run()
+	{
+	    System.out.println("Hi");
+	    cleanup(true);
+	    try
+	    {
+		communicator().destroy();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		ex.printStackTrace();
+	    }
+	}
+    }
+
     static private class SessionRefreshThread extends Thread
     {
 	SessionRefreshThread(Ice.Logger logger, long timeout, SessionPrx session)
@@ -76,6 +94,13 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+	//
+	// Since this is an interactive demo we want to clear the
+	// Application installed interrupt callback and install our
+	// own shutdown hook.
+	//
+	setInterruptHook(new ShutdownHook());
+
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 	String name;
 	try
@@ -102,14 +127,16 @@ public class Client extends Ice.Application
             return 1;
         }
 
-    	SessionPrx session = factory.create(name);
-    	SessionRefreshThread refresh = new SessionRefreshThread(communicator().getLogger(), 5000, session);
-    	refresh.start();
-
+	synchronized(this)
+	{
+	    _session = factory.create(name);
+	    _refresh = new SessionRefreshThread(communicator().getLogger(), 5000, _session);
+	    _refresh.start();
+	}
+	    
     	java.util.ArrayList hellos = new java.util.ArrayList();
 
         menu();
-
 
 	try
 	{
@@ -149,7 +176,7 @@ public class Client extends Ice.Application
 		}
                 else if(line.equals("c"))
                 {
-                    hellos.add(session.createHello());
+                    hellos.add(_session.createHello());
     	    	    System.out.println("created hello object " + (hellos.size()-1));
                 }
                 else if(line.equals("s"))
@@ -177,26 +204,8 @@ public class Client extends Ice.Application
                     menu();
                 }
             }
-	    //
-	    // The refresher thread must be terminated before destroy is
-	    // called, otherwise it might get ObjectNotExistException. refresh
-	    // is set to 0 so that if session->destroy() raises an exception
-	    // the thread will not be re-terminated and re-joined.
-	    //
-	    refresh.terminate();
-	    try
-	    {
-		refresh.join();
-	    }
-	    catch(InterruptedException e)
-	    {
-	    }
-	    refresh = null;
 
-    	    if(destroy)
-	    {
-		session.destroy();
-	    }
+	    cleanup(destroy);
     	    if(shutdown)
 	    {
 		factory.shutdown();
@@ -212,20 +221,37 @@ public class Client extends Ice.Application
 	}
 	finally
 	{
-	    if(refresh != null)
-	    {
-		refresh.terminate();
-		try
-		{
-		    refresh.join();
-		}
-		catch(InterruptedException e)
-		{
-		}
-	    }
+	    cleanup(true);
 	}
 
         return 0;
+    }
+
+    synchronized private void
+    cleanup(boolean destroy)
+    {
+	//
+	// The refresher thread must be terminated before destroy is
+	// called, otherwise it might get ObjectNotExistException.
+	//
+	if(_refresh != null)
+	{
+	    _refresh.terminate();
+	    try
+	    {
+		_refresh.join();
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }
+	    _refresh = null;
+	}
+	
+	if(destroy && _session != null)
+	{
+	    _session.destroy();
+	    _session = null;
+	}
     }
 
     public static void
@@ -235,4 +261,7 @@ public class Client extends Ice.Application
         int status = app.main("Client", args, "config.client");
         System.exit(status);
     }
+
+    private SessionRefreshThread _refresh = null;
+    private SessionPrx _session = null;
 }

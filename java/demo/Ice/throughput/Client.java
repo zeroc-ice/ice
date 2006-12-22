@@ -11,6 +11,22 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
+    class ShutdownHook extends Thread
+    {
+	public void
+	run()
+	{
+	    try
+	    {
+		communicator().destroy();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		ex.printStackTrace();
+	    }
+	}
+    }
+
     private static void
     menu()
     {
@@ -38,6 +54,13 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+	//
+	// Since this is an interactive demo we want to clear the
+	// Application installed interrupt callback and install our
+	// own shutdown hook.
+	//
+	setInterruptHook(new ShutdownHook());
+
         Ice.ObjectPrx base = communicator().propertyToProxy("Throughput.Throughput");
         ThroughputPrx throughput = ThroughputPrxHelper.checkedCast(base);
         if(throughput == null)

@@ -11,10 +11,40 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
+    class ShutdownHook extends Thread
+    {
+	public void
+	run()
+	{
+	    /*
+	     * For this demo we won't destroy the communicator since it has to
+	     * wait for any outstanding invocations to complete which may take
+	     * some time if the nesting level is exceeded.
+	     *
+	     try
+	     {
+	         communicator().destroy();
+	     }
+	     catch(Ice.LocalException ex)
+	     {
+	         ex.printStackTrace();
+	     }
+	    */
+	}
+    }
+
     public int
     run(String[] args)
     {
-        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Client.NestedServer"));
+	//
+	// Since this is an interactive demo we want to clear the
+	// Application installed interrupt callback and install our
+	// own shutdown hook.
+	//
+	setInterruptHook(new ShutdownHook());
+
+        NestedPrx nested = NestedPrxHelper.checkedCast(
+	    communicator().propertyToProxy("Nested.Client.NestedServer"));
         if(nested == null)
         {
             System.err.println("invalid proxy");

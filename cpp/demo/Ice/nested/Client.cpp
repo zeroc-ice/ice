@@ -13,11 +13,13 @@
 using namespace std;
 using namespace Demo;
 
+
 class NestedClient : public Ice::Application
 {
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 };
 
 int
@@ -30,6 +32,12 @@ main(int argc, char* argv[])
 int
 NestedClient::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     NestedPrx nested = NestedPrx::checkedCast(communicator()->propertyToProxy("Nested.Client.NestedServer"));
     if(!nested)
     {
@@ -69,4 +77,28 @@ NestedClient::run(int argc, char* argv[])
     while(cin.good() && s != "x");
 
     return EXIT_SUCCESS;
+}
+
+void
+NestedClient::interruptCallback(int)
+{
+/*
+ * For this demo we won't destroy the communicator since it has to
+ * wait for any outstanding invocations to complete which may take
+ * some time if the nesting level is exceeded.
+ *
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+*/
+    exit(EXIT_SUCCESS);
 }

@@ -72,10 +72,20 @@ class SessionClient : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 
 private:
 
     void menu();
+    void cleanup(bool);
+
+    //
+    // The interrupt callback and main can run concurrently with one
+    // another so shared variables must be mutex protected.
+    //
+    IceUtil::Mutex _mutex;
+    SessionRefreshThreadPtr _refresh;
+    SessionPrx _session;
 };
 
 int
@@ -88,6 +98,12 @@ main(int argc, char* argv[])
 int
 SessionClient::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     string name;
     cout << "Please enter your name ==> ";
     cin >> name;
@@ -104,11 +120,14 @@ SessionClient::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    SessionPrx session = factory->create(name);
-
-    SessionRefreshThreadPtr refresh = new SessionRefreshThread(
-	communicator()->getLogger(), IceUtil::Time::seconds(5), session);
-    refresh->start();
+    {
+	IceUtil::Mutex::Lock sync(_mutex);
+	_session = factory->create(name);
+	
+	_refresh = new SessionRefreshThread(
+	    communicator()->getLogger(), IceUtil::Time::seconds(5), _session);
+	_refresh->start();
+    }
 
     vector<HelloPrx> hellos;
 
@@ -144,7 +163,7 @@ SessionClient::run(int argc, char* argv[])
 	    }
 	    else if(c == 'c')
 	    {
-		hellos.push_back(session->createHello());
+		hellos.push_back(_session->createHello());
 		cout << "Created hello object " << hellos.size() - 1 << endl;
 	    }
 	    else if(c == 's')
@@ -179,14 +198,7 @@ SessionClient::run(int argc, char* argv[])
 	// is set to 0 so that if session->destroy() raises an exception
 	// the thread will not be re-terminated and re-joined.
 	//
-	refresh->terminate();
-	refresh->getThreadControl().join();
-	refresh = 0;
-
-	if(destroy)
-	{
-	    session->destroy();
-	}
+	cleanup(destroy);
 	if(shutdown)
 	{
 	    factory->shutdown();
@@ -194,19 +206,61 @@ SessionClient::run(int argc, char* argv[])
     }
     catch(...)
     {
-	//
-	// The refresher thread must be terminated in the event of a
-	// failure.
-	//
-	if(refresh)
+	try
 	{
-	    refresh->terminate();
-	    refresh->getThreadControl().join();
+	    cleanup(true);
+	}
+	catch(...)
+	{
 	}
 	throw;
     }
 
     return EXIT_SUCCESS;
+}
+
+void
+SessionClient::interruptCallback(int)
+{
+    //
+    // Terminate the refresh thread, destroy the session and then
+    // destroy the communicator, followed by an exit. We have to call
+    // exit because main may be blocked in a cin >> s call which
+    // cannot be interrupted portably.
+    //
+    cleanup(true);
+
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+    exit(EXIT_SUCCESS);
+}
+
+void
+SessionClient::cleanup(bool destroy)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    if(_refresh)
+    {
+	_refresh->terminate();
+	_refresh->getThreadControl().join();
+	_refresh = 0;
+    }
+    
+    if(destroy && _session)
+    {
+	_session->destroy();
+	_session = 0;
+    }
 }
 
 void

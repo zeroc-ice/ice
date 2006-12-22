@@ -11,6 +11,22 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
+    class ShutdownHook extends Thread
+    {
+	public void
+	run()
+	{
+	    try
+	    {
+		communicator().destroy();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		ex.printStackTrace();
+	    }
+	}
+    }
+
     private void
     menu()
     {
@@ -29,6 +45,13 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+	//
+	// Since this is an interactive demo we want to clear the
+	// Application installed interrupt callback and install our
+	// own shutdown hook.
+	//
+	setInterruptHook(new ShutdownHook());
+
         HelloPrx twoway = HelloPrxHelper.checkedCast(
 	    communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)

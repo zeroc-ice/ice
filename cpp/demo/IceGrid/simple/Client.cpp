@@ -19,6 +19,7 @@ class HelloClient : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 
 private:
 
@@ -46,6 +47,12 @@ HelloClient::menu()
 int
 HelloClient::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     //
     // First we try to connect to the object with the `hello'
     // identity. If it's not registered with the registry, we 
@@ -108,3 +115,20 @@ HelloClient::run(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+void
+HelloClient::interruptCallback(int)
+{
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+    exit(EXIT_SUCCESS);
+}

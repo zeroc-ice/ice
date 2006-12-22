@@ -11,6 +11,23 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
+    class ShutdownHook extends Thread
+    {
+	public void
+	run()
+	{
+	    cleanup();
+	    try
+	    {
+		communicator().destroy();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		ex.printStackTrace();
+	    }
+	}
+    }
+
     static private class SessionKeepAliveThread extends Thread
     {
         SessionKeepAliveThread(IceGrid.SessionPrx session, long timeout)
@@ -73,6 +90,13 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+	//
+	// Since this is an interactive demo we want to clear the
+	// Application installed interrupt callback and install our
+	// own shutdown hook.
+	//
+	setInterruptHook(new ShutdownHook());
+
 	int status = 0;
 	IceGrid.RegistryPrx registry = 
 	    IceGrid.RegistryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Registry"));
@@ -83,7 +107,6 @@ public class Client extends Ice.Application
 	}
 
 	java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
-	IceGrid.SessionPrx session;
 	while(true)
 	{
 	    System.out.println("This demo accepts any user-id / password combination.");
@@ -102,7 +125,10 @@ public class Client extends Ice.Application
 		
 		try
 		{
-		    session = registry.createSession(id, pw);
+		    synchronized(this)
+		    {
+			_session = registry.createSession(id, pw);
+		    }
 		    break;
 		}
 		catch(IceGrid.PermissionDeniedException ex)
@@ -116,8 +142,11 @@ public class Client extends Ice.Application
 	    }
 	}
 
-	SessionKeepAliveThread keepAlive = new SessionKeepAliveThread(session, registry.getSessionTimeout() / 2);
-	keepAlive.start();
+	synchronized(this)
+	{
+	    _keepAlive = new SessionKeepAliveThread(_session, registry.getSessionTimeout() / 2);
+	    _keepAlive.start();
+	}
 
 	try
 	{
@@ -132,11 +161,11 @@ public class Client extends Ice.Application
 	    try
 	    {
 		hello = HelloPrxHelper.checkedCast(
-		    session.allocateObjectById(communicator().stringToIdentity("hello")));
+		    _session.allocateObjectById(communicator().stringToIdentity("hello")));
 	    }
 	    catch(IceGrid.ObjectNotRegisteredException ex)
 	    {
-		hello = HelloPrxHelper.checkedCast(session.allocateObjectByType("::Demo::Hello"));
+		hello = HelloPrxHelper.checkedCast(_session.allocateObjectByType("::Demo::Hello"));
 	    }
 
 	    menu();
@@ -197,22 +226,36 @@ public class Client extends Ice.Application
 	    status = 1;
 	}
 
+	cleanup();
+
+	return status;
+    }
+
+    synchronized void
+    cleanup()
+    {
 	//
 	// Destroy the keepAlive thread and the sesion object otherwise
 	// the session will be kept allocated until the timeout occurs.
 	// Destroying the session will release all allocated objects.
 	//
-	keepAlive.terminate();
-	try
+	if(_keepAlive != null)
 	{
-	    keepAlive.join();
+	    _keepAlive.terminate();
+	    try
+	    {
+		_keepAlive.join();
+	    }
+	    catch(InterruptedException e)
+	    {
+	    }
+	    _keepAlive = null;
 	}
-	catch(InterruptedException e)
+	if(_session != null)
 	{
+	    _session.destroy();
+	    _session = null;
 	}
-	session.destroy();
-
-	return status;
     }
 
     public static void
@@ -222,4 +265,7 @@ public class Client extends Ice.Application
 	int status = app.main("Client", args, "config.client");
 	System.exit(status);
     }
+
+    SessionKeepAliveThread _keepAlive;
+    IceGrid.SessionPrx _session;
 }

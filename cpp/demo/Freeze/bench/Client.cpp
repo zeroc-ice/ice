@@ -144,6 +144,7 @@ public:
     TestApp(const string&);
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 
 private:
 
@@ -717,6 +718,12 @@ typedef IceUtil::Handle<MyFactory> MyFactoryPtr;
 int
 TestApp::run(int argc, char* argv[])
 {
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     _connection = Freeze::createConnection(communicator(), _envName);
 
     cout << "IntIntMap" << endl;
@@ -808,6 +815,12 @@ TestApp::run(int argc, char* argv[])
     _connection->close();
     
     return EXIT_SUCCESS;
+}
+
+void
+TestApp::interruptCallback(int)
+{
+    exit(EXIT_SUCCESS);
 }
 
 int

@@ -69,11 +69,17 @@ class HelloClient : public Ice::Application
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
 
 private:
 
+    void cleanup();
     void menu();
     string trim(const string&);
+
+    IceUtil::Mutex _mutex;
+    IceGrid::SessionPrx _session;
+    SessionKeepAliveThreadPtr _keepAlive;
 };
 
 int
@@ -83,32 +89,17 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
-void
-HelloClient::menu()
-{
-    cout <<
-	"usage:\n"
-	"t: send greeting\n"
-	"x: exit\n"
-	"?: help\n";
-}
-
-string
-HelloClient::trim(const string& s)
-{
-    static const string delims = "\t\r\n ";
-    string::size_type last = s.find_last_not_of(delims);
-    if(last != string::npos)
-    {
-        return s.substr(s.find_first_not_of(delims), last+1);
-    }
-    return s;
-}
-
 int
 HelloClient::run(int argc, char* argv[])
 {
     int status = EXIT_SUCCESS;
+
+    //
+    // Since this is an interactive demo we want the custom interrupt
+    // callback to be called when the process is interrupted.
+    //
+    userCallbackOnInterrupt();
+
     IceGrid::RegistryPrx registry = 
 	IceGrid::RegistryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Registry"));
     if(!registry)
@@ -117,7 +108,6 @@ HelloClient::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    IceGrid::SessionPrx session;
     while(true)
     {
 	cout << "This demo accepts any user-id / password combination.\n";
@@ -134,7 +124,8 @@ HelloClient::run(int argc, char* argv[])
 
 	try
 	{
-	    session = registry->createSession(id, password);
+	    IceUtil::Mutex::Lock sync(_mutex);
+	    _session = registry->createSession(id, password);
  	    break;
 	}
 	catch(const IceGrid::PermissionDeniedException& ex)
@@ -143,12 +134,15 @@ HelloClient::run(int argc, char* argv[])
 	}
     }
 
-    SessionKeepAliveThreadPtr keepAlive = new SessionKeepAliveThread(session, registry->getSessionTimeout() / 2);
-    keepAlive->start();
+    {
+	IceUtil::Mutex::Lock sync(_mutex);
+	_keepAlive = new SessionKeepAliveThread(_session, registry->getSessionTimeout() / 2);
+	_keepAlive->start();
+    }
 
     try
     {
-	HelloPrx hello = HelloPrx::checkedCast(session->allocateObjectById(communicator()->stringToIdentity("hello")));
+	HelloPrx hello = HelloPrx::checkedCast(_session->allocateObjectById(communicator()->stringToIdentity("hello")));
 
 	menu();
 
@@ -205,15 +199,72 @@ HelloClient::run(int argc, char* argv[])
 	status = EXIT_FAILURE;
     }
 
+    cleanup();
+
+    return status;
+}
+
+void
+HelloClient::interruptCallback(int)
+{
+    cleanup();
+
+    try
+    {
+	communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+	cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+	cerr << appName() << ": unknown exception" << endl;
+    }
+    exit(EXIT_SUCCESS);
+}
+
+void
+HelloClient::cleanup()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
     //
     // Destroy the keepAlive thread and the sesion object otherwise
     // the session will be kept allocated until the timeout occurs.
     // Destroying the session will release all allocated objects.
     //
-    keepAlive->destroy();
-    keepAlive->getThreadControl().join();
-    session->destroy();
+    if(_keepAlive)
+    {
+	_keepAlive->destroy();
+	_keepAlive->getThreadControl().join();
+	_keepAlive = 0;
+    }
+    if(_session)
+    {
+	_session->destroy();
+	_session = 0;
+    }
+}
 
-    return status;
+void
+HelloClient::menu()
+{
+    cout <<
+	"usage:\n"
+	"t: send greeting\n"
+	"x: exit\n"
+	"?: help\n";
+}
+
+string
+HelloClient::trim(const string& s)
+{
+    static const string delims = "\t\r\n ";
+    string::size_type last = s.find_last_not_of(delims);
+    if(last != string::npos)
+    {
+        return s.substr(s.find_first_not_of(delims), last+1);
+    }
+    return s;
 }
 
