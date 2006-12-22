@@ -1,6 +1,11 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Added support for a user callback when SIGINT like signals are
+  sent to applications that use the Application interface. See
+  Application::interruptCallback and Application::userCallbackOnInterrupt
+  for details.
+
 - Message batches are now automatically flushed when the total size of
   the batch reaches the message size maximum.
 
@@ -299,6 +304,9 @@ Changes since version 3.1.1
 
 - Added more tracing to the IceSSL plug-in to help with debugging
   the TrustOnly properties.
+
+- Added --ip and --dns command line options to the iceca sign script.
+  This adds support for subjectAltName in certificates.
 
 - Merged the simple CA scripts into a single iceca script.
 
