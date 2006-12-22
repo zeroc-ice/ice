@@ -102,7 +102,7 @@ namespace Ice
 	    return initialize(null);
 	}
 
-	[Obsolete("This method has been deprecated, use initialize instead.")]
+	[Obsolete("This method is deprecated, use initialize instead.")]
 	public static Communicator initializeWithLogger(ref string[] args, Logger logger)
 	{
 	    InitializationData initData = new InitializationData();
@@ -110,7 +110,7 @@ namespace Ice
 	    return initialize(ref args, initData);
 	}
 	
-	[Obsolete("This method has been deprecated, use initialize instead.")]
+	[Obsolete("This method is deprecated, use initialize instead.")]
 	public static Communicator initializeWithProperties(ref string[] args, Properties properties)
 	{
 	    InitializationData initData = new InitializationData();
@@ -118,7 +118,7 @@ namespace Ice
 	    return initialize(ref args, initData);
 	}
 
-	[Obsolete("This method has been deprecated, use initialize instead.")]
+	[Obsolete("This method is deprecated, use initialize instead.")]
 	public static Communicator initializeWithPropertiesAndLogger(ref string[] args, Properties properties,
 								     Ice.Logger logger)
 	{

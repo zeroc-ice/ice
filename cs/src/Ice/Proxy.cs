@@ -16,11 +16,11 @@ namespace Ice
 {
     public interface ObjectPrx
     {
-	[Obsolete("This method has been deprecated, use ice_getHash instead.")]
+	[Obsolete("This method is deprecated, use ice_getHash instead.")]
         int ice_hash();
         int ice_getHash();
 
-	[Obsolete("This method has been deprecated, use ice_getCommunicator instead.")]
+	[Obsolete("This method is deprecated, use ice_getCommunicator instead.")]
 	Communicator ice_communicator();
 	Communicator ice_getCommunicator();
 
@@ -48,28 +48,28 @@ namespace Ice
             Context context);
 
         Identity ice_getIdentity();
-	[Obsolete("This method has been deprecated, use ice_identity instead.")]
+	[Obsolete("This method is deprecated, use ice_identity instead.")]
         ObjectPrx ice_newIdentity(Identity newIdentity);
         ObjectPrx ice_identity(Identity newIdentity);
 	
         Context ice_getContext();
-	[Obsolete("This method has been deprecated, use ice_context instead.")]
+	[Obsolete("This method is deprecated, use ice_context instead.")]
         ObjectPrx ice_newContext(Context newContext);
         ObjectPrx ice_context(Context newContext);
         ObjectPrx ice_defaultContext();
 	
         string ice_getFacet();
-	[Obsolete("This method has been deprecated, use ice_facet instead.")]
+	[Obsolete("This method is deprecated, use ice_facet instead.")]
         ObjectPrx ice_newFacet(string newFacet);
         ObjectPrx ice_facet(string newFacet);
 
         string ice_getAdapterId();
-	[Obsolete("This method has been deprecated, use ice_adapterId instead.")]
+	[Obsolete("This method is deprecated, use ice_adapterId instead.")]
         ObjectPrx ice_newAdapterId(string newAdapterId);
         ObjectPrx ice_adapterId(string newAdapterId);
 
 	Endpoint[] ice_getEndpoints();
-	[Obsolete("This method has been deprecated, use ice_endpoints instead.")]
+	[Obsolete("This method is deprecated, use ice_endpoints instead.")]
         ObjectPrx ice_newEndpoints(Endpoint[] newEndpoints);
         ObjectPrx ice_endpoints(Endpoint[] newEndpoints);
 
@@ -95,7 +95,7 @@ namespace Ice
         ObjectPrx ice_locator(Ice.LocatorPrx locator);
 
 	bool ice_isCollocationOptimized();
-	[Obsolete("This method has been deprecated, use ice_collocationOptimized instead.")]
+	[Obsolete("This method is deprecated, use ice_collocationOptimized instead.")]
         ObjectPrx ice_collocationOptimization(bool b);
         ObjectPrx ice_collocationOptimized(bool b);
 
@@ -114,7 +114,7 @@ namespace Ice
         ObjectPrx ice_timeout(int t);
         ObjectPrx ice_connectionId(string connectionId);
 
-	[Obsolete("This method has been deprecated, use ice_getConnection instead.")]
+	[Obsolete("This method is deprecated, use ice_getConnection instead.")]
         Connection ice_connection();
         Connection ice_getConnection();
         Connection ice_getCachedConnection();
