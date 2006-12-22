@@ -200,6 +200,7 @@ Ice:
     Warn.Datagrams
     Warn.Dispatch
     Warn.Endpoints
+    CacheMessageBuffers
 
 IceBox:
     InstanceName

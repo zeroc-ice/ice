@@ -1370,6 +1370,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	_registeredWithPool = false;
 	_finishedCount = 0;
 	_warn = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	_cacheBuffers = _instance.initializationData().properties.getPropertyAsIntWithDefault(
+		"Ice.CacheMessageBuffers", 1) == 1;
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchStream = new IceInternal.BasicStream(instance);
@@ -2465,20 +2467,27 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
         IceInternal.Incoming in = null;
 
-        synchronized(_incomingCacheMutex)
-        {
-            if(_incomingCache == null)
-            {
-                in = new IceInternal.Incoming(_instance, this, adapter, response, compress, requestId);
-            }
-            else
-            {
-                in = _incomingCache;
-                _incomingCache = _incomingCache.next;
-		in.reset(_instance, this, adapter, response, compress, requestId);
-                in.next = null;
-            }
-        }
+	if(_cacheBuffers)
+	{
+	    synchronized(_incomingCacheMutex)
+	    {
+		if(_incomingCache == null)
+		{
+		    in = new IceInternal.Incoming(_instance, this, adapter, response, compress, requestId);
+		}
+		else
+		{
+		    in = _incomingCache;
+		    _incomingCache = _incomingCache.next;
+		    in.reset(_instance, this, adapter, response, compress, requestId);
+		    in.next = null;
+		}
+	    }
+	}
+	else
+	{
+	    in = new IceInternal.Incoming(_instance, this, adapter, response, compress, requestId);
+	}
 
         return in;
     }
@@ -2486,15 +2495,18 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     reclaimIncoming(IceInternal.Incoming in)
     {
-        synchronized(_incomingCacheMutex)
-        {
-	    in.next = _incomingCache;
-	    _incomingCache = in;
-	    //
-	    // Clear references to Ice objects as soon as possible.
-	    //
-	    _incomingCache.reclaim();
-        }
+	if(_cacheBuffers)
+	{
+	    synchronized(_incomingCacheMutex)
+	    {
+		in.next = _incomingCache;
+		_incomingCache = in;
+		//
+		// Clear references to Ice objects as soon as possible.
+		//
+		_incomingCache.reclaim();
+	    }
+	}
     }
 
     public IceInternal.Outgoing
@@ -2504,19 +2516,26 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     {
 	IceInternal.Outgoing out = null;
 
-	synchronized(_outgoingCacheMutex)
+	if(_cacheBuffers)
 	{
-	    if(_outgoingCache == null)
+	    synchronized(_outgoingCacheMutex)
 	    {
-		out = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
+		if(_outgoingCache == null)
+		{
+		    out = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
+		}
+		else
+		{
+		    out = _outgoingCache;
+		    _outgoingCache = _outgoingCache.next;
+		    out.reset(reference, operation, mode, context, compress);
+		    out.next = null;
+		}
 	    }
-	    else
-	    {
-		out = _outgoingCache;
-		_outgoingCache = _outgoingCache.next;
-		out.reset(reference, operation, mode, context, compress);
-		out.next = null;
-	    }
+	}
+	else
+	{
+	    out = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
 	}
 
 	return out;
@@ -2525,15 +2544,18 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     reclaimOutgoing(IceInternal.Outgoing out)
     {
-	//
-	// Clear references to Ice objects as soon as possible.
-	//
-	out.reclaim();
-
-	synchronized(_outgoingCacheMutex)
+	if(_cacheBuffers)
 	{
-	    out.next = _outgoingCache;
-	    _outgoingCache = out;
+	    //
+	    // Clear references to Ice objects as soon as possible.
+	    //
+	    out.reclaim();
+
+	    synchronized(_outgoingCacheMutex)
+	    {
+		out.next = _outgoingCache;
+		_outgoingCache = out;
+	    }
 	}
     }
 
@@ -2621,4 +2643,5 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private boolean _overrideCompress;
     private boolean _overrideCompressValue;
+    private boolean _cacheBuffers;
 }
