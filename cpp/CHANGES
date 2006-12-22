@@ -1,5 +1,81 @@
 Changes since version 3.1.1
----------------------------     
+---------------------------
+
+- It's now possible to specify logs file for IceGrid servers
+  with the `log' XML element of a server descriptor. Server logs can
+  be viewed remotely with the IceGrid GUI or the icegridadmin command
+  line tool.
+
+- Added support for viewing the node, registry and server standard
+  error and output files from the IceGrid GUI and the icegridadmin
+  command line tool.
+
+- Added new `property' attribute to IceGrid object descriptors. If
+  this attribute is specified, the registry will generate a property
+  named with the value of the attribute, for example:
+
+     <object id="hello" property="Identity"/>
+  
+  will generate the property "Identity=hello".
+
+- Added new `ice-version' attribute to IceGrid server descriptors. If
+  this attribute is not set or empty, the IceGrid registry assumes that
+  the server is using the same Ice version. If set to a value < 3.2,
+  the registry generates Ice configuration properties compatible with
+  the given version. This is useful for example if you want to run 3.1
+  servers with the 3.2 IceGrid registry -- the registry will transform
+  Ice.OA.<adapter name>.* properties to the old naming (<adapter
+  name>.*).
+
+- Patching a distribution with IceGrid should no longer result in an
+  Ice::TimeoutException exception if the patching takes a long time.
+
+- Fixed IceGrid to no longer throw Ice::NoEndpointException to a
+  client if the object adapter of a server managed by an IceGrid node
+  is being deactivated. IceGrid will now queue the locate request from
+  the client, reactivate the server and send the response of the
+  locate request when the object adapter is active again.
+
+- Replaced the IceGrid `wait-for-activation' attribute of an adapter
+  descriptor with a new `server-lifetime' attribute. An adapter with
+  the `server-lifetime' attribute set to true is expected to be active
+  for the duration of the server execution. IceGrid considers a server
+  active when all the adapters with this attribute set to true are
+  active and considers that a server is being deactivated as soon as
+  at least one such adapter is deactivated.
+
+- Added findAllReplicas() method to the IceGrid::Query interface. This
+  operation allows to retrieve all the replicas associated to a given
+  proxy.
+
+- Added support for service property sets in server instances. These
+  property sets allow to specify additional properties for IceBox
+  services hosted by IceBox server template instances. For example:
+   
+    <server-instance template="MyIceBoxTemplate">
+      <properties service="MyService">
+        <property name="Dummy" value="Dummy"/>
+      </properties>
+    </server-instance>
+
+- Added new IceGrid `Ordered' load balancing policy. The endpoint of a
+  replica group configured with this load balancing will be ordered by
+  priority of each replica. The priority can be set with the new
+  object adapter `priority' attribute.
+
+- Removed the IceGrid `None' load balancing policy. This load
+  balancing is equivalent to the `Random' load balancing configured to
+  return the endpoints of all the replicas (i.e.: with the load
+  balancing `n-replicas' attribute set to 0).
+
+- Setting the n-replicas attribute of an IceGrid replica group load
+  balancing policy to 0 is no longer equivalent to 1. It now specifies
+  to return the endpoints of all the replicas which are members of the
+  replica group.
+
+- The IceGrid registry now supports replication in a master/slave
+  scheme. See the Ice manual for information on the configuration
+  of replicated IceGrid registries.
 
 - Object adapter properties are now prefixed by "Ice.OA.". For example,
   "Ice.OA.<Adpater name>.Endpoints" instead of "<Adpater name>.Endpoints".
@@ -26,10 +102,8 @@ Changes since version 3.1.1
 - Glacier2.AllowCategories is now deprecated and superseded by
   Glacier2.Filter.Category.Accept.
 
-- The Ice.Logger.Timestamp property has been removed and replaced by
-  Ice.Logger.DateFormat. It can be set to a string repesenting the date
-  format as recognized by strftime(). By default it uses "%x %H:%M:%S".
-  Passing "0" will result in no timestamp being printed.
+- The Ice.Logger.Timestamp property has been removed. Timestamps are
+  now always printed.
 
 - Added new property Ice.Default.PreferSecure, which if set to 1
   causes secure connections to be prefered over non-secure connections.
