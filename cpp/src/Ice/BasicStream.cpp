@@ -30,7 +30,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::BasicStream::BasicStream(Instance* instance) :
+IceInternal::BasicStream::BasicStream(Instance* instance, bool unlimited) :
     IceInternal::Buffer(instance->messageSizeMax()),
     _instance(instance),
     _currentReadEncaps(0),
@@ -38,6 +38,7 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
     _traceSlicing(-1),
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
+    _unlimited(unlimited),
     _stringConverter(instance->initializationData().stringConverter),
     _wstringConverter(instance->initializationData().wstringConverter),
     _seqDataStack(0),
@@ -122,6 +123,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
 
     std::swap(_seqDataStack, other._seqDataStack);
     std::swap(_objectList, other._objectList);
+    std::swap(_unlimited, other._unlimited);
 }
 
 //

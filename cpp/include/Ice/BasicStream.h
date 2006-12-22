@@ -76,7 +76,7 @@ public:
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
-    BasicStream(Instance*);
+    BasicStream(Instance*, bool = false);
     ~BasicStream()
     {
         // Inlined for performance reasons.
@@ -101,7 +101,10 @@ public:
 
     void resize(Container::size_type sz)
     {
-	if(sz > _messageSizeMax)
+        //
+	// Check memory limit if stream is not unlimited.
+	//
+	if(!_unlimited && sz > _messageSizeMax)
 	{
 	    throwMemoryLimitException(__FILE__, __LINE__);
 	}
@@ -695,6 +698,7 @@ private:
     bool _sliceObjects;
 
     const Container::size_type _messageSizeMax;
+    bool _unlimited;
 
     const Ice::StringConverterPtr& _stringConverter;
     const Ice::WstringConverterPtr& _wstringConverter;

@@ -788,6 +788,7 @@ namespace Ice
 		}
 		
 		_batchStreamInUse = true;
+		_batchMarker = _batchStream.size();
 		_batchStream.swap(os);
 		
 		//
@@ -799,30 +800,107 @@ namespace Ice
 	
 	public void finishBatchRequest(IceInternal.BasicStream os, bool compress)
 	{
+	    bool autoflush = false;
+	    byte[] lastRequest = null;
+
 	    lock(this)
 	    {
 		//
-		// Get the batch stream back and increment the number of
-		// requests in the batch.
+		// Get the batch stream back.
 		//
 		_batchStream.swap(os);
-		++_batchRequestNum;
 
-		//
-		// We compress the whole batch if there is at least
-		// one compressed message.
-		//
-		if(compress)
+		if(_batchStream.size() > instance_.messageSizeMax())
 		{
-		    _batchRequestCompress = true;
+		    //
+		    // Throw memory limit exception if the first message added causes us to
+		    // go over limit. Otherwise put aside the marshalled message that caused
+		    // limit to be exceeded and rollback stream to the marker.
+		    //
+		    if(_batchRequestNum == 0)
+		    {
+		        resetBatch(true);
+			throw new MemoryLimitException();
+		    }
+		
+		    int requestSize = _batchStream.size() - _batchMarker;
+		    lastRequest = new byte[requestSize];
+		    Buffer.BlockCopy(_batchStream.prepareRead().rawBytes(), _batchMarker, lastRequest, 0, requestSize);
+		    _batchStream.resize(_batchMarker, false);
+		    autoflush = true;
 		}
+		else
+		{
+		    // 
+		    // Increment the number of requests in the batch.
+		    //
+		    ++_batchRequestNum;
 
+		    //
+		    // We compress the whole batch if there is at least
+		    // one compressed message.
+		    //
+		    if(compress)
+	    	    {
+		        _batchRequestCompress = true;
+		    }
+
+		    //
+		    // Notify about the batch stream not being in use anymore.
+		    //
+		    Debug.Assert(_batchStreamInUse);
+		    _batchStreamInUse = false;
+		    Monitor.PulseAll(this);
+		}
+	    }
+
+	    if(autoflush)
+	    {
+	        //
+		// We have to keep _batchStreamInUse set until after we insert the
+		// saved marshalled data into a new stream.
 		//
-		// Notify about the batch stream not being in use anymore.
-		//
-		Debug.Assert(_batchStreamInUse);
-		_batchStreamInUse = false;
-		Monitor.PulseAll(this);
+		flushBatchRequestsInternal(true);
+
+		lock(this)
+		{
+		    //
+		    // Throw memory limit exception if the message that caused us to go over
+		    // limit causes us to exceed the limit by itself.
+		    //
+		    if(IceInternal.Protocol.requestBatchHdr.Length + lastRequest.Length >  instance_.messageSizeMax())
+		    {
+		        resetBatch(true);
+			throw new MemoryLimitException();
+		    }
+
+		    //
+		    // Start a new batch with the last message that caused us to
+		    // go over the limit.
+		    //
+		    try
+		    {
+		        _batchStream.writeBlob(IceInternal.Protocol.requestBatchHdr);
+			_batchStream.writeBlob(lastRequest);
+		    }
+		    catch(LocalException ex)
+		    {
+			setState(StateClosed, ex);
+			throw;
+		    }
+
+		    if(compress)
+	    	    {
+		        _batchRequestCompress = true;
+		    }
+
+		    //
+		    // Notify that the batch stream not in use anymore.
+		    //
+		    ++_batchRequestNum;
+		    _batchStreamInUse = false;
+		    Monitor.PulseAll(this);
+		}
 	    }
 	}
 	
@@ -830,35 +908,32 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		//
-		// Destroy and reset the batch stream and batch
-		// count. We cannot save old requests in the batch
-		// stream, as they might be corrupted due to
+	        //
+		// Reset the batch stream. We cannot save old requests
+		// in the batch stream, as they might be corrupted due to
 		// incomplete marshaling.
 		//
-		_batchStream = new IceInternal.BasicStream(instance_);
-		_batchRequestNum = 0;
-		_batchRequestCompress = false;
-		
-		//
-		// Notify about the batch stream not being in use
-		// anymore.
-		//
-		Debug.Assert(_batchStreamInUse);
-		_batchStreamInUse = false;
-		Monitor.PulseAll(this);
+		resetBatch(true);
 	    }
 	}
 
 	public void flushBatchRequests()
 	{
+	    flushBatchRequestsInternal(false);
+	}
+
+	private void flushBatchRequestsInternal(bool ignoreInUse)
+	{
 	    IceInternal.BasicStream stream = null;
 
 	    lock(this)
 	    {
-		while(_batchStreamInUse && _exception == null)
+	        if(!ignoreInUse)
 		{
-		    Monitor.Wait(this);
+		    while(_batchStreamInUse && _exception == null)
+		    {
+		        Monitor.Wait(this);
+		    }
 		}
 		
 		if(_exception != null)
@@ -937,14 +1012,29 @@ namespace Ice
 		//
 		// Reset the batch stream, and notify that flushing is over.
 		//
-		_batchStream = new IceInternal.BasicStream(instance_);
-		_batchRequestNum = 0;
-		_batchRequestCompress = false;
-		_batchStreamInUse = false;
-		Monitor.PulseAll(this);
+		resetBatch(!ignoreInUse);
 	    }
 	}
-	
+
+
+	private void resetBatch(bool resetInUse)
+	{
+	    _batchStream = new IceInternal.BasicStream(instance_, true);
+	    _batchRequestNum = 0;
+	    _batchRequestCompress = false;
+		
+	    //
+	    // Notify about the batch stream not being in use
+	    // anymore.
+	    //
+	    if(resetInUse)
+	    {
+	        Debug.Assert(_batchStreamInUse);
+	        _batchStreamInUse = false;
+	        Monitor.PulseAll(this);
+	    }
+	}
+
 	public void sendResponse(IceInternal.BasicStream os, byte compress)
 	{
 	    IceInternal.BasicStream stream = null;
@@ -1304,7 +1394,7 @@ namespace Ice
 		"Ice.CacheMessageBuffers", 1) == 1;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
-	    _batchStream = new IceInternal.BasicStream(instance);
+	    _batchStream = new IceInternal.BasicStream(instance, true);
 	    _batchStreamInUse = false;
 	    _batchRequestNum = 0;
 	    _batchRequestCompress = false;
@@ -2416,6 +2506,7 @@ namespace Ice
 	private bool _batchStreamInUse;
 	private int _batchRequestNum;
 	private bool _batchRequestCompress;
+	private int _batchMarker;
 	
 	private int _dispatchCount;
 	

@@ -14,7 +14,20 @@ public class BasicStream
     public
     BasicStream(IceInternal.Instance instance)
     {
+        initialize(instance, false);
+    }
+
+    public
+    BasicStream(IceInternal.Instance instance, boolean unlimited)
+    {
+        initialize(instance, unlimited);
+    }
+
+    private void
+    initialize(IceInternal.Instance instance, boolean unlimited)
+    {
         _instance = instance;
+	_unlimited = unlimited;
 	allocate(1500);
         _capacity = _buf.capacity();
         _limit = 0;
@@ -115,12 +128,16 @@ public class BasicStream
         java.util.ArrayList tmpObjectList = other._objectList;
         other._objectList = _objectList;
         _objectList = tmpObjectList;
+
+        boolean tmpUnlimited = other._unlimited;
+        other._unlimited = _unlimited;
+        _unlimited = tmpUnlimited;
     }
 
     public void
     resize(int total, boolean reading)
     {
-        if(total > _messageSizeMax)
+        if(!_unlimited && total > _messageSizeMax)
         {
             throw new Ice.MemoryLimitException();
         }
@@ -1934,7 +1951,7 @@ public class BasicStream
         {
             int oldLimit = _limit;
             _limit += size;
-            if(_limit > _messageSizeMax)
+            if(!_unlimited && _limit > _messageSizeMax)
             {
                 throw new Ice.MemoryLimitException();
             }
@@ -2262,7 +2279,10 @@ public class BasicStream
         //
 	// Limit the buffer size to MessageSizeMax
 	//
-        size = size > _messageSizeMax ? _messageSizeMax : size;
+	if(!_unlimited)
+	{
+            size = size > _messageSizeMax ? _messageSizeMax : size;
+	}
 
 	java.nio.ByteBuffer old = _buf;
 	assert(old != null);
@@ -2347,6 +2367,7 @@ public class BasicStream
     private boolean _sliceObjects;
 
     private int _messageSizeMax;
+    private boolean _unlimited;
 
     private static final class SeqData
     {

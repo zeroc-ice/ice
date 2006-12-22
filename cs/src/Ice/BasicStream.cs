@@ -47,7 +47,18 @@ namespace IceInternal
 
 	public BasicStream(IceInternal.Instance instance)
 	{
+	    initialize(instance, false);
+	}
+
+	public BasicStream(IceInternal.Instance instance, bool unlimited)
+	{
+	    initialize(instance, unlimited);
+	}
+
+	private void initialize(IceInternal.Instance instance, bool unlimited)
+	{
 	    instance_ = instance;
+	    _unlimited = unlimited;
 	    allocate(1500);
 	    _capacity = _buf.capacity();
 	    _limit = 0;
@@ -145,11 +156,15 @@ namespace IceInternal
 	    ArrayList tmpObjectList = other._objectList;
 	    other._objectList = _objectList;
 	    _objectList = tmpObjectList;
+
+	    bool tmpUnlimited = other._unlimited;
+	    other._unlimited = _unlimited;
+	    _unlimited = tmpUnlimited;
 	}
 	
 	public virtual void resize(int total, bool reading)
 	{
-	    if(total > _messageSizeMax)
+	    if(!_unlimited && total > _messageSizeMax)
 	    {
 		throw new Ice.MemoryLimitException("Message size > Ice.MessageSizeMax");
 	    }
@@ -1738,7 +1753,7 @@ namespace IceInternal
 	    {
 		int oldLimit = _limit;
 		_limit += size;
-		if(_limit > _messageSizeMax)
+		if(!_unlimited && _limit > _messageSizeMax)
 		{
 		    throw new Ice.MemoryLimitException("Message larger than Ice.MessageSizeMax");
 		}
@@ -1929,7 +1944,10 @@ namespace IceInternal
 	    //
 	    // Limit the buffer size to MessageSizeMax
 	    //
-	    size = size > _messageSizeMax ? _messageSizeMax : size;
+	    if(!_unlimited)
+	    {
+	        size = size > _messageSizeMax ? _messageSizeMax : size;
+	    }
 
 	    ByteBuffer old = _buf;
 	    Debug.Assert(old != null);
@@ -2011,6 +2029,7 @@ namespace IceInternal
 	private bool _sliceObjects;
 	
 	private int _messageSizeMax;
+	private bool _unlimited;
 
 	private sealed class SeqData
 	{

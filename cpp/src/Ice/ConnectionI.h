@@ -115,6 +115,9 @@ private:
 	StateClosed
     };
 
+    void resetBatch(bool);
+    void flushBatchRequestsInternal(bool); 
+
     void setState(State, const LocalException&);
     void setState(State);
 
@@ -192,6 +195,7 @@ private:
     bool _batchStreamInUse;
     int _batchRequestNum;
     bool _batchRequestCompress;
+    size_t _batchMarker;
 
     int _dispatchCount;
 
