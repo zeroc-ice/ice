@@ -18,6 +18,12 @@ MONO = yes
 #DOTNET_1 = yes
 
 #
+# If you are compiling with Mono, set MONO_COMPILER to either mcs or gmcs,
+# depending on which compiler you want to use.
+#
+MONO_COMPILER = gmcs # or mcs
+
+#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -126,7 +132,7 @@ INSTALL_DATA		= ${INSTALL}
 GACUTIL			= gacutil
 
 ifeq ($(MONO),yes)
-MCS			= mcs
+MCS			= $(MONO_COMPILER)
 else
 MCS			= csc -nologo
 endif
@@ -143,10 +149,6 @@ ifeq ($(OPTIMIZE),yes)
 endif
 
 ifeq ($(DOTNET_1), yes)
-    MCSFLAGS := $(MCSFLAGS) -d:ICE_DOTNET_1X
-endif
-
-ifeq ($(MONO), yes)
     MCSFLAGS := $(MCSFLAGS) -d:ICE_DOTNET_1X
 endif
 
