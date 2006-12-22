@@ -521,6 +521,14 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     return _session->getLoadInfo();
 }
 
+NodeSessionIPtr
+NodeEntry::getSession() const
+{
+    Lock sync(*this);
+    checkSession();
+    return _session;
+}
+
 bool
 NodeEntry::canRemove()
 {

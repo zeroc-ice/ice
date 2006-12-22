@@ -51,13 +51,14 @@ public:
     InternalNodeInfoPtr getInfo() const;
     ServerEntrySeq getServers() const;
     LoadInfo getLoadInfoAndLoadFactor(const std::string&, float&) const;
+    NodeSessionIPtr getSession() const;
 
     bool canRemove();
     
     void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int);
     void destroyServer(const ServerEntryPtr&, const ServerInfo&, int);
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
-
+    
     void __incRef();
     void __decRef();
 

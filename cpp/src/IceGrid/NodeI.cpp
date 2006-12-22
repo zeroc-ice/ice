@@ -491,11 +491,11 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
     {
 	if(failure.empty())
 	{
-	    feedback->finished(_name);
+	    feedback->finished();
 	}
 	else
 	{
-	    feedback->failed(_name, failure);
+	    feedback->failed(failure);
 	}
     }
     catch(const Ice::LocalException&)

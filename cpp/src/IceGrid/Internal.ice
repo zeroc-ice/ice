@@ -86,7 +86,7 @@ class InternalServerDescriptor
     /** The server activation timeout. */
     string activationTimeout;
     
-    /** The server activation timeout. */
+    /** The server deactivation timeout. */
     string deactivationTimeout;
 
     /** The Ice version used by the server. */
@@ -204,7 +204,7 @@ interface FileReader
 
     /**
      *
-     * Read and return up to count lines (or size bytes) at the specified position.
+     * Read lines (or size bytes) at the specified position from the given file.
      * 
      **/
     ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
@@ -325,17 +325,17 @@ interface PatcherFeedback
 {
     /**
      *
-     * The patch on the given node completed successfully.
+     * The patch completed successfully.
      *
      **/
-    void finished(string node);
+    void finished();
 
     /**
      *
      * The patch on the given node failed for the given reason.
      *
      **/
-    void failed(string node, string reason);
+    void failed(string reason);
 };
 
 interface Node extends FileReader, ReplicaObserver
@@ -697,15 +697,53 @@ interface InternalRegistry extends FileReader
     NodeSession* registerNode(InternalNodeInfo info, Node* prx)
 	throws NodeActiveException;
 
+    /**
+     *
+     * Register a replica with the registry. If a replica with the
+     * same name is already registered, [registerReplica] will overide
+     * the previous replica only if it's not active.
+     *
+     * @param info Some information on the replica.
+     *
+     * @param prx The proxy of the replica.
+     * 
+     * @return The replica session proxy.
+     * 
+     * @throws ReplicaActiveException Raised if the replica is already
+     * registered and currently active.
+     *
+     **/
     ReplicaSession* registerReplica(InternalReplicaInfo info, InternalRegistry* prx)
 	throws ReplicaActiveException;
 
+    /**
+     *
+     * Create a session with the given registry replica. This method
+     * returns only once the session creation has been attempted.
+     * 
+     **/
     void registerWithReplica(InternalRegistry* prx);
 
+    /**
+     *
+     * Return the proxies of all the nodes known by this registry.
+     *
+     **/
     ["cpp:const"] idempotent NodePrxSeq getNodes();
 
+    /**
+     *
+     * Return the proxies of all the registry replicas known by this
+     * registry.
+     *
+     **/
     ["cpp:const"] idempotent InternalRegistryPrxSeq getReplicas();
 
+    /**
+     *
+     * Shutdown this registry.
+     *
+     **/
     ["cpp:const"] idempotent void shutdown();
 };
 
