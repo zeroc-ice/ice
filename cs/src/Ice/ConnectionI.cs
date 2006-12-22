@@ -1300,6 +1300,8 @@ namespace Ice
 	    _registeredWithPool = false;
 	    _finishedCount = 0;
 	    _warn = instance_.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
+	    _cacheBuffers = instance_.initializationData().properties.getPropertyAsIntWithDefault(
+		"Ice.CacheMessageBuffers", 1) == 1;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
 	    _batchStream = new IceInternal.BasicStream(instance);
@@ -2291,20 +2293,27 @@ namespace Ice
 	private IceInternal.Incoming getIncoming(ObjectAdapter adapter, bool response, byte compress, int requestId)
 	{
 	    IceInternal.Incoming inc = null;
-	    
-	    lock(_incomingCacheMutex)
+
+	    if(_cacheBuffers)
 	    {
-		if(_incomingCache == null)
+		lock(_incomingCacheMutex)
 		{
-		    inc = new IceInternal.Incoming(instance_, this, adapter, response, compress, requestId);
+		    if(_incomingCache == null)
+		    {
+			inc = new IceInternal.Incoming(instance_, this, adapter, response, compress, requestId);
+		    }
+		    else
+		    {
+			inc = _incomingCache;
+			_incomingCache = _incomingCache.next;
+			inc.reset(instance_, this, adapter, response, compress, requestId);
+			inc.next = null;
+		    }
 		}
-		else
-		{
-		    inc = _incomingCache;
-		    _incomingCache = _incomingCache.next;
-		    inc.reset(instance_, this, adapter, response, compress, requestId);
-		    inc.next = null;
-		}
+	    }
+	    else
+	    {
+		inc = new IceInternal.Incoming(instance_, this, adapter, response, compress, requestId);
 	    }
 	    
 	    return inc;
@@ -2312,35 +2321,45 @@ namespace Ice
 	
 	private void reclaimIncoming(IceInternal.Incoming inc)
 	{
-	    lock(_incomingCacheMutex)
+	    if(_cacheBuffers)
 	    {
-		inc.next = _incomingCache;
-		_incomingCache = inc;
-		//
-		// Clear references to Ice objects as soon as possible.
-		//
-		_incomingCache.reclaim();
+		lock(_incomingCacheMutex)
+		{
+		    inc.next = _incomingCache;
+		    _incomingCache = inc;
+		    //
+		    // Clear references to Ice objects as soon as possible.
+		    //
+		    _incomingCache.reclaim();
+		}
 	    }
 	}
 
 	public IceInternal.Outgoing getOutgoing(IceInternal.Reference reference, string operation, OperationMode mode,
 						Context context, bool compress)
 	{
-	    IceInternal.Outgoing outg;
-	    
-	    lock(_outgoingCacheMutex)
+	    IceInternal.Outgoing outg = null;
+
+	    if(_cacheBuffers)
 	    {
-		if(_outgoingCache == null)
+		lock(_outgoingCacheMutex)
 		{
-		    outg = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
+		    if(_outgoingCache == null)
+		    {
+			outg = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
+		    }
+		    else
+		    {
+			outg = _outgoingCache;
+			_outgoingCache = _outgoingCache.next;
+			outg.reset(reference, operation, mode, context, compress);
+			outg.next = null;
+		    }
 		}
-		else
-		{
-		    outg = _outgoingCache;
-		    _outgoingCache = _outgoingCache.next;
-		    outg.reset(reference, operation, mode, context, compress);
-		    outg.next = null;
-		}
+	    }
+	    else
+	    {
+		outg = new IceInternal.Outgoing(this, reference, operation, mode, context, compress);
 	    }
 	    
 	    return outg;
@@ -2348,15 +2367,18 @@ namespace Ice
 
 	public void reclaimOutgoing(IceInternal.Outgoing outg)
 	{
-	    //
-	    // Clear references to Ice objects as soon as possible.
-	    //
-	    outg.reclaim();
-
-	    lock(_outgoingCacheMutex)
+	    if(_cacheBuffers)
 	    {
-		outg.next = _outgoingCache;
-		_outgoingCache = outg;
+		//
+		// Clear references to Ice objects as soon as possible.
+		//
+		outg.reclaim();
+
+		lock(_outgoingCacheMutex)
+		{
+		    outg.next = _outgoingCache;
+		    _outgoingCache = outg;
+		}
 	    }
 	}
 
@@ -2416,5 +2438,6 @@ namespace Ice
 
 	private bool _overrideCompress;
 	private bool _overrideCompressValue;
+	private bool _cacheBuffers;
     }
 }

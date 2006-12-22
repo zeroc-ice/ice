@@ -45,7 +45,7 @@ prefix			= /opt/IceCS-$(VERSION)
 # assertions enabled.
 #
 
-#DEBUG			= yes
+DEBUG			= yes
 
 #OPTIMIZE		= yes
 
