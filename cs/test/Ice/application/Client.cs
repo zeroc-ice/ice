@@ -22,7 +22,7 @@ public class Client : Ice.Application
 	Console.WriteLine("Ignore CTRL+C and the like for 5 seconds (try it!)");
 	System.Threading.Thread.Sleep(5 * 1000);
 
-    	userCallbackOnInterrupt();
+    	callbackOnInterrupt();
 
     	holdInterrupt();
 	Console.WriteLine("Hold CTRL+C and the like for 5 seconds (try it!)");
@@ -36,7 +36,7 @@ public class Client : Ice.Application
 	Console.WriteLine("Hold CTRL+C and the like for 5 seconds (try it!)");
 	System.Threading.Thread.Sleep(5 * 1000);
 
-	userCallbackOnInterrupt();
+	callbackOnInterrupt();
 	Console.WriteLine("Release CTRL+C (any held signals should be released)");
 	System.Threading.Thread.Sleep(5 * 1000);
 

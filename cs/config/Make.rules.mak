@@ -12,11 +12,6 @@
 !endif
 
 #
-# If you are compiling with .NET 1.x you must define this symbol.
-#
-#DOTNET_1 = yes
-
-#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -87,10 +82,6 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 
 !if "$(OPTIMIZE)" == "yes"
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
-!endif
-
-!if "$(DOTNET_1)" == "yes"
-MCSFLAGS 		= $(MCSFLAGS) -d:ICE_DOTNET_1X
 !endif
 
 SLICE2CS		= $(ICE_HOME)\bin\slice2cs

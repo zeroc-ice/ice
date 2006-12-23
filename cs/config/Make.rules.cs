@@ -13,17 +13,6 @@
 MONO = yes
 
 #
-# If you are compiling with .NET 1.x you must define this symbol.
-#
-#DOTNET_1 = yes
-
-#
-# If you are compiling with Mono, set MONO_COMPILER to either mcs or gmcs,
-# depending on which compiler you want to use.
-#
-MONO_COMPILER = gmcs # or mcs
-
-#
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
@@ -132,7 +121,7 @@ INSTALL_DATA		= ${INSTALL}
 GACUTIL			= gacutil
 
 ifeq ($(MONO),yes)
-MCS			= $(MONO_COMPILER)
+MCS			= gmcs
 else
 MCS			= csc -nologo
 endif
@@ -146,10 +135,6 @@ endif
 
 ifeq ($(OPTIMIZE),yes)
     MCSFLAGS := $(MCSFLAGS) -optimize+
-endif
-
-ifeq ($(DOTNET_1), yes)
-    MCSFLAGS := $(MCSFLAGS) -d:ICE_DOTNET_1X
 endif
 
 ifeq ($(installdata),)

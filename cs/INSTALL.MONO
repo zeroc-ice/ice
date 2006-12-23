@@ -1,9 +1,7 @@
 Build instructions
 ------------------
 
-This version of Ice for C# requires Mono version 1.1.13. Note that
-Mono currently only supports .NET 1.1 and therefore IceSSL is not
-supported.
+This version of Ice for C# requires Mono version 1.2.2.1 or later.
 
 Unpack the archive. The sources will be contained in the 
 IceCS-@ver@ subdirectory.
@@ -122,18 +120,6 @@ correctly without having to set environment variables.
 
 Finally, you could also copy the necessary libraries into the
 directory that contains the .exe for your application.
-
-
-Usage Notes
------------
-
-To maintain source code compatibility between .NET 1.1 and .NET 2.0,
-the Slice compiler generates code that uses the conditional symbol
-ICE_DOTNET_1X for sequences having the "clr:collection" metadata.
-If your Slice definitions use this metadata for sequences, you must
-define ICE_DOTNET_1X during compilation, as shown below:
-
-mcs -d:ICE_DOTNET_1X ...
 
 
 Known Issues

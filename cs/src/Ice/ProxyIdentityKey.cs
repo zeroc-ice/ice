@@ -18,11 +18,7 @@ namespace Ice
     // the identity and the facet name as the hash key.
     //
 
-#if ICE_DOTNET_1X
-    public class ProxyIdentityKey : System.Collections.IHashCodeProvider, System.Collections.IComparer
-#else
     public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Collections.IComparer
-#endif
     {
 	public int GetHashCode(object obj)
 	{
@@ -73,11 +69,7 @@ namespace Ice
 	}
     }
 
-#if ICE_DOTNET_1X
-    public class ProxyIdentityFacetKey : System.Collections.IHashCodeProvider, System.Collections.IComparer
-#else
     public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, System.Collections.IComparer
-#endif
     {
 	public int GetHashCode(object obj)
 	{

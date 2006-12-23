@@ -11,10 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= IceUtil Ice Glacier2 IceGrid
-!if "$(DOTNET_1)" != "yes"
-SUBDIRS         = $(SUBDIRS) IceSSL
-!endif
+SUBDIRS		= IceUtil Ice Glacier2 IceGrid IceSSL
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

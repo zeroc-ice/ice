@@ -419,22 +419,6 @@ namespace IceInternal
 			}			
 		    }
 		    
-		    //
-		    // BUGFIX: Mono 1.0 bug: Under Linux/Mono, dual-CPU machine, we see Select() return
-		    // a writable socket after a non-blocking connect has thrown a SocketException with
-		    // NativeErrorCode 10036 (WSAEWOULDBLOCK). The call to Select() that follows returns
-		    // the socket as writable, indicating that the socket is now connected. In addition,
-		    // retrieving the error status with GetSocketOption returns zero. But calling
-		    // Connected() at that point returns false, and any subsequent call to read()
-		    // on that socket fails with WSAECONNREFUSED.
-		    //
-		    // The only fix appears to be to restart the call to Connect() -- the second attempt
-		    // works and establishes the connection.
-		    //
-		    if(ready && AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono && !socket.Connected)
-		    {
-			goto repeatConnect;
-		    }
 		    Debug.Assert(!(ready && error));
 		}
 		catch(SocketException e)
@@ -735,9 +719,6 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
-#if ICE_DOTNET_1X
-		IPHostEntry e = Dns.GetHostByName(host);
-#else
                 try
                 {
                     return new IPEndPoint(IPAddress.Parse(host), port);
@@ -746,7 +727,6 @@ namespace IceInternal
                 {
                 }
 		IPHostEntry e = Dns.GetHostEntry(host);
-#endif
 		for(int i = 0; i < e.AddressList.Length; ++i)
 		{
 		    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
@@ -787,11 +767,7 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
-#if ICE_DOTNET_1X
-	        IPHostEntry e = Dns.GetHostByName(hostname);
-#else
 	        IPHostEntry e = Dns.GetHostEntry(hostname);
-#endif
 		for(int i = 0; i < e.AddressList.Length; ++i)
 		{
 		    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
@@ -834,11 +810,7 @@ namespace IceInternal
 	repeatGetHostByName:
 	    try
 	    {
-#if ICE_DOTNET_1X
-	        IPHostEntry e = Dns.GetHostByName(Dns.GetHostName());
-#else
 	        IPHostEntry e = Dns.GetHostEntry(Dns.GetHostName());
-#endif
 		hosts = new ArrayList();
 		for(int i = 0; i < e.AddressList.Length; ++i)
 		{

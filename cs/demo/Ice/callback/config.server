@@ -1,6 +1,5 @@
 #
-# The server listens at the following endpoints. (The SSL
-# endpoint is ignored with .NET 1.1.)
+# The server listens at the following endpoints.
 #
 Ice.OA.Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 

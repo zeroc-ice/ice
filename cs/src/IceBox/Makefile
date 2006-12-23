@@ -29,10 +29,7 @@ include $(top_srcdir)/config/Make.rules.cs
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
 LIB_MCSFLAGS	:= -target:library -out:$(LIBNAME) -unsafe
-
-ifneq ($(DOTNET_1), yes)
 LIB_MCSFLAGS	:= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)/config/IcecsKey.snk
-endif
 
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 

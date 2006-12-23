@@ -300,21 +300,6 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
-                //
-                // IceSSL is not supported with .NET 1.1. We avoid throwing an exception in that case,
-                // so the same configuration can be used with .NET 1.1 and .NET 2.0.
-                //
-                if(System.Environment.Version.Major == 1 && name == "IceSSL")
-                {
-                    if(!_sslWarnOnce)
-                    {
-                        _communicator.getLogger().warning(
-                            "IceSSL plugin not loaded: IceSSL is not supported with .NET 1.1");
-                        _sslWarnOnce = true;
-                    }
-                    return;
-                }
-
                 PluginInitializationException e = new PluginInitializationException();
                 e.reason = err + "unable to load assembly: '" + assemblyName + "': " + ex.ToString();
                 throw e;

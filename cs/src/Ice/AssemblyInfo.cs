@@ -24,7 +24,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("3.2.0")]
 [assembly: AssemblyDelaySign(false)]
 
-#if ICE_DOTNET_1X && !__MonoCS__
+#if !__MonoCS__
 #if MAKEFILE_BUILD
 [assembly: AssemblyKeyFile("../../config/IcecsKey.snk")]
 #else

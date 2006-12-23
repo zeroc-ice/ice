@@ -26,9 +26,7 @@ GDIR		= generated
 !include $(top_srcdir)/config/Make.rules.mak
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe -warnaserror-
-!if "$(DOTNET_1)" != "yes"
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
-!endif
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) -I$(slicedir)
 

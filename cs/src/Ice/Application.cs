@@ -20,12 +20,11 @@ namespace Ice
 	public abstract int run(string[] args);
 
 	//
-	// Override this to provide a custom application interrupt
-	// hook. You must call userCallbackOnInterrupt for this method
+	// Override this method to provide a custom application interrupt
+	// hook. You must call callbackOnInterrupt for this method
 	// to be called. Note that the interruptCallback can be called
 	// concurrently with any other thread (including main) in your
-	// application and thus must take appropriate concurrency
-	// precautions.
+	// application--take appropriate concurrency precautions.
 	//
 	public virtual void interruptCallback(int sig)
 	{
@@ -158,8 +157,8 @@ namespace Ice
 	    {
 	        _destroyed = true;
 		//
-		// And _communicator != 0, meaning will be destroyed
-		// next, _destroyed = true also ensures that any
+		// _communicator != 0 means that it will be destroyed
+		// next; _destroyed == true ensures that any
 		// remaining callback won't do anything
 		//
 	    }
@@ -256,7 +255,7 @@ namespace Ice
 	    Monitor.Exit(sync);
 	}
 
-	public static void userCallbackOnInterrupt()
+	public static void callbackOnInterrupt()
 	{   
 	    Monitor.Enter(sync);
 	    if(_callback == _holdCallback)
@@ -473,7 +472,10 @@ namespace Ice
 
 	    try
 	    {
-		_application.interruptCallback(sig);
+		if(_application != null)
+		{
+		    _application.interruptCallback(sig);
+		}
 	    }
 	    catch(System.Exception ex)
 	    {
@@ -485,7 +487,6 @@ namespace Ice
 	    Monitor.Pulse(sync);
 	    Monitor.Exit(sync);
 	}
-
 
 #if !__MonoCS__
 	public delegate void ControlEventHandler(int consoleEvent);
