@@ -242,7 +242,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
     runprog("nmake /f Makefile.mak")
 
-    if installVersion in ["vc80", "vc71"]:
+    if installVersion in ["vc80"]:
 	#
 	# Ice for C#
 	#
@@ -250,8 +250,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-	if installVersion == "vc71":
-	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
 	runprog("nmake /f Makefile.mak") 
 
 
@@ -261,8 +259,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.chdir(os.path.join(sourcesDir, "debug", "IceVB-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
-	if installVersion == "vc71":
-	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
 	f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
 	for l in f:
 	    i = l.find("icecs") 
@@ -282,8 +278,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
-	if installVersion == "vc71":
-	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
 	runprog("nmake /f Makefile.mak") 
 
 	#
@@ -292,8 +286,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.chdir(os.path.join(sourcesDir, "release", "IceVB-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-	if installVersion == "vc71":
-	    setMakefileOption(os.path.join(os.getcwd(), "config", "Make.rules.mak"), "DOTNET_1", True)
 	f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
 	for l in f:
 	    i = l.find("icecs") 

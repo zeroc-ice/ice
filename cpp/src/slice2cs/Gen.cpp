@@ -1653,20 +1653,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#region ArrayList members";
 
-    _out << sp << nl << "#if ICE_DOTNET_1X";
-    _out << nl << "public virtual int Capacity";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return InnerList.Capacity;";
-    _out << eb;
-    _out << nl << "set";
-    _out << sb;
-    _out << nl << "InnerList.Capacity = value;";
-    _out << eb;
-    _out << eb;
-    _out << nl << "#endif";
-
     _out << sp << nl << "public virtual void TrimToSize()";
     _out << sb;
     _out << nl << "InnerList.TrimToSize();";

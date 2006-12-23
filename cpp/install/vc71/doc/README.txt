@@ -26,7 +26,9 @@ Visual Studio Requirements
 --------------------------
 
 This release requires Visual Studio .NET 2003 build 3088 or later. For
-C# or VB the release requires .NET 1.1, build 4322 or later.
+C# or VB, the release requires Visual Studio .NET 2005 or later or
+Visual C# Express Version 8.0.50727.42 or later, and .NET 2.0,
+build 502727 or later.
 
 
 Setting up Visual Studio .NET for C++
@@ -49,21 +51,6 @@ libraries, and executables.
 - Select "Executable files"
 
 - Add <Ice installation root directory>\bin
-
-
-Setting up Visual Studio .NET for C#
-------------------------------------
-
-To maintain source code compatibility between .NET 1.1 and .NET 2.0,
-the Slice compiler generates code that uses the conditional symbol
-ICE_DOTNET_1X for sequences having the "clr:collection" metadata.
-If you use .NET 1.1 and your Slice definitions use this metadata for
-sequences, you must define ICE_DOTNET_1X during compilation.
-
-In Visual Studio, open your project's properties page and choose
-Configuration Properties. Add ICE_DOTNET_1X to Conditional
-Compilation Constants, using a semicolon to separate it from any
-existing values.
 
 
 Using the IceGrid Administrative Console
