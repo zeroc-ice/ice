@@ -1,8 +1,7 @@
 IceBox.InstanceName=DemoIceBox
 
 #
-# The IceBox server endpoint configuration. (The SSL
-# endpoint is ignored with .NET 1.1.)
+# The IceBox server endpoint configuration.
 #
 IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 
@@ -14,7 +13,7 @@ IceBox.Service.Hello=helloservice.dll:HelloIceBox.HelloIceBoxS+HelloServiceI
 #
 # The server creates one single object adapter with the name of
 # the service. The following line sets the endpoints for this
-# adapter. (The SSL endpoint is ignored with .NET 1.1.)
+# adapter.
 #
 Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 

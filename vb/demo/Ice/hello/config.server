@@ -1,7 +1,7 @@
 #
 # The server creates one single object adapter with the name
 # "Hello". The following line sets the endpoints for this
-# adapter. (The SSL endpoint is ignored with .NET 1.1.)
+# adapter.
 #
 Hello.Endpoints=tcp -p 10000:udp -c -p 10000:ssl -p 10001
 

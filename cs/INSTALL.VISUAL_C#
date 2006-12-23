@@ -24,9 +24,14 @@ Make sure that the directory containing slice2cs is in your PATH. Note
 that icecpp.exe must be in your path as well, as must be the Ice for
 C++ run-time libraries iceutil and slice.
 
-If you are using Visual C# Version 8 then you should open All.sln in
-Visual C# and build the "All" solution (both debug and release builds
-are supported).
+To build the source:
+
+- nmake /f Makefile.mak (Visual Studio and Visual Express)
+
+- make (Mono)
+
+The demos can be built using the Visual Studio solution in
+the demo directory, or with make/nmake.
 
 
 Running the tests

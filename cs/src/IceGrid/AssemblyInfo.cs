@@ -23,11 +23,3 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("3.2.0")]
 [assembly: AssemblyDelaySign(false)]
-#if !__MonoCS__
-#if MAKEFILE_BUILD
-[assembly: AssemblyKeyFile("../../config/IcecsKey.snk")]
-#else
-[assembly: AssemblyKeyFile("../../../../config/IcecsKey.snk")]
-#endif
-#endif
-[assembly: AssemblyKeyName("")]

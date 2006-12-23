@@ -431,7 +431,6 @@ namespace Ice
 	private ArrayList _initOrder;
 	private Logger _logger = null;
 	private bool _initialized;
-        private static bool _sslWarnOnce = false;
     }
 
 }
