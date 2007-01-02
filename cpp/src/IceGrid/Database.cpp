@@ -70,16 +70,32 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     _applicationSerial(0)
 {
     ServerEntrySeq entries;
-    for(StringApplicationInfoDict::const_iterator p = _applications.begin(); p != _applications.end(); ++p)
+    for(StringApplicationInfoDict::iterator p = _applications.begin(); p != _applications.end(); ++p)
     {
 	try
 	{
-	    load(ApplicationHelper(_communicator, p->second.descriptor), entries, p->second.uuid, p->second.revision);
+	    //
+	    // Create an application helper for the application
+	    // without instantiating. The application might be invalid
+	    // if we need to upgrade it.
+	    //
+	    ApplicationInfo info = p->second;
+
+	    ApplicationHelper helper(_communicator, p->second.descriptor, false, false); 
+	    if(helper.upgrade(info.descriptor))
+	    {
+		++info.revision;
+		info.updateUser = "IceGrid Registry (database upgrade)";
+		info.updateTime = IceUtil::Time::now().toMilliSeconds();
+		p.set(info);
+	    }
+	    
+	    load(ApplicationHelper(_communicator, info.descriptor), entries, info.uuid, info.revision);
 	}
 	catch(const DeploymentException& ex)
 	{
-	    Ice::Warning warn(_traceLevels->logger);
-	    warn << "invalid application `" << p->first << "':\n" << ex.reason;
+	    Ice::Error err(_traceLevels->logger);
+	    err << "invalid application `" << p->first << "':\n" << ex.reason;
 	}
     }
 

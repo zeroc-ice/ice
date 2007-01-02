@@ -834,7 +834,7 @@ ServerEntry::allocated(const SessionIPtr& session)
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
     if(ctl)
     {
-	ServerHelperPtr helper = createHelper(_cache.getCommunicator(), desc);
+	ServerHelperPtr helper = createHelper(desc);
 	multiset<string> adapterIds;
 	multiset<Ice::Identity> identities;
 	helper->getIds(adapterIds, identities);
@@ -921,7 +921,7 @@ ServerEntry::released(const SessionIPtr& session)
     Glacier2::SessionControlPrx ctl = session->getSessionControl();
     if(ctl)
     {
-	ServerHelperPtr helper = createHelper(_cache.getCommunicator(), desc);
+	ServerHelperPtr helper = createHelper(desc);
 	multiset<string> adapterIds;
 	multiset<Ice::Identity> identities;
 	helper->getIds(adapterIds, identities);

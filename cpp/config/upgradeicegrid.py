@@ -18,16 +18,16 @@
 #
 # Where:
 #
-# olddbenv is the path of the Ice 3.0.x registry database environment
-# newdbenv is the path of the Ice 3.1 registry database environment
+# olddbenv is the path of the Ice 3.1.x registry database environment
+# newdbenv is the path of the Ice 3.2 registry database environment
 #
 #
-# NOTE: the 3.0 slice definitions for the IceGrid database are stored
-# in the icegrid-slice.3.0.tar.gz file. These definitions are used by
+# NOTE: the 3.1 slice definitions for the IceGrid database are stored
+# in the icegrid-slice.3.1.tar.gz file. These definitions are used by
 # the script to perform the database transformation.
 #
 
-import sys, os, gzip
+import sys, os, gzip, time
 
 olddbenv = None
 newdbenv = None
@@ -38,67 +38,83 @@ slicedir = None
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " olddbenv newdbenv"
+    print "Usage: " + sys.argv[0] + " [options] olddbenv newdbenv"
     print
     print "Options:"
     print "-h    Show this message."
+    print "-o    Set the server version to 3.1. This option should be used if"
+    print "      the servers managed by the registry are still using Ice 3.1."
 
 def printOutputFromPipe(pipe):
     while 1:
         line = pipe.readline()
         if not line:
             break
-        os.write(1, line)    
+        if line.find("warning") == -1:
+	    os.write(1, line)
 
-def transformdb(dbname, desc):
+def error(message):
+    print "error: " + message
+    sys.exit(1)
+
+def transformdb(db, desc):
     global olddbenv, newdbenv, slicedir, bindir
 
-    oldslice = os.path.join(newdbenv, "icegrid-slice.3.0.ice")
+    oldslice = os.path.join(newdbenv, "icegrid-slice.3.1.ice")
     oldslicefile = open(oldslice, "w+")
-    oldslicefile.write(gzip.GzipFile(os.path.join(os.path.dirname(sys.argv[0]), "icegrid-slice.3.0.ice.gz")).read())
+    oldslicefile.write(gzip.GzipFile(os.path.join(os.path.dirname(sys.argv[0]), "icegrid-slice.3.1.ice.gz")).read())
     oldslicefile.close()
 
-    tmpdesc = os.path.join(newdbenv, "tmpdesc" + dbname + ".xml")
+    tmpdesc = os.path.join(newdbenv, "tmpdesc.xml")
     tmpfile = open(tmpdesc, "w+")
     tmpfile.write(desc)
     tmpfile.close()
 
     transformdb = os.path.join(bindir, "transformdb") + \
-              " --old " + oldslice + \
+              " -i --old " + oldslice + \
               " --include-new " + slicedir + " --new " + os.path.join(slicedir, "IceGrid", "Admin.ice")
 
-    pipe = os.popen(transformdb + " -f " + tmpdesc + " " + olddbenv + " " + dbname + " " + newdbenv)
+    pipe = os.popen(transformdb + " -f " + tmpdesc + " " + olddbenv + " " + db + " " + newdbenv + " 2>&1" )
     printOutputFromPipe(pipe)
     os.remove(tmpdesc)
     os.remove(oldslice)
     if pipe.close():
         sys.exit(1)
 
-
 #
 # Check arguments
 #
+iceVersion = ""
+olddbenv = ""
+newdbenv = ""
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
+    elif x == "-o":
+	iceVersion = "3.1"
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
         usage()
         sys.exit(1)
-
-if len(sys.argv) != 3:
-    usage()
-    sys.exit(0)
+    elif olddbenv == "":
+        olddbenv = x
+    elif newdbenv == "":
+        newdbenv = x
+    else:
+        usage()
+        sys.exit(0)
     
-olddbenv = sys.argv[1]
 if not os.path.exists(olddbenv):
-    raise "database environment `" + olddbenv + "' doesn't exist"
+    error("database environment `" + olddbenv + "' doesn't exist")
 
-newdbenv = sys.argv[2]
 if not os.path.exists(newdbenv):
-    raise "database environment `" + newdbenv + "' doesn't exist"
+    error("database environment `" + newdbenv + "' doesn't exist")
+elif os.path.exists(os.path.join(newdbenv, "applications")) or \
+     os.path.exists(os.path.join(newdbenv, "adapters")) or \
+     os.path.exists(os.path.join(newdbenv, "objects")):
+    error("database environment `" + newdbenv + "' already has databases")
 
 icedir = os.getenv("ICE_HOME")
 if icedir == None:
@@ -109,37 +125,52 @@ for bindir in [os.path.join(icedir, "bin"), "/usr/bin"]:
     if os.path.exists(os.path.join(bindir, "transformdb")):
         break
 else:
-    raise "can't locate the `transformdb' executable"
+    error("can't locate the `transformdb' executable")
 
 for slicedir in [os.path.join(icedir, "slice"), "/usr/share/slice"]:
     slicedir = os.path.normpath(slicedir)
     if os.path.exists(os.path.join(slicedir, "IceGrid", "Admin.ice")):
         break
 else:
-    raise "can't locate the IceGrid slice files"
+    error("can't locate the IceGrid slice files")
 
-transformdb("applications", \
+desc = \
 '<transformdb>' + \
-'    <database key="string" value="::IceGrid::ApplicationDescriptor">' + \
-'      <record/>' + \
+' ' + \
+'    <database name="applications" key="string" value="::IceGrid::ApplicationDescriptor,::IceGrid::ApplicationInfo">' + \
+'	<record>' + \
+'            <set target="newvalue.revision" value="1"/>' + \
+'            <set target="newvalue.uuid" value="generateUUID()"/>' + \
+'            <set target="newvalue.createUser" value="\'IceGrid Registry (database upgrade)\'"/>' + \
+'            <set target="newvalue.updateUser" value="\'IceGrid Registry (database upgrade)\'"/>' + \
+'            <set target="newvalue.createTime" value="' + str(int(time.time() * 1000)) + '"/>' + \
+'            <set target="newvalue.updateTime" value="' + str(int(time.time() * 1000)) + '"/>' + \
+'            <set target="newvalue.descriptor" value="oldvalue"/>' + \
+'        </record>' + \
 '    </database>' + \
-'    <transform type="::IceGrid::CommunicatorDescriptor">' + \
-'      <set target="new.propertySet.properties" value="old.properties"/>' + \
+'    <database name="objects" key="::Ice::Identity" value="::IceGrid::ObjectInfo"/>' + \
+'    <database name="adapters" key="string" value="::IceGrid::AdapterInfo"/>' + \
+'' + \
+'    <transform type="::IceGrid::AdapterDescriptor">' + \
+'        <set target="new.serverLifetime" value="old.waitForActivation"/>' + \
 '    </transform>' + \
-'</transformdb>')
+'    ' + \
+'    <transform type="::IceGrid::ServerDescriptor">' + \
+'        <set target="new.iceVersion" value="\'' + iceVersion + '\'"/>' + \
+'    </transform>' + \
+'' + \
+'    <transform type="::IceGrid::ReplicaGroupDescriptor">' + \
+'         <if test="old.loadBalancing == nil">' + \
+'              <set target="new.loadBalancing" type="::IceGrid::RandomLoadBalancingPolicy"/>' + \
+'              <set target="new.loadBalancing.nReplicas" value="\'0\'"/>' + \
+'         </if>' + \
+'         <if test="old.loadBalancing != nil and old.loadBalancing.nReplicas == \'0\'">' + \
+'              <set target="new.loadBalancing.nReplicas" value="\'1\'"/>' + \
+'         </if>' + \
+'    </transform>' + \
+'    ' + \
+'</transformdb>'
 
-transformdb("adapters", \
-'<transformdb>' + \
-'    <database key="string" value="::IceGrid::AdapterInfo">' + \
-'      <record>' + \
-'        <set target="newvalue.id" value="oldkey"/>' + \
-'      </record>' + \
-'    </database>' + \
-'</transformdb>')
-
-transformdb("objects", \
-'<transformdb>' + \
-'    <database key="::Ice::Identity" value="::IceGrid::ObjectInfo">' + \
-'      <record/>' + \
-'    </database>' + \
-'</transformdb>')
+transformdb("objects", desc)
+transformdb("adapters", desc)
+transformdb("applications", desc)

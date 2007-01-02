@@ -464,11 +464,11 @@ Parser::describeServerTemplate(const list<string>& args)
 	    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(server);
 	    if(iceBox)
 	    {
-		IceBoxHelper(_communicator, iceBox).print(out);
+		IceBoxHelper(iceBox).print(_communicator, out);
 	    }
 	    else
 	    {
-		ServerHelper(_communicator, server).print(out);
+		ServerHelper(server).print(_communicator, out);
 	    }
 	    out << eb;
 	    out << nl;
@@ -550,7 +550,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 	    out << nl;
 
 	    ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(q->second.descriptor);
-	    ServiceHelper(_communicator, desc).print(out);
+	    ServiceHelper(desc).print(_communicator, out);
 	    out << eb;
 	    out << nl;
 	}
@@ -929,11 +929,11 @@ Parser::describeServer(const list<string>& args)
 	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(info.descriptor);
 	if(iceBox)
 	{
-	    IceBoxHelper(_communicator, iceBox).print(out, info);
+	    IceBoxHelper(iceBox).print(_communicator, out, info);
 	}
 	else
 	{
-	    ServerHelper(_communicator, info.descriptor).print(out, info);
+	    ServerHelper(info.descriptor).print(_communicator, out, info);
 	}
 	out << nl;
     }
