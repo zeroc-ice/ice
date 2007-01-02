@@ -34,45 +34,48 @@ namespace Ice
 
 	public void trace(string category, string message)
 	{
+	    System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
+	    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+	    s.Append(' ');
+	    s.Append(_prefix);
+	    s.Append(category);
+	    s.Append(": ");
+	    s.Append(message);
+	    s.Append(" ]");
+	    s.Replace("\n", "\n  ");
+
 	    lock(_globalMutex)
 	    {
-		System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
-		s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-		s.Append(' ');
-		s.Append(_prefix);
-		s.Append(category);
-		s.Append(": ");
-		s.Append(message);
-		s.Append(" ]");
-		s.Replace("\n", "\n  ");
 		System.Console.Error.WriteLine(s.ToString());
 	    }
 	}
 	
 	public void warning(string message)
 	{
+	    System.Text.StringBuilder s = new System.Text.StringBuilder();
+	    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+	    s.Append(' ');
+	    s.Append(_prefix);
+	    s.Append("warning: ");
+	    s.Append(message);
+
 	    lock(_globalMutex)
 	    {
-		System.Text.StringBuilder s = new System.Text.StringBuilder();
-		s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-		s.Append(' ');
-		s.Append(_prefix);
-		s.Append("warning: ");
-		s.Append(message);
 		System.Console.Error.WriteLine(s.ToString());
 	    }
 	}
 	
 	public void error(string message)
 	{
+	    System.Text.StringBuilder s = new System.Text.StringBuilder();
+	    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+	    s.Append(' ');
+	    s.Append(_prefix);
+	    s.Append("error: ");
+	    s.Append(message);
+
 	    lock(_globalMutex)
 	    {
-		System.Text.StringBuilder s = new System.Text.StringBuilder();
-		s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-		s.Append(' ');
-		s.Append(_prefix);
-		s.Append("error: ");
-		s.Append(message);
 		System.Console.Error.WriteLine(s.ToString());
 	    }
 	}
@@ -85,5 +88,4 @@ namespace Ice
 	    _globalMutex = new object();
 	}
     }
-
 }
