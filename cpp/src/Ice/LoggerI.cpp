@@ -60,7 +60,7 @@ Ice::LoggerI::warning(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
 
-    cerr << IceUtil::Time::now().toDateTime() << _prefix << "warning: " << message << endl;
+    cerr << IceUtil::Time::now().toDateTime() << " " << _prefix << "warning: " << message << endl;
 }
 
 void
@@ -68,5 +68,5 @@ Ice::LoggerI::error(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(outputMutex);
 
-    cerr << IceUtil::Time::now().toDateTime() << _prefix << "error: " << message << endl;
+    cerr << IceUtil::Time::now().toDateTime() << " " << _prefix << "error: " << message << endl;
 }
