@@ -26,6 +26,8 @@ endif
 #
 CXXLIBS			=
 
+LDPLATFORMFLAGS         = -bind_at_load
+
 shlibldflags		= $(CXXFLAGS) -L$(libdir)
 
 mklibfilename       	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
