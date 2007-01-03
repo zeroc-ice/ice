@@ -733,6 +733,14 @@ namespace Ice
 	        string[] props = filterProperties(_propertyPrefix + _name + ".");
 		if(props.Length == 0 && oldProps.Length == 0)
 		{
+		    //
+		    // These need to be set to prevent warnings/asserts in the destructor.
+		    //
+		    _deactivated = true;
+		    instance_ = null;
+		    _communicator = null;
+		    _incomingConnectionFactories = null;
+
 		    InitializationException ex = new InitializationException();
 		    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
 		    throw ex;
