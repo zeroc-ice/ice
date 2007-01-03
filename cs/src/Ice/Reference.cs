@@ -736,8 +736,7 @@ namespace IceInternal
 		// If we route, we send everything to the router's client
 		// proxy endpoints.
 		//
-		Ice.ObjectPrx clientProxy = _routerInfo.getClientProxy();
-		return ((Ice.ObjectPrxHelperBase)clientProxy).reference__().getEndpoints();
+		return _routerInfo.getClientEndpoints();
 	    }
 	    return new EndpointI[0];
 	}

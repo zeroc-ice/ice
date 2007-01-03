@@ -766,8 +766,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	        // Add the router's server proxy endpoints to this object
 	        // adapter.
 	        //
-	        ObjectPrx proxy = _routerInfo->getServerProxy();
-	        vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
+	        vector<EndpointIPtr> endpoints = _routerInfo->getServerEndpoints();
 	        copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
 	        sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
 	        _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()),

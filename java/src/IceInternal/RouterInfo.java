@@ -21,8 +21,8 @@ public final class RouterInfo
     synchronized public void
     destroy()
     {
-	_clientProxy = null;
-	_serverProxy = null;
+	_clientEndpoints = new EndpointI[0];
+	_serverEndpoints = new EndpointI[0];
 	_adapter = null;
 	_identities.clear();
     }
@@ -52,78 +52,60 @@ public final class RouterInfo
         return _router;
     }
 
-    public synchronized Ice.ObjectPrx
-    getClientProxy()
+    public synchronized EndpointI[]
+    getClientEndpoints()
     {
-        if(_clientProxy == null) // Lazy initialization.
+        if(_clientEndpoints == null) // Lazy initialization.
         {
-            _clientProxy = _router.getClientProxy();
-            if(_clientProxy == null)
+            Ice.ObjectPrx clientProxy = _router.getClientProxy();
+            if(clientProxy == null)
             {
-                throw new Ice.NoEndpointException();
+	        //
+		// If getClientProxy() return nil, use router endpoints.
+		//
+	        _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).__reference().getEndpoints();
             }
-
-	    _clientProxy = _clientProxy.ice_router(null); // The client proxy cannot be routed.
+	    else
+	    {
+	        clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
 	    
-	    //
-	    // In order to avoid creating a new connection to the
-	    // router, we must use the same timeout as the already
-	    // existing connection.
-	    //
-	    try
-	    {
-	        _clientProxy = _clientProxy.ice_timeout(_router.ice_getConnection().timeout());
-	    }
-	    catch(Ice.CollocationOptimizationException ex)
-	    {
-	        // Ignore - collocated router.
+	        //
+	        // In order to avoid creating a new connection to the
+	        // router, we must use the same timeout as the already
+	        // existing connection.
+	        //
+	        try
+	        {
+	            clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
+	        }
+	        catch(Ice.CollocationOptimizationException ex)
+	        {
+	            // Ignore - collocated router.
+	        }
+
+		_clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
 	    }
         }
 
-        return _clientProxy;
+        return _clientEndpoints;
     }
 
-    public synchronized void
-    setClientProxy(Ice.ObjectPrx clientProxy)
+    public synchronized EndpointI[]
+    getServerEndpoints()
     {
-        _clientProxy = clientProxy.ice_router(null); // The client proxy cannot be routed.
-
-	//
-	// In order to avoid creating a new connection to the router,
-	// we must use the same timeout as the already existing
-	// connection.
-	//
-	try
-	{
-	    _clientProxy = _clientProxy.ice_timeout(_router.ice_getConnection().timeout());
-	}
-	catch(Ice.CollocationOptimizationException ex)
-	{
-	    // Ignore - collocated router.
-	}
-    }
-
-    public Ice.ObjectPrx
-    getServerProxy()
-    {
-        if(_serverProxy == null) // Lazy initialization.
+        if(_serverEndpoints == null) // Lazy initialization.
         {
-            _serverProxy = _router.getServerProxy();
-            if(_serverProxy == null)
+            Ice.ObjectPrx serverProxy = _router.getServerProxy();
+            if(serverProxy == null)
             {
                 throw new Ice.NoEndpointException();
             }
 
-            _serverProxy = _serverProxy.ice_router(null); // The server proxy cannot be routed.
+            serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+	    _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).__reference().getEndpoints();
         }
 
-        return _serverProxy;
-    }
-
-    public void
-    setServerProxy(Ice.ObjectPrx serverProxy)
-    {
-        _serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+        return _serverEndpoints;
     }
 
     public synchronized void
@@ -168,8 +150,8 @@ public final class RouterInfo
     }
 
     private final Ice.RouterPrx _router;
-    private Ice.ObjectPrx _clientProxy;
-    private Ice.ObjectPrx _serverProxy;
+    private EndpointI[] _clientEndpoints;
+    private EndpointI[] _serverEndpoints;
     private Ice.ObjectAdapter _adapter;
     private java.util.HashSet _identities = new java.util.HashSet();
 }

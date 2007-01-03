@@ -395,10 +395,9 @@ namespace IceInternal
 		// connections, so that callbacks from the router can be
 		// received over such connections.
 		//
-		Ice.ObjectPrx proxy = routerInfo.getClientProxy();
 		Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 		DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
-		EndpointI[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).reference__().getEndpoints();
+		EndpointI[] endpoints = routerInfo.getClientEndpoints();
 		for(int i = 0; i < endpoints.Length; i++)
 		{
 		    EndpointI endpoint = endpoints[i];

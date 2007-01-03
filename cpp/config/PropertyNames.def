@@ -439,6 +439,7 @@ Glacier2:
     PermissionsVerifier.Locator
     PermissionsVerifier.Router
     PermissionsVerifier.CollocationOptimization
+    ReturnClientProxy
     SSLPermissionsVerifier
     SSLPermissionsVerifier.EndpointSelection
     SSLPermissionsVerifier.ConnectionCached

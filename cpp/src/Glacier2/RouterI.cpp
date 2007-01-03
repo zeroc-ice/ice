@@ -23,7 +23,6 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
 			   const string& userId, const SessionPrx& session, const Identity& controlId,
 			   const FilterManagerPtr& filters, const Ice::Context& sslContext) :
     _communicator(clientAdapter->getCommunicator()),
-    _clientProxy(clientAdapter->createProxy(_communicator->stringToIdentity("dummy"))),
     _clientBlobject(new ClientBlobject(_communicator, filters, sslContext)),
     _adminAdapter(adminAdapter),
     _connection(connection),
@@ -33,6 +32,16 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _sslContext(sslContext),
     _timestamp(IceUtil::Time::now())
 {
+    //
+    // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
+    // Otherwise getClientProxy just needs to return a nil proxy.
+    //
+    if(_communicator->getProperties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
+    {
+        const_cast<Ice::ObjectPrx&>(_clientProxy) = 
+	    clientAdapter->createProxy(_communicator->stringToIdentity("dummy"));
+    }
+
     if(serverAdapter)
     {
 	ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);

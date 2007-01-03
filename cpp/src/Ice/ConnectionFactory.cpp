@@ -390,9 +390,8 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     // callbacks from the router can be received over such
     // connections.
     //
-    ObjectPrx proxy = routerInfo->getClientProxy();
     ObjectAdapterPtr adapter = routerInfo->getAdapter();
-    vector<EndpointIPtr> endpoints = proxy->__reference()->getEndpoints();
+    vector<EndpointIPtr> endpoints = routerInfo->getClientEndpoints();
     vector<EndpointIPtr>::const_iterator p;
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {

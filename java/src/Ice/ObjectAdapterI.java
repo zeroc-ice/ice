@@ -776,8 +776,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                     // Add the router's server proxy endpoints to this object
                     // adapter.
                     //
-                    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)_routerInfo.getServerProxy();
-                    IceInternal.EndpointI[] endpoints = proxy.__reference().getEndpoints();
+                    IceInternal.EndpointI[] endpoints = _routerInfo.getServerEndpoints();
                     for(int i = 0; i < endpoints.length; ++i)
                     {
                         _routerEndpoints.add(endpoints[i]);

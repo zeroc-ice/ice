@@ -1,6 +1,11 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Added new property, Glacier2.ReturnClientProxy to control whether
+  the Glacier2 Router::getClientProxy() returns a proxy or just null. By
+  default this property is set to 0. If Glacier2 is being used by clients
+  older than version 3.2, then this property must be set to 1.
+
 - Added support for a user callback when SIGINT like signals are
   sent to applications that use the Application interface. See
   Application::interruptCallback and Application::userCallbackOnInterrupt
