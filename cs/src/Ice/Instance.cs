@@ -379,7 +379,7 @@ namespace IceInternal
 		    }
 		    else
 		    {
-			_initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+			_initData.logger = Ice.Util.getProcessLogger();
 		    }
 		}
 		

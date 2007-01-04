@@ -48,7 +48,6 @@ static IceUtil::StaticMutex gcMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static GarbageCollectorStats gcStats;
 static int gcTraceLevel;
 static string gcTraceCat;
-static LoggerPtr gcLogger;
 static int gcInterval;
 
 static void
@@ -58,7 +57,7 @@ printGCStats(const IceInternal::GCStats& stats)
     {
 	if(gcTraceLevel > 1)
 	{
-	    Trace out(gcLogger, gcTraceCat);
+	    Trace out(getProcessLogger(), gcTraceCat);
 	    out << stats.collected << "/" << stats.examined << ", " << stats.time * 1000 << "ms";
 	}
 	++gcStats.runs;
@@ -94,7 +93,7 @@ Ice::CommunicatorI::destroy()
 	{
 	    if(gcTraceLevel)
 	    {
-		Trace out(gcLogger, gcTraceCat);
+		Trace out(getProcessLogger(), gcTraceCat);
 		out << "totals: " << gcStats.collected << "/" << gcStats.examined << ", "
 		    << gcStats.time * 1000 << "ms" << ", " << gcStats.runs << " run";
 		if(gcStats.runs != 1)
@@ -287,7 +286,6 @@ Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 	{
 	    gcTraceLevel = _instance->traceLevels()->gc;
 	    gcTraceCat = _instance->traceLevels()->gcCat;
-	    gcLogger = _instance->initializationData().logger;
 	    gcInterval = _instance->initializationData().properties->getPropertyAsInt("Ice.GC.Interval");
 	    gcOnce = false;
 	}

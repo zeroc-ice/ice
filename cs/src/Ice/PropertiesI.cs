@@ -90,10 +90,10 @@ namespace Ice
 	        return;
 	    }
 
-	    // Check if the property is legal. (We write to Console.Error instead of using
-	    // a logger because no logger may be established at the time the property
-	    // is parsed.)
 	    //
+	    // Check if the property is legal.
+	    //
+	    Logger logger = Ice.Util.getProcessLogger();
 	    int dotPos = key.IndexOf('.');
 	    if(dotPos != -1)
 	    {
@@ -118,7 +118,7 @@ namespace Ice
 		    }
 		    if(!found)
 		    {
-			System.Console.Error.WriteLine("warning: unknown property: " + key);
+			logger.warning("unknown property: " + key);
 		    }
 		}
 	    }

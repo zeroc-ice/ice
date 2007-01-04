@@ -448,6 +448,28 @@ namespace Ice
         {
             return new OutputStreamI(communicator);
         }
-    }
 
+	public static Logger getProcessLogger()
+	{
+	    lock(_processLoggerMutex)
+	    {
+	        if(_processLogger == null)
+		{
+		    _processLogger = new LoggerI(System.AppDomain.CurrentDomain.FriendlyName);
+		}
+		return _processLogger;
+	    }
+	}
+
+	public static void setProcessLogger(Logger logger)
+	{
+	    lock(_processLoggerMutex)
+	    {
+	        _processLogger = logger;
+	    }
+	}
+
+	private static object _processLoggerMutex = new object();
+	private static Logger _processLogger = null;
+    }
 }

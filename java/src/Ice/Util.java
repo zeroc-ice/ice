@@ -382,5 +382,33 @@ public final class Util
         return new OutputStreamI(communicator);
     }
 
+    public static Logger
+    getProcessLogger()
+    {
+        synchronized(_processLoggerMutex)
+	{
+	    if(_processLogger == null)
+	    {
+	        //
+		// TODO: Would be nice to be able to use process name as prefix by default.
+		//
+	        _processLogger = new LoggerI("");
+	    }
+
+	    return _processLogger;
+	}
+    }
+
+    public static void
+    setProcessLogger(Logger logger)
+    {
+        synchronized(_processLoggerMutex)
+	{
+	    _processLogger = logger;
+	}
+    }
+
     private static String _localAddress = null;
+    private static java.lang.Object _processLoggerMutex = new java.lang.Object();
+    private static Logger _processLogger = null;
 }

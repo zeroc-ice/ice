@@ -592,7 +592,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #endif
 	    else
 	    {
-		_initData.logger = new LoggerI(_initData.properties->getProperty("Ice.ProgramName"));
+		_initData.logger = getProcessLogger();
 	    }
 	}
 

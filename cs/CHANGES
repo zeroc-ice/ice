@@ -1,6 +1,12 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Added a per-process logger and two methods to get/set the logger,
+  Ice.Util.getProcessLogger() and Ice.Util.setProcessLogger(). Get will 
+  create a default process logger when called if set has not been called. 
+  he process logger will also be used as the default logger for all 
+  communicators that do not have a logger explicitly set.
+
 - Message batches are now automatically flushed when the total size of
   the batch reaches the message size maximum.
 

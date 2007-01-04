@@ -13,6 +13,7 @@
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/PropertyNames.h>
+#include <Ice/Logger.h>
 #include <fstream>
 
 using namespace std;
@@ -102,10 +103,9 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     }
 
     //
-    // Check if the property is legal. (We write to cerr instead of
-    // using a logger because no logger may be established at the time
-    // the property is parsed.)
+    // Check if the property is legal.
     //
+    LoggerPtr logger = getProcessLogger();
     string::size_type dotPos = key.find('.');
     if(dotPos != string::npos)
     {
@@ -128,7 +128,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 	    }
 	    if(!found)
 	    {
-		cerr << "warning: unknown property: " << key << endl;
+		logger->warning("unknown property: " + key);
 	    }
 	}
     }

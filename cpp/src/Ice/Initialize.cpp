@@ -13,6 +13,7 @@
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/StreamI.h>
+#include <Ice/LoggerI.h>
 
 using namespace std;
 using namespace Ice;
@@ -243,6 +244,31 @@ OutputStreamPtr
 Ice::createOutputStream(const CommunicatorPtr& communicator)
 {
     return new OutputStreamI(communicator);
+}
+
+static IceUtil::StaticMutex processLoggerMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static Ice::LoggerPtr processLogger;
+
+LoggerPtr
+Ice::getProcessLogger()
+{
+    IceUtil::StaticMutex::Lock lock(processLoggerMutex);
+
+    if(processLogger == 0)
+    {
+       //
+       // TODO: Would be nice to be able to use process name as prefix by default.
+       //
+       processLogger = new Ice::LoggerI("");
+    }
+    return processLogger;
+}
+
+void
+setProcessLogger(const LoggerPtr& logger)
+{
+   IceUtil::StaticMutex::Lock lock(processLoggerMutex);
+   processLogger = logger;   
 }
 
 InstancePtr

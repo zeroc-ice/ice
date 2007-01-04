@@ -432,5 +432,4 @@ namespace Ice
 	private Logger _logger = null;
 	private bool _initialized;
     }
-
 }

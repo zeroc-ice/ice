@@ -92,10 +92,9 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     setProperty(String key, String value)
     {
 	//
-	// Check if the property is legal. (We write to System.err instead of using
-	// a logger because no logger may be established at the time the property
-	// is parsed.)
+	// Check if the property is legal.
 	//
+	Logger logger = Ice.Util.getProcessLogger();
 	if(key == null || key.length() == 0)
 	{
 	    return;
@@ -126,7 +125,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 		}
 		if(!found)
 		{
-		    System.err.println("warning: unknown property: " + key);
+		    logger.warning("unknown property: " + key);
 		}
 	    }
 	}
