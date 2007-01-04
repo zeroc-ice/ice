@@ -265,7 +265,7 @@ Ice::getProcessLogger()
 }
 
 void
-setProcessLogger(const LoggerPtr& logger)
+Ice::setProcessLogger(const LoggerPtr& logger)
 {
    IceUtil::StaticMutex::Lock lock(processLoggerMutex);
    processLogger = logger;   
