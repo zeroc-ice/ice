@@ -858,12 +858,14 @@ class Application(object):
 
     def userCallbackOnInterruptCallback(self, sig):
         self._condVar.acquire()
-    	if self._destroyed or self._nohup and sig == signal.SIGHUP:
+    	if self._destroyed:
 	    #
-	    # Being destroyed by main thread, or nohup.
+	    # Being destroyed by main thread.
 	    #
 	    self._condVar.release()
 	    return
+	# For SIGHUP the user callback is always called. It can decide
+	# what to do.
 
 	self._callbackInProcess = True
         self._interrupted = True
