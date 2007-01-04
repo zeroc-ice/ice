@@ -483,6 +483,19 @@ def createProperties(args=[], defaults=None):
     properties = IcePy.createProperties(args, defaults)
     return PropertiesI(properties)
 
+#
+# Ice.getProcessLogger()
+# Ice.setProcessLogger()
+#
+def getProcessLogger():
+    logger = IcePy.getProcessLogger()
+    if isinstance(logger, Logger):
+        return logger
+    else:
+        return LoggerI(logger)
+
+def setProcessLogger(logger):
+    IcePy.setProcessLogger(logger)
 
 #
 # ImplicitContext wrapper

@@ -48,4 +48,7 @@ PyObject* createLogger(const Ice::LoggerPtr&);
 
 }
 
+extern "C" PyObject* IcePy_getProcessLogger(PyObject*);
+extern "C" PyObject* IcePy_setProcessLogger(PyObject*, PyObject*);
+
 #endif

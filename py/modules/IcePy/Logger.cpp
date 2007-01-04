@@ -11,6 +11,7 @@
 #   include <IceUtil/Config.h>
 #endif
 #include <Logger.h>
+#include <Ice/Initialize.h>
 
 using namespace std;
 using namespace IcePy;
@@ -313,4 +314,65 @@ IcePy::createLogger(const Ice::LoggerPtr& logger)
         obj->logger = new Ice::LoggerPtr(logger);
     }
     return (PyObject*)obj;
+}
+
+extern "C"
+PyObject*
+IcePy_getProcessLogger(PyObject* /*self*/)
+{
+    Ice::LoggerPtr logger;
+    try
+    {
+        logger = Ice::getProcessLogger();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        IcePy::setPythonException(ex);
+        return NULL;
+    }
+
+    //
+    // The process logger can either be a C++ object (such as
+    // the default logger supplied by the Ice run time), or a C++
+    // wrapper around a Python implementation. If the latter, we
+    // return it directly. Otherwise, we create a Python object
+    // that delegates to the C++ object.
+    //
+    LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast(logger);
+    if(wrapper)
+    {
+        PyObject* obj = wrapper->getObject();
+        Py_INCREF(obj);
+        return obj;
+    }
+
+    return createLogger(logger);
+}
+
+extern "C"
+PyObject*
+IcePy_setProcessLogger(PyObject* /*self*/, PyObject* args)
+{
+    PyObject* loggerType = lookupType("Ice.Logger");
+    assert(loggerType != NULL);
+
+    PyObject* logger;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), loggerType, &logger))
+    {
+        return NULL;
+    }
+
+    Ice::LoggerPtr wrapper = new LoggerWrapper(logger);
+    try
+    {
+        Ice::setProcessLogger(wrapper);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        IcePy::setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
