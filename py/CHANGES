@@ -5,7 +5,7 @@ Changes since version 3.1.1
 
 - Added support for a user callback when SIGINT like signals are
   sent to applications that use the Application interface. See
-  Application.interruptCallback and Application.userCallbackOnInterrupt
+  Application.interruptCallback and Application.callbackOnInterrupt
   for details.
 
 - Fixed bug with Application.holdInterrupt.
