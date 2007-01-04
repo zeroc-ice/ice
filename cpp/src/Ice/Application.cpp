@@ -211,7 +211,6 @@ shutdownOnInterruptCallback(int signal)
 	_callbackInProgress = false;
     }
     _condVar->signal();
-
 }
 
 static void
@@ -226,10 +225,8 @@ userCallbackOnInterruptCallback(int signal)
 	    //
 	    return;
 	}
-	if(_nohup && signal == SIGHUP)
-	{
-	    return;
-	}
+	// For SIGHUP the user callback is always called. It can
+	// decide what to do.
 	assert(!_callbackInProgress);
 	_callbackInProgress = true;
 	_interrupted = true;
@@ -520,13 +517,9 @@ Ice::Application::destroyOnInterrupt()
 	if(_ctrlCHandler->getCallback() == holdInterruptCallback)
 	{
 	    _released = true;
-	    _ctrlCHandler->setCallback(destroyOnInterruptCallback);
 	    _condVar->signal();
 	}
-	else
-	{
-	    _ctrlCHandler->setCallback(destroyOnInterruptCallback);
-	}
+	_ctrlCHandler->setCallback(destroyOnInterruptCallback);
     }
 }
 
@@ -539,13 +532,9 @@ Ice::Application::shutdownOnInterrupt()
 	if(_ctrlCHandler->getCallback() == holdInterruptCallback)
 	{
 	    _released = true;
-	    _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
 	    _condVar->signal();
 	}
-	else
-	{
-	    _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
-	}
+	_ctrlCHandler->setCallback(shutdownOnInterruptCallback);
     }
 }
 
@@ -558,13 +547,9 @@ Ice::Application::ignoreInterrupt()
 	if(_ctrlCHandler->getCallback() == holdInterruptCallback)
 	{
 	    _released = true;
-	    _ctrlCHandler->setCallback(0);
 	    _condVar->signal();
 	}
-	else
-	{
-	    _ctrlCHandler->setCallback(0);
-	}
+	_ctrlCHandler->setCallback(0);
     }
 }
 
@@ -577,13 +562,9 @@ Ice::Application::userCallbackOnInterrupt()
 	if(_ctrlCHandler->getCallback() == holdInterruptCallback)
 	{
 	    _released = true;
-	    _ctrlCHandler->setCallback(userCallbackOnInterruptCallback);
 	    _condVar->signal();
 	}
-	else
-	{
-	    _ctrlCHandler->setCallback(userCallbackOnInterruptCallback);
-	}
+	_ctrlCHandler->setCallback(userCallbackOnInterruptCallback);
     }
 }
 
