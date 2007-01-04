@@ -1108,8 +1108,8 @@ interface ObjectObserver;
 
 /**
  *
- * An admin session object used by administrative clients to view,
- * update and receive observer updates from the IceGrid
+ * Used by administrative clients to view,
+ * update, and receive observer updates from the IceGrid
  * registry. Admin sessions are created either with the [Registry]
  * object or the registry admin [Glacier2::SessionManager] object.
  * 
@@ -1141,8 +1141,8 @@ interface AdminSession extends Glacier2::Session
 
     /**
      *
-     * Set the proxies of the observer objects that will receive
-     * notifications from the servers when the state of the registry
+     * Set the observer proxies that receive
+     * notifications when the state of the registry
      * or nodes changes.
      *
      * @param registryObs The registry observer.
@@ -1165,8 +1165,8 @@ interface AdminSession extends Glacier2::Session
 
     /**
      *
-     * Set the identities of the observer objects that will receive
-     * notifications from the servers when the state of the registry
+     * Set the observer identities that receive
+     * notifications the state of the registry
      * or nodes changes. This operation should be used by clients that
      * are using a bidirectional connection to communicate with the
      * session.

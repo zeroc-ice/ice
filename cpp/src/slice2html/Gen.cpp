@@ -33,7 +33,7 @@ namespace Slice
 
 void
 generate(const UnitPtr& unit, const ::std::string& dir,
-	 const ::std::string& header, const ::std::string& footer, unsigned indexCount)
+	 const ::std::string& header, const ::std::string& footer, unsigned indexCount, unsigned warnSummary)
 {
     unit->mergeModules();
 
@@ -47,6 +47,7 @@ generate(const UnitPtr& unit, const ::std::string& dir,
     GeneratorBase::setHeader(header);
     GeneratorBase::setFooter(footer);
     GeneratorBase::setIndexCount(indexCount);
+    GeneratorBase::warnSummary(warnSummary);
 
     //
     // The types visitor first runs over the tree and records
@@ -81,6 +82,7 @@ string Slice::GeneratorBase::_header1;
 string Slice::GeneratorBase::_header2;
 string Slice::GeneratorBase::_footer;
 unsigned Slice::GeneratorBase::_indexCount = 0;
+unsigned Slice::GeneratorBase::_warnSummary = 0;
 
 //
 // Set the output directory, creating it if necessary.
@@ -171,6 +173,16 @@ void
 Slice::GeneratorBase::setIndexCount(int ic)
 {
     _indexCount = ic;
+}
+
+//
+// If n > 0, we print a warning if a summary sentence exceeds n characters.
+//
+
+void
+Slice::GeneratorBase::warnSummary(int n)
+{
+    _warnSummary = n;
 }
 
 Slice::GeneratorBase::GeneratorBase(XMLOutput& o, const Files& files)
@@ -551,7 +563,8 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 }
 
 string
-Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool inIndex)
+Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool inIndex,
+	                       unsigned* summarySize)
 {
     string anchor;
     string linkpath;
@@ -686,11 +699,17 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	s = getScopedMinimized(contained, container);
     }
 
+    if(summarySize)
+    {
+	*summarySize = s.size();
+    }
+
     if(linkpath.empty() && anchor.empty())
     {
 	if(ProxyPtr::dynamicCast(p))
 	{
 	    s += '*';
+	    ++(*summarySize);
 	}
 	return s;
     }
@@ -725,20 +744,21 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 }
 
 string
-Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool inIndex)
+Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool inIndex,
+	                       unsigned* summarySize)
 {
     string s = str;
 
     TypeList types = container->lookupType(s, false);
     if(!types.empty())
     {
-	return toString(types.front(), container, asTarget, inIndex);
+	return toString(types.front(), container, asTarget, inIndex, summarySize);
     }
 
     ContainedList contList = container->lookupContained(s, false);
     if(!contList.empty())
     {
-	return toString(contList.front(), container, asTarget, inIndex);
+	return toString(contList.front(), container, asTarget, inIndex, summarySize);
     }
 
     //
@@ -752,6 +772,7 @@ string
 Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerPtr& container,
 				 bool summary, bool inIndex)
 {
+    unsigned summarySize = 0;
     string s = contained->comment();
     string comment;
     for(unsigned int i = 0; i < s.size(); ++i)
@@ -759,6 +780,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
 	if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
 	{
 	    comment += '[';
+	    ++summarySize;
 	    ++i;
 	}
 	else if(s[i] == '[')
@@ -773,19 +795,29 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
 		
 		literal += s[i];
 	    }
-	    comment += toString(literal, container, false, inIndex);
+	    unsigned sz = 0;
+	    comment += toString(literal, container, false, inIndex, summary ? &sz : 0);
+	    summarySize += sz;
 	}
 	else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
 	{
 	    comment += '.';
+	    ++summarySize;
 	    break;
 	}
 	else
 	{
 	    comment += s[i];
+	    ++summarySize;
 	}
-
     }
+
+    if(summary && _warnSummary && summarySize > _warnSummary)
+    {
+	cerr << contained->definitionContext()->filename() << ": summary size (" << summarySize << ") exceeds "
+	     << _warnSummary << " characters: `" << comment << "'" << endl;
+    }
+
     return comment;
 }
 
@@ -1288,7 +1320,7 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
     openDoc(m);
 
     start("h1", "Symbol");
-    _out << toString(m, m, true);
+    _out << toString(m, m->container(), true);
     end();
 
     string metadata, deprecateReason;

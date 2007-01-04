@@ -64,7 +64,7 @@ sequence<LinkInfo> LinkInfoSeq;
 
 /**
  *
- * This dictionary represents Quality of service parameters.
+ * This dictionary represents quality of service parameters.
  *
  * @see Topic::subscribe
  *
@@ -148,8 +148,8 @@ interface Topic
 
     /**
      *
-     * Subscribe with the given [qos] to this topic. If the given
-     * [subscriber] proxy has already been registered, it will be
+     * Subscribe with the given <tt>qos</tt> to this topic. If the given
+     * <tt>subscriber</tt> proxy has already been registered, it will be
      * replaced. Note that this can cause a loss of events to the
      * subscribed object.
      *
@@ -167,8 +167,8 @@ interface Topic
 
     /**
      *
-     * Subscribe with the given [qos] to this topic. If the given
-     * [subscriber] proxy has already been registered, it will be
+     * Subscribe with the given <tt>qos</tt> to this topic. If the given
+     * <tt>subscriber</tt> proxy has already been registered, it will be
      * replaced. A per-subscriber publisher object is returned.
      *
      * @param qos The quality of service parameters for this
@@ -189,7 +189,7 @@ interface Topic
 
     /**
      *
-     * Unsubscribe the given [subscriber].
+     * Unsubscribe the given <tt>subscriber</tt>.
      *
      * @param subscriber The proxy of an existing subscriber.
      *
@@ -201,7 +201,7 @@ interface Topic
     /**
      *
      * Create a link to the given topic. All events originating
-     * on this topic will also be sent to [linkTo].
+     * on this topic will also be sent to <tt>linkTo</tt>.
      *
      * @param linkTo The topic to link to.
      *
@@ -215,7 +215,7 @@ interface Topic
 
     /**
      *
-     * Destroy the link from this topic to the given topic [linkTo].
+     * Destroy the link from this topic to the given topic <tt>linkTo</tt>.
      *
      * @param link The topic to destroy the link to.
      *

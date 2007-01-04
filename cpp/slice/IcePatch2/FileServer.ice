@@ -32,8 +32,8 @@ sequence<Ice::ByteSeq> ByteSeqSeq;
 
 /**
  *
- * This exception is raised if the [partition] argument for
- * [getFileInfoSeq] is not in the range 0-255.
+ * The [partition] argument for
+ * [FileServer::getFileInfoSeq] was not in the range 0-255.
  *
  **/
 exception PartitionOutOfRangeException
@@ -42,7 +42,7 @@ exception PartitionOutOfRangeException
 
 /**
  *
- * This exception is raised if [getFileCompressed] cannot read the
+ * This exception is raised if [FileServer::getFileCompressed] cannot read the
  * contents of a file.
  *
  **/
@@ -56,6 +56,11 @@ exception FileAccessException
     string reason;
 };
 
+/**
+ *
+ * The interface that provides access to files.
+ *
+ **/
 interface FileServer
 {
     /**

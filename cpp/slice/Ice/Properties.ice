@@ -159,8 +159,7 @@ local interface Properties
      * Convert a sequence of command-line options into properties.
      * All options that begin with one of the following prefixes
      * are converted into properties: [--Ice], [--IceBox], [--IceGrid],
-     * [--IcePatch], [--IcePatch2], [--IceSSL], [--IceStorm], [--Freeze],
-     * [--Glacier], and [--Glacier2].
+     * [--IcePatch2], [--IceSSL], [--IceStorm], [--Freeze], and [--Glacier2].
      *
      * @param options The command-line options.
      *

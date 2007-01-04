@@ -22,7 +22,10 @@ module Ice
 
 /**
  *
- * The object adapter, which is responsible for receiving requests
+ * The object adapter provides an up-call interface from the Ice
+ * run time to the implementation of Ice objects.
+ *
+ * The object adapter is responsible for receiving requests
  * from endpoints, and for mapping between servants, identities, and
  * proxies.
  *
@@ -275,8 +278,8 @@ local interface ObjectAdapter
     /**
      *
      * Remove all facets with the given identity from the Active
-     * Servant Map (that is, completely remove the Ice object,
-     * including its default facet). Removing an identity that
+     * Servant Map. The operation completely removes the Ice object,
+     * including its default facet. Removing an identity that
      * is not in the map throws [NotRegisteredException].
      *
      * @param id The identity of the Ice object to be removed.

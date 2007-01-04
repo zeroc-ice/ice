@@ -28,9 +28,9 @@ exception ParseException
     
 /**
  *
- * The icegridadmin command line tool provides a [FileParser] object
- * to transform XML files into [ApplicationDescriptor] objects
- * (structs).
+ * <tt>icegridadmin</tt> provides a [FileParser]
+ * object to transform XML files into [ApplicationDescriptor]
+ * objects.
  *
  **/
 interface FileParser

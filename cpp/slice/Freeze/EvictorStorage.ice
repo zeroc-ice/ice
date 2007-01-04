@@ -46,7 +46,7 @@ struct Statistics
 
 /**
  *
- * The evictor uses a number of maps [Ice::Identity] to [ObjectRecord] as its
+ * The evictor uses a number of maps with [Ice::Identity] keys and [ObjectRecord] values as its
  * persistent storage.
  *
  **/

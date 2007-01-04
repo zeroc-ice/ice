@@ -20,12 +20,11 @@ interface Query;
 
 /**
  *
- * The IceGrid locator interface extends the [Ice::Locator] interface
- * to provide access to the IceGrid query and registry object of the
- * IceGrid registry.
+ * The IceGrid locator interface provides access to the [Query]
+ * and [Registry] object of the IceGrid registry.
  *
- * @see Registry
  * @see Query
+ * @see Registry
  * 
  **/
 interface Locator extends Ice::Locator

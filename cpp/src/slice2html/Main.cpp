@@ -33,6 +33,7 @@ usage(const char* n)
         "--header FILE        Use the contents of FILE as the header.\n"
 	"--footer FILe        Use the contents of FILE as the footer.\n"
 	"--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
+	"--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
         ;
@@ -52,6 +53,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "header", IceUtil::Options::NeedArg);
     opts.addOpt("", "footer", IceUtil::Options::NeedArg);
     opts.addOpt("", "index", IceUtil::Options::NeedArg, "1");
+    opts.addOpt("", "summary", IceUtil::Options::NeedArg, "0");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
 
@@ -121,6 +123,20 @@ main(int argc, char* argv[])
 	}
     }
 
+    string warnSummary = opts.optArg("summary");
+    unsigned summaryCount;
+    if(!warnSummary.empty())
+    {
+	istringstream s(warnSummary);
+	s >>  summaryCount;
+	if(!s)
+	{
+	    cerr << argv[0] << ": the --summary operation requires a positive integer argument" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+    }
+
     bool debug = opts.isSet("debug");
 
     bool ice = opts.isSet("ice");
@@ -174,7 +190,7 @@ main(int argc, char* argv[])
     {
 	try
 	{
-	    Slice::generate(p, output, header, footer, indexCount);
+	    Slice::generate(p, output, header, footer, indexCount, summaryCount);
 	}
 	catch(const string& err)
 	{

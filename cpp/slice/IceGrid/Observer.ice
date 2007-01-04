@@ -137,9 +137,8 @@ interface NodeObserver
 {
     /**
      *
-     * The nodeInit operation is called after the registration of the
-     * observer to communicate the current state of the nodes to the
-     * observer implementation.
+     * The <tt>nodeInit</tt> operation indicates the current state
+     * of nodes. It is called after the registration of an observer.
      *
      * @param nodes The current state of the nodes.
      *
@@ -148,7 +147,7 @@ interface NodeObserver
 
     /**
      *
-     * The nodeUp operation is called to notify the observer that a node
+     * The <tt>nodeUp</tt> operation is called to notify an observer that a node
      * came up.
      * 
      * @param node The node state.
@@ -158,7 +157,7 @@ interface NodeObserver
 
     /**
      *
-     * The nodeDown operation is called to notify the observer that a node
+     * The <tt>nodeDown</tt> operation is called to notify an observer that a node
      * went down.
      * 
      * @param name The node name.
@@ -168,7 +167,7 @@ interface NodeObserver
 
     /**
      *
-     * The updateServer operation is called to notify the observer that
+     * The <tt>updateServer</tt> operation is called to notify an observer that
      * the state of a server changed.
      *
      * @param node The node hosting the server.
@@ -180,7 +179,7 @@ interface NodeObserver
 
     /**
      *
-     * The updateAdapter operation is called to notify the observer that
+     * The <tt>updateAdapter</tt> operation is called to notify an observer that
      * the state of an adapter changed.
      * 
      * @param node The node hosting the adapter.
@@ -202,9 +201,8 @@ interface ApplicationObserver
 {
     /**
      *
-     * The applicationInit operation is called after the registration
-     * of the observer to communicate the current state of the
-     * registry to the observer implementation.
+     * <tt>applicationInit</tt> is called after the registration
+     * of an observer to indicate the state of the registry.
      *
      * @param serial The current serial number of the registry
      * database. This serial number allows observers to make sure that
@@ -218,7 +216,7 @@ interface ApplicationObserver
 
     /**
      * 
-     * The applicationAdded operation is called to notify the observer
+     * The <tt>applicationAdded</tt> operation is called to notify an observer
      * that an application was added.
      *
      * @param serial The new serial number of the registry database.
@@ -230,7 +228,7 @@ interface ApplicationObserver
 
     /**
      *
-     * The applicationRemoved operation is called to notify the observer
+     * The <tt>applicationRemoved</tt> operation is called to notify an observer
      * that an application was removed.
      *
      * @param serial The new serial number of the registry database.
@@ -242,7 +240,7 @@ interface ApplicationObserver
 
     /**
      * 
-     * The applicationUpdated operation is called to notify the observer
+     * The <tt>applicationUpdated</tt> operation is called to notify an observer
      * that an application was updated.
      *
      * @param serial The new serial number of the registry database.
@@ -257,9 +255,8 @@ interface AdapterObserver
 {
     /**
      *
-     * The adapterInit operation is called after the registration of
-     * the observer to communicate the current state of the registry
-     * to the observer implementation.
+     * <tt>adapterInit</tt> is called after registration of
+     * an observer to indicate the state of the registry.
      *
      * @param serial The current serial number of the registry
      * database. This serial number allows observers to make sure that
@@ -273,7 +270,7 @@ interface AdapterObserver
 
     /**
      *
-     * The adapterAdded operation is called to notify the observer when
+     * The <tt>adapterAdded</tt> operation is called to notify an observer when
      * a dynamically-registered adapter was added.
      *
      **/
@@ -281,7 +278,7 @@ interface AdapterObserver
 
     /**
      *
-     * The adapterUpdated operation is called to notify the observer when
+     * The adapterUpdated operation is called to notify an observer when
      * a dynamically-registered adapter was updated.
      *
      **/
@@ -289,7 +286,7 @@ interface AdapterObserver
 
     /**
      *
-     * The adapterRemoved operation is called to notify the observer when
+     * The adapterRemoved operation is called to notify an observer when
      * a dynamically-registered adapter was removed.
      *
      **/
@@ -300,9 +297,8 @@ interface ObjectObserver
 {
     /**
      *
-     * The objectInit operation is called after the registration of
-     * the observer to communicate the current state of the registry
-     * to the observer implementation.
+     * <tt>objectInit</tt> is called after the registration of
+     * an observer to indicate the state of the registry.
      *
      * @param serial The current serial number of the registry database. This
      * serial number allows observers to make sure that their internal state
@@ -316,24 +312,24 @@ interface ObjectObserver
 
     /**
      *
-     * The objectAdded operation is called to notify the observer when an
-     * object was added through the [Admin] interface.
+     * The <tt>objectAdded</tt> operation is called to notify an observer when an
+     * object was added to the [Admin] interface.
      *
      **/
     void objectAdded(ObjectInfo info);
 
     /**
      *
-     * The objectUpdated operation is called to notify the observer when
-     * an object registered through the [Admin] interface was updated.
+     * <tt>objectUpdated</tt> is called to notify an observer when
+     * an object registered with the [Admin] interface was updated.
      *
      **/
     void objectUpdated(ObjectInfo info);
 
     /**
      *
-     * The objectRemoved operation is called to notify the observer when
-     * an object registered through the [Admin] interface was removed.
+     * <tt>objectRemoved</tt> is called to notify an observer when
+     * an object registered with the [Admin] interface was removed.
      *
      **/
     void objectRemoved(Ice::Identity id);
@@ -343,9 +339,8 @@ interface RegistryObserver
 {
     /**
      *
-     * The registryInit operation is called after the registration of
-     * the observer to communicate the current state of the registries
-     * to the observer implementation.
+     * <tt>registryInit</ttoperation is called after the registration of
+     * an observer to indicate the state of the registries.
      *
      * @param registries The current state of the registries.
      *
@@ -354,7 +349,7 @@ interface RegistryObserver
 
     /**
      *
-     * The nodeUp operation is called to notify the observer that a node
+     * The <tt>nodeUp</tt> operation is called to notify an observer that a node
      * came up.
      * 
      * @param node The node state.
@@ -364,7 +359,7 @@ interface RegistryObserver
 
     /**
      *
-     * The nodeDown operation is called to notify the observer that a node
+     * The <tt>nodeDown</tt> operation is called to notify an observer that a node
      * went down.
      * 
      * @param name The node name.

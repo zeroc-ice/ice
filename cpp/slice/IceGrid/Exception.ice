@@ -33,7 +33,11 @@ exception ApplicationNotExistException
  **/
 exception ServerNotExistException
 {
-    /** The identifier of the server. */
+    /**
+     *
+     * The identifier of the server.
+     *
+     */
     string id;
 };
 
@@ -44,10 +48,18 @@ exception ServerNotExistException
  **/
 exception ServerStartException
 {
-    /** The identifier of the server. */
+    /**
+     *
+     * The identifier of the server.
+     *
+     **/
     string id;
     
-    /** The reason for the failure. */
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
     string reason;
 };
 
@@ -58,10 +70,18 @@ exception ServerStartException
  **/
 exception ServerStopException
 {
-    /** The identifier of the server. */
+    /**
+     *
+     * The identifier of the server.
+     *
+     **/
     string id;
 
-    /** The reason for the failure. */
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
     string reason;
 };
 
@@ -72,7 +92,11 @@ exception ServerStopException
  **/
 exception AdapterNotExistException
 {
-    /** The id of the object adapter. */
+    /**
+     *
+     * The id of the object adapter.
+     *
+     **/
     string id;
 };
 
@@ -138,10 +162,18 @@ exception DeploymentException
  **/
 exception NodeUnreachableException
 {
-    /** The name of the node that is not reachable. */
+    /**
+     *
+     * The name of the node that is not reachable.
+     *
+     **/
     string name;
 
-    /** The reason why the node couldn't be reached. */
+    /**
+     *
+     * The reason why the node couldn't be reached.
+     *
+     **/
     string reason;
 };
 
@@ -152,10 +184,18 @@ exception NodeUnreachableException
  **/
 exception RegistryUnreachableException
 {
-    /** The name of the registry that is not reachable. */
+    /**
+     *
+     * The name of the registry that is not reachable.
+     *
+     **/
     string name;
 
-    /** The reason why the registry couldn't be reached. */
+    /**
+     *
+     * The reason why the registry couldn't be reached.
+     *
+     **/
     string reason;
 };
 
@@ -167,6 +207,11 @@ exception RegistryUnreachableException
  **/
 exception BadSignalException
 {
+    /**
+     * 
+     * The details of the unknown signal.
+     * 
+     **/
     string reason;
 };
 
@@ -177,18 +222,27 @@ exception BadSignalException
  **/
 exception PatchException
 {
-    /** The reasons why the patch failed. */
+    /**
+     *
+     * The reasons why the patch failed.
+     *
+     **/
     Ice::StringSeq reasons;
 };
 
 /**
  *
- * This exception is raised if an operation can't be performed because
- * the registry lock wasn't acquired or is already acquired by a session.
+ * This exception is raised if a registry lock wasn't
+  * acquired or is already held by a session.
  *
  **/
 exception AccessDeniedException
 {
+    /**
+     *
+     * The id of the user holding the lock (if any).
+     *
+     **/
     string lockUserId;
 };
 
@@ -199,7 +253,11 @@ exception AccessDeniedException
  **/
 exception AllocationException
 {
-    /** The reason why the object couldn't be allocated. */
+    /**
+     *
+     * The reason why the object couldn't be allocated.
+     *
+     **/
     string reason;
 };
 

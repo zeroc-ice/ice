@@ -18,6 +18,8 @@ module Ice
 
 /**
  *
+ * An interface to associate implict contexts with communicators.
+ *
  * When you make a remote invocation without an explicit [Context] parameter,
  * Ice uses the per-proxy [Context] (if any) combined with the [ImplicitContext]
  * associated with the communicator.</dd>
@@ -93,7 +95,7 @@ local interface ImplicitContext
     void set(string key, string value);
 
     /**
-     * Remove the value associated with the given key in the underlying context
+     * Remove the value associated with the given key in the underlying context.
      * Throws [NotSetException] when no value is associated with the given key.
      *
      * @param key The key.

@@ -57,7 +57,7 @@ exception SessionNotExistException
 
 /**
  *
- * The Glacier2 specialization of the standard [Ice::Router]
+ * The Glacier2 specialization of the [Ice::Router]
  * interface.
  *
  **/

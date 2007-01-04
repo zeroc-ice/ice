@@ -48,7 +48,7 @@ interface Router
      *
      * Add new proxy information to the router's routing table.
      *
-     * <p class="Note">This operation is deprecated, and only used for old
+     * <p class="Deprecated">This operation is deprecated, and only used for old
      * Ice clients (older than version 3.1).</p>
      *
      * @param proxy The proxy to add.

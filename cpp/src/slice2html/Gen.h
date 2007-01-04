@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, unsigned);
+void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, unsigned, unsigned);
 
 typedef ::std::set< ::std::string> Files;
 
@@ -27,7 +27,8 @@ public:
     static void setOutputDir(const ::std::string&);
     static void setHeader(const ::std::string&);
     static void setFooter(const ::std::string&);
-    static void setIndexCount(const int);
+    static void setIndexCount(int);
+    static void warnSummary(int);
 
 protected:
 
@@ -45,8 +46,8 @@ protected:
     void printMetaData(const ContainedPtr&);
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool);
 
-    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false);
-    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false);
+    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0);
+    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0);
     ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
 
     static ::std::string getAnchor(const SyntaxTreeBasePtr&);
@@ -55,6 +56,7 @@ protected:
     ::IceUtil::XMLOutput& _out;
 
     static unsigned _indexCount;
+    static unsigned _warnSummary;
 
 private:
 

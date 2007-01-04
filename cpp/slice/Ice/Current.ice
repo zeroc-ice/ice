@@ -29,8 +29,7 @@ dictionary<string, string> Context;
 
 /**
  *
- * The [OperationMode] determines the skeleton signature (for C++), as
- * well as the retry behavior of the Ice run time for an operation
+ * The [OperationMode] determines the retry behavior an
  * invocation in case of a (potentially) recoverable error.
  *
  **/
@@ -57,6 +56,12 @@ enum OperationMode
      * run-time errors by re-issuing a failed request and propagate
      * the failure to the application only if the second attempt
      * fails.
+     *
+     * <p class="Deprecated"><tt>Nonmutating</tt> is deprecated; Use the
+     * <tt>idempotent</tt> keyword instead. For C++, to retain the mapping
+     * of <tt>nonmutating</tt> operations to C++ <tt>const</tt>
+     * member functions, use the <tt>\["cpp:const"]</tt> metadata
+     * directive.</p>
      */
     \Nonmutating,
 

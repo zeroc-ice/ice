@@ -18,7 +18,7 @@ module Ice
 
 /**
  *
- * The servant locator, which is called by the object adapter to
+ * A servant locator is called by an object adapter to
  * locate a servant that is not found in its active servant map.
  *
  * @see ObjectAdapter
@@ -30,7 +30,7 @@ local interface ServantLocator
 {
     /**
      *
-     * Called by the object adapter before a request is made when a
+     * Called before a request is dispatched if a
      * servant cannot be found in the object adapter's active servant
      * map. Note that the object adapter does not automatically insert
      * the returned servant into its active servant map. This must be

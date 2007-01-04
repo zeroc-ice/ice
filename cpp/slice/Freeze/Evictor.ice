@@ -20,9 +20,8 @@ module Freeze
 
 /**
  *
- * A servant initializer is installed in an evictor and provides the
- * application with an opportunity to perform custom servant
- * initialization.
+ * A servant initializer provides the application with an
+ * opportunity to perform custom servant initialization.
  *
  * @see Evictor
  *
@@ -137,7 +136,7 @@ local interface Evictor extends Ice::ServantLocator
      * to set the queue size to a value smaller than zero are ignored.
      *
      * @param sz The size of the servant queue. If the evictor
-     * currently holds more than [sz] servants in its queue, it evicts
+     * currently holds more than <tt>sz</tt> servants in its queue, it evicts
      * enough servants to match the new size. Note that this operation
      * can block if the new queue size is smaller than the current
      * number of servants that are servicing requests. In this case,
@@ -285,7 +284,7 @@ local interface Evictor extends Ice::ServantLocator
     /**
      *
      * Lock this object in the evictor cache. This lock can be released
-     * by [release] or remove. [release] releases only one lock, while
+     * by [release] or [remove]. [release] releases only one lock, while
      * [remove] releases all the locks.
      *
      * @param id The identity of the Ice object.
@@ -327,14 +326,14 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Release a "lock" acquired by [keep]. Once all the locks on an
+     * Release a lock acquired by [keep]. Once all the locks on an
      * object have been released, the object is again subject to the 
      * normal eviction strategy.
      *
      * @param id The identity of the Ice object.
      *
      * @throws NotRegisteredException Raised if this object was not
-     * "locked" with [keep] or [keepFacet].
+     * locked with [keep] or [keepFacet].
      *
      * @see keepFacet
      * @see release
@@ -354,7 +353,7 @@ local interface Evictor extends Ice::ServantLocator
      * facet.
      *
      * @throws NotRegisteredException Raised if this object was not
-     * "locked" with [keep] or [keepFacet].
+     * locked with [keep] or [keepFacet].
      *
      * @see keep
      * @see releaseFacet
