@@ -162,7 +162,7 @@ IceInternal::Outgoing::invoke()
 	    bool timedOut = false;
 
 	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
 
 		//
                 // It's possible that the request has already
@@ -180,7 +180,7 @@ IceInternal::Outgoing::invoke()
 		{
 		    if(timeout >= 0)
 		    {	
-			timedWait(IceUtil::Time::milliSeconds(timeout));
+			_monitor.timedWait(IceUtil::Time::milliSeconds(timeout));
 			
 			if(_state == StateInProgress)
 			{
@@ -189,7 +189,7 @@ IceInternal::Outgoing::invoke()
 		    }
 		    else
 		    {
-			wait();
+			_monitor.wait();
 		    }
 		}
 	    }
@@ -207,11 +207,11 @@ IceInternal::Outgoing::invoke()
 		// propagated to this Outgoing object.
 		//
 		{
-		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
 		    
 		    while(_state == StateInProgress)
 		    {
-			wait();
+			_monitor.wait();
 		    }
 		}
 	    }
@@ -314,7 +314,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
 
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
@@ -474,13 +474,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	}
     }
 
-    notify();
+    _monitor.notify();
 }
 
 void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     
     assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
 
@@ -488,5 +488,5 @@ IceInternal::Outgoing::finished(const LocalException& ex)
     
     _state = StateLocalException;
     _exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
-    notify();
+    _monitor.notify();
 }

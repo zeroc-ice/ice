@@ -14,7 +14,6 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/ProxyF.h>
-#include <Ice/Outgoing.h>
 #include <list>
 
 namespace IceStorm

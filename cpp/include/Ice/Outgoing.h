@@ -57,7 +57,7 @@ private:
     bool _retry;
 };
 
-class ICE_API Outgoing : private IceUtil::noncopyable, public IceUtil::Monitor<IceUtil::Mutex >
+class ICE_API Outgoing : private IceUtil::noncopyable
 {
 public:
 
@@ -96,6 +96,15 @@ private:
     BasicStream _os;
 
     const bool _compress;
+
+    //
+    // NOTE: we use an attribute for the monitor instead of inheriting
+    // from the monitor template.  Otherwise, the template would be
+    // exported from the DLL on Windows and could cause linker errors
+    // because of multiple definition of IceUtil::Monitor<IceUtil::Mutex>, 
+    // see bug 1541.
+    //
+    IceUtil::Monitor<IceUtil::Mutex> _monitor;
 };
 
 }
