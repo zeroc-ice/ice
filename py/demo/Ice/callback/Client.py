@@ -109,6 +109,8 @@ class Client(Ice.Application):
                     menu()
             except EOFError:
                 break
+            except KeyboardInterrupt:
+                break
 
         return 0
 

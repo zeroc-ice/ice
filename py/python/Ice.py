@@ -508,27 +508,112 @@ class ImplicitContextI(ImplicitContext):
         self._impl.setContext(ctx)
 
     def getContext(self):
-        return self._impl.getContext();
+        return self._impl.getContext()
 
     def set(self, key, value):
-        self._impl.set(key, value);
+        self._impl.set(key, value)
 
     def remove(self, key):
-        self._impl.remove(key);
+        self._impl.remove(key)
 
     def get(self, key):
-        return self._impl.get(key);
+        return self._impl.get(key)
 
     def getWithDefault(self, key, dflt):
-        return self._impl.getWithDefault(key, dflt);
+        return self._impl.getWithDefault(key, dflt)
     
+#
+# Its not possible to block in a python signal handler since this
+# blocks the main thread from doing further work. As such we queue the
+# signal with a worker thread which then "dispatches" the signal to
+# the registered callback object.
+#
+# Note the interface is the same as the C++ CtrlCHandler
+# implementation, however, the implementation is different.
+#
+class CtrlCHandler(threading.Thread):
+    # Class variable referring to the one and only handler for use
+    # from the signal handling callback.
+    _self = None
 
-#
-# The variables below need to be global in order to properly reference a
-# static method of Application.
-#
-_ctrlCHandler = None
-_previousCallback = None
+    def __init__(self):
+	threading.Thread.__init__(self)
+
+        if CtrlCHandler._self != None:
+            raise RuntimeError("Only a single instance of a CtrlCHandler can be instantiated.")
+	CtrlCHandler._self = self
+
+	# State variables. These are not class static variables.
+	self._condVar = threading.Condition()
+	self._queue = []
+	self._done = False
+	self._callback = None
+
+    	#
+	# Setup and install signal handlers
+	#
+        if signal.__dict__.has_key('SIGHUP'):
+            signal.signal(signal.SIGHUP, CtrlCHandler.signalHandler)
+        signal.signal(signal.SIGINT, CtrlCHandler.signalHandler)
+        signal.signal(signal.SIGTERM, CtrlCHandler.signalHandler)
+
+	# Start the thread once everything else is done.
+	self.start()
+
+    # Dequeue and dispatch signals.
+    def run(self):
+	while True:
+	    self._condVar.acquire()
+	    while len(self._queue) == 0 and not self._done:
+		self._condVar.wait()
+	    if self._done:
+		self._condVar.release()
+		break
+	    sig, callback = self._queue.pop()
+	    self._condVar.release()
+	    if callback:
+		callback(sig)
+
+    # Destroy the object. Wait for the thread to terminate and cleanup
+    # the internal state.
+    def destroy(self):
+	self._condVar.acquire()
+	self._done = True
+	self._condVar.notify()
+	self._condVar.release()
+
+	# Wait for the thread to terminate
+	self.join()
+	#
+	# Cleanup any state set by the CtrlCHandler.
+	#
+        if signal.__dict__.has_key('SIGHUP'):
+            signal.signal(signal.SIGHUP, signal.SIG_DFL)
+        signal.signal(signal.SIGINT, signal.SIG_DFL)
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+	self._self = None
+
+    def setCallback(self, callback):
+	self._condVar.acquire()
+    	self._callback = callback
+	self._condVar.release()
+
+    def getCallback(self):
+	self._condVar.acquire()
+    	callback = self._callback
+	self._condVar.release()
+    	return callback
+
+    # Private. Only called by the signal handling mechanism.
+    def signalHandler(self, sig, frame):
+	self._self._condVar.acquire()
+	#
+	# The signal AND the current callback are queued together.
+	#
+	self._self._queue.append([sig, self._self._callback])
+	self._self._condVar.notify()
+	self._self._condVar.release()
+    signalHandler = classmethod(signalHandler)
 
 #
 # Application class.
@@ -543,29 +628,28 @@ class Application(object):
     def main(self, args, configFile=None, initData=None):
         if Application._communicator:
             print args[0] + ": only one instance of the Application class can be used"
-            return False
-
-        Application._interrupted = False
-        Application._appName = args[0]
+            return 1
 
         #
         # Install our handler for the signals we are interested in. We assume main()
         # is called from the main thread.
         #
-        if signal.__dict__.has_key('SIGHUP'):
-            signal.signal(signal.SIGHUP, Application.signalHandler)
-        signal.signal(signal.SIGINT, Application.signalHandler)
-        signal.signal(signal.SIGTERM, Application.signalHandler)
-
-        status = 0
+	Application._ctrlCHandler = CtrlCHandler()
 
         try:
+	    status = 0
+
+	    Application._interrupted = False
+	    Application._appName = args[0]
+
 	    if not initData:
 	        initData = InitializationData()
             if configFile:
                 initData.properties = createProperties()
                 initData.properties.load(configFile)
+	    Application._application = self
 	    Application._communicator = initialize(args, initData)
+	    Application._destroyed = False
 
             #
             # Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
@@ -582,12 +666,29 @@ class Application(object):
             traceback.print_exc()
             status = 1
 
-        if Application._communicator:
-            #
-            # We don't want to handle signals anymore.
-            #
-            Application.ignoreInterrupt()
+	#
+	# Don't want any new interrupt and at this point (post-run),
+	# it would not make sense to release a held signal to run
+	# shutdown or destroy.
+	#
+	Application.ignoreInterrupt()
 
+        Application._condVar.acquire()
+	while Application._callbackInProgress:
+	    Application._condVar.wait()
+	if Application._destroyed:
+	    Application._communicator = None
+	else:
+	    Application._destroyed = True
+	    #
+	    # And _communicator != 0, meaning will be destroyed
+	    # next, _destroyed = true also ensures that any
+	    # remaining callback won't do anything
+	    #
+	Application._application = None
+	Application._condVar.release()
+
+        if Application._communicator:
             try:
                 Application._communicator.destroy()
             except:
@@ -596,144 +697,200 @@ class Application(object):
 
             Application._communicator = None
 
+	#
+	# Set _ctrlCHandler to 0 only once communicator.destroy() has
+	# completed.
+	# 
+	Application._ctrlCHandler.destroy()
+	Application._ctrlCHandler = None
+
         return status
 
     def run(self, args):
         raise RuntimeError('run() not implemented')
 
-    def appName():
-        return Application._appName
-    appName = staticmethod(appName)
+    def interruptCallback(self, sig):
+    	pass
 
-    def communicator():
-        return Application._communicator
-    communicator = staticmethod(communicator)
+    def appName(self):
+        return self._appName
+    appName = classmethod(appName)
 
-    def destroyOnInterrupt():
-        global _ctrlCHandler
-        Application._condVar.acquire()
-        if _ctrlCHandler == Application.holdInterruptCallback:
-            Application._released = True
-            _ctrlCHandler = Application.destroyOnInterruptCallback
-            Application._condVar.notify()
-        else:
-            _ctrlCHandler = Application.destroyOnInterruptCallback
-        Application._condVar.release()
-    destroyOnInterrupt = staticmethod(destroyOnInterrupt)
+    def communicator(self):
+        return self._communicator
+    communicator = classmethod(communicator)
 
-    def shutdownOnInterrupt():
-        global _ctrlCHandler
-        Application._condVar.acquire()
-        if _ctrlCHandler == Application.holdInterruptCallback:
-            Application._released = True
-            _ctrlCHandler = Application.shutdownOnInterruptCallback
-            Application._condVar.notify()
-        else:
-            _ctrlCHandler = Application.shutdownOnInterruptCallback
-        Application._condVar.release()
-    shutdownOnInterrupt = staticmethod(shutdownOnInterrupt)
+    def destroyOnInterrupt(self):
+        self._condVar.acquire()
+        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            self._released = True
+            self._condVar.notify()
+	self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
+        self._condVar.release()
+    destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
-    def ignoreInterrupt():
-        global _ctrlCHandler
-        Application._condVar.acquire()
-        if _ctrlCHandler == Application.holdInterruptCallback:
-            Application._released = True
-            _ctrlCHandler = None
-            Application._condVar.notify()
-        else:
-            _ctrlCHandler = None
-        Application._condVar.release()
-    ignoreInterrupt = staticmethod(ignoreInterrupt)
+    def shutdownOnInterrupt(self):
+        self._condVar.acquire()
+        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            self._released = True
+            self._condVar.notify()
+	self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
+        self._condVar.release()
+    shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
-    def holdInterrupt():
-        global _ctrlCHandler, _previousCallback
-        Application._condVar.acquire()
-        if _ctrlCHandler != Application.holdInterruptCallback:
-            _previousCallback = _ctrlCHandler
-            Application._released = False
-            _ctrlCHandler = Application.holdInterruptCallback
+    def ignoreInterrupt(self):
+        self._condVar.acquire()
+        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            self._released = True
+            self._condVar.notify()
+	self._ctrlCHandler.setCallback(None)
+        self._condVar.release()
+    ignoreInterrupt = classmethod(ignoreInterrupt)
+
+    def userCallbackOnInterrupt(self):
+        self._condVar.acquire()
+        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+            self._released = True
+            self._condVar.notify()
+	self._ctrlCHandler.setCallback(self.userCallbackOnInterruptCallback)
+        self._condVar.release()
+    userCallbackOnInterrupt = classmethod(userCallbackOnInterrupt)
+
+    def holdInterrupt(self):
+        self._condVar.acquire()
+        if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
+            self._previousCallback = self._ctrlCHandler.getCallback()
+            self._released = False
+            self._ctrlCHandler.setCallback(self.holdInterruptCallback)
         # else, we were already holding signals
-        Application._condVar.release()
-    holdInterrupt = staticmethod(holdInterrupt)
+        self._condVar.release()
+    holdInterrupt = classmethod(holdInterrupt)
 
-    def releaseInterrupt():
-        global _ctrlCHandler, _previousCallback
-        Application._condVar.acquire()
-        if _ctrlCHandler == Application.holdInterruptCallback:
+    def releaseInterrupt(self):
+        self._condVar.acquire()
+        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
             #
             # Note that it's very possible no signal is held;
             # in this case the callback is just replaced and
             # setting _released to true and signalling _condVar
             # do no harm.
             #
-            Application._released = True
-            _ctrlCHandler = _previousCallback
-            Application._condVar.notify()
+            self._released = True
+            self._ctrlCHandler.setCallback(self._previousCallback)
+            self._condVar.notify()
         # Else nothing to release.
-        Application._condVar.release()
-    releaseInterrupt = staticmethod(releaseInterrupt)
+        self._condVar.release()
+    releaseInterrupt = classmethod(releaseInterrupt)
 
-    def interrupted():
-        Application._condVar.acquire()
-        result = Application._interrupted
-        Application._condVar.release()
+    def interrupted(self):
+        self._condVar.acquire()
+        result = self._interrupted
+        self._condVar.release()
         return result
-    interrupted = staticmethod(interrupted)
+    interrupted = classmethod(interrupted)
 
-    def signalHandler(sig, frame):
-        global _ctrlCHandler
-        if _ctrlCHandler:
-            _ctrlCHandler(sig)
-    signalHandler = staticmethod(signalHandler)
+    def holdInterruptCallback(self, sig):
+        self._condVar.acquire()
+        while not self._released:
+            self._condVar.wait()
+    	if self._destroyed:
+	    #
+	    # Being destroyed by main thread
+	    #
+	    self._condVar.release()
+	    return
+    	callback = self._ctrlCHandler.getCallback()
+        self._condVar.release()
+    	if callback:
+    	    callback(sig)
+    holdInterruptCallback = classmethod(holdInterruptCallback)
 
-    def holdInterruptCallback(sig):
-        global _ctrlCHandler
-        Application._condVar.acquire()
-        while not Application._released:
-            Application._condVar.wait(1)
-        Application._condVar.release()
+    def destroyOnInterruptCallback(self, sig):
+        self._condVar.acquire()
+    	if self._destroyed or self._nohup and sig == signal.SIGHUP:
+	    #
+	    # Being destroyed by main thread, or nohup.
+	    #
+	    self._condVar.release()
+	    return
 
-        #
-        # Use the current callback to process this (old) signal.
-        #
-        if _ctrlCHandler:
-            _ctrlCHandler(sig)
-    holdInterruptCallback = staticmethod(holdInterruptCallback)
-
-    def destroyOnInterruptCallback(sig):
-        if Application._nohup and sig == signal.SIGHUP:
-            return
-
-        Application._condVar.acquire()
-        Application._interrupted = True
-        Application._condVar.release()
-
-        try:
-            Application._communicator.destroy()
-        except:
-            print Application._appName + " (while destroying in response to signal " + str(sig) + "):"
-            traceback.print_exc()
-    destroyOnInterruptCallback = staticmethod(destroyOnInterruptCallback)
-
-    def shutdownOnInterruptCallback(sig):
-        if Application._nohup and sig == signal.SIGHUP:
-            return
-
-        Application._condVar.acquire()
-        Application._interrupted = True
-        Application._condVar.release()
+	self._callbackInProcess = True
+        self._interrupted = True
+	self._destroyed = True
+        self._condVar.release()
 
         try:
-            Application._communicator.shutdown()
+            self._communicator.destroy()
         except:
-            print Application._appName + " (while shutting down in response to signal " + str(sig) + "):"
+            print self._appName + " (while destroying in response to signal " + str(sig) + "):"
             traceback.print_exc()
-    shutdownOnInterruptCallback = staticmethod(shutdownOnInterruptCallback)
+
+        self._condVar.acquire()
+	self._callbackInProcess = False
+        self._condVar.notify()
+        self._condVar.release()
+    destroyOnInterruptCallback = classmethod(destroyOnInterruptCallback)
+
+    def shutdownOnInterruptCallback(self, sig):
+        self._condVar.acquire()
+    	if self._destroyed or self._nohup and sig == signal.SIGHUP:
+	    #
+	    # Being destroyed by main thread, or nohup.
+	    #
+	    self._condVar.release()
+	    return
+
+	self._callbackInProcess = True
+        self._interrupted = True
+        self._condVar.release()
+
+        try:
+            self._communicator.shutdown()
+        except:
+            print self._appName + " (while shutting down in response to signal " + str(sig) + "):"
+            traceback.print_exc()
+
+        self._condVar.acquire()
+	self._callbackInProcess = False
+        self._condVar.notify()
+        self._condVar.release()
+    shutdownOnInterruptCallback = classmethod(shutdownOnInterruptCallback)
+
+    def userCallbackOnInterruptCallback(self, sig):
+        self._condVar.acquire()
+    	if self._destroyed or self._nohup and sig == signal.SIGHUP:
+	    #
+	    # Being destroyed by main thread, or nohup.
+	    #
+	    self._condVar.release()
+	    return
+
+	self._callbackInProcess = True
+        self._interrupted = True
+        self._condVar.release()
+
+        try:
+            self._application.interruptCallback(sig)
+        except:
+            print self._appName + " (while interrupting in response to signal " + str(sig) + "):"
+            traceback.print_exc()
+
+        self._condVar.acquire()
+	self._callbackInProcess = False
+        self._condVar.notify()
+        self._condVar.release()
+
+    userCallbackOnInterruptCallback = classmethod(userCallbackOnInterruptCallback)
 
     _appName = None
     _communicator = None
+    _application = None
+    _ctrlCHandler = None
+    _previousCallback = None
     _interrupted = False
     _released = False
+    _destroyed = False
+    _callbackInProgress = False
     _condVar = threading.Condition()
 
 #

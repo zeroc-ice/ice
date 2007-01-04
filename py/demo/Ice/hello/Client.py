@@ -13,7 +13,6 @@ import sys, traceback, Ice
 Ice.loadSlice('Hello.ice')
 import Demo
 
-
 def menu():
     print """
 usage:
@@ -118,6 +117,8 @@ class Client(Ice.Application):
 		else:
 		    print "unknown command `" + c + "'"
 		    menu()
+	    except KeyboardInterrupt:
+		break
 	    except EOFError:
 		break
 	    except Ice.Exception, ex:

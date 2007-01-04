@@ -83,6 +83,8 @@ class Consumer(Ice.Application):
 		    menu()
 	    except EOFError:
 	        break
+	    except KeyboardInterrupt:
+		break
 	    except Ice.Exception, ex:
 	        print ex
 

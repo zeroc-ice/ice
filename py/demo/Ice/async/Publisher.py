@@ -46,6 +46,8 @@ class Publisher(Ice.Application):
 			menu()
 		    else:
 		        queue.add(line)
+	except KeyboardInterrupt:
+	    return False
 	except EOFError:
 	    return False
 	except Ice.Exception, ex:

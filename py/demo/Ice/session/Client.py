@@ -99,6 +99,8 @@ class Client(Ice.Application):
                         self.menu()
                 except EOFError:
                     break
+		except KeyboardInterrupt:
+		    break
             #
             # The refresher thread must be terminated before destroy is
             # called, otherwise it might get ObjectNotExistException. refresh
@@ -134,7 +136,6 @@ x:     exit
 t:     exit without destroying the session
 ?:     help
 """
-
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

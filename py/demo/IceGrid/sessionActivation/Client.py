@@ -92,6 +92,8 @@ class Client(Ice.Application):
 			menu()
 		except EOFError:
 		    break
+		except KeyboardInterrupt:
+		    break
 	except IceGrid.AllocationException, ex:
 	    print self.appName() + ": could not allocate object: " + ex.reason
 	    status = False
