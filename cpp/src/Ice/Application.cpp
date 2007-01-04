@@ -214,7 +214,7 @@ shutdownOnInterruptCallback(int signal)
 }
 
 static void
-userCallbackOnInterruptCallback(int signal)
+callbackOnInterruptCallback(int signal)
 {
     {
 	StaticMutex::Lock lock(_mutex);
@@ -554,7 +554,7 @@ Ice::Application::ignoreInterrupt()
 }
 
 void
-Ice::Application::userCallbackOnInterrupt()
+Ice::Application::callbackOnInterrupt()
 {
     if(_ctrlCHandler != 0)
     {
@@ -564,7 +564,7 @@ Ice::Application::userCallbackOnInterrupt()
 	    _released = true;
 	    _condVar->signal();
 	}
-	_ctrlCHandler->setCallback(userCallbackOnInterruptCallback);
+	_ctrlCHandler->setCallback(callbackOnInterruptCallback);
     }
 }
 

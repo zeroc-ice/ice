@@ -39,7 +39,7 @@ public:
 
     //
     // Override this to provide a custom application interrupt
-    // hook. You must call userCallbackOnInterrupt for this method to
+    // hook. You must call callbackOnInterrupt for this method to
     // be called. Note that the interruptCallback can be called
     // concurrently with any other thread (including main) in your
     // application and thus must take appropriate concurrency
@@ -68,7 +68,7 @@ public:
     static void destroyOnInterrupt();
     static void shutdownOnInterrupt();
     static void ignoreInterrupt();
-    static void userCallbackOnInterrupt();
+    static void callbackOnInterrupt();
 
     //
     // These methods can be used to temporarily block a signal and

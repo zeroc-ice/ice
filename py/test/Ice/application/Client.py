@@ -29,7 +29,7 @@ class Client(Ice.Application):
 	print "Ignore CTRL+C and the like for 5 seconds (try it!)"
 	self.sleep(5)
 
-    	self.userCallbackOnInterrupt()
+    	self.callbackOnInterrupt()
 
     	self.holdInterrupt()
 	print "Hold CTRL+C and the like for 5 seconds (try it!)"
@@ -43,7 +43,7 @@ class Client(Ice.Application):
 	print "Hold CTRL+C and the like for 5 seconds (try it!)"
 	self.sleep(5)
 
-	self.userCallbackOnInterrupt()
+	self.callbackOnInterrupt()
 	print "Release CTRL+C (any held signals should be released)"
 	self.sleep(5)
 

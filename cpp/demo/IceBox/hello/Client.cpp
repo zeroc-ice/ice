@@ -55,7 +55,7 @@ HelloClient::run(int argc, char* argv[])
     // Since this is an interactive demo we want the custom interrupt
     // callback to be called when the process is interrupted.
     //
-    userCallbackOnInterrupt();
+    callbackOnInterrupt();
 
     HelloPrx twoway = HelloPrx::checkedCast(
 	communicator()->propertyToProxy("Hello.Proxy")->ice_twoway()->ice_timeout(-1)->ice_secure(false));

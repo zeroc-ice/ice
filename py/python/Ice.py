@@ -747,14 +747,14 @@ class Application(object):
         self._condVar.release()
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
-    def userCallbackOnInterrupt(self):
+    def callbackOnInterrupt(self):
         self._condVar.acquire()
         if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
             self._released = True
             self._condVar.notify()
-	self._ctrlCHandler.setCallback(self.userCallbackOnInterruptCallback)
+	self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
         self._condVar.release()
-    userCallbackOnInterrupt = classmethod(userCallbackOnInterrupt)
+    callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
         self._condVar.acquire()
@@ -856,7 +856,7 @@ class Application(object):
         self._condVar.release()
     shutdownOnInterruptCallback = classmethod(shutdownOnInterruptCallback)
 
-    def userCallbackOnInterruptCallback(self, sig):
+    def callbackOnInterruptCallback(self, sig):
         self._condVar.acquire()
     	if self._destroyed:
 	    #
@@ -882,7 +882,7 @@ class Application(object):
         self._condVar.notify()
         self._condVar.release()
 
-    userCallbackOnInterruptCallback = classmethod(userCallbackOnInterruptCallback)
+    callbackOnInterruptCallback = classmethod(callbackOnInterruptCallback)
 
     _appName = None
     _communicator = None

@@ -57,7 +57,7 @@ InvokeClient::run(int argc, char* argv[])
     // Since this is an interactive demo we want the custom interrupt
     // callback to be called when the process is interrupted.
     //
-    userCallbackOnInterrupt();
+    callbackOnInterrupt();
 
     Ice::ObjectPrx obj = communicator()->propertyToProxy("Printer.Proxy");
 
