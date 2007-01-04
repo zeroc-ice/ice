@@ -332,9 +332,29 @@ namespace IceInternal
 		throw new Ice.SocketException("Cannot listen", ex);
 	    }
 	}
-
+	
 	public static void doConnect(Socket socket, EndPoint addr, int timeout)
 	{
+	    //
+	    // MONO workaround for
+	    // http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1647. 
+	    //
+	    // It would have been nice to be able to get rid of the 2
+	    // implementations of doConnect() and only use
+	    // doConnectAsync() however, with .NET doConnectAsync()
+	    // doesn't work with the TCP transport.  In particular,
+	    // the test/Ice/timeout test fails in the connect timeout
+	    // test because the client hangs in the Receive() call
+	    // waiting for the connection validation (for some reasons
+	    // Receive blocks even though the socket is
+	    // non-blocking...)
+	    //
+ 	    if(AssemblyUtil.runtime_ == AssemblyUtil.Runtime.Mono)
+ 	    {
+ 		doConnectAsync(socket, addr, timeout);
+ 		return;
+ 	    }
+
             //
             // Set larger send buffer size to avoid performance problems on
             // WIN32.
@@ -373,7 +393,7 @@ namespace IceInternal
 		    }
 		    else
 		    {
-			throw;
+			throw new Ice.SocketException(ex);
 		    }
 		}
 
@@ -391,9 +411,9 @@ namespace IceInternal
 		    error = errorList.Count != 0;
 
 		    //
-		    // Under Mac OS Tiger doSelect will report ready: true, error: false. As with
-		    // C++ we need to get the SO_ERROR error to determine whether the connect has
-		    // actually failed.
+		    // As with C++ we need to get the SO_ERROR error
+		    // to determine whether the connect has actually
+		    // failed.
 		    //
 		    int val = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Error);
 		    if(val > 0)
@@ -541,7 +561,7 @@ namespace IceInternal
 		}
 		else
 		{
-		    throw;
+		    throw new Ice.SocketException(ex);
 		}
 	    }
 	}
