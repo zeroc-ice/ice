@@ -718,13 +718,21 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	//
 	// Make sure named adapter has some configuration.
 	//
-	final Properties properties = instance.initializationData().properties;
+	final Properties properties = _instance.initializationData().properties;
 	String[] oldProps = filterProperties(_name + ".");
 	if(endpointInfo.length() == 0 && router == null)
 	{
 	    String[] props = filterProperties(_propertyPrefix + _name + ".");
 	    if(props.length == 0 && oldProps.length == 0)
 	    {
+	        //
+		// These need to be set to prevent finalizer from complaining.
+		//
+		_deactivated = true;
+		_instance = null;
+	        _communicator = null;
+	        _incomingConnectionFactories = null;
+
 	        InitializationException ex = new InitializationException();
 		ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
 		throw ex;
@@ -932,19 +940,13 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
         if(!_deactivated)
         {
-	    //
-	    // For compatibility with C#, we do not invoke methods on other objects
-	    // in a finalizer.
-	    //
-            //_instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been deactivated");
+            _instance.initializationData().logger.warning("object adapter `" + getName() + 
+	    						  "' has not been deactivated");
         }
         else if(_instance != null)
         {
-	    //
-	    // For compatibility with C#, we do not invoke methods on other objects
-	    // in a finalizer.
-	    //
-            //_instance.initializationData().logger.warning("object adapter `" + getName() + "' deactivation had not been waited for");
+            _instance.initializationData().logger.warning("object adapter `" + getName() + 
+	    						  "' deactivation had not been waited for");
         }
 	else
 	{
