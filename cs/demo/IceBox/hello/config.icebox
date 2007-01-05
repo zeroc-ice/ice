@@ -3,7 +3,8 @@ IceBox.InstanceName=DemoIceBox
 #
 # The IceBox server endpoint configuration.
 #
-Ice.OA.IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
+#Ice.OA.IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
+Ice.OA.IceBox.ServiceManager.Endpoints=tcp -p 9998
 
 #
 # The hello service
@@ -15,7 +16,8 @@ IceBox.Service.Hello=helloservice.dll:HelloServiceI
 # the service. The following line sets the endpoints for this
 # adapter.
 #
-Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+#Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000
 
 #
 # Warn about connection exceptions
@@ -43,7 +45,7 @@ Ice.Warn.Connections=1
 #
 # SSL plugin configuration
 #
-Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs
 IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx

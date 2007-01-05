@@ -50,14 +50,6 @@ internal class CertificateVerifierI : IceSSL.CertificateVerifier
 	return hadCert_;
     }
 
-    private static void test(bool b)
-    {
-	if (!b)
-	{
-	    throw new Exception();
-	}
-    }
-
     private bool returnValue_;
     private bool invoked_;
     private bool hadCert_;

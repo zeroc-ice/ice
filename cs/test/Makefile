@@ -11,10 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= IceUtil Ice Glacier2 IceGrid
-ifneq ($(MONO), yes)
-SUBDIRS		+= IceSSL
-endif
+SUBDIRS		= IceUtil Ice IceSSL Glacier2 IceGrid
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

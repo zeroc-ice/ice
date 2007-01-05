@@ -114,9 +114,8 @@ namespace IceSSL
 		AuthInfo info = new AuthInfo();
 		info.stream = stream;
 		info.done = false;
-		IAsyncResult ar = stream.BeginAuthenticateAsServer(cert, verifyPeer_ > 1, instance_.protocols(),
-								   instance_.checkCRL(),
-								   new AsyncCallback(authCallback), info);
+		stream.BeginAuthenticateAsServer(cert, verifyPeer_ > 1, instance_.protocols(),
+						 instance_.checkCRL(), new AsyncCallback(authCallback), info);
 		lock(info)
 		{
 		    if(!info.done)
