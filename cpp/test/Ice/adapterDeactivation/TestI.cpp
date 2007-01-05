@@ -22,8 +22,7 @@ TestI::transient(const Current& current)
     ObjectAdapterPtr adapter =
 	communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
     adapter->activate();
-    adapter->deactivate();
-    adapter->waitForDeactivate();
+    adapter->destroy();
 }
 
 void

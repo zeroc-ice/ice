@@ -84,11 +84,6 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     for_each(_adapters.begin(), _adapters.end(),
 	     IceUtil::secondVoidMemFun<const string, ObjectAdapterI>(&ObjectAdapter::waitForDeactivate));
     
-    //
-    // We're done, now we can throw away the object adapters.
-    //
-    _adapters.clear();
-
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -98,6 +93,30 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
 	_waitForShutdown = false;
 	notifyAll();
     }
+}
+
+void
+IceInternal::ObjectAdapterFactory::destroy()
+{
+    //
+    // First wait for shutdown to finish.
+    //
+    waitForShutdown();
+
+    map<string, ObjectAdapterIPtr> adapters;
+
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+	adapters = _adapters;
+	_adapters.clear();
+    }
+
+    //
+    // Now we destroy each object adapter.
+    //
+    for_each(adapters.begin(), adapters.end(),
+	     IceUtil::secondVoidMemFun<const string, ObjectAdapterI>(&ObjectAdapter::destroy));
 }
 
 ObjectAdapterPtr

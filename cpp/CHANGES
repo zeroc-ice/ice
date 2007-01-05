@@ -1,6 +1,11 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Added destroy method to the ObjectAdapter interface. It is necessary
+  to call destroy to clean up the adapter resources and be able to
+  recreate a new adapter with the same name. Communicator destroy
+  automatically calls destroy on all its adapters.
+
 - Added a per-process logger and two methods to get/set the logger,
   Ice::getProcessLogger() and Ice::setProcessLogger(). Get will create a
   default process logger when called if set has not been called. The

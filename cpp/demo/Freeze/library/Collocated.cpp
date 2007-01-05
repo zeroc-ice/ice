@@ -86,8 +86,7 @@ LibraryCollocated::run(int argc, char* argv[])
     //
     int runParser(int, char*[], const Ice::CommunicatorPtr&);
     int status = runParser(argc, argv, communicator());
-    adapter->deactivate();
-    adapter->waitForDeactivate();
+    adapter->destroy();
 
     return status;
 }

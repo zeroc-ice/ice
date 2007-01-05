@@ -46,6 +46,5 @@ HelloServiceI::start(const string& name, const Ice::CommunicatorPtr& communicato
 void
 HelloServiceI::stop()
 {
-    _adapter->deactivate();
-    _adapter->waitForDeactivate();
+    _adapter->destroy();
 }

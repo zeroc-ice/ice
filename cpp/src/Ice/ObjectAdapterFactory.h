@@ -23,6 +23,7 @@ public:
 
     void shutdown();
     void waitForShutdown();
+    void destroy();
 
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&, const Ice::RouterPrx&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);

@@ -1387,11 +1387,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	session2->destroy();
 
-	adpt1->deactivate();
-	adpt2->deactivate();
-
-	adpt1->waitForDeactivate();
-	adpt2->waitForDeactivate();
+	adpt1->destroy();
+	adpt2->destroy();
 
 	//
 	// TODO: test session reaping?
@@ -1490,8 +1487,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 
  	session1->destroy();
- 	adpt1->deactivate();
- 	adpt1->waitForDeactivate();
+ 	adpt1->destroy();
 
 	cout << "ok" << endl;
     }
@@ -1575,8 +1571,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 
  	session1->destroy();
- 	adpt1->deactivate();
- 	adpt1->waitForDeactivate();
+ 	adpt1->destroy();
 
 	cout << "ok" << endl;
     }
@@ -1630,8 +1625,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 
  	session1->destroy();
- 	adpt1->deactivate();
- 	adpt1->waitForDeactivate();
+ 	adpt1->destroy();
 
 	cout << "ok" << endl;
     }
@@ -1743,8 +1737,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 // 	nodeObs1->waitForUpdate(__FILE__, __LINE__); // serverUpdate(Destroyed)
 
 // 	session1->destroy();
-// 	adpt1->deactivate();
-// 	adpt1->waitForDeactivate();
+// 	adpt1->destroy();
 
 // 	cout << "ok" << endl;
     }

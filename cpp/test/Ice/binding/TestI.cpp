@@ -54,8 +54,7 @@ RemoteObjectAdapterI::deactivate(const Ice::Current&)
 {
     try
     {
-	_adapter->deactivate();
-	_adapter->waitForDeactivate();
+	_adapter->destroy();
     }
     catch(const ObjectAdapterDeactivatedException&)
     {

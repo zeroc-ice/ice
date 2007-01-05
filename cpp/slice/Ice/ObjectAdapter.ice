@@ -128,7 +128,7 @@ local interface ObjectAdapter
      * Wait until the object adapter has deactivated. Calling
      * [deactivate] initiates object adapter deactivation, and
      * [waitForDeactivate] only returns when deactivation has
-     * been completed. Once waitForDeactivate has returned it
+     * been completed. Once [waitForDeactivate] has returned it
      * is possible to recreate an object adapter with the
      * same name.
      *
@@ -138,6 +138,22 @@ local interface ObjectAdapter
      *
      **/
     void waitForDeactivate();
+
+    /**
+     *
+     * Destroys the object adapter and cleans up all resources
+     * held by the object adapter. If object adapter has not yet
+     * been deactivated, [destroy] implicitly initiates the
+     * deactivation and waits for it to finish. Once [destroy] has
+     * returned it is possible to recreate an object adapter with
+     * the same name. Subsequent calls to [destroy] are ignored.
+     * 
+     * @see deactivate
+     * @see waitForDeactivate
+     * @see Communicator::destroy
+     *
+     **/
+    void destroy();
 
     /**
      *

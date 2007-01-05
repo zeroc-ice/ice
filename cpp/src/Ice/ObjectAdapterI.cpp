@@ -287,14 +287,54 @@ Ice::ObjectAdapterI::waitForDeactivate()
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
 
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+	//
+	// Signal that waiting is complete.
+	//
+	_waitForDeactivate = false;
+	notifyAll();
+    }
+}
+
+void
+Ice::ObjectAdapterI::destroy()
+{
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+	//
+	// Another thread is in the process of destroying the object
+	// adapter. Wait for it to finish.
+	//
+	while(_destroying)
+	{
+	    wait();
+	}
+
+	//
+	// Object adpater is already destroyed.
+	//
+	if(_destroyed)
+	{
+	    return;
+	}
+
+	_destroying = true;
+    }
+
+    //
+    // Deactivate and wait for completion.
+    //
+    deactivate();
+    waitForDeactivate();
+
     //
     // Now it's also time to clean up our servants and servant
     // locators.
     //
-    if(_instance) // Don't destroy twice.
-    {
-	_servantManager->destroy();
-    }
+    _servantManager->destroy();
 
     //
     // Destroy the thread pool.
@@ -311,9 +351,10 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
 	//
-	// Signal that waiting is complete.
+	// Signal that destroy is complete.
 	//
-	_waitForDeactivate = false;
+	_destroying = false;
+	_destroyed = true;
 	notifyAll();
 
 	//
@@ -692,6 +733,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _directCount(0),
     _waitForActivate(false),
     _waitForDeactivate(false),
+    _destroying(false),
+    _destroyed(false),
     _noConfig(noConfig)
 {
     if(_noConfig)
@@ -892,10 +935,10 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 	Warning out(_instance->initializationData().logger);
 	out << "object adapter `" << getName() << "' has not been deactivated";
     }
-    else if(_instance)
+    else if(!_destroyed)
     {
 	Warning out(_instance->initializationData().logger);
-	out << "object adapter `" << getName() << "' deactivation had not been waited for";
+	out << "object adapter `" << getName() << "' has not been destroyed";
     }
     else
     {

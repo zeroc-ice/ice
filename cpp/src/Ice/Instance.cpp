@@ -851,7 +851,7 @@ IceInternal::Instance::destroy()
 
     if(_objectAdapterFactory)
     {
-        _objectAdapterFactory->waitForShutdown();
+        _objectAdapterFactory->destroy();
     }
 
     if(_outgoingConnectionFactory)

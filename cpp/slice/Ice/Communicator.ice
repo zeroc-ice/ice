@@ -52,10 +52,11 @@ local interface Communicator
      *
      * Destroy the communicator. This operation calls [shutdown]
      * implicitly.  Calling [destroy] cleans up memory, and shuts down
-     * this communicator's client functionality. Subsequent calls to
-     * [destroy] are ignored.
+     * this communicator's client functionality and destroys all object
+     * adapters. Subsequent calls to [destroy] are ignored.
      *
      * @see shutdown
+     * @see ObjectAdapter::destroy
      *
      **/
     void destroy();
