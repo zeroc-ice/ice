@@ -42,6 +42,8 @@ public:
     
     std::string getBaseName();
 
+    static std::string addQuotes(const std::string&);
+
 private:
     
     bool checkInputFile();

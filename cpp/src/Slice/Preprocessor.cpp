@@ -8,11 +8,9 @@
 // **********************************************************************
 
 #include <Slice/Preprocessor.h>
-
+#include <IceUtil/StringUtil.h>
 #include <algorithm>
 #include <fstream>
-
-
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -51,6 +49,18 @@ Slice::Preprocessor::getBaseName()
 	base.erase(pos);
     }
     return base;
+}
+
+string
+Slice::Preprocessor::addQuotes(const string& arg)
+{
+    //
+    // Add quotes around the given argument to ensure that arguments
+    // with spaces (such as PATHs) will be preserved as a single
+    // argument. We also escape the "\" character to ensure that we
+    // don't end up with a \" at the end of the string.
+    //
+    return "\"" + IceUtil::escapeString(arg, "\\") + "\"";
 }
 
 FILE*

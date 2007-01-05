@@ -90,19 +90,19 @@ main(int argc, char* argv[])
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -D\"" + *i + "\"";
+	cppArgs += " -D" + Preprocessor::addQuotes(*i);
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -U\"" + *i + "\"";
+	cppArgs += " -U" + Preprocessor::addQuotes(*i);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs += " -I\"" + *i + "\"";
+	cppArgs += " -I" + Preprocessor::addQuotes(*i);
     }
 
     bool preprocess = opts.isSet("E");
@@ -143,6 +143,8 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
+    cerr << cppArgs << endl;
+    
     for(i = args.begin(); i != args.end(); ++i)
     {
 	if(depend)
