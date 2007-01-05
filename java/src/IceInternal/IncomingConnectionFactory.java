@@ -122,11 +122,14 @@ public final class IncomingConnectionFactory extends EventHandler
 	    }
 	}
 
-	java.util.ListIterator p = connections.listIterator();
-	while(p.hasNext())
+	if(connections != null)
 	{
-	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
-	    connection.waitUntilFinished();
+	    java.util.ListIterator p = connections.listIterator();
+	    while(p.hasNext())
+	    {
+	        Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
+	        connection.waitUntilFinished();
+	    }
 	}
     }
 

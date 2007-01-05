@@ -113,8 +113,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     public void
     deactivate(Ice.Current current)
     {
-        _evictorAdapter.deactivate();
-        _evictorAdapter.waitForDeactivate();
+        _evictorAdapter.destroy();
         _adapter.remove(_adapter.getCommunicator().stringToIdentity(_category));
     }
     

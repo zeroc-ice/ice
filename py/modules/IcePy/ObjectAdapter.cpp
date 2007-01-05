@@ -639,6 +639,28 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+adapterDestroy(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        (*self->adapter)->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 adapterAdd(ObjectAdapterObject* self, PyObject* args)
 {
     PyObject* objectType = lookupType("Ice.Object");
@@ -1348,6 +1370,8 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("deactivate() -> None")) },
     { STRCAST("waitForDeactivate"), (PyCFunction)adapterWaitForDeactivate, METH_VARARGS,
         PyDoc_STR(STRCAST("waitForDeactivate() -> None")) },
+    { STRCAST("destroy"), (PyCFunction)adapterDestroy, METH_NOARGS,
+        PyDoc_STR(STRCAST("destroy() -> None")) },
     { STRCAST("add"), (PyCFunction)adapterAdd, METH_VARARGS,
         PyDoc_STR(STRCAST("add(servant, identity) -> Ice.ObjectPrx")) },
     { STRCAST("addFacet"), (PyCFunction)adapterAddFacet, METH_VARARGS,

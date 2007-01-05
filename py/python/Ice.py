@@ -355,6 +355,9 @@ class ObjectAdapterI(ObjectAdapter):
         while not self._impl.waitForDeactivate(1000):
             pass
 
+    def destroy(self):
+        self._impl.destroy()
+
     def add(self, servant, id):
         return self._impl.add(servant, id)
 

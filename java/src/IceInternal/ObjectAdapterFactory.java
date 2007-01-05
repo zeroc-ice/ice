@@ -92,15 +92,6 @@ public final class ObjectAdapterFactory
 		Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
 		adapter.waitForDeactivate();
 	    }
-	    
-	    //
-	    // We're done, now we can throw away the object adapters.
-	    //
-	    // For consistency with C#, we set _adapters to null
-	    // so that our finalizer does not try to invoke any
-	    // methods on member objects.
-	    //
-	    _adapters = null;
 	}
 
 	synchronized(this)
@@ -111,6 +102,37 @@ public final class ObjectAdapterFactory
 	    _waitForShutdown = false;
 	    notifyAll();
 	}
+    }
+
+    public void
+    destroy()
+    {
+        //
+	// First wait for shutdown to finish.
+	//
+	waitForShutdown();
+
+        Ice.ObjectAdapter[] adapters;
+
+    	synchronized(this)
+	{
+	    adapters = (Ice.ObjectAdapter[])_adapters.values().toArray(new Ice.ObjectAdapter[0]);
+
+	    //
+	    // For consistency with C#, we set _adapters to null
+	    // so that our finalizer does not try to invoke any
+	    // methods on member objects.
+	    //
+	    _adapters = null;
+	}
+
+	//
+	// Now we destroy each object adapter.
+	//
+        for(int i = 0; i < adapters.length; ++i)
+        {
+            adapters[i].destroy();
+        }
     }
     
     public synchronized Ice.ObjectAdapter
@@ -179,7 +201,7 @@ public final class ObjectAdapterFactory
     public synchronized void
     removeObjectAdapter(String name)
     {
-        if(_waitForShutdown)
+        if(_waitForShutdown || _adapters == null)
 	{
 	    return;
 	}

@@ -36,11 +36,10 @@ def allTests(communicator):
 	test(False)
     except Ice.LocalException:
         pass
-    adapter.deactivate()
-    adapter.waitForDeactivate()
-    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999")
-    adapter.deactivate()
-    adapter.waitForDeactivate()
+    adapter.destroy()
+
+    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998")
+    adapter.destroy()
     print "ok"
 
     print "creating/activating/deactivating object adapter in one operation... ",

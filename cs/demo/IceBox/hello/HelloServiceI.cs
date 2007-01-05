@@ -20,8 +20,7 @@ class HelloServiceI : Ice.LocalObjectImpl, IceBox.Service
 
     public void stop()
     {
-        _adapter.deactivate();
-        _adapter.waitForDeactivate();
+        _adapter.destroy();
     }
 
     private Ice.ObjectAdapter _adapter;

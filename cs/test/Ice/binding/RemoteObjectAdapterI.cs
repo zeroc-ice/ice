@@ -30,8 +30,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
     {
 	try
 	{
-	    _adapter.deactivate();
-	    _adapter.waitForDeactivate();
+	    _adapter.destroy();
 	}
 	catch(Ice.ObjectAdapterDeactivatedException)
 	{

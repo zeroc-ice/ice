@@ -81,14 +81,6 @@ namespace IceInternal
 		{
 		    adapter.waitForDeactivate();
 		}
-
-		//
-		// We're done, now we can throw away the object adapters.
-		//
-		// We set _adapters to null because our destructor must not
-		// invoke methods on member objects.
-		//
-		_adapters = null;
 	    }
 	    
 	    lock(this)
@@ -98,6 +90,32 @@ namespace IceInternal
 		//
 		_waitForShutdown = false;
 		System.Threading.Monitor.PulseAll(this);
+	    }
+	}
+
+	public void destroy()
+	{
+	    //
+	    // First wait for shutdown to finish.
+	    //
+	    waitForShutdown();
+
+	    Hashtable adapters;
+
+	    lock(this)
+	    {
+	        adapters = _adapters;
+
+		//
+		// We set _adapters to null because our destructor must not
+		// invoke methods on member objects.
+		//
+		_adapters = null;
+	    }
+
+	    foreach(Ice.ObjectAdapter adapter in adapters.Values)
+	    {
+	        adapter.destroy();
 	    }
 	}
 	
@@ -175,7 +193,7 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-	        if(_waitForShutdown)
+	        if(_waitForShutdown || _adapters == null)
 		{
 		    return;
 		}

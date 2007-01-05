@@ -92,8 +92,7 @@ class PhoneBookCollocated extends Ice.Application
 	// Everything ok, let's go.
 	//
 	int status = RunParser.runParser(appName(), args, communicator());
-	adapter.deactivate();
-	adapter.waitForDeactivate();
+	adapter.destroy();
 
 	return status;
     }

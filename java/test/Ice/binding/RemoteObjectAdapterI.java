@@ -31,8 +31,7 @@ public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
     {
 	try
 	{
-	    _adapter.deactivate();
-	    _adapter.waitForDeactivate();
+	    _adapter.destroy();
 	}
 	catch(Ice.ObjectAdapterDeactivatedException ex)
 	{

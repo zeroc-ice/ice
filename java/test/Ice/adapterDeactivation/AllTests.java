@@ -50,14 +50,12 @@ public class AllTests
 	    catch(Ice.AlreadyRegisteredException ex)
 	    {
 	    }
-	    adapter.deactivate();
-	    adapter.waitForDeactivate();
+	    adapter.destroy();
 	    //
 	    // Use a different port than the first adapter to avoid an "address already in use" error.
 	    //
 	    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
-	    adapter.deactivate();
-	    adapter.waitForDeactivate();
+	    adapter.destroy();
             System.out.println("ok");
 	}
 

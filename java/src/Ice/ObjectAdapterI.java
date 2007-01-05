@@ -297,14 +297,58 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    }
 	}
 	
+	synchronized(this)
+	{
+	    //
+	    // Signal that waiting is complete.
+	    //
+	    _waitForDeactivate = false;
+	    notifyAll();
+	}
+    }
+
+    public void
+    destroy()
+    {
+        synchronized(this)
+	{
+	    //
+	    // Another thread is in the process of destroying the object
+	    // adapter. Wait for it to finish.
+	    //
+	    while(_destroying)
+	    {
+		try
+		{
+		    wait();
+		}
+		catch(InterruptedException ex)
+		{
+		}
+	    }
+
+	    //
+	    // Object adpater is already destroyed.
+	    //
+	    if(_destroyed)
+	    {
+	        return;
+	    }
+
+	    _destroying = true;
+	}
+
+	//
+	// Deactivate and wait for completion.
+	//
+	deactivate();
+	waitForDeactivate();
+
 	//
 	// Now it's also time to clean up our servants and servant
 	// locators.
 	//
-	if(_instance != null) // Don't destroy twice.
-	{
-	    _servantManager.destroy();
-	}
+	_servantManager.destroy();
 	
 	//
 	// Destroy the thread pool.
@@ -320,9 +364,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	synchronized(this)
 	{
 	    //
-	    // Signal that waiting is complete.
+	    // Signal that destroying is complete.
 	    //
-	    _waitForDeactivate = false;
+	    _destroying = false;
+	    _destroyed = true;
 	    notifyAll();
 
 	    //
@@ -702,6 +747,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_directCount = 0;
  	_waitForActivate = false;
 	_waitForDeactivate = false;
+	_destroying = false;
+	_destroyed = false;
 	_noConfig = noConfig;
 
 	if(_noConfig)
@@ -729,6 +776,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		// These need to be set to prevent finalizer from complaining.
 		//
 		_deactivated = true;
+		_destroyed = true;
 		_instance = null;
 	        _communicator = null;
 	        _incomingConnectionFactories = null;
@@ -943,10 +991,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             _instance.initializationData().logger.warning("object adapter `" + getName() + 
 	    						  "' has not been deactivated");
         }
-        else if(_instance != null)
+        else if(!_destroyed)
         {
-            _instance.initializationData().logger.warning("object adapter `" + getName() + 
-	    						  "' deactivation had not been waited for");
+            _instance.initializationData().logger.warning("object adapter `" + getName() + "' has not been destroyed");
         }
 	else
 	{
@@ -1284,6 +1331,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private int _directCount;
     private boolean _waitForActivate;
     private boolean _waitForDeactivate;
+    private boolean _destroying;
+    private boolean _destroyed;
     private boolean _noConfig;
     static private String _propertyPrefix = "Ice.OA.";
 }

@@ -18,8 +18,7 @@ public sealed class TestI : TestIntfDisp_
         Ice.ObjectAdapter adapter =
             communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
         adapter.activate();
-        adapter.deactivate();
-        adapter.waitForDeactivate();
+        adapter.destroy();
     }
 
     public override void deactivate(Ice.Current current)

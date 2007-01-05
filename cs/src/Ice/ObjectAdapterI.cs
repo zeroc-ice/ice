@@ -279,15 +279,52 @@ namespace Ice
 		    factory.waitUntilFinished();
 		}
 	    }
-	    
+
+	    lock(this)
+	    {
+		//
+		// Signal that waiting is complete.
+		//
+		_waitForDeactivate = false;
+		System.Threading.Monitor.PulseAll(this);
+	    }
+	}
+
+	public void destroy()
+	{
+	    lock(this)
+	    {
+	        //
+		// Another thread is in the process of destroying the object
+		// adapter. Wait for it to finish.
+		//
+		while(_destroying)
+		{
+		    System.Threading.Monitor.Wait(this);
+		}
+
+		//
+		// Object adpater is already destroyed.
+		//
+		if(_destroyed)
+		{
+		    return;
+		}
+
+		_destroying = true;
+	    }
+
+	    //
+	    // Deactivate and wait for completion.
+	    //
+	    deactivate();
+	    waitForDeactivate();
+
 	    //
 	    // Now it's also time to clean up our servants and servant
 	    // locators.
 	    //
-	    if(instance_ != null) // Don't destroy twice.
-	    {
-		_servantManager.destroy();
-	    }
+	    _servantManager.destroy();
 	    
 	    //
 	    // Destroy the thread pool.
@@ -303,9 +340,10 @@ namespace Ice
 	    lock(this)
 	    {
 		//
-		// Signal that waiting is complete.
+		// Signal that destroying is complete.
 		//
-		_waitForDeactivate = false;
+		_destroying = false;
+		_destroyed = true;
 		System.Threading.Monitor.PulseAll(this);
 		
 		//
@@ -1309,6 +1347,8 @@ namespace Ice
 	private int _directCount;
 	private bool _waitForActivate;
 	private bool _waitForDeactivate;
+	private bool _destroying;
+	private bool _destroyed;
 	private bool _noConfig;
 	static private string _propertyPrefix = "Ice.OA.";
     }

@@ -579,7 +579,7 @@ namespace IceInternal
 	    
 	    if(_objectAdapterFactory != null)
 	    {
-		_objectAdapterFactory.waitForShutdown();
+		_objectAdapterFactory.destroy();
 	    }
 	    
 	    if(_outgoingConnectionFactory != null)

@@ -624,9 +624,12 @@ namespace IceInternal
 	    //
 	    // Now we wait until the destruction of each connection is finished.
 	    //
-	    foreach(Ice.ConnectionI connection in connections)
+	    if(connections != null)
 	    {
-		connection.waitUntilFinished();
+	        foreach(Ice.ConnectionI connection in connections)
+	        {
+		    connection.waitUntilFinished();
+	        }
 	    }
 	}
 	

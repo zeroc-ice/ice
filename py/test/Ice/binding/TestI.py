@@ -34,8 +34,7 @@ class RemoteObjectAdapterI(Test.RemoteObjectAdapter):
 
     def deactivate(self, current=None):
 	try:
-	    self._adapter.deactivate()
-	    self._adapter.waitForDeactivate()
+	    self._adapter.destroy()
 	except Ice.ObjectAdapterDeactivatedException:
 	    pass
 
