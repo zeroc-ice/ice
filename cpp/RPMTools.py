@@ -361,7 +361,7 @@ fileLists = [
 	     ('file', 'share/doc/Ice-%version%/config/templates.xml'),
 	     ('exe', 'share/doc/Ice-%version%/config/convertssl.py'),
              ('exe', 'share/doc/Ice-%version%/config/upgradeicegrid.py'),
-             ('file', 'share/doc/Ice-%version%/config/icegrid-slice.3.0.ice.gz')]),
+             ('file', 'share/doc/Ice-%version%/config/icegrid-slice.3.1.ice.gz')]),
     Subpackage('c++-devel',
                'ice = %version%',
                'Tools for developing Ice applications in C++',
@@ -382,11 +382,7 @@ fileLists = [
 		('lib', '%{icelibdir}/libIceStorm.so'),
 		('lib', '%{icelibdir}/libIceUtil.so'),
 		('lib', '%{icelibdir}/libIceXML.so'),
-		('lib', '%{icelibdir}/libSlice.so'),
-		('xdir', 'share/doc/Ice-%version%'),
-		('xdir', 'share/doc/Ice-%version%/config'),
-		('file', 'share/doc/Ice-%version%/config/Make.rules'),
-		('file', 'share/doc/Ice-%version%/config/Make.rules.Linux'),
+		('lib', '%{icelibdir}/libSlice.so')
 		]),
     DotNetPackage('csharp-devel',
 	          'ice-dotnet = %version%',
@@ -396,8 +392,6 @@ fileLists = [
 		  'Requires: ice-%{_arch}',
 		  [('exe', 'bin/slice2cs'),
 		  ('xdir', 'share/doc/Ice-%version%'),
-		  ('xdir', 'share/doc/Ice-%version%/config'),
-		  ('file', 'share/doc/Ice-%version%/config/Make.rules.cs'),
 		  ('file', '%{icelibdir}/pkgconfig/icecs.pc'),
 		  ('file', '%{icelibdir}/pkgconfig/glacier2cs.pc'),
 		  ('file', '%{icelibdir}/pkgconfig/iceboxcs.pc'),
@@ -413,10 +407,7 @@ fileLists = [
                [('exe', 'bin/slice2java'),
                 ('exe', 'bin/slice2freezej'),
 		('xdir', 'lib/Ice-%version%'),
-		('dir', 'lib/Ice-%version%/ant'),
-		('xdir', 'share/doc/Ice-%version%'),
-		('xdir', 'share/doc/Ice-%version%/config'),
-	        ('file', 'share/doc/Ice-%version%/config/build.properties')]),
+		('dir', 'lib/Ice-%version%/ant'), ]),
     Subpackage('python',
                'ice = %version%, python >= 2.3.4',
                'The Ice runtime for Python applications',
@@ -462,7 +453,8 @@ fileLists = [
 		     ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
 		     ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
 		     ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-		     ('exe', 'bin/iceboxnet.exe')])
+		     ('exe', 'bin/iceboxnet.exe'),
+		     ('exe', 'bin/iceboxadminnet.exe')])
     ]
 
 def _transformDirectories(transforms, version, installDir):
@@ -609,14 +601,14 @@ cd $RPM_BUILD_DIR
 # Create links to the Berkeley DB that we want. This should allow us to bypass
 # the older installed links.
 #
-if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db.h; then
-    ln -s /usr/include/db45/db.h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db.h
+if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/db.h; then
+    ln -s /usr/include/db45/db.h $RPM_BUILD_DIR/Ice-%{version}/include/db.h
 fi
-if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db_cxx.h; then
-    ln -s /usr/include/db45/db_cxx.h $RPM_BUILD_DIR/Ice-%{version}/include/Ice/db_cxx.h
+if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/db_cxx.h; then
+    ln -s /usr/include/db45/db_cxx.h $RPM_BUILD_DIR/Ice-%{version}/include/db_cxx.h
 fi
 if ! test -h $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so; then
-    ln -s /lib/lidbdb-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so
+    ln -s /lib/libdb-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so
 fi
 if ! test -h $RPM_BUILD_DIR/Ice-%{version}/lib/libdb_cxx.so; then
     ln -s /usr/lib/libdb_cxx-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb_cxx.so
