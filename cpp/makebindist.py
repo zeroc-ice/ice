@@ -443,10 +443,11 @@ def updateIceVersion(filename, version):
 
 def obliterate(files):
     for f in files:
-	if os.path.isdir(f):
-	    shutil.rmtree(f)
-	else:
-	    os.remove(f)
+	if os.path.exists(f):
+	    if os.path.isdir(f):
+		shutil.rmtree(f)
+	    else:
+		os.remove(f)
 
 def extractDemos(sources, buildDir, version, distro, demoDir):
     """Pulls the demo directory out of a distribution and massages its
@@ -537,7 +538,7 @@ def archiveDemoTree(buildDir, version, installFiles):
     cwd = os.getcwd()
     os.chdir(os.path.join(buildDir, 'Ice-%s-demos' % version))
     filesToRemove = ['certs/makecerts.py', 'certs/ImportKey.java', 'certs/ImportKey.class', 'certs/seed.dat',
-	    'config/convertssl.py', 'config/upgradeicegrid.py', 'config/icegrid-slice.3.0.ice.gz', 'config/PropertyNames.def', 'config/makeprops.py', 
+	    'config/convertssl.py', 'config/upgradeicegrid.py', 'config/icegrid-slice.3.1.ice.gz', 'config/PropertyNames.def', 'config/makeprops.py', 
 	    'config/TestUtil.py', 'config/IceGridAdmin.py', 'config/ice_ca.cnf', 'config/icegridgui.pro']
     obliterate(filesToRemove)
     os.chdir(buildDir)
@@ -1115,6 +1116,12 @@ def main():
 	cf = os.path.join(installFiles, 'unix', psf + '.' + uname)
 	if os.path.exists(cf):
 	    shutil.copy(cf, os.path.join('Ice-' + version, psf))
+
+    # 
+    # Remove build files from binary distribution. 
+    #
+    runprog("rm Ice-%s/config/build.properties" % (version))
+    runprog("rm Ice-%s/config/Make.rules*" % (version))
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
