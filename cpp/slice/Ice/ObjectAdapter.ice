@@ -141,6 +141,17 @@ local interface ObjectAdapter
 
     /**
      *
+     * Check whether object adapter has been deacivated.
+     *
+     * @return Whether adapter has been deactivated.
+     *
+     * @see shutdown
+     *
+     **/
+    ["cpp:const"] bool isDeactivated();
+
+    /**
+     *
      * Destroys the object adapter and cleans up all resources
      * held by the object adapter. If object adapter has not yet
      * been deactivated, [destroy] implicitly initiates the

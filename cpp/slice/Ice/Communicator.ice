@@ -102,6 +102,17 @@ local interface Communicator
 
     /**
      *
+     * Check whether communicator has been shutdown.
+     *
+     * @return Whether communicator has been shutdown.
+     *
+     * @see shutdown
+     *
+     **/
+    ["cpp:const"] bool isShutdown();
+
+    /**
+     *
      * Convert a string into a proxy. For example,
      * <tt>MyCategory/MyObject:tcp -h some_host -p
      * 10000</tt> creates a proxy that refers to the Ice object

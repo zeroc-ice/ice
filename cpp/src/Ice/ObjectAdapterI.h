@@ -49,6 +49,7 @@ public:
     virtual void waitForHold();
     virtual void deactivate();
     virtual void waitForDeactivate();
+    virtual bool isDeactivated() const;
     virtual void destroy();
 
     virtual ObjectPrx add(const ObjectPtr&, const Identity&);

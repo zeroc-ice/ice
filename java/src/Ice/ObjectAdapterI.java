@@ -286,6 +286,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
     }
 
+    public synchronized boolean
+    isDeactivated()
+    {
+        return _deactivated;
+    }
+
     public void
     destroy()
     {

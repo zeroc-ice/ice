@@ -204,6 +204,9 @@ class CommunicatorI(Communicator):
         while not self._impl.waitForShutdown(1000):
             pass
 
+    def isShutdown(self):
+        self._impl.isShutdown()
+
     def stringToProxy(self, str):
         return self._impl.stringToProxy(str)
 
@@ -354,6 +357,9 @@ class ObjectAdapterI(ObjectAdapter):
         #
         while not self._impl.waitForDeactivate(1000):
             pass
+
+    def isDeactivated(self):
+        self._impl.isDeactivated()
 
     def destroy(self):
         self._impl.destroy()

@@ -274,6 +274,14 @@ namespace Ice
 	    }
 	}
 
+	public bool isDeactivated()
+	{
+	    lock(this)
+	    {
+	        return _deactivated;
+	    }
+	}
+
 	public void destroy()
 	{
 	    lock(this)

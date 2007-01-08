@@ -29,6 +29,12 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	_instance.objectAdapterFactory().waitForShutdown();
     }
 
+    public boolean
+    isShutdown()
+    {
+        return _instance.objectAdapterFactory().isShutdown();
+    }
+
     public Ice.ObjectPrx
     stringToProxy(String s)
     {

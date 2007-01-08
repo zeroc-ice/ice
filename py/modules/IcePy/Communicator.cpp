@@ -371,6 +371,27 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorIsShutdown(CommunicatorObject* self)
+{
+    assert(self->communicator);
+    try
+    {
+        (*self->communicator)->isShutdown();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorStringToProxy(CommunicatorObject* self, PyObject* args)
 {
     char* str;
@@ -1048,6 +1069,8 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("shutdown() -> None")) },
     { STRCAST("waitForShutdown"), (PyCFunction)communicatorWaitForShutdown, METH_VARARGS,
         PyDoc_STR(STRCAST("waitForShutdown() -> None")) },
+    { STRCAST("isShutdown"), (PyCFunction)communicatorIsShutdown, METH_NOARGS,
+        PyDoc_STR(STRCAST("isShutdown() -> None")) },
     { STRCAST("stringToProxy"), (PyCFunction)communicatorStringToProxy, METH_VARARGS,
         PyDoc_STR(STRCAST("stringToProxy(str) -> Ice.ObjectPrx")) },
     { STRCAST("proxyToString"), (PyCFunction)communicatorProxyToString, METH_VARARGS,

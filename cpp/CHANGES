@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
+  allow applications to determine, respectively, whether communicator has
+  been shutdown or object adapter has been deactivated.
+
 - The Glacier2 SessionControl object is now registered with the Server
   adapter rather than the Admin adapter.
 

@@ -118,6 +118,12 @@ Ice::CommunicatorI::waitForShutdown()
     _instance->objectAdapterFactory()->waitForShutdown();
 }
 
+bool
+Ice::CommunicatorI::isShutdown() const
+{
+    return _instance->objectAdapterFactory()->isShutdown();
+}
+
 ObjectPrx
 Ice::CommunicatorI::stringToProxy(const string& s) const
 {

@@ -26,6 +26,11 @@ namespace Ice
 	{
 	    instance_.objectAdapterFactory().waitForShutdown();
 	}
+
+	public bool isShutdown()
+	{
+	    return instance_.objectAdapterFactory().isShutdown();
+	}
 	
 	public Ice.ObjectPrx stringToProxy(string s)
 	{

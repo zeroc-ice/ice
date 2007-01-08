@@ -104,6 +104,12 @@ public final class ObjectAdapterFactory
 	}
     }
 
+    public synchronized boolean
+    isShutdown()
+    {
+        return _instance == null;
+    }
+
     public void
     destroy()
     {

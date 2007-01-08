@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
+  allow applications to determine, respectively, whether communicator has
+  been shutdown or object adapter has been deactivated.
+
 - Added destroy method to the ObjectAdapter interface. It is necessary
   to call destroy to clean up the adapter resources and be able to
   recreate a new adapter with the same name. Communicator destroy

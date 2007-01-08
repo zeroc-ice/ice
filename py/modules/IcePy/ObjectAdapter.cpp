@@ -639,6 +639,27 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+adapterIsDeactivated(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+    try
+    {
+        (*self->adapter)->isDeactivated();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 adapterDestroy(ObjectAdapterObject* self)
 {
     assert(self->adapter);
@@ -1370,6 +1391,8 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("deactivate() -> None")) },
     { STRCAST("waitForDeactivate"), (PyCFunction)adapterWaitForDeactivate, METH_VARARGS,
         PyDoc_STR(STRCAST("waitForDeactivate() -> None")) },
+    { STRCAST("isDeactivated"), (PyCFunction)adapterIsDeactivated, METH_NOARGS,
+        PyDoc_STR(STRCAST("isDeactivatied() -> None")) },
     { STRCAST("destroy"), (PyCFunction)adapterDestroy, METH_NOARGS,
         PyDoc_STR(STRCAST("destroy() -> None")) },
     { STRCAST("add"), (PyCFunction)adapterAdd, METH_VARARGS,

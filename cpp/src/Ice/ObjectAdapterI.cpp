@@ -287,6 +287,14 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
 }
 
+bool
+Ice::ObjectAdapterI::isDeactivated() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    return _deactivated;
+}
+
 void
 Ice::ObjectAdapterI::destroy()
 {

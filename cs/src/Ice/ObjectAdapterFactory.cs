@@ -93,6 +93,14 @@ namespace IceInternal
 	    }
 	}
 
+	public bool isShutdown()
+	{
+	    lock(this)
+	    {
+	        return instance_ == null;
+	    }
+	}
+
 	public void destroy()
 	{
 	    //

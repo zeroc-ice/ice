@@ -95,6 +95,14 @@ IceInternal::ObjectAdapterFactory::waitForShutdown()
     }
 }
 
+bool
+IceInternal::ObjectAdapterFactory::isShutdown() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    return _instance == 0;
+}
+
 void
 IceInternal::ObjectAdapterFactory::destroy()
 {
