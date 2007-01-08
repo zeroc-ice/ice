@@ -73,14 +73,12 @@ class Package:
 	ofile.write('Source1: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java2.tar.gz\n')
 	ofile.write('Source2: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePy-%{version}.tar.gz\n')
 	ofile.write('Source3: http://www.zeroc.com/download/Ice/' + minorVer + '/IceCS-%{version}.tar.gz\n')
-	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
-        ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/SOURCES\n')
+	ofile.write('Source4: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java5.tar.gz\n')
+	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
         ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/THIRD_PARTY_LICENSE\n')
-	ofile.write('Source5: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
-	#ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/configure.gz\n')
-	#ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/php-5.1.6.tar.bz2\n')
-	ofile.write('Source6: http://www.zeroc.com/download/Ice/' + minorVer + '/IcePHP-%{version}.tar.gz\n')
-	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/IceJ-%{version}-java5.tar.gz\n')
+	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
+	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
+        ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/SOURCES\n')
 	ofile.write('\n')
 	if len(installDir) != 0:
 	    ofile.write('BuildRoot: ' + installDir + '\n')
@@ -591,11 +589,11 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{ve
 %setup -q -n IceCS-%{version} -T -D -b 3 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
-%setup -q -n IceJ-%{version}-java5 -T -D -b 6 
+%setup -q -n IceJ-%{version}-java5 -T -D -b 4
+%setup -q -n IcePHP-%{version} -T -D -b5 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePHP-%{version}/config/Make.rules
-%setup -q -n IceJ-%{version}-java5 -T -D -b 7
 cd $RPM_BUILD_DIR
-# cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
+cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
 
 #
 # Create links to the Berkeley DB that we want. This should allow us to bypass
