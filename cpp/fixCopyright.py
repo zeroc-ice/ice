@@ -20,7 +20,7 @@ def copyright(commentMark, patchIceE):
     result = [ ]
     result.append(commentMark + " **********************************************************************\n")
     result.append(commentMark + "\n")
-    result.append(commentMark + " Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.\n")
+    result.append(commentMark + " Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.\n")
     result.append(commentMark + "\n")
     if patchIceE == True:
         result.append(commentMark + " This copy of Ice-E is licensed to you under the terms described in the\n")
@@ -143,6 +143,9 @@ def replaceAllCopyrights(path, patchIceE):
     pythonCopyright = []
     pythonCopyright.append("#!/usr/bin/env python\n");
     pythonCopyright.extend(makefileCopyright)
+    rubyCopyright = []
+    rubyCopyright.append("#!/usr/bin/env ruby\n");
+    rubyCopyright.extend(makefileCopyright)
     xmlCopyright = []
     xmlCopyright.append("<!--\n");
     xmlCopyright.extend(copyright("", patchIceE))
@@ -175,6 +178,9 @@ def replaceAllCopyrights(path, patchIceE):
             elif fnmatch.fnmatch(x, "*.def"):
                 commentMark = "#"
                 copyrightLines = pythonCopyright
+            elif fnmatch.fnmatch(x, "*.rb"):
+                commentMark = "#"
+                copyrightLines = rubyCopyright
             elif fnmatch.fnmatch(x, "*.mc"):
                 commentMark = "; //"
                 copyrightLines = mcCopyright
