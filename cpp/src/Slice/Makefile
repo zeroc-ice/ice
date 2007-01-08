@@ -54,8 +54,10 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	ln -s $(SONAME) $@
 endif
 
-# Needed for make -jn to work.
-../Slice/Grammar.y: Grammar.h
+#
+# The .y rule does not work well with parallel builds; need to investigate
+#
+.NOTPARALLEL:
 
 clean::
 	rm -f Grammar.cpp Grammar.h
