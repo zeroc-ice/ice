@@ -16,7 +16,8 @@
 namespace Slice
 {
 
-void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, unsigned, unsigned);
+void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, const std::string&,
+	      const ::std::string&, unsigned, unsigned);
 
 typedef ::std::set< ::std::string> Files;
 
@@ -35,7 +36,7 @@ protected:
     GeneratorBase(::IceUtil::XMLOutput&, const Files&);
     virtual ~GeneratorBase() = 0;
 
-    void openDoc(const ::std::string&, const std::string&);
+    void openDoc(const ::std::string&, const std::string&, const std::string& = "", const std::string& = "");
     void openDoc(const ContainedPtr&);
     void closeDoc();
 
@@ -71,6 +72,8 @@ private:
     static void makeDir(const ::std::string&);
     static ::std::string readFile(const ::std::string&);
     static void readFile(const ::std::string&, ::std::string&, ::std::string&);
+    static void getHeaders(const ::std::string&, ::std::string&, ::std::string&);
+    static ::std::string getFooter(const ::std::string&);
 
     const Files& _files;
 
@@ -78,14 +81,17 @@ private:
     static ::std::string _header1;
     static ::std::string _header2;
     static ::std::string _footer;
+    static ::std::string _indexHeader1;
+    static ::std::string _indexHeader2;
+    static ::std::string _indexFooter;
 };
 
-class IndexGenerator : private GeneratorBase
+class StartPageGenerator : private GeneratorBase
 {
 public:
 
-    IndexGenerator(const Files&);
-    ~IndexGenerator();
+    StartPageGenerator(const Files&);
+    ~StartPageGenerator();
     void generate(const ModulePtr&);
 
 private:
@@ -95,11 +101,11 @@ private:
     ::IceUtil::XMLOutput _out;
 };
 
-class TypesVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+class FileVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    TypesVisitor(Files&);
+    FileVisitor(Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
@@ -116,18 +122,49 @@ private:
     Files& _files;
 };
 
-class IndexVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+class StartPageVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    IndexVisitor(const Files&);
+    StartPageVisitor(const Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);
 
 private:
 
-    IndexGenerator _ig;
+    StartPageGenerator _spg;
+};
+
+class TOCGenerator : private GeneratorBase
+{
+public:
+
+    TOCGenerator(const Files&, const ::std::string&, const ::std::string&);
+    ~TOCGenerator();
+    void generate(const ModulePtr&);
+
+private:
+
+    void writeTOC();
+    void writeEntry(const ContainedPtr&);
+
+    ModuleList _modules;
+    ::IceUtil::XMLOutput _out;
+};
+
+class TOCVisitor : private ::IceUtil::noncopyable, public ParserVisitor
+{
+public:
+
+    TOCVisitor(const Files&, const ::std::string&, const ::std::string&);
+
+    virtual bool visitUnitStart(const UnitPtr&);
+    virtual bool visitModuleStart(const ModulePtr&);
+
+private:
+
+    TOCGenerator _tg;
 };
 
 class ModuleGenerator : private GeneratorBase
@@ -140,7 +177,6 @@ public:
 private:
 
     virtual void visitContainer(const ContainerPtr&);
-
 };
 
 class ExceptionGenerator : private GeneratorBase
@@ -175,11 +211,11 @@ public:
     void generate(const EnumPtr&);
 };
 
-class Visitor : private ::IceUtil::noncopyable, public ParserVisitor
+class PageVisitor : private ::IceUtil::noncopyable, public ParserVisitor
 {
 public:
 
-    Visitor(const Files&);
+    PageVisitor(const Files&);
 
     virtual bool visitUnitStart(const UnitPtr&);
     virtual bool visitModuleStart(const ModulePtr&);

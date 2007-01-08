@@ -24,7 +24,7 @@ include $(top_srcdir)/config/Make.rules
 
 reference/index.html: $(SLICEFILES)
 	rm -rf reference
-	slice2html --ice -I../slice --header=htmlHeader --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
+	slice2html --ice -I../slice --hdr=htmlHeader --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
 
 clean::
 	rm -rf reference

@@ -30,8 +30,10 @@ usage(const char* n)
         "-IDIR                Put DIR in the include file search path.\n"
 	"-E                   Print preprocessor output on stdout.\n"
 	"--output-dir DIR     Create files in the directory DIR.\n"
-        "--header FILE        Use the contents of FILE as the header.\n"
-	"--footer FILe        Use the contents of FILE as the footer.\n"
+        "--hdr FILE           Use the contents of FILE as the header.\n"
+	"--ftr FILe           Use the contents of FILE as the footer.\n"
+	"--indexhdr FILE      Use the contents of FILE as the header of the index/toc page (default=--hdr).\n"
+	"--indexftr FILE      Use the contents of FILE as the footer of the index/toc page (default=--ftr).\n"
 	"--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
 	"--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
@@ -50,8 +52,10 @@ main(int argc, char* argv[])
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtil::Options::NeedArg, ".");
-    opts.addOpt("", "header", IceUtil::Options::NeedArg);
-    opts.addOpt("", "footer", IceUtil::Options::NeedArg);
+    opts.addOpt("", "hdr", IceUtil::Options::NeedArg);
+    opts.addOpt("", "ftr", IceUtil::Options::NeedArg);
+    opts.addOpt("", "indexhdr", IceUtil::Options::NeedArg);
+    opts.addOpt("", "indexftr", IceUtil::Options::NeedArg);
     opts.addOpt("", "index", IceUtil::Options::NeedArg, "1");
     opts.addOpt("", "summary", IceUtil::Options::NeedArg, "0");
     opts.addOpt("d", "debug");
@@ -105,9 +109,13 @@ main(int argc, char* argv[])
 
     string output = opts.optArg("output-dir");
 
-    string header = opts.optArg("header");
+    string header = opts.optArg("hdr");
 
-    string footer = opts.optArg("footer");
+    string footer = opts.optArg("ftr");
+
+    string indexHeader = opts.optArg("indexhdr");
+
+    string indexFooter = opts.optArg("indexftr");
 
     string ind = opts.optArg("index");
     unsigned indexCount;
@@ -190,7 +198,7 @@ main(int argc, char* argv[])
     {
 	try
 	{
-	    Slice::generate(p, output, header, footer, indexCount, summaryCount);
+	    Slice::generate(p, output, header, footer, indexHeader, indexFooter, indexCount, summaryCount);
 	}
 	catch(const string& err)
 	{

@@ -412,6 +412,7 @@ public:
     SequenceList sequences() const;
     DictionaryList dictionaries() const;
     EnumList enums() const;
+    ContainedList contents() const;
     bool hasNonLocalClassDecls() const;
     bool hasNonLocalClassDefs() const;
     bool hasNonLocalSequences() const;

@@ -1417,6 +1417,12 @@ Slice::Container::enums() const
     return result;
 }
 
+ContainedList
+Slice::Container::contents() const
+{
+    return _contents;
+}
+
 bool
 Slice::Container::hasNonLocalClassDecls() const
 {
