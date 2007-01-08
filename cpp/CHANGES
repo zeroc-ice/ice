@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------
 
+- The Glacier2 SessionControl object is now registered with the Server
+  adapter rather than the Admin adapter.
+
 - Added destroy method to the ObjectAdapter interface. It is necessary
   to call destroy to clean up the adapter resources and be able to
   recreate a new adapter with the same name. Communicator destroy

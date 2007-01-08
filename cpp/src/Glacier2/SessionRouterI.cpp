@@ -238,7 +238,6 @@ using namespace Glacier2;
 
 Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
 					 const ObjectAdapterPtr& serverAdapter,
-					 const ObjectAdapterPtr& adminAdapter,
 					 const PermissionsVerifierPrx& verifier,
 					 const SessionManagerPrx& sessionManager,
 					 const SSLPermissionsVerifierPrx& sslVerifier,
@@ -249,7 +248,6 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject")),
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
-    _adminAdapter(adminAdapter),
     _verifier(verifier),
     _sessionManager(sessionManager),
     _sslVerifier(sslVerifier),
@@ -860,7 +858,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	// responsible for creating the filters and we want them to be
 	// accessible during session creation.
 	//
-	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _adminAdapter, 
+	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _serverAdapter, 
 							       userId, allowAddUserMode);
 
         //
@@ -870,10 +868,10 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	if(factory)
 	{
 	    SessionControlPrx control;
-	    if(_adminAdapter)
+	    if(_serverAdapter)
 	    {
 	        control = SessionControlPrx::uncheckedCast(
-		    _adminAdapter->addWithUUID(
+		    _serverAdapter->addWithUUID(
 			new SessionControlI(this, current.con, filterManager, _sessionTimeout)));
 		controlId = control->ice_getIdentity();
 	    }
@@ -883,7 +881,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	//
 	// Add a new per-client router.
 	//
-	router = new RouterI(_clientAdapter, _serverAdapter, _adminAdapter, current.con, userId, 
+	router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, 
 			     session, controlId, filterManager, sslContext);
     }
     catch(const Exception& ex)
@@ -901,11 +899,11 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 	
 	if(session)
 	{
-	    if(_adminAdapter)
+	    if(_serverAdapter)
 	    {
 	        try
 		{
-	            _adminAdapter->remove(controlId);
+	            _serverAdapter->remove(controlId);
 		}
 		catch(const Exception&)
 		{

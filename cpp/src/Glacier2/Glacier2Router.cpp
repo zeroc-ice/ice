@@ -367,8 +367,8 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // and all required servant locators, so no registration has to be
     // done here.
     //
-    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, adminAdapter, verifier, sessionManager,
-					sslVerifier, sslSessionManager);
+    _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier, sessionManager, sslVerifier,
+    					sslSessionManager);
 
     //
     // If we have an admin adapter, we add an admin object.

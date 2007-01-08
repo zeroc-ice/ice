@@ -19,12 +19,12 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
-			   const ObjectAdapterPtr& adminAdapter, const ConnectionPtr& connection, 
-			   const string& userId, const SessionPrx& session, const Identity& controlId,
-			   const FilterManagerPtr& filters, const Ice::Context& sslContext) :
+			   const ConnectionPtr& connection, const string& userId, const SessionPrx& session,
+			   const Identity& controlId, const FilterManagerPtr& filters,
+			   const Ice::Context& sslContext) :
     _communicator(clientAdapter->getCommunicator()),
     _clientBlobject(new ClientBlobject(_communicator, filters, sslContext)),
-    _adminAdapter(adminAdapter),
+    _serverAdapter(serverAdapter),
     _connection(connection),
     _userId(userId),
     _session(session),
@@ -80,14 +80,14 @@ Glacier2::RouterI::destroy()
 
     if(_session)
     {
-        if(_adminAdapter)
+        if(_serverAdapter)
 	{
 	    try
 	    {
 	        //
 	        // Remove the session control object.
 	        //
-	        _adminAdapter->remove(_controlId);
+	        _serverAdapter->remove(_controlId);
 	    }
 	    catch(const NotRegisteredException&)
 	    {
