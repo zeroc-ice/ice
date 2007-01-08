@@ -9,6 +9,7 @@
 
 #include <Logger.h>
 #include <Util.h>
+#include <Ice/Initialize.h>
 
 using namespace std;
 using namespace IceRuby;
@@ -94,6 +95,19 @@ IceRuby_Logger_error(VALUE self, VALUE message)
     return Qnil;
 }
 
+extern "C"
+VALUE
+IceRuby_getProcessLogger()
+{
+    ICE_RUBY_TRY
+    {
+	Ice::LoggerPtr logger = Ice::getProcessLogger();
+	return createLogger(logger);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
 bool
 IceRuby::initLogger(VALUE iceModule)
 {
@@ -109,6 +123,11 @@ IceRuby::initLogger(VALUE iceModule)
     rb_define_method(_loggerClass, "trace", CAST_METHOD(IceRuby_Logger_trace), 2);
     rb_define_method(_loggerClass, "warning", CAST_METHOD(IceRuby_Logger_warning), 1);
     rb_define_method(_loggerClass, "error", CAST_METHOD(IceRuby_Logger_error), 1);
+
+    //
+    // Global methods.
+    //
+    rb_define_module_function(iceModule, "getProcessLogger", CAST_METHOD(IceRuby_getProcessLogger), 0);
 
     return true;
 }

@@ -149,11 +149,11 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     _amd = amd == Qtrue;
     if(_amd)
     {
-	_dispatchName = fixIdent(_name, false) + "_async";
+	_dispatchName = fixIdent(_name, IdentNormal) + "_async";
     }
     else
     {
-	_dispatchName = fixIdent(_name, false);
+	_dispatchName = fixIdent(_name, IdentNormal);
     }
 
     //
@@ -323,7 +323,7 @@ IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VA
     long paramCount = static_cast<long>(_inParams.size());
     if(argc != paramCount)
     {
-	string fixedName = fixIdent(_name, false);
+	string fixedName = fixIdent(_name, IdentNormal);
 	throw RubyException(rb_eArgError, "%s expects %ld in parameters", fixedName.c_str(), paramCount);
     }
 
@@ -344,11 +344,11 @@ IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VA
 		string opName;
 		if(async)
 		{
-		    opName = fixIdent(_name, false) + "_async";
+		    opName = fixIdent(_name, IdentNormal) + "_async";
 		}
 		else
 		{
-		    opName = fixIdent(_name, false);
+		    opName = fixIdent(_name, IdentNormal);
 		}
 		throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'",
 				    async ? i + 2 : i + 1, opName.c_str());

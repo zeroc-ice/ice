@@ -241,7 +241,7 @@ IceRuby_Communicator_isShutdown(VALUE self)
     ICE_RUBY_TRY
     {
 	Ice::CommunicatorPtr p = getCommunicator(self);
-	p->isShutdown();
+	return p->isShutdown() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
