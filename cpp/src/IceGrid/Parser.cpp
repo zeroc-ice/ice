@@ -1341,8 +1341,16 @@ Parser::dumpFile(const string& reader, const list<string>& origArgs)
 	int maxBytes = _communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024;
 	if(head || tail)
 	{
-	    istringstream is(head ? opts.optArg("head") : opts.optArg("tail"));
-	    is >> lineCount;
+	    if(head)
+	    {
+	        istringstream is(opts.optArg("head"));
+	        is >> lineCount;
+	    }
+	    else
+	    {
+	        istringstream is(opts.optArg("tail"));
+	        is >> lineCount;
+	    }
 	    if(lineCount <= 0)
 	    {
 		invalidCommand("invalid argument for -h | --head or -t | --tail option");

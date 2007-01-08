@@ -53,7 +53,7 @@ Ice::ObjectAdapterI::getName() const
     //
     // No mutex lock necessary, _name is immutable.
     //
-    return _noConfig ? "" : _name;
+    return _noConfig ? string("") : _name;
 }
 
 CommunicatorPtr

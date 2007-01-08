@@ -292,7 +292,7 @@ LocatorI::Request::sendResponse()
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
 	    out << "couldn't resolve " << (_replicaGroup ? "replica group `" : "adapter `") << _id << "' endpoints:\n";
-	    out << (_exception.get() ? toString(*_exception) : "replica group is empty");
+	    out << (_exception.get() ? toString(*_exception) : string("replica group is empty"));
 	}
 	_amdCB->ice_response(0);
     }

@@ -32,6 +32,7 @@
 #include <IceGrid/SessionServantLocatorI.h>
 #include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/WellKnownObjectsManager.h>
+#include <IceGrid/FileCache.h>
 
 #include <fstream>
 

@@ -100,8 +100,8 @@ FreezeScript::AnalyzeTransformVisitor::addDatabase(const string& name, const Typ
 	_out << attr("name", name);
     }
 
-    string oldKeyName = oldKey ? typeToString(oldKey) : "UNKNOWN";
-    string newKeyName = newKey ? typeToString(newKey) : "UNKNOWN";
+    string oldKeyName = oldKey ? typeToString(oldKey) : string("UNKNOWN");
+    string newKeyName = newKey ? typeToString(newKey) : string("UNKNOWN");
     if(oldKeyName == newKeyName)
     {
 	_out << attr("key", oldKeyName);
@@ -111,8 +111,8 @@ FreezeScript::AnalyzeTransformVisitor::addDatabase(const string& name, const Typ
 	_out << attr("key", oldKeyName + "," + newKeyName);
     }
 
-    string oldValueName = oldValue ? typeToString(oldValue) : "UNKNOWN";
-    string newValueName = newValue ? typeToString(newValue) : "UNKNOWN";
+    string oldValueName = oldValue ? typeToString(oldValue) : string("UNKNOWN");
+    string newValueName = newValue ? typeToString(newValue) : string("UNKNOWN");
     if(oldValueName == newValueName)
     {
 	_out << attr("value", oldValueName);

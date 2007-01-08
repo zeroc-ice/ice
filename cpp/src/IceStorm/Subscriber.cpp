@@ -110,7 +110,7 @@ private:
 
     const bool _batch;
     const Ice::ObjectPrx _obj;
-    const Ice::ObjectPrx _objBatch;
+    /*const*/ Ice::ObjectPrx _objBatch;
 };
 
 class SubscriberTwoway : public Subscriber
@@ -182,9 +182,20 @@ SubscriberOneway::SubscriberOneway(
     bool batch) :
     Subscriber(instance, proxy, false, obj->ice_getIdentity()),
     _batch(batch),
-    _obj(obj),
-    _objBatch(obj->ice_isDatagram() ? obj->ice_batchDatagram() : obj->ice_batchOneway())
+    _obj(obj)
 {
+    //
+    // COMPILERFIX: Initialized this way for Borland to compile.
+    //
+    if(obj->ice_isDatagram())
+    {
+        _objBatch = obj->ice_batchDatagram();
+    }
+    else
+    {
+        _objBatch = obj->ice_batchOneway();
+    }
+
     if(batch)
     {
 	_instance->batchFlusher()->add(_obj);
