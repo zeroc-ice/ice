@@ -1421,10 +1421,10 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     ClassDefPtr cdef = ClassDefPtr::dynamicCast(c);
     if(!cdef)
     {
-	ClassDeclPtr cdecl = ClassDeclPtr::dynamicCast(c);
-	if(cdecl)
+	ClassDeclPtr cdec = ClassDeclPtr::dynamicCast(c);
+	if(cdec)
 	{
-	    cdef = cdecl->definition();
+	    cdef = cdec->definition();
 	}
     }
 
