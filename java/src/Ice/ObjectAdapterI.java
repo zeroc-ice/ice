@@ -246,10 +246,17 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     public void
     waitForDeactivate()
     {
+        IceInternal.IncomingConnectionFactory[] incomingConnectionFactories;
+
 	synchronized(this)
 	{
+	    if(_destroyed)
+	    {
+	        return;
+	    }
+
 	    //
-	    // First we wait for deactivation of the adapter itself, and
+	    // Wait for deactivation of the adapter itself, and
 	    // for the return of all direct method calls using this
 	    // adapter.
 	    //
@@ -264,46 +271,18 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		}
 	    }
 	    
-	    //
-	    // If some other thread is currently deactivating, we wait
-	    // until this thread is finished.
-	    //
-	    while(_waitForDeactivate)
-	    {
-		try
-		{
-		    wait();
-		}
-		catch(InterruptedException ex)
-		{
-		}
-	    }
-	    _waitForDeactivate = true;
+	    incomingConnectionFactories = 
+	        (IceInternal.IncomingConnectionFactory[])_incomingConnectionFactories.toArray(
+		    new IceInternal.IncomingConnectionFactory[0]);
 	}
-	
 	
 	//
 	// Now we wait for until all incoming connection factories are
 	// finished.
 	//
-	if(_incomingConnectionFactories != null)
+	for(int i = 0; i < incomingConnectionFactories.length; ++i)
 	{
-	    final int sz = _incomingConnectionFactories.size();
-	    for(int i = 0; i < sz; ++i)
-	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-		factory.waitUntilFinished();
-	    }
-	}
-	
-	synchronized(this)
-	{
-	    //
-	    // Signal that waiting is complete.
-	    //
-	    _waitForDeactivate = false;
-	    notifyAll();
+	    incomingConnectionFactories[i].waitUntilFinished();
 	}
     }
 
@@ -690,7 +669,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	// Not check for deactivation here!
 	
-	assert(_instance != null); // Must not be called after waitForDeactivate().
+	assert(_instance != null); // Must not be called after destroy().
 	
 	assert(_directCount > 0);
 	if(--_directCount == 0)
@@ -704,11 +683,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	// No mutex lock necessary, _threadPool and _instance are
 	// immutable after creation until they are removed in
-	// waitForDeactivate().
+	// destroy().
 	
 	// Not check for deactivation here!
 	
-	assert(_instance != null); // Must not be called after waitForDeactivate().
+	assert(_instance != null); // Must not be called after destroy().
 
 	if(_threadPool != null)
 	{
@@ -746,7 +725,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         _name = name;
 	_directCount = 0;
  	_waitForActivate = false;
-	_waitForDeactivate = false;
 	_destroying = false;
 	_destroyed = false;
 	_noConfig = noConfig;
@@ -976,8 +954,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
         catch(LocalException ex)
         {
-	    deactivate();
-	    waitForDeactivate();
+	    destroy();
             throw ex;
         }
     }
@@ -1003,7 +980,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
 	    IceUtil.Assert.FinalizerAssert(_directCount == 0);
 	    IceUtil.Assert.FinalizerAssert(!_waitForActivate);
-	    IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
 	}
 
         super.finalize();
@@ -1330,7 +1306,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
     private boolean _waitForActivate;
-    private boolean _waitForDeactivate;
     private boolean _destroying;
     private boolean _destroyed;
     private boolean _noConfig;

@@ -241,10 +241,16 @@ namespace Ice
 	
 	public void waitForDeactivate()
 	{
+	    IceInternal.IncomingConnectionFactory[] incomingConnectionFactories = null;
 	    lock(this)
 	    {
+	        if(_destroyed)
+		{
+		    return;
+		}
+
 		//
-		// First we wait for deactivation of the adapter itself, and
+		// Wait for deactivation of the adapter itself, and
 		// for the return of all direct method calls using this
 		// adapter.
 		//
@@ -253,40 +259,18 @@ namespace Ice
 		    System.Threading.Monitor.Wait(this);
 		}
 		
-		//
-		// If some other thread is currently deactivating, we wait
-		// until this thread is finished.
-		//
-		while(_waitForDeactivate)
-		{
-		    System.Threading.Monitor.Wait(this);
-		}
-		_waitForDeactivate = true;
+		incomingConnectionFactories = 
+		    (IceInternal.IncomingConnectionFactory[])_incomingConnectionFactories.ToArray(
+		        typeof(IceInternal.IncomingConnectionFactory));
 	    }
-	    
 	    
 	    //
 	    // Now we wait for until all incoming connection factories are
 	    // finished.
 	    //
-	    if(_incomingConnectionFactories != null)
+	    for(int i = 0; i < incomingConnectionFactories.Length; ++i)
 	    {
-		int sz = _incomingConnectionFactories.Count;
-		for(int i = 0; i < sz; ++i)
-		{
-		    IceInternal.IncomingConnectionFactory factory =
-			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		    factory.waitUntilFinished();
-		}
-	    }
-
-	    lock(this)
-	    {
-		//
-		// Signal that waiting is complete.
-		//
-		_waitForDeactivate = false;
-		System.Threading.Monitor.PulseAll(this);
+	        incomingConnectionFactories[i].waitUntilFinished();
 	    }
 	}
 
@@ -690,7 +674,7 @@ namespace Ice
 	    {
 		// Not check for deactivation here!
 		
-		Debug.Assert(instance_ != null); // Must not be called after waitForDeactivate().
+		Debug.Assert(instance_ != null); // Must not be called after destroy().
 		
 		Debug.Assert(_directCount > 0);
 		if(--_directCount == 0)
@@ -704,11 +688,11 @@ namespace Ice
 	{
 	    // No mutex lock necessary, _threadPool and instance_ are
 	    // immutable after creation until they are removed in
-	    // waitForDeactivate().
+	    // destroy().
 	    
 	    // Not check for deactivation here!
 	    
-	    Debug.Assert(instance_ != null); // Must not be called after waitForDeactivate().
+	    Debug.Assert(instance_ != null); // Must not be called after destroy().
 	    
 	    if(_threadPool != null)
 	    {
@@ -749,7 +733,6 @@ namespace Ice
 	    _routerInfo = null;
 	    _directCount = 0;
 	    _waitForActivate = false;
-	    _waitForDeactivate = false;
 	    _noConfig = noConfig;
 
 	    if(_noConfig)
@@ -977,8 +960,7 @@ namespace Ice
 	    }
 	    catch(LocalException)
 	    {
-		deactivate();
-		waitForDeactivate();
+		destroy();
 		throw;
 	    }
 	}
@@ -1021,7 +1003,6 @@ namespace Ice
 		    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
 		    IceUtil.Assert.FinalizerAssert(_directCount == 0);
 		    IceUtil.Assert.FinalizerAssert(!_waitForActivate);
-		    IceUtil.Assert.FinalizerAssert(!_waitForDeactivate);
 		}
             }   
         }
@@ -1346,7 +1327,6 @@ namespace Ice
 	private IceInternal.LocatorInfo _locatorInfo;
 	private int _directCount;
 	private bool _waitForActivate;
-	private bool _waitForDeactivate;
 	private bool _destroying;
 	private bool _destroyed;
 	private bool _noConfig;

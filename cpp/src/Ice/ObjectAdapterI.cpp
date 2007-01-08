@@ -257,11 +257,18 @@ Ice::ObjectAdapterI::deactivate()
 void
 Ice::ObjectAdapterI::waitForDeactivate()
 {
+    vector<IceInternal::IncomingConnectionFactoryPtr> incomingConnectionFactories;
+
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
+	if(_destroyed)
+	{
+	    return;
+	}
+
 	//
-	// First we wait for deactivation of the adapter itself, and for
+	// Wait for deactivation of the adapter itself, and for
 	// the return of all direct method calls using this adapter.
 	//
 	while(!_deactivated || _directCount > 0)
@@ -269,33 +276,15 @@ Ice::ObjectAdapterI::waitForDeactivate()
 	    wait();
 	}
 
-	//
-	// If some other thread is currently updating the state, we wait
-	// until this thread is finished.
-	//
-	while(_waitForDeactivate)
-	{
-	    wait();
-	}
-	_waitForDeactivate = true;
+	incomingConnectionFactories = _incomingConnectionFactories;
     }
 
     //
     // Now we wait until all incoming connection factories are
     // finished.
     //
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
-
-    {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-
-	//
-	// Signal that waiting is complete.
-	//
-	_waitForDeactivate = false;
-	notifyAll();
-    }
 }
 
 void
@@ -681,7 +670,7 @@ Ice::ObjectAdapterI::decDirectCount()
 
     // Not check for deactivation here!
 
-    assert(_instance); // Must not be called after waitForDeactivate().
+    assert(_instance); // Must not be called after destroy().
 
     assert(_directCount > 0);
     if(--_directCount == 0)
@@ -695,11 +684,11 @@ Ice::ObjectAdapterI::getThreadPool() const
 {
     // No mutex lock necessary, _threadPool and _instance are
     // immutable after creation until they are removed in
-    // waitForDeactivate().
+    // destroy().
 
     // Not check for deactivation here!
 
-    assert(_instance); // Must not be called after waitForDeactivate().
+    assert(_instance); // Must not be called after destroy().
 
     if(_threadPool)
     {
@@ -732,7 +721,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _name(name),
     _directCount(0),
     _waitForActivate(false),
-    _waitForDeactivate(false),
     _destroying(false),
     _destroyed(false),
     _noConfig(noConfig)
@@ -920,8 +908,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     }
     catch(...)
     {
-	deactivate();
-	waitForDeactivate();
+	destroy();
 	__setNoDelete(false);
 	throw;
     }
@@ -948,7 +935,6 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 	assert(_incomingConnectionFactories.empty());
 	assert(_directCount == 0);
 	assert(!_waitForActivate);
-	assert(!_waitForDeactivate);
     }
 }
 
