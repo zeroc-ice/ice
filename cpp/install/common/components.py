@@ -197,12 +197,27 @@ class FileSpecWorker:
 	    for f in result:
 		logging.debug(f)
 
+	#
+	# Scan filename to see if matches one of our designated
+	# 'convert to dos file format' name patterns. (These are
+	# regex patterns, not patterns for filename globbing).
+	#
+	textFiles = [".*README.*", ".*Makefile.mak", ".*LICENSE.*"]
+        textFileScanner = None
+	expression = ""
+	for p in textFiles:
+	    if expression != "":
+		expression = expression + "|"
+	    expression = expression + p 
+	textFileScanner = re.compile(expression)
+
 	for f in result:
 	    #
 	    # an f, prefix means flatten.
 	    #
 	    flatten = False
 	    current = f
+
 	    if f.startswith('f,'):
 		flatten = True
 		current = current[2:]
@@ -223,6 +238,16 @@ class FileSpecWorker:
 		    os.mkdir(d)
 		else:
 		    shutil.copy2(s, d) 
+		    isTextFile = (textFileScanner.search(d) != None)
+		    if isTextFile:
+			# So how do I do the conversion.
+			tmp = open(d + ".bak", "w")
+			tmp.write(open(d, "rU").read())
+			tmp.close()
+			shutil.copy2(d + ".bak", d)
+			os.remove(d + ".bak")
+			
+
 	    except IOError, e:
 		logging.info('Copying %s to %s failed: %s' %  (s, d, str(e)))
 		raise
