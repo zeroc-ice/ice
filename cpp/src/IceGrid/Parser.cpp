@@ -1487,7 +1487,7 @@ Parser::dumpFile(const string& reader, const list<string>& origArgs)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2006 ZeroC, Inc." << endl;
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2007 ZeroC, Inc." << endl;
 }
 
 void

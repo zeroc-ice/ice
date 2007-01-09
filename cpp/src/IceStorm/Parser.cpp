@@ -378,7 +378,7 @@ Parser::graph(const list<string>& _args)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2006 ZeroC, Inc." << endl;
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2007 ZeroC, Inc." << endl;
 }
 
 void
