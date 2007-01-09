@@ -20,10 +20,20 @@ prefix			= C:\Ice-$(VERSION)
 #OPTIMIZE		= yes
 
 #
-# Borland C++Builder 2006 home directory. Define if building with 
-# C++ Builder. Change if different from default.
+# Specify your C++ compiler. Supported values are:
+# VC60, VC71, VC80, VC80_EXPRESS, BCC2006 
 #
-#BORLAND_HOME		= C:\Program Files\Borland\BDS\4.0	
+!if "$(CPP_COMPILER)" == ""
+CPP_COMPILER		= VC80
+!endif
+
+#
+# Borland C++Builder 2006 home directory. Used if CPP_COMPILER
+# is set to BCC2006. Change if different from default.
+#
+!if "$(BCB)" == ""
+BCB		= C:\Program Files\Borland\BDS\4.0	
+!endif
 
 #
 # If third party libraries are not installed in the default location
@@ -62,10 +72,10 @@ install_docdir		= $(prefix)\doc
 
 OBJEXT			= .obj
 
-!if "$(BORLAND_HOME)" == ""
-!include 	$(top_srcdir)/config/Make.rules.msvc
-!else
+!if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
+!else
+!include 	$(top_srcdir)/config/Make.rules.msvc
 !endif
 
 install_libdir	  = $(prefix)\lib

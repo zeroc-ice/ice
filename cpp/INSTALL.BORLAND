@@ -86,7 +86,7 @@ $ cd C:\Ice-@ver@
 
 Edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. In particular you
-must uncomment the BORLAND_HOME variable setting.
+must set CPP_COMPILER as BCC2006.
 
 Now you're ready to build Ice:
 

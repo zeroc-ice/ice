@@ -72,7 +72,7 @@ CPPFLAGS	= $(CPPFLAGS) -DICE_STORM_API_EXPORTS
 
 !endif
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 SPDBFLAGS       = /pdb:$(SVCDLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
@@ -145,19 +145,19 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
-
-install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
-	copy $(SVCDLLNAME:.dll=.pdb) $(install_bindir)
-	copy $(ADMIN:.exe=.pdb) $(install_bindir)
-
-!else
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 	copy $(SVCDLLNAME:.dll=.tds) $(install_bindir)
 	copy $(ADMIN:.exe=.tds) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(SVCDLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(ADMIN:.exe=.pdb) $(install_bindir)
 
 !endif
 

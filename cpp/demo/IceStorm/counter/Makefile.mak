@@ -32,7 +32,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 IS_LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(LIBS)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif

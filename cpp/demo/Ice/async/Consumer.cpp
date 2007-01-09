@@ -115,6 +115,7 @@ QueueConsumer::run(int argc, char* argv[])
     //
     // Cancel any outstanding requests.
     //
+    /*
     IceUtil::StaticMutex::Lock lock(requestsMutex);
     if(requests.size() != 0)
     {
@@ -132,6 +133,7 @@ QueueConsumer::run(int argc, char* argv[])
            // Ignore
        }
     }
+    */
 
     return EXIT_SUCCESS;
 }

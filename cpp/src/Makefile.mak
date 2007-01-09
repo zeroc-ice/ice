@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006"
 SUBDIRS		= icecpp
 !endif
 

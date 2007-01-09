@@ -42,7 +42,7 @@ HDIR		= $(includedir)\FreezeScript
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= slice$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS) $(DB_LIBS)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
@@ -79,17 +79,17 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
-
-install:: all
-	copy $(TRANSFORMDB:.exe=.pdb) $(install_bindir)
-	copy $(DUMPDB:.exe=.pdb) $(install_bindir)
-
-!else
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
 	copy $(TRANSFORMDB:.exe=.tds) $(install_bindir)
 	copy $(DUMPDB:.exe=.tds) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(TRANSFORMDB:.exe=.pdb) $(install_bindir)
+	copy $(DUMPDB:.exe=.pdb) $(install_bindir)
 
 !endif
 

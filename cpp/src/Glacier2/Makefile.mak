@@ -54,7 +54,7 @@ SDIR		= $(slicedir)\Glacier2
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH 	= $(LIBS) $(OPENSSL_LIBS) glacier2$(LIBSUFFIX).lib icessl$(LIBSUFFIX).lib
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006"
 LINKWITH	= $(LINKWITH) ws2_32.lib
 !endif
 
@@ -64,7 +64,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DGLACIER2_API_EXPORTS
 
 !endif
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 RPDBFLAGS       = /pdb:$(ROUTER:.exe=.pdb)
 !endif
@@ -100,17 +100,17 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
-
-install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
-	copy $(ROUTER:.exe=.pdb) $(install_bindir)
-
-!else
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 	copy $(ROUTER:.exe=.tds) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(ROUTER:.exe=.pdb) $(install_bindir)
 
 !endif
 

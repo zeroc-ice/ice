@@ -32,15 +32,15 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
-	copy $(NAME:.exe=.pdb) $(install_bindir)
+	copy $(NAME:.exe=.tds) $(install_bindir)
 
 !else
 
 install:: all
-	copy $(NAME:.exe=.tds) $(install_bindir)
+	copy $(NAME:.exe=.pdb) $(install_bindir)
 
 !endif
 

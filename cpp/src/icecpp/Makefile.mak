@@ -21,11 +21,11 @@ OBJS		= cccp.obj \
 
 CFLAGS = $(CFLAGS) -I. -I../../include -DWIN32_LEAN_AND_MEAN
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006"
 LINKWITH	= setargv.obj advapi32.lib
 !endif
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
@@ -41,7 +41,7 @@ $(NAME): $(OBJS)
 install:: all
 	copy $(NAME) $(install_bindir)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(NAME:.exe=.pdb) $(install_bindir)

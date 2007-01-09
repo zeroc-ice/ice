@@ -24,7 +24,7 @@ SUBDIRS		= minimal \
 		  converter \
 		  async
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(CPP_COMPILER)" != "VC80_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC
 !endif
 

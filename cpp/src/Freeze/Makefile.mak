@@ -49,7 +49,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	= $(LIBS) $(DB_LIBS)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
@@ -87,15 +87,15 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 
 !else
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 
 !endif
 

@@ -34,11 +34,11 @@ HDIR		= $(includedir)\IceSSL
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND_MEAN
 
 LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006"
 LINKWITH	= $(LINKWITH) ws2_32.lib
 !endif
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
@@ -57,15 +57,15 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 
 !else
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 
 !endif
 

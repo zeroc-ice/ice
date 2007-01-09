@@ -31,9 +31,18 @@ CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE
 
 !if "$(OPTIMIZE)" == "yes"
+
 CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
+
 !else
+
 CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
+!if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
+CPPFLAGS        = $(CPPFLAGS) -GZ
+!else
+CPPFLAGS        = $(CPPFLAGS) -RTC1
+!endif
+
 !endif
 
 LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(top_srcdir)\lib" /nologo /FIXED:no

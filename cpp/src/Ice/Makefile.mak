@@ -114,7 +114,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
 !endif
@@ -173,15 +173,15 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 
 !else
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 
 !endif
 

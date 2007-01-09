@@ -43,7 +43,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
@@ -62,15 +62,15 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 
 !else
 
 install:: all
-	copy $(DLLNAME:.dll=.tds) $(install_bindir)
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
 
 !endif
 

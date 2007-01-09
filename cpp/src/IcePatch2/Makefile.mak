@@ -61,7 +61,7 @@ CPPFLAGS	= -I. -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 
 SLICE2CPPFLAGS	= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
@@ -102,21 +102,21 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
-
-install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
-	copy $(SERVER:.exe=.pdb) $(install_bindir)
-	copy $(CLIENT:.exe=.pdb) $(install_bindir)
-	copy $(CALC:.exe=.pdb) $(install_bindir)
-
-!else
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 	copy $(SERVER:.exe=.tds) $(install_bindir)
 	copy $(CLIENT:.exe=.tds) $(install_bindir)
 	copy $(CALC:.exe=.tds) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(SERVER:.exe=.pdb) $(install_bindir)
+	copy $(CLIENT:.exe=.pdb) $(install_bindir)
+	copy $(CALC:.exe=.pdb) $(install_bindir)
 
 !endif
 

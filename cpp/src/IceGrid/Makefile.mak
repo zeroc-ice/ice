@@ -121,7 +121,7 @@ LINKWITH 	= $(LIBS) glacier2$(LIBSUFFIX).lib
 ALINKWITH 	= $(LINKWITH) icegrid$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib icepatch2$(LIBSUFFIX).lib
 NLINKWITH	= $(ALINKWITH) icestorm$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib icebox$(LIBSUFFIX).lib \
 		  icessl$(LIBSUFFIX).lib icestormservice$(LIBSUFFIX).lib $(OPENSSL_LIBS)
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006"
 NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
 !endif
 
@@ -129,7 +129,7 @@ NLINKWITH	= $(NLINKWITH) pdh.lib ws2_32.lib
 
 SLICE2CPPFLAGS	= --checksum --ice --include-dir IceGrid $(SLICE2CPPFLAGS)
 CPPFLAGS	= -I. -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006"
 CPPFLAGS 	= $(CPPFLAGS) -Zm200
 !endif
 
@@ -140,7 +140,7 @@ CPPFLAGS        = -I.. -DICE_GRID_API_EXPORTS $(CPPFLAGS)
 
 !endif
 
-!if "$(BORLAND_HOME)" == "" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
@@ -229,21 +229,21 @@ install:: all
 
 !if "$(OPTIMIZE)" != "yes"
 
-!if "$(BORLAND_HOME)" == ""
-
-install:: all
-	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
-	copy $(ADMIN:.exe=.pdb) $(install_bindir)
-	copy $(NODE_SERVER:.exe=.pdb) $(install_bindir)
-	copy $(REGISTRY_SERVER:.exe=.pdb) $(install_bindir)
-
-!else
+!if "$(CPP_COMPILER)" == "BCC2006"
 
 install:: all
 	copy $(DLLNAME:.dll=.tds) $(install_bindir)
 	copy $(ADMIN:.exe=.tds) $(install_bindir)
 	copy $(NODE_SERVER:.exe=.tds) $(install_bindir)
 	copy $(REGISTRY_SERVER:.exe=.tds) $(install_bindir)
+
+!else
+
+install:: all
+	copy $(DLLNAME:.dll=.pdb) $(install_bindir)
+	copy $(ADMIN:.exe=.pdb) $(install_bindir)
+	copy $(NODE_SERVER:.exe=.pdb) $(install_bindir)
+	copy $(REGISTRY_SERVER:.exe=.pdb) $(install_bindir)
 
 !endif
 

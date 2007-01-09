@@ -20,7 +20,7 @@ SUBDIRS		= IceUtil \
 		  IceGrid \
 		  book
 
-!if "$(BORLAND_HOME)" == ""
+!if "$(CPP_COMPILER)" != "BCC2006" & "$(CPP_COMPILER)" != "VC80_EXPRESS"
 SUBDIRS		= $(SUBDIRS) IcePatch2
 !endif
 
