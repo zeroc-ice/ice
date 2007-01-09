@@ -26,7 +26,7 @@ GDIR		= generated
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-MCSFLAGS	= $(MCSFLAGS) -target:exe
+EXE_MCSFLAGS	= $(MCSFLAGS) -target:exe
 
 LIB_MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(LIBNAME) -unsafe
 LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
@@ -34,10 +34,10 @@ LIB_MCSFLAGS	= $(LIB_MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 
 $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(I_SRCS)
+	$(MCS) $(EXE_MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(I_SRCS)
 
 $(ICEBOXADMINNET): $(A_SRCS) $(LIBNAME)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(A_SRCS)
+	$(MCS) $(EXE_MCSFLAGS) -out:$@ -r:$(LIBNAME) -r:$(bindir)\icecs.dll $(A_SRCS)
 
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) -r:$(bindir)\icecs.dll $(L_SRCS) $(GEN_SRCS)
