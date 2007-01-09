@@ -412,8 +412,12 @@ public class Coordinator
 	    _appMenu.setEnabled(false);
 	    toolsMenu.add(_appMenu);
 	    _appMenu.add(_patchApplication);
+	    _appMenu.add(_showApplicationDetails);
+	    _appMenu.addSeparator();
+	    _appMenu.add(_removeApplicationFromRegistry);
 	    _appMenu.setEnabled(false);
 	 
+
 	    //
 	    // Node sub-menu
 	    //
@@ -716,6 +720,7 @@ public class Coordinator
     void applicationAdded(int serial, ApplicationInfo info)
     {
 	_liveDeploymentRoot.applicationAdded(info);
+	_liveDeploymentPane.refresh();
 	_statusBar.setText(
 	    "Last update: new application '" + info.descriptor.name + "'");
 	updateSerial(serial);
@@ -724,6 +729,7 @@ public class Coordinator
     void applicationRemoved(int serial, String name)
     {
 	_liveDeploymentRoot.applicationRemoved(name);
+	_liveDeploymentPane.refresh();
 	_statusBar.setText(
 	    "Last update: application '" + name + "' was removed");
 
@@ -1168,6 +1174,8 @@ public class Coordinator
 	_logout.setEnabled(false);
 	_openApplicationFromRegistry.setEnabled(false);
 	_patchApplication.setEnabled(false);
+	_showApplicationDetails.setEnabled(false);
+	_removeApplicationFromRegistry.setEnabled(false);
 	_appMenu.setEnabled(false);
 	_newApplicationWithDefaultTemplates.setEnabled(false);
 	_acquireExclusiveWriteAccess.setEnabled(false);
@@ -1448,6 +1456,8 @@ public class Coordinator
 	_logout.setEnabled(true);
 	_openApplicationFromRegistry.setEnabled(true);
 	_patchApplication.setEnabled(true);
+	_showApplicationDetails.setEnabled(true);
+	_removeApplicationFromRegistry.setEnabled(true);
 	_appMenu.setEnabled(true);
 	_newApplicationWithDefaultTemplates.setEnabled(true);
 	_acquireExclusiveWriteAccess.setEnabled(true);
@@ -2143,6 +2153,68 @@ public class Coordinator
 		}
 	    };
 	_patchApplication.setEnabled(false);
+	
+	_showApplicationDetails = new AbstractAction("Show details")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
+		    
+		    if(applicationNames.length == 0)
+		    {
+			JOptionPane.showMessageDialog(
+			    _mainFrame,
+			    "There is no application deployed in this IceGrid registry",
+			    "No application",
+			    JOptionPane.INFORMATION_MESSAGE);
+		    }
+		    else
+		    {
+			String appName = (String)JOptionPane.showInputDialog(
+			    _mainFrame, "Which Application do you to display", 
+			    "Show details",	 
+			    JOptionPane.QUESTION_MESSAGE, null,
+			    applicationNames, applicationNames[0]);
+			
+			if(appName != null)
+			{
+			    _liveDeploymentRoot.showApplicationDetails(appName);
+			}
+		    }
+		}
+	    };
+	_showApplicationDetails.setEnabled(false);
+    
+	_removeApplicationFromRegistry = new AbstractAction("Remove from Registry")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    Object[] applicationNames = _liveDeploymentRoot.getApplicationNames();
+		    
+		    if(applicationNames.length == 0)
+		    {
+			JOptionPane.showMessageDialog(
+			    _mainFrame,
+			    "There is no application deployed in this IceGrid registry",
+			    "No application",
+			    JOptionPane.INFORMATION_MESSAGE);
+		    }
+		    else
+		    {
+			String appName = (String)JOptionPane.showInputDialog(
+			    _mainFrame, "Which Application do you want to remove?", 
+			    "Remove application",	 
+			    JOptionPane.QUESTION_MESSAGE, null,
+			    applicationNames, applicationNames[0]);
+			
+			if(appName != null)
+			{
+			    removeApplicationFromRegistry(appName);
+			}
+		    }
+		}
+	    };
+	_removeApplicationFromRegistry.setEnabled(false);
 
 	
 	_cut = new ActionWrapper("Cut");
@@ -2287,7 +2359,7 @@ public class Coordinator
     {
 	String text = "IceGrid Admin version " 
 	    + IceUtil.Version.ICE_STRING_VERSION + "\n"
-	    + "Copyright \u00A9 2005-2006 ZeroC, Inc. All rights reserved.\n";
+	    + "Copyright \u00A9 2005-2007 ZeroC, Inc. All rights reserved.\n";
 	    
 	JOptionPane.showMessageDialog(
 	    _mainFrame,
@@ -2593,6 +2665,8 @@ public class Coordinator
     private Action _helpContents;
     private Action _about;
     private Action _patchApplication;
+    private Action _showApplicationDetails;
+    private Action _removeApplicationFromRegistry;
 
     private Action _cutText = new javax.swing.text.DefaultEditorKit.CutAction();
     private Action _copyText = new javax.swing.text.DefaultEditorKit.CopyAction();

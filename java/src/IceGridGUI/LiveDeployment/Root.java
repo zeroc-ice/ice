@@ -104,30 +104,55 @@ public class Root extends ListArrayTreeNode
 
     public ApplicationDescriptor getApplicationDescriptor(String name)
     {
-	return (ApplicationDescriptor)_descriptorMap.get(name);
+	ApplicationInfo app = (ApplicationInfo)_infoMap.get(name);
+	if(app == null)
+	{
+	    return null;
+	}
+	else
+	{
+	    return app.descriptor;
+	}
     }
 
     public Object[] getApplicationNames()
     {
-	return _descriptorMap.keySet().toArray();
+	return _infoMap.keySet().toArray();
     }
 
     public Object[] getPatchableApplicationNames()
     {
 	java.util.List result = new java.util.ArrayList();
 
-	java.util.Iterator p = _descriptorMap.entrySet().iterator();
+	java.util.Iterator p = _infoMap.entrySet().iterator();
 	while(p.hasNext())
 	{
 	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 
-	    ApplicationDescriptor app = (ApplicationDescriptor)entry.getValue();
-	    if(app.distrib.icepatch.length() > 0)
+	    ApplicationInfo app = (ApplicationInfo)entry.getValue();
+	    if(app.descriptor.distrib.icepatch.length() > 0)
 	    {
 		result.add(entry.getKey());
 	    }
 	}
 	return result.toArray();
+    }
+    
+    public java.util.SortedMap getApplicationMap()
+    {
+	java.util.SortedMap r = new java.util.TreeMap();
+	
+	java.util.Iterator p = _infoMap.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+
+	    ApplicationInfo app = (ApplicationInfo)entry.getValue();
+	    
+	    r.put(entry.getKey(), 
+		  java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(app.updateTime)));
+	}
+	return r;
     }
 
     
@@ -191,7 +216,7 @@ public class Root extends ListArrayTreeNode
 	_objects.clear();
 	_replicaName = null;
 
-	_descriptorMap.clear();
+	_infoMap.clear();
 	_nodes.clear();
 	_slaves.clear();
 	_treeModel.nodeStructureChanged(this);
@@ -258,13 +283,26 @@ public class Root extends ListArrayTreeNode
 	}
     }
 
+    public void showApplicationDetails(String appName)
+    {
+	ApplicationInfo app = (ApplicationInfo)_infoMap.get(appName);
+	if(app != null)
+	{
+	    if(_applicationDetailsDialog == null)
+	    {
+		_applicationDetailsDialog = new ApplicationDetailsDialog(this);
+	    }
+
+	    _applicationDetailsDialog.showDialog(app);
+	}
+    }
 
     //
     // From the Registry Observer:
     //
     public void applicationAdded(ApplicationInfo info)
     {
-	_descriptorMap.put(info.descriptor.name, info.descriptor);
+	_infoMap.put(info.descriptor.name, info);
 	
 	java.util.Iterator p = info.descriptor.nodes.entrySet().iterator();
 	while(p.hasNext())
@@ -287,7 +325,7 @@ public class Root extends ListArrayTreeNode
 
     public void applicationRemoved(String name)
     {
-	_descriptorMap.remove(name);
+	_infoMap.remove(name);
 
 	java.util.List toRemove = new java.util.LinkedList();
 	int[] toRemoveIndices = new int[_nodes.size()];
@@ -308,7 +346,13 @@ public class Root extends ListArrayTreeNode
     
     public void applicationUpdated(ApplicationUpdateInfo update)
     {
-	ApplicationDescriptor appDesc = (ApplicationDescriptor)_descriptorMap.get(update.descriptor.name);
+	ApplicationInfo app = (ApplicationInfo)_infoMap.get(update.descriptor.name);
+
+	app.updateTime = update.updateTime;
+	app.updateUser = update.updateUser;
+	app.revision = update.revision;
+
+	ApplicationDescriptor appDesc = app.descriptor;
 
 	//
 	// Update various fields of appDesc
@@ -879,9 +923,9 @@ public class Root extends ListArrayTreeNode
 
     PropertySetDescriptor findNamedPropertySet(String name, String applicationName)
     {
-	ApplicationDescriptor descriptor = (ApplicationDescriptor)
-	    _descriptorMap.get(applicationName);
-	return (PropertySetDescriptor)descriptor.propertySets.get(name);
+	ApplicationInfo app = (ApplicationInfo)
+	    _infoMap.get(applicationName);
+	return (PropertySetDescriptor)app.descriptor.propertySets.get(name);
     }
 
 
@@ -999,9 +1043,9 @@ public class Root extends ListArrayTreeNode
     private final java.util.List _slaves = new java.util.LinkedList();
 
     //
-    // Maps application name to current application descriptor
+    // Maps application name to current application info
     //
-    private final java.util.Map _descriptorMap = new java.util.TreeMap();
+    private final java.util.Map _infoMap = new java.util.TreeMap();
 
     //
     // Map AdapterId => AdapterInfo
@@ -1038,6 +1082,8 @@ public class Root extends ListArrayTreeNode
     int _logMaxReadSize;
     int _logPeriod;
   
+    private ApplicationDetailsDialog _applicationDetailsDialog;
+
     static private RegistryEditor _editor;
     static private JPopupMenu _popup;
     static private DefaultTreeCellRenderer _cellRenderer;
