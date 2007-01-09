@@ -36,7 +36,7 @@ CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
 
 !else
 
-CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
+CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -Od -D_DEBUG
 !if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
 CPPFLAGS        = $(CPPFLAGS) -GZ
 !else
