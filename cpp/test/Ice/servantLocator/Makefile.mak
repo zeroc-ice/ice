@@ -11,9 +11,10 @@ top_srcdir	= ..\..\..
 
 CLIENT		= client.exe
 SERVER		= server.exe
+SERVERAMD	= serveramd.exe
 COLLOCATED	= collocated.exe
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
 COBJS		= Test.obj \
 		  Client.obj \
@@ -24,6 +25,11 @@ SOBJS		= Test.obj \
 		  ServantLocatorI.obj \
 		  Server.obj
 
+SAMDOBJS	= TestAMD.obj \
+		  TestAMDI.obj \
+		  ServantLocatorI.obj \
+		  ServerAMD.obj
+
 COLOBJS		= Test.obj \
 		  TestI.obj \
 		  ServantLocatorI.obj \
@@ -32,6 +38,7 @@ COLOBJS		= Test.obj \
 
 SRCS		= $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp) \
+		  $(SAMDOBJS:.obj=.cpp) \
 		  $(COLOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
@@ -49,6 +56,9 @@ $(CLIENT): $(COBJS)
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+
+$(SERVERAMD): $(SAMDOBJS)
+	$(LINK) $(LD_EXEFLAGS) $(SAPDBFLAGS) $(SAMDOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(COLLOCATED): $(COLOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
