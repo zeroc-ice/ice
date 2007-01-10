@@ -128,6 +128,216 @@ public class IncomingBase
 	_os.instance().initializationData().logger.warning(sw.toString());
     }
 
+    final protected void
+    __handleException(java.lang.Exception exc)
+    {
+        try
+        {
+	    throw exc;
+	}
+	catch(Ice.RequestFailedException ex)
+	{
+	    if(ex.id == null)
+	    {
+		ex.id = _current.id;
+	    }
+	    
+	    if(ex.facet == null)
+	    {
+		ex.facet = _current.facet;
+	    }
+	    
+	    if(ex.operation == null || ex.operation.length() == 0)
+	    {
+		ex.operation = _current.operation;
+	    }
+
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		if(ex instanceof Ice.ObjectNotExistException)
+		{
+		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+		}
+		else if(ex instanceof Ice.FacetNotExistException)
+		{
+		    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+		}
+		else if(ex instanceof Ice.OperationNotExistException)
+		{
+		    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+		}
+		else
+		{
+		    assert(false);
+		}
+		ex.id.__write(_os);
+
+                //
+                // For compatibility with the old FacetPath.
+                //
+                if(ex.facet == null || ex.facet.length() == 0)
+                {
+                    _os.writeStringSeq(null);
+                }
+                else
+                {
+                    String[] facetPath2 = { ex.facet };
+                    _os.writeStringSeq(facetPath2);
+                }
+
+		_os.writeString(ex.operation);
+
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+        }
+        catch(Ice.UnknownLocalException ex)
+        {
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		_os.writeString(ex.unknown);
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+        }
+        catch(Ice.UnknownUserException ex)
+        {
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+		_os.writeString(ex.unknown);
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+        }
+        catch(Ice.UnknownException ex)
+        {
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		_os.writeString(ex.unknown);
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+        }
+        catch(Ice.LocalException ex)
+        {
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		//_os.writeString(ex.toString());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_os.writeString(sw.toString());
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+        }
+	catch(Ice.UserException ex)
+	{
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+	    
+	    if(_response)
+	    {
+		_os.endWriteEncaps();
+		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		_os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+		//_os.writeString(ex.toString());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_os.writeString(sw.toString());
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+	}
+	catch(java.lang.Exception ex)
+	{
+	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
+	    
+	    if(_response)
+	    {
+		_os.endWriteEncaps();
+		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+		_os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		//_os.writeString(ex.toString());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_os.writeString(sw.toString());
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+	}
+    }
+
     protected Ice.Current _current;
     protected Ice.Object _servant;
     protected Ice.ServantLocator _locator;

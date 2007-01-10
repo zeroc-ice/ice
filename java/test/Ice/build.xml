@@ -32,6 +32,8 @@
         <ant dir="stream"/>
         <ant dir="retry"/>
         <ant dir="timeout"/>
+        <ant dir="servantLocator"/>
+        <ant dir="servantLocatorAMD"/>
     </target>
 
     <target name="clean">

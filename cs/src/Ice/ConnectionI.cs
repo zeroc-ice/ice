@@ -1339,6 +1339,30 @@ namespace Ice
 	    }
 	}
 
+	public void invokeException(LocalException ex, int invokeNum)
+	{
+	    //
+	    // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+	    // called in case of a fatal exception we decrement _dispatchCount here.
+	    //
+
+	    lock(this)
+	    {
+		setState(StateClosed, ex);
+
+		if(invokeNum > 0)
+		{
+		    Debug.Assert(_dispatchCount > 0);
+		    _dispatchCount -= invokeNum;
+		    Debug.Assert(_dispatchCount >= 0);
+		    if(_dispatchCount == 0)
+		    {
+			Monitor.PulseAll(this);
+		    }
+		}
+	    }
+	}
+
 	public string type()
 	{
 	    return _type; // No mutex lock, _type is immutable.
@@ -2030,19 +2054,7 @@ namespace Ice
 	    }
 	    catch(LocalException ex)
 	    {
-		lock(this)
-		{
-		    setState(StateClosed, ex);
-		}
-	    }
-	    catch(System.Exception ex)
-	    {
-		lock(this)
-		{
-		    UnknownException uex = new UnknownException();
-		    uex.unknown = ex.ToString();
-		    setState(StateClosed, uex);
-		}
+		invokeException(ex, invokeNum);
 	    }
 	    finally
 	    {
@@ -2050,26 +2062,7 @@ namespace Ice
 		{
 		    reclaimIncoming(inc);
 		}
-	    }
-	    
-	    //
-	    // If invoke() above raised an exception, and therefore
-	    // neither sendResponse() nor sendNoResponse() has been
-	    // called, then we must decrement _dispatchCount here.
-	    //
-	    if(invokeNum > 0)
-	    {
-		lock(this)
-		{
-		    Debug.Assert(_dispatchCount > 0);
-		    _dispatchCount -= invokeNum;
-		    Debug.Assert(_dispatchCount >= 0);
-		    if(_dispatchCount == 0)
-		    {
-			Monitor.PulseAll(this);
-		    }
-		}
-	    }
+	    }	    
 	}
 
 	private void run()

@@ -90,7 +90,10 @@ tests = [ \
     "Ice/checksum", \
     "Ice/package", \
     "Ice/stream", \
+    "Ice/hold", \
     "Ice/retry", \
+    "Ice/timeout", \
+    "Ice/servantLocator", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

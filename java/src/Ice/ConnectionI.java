@@ -1416,6 +1416,28 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	setState(StateClosed, ex);
     }
 
+    public synchronized void
+    invokeException(LocalException ex, int invokeNum)
+    {
+	//
+	// Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+	// called in case of a fatal exception we decrement _dispatchCount here.
+	//
+
+	setState(StateClosed, ex);
+
+	if(invokeNum > 0)
+	{
+	    assert(_dispatchCount > 0);
+	    _dispatchCount -= invokeNum;
+	    assert(_dispatchCount >= 0);
+	    if(_dispatchCount == 0)
+	    {
+		notifyAll();
+	    }
+	}
+    }
+
     public String
     type()
     {
@@ -2189,62 +2211,24 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
 	catch(LocalException ex)
 	{
-	    synchronized(this)
-	    {
-		setState(StateClosed, ex);
-	    }
+	    invokeException(ex, invokeNum);
 	}
 	catch(java.lang.AssertionError ex) // Upon assertion, we print the stack trace.
 	{
-	    synchronized(this)
-	    {
-		UnknownException uex = new UnknownException();
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		uex.unknown = sw.toString();
-		_logger.error(uex.unknown);
-		setState(StateClosed, uex);
-	    }
-	}
-	catch(java.lang.Exception ex)
-	{
-	    synchronized(this)
-	    {
-		UnknownException uex = new UnknownException();
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		uex.unknown = sw.toString();
-		setState(StateClosed, uex);
-	    }
+	    UnknownException uex = new UnknownException();
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    uex.unknown = sw.toString();
+	    _logger.error(uex.unknown);
+	    invokeException(uex, invokeNum);
 	}
 	finally
 	{
 	    if(in != null)
 	    {
 		reclaimIncoming(in);
-	    }
-	}
-		
-	//
-	// If invoke() above raised an exception, and therefore
-	// neither sendResponse() nor sendNoResponse() has been
-	// called, then we must decrement _dispatchCount here.
-	//
-	if(invokeNum > 0)
-	{
-	    synchronized(this)
-	    {
-		assert(_dispatchCount > 0);
-		_dispatchCount -= invokeNum;
-		assert(_dispatchCount >= 0);
-		if(_dispatchCount == 0)
-		{
-		    notifyAll();
-		}
 	    }
 	}
     }

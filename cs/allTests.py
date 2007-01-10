@@ -63,6 +63,7 @@ tests = [ \
     "Ice/stream", \
     "Ice/retry", \
     "Ice/timeout", \
+    "Ice/servantLocator", \	
 #    "IceSSL/configuration", \ # Commented out for the moment because it fails with Mono 1.2
     "Glacier2/router", \
     "Glacier2/attack", \
