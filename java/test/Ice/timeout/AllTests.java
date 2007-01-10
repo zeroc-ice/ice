@@ -173,7 +173,7 @@ public class AllTests
 	    // Expect ConnectTimeoutException.
 	    //
 	    TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(500));
-	    to.holdAdapter(750);
+	    to.holdAdapter(1000);
 	    to.ice_getConnection().close(true); // Force a reconnect.
 	    try
 	    {
