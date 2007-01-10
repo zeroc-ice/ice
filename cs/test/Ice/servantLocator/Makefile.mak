@@ -9,13 +9,15 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= client.exe server.exe collocated.exe
+TARGETS		= client.exe server.exe serveramd.exe collocated.exe
 
 C_SRCS		= Client.cs AllTests.cs
 S_SRCS		= Server.cs CookieI.cs ServantLocatorI.cs TestI.cs
 COL_SRCS	= Collocated.cs AllTests.cs CookieI.cs ServantLocatorI.cs TestI.cs
+SAMD_SRCS	= Server.cs CookieI.cs ServantLocatorI.cs TestAMDI.cs
 
 GEN_SRCS	= $(GDIR)\Test.cs
+GEN_AMD_SRCS	= $(GDIR)\TestAMD.cs
 
 SDIR		= .
 
@@ -35,5 +37,8 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll $(COL_SRCS) $(GEN_SRCS)
+
+serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll $(SAMD_SRCS) $(GEN_AMD_SRCS)
 
 !include .depend
