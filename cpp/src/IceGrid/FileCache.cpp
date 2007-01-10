@@ -70,7 +70,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	//
 	deque<string> lines;
 	int count = originalCount - totalCount; // Number of lines left to find.
-	while(is.good() && is.tellg() < lastBlockOffset)
+	while(is.good() && is.tellg() < static_cast<streampos>(lastBlockOffset))
 	{
 	    getline(is, line);
 
