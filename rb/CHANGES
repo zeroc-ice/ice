@@ -3,6 +3,16 @@ NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
 Changes since version 3.1.1 (HEAD)
 ---------------------------     
 
+- Added support for a user callback when SIGINT like signals are
+  sent to applications that use the Application interface. See
+  Application::interruptCallback and Application::callbackOnInterrupt
+  for details. Fixed support for holdInterrupt and releaseInterrupt.
+
+- Fixed bug with Application.holdInterrupt.
+
+- Fixed a bug that would cause the plug-in to abort if a GC occurred
+  after the communicator was destroyed.
+
 - Fixed a code-generation bug that occurred when the name of a
   data member begins with an uppercase letter.
 

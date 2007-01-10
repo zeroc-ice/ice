@@ -34,9 +34,16 @@ void
 IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
 {
     assert(p);
-    ObjectFactoryPtr pof = ObjectFactoryPtr::dynamicCast((*p)->findObjectFactory(""));
-    assert(pof);
-    pof->mark();
+    try
+    {
+	ObjectFactoryPtr pof = ObjectFactoryPtr::dynamicCast((*p)->findObjectFactory(""));
+	assert(pof);
+	pof->mark();
+    }
+    catch(const Ice::CommunicatorDestroyedException&)
+    {
+    	// Ignore. This is expected.
+    }
 }
 
 extern "C"

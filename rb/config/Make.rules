@@ -45,13 +45,6 @@ else
     RUBY = ruby
 endif
 
-RUBY_VERSION		= $(shell $(RUBY) --version | cut -d' ' -f2)
-ifneq ($(RUBY_VERSION),1.8.4)
-    ifneq ($(RUBY_VERSION),1.8.5)
-	$(error "Ruby 1.8.4 or 1.8.5 is required - found $(RUBY_VERSION)")
-    endif
-endif
-
 RUBY_INCLUDE_DIR	= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(archdir)")')
 RUBY_LIB_DIR		= $(shell $(RUBY) -e 'require "rbconfig"; puts Config::expand("$$(libdir)")')
 
@@ -143,16 +136,16 @@ SLICE2RBFLAGS		= $(ICECPPFLAGS)
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS) -L$(libdir)
 
 #
-# Default functions for shared library names. A Ruby extension library
-# cannot have a "lib" prefix, so Ruby-specific functions are defined.
+# Default functions for shared library names. Note that since ruby
+# extension libraries cannot have a "lib" prefix lib is left out.
 #
 
 ifeq ($(mklibfilename),)
-    mklibfilename	= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    mklibfilename	= $(if $(2),lib$(1).so.$(2),$(1).so)
 endif
 
 ifeq ($(mksoname),)
-    mksoname		= $(if $(2),lib$(1).so.$(2),lib$(1).so)
+    mksoname		= $(if $(2),lib$(1).so.$(2),$(1).so)
 endif
 
 ifeq ($(mklibname),)
@@ -193,14 +186,6 @@ ifeq ($(mkdir),)
     mkdir		= mkdir $(1) ; \
 			  chmod a+rx $(1)
 endif
-
-#
-# A Ruby extension library cannot have a "lib" prefix, so Ruby-specific
-# functions are defined that strip "lib" from the regular library name.
-#
-mkrubylibfilename	= $(subst lib,,$(call mklibfilename,$(1),$(2)))
-mkrubysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
-mkrubylibname		= $(subst lib,,$(call mklibname,$(1)))
 
 SLICE2RB		= $(ICE_HOME)/bin/slice2rb
 

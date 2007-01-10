@@ -54,7 +54,31 @@ class SessionRefreshThread
 end
 
 class Client < Ice::Application
+
+    def initialize
+        @mutex = Mutex.new
+        @session = nil
+        @refresh = nil
+        @refreshThread = nil
+    end
+
+    def interruptCallback(sig)
+        cleanup(true)
+        begin
+            Ice::Application::communicator.destroy
+        rescue => ex
+            puts ex
+        end
+        exit(0)
+    end
+
     def run(args)
+        #
+        # Since this is an interactive demo we want the custom interrupt
+        # callback to be called when the process is interrupted.
+        #
+        Ice::Application::callbackOnInterrupt
+
 	while true
 	    print "Please enter your name ==> "
 	    STDOUT.flush
@@ -71,10 +95,13 @@ class Client < Ice::Application
 	    return false
 	end
 
-	session = factory.create(name)
+        @mutex.synchronize {
+            @session = factory.create(name)
+	    @refresh = SessionRefreshThread.new(Ice::Application::communicator().getLogger(), 5, @session)
+	    @refreshThread = Thread.new { @refresh.run }
+        }
+
 	begin
-	    refresh = SessionRefreshThread.new(Ice::Application::communicator().getLogger(), 5, session)
-	    refreshThread = Thread.new { refresh.run }
 
 	    hellos = []
 
@@ -97,7 +124,7 @@ class Client < Ice::Application
 				 "Use `c' to create a new hello object."
 			end
 		    elsif c == 'c'
-			hellos.push(session.createHello())
+			hellos.push(@session.createHello())
 			puts "Created hello object " + (hellos.length - 1).to_s
 		    elsif c == 's'
 			destroy = false
@@ -124,13 +151,7 @@ class Client < Ice::Application
 	    # is set to 0 so that if session->destroy() raises an exception
 	    # the thread will not be re-terminated and re-joined.
 	    #
-	    refresh.terminate
-	    refreshThread.join
-	    refresh = nil
-
-	    if destroy
-		session.destroy()
-	    end
+            cleanup(destroy)
 	    if shutdown
 		factory.shutdown()
 	    end
@@ -139,13 +160,25 @@ class Client < Ice::Application
 	    # The refresher thread must be terminated in the event of a
 	    # failure.
 	    #
-	    if refresh
-		refresh.terminate
-		refreshThread.join
-	    end
+            cleanup(true)
 	end
 
 	return true
+    end
+
+    def cleanup(destroy)
+        @mutex.synchronize {
+            if @refresh
+                @refresh.terminate
+                @refreshThread.join
+                @refresh = nil
+            end
+
+            if destroy && @session
+                @session.destroy
+                @session = nil
+            end
+        }
     end
 
     def menu
