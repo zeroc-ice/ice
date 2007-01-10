@@ -41,9 +41,9 @@ IceInternal::IncomingAsync::__response(bool ok)
 {
     try
     {
-	if(_locator && _servant)
+	if(!__servantLocatorFinished())
 	{
-	    _locator->finished(_current, _servant, _cookie);
+	    return;
 	}
 
 	if(_response)
@@ -68,19 +68,7 @@ IceInternal::IncomingAsync::__response(bool ok)
     }
     catch(const LocalException& ex)
     {
-	_connection->exception(ex);
-    }
-    catch(const std::exception& ex)
-    {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = string("std::exception: ") + ex.what();
-	_connection->exception(uex);
-    }
-    catch(...)
-    {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = "unknown c++ exception";
-	_connection->exception(uex);
+	_connection->invokeException(ex, 1); // Fatal invocation exception
     }
 }
 
@@ -89,274 +77,34 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 {
     try
     {
-	if(_locator && _servant)
+	if(!__servantLocatorFinished())
 	{
-	    _locator->finished(_current, _servant, _cookie);
+	    return;
 	}
 
-	try
-	{
-	    exc.ice_throw();
-	}
-	catch(RequestFailedException& ex)
-	{
-	    if(ex.id.name.empty())
-	    {
-		ex.id = _current.id;
-	    }
-	    
-	    if(ex.facet.empty() && !_current.facet.empty())
-	    {
-		ex.facet = _current.facet;
-	    }
-	    
-	    if(ex.operation.empty() && !_current.operation.empty())
-	    {
-		ex.operation = _current.operation;
-	    }
-	    
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-	    {
-		__warning(ex);
-	    }
-	    
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		if(dynamic_cast<ObjectNotExistException*>(&ex))
-		{
-		    _os.write(static_cast<Byte>(DispatchObjectNotExist));
-		}
-		else if(dynamic_cast<FacetNotExistException*>(&ex))
-		{
-		    _os.write(static_cast<Byte>(DispatchFacetNotExist));
-		}
-		else if(dynamic_cast<OperationNotExistException*>(&ex))
-		{
-		    _os.write(static_cast<Byte>(DispatchOperationNotExist));
-		}
-		else
-		{
-		    assert(false);
-		}
-		
-		ex.id.__write(&_os);
-		
-		//
-		// For compatibility with the old FacetPath.
-		//
-		if(ex.facet.empty())
-		{
-		    _os.write(static_cast<string*>(0), static_cast<string*>(0));
-		}
-		else
-		{
-		    _os.write(&ex.facet, &ex.facet + 1);
-		}
-		
-		_os.write(ex.operation, false);
-
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
-	catch(const UnknownLocalException& ex)
-	{
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-	    
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		_os.write(static_cast<Byte>(DispatchUnknownLocalException));
-		_os.write(ex.unknown, false);
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
-	catch(const UnknownUserException& ex)
-	{
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		_os.write(static_cast<Byte>(DispatchUnknownUserException));
-		_os.write(ex.unknown, false);
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
-	catch(const UnknownException& ex)
-	{
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		_os.write(static_cast<Byte>(DispatchUnknownException));
-		_os.write(ex.unknown, false);
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
-	catch(const LocalException& ex)
-	{
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		_os.write(static_cast<Byte>(DispatchUnknownLocalException));
-		ostringstream str;
-		str << ex;
-		_os.write(str.str(), false);
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
-	catch(const UserException& ex)
-	{
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		_os.write(static_cast<Byte>(DispatchUnknownUserException));
-		ostringstream str;
-		str << ex;
-		_os.write(str.str(), false);
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
-	catch(const Exception& ex)
-	{
-	    if(_os.instance()->initializationData().properties->
-	    		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.b.resize(headerSize + 4); // Dispatch status position.
-		_os.write(static_cast<Byte>(DispatchUnknownException));
-		ostringstream str;
-		str << ex;
-		_os.write(str.str(), false);
-		_connection->sendResponse(&_os, _compress);
-	    }
-	    else
-	    {
-		_connection->sendNoResponse();
-	    }
-	}
+	__handleException(exc);
     }
     catch(const LocalException& ex)
     {
-	_connection->exception(ex);
-    }
-    catch(const std::exception& ex)
-    {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = string("std::exception: ") + ex.what();
-	_connection->exception(uex);
-    }
-    catch(...)
-    {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = "unknown c++ exception";
-	_connection->exception(uex);
+	_connection->invokeException(ex, 1);  // Fatal invocation exception
     }
 }
 
 void
-IceInternal::IncomingAsync::__exception(const std::exception& ex)
+IceInternal::IncomingAsync::__exception(const std::exception& exc)
 {
     try
     {
-	if(_os.instance()->initializationData().properties->
-		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	if(!__servantLocatorFinished())
 	{
-	    __warning(string("std::exception: ") + ex.what());
+	    return;
 	}
-	
-	if(_response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownException));
-	    ostringstream str;
-	    str << "std::exception: " << ex.what();
-	    _os.write(str.str(), false);
-	    _connection->sendResponse(&_os, _compress);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+
+	__handleException(exc);
     }
     catch(const LocalException& ex)
     {
-	_connection->exception(ex);
-    }
-    catch(const std::exception& ex)
-    {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = string("std::exception: ") + ex.what();
-	_connection->exception(uex);
-    }
-    catch(...)
-    {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = "unknown c++ exception";
-	_connection->exception(uex);
+	_connection->invokeException(ex, 1);  // Fatal invocation exception
     }
 }
 
@@ -365,41 +113,44 @@ IceInternal::IncomingAsync::__exception()
 {
     try
     {
-	if(_os.instance()->initializationData().properties->
-		getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	if(!__servantLocatorFinished())
 	{
-	    __warning("unknown c++ exception");
+	    return;
 	}
-	
-	if(_response)
-	{
-	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownException));
-	    string reason = "unknown c++ exception";
-	    _os.write(reason, false);
-	    _connection->sendResponse(&_os, _compress);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+
+	__handleException();
     }
     catch(const LocalException& ex)
     {
-	_connection->exception(ex);
+	_connection->invokeException(ex, 1);  // Fatal invocation exception
+    }
+}
+
+bool
+IceInternal::IncomingAsync::__servantLocatorFinished()
+{
+    try
+    {
+	if(_locator && _servant)
+	{
+	    _locator->finished(_current, _servant, _cookie);
+	}
+	return true;
+    }
+    catch(const Exception& ex)
+    {
+	__handleException(ex);
+	return false;
     }
     catch(const std::exception& ex)
     {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = string("std::exception: ") + ex.what();
-	_connection->exception(uex);
+	__handleException(ex);
+	return false;
     }
     catch(...)
     {
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = "unknown c++ exception";
-	_connection->exception(uex);
+	__handleException();
+	return false;
     }
 }
 

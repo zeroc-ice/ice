@@ -27,7 +27,8 @@ SUBDIRS		= operations \
 		  custom \
 		  binding \
 		  retry \
-		  timeout
+		  timeout \
+		  servantLocator
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

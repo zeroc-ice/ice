@@ -1506,6 +1506,29 @@ Ice::ConnectionI::exception(const LocalException& ex)
     setState(StateClosed, ex);
 }
 
+void
+Ice::ConnectionI::invokeException(const LocalException& ex, int invokeNum)
+{
+    //
+    // Fatal exception while invoking a request. Since sendResponse/sendNoResponse isn't
+    // called in case of a fatal exception we decrement _dispatchCount here.
+    //
+
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    setState(StateClosed, ex);
+
+    if(invokeNum > 0)
+    {
+	assert(_dispatchCount > 0);
+	_dispatchCount -= invokeNum;
+	assert(_dispatchCount >= 0);
+	if(_dispatchCount == 0)
+	{
+	    notifyAll();
+	}
+    }
+}
+
 string
 Ice::ConnectionI::type() const
 {
@@ -2394,39 +2417,7 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
     }
     catch(const LocalException& ex)
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	setState(StateClosed, ex);
-    }
-    catch(const std::exception& ex)
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = string("std::exception: ") + ex.what();
-	setState(StateClosed, uex);
-    }
-    catch(...)
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	UnknownException uex(__FILE__, __LINE__);
-	uex.unknown = "unknown c++ exception";
-	setState(StateClosed, uex);
-    }
-
-    //
-    // If invoke() above raised an exception, and therefore neither
-    // sendResponse() nor sendNoResponse() has been called, then we
-    // must decrement _dispatchCount here.
-    //
-    if(invokeNum > 0)
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(_dispatchCount > 0);
-	_dispatchCount -= invokeNum;
-	assert(_dispatchCount >= 0);
-	if(_dispatchCount == 0)
-	{
-	    notifyAll();
-	}
+	invokeException(ex, invokeNum);  // Fatal invocation exception
     }
 }
 

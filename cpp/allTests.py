@@ -98,6 +98,7 @@ tests = [ \
     "Ice/custom", \
     "Ice/retry", \
     "Ice/timeout", \
+    "Ice/servantLocator", \
     "IceSSL/configuration", \
     "Freeze/dbmap", \
     "Freeze/complex", \

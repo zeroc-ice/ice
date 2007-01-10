@@ -30,6 +30,10 @@ protected:
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
+    void __handleException(const Ice::Exception&);
+    void __handleException(const std::exception&);
+    void __handleException();
+
     Ice::Current _current;
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;

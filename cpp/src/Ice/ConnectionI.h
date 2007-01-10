@@ -91,6 +91,7 @@ public:
     virtual void message(IceInternal::BasicStream&, const IceInternal::ThreadPoolPtr&);
     virtual void finished(const IceInternal::ThreadPoolPtr&);
     virtual void exception(const LocalException&);
+    virtual void invokeException(const LocalException&, int);
     virtual std::string type() const; // From Connection.
     virtual Ice::Int timeout() const; // From Connection.
     virtual std::string toString() const;  // From Connection and EvantHandler.
