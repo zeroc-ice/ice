@@ -228,9 +228,12 @@ IceRuby::contextToHash(const Ice::Context& ctx)
 }
 
 extern "C"
-int
-IceRuby_Util_hash_foreach_callback(VALUE key, VALUE value, VALUE arg)
+VALUE
+IceRuby_Util_hash_foreach_callback(VALUE val, VALUE arg)
 {
+    VALUE key = rb_ary_entry(val, 0);
+    VALUE value = rb_ary_entry(val, 1);
+
     //
     // We can't allow any C++ exceptions to propagate out of this function.
     //
@@ -238,33 +241,21 @@ IceRuby_Util_hash_foreach_callback(VALUE key, VALUE value, VALUE arg)
     {
 	IceRuby::HashIterator* iter = reinterpret_cast<IceRuby::HashIterator*>(arg);
 	iter->element(key, value);
-	return ST_CONTINUE;
     }
     ICE_RUBY_CATCH
-    return ST_STOP;
-}
-
-//
-// Wrapper for rb_hash_foreach because it doesn't return VALUE.
-//
-extern "C"
-VALUE
-IceRuby_Util_rb_hash_foreach(VALUE hash, int (*func)(ANYARGS), VALUE arg)
-{
-    rb_hash_foreach(hash, func, arg);
-    return Qnil;
+    return val;
 }
 
 extern "C"
 {
-typedef int (*ICE_RUBY_HASH_FOREACH_CALLBACK)(...);
+typedef VALUE (*ICE_RUBY_HASH_FOREACH_CALLBACK)(...);
 }
 
 void
 IceRuby::hashIterate(VALUE h, HashIterator& iter)
 {
     assert(TYPE(h) == T_HASH);
-    callRuby(IceRuby_Util_rb_hash_foreach, h,
+    callRuby(rb_iterate, rb_each, h,
 	     reinterpret_cast<ICE_RUBY_HASH_FOREACH_CALLBACK>(IceRuby_Util_hash_foreach_callback),
 	     reinterpret_cast<VALUE>(&iter));
 }
