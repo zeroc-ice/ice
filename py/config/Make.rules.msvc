@@ -21,9 +21,18 @@ PRELIBS		=
 CPPFLAGS	= -nologo -W3 -WX -GR -GX -FD -D_CONSOLE -I"$(STLPORT_HOME)\include\stlport"
 
 !if "$(OPTIMIZE)" == "yes"
+
 CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
+
 !else
-CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -GZ -Od -D_DEBUG
+
+CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -Od -D_DEBUG
+!if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
+CPPFLAGS        = $(CPPFLAGS) -GZ
+!else
+CPPFLAGS        = $(CPPFLAGS) -RTC1
+!endif
+
 !endif
 
 LDFLAGS		= /LIBPATH:"$(STLPORT_HOME)\lib" /LIBPATH:"$(top_srcdir)\lib" /nologo /FIXED:no

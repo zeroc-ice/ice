@@ -23,7 +23,15 @@ prefix			= C:\IcePy-$(VERSION)
 # Otherwise the Ice extension is built with debug information.
 #
 
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
+
+#
+# Specify your C++ compiler. Supported values are:
+# VC60, VC71, VC80, VC80_EXPRESS
+#
+!if "$(CPP_COMPILER)" == ""
+CPP_COMPILER            = VC80
+!endif
 
 #
 # Set PYTHON_HOME to your Python installation directory.

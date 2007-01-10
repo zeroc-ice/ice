@@ -26,6 +26,14 @@ prefix			= C:\IceRuby-$(VERSION)
 OPTIMIZE		= yes
 
 #
+# Specify your C++ compiler. Supported values are:
+# VC60, VC71, VC80, VC80_EXPRESS
+#
+!if "$(CPP_COMPILER)" == ""
+CPP_COMPILER            = VC80
+!endif
+
+#
 # Set RUBY_HOME to your Ruby installation directory.
 #
 
@@ -34,7 +42,7 @@ RUBY_HOME		= C:\ruby
 #
 # Set STLPORT_HOME to your STLPort installation directory.
 #
-STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
+#STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
