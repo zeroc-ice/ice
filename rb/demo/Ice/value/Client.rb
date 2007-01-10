@@ -49,7 +49,22 @@ class ObjectFactory
 end
 
 class Client < Ice::Application
+    def interruptCallback(sig)
+        begin
+            Ice::Application::communicator.destroy
+        rescue => ex
+            puts ex
+        end
+        exit(0)
+    end
+
     def run(args)
+        #
+        # Since this is an interactive demo we want the custom interrupt
+        # callback to be called when the process is interrupted.
+        #
+        Ice::Application::callbackOnInterrupt
+
 	base = Ice::Application::communicator().propertyToProxy('Value.Initial')
 	initial = Demo::InitialPrx::checkedCast(base)
 	if not initial
