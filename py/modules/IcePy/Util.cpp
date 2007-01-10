@@ -194,7 +194,7 @@ IcePy::PyException::raiseLocalException()
 	{
 	    e.operation = PyString_AS_STRING(member.get());
 	}
-	throw e;
+	throw;
     }
 
     try
@@ -214,21 +214,13 @@ IcePy::PyException::raiseLocalException()
     }
     catch(Ice::UnknownException& e)
     {
-	string tb = getTraceback();
-	if(!tb.empty())
+	IcePy::PyObjectHandle member;
+	member = PyObject_GetAttrString(ex.get(), STRCAST("unknown"));
+	if(member.get() != NULL && PyString_Check(member.get()) && strlen(PyString_AS_STRING(member.get())) > 0)
 	{
-	    e.unknown = tb;
+	    e.unknown = PyString_AS_STRING(member.get());
 	}
-	else
-	{
-	    IcePy::PyObjectHandle member;
-	    member = PyObject_GetAttrString(ex.get(), STRCAST("unknown"));
-	    if(member.get() != NULL && PyString_Check(member.get()) && strlen(PyString_AS_STRING(member.get())) > 0)
-	    {
-		e.unknown = PyString_AS_STRING(member.get());
-	    }
-	}
-	throw e;
+        throw;
     }
 
     Ice::UnknownLocalException e(__FILE__, __LINE__);
