@@ -138,7 +138,7 @@ public class AllTests
         test(obj.equals(base));
         System.out.println("ok");
 
-	System.out.print("testing servant locator...");
+	System.out.print("testing servant locator... ");
         System.out.flush();
 	base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000");
 	obj = TestIntfPrxHelper.checkedCast(base);
@@ -151,7 +151,7 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("testing default servant locator...");
+	System.out.print("testing default servant locator... ");
         System.out.flush();
 	base = communicator.stringToProxy("anothercat/locate:default -p 12010 -t 10000");
 	obj = TestIntfPrxHelper.checkedCast(base);
