@@ -1,116 +1,162 @@
 Building the Demos 
 ==================
 
-The following sections describe how to build the demos for the following
-environments:
+This section describes how to build the demos included in the Ice demo
+distribution. Check the 'Platform Specific Notes' section to see if
+there are extra details relevant to your platform.
 
-  - Unix
-  - Windows using Borland C++ Builder
-  - Windows using Microsoft C++ Environments
+The demo archive contains demos for each language mapping support by
+Ice. Not all demos will build against all Ice distributions.
+Distributions for specific platform/tool combinations may not support
+every Ice language mapping.
 
-Unix
-----
+The build systems included in the demo distribution are either
+'makefile' based or 'ant' based. The C++ and C# demos use makefiles and
+the Java demos use the Apache Foundation's ant build tool. 
 
-These instructions assume that you have correctly configured your
-environment according to the directions in the README or platform-
-specific INSTALL file included with your Ice installation.
+    NOTE: The Ruby, Python and PHP demos run in their respective
+    interpretive environments and do not need to be built. 
 
-You can build the demos by visiting each demo directory (e.g., demo,
-demoj, democs) and running 'gmake' or 'ant' as appropriate. The Ice
-for Python and Ice for PHP demos do not need to be compiled.
+The Unix C++ and C# makefiles require GNU gmake 3.80 or later. If your
+system does not come with gmake, you can find information on how to
+acquire it at the following link:
 
-gmake 3.80 is required to build the C++ and C# demos. The 'ant'
-utility is required to build the Java demos, and can be downloaded
-from
+http://www.gnu.org/software/make/ 
 
-http://ant.apache.org/bindownload.cgi
-
-Ice requires ant 1.6.3 or later, but we recommend using the most
-recent release.
-
-Windows using Borland C++ Builder
----------------------------------
-
-The build system included in the demo archive is a 'makefile' based
-system and requires that you open a Windows console (Command Line). The
-Borland installer typically configures the Windows environment so you
-should not need additional configuration to run the Borland C++ compiler
-from the command line. However, you will need to acquire Microsoft's
-'make', NMAKE, to run the demo build. It you do not already have it
-installed on your system, you can download it using the following link:
+The Windows C++ and C# makefiles require Microsoft NMAKE 1.5.2 or later.
+If you are using an Ice supported Microsoft development environment, you
+already have NMAKE. If you are using Borland, you may need to install it
+from another source.  Microsoft has made it available for downloaded at
+the following link:
 
 http://download.microsoft.com/download/vc15/patch/1.52/w95/en-us/nmake15.exe
 
-There are no projects for the Borland IDE at this time.  
+The Ice for Java demos require ant 1.6.3, but we recommend using the
+most recent release available. Ant can be obtained at:
 
-The next step is to configure your environment for the Ice installation.
-The ICE_HOME environment variable tells the build system where the Ice
-installation is so it can find header files, import libraries, etc. You
-should also add the directory containing the Ice Slice translators and
-other command line tools to your PATH. This is usually the "bin"
-subdirectory under the directory you set for the ICE_HOME environment
-variables. For example:
+http://ant.apache.org/bindownload.cgi
 
-c:\Documents and Settings\IceFan>set ICE_HOME=c:\Ice-@ver@
-c:\Documents and Settings\IceFan>set PATH=%ICE_HOME%\bin;%PATH%
+Both Apache ant and GNU gmake are freely available under their respective
+licenses.
 
-Now, change to the directory containing the demos and run the command
-"nmake /f Makefile.mak". For example:
+To build the demos you need to:
 
-c:\Documents and Settings\IceFan>cd Ice-@ver@-demos
-c:\Documents and Settings\IceFan\Ice-@ver@-demos>nmake /f Makefile.mak
+  - Configure your system correctly according to the directions in the
+    README and platform specific INSTALL files that came in your Ice
+    distribution.
+
+  - At a command prompt (e.g., unix shell, Windows console window), set
+    the ICE_HOME environment variable to reference your Ice installation
+    and add the directory containing the Ice Slice translators and
+    command line tools to your PATH. For example:
+
+    On Unix:
+
+	IceFan@wkstation~>export ICE_HOME=$HOME/Ice-@ver@
+	IceFan@wkstation~>export PATH=$HOME/Ice-@ver@/bin:$PATH
+	IceFan@wkstation~>export LD_LIBRARY_PATH=$HOME/Ice-@ver@/lib:$LD_LIBRARY_PATH
+	   
+	This example assumes Bourne shell syntax. Please use the appropriate
+	syntax for the shell you are using.
+
+	NOTE: If Ice is installed in the default location,
+	/opt/Ice-@ver@, you should not need to set these environment
+	variables. The demo build system should detect the installation
+	and run accordingly.
+    
+    On Windows:
+
+	c:\Documents and Settings\IceFan>set ICE_HOME=c:\Ice-@ver@
+	c:\Documents and Settings\IceFan>set PATH=%ICE_HOME%\bin;%PATH%
+	  
+	NOTE: For your convenience, the Ice DLLs are also in the 'bin'
+	directory, so you will not need to add these to the PATH
+	separately. 
+
+  - At the same command prompt, enter the directory for the demos you
+    want to build and run the relevant build tool. For example:
+
+    On Unix:
+	
+        # C++ demos
+	IceFan@wkstation~>cd Ice-@ver@-demos/demo
+	IceFan@wkstation~/Ice-@ver@-demos/demo>gmake
+
+	# C# demos
+	IceFan@wkstation~>cd Ice-@ver@-demos/democs
+	IceFan@wkstation~/Ice-@ver@-demos/democs>gmake
+
+	# Java demos
+	IceFan@wkstation~>cd Ice-@ver@-demos/demoj
+	IceFan@wkstation~/Ice-@ver@-demos/demoj>ant
+
+    On Windows:
+
+	:: C++ demos
+	c:\Documents and Settings\IceFan>cd Ice-@ver@-demos\demo
+	c:\Documents and Settings\IceFan\Ice-@ver@-demos\demo>nmake /f Makefile.mak
+
+	:: C# demos
+	c:\Documents and Settings\IceFan>cd Ice-@ver@-demos\democs
+	c:\Documents and Settings\IceFan\Ice-@ver@-demos\democs>nmake /f Makefile.mak
+
+	:: Java demos
+	c:\Documents and Settings\IceFan>cd Ice-@ver@-demos\demoj
+	c:\Documents and Settings\IceFan\Ice-@ver@-demos\demoj>ant
 
 Now you should be able to proceed to the next step of running the demos.
 
-Windows using Microsoft C++ Enviroments
----------------------------------------
+Platform specific notes 
+-----------------------
 
-These instructions apply to all supported versions of Microsoft C++
-development environments.
+    Building the C++ demos using Borland C++ Builder
+    ------------------------------------------------
 
-The build system included in the demo archive is a 'makefile' based
-system and requires that you open a Windows console (Command Line) and
-configure the environment for your development tools. If you prefer
-building the demos from the IDE, please download the Windows installer
-for your version of Microsoft development environment or download the
-Ice source distribution.
+    The C++ build system included in the demo archive is 'makefile'
+    based and requires that you open a Windows console (Command Line)
+    and run commands from the command prompt. The Borland installer
+    typically configures the Windows environment so you should not need
+    additional configuration to run the Borland C++ compiler from the
+    command line.
 
-To build from the console, you may have to take steps to configure your
-environment for you compiler. This usually involves running a file named
-vcvars32.bat (Visual C++ 6.0) or vsvars32.bat (VS .NET 2003 and VS
-2005). A quick, but not definitive test, is to try running "cl" or
-"nmake" from a console window. If you are using VS .NET 2003 or VS 2005,
-there should be a shortcut in your development tool's Start menu entry
-named "Visual Studio 2005 Command Prompt", etc. Click on this to start a
-console window with your development environment already configured. 
+    There are no projects for the Borland IDE at this time.  
 
-The next step is to configure your environment for the Ice installation.
-The ICE_HOME environment variable tells the build system where the Ice
-installation is so it can find header files, import libraries, etc. You
-should also add the directory containing the Ice Slice translators and
-other command line tools to your PATH. This is usually the "bin"
-subdirectory under the directory you set for the ICE_HOME environment
-variables. For example:
+    Building the C++ demos using Microsoft C++ Enviroments
+    ------------------------------------------------------
 
-c:\Documents and Settings\IceFan>set ICE_HOME=c:\Ice-@ver@
-c:\Documents and Settings\IceFan>set PATH=%ICE_HOME%\bin;%PATH%
+    These instructions apply to all supported versions of Microsoft C++
+    development environments.
 
-Now, change to the directory containing the demos and run the command
-"nmake /f Makefile.mak". For example:
+    The C++ build system included in the demo archive is a 'makefile'
+    based system and requires that you open a Windows console (Command
+    Line) and configure the environment for your development tools. If
+    you prefer building the demos from the IDE, please download the
+    Windows installer for your version of Microsoft development
+    environment or download the Ice source distribution.
 
-c:\Documents and Settings\IceFan>cd Ice-@ver@-demos
-c:\Documents and Settings\IceFan\Ice-@ver@-demos>nmake /f Makefile.mak
+    To build from the console, you may have to take steps to configure
+    your environment for you compiler. This usually involves running a
+    file named vcvars32.bat (Visual C++ 6.0) or vsvars32.bat (VS .NET
+    2003 and VS 2005). A quick, but not definitive test, is to try
+    running "cl" or "nmake" from a console window. If you are using VS
+    .NET 2003 or VS 2005, there should be a shortcut in your development
+    tool's Start menu entry named "Visual Studio 2005 Command Prompt",
+    etc. Click on this to start a console window with your development
+    environment already configured. 
 
-Now you should be able to proceed to the next step of running the demos.
+    Building the demos on Windows using Mono, Cygwin, etc.
+    ------------------------------------------------------
+
+    Building the demos with Mono using the NMAKE makefiles or using
+    Cygwin and the gmake makefiles is not currently supported.
 
 Running the Ice Demos
 =====================
 
 Most demos consist of a single server and client. The instructions to
 run a demo depend on the programming language. Instructions for each
-language are included below.  Some demo directories contain README
-files if additional steps are necessary.
-
+language are included below.  Some demo directories contain README files
+if additional steps are necessary.
 
 Running the C++ demos
 =====================
