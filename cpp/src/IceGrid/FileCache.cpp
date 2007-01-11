@@ -144,7 +144,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     // 
     newOffset = offset;
     lines = Ice::StringSeq();
-    is.seekg(static_cast<streamoff>(offset), ios::end);
+    is.seekg(static_cast<streamoff>(offset), ios::beg);
     int totalSize = 0;
     string line;
     for(int i = 0; is.good(); ++i)
