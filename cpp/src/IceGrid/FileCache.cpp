@@ -33,12 +33,12 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	throw FileNotAvailableException("failed to open file `" + file + "'");
     }
 
-    int blockSize = 16 * 1024; // Start reading a block of 16K from the end of the file.
+    streamoff blockSize = 16 * 1024; // Start reading a block of 16K from the end of the file.
     is.seekg(0, ios::end);
-    Ice::Long endOfFileOffset = is.tellg();
-    Ice::Long lastBlockOffset = endOfFileOffset;
+    streampos endOfFile = is.tellg();
+    streampos lastBlockOffset = endOfFile;
     int totalCount = 0;
-    int totalSize = 0;
+    streamoff totalSize = 0;
     string line;
     do
     {
@@ -49,16 +49,12 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	is.clear();
 	if(lastBlockOffset - blockSize > 0)
 	{
-#ifdef _WIN32
-	    is.seekg(static_cast<int>(lastBlockOffset - blockSize));
-#else
-	    is.seekg(static_cast<streampos>(lastBlockOffset - blockSize));
-#endif
+	    is.seekg(lastBlockOffset - blockSize);
 	    getline(is, line); // Ignore the first line as it's most likely not complete.
 	}
 	else
 	{
-	    is.seekg(0); // We've reach the begining of the file.
+	    is.seekg(0, ios::beg); // We've reach the begining of the file.
 	}
 	
 	//
@@ -109,8 +105,8 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     {
 	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
     }
-
-    return endOfFileOffset - totalSize;
+ 
+   return endOfFile - totalSize;
 }
 
 bool
@@ -152,17 +148,13 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     // 
     newOffset = offset;
     lines = Ice::StringSeq();
-#ifdef _WIN32
-    is.seekg(static_cast<int>(offset));
-#else
-    is.seekg(static_cast<streampos>(offset));
-#endif
+    is.seekg(static_cast<streamoff>(offset), ios::end);
     int totalSize = 0;
     string line;
     for(int i = 0; is.good(); ++i)
     {
 	getline(is, line);
-	int lineSize = line.size() + 5; // 5 bytes for the encoding of the string size (worst case scenario)
+	int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
 	if(lineSize + totalSize > size)
 	{
 	    if(size - totalSize - 5) // If there's some room left for a part of the string, return a partial string
