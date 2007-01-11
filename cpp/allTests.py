@@ -123,7 +123,7 @@ tests = [ \
     "Glacier2/sessionControl", \
     "Glacier2/ssl", \
     "Glacier2/dynamicFiltering", \
-    "Glacier2/accessFiltering", \
+    "Glacier2/staticFiltering", \
     ]
 
 #

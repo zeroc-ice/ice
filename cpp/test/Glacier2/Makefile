@@ -13,7 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= router \
 		  attack \
-		  accessFiltering \
+		  staticFiltering \
 		  dynamicFiltering \
 		  sessionControl \
 		  ssl

@@ -13,7 +13,7 @@ top_srcdir	= ..\..
 
 SUBDIRS		= router \
 		  attack \
-		  accessFiltering \
+		  staticFiltering \
 		  dynamicFiltering \
 		  sessionControl \
 		  ssl
