@@ -17,6 +17,7 @@
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
+#include <list>
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -1617,8 +1618,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             }
         }
 
-        fd_set fdsToClose;
-        int fdMax = 0;
+	list<int> fdsToClose;
         if(_closeFiles)
         {
             //
@@ -1627,8 +1627,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             // have an opportunity to use stdin/stdout/stderr if necessary. This also
             // conveniently allows the Ice.PrintProcessId property to work as expected.
             //
-            FD_ZERO(&fdsToClose);
-            fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
+            int fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
             if(fdMax <= 0)
             {
                 SyscallException ex(__FILE__, __LINE__);
@@ -1640,10 +1639,15 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             {
                 if(fcntl(i, F_GETFL) != -1)
                 {
-                    FD_SET(i, &fdsToClose);
+		    //
+		    // Don't close the write end of the pipe.
+		    //
+		    if(i != fds[1])
+		    {
+		       fdsToClose.push_back(i);
+		    }
                 }
             }
-            FD_CLR(fds[1], &fdsToClose); // Don't close the write end of the pipe.
         }
 
         //
@@ -1669,19 +1673,17 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
 	    string stdOut = properties->getProperty("Ice.StdOut");
 	    string stdErr = properties->getProperty("Ice.StdErr");
 
-            for(int i = 0; i < fdMax; ++i)
+	    list<int>::const_iterator p;
+	    for(p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
             {
 		//
 		// NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
 		//
-		if((i == 1 && !stdOut.empty()) || (i == 2 && !stdErr.empty()))
+		if((*p == 1 && !stdOut.empty()) || (*p == 2 && !stdErr.empty()))
 		{
 		    continue;
 		}
-                if(FD_ISSET(i, &fdsToClose))
-                {
-                    close(i);
-                }
+                close(*p);
             }
 
             //
