@@ -20,7 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Glacier2", "filters")
+name = os.path.join("Glacier2", "dynamicFiltering")
 testdir = os.path.join(toplevel, "test", name)
 
 server = os.path.join(testdir, "server")

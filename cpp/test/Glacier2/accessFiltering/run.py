@@ -201,7 +201,7 @@ def pingProgress():
 for testcase in testcases:
     description, args, attacks, xtraConfig = testcase
     acceptFilter, rejectFilter, maxEndpoints, categoryFilter, idFilter, adapterFilter = args
-    testdir = os.path.join(toplevel, 'test', 'Glacier2', 'addressFilter')
+    testdir = os.path.join(toplevel, 'test', 'Glacier2', 'accessFiltering')
 
     #
     # The test client performs multiple tests during one 'run'. We could
