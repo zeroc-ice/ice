@@ -30,7 +30,9 @@ TARGETS         = $(LIBNAME) $(DLLNAME) $(SVCLIBNAME) $(SVCDLLNAME)
 OBJS		= IceStorm.obj \
 
 
-SERVICE_OBJS	= IceStorm.obj \
+SERVICE_OBJS	= IceStormInternal.obj \
+		  LinkRecord.obj \
+		  IceStorm.obj \
 		  Instance.obj \
 		  TraceLevels.obj \
 		  BatchFlusher.obj \
@@ -39,8 +41,6 @@ SERVICE_OBJS	= IceStorm.obj \
 		  TopicI.obj \
 		  TopicManagerI.obj \
                   PersistentTopicMap.obj \
-		  LinkRecord.obj \
-		  IceStormInternal.obj \
 		  Event.obj \
 		  Service.obj
 

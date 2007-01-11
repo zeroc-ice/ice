@@ -101,14 +101,17 @@ REGISTRY_SVR_OBJS = \
 		  $(COMMON_OBJS) \
 		  $(REGISTRY_OBJS) \
 		  IceGridRegistry.obj
-		    
-SRCS		= $(LIB_OBJS:.obj=.cpp) \
-		  $(ADMIN_OBJS:.obj=.cpp) \
+
+!ifdef BUILD_UTILS
+SRCS            = $(ADMIN_OBJS:.obj=.cpp) \
 		  $(COMMON_OBJS:.obj=.cpp) \
 		  $(NODE_OBJS:.obj=.cpp) \
 		  $(REGISTRY_OBJS:.obj=.cpp) \
 		  IceGridNode.cpp \
 		  IceGridRegistry.cpp
+!else
+SRCS		= $(LIB_OBJS:.obj=.cpp)
+!endif
 
 HDIR		= $(includedir)\IceGrid
 SDIR		= $(slicedir)\IceGrid

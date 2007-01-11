@@ -34,26 +34,36 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I. -I$(ORACLE_HOME)\precomp\public $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+#
+# Disable warnings 4101 and 4291 issued when compiling DbTypes.cpp
+#
+CPPFLAGS	= -I. -I$(ORACLE_HOME)\oci\include -wd4101 -wd4291 $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-ORACLE_LIBS     = /LIBPATH:$(ORACLE_HOME)\precomp\lib oraocci10$(LIBSUFFIX).lib
+!if "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
+ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc8" oraocci10$(LIBSUFFIX).lib
+!elseif "$(CPP_COMPILER)" == "VC71"
+ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc71" oraocci10$(LIBSUFFIX).lib
+!else
+!error "$(CPP_COMPILER) is not supported by this demo"
+!endif
+
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
 
 
 DbTypes.h DbTypes.cpp DbTypesMap.h DbTypesMap.cpp DbTypesOut.typ: DbTypes.typ
 	ott userid=scott/tiger@orcl code=cpp hfile=DbTypes.h cppfile=DbTypes.cpp mapfile=DbTypesMap.cpp \
-	  intype=DbTypes outtype=DbTypesOut.typ attraccess=private
+	  intype=DbTypes.typ outtype=DbTypesOut.typ attraccess=private
 
 clean::
 	del /q HR.cpp HR.h

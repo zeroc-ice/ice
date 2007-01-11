@@ -103,7 +103,7 @@ SLICE2DOCBOOK		= $(bindir)\slice2docbook.exe
 EVERYTHING		= all clean install
 
 .SUFFIXES:
-.SUFFIXES:		.cpp .c .obj .ice
+.SUFFIXES:		.ice .cpp .c .obj
 
 .cpp.obj::
 	$(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
@@ -117,7 +117,7 @@ EVERYTHING		= all clean install
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
 
-.ice.h:
+.ice.cpp:
 	del /q $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 

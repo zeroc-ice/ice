@@ -33,21 +33,17 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I$(ORACLE_HOME)\precomp\public -DSQLCA_NONE $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I"$(ORACLE_HOME)\precomp\public" -DSQLCA_NONE $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
 
-ORACLE_LIBS     = -L$(ORACLE_HOME)\precomp\lib orasql10$(LIBSUFFIX).lib
+ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\precomp\lib" orasql10.lib
 
 .SUFFIXES:
-.SUFFIXES:		.pc .cpp .c .o
+.SUFFIXES:		.ice .pc .cpp .c .obj
 
-#
-# The rm -f tp* $*.lis is to work around a proc bug on Linux
-#
 .pc.cpp:
 	proc threads=yes parse=none lines=yes code=cpp cpp_suffix=cpp close_on_commit=yes $<
-	del /q tp* $*.lis
 
 !if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
@@ -58,7 +54,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
+	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(ORACLE_LIBS)
 
 clean::
 	del /q HR.cpp HR.h

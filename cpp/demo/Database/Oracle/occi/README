@@ -20,6 +20,9 @@ a platform and C++ compiler supported by both Ice and OCCI.
 With Oracle server 10.2, the corresponding SQL script is 
 $ORACLE_HOME/rdbms/admin/utilsamp.sql.
 
+- Ensure that your user (by default, scott) has the CREATE VIEW 
+privilege
+
 - Create object types and views using the provided createTypes.sql 
   script, e.g.
   % sqlplus /nolog
