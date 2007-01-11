@@ -250,7 +250,7 @@ for testcase in testcases:
     routerCmd = router + serverOptions + " --Ice.Config=%s" % os.path.join(testdir, "router.cfg") + \
           r' --Ice.OA.Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
           r' --Ice.OA.Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
-          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/addressFilter/passwords"' 
+          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/staticFiltering/passwords"' 
 
     routerConfig = file(os.path.join(testdir, "router.cfg"), "w")
 
