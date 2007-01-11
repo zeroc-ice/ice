@@ -57,6 +57,8 @@
         <ant dir="stream" target="clean"/>
         <ant dir="retry" target="clean"/>
         <ant dir="timeout" target="clean"/>
+        <ant dir="servantLocator" target="clean"/>
+        <ant dir="servantLocatorAMD" target="clean"/>
     </target>
 
 </project>
