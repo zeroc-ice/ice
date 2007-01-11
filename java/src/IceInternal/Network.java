@@ -245,32 +245,64 @@ public final class Network
         {
             if(!fd.connect(addr))
             {
-                int delay;
-                if(timeout > 0 && timeout < 100)
-                {
-                    delay = timeout;
-                }
-                else
-                {
-                    delay = 100; // 100 ms
-                }
+		java.nio.channels.Selector selector = java.nio.channels.Selector.open();
+		try
+		{
+		    while(true)
+		    {
+			try
+			{
+			    java.nio.channels.SelectionKey key =
+				fd.register(selector, java.nio.channels.SelectionKey.OP_CONNECT);
+			    int n;
+			    if(timeout > 0)
+			    {
+				n = selector.select(timeout);
+			    }
+			    else if(timeout == 0)
+			    {
+				n = selector.selectNow();
+			    }
+			    else
+			    {
+				n = selector.select();
+			    }
+			    
+			    if(n == 0)
+			    {
+				closeSocketNoThrow(fd);
+				throw new Ice.ConnectTimeoutException();
+			    }
+			    
+			    break;
+			}
+			catch(java.io.IOException ex)
+			{
+			    if(interrupted(ex))
+			    {
+				continue;
+			    }
+			    Ice.SocketException se = new Ice.SocketException();
+			    se.initCause(ex);
+			    throw se;
+			}
+		    }
+		}
+		finally
+		{
+		    try
+		    {
+			selector.close();
+		    }
+		    catch(java.io.IOException ex)
+		    {
+			// Ignore
+		    }
+		}
 
-                int timer = 0;
-                while(!fd.finishConnect())
+                if(!fd.finishConnect())
                 {
-                    if(timeout > 0 && timer >= timeout)
-                    {
-                        closeSocketNoThrow(fd);
-                        throw new Ice.ConnectTimeoutException();
-                    }
-                    try
-                    {
-                        Thread.sleep(delay);
-                        timer += delay;
-                    }
-                    catch(InterruptedException ex)
-                    {
-                    }
+		    throw new Ice.ConnectFailedException();
                 }
             }
         }
