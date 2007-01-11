@@ -126,9 +126,10 @@ if [ "%{_libdir}" != "/%{_lib}" ]; then
   done
   rm $RPM_BUILD_ROOT/rootfile
 
-  ln -sf ${root}/%{_lib}/libdb-%{__soversion}.so $RPM_BUILD_ROOT/%{_libdir}/libdb.so
+  mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/db45
+  ln -sf ${root}/../%{_lib}/libdb-%{__soversion}.so $RPM_BUILD_ROOT/%{_libdir}/db45/libdb.so
   ln -sf ${root}/%{_lib}/libdb-%{__soversion}.so $RPM_BUILD_ROOT/%{_libdir}/
-  ln -sf libdb_cxx-%{__soversion}.so $RPM_BUILD_ROOT/%{_libdir}/libdb_cxx.so
+  ln -sf ${root}/..%{_libdir}/libdb_cxx-%{__soversion}.so $RPM_BUILD_ROOT/%{_libdir}/db45/libdb_cxx.so
 fi
 
 # Move the header files to a subdirectory, in case we're deploying on a
@@ -169,8 +170,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(-,root,root)
 %doc LICENSE README
 /%{_lib}/libdb-%{__soversion}.so
-%{_libdir}/libdb-%{__soversion}.so
 %{_libdir}/libdb_cxx-%{__soversion}.so
+%{_libdir}/libdb-%{__soversion}.so
 
 %files utils
 %{_bindir}/db45/berkeley_db*_svc
@@ -189,6 +190,8 @@ rm -rf ${RPM_BUILD_ROOT}
 %files devel
 %defattr(-,root,root)
 %{_includedir}/%{name}
+%{_libdir}/db45/libdb.so
+%{_libdir}/db45/libdb_cxx.so
 
 %ifarch %{java_arches}
 %files java
