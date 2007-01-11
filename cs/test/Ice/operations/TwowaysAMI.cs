@@ -1298,6 +1298,7 @@ public class TwowaysAMI
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
+/* DEPRECATED
 		Ice.Context dflt = new Ice.Context();
 		dflt["a"] = "b";
 		communicator.setDefaultContext(dflt);
@@ -1380,6 +1381,7 @@ public class TwowaysAMI
 		}
 
 		communicator.setDefaultContext(new Ice.Context());
+*/
 	    }
         }
 

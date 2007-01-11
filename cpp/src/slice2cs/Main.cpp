@@ -143,8 +143,6 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    cerr << cppArgs << endl;
-    
     for(i = args.begin(); i != args.end(); ++i)
     {
 	if(depend)

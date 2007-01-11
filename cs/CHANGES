@@ -86,6 +86,9 @@ Changes since version 3.1.1
 
 - Removed defaultContext from InitializationData
 
+- Communicator::setDefaultContext() and Communicator::getDefaultContext()
+  have been deprecated.
+
 - Fixed a bug where loading an Ice plugin or an IceBox service could
   result in a System.NullReferenceException if no constructors are
   available to create the plugin or service instance.

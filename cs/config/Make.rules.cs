@@ -180,7 +180,6 @@ $(GDIR)/%.cs: $(SDIR)/%.ice
 all:: $(TARGETS)
 
 depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE_SAMD_SRCS)
-	echo "slicedir: $(slicedir)"
 	-rm -f .depend
 	if test -n "$(SLICE_SRCS)" ; then \
 	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | \

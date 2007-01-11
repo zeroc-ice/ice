@@ -179,6 +179,9 @@ Changes since version 3.1.1
 
 - Removed defaultContext from InitializationData
 
+- Communicator::setDefaultContext() and Communicator::getDefaultContext()
+  have been deprecated.
+
 - Ice now uses the epoll() system call on Linux and the poll() system
   call on other Unix platforms instead of select().
 

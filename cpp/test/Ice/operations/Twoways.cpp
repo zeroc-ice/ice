@@ -645,6 +645,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    //
 	    // Test that default context is obtained correctly from communicator.
 	    //
+/* DEPRECATED
 	    Ice::Context dflt;
 	    dflt["a"] = "b";
 	    communicator->setDefaultContext(dflt);
@@ -683,6 +684,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    test(c5->opContext()["a"] == "d");
 
 	    communicator->setDefaultContext(Ice::Context());
+*/
 	}
 	
 	{

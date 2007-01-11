@@ -600,6 +600,7 @@ class Twoways
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
+/* DEPRECATED
 		Ice.Context dflt = new Ice.Context();
 		dflt["a"] = "b";
 		communicator.setDefaultContext(dflt);
@@ -637,6 +638,7 @@ class Twoways
 		test(c5.opContext()["a"].Equals("d"));
 
 		communicator.setDefaultContext(new Ice.Context());
+*/
 	    }
 	}
 	{

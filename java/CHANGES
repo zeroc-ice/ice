@@ -85,6 +85,9 @@ Changes since version 3.1.1
 
 - Removed defaultContext from InitializationData
 
+- Communicator::setDefaultContext() and Communicator::getDefaultContext()
+  have been deprecated.
+
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
 

@@ -624,6 +624,7 @@ class Twoways
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
+/* DEPRECATED
 		java.util.HashMap dflt = new java.util.HashMap();
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
@@ -661,6 +662,7 @@ class Twoways
 		test(c5.opContext().get("a").equals("d"));
 
 		communicator.setDefaultContext(new java.util.HashMap());
+*/
 	    }
 	}
 	{

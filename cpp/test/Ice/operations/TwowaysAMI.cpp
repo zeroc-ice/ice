@@ -1238,6 +1238,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    //
 	    // Test that default context is obtained correctly from communicator.
 	    //
+/* DEPRECATED
 	    Ice::Context dflt;
 	    dflt["a"] = "b";
 	    communicator->setDefaultContext(dflt);
@@ -1320,6 +1321,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 	    }
 
 	    communicator->setDefaultContext(Ice::Context());
+*/
 	}
 
 	{

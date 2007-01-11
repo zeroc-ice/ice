@@ -1452,6 +1452,7 @@ class TwowaysAMI
 		//
 		// Test that default context is obtained correctly from communicator.
 		//
+/* DEPRECATED
 		java.util.HashMap dflt = new java.util.HashMap();
 		dflt.put("a", "b");
 		communicator.setDefaultContext(dflt);
@@ -1534,6 +1535,7 @@ class TwowaysAMI
 		}
 
 		communicator.setDefaultContext(new java.util.HashMap());
+*/
 	    }
 	}
 

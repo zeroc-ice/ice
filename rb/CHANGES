@@ -1,6 +1,4 @@
-NOTE: Please keep changes in the appropriate section for HEAD or 3.1.
-
-Changes since version 3.1.1 (HEAD)
+Changes since version 3.1.1
 ---------------------------     
 
 - Plug-in is now compatible with ruby 1.8.1.
@@ -44,6 +42,9 @@ Changes since version 3.1.1 (HEAD)
               access to this Context
 
 - Removed defaultContext from InitializationData
+
+- Communicator::setDefaultContext() and Communicator::getDefaultContext()
+  have been deprecated.
 
 - Changed the mapping of sequence<byte> for performance reasons:
 
