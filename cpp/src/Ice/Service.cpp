@@ -17,7 +17,6 @@
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
-#include <list>
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -1618,7 +1617,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             }
         }
 
-	list<int> fdsToClose;
+	vector<int> fdsToClose;
         if(_closeFiles)
         {
             //
@@ -1673,7 +1672,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
 	    string stdOut = properties->getProperty("Ice.StdOut");
 	    string stdErr = properties->getProperty("Ice.StdErr");
 
-	    list<int>::const_iterator p;
+	    vector<int>::const_iterator p;
 	    for(p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
             {
 		//
