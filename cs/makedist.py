@@ -129,7 +129,7 @@ for x in slicedirs:
 
 #
 # Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
+# and slice2html first.
 #
 if not skipDocs:
     print "Generating documentation..."
