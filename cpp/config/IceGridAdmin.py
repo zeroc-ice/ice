@@ -123,7 +123,7 @@ def shutdownIceGridRegistry():
         i = i - 1
 
     print "shutting down icegrid registry...",
-    iceGridAdmin("shutdown")
+    iceGridAdmin("registry shutdown")
     print "ok"
 
 def startIceGridNode(testdir):
@@ -163,7 +163,7 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     iceGridAdmin = os.path.join(toplevel, "bin", "icegridadmin")
 
     user = r"admin1"
-    if cmd == "shutdown":
+    if cmd == "registry shutdown":
 	user = r"shutdown"
     command = iceGridAdmin + TestUtil.clientOptions + ' ' + getDefaultLocatorProperty() + \
               r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
