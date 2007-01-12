@@ -359,7 +359,7 @@ IceUtil::match(const string& s, const string& pat, bool emptyMatch)
     //
     // Make sure start of the strings match
     //
-    if(s.substr(0, beginIndex) != pat.substr(0, beginIndex))
+    if(beginIndex > s.length() || s.substr(0, beginIndex) != pat.substr(0, beginIndex))
     {
         return false;
     }
@@ -368,7 +368,12 @@ IceUtil::match(const string& s, const string& pat, bool emptyMatch)
     // Make sure there is something present in the middle to match the
     // wildcard. If emptyMatch is true, allow a match of "".
     //
-    string::size_type endIndex = s.length() - (pat.length() - beginIndex - 1);
+    string::size_type endLength = pat.length() - beginIndex - 1;
+    if(endLength > s.length())
+    {
+        return false;
+    }
+    string::size_type endIndex = s.length() - endLength;
     if(endIndex < beginIndex || (!emptyMatch && endIndex == beginIndex))
     {
         return false;
