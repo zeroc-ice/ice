@@ -237,7 +237,7 @@ Parser::usage(const string& category, const list<string>& args)
 {
     if(args.empty())
     {
-	return usage(category);
+	usage(category);
     }
     else if(args.size() > 1)
     {
