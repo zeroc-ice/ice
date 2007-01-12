@@ -976,7 +976,8 @@ def main():
         #
         sourceTarBalls = [ ('ice', 'Ice-%s' % version, ''),
 			   ('icephp','IcePHP-%s' % version, 'php'),
-                           ('icej','IceJ-%s-java2' % version, 'j') ]
+                           ('icej','IceJ-%s-java2' % version, 'j'),
+			   ('icerb', 'IceRuby-%s' % version, 'rb')]
 
 	if not getPlatform() in ['aix', 'solaris', 'hpux']:
 	    sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
@@ -1053,7 +1054,7 @@ def main():
 	#
 	cvsDirs = [ 'ice', 'icej', 'icephp' ]
 	if getPlatform() == 'linux':
-	    cvsDirs.append('icecs', 'icepy')
+	    cvsDirs.append('icecs', 'icepy', 'icerb')
 
         os.environ['ICE_HOME'] = os.getcwd()  
         currentLibraryPath = None
