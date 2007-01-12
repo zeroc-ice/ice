@@ -33,6 +33,174 @@ using namespace IceUtil;
 using namespace Ice;
 using namespace IceGrid;
 
+static const char* _commandsHelp[][3] = {
+{ "application", "add", 
+"application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+"                          Add application described in DESC. If specified\n"
+"                          the optional targets TARGET will be deployed.\n" 
+},
+{ "application", "remove", 
+"application remove NAME   Remove application NAME.\n" 
+},
+{ "application", "describe",
+"application describe NAME Describe application NAME.\n" 
+},
+{ "application", "diff",
+"application diff DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+"                          Print the differences betwen the application\n"
+"                          described in DESC and the current deployment.\n" 
+},
+{ "application", "update",
+"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
+"                          Update the application described in DESC.\n"
+},
+{ "application", "patch",
+"application patch [-f | --force] NAME\n"
+"                          Patch the given application data. If -f or --force is\n"
+"                          specified, the servers depending on the data to patch\n"
+"                          will be stopped if necessary.\n"
+},
+{ "application", "list",
+"application list          List all deployed applications.\n" 
+},
+{ "server template", "instantiate", 
+"server template instantiate APPLICATION NODE TEMPLATE [NAME=VALUE ...]\n"
+"                          Instantiate a server template.\n" 
+},
+{ "server template", "describe", 
+"server template describe APPLICATION TEMPLATE\n" 
+"                          Describe application server template TEMPLATE.\n" 
+},
+{ "service template", "describe",
+"service template describe APPLICATION TEMPLATE\n" 
+"                          Describe application service template TEMPLATE.\n" 
+},
+{ "node", "list",
+"node list                 List all registered nodes.\n" 
+},
+{ "node", "describe", 
+"node describe NAME        Show information about node NAME.\n" 
+},
+{ "node", "ping",
+"node ping NAME            Ping node NAME.\n" 
+},
+{ "node", "load",
+"node load NAME            Print the load of the node NAME.\n" 
+},
+{ "node", "dump",
+"node dump [OPTIONS] NAME [stderr | stdout]\n"
+"                          Dump node NAME stderr or stdout.\n"
+"                          Options:\n"
+"                           -f | --follow: Wait for new data to be available\n"
+"                           -t N | --tail N: Print the last N lines\n"
+"                           -h N | --head N: Print the first N lines\n"
+},
+{ "node", "shutdown",
+"node shutdown NAME        Shutdown node NAME.\n" 
+},
+{ "registry", "list",
+"registry list             List all registered registrys.\n" 
+},
+{ "registry", "describe",
+"registry describe NAME    Show information about registry NAME.\n" 
+},
+{ "registry", "ping",
+"registry ping NAME        Ping registry NAME.\n" 
+},
+{ "registry", "dump",
+"registry dump [OPTIONS] NAME [stderr | stdout]\n" 
+"                          Dump registry NAME stderr or stdout.\n" 
+"                          Options:\n"
+"                           -f | --follow: Wait for new data to be available\n"
+"                           -t N | --tail N: Print the last N lines\n"
+"                           -h N | --head N: Print the first N lines\n"
+},
+{ "registry", "shutdown",
+"registry shutdown NAME    Shutdown registry NAME.\n" 
+},
+{ "server", "list",
+"server list               List all registered servers.\n" 
+},
+{ "server", "remove",
+"server remove ID          Remove server ID.\n" 
+},
+{ "server", "describe", 
+"server describe ID        Describe server ID.\n" 
+},
+{ "server", "state",
+"server state ID           Get the state of server ID.\n" 
+},
+{ "server", "pid",
+"server pid ID             Get the process id of server ID.\n" 
+},
+{ "server", "start",
+"server start ID           Start server ID.\n" 
+},
+{ "server", "stop",
+"server stop ID            Stop server ID.\n" 
+},
+{ "server", "patch",
+ "server patch ID           Patch server ID.\n" 
+},
+{ "server", "signal", 
+"server signal ID SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n" 
+},
+{ "server", "stdout",
+"server stdout ID MESSAGE  Write MESSAGE on server ID's stdout.\n" 
+},
+{ "server", "stderr",
+"server stderr ID MESSAGE  Write MESSAGE on server ID's stderr.\n" 
+},
+{ "server", "dump",
+"server dump [OPTIONS] ID [stderr | stdout | LOGFILE ]\n"
+"                          Dump server ID stderr, stdout or log file LOGFILE.\n"
+"                          Options:\n"
+"                           -f | --follow: Wait for new data to be available\n"
+"                           -t N | --tail N: Print the last N lines\n"
+"                           -h N | --head N: Print the first N lines\n"
+},
+{ "server", "enable",
+"server enable ID          Enable server ID.\n" 
+},
+{ "server", "disable",
+"server disable ID         Disable server ID (a disabled server can't be\n"
+"                          started on demand or administratively).\n" 
+},
+
+{ "adapter", "list",
+"adapter list              List all registered adapters.\n" 
+},
+{ "adapter", "endpoints",
+"adapter endpoints ID      Show the endpoints of adapter or replica group ID.\n" 
+},
+{ "adapter", "remove",
+ "adapter remove ID        Remove adapter or replica group ID.\n" 
+},
+{ "object", "add",
+"object add PROXY [TYPE]   Add an object to the object registry,\n"
+"                          optionally specifying its type.\n" 
+},
+{ "object", "remove",
+"object remove IDENTITY    Remove an object from the object registry.\n" 
+},
+{ "object", "find",
+"object find TYPE          Find all objects with the type TYPE.\n" 
+},
+{ "object", "describe",
+"object describe EXPR      Describe all registered objects whose stringified\n" 
+"                          identities match the expression EXPR. A trailing\n"
+"                          wildcard is supported in EXPR, for example\n"
+"                          \"object describe Ice*\".\n"
+},
+{ "object", "list",
+"object list EXPR          List all registered objects whose stringified\n"
+"                          identities match the expression EXPR. A trailing\n"
+"                          wildcard is supported in EXPR, for example\n"
+"                          \"object list Ice*\".\n" 
+},
+{ 0, 0, 0 }
+};
+
 namespace IceGrid
 {
 
@@ -47,88 +215,60 @@ Parser::createParser(const CommunicatorPtr& communicator, const AdminSessionPrx&
     return new Parser(communicator, session, admin, interactive);
 }
 
+void 
+Parser::usage(const string& category, const string& command)
+{
+    if(_helpCommands.find(category) == _helpCommands.end())
+    {
+	invalidCommand("unknown category `" + category + "'");
+    }
+    else if(_helpCommands[category].find(command) == _helpCommands[category].end())
+    {
+	invalidCommand("unknown command `" + category + " " + command + "'");
+    }
+    else
+    {
+	cout << _helpCommands[category][command];
+    }
+}
+
+void
+Parser::usage(const string& category, const list<string>& args)
+{
+    if(args.empty())
+    {
+	return usage(category);
+    }
+    else if(args.size() > 1)
+    {
+	invalidCommand("`help' requires at most 1 argument");
+    }
+    else 
+    {
+	usage(category, *args.begin());
+    }
+}
+
 void
 Parser::usage()
 {
-    cout <<
-        "help                        Print this message.\n"
-        "exit, quit                  Exit this program.\n"
-	"\n"
-	"application add [-n | --no-patch] DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-	"                            Add application described in DESC. If specified\n"
-        "                            the optional targets TARGET will be deployed.\n"
-	"application remove NAME     Remove application NAME.\n"
-	"application describe NAME   Describe application NAME.\n"
-	"application diff DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-        "                            Print the differences betwen the application\n"
-        "                            described in DESC and the current deployment.\n"
-	"application update DESC [TARGET ... ] [NAME=VALUE ... ]\n"
-	"                            Update the application described in DESC.\n"
-	"application patch [-f | --force] NAME\n"
-	"                            Patch the given application data. If -f or --force is\n"
-	"                            specified, the servers depending on the data to patch\n"
-	"                            will be stopped if necessary.\n"
-	"application list            List all deployed applications.\n"
-        "\n"
-	"server template instantiate APPLICATION NODE TEMPLATE [NAME=VALUE ...]\n"
-	"                            Instantiate a server template.\n"
-	"server template describe APPLICATION TEMPLATE\n"
-        "                            Describe application server template TEMPLATE.\n"
-	"\n"
-	"service template describe APPLICATION TEMPLATE\n"
-        "                            Describe application service template TEMPLATE.\n"
-	"\n"
-	"node list                   List all registered nodes.\n"
-        "node describe NAME          Show information about node NAME.\n"
-	"node ping NAME              Ping node NAME.\n"
-	"node load NAME              Print the load of the node NAME.\n"
-	"node dump NAME [stderr | stdout]\n"
-        "                            Dump node NAME stderr or stdout.\n"
-	"node shutdown NAME          Shutdown node NAME.\n"
-	"\n"
-	"registry list               List all registered registrys.\n"
-        "registry describe NAME      Show information about registry NAME.\n"
-	"registry ping NAME          Ping registry NAME.\n"
-	"registry dump NAME [stderr | stdout]\n"
-        "                            Dump registry NAME stderr or stdout.\n"
-	"registry shutdown NAME      Shutdown registry NAME.\n"
-	"\n"
-        "server list                 List all registered servers.\n"
-        "server remove ID            Remove server ID.\n"
-        "server describe ID          Describe server ID.\n"
-	"server state ID             Get the state of server ID.\n"
-	"server pid ID               Get the process id of server ID.\n"
-	"server start ID             Start server ID.\n"
-	"server stop ID              Stop server ID.\n"
-	"server patch ID             Patch server ID.\n"
-        "server signal ID SIGNAL     Send SIGNAL (e.g. SIGTERM or 15) to server ID.\n"
-        "server stdout ID MESSAGE    Write MESSAGE on server ID's stdout.\n"
-	"server stderr ID MESSAGE    Write MESSAGE on server ID's stderr.\n"
-	"server dump ID [stderr | stdout | LOGFILE ]\n"
-        "                            Dump server ID stderr, stdout or log file LOGFILE.\n"
-	"server enable ID            Enable server ID.\n"
-	"server disable ID           Disable server ID (a disabled server can't be\n"
-        "                            started on demand or administratively).\n"
-	"\n"
-        "adapter list                List all registered adapters.\n"
-	"adapter endpoints ID        Show the endpoints of adapter or replica group ID.\n"
-	"adapter remove ID           Remove adapter or replica group ID.\n"
-	"\n"
-	"object add PROXY [TYPE]     Add an object to the object registry,\n"
-	"                            optionally specifying its type.\n"
-	"object remove IDENTITY      Remove an object from the object registry.\n"
-	"object find TYPE            Find all objects with the type TYPE.\n"
-	"object describe EXPR        Describe all registered objects whose stringified\n"
-        "                            identities match the expression EXPR. A trailing\n"
-	"                            wildcard is supported in EXPR, for example\n"
-	"                            \"object describe Ice*\".\n"
-	"object list EXPR            List all registered objects whose stringified\n"
-        "                            identities match the expression EXPR. A trailing\n"
-	"                            wildcard is supported in EXPR, for example\n"
-	"                            \"object list Ice*\".\n"
-	"\n"
-        "shutdown                    Shut the IceGrid registry down.\n"
-	;
+     cout <<
+         "help                        Print this message.\n"
+         "exit, quit                  Exit this program.\n"
+	 "CATEGORY help               Print the help section of the given CATEGORY.\n"
+	 "COMMAND help                Print the help of the given COMMAND.\n"
+	 "\n"
+	 "List of help categories:\n"
+	 "\n"
+         "  application: commands to manage applications\n" 
+         "  node: commands to manage nodes\n" 
+         "  registry: commands to manage registries\n" 
+         "  server: commands to manage servers\n" 
+         "  adapter: commands to manage adapters\n" 
+         "  object: commands to manage objects\n"
+         "  server template: commands to manage server templates\n" 
+         "  service template: commands to manage service templates\n" 
+	 "\n";
 }
 
 void
@@ -246,6 +386,12 @@ Parser::addApplication(const list<string>& origArgs)
 void
 Parser::removeApplication(const list<string>& args)
 {
+    if(args.size() != 1)
+    {
+	invalidCommand("`application remove' requires exactly one argument");
+	return;
+    }
+
     if(args.size() != 1)
     {
 	invalidCommand("`application remove' requires exactly one argument");
@@ -729,15 +875,22 @@ Parser::pingRegistry(const list<string>& args)
 void
 Parser::shutdownRegistry(const list<string>& args)
 {
-    if(args.size() != 1)
+    if(args.size() > 1)
     {
-	invalidCommand("`registry shutdown' requires exactly one argument");
+	invalidCommand("`registry shutdown' requires at most one argument");
 	return;
     }
 
     try
     {
-	_admin->shutdownRegistry(args.front());
+	if(args.empty())
+	{
+	    _admin->shutdown();
+	}
+	else
+	{
+	    _admin->shutdownRegistry(args.front());
+	}
     }
     catch(const Ice::Exception& ex)
     {
@@ -1269,19 +1422,6 @@ Parser::listObject(const list<string>& args)
 	{
 	    cout << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
 	}	
-    }
-    catch(const Ice::Exception& ex)
-    {
-	exception(ex);
-    }
-}
-
-void
-Parser::shutdown()
-{
-    try
-    {
-	_admin->shutdown();
     }
     catch(const Ice::Exception& ex)
     {
@@ -1835,6 +1975,14 @@ Parser::Parser(const CommunicatorPtr& communicator,
     _interrupted(false),
     _interactive(interactive)
 {
+    for(int i = 0; _commandsHelp[i][0]; i++)
+    {
+	const string category = _commandsHelp[i][0];
+	const string cmd = _commandsHelp[i][1];
+	const string help = _commandsHelp[i][2];
+	_helpCommands[category][""] += help;
+	_helpCommands[category][cmd] += help;
+    }
 }
 
 void

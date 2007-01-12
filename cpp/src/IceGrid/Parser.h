@@ -69,6 +69,8 @@ public:
     static ParserPtr createParser(const Ice::CommunicatorPtr&, const AdminSessionPrx&, const AdminPrx&, bool);
 
     void usage();
+    void usage(const std::string&, const std::string& = std::string());
+    void usage(const std::string&, const std::list<std::string>&);
 
     void interrupt();
     bool interrupted() const;
@@ -120,8 +122,6 @@ public:
     void describeObject(const std::list<std::string>&);
     void listObject(const std::list<std::string>&);
 
-    void shutdown();
-
     void dumpFile(const std::string&, const std::list<std::string>&);
 
     void showBanner();
@@ -161,6 +161,7 @@ private:
     int _currentLine;
     std::string _currentFile;
     bool _interactive;
+    std::map< std::string, std::map<std::string, std::string> > _helpCommands;
 };
 
 extern Parser* parser; // The current parser for bison/flex
