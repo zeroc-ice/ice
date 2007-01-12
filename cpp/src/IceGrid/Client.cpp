@@ -132,6 +132,7 @@ Client::usage()
         "-p, --password       Login with the given password.\n"
         "-s, --ssl            Authenticate through SSL.\n"
         "-r, --routed         Login through a Glacier2 router.\n"
+        "-R, --replica NAME   Connect to the replica NAME.\n"
 	;
 }
 

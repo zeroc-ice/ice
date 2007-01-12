@@ -621,12 +621,12 @@ strings_and_log_filename
 }
 | strings ICE_GRID_STDERR
 {
-    $$ = $2;
+    $$ = $1;
     $$.push_back("stderr");
 }
 | strings ICE_GRID_STDOUT
 {
-    $$ = $2;
+    $$ = $1;
     $$.push_back("stdout");
 }
 ;
