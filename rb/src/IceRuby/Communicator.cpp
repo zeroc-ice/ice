@@ -373,7 +373,7 @@ extern "C"
 VALUE
 IceRuby_Communicator_getDefaultContext(VALUE self)
 {
-    rb_warning("getDefaultContext has been deprecated; use per-proxy contexts or implicit contexts (if applicable) instead.");
+    rb_warning("getDefaultContext is deprecated; use per-proxy contexts or implicit contexts (if applicable) instead.");
 
     ICE_RUBY_TRY
     {
@@ -389,7 +389,7 @@ extern "C"
 VALUE
 IceRuby_Communicator_setDefaultContext(VALUE self, VALUE context)
 {
-    rb_warning("setDefaultContext has been deprecated; use per-proxy contexts or implicit contexts (if applicable) instead.");
+    rb_warning("setDefaultContext is deprecated; use per-proxy contexts or implicit contexts (if applicable) instead.");
 
     ICE_RUBY_TRY
     {

@@ -714,7 +714,7 @@ extern "C"
 static PyObject*
 communicatorSetDefaultContext(CommunicatorObject* self, PyObject* args)
 {
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("setDefaultContext has been deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."));
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("setDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."));
 
     PyObject* dict;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
@@ -749,7 +749,7 @@ extern "C"
 static PyObject*
 communicatorGetDefaultContext(CommunicatorObject* self)
 {
-    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("getDefaultContext has been deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."));
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("getDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead."));
 
     Ice::Context ctx;
     try

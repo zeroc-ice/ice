@@ -316,7 +316,7 @@ local interface Communicator
      *
      * @see setDefaultContext
      **/
-    ["cpp:const", "deprecate:getDefaultContext has been deprecated, use per-proxy contexts or implicit contexts (if applicable) instead"]
+    ["cpp:const", "deprecate:getDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead"]
     Context getDefaultContext();
 
     /**
@@ -333,7 +333,7 @@ local interface Communicator
      * @param ctx The default context to be set.
      * @see getDefaultContext
      **/
-    ["deprecate:setDefaultContext has been deprecated, use per-proxy contexts or implicit contexts (if applicable) instead"]
+    ["deprecate:setDefaultContext is deprecated, use per-proxy contexts or implicit contexts (if applicable) instead"]
     void setDefaultContext(Context ctx);
     
     /**
