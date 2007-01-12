@@ -152,7 +152,7 @@ if not skipDocs:
     os.chdir(os.path.join("ice", "src", "Slice"))
     os.system("gmake")
     os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.chdir(os.path.join("ice", "src", "slice2html"))
     os.system("gmake")
     os.chdir(cwd)
     os.chdir(os.path.join("ice", "doc"))
