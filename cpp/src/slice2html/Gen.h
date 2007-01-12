@@ -47,7 +47,8 @@ protected:
     void printMetaData(const ContainedPtr&);
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool);
 
-    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0);
+    ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0,
+	                   bool = false);
     ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0);
     ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
 
@@ -65,7 +66,7 @@ private:
 
     static ::std::string containedToId(const ContainedPtr&, bool);
     static StringList getTagged(const ::std::string&, ::std::string&);
-    static ::std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&);
+    static ::std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&, bool = false);
     static StringList getContained(const SyntaxTreeBasePtr&);
     static StringList getContainer(const SyntaxTreeBasePtr&);
     static StringList toStringList(const ContainedPtr&);
@@ -75,15 +76,13 @@ private:
     static void getHeaders(const ::std::string&, ::std::string&, ::std::string&);
     static ::std::string getFooter(const ::std::string&);
 
+    ::std::string _indexFooter;
     const Files& _files;
 
     static ::std::string _dir;
     static ::std::string _header1;
     static ::std::string _header2;
     static ::std::string _footer;
-    static ::std::string _indexHeader1;
-    static ::std::string _indexHeader2;
-    static ::std::string _indexFooter;
 };
 
 class StartPageGenerator : private GeneratorBase

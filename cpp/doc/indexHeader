@@ -32,7 +32,10 @@ TITLE
 	    }
 	    .ExpandCollapseButtons {
 	    }
-	    .ECButton {
+	    #ExpandAllButton {
+		cursor: pointer;
+	    }
+	    #CollapseAllButton {
 		cursor: pointer;
 	    }
 	</style>

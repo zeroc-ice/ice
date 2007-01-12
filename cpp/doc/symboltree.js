@@ -85,7 +85,7 @@ symboltree.main = function()
     }
 
     //
-    // Save expanded list indexes in cookie on page unload.
+    // Save expanded list indexes in cookie when page unloads.
     //
     window.addEventListener('unload', symboltree.save, false);
 
@@ -95,7 +95,7 @@ symboltree.main = function()
     symboltree.restore();
 
     //
-    // Set image and handler for the "expand all" and "collapse" all buttons.
+    // Set handler for the "Expand All" and "Collapse All" buttons.
     //
     var expandAll = document.getElementById('ExpandAllButton');
     expandAll.addEventListener('click', symboltree.expandAll, false);

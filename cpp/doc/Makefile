@@ -22,9 +22,15 @@ SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
 
 include $(top_srcdir)/config/Make.rules
 
+IMAGES		= images
+JAVASCRIPT	= symboltree.js
+
 reference/index.html: $(SLICEFILES)
-	rm -rf reference
-	slice2html --ice -I../slice --hdr=htmlHeader --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
+	make clean
+	slice2html --ice -I../slice --hdr=htmlHeader --indexhdr=indexHeader --indexftr=indexFooter --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
+	mkdir reference/$(IMAGES)
+	cp $(IMAGES)/*.gif reference/$(IMAGES)
+	cp $(JAVASCRIPT) reference
 
 clean::
 	rm -rf reference
@@ -40,11 +46,11 @@ install::
 	    echo "Installing HTML..." ; \
 	    $(call installdata,README.html,$(install_docdir)) ; \
 	    $(call installdata,reference/*.html,$(install_docdir)/reference) ; \
-	    if test ! -d $(install_docdir)/reference/stylesheet-images ; \
+	    if test ! -d $(install_docdir)/reference/$(IMAGES) ; \
 	    then \
-		echo "Creating $(install_docdir)/reference/stylesheet-images..." ; \
-		$(call mkdir,$(install_docdir)/reference/stylesheet-images) ; \
+		echo "Creating $(install_docdir)/reference/$(IMAGES)... ; \
+		$(call mkdir,$(install_docdir)/reference/$(IMAGES)) ; \
 	    fi ; \
 	    echo "Installing images..." ; \
-	    $(call installdata,images/*.gif,$(install_docdir)/reference/stylesheet-images) ; \
+	    $(call installdata,$(IMAGES)/*.gif,$(install_docdir)/reference/$(IMAGES)) ; \
 	fi

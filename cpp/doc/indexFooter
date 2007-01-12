@@ -1,0 +1,4 @@
+	<script type="text/javascript" src="symboltree.js">
+	    symboltree.main();
+	</script>
+    </body>
