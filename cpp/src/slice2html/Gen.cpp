@@ -108,7 +108,7 @@ Slice::GeneratorBase::setOutputDir(const string& dir)
 
 //
 // Get the headers. If "header" is empty, use a default header.
-// If a header file is specified, it is expected to end in <body>
+// If a header file is specified, it is expected to include <body>
 // and to contain a "TITLE" placeholder line (in column 1, no leading
 // or trailing white space). The actual document title is later substituted
 // where that TITLE placeholder appears.
@@ -121,7 +121,7 @@ Slice::GeneratorBase::setHeader(const string& header)
 
 //
 // Get the footer. If "footer" is empty, use a default footer.
-// The footer is expected to start with </body>.
+// The footer is expected to include </body>.
 //
 void
 Slice::GeneratorBase::setFooter(const string& footer)
@@ -189,6 +189,7 @@ Slice::GeneratorBase::openDoc(const string& file, const string& title, const str
     {
 	_out << h2;
     }
+    _indexFooter = getFooter(footer);
     _out.inc();
     _out.inc();
 }
@@ -233,7 +234,7 @@ Slice::GeneratorBase::closeDoc()
 {
     _out.dec();
     _out.dec();
-    _out << nl << _footer;
+    _out << nl << (!_indexFooter.empty() ? _indexFooter : _footer);
     _out << nl;
 }
 
@@ -543,7 +544,7 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 
 string
 Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool inIndex,
-	                       unsigned* summarySize)
+	                       unsigned* summarySize, bool shortName)
 {
     string anchor;
     string linkpath;
@@ -579,7 +580,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(proxy->_class()->definition());
 	    linkpath = getLinkPath(proxy->_class()->definition(), container, inIndex);
 	}
-	s = getScopedMinimized(proxy->_class(), container);
+	s = getScopedMinimized(proxy->_class(), container, shortName);
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
@@ -595,7 +596,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(definition);
 	    linkpath = getLinkPath(definition, container, inIndex);
 	}
-	s = getScopedMinimized(cl, container);
+	s = getScopedMinimized(cl, container, shortName);
     }
 
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
@@ -606,7 +607,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(ex);
 	    linkpath = getLinkPath(ex, container, inIndex);
 	}
-	s = getScopedMinimized(ex, container);
+	s = getScopedMinimized(ex, container, shortName);
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
@@ -617,7 +618,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(st);
 	    linkpath = getLinkPath(st, container, inIndex);
 	}
-	s = getScopedMinimized(st, container);
+	s = getScopedMinimized(st, container, shortName);
     }
 
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
@@ -628,7 +629,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(en);
 	    linkpath = getLinkPath(en, container, inIndex);
 	}
-	s = getScopedMinimized(en, container);
+	s = getScopedMinimized(en, container, shortName);
     }
 
     OperationPtr op = OperationPtr::dynamicCast(p);
@@ -639,7 +640,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(op);
 	    linkpath = getLinkPath(op, container, inIndex);
 	}
-	s = getScopedMinimized(op, container);
+	s = getScopedMinimized(op, container, shortName);
     }
 
     ParamDeclPtr pd = ParamDeclPtr::dynamicCast(p);
@@ -652,7 +653,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    anchor = getAnchor(op);
 	    linkpath = getLinkPath(op, container, inIndex);
 	}
-	s = getScopedMinimized(op, container);
+	s = getScopedMinimized(op, container, shortName);
     }
     
     if(s.empty())
@@ -675,7 +676,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 		linkpath = getLinkPath(contained, container, inIndex);
 	    }
 	}
-	s = getScopedMinimized(contained, container);
+	s = getScopedMinimized(contained, container, shortName);
     }
 
     if(summarySize)
@@ -891,7 +892,7 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
 	{
 	    path += "/";
 	}
-	path += target.front();
+	path += target.front() == "index" ? "_index" : target.front();
 	target.pop_front();
     }
     return path;
@@ -982,8 +983,13 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
 }
 
 string
-Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container)
+Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container, bool shortName)
 {
+    if(shortName)
+    {
+	return contained->name();
+    }
+
     string s = contained->scoped();
     ContainerPtr p = container;
     ContainedPtr q = ContainedPtr::dynamicCast(p);
@@ -1347,9 +1353,25 @@ Slice::StartPageVisitor::visitModuleStart(const ModulePtr& m)
 TOCGenerator::TOCGenerator(const Files& files, const string& header, const string& footer)
     : GeneratorBase(_out, files)
 {
-    openDoc("toc.html", "Index", header, footer);
-    start("H1");
+    openDoc("_sindex.html", "Index", header, footer);
+    start("h1");
     _out << "Index";
+    end();
+
+    start("table", "ExpandCollapseButton");
+    start("tbody");
+
+    start("td");
+    _out << "<button type=\"button\" id=\"ExpandAllButton\">Expand All"
+	 << "<img class=\"ExpandAllButtonImage\"/></button>";
+    end();
+
+    start("td");
+    _out << "<button type=\"button\" id=\"CollapseAllButton\">Collapse All"
+	 << "<img class=\"ExpandAllButtonImage\"/></button>";
+    end();
+
+    end();
     end();
 }
 
@@ -1369,12 +1391,14 @@ TOCGenerator::generate(const ModulePtr& m)
 void
 TOCGenerator::writeTOC()
 {
-    start("ul");
+    _out << nl << "<ul id=\"SymbolTree\"";
+    _out.inc();
     for(ModuleList::const_iterator i = _modules.begin(); i != _modules.end(); ++i)
     {
 	writeEntry(*i);
     }
-    end();
+    _out.dec();
+    _out << nl << "</ul>";
 }
 
 void
@@ -1448,7 +1472,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
 	cl.sort();
 	cl.unique();
 
-	_out << toString(c, 0, false, true);
+	_out << toString(c, 0, false, true, 0, true);
 	start("ul");
 	for(ContainedList::const_iterator i = cl.begin(); i != cl.end(); ++i)
 	{
@@ -1458,7 +1482,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     }
     else
     {
-	_out << toString(c, 0, false, true);
+	_out << toString(c, 0, false, true, 0, true);
     }
     end();
 }

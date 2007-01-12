@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+	<title>
+TITLE
+	</title>
+	<style>
+	    .Symbol {
+		font-family: "Courier New", Courier, mono;
+	    }
+	    .CollapsibleList {
+	        margin: 0;
+		padding: 0;
+	        list-style-type: none;
+	    }
+	    .ListEntry {
+		padding-left: 20px;
+	    }
+	    .CollapsedList {
+	        list-style-type: none;
+		padding-left: 20px;
+		width: 20px;
+		background: url(../images/opened.gif) no-repeat;
+		cursor: pointer;
+	    }
+	    .ExpandedList {
+	        list-style-type: none;
+		padding-left: 20px;
+		width: 20px;
+		background: url(../images/closed.gif) no-repeat;
+		cursor: pointer;
+	    }
+	    .ExpandCollapseButtons {
+	    }
+	    .ECButton {
+		cursor: pointer;
+	    }
+	</style>
+    </head>
+    <body>
