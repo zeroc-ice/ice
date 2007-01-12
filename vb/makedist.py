@@ -140,7 +140,7 @@ for x in slicedirs:
 
 #
 # Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
+# and slice2html first.
 #
 if not skipDocs:
     print "Generating documentation..."
@@ -154,7 +154,7 @@ if not skipDocs:
     os.chdir(os.path.join("ice", "src", "Slice"))
     os.system("gmake")
     os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.chdir(os.path.join("ice", "src", "slice2html"))
     os.system("gmake")
     os.chdir(cwd)
     os.chdir(os.path.join("ice", "doc"))

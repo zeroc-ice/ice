@@ -103,12 +103,10 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
-cpptag = "-rR3_1_1"
-print "Checking out C++ sources using CVS tag " + cpptag + "..."
-#os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/config ice/slice")
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + cpptag + " ice/slice")
+print "Checking out C++ sources using CVS tag " + tag + "..."
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/slice")
 if not skipDocs or not skipTranslator:
-    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + cpptag +
+    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
 	      " ice/bin ice/config ice/doc ice/include ice/lib ice/src")
 
 #
@@ -151,7 +149,7 @@ for x in filesToRemove:
 
 #
 # Generate HTML documentation. We need to build icecpp
-# and slice2docbook first.
+# and slice2html first.
 #
 if not skipDocs:
     print "Generating documentation..."
@@ -165,12 +163,13 @@ if not skipDocs:
     os.chdir(os.path.join("ice", "src", "Slice"))
     os.system("gmake")
     os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.chdir(os.path.join("ice", "src", "slice2html"))
     os.system("gmake")
     os.chdir(cwd)
     os.chdir(os.path.join("ice", "doc"))
     os.system("gmake")
     os.chdir(cwd)
+    os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
     os.mkdir(os.path.join("icerb", "doc"))
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icerb", "doc", "reference"))
     os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icerb", "doc", "README.html"))
@@ -191,13 +190,7 @@ if not skipTranslator:
     os.chdir(os.path.join("ice", "src", "Slice"))
     os.system("gmake")
     os.chdir(cwd)
-
-    os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
-
-    os.chdir(os.path.join("icerb", "src", "SliceRuby"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("icerb", "src", "slice2rb"))
+    os.chdir(os.path.join("ice", "src", "slice2rb"))
     os.system("gmake")
     os.chdir(cwd)
 
