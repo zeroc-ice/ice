@@ -48,7 +48,7 @@ install::
 	    $(call installdata,reference/*.html,$(install_docdir)/reference) ; \
 	    if test ! -d $(install_docdir)/reference/$(IMAGES) ; \
 	    then \
-		echo "Creating $(install_docdir)/reference/$(IMAGES)... ; \
+		echo "Creating $(install_docdir)/reference/$(IMAGES)..." ; \
 		$(call mkdir,$(install_docdir)/reference/$(IMAGES)) ; \
 	    fi ; \
 	    echo "Installing images..." ; \
