@@ -12,9 +12,9 @@
 #include <sqlca.h>
 
 EXEC SQL WHENEVER SQLERROR DO handleSqlError(sqlca, ctx);
+EXEC SQL WHENEVER NOT FOUND DO handleNotFound(current, ctx);
 
 using namespace std;
-
 
 EmpI::EmpI(const CurrentSqlContext& currentCtx,
 	   const string& empCategory, const string& deptCategory) :
@@ -43,7 +43,6 @@ EmpI::ice_ping(const Ice::Current& current) const
     }
 }
 
-
 HR::EmpDesc 
 EmpI::getDesc(const Ice::Current& current)
 {
@@ -69,12 +68,13 @@ EmpI::getDesc(const Ice::Current& current)
     
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL SELECT ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO 
-	     INTO :ename:enameInd, :job:jobInd, :mgr:mgrInd, 
-	          :hiredate:hiredateInd, :sal:salInd, :comm:commInd, :deptno:deptnoInd
+	     INTO :ename:enameInd, :job:jobInd, :mgr:mgrInd, :hiredate:hiredateInd, :sal:salInd, :comm:commInd, :deptno:deptnoInd
              FROM EMP WHERE EMPNO = :empno;
     EXEC SQL COMMIT;
-    
+  
     HR::EmpDesc result;
+    result.empno = empno;
+
     if(enameInd >= 0)
     {
 	result.ename = ename;
@@ -112,44 +112,49 @@ EmpI::getDesc(const Ice::Current& current)
     return result;
 }
     
-void EmpI::updateDesc(const HR::EmpDesc& newDesc, const Ice::Current& current)
+void EmpI::updateField(const string& field, const string& newValue, const Ice::Current& current)
+{
+    const string updateEmpStr =
+	"UPDATE EMP SET " + field + " = '" + newValue + "' WHERE EMPNO = " + current.id.name;
+
+    struct sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char* updateEmp = updateEmpStr.c_str();
+    sql_context ctx = _currentCtx;
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL EXECUTE IMMEDIATE :updateEmp;
+    EXEC SQL COMMIT;
+}
+
+void EmpI::updateMgr(int newMgr, const Ice::Current& current)
 {
     struct sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int empno = decodeName(current.id.name);
-    const char* ename = newDesc.ename.c_str();
-    const char* job = newDesc.job.c_str();
-    int mgr = 0;
-    short mgrInd = 0;
-    const char* hiredate = newDesc.hiredate.c_str();
-    const char* sal = newDesc.sal.c_str();
-    const char* comm = newDesc.comm.c_str();
-    int deptno = 0;
-    short deptnoInd = 0;
+    int mgr = newMgr;
+    short mgrInd = newMgr == 0 ? -1 : 0;
     EXEC SQL END DECLARE SECTION;
-    if(newDesc.mgr == 0)
-    {
-	mgrInd = -1;
-    }
-    else
-    {
-	mgr = decodeName(newDesc.mgr->ice_getIdentity().name);
-    }
-    if(newDesc.edept == 0)
-    {
-	deptnoInd = -1;
-    }
-    else
-    {
-	deptno = decodeName(newDesc.edept->ice_getIdentity().name);
-    }
-
+    
     EXEC SQL CONTEXT USE :ctx;
-    EXEC SQL UPDATE EMP
-             SET ENAME = :ename, JOB = :job, MGR = :mgr:mgrInd, HIREDATE = :hiredate,
-	         SAL = :sal, COMM = :comm, DEPTNO = :deptno:deptnoInd
-             WHERE EMPNO = :empno;
+    EXEC SQL UPDATE EMP SET MGR = :mgr:mgrInd WHERE EMPNO = :empno;
+    EXEC SQL COMMIT;
+}
+
+void EmpI::updateDept(int newDept, const Ice::Current& current)
+{
+    struct sqlca sqlca;
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = _currentCtx;
+    int empno = decodeName(current.id.name);
+    int dept = newDept;
+    short deptInd = newDept == 0 ? -1 : 0;
+    EXEC SQL END DECLARE SECTION;
+    
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL UPDATE EMP SET DEPTNO = :dept:deptInd WHERE EMPNO = :empno;
     EXEC SQL COMMIT;
 }
 

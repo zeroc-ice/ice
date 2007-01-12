@@ -17,16 +17,20 @@ class DeptFactoryI : public HR::DeptFactory
 {
 public:
 
-    DeptFactoryI(const CurrentSqlContext&, const std::string&);
+    DeptFactoryI(const CurrentSqlContext&, const std::string&, const std::string&);
     
     virtual HR::DeptPrx createDept(int, const HR::DeptDesc&, const Ice::Current&);
 
     virtual HR::DeptPrxSeq findAll(const Ice::Current&);
     virtual HR::DeptPrxSeq findByName(const std::string&, const Ice::Current&);
+    
+    virtual HR::DeptPrx findDeptByNo(int, const Ice::Current&);
+    virtual HR::EmpPrx findEmpByNo(int, const Ice::Current&);
 
 private:
     const CurrentSqlContext _currentCtx;
     const std::string _deptCategory;
+    const std::string _empCategory;
 };
 
 #endif

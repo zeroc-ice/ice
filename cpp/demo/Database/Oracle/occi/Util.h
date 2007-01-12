@@ -63,7 +63,10 @@ private:
 };
 
 
-int decodeName(const std::string&);
-std::string encodeName(int);
+//
+// Encode/decode a RefAny into a string
+//
+std::string encodeRef(const oracle::occi::RefAny&, oracle::occi::Environment*);
+oracle::occi::RefAny decodeRef(const std::string&, oracle::occi::Environment*v, oracle::occi::Connection*);
 
 #endif

@@ -91,16 +91,13 @@ HRServer::run(int argc, char* argv[])
     const string empCategory = "Emp";
     const string deptCategory = "Dept";
 
-    adapter->addServantLocator(new DefaultServantLocator(
-				   new EmpI(_currentCtx, empCategory, deptCategory)),
-				   empCategory);
+    adapter->addServantLocator(new DefaultServantLocator(new EmpI(_currentCtx, empCategory, deptCategory)),
+			       empCategory);
 
-    adapter->addServantLocator(new DefaultServantLocator(
-				   new DeptI(_currentCtx, empCategory)), 
-			       deptCategory);
+    adapter->addServantLocator(new DefaultServantLocator(new DeptI(_currentCtx, empCategory)), deptCategory);
 
-    adapter->add(new DeptFactoryI(_currentCtx, deptCategory), 
-		communicator()->stringToIdentity("DeptFactory"));
+    adapter->add(new DeptFactoryI(_currentCtx, deptCategory, empCategory), 
+		 communicator()->stringToIdentity("DeptFactory"));
     
     adapter->activate();
     communicator()->waitForShutdown();

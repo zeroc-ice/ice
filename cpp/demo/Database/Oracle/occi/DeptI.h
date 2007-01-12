@@ -26,16 +26,11 @@ public:
     virtual HR::EmpPrx createEmp(int, const HR::EmpDesc&, const Ice::Current&);
 
     virtual HR::DeptDesc getDesc(const Ice::Current&);    
-    virtual void updateDesc(const HR::DeptDesc& newDesc, const Ice::Current&);
+    virtual void updateField(const std::string&, const std::string&, const Ice::Current&);
     virtual void remove(const Ice::Current&);
 
     virtual HR::EmpPrxSeq findAll(const Ice::Current&);
     virtual HR::EmpPrxSeq findByName(const std::string&, const Ice::Current&);
-
-    //
-    // Throws Ice::ObjectNotExistException when not found
-    //
-    static oracle::occi::Ref<DEPT_T> getRef(oracle::occi::Connection* con, int deptno);
 
 private:
 

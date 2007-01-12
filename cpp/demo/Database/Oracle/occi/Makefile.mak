@@ -44,6 +44,9 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
+#
+# OCCI first
+#
 !if "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
 ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc8" oraocci10$(LIBSUFFIX).lib
 !elseif "$(CPP_COMPILER)" == "VC71"
@@ -51,6 +54,11 @@ ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc\vc71" oraocci10$(LIBSUFF
 !else
 !error "$(CPP_COMPILER) is not supported by this demo"
 !endif
+
+#
+# OCI
+#
+ORACLE_LIBS = $(ORACLE_LIBS) -LIBPATH:"$(ORACLE_HOME)\oci\lib\msvc" oci.lib
 
 
 $(CLIENT): $(OBJS) $(COBJS)

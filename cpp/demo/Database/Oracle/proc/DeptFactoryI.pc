@@ -15,10 +15,10 @@ EXEC SQL WHENEVER SQLERROR DO handleSqlError(sqlca, ctx);
 
 using namespace std;
 
-
-DeptFactoryI::DeptFactoryI(const CurrentSqlContext& currentCtx, const string& deptCategory) :
+DeptFactoryI::DeptFactoryI(const CurrentSqlContext& currentCtx, const string& deptCategory, const string& empCategory) :
     _currentCtx(currentCtx),
-    _deptCategory(deptCategory)
+    _deptCategory(deptCategory),
+    _empCategory(empCategory)
 {
 }
 
@@ -34,8 +34,7 @@ DeptFactoryI::createDept(int key, const HR::DeptDesc& desc, const Ice::Current& 
     EXEC SQL END DECLARE SECTION;
     
     EXEC SQL CONTEXT USE :ctx;
-    EXEC SQL INSERT INTO DEPT(deptno, dname, loc)
-	     VALUES(:deptno, :dname, :loc); 
+    EXEC SQL INSERT INTO DEPT(deptno, dname, loc) VALUES(:deptno, :dname, :loc); 
     EXEC SQL COMMIT;
 
     Ice::Identity deptId;
@@ -43,6 +42,8 @@ DeptFactoryI::createDept(int key, const HR::DeptDesc& desc, const Ice::Current& 
     deptId.category = _deptCategory;
     return HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
 }
+
+EXEC SQL WHENEVER NOT FOUND DO break;
 
 HR::DeptPrxSeq 
 DeptFactoryI::findAll(const Ice::Current& current)
@@ -56,9 +57,7 @@ DeptFactoryI::findAll(const Ice::Current& current)
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL DECLARE depCursor1 CURSOR FOR SELECT DEPTNO FROM DEPT;
     EXEC SQL OPEN depCursor1;
-    
-    EXEC SQL WHENEVER NOT FOUND DO BREAK;
-    
+       
     HR::DeptPrxSeq result;
 
     for(;;)
@@ -69,16 +68,13 @@ DeptFactoryI::findAll(const Ice::Current& current)
 	deptId.category = _deptCategory;
 	deptId.name = encodeName(deptno);
 
-	result.push_back(
-	    HR::DeptPrx::uncheckedCast(
-		current.adapter->createProxy(deptId)));
+	result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
     }
 
     EXEC SQL CLOSE depCursor1;
     EXEC SQL COMMIT;
     return result;
 }
-
 
 HR::DeptPrxSeq 
 DeptFactoryI::findByName(const string& name, const Ice::Current& current)
@@ -91,12 +87,9 @@ DeptFactoryI::findByName(const string& name, const Ice::Current& current)
     EXEC SQL END DECLARE SECTION;
 
     EXEC SQL CONTEXT USE :ctx;
-    EXEC SQL DECLARE depCursor2 CURSOR FOR SELECT DEPTNO FROM DEPT 
-         WHERE DNAME = :dname;
+    EXEC SQL DECLARE depCursor2 CURSOR FOR SELECT DEPTNO FROM DEPT WHERE DNAME = :dname;
     EXEC SQL OPEN depCursor2;
-    
-    EXEC SQL WHENEVER NOT FOUND DO BREAK;
-    
+      
     HR::DeptPrxSeq result;
 
     for(;;)
@@ -107,12 +100,56 @@ DeptFactoryI::findByName(const string& name, const Ice::Current& current)
 	deptId.category = _deptCategory;
 	deptId.name = encodeName(deptno);
 
-	result.push_back(
-	    HR::DeptPrx::uncheckedCast(
-		current.adapter->createProxy(deptId)));
+	result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
     }
 
     EXEC SQL CLOSE depCursor2;
     EXEC SQL COMMIT;
     return result;
+}
+
+HR::DeptPrx
+DeptFactoryI::findDeptByNo(int deptno, const Ice::Current& current)
+{
+    Ice::Identity deptId;
+    deptId.category = _deptCategory;
+    deptId.name = encodeName(deptno);
+    Ice::ObjectPrx prx = current.adapter->createProxy(deptId);
+ 
+    //
+    // Check that this deptno exists
+    //
+    try
+    {
+	prx->ice_ping();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	return 0;
+    }
+    
+    return HR::DeptPrx::uncheckedCast(prx);
+}
+
+HR::EmpPrx
+DeptFactoryI::findEmpByNo(int empno, const Ice::Current& current)
+{
+    Ice::Identity empId;
+    empId.category = _empCategory;
+    empId.name = encodeName(empno);
+    Ice::ObjectPrx prx = current.adapter->createProxy(empId);
+
+    //
+    // Check that this empno exists
+    //
+    try
+    {
+	prx->ice_ping();
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	return 0;
+    }
+    
+    return HR::EmpPrx::uncheckedCast(prx);
 }

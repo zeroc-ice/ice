@@ -98,29 +98,69 @@ StatementHolder::StatementHolder(ConnectionHolder& conh) :
     _con(conh.connection())
 {
 }
-
+ 
 StatementHolder::~StatementHolder()
 {
     _con->terminateStatement(_stmt);
 }
 
-int decodeName(const string& name)
+string
+encodeRef(const RefAny& ref, Environment* env)
 {
-    int result = 0;
-    istringstream is(name);
-    is >> result;
-    if(!is || !is.eof())
+    string result;
+
+    ub4 length = OCIRefHexSize(env->getOCIEnvironment(), ref.getRef());
+    OraText* buffer = new OraText[length];
+
+    OCIError* error = 0;
+    OCIHandleAlloc(env->getOCIEnvironment(), reinterpret_cast<void**>(&error), OCI_HTYPE_ERROR, 0, 0);
+    sword status = OCIRefToHex(env->getOCIEnvironment(), error, ref.getRef(), buffer, &length);
+
+    if(status == OCI_SUCCESS)
     {
-	cerr << "Unable to decode " << name << endl;
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+	result.assign(reinterpret_cast<char*>(buffer), length);
     }
+    else
+    {
+	cerr << "encodeRef failed: ";
+	sb4 errcode = 0;
+	OraText buf[512];
+	OCIErrorGet(error, 1, 0, &errcode, buf, 512, OCI_HTYPE_ERROR);
+	cerr << reinterpret_cast<char*>(buf) << endl;
+    }
+
+    OCIHandleFree(error, OCI_HTYPE_ERROR);
+    delete[] buffer;
     return result;
 }
 
-string encodeName(int n)
+RefAny
+decodeRef(const string& str, Environment* env, Connection* con)
 {
-    ostringstream os;
-    os << n;
-    return os.str();
+    OCIRef* ref = 0;
+    OCIError* error = 0;
+    OCIHandleAlloc(env->getOCIEnvironment(), reinterpret_cast<void**>(&error), OCI_HTYPE_ERROR, 0, 0);
+
+    sword status = OCIRefFromHex(env->getOCIEnvironment(), error,
+				 con->getOCIServiceContext(), 
+				 reinterpret_cast<const OraText*>(str.c_str()), str.length(),
+				 &ref);
+
+    if(status == OCI_SUCCESS)
+    {	
+	OCIHandleFree(error, OCI_HTYPE_ERROR);
+	return RefAny(con, ref);
+    }
+    else
+    {
+	cerr << "decodeRef failed: ";
+	sb4 errcode = 0;
+	OraText buf[512];
+	OCIErrorGet(error, 1, 0, &errcode, buf, 512, OCI_HTYPE_ERROR);
+	cerr << reinterpret_cast<char*>(buf) << endl;
+
+	OCIHandleFree(error, OCI_HTYPE_ERROR);
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
 }
 

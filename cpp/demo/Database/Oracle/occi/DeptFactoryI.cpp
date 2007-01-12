@@ -22,9 +22,11 @@
 using namespace std;
 using namespace oracle::occi;
 
-DeptFactoryI::DeptFactoryI(StatelessConnectionPool* pool, 
-			   const string& deptCategory) :
+DeptFactoryI::DeptFactoryI(Environment* env, StatelessConnectionPool* pool, 
+			   const string& empCategory, const string& deptCategory) :
+    _env(env),
     _pool(pool),
+    _empCategory(empCategory),
     _deptCategory(deptCategory)
 {
 }
@@ -37,15 +39,16 @@ DeptFactoryI::createDept(int deptno, const HR::DeptDesc& desc, const Ice::Curren
     //
     // Inserted into the OCCI cache
     //
-    DEPT_T* dept = new(conh.connection(), "DEPT_VIEW")DEPT_T;
+    Ref<DEPT_T> dept = new(conh.connection(), "DEPT_VIEW")DEPT_T;
     dept->setDeptno(deptno);
     dept->setDname(desc.dname);
     dept->setLoc(desc.loc);
+   
+    Ice::Identity deptId;
+    deptId.name = encodeRef(dept, _env);
+    deptId.category = _deptCategory;
     conh.commit();
 
-    Ice::Identity deptId;
-    deptId.name = encodeName(deptno);
-    deptId.category = _deptCategory;
     return HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
 }
 
@@ -58,18 +61,15 @@ DeptFactoryI::findAll(const Ice::Current& current)
     {
 	StatementHolder stmth(conh);
     
-	auto_ptr<ResultSet> rs(
-	    stmth.statement()->executeQuery("SELECT DEPTNO FROM DEPT_VIEW"));
+	auto_ptr<ResultSet> rs(stmth.statement()->executeQuery("SELECT REF(d) FROM DEPT_VIEW d"));
 	
 	while(rs->next() != ResultSet::END_OF_FETCH)
 	{
 	    Ice::Identity deptId;
 	    deptId.category = _deptCategory;
-	    deptId.name = rs->getString(1); // first column as string
+	    deptId.name = encodeRef(rs->getRef(1), _env);
 	    
-	    result.push_back(
-		HR::DeptPrx::uncheckedCast(
-		    current.adapter->createProxy(deptId)));
+	    result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
 	}
     }
     conh.commit();
@@ -85,24 +85,92 @@ DeptFactoryI::findByName(const string& name, const Ice::Current& current)
     ConnectionHolder conh(_pool);
     {
 	StatementHolder stmth(conh);
-	stmth.statement()->setSQL("SELECT DEPTNO FROM DEPT_VIEW WHERE DNAME = :1");
+	stmth.statement()->setSQL("SELECT REF(d) FROM DEPT_VIEW d WHERE DNAME = :1");
 	stmth.statement()->setString(1, name);
-	stmth.statement()->execute();
 	
-	auto_ptr<ResultSet> rs(
-	    stmth.statement()->getResultSet());
+	auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
 
 	while(rs->next() != ResultSet::END_OF_FETCH)
 	{
 	    Ice::Identity deptId;
 	    deptId.category = _deptCategory;
-	    deptId.name = rs->getString(1); // first column as string
+	    deptId.name = encodeRef(rs->getRef(1), _env);
 	    
-	    result.push_back(
-		HR::DeptPrx::uncheckedCast(
-		    current.adapter->createProxy(deptId)));
+	    result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
 	}
     }
     conh.commit();
     return result;
+}
+
+HR::DeptPrx
+DeptFactoryI::findDeptByNo(int deptno, const Ice::Current& current)
+{
+    HR::DeptPrx result;
+
+    ConnectionHolder conh(_pool);
+    {
+	Ref<DEPT_T> ref = findDeptRefByNo(deptno, conh.connection());
+
+	if(!ref.isNull())
+	{
+	    Ice::Identity deptId;
+	    deptId.category = _deptCategory;
+	    deptId.name = encodeRef(ref, _env);
+	    result = HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
+	}
+    }
+    conh.commit();
+    return result;
+}
+
+HR::EmpPrx
+DeptFactoryI::findEmpByNo(int empno, const Ice::Current& current)
+{
+    HR::EmpPrx result;
+
+    ConnectionHolder conh(_pool);
+    {
+	Ref<EMP_T> ref = findEmpRefByNo(empno, conh.connection());
+
+	if(!ref.isNull())
+	{
+	    Ice::Identity empId;
+	    empId.category = _empCategory;
+	    empId.name = encodeRef(ref, _env);
+	    result = HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId));
+	}
+    }
+    conh.commit();
+    return result;
+}
+
+Ref<DEPT_T>
+DeptFactoryI::findDeptRefByNo(int deptno, Connection* con) const
+{
+    StatementHolder stmth(con);
+    stmth.statement()->setSQL("SELECT REF(d) FROM DEPT_VIEW d WHERE DEPTNO = :1");
+    stmth.statement()->setInt(1, deptno);
+    auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
+    
+    if(rs->next() == ResultSet::END_OF_FETCH)
+    {
+	return Ref<DEPT_T>();
+    }
+    return rs->getRef(1);
+}
+
+Ref<EMP_T>
+DeptFactoryI::findEmpRefByNo(int empno, Connection* con) const
+{
+    StatementHolder stmth(con);
+    stmth.statement()->setSQL("SELECT REF(e) FROM EMP_VIEW e WHERE EMPNO = :1");
+    stmth.statement()->setInt(1, empno);
+    auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
+
+    if(rs->next() == ResultSet::END_OF_FETCH)
+    {
+	return Ref<EMP_T>();
+    }
+    return rs->getRef(1);
 }

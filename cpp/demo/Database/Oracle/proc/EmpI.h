@@ -22,7 +22,9 @@ public:
     virtual void ice_ping(const Ice::Current&) const;
 
     virtual HR::EmpDesc getDesc(const Ice::Current&);    
-    virtual void updateDesc(const HR::EmpDesc& newDesc, const Ice::Current&);
+    virtual void updateField(const std::string&, const std::string&, const Ice::Current&);
+    virtual void updateMgr(int, const Ice::Current&);
+    virtual void updateDept(int, const Ice::Current&);
     virtual void remove(const Ice::Current&);
 
 private:

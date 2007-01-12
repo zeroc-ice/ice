@@ -10,10 +10,12 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#include <Ice/Ice.h>
 #include <string>
 #include <sqlca.h>
 
 void handleSqlError(const struct sqlca&, sql_context);
+void handleNotFound(const Ice::Current&, sql_context);
 
 int decodeName(const std::string&);
 

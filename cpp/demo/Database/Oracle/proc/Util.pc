@@ -27,15 +27,24 @@ void handleSqlError(const struct sqlca& badca, sql_context sc)
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL ROLLBACK;
 
-    if(badca.sqlcode > 0)
-    {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }
-    else
-    {
-	string msg(badca.sqlerrm.sqlerrmc, badca.sqlerrm.sqlerrml);
-	throw HR::SqlException(msg);
-    }
+    string msg(badca.sqlerrm.sqlerrmc, badca.sqlerrm.sqlerrml);
+    throw HR::SqlException(msg);
+}
+
+void handleNotFound(const Ice::Current& current, sql_context sc)
+{
+    //
+    // First rollback transaction
+    //
+    EXEC SQL BEGIN DECLARE SECTION;
+    sql_context ctx = sc;
+    EXEC SQL END DECLARE SECTION;
+    
+    struct sqlca sqlca;
+    EXEC SQL CONTEXT USE :ctx;
+    EXEC SQL ROLLBACK;
+
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
 }
 
 int decodeName(const string& name)

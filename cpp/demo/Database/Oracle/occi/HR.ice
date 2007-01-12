@@ -35,6 +35,7 @@ exception SqlException
 //
 struct DeptDesc
 {
+    int deptno;
     string dname;
     string loc;
 };
@@ -44,6 +45,7 @@ struct DeptDesc
 //
 struct EmpDesc
 {
+    int empno;
     string ename;
     string job;
     Emp* mgr;
@@ -56,7 +58,9 @@ struct EmpDesc
 interface Emp
 {
     idempotent EmpDesc getDesc();
-    idempotent void updateDesc(EmpDesc newDesc) throws SqlException;
+    idempotent void updateField(string name, string newValue) throws SqlException;
+    idempotent void updateMgr(int mgr) throws SqlException;
+    idempotent void updateDept(int deptno) throws SqlException;
     void remove();
 };
 
@@ -65,7 +69,7 @@ interface Dept
     Emp* createEmp(int empno, EmpDesc descx) throws SqlException;
 
     idempotent DeptDesc getDesc();
-    idempotent void updateDesc(DeptDesc newDesc) throws SqlException;
+    idempotent void updateField(string name, string newValue) throws SqlException;
     void remove() throws SqlException;
 
     idempotent EmpPrxSeq findAll();
@@ -77,7 +81,10 @@ interface DeptFactory
     Dept* createDept(int deptno, DeptDesc desc) throws SqlException;
 
     idempotent DeptPrxSeq findAll();
-    idempotent DeptPrxSeq findByName(string dname); 
+    idempotent DeptPrxSeq findByName(string dname);
+
+    idempotent Emp* findEmpByNo(int empno);
+    idempotent Dept* findDeptByNo(int deptno); 
 };
 
 };
