@@ -120,7 +120,7 @@ def iceGridAdmin(cmd, ignoreFailure = False):
     iceGridAdmin = os.path.join(ice_home, "bin", "icegridadmin")
 
     user = r"admin1"
-    if cmd == "shutdown":
+    if cmd == "registry shutdown":
 	user = r"shutdown"
     command = iceGridAdmin + TestUtil.cppClientOptions + \
               r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
@@ -194,7 +194,7 @@ def iceGridTest(name, application, additionalOptions = "", applicationOptions = 
         print "ok"
 
     iceGridAdmin("node shutdown localnode")
-    iceGridAdmin("shutdown")
+    iceGridAdmin("registry shutdown")
 
     TestUtil.joinServers()
 
@@ -237,7 +237,7 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
         TestUtil.killServers()
         sys.exit(1)
 
-    iceGridAdmin("shutdown")
+    iceGridAdmin("registry shutdown")
 
     TestUtil.joinServers()
 
