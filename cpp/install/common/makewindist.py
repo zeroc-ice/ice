@@ -22,7 +22,8 @@ STLPortVer = '4.6.2'
 ExpatVer = '2.0.0'
 DBVer = '4.5.20'
 
-DistPrefixes = ["Ice-%s", "IceJ-%s-java2", "IceJ-%s-java5", "IceCS-%s", "IcePy-%s", "IcePHP-%s", "IceVB-%s"]
+DistPrefixes = ["Ice-%s", "IceJ-%s-java2", "IceJ-%s-java5", "IceCS-%s", "IcePy-%s", "IcePHP-%s", "IceVB-%s", 
+	"IceRuby-%s"]
 
 class DistEnvironmentError:
     def __init__(self, msg = None):
@@ -359,6 +360,10 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 	os.chdir(os.path.join(sourcesDir, "release", "IcePHP-" + sourcesVersion))
 	print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	runprog("nmake /f Makefile.mak") 
+	os.chdir(os.path.join(sourcesDir, "release", "IceRuby-%s" % sourcesVersion))
+	setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+	print "Building in " + os.getcwd() + "..."
 	runprog("nmake /f Makefile.mak") 
 
 def list2english(l):

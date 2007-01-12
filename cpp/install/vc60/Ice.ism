@@ -347,6 +347,9 @@
 		<row><td>IceManual</td><td>{AB3D867C-BA23-4B8E-BB71-62EA3EBEE97D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IcePHPDemo</td><td>{1F92A480-D22B-4E56-A5E2-CC91B87AA7BA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IcePHPExtension</td><td>{B09443FD-645C-4968-9D8C-3E632E175226}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceRubyDemo</td><td>{49A67285-7045-4AD4-BD78-ECA35F3D23FE}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceRubyDev</td><td>{C2C25314-0A6A-475B-BF3D-5D5292DBDD8E}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceRubyRuntime</td><td>{EBA6A30D-6452-4145-B71A-1EDCEA4AE1CD}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>VisualStudioRuntime</td><td>{AB917D87-9371-49AA-8F41-38AB8E4C2125}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
@@ -1271,10 +1274,12 @@
 		<col def="S255">ISProFeatureName</col>
 		<row><td>ice_dev_cpp</td><td>ice_runtime_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_php</td><td>ice_runtime_php</td><td>##ID_STRING22##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_dev_ruby</td><td>ice_runtime_ruby</td><td>##ID_STRING25##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>0</td><td/><td/><td/><td/></row>
 		<row><td>ice_doc</td><td/><td>##ID_STRING16##</td><td/><td>12</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_cpp</td><td/><td>##ID_STRING20##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_php</td><td/><td>##ID_STRING21##</td><td/><td>14</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_runtime_ruby</td><td/><td>##ID_STRING24##</td><td/><td>16</td><td>1</td><td>INSTALLDIR</td><td>0</td><td/><td/><td/><td/></row>
 		<row><td>packages</td><td>ice_runtime</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>packages_dev_cpp</td><td>ice_dev_cpp</td><td>##ID_STRING17##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 	</table>
@@ -1286,11 +1291,14 @@
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_dev_php</td><td>IcePHPDemo</td></row>
+		<row><td>ice_dev_ruby</td><td>IceRubyDemo</td></row>
+		<row><td>ice_dev_ruby</td><td>IceRubyDev</td></row>
 		<row><td>ice_doc</td><td>IceManual</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
 		<row><td>ice_runtime_php</td><td>IcePHPExtension</td></row>
+		<row><td>ice_runtime_ruby</td><td>IceRubyRuntime</td></row>
 		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 		<row><td>packages_dev_cpp</td><td>BerkeleyDBDebugDLL</td></row>
 		<row><td>packages_dev_cpp</td><td>Bzip2DebugDLL</td></row>
@@ -1470,6 +1478,9 @@
 		<row><td>IceManual</td><td/><td/><td>_2EAC330E_02E1_44BA_81E8_FEC200B20590_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IcePHPDemo</td><td/><td/><td>_58FC50B7_9755_4240_8600_BA7A2BC30051_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IcePHPExtension</td><td/><td/><td>_AD02E8CC_4251_4169_B2D8_D00A24825C92_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceRubyDemo</td><td/><td/><td>_5A09ADF7_C0AE_4368_B2CA_28D63EC8517D_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceRubyDev</td><td/><td/><td>_634B8AD5_8DB8_426B_BD81_F37455C57449_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceRubyRuntime</td><td/><td/><td>_41000099_075E_4F54_A29E_6C1C84677F98_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>VisualStudioRuntime</td><td/><td/><td>_30BA3320_69CB_4682_87F9_962EE1BF4FF1_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -1507,6 +1518,9 @@
 		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice\common\html</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePHPDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\php\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePHPExtension</td><td>&lt;ISProjectFolder&gt;\install\ice\php\extension</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceRubyDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\demo\demorb</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceRubyDev</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\dev</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceRubyRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
@@ -2372,6 +2386,8 @@
 		<row><td>ID_STRING21</td><td>1033</td><td>Ice for PHP</td><td>0</td><td/><td>1402617014</td></row>
 		<row><td>ID_STRING22</td><td>1033</td><td>PHP Development</td><td>0</td><td/><td>1402633398</td></row>
 		<row><td>ID_STRING23</td><td>1033</td><td>Ice 3.2.0 for Visual Studio 6.0</td><td>0</td><td/><td>1713008397</td></row>
+		<row><td>ID_STRING24</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>1620829040</td></row>
+		<row><td>ID_STRING25</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>1620788112</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
