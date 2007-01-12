@@ -27,7 +27,7 @@ JAVASCRIPT	= symboltree.js
 
 reference/index.html: $(SLICEFILES)
 	make clean
-	slice2html --ice -I../slice --hdr=htmlHeader --indexhdr=indexHeader --indexftr=indexFooter --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
+	$(bindir)/slice2html --ice -I../slice --hdr=htmlHeader --indexhdr=indexHeader --indexftr=indexFooter --output-dir=reference --index=3 --summary=120 $(SLICEFILES)
 	mkdir reference/$(IMAGES)
 	cp $(IMAGES)/*.gif reference/$(IMAGES)
 	cp $(JAVASCRIPT) reference
