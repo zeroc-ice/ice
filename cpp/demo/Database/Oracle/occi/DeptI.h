@@ -10,19 +10,19 @@
 #ifndef DEPTI_H
 #define DEPTI_H
 
+#include <Ice/Ice.h>
+#include <DeptFactoryI.h>
 #include <HR.h>
 #include <occi.h>
 #include <DbTypes.h>
+#include <Util.h>
 
 class DeptI : public HR::Dept
 {
 public:
 
-    DeptI(oracle::occi::Environment* env, 
-	  oracle::occi::StatelessConnectionPool*, const std::string&);
+    DeptI(const oracle::occi::RefAny&, const ConnectionHolderPtr&, const DeptFactoryIPtr&);
     
-    virtual void ice_ping(const Ice::Current&) const;
-
     virtual HR::EmpPrx createEmp(int, const HR::EmpDesc&, const Ice::Current&);
 
     virtual HR::DeptDesc getDesc(const Ice::Current&);    
@@ -34,9 +34,9 @@ public:
 
 private:
 
-    oracle::occi::Environment* _env;
-    oracle::occi::StatelessConnectionPool* _pool;
-    const std::string _empCategory;
+    const oracle::occi::Ref<DEPT_T> _ref;
+    const ConnectionHolderPtr _conh;
+    const DeptFactoryIPtr _factory;
 };
 
 #endif

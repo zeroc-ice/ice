@@ -15,16 +15,14 @@
 
 //
 // Grabs a connection from a connection pool and ensures
-// it's properly released when ConnectionHolder goes out
-// scope
+// it's properly released when the ConnectionHolder is destroyed 
 //
-class ConnectionHolder
+class ConnectionHolder : public IceUtil::Shared
 {
 public:
 
     ConnectionHolder(oracle::occi::StatelessConnectionPool*);
-    ~ConnectionHolder();
-
+  
     oracle::occi::Connection* connection() const
     {
 	return _con;
@@ -33,23 +31,26 @@ public:
     void commit();
     void rollback();
 
+protected:
+    virtual ~ConnectionHolder();
+
 private:
 
-    void release();
-
     oracle::occi::Connection* _con;
+    bool _txDone;
     oracle::occi::StatelessConnectionPool* _pool;
 };
 
+typedef IceUtil::Handle<ConnectionHolder> ConnectionHolderPtr;
 
 //
-// Create a fresh exception-safe statement
+// Create a fresh exception-safe statement (typically on the stack)
 //
 class StatementHolder
 {
 public:
     StatementHolder(oracle::occi::Connection*);
-    StatementHolder(ConnectionHolder&);
+    StatementHolder(const ConnectionHolderPtr&);
     ~StatementHolder();
 
     oracle::occi::Statement* statement() const

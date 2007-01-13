@@ -25,6 +25,7 @@ SOBJS		= DbTypes.obj \
                   DeptFactoryI.obj \
                   DeptI.obj  \
                   EmpI.obj  \
+                  OCCIServantLocator.obj \
                   Server.obj \
                   Util.obj
 

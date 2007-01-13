@@ -17,74 +17,60 @@ using namespace oracle::occi;
 
 ConnectionHolder::ConnectionHolder(StatelessConnectionPool* pool) 
     : _con(pool->getAnyTaggedConnection()),
+      _txDone(false),
       _pool(pool)
 {
-}
-
-ConnectionHolder::~ConnectionHolder()
-{
-    if(_con != 0)
-    {
-	try
-	{
-	    rollback();
-	}
-	catch(...)
-	{
-	    // ignored, to avoid a crash during 
-	    // stack unwinding
-	}
-    }
 }
 
 void
 ConnectionHolder::commit()
 {
-    assert(_con != 0);
+    _txDone = true;
     try
     {
 	_con->commit();
     }
     catch(const SQLException& e)
     {
-	release();
 	throw HR::SqlException(e.what());
     }
-    catch(...)
-    {
-	release();
-	throw;
-    }
-    release();
 }
 
 void
 ConnectionHolder::rollback()
 {
-    assert(_con != 0);
+    _txDone = true;
     try
     {
 	_con->rollback();
     }
     catch(const SQLException& e)
     {
-	release();
 	throw HR::SqlException(e.what());
     }
-    catch(...)
-    {
-	release();
-	throw;
-    }
-    release();
 }
 
-void
-ConnectionHolder::release()
+ConnectionHolder::~ConnectionHolder()
 {
-    Connection* con = _con;
-    _con = 0;
-    _pool->releaseConnection(con);
+    if(!_txDone)
+    {
+	_txDone = true;
+	try
+	{
+	    _con->rollback();
+	}
+	catch(const std::exception&)
+	{
+	}
+    }
+
+    try
+    {
+	_pool->releaseConnection(_con);
+    }
+    catch(const std::exception&)
+    {
+    }
 }
 
 StatementHolder::StatementHolder(Connection* con) :
@@ -93,9 +79,9 @@ StatementHolder::StatementHolder(Connection* con) :
 {
 }
 
-StatementHolder::StatementHolder(ConnectionHolder& conh) :
-    _stmt(conh.connection()->createStatement()),
-    _con(conh.connection())
+StatementHolder::StatementHolder(const ConnectionHolderPtr& conh) :
+    _stmt(conh->connection()->createStatement()),
+    _con(conh->connection())
 {
 }
  
@@ -145,6 +131,8 @@ decodeRef(const string& str, Environment* env, Connection* con)
 				 con->getOCIServiceContext(), 
 				 reinterpret_cast<const OraText*>(str.c_str()), str.length(),
 				 &ref);
+
+    
 
     if(status == OCI_SUCCESS)
     {	

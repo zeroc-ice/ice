@@ -10,21 +10,19 @@
 #ifndef EMPI_H
 #define EMPI_H
 
+#include <Ice/Ice.h>
 #include <DeptFactoryI.h>
 #include <HR.h>
 #include <occi.h>
 #include <DbTypes.h>
-
+#include <Util.h>
 
 class EmpI : public HR::Emp
 {
 public:
 
-    EmpI(DeptFactoryIPtr factory, oracle::occi::Environment* env,
-	 oracle::occi::StatelessConnectionPool*, const std::string&, const std::string&);
-    
-    virtual void ice_ping(const Ice::Current&) const;
-
+    EmpI(const oracle::occi::RefAny&, const ConnectionHolderPtr&, const DeptFactoryIPtr&);
+  
     virtual HR::EmpDesc getDesc(const Ice::Current&);
     virtual void updateField(const std::string&, const std::string&, const Ice::Current&);
     virtual void updateMgr(int, const Ice::Current&);
@@ -33,11 +31,10 @@ public:
     virtual void remove(const Ice::Current&);
 
 private:
-    DeptFactoryIPtr _factory;
-    oracle::occi::Environment* _env;
-    oracle::occi::StatelessConnectionPool* _pool;
-    const std::string _empCategory;
-    const std::string _deptCategory;
+    
+    const oracle::occi::Ref<EMP_T> _ref;
+    const ConnectionHolderPtr _conh;
+    const DeptFactoryIPtr _factory;
 };
 
 #endif

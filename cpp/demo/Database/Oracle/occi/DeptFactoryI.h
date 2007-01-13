@@ -19,7 +19,7 @@ class DeptFactoryI : public HR::DeptFactory
 public:
 
     DeptFactoryI(oracle::occi::Environment* env, oracle::occi::StatelessConnectionPool*, 
-		 const std::string&, const std::string&);
+		 const std::string&);
     
     virtual HR::DeptPrx createDept(int, const HR::DeptDesc&, const Ice::Current&);
 
@@ -31,13 +31,26 @@ public:
 
     oracle::occi::Ref<DEPT_T> findDeptRefByNo(int, oracle::occi::Connection*) const;
     oracle::occi::Ref<EMP_T> findEmpRefByNo(int, oracle::occi::Connection*) const;
-
+    
+    oracle::occi::Environment* getEnv() const
+    {
+	return _env;
+    }
+    
+    oracle::occi::StatelessConnectionPool* getConnectionPool() const
+    {
+	return _pool;
+    }
+    
+    const std::string& getCategory() const
+    {
+	return _category;
+    }
 
 private:
     oracle::occi::Environment* _env;
     oracle::occi::StatelessConnectionPool* _pool;
-    const std::string _empCategory;
-    const std::string _deptCategory;
+    const std::string _category;
 };
 
 typedef IceUtil::Handle<DeptFactoryI> DeptFactoryIPtr;
