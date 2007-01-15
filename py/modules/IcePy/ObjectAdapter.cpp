@@ -594,18 +594,21 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                 self->deactivateThread = new AdapterInvokeThreadPtr(t);
                 t->start();
             }
-
-            bool done;
-            {
-                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                done = (*self->deactivateMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
-            }
-
-            if(!done)
-            {
-                Py_INCREF(Py_False);
-                return Py_False;
-            }
+	    
+	    while(!self->deactivated)
+	    {
+		bool done;
+		{
+		    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+		    done = (*self->deactivateMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+		}
+		
+		if(!done)
+		{
+		    Py_INCREF(Py_False);
+		    return Py_False;
+		}
+	    }
         }
 
         assert(self->deactivated);
