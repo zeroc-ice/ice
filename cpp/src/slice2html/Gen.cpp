@@ -1363,11 +1363,11 @@ TOCGenerator::TOCGenerator(const Files& files, const string& header, const strin
     start("tr");
 
     start("td");
-    _out << "<button type=\"button\" id=\"ExpandAllButton\" onclick=\"expandAll();\">Expand All</button>";
+    _out << "<button type=\"button\" id=\"ExpandAllButton\">Expand All</button>";
     end();
 
     start("td");
-    _out << "<button type=\"button\" id=\"CollapseAllButton\" onclick=\"expandAll();\">Collapse All</button>";
+    _out << "<button type=\"button\" id=\"CollapseAllButton\">Collapse All</button>";
     end();
 
     end();
