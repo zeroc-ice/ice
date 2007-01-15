@@ -15,10 +15,10 @@
 using namespace std;
 using namespace oracle::occi;
 
-ConnectionHolder::ConnectionHolder(StatelessConnectionPool* pool) 
-    : _con(pool->getAnyTaggedConnection()),
-      _txDone(false),
-      _pool(pool)
+ConnectionHolder::ConnectionHolder(StatelessConnectionPool* pool) : 
+    _con(pool->getAnyTaggedConnection()),
+    _txDone(false),
+    _pool(pool)
 {
 }
 
@@ -74,14 +74,14 @@ ConnectionHolder::~ConnectionHolder()
 }
 
 StatementHolder::StatementHolder(Connection* con) :
-    _stmt(con->createStatement()),
-    _con(con)
+    _con(con),
+    _stmt(con->createStatement())
 {
 }
 
 StatementHolder::StatementHolder(const ConnectionHolderPtr& conh) :
-    _stmt(conh->connection()->createStatement()),
-    _con(conh->connection())
+    _con(conh->connection()),
+    _stmt(conh->connection()->createStatement())
 {
 }
  
@@ -151,4 +151,3 @@ decodeRef(const string& str, Environment* env, Connection* con)
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
-

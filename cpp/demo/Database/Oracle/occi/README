@@ -7,9 +7,8 @@ through its Oracle C++ Call Interface (OCCI) API.
 It is a fairly simple demo that illustrates how to:
  - map relational data to Ice objects, in particular convert 
    between Ice and OCCI types.
- - use an OCCI thread pool to provide Oracle connections to Ice 
-   requests.
- - use Ice default servants
+ - use an OCCI pool to provide Oracle connections to Ice requests.
+ - use an Ice servant locator
 
 Building the demo
 -----------------
@@ -44,9 +43,12 @@ installation home directory.
   environment: 
  - Include files: $(ORACLE_HOME)\oci\include
  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc71 (when
-   using Microsoft Visual Studio .NET 2003)
+   using Microsoft Visual Studio .NET 2003) or
+   $(ORACLE_HOME)\oci\lib\msvc\vc71 (when using Microsoft Visual 
+   Studio 2005)
  - Executable files: 
-    $(ORACLE_HOME)\oci\lib\msvc\vc71;$(ORACLE_HOME)\bin
+    $(ORACLE_HOME)\oci\lib\msvc\vc71;$(ORACLE_HOME)\bin or
+    $(ORACLE_HOME)\oci\lib\msvc\vc8;$(ORACLE_HOME)\bin
 
 - Then build as usual.
 

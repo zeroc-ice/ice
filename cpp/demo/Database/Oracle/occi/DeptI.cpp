@@ -19,8 +19,8 @@
 using namespace std;
 using namespace oracle::occi;
 
-DeptI::DeptI(const RefAny& ref, const ConnectionHolderPtr& conh, const DeptFactoryIPtr& factory)
-    : _ref(ref), _conh(conh), _factory(factory)
+DeptI::DeptI(const RefAny& ref, const ConnectionHolderPtr& conh, const DeptFactoryIPtr& factory) :
+    _ref(ref), _conh(conh), _factory(factory)
 {
 }
 

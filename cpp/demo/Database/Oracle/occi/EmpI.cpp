@@ -12,8 +12,8 @@
 using namespace std;
 using namespace oracle::occi;
 
-EmpI::EmpI(const RefAny& ref, const ConnectionHolderPtr& conh, const DeptFactoryIPtr& factory)
-    : _ref(ref), _conh(conh), _factory(factory)
+EmpI::EmpI(const RefAny& ref, const ConnectionHolderPtr& conh, const DeptFactoryIPtr& factory) :
+    _ref(ref), _conh(conh), _factory(factory)
 {
 }
 

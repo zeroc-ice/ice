@@ -17,8 +17,8 @@
 using namespace std;
 using namespace oracle::occi;
 
-OCCIServantLocator::OCCIServantLocator(const DeptFactoryIPtr& factory)
-    : _factory(factory)
+OCCIServantLocator::OCCIServantLocator(const DeptFactoryIPtr& factory) :
+    _factory(factory)
 {}
 
 
