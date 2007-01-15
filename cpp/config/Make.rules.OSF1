@@ -7,6 +7,13 @@
 #
 # **********************************************************************
 
+$(warning ===================================================================) 
+$(warning Compaq Tru64 is currently an unsupported platform. The Ice team )
+$(warning does not maintain Tru64 specific portions of the source code or )
+$(warning build system. Contact sales@zeroc.com if you wish to sponsor )
+$(warning official support.)
+$(warning ===================================================================) 
+
 #
 # This file is included by Make.rules when uname is OSF1
 #

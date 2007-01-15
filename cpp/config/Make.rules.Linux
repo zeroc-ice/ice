@@ -48,6 +48,12 @@ ifeq ($(CXX),c++)
       #
       # We are an ultra, at least, and so have the atomic instructions
       #
+      $(warning ===================================================================) 
+      $(warning Linux on SPARC is currently unsupported. The Ice team does not)
+      $(warning maintain SPARC specific portions of the source code or build)
+      $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+      $(warning support.)
+      $(warning ===================================================================) 
       USE_SPARC_ASM	= yes
       CXXARCHFLAGS	= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
    endif
@@ -58,6 +64,12 @@ ifeq ($(CXX),c++)
       # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
       # prevent us from using '-mcpu=v8'
       #
+      $(warning ===================================================================) 
+      $(warning Linux on SPARC is currently unsupported. The Ice team does not)
+      $(warning maintain SPARC specific portions of the source code or build)
+      $(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+      $(warning support.)
+      $(warning ===================================================================) 
       USE_SPARC_ASM	= no
       CXXARCHFLAGS	= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
    endif
@@ -116,7 +128,12 @@ ifeq ($(CXX),c++)
 endif
 
 ifeq ($(CXX),icpc)
-
+   $(warning ===================================================================) 
+   $(warning Intel C++ is currently not supported. The Ice team does not)
+   $(warning maintain Intel C++ specific portions of the source code or build)
+   $(warning system.  Contact sales@zeroc.com if you wish to sponsor official)
+   $(warning support.)
+   $(warning ===================================================================) 
    CXXFLAGS		= -D_REENTRANT    
 
    ifeq ($(STATICLIBS),)
