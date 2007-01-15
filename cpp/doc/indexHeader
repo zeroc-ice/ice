@@ -30,7 +30,7 @@ TITLE
 		background: url("../images/closed.gif") no-repeat;
 		cursor: pointer;
 	    }
-	    .ExpandCollapseButtons {
+	    .ExpandCollapseButtonTable {
 	    }
 	    #ExpandAllButton {
 		cursor: pointer;
