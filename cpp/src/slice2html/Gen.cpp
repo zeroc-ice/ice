@@ -1391,7 +1391,7 @@ TOCGenerator::generate(const ModulePtr& m)
 void
 TOCGenerator::writeTOC()
 {
-    _out << nl << "<ul id=\"SymbolTree\"";
+    _out << nl << "<ul id=\"SymbolTree\">";
     _out.inc();
     for(ModuleList::const_iterator i = _modules.begin(); i != _modules.end(); ++i)
     {

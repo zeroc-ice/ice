@@ -57,7 +57,7 @@ symboltree.main = function()
 	    //
 	    // Attach an event listener to the widget.
 	    //
-	    list[i].addEventListener('click', symboltree.handleEvent, false);
+	    symboltree.addHandler(list[i], 'click', symboltree.handleEvent);
 
 	    //
 	    // The list starts out collapsed by default. Set state and class name, and
@@ -87,7 +87,7 @@ symboltree.main = function()
     //
     // Save expanded list indexes in cookie when page unloads.
     //
-    window.addEventListener('unload', symboltree.save, false);
+    symboltree.addHandler(window, 'unload', symboltree.save);
 
     //
     // Load state of list.
@@ -98,10 +98,10 @@ symboltree.main = function()
     // Set handler for the "Expand All" and "Collapse All" buttons.
     //
     var expandAll = document.getElementById('ExpandAllButton');
-    expandAll.addEventListener('click', symboltree.expandAll, false);
+    symboltree.addHandler(expandAll, 'click', symboltree.expandAll);
 
     var collapseAll = document.getElementById('CollapseAllButton');
-    collapseAll.addEventListener('click', symboltree.collapseAll, false);
+    symboltree.addHandler(collapseAll, 'click', symboltree.collapseAll);
 }
 
 //
@@ -110,14 +110,32 @@ symboltree.main = function()
 symboltree.handleEvent = function(e)
 {
     var target;
+    if(!e)
+    {
+        e = window.event;
+    }
+
     if(e.target)
     {
         target = e.target;
+    }
+    else if(e.currentTarget)
+    {
+        target = e.currentTarget;
     }
     else if(e.srcObject)
     {
         target = e.srcObject;
     }
+    else if(e.srcElement)
+    {
+        target = e.srcElement;
+    }
+    if(!target)
+    {
+        alert('No target for event!');
+    }
+
     if(!target.className || (target.className != 'CollapsedList' && target.className != 'ExpandedList'))
     {
 	return; // Ignore event because it bubbled up from child element (namely, from a link in the list).
@@ -128,11 +146,11 @@ symboltree.handleEvent = function(e)
     //
     if(target.getAttribute('state') == 'expanded')
     {
-        symboltree.collapse(e.currentTarget);
+        symboltree.collapse(target);
     }
     else
     {
-        symboltree.expand(e.currentTarget);
+        symboltree.expand(target);
     }
 
     //
@@ -264,6 +282,21 @@ symboltree.restore = function()
 	        symboltree.expand(list[indexes[i]]);
 	    }
 	}
+    }
+}
+
+//
+// Add an event handler.
+//
+symboltree.addHandler = function(target, event, handler)
+{
+    if(target.addEventListener)
+    {
+        target.addEventListener(event, handler, false);
+    }
+    else
+    {
+        target.attachEvent('on' + event, handler);
     }
 }
 
