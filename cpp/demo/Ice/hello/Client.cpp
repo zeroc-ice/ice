@@ -139,7 +139,7 @@ HelloClient::run(int argc, char* argv[])
 		    delay = 0;
 		}
 		
-		if(delay == -1)
+		if(delay == 0)
 		{
 		    cout << "server delay is now disabled" << endl;
 		}
