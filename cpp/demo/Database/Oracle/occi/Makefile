@@ -25,6 +25,7 @@ SOBJS		= DbTypes.o \
                   DeptFactoryI.o \
                   DeptI.o  \
                   EmpI.o  \
+                  OCCIServantLocator.o \
                   Server.o \
                   Util.o
 
@@ -36,12 +37,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I$(ORACLE_HOME)/rdbms/public $(CPPFLAGS)
 
-ifeq ($(LP64),yes)
-   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -locci -lclntsh
-else
-   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib32 -locci -lclntsh
-endif
-
+ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -locci -lclntsh
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

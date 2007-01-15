@@ -41,11 +41,7 @@ CPPFLAGS	:= -I. -I$(ORACLE_HOME)/precomp/public -DSQLCA_NONE $(CPPFLAGS)
 
 GENERATED_PROC_FILES  = $(PROC_SRCS:.pc=.cpp) 
 
-ifeq ($(LP64),yes)
-   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh 
-else
-   ORACLE_LIBS     = -L$(ORACLE_HOME)/lib32 -lclntsh
-endif
+ORACLE_LIBS     = -L$(ORACLE_HOME)/lib -lclntsh 
 
 .SUFFIXES:
 .SUFFIXES:		.pc .cpp .c .o
