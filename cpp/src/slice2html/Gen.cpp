@@ -1360,17 +1360,17 @@ TOCGenerator::TOCGenerator(const Files& files, const string& header, const strin
 
     start("table", "ExpandCollapseButton");
     start("tbody");
+    start("tr");
 
     start("td");
-    _out << "<button type=\"button\" id=\"ExpandAllButton\">Expand All"
-	 << "<img id=\"ExpandAllButtonImage\"/></button>";
+    _out << "<button type=\"button\" id=\"ExpandAllButton\">Expand All</button>";
     end();
 
     start("td");
-    _out << "<button type=\"button\" id=\"CollapseAllButton\">Collapse All"
-	 << "<img id=\"ExpandAllButtonImage\"/></button>";
+    _out << "<button type=\"button\" id=\"CollapseAllButton\">Collapse All</button>";
     end();
 
+    end();
     end();
     end();
 }

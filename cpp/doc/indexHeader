@@ -4,7 +4,7 @@
 	<title>
 TITLE
 	</title>
-	<style>
+	<style type="text/css">
 	    .Symbol {
 		font-family: "Courier New", Courier, mono;
 	    }
@@ -20,14 +20,14 @@ TITLE
 	        list-style-type: none;
 		padding-left: 20px;
 		width: 20px;
-		background: url(../images/opened.gif) no-repeat;
+		background: url("../images/opened.gif") no-repeat;
 		cursor: pointer;
 	    }
 	    .ExpandedList {
 	        list-style-type: none;
 		padding-left: 20px;
 		width: 20px;
-		background: url(../images/closed.gif) no-repeat;
+		background: url("../images/closed.gif") no-repeat;
 		cursor: pointer;
 	    }
 	    .ExpandCollapseButtons {
