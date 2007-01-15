@@ -19,14 +19,15 @@ using namespace std;
 EmpI::EmpI(const CurrentSqlContext& currentCtx,
 	   const string& empCategory, const string& deptCategory) :
     _currentCtx(currentCtx), 
-    _empCategory(empCategory), _deptCategory(deptCategory)
+    _empCategory(empCategory), 
+    _deptCategory(deptCategory)
 {
 }
 
 void 
 EmpI::ice_ping(const Ice::Current& current) const
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int empno = decodeName(current.id.name);
@@ -46,7 +47,7 @@ EmpI::ice_ping(const Ice::Current& current) const
 HR::EmpDesc 
 EmpI::getDesc(const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int empno = decodeName(current.id.name);
@@ -68,7 +69,8 @@ EmpI::getDesc(const Ice::Current& current)
     
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL SELECT ENAME, JOB, MGR, HIREDATE, SAL, COMM, DEPTNO 
-	     INTO :ename:enameInd, :job:jobInd, :mgr:mgrInd, :hiredate:hiredateInd, :sal:salInd, :comm:commInd, :deptno:deptnoInd
+	     INTO :ename:enameInd, :job:jobInd, :mgr:mgrInd, :hiredate:hiredateInd, :sal:salInd, :comm:commInd, 
+                  :deptno:deptnoInd
              FROM EMP WHERE EMPNO = :empno;
     EXEC SQL COMMIT;
   
@@ -112,12 +114,13 @@ EmpI::getDesc(const Ice::Current& current)
     return result;
 }
     
-void EmpI::updateField(const string& field, const string& newValue, const Ice::Current& current)
+void 
+EmpI::updateField(const string& field, const string& newValue, const Ice::Current& current)
 {
     const string updateEmpStr =
 	"UPDATE EMP SET " + field + " = '" + newValue + "' WHERE EMPNO = " + current.id.name;
 
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     const char* updateEmp = updateEmpStr.c_str();
     sql_context ctx = _currentCtx;
@@ -128,9 +131,10 @@ void EmpI::updateField(const string& field, const string& newValue, const Ice::C
     EXEC SQL COMMIT;
 }
 
-void EmpI::updateMgr(int newMgr, const Ice::Current& current)
+void 
+EmpI::updateMgr(int newMgr, const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int empno = decodeName(current.id.name);
@@ -143,9 +147,10 @@ void EmpI::updateMgr(int newMgr, const Ice::Current& current)
     EXEC SQL COMMIT;
 }
 
-void EmpI::updateDept(int newDept, const Ice::Current& current)
+void 
+EmpI::updateDept(int newDept, const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int empno = decodeName(current.id.name);
@@ -158,9 +163,10 @@ void EmpI::updateDept(int newDept, const Ice::Current& current)
     EXEC SQL COMMIT;
 }
 
-void EmpI::remove(const Ice::Current& current)
+void 
+EmpI::remove(const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int empno = decodeName(current.id.name);

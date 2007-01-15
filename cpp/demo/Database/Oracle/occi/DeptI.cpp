@@ -89,7 +89,8 @@ DeptI::getDesc(const Ice::Current& current)
     return result;
 }
     
-void DeptI::updateField(const string& field, const string& newValue, const Ice::Current& current)
+void 
+DeptI::updateField(const string& field, const string& newValue, const Ice::Current& current)
 {
     Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
 	    
@@ -109,7 +110,8 @@ void DeptI::updateField(const string& field, const string& newValue, const Ice::
     _conh->commit();
 }
 
-void DeptI::remove(const Ice::Current& current)
+void 
+DeptI::remove(const Ice::Current& current)
 {
     Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
     deptRef->markDelete();

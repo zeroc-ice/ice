@@ -61,7 +61,7 @@ private:
 int
 main(int argc, char* argv[])
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL CONTEXT USE DEFAULT;
     EXEC SQL ENABLE THREADS;
     

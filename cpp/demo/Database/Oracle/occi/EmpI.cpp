@@ -62,7 +62,8 @@ EmpI::getDesc(const Ice::Current& current)
     return result;
 }
     
-void EmpI::updateField(const string& field, const string& newValue, const Ice::Current& current)
+void 
+EmpI::updateField(const string& field, const string& newValue, const Ice::Current& current)
 {
     Ref<EMP_T> empRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
     
@@ -121,7 +122,8 @@ void EmpI::updateField(const string& field, const string& newValue, const Ice::C
     _conh->commit();
 }
 
-void EmpI::updateMgr(int newMgr, const Ice::Current& current)
+void 
+EmpI::updateMgr(int newMgr, const Ice::Current& current)
 {
     Ref<EMP_T> empRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
     
@@ -143,7 +145,8 @@ void EmpI::updateMgr(int newMgr, const Ice::Current& current)
     _conh->commit();
 }
 
-void EmpI::updateDept(int newDept, const Ice::Current& current)
+void 
+EmpI::updateDept(int newDept, const Ice::Current& current)
 {
     Ref<EMP_T> empRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
     
@@ -165,7 +168,8 @@ void EmpI::updateDept(int newDept, const Ice::Current& current)
     _conh->commit();
 }
 
-void EmpI::remove(const Ice::Current& current)
+void 
+EmpI::remove(const Ice::Current& current)
 {
     Ref<EMP_T> empRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
     empRef->markDelete();

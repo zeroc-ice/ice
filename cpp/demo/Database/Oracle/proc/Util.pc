@@ -14,7 +14,8 @@
 
 using namespace std;
 
-void handleSqlError(const struct sqlca& badca, sql_context sc)
+void 
+handleSqlError(const sqlca& badca, sql_context sc)
 {
     //
     // First rollback transaction
@@ -23,7 +24,7 @@ void handleSqlError(const struct sqlca& badca, sql_context sc)
     sql_context ctx = sc;
     EXEC SQL END DECLARE SECTION;
     
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL ROLLBACK;
 
@@ -31,7 +32,8 @@ void handleSqlError(const struct sqlca& badca, sql_context sc)
     throw HR::SqlException(msg);
 }
 
-void handleNotFound(const Ice::Current& current, sql_context sc)
+void 
+handleNotFound(const Ice::Current& current, sql_context sc)
 {
     //
     // First rollback transaction
@@ -40,14 +42,15 @@ void handleNotFound(const Ice::Current& current, sql_context sc)
     sql_context ctx = sc;
     EXEC SQL END DECLARE SECTION;
     
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL ROLLBACK;
 
     throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
 }
 
-int decodeName(const string& name)
+int 
+decodeName(const string& name)
 {
     int result = 0;
     istringstream is(name);
@@ -60,7 +63,8 @@ int decodeName(const string& name)
     return result;
 }
 
-string encodeName(int n)
+string 
+encodeName(int n)
 {
     ostringstream os;
     os << n;

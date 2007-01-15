@@ -25,7 +25,7 @@ DeptFactoryI::DeptFactoryI(const CurrentSqlContext& currentCtx, const string& de
 HR::DeptPrx 
 DeptFactoryI::createDept(int key, const HR::DeptDesc& desc, const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int deptno = key;
@@ -48,7 +48,7 @@ EXEC SQL WHENEVER NOT FOUND DO break;
 HR::DeptPrxSeq 
 DeptFactoryI::findAll(const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int deptno;
@@ -79,7 +79,7 @@ DeptFactoryI::findAll(const Ice::Current& current)
 HR::DeptPrxSeq 
 DeptFactoryI::findByName(const string& name, const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     const char* dname = name.c_str();
     sql_context ctx = _currentCtx;

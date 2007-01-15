@@ -62,7 +62,7 @@ public:
 		(*_current)[_index] = 0;
 		EXEC SQL CONTEXT USE :ctx;
 
-		struct sqlca sqlca;
+		sqlca sqlca;
 		EXEC SQL ROLLBACK RELEASE;
 		EXEC SQL CONTEXT FREE :ctx;
 	    }
@@ -128,7 +128,7 @@ CurrentSqlContext::operator sql_context() const
 	//
 	// Allocate and connect
 	//
-	struct sqlca sqlca;
+	sqlca sqlca;
 	
 	EXEC SQL CONTEXT ALLOCATE :ctx;
 	EXEC SQL CONTEXT USE :ctx;

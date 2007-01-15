@@ -25,7 +25,7 @@ DeptI::DeptI(const CurrentSqlContext& currentCtx, const string& empCategory) :
 void 
 DeptI::ice_ping(const Ice::Current& current) const
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int deptno = decodeName(current.id.name);
@@ -45,7 +45,7 @@ DeptI::ice_ping(const Ice::Current& current) const
 HR::EmpPrx 
 DeptI::createEmp(int key, const HR::EmpDesc& desc, const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     sql_context ctx = _currentCtx;
     int deptno = decodeName(current.id.name);
@@ -88,7 +88,7 @@ DeptI::createEmp(int key, const HR::EmpDesc& desc, const Ice::Current& current)
 HR::DeptDesc 
 DeptI::getDesc(const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     int deptno = decodeName(current.id.name);
     sql_context ctx = _currentCtx;
@@ -130,12 +130,13 @@ DeptI::getDesc(const Ice::Current& current)
     return result;
 }
     
-void DeptI::updateField(const string& field, const string& newValue, const Ice::Current& current)
+void 
+DeptI::updateField(const string& field, const string& newValue, const Ice::Current& current)
 {
     const string updateDeptStr =
 	"UPDATE DEPT SET " + field + " = '" + newValue + "' WHERE DEPTNO = " + current.id.name;
     
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     const char* updateDept = updateDeptStr.c_str();
     sql_context ctx = _currentCtx;
@@ -146,9 +147,10 @@ void DeptI::updateField(const string& field, const string& newValue, const Ice::
     EXEC SQL COMMIT;
 }
 
-void DeptI::remove(const Ice::Current& current)
+void
+DeptI::remove(const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     int deptno = decodeName(current.id.name);
     sql_context ctx = _currentCtx;
@@ -160,7 +162,7 @@ void DeptI::remove(const Ice::Current& current)
 }
 
 //
-// Cursor-base functions
+// Cursor-based functions
 //
 
 EXEC SQL WHENEVER NOT FOUND DO break;
@@ -168,7 +170,7 @@ EXEC SQL WHENEVER NOT FOUND DO break;
 HR::EmpPrxSeq 
 DeptI::findAll(const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     int deptno = decodeName(current.id.name);
     sql_context ctx = _currentCtx;
@@ -200,7 +202,7 @@ DeptI::findAll(const Ice::Current& current)
 HR::EmpPrxSeq 
 DeptI::findByName(const string& name, const Ice::Current& current)
 {
-    struct sqlca sqlca;
+    sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
     int deptno = decodeName(current.id.name);
     const char* ename = name.c_str();
