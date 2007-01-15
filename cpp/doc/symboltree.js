@@ -97,11 +97,11 @@ symboltree.main = function()
     //
     // Set handler for the "Expand All" and "Collapse All" buttons.
     //
-    //var expandAll = document.getElementById('ExpandAllButton');
-    //expandAll.addEventListener('click', symboltree.expandAll, false);
+    var expandAll = document.getElementById('ExpandAllButton');
+    expandAll.addEventListener('click', symboltree.expandAll, false);
 
-    //var collapseAll = document.getElementById('CollapseAllButton');
-    //collapseAll.addEventListener('click', symboltree.collapseAll, false);
+    var collapseAll = document.getElementById('CollapseAllButton');
+    collapseAll.addEventListener('click', symboltree.collapseAll, false);
 }
 
 //

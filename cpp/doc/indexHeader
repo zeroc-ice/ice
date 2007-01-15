@@ -20,14 +20,14 @@ TITLE
 	        list-style-type: none;
 		padding-left: 20px;
 		width: 20px;
-		background: url("../images/opened.gif") no-repeat;
+		background: url("images/opened.gif") no-repeat;
 		cursor: pointer;
 	    }
 	    .ExpandedList {
 	        list-style-type: none;
 		padding-left: 20px;
 		width: 20px;
-		background: url("../images/closed.gif") no-repeat;
+		background: url("images/closed.gif") no-repeat;
 		cursor: pointer;
 	    }
 	    .ExpandCollapseButtonTable {
@@ -38,6 +38,15 @@ TITLE
 	    #CollapseAllButton {
 		cursor: pointer;
 	    }
+	    HomeButton {
+		cursor: pointer;
+	    }
 	</style>
     </head>
     <body>
+	<div>
+	    <a href="index.html">
+		<img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
+	    </a>
+	</div>
+	<hr>
