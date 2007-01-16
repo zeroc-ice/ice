@@ -308,16 +308,16 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(info.type == Ice::Locator::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 2);
-	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
-	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
+	test(endpoints[0]->toString().find("-p 12050") != string::npos);
+	test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
 	test(slave1Admin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query")) == info);
 	test(info.type == IceGrid::Query::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 2);
-	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
-	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
+	test(endpoints[0]->toString().find("-p 12050") != string::npos);
+	test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
 	admin->startServer("Slave2");
 	slave2Admin = createAdminSession(slave2Locator, "Slave2");
@@ -334,9 +334,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(info.type == Ice::Locator::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 3);
-	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
-	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
-	test(endpoints[2]->toString() == slave2Locator->ice_getEndpoints()[0]->toString());
+	test(endpoints[0]->toString().find("-p 12050") != string::npos);
+	test(endpoints[1]->toString().find("-p 12051") != string::npos);
+	test(endpoints[2]->toString().find("-p 12052") != string::npos);
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
 	// We eventually need to wait here for the update of the replicated objects to propagate to the replica.
@@ -350,9 +350,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(info.type == IceGrid::Query::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 3);
-	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
-	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
-	test(endpoints[2]->toString() == slave2Locator->ice_getEndpoints()[0]->toString());
+	test(endpoints[0]->toString().find("-p 12050") != string::npos);
+	test(endpoints[1]->toString().find("-p 12051") != string::npos);
+	test(endpoints[2]->toString().find("-p 12052") != string::npos);
 
 	slave2Admin->shutdown();
 	waitForServerState(admin, "Slave2", false);
@@ -369,8 +369,8 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(info.type == Ice::Locator::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 2);
-	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
-	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
+	test(endpoints[0]->toString().find("-p 12050") != string::npos);
+	test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
 	info = masterAdmin->getObjectInfo(comm->stringToIdentity("TestIceGrid/Query"));
 	nRetry = 0;
@@ -383,8 +383,8 @@ allTests(const Ice::CommunicatorPtr& comm)
 	test(info.type == IceGrid::Query::ice_staticId());
 	endpoints = info.proxy->ice_getEndpoints();
 	test(endpoints.size() == 2);
-	test(endpoints[0]->toString() == masterLocator->ice_getEndpoints()[0]->toString());
-	test(endpoints[1]->toString() == slave1Locator->ice_getEndpoints()[0]->toString());
+	test(endpoints[0]->toString().find("-p 12050") != string::npos);
+	test(endpoints[1]->toString().find("-p 12051") != string::npos);
 
 	QueryPrx query;
 	query = QueryPrx::uncheckedCast(comm->stringToProxy("TestIceGrid/Query:" + endpoints[0]->toString()));
