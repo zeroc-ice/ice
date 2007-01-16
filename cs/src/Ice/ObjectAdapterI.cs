@@ -1144,6 +1144,14 @@ namespace Ice
 		IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s);
 		if(endp == null)
 		{
+		    if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
+		       s.StartsWith("ssl"))
+		    {
+                        instance_.initializationData().logger.warning(
+                            "SSL endpoint `" + s + "' ignored: IceSSL is not supported with Mono");
+                        ++end;
+                        continue;
+		    }
 		    Ice.EndpointParseException e2 = new Ice.EndpointParseException();
 		    e2.str = s;
 		    throw e2;

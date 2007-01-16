@@ -300,6 +300,21 @@ namespace Ice
             }
             catch(System.Exception ex)
             {
+                //
+                // IceSSL is not supported with Mono 1.2. We avoid throwing an exception in that case,
+                // so the same configuration can be used with Mono or Visual C#.
+                //
+                if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono && name == "IceSSL")
+                {
+                    if(!_sslWarnOnce)
+                    {
+                        _communicator.getLogger().warning(
+                            "IceSSL plugin not loaded: IceSSL is not supported with Mono");
+                        _sslWarnOnce = true;
+                    }
+                    return;
+                }
+
                 PluginInitializationException e = new PluginInitializationException();
                 e.reason = err + "unable to load assembly: '" + assemblyName + "': " + ex.ToString();
                 throw e;
@@ -431,5 +446,6 @@ namespace Ice
 	private ArrayList _initOrder;
 	private Logger _logger = null;
 	private bool _initialized;
+	private static bool _sslWarnOnce = false;
     }
 }

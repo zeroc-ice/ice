@@ -3,8 +3,7 @@
 # "Hello". The following line sets the endpoints for this
 # adapter.
 #
-#Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
-Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000
+Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions.
@@ -45,7 +44,7 @@ Ice.ACM.Server=10
 #
 # SSL plugin configuration
 #
-#Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs
 IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx

@@ -2,6 +2,8 @@ Build instructions
 ------------------
 
 This version of Ice for C# requires Mono version 1.2.2.1 or later.
+Note that Mono currently does not contain full SSL support and 
+therefore IceSSL is not supported.
 
 Unpack the archive. The sources will be contained in the 
 IceCS-@ver@ subdirectory.
