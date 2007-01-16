@@ -1694,8 +1694,6 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 
 Ice::ConnectionI::~ConnectionI()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    
     assert(_state == StateClosed);
     assert(!_transceiver);
     assert(_dispatchCount == 0);

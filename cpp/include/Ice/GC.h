@@ -45,7 +45,6 @@ private:
     bool _collecting;
     int _interval;
     StatsCallback _statsCallback;
-    static int _numCollectors;
 };
 
 }

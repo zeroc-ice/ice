@@ -8,9 +8,12 @@
 // **********************************************************************
 
 #include <IceUtil/Time.h>
+#include <IceUtil/StaticMutex.h>
 #include <Ice/GC.h>
 #include <Ice/GCRecMutex.h>
 #include <Ice/GCShared.h>
+
+using namespace IceUtil;
 
 namespace IceInternal
 {
@@ -33,18 +36,17 @@ recursivelyReachable(GCShared* p, GCObjectSet& o)
 
 }
 
-using namespace IceUtil;
-
-int IceInternal::GC::_numCollectors = 0;
+static IceUtil::StaticMutex numCollectorsMutex = ICE_STATIC_MUTEX_INITIALIZER;
+static int numCollectors = 0;
 
 IceInternal::GC::GC(int interval, StatsCallback cb)
 {
-    Monitor<Mutex>::Lock sync(*this);
-
-    if(_numCollectors++ > 0)
+    StaticMutex::Lock sync(numCollectorsMutex);
+    if(numCollectors++ > 0)
     {
 	abort(); // Enforce singleton.
     }
+
     _state = NotStarted;
     _collecting = false;
     _interval = interval;
@@ -53,9 +55,8 @@ IceInternal::GC::GC(int interval, StatsCallback cb)
 
 IceInternal::GC::~GC()
 {
-    Monitor<Mutex>::Lock sync(*this);
-
-    --_numCollectors;
+    StaticMutex::Lock sync(numCollectorsMutex);
+    --numCollectors;
 }
 
 void

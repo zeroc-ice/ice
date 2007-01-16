@@ -916,8 +916,6 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 
 IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    
     assert(_state == StateClosed);
     assert(!_acceptor);
     assert(_connections.empty());
