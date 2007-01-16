@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Fixed a bug where new connections are be accepted but not serviced
+  correctly when using the thread pool concurrency model if the number
+  of file descriptors registered with the thread pool exceeds FD_SETSIZE.
+
 - Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
   allow applications to determine, respectively, whether communicator has
   been shutdown or object adapter has been deactivated.

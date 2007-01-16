@@ -789,12 +789,15 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    // XXX: must promoteFollower be inside or outside the mutex?
     threadPool->promoteFollower();
+    assert(threadPool.get() == dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool().get());
     
     --_finishedCount;
 
     if(_finishedCount == 0 && _state == StateClosed)
     {
+	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->decFdsInUse();
 	_acceptor->close();
 	_acceptor = 0;
 	notifyAll();
@@ -877,10 +880,10 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	assert(_acceptor);
 	_acceptor->listen();
 
-	if(_instance->threadPerConnection())
+	__setNoDelete(true);
+	try
 	{
-	    __setNoDelete(true);
-	    try
+	    if(_instance->threadPerConnection())
 	    {
 		//
 		// If we are in thread per connection mode, we also use
@@ -890,27 +893,32 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 		_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
 		_threadPerIncomingConnectionFactory->start(_instance->threadPerConnectionStackSize());
 	    }
-	    catch(const IceUtil::Exception& ex)
+	    else
 	    {
-		{
-		    Error out(_instance->initializationData().logger);
-		    out << "cannot create thread for incoming connection factory:\n" << ex;
-		}
-		
-		try
-		{
-		    _acceptor->close();
-		}
-		catch(const LocalException&)
-		{
-		    // Here we ignore any exceptions in close().
-		}
-
-		__setNoDelete(false);
-		ex.ice_throw();
+		dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->incFdsInUse();
 	    }
-	    __setNoDelete(false);
 	}
+	catch(const IceUtil::Exception& ex)
+	{
+	    if(_instance->threadPerConnection())
+	    {
+		Error out(_instance->initializationData().logger);
+		out << "cannot create thread for incoming connection factory:\n" << ex;
+	    }
+	    
+	    try
+	    {
+		_acceptor->close();
+	    }
+	    catch(const LocalException&)
+	    {
+		// Here we ignore any exceptions in close().
+	    }
+	    
+	    __setNoDelete(false);
+	    ex.ice_throw();
+	}
+	__setNoDelete(false);
     }
 }
 

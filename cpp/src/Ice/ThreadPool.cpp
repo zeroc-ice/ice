@@ -60,6 +60,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _minFd = _fdIntrRead;
 
 #if defined(_WIN32)
+    _fdsInUse = 1; // _fdIntrRead is always in use.
     FD_ZERO(&_fdSet);
     FD_SET(_fdIntrRead, &_fdSet);
 #elif defined(__linux)
@@ -207,6 +208,48 @@ IceInternal::ThreadPool::destroy()
     assert(_changes.empty());
     _destroyed = true;
     setInterrupt();
+}
+
+void
+IceInternal::ThreadPool::incFdsInUse()
+{
+    // This is windows specific since every other platform uses an API
+    // that doesn't have a specific FD limit.
+#ifdef _WIN32
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    assert(!_destroyed);
+    if(_fdsInUse + 1 > FD_SETSIZE)
+    {
+	Warning warn(_instance->initializationData().logger);
+	warn << "maximum number of connections exceeded";
+
+	//
+	// No appropriate errno.
+	//
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = 0;
+	throw ex;
+    }
+    ++_fdsInUse;
+#endif
+}
+
+void
+IceInternal::ThreadPool::decFdsInUse()
+{
+    // This is windows specific since every other platform uses an API
+    // that doesn't have a specific FD limit.
+#ifdef _WIN32
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    assert(!_destroyed);
+    if(_fdsInUse <= 1)
+    {
+	Trace trace(_instance->initializationData().logger, "ThreadPool");
+	trace << _prefix << ": about to assert";
+    }
+    assert(_fdsInUse > 1); // _fdIntrRead is always in use.
+    --_fdsInUse;
+#endif
 }
 
 void

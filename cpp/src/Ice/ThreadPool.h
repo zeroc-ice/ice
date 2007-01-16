@@ -48,6 +48,9 @@ public:
 
     void destroy();
 
+    void incFdsInUse();
+    void decFdsInUse();
+
     void _register(SOCKET, const EventHandlerPtr&);
     void unregister(SOCKET);
     void promoteFollower();
@@ -74,6 +77,7 @@ private:
     SOCKET _fdIntrWrite;
 #if defined(_WIN32)
     fd_set _fdSet;
+    int _fdsInUse;
 #elif defined(__linux)
     int _epollFd;
     std::vector<struct epoll_event> _events;

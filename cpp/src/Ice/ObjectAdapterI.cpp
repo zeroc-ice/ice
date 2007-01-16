@@ -777,6 +777,33 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     __setNoDelete(true);
     try
     {
+	// First create the per-adapter thread pool, if
+	// necessary. This is done before the creation of the incoming
+	// connection factory as the thread pool is needed during
+	// creation for the call to incFdsInUse.
+	if(!_instance->threadPerConnection())
+	{
+	    if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
+	       !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
+	    {
+	        int size = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+	        int sizeMax = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+	        if(size > 0 || sizeMax > 0)
+	        {
+		    _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
+	        }
+	    }
+	    else
+	    {
+	        int size = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
+	        int sizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+	        if(size > 0 || sizeMax > 0)
+	        {
+		    _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
+	        }
+	    }
+	}
+
     	if(!router)
 	{
 	    const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
@@ -889,29 +916,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	else
 	{
 	    setLocator(_instance->referenceFactory()->getDefaultLocator());
-	}
-
-	if(!_instance->threadPerConnection())
-	{
-	    if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
-	       !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
-	    {
-	        int size = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-	        int sizeMax = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-	        if(size > 0 || sizeMax > 0)
-	        {
-		    _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
-	        }
-	    }
-	    else
-	    {
-	        int size = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
-	        int sizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-	        if(size > 0 || sizeMax > 0)
-	        {
-		    _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
-	        }
-	    }
 	}
     }
     catch(...)

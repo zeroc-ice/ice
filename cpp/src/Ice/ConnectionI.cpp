@@ -1451,9 +1451,12 @@ Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	--_finishedCount;
+	assert(threadPool.get() == _threadPool.get());
 
 	if(_finishedCount == 0 && _state == StateClosed)
 	{
+	    _threadPool->decFdsInUse();
+
 	    //
 	    // We must make sure that nobody is sending when we close
 	    // the transceiver.
@@ -1606,8 +1609,8 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     }
 
     int& compressionLevel = const_cast<int&>(_compressionLevel);
-    compressionLevel =  \
-	_instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.Compression.Level", 1);
+    compressionLevel = _instance->initializationData().properties->getPropertyAsIntWithDefault(
+	"Ice.Compression.Level", 1);
     if(compressionLevel < 1)
     {
 	compressionLevel = 1;
@@ -1642,6 +1645,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	    {
 		const_cast<ThreadPoolPtr&>(_threadPool) = _instance->clientThreadPool();
 	    }
+	    _threadPool->incFdsInUse();
 	}
 	else
 	{
@@ -1671,7 +1675,11 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	    {
 		out << "cannot create thread for connection:\n" << ex;
 	    }
-	    else
+	    //
+	    // If the _threadPool member variable is set then
+	    // ThreadPool::incFdsInUse() failed.
+	    //
+	    else if(!_threadPool)
 	    {
 		out << "cannot create thread pool for connection:\n" << ex;
 	    }
@@ -1858,6 +1866,8 @@ Ice::ConnectionI::setState(State state)
 		// away.
 		//
 		assert(!_registeredWithPool);
+		
+		_threadPool->decFdsInUse();
 		
 		//
 		// We must make sure that nobody is sending when we
