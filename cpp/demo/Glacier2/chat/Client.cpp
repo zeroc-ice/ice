@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <IceUtil/IceUtil.h>
 #include <Glacier2/Router.h>
 #include <Chat.h>
 
