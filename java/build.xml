@@ -164,7 +164,7 @@
     <target name="icegridgui-jar" depends="icegridgui-compile" unless="java5">
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
-	    <attribute name="Class-Path" value="Ice.jar looks-1.3.2.jar forms-1.0.5.jar"/>
+	    <attribute name="Class-Path" value="Ice.jar looks-2.0.4.jar forms-1.0.7.jar"/>
 	</manifest>
 	<jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
 	    <include name="IceGridGUI/**"/>
