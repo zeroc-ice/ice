@@ -16,7 +16,19 @@ using namespace Demo;
 void
 CallbackReceiverI::callback(const Ice::Current&)
 {
+#ifdef __xlC__
+
+	//
+	// The xlC compiler synchronizes cin and cout; to see the messages
+	// while accepting input through cin, we have to print the messages
+	// with printf
+	//
+
+	printf("received callback\n");
+	fflush(0);
+#else
     cout << "received callback" << endl;
+#endif
 }
 
 void
