@@ -17,6 +17,7 @@
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/UserAccountMapper.h>
 #include <IceGrid/FileCache.h>
+#include <set>
 
 namespace IceGrid
 {

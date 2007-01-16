@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/Thread.h>
 #include <TestI.h>
 
 using namespace std;

@@ -10,19 +10,13 @@
 #ifndef ICE_GC_SHARED_H
 #define ICE_GC_SHARED_H
 
-#include <IceUtil/Config.h>
-#include <Ice/GCRecMutex.h>
+#include <Ice/Config.h>
 #include <Ice/GCCountMap.h>
-#include <set>
 
 namespace IceInternal
 {
 
 class GC;
-class GCShared;
-
-typedef std::set<GCShared*> GCObjectSet;
-extern ICE_API GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
 
 class ICE_API GCShared
 {
@@ -59,6 +53,9 @@ public:
     }
 
 protected:
+
+    void __gcIncRef();
+    void __gcDecRef();
 
     int _ref;
     bool _noDelete;

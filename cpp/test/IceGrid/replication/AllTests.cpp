@@ -15,6 +15,7 @@
 #include <IceGrid/Registry.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/UserAccountMapper.h>
+#include <IceUtil/Thread.h>
 #include <TestCommon.h>
 #include <Test.h>
 

@@ -13,8 +13,10 @@
 #include <IceGrid/Query.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Admin.h>
+#include <IceUtil/Thread.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <set>
 
 using namespace std;
 using namespace Test;

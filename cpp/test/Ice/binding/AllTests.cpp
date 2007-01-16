@@ -11,6 +11,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <set>
 
 #include <functional>
 

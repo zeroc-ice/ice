@@ -17,6 +17,7 @@
 #include <IceGrid/StringApplicationInfoDict.h>
 #include <IceGrid/StringAdapterInfoDict.h>
 #include <IceGrid/IdentityObjectInfoDict.h>
+#include <set>
 
 namespace IceGrid
 {

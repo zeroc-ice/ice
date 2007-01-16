@@ -41,8 +41,6 @@ OBJS		= Acceptor.o \
 		  FactoryTableDef.o \
 		  FactoryTable.o \
 		  GC.o \
-		  GCRecMutex.o \
-		  GCShared.o \
 		  Identity.o \
 		  IdentityUtil.o \
 		  ImplicitContextI.o \

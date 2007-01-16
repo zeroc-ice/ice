@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Registry.h>
 #include <TestCommon.h>

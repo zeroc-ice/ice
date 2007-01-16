@@ -9,11 +9,23 @@
 
 #include <IceUtil/Time.h>
 #include <IceUtil/StaticMutex.h>
+#include <IceUtil/RecMutex.h>
 #include <Ice/GC.h>
-#include <Ice/GCRecMutex.h>
 #include <Ice/GCShared.h>
+#include <set>
 
 using namespace IceUtil;
+
+namespace 
+{
+StaticMutex numCollectorsMutex = ICE_STATIC_MUTEX_INITIALIZER;
+int numCollectors = 0;
+typedef std::set<IceInternal::GCShared*> GCObjectSet;
+GCObjectSet gcObjects; // Set of pointers to all existing classes with class data members.
+
+RecMutex gcRecMutex;
+}
+
 
 namespace IceInternal
 {
@@ -36,8 +48,110 @@ recursivelyReachable(GCShared* p, GCObjectSet& o)
 
 }
 
-static IceUtil::StaticMutex numCollectorsMutex = ICE_STATIC_MUTEX_INITIALIZER;
-static int numCollectors = 0;
+using namespace IceInternal;
+
+//
+// GCShared
+//
+
+IceInternal::GCShared::GCShared() :
+    _ref(0),
+    _noDelete(false)
+{
+}
+
+IceInternal::GCShared::GCShared(const GCShared&) :
+    _ref(0),
+    _noDelete(false)
+{
+}
+
+void
+IceInternal::GCShared::__incRef()
+{
+    RecMutex::Lock lock(gcRecMutex);
+    assert(_ref >= 0);
+    ++_ref;
+}
+
+void
+IceInternal::GCShared::__decRef()
+{
+    RecMutex::Lock lock(gcRecMutex);
+    bool doDelete = false;
+    assert(_ref > 0);
+    if(--_ref == 0)
+    {
+	doDelete = !_noDelete;
+	_noDelete = true;
+    }
+    lock.release();
+    if(doDelete)
+    {
+	delete this;
+    }
+}
+
+int
+IceInternal::GCShared::__getRef() const
+{
+    RecMutex::Lock lock(gcRecMutex);
+    return _ref;
+}
+
+void
+IceInternal::GCShared::__setNoDelete(bool b)
+{
+    RecMutex::Lock lock(gcRecMutex);
+    _noDelete = b;
+}
+
+void
+IceInternal::GCShared::__gcIncRef()
+{
+    RecMutex::Lock lock(gcRecMutex);
+    assert(_ref >= 0);
+    if(_ref == 0)
+    {
+#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
+	gcObjects.insert(this);
+#else
+	std::pair<GCObjectSet::iterator, bool> rc = gcObjects.insert(this);
+	assert(rc.second);
+#endif
+    }
+    ++_ref;
+}
+
+void
+IceInternal::GCShared::__gcDecRef()
+{
+    RecMutex::Lock lock(gcRecMutex);
+    bool doDelete = false;
+    assert(_ref > 0);
+    if(--_ref == 0)
+    {
+	doDelete = !_noDelete;
+	_noDelete = true;
+#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
+	gcObjects.erase(this);
+#else
+	GCObjectSet::size_type num = gcObjects.erase(this);
+	assert(num == 1);
+#endif
+    }
+    lock.release();
+    if(doDelete)
+    {
+	delete this;
+    }
+}
+
+
+//
+// GC
+//
+
 
 IceInternal::GC::GC(int interval, StatsCallback cb)
 {
@@ -147,7 +261,7 @@ IceInternal::GC::collectGarbage()
 	_collecting = true;
     }
 
-    RecMutex::Lock sync(*gcRecMutex._m); // Prevent any further class reference count activity.
+    RecMutex::Lock sync(gcRecMutex); // Prevent any further class reference count activity.
 
     Time t;
     GCStats stats;

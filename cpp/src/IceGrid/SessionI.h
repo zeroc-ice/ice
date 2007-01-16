@@ -14,6 +14,7 @@
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/SessionServantLocatorI.h>
+#include <set>
 
 namespace IceGrid
 {

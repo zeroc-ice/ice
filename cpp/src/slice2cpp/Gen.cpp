@@ -197,7 +197,7 @@ Slice::Gen::generate(const UnitPtr& p)
     {
 	H << "\n#include <Ice/Proxy.h>";
     }
-
+    
     if(p->hasNonLocalClassDefs())
     {
 	H << "\n#include <Ice/Object.h>";
@@ -212,6 +212,7 @@ Slice::Gen::generate(const UnitPtr& p)
 	    H << "\n#include <Ice/IncomingAsync.h>";
 	}
 	H << "\n#include <Ice/Direct.h>";
+
 	C << "\n#include <Ice/LocalException.h>";
 	C << "\n#include <Ice/ObjectFactory.h>";
     }
@@ -3684,56 +3685,14 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__incRef()";
 	C << sb;
-	C << nl << "IceInternal::gcRecMutex._m->lock();";
-	C << nl << "assert(_ref >= 0);";
-        C << nl << "if(_ref == 0)";
-	C << sb;
-	C.zeroIndent();
-	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
-	C.restoreIndent();
-	C << nl << "IceInternal::gcObjects.insert(this);";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << "std::pair<IceInternal::GCObjectSet::iterator, bool> rc = IceInternal::gcObjects.insert(this);";
-	C << nl << "assert(rc.second);";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-	C << eb;
-	C << nl << "++_ref;";
-	C << nl << "IceInternal::gcRecMutex._m->unlock();";
+	C << nl << "__gcIncRef();";
 	C << eb;
 
 	H << nl << "virtual void __decRef();";
 
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__decRef()";
 	C << sb;
-	C << nl << "IceInternal::gcRecMutex._m->lock();";
-	C << nl << "bool doDelete = false;";
-	C << nl << "assert(_ref > 0);";
-	C << nl << "if(--_ref == 0)";
-	C << sb;
-	C << nl << "doDelete = !_noDelete;";
-	C << nl << "_noDelete = true;";
-        C.zeroIndent();
-	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
-	C.restoreIndent();
-	C << nl << "IceInternal::gcObjects.erase(this);";
-        C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << "IceInternal::GCObjectSet::size_type num = IceInternal::gcObjects.erase(this);";
-	C << nl << "assert(num == 1);";
-        C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-	C << eb;
-	C << nl << "IceInternal::gcRecMutex._m->unlock();";
-	C << nl << "if(doDelete)";
-	C << sb;
-	C << nl << "delete this;";
-	C << eb;
+	C << nl << "__gcDecRef();";
 	C << eb;
 
 	H << nl << "virtual void __addObject(::IceInternal::GCCountMap&);";

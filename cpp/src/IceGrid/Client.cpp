@@ -10,6 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
+#include <IceUtil/Thread.h>
 #include <Ice/Ice.h>
 #include <Ice/SliceChecksums.h>
 #include <IceGrid/Parser.h>

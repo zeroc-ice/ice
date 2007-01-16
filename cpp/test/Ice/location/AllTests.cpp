@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/Router.h>
-#include <IceUtil/UUID.h>
+#include <IceUtil/IceUtil.h>
 #include <TestCommon.h>
 #include <Test.h>
 

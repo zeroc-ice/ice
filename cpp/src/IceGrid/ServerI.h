@@ -15,6 +15,7 @@
 #include <IceGrid/Activator.h>
 #include <IceGrid/WaitQueue.h>
 #include <IceGrid/Internal.h>
+#include <set>
 
 #ifndef _WIN32
 #   include <sys/types.h> // for uid_t, gid_t

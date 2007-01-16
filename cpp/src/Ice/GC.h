@@ -10,16 +10,15 @@
 #ifndef ICE_GC_H
 #define ICE_GC_H
 
-#include <IceUtil/Config.h>
+#include <Ice/Config.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <Ice/Config.h>
 
 namespace IceInternal
 {
 
-struct ICE_API GCStats
+struct GCStats
 {
     int examined;
     int collected;
@@ -32,11 +31,11 @@ public:
 
     typedef void (*StatsCallback)(const ::IceInternal::GCStats&);
 
-    ICE_API GC(int, StatsCallback);
-    ICE_API virtual ~GC();
-    ICE_API virtual void run();
-    ICE_API void stop();
-    ICE_API void collectGarbage();
+    GC(int, StatsCallback);
+    virtual ~GC();
+    virtual void run();
+    void stop();
+    void collectGarbage();
 
 private:
 

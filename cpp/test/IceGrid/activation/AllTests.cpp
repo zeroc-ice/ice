@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Registry.h>
+#include <IceUtil/Thread.h>
 #include <TestCommon.h>
 #include <Test.h>
 

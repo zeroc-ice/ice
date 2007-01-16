@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <TestI.h>
 #include <TestCommon.h>
 #include <functional>

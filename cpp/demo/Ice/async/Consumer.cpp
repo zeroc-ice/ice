@@ -10,6 +10,7 @@
 #include <Ice/Application.h>
 #include <IceUtil/UUID.h>
 #include <Queue.h>
+#include <set>
 
 using namespace std;
 using namespace Demo;

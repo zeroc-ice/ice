@@ -14,6 +14,7 @@
 #include <IceXML/Parser.h>
 #include <IceGrid/Admin.h>
 #include <IceGrid/Internal.h>
+#include <set>
 
 namespace IceGrid
 {

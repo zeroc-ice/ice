@@ -10,9 +10,6 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
-#include <Ice/GCRecMutex.h>
-#include <Ice/GCShared.h>
-#include <Ice/GC.h>
 #include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>

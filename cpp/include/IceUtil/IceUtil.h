@@ -32,5 +32,6 @@
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/Random.h>
 
 #endif
