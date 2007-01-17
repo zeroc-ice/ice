@@ -126,7 +126,7 @@ private:
     const TransceiverPtr _transceiver;
     const EndpointIPtr _endpoint;
 
-    const Ice::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _adapter;
 
     bool _registeredWithPool;
     int _finishedCount;

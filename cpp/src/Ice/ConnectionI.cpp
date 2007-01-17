@@ -463,6 +463,13 @@ Ice::ConnectionI::waitUntilFinished()
 
 	secondThreadPerConnection = _secondThreadPerConnection;
 	_secondThreadPerConnection = 0;
+
+	//
+	// Clear the OA. See
+	// http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1673 for
+	// the details of why this is necessary.
+	//
+	_adapter = 0;
     }
 
     if(threadPerConnection)

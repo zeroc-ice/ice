@@ -80,7 +80,7 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 	{
 	    wait();
 	}
-	
+
 	//
 	// We want to wait until all connections are finished outside the
 	// thread synchronization.
@@ -578,6 +578,13 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	_threadPerIncomingConnectionFactory = 0;
 
 	//
+	// Clear the OA. See
+	// http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1673 for
+	// the details of why this is necessary.
+	//
+	_adapter = 0;
+
+	//
 	// We want to wait until all connections are finished outside the
 	// thread synchronization.
 	//
@@ -789,7 +796,6 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    // XXX: must promoteFollower be inside or outside the mutex?
     threadPool->promoteFollower();
     assert(threadPool.get() == dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool().get());
     
