@@ -1570,21 +1570,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
 	catch(java.lang.Exception ex)
 	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    ex.printStackTrace(pw);
-	    pw.flush();
-	    String s;
 	    if(_instance.threadPerConnection())
 	    {
-		s = "cannot create thread for connection:\n";
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_logger.error("cannot create thread for connection:\n" + sw.toString());
 	    }
-	    else
-	    {
-		s = "cannot create thread pool for connection:\n";
-	    }
-	    s += sw.toString();
-	    _logger.error(s);
 	    
 	    try
 	    {
