@@ -10,7 +10,7 @@
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>consumer</AssemblyName>
+    <AssemblyName>client</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <DefaultClientScript>JScript</DefaultClientScript>
@@ -87,7 +87,7 @@
     <Compile Include="generated\Hello.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Consumer.cs">
+    <Compile Include="Client.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -91,11 +91,15 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Queue.cpp
+SOURCE=.\Hello.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\QueueI.cpp
+SOURCE=.\HelloI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\WorkQueue.cpp
 # End Source File
 # Begin Source File
 
@@ -107,11 +111,15 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Queue.h
+SOURCE=.\Hello.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\QueueI.h
+SOURCE=.\HelloI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WorkQueue.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -119,21 +127,21 @@ SOURCE=.\QueueI.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Queue.ice
+SOURCE=.\Hello.ice
 
 !IF  "$(CFG)" == "asyncS - Win32 Release"
 
 USERDEP__QUEUE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Queue.ice
+InputPath=.\Hello.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Queue.ice
+	..\..\..\bin\slice2cpp.exe Hello.ice
 
-"Queue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Queue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -141,15 +149,15 @@ BuildCmds= \
 
 USERDEP__QUEUE="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Queue.ice
+InputPath=.\Hello.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Queue.ice
+	..\..\..\bin\slice2cpp.exe Hello.ice
 
-"Queue.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Queue.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

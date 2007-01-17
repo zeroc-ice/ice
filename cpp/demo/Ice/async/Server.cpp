@@ -7,31 +7,63 @@
 //
 // **********************************************************************
 
-#include <QueueI.h>
+#include <HelloI.h>
+#include <WorkQueue.h>
 #include <Ice/Application.h>
 
 using namespace std;
 
-class QueueServer : public Ice::Application
+class AsyncServer : public Ice::Application
 {
 public:
 
     virtual int run(int, char*[]);
+    virtual void interruptCallback(int);
+
+private:
+
+    WorkQueuePtr _workQueue;
 };
 
 int
 main(int argc, char* argv[])
 {
-    QueueServer app;
+    AsyncServer app;
     return app.main(argc, argv, "config.server");
 }
 
 int
-QueueServer::run(int argc, char* argv[])
+AsyncServer::run(int argc, char* argv[])
 {
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Queue");
-    adapter->add(new QueueI, communicator()->stringToIdentity("queue"));
+    callbackOnInterrupt();
+
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Hello");
+    _workQueue = new WorkQueue();
+    adapter->add(new HelloI(_workQueue), communicator()->stringToIdentity("hello"));
+
+    _workQueue->start();
     adapter->activate();
+
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;
+}
+
+void
+AsyncServer::interruptCallback(int)
+{
+    _workQueue->destroy();
+    _workQueue->getThreadControl().join();
+
+    try
+    {
+        communicator()->destroy();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        cerr << appName() << ": " << ex << endl;
+    }
+    catch(...)
+    {
+        cerr << appName() << ": unknown exception" << endl;
+    }
 }

@@ -5,12 +5,13 @@ To run the demo, first start the server:
 
 $ python Server.py
 
-In a second window, start the publisher:
+In a second window, start the client:
 
-$ python Publisher.py
+$ python Client.py
 
-In a third window, start the consumer:
-
-$ python Consumer.py
-
-Multiple publishers and consumers can be used if so desired.
+The demo invocation can either have a short response time or require a
+significant amount of time to complete. For the long running request
+the client uses AMI and the server uses AMD plus a worker thread to
+process the request. While a long request is processing, short
+requests are still able to processed and more long requests can be
+queued for processing by the worker thread.

@@ -1,1 +1,1 @@
-Queue.cs: ./Queue.ice $(slicedir)/Ice/BuiltinSequences.ice
+Hello.cs: ./Hello.ice

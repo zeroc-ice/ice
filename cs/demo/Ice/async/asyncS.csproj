@@ -84,13 +84,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Queue.cs">
+    <Compile Include="generated\Hello.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="QueueI.cs">
+    <Compile Include="HelloI.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Server.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WorkQueue.cs">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -25,7 +25,7 @@
 	    <includepath>
 	        <pathelement path="${slice.dir}"/>
 	    </includepath>
-            <fileset dir="." includes="Queue.ice"/>
+            <fileset dir="." includes="Hello.ice"/>
         </slice2java>
     </target>
 

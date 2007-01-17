@@ -9,37 +9,32 @@
 
 import Demo.*;
 
-public class Consumer extends Ice.Application
+public class Client extends Ice.Application
 {
-    public class AMI_Queue_getI extends AMI_Queue_get
+    class ShutdownHook extends Thread
     {
-        public AMI_Queue_getI(String id)
+        public void
+        run()
+        {
+            try
+            {
+                communicator().destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    public class AMI_Hello_sayHelloI extends AMI_Hello_sayHello
+    {
+        public void ice_response()
 	{
-	    _id = id;
-
-	    synchronized(_requests)
-	    {
-	        _requests.add(id);
-	    }
-	}
-
-        public void ice_response(String message)
-	{
-	    synchronized(_requests)
-	    {
-	        _requests.remove(_id);
-	    }
-
-	    System.out.println(message);
 	}
 
 	public void ice_exception(Ice.LocalException ex)
 	{
-	    synchronized(_requests)
-	    {
-	        _requests.remove(_id);
-	    }
-
 	    ex.printStackTrace();
 	}
 
@@ -54,8 +49,6 @@ public class Consumer extends Ice.Application
 	        ex.printStackTrace();
 	    }
 	}
-
-	private String _id;
     }
 
     private static void
@@ -63,7 +56,9 @@ public class Consumer extends Ice.Application
     {
         System.out.println(
             "usage:\n" +
-            "g: get a message\n" +
+            "i: send immediate greeting\n" +
+            "d: send delayed greeting\n" +
+            "s: shutdown the server\n" +
             "x: exit\n" +
             "?: help\n");
     }
@@ -71,8 +66,15 @@ public class Consumer extends Ice.Application
     public int
     run(String[] args)
     {
-        QueuePrx queue = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy"));
-        if(queue == null)
+        //
+        // Since this is an interactive demo we want to clear the
+        // Application installed interrupt callback and install our
+        // own shutdown hook.
+        //
+	setInterruptHook(new ShutdownHook());
+
+        HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
+        if(hello == null)
         {
             System.err.println("invalid proxy");
             return 1;
@@ -94,11 +96,18 @@ public class Consumer extends Ice.Application
                 {
                     break;
                 }
-                if(line.equals("g"))
+                if(line.equals("i"))
                 {
-		    String id = Ice.Util.generateUUID();
-                    queue.get_async(new AMI_Queue_getI(id), id);
+		    hello.sayHello(0);
                 }
+                else if(line.equals("d"))
+                {
+                    hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
+		}
+                else if(line.equals("s"))
+                {
+		    hello.shutdown();
+		}
                 else if(line.equals("x"))
                 {
                     // Nothing to do
@@ -113,6 +122,10 @@ public class Consumer extends Ice.Application
             {
                 ex.printStackTrace();
             }
+            catch(Ice.UserException ex)
+            {
+                ex.printStackTrace();
+            }
             catch(Ice.LocalException ex)
             {
                 ex.printStackTrace();
@@ -120,31 +133,14 @@ public class Consumer extends Ice.Application
         }
         while(!line.equals("x"));
 
-	synchronized(_requests)
-	{
-	    if(_requests.size() != 0)
-	    {
-	        try
-		{
-		    queue.cancel((String[])_requests.toArray(new String[0]));
-		}
-		catch(Ice.LocalException ex)
-		{
-		    // Igmore
-		}
-	    }
-	}
-
         return 0;
     }
 
     public static void
     main(String[] args)
     {
-        Consumer app = new Consumer();
-        int status = app.main("Consumer", args, "config.client");
+        Client app = new Client();
+        int status = app.main("Client", args, "config.client");
         System.exit(status);
     }
-
-    private java.util.HashSet _requests = new java.util.HashSet();
 }

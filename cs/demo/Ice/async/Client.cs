@@ -8,40 +8,18 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
 using Demo;
 
-public class Consumer : Ice.Application
+public class Client : Ice.Application
 {
-    public class AMI_Queue_getI : AMI_Queue_get
+    public class AMI_Hello_sayHelloI : AMI_Hello_sayHello
     {
-        public AMI_Queue_getI(string id)
+        public override void ice_response()
 	{
-	    _id = id;
-
-	    lock(_requests.SyncRoot)
-	    {
-	        _requests.Add(id);
-	    }
-	}
-
-        public override void ice_response(string message)
-	{
-	    lock(_requests.SyncRoot)
-	    {
-	        _requests.Remove(_id);
-	    }
-
-	    Console.Out.WriteLine(message);
 	}
 
 	public override void ice_exception(Ice.Exception ex)
 	{
-	    lock(_requests.SyncRoot)
-	    {
-	        _requests.Remove(_id);
-	    }
-
 	    if(ex is RequestCanceledException)
 	    {
 	        Console.Error.WriteLine("Request canceled");
@@ -51,23 +29,23 @@ public class Consumer : Ice.Application
 	        Console.Error.WriteLine(ex);
 	    }
 	}
-
-	private string _id;
     }
 
     private static void menu()
     {
         Console.Out.WriteLine(
             "usage:\n" +
-            "g: get a message\n" +
+            "i: send immediate greeting\n" +
+            "d: send delayed greeting\n" +
+            "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
     }
 
     public override int run(string[] args)
     {
-        QueuePrx queue = QueuePrxHelper.checkedCast(communicator().propertyToProxy("Queue.Proxy"));
-        if(queue == null)
+        HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
+        if(hello == null)
         {
             Console.Error.WriteLine("invalid proxy");
             return 1;
@@ -87,11 +65,18 @@ public class Consumer : Ice.Application
                 {
                     break;
                 }
-                if(line.Equals("g"))
+                if(line.Equals("i"))
+		{
+		    hello.sayHello(0);
+		}
+                else if(line.Equals("d"))
                 {
-		    string id = Ice.Util.generateUUID();
-                    queue.get_async(new AMI_Queue_getI(id), id);
+                    hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
                 }
+                else if(line.Equals("s"))
+		{
+		    hello.shutdown();
+		}
                 else if(line.Equals("x"))
                 {
                     // Nothing to do
@@ -112,34 +97,17 @@ public class Consumer : Ice.Application
             }
         }
         while(!line.Equals("x"));
-	
-	lock(_requests.SyncRoot)
-	{
-	    if(_requests.Count != 0)
-	    {
-	        try
-		{
-		    queue.cancel((string[])_requests.ToArray(typeof(string)));
-		}
-		catch(Ice.Exception)
-		{
-		    // Ignore
-		}
-	    }
-	}
 
         return 0;
     }
 
     public static void Main(string[] args)
     {
-        Consumer app = new Consumer();
+        Client app = new Client();
         int status = app.main(args, "config.client");
 	if(status != 0)
 	{
 	    System.Environment.Exit(status);
 	}
     }
-
-    static private ArrayList _requests = new ArrayList();
 }

@@ -9,13 +9,14 @@
 
 top_srcdir	= ../../..
 
-TARGETS		= publisher.exe consumer.exe server.exe
+TARGETS		= client.exe server.exe
 
-P_SRCS		= Publisher.cs
-C_SRCS		= Consumer.cs
-S_SRCS		= QueueI.cs Server.cs
+C_SRCS		= Client.cs
+S_SRCS		= HelloI.cs \
+		  Server.cs \
+		  WorkQueue.cs
 
-SLICE_SRCS	= $(SDIR)/Queue.ice
+SLICE_SRCS	= $(SDIR)/Hello.ice
 
 SDIR		= .
 
@@ -26,10 +27,7 @@ include $(top_srcdir)/config/Make.rules.cs
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= -I$(slicedir) $(SLICE2CSFLAGS)
 
-publisher.exe: $(P_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
-
-consumer.exe: $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)

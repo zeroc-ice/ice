@@ -9,37 +9,30 @@
 
 top_srcdir	= ../../..
 
-PUBLISHER	= publiser
-CONSUMER	= consumer
+CLIENT		= client
 SERVER		= server
 
-TARGETS		= $(PUBLISHER) $(CONSUMER) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Queue.o
+OBJS		= Hello.o
 
-POBJS		= Publisher.o
+COBJS		= Client.o
 
-COBJS		= Consumer.o
-
-SOBJS		= QueueI.o \
-		  Server.o
+SOBJS		= HelloI.o \
+		  Server.o \
+		  WorkQueue.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(POBJS:.o=.cpp)
+		  $(SOBJS:.o=.cpp)
 
-SLICE_SRCS	= Queue.ice
+SLICE_SRCS	= Hello.ice
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
-$(PUBLISHER): $(OBJS) $(POBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(POBJS) $(LIBS)
-
-$(CONSUMER): $(OBJS) $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 

@@ -9,46 +9,39 @@
 
 top_srcdir	= ..\..\..
 
-PUBLISHER	= publisher.exe
-CONSUMER	= consumer.exe
+CLIENT		= client.exe
 SERVER		= server.exe
 
-TARGETS		= $(PUBLISHER) $(CONSUMER) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Queue.obj
+OBJS		= Hello.obj
 
-POBJS		= Publisher.obj
+COBJS		= Clinet.obj
 
-COBJS		= Consumer.obj
-
-SOBJS		= QueueI.obj \
-		  Server.obj
+SOBJS		= HelloI.obj \
+		  Server.obj \
+		  WorkQueue.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
-		  $(SOBJS:.obj=.cpp) \
-		  $(POBJS:.obj=.cpp)
+		  $(SOBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 !if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
-PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
-CPDBFLAGS        = /pdb:$(CONSUMER:.exe=.pdb)
+CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-$(PUBLISHER): $(OBJS) $(POBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-
-$(CONSUMER): $(OBJS) $(COBJS)
+$(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 
 clean::
-	del /q Queue.cpp Queue.h
+	del /q Hello.cpp Hello.h
 
 !include .depend

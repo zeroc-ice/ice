@@ -11,12 +11,43 @@ import Demo.*;
 
 public class Server extends Ice.Application
 {
+    class ShutdownHook extends Thread
+    {
+        public void
+        run()
+        {
+	    _workQueue.destroy();
+	    try
+	    {
+	        _workQueue.join();
+	    }
+	    catch(java.lang.InterruptedException ex)
+	    {
+	    }
+
+            try
+            {
+                communicator().destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     public int
     run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Queue");
-        adapter.add(new QueueI(), communicator().stringToIdentity("queue"));
+	setInterruptHook(new ShutdownHook());
+
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
+	_workQueue = new WorkQueue();
+        adapter.add(new HelloI(_workQueue), communicator().stringToIdentity("hello"));
+
+	_workQueue.start();
         adapter.activate();
+
         communicator().waitForShutdown();
         return 0;
     }
@@ -28,4 +59,6 @@ public class Server extends Ice.Application
         int status = app.main("Server", args, "config.server");
         System.exit(status);
     }
+
+    private WorkQueue _workQueue;
 }
