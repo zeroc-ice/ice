@@ -1494,10 +1494,6 @@ namespace Ice
 		{
 		    _logger.error("cannot create thread for connection:\n" + ex);
 		}
-		else
-		{
-		    _logger.error("cannot create thread pool for connection:\n" + ex);
-		}
 
 		try
 		{
