@@ -205,6 +205,8 @@ ServerEntry::ServerEntry(ServerCache& cache, const string& id) :
     Allocatable(false, 0),
     _cache(cache),
     _id(id),
+    _activationTimeout(-1),
+    _deactivationTimeout(-1),
     _synchronizing(false),
     _updated(false)
 {
