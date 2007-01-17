@@ -86,7 +86,7 @@
     <Import Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Queue.vb">
+    <Compile Include="generated\Hello.vb">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

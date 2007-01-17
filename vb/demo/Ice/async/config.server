@@ -1,9 +1,9 @@
 #
 # The server creates one single object adapter with the name
-# "Queue". The following line sets the endpoints for this
+# "Hello". The following line sets the endpoints for this
 # adapter.
 #
-Queue.Endpoints=tcp -p 10000
+Ice.OA.Hello.Endpoints=tcp -p 10000
 
 #
 # Warn about connection exceptions

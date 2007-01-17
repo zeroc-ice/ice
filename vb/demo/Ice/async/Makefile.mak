@@ -9,30 +9,24 @@
 
 top_srcdir	= ..\..\..
 
-TARGETS		= publisher.exe consumer.exe server.exe
+TARGETS		= client.exe server.exe
 
-P_SRCS		= Publisher.vb
-C_SRCS		= Consumer.vb
-S_SRCS		= QueueI.vb Server.vb
+C_SRCS		= Client.vb
+S_SRCS		= HelloI.vb Server.vb WorkQueue.vb
 
-GEN_SRCS	= $(GDIR)\Queue.vb
+GEN_SRCS	= $(GDIR)\Hello.vb
 
-SLICE_SRCS	= $(SDIR)/Queue.ice
+SLICE_SRCS	= $(SDIR)/Hello.ice
 
 SDIR		= .
 
 GDIR		= generated
 
-SLICE2VBFLAGS	= -I$(slicedir) $(SLICE2VBFLAGS)
-
 !include $(top_srcdir)\config\Make.rules.mak
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
 
-publisher.exe: $(P_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(P_SRCS) $(GEN_SRCS)
-
-consumer.exe: $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
 
 server.exe: $(S_SRCS) $(GEN_SRCS)

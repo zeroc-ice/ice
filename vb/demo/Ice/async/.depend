@@ -1,1 +1,1 @@
-Queue.vb: ./Queue.ice $(slicedir)/Ice/BuiltinSequences.ice
+Hello.vb: ./Hello.ice

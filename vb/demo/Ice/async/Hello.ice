@@ -7,10 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef QUEUE_ICE
-#define QUEUE_ICE
-
-#include <Ice/BuiltinSequences.ice>
+#ifndef HELLO_ICE
+#define HELLO_ICE
 
 module Demo
 {
@@ -19,14 +17,12 @@ exception RequestCanceledException
 {
 };
 
-interface Queue
+interface Hello
 {
-    ["ami", "amd"] string get(string id)
+    ["ami", "amd"] void sayHello(int delay)
         throws RequestCanceledException;
 
-    void add(string message);
-
-    ["amd"] void cancel(Ice::StringSeq ids);
+    idempotent void shutdown();
 };
 
 };
