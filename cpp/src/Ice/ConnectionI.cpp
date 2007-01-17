@@ -1675,14 +1675,8 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	    {
 		out << "cannot create thread for connection:\n" << ex;
 	    }
-	    //
-	    // If the _threadPool member variable is set then
-	    // ThreadPool::incFdsInUse() failed.
-	    //
-	    else if(!_threadPool)
-	    {
-		out << "cannot create thread pool for connection:\n" << ex;
-	    }
+	    // Otherwise with thread pool the thread pool itself
+	    // prints a warning if the threads cannot be created.
 	}
 	
 	try
