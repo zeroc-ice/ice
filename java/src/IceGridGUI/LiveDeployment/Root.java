@@ -42,7 +42,23 @@ public class Root extends ListArrayTreeNode
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
 	_objectDialog = new ObjectDialog(this);
-       
+
+	_tree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener()
+	    {
+		public void treeWillExpand(javax.swing.event.TreeExpansionEvent event)
+		{
+		}
+
+		public void treeWillCollapse(javax.swing.event.TreeExpansionEvent event)
+		    throws javax.swing.tree.ExpandVetoException
+		{
+		    if(event.getPath().getLastPathComponent() == Root.this)
+		    {
+			throw new javax.swing.tree.ExpandVetoException(event);
+		    }
+		}
+	    });
+
 	loadLogPrefs();
     }
 
