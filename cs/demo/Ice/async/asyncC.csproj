@@ -84,7 +84,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="generated\Queue.cs">
+    <Compile Include="generated\Hello.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Consumer.cs">
