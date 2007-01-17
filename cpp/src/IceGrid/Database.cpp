@@ -516,7 +516,18 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 	    //
 	}
 	
-	_applications.erase(p);
+	startUpdating(name);
+    }
+
+    if(_master)
+    {
+	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
+	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitNoThrow));
+    }
+
+    {
+	Lock sync(*this);
+	_applications.erase(name);
 	++_applicationSerial;
 
 	serial = _applicationObserverTopic->applicationRemoved(_applicationSerial, name);
@@ -528,13 +539,9 @@ Database::removeApplication(const string& name, AdminSessionI* session)
 	}
     }
 
-    if(_master)
-    {
-	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::sync));
-	for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitNoThrow));
-    }
-
     _applicationObserverTopic->waitForSyncedSubscribers(serial);
+
+    finishUpdating(name);
 }
 
 ApplicationInfo

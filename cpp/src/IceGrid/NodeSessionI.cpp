@@ -156,8 +156,23 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
 	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
 	_proxy = NodeSessionPrx::uncheckedCast(prx);
     }
+    catch(const NodeActiveException&)
+    {
+	__setNoDelete(false);
+	throw;
+    }
     catch(...)
     {
+	try
+	{
+	    _database->removeInternalObject(_node->ice_getIdentity());
+	}
+	catch(const ObjectNotRegisteredException&)
+	{
+	}
+
+	_database->getNode(info->name)->setSession(0);
+
 	__setNoDelete(false);
 	throw;
     }

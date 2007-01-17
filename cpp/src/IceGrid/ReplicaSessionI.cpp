@@ -46,14 +46,25 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     try
     {
 	_database->getReplicaCache().add(info->name, this);
+
 	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
 	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(toRegistryInfo(_info));
 
 	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
 	_proxy = ReplicaSessionPrx::uncheckedCast(prx);
     }
+    catch(const ReplicaActiveException&)
+    {
+	__setNoDelete(false);
+	throw;
+    }
     catch(...)
     {
+	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
+	RegistryObserverTopicPtr::dynamicCast(obsv)->registryDown(_info->name);
+
+	_database->getReplicaCache().remove(_info->name, false);
+
 	__setNoDelete(false);
 	throw;
     }

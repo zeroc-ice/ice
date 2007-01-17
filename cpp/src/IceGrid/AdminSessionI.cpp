@@ -45,6 +45,7 @@ FileIteratorI::read(int size, Ice::StringSeq& lines, const Ice::Current& current
 	os << ex;
 	throw FileNotAvailableException(os.str());
     }
+    return false; // Keep the compiler happy.
 }
 
 void

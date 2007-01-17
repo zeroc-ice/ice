@@ -276,19 +276,22 @@ RegistryObserverTopic::registryDown(const string& name)
     {
 	return;
     }
-    updateSerial(_serial + 1);
-    if(_registries.find(name) != _registries.end())
+
+    if(_registries.find(name) == _registries.end())
     {
-	_registries.erase(name);
-	try
-	{
-	    _publisher->registryDown(name);
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    Ice::Warning out(_logger);
-	    out << "unexpected exception while publishing `registryDown' update:\n" << ex;    
-	}
+	return;
+    }
+
+    updateSerial(_serial + 1);
+    _registries.erase(name);
+    try
+    {
+	_publisher->registryDown(name);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	Ice::Warning out(_logger);
+	out << "unexpected exception while publishing `registryDown' update:\n" << ex;    
     }
 }
 
