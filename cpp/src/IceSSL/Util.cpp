@@ -488,11 +488,12 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, b
 
     IceInternal::fdToLocalAddress(fd, info.localAddr);
 
-#ifndef NDEBUG
-    bool peerConnected = 
-#endif
-	IceInternal::fdToRemoteAddress(fd, info.remoteAddr);
-    assert(peerConnected);
+    if(!IceInternal::fdToRemoteAddress(fd, info.remoteAddr))
+    {
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = IceInternal::getSocketErrno();
+	throw ex;	
+    }
 
     return info;
 }

@@ -312,5 +312,14 @@ IceSSL::getConnectionInfo(const ConnectionPtr& connection)
 	throw ConnectionInvalidException(__FILE__, __LINE__, "not ssl connection");
     }
 
-    return ssltransceiver->getConnectionInfo();
+    try
+    {
+	return ssltransceiver->getConnectionInfo();
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream os;
+	os << "couldn't get connection information:\n" << ex << endl;
+	throw ConnectionInvalidException(__FILE__, __LINE__, os.str());
+    }
 }
