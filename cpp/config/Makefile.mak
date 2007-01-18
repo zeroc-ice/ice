@@ -20,3 +20,4 @@ install::
 	copy templates.xml $(prefix)\config
 	copy convertssl.py $(prefix)\config
 	copy upgradeicegrid.py $(prefix)\config
+	copy icegrid-slice.3.1.ice.gz $(prefix)\config
