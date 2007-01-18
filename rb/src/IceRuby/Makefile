@@ -10,7 +10,7 @@
 top_srcdir	= ../..
 
 LIBNAME		= $(call mklibname,IceRuby)
-SONAME          = $(call mksoname,Ice,$(SOVERSION))  
+SONAME          = $(call mksoname,IceRuby,$(SOVERSION))  
 
 TARGETS		= $(rubydir)/$(LIBNAME)
 
