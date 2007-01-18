@@ -56,7 +56,7 @@ class NodeSessionI : public NodeSession, public IceUtil::Mutex
 {
 public:
 
-    NodeSessionI(const DatabasePtr&, const NodePrx&, const InternalNodeInfoPtr&, int);
+    NodeSessionI(const DatabasePtr&, const NodePrx&, const InternalNodeInfoPtr&, int, const LoadInfo&);
 
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
     virtual void setReplicaObserver(const ReplicaObserverPrx&, const Ice::Current&);

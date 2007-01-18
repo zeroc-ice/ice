@@ -640,7 +640,7 @@ NodeI::getRedirectErrToOut() const
 NodeSessionPrx
 NodeI::registerWithRegistry(const InternalRegistryPrx& registry)
 {
-    return registry->registerNode(_platform.getInternalNodeInfo(), _proxy);
+    return registry->registerNode(_platform.getInternalNodeInfo(), _proxy, _platform.getLoadInfo());
 }
 
 void

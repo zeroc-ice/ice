@@ -688,13 +688,15 @@ interface InternalRegistry extends FileReader
      *
      * @param prx The proxy of the node.
      * 
+     * @param loadInf The load information of the node.
+     * 
      * @return The node session proxy.
      * 
      * @throws NodeActiveException Raised if the node is already
      * registered and currently active.
      *
      **/
-    NodeSession* registerNode(InternalNodeInfo info, Node* prx)
+    NodeSession* registerNode(InternalNodeInfo info, Node* prx, LoadInfo loadInf)
 	throws NodeActiveException;
 
     /**

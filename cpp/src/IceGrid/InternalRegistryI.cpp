@@ -45,12 +45,15 @@ InternalRegistryI::~InternalRegistryI()
 }
 
 NodeSessionPrx
-InternalRegistryI::registerNode(const InternalNodeInfoPtr& info, const NodePrx& node, const Ice::Current& current)
+InternalRegistryI::registerNode(const InternalNodeInfoPtr& info, 
+				const NodePrx& node, 
+				const LoadInfo& load, 
+				const Ice::Current& current)
 {
     const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
     try
     {
-	NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout);
+	NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout, load);
 	_reaper->add(new SessionReapable<NodeSessionI>(logger, session), _nodeSessionTimeout);
 	return session->getProxy();
     }

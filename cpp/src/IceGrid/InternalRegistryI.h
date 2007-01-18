@@ -41,7 +41,8 @@ public:
 		      const WellKnownObjectsManagerPtr&, ReplicaSessionManager&);
     virtual ~InternalRegistryI();
 
-    virtual NodeSessionPrx registerNode(const InternalNodeInfoPtr&, const NodePrx&, const Ice::Current&);
+    virtual NodeSessionPrx registerNode(const InternalNodeInfoPtr&, const NodePrx&, const LoadInfo&, 
+					const Ice::Current&);
     virtual ReplicaSessionPrx registerReplica(const InternalReplicaInfoPtr&, const InternalRegistryPrx&, 
 					      const Ice::Current&);
 

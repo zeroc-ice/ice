@@ -134,13 +134,15 @@ PatcherFeedbackAggregator::checkIfDone()
 NodeSessionI::NodeSessionI(const DatabasePtr& database, 
 			   const NodePrx& node, 
 			   const InternalNodeInfoPtr& info,
-			   int timeout) :
+			   int timeout,
+			   const LoadInfo& load) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _node(NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000))),
     _info(info),
     _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
+    _load(load),
     _destroy(false)
 {
     __setNoDelete(true);
