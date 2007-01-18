@@ -170,18 +170,29 @@ LocatorI::Request::Request(const Ice::AMD_Locator_findAdapterByIdPtr& amdCB,
     _count(count),
     _lastAdapter(_adapters.begin())
 {
-    assert(_count > 0);
+    assert(_count == 0 && _adapters.empty() || _count > 0);
 }
 
 void
 LocatorI::Request::execute()
 {
     //
-    // Request as many adapters as required.
+    // If there's no adapters to request, we're done, send the
+    // response.
+    //
+    if(_adapters.empty())
+    {
+	sendResponse();
+	return;
+    }
+
+    //
+    // Otherwise, request as many adapters as required.
     //
     LocatorAdapterInfoSeq adapters;
     {
 	Lock sync(*this);
+	assert(_count > 0 && _lastAdapter != _adapters.end());
 	for(unsigned int i = 0; i < _count; ++i)
 	{
 	    if(_lastAdapter == _adapters.end())
@@ -194,17 +205,10 @@ LocatorI::Request::execute()
 	    ++_lastAdapter;
 	}
     }
-
-    if(adapters.empty())
+    assert(!adapters.empty());
+    for(LocatorAdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
     {
-	sendResponse();
-    }
-    else
-    {
-	for(LocatorAdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
-	{
-	    requestAdapter(*p);
-	}
+	requestAdapter(*p);
     }
 }
 
