@@ -32,8 +32,19 @@ module IceGrid
  **/
 enum LoadSample
 {
+    /**
+     * Sample every minute.
+     **/
     LoadSample1,
+
+    /**
+     * Sample every five minutes.
+     **/
     LoadSample5,
+
+    /**
+     * Sample every fifteen minutes.
+     **/
     LoadSample15
 };
 
