@@ -188,6 +188,7 @@ protected:
     Slice::FeatureProfile _featureProfile;
 
     static const std::string _getSetMetaData;
+    static const std::string _java2MetaData;
     static const std::string _java5MetaData;
 
 private:

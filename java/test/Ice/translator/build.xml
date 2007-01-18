@@ -21,15 +21,15 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java outputdir="${generated.dir}" tie="on" stream="on">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="." />
             </includepath>
 	    <fileset dir=".">
-		<include name="Metadata.ice" unless="java5"/>
+		<include name="Metadata2.ice" if="java2"/>
 	    </fileset>
 	    <fileset dir=".">
-		<include name="Metadata5.ice" if="java5"/>
+		<include name="Metadata.ice" unless="java2"/>
 	    </fileset>
             <fileset dir="." includes="DoubleModuleNoPackage.ice"/>
             <fileset dir="." includes="DoubleModuleWithPackage.ice"/>
@@ -52,7 +52,7 @@
         </slice2java>
         <!-- We use 2 tasks to limit the size of the slice2java command line -->
         <slice2java outputdir="${generated.dir}" tie="on" stream="on">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="." />
             </includepath>

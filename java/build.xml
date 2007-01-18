@@ -24,7 +24,7 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java ice="on" outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Ice">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -65,7 +65,7 @@
         </slice2java>
 
         <slice2freezej outputdir="${generated.dir}" dependencyfile="${generated.dir}/.depend.Freeze">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -77,7 +77,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.Glacier2">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -91,7 +91,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceBox">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -102,7 +102,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceGrid.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceGrid">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -122,7 +122,7 @@
 
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceStorm.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceStorm">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -141,7 +141,7 @@
 	    excludes="IceGridGUI/**"
 	    includes="**"
 	    deprecation="on">
-	    <exclude name="Ice/Holder*" unless="java5"/>
+	    <exclude name="Ice/Holder*" if="java2"/>
 	    <compilerarg value="${javac.lint}" compiler="${javac.lint.compiler}"/>
 	</javac>
     </target>
@@ -154,14 +154,14 @@
 	</jar>
     </target>
 
-    <target name="icegridgui-compile" depends="ice-compile" unless="java5">
+    <target name="icegridgui-compile" depends="ice-compile" if="java2">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
 	    source="${jdk.version}" debug="${debug}" optimize="${optimize}"
 	    includes="IceGridGUI/**"
 	    deprecation="on"/>
     </target>
 
-    <target name="icegridgui-jar" depends="icegridgui-compile" unless="java5">
+    <target name="icegridgui-jar" depends="icegridgui-compile" if="java2">
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
 	    <attribute name="Class-Path" value="Ice.jar looks-2.0.4.jar forms-1.0.7.jar"/>
@@ -178,6 +178,7 @@
 
     <condition property="icegrid-pro-precond">
 	<and>
+	    <isset property="java2" />
 	    <isset property="hasProguard" />
 	    <available file="${jgoodies.looks}" />
 	    <available file="${jgoodies.forms}" />
@@ -185,9 +186,7 @@
 	</and>	
     </condition>
 
-
-
-    <target name="icegrid-pro" depends="icegridgui-jar" if="icegrid-pro-precond" unless="java5">
+    <target name="icegrid-pro" depends="icegridgui-jar" if="icegrid-pro-precond">
 	<move file="${lib.dir}/IceGridGUI.jar" tofile="${lib.dir}/guitmp.jar" />
 	<taskdef resource="proguard/ant/task.properties"/>
 	<proguard>

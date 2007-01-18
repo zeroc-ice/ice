@@ -149,6 +149,7 @@ Slice::JavaOutput::printHeader()
 }
 
 const string Slice::JavaGenerator::_getSetMetaData = "java:getset";
+const string Slice::JavaGenerator::_java2MetaData = "java:java2";
 const string Slice::JavaGenerator::_java5MetaData = "java:java5";
 
 Slice::JavaGenerator::JavaGenerator(const string& dir) :
@@ -488,7 +489,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 		    return getAbsolute(dict, package, "", "Holder");
 		}
 
-		bool java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+		bool java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
 		//
 		// The custom type may or may not be compatible with the type used
@@ -496,13 +497,13 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 		// that holds a value of the abstract custom type. Otherwise, we
 		// use MapHolder.
 		//
-		if(java5)
+		if(java2)
 		{
-		    return string("Ice.Holder<") + abstractType + " >";
+		    return "Ice.MapHolder";
 		}
 		else
 		{
-		    return "Ice.MapHolder";
+		    return string("Ice.Holder<") + abstractType + " >";
 		}
 	    }
         }
@@ -538,7 +539,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 		    return getAbsolute(seq, package, "", "Holder");
 		}
 
-		bool java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+		bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
 		//
 		// The custom type may or may not be compatible with the type used
@@ -546,11 +547,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 		// that holds a value of the abstract custom type. Otherwise, we
 		// choose a predefined holder class.
 		//
-		if(java5)
-		{
-		    return string("Ice.Holder<") + abstractType + " >";
-		}
-		else
+		if(java2)
 		{
 		    if(abstractType == "java.util.ArrayList")
 		    {
@@ -564,6 +561,10 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
 		    {
 			return "Ice.ListHolder";
 		    }
+		}
+		else
+		{
+		    return string("Ice.Holder<") + abstractType + " >";
 		}
 	    }
         }
@@ -913,12 +914,12 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__os" : "__is";
     string v = param;
 
-    bool java5 = false;
+    bool java2 = false;
     string concreteType;
 
     if(_featureProfile != Slice::IceE)
     {
-	java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+	java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
 	//
 	// We have to determine whether it's possible to use the
@@ -982,20 +983,20 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__os.writeSize(" << v << ".size());";
-	if(java5)
+	if(java2)
+	{
+	    out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
+	    out << nl << "while(__i" << iterS << ".hasNext())";
+	    out << sb;
+	    out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
+	}
+	else
 	{
 	    string keyObjectS = typeToObjectString(key, TypeModeIn, package);
 	    string valueObjectS = typeToObjectString(value, TypeModeIn, package);
 	    out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
 		<< ".entrySet())";
 	    out << sb;
-	}
-	else
-	{
-	    out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
-	    out << nl << "while(__i" << iterS << ".hasNext())";
-	    out << sb;
-	    out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
 	}
         for(i = 0; i < 2; i++)
         {
@@ -1016,11 +1017,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 	    //
 	    // We have to downcast unless we're using Java5.
 	    //
-	    if(java5)
-	    {
-		val = arg;
-	    }
-	    else
+	    if(java2)
 	    {
 		BuiltinPtr b = BuiltinPtr::dynamicCast(type);
 		if(b)
@@ -1081,6 +1078,10 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
 		    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
 		}
 	    }
+	    else
+	    {
+		val = arg;
+	    }
             writeMarshalUnmarshalCode(out, package, type, val, true, iter, false);
         }
         out << eb;
@@ -1111,7 +1112,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b && !java5)
+            if(b && java2)
             {
                 switch(b->kind())
                 {
@@ -1211,13 +1212,13 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__os" : "__is";
     string v = param;
 
-    bool java5 = false;
+    bool java2 = false;
     bool customType = false;
     string concreteType;
 
     if(_featureProfile != Slice::IceE)
     {
-	java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+	java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
 	//
 	// We have to determine whether it's possible to use the
@@ -1289,7 +1290,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && !java5)
+        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && java2)
         {
             if(marshal)
             {
@@ -1500,15 +1501,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-		if(java5)
-		{
-		    string typeS = typeToString(type, TypeModeIn, package);
-		    out << nl << "for(" << typeS << " __elem : " << v << ')';
-		    out << sb;
-		    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-		    out << eb;
-		}
-		else
+		if(java2)
 		{
 		    ostringstream oit;
 		    oit << "__i" << iter;
@@ -1518,6 +1511,14 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << "while(" << it << ".hasNext())";
 		    out << sb;
 		    out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
+		    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+		    out << eb;
+		}
+		else
+		{
+		    string typeS = typeToString(type, TypeModeIn, package);
+		    out << nl << "for(" << typeS << " __elem : " << v << ')';
+		    out << sb;
 		    writeMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
 		    out << eb;
 		}
@@ -2134,7 +2135,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
 
-    bool java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+    bool java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     //
     // We have to determine whether it's possible to use the
@@ -2197,20 +2198,20 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
         out << nl << "else";
         out << sb;
         out << nl << "__outS.writeSize(" << v << ".size());";
-	if(java5)
+	if(java2)
+	{
+	    out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
+	    out << nl << "while(__i" << iterS << ".hasNext())";
+	    out << sb;
+	    out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
+	}
+	else
 	{
 	    string keyObjectS = typeToObjectString(key, TypeModeIn, package);
 	    string valueObjectS = typeToObjectString(value, TypeModeIn, package);
 	    out << nl << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> __e : " << v
 		<< ".entrySet())";
 	    out << sb;
-	}
-	else
-	{
-	    out << nl << "java.util.Iterator __i" << iterS << " = " << v << ".entrySet().iterator();";
-	    out << nl << "while(__i" << iterS << ".hasNext())";
-	    out << sb;
-	    out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i" << iterS << ".next();";
 	}
         for(i = 0; i < 2; i++)
         {
@@ -2231,11 +2232,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
 	    //
 	    // We have to downcast unless we're using Java5.
 	    //
-	    if(java5)
-	    {
-		val = arg;
-	    }
-	    else
+	    if(java2)
 	    {
 		BuiltinPtr b = BuiltinPtr::dynamicCast(type);
 		if(b)
@@ -2296,6 +2293,10 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
 		    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
 		}
 	    }
+	    else
+	    {
+		val = arg;
+	    }
             writeStreamMarshalUnmarshalCode(out, package, type, val, true, iter, false);
         }
         out << eb;
@@ -2326,7 +2327,7 @@ Slice::JavaGenerator::writeStreamDictionaryMarshalUnmarshalCode(Output& out,
             }
 
             BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b && !java5)
+            if(b && java2)
             {
                 switch(b->kind())
                 {
@@ -2426,7 +2427,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
     string stream = marshal ? "__outS" : "__inS";
     string v = param;
 
-    bool java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+    bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     //
     // We have to determine whether it's possible to use the
@@ -2497,7 +2498,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && !java5)
+        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindObjectProxy && java2)
         {
             if(marshal)
             {
@@ -2708,15 +2709,7 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "else";
                 out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
-		if(java5)
-		{
-		    string typeS = typeToString(type, TypeModeIn, package);
-		    out << nl << "for(" << typeS << " __elem : " << v << ')';
-		    out << sb;
-		    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
-		    out << eb;
-		}
-		else
+		if(java2)
 		{
 		    ostringstream oit;
 		    oit << "__i" << iter;
@@ -2726,6 +2719,14 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
 		    out << nl << "while(" << it << ".hasNext())";
 		    out << sb;
 		    out << nl << cont << " __elem = (" << cont << ")" << it << ".next();";
+		    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
+		    out << eb;
+		}
+		else
+		{
+		    string typeS = typeToString(type, TypeModeIn, package);
+		    out << nl << "for(" << typeS << " __elem : " << v << ')';
+		    out << sb;
 		    writeStreamMarshalUnmarshalCode(out, package, type, "__elem", true, iter, false);
 		    out << eb;
 		}
@@ -3061,7 +3062,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
 	return customType;
     }
 
-    bool java5 = dict->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+    bool java2 = dict->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     //
     // Collect metadata for a custom type.
@@ -3078,7 +3079,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     //
     string keyTypeStr;
     string valueTypeStr;
-    if(java5)
+    if(!java2)
     {
 	keyTypeStr = typeToObjectString(dict->keyType(), TypeModeIn, package);
 	valueTypeStr = typeToObjectString(dict->valueType(), TypeModeIn, package);
@@ -3100,7 +3101,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
 	    if(pos != string::npos)
 	    {
 		concreteType = ct.substr(1, pos - 1);
-		if(java5)
+		if(!java2)
 		{
 		    concreteType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
 		}
@@ -3119,7 +3120,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
 		if(pos != string::npos)
 		{
 		    abstractType = at.substr(1, pos - 1);
-		    if(java5)
+		    if(!java2)
 		    {
 			abstractType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
 		    }
@@ -3138,7 +3139,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     if(concreteType.empty())
     {
 	concreteType = "java.util.HashMap";
-	if(java5)
+	if(!java2)
 	{
 	    concreteType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
 	}
@@ -3154,7 +3155,7 @@ Slice::JavaGenerator::getDictionaryTypes(const DictionaryPtr& dict,
     if(abstractType.empty())
     {
 	abstractType = "java.util.Map";
-	if(java5)
+	if(!java2)
 	{
 	    abstractType += "<" + keyTypeStr + ", " + valueTypeStr + ">";
 	}
@@ -3178,7 +3179,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
 	return customType;
     }
 
-    bool java5 = seq->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData;
+    bool java2 = seq->definitionContext()->findMetaData(_java2MetaData) == _java2MetaData;
 
     //
     // Collect metadata for a custom type.
@@ -3194,7 +3195,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
     // Get the inner type.
     //
     string typeStr;
-    if(java5)
+    if(!java2)
     {
 	typeStr = typeToObjectString(seq->type(), TypeModeIn, package);
     }
@@ -3215,7 +3216,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
 	    if(pos != string::npos)
 	    {
 		concreteType = ct.substr(1, pos - 1);
-		if(java5)
+		if(!java2)
 		{
 		    concreteType += "<" + typeStr + ">";
 		}
@@ -3234,7 +3235,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
 		if(pos != string::npos)
 		{
 		    abstractType = at.substr(1, pos - 1);
-		    if(java5)
+		    if(!java2)
 		    {
 			abstractType += "<" + typeStr + ">";
 		    }
@@ -3255,7 +3256,7 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
 	    // compile-time type safety rules.
 	    //
 	    abstractType = "java.util.List";
-	    if(java5)
+	    if(!java2)
 	    {
 		abstractType += "<" + typeStr + ">";
 	    }
@@ -3308,6 +3309,10 @@ Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 
 		static const string packagePrefix = "java:package:";
 		if(s.find(packagePrefix) == 0 && s.size() > packagePrefix.size())
+		{
+		    ok = true;
+		}
+		else if(s == _java2MetaData)
 		{
 		    ok = true;
 		}
@@ -3423,7 +3428,7 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
     // the inner sequence actually maps to a generic type, we only issue a
     // warning.
     //
-    if(p->definitionContext()->findMetaData(_java5MetaData) == _java5MetaData && !hasTypeMetaData(p))
+    if(p->definitionContext()->findMetaData(_java2MetaData) != _java2MetaData && !hasTypeMetaData(p))
     {
 	SequencePtr innerSeq = SequencePtr::dynamicCast(p->type());
 	DictionaryPtr innerDict = DictionaryPtr::dynamicCast(p->type());

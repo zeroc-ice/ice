@@ -28,14 +28,14 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${cgen.dir}"/>
         <slice2java outputdir="${cgen.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
             <fileset dir="." includes="Test.ice Forward.ice"/>
         </slice2java>
         <slice2java outputdir="${cgen.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
@@ -43,14 +43,14 @@
         </slice2java>
         <mkdir dir="${sgen.dir}"/>
         <slice2java outputdir="${sgen.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>
             <fileset dir="." includes="Test.ice Forward.ice"/>
         </slice2java>
         <slice2java outputdir="${sgen.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
 	    <includepath>
 		<pathelement path="."/>
 	    </includepath>

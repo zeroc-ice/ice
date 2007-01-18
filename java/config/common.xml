@@ -21,20 +21,22 @@
     <!-- Load build configuration properties -->
     <property file="${top.dir}/config/build.properties"/>
 
-    <!-- Determine whether we are using JDK 1.5 -->
-    <condition property="java5">
-	<equals arg1="${jdk.version}" arg2="1.5"/>
+    <!-- Determine whether we are using JDK 1.4 -->
+    <condition property="java2">
+	<equals arg1="${jdk.version}" arg2="1.4"/>
     </condition>
 
-    <!-- Use the global metadata "java:java5" when using JDK 1.5 -->
-    <condition property="java5metadata" value="java:java5" else="">
-	<isset property="java5"/>
+    <!-- Use the global metadata "java:java2" when using JDK 1.4 -->
+    <condition property="java2metadata" value="java:java2" else="">
+	<isset property="java2"/>
     </condition>
 
     <!-- Use -Xlint:unchecked when using JDK 1.5 -->
     <condition property="javac.lint" value="-Xlint:unchecked" else="">
 	<and>
-	    <isset property="java5"/>
+	    <not>
+	        <isset property="java2"/>
+	    </not>
 	    <istrue value="${lint.unchecked}"/>
 	</and>
     </condition>
@@ -212,16 +214,16 @@
 	<!-- 
 	    This condition satisfies the differences in Ice.jar location for
 	    /opt, rpm, cvs builds and src distribution builds. If the Ice.jar
-	    is present in the lib/java5 subdirectory, it implies an binary /opt
+	    is present in the lib/java2 subdirectory, it implies an binary /opt
 	    install or RPM. Anything else and the Ice.jar should be in the lib
 	    directory. If the Ice.jar does not exist, it implies a CVS build or
 	    a cleaned source distribution. In either case, Ice.jar is expected
 	    to be in lib.
 	  -->
-	<condition property="ice.jar.file" value="${lib.dir}/java5/Ice.jar}" else="${lib.dir}/Ice.jar">
+	<condition property="ice.jar.file" value="${lib.dir}/java2/Ice.jar}" else="${lib.dir}/Ice.jar">
 	    <and>
-		<available file="${lib.dir}/java5/Ice.jar}"/>
-		<isset property="java5"/>
+		<available file="${lib.dir}/java2/Ice.jar}"/>
+		<isset property="java2"/>
 	    </and>
 	</condition>
 

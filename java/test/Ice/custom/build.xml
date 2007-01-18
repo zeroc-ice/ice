@@ -17,26 +17,26 @@
     <!-- import common definitions -->
     <import file="${top.dir}/config/common.xml"/>
 
-    <target name="generate4" depends="init" unless="java5">
+    <target name="generate4" depends="init" if="java2">
 	<!-- Create the output directory for generated code -->
 	<mkdir dir="${generated.dir}"/>
 	<slice2java outputdir="${generated.dir}">
+	    <meta value="${java2metadata}"/>
 	    <fileset dir="jdk1.4" includes="Test.ice"/>
 	</slice2java>
     </target>
 
-    <target name="generate5" depends="init" if="java5">
+    <target name="generate5" depends="init" unless="java2">
 	<!-- Create the output directory for generated code -->
 	<mkdir dir="${generated.dir}"/>
 	<slice2java outputdir="${generated.dir}">
-	    <meta value="${java5metadata}"/>
 	    <fileset dir="jdk1.5" includes="Test.ice"/>
 	</slice2java>
     </target>
 
     <target name="generate" depends="generate4, generate5"/>
 
-    <target name="compile4" depends="generate" unless="java5">
+    <target name="compile4" depends="generate" if="java2">
 	<mkdir dir="${class.dir}"/>
 	<javac srcdir="${generated.dir}" destdir="${class.dir}"
 	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}"/>
@@ -44,7 +44,7 @@
 	    classpath="${lib.dir}" excludes="generated/**,jdk1.5/**" debug="${debug}"/>
     </target>
 
-    <target name="compile5" depends="generate" if="java5">
+    <target name="compile5" depends="generate" unless="java2">
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}"
 	    source="${jdk.version}" classpath="${lib.dir}" debug="${debug}">

@@ -1025,7 +1025,7 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 }
 
 void
-Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m, bool java5)
+Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, const ChecksumMap& m, bool java2)
 {
     //
     // Attempt to open the source file for the checksum class.
@@ -1060,23 +1060,23 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     //
     // Use a static initializer to populate the checksum map.
     //
-    if(java5)
-    {
-	out << sp << nl << "public static java.util.Map<String, String> checksums;";
-    }
-    else
+    if(java2)
     {
 	out << sp << nl << "public static java.util.Map checksums;";
     }
+    else
+    {
+	out << sp << nl << "public static java.util.Map<String, String> checksums;";
+    }
     out << sp << nl << "static";
     out << sb;
-    if(java5)
+    if(java2)
     {
-	out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
+	out << nl << "java.util.Map map = new java.util.HashMap();";
     }
     else
     {
-	out << nl << "java.util.Map map = new java.util.HashMap();";
+	out << nl << "java.util.Map<String, String> map = new java.util.HashMap<String, String>();";
     }
     for(ChecksumMap::const_iterator p = m.begin(); p != m.end(); ++p)
     {
@@ -2753,19 +2753,19 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	out << nl << " **/";
     }
 
-    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
+    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
 
-    if(java5)
-    {
-	out << nl << "public enum " << name;
-    }
-    else
+    if(java2)
     {
 	out << nl << "public final class " << name;
     }
+    else
+    {
+	out << nl << "public enum " << name;
+    }
     out << sb;
 
-    if(java5)
+    if(!java2)
     {
 	int n;
 	for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
@@ -2781,7 +2781,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
 
     out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
-    if(java5)
+    if(!java2)
     {
 	out << nl << "static";
 	out << sb;
@@ -2804,7 +2804,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	{
 	    string member = fixKwd((*en)->name());
 	    out << nl << "public static final int _" << member << " = " << n << ';';
-	    if(!java5)
+	    if(java2)
 	    {
 		out << nl << "public static final " << name << ' ' << fixKwd(member)
 		    << " = new " << name << "(_" << member << ");";
@@ -2836,7 +2836,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "return __value;";
     out << eb;
 
-    if(!java5)
+    if(java2)
     {
 	out << sp << nl << "public String" << nl << "toString()";
 	out << sb;
@@ -2847,7 +2847,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp << nl << "private" << nl << name << "(int val)";
     out << sb;
     out << nl << "__value = val;";
-    if(!java5)
+    if(java2)
     {
 	out << nl << "__values[val] = this;";
     }
@@ -2933,7 +2933,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
     }
 
-    if(!java5)
+    if(java2)
     {
 	out << sp << nl << "final static private String[] __T =";
 	out << sb;
@@ -3274,8 +3274,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
-    string contextType = java5 ? "java.util.Map<String, String>" : "java.util.Map";
+    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    string contextType = java2 ? "java.util.Map" : "java.util.Map<String, String>";
     string contextParam = contextType + " __ctx";
     string explicitContextParam = "boolean __explicitCtx";
 
@@ -3334,7 +3334,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	// by the fact that _emptyContext returns the unchecked type
 	// java.util.Map but Ice.Context is mapped to Map<String, String>.
 	//
-	if(java5)
+	if(!java2)
 	{
 	    out << nl << "@SuppressWarnings(\"unchecked\")";
 	}
@@ -3409,7 +3409,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    // by the fact that _emptyContext returns the unchecked type
 	    // java.util.Map but Ice.Context is mapped to Map<String, String>.
 	    //
-	    if(java5)
+	    if(!java2)
 	    {
 		out << nl << "@SuppressWarnings(\"unchecked\")";
 	    }
@@ -3923,8 +3923,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	out << nl << " **/";
     }
 
-    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
-    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     out << nl << "public " << retS << ' ' << name << spar << params << contextParam << epar;
     writeThrowsClause(package, throws);
@@ -4003,8 +4003,8 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
-    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->operations();
 
@@ -4062,8 +4062,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
     out << sb;
 
-    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
-    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
 
@@ -4244,8 +4244,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
     out << sb;
 
-    bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
-    string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+    bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+    string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
     OperationList ops = p->allOperations();
 
@@ -4856,8 +4856,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "public abstract void ice_exception(Ice.UserException ex);";
 	}
 	
-	bool java5 = p->definitionContext()->findMetaData("java:java5") == "java:java5";
-	string contextParam = java5 ? "java.util.Map<String, String> __ctx" : "java.util.Map __ctx";
+	bool java2 = p->definitionContext()->findMetaData("java:java2") == "java:java2";
+	string contextParam = java2 ? "java.util.Map __ctx" : "java.util.Map<String, String> __ctx";
 
 	out << sp << nl << "public final void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
 	    << paramsInvoke << contextParam << epar;

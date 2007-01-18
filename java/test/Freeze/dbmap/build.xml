@@ -21,12 +21,12 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2freezej outputdir="${generated.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <dict name="ByteIntMap" key="byte" value="int"/>
             <dictindex name="ByteIntMap"/>
         </slice2freezej>
         <slice2freezej ice="on" outputdir="${generated.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -34,7 +34,7 @@
             <dict name="IntIdentityMap" key="int" value="Ice::Identity"/>
         </slice2freezej>
         <slice2freezej ice="on" outputdir="${generated.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
            <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -43,7 +43,7 @@
            <dictindex name="IntIdentityMapWithIndex" member="category"/>  
         </slice2freezej>
         <slice2freezej ice="on" outputdir="${generated.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
            <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>

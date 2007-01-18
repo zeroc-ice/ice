@@ -240,18 +240,18 @@ main(int argc, char* argv[])
     if(!checksumClass.empty())
     {
 	//
-	// Look for the Java5 metadata.
+	// Look for the Java2 metadata.
 	//
-	bool java5 = false;
+	bool java2 = false;
 	for(StringList::iterator p = globalMetadata.begin(); p != globalMetadata.end(); ++p)
 	{
-	    if((*p) == "java:java5")
+	    if((*p) == "java:java2")
 	    {
-		java5 = true;
+		java2 = true;
 		break;
 	    }
 	}
-	Gen::writeChecksumClass(checksumClass, output, checksums, java5);
+	Gen::writeChecksumClass(checksumClass, output, checksums, java2);
     }
 
     return status;

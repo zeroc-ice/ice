@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- The default mapping for is now the Java 5 mapping. To use the Java 2
+  mapping the slice translator must use the new "java:java2" global
+  metadata.
+
 - Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
   allow applications to determine, respectively, whether communicator has
   been shutdown or object adapter has been deactivated.

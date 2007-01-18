@@ -21,7 +21,7 @@
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
         <slice2java outputdir="${generated.dir}">
-	    <meta value="${java5metadata}"/>
+	    <meta value="${java2metadata}"/>
             <fileset dir="." includes="Test.ice"/>
         </slice2java>
     </target>
