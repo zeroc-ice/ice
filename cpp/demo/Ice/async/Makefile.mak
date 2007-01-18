@@ -16,7 +16,7 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Hello.obj
 
-COBJS		= Clinet.obj
+COBJS		= Client.obj
 
 SOBJS		= HelloI.obj \
 		  Server.obj \
