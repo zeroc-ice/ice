@@ -7,6 +7,13 @@
 #
 # **********************************************************************
 
+$(warning ===================================================================) 
+$(warning AIX is currently an unsupported platform. The Ice team does)
+$(warning not maintain AIX specific portions of the source code or build)
+$(warning system. Contact sales@zeroc.com if you wish to sponsor official)
+$(warning support.)
+$(warning ===================================================================) 
+
 #
 # This file is included by Make.rules when uname is AIX.
 #
