@@ -41,7 +41,7 @@ class ShowLogPrefsDialog extends JDialog
 	
 	final JTextField maxSizeField = new JTextField(10);
 	maxSizeField.setText(Integer.toString(sld.getMaxSize()));
-	maxSizeField.setToolTipText("Maximum number of bytes in this dialog's buffer");
+	maxSizeField.setToolTipText("Maximum number of characters in this dialog's buffer");
 
 	final JTextField initialLinesField = new JTextField(10);
 	initialLinesField.setText(Integer.toString(sld.getInitialLines()));
@@ -63,7 +63,7 @@ class ShowLogPrefsDialog extends JDialog
 		    try
 		    {
 			int maxLines = parseInt(maxLinesField, "Max lines in buffer");
-			int maxSize = parseInt(maxSizeField, "Max bytes in buffer");
+			int maxSize = parseInt(maxSizeField, "Max characters in buffer");
 			int initialLines = parseInt(initialLinesField, "Initial tail (lines)");
 			int maxReadSize = parseInt(maxReadSizeField, "Max bytes read per request");
 			int period = (int)(parseFloat(periodField, "Poll period (seconds)") * 1000);
@@ -99,11 +99,11 @@ class ShowLogPrefsDialog extends JDialog
 	
 	builder.append("Max lines in buffer", maxLinesField);
 	builder.nextLine();
-	builder.append("Max bytes in buffer", maxSizeField);
+	builder.append("Max characters in buffer", maxSizeField);
 	builder.nextLine();
 	builder.append("Initial tail (lines)", initialLinesField);
 	builder.nextLine();
-	builder.append("Max bytes read  per request", maxReadSizeField);
+	builder.append("Max bytes read per request", maxReadSizeField);
 	builder.nextLine();
 	builder.append("Poll period (seconds)", periodField);
 	builder.nextLine();
