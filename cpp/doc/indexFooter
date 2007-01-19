@@ -1,8 +1,21 @@
 	<hr>
-	<div>
-	    <a href="index.html">
-		<img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
-	    </a>
+	<div class="HeaderFooter">
+	    <table class="ButtonTable">
+		<tr>
+		    <td>
+			<a href="index.html">
+			    <img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
+			</a>
+		    </td>
+		</tr>
+	    </table>
+	    <table class="LogoTable">
+		<tr>
+		    <td>
+			<a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"/></a>
+		    </td>
+		</tr>
+	    </table>
 	</div>
 	<script type="text/javascript" src="symboltree.js">
 	    symboltree.main();

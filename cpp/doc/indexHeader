@@ -5,6 +5,9 @@
 TITLE
 	</title>
 	<style type="text/css">
+	    body {
+		font-family: Arial, Helvetica, sans-serif;
+	    }
 	    .Symbol {
 		font-family: "Courier New", Courier, mono;
 	    }
@@ -31,6 +34,7 @@ TITLE
 		cursor: pointer;
 	    }
 	    .ExpandCollapseButtonTable {
+	        margin-bottom: 15px;
 	    }
 	    #ExpandAllButton {
 		cursor: pointer;
@@ -38,15 +42,39 @@ TITLE
 	    #CollapseAllButton {
 		cursor: pointer;
 	    }
-	    HomeButton {
-		cursor: pointer;
+	    .HeaderFooter {
+		position: relative;
+		width: 100%;
+	    }
+	    .ButtonTable {
+	    }
+	    .LogoTable {
+	        position: absolute;
+		right: 0;
+		top: 0;
+	    }
+	    .Logo {
+	        border-style: none;
 	    }
 	</style>
     </head>
     <body>
-	<div>
-	    <a href="index.html">
-		<img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
-	    </a>
+	<div class="HeaderFooter">
+	    <table class="ButtonTable">
+		<tr>
+		    <td>
+			<a href="index.html">
+			    <img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
+			</a>
+		    </td>
+		</tr>
+	    </table>
+	    <table class="LogoTable">
+		<tr>
+		    <td>
+			<a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"/></a>
+		    </td>
+		</tr>
+	    </table>
 	</div>
 	<hr>

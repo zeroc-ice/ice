@@ -32,10 +32,10 @@ namespace Slice
 {
 
 void
-generate(const UnitPtr& unit, const ::std::string& dir,
-	 const ::std::string& header, const ::std::string& footer,
-	 const ::std::string& indexHeader, const ::std::string& indexFooter,
-	 unsigned indexCount, unsigned warnSummary)
+generate(const UnitPtr& unit, const string& dir,
+	 const string& header, const string& footer,
+	 const string& indexHeader, const string& indexFooter,
+	 const string& imageDir, const string& logoURL, unsigned indexCount, unsigned warnSummary)
 {
     unit->mergeModules();
 
@@ -48,6 +48,8 @@ generate(const UnitPtr& unit, const ::std::string& dir,
     GeneratorBase::setOutputDir(dir);
     GeneratorBase::setHeader(header);
     GeneratorBase::setFooter(footer);
+    GeneratorBase::setImageDir(imageDir);
+    GeneratorBase::setLogoURL(logoURL);
     GeneratorBase::setIndexCount(indexCount);
     GeneratorBase::warnSummary(warnSummary);
 
@@ -75,10 +77,12 @@ generate(const UnitPtr& unit, const ::std::string& dir,
     //
     TOCVisitor tocv(files, indexHeader, indexFooter);
     unit->visit(&tocv, false);
+    tocv.generate();
 
     //
     // Generate the individual HTML pages.
     //
+    GeneratorBase::setSymbols(tocv.symbols());
     PageVisitor v(files);
     unit->visit(&v, false);
 }
@@ -89,8 +93,11 @@ string Slice::GeneratorBase::_dir = ".";
 string Slice::GeneratorBase::_header1;
 string Slice::GeneratorBase::_header2;
 string Slice::GeneratorBase::_footer;
+string Slice::GeneratorBase::_imageDir;
+string Slice::GeneratorBase::_logoURL;
 unsigned Slice::GeneratorBase::_indexCount = 0;
 unsigned Slice::GeneratorBase::_warnSummary = 0;
+ContainedList Slice::GeneratorBase::_symbols;
 
 //
 // Set the output directory, creating it if necessary.
@@ -130,6 +137,24 @@ Slice::GeneratorBase::setFooter(const string& footer)
 }
 
 //
+// Set the directory for style sheet images.
+//
+void
+Slice::GeneratorBase::setImageDir(const string& imageDir)
+{
+    _imageDir = imageDir;
+}
+
+//
+// Set URL for logo image, if any.
+//
+void
+Slice::GeneratorBase::setLogoURL(const string& logoURL)
+{
+    _logoURL = logoURL;
+}
+
+//
 // Set the threshold at which we start generating sub-indexes.
 // If a page has fewer entries than this, we don't generate a
 // sub-index. (For example, with "ic" set to 3, we generate
@@ -148,6 +173,12 @@ void
 Slice::GeneratorBase::warnSummary(int n)
 {
     _warnSummary = n;
+}
+
+void
+Slice::GeneratorBase::setSymbols(const ContainedList& symbols)
+{
+    _symbols = symbols;
 }
 
 Slice::GeneratorBase::GeneratorBase(XMLOutput& o, const Files& files)
@@ -256,18 +287,14 @@ Slice::GeneratorBase::end()
 }
 
 void
-Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecateReason, bool inIndex)
+Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& container,
+	                           const string& deprecateReason, bool forIndex)
 {
 #ifndef NDEBUG
     int indent = _out.currIndent();
 #endif
 
-    ContainerPtr container = ContainerPtr::dynamicCast(p);
-    if(!ContainerPtr::dynamicCast(p))
-    {
-	container = p->container();
-    }
-    string comment = getComment(p, container, false, inIndex);
+    string comment = getComment(p, container, false, forIndex);
     StringList par = getTagged("param", comment);
     StringList ret = getTagged("return", comment);
     StringList throws = getTagged("throws", comment);
@@ -356,7 +383,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	    }
 	    
 	    start("dt", "Symbol");
-	    _out << toString(term, container, false, inIndex);
+	    _out << toString(term, container, false, forIndex);
 	    end();
 	    start("dd");
 	    _out << nl << item;
@@ -380,7 +407,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
 	{
 	    start("dt", "Symbol");
-	    _out << toString(*q, container, false, inIndex);
+	    _out << toString(*q, container, false, forIndex);
 	    end();
 	}
 	end();
@@ -400,7 +427,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	    for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
 	    {
 		start("dt", "Symbol");
-		_out << toString(*q, container, false, inIndex);
+		_out << toString(*q, container, false, forIndex);
 		end();
 	    }
 	    end();
@@ -421,7 +448,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	    StringList sl;
 	    for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
 	    {
-		sl.push_back(toString(*q, container, false, inIndex));
+		sl.push_back(toString(*q, container, false, forIndex));
 	    }
 	    sl.sort();
 	    for(StringList::const_iterator r = sl.begin(); r != sl.end(); ++r)
@@ -460,7 +487,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	StringList strings;
 	for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
 	{
-	    strings.push_back(toString(*q, container, false, inIndex));
+	    strings.push_back(toString(*q, container, false, forIndex));
 	}
 	strings.sort();
 	strings.unique();
@@ -487,7 +514,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const string& deprecat
 	for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
 	{
 	    start("dt", "Symbol");
-	    _out << toString(*q, container, false, inIndex);
+	    _out << toString(*q, container, false, forIndex);
 	    end();
 	}
 	end();
@@ -542,8 +569,178 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
     }
 }
 
+void
+Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
+{
+    ContainerPtr container = ModulePtr::dynamicCast(c) ? c->container() : ContainerPtr::dynamicCast(c);
+    string scoped = c->scoped();
+    ContainedList::const_iterator prev = _symbols.end();
+    ContainedList::const_iterator pos = _symbols.begin();
+    while(pos != _symbols.end())
+    {
+	if((*pos)->scoped() == scoped)
+	{
+	    break;
+	}
+	prev = pos++;
+    }
+    ContainedList::const_iterator next = pos == _symbols.end() ? _symbols.end() : ++pos;
+
+    bool isFirst = prev == _symbols.end();
+    bool isLast = next == _symbols.end();
+    bool hasParent = ContainedPtr::dynamicCast(container) || EnumPtr::dynamicCast(c);
+
+    bool onEnumPage = EnumPtr::dynamicCast(c);
+
+    string prevLink;
+    string prevClass;
+    if(!isFirst)
+    {
+	prevLink = getLinkPath(*prev, container, false, onEnumPage) + ".html";
+	prevClass = "Button";
+    }
+    else
+    {
+	prevClass = "ButtonGrey";
+    }
+
+    string nextLink;
+    string nextClass;
+    if(!isLast)
+    {
+	nextLink = getLinkPath(*next, container, false, onEnumPage) + ".html";
+	nextClass = "Button";
+    }
+    else
+    {
+	nextClass = "ButtonGrey";
+    }
+
+    string upLink;
+    string upClass;
+    if(hasParent)
+    {
+	upLink = getLinkPath(c->container(), container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
+	upClass = "Button";
+    }
+    else
+    {
+	upClass = "ButtonGrey";
+    }
+
+    string homeLink = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+    if(!homeLink.empty())
+    {
+	homeLink += "/";
+    }
+    homeLink += "index.html";
+
+    string indexLink = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+    if(!indexLink.empty())
+    {
+	indexLink += "/";
+    }
+    indexLink += "_sindex.html";
+
+    string imageDir = getImageDir();
+
+    string prevImage = imageDir.empty() ? "Previous" : (isFirst ? "prevx.gif" : "prev.gif");
+    string nextImage = imageDir.empty() ? "Next" : (isLast ? "nextx.gif" : "next.gif");
+    string upImage = imageDir.empty()? "Up" : (hasParent ? "up.gif" : "upx.gif");
+
+    string homeImage = imageDir.empty() ? "Home" : "home.gif";
+    string indexImage = imageDir.empty() ? "Index" : "index.gif";
+
+    if(!imageDir.empty())
+    {
+	string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+	if(!path.empty())
+	{
+	    path += "/";
+	}
+	path += imageDir + "/";
+
+	prevImage = "<img class=\"" + prevClass + "\" src=\"" + path + prevImage + "\" alt=\"Previous\"/>";
+	nextImage = "<img class=\"" + nextClass + "\" src=\"" + path + nextImage + "\" alt=\"Next\"/>";
+	upImage = "<img class=\"" + upClass + "\" src=\"" + path + upImage + "\" alt=\"Up\"/>";
+	homeImage = "<img class=\"Button\" src=\"" + path + homeImage + "\" alt=\"Home\"/>";
+	indexImage = "<img class=\"Button\" src=\"" + path + indexImage + "\" alt=\"Index\"/>";
+    }
+
+    start("div", "HeaderFooter");
+
+    start("table", "ButtonTable");
+    start("tr");
+
+    start("td");
+    _out << "<a href=\"" << homeLink << "\">" << homeImage << "</a>";
+    end();
+
+    if(!imageDir.empty() || !isFirst)
+    {
+	start("td");
+	_out << "<a href=\"" << prevLink << "\">" << prevImage << "</a>";
+	end();
+    }
+
+    if(!imageDir.empty() || hasParent)
+    {
+	start("td");
+	_out << "<a href=\"" << upLink << "\">" << upImage << "</a>";
+	end();
+    }
+
+    if(!imageDir.empty() || !isLast)
+    {
+	start("td");
+	_out << "<a href=\"" << nextLink << "\">" << nextImage << "</a>";
+	end();
+    }
+
+    start("td");
+    _out << "<a href=\"" << indexLink << "\">" << indexImage << "</a>";
+    end();
+
+    end();
+    end();
+
+    printLogo(c, container, onEnumPage);
+
+    end();
+}
+
+void
+Slice::GeneratorBase::printLogo(const ContainedPtr& c, const ContainerPtr& container, bool forEnum)
+{
+    string imageDir = getImageDir();
+    if(!imageDir.empty())
+    {
+	string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), forEnum);
+	if(!path.empty())
+	{
+	    path += "/";
+	}
+	path += imageDir + "/logo.gif";
+	start("table", "LogoTable");
+	start("tr");
+	start("td");
+	if(!_logoURL.empty())
+	{
+	    _out << "<a href=\"" + _logoURL + "\">";
+	}
+	_out << "<img class=\"Logo\" src=\"" + path + "\" alt=\"Logo\"/>";
+	if(!_logoURL.empty())
+	{
+	    _out << "</a>";
+	}
+	end();
+	end();
+	end();
+    }
+}
+
 string
-Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool inIndex,
+Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool forIndex,
 	                       unsigned* summarySize, bool shortName)
 {
     string anchor;
@@ -578,7 +775,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(proxy->_class()->definition());
-	    linkpath = getLinkPath(proxy->_class()->definition(), container, inIndex);
+	    linkpath = getLinkPath(proxy->_class()->definition(), container, forIndex);
 	}
 	s = getScopedMinimized(proxy->_class(), container, shortName);
     }
@@ -594,7 +791,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(definition && _files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(definition);
-	    linkpath = getLinkPath(definition, container, inIndex);
+	    linkpath = getLinkPath(definition, container, forIndex);
 	}
 	s = getScopedMinimized(cl, container, shortName);
     }
@@ -605,7 +802,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(ex);
-	    linkpath = getLinkPath(ex, container, inIndex);
+	    linkpath = getLinkPath(ex, container, forIndex);
 	}
 	s = getScopedMinimized(ex, container, shortName);
     }
@@ -616,7 +813,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(st);
-	    linkpath = getLinkPath(st, container, inIndex);
+	    linkpath = getLinkPath(st, container, forIndex);
 	}
 	s = getScopedMinimized(st, container, shortName);
     }
@@ -627,7 +824,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(en);
-	    linkpath = getLinkPath(en, container, inIndex);
+	    linkpath = getLinkPath(en, container, forIndex);
 	}
 	s = getScopedMinimized(en, container, shortName);
     }
@@ -638,7 +835,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(op);
-	    linkpath = getLinkPath(op, container, inIndex);
+	    linkpath = getLinkPath(op, container, forIndex);
 	}
 	s = getScopedMinimized(op, container, shortName);
     }
@@ -651,11 +848,11 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
 	    anchor = getAnchor(op);
-	    linkpath = getLinkPath(op, container, inIndex);
+	    linkpath = getLinkPath(op, container, forIndex);
 	}
 	s = getScopedMinimized(op, container, shortName);
     }
-    
+
     if(s.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(p);
@@ -669,11 +866,11 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	    //
 	    if(SequencePtr::dynamicCast(p) || DictionaryPtr::dynamicCast(p))
 	    {
-		linkpath = getLinkPath(contained->container(), container, inIndex);
+		linkpath = getLinkPath(contained->container(), container, forIndex);
 	    }
 	    else
 	    {
-		linkpath = getLinkPath(contained, container, inIndex);
+		linkpath = getLinkPath(contained, container, forIndex);
 	    }
 	}
 	s = getScopedMinimized(contained, container, shortName);
@@ -724,7 +921,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 }
 
 string
-Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool inIndex,
+Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool forIndex,
 	                       unsigned* summarySize)
 {
     string s = str;
@@ -732,13 +929,13 @@ Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container,
     TypeList types = container->lookupType(s, false);
     if(!types.empty())
     {
-	return toString(types.front(), container, asTarget, inIndex, summarySize);
+	return toString(types.front(), container, asTarget, forIndex, summarySize);
     }
 
     ContainedList contList = container->lookupContained(s, false);
     if(!contList.empty())
     {
-	return toString(contList.front(), container, asTarget, inIndex, summarySize);
+	return toString(contList.front(), container, asTarget, forIndex, summarySize);
     }
 
     //
@@ -750,7 +947,7 @@ Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container,
 
 string
 Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerPtr& container,
-				 bool summary, bool inIndex)
+				 bool summary, bool forIndex)
 {
     unsigned summarySize = 0;
     string s = contained->comment();
@@ -776,7 +973,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
 		literal += s[i];
 	    }
 	    unsigned sz = 0;
-	    comment += toString(literal, container, false, inIndex, summary ? &sz : 0);
+	    comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
 	    summarySize += sz;
 	}
 	else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
@@ -818,7 +1015,7 @@ Slice::GeneratorBase::getAnchor(const SyntaxTreeBasePtr& p)
 }
 
 string
-Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool inIndex)
+Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool forIndex, bool forEnum)
 {
     ContainerPtr c = container;
 
@@ -826,12 +1023,9 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     // If we are in a sub-index, we need to "step up" one level, because the links all
     // point at a section in the same file.
     //
-    if(inIndex)
+    if(forIndex && ContainedPtr::dynamicCast(container))
     {
-	if(ContainedPtr::dynamicCast(container))
-	{
-	    c = ContainedPtr::dynamicCast(c)->container();
-	}
+	c = ContainedPtr::dynamicCast(c)->container();
     }
 
     //
@@ -849,6 +1043,7 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
 	target = getContainer(p);
     }
     StringList from = getContainer(c);
+
     while(!target.empty() && !from.empty() && target.front() == from.front())
     {
 	target.pop_front();
@@ -895,7 +1090,31 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
 	path += target.front() == "index" ? "_index" : target.front();
 	target.pop_front();
     }
+
+    if(forEnum)
+    {
+	if(!path.empty())
+	{
+	    path = "../" + path;
+	}
+	else
+	{
+	    path = "..";
+	}
+    }
     return path;
+}
+
+string
+Slice::GeneratorBase::getImageDir()
+{
+    return _imageDir;
+}
+
+string
+Slice::GeneratorBase::getLogoURL()
+{
+    return _logoURL;
 }
 
 void
@@ -1240,6 +1459,10 @@ Slice::StartPageGenerator::~StartPageGenerator()
 {
     ::std::sort(_modules.begin(), _modules.end());
 
+    printHeaderFooter();
+
+    _out << nl << "<hr>";
+
     start("h1");
     _out << "Slice API Documentation";
     end();
@@ -1258,6 +1481,9 @@ Slice::StartPageGenerator::~StartPageGenerator()
     }
     end();
 
+    _out << nl << "<hr>";
+    printHeaderFooter();
+
     closeDoc();
 }
 
@@ -1265,8 +1491,54 @@ void
 Slice::StartPageGenerator::generate(const ModulePtr& m)
 {
     string name = toString(m, 0, false);
-    string comment = getComment(m, 0, true);
+    string comment = getComment(m, m, true, true);
     _modules.push_back(make_pair(name, comment));
+}
+
+void
+Slice::StartPageGenerator::printHeaderFooter()
+{
+    start("div", "HeaderFooter");
+
+    start("table", "ButtonTable");
+    start("tr");
+    start("td");
+    string imageDir = getImageDir();
+    if(imageDir.empty())
+    {
+	_out << "<a href=\"_sindex.html\">Index</a>";
+    }
+    else
+    {
+	string src = imageDir + "/index.gif";
+	_out << "<a href=\"_sindex.html\"><img class=\"Button\" src=\"" + src + "\" alt=\"Index Button\"/></a>";
+    }
+    end();
+    end();
+    end();
+
+    if(!imageDir.empty())
+    {
+	start("table", "LogoTable");
+	start("tr");
+	start("td");
+	string logoURL = getLogoURL();
+	cerr << "logo: " << logoURL << endl;
+	if(!logoURL.empty())
+	{
+	    _out << "<a href=\"" + logoURL + "\">";
+	}
+	_out << "<img class=\"Logo\" src=\"" + imageDir + "/logo.gif\" alt=\"Logo\"/>";
+	if(!logoURL.empty())
+	{
+	    _out << "</a>";
+	}
+	end();
+	end();
+	end();
+    }
+
+    end();
 }
 
 Slice::FileVisitor::FileVisitor(Files& files)
@@ -1353,9 +1625,10 @@ Slice::StartPageVisitor::visitModuleStart(const ModulePtr& m)
 TOCGenerator::TOCGenerator(const Files& files, const string& header, const string& footer)
     : GeneratorBase(_out, files)
 {
-    openDoc("_sindex.html", "Index", header, footer);
+    openDoc("_sindex.html", "Slice API Index", header, footer);
+
     start("h1");
-    _out << "Index";
+    _out << "Slice API Index";
     end();
 
     start("table", "ExpandCollapseButtonTable");
@@ -1375,13 +1648,6 @@ TOCGenerator::TOCGenerator(const Files& files, const string& header, const strin
     end();
 }
 
-TOCGenerator::~TOCGenerator()
-{
-    _modules.sort();
-    writeTOC();
-    closeDoc();
-}
-
 void
 TOCGenerator::generate(const ModulePtr& m)
 {
@@ -1391,6 +1657,8 @@ TOCGenerator::generate(const ModulePtr& m)
 void
 TOCGenerator::writeTOC()
 {
+    _modules.sort();
+
     _out << nl << "<ul id=\"SymbolTree\">";
     _out.inc();
     for(ModuleList::const_iterator i = _modules.begin(); i != _modules.end(); ++i)
@@ -1399,7 +1667,19 @@ TOCGenerator::writeTOC()
     }
     _out.dec();
     _out << nl << "</ul>";
+
+    _symbols.sort();
+    _symbols.unique();
+
+    closeDoc();
 }
+
+const ContainedList&
+TOCGenerator::symbols() const
+{
+    return _symbols;
+}
+
 
 void
 TOCGenerator::writeEntry(const ContainedPtr& c)
@@ -1484,6 +1764,16 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     {
 	_out << toString(c, 0, false, true, 0, true);
     }
+    if(ModulePtr::dynamicCast(c) || ExceptionPtr::dynamicCast(c) || ClassDefPtr::dynamicCast(c) ||
+       StructPtr::dynamicCast(c) || EnumPtr::dynamicCast(c))
+    {
+	_symbols.push_back(c);
+    }
+    else if(ClassDeclPtr::dynamicCast(c))
+    {
+	_symbols.push_back(ClassDeclPtr::dynamicCast(c)->definition());
+    }
+
     end();
 }
 
@@ -1505,6 +1795,18 @@ TOCVisitor::visitModuleStart(const ModulePtr& m)
     return false;
 }
 
+void
+TOCVisitor::generate()
+{
+    _tg.writeTOC();
+}
+
+const ContainedList&
+TOCVisitor::symbols() const
+{
+    return _tg.symbols();
+}
+
 Slice::ModuleGenerator::ModuleGenerator(XMLOutput& o, const Files& files)
     : GeneratorBase(o, files)
 {
@@ -1518,6 +1820,9 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
 #endif
 
     openDoc(m);
+
+    printHeaderFooter(m);
+    _out << nl << "<hr>";
 
     start("h1", "Symbol");
     _out << toString(m, m->container(), true);
@@ -1540,9 +1845,12 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
     _out << "module " << m->name();
     end();
 
-    printComment(m, deprecateReason, true);
+    printComment(m, m, deprecateReason, true);
 
     visitContainer(m);
+
+    _out << nl << "<hr>";
+    printHeaderFooter(m);
 
     closeDoc();
 
@@ -1775,7 +2083,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 		}
 	    }
 
-	    printComment(*q, deprecateReason, true);
+	    printComment(*q, p, deprecateReason, true);
 	    end();
 	    end();
 	}
@@ -1814,7 +2122,7 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 		}
 	    }
 
-	    printComment(*q, deprecateReason, true);
+	    printComment(*q, p, deprecateReason, true);
 	    end();
 	    end();
 	}
@@ -1834,6 +2142,9 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
 #endif
 
     openDoc(e);
+
+    printHeaderFooter(e);
+    _out << nl << "<hr>";
 
     start("h1", "Symbol");
     _out << toString(e, e, true);
@@ -1873,7 +2184,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     }
     end();
 
-    printComment(e, deprecateReason);
+    printComment(e, e, deprecateReason);
 
     DataMemberList dataMembers = e->dataMembers();
 
@@ -1922,12 +2233,15 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
 		}
 	    }
 
-	    printComment(*q, reason);
+	    printComment(*q, e, reason);
 	    end();
 	}
 	end();
     }
 	
+    _out << nl << "<hr>";
+    printHeaderFooter(e);
+
     closeDoc();
 
     assert(_out.currIndent() == indent);
@@ -1946,6 +2260,9 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 #endif
 
     openDoc(c);
+
+    printHeaderFooter(c);
+    _out << nl << "<hr>";
 
     start("h1", "Symbol");
     _out << toString(c, c, true);
@@ -1997,7 +2314,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     }
     end();
 
-    printComment(c, deprecateReason);
+    printComment(c, c, deprecateReason);
 
     OperationList operations = c->operations();
 
@@ -2094,7 +2411,7 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 		    reason = metadata.substr(10);
 		}
 	    }
-	    printComment(*q, reason);
+	    printComment(*q, c, reason);
 	}
     }
 
@@ -2122,9 +2439,12 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 		}
 	    }
 
-	    printComment(*q, reason);
+	    printComment(*q, c, reason);
 	}
     }
+
+    _out << nl << "<hr>";
+    printHeaderFooter(c);
 
     closeDoc();
 
@@ -2144,6 +2464,9 @@ Slice::StructGenerator::generate(const StructPtr& s)
 #endif
 
     openDoc(s);
+
+    printHeaderFooter(s);
+    _out << nl << "<hr>";
 
     start("h1", "Symbol");
     _out << toString(s, s, true);
@@ -2173,7 +2496,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
     _out << "struct " << s->name();
     end();
 
-    printComment(s, deprecateReason);
+    printComment(s, s, deprecateReason);
 
     DataMemberList dataMembers = s->dataMembers();
 
@@ -2222,12 +2545,15 @@ Slice::StructGenerator::generate(const StructPtr& s)
 		}
 	    }
 
-	    printComment(*q, reason);
+	    printComment(*q, s, reason);
 	    end();
 	}
 	end();
     }
 	
+    _out << nl << "<hr>";
+    printHeaderFooter(s);
+
     closeDoc();
 
     assert(_out.currIndent() == indent);
@@ -2246,6 +2572,9 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
 #endif
 
     openDoc(e);
+
+    printHeaderFooter(e);
+    _out << nl << "<hr>";
 
     start("h1", "Symbol");
     _out << toString(e, e->container(), true);
@@ -2275,7 +2604,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     _out << "enum " << e->name();
     end();
 
-    printComment(e, deprecateReason);
+    printComment(e, e->container(), deprecateReason, false);
 
     EnumeratorList enumerators = e->getEnumerators();
     if(!enumerators.empty())
@@ -2295,13 +2624,16 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
 	    //
 	    // Enumerators do not support metadata.
 	    //
-	    printComment(*q, reason);
+	    printComment(*q, e->container(), reason, false);
 	    end();
 	}
 	end();
     }
 	
     closeDoc();
+
+    _out << nl << "<hr>";
+    printHeaderFooter(e);
 
     assert(_out.currIndent() == indent);
 }
