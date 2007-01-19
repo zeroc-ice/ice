@@ -1523,7 +1523,6 @@ Slice::StartPageGenerator::printHeaderFooter()
 	start("tr");
 	start("td");
 	string logoURL = getLogoURL();
-	cerr << "logo: " << logoURL << endl;
 	if(!logoURL.empty())
 	{
 	    _out << "<a href=\"" + logoURL + "\">";
