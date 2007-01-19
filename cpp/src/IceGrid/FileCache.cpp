@@ -47,7 +47,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	// read.
 	//
 	is.clear();
-	if(lastBlockOffset - blockSize > 0)
+	if(lastBlockOffset - blockSize > streamoff(0))
 	{
 	    is.seekg(lastBlockOffset - blockSize);
 	    getline(is, line); // Ignore the first line as it's most likely not complete.
@@ -66,7 +66,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	//
 	deque<string> lines;
 	int count = originalCount - totalCount; // Number of lines left to find.
-	while(is.good() && is.tellg() < lastBlockOffset)
+	while(is.good() && is.tellg() < streamoff(lastBlockOffset))
 	{
 	    getline(is, line);
 
@@ -81,7 +81,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	    }
 	}
 
-	if(lastBlockOffset - blockSize < 0)
+	if(lastBlockOffset - blockSize < streamoff(0))
 	{
 	    break; // We're done if the block started at the begining of the file.
 	}

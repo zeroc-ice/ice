@@ -496,30 +496,35 @@ ReferencePtr
 IceInternal::FixedReference::changeSecure(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changePreferSecure(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCollocationOptimization(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
@@ -529,48 +534,56 @@ IceInternal::FixedReference::changeCompress(bool) const
     // that gets its default from the fixed connection this reference
     // refers to. This should be changable with changeCompress().
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeConnectionId(const string&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeAdapterId(const string& newAdapterId) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& newEndpoints) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCacheConnection(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 void
