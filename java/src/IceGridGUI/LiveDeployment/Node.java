@@ -642,7 +642,7 @@ class Node extends ListTreeNode
 	    while(p.hasNext())
 	    {
 		AdapterDynamicInfo ainfo = (AdapterDynamicInfo)p.next();
-		if(ainfo.equals(adapterId))
+		if(ainfo.id.equals(adapterId))
 		{
 		    return ainfo.proxy;
 		}
