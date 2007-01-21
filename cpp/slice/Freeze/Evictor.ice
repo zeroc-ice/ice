@@ -180,7 +180,7 @@ local interface Evictor extends Ice::ServantLocator
      * @return A proxy that matches the given identity and this evictor's
      * object adapter.
      *
-     * @throws AlreadyRegisteredException Raised if the evictor already has
+     * @throws ::Ice::AlreadyRegisteredException Raised if the evictor already has
      * an object with this identity.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -212,7 +212,7 @@ local interface Evictor extends Ice::ServantLocator
      * @return A proxy that matches the given identity and this evictor's
      * object adapter.
      *
-     * @throws AlreadyRegisteredException Raised if the evictor already has
+     * @throws ::Ice::AlreadyRegisteredException Raised if the evictor already has
      * an object with this identity.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -240,7 +240,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The removed servant.
      *
-     * @throws NotRegisteredException Raised if this identity was not 
+     * @throws ::Ice::NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -266,7 +266,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The removed servant.
      *
-     * @throws NotRegisteredException Raised if this identity was not 
+     * @throws ::Ice::NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -289,7 +289,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param id The identity of the Ice object.
      *
-     * @throws NotRegisteredException Raised if this identity was not 
+     * @throws ::Ice::NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -311,7 +311,7 @@ local interface Evictor extends Ice::ServantLocator
      * @param facet The facet. An empty facet means the default
      * facet.
      *
-     * @throws NotRegisteredException Raised if this identity was not 
+     * @throws ::Ice::NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
@@ -332,7 +332,7 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param id The identity of the Ice object.
      *
-     * @throws NotRegisteredException Raised if this object was not
+     * @throws ::Ice::NotRegisteredException Raised if this object was not
      * locked with [keep] or [keepFacet].
      *
      * @see keepFacet
@@ -352,7 +352,7 @@ local interface Evictor extends Ice::ServantLocator
      * @param facet The facet. An empty facet means the default
      * facet.
      *
-     * @throws NotRegisteredException Raised if this object was not
+     * @throws ::Ice::NotRegisteredException Raised if this object was not
      * locked with [keep] or [keepFacet].
      *
      * @see keep

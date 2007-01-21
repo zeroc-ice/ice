@@ -16,6 +16,13 @@
 module Freeze
 {
 
+/**
+ *
+ * This exception is raised if an attempt is made to start a
+ * while a previously started transaction has not yet been
+ * committed or rolled back.
+ *
+ **/
 local exception TransactionAlreadyInProgressException
 {
 };

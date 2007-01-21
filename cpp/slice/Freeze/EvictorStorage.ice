@@ -52,7 +52,18 @@ struct Statistics
  **/
 struct ObjectRecord
 {
+    /**
+     *
+     * The servant implementing the object.
+     *
+     **/
     Object servant;
+
+    /**
+     *
+     * The statistics for the object.
+     *
+     **/
     Statistics stats;
 };
 
