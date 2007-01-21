@@ -17,7 +17,6 @@ module Freeze
  *
  * A Freeze database exception.
  *
- * @see DB
  * @see Evictor
  * @see Connection
  *
