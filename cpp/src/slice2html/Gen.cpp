@@ -1751,7 +1751,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
 	cl.sort();
 	cl.unique();
 
-	_out << toString(c, 0, false, true, 0, true);
+	_out << nl << toString(c, 0, false, true, 0, true);
 	start("ul");
 	for(ContainedList::const_iterator i = cl.begin(); i != cl.end(); ++i)
 	{
@@ -1761,7 +1761,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     }
     else
     {
-	_out << toString(c, 0, false, true, 0, true);
+	_out << nl << toString(c, 0, false, true, 0, true);
     }
     if(ModulePtr::dynamicCast(c) || ExceptionPtr::dynamicCast(c) || ClassDefPtr::dynamicCast(c) ||
        StructPtr::dynamicCast(c) || EnumPtr::dynamicCast(c))
@@ -1772,7 +1772,6 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     {
 	_symbols.push_back(ClassDeclPtr::dynamicCast(c)->definition());
     }
-
     end();
 }
 
