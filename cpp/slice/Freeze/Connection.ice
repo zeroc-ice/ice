@@ -36,9 +36,9 @@ local interface Connection
      * Create a new transaction. Only one transaction at a time can
      * be associated with a connection. 
      *
-     * @return The new transaction
+     * @return The new transaction.
      *
-     * @throws raises TransactionAlreadyInProgressException if a 
+     * @throws TransactionAlreadyInProgressException Raised if a 
      * transaction is already associated with this connection.
      *
      **/
@@ -66,15 +66,15 @@ local interface Connection
     
     /**
      *
-     * Returns the communicator associated with this connection
+     * Returns the communicator associated with this connection.
      *
      **/
     ["cpp:const"] Ice::Communicator getCommunicator();
 
     /**
      *
-     * The name of the connected system (e.g. Berkeley DB
-     * environment)
+     * The name of the connected system (for example, the Berkeley DB
+     * environment).
      *
      **/
     ["cpp:const"] string getName();
