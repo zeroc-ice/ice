@@ -409,6 +409,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     cout << "testing load balancing n-replicas..." << flush;
     {
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-2"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+	try
+	{
+	    obj->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+
 	map<string, string> params;
 	params["replicaGroup"] = "RoundRobin-2";
 	params["id"] = "Server1";
@@ -417,9 +429,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server3";
 	instantiateServer(admin, "Server", "localnode", params);
-	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-2"));
-	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));
-	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
 	try
 	{
 	    set<string> replicaIds;
@@ -465,6 +474,18 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     }
     {
+	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-All"));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));
+	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+	try
+	{
+	    obj->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::NoEndpointException&)
+	{
+	}
+
 	map<string, string> params;
 	params["replicaGroup"] = "RoundRobin-All";
 	params["id"] = "Server1";
@@ -473,9 +494,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 	instantiateServer(admin, "Server", "localnode", params);
 	params["id"] = "Server3";
 	instantiateServer(admin, "Server", "localnode", params);
-	TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin-All"));
-	obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(-1));
-	obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
 	try
 	{
 	    set<string> replicaIds;
