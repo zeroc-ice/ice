@@ -158,7 +158,7 @@ interface SessionControl
      * Access the object that manages the allowable categories
      * for object identities for this session. 
      *
-     * @return A StringSet object
+     * @return A StringSet object.
      *
      **/
     StringSet* categories();
@@ -168,7 +168,7 @@ interface SessionControl
      * Access the object that manages the allowable adapter identities
      * for objects for this session. 
      *
-     * @return A StringSet object
+     * @return A StringSet object.
      *
      **/
     StringSet* adapterIds();
@@ -178,7 +178,7 @@ interface SessionControl
      * Access the object that manages the allowable object identities
      * for this session. 
      *
-     * @return An IdentitySet object
+     * @return An IdentitySet object.
      *
      **/
     IdentitySet* identities();

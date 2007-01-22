@@ -18,8 +18,8 @@ module Freeze
 
 /**
  *
- * This exception is raised if an attempt is made to start a
- * while a previously started transaction has not yet been
+ * An attempt was made to start a transaction
+ * while a previous transaction has not yet been
  * committed or rolled back.
  *
  **/

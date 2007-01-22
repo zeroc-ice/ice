@@ -251,6 +251,12 @@ interface ApplicationObserver
     void applicationUpdated(int serial, ApplicationUpdateInfo desc);
 };
 
+/**
+ *
+ * This interface allows applications to monitor the state of object
+ * adapters that are registered with [IceGrid].
+ *
+ **/
 interface AdapterObserver
 {
     /**
@@ -293,6 +299,11 @@ interface AdapterObserver
     void adapterRemoved(string id);
 };
 
+/**
+ *
+ * This interface allows applications to monitor [IceGrid] well-known objects.
+ *
+ **/
 interface ObjectObserver
 {
     /**
@@ -335,11 +346,17 @@ interface ObjectObserver
     void objectRemoved(Ice::Identity id);
 };
 
+/**
+ *
+ * This interface allows applications to monitor changes the state
+ * of the registry.
+ *
+ **/
 interface RegistryObserver
 {
     /**
      *
-     * <tt>registryInit</ttoperation is called after the registration of
+     * The <tt>registryInit</tt> operation is called after the registration of
      * an observer to indicate the state of the registries.
      *
      * @param registries The current state of the registries.
