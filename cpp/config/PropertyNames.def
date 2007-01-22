@@ -116,6 +116,7 @@ Ice:
     ACM.Client
     ACM.Server
     AllowableEndpoints
+    BatchAutoFlush
     ChangeUser
     Compression.Level
     Config
@@ -412,7 +413,6 @@ Glacier2:
     Admin.PublishedEndpoints
     Admin.RegisterProcess
     AllowCategories
-    Batch.AutoFlush
     Client.AlwaysBatch
     Client.Buffered
     Client.Endpoints
