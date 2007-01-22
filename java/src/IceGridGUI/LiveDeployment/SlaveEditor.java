@@ -20,23 +20,17 @@ class SlaveEditor extends Editor
     SlaveEditor()
     {
 	_hostname.setEditable(false);
-	_endpoints.setEditable(false);
     }
 
     void show(RegistryInfo info)
     {
 	_hostname.setText(info.hostname);
-	_endpoints.setText(info.endpoints);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
 	builder.append("Hostname" );
 	builder.append(_hostname, 3);
-	builder.nextLine();
-
-	builder.append("Endpoints" );
-	builder.append(_endpoints, 3);
 	builder.nextLine();
     }
 
@@ -47,5 +41,4 @@ class SlaveEditor extends Editor
     }
 
     private JTextField _hostname = new JTextField(20);
-    private JTextField _endpoints = new JTextField(20);
 }

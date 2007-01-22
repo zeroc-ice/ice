@@ -36,7 +36,6 @@ class RegistryEditor extends Editor
     RegistryEditor()
     {
 	_hostname.setEditable(false);
-	_endpoints.setEditable(false);
 
 	Action openDefinition = new AbstractAction("Open definition")
 	    {
@@ -257,10 +256,6 @@ class RegistryEditor extends Editor
 	builder.append(_hostname, 3);
 	builder.nextLine();
 
-	builder.append("Endpoints" );
-	builder.append(_endpoints, 3);
-	builder.nextLine();
-
 	builder.appendSeparator("Deployed Applications");
 	builder.append("");
 	builder.nextLine();
@@ -343,14 +338,12 @@ class RegistryEditor extends Editor
     {
 	_target = root;
 	_hostname.setText(root.getRegistryInfo().hostname);
-	_endpoints.setText(root.getRegistryInfo().endpoints);
 	_applications.setSortedMap(root.getApplicationMap());
 	_objects.setObjects(root.getObjects());
 	_adapters.setAdapters(root.getAdapters());
     }
 
     private JTextField _hostname = new JTextField(20);
-    private JTextField _endpoints = new JTextField(20);
     private TableField _applications = new TableField("Name", "Last Update");
     private TableField _objects = new TableField("Proxy", "Type");
     private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
