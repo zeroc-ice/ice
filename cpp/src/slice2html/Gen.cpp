@@ -798,7 +798,6 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     {
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
-	    anchor = getAnchor(proxy->_class()->definition());
 	    linkpath = getLinkPath(proxy->_class()->definition(), container, forIndex);
 	}
 	s = getScopedMinimized(proxy->_class(), container, shortName);
@@ -814,7 +813,6 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	ContainedPtr definition = cl->definition();
 	if(definition && _files.find(p->definitionContext()->filename()) != _files.end())
 	{
-	    anchor = getAnchor(definition);
 	    linkpath = getLinkPath(definition, container, forIndex);
 	}
 	s = getScopedMinimized(cl, container, shortName);
@@ -825,7 +823,6 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     {
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
-	    anchor = getAnchor(ex);
 	    linkpath = getLinkPath(ex, container, forIndex);
 	}
 	s = getScopedMinimized(ex, container, shortName);
@@ -836,7 +833,6 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     {
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
-	    anchor = getAnchor(st);
 	    linkpath = getLinkPath(st, container, forIndex);
 	}
 	s = getScopedMinimized(st, container, shortName);
@@ -883,7 +879,11 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	assert(contained);
 	if(_files.find(p->definitionContext()->filename()) != _files.end())
 	{
-	    anchor = getAnchor(contained);
+	    if(!(EnumPtr::dynamicCast(p) || ModulePtr::dynamicCast(p) || ClassDeclPtr::dynamicCast(p)))
+	    {
+		anchor = getAnchor(contained);
+	    }
+
 	    //
 	    // Sequences and dictionaries are documented on the page for their
 	    // enclosing module.
@@ -910,7 +910,10 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 	if(ProxyPtr::dynamicCast(p))
 	{
 	    s += '*';
-	    ++(*summarySize);
+	    if(summarySize)
+	    {
+		++(*summarySize);
+	    }
 	}
 	return s;
     }
