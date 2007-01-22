@@ -810,7 +810,7 @@ namespace Ice
 		//
 		_batchStream.swap(os);
 
-		if(_batchStream.size() > instance_.messageSizeMax())
+		if(_batchAutoFlush && _batchStream.size() > instance_.messageSizeMax())
 		{
 		    //
 		    // Throw memory limit exception if the first message added causes us to
@@ -1019,7 +1019,7 @@ namespace Ice
 
 	private void resetBatch(bool resetInUse)
 	{
-	    _batchStream = new IceInternal.BasicStream(instance_, true);
+	    _batchStream = new IceInternal.BasicStream(instance_, _batchAutoFlush);
 	    _batchRequestNum = 0;
 	    _batchRequestCompress = false;
 		
@@ -1418,7 +1418,8 @@ namespace Ice
 		"Ice.CacheMessageBuffers", 1) == 1;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
-	    _batchStream = new IceInternal.BasicStream(instance, true);
+	    _batchAutoFlush = instance_.initializationData().properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0;
+	    _batchStream = new IceInternal.BasicStream(instance, _batchAutoFlush);
 	    _batchStreamInUse = false;
 	    _batchRequestNum = 0;
 	    _batchRequestCompress = false;
@@ -2491,6 +2492,7 @@ namespace Ice
 	
 	private LocalException _exception;
 
+	private bool _batchAutoFlush;
 	private IceInternal.BasicStream _batchStream;
 	private bool _batchStreamInUse;
 	private int _batchRequestNum;

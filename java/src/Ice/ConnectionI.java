@@ -1493,7 +1493,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
 	_batchAutoFlush = 
-	    _instance.initializationData().properties.getPropertyAsInt("Ice.Batch.AutoFlush") > 0 ? true : false;
+	    _instance.initializationData().properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0 ? true : false;
         _batchStream = new IceInternal.BasicStream(instance, _batchAutoFlush);
 	_batchStreamInUse = false;
 	_batchRequestNum = 0;
