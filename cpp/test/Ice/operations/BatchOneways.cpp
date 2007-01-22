@@ -54,7 +54,7 @@ batchOneways(const Test::MyClassPrx& p)
     
     int i;
 
-    for(i = 0 ; i < 30 ; ++i)
+    for(i = 0 ; i < 9 ; ++i)
     {
 	try
 	{
@@ -65,7 +65,35 @@ batchOneways(const Test::MyClassPrx& p)
 	{
 	    test(false);
 	}
+	
+	batch->ice_getConnection()->flushBatchRequests();
     }
     
-    batch->ice_getConnection()->flushBatchRequests();
+    for(i = 0 ; i < 10 ; ++i)
+    {
+	try
+	{
+	    batch->opByteSOneway(bs1);
+	    test(i < 9);
+	}
+	catch(const Ice::MemoryLimitException&)
+	{
+	    test(i == 9);
+	}
+    }
+    
+    for(i = 0 ; i < 9 ; ++i)
+    {
+	try
+	{
+	    batch->opByteSOneway(bs1);
+	    test(true);
+	}
+	catch(const Ice::MemoryLimitException&)
+	{
+	    test(false);
+	}
+	
+	batch->ice_getConnection()->flushBatchRequests();
+    }
 }

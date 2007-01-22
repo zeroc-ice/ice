@@ -908,7 +908,7 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
         //
         _batchStream.swap(*os);
 
-        if(_batchStream.b.size() > _instance->messageSizeMax())
+        if(_batchAutoFlush && _batchStream.b.size() > _instance->messageSizeMax())
 	{
 	    //
 	    // Throw memory limit exception if the first message added causes us to 
@@ -1155,7 +1155,7 @@ Ice::ConnectionI::flushBatchRequestsInternal(bool ignoreInUse)
 void
 Ice::ConnectionI::resetBatch(bool resetInUse)
 {
-    BasicStream dummy(_instance.get(), true);
+    BasicStream dummy(_instance.get(), _batchAutoFlush);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
     _batchRequestCompress = false;
@@ -1589,7 +1589,8 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _asyncRequestsHint(_asyncRequests.end()),
-    _batchStream(_instance.get(), true),
+    _batchAutoFlush(_instance->initializationData().properties->getPropertyAsInt("Ice.Batch.AutoFlush") > 0),
+    _batchStream(_instance.get(), _batchAutoFlush),
     _batchStreamInUse(false),
     _batchRequestNum(0),
     _batchRequestCompress(false),

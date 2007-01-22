@@ -192,6 +192,7 @@ private:
 
     std::auto_ptr<LocalException> _exception;
 
+    const bool _batchAutoFlush;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;

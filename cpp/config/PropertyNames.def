@@ -412,6 +412,7 @@ Glacier2:
     Admin.PublishedEndpoints
     Admin.RegisterProcess
     AllowCategories
+    Batch.AutoFlush
     Client.AlwaysBatch
     Client.Buffered
     Client.Endpoints
