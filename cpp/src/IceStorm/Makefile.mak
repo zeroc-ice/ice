@@ -95,8 +95,8 @@ $(ADMIN): $(AOBJS)
 
 ..\IceStorm\PersistentTopicMap.h PersistentTopicMap.cpp: ..\IceStorm\LinkRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
 	del /q PersistentTopicMap.h PersistentTopicMap.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordSeq PersistentTopicMap \
-	..\IceStorm\LinkRecord.ice
+	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,Ice::Identity,IceStorm::LinkRecordSeq \
+	PersistentTopicMap ..\IceStorm\LinkRecord.ice
 
 Event.cpp Event.h: Event.ice
 	$(SLICE2CPP) --dll-export ICE_STORM_API $(SLICE2CPPFLAGS) Event.ice
