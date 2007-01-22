@@ -106,4 +106,8 @@ ServantLocatorI::exception(const Ice::Current& current)
     {
 	throw 5;
     }
+    else if(current.operation == "unknownExceptionWithServantException")
+    {
+	throw UnknownException(__FILE__, __LINE__, "reason");
+    }
 }

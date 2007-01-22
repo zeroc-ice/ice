@@ -830,7 +830,6 @@ Parser::describeRegistry(const list<string>& args)
 	out << "registry `" << args.front() << "'";
 	out << sb;
 	out << nl << "host name = `" << info.hostname << "'";
-	out << nl << "endpoints = `" << info.endpoints << "'";
 	out << eb;
 	out << nl;
     }

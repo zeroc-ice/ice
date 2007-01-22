@@ -27,6 +27,8 @@ interface TestIntf
     void userException();
     void stdException();
     void cppException();
+
+    void unknownExceptionWithServantException();
     
     void shutdown();
 };

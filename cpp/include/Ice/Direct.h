@@ -24,7 +24,8 @@ class ICE_API Direct : private IceUtil::noncopyable
 public:
 
     Direct(const Ice::Current&);
-    ~Direct();
+    
+    void destroy();
 
     const Ice::ObjectPtr& servant();    
 

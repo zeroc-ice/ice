@@ -91,8 +91,14 @@ IceInternal::Direct::Direct(const Current& current) :
     }
 }
 
-IceInternal::Direct::~Direct()
+void
+IceInternal::Direct::destroy()
 {
+    //
+    // NOTE: we can't do the following in the destructor because it
+    // might throw.
+    //
+
     ObjectAdapterI* adapter = dynamic_cast<ObjectAdapterI*>(_current.adapter.get());
     assert(adapter);
 

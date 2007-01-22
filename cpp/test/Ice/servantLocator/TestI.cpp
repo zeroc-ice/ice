@@ -55,6 +55,12 @@ TestI::cppException(const Current&)
 }
 
 void
+TestI::unknownExceptionWithServantException(const Current&)
+{
+    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+}
+
+void
 TestI::shutdown(const Current& current)
 {
     current.adapter->deactivate();

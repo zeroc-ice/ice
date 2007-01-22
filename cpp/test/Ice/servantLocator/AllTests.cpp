@@ -127,6 +127,16 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     {
 	test(collocated);
     }
+    
+    try
+    {
+	obj->unknownExceptionWithServantException();
+	test(false);
+    }
+    catch(const UnknownException& ex)
+    {
+	test(ex.unknown == "reason");
+    }
 }
 
 TestIntfPrx

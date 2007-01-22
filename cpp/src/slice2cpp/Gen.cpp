@@ -2588,6 +2588,12 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "while(true)";
 	C << sb;
 	C << nl << "::IceInternal::Direct __direct(__current);";
+	if(ret)
+	{
+	    C << nl << retS << " __ret;";
+	}
+	C << nl << "try";
+	C << sb;
 	C << nl << thisPointer << " __servant = dynamic_cast< " << thisPointer << ">(__direct.servant().get());";
 	C << nl << "if(!__servant)";
 	C << sb;
@@ -2602,18 +2608,29 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 	C << nl;
 	if(ret)
 	{
-	    C << "return ";
+	    C << "__ret = ";
 	}
 	C << "__servant->" << name << spar << args << epar << ';';
-	if(!ret)
-	{
-	    C << nl << "return;";
-	}
 	C << eb;
         C << nl << "catch(const ::Ice::LocalException& __ex)";
         C << sb;
         C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
 	C << eb;
+	C << eb;
+	C << nl << "catch(...)";
+	C << sb;
+	C << nl << "__direct.destroy();";
+	C << nl << "throw;";
+	C << eb;
+	C << nl << "__direct.destroy();";
+	if(ret)
+	{
+	    C << nl << "return __ret;";
+	}
+	else
+	{
+	    C << nl << "return;";
+	}
 	C << eb;
 	C << eb;
     }

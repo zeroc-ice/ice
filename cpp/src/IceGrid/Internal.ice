@@ -667,13 +667,6 @@ class InternalReplicaInfo
      *
      **/
     string hostname;
-
-    /**
-     *
-     * The client endpoints of the registry.
-     *
-     **/
-    string endpoints;
 };
 
 interface InternalRegistry extends FileReader

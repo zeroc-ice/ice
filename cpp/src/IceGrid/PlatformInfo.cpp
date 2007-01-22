@@ -73,7 +73,6 @@ toRegistryInfo(const InternalReplicaInfoPtr& replica)
     RegistryInfo info;
     info.name = replica->name;
     info.hostname = replica->hostname;
-    info.endpoints = replica->endpoints;
     return info;
 }
 
@@ -310,7 +309,6 @@ PlatformInfo::getInternalReplicaInfo() const
     InternalReplicaInfoPtr info = new InternalReplicaInfo();
     info->name = _name;
     info->hostname = _hostname;
-    info->endpoints = _endpoints;
     return info;
 }
 

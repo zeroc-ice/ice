@@ -63,6 +63,12 @@ TestAMDI::cppException_async(const Test::AMD_TestIntf_cppExceptionPtr& cb, const
 }
 
 void
+TestAMDI::unknownExceptionWithServantException_async(const Test::AMD_TestIntf_unknownExceptionWithServantExceptionPtr& cb, const Current&)
+{
+    cb->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
+}
+
+void
 TestAMDI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& cb, const Current& current)
 {
     current.adapter->deactivate();

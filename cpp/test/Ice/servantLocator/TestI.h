@@ -25,6 +25,8 @@ public:
     virtual void stdException(const Ice::Current&);
     virtual void cppException(const Ice::Current&);
 
+    virtual void unknownExceptionWithServantException(const Ice::Current&);
+
     virtual void shutdown(const Ice::Current&);
 };
 

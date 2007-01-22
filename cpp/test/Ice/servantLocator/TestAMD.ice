@@ -28,6 +28,8 @@ exception TestIntfUserException
     void stdException();
     void cppException();
     
+    void unknownExceptionWithServantException();
+
     void shutdown();
 };
 

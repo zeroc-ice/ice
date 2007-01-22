@@ -290,13 +290,6 @@ struct RegistryInfo
      *
      **/
     string hostname;
-
-    /**
-     *
-     * The client endpoints of the registry.
-     *
-     **/
-    string endpoints;
 };
 
 /**

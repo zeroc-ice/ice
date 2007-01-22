@@ -1291,7 +1291,18 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
     while(true)
     {
 	Direct __direct(__current);
-	return __direct.servant()->ice_isA(__id, __current);
+	bool __ret;
+	try
+	{
+	    __ret = __direct.servant()->ice_isA(__id, __current);
+	}
+	catch(...)
+	{
+	    __direct.destroy();
+	    throw;
+	}
+	__direct.destroy();
+	return __ret;    
     }
     return false; // To keep the Visual C++ compiler happy.
 }
@@ -1304,8 +1315,17 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
     while(true)
     {
 	Direct __direct(__current);
-	__direct.servant()->ice_ping(__current);
-	return;
+	try
+	{
+	    __direct.servant()->ice_ping(__current);
+	}
+	catch(...)
+	{
+	    __direct.destroy();
+	    throw;
+	}
+	__direct.destroy();
+	return; 
     }
 }
 
@@ -1317,7 +1337,18 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
     while(true)
     {
 	Direct __direct(__current);
-	return __direct.servant()->ice_ids(__current);
+	vector<string> __ret;
+	try
+	{
+	    __ret = __direct.servant()->ice_ids(__current);
+	}
+	catch(...)
+	{
+	    __direct.destroy();
+	    throw;
+	}
+	__direct.destroy();
+	return __ret;
     }
     return vector<string>(); // To keep the Visual C++ compiler happy.
 }
@@ -1330,7 +1361,18 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
     while(true)
     {
 	Direct __direct(__current);
-	return __direct.servant()->ice_id(__current);
+	string __ret;
+	try
+	{
+	    __ret = __direct.servant()->ice_id(__current);
+	}
+	catch(...)
+	{
+	    __direct.destroy();
+	    throw;
+	}
+	__direct.destroy();
+	return __ret;    
     }
     return string(); // To keep the Visual C++ compiler happy.
 }

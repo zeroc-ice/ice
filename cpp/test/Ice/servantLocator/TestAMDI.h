@@ -25,6 +25,8 @@ public:
     virtual void stdException_async(const Test::AMD_TestIntf_stdExceptionPtr&, const Ice::Current&);
     virtual void cppException_async(const Test::AMD_TestIntf_cppExceptionPtr&, const Ice::Current&);
 
+    virtual void unknownExceptionWithServantException_async(const Test::AMD_TestIntf_unknownExceptionWithServantExceptionPtr&, const Ice::Current&);
+
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&, const Ice::Current&);
 };
 
