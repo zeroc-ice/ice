@@ -679,21 +679,45 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     if(!imageDir.empty() || !isFirst)
     {
 	start("td");
-	_out << "<a href=\"" << prevLink << "\">" << prevImage << "</a>";
+	if(!isFirst)
+	{
+	    _out << "<a href=\"" << prevLink << "\">";
+	}
+	_out << prevImage;
+	if(!isFirst)
+	{
+	    _out << "</a>";
+	}
 	end();
     }
 
     if(!imageDir.empty() || hasParent)
     {
 	start("td");
-	_out << "<a href=\"" << upLink << "\">" << upImage << "</a>";
+	if(hasParent)
+	{
+	    _out << "<a href=\"" << upLink << "\">";
+	}
+	_out << upImage;
+	if(hasParent)
+	{
+	    _out << "</a>";
+	}
 	end();
     }
 
     if(!imageDir.empty() || !isLast)
     {
 	start("td");
-	_out << "<a href=\"" << nextLink << "\">" << nextImage << "</a>";
+	if(!isLast)
+	{
+	    _out << "<a href=\"" << nextLink << "\">";
+	}
+	_out << nextImage;
+	if(!isLast)
+	{
+	    _out << "</a>";
+	}
 	end();
     }
 
