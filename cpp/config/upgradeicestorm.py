@@ -61,7 +61,7 @@ def transformdb(db, desc, oldSlice, newSlice):
     os.write(temp, newSlice)
     os.close(temp)
 
-    temp, descFile = tempfile.mkstemp("newslice.ice")
+    temp, descFile = tempfile.mkstemp("desc.xml")
     os.write(temp, desc)
     os.close(temp)
 
