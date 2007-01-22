@@ -107,6 +107,11 @@ exception AdapterNotExistException
  **/
 exception ObjectExistsException
 {
+    /**
+     *
+     * The identity of the object.
+     *
+     **/
     Ice::Identity id;
 };
 
@@ -117,6 +122,11 @@ exception ObjectExistsException
  **/
 exception ObjectNotRegisteredException
 {
+    /**
+     *
+     * The identity of the object.
+     *
+     **/
     Ice::Identity id;
 };
 
@@ -127,6 +137,11 @@ exception ObjectNotRegisteredException
  **/
 exception NodeNotExistException
 {
+    /**
+     *
+     * The node name.
+     *
+     **/
     string name;
 };
 
@@ -137,12 +152,17 @@ exception NodeNotExistException
  **/
 exception RegistryNotExistException
 {
+    /**
+     *
+     * The registry name.
+     *
+     **/
     string name;
 };
 
 /**
  *
- * An exception for deployment failure errors.
+ * An exception for deployment errors.
  *
  **/
 exception DeploymentException

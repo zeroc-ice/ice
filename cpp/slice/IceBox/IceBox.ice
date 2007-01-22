@@ -28,8 +28,9 @@ module IceBox
     
 /**
  *
- * Indicates a failure occurred. For example, if a service encounters
- * an error during initialization, or if the service manager is unable
+ * This exception is a general failure notification. It is thrown
+ * for errors such as a service encountering an error during
+ * initialization, or the service manager being unable
  * to load a service executable.
  *
  **/
@@ -46,7 +47,8 @@ local exception FailureException
 
 /**
  *
- * Thrown is service is already started.
+ * This exception is thrown if an attempt is made to start an
+ * already-started service.
  *
  **/
 exception AlreadyStartedException
@@ -55,7 +57,8 @@ exception AlreadyStartedException
 
 /**
  *
- * Thrown is service is already stopped.
+ * This exception is thrown if an attempt is made to stop an
+ * already-stopped service.
  *
  **/
 exception AlreadyStoppedException
@@ -64,7 +67,8 @@ exception AlreadyStoppedException
 
 /**
  *
- * Thrown if service does not exist
+ * This exception is thrown if a service name does not refer
+ * to an existing service.
  *
  **/
 exception NoSuchServiceException
@@ -149,7 +153,7 @@ interface ServiceManager
 
     /**
      *
-     * Shutdown all services. This will cause [Service::stop] to be
+     * Shut down all services. This causes [Service::stop] to be
      * invoked on all configured services.
      *
      **/

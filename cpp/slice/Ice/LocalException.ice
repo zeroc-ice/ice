@@ -123,7 +123,7 @@ local exception NotRegisteredException
  * This exception is raised if an attempt is made to invoke an
  * operation with [ice_oneway], [ice_batchOneway], [ice_datagram],
  * or [ice_batchDatagram] and the operation has a return value,
- * out parameters, or an exception specification.
+ * out-parameters, or an exception specification.
  *
  **/
 local exception TwowayOnlyException
@@ -211,7 +211,7 @@ local exception UnknownUserException extends UnknownException
 /**
  *
  * This exception is raised if the Ice library version does not match
- * the Ice header files version.
+ * the version in the Ice header files.
  *
  **/
 local exception VersionMismatchException
@@ -865,7 +865,7 @@ local exception EncapsulationException extends MarshalException
 /**
  *
  * This exception is raised if a negative size
- * (e.g., a negative sequence size) is received.
+ * (for example, a negative sequence size) is received.
  *
  **/
 local exception NegativeSizeException extends MarshalException

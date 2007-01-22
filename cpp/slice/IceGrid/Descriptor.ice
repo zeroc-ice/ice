@@ -30,7 +30,18 @@ dictionary<string, string> StringStringDict;
  **/
 struct PropertyDescriptor
 {
+    /**
+     *
+     * The name of the property.
+     *
+     **/
     string name;
+
+    /**
+     *
+     * The value of the property.
+     *
+     **/
     string value;
 };
 
@@ -892,7 +903,7 @@ struct NodeUpdateDescriptor
     /**
      *
      * The updated load factor of the node (or null if the load factor
-     * wasn't updated.)
+     * was not updated).
      *
      **/
     BoxedString loadFactor;

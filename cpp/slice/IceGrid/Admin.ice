@@ -298,6 +298,12 @@ struct RegistryInfo
      **/
     string endpoints;
 };
+
+/**
+ *
+ * A sequence of [RegistryInfo] structures.
+ *
+ **/
 sequence<RegistryInfo> RegistryInfoSeq;
 
 /**
@@ -317,6 +323,11 @@ struct LoadInfo
     float avg15;
 };
 
+/**
+ *
+ * Information about an [IceGrid] application.
+ *
+ **/
 struct ApplicationInfo
 {
     /** Unique application identifier. */
@@ -340,8 +351,19 @@ struct ApplicationInfo
     /** The application descriptor */
     ApplicationDescriptor descriptor;
 };
+
+/**
+ *
+ * A sequence of [ApplicationInfo] structures.
+ *
+ **/
 ["java:type:{java.util.LinkedList}"] sequence<ApplicationInfo> ApplicationInfoSeq;
 
+/**
+ *
+ * Information about updates to an [IceGrid] application.
+ *
+ **/
 struct ApplicationUpdateInfo
 {
     /** The update time. */
@@ -356,7 +378,6 @@ struct ApplicationUpdateInfo
     /** The update descriptor. */
     ApplicationUpdateDescriptor descriptor;
 };
-
 
 /**
  *
@@ -1067,6 +1088,11 @@ interface Admin
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
 };
 
+/**
+ *
+ * This interface provides access to IceGrid log file contents.
+ *
+ **/
 interface FileIterator
 {
     /**

@@ -102,9 +102,9 @@ local interface Communicator
 
     /**
      *
-     * Check whether communicator has been shutdown.
+     * Check whether communicator has been shut down.
      *
-     * @return Whether communicator has been shutdown.
+     * @return True if the communicator has been shut down; false otherwise.
      *
      * @see shutdown
      *

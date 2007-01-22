@@ -75,7 +75,7 @@ local interface ObjectAdapter
      * <p class="Note"> Holding is not immediate, i.e., after [hold]
      * returns, the object adapter might still be active for some
      * time. You can use [waitForHold] to wait until holding is
-     * complete.</p>
+     * complete.
      *
      * @see activate
      * @see deactivate
@@ -113,7 +113,7 @@ local interface ObjectAdapter
      * been started before [deactivate] was called might still be
      * active. You can use [waitForDeactivate] to wait for the
      * completion of all requests for this object
-     * adapter.</p>
+     * adapter.
      *
      * @see activate
      * @see hold
@@ -145,7 +145,7 @@ local interface ObjectAdapter
      *
      * @return Whether adapter has been deactivated.
      *
-     * @see shutdown
+     * @see Communicator::shutdown
      *
      **/
     ["cpp:const"] bool isDeactivated();
@@ -327,7 +327,7 @@ local interface ObjectAdapter
      *
      * <p class="Note">This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * by using any installed [ServantLocator].</p>
+     * by using any installed [ServantLocator].
      *
      * @param id The identity of the Ice object for which the
      * servant should be returned.
@@ -390,7 +390,7 @@ local interface ObjectAdapter
      *
      * <p class="Note">This operation only tries to lookup a servant in
      * the Active Servant Map. It does not attempt to find a servant
-     * via any installed [ServantLocator]s.</p>
+     * via any installed [ServantLocator]s.
      *
      * @param proxy The proxy for which the servant should be returned.
      *
@@ -438,7 +438,7 @@ local interface ObjectAdapter
      * </ol>
      *
      * <p class="Note">Only one locator for the empty category can be
-     * installed.</p>
+     * installed.
      *
      * @param locator The locator to add.
      *
@@ -529,7 +529,7 @@ local interface ObjectAdapter
      *
      * <p class="Note"> This operation is intended to be used by special
      * services, such as [Router] implementations. Regular user code
-     * should not attempt to use this operation.</p>
+     * should not attempt to use this operation.
      *
      * @param id The identity for which a proxy is to be created.
      *

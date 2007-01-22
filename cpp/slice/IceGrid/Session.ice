@@ -65,15 +65,16 @@ interface Session extends Glacier2::Session
     /**
      *
      * Allocate an object with the given type. Depending on the
-     * allocation timeout, this operation might hang until an object
+     * allocation timeout, this operation can block until an object
      * becomes available or until the timeout is reached.
      *
      * @param type The type of the object.
      *
      * @return The proxy of the allocated object.
      *
-     * @throws Raised if no objects with the given type can be
-     * allocated.
+     * @throws ObjectNotRegisteredException Raised if no objects with the given type can be allocated.
+     *
+     * @throws AllocationException Raised if the object could not be allocated.
      *
      * @see setAllocationTimeout
      * @see releaseObject

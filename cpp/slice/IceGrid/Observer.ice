@@ -356,7 +356,7 @@ interface RegistryObserver
 {
     /**
      *
-     * The <tt>registryInit</tt> operation is called after the registration of
+     * The <tt>registryInit</tt> operation is called after registration of
      * an observer to indicate the state of the registries.
      *
      * @param registries The current state of the registries.
