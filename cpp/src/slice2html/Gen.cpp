@@ -1114,7 +1114,7 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
 	{
 	    path += "/";
 	}
-	path += target.front() == "index" ? "_index" : target.front();
+	path += target.front() == "index" ? string("_index") : target.front();
 	target.pop_front();
     }
 
