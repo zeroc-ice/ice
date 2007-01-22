@@ -128,7 +128,7 @@ local interface Properties
      * Get a sequence of command-line options that is equivalent to
      * this property set. Each element of the returned sequence is
      * a command-line option of the form
-     * [--<em>key</em>=<em>value</em>].
+     * <tt>--<em>key</em>=<em>value</em></tt>.
      *
      * @return The command line options for this property set.
      *
@@ -139,12 +139,12 @@ local interface Properties
      *
      * Convert a sequence of command-line options into properties.
      * All options that begin with
-     * [--<em>prefix</em>.] are
+     * <tt>--<em>prefix</em>.</tt> are
      * converted into properties. If the prefix is empty, all options
-     * that begin with [--] are converted to properties.
+     * that begin with <tt>--</tt> are converted to properties.
      *
      * @param prefix The property prefix, or an empty string to
-     * convert all options starting with [--].
+     * convert all options starting with <tt>--</tt>.
      *
      * @param options The command-line options.
      *
@@ -158,8 +158,8 @@ local interface Properties
      *
      * Convert a sequence of command-line options into properties.
      * All options that begin with one of the following prefixes
-     * are converted into properties: [--Ice], [--IceBox], [--IceGrid],
-     * [--IcePatch2], [--IceSSL], [--IceStorm], [--Freeze], and [--Glacier2].
+     * are converted into properties: <tt>--Ice</tt>, <tt>--IceBox</tt>, <tt>--IceGrid</tt>,
+     * <tt>--IcePatch2</tt>, <tt>--IceSSL</tt>, <tt>--IceStorm</tt>, <tt>--Freeze</tt>, and <tt>--Glacier2</tt>.
      *
      * @param options The command-line options.
      *

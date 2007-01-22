@@ -17,7 +17,7 @@ module Ice
  *
  * A factory for objects. Object factories are used in several
  * places, for example, when receiving "objects by value" and
- * when [Freeze] restores a persistent object. Object factories
+ * when Freeze restores a persistent object. Object factories
  * must be implemented by the application writer, and registered
  * with the communicator.
  *
@@ -31,10 +31,10 @@ local interface ObjectFactory
      * Create a new object for a given object type. The type is the
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
-     * Slice type id for interfaces of type [Bar] in the module
-     * [Foo] is [::Foo::Bar].
+     * Slice type id for interfaces of type <tt>Bar</tt> in the module
+     * <tt>Foo</tt> is <tt>::Foo::Bar</tt>.
      *
-     * <p class="Note">The leading "[::]" is required.</p>
+     * <p class="Note">The leading "<tt>::</tt>" is required.</p>
      *
      * @param type The object type.
      *

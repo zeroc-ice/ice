@@ -195,7 +195,7 @@ struct AdapterDescriptor
 
 /**
  *
- * A [Freeze] database environment descriptor.
+ * A Freeze database environment descriptor.
  *
  **/
 struct DbEnvDescriptor
@@ -284,7 +284,7 @@ class CommunicatorDescriptor
 
 /**
  *
- * A distribution descriptor defines an [IcePatch2] server and the
+ * A distribution descriptor defines an IcePatch2 server and the
  * directories to retrieve from the patch server.
  *
  **/
@@ -412,7 +412,7 @@ class ServerDescriptor extends CommunicatorDescriptor
 
 /**
  *
- * An [IceBox] service descriptor.
+ * An IceBox service descriptor.
  *
  **/
 class ServiceDescriptor extends CommunicatorDescriptor
@@ -426,7 +426,7 @@ class ServiceDescriptor extends CommunicatorDescriptor
 
     /**
      *
-     * The entry point of the [IceBox] service.
+     * The entry point of the IceBox service.
      * 
      **/
     string entry;
@@ -565,7 +565,7 @@ struct ServiceInstanceDescriptor
 
 /**
  *
- * An [IceBox] server descriptor.
+ * An IceBox server descriptor.
  *
  **/
 class IceBoxDescriptor extends ServerDescriptor

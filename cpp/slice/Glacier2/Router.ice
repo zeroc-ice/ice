@@ -17,7 +17,7 @@
  *
  * Glacier2 is a firewall solution for Ice. Glacier2 authenticates
  * and filters client requests and allows callbacks to the client in a
- * secure fashion. In combination with [IceSSL], Glacier2 provides a
+ * secure fashion. In combination with IceSSL, Glacier2 provides a
  * security solution that is both non-intrusive and easy to configure.
  *
  **/

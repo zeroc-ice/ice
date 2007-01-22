@@ -318,7 +318,7 @@ struct LoadInfo
 
 /**
  *
- * Information about an [IceGrid] application.
+ * Information about an IceGrid application.
  *
  **/
 struct ApplicationInfo
@@ -354,7 +354,7 @@ struct ApplicationInfo
 
 /**
  *
- * Information about updates to an [IceGrid] application.
+ * Information about updates to an IceGrid application.
  *
  **/
 struct ApplicationUpdateInfo

@@ -254,7 +254,7 @@ interface ApplicationObserver
 /**
  *
  * This interface allows applications to monitor the state of object
- * adapters that are registered with [IceGrid].
+ * adapters that are registered with IceGrid.
  *
  **/
 interface AdapterObserver
@@ -301,7 +301,7 @@ interface AdapterObserver
 
 /**
  *
- * This interface allows applications to monitor [IceGrid] well-known objects.
+ * This interface allows applications to monitor IceGrid well-known objects.
  *
  **/
 interface ObjectObserver
