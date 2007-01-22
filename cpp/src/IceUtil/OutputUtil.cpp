@@ -36,7 +36,7 @@ IceUtil::OutputBase::OutputBase() :
     _pos(0),
     _indent(0),
     _indentSize(4),
-    _useTab(true),
+    _useTab(false),
     _separator(true)
 {
 }
@@ -46,7 +46,7 @@ IceUtil::OutputBase::OutputBase(ostream& os) :
     _pos(0),
     _indent(0),
     _indentSize(4),
-    _useTab(true),
+    _useTab(false),
     _separator(true)
 {
 }
@@ -57,7 +57,7 @@ IceUtil::OutputBase::OutputBase(const char* s) :
     _pos(0),
     _indent(0),
     _indentSize(4),
-    _useTab(true),
+    _useTab(false),
     _separator(true)
 {
     open(s);
