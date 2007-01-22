@@ -55,7 +55,7 @@ public:
 
 private:
 
-    void installTopic(const std::string&, const LinkRecordDict&, bool);
+    TopicPrx installTopic(const std::string&, const Ice::Identity&, const LinkRecordSeq&, bool);
   
     const InstancePtr _instance;
     const Ice::ObjectAdapterPtr _topicAdapter;

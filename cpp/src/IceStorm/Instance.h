@@ -32,9 +32,10 @@ class Instance : public IceUtil::Shared
 {
 public:
 
-    Instance(const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&);
+    Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&);
     ~Instance();
 
+    std::string instanceName() const;
     Ice::CommunicatorPtr communicator() const;
     Ice::PropertiesPtr properties() const;
     Ice::ObjectAdapterPtr objectAdapter() const;
@@ -49,6 +50,7 @@ public:
 
 private:
 
+    const std::string _instanceName;
     const Ice::CommunicatorPtr _communicator;
     const Ice::ObjectAdapterPtr _adapter;
     const TraceLevelsPtr _traceLevels;

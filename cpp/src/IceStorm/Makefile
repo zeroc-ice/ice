@@ -97,8 +97,8 @@ $(ADMIN): $(AOBJS) $(LIBTARGETS)
 
 PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
-	../IceStorm/LinkRecord.ice
+	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,Ice::Identity,IceStorm::LinkRecordSeq \
+	PersistentTopicMap ../IceStorm/LinkRecord.ice
 
 clean::
 	rm -f PersistentTopicMap.h PersistentTopicMap.cpp

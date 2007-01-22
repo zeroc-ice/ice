@@ -10,10 +10,13 @@
 #ifndef LINK_RECORD_ICE
 #define LINK_RECORD_ICE
 
-#include <IceStorm/IceStormInternal.ice>
+#include <Ice/Identity.ice>
 
 module IceStorm
 {
+
+interface TopicLink;
+interface Topic;
 
 /**
  *
@@ -28,7 +31,7 @@ struct LinkRecord
 };
 
 /** Dictionary of link name to link record. */
-dictionary<string, LinkRecord> LinkRecordDict;
+sequence<LinkRecord> LinkRecordSeq;
 
 }; // End module IceStorm
 

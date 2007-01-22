@@ -20,9 +20,30 @@
 #include <functional>
 #include <ctype.h>
 
-
 using namespace IceStorm;
 using namespace std;
+
+namespace IceStorm
+{
+
+string
+identityToTopicName(const Ice::Identity& id)
+{
+    //
+    // Work out the topic name. If the category is empty then we're in
+    // backwards compatibility mode and the name is just
+    // identity.name. Otherwise identity.name is topic.<topicname>.
+    //
+    if(id.category.empty())
+    {
+	return id.name;
+    }
+
+    assert(id.name.length() > 6 && id.name.compare(0, 6, "topic.") == 0);
+    return id.name.substr(6);
+}
+
+}
 
 TopicManagerI::TopicManagerI(
     const InstancePtr& instance,
@@ -41,7 +62,7 @@ TopicManagerI::TopicManagerI(
     //
     for(PersistentTopicMap::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
     {
-	installTopic(p->first, p->second, false);
+	installTopic(identityToTopicName(p->first), p->first, p->second, false);
     }
 }
 
@@ -55,7 +76,6 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     IceUtil::Mutex::Lock sync(*this);
 
     reap();
-
     if(_topicIMap.find(name) != _topicIMap.end())
     {
         TopicExists ex;
@@ -63,15 +83,14 @@ TopicManagerI::create(const string& name, const Ice::Current&)
         throw ex;
     }
 
-    _topics.put(PersistentTopicMap::value_type(name, LinkRecordDict()));
-    installTopic(name, LinkRecordDict(), true);
-
-    //
-    // The identity is the name of the Topic.
-    //
+    // Identity is instanceName>/topic.<topicname>
     Ice::Identity id;
-    id.name = name;
-    return TopicPrx::uncheckedCast(_topicAdapter->createProxy(id));
+    id.category = _instance->instanceName();
+    id.name = "topic." + name;
+
+    _topics.put(PersistentTopicMap::value_type(id, LinkRecordSeq()));
+
+    return installTopic(name, id, LinkRecordSeq(), true);
 }
 
 TopicPrx
@@ -82,38 +101,19 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&) const
     TopicManagerI* This = const_cast<TopicManagerI*>(this);
     This->reap();
 
-    if(_topicIMap.find(name) != _topicIMap.end())
+    TopicIMap::const_iterator p = _topicIMap.find(name);
+    if(p == _topicIMap.end())
     {
-	Ice::Identity id;
-	id.name = name;
-	return TopicPrx::uncheckedCast(_topicAdapter->createProxy(id));
+	NoSuchTopic ex;
+	ex.name = name;
+	throw ex;
     }
 
-    NoSuchTopic ex;
-    ex.name = name;
-    throw ex;
+    // Here we cannot just reconstruct the identity since the
+    // identity could be either instanceName/topic name, or if
+    // created with pre-3.2 IceStorm / topic name.
+    return TopicPrx::uncheckedCast(_topicAdapter->createProxy(p->second->id()));
 }
-
-//
-// The arguments cannot be const & (for some reason)
-//
-struct TransformToTopicDict : public std::unary_function<TopicIMap::value_type, TopicDict::value_type>
-{
-    TransformToTopicDict(const Ice::ObjectAdapterPtr& adapter) :
-        _adapter(adapter)
-    {
-    }
-
-    TopicDict::value_type
-    operator()(TopicIMap::value_type p)
-    {
-        Ice::Identity id;
-        id.name = p.first;
-        return TopicDict::value_type(p.first, TopicPrx::uncheckedCast(_adapter->createProxy(id)));
-    }
-
-    Ice::ObjectAdapterPtr _adapter;
-};
 
 TopicDict
 TopicManagerI::retrieveAll(const Ice::Current&) const
@@ -124,8 +124,16 @@ TopicManagerI::retrieveAll(const Ice::Current&) const
     This->reap();
 
     TopicDict all;
-    transform(_topicIMap.begin(), _topicIMap.end(), inserter(all, all.begin()),
-	      TransformToTopicDict(_topicAdapter));
+    for(TopicIMap::const_iterator p = _topicIMap.begin(); p != _topicIMap.end(); ++p)
+    {
+	//
+	// Here we cannot just reconstruct the identity since the
+	// identity could be either "<instanceName>/topic.<topicname>"
+	// name, or if created with pre-3.2 IceStorm "/<topicname>".
+	//
+        all.insert(TopicDict::value_type(
+		       p->first, TopicPrx::uncheckedCast(_topicAdapter->createProxy(p->second->id()))));
+    }
 
     return all;
 }
@@ -149,6 +157,7 @@ TopicManagerI::reap()
     {
         if(i->second->destroyed())
         {
+	    Ice::Identity id = i->second->id();
 	    TraceLevelsPtr traceLevels = _instance->traceLevels();
             if(traceLevels->topicMgr > 0)
             {
@@ -156,12 +165,10 @@ TopicManagerI::reap()
                 out << "Reaping " << i->first;
             }
 
-            _topics.erase(i->first);
+            _topics.erase(id);
 
             try
             {
-                Ice::Identity id;
-                id.name = i->first;
                 _topicAdapter->remove(id);
             }
             catch(const Ice::ObjectAdapterDeactivatedException&)
@@ -184,43 +191,44 @@ TopicManagerI::shutdown()
     IceUtil::Mutex::Lock sync(*this);
 
     reap(); 
+
     for(TopicIMap::const_iterator p = _topicIMap.begin(); p != _topicIMap.end(); ++p)
     {
 	p->second->reap();
     }
 }
 
-void
-TopicManagerI::installTopic(const string& name, const LinkRecordDict& rec, bool create)
+TopicPrx
+TopicManagerI::installTopic(const string& name, const Ice::Identity& id, const LinkRecordSeq& rec, bool create)
 {
     //
     // Called by constructor or with 'this' mutex locked. 
     //
-
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topicMgr > 0)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
 	if(create)
 	{
-	    out << "creating new topic \"" << name << "\"";
+	    out << "creating new topic \"" << name << "\". id: "
+		<< _instance->communicator()->identityToString(id);
 	}
 	else
 	{
-	    out << "loading topic \"" << name << "\" from database";
+	    out << "loading topic \"" << name << "\" from database. id: "
+		<< _instance->communicator()->identityToString(id);
 	}
     }
 
     //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_instance, name, rec, _envName, _dbName);
-    
+    TopicIPtr topicI = new TopicI(_instance, name, id, rec, _envName, _dbName);
+
     //
     // The identity is the name of the Topic.
     //
-    Ice::Identity id;
-    id.name = name;
-    _topicAdapter->add(topicI, id);
+    TopicPrx prx = TopicPrx::uncheckedCast(_topicAdapter->add(topicI, id));
     _topicIMap.insert(TopicIMap::value_type(name, topicI));
+    return prx;
 }

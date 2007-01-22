@@ -19,9 +19,11 @@ using namespace IceStorm;
 using namespace std;
 
 Instance::Instance(
+    const string& instanceName,
     const string& name,
     const Ice::CommunicatorPtr& communicator,
     const Ice::ObjectAdapterPtr& adapter) :
+    _instanceName(instanceName),
     _communicator(communicator),
     _adapter(adapter),
     _traceLevels(new TraceLevels(name, communicator->getProperties(), communicator->getLogger())),
@@ -49,6 +51,12 @@ Instance::Instance(
 
 Instance::~Instance()
 {
+}
+
+string
+Instance::instanceName() const
+{
+    return _instanceName;
 }
 
 Ice::CommunicatorPtr

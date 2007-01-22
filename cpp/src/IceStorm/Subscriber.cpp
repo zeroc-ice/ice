@@ -683,7 +683,6 @@ Subscriber::create(
     TraceLevelsPtr traceLevels = instance->traceLevels();
     SubscriberPtr subscriber;
 
-
     try
     {
 	string reliability = "oneway";
@@ -909,4 +908,3 @@ IceStorm::operator<(const Subscriber& s1, const Subscriber& s2)
 {
     return &s1 < &s2;
 }
-

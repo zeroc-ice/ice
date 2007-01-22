@@ -344,7 +344,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     if(traceLevels->topic > 0)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-	out << _name << " link " << _instance->communicator()->identityToString(topic->ice_getIdentity())
+	out << _name << " link " << _instance->communicator()->identityToString(id)
 	    << " cost " << cost;
     }
 
@@ -418,7 +418,7 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current& current)
     if(traceLevels->topic > 0)
     {
 	Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-	out << _name << " unlink " << _instance->communicator()->identityToString(topic->ice_getIdentity());
+	out << _name << " unlink " << _instance->communicator()->identityToString(id);
     }
     removeSubscriber(subscriber);
 }

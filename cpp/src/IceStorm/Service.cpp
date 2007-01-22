@@ -103,11 +103,12 @@ IceStorm::ServiceI::start(
     //
     // We use the name of the service for the name of the database environment.
     //
+    string instanceName = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
     Identity topicManagerId;
-    topicManagerId.category = properties->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
+    topicManagerId.category = instanceName;
     topicManagerId.name = "TopicManager";
 
-    _instance = new Instance(name, communicator, _publishAdapter);
+    _instance = new Instance(instanceName, name, communicator, _publishAdapter);
     
     try
     {
@@ -132,7 +133,8 @@ IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
 			  const Ice::Identity& id,
 			  const string& dbEnv)
 {
-    _instance = new Instance(name, communicator, publishAdapter);
+    string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
+    _instance = new Instance(instanceName, name, communicator, publishAdapter);
 
     //
     // We use the name of the service for the name of the database environment.

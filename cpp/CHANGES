@@ -238,6 +238,19 @@ Changes since version 3.1.1
   is used to send an event to only that particular subscriber. See
   demo/IceStorm/counter for a demo of this feature.
 
+  The property IceStorm.InstanceName is now used to produce unique identities
+  for each IceStorm topic. The identities used are now:
+
+    <instance-name>/topic.<topic name>
+    <instance-name>/publisher.<topic name>
+    <instance-name>/link.<topic name>
+
+  IceStorm is still fully compatible with pre 3.2 IceStorm.
+
+  Due to identity change the IceStorm database format was changed. The
+  script config/upgradeicestorm.py can be used to upgrade old IceStorm
+  databases to the new format.
+  
 - Added Ice.Override.Secure which forces a client to only use
   secure connections.
 

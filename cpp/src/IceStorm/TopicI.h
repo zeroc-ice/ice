@@ -28,7 +28,8 @@ class TopicI : public TopicInternal
 {
 public:
 
-    TopicI(const InstancePtr&, const std::string&, const LinkRecordDict&, const std::string&, const std::string&);
+    TopicI(const InstancePtr&, const std::string&, const Ice::Identity&, const LinkRecordSeq&, const std::string&,
+	   const std::string&);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;
@@ -42,11 +43,11 @@ public:
     virtual LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
 
+
     // Internal methods
     bool destroyed() const;
-
+    Ice::Identity id() const;
     void reap();
-
     void publish(bool, const EventDataSeq&);
 
 private:
@@ -57,6 +58,7 @@ private:
     //
     const InstancePtr _instance;
     const std::string _name; // The topic name
+    const Ice::Identity _id; // The topic identity
 
     /*const*/ Ice::ObjectPrx _publisherPrx;
     /*const*/ TopicLinkPrx _linkPrx;
@@ -82,7 +84,7 @@ private:
     // The set of downstream topics.
     IceUtil::RecMutex _topicRecordMutex;
     PersistentTopicMap _topics;
-    IceStorm::LinkRecordDict _topicRecord;
+    IceStorm::LinkRecordSeq _topicRecord;
 
     bool _destroyed; // Has this Topic been destroyed?
 };
