@@ -853,7 +853,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             //
             _batchStream.swap(os);
 
-            if(_batchStream.size() > _instance.messageSizeMax())
+            if(_batchAutoFlush && _batchStream.size() > _instance.messageSizeMax())
             {
                 //
                 // Throw memory limit exception if the first message added causes us to
@@ -921,7 +921,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 //
                 // Start a new batch with the last message that caused us to
                 // go over the limit.
-               //
+                //
                 try
                 {
                     _batchStream.writeBlob(IceInternal.Protocol.requestBatchHdr);
@@ -1082,7 +1082,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     resetBatch(boolean resetInUse)
     {
-        _batchStream = new IceInternal.BasicStream(_instance, true);
+        _batchStream = new IceInternal.BasicStream(_instance, _batchAutoFlush);
         _batchRequestNum = 0;
         _batchRequestCompress = false;
 
@@ -1492,7 +1492,9 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		"Ice.CacheMessageBuffers", 1) == 1;
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
-        _batchStream = new IceInternal.BasicStream(instance, true);
+	_batchAutoFlush = 
+	    _instance.initializationData().properties.getPropertyAsInt("Ice.Batch.AutoFlush") > 0 ? true : false;
+        _batchStream = new IceInternal.BasicStream(instance, _batchAutoFlush);
 	_batchStreamInUse = false;
 	_batchRequestNum = 0;
 	_batchRequestCompress = false;
@@ -2690,6 +2692,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
     private LocalException _exception;
 
+    private boolean _batchAutoFlush;
     private IceInternal.BasicStream _batchStream;
     private boolean _batchStreamInUse;
     private int _batchRequestNum;
