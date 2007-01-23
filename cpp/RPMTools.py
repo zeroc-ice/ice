@@ -106,10 +106,10 @@ class Package:
 		  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4']
 
 	if targetHost == "suse":
-	    buildRequiresList.append("bzip >= 1.0.2")
+	    buildRequiresList.extend(['bzip >= 1.0.2', 'php5 >= 5.1.2', 'php5-devel >= 5.1.2'])
 	else:
 	    buildRequiresList.extend(['bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 'db45 >= 4.5.20', 
-		'expat-devel >= 0.5.0'])
+		'expat-devel >= 0.5.0', 'php >= 5.1.4', 'php-devel >= 5.1.4'])
 
 	for f in buildRequiresList:
             ofile.write('BuildRequires: ' + f  + '\n')
@@ -446,7 +446,7 @@ fileLists = [
 	       'Requires: ice-%{_arch}',
                [('exe', 'bin/slice2rb')]),
     Subpackage('php',
-	       'ice = %version%, php = 5.1.6',
+	       'ice = %version%, php >= 5.1.2',
 	       'The Ice runtime for PHP applications',
 	       'System Environment/Libraries',
 	       iceDescription,
@@ -479,6 +479,12 @@ fileLists = [
 		     ('exe', 'bin/iceboxnet.exe'),
 		     ('exe', 'bin/iceboxadminnet.exe')])
     ]
+
+############################################################################
+## NOTE: There isn't a ice-php-devel package because all installable
+## icephp are already included in the ice-php package (demos are no longer
+## included in the RPMs).
+############################################################################
 
 def _transformDirectories(transforms, version, installDir):
     """Transforms a directory tree that was created with 'make installs'
@@ -542,9 +548,19 @@ def createFullSpecFile(ofile, installDir, version, soVersion, targetHost):
     fullFileList[0].addInstallGenerator(writeTransformCommands)
 
     for v in fullFileList:
+	#
+	# Skip ruby on SuSE
+	#
+	if targetHost == "suse" and v.name.startswith("ruby"):
+	    continue
 	v.writeHdr(ofile, version, "1", '', targetHost)
 	ofile.write("\n\n\n")
     for v in fullFileList:
+	#
+	# Skip ruby on SuSE
+	#
+	if targetHost == "suse" and v.name.startswith("ruby"):
+	    continue
 	v.writeFiles(ofile, version, soVersion, '')
 	ofile.write("\n")
 
@@ -572,8 +588,6 @@ cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
 	ofile.write("""
 %setup -q -n IceRuby-%{version} -T -D -b 10
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceRuby-%{version}/config/Make.rules
-	""")
-    ofile.write("""
 
 #
 # Create links to the Berkeley DB that we want. This should allow us to bypass

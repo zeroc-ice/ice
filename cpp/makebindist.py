@@ -8,7 +8,6 @@
 #
 # **********************************************************************
 import os, sys, shutil, re, string, getopt, glob, logging, fileinput
-import RPMTools
 
 # TODO:
 # 
@@ -732,10 +731,8 @@ def usage():
     print '                       applicable (some bits will still be cleaned.'
     print '--nobuild              Run through the process but don\'t build'
     print '                       anything new.'
-    print '--specfile             Just print the RPM spec file and exit.'
     print '--usecvs		  Use contents of existing CVS directories'
-    print '                       to create binary package (This option cannot'
-    print '                       be used to create RPMS)'
+    print '                       to create binary package.'
     print 
     print 'The following options set the locations for third party libraries'
     print 'that may be required on your platform.  Alternatively, you can'
@@ -778,7 +775,6 @@ def main():
     version = None
     mmVersion = None
     soVersion = 0
-    printSpecFile = False
     verbose = False
     cvsMode = False    # Use CVS directories.
     offline = False
@@ -789,7 +785,7 @@ def main():
     try:
         optionList, args = getopt.getopt(sys.argv[1:], 'hvt:',
                                          [ 'build-dir=', 'install-dir=', 'install-root=', 'sources=',
-                                           'verbose', 'tag=', 'noclean', 'nobuild', 'specfile',
+                                           'verbose', 'tag=', 'noclean', 'nobuild', 
 					   'stlporthome=', 'bzip2home=', 'dbhome=', 'sslhome=',
 					   'expathome=', 'readlinehome=', 'usecvs', 'offline', 'debug'])
                
@@ -817,8 +813,6 @@ def main():
             clean = False
         elif o == '--nobuild':
             build = False
-        elif o == '--specfile':
-            printSpecFile = True
 	elif o == '--stlporthome':
 	    buildEnvironment['STLPORT_HOME'] = a
 	elif o == '--bzip2home':
@@ -870,14 +864,6 @@ def main():
         installDir = os.environ.get('HOME') + '/tmp/iceinstall'
 
     #
-    # Primarily for debugging spec file creation.
-    #
-    if printSpecFile:
-	version, soVersion, mmVersion = getVersion(cvsTag, buildDir)
-	RPMTools.createFullSpecFile(sys.stdout, installDir, version, soVersion)
-        sys.exit(0)
-
-    #
     # We need to clean the directory out to keep obsolete files from
     # being installed.  This needs to happen whether we are running with
     # noclean or not.
@@ -922,8 +908,6 @@ def main():
         print 'Building binary distributions for Ice-' + version + ' on ' + getPlatform()
         print 'Using build directory: ' + buildDir
         print 'Using install directory: ' + installDir
-        if getPlatform() == 'linux':
-            print '(RPMs will be built)'
         print
 
 
