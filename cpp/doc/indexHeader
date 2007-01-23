@@ -8,6 +8,9 @@ TITLE
 	    body {
 		font-family: Arial, Helvetica, sans-serif;
 	    }
+	    .Page {
+		width: 850px; margin-left: auto; margin-right: auto;
+	    }
 	    .Symbol {
 		font-family: "Courier New", Courier, mono;
 	    }
@@ -56,25 +59,32 @@ TITLE
 	    .Logo {
 	        border-style: none;
 	    }
+	    .SearchTable {
+		position: absolute;
+		top: 0px;
+		margin-left: auto;
+		margin-right: auto;
+	    }
 	</style>
     </head>
     <body>
-	<div class="HeaderFooter">
-	    <table class="ButtonTable">
-		<tr>
-		    <td>
-			<a href="index.html">
-			    <img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
-			</a>
-		    </td>
-		</tr>
-	    </table>
-	    <table class="LogoTable">
-		<tr>
-		    <td>
-			<a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"/></a>
-		    </td>
-		</tr>
-	    </table>
-	</div>
-	<hr>
+	<div class="Page">
+	    <div class="HeaderFooter">
+		<table class="ButtonTable">
+		    <tr>
+			<td>
+			    <a href="index.html">
+				<img class="HomeButton" src="images/home.gif" alt="Home" style="border-style: none"/>
+			    </a>
+			</td>
+		    </tr>
+		</table>
+		<table class="LogoTable">
+		    <tr>
+			<td>
+			    <a href="http://www.zeroc.com"><img class="Logo" src="images/logo.gif" alt="Logo"/></a>
+			</td>
+		    </tr>
+		</table>
+	    </div>
+	    <hr>

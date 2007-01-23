@@ -563,7 +563,7 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 
     if(deprecated)
     {
-	start("dd", "Deprecated");
+	start("p", "Deprecated");
 	_out << nl << "Deprecated.";
 	end();
     }
