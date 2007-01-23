@@ -79,8 +79,8 @@ TITLE
 			</td>
 		    </tr>
 		</table>
-                <div class="SearchTable">
-                    <div style="margin: 1em auto; width: 50%;">
+                <div>
+                    <div style="margin: 1em auto; width: 100%;">
                         <table class="SearchTable">
                             <tr>
                                 <td>
