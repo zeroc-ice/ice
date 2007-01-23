@@ -204,7 +204,6 @@ depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS) $(SLICE_AMD_SRCS) $(SLICE
 
 clean::
 	-rm -f $(TARGETS) $(patsubst %,%.mdb,$(TARGETS)) *.bak *.dll *.pdb *.mdb
-	-rm -f $(patsubst %,%.config,$(TARGETS))
 
 config::
 	$(top_srcdir)/config/makeconfig.py $(top_srcdir) $(TARGETS)
