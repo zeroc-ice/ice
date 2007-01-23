@@ -79,6 +79,18 @@ TITLE
 			</td>
 		    </tr>
 		</table>
+		<table class="SearchTable">
+		    <tr>
+			<td>
+                            <form method="get" action="/cgi-bin/swish.cgi" enctype="application/x-www-form-urlencoded" class="form">
+                                <div>
+                                    <input maxlength="100" value="" type="text" name="query">
+                                    <input type="submit" value="Search" name="submit">
+                                </div>
+                            </form>
+			</td>
+		    </tr>
+		</table>
 		<table class="LogoTable">
 		    <tr>
 			<td>
