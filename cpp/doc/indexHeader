@@ -79,11 +79,11 @@ TITLE
 			</td>
 		    </tr>
 		</table>
-                <table class="SearchTable">
-                    <tr>
-                        <td>
-                            <div style="text-align: center;">
-                                <div style="text-align: left; margin: 1em auto; width: 50%;">
+                <div class="SearchTable">
+                    <div style="margin: 1em auto; width: 50%;">
+                        <table class="SearchTable">
+                            <tr>
+                                <td>
                                     <form method="get" action="/cgi-bin/swish.cgi"
                                           enctype="application/x-www-form-urlencoded" class="form">
                                         <div>
@@ -91,11 +91,11 @@ TITLE
                                             <input type="submit" value="Search" name="submit">
                                         </div>
                                     </form>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
 		<table class="LogoTable">
 		    <tr>
 			<td>
