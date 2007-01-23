@@ -49,7 +49,7 @@ class Package:
 	self.buildTextGen = []
 	self.installTextGen = []
         
-    def writeHdr(self, ofile, version, release, installDir):
+    def writeHdr(self, ofile, version, release, installDir, targetHost):
 	ofile.write('%define _unpackaged_files_terminate_build 0\n')
 	ofile.write('\n%define core_arches %{ix86} x86_64\n')
 	ofile.write('Summary: ' + self.summary + '\n')
@@ -79,6 +79,9 @@ class Package:
 	ofile.write('Source7: http://www.zeroc.com/download/Ice/' + minorVer + '/ice.ini\n')
 	ofile.write('Source8: http://www.zeroc.com/download/Ice/' + minorVer + '/README.Linux-RPM\n')
         ofile.write('Source9: http://www.zeroc.com/download/Ice/' + minorVer + '/SOURCES\n')
+	if targetHost != "suse":
+	    ofile.write('Source10: http://www.zeroc.com/download/Ice/' + minorVer + '/IceRuby-%{version}.tar.gz\n')
+
 	ofile.write('\n')
 	if len(installDir) != 0:
 	    ofile.write('BuildRoot: ' + installDir + '\n')
@@ -94,14 +97,21 @@ class Package:
 
 %ifarch noarch
 ''')
-        ofile.write('BuildRequires: mono-core >= 1.1.13\n')
+        ofile.write('BuildRequires: mono-core >= 1.2.2\n')
 
 	ofile.write('\n%endif\n')
 
-        for f in ['python >= 2.3.4', 'python-devel >= 2.3.4', 'bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 
-		  'expat-devel >= 0.5.0', 'expat >= 0.5.0', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
-		  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4',
-                  'db45 >= 4.5.20']:
+	buildRequiresList = ['python >= 2.3.4', 'python-devel >= 2.3.4', 
+		  'expat >= 0.5.0', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
+		  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4']
+
+	if targetHost == "suse":
+	    buildRequiresList.append("bzip >= 1.0.2")
+	else:
+	    buildRequiresList.extend(['bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 'db45 >= 4.5.20', 
+		'expat-devel >= 0.5.0'])
+
+	for f in buildRequiresList:
             ofile.write('BuildRequires: ' + f  + '\n')
 
 	ofile.write('\n')
@@ -112,15 +122,15 @@ class Package:
 	ofile.write('\n')
 	ofile.write('%prep\n')
 	for g in self.prepTextGen:
-	    g(ofile, version)
+	    g(ofile, version, targetHost)
 	ofile.write('\n')
 	ofile.write('%build\n')
 	for g in self.buildTextGen:
-	    g(ofile, version)
+	    g(ofile, version, targetHost)
 	ofile.write('\n')
 	ofile.write('%install\n')
 	for g in self.installTextGen:
-	    g(ofile, version)
+	    g(ofile, version, targetHost)
 	ofile.write('\n')
 	ofile.write('%clean\n')
 	ofile.write('\n')
@@ -228,13 +238,13 @@ class Subpackage(Package):
         ofile.write('%description ' + self.name + '\n')
         ofile.write(self.description)
 
-    def writeHdr(self, ofile, version, release, installDir):
+    def writeHdr(self, ofile, version, release, installDir, targetHost):
         ofile.write('\n%ifarch %{core_arches}\n')	
 	self.writeSubpackageHeader(ofile, version, release, installDir)
 	ofile.write('\n%endif\n')
 
 class NoarchSubpackage(Subpackage):
-    def writeHdr(self, ofile, version, release, installDir):
+    def writeHdr(self, ofile, version, release, installDir, targetHost):
         ofile.write('\n%ifarch noarch\n')	
 	self.writeSubpackageHeader(ofile, version, release, installDir)
 	ofile.write('\n%endif\n')
@@ -283,7 +293,7 @@ transforms = [ ('file', 'ice.ini', 'etc/php.d/ice.ini'),
 	       ('dir', '%{icelibdir}', 'usr/%{icelibdir}'),
 	       ('file', 'usr/%{icelibdir}/IcePHP.so', 'usr/%{icelibdir}/php/modules/IcePHP.so'),
 	       ('file', 'usr/lib/Ice.jar', 'usr/lib/Ice-%version%/Ice.jar' ),
-	       ('dir', 'usr/lib/java5', 'usr/lib/Ice-%version%/java5' ),
+	       ('dir', 'usr/lib/java2', 'usr/lib/Ice-%version%/java2' ),
 	       ('file', 'usr/lib/IceGridGUI.jar', 'usr/lib/Ice-%version%/IceGridGUI.jar' ),
 	       ('file', 'bin/icecs.dll', 'usr/lib/mono/gac/icecs/%version%.0__1f998c50fec78381/icecs.dll'),
 	       ('file', 'bin/glacier2cs.dll',
@@ -451,11 +461,11 @@ fileLists = [
 		     '',
 		     [ ('xdir', 'lib/Ice-%version%'),
 		     ('file', 'lib/Ice-%version%/Ice.jar'),
-                     ('xdir', 'lib/Ice-%version%/java5'),
-		     ('file', 'lib/Ice-%version%/java5/Ice.jar')
+                     ('xdir', 'lib/Ice-%version%/java2'),
+		     ('file', 'lib/Ice-%version%/java2/Ice.jar')
 		     ]),
     NoarchSubpackage('dotnet',
-                     'ice = %version%, mono-core >= 1.1.13',
+                     'ice = %version%, mono-core >= 1.2.2',
 		     'The Ice runtime for C# applications',
 		     'System Environment/Libraries',
 		     iceDescription,
@@ -516,15 +526,15 @@ def _transformDirectories(transforms, version, installDir):
 
     os.chdir(cwd)
 
-def createArchSpecFile(ofile, installDir, version, soVersion):
+def createArchSpecFile(ofile, installDir, version, soVersion, targetHost):
     for v in fileLists:
-	v.writeHdr(ofile, version, "1", installDir)
+	v.writeHdr(ofile, version, "1", installDir, targetHost)
 	ofile.write("\n\n\n")
     for v in fileLists:
 	v.writeFiles(ofile, version, soVersion, installDir)
 	ofile.write("\n")
 
-def createFullSpecFile(ofile, installDir, version, soVersion):
+def createFullSpecFile(ofile, installDir, version, soVersion, targetHost):
     fullFileList = fileLists 
     fullFileList[0].addPrepGenerator(writeUnpackingCommands)
     fullFileList[0].addBuildGenerator(writeBuildCommands)
@@ -532,65 +542,13 @@ def createFullSpecFile(ofile, installDir, version, soVersion):
     fullFileList[0].addInstallGenerator(writeTransformCommands)
 
     for v in fullFileList:
-	v.writeHdr(ofile, version, "1", '')
+	v.writeHdr(ofile, version, "1", '', targetHost)
 	ofile.write("\n\n\n")
     for v in fullFileList:
 	v.writeFiles(ofile, version, soVersion, '')
 	ofile.write("\n")
 
-def createRPMSFromBinaries(buildDir, installDir, version, soVersion):
-    if os.path.exists(installDir + "/rpmbase"):
-	shutil.rmtree(installDir + "/rpmbase")
-    shutil.copytree(installDir + "/Ice-" + version, installDir + "/rpmbase", True)
-    installDir = installDir + '/rpmbase'
-    compileall.compile_dir(installDir + '/python')
-
-    _transformDirectories(transforms, version, installDir)
-
-    ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-    createArchSpecFile(ofile, installDir, version, soVersion)
-    ofile.flush()
-    ofile.close()
-   
-    #
-    # We need to unset a build define in the Make.rules.cs file.
-    #
-    # result = os.system("perl -pi.bak -e 's/^(src_build.*)$/\\# \\1/' " + installDir + "/usr/share/doc/Ice-" + version +
-    #	    "/config/Make.rules.cs")
-    # if result != 0:
-    #	print 'unable to spot edit Make.rules.cs in demo tree' 
-    #	sys.exit(1)
-        
-    cwd = os.getcwd()
-    os.chdir(buildDir)
-
-    # 
-    # The first run will create all of the architecture specific
-    # packages. The second run will create the noarch packages.
-    #
-    result = os.system("rpmbuild -bb Ice-%s.spec" % version)
-    if result != 0:
-	print 'unable to build arch specific rpms'
-	sys.exit(1)
-    result = os.system("rpmbuild --target noarch -bb Ice-%s.spec" % version)
-    if result != 0:
-	print 'unable to build noarch rpms'
-	sys.exit(1)
-
-    #
-    # Create a spec file to be included in the SRPM that contains shell
-    # code to do all of the necessary builds and transformations.
-    #
-    ofile = open(installDir + '/ice-' + version + '.spec', 'w')
-    createFullSpecFile(ofile, installDir, version, soVersion)
-    ofile.flush()
-    ofile.close()
-    result = os.system('rpmbuild -bs ' + installDir + '/ice-' + version + '.spec')
-    if result != 0:
-	print 'unable to build srpm'
-	sys.exit(1)
-
-def writeUnpackingCommands(ofile, version):
+def writeUnpackingCommands(ofile, version, targetHost):
     ofile.write('%setup -n Ice-%{version} -q -T -D -b 0\n')
     ofile.write("""#
 # The Ice make system does not allow the prefix directory to be specified
@@ -609,6 +567,13 @@ sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/conf
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePHP-%{version}/config/Make.rules
 cd $RPM_BUILD_DIR
 cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
+""")
+    if targetHost != "suse":
+	ofile.write("""
+%setup -q -n IceRuby-%{version} -T -D -b 10
+sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceRuby-%{version}/config/Make.rules
+	""")
+    ofile.write("""
 
 #
 # Create links to the Berkeley DB that we want. This should allow us to bypass
@@ -629,7 +594,7 @@ fi
 
 """)
 
-def writeBuildCommands(ofile, version):
+def writeBuildCommands(ofile, version, targetHost):
     ofile.write("""
 cd $RPM_BUILD_DIR/Ice-%{version}/src
 gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
@@ -642,25 +607,32 @@ gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BU
 cd $RPM_BUILD_DIR/IcePHP-%{version}
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 """)
+    if targetHost != "suse":
+	ofile.write("""
+cd $RPM_BUILD_DIR/IceRuby-%{version}
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+	""")
 
-def writeInstallCommands(ofile, version):
+def writeInstallCommands(ofile, version, targetHost):
     ofile.write("""
 rm -rf $RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/Ice-%{version}
 gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+
 if test ! -d $RPM_BUILD_ROOT/lib;
 then
     mkdir -p $RPM_BUILD_ROOT/lib
 fi
-cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
+cp -p $RPM_BUILD_DIR/IceJ-%{version}-java5/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
+cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java5/ant $RPM_BUILD_ROOT
 
-if test ! -d $RPM_BUILD_ROOT/lib/java5;
+if test ! -d $RPM_BUILD_ROOT/lib/java2;
 then
-    mkdir -p $RPM_BUILD_ROOT/lib/java5
+    mkdir -p $RPM_BUILD_ROOT/lib/java2
 fi
-cp -p $RPM_BUILD_DIR/IceJ-%{version}-java5/lib/Ice.jar $RPM_BUILD_ROOT/lib/java5/Ice.jar
+cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/java2/Ice.jar
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
+
 cd $RPM_BUILD_DIR/IcePy-%{version}
 gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 cd $RPM_BUILD_DIR/IceCS-%{version}
@@ -690,8 +662,13 @@ do
 done
 
 """)
+    if targetHost != "suse":
+	ofile.write("""
+cd $RPM_BUILD_DIR/IceRuby-%{version}
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+	""")
 
-def writeTransformCommands(ofile, version):
+def writeTransformCommands(ofile, version, targetHost):
     #
     #  XXX- this needs serious revisiting after changing how the
     #  transforms work to accomodate files for /etc.

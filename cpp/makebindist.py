@@ -23,8 +23,6 @@ import RPMTools
 #  pipes or redirections to work properly. Stay tuned.
 #
 
-DEBUGMODE=False
-
 class ExtProgramError:
     def __init__(self, error = None):
 	self.msg = error
@@ -102,28 +100,6 @@ def getMakeRulesSuffix():
         return 'AIX'
     else:
         return None
-    
-def initDirectory(d):
-    """Check for the existance of the directory. If it isn't there make
-    it."""
-    if os.path.exists(d):
-        #
-        # Make sure its a directory and has correct permissions.
-        #
-        if not os.path.isdir(d):
-            print 'Path ' + d + ' exists but is not a directory.'
-            sys.exit(1)
-            
-        if os.access(d, os.X_OK | os.R_OK | os.W_OK):
-            logging.info('Path ' + d + ' exists and is ok, continuing')
-        else:
-            logging.warning('Directory ' + d + ' exists, but has incorrect permissions')
-            sys.exit(1)
-    else:
-        #
-        # This could fail due to lack of permissions.
-        #
-        os.makedirs(d, 0770)
 
 def getVersion(cvsTag, buildDir):
     """Extracts a source file from the repository and gets the version number from it"""
@@ -859,8 +835,6 @@ def main():
 	    offline = True
 	elif o == '--usecvs':
 	    cvsMode = True
-	elif o == 'debug':
-	    DEBUGMODE = True
 
     if verbose:
 	logging.getLogger().setLevel(logging.DEBUG)
@@ -1127,23 +1101,6 @@ def main():
     runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
     os.chdir(cwd)
-
-    #
-    # If we are running on Linux, we need to create RPMs.  This will
-    # probably blow up unless the user that is running the script has
-    # massaged the permissions on /usr/src/redhat/.
-    #
-    if getPlatform() == 'linux' and not cvsMode:
-	shutil.copy(installFiles + '/unix/README.Linux-RPM', '/usr/src/redhat/SOURCES/README.Linux-RPM')
-        shutil.copy(installFiles + '/unix/SOURCES.Linux', '/usr/src/redhat/SOURCES/SOURCES')
-        shutil.copy(installFiles + '/unix/THIRD_PARTY_LICENSE.Linux', '/usr/src/redhat/SOURCES/THIRD_PARTY_LICENSE')
-	shutil.copy(installFiles + '/unix/README.Linux-RPM', installDir + '/Ice-' + version + '/README')
-	shutil.copy(installFiles + '/thirdparty/php/ice.ini', installDir + '/Ice-' + version + '/ice.ini')
-        shutil.copy(installFiles + '/thirdparty/php/ice.ini', '/usr/src/redhat/SOURCES')
-        iceArchives = glob.glob(sources + '/Ice*' + version + '*.gz')
-        for f in iceArchives:
-            shutil.copy(f, '/usr/src/redhat/SOURCES')
-        RPMTools.createRPMSFromBinaries(buildDir, installDir, version, soVersion)
 
     #
     # TODO: Cleanups?  I've left everything in place so that the process
