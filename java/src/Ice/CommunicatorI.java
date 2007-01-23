@@ -137,12 +137,18 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.referenceFactory().setDefaultLocator(locator);
     }
 
+    /**
+     * @deprecated
+     **/
     public java.util.Map
     getDefaultContext()
     {
 	return _instance.getDefaultContext();
     }
 
+    /**
+     * @deprecated
+     **/
     public void
     setDefaultContext(java.util.Map ctx)
     {

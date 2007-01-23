@@ -2253,13 +2253,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "int __cnt = 0;";
         out << nl << "while(true)";
         out << sb;
+	out << nl << "Ice.Connection __connection = null;";
         out << nl << "try";
         out << sb;
 	if(op->returnsData())
 	{
 	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
-	out << nl << "Ice.Connection __connection = ice_getConnection();";
+	out << nl << "__connection = ice_getConnection();";
         out << nl << "IceInternal.Outgoing __og = __connection.getOutgoing(_reference, \"" << op->name() << "\", "
             << sliceModeToIceMode(op->sendMode()) << ", __ctx);";
         out << nl << "try";
@@ -2338,16 +2339,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
-            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);";
+            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__connection, __ex, __cnt);";
         }
         else
         {
-            out << nl << "__handleExceptionWrapper(__ex);";
+            out << nl << "__handleExceptionWrapper(__connection, __ex);";
         }
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "__cnt = __handleException(__ex, __cnt);";
+        out << nl << "__cnt = __handleException(__connection, __ex, __cnt);";
         out << eb;
         out << eb;
         out << eb;

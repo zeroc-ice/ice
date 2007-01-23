@@ -3349,13 +3349,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "int __cnt = 0;";
         out << nl << "while(true)";
         out << sb;
+        out << nl << "Ice._ObjectDel __delBase = null;";
         out << nl << "try";
         out << sb;
 	if(op->returnsData())
 	{
 	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
-        out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
+        out << nl << "__delBase = __getDelegate();";
         out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
         out << nl;
         if(ret)
@@ -3372,16 +3373,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
         if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
-            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);";
+            out << nl << "__cnt = __handleExceptionWrapperRelaxed(__delBase, __ex, __cnt);";
         }
         else
         {
-            out << nl << "__handleExceptionWrapper(__ex);";
+            out << nl << "__handleExceptionWrapper(__delBase, __ex);";
         }
         out << eb;
         out << nl << "catch(Ice.LocalException __ex)";
         out << sb;
-        out << nl << "__cnt = __handleException(__ex, __cnt);";
+        out << nl << "__cnt = __handleException(__delBase, __ex, __cnt);";
         out << eb;
         out << eb;
         out << eb;

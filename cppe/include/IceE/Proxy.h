@@ -163,9 +163,9 @@ public:
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
-    void __handleException(const ::Ice::LocalException&, int&);
-    void __handleExceptionWrapper(const ::IceInternal::LocalExceptionWrapper&);
-    void __handleExceptionWrapperRelaxed(const ::IceInternal::LocalExceptionWrapper&, int&);
+    void __handleException(const ::Ice::ConnectionPtr&, const ::Ice::LocalException&, int&);
+    void __handleExceptionWrapper(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&);
+    void __handleExceptionWrapperRelaxed(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&, int&);
     void __checkTwowayOnly(const char*) const;
 
 protected:

@@ -1503,6 +1503,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
     C << sb;
+    C << nl << "::Ice::ConnectionPtr __connection;";
     C << nl << "try";
     C << sb;
     if(p->returnsData())
@@ -1510,7 +1511,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "__checkTwowayOnly(\"" << name << "\");";
     }
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    C << nl << "::Ice::ConnectionPtr __connection = ice_getConnection();";
+    C << nl << "__connection = ice_getConnection();";
     C << nl << "::IceInternal::Outgoing __outS(__connection.get(), _reference.get(), __operation, "
       << operationModeToString(p->sendMode()) << ", __ctx);";
     if(!inParams.empty())
@@ -1614,16 +1615,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
-	C << nl << "__handleExceptionWrapperRelaxed(__ex, __cnt);";
+	C << nl << "__handleExceptionWrapperRelaxed(__connection, __ex, __cnt);";
     }
     else
     {
-	C << nl << "__handleExceptionWrapper(__ex);";
+	C << nl << "__handleExceptionWrapper(__connection, __ex);";
     }
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "__handleException(__ex, __cnt);";
+    C << nl << "__handleException(__connection, __ex, __cnt);";
     C << eb;
     
     C.zeroIndent();

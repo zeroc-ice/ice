@@ -192,7 +192,7 @@ public abstract class OutgoingAsync
 		{
 		    try
 		    {
-			_cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(exc, _cnt);
+			_cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(_delegate, exc, _cnt);
 			__send();
 			return;
 		    }
@@ -264,6 +264,7 @@ public abstract class OutgoingAsync
 		((Ice.ObjectPrxHelperBase)prx).__checkTwowayOnly(operation);
 
 		_proxy = prx;
+                _delegate = null;
 		_cnt = 0;
 		_mode = mode;
 
@@ -342,7 +343,8 @@ public abstract class OutgoingAsync
 		while(true)
 		{
 		    Ice.BooleanHolder comp = new Ice.BooleanHolder();
-		    Ice.ConnectionI con = ((Ice.ObjectPrxHelperBase)_proxy).__getDelegate().__getConnection(comp);
+                    _delegate = ((Ice.ObjectPrxHelperBase)_proxy).__getDelegate();
+		    Ice.ConnectionI con = _delegate.__getConnection(comp);
 		    if(con.timeout() >= 0)
 		    {
 			_absoluteTimeoutMillis = System.currentTimeMillis() + con.timeout();
@@ -367,11 +369,11 @@ public abstract class OutgoingAsync
 		    }
 		    catch(LocalExceptionWrapper ex)
 		    {
-			((Ice.ObjectPrxHelperBase)_proxy).__handleExceptionWrapper(ex);
+			((Ice.ObjectPrxHelperBase)_proxy).__handleExceptionWrapper(_delegate, ex);
 		    }
 		    catch(Ice.LocalException ex)
 		    {			
-			_cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(ex, _cnt);
+			_cnt = ((Ice.ObjectPrxHelperBase)_proxy).__handleException(_delegate, ex, _cnt);
 		    }		    
 		}
 	    }
@@ -418,6 +420,7 @@ public abstract class OutgoingAsync
     protected BasicStream __os;
 
     private Ice.ObjectPrx _proxy;
+    private Ice._ObjectDel _delegate;
     private int _cnt;
     private Ice.OperationMode _mode;
 

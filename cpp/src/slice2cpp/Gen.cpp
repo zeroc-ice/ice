@@ -1967,13 +1967,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
     C << sb;
+    C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;";
     C << nl << "try";
     C << sb;
     if(p->returnsData())
     {
         C << nl << "__checkTwowayOnly(" << p->flattenedScope() + p->name() + "_name);";
     }
-    C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
+    C << nl << "__delBase = __getDelegate();";
     C << nl << "::IceDelegate" << thisPointer << " __del = dynamic_cast< ::IceDelegate"
       << thisPointer << ">(__delBase.get());";
     C << nl;
@@ -1991,16 +1992,16 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
-	C << nl << "__handleExceptionWrapperRelaxed(__ex, __cnt);";
+	C << nl << "__handleExceptionWrapperRelaxed(__delBase, __ex, __cnt);";
     }
     else
     {
-	C << nl << "__handleExceptionWrapper(__ex);";
+	C << nl << "__handleExceptionWrapper(__delBase, __ex);";
     }
     C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
-    C << nl << "__handleException(__ex, __cnt);";
+    C << nl << "__handleException(__delBase, __ex, __cnt);";
     C << eb;
     C << eb;
     C << eb;

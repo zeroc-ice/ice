@@ -227,7 +227,7 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	{
 	    try
 	    {
-		_proxy->__handleException(exc, _cnt);
+		_proxy->__handleException(_delegate, exc, _cnt);
 		__send();
 		return;
 	    }
@@ -279,6 +279,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 	prx->__checkTwowayOnly(operation);
 
 	_proxy = prx;
+        _delegate = 0;
 	_cnt = 0;
 	_mode = mode;
 
@@ -355,7 +356,8 @@ IceInternal::OutgoingAsync::__send()
 	while(true)
 	{
 	    bool compress;
-	    Ice::ConnectionIPtr connection = _proxy->__getDelegate()->__getConnection(compress);
+	    _delegate = _proxy->__getDelegate();
+	    Ice::ConnectionIPtr connection = _delegate->__getConnection(compress);
 	    try
 	    {
 		connection->sendAsyncRequest(__os, this, compress);
@@ -371,11 +373,11 @@ IceInternal::OutgoingAsync::__send()
 	    }
 	    catch(const LocalExceptionWrapper& ex)
 	    {
-		_proxy->__handleExceptionWrapper(ex);
+		_proxy->__handleExceptionWrapper(_delegate, ex);
 	    }
 	    catch(const LocalException& ex)
 	    {
-		_proxy->__handleException(ex, _cnt);
+		_proxy->__handleException(_delegate, ex, _cnt);
 	    }
 	}
     }

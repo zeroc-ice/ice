@@ -78,19 +78,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
+	    _ObjectDel __del = null;
             try
             {
 	        __checkTwowayOnly("ice_isA");
-                _ObjectDel __del = __getDelegate();
+                __del = __getDelegate();
                 return __del.ice_isA(__id, __context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__ex, __cnt);
+                __cnt = __handleException(__del, __ex, __cnt);
             }
         }
     }
@@ -118,20 +119,21 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
+	    _ObjectDel __del = null;
             try
             {
 	        __checkTwowayOnly("ice_ping");
-                _ObjectDel __del = __getDelegate();
+                __del = __getDelegate();
                 __del.ice_ping(__context);
                 return;
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__ex, __cnt);
+                __cnt = __handleException(__del, __ex, __cnt);
             }
         }
     }
@@ -159,19 +161,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
+	    _ObjectDel __del = null;
             try
             {
 	        __checkTwowayOnly("ice_ids");
-                _ObjectDel __del = __getDelegate();
+                __del = __getDelegate();
                 return __del.ice_ids(__context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__ex, __cnt);
+                __cnt = __handleException(__del, __ex, __cnt);
             }
         }
     }
@@ -199,19 +202,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
+	    _ObjectDel __del = null;
             try
             {
 	        __checkTwowayOnly("ice_id");
-                _ObjectDel __del = __getDelegate();
+                __del = __getDelegate();
                 return __del.ice_id(__context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
-                __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
+                __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__ex, __cnt);
+                __cnt = __handleException(__del, __ex, __cnt);
             }
         }
     }
@@ -241,25 +245,26 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
+	    _ObjectDel __del = null;
             try
             {
-                _ObjectDel __del = __getDelegate();
+                __del = __getDelegate();
                 return __del.ice_invoke(operation, mode, inParams, outParams, context);
             }
             catch(IceInternal.LocalExceptionWrapper __ex)
             {
                 if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                 {
-                    __cnt = __handleExceptionWrapperRelaxed(__ex, __cnt);
+                    __cnt = __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
                 }
                 else
                 {
-                    __handleExceptionWrapper(__ex);
+                    __handleExceptionWrapper(__del, __ex);
                 }
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__ex, __cnt);
+                __cnt = __handleException(__del, __ex, __cnt);
             }
         }
     }
@@ -794,14 +799,15 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
+	    _ObjectDel __del = null;
             try
             {
-                _ObjectDel __del = __getDelegate();
+                __del = __getDelegate();
                 return __del.__getConnection(new BooleanHolder());
             }
             catch(LocalException __ex)
             {
-                __cnt = __handleException(__ex, __cnt);
+                __cnt = __handleException(__del, __ex, __cnt);
             }
         }
     }
@@ -911,14 +917,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final int
-    __handleException(LocalException ex, int cnt)
+    __handleException(_ObjectDel delegate, LocalException ex, int cnt)
     {
 	//
 	// Only _delegate needs to be mutex protected here.
 	//
 	synchronized(this)
 	{
-	    _delegate = null;
+	    if(delegate == _delegate)
+	    {
+		_delegate = null;
+	    }
 	}
 
 	IceInternal.ProxyFactory proxyFactory;
@@ -939,11 +948,14 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final void
-    __handleExceptionWrapper(IceInternal.LocalExceptionWrapper ex)
+    __handleExceptionWrapper(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex)
     {
         synchronized(this)
         {
-            _delegate = null;
+	    if(delegate == _delegate)
+	    {
+		_delegate = null;
+	    }
         }
 
         if(!ex.retry())
@@ -953,17 +965,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
     }
 
     public final int
-    __handleExceptionWrapperRelaxed(IceInternal.LocalExceptionWrapper ex, int cnt)
+    __handleExceptionWrapperRelaxed(_ObjectDel delegate, IceInternal.LocalExceptionWrapper ex, int cnt)
     {
         if(!ex.retry())
         {
-            return __handleException(ex.get(), cnt);
+            return __handleException(delegate, ex.get(), cnt);
         }
         else
         {
             synchronized(this)
             {
-                _delegate = null;
+		if(delegate == _delegate)
+		{
+		    _delegate = null;
+		}
             }
             return cnt;
         }

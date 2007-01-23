@@ -177,19 +177,20 @@ namespace Ice
             int cnt__ = 0;
             while(true)
             {
+                ObjectDel_ del__ = null;
                 try
                 {
                     checkTwowayOnly__("ice_isA");
-                    ObjectDel_ del__ = getDelegate__();
+                    del__ = getDelegate__();
                     return del__.ice_isA(id__, context__);
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-                    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
+                    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(ex__, cnt__);
+                    cnt__ = handleException__(del__, ex__, cnt__);
                 }
             }
         }
@@ -214,20 +215,21 @@ namespace Ice
             int cnt__ = 0;
             while(true)
             {
+                ObjectDel_ del__ = null;
                 try
                 {
                     checkTwowayOnly__("ice_ping");
-                    ObjectDel_ del__ = getDelegate__();
+                    del__ = getDelegate__();
                     del__.ice_ping(context__);
                     return;
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-		    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
+		    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(ex__, cnt__);
+                    cnt__ = handleException__(del__, ex__, cnt__);
                 }
             }
         }
@@ -251,19 +253,20 @@ namespace Ice
             int cnt__ = 0;
             while(true)
             {
+                ObjectDel_ del__ = null;
                 try
                 {
                     checkTwowayOnly__("ice_ids");
-                    ObjectDel_ del__ = getDelegate__();
+                    del__ = getDelegate__();
                     return del__.ice_ids(context__);
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-		    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
+		    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(ex__, cnt__);
+                    cnt__ = handleException__(del__, ex__, cnt__);
                 }
             }
         }
@@ -287,19 +290,20 @@ namespace Ice
             int cnt__ = 0;
             while(true)
             {
+                ObjectDel_ del__ = null;
                 try
                 {
                     checkTwowayOnly__("ice_id");
-                    ObjectDel_ del__ = getDelegate__();
+                    del__ = getDelegate__();
                     return del__.ice_id(context__);
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
-		    cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
+		    cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(ex__, cnt__);
+                    cnt__ = handleException__(del__, ex__, cnt__);
                 }
             }
         }
@@ -326,25 +330,26 @@ namespace Ice
             int cnt__ = 0;
             while(true)
             {
+                ObjectDel_ del__ = null;
                 try
                 {
-                    ObjectDel_ del__ = getDelegate__();
+                    del__ = getDelegate__();
                     return del__.ice_invoke(operation, mode, inParams, out outParams, context);
                 }
                 catch(IceInternal.LocalExceptionWrapper ex__)
                 {
                     if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                     {
-                        cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__);
+                        cnt__ = handleExceptionWrapperRelaxed__(del__, ex__, cnt__);
                     }
                     else
                     {
-                        handleExceptionWrapper__(ex__);
+                        handleExceptionWrapper__(del__, ex__);
                     }
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(ex__, cnt__);
+                    cnt__ = handleException__(del__, ex__, cnt__);
                 }
             }
         }
@@ -813,15 +818,16 @@ namespace Ice
             int cnt__ = 0;
             while(true)
             {
+                ObjectDel_ del__ = null;
                 try
                 {
-                    ObjectDel_ del__ = getDelegate__();
+                    del__ = getDelegate__();
 		    bool comp;
                     return del__.getConnection__(out comp);
                 }
                 catch(LocalException ex__)
                 {
-                    cnt__ = handleException__(ex__, cnt__);
+                    cnt__ = handleException__(del__, ex__, cnt__);
                 }
             }
         }
@@ -921,14 +927,17 @@ namespace Ice
 	    }
         }
 
-        public int handleException__(LocalException ex, int cnt)
+        public int handleException__(ObjectDel_ @delegate, LocalException ex, int cnt)
         {
             //
             // Only _delegate needs to be mutex protected here.
             //
             lock(this)
             {
-                _delegate = null;
+                if(@delegate == _delegate)
+                {
+                    _delegate = null;
+                }
             }
 
             IceInternal.ProxyFactory proxyFactory;
@@ -948,11 +957,14 @@ namespace Ice
             return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
         }
 
-        public void handleExceptionWrapper__(IceInternal.LocalExceptionWrapper ex)
+        public void handleExceptionWrapper__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex)
         {
             lock(this)
             {
-                _delegate = null;
+                if(@delegate == _delegate)
+                {
+                    _delegate = null;
+                }
             }
 
             if(!ex.retry())
@@ -961,17 +973,20 @@ namespace Ice
             }
         }
 
-        public int handleExceptionWrapperRelaxed__(IceInternal.LocalExceptionWrapper ex, int cnt)
+        public int handleExceptionWrapperRelaxed__(ObjectDel_ @delegate, IceInternal.LocalExceptionWrapper ex, int cnt)
         {
             if(!ex.retry())
             {
-                return handleException__(ex.get(), cnt);
+                return handleException__(@delegate, ex.get(), cnt);
             }
             else
             {
                 lock(this)
                 {
-                    _delegate = null;
+                    if(@delegate == _delegate)
+                    {
+                        _delegate = null;
+                    }
                 }
                 return cnt;
             }

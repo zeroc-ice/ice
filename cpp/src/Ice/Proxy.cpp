@@ -132,19 +132,20 @@ IceProxy::Ice::Object::ice_isA(const string& typeId, const Context* context)
     int __cnt = 0;
     while(true)
     {
+	Handle< ::IceDelegate::Ice::Object> __del;
 	try
 	{
 	    __checkTwowayOnly("ice_isA");
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del = __getDelegate();
 	    return __del->ice_isA(typeId, context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleExceptionWrapperRelaxed(__ex, __cnt);
+	    __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
-	    __handleException(__ex, __cnt);
+	    __handleException(__del, __ex, __cnt);
 	}
     }
 }
@@ -155,19 +156,20 @@ IceProxy::Ice::Object::ice_ping(const Context* context)
     int __cnt = 0;
     while(true)
     {
+	Handle< ::IceDelegate::Ice::Object> __del;
 	try
 	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del = __getDelegate();
 	    __del->ice_ping(context);
 	    return;
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleExceptionWrapperRelaxed(__ex, __cnt);
+	    __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
-	    __handleException(__ex, __cnt);
+	    __handleException(__del, __ex, __cnt);
 	}
     }
 }
@@ -178,19 +180,20 @@ IceProxy::Ice::Object::ice_ids(const Context* context)
     int __cnt = 0;
     while(true)
     {
+	Handle< ::IceDelegate::Ice::Object> __del;
 	try
 	{
 	    __checkTwowayOnly("ice_ids");
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del = __getDelegate();
 	    return __del->ice_ids(context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleExceptionWrapperRelaxed(__ex, __cnt);
+	    __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
-	    __handleException(__ex, __cnt);
+	    __handleException(__del, __ex, __cnt);
 	}
     }
 }
@@ -201,19 +204,20 @@ IceProxy::Ice::Object::ice_id(const Context* context)
     int __cnt = 0;
     while(true)
     {
+	Handle< ::IceDelegate::Ice::Object> __del;
 	try
 	{
 	    __checkTwowayOnly("ice_id");
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del = __getDelegate();
 	    return __del->ice_id(context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
 	{
-	    __handleExceptionWrapperRelaxed(__ex, __cnt);
+	    __handleExceptionWrapperRelaxed(__del, __ex, __cnt);
 	}
 	catch(const LocalException& __ex)
 	{
-	    __handleException(__ex, __cnt);
+	    __handleException(__del, __ex, __cnt);
 	}
     }
 }
@@ -250,9 +254,10 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
     int __cnt = 0;
     while(true)
     {
+	Handle< ::IceDelegate::Ice::Object> __del;
 	try
 	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del = __getDelegate();
 	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
 	}
 	catch(const LocalExceptionWrapper& __ex)
@@ -260,16 +265,16 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	    bool canRetry = mode == Nonmutating || mode == Idempotent;
 	    if(canRetry)
 	    {
-		__handleExceptionWrapperRelaxed(__ex, __cnt);
+		__handleExceptionWrapperRelaxed(__del, __ex, __cnt);
 	    }
 	    else
 	    {
-		__handleExceptionWrapper(__ex);
+		__handleExceptionWrapper(__del, __ex);
 	    }
 	}
 	catch(const LocalException& __ex)
 	{
-	    __handleException(__ex, __cnt);
+	    __handleException(__del, __ex, __cnt);
 	}
     }
 }
@@ -807,15 +812,16 @@ IceProxy::Ice::Object::ice_getConnection()
     int __cnt = 0;
     while(true)
     {
+	Handle< ::IceDelegate::Ice::Object> __del;
 	try
 	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del = __getDelegate();
 	    bool compress;
 	    return __del->__getConnection(compress);
 	}
 	catch(const LocalException& __ex)
 	{
-	    __handleException(__ex, __cnt);
+	    __handleException(__del, __ex, __cnt);
 	}
     }
 }
@@ -898,13 +904,16 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 }
 
 void
-IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
+IceProxy::Ice::Object::__handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& delegate,
+					 const LocalException& ex, 
+					 int& cnt)
 {
     //
     // Only _delegate needs to be mutex protected here.
     //
+    IceUtil::Mutex::Lock sync(*this);
+    if(delegate.get() == _delegate.get())
     {
-	IceUtil::Mutex::Lock sync(*this);
 	_delegate = 0;
     }
 
@@ -926,11 +935,15 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 }
 
 void
-IceProxy::Ice::Object::__handleExceptionWrapper(const LocalExceptionWrapper& ex)
+IceProxy::Ice::Object::__handleExceptionWrapper(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& delegate,
+						const LocalExceptionWrapper& ex)
 {
     {
 	IceUtil::Mutex::Lock sync(*this);
-	_delegate = 0;
+	if(delegate.get() == _delegate.get())
+	{
+	    _delegate = 0;
+	}
     }
 
     if(!ex.retry())
@@ -940,16 +953,20 @@ IceProxy::Ice::Object::__handleExceptionWrapper(const LocalExceptionWrapper& ex)
 }
 
 void
-IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const LocalExceptionWrapper& ex, int& cnt)
+IceProxy::Ice::Object::__handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>& del,
+						       const LocalExceptionWrapper& ex, int& cnt)
 {
     if(!ex.retry())
     {
-	__handleException(*ex.get(), cnt);
+	__handleException(del, *ex.get(), cnt);
     }
     else
     {
 	IceUtil::Mutex::Lock sync(*this);
-	_delegate = 0;
+	if(del.get() == _delegate.get())
+	{
+	    _delegate = 0;
+	}
     }
 }
 

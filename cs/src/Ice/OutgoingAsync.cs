@@ -188,7 +188,7 @@ namespace IceInternal
                     {
                         try
                         {
-			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(exc, _cnt);
+			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(_delegate, exc, _cnt);
 			    send__();
 			    return;
                         }
@@ -253,6 +253,7 @@ namespace IceInternal
 		    ((Ice.ObjectPrxHelperBase)prx).checkTwowayOnly__(operation);
 
 		    _proxy = prx;
+                    _delegate = null;
                     _cnt = 0;
                     _mode = mode;
 
@@ -330,8 +331,8 @@ namespace IceInternal
                     while(true)
                     {
 			bool comp;
-			Ice.ConnectionI con;
-			con = ((Ice.ObjectPrxHelperBase)_proxy).getDelegate__().getConnection__(out comp);
+                        _delegate = ((Ice.ObjectPrxHelperBase)_proxy).getDelegate__();
+			Ice.ConnectionI con = _delegate.getConnection__(out comp);
 
                         // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
 			lock(_timeoutMutex)
@@ -361,11 +362,11 @@ namespace IceInternal
                         }
 			catch(LocalExceptionWrapper ex)
 			{
-			    ((Ice.ObjectPrxHelperBase)_proxy).handleExceptionWrapper__(ex);
+			    ((Ice.ObjectPrxHelperBase)_proxy).handleExceptionWrapper__(_delegate, ex);
 			}
                         catch(Ice.LocalException ex)
                         {
-			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(ex, _cnt);
+			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(_delegate, ex, _cnt);
                         }
                     }
                 }
@@ -403,6 +404,7 @@ namespace IceInternal
         protected BasicStream os__;
 
         private Ice.ObjectPrx _proxy;
+        private Ice.ObjectDel_ _delegate;
         private int _cnt;
         private Ice.OperationMode _mode;
 

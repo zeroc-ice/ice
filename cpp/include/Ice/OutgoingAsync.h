@@ -57,6 +57,7 @@ private:
     void cleanup();
 
     ::Ice::ObjectPrx _proxy;
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
     int _cnt;
     Ice::OperationMode _mode;
 
