@@ -22,7 +22,7 @@ module Ice
  * for denial-of-service attacks, therefore proper security precautions
  * should be taken. For example, the servant can use a UUID to make its
  * identity harder to guess, and be registered in an object adapter with
- * a secured endpoint.</p>
+ * a secured endpoint.
  *
  **/
 interface Process

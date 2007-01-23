@@ -308,7 +308,7 @@ local interface Communicator
      *
      * Get the currently-set default context.
      *
-     * <p class="Deprecated">This operation is deprecated as of version 3.2</p>
+     * <p class="Deprecated">This operation is deprecated as of version 3.2.
      *
      * @return The currently established default context. If no
      * default context is currently set, [getDefaultContext]
@@ -328,7 +328,7 @@ local interface Communicator
      * <p class="Note"> You can also set a context for an individual proxy
      * by calling the operation [ice_context] on the proxy.</p>
      *
-     * <p class="Deprecated">This operation is deprecated as of version 3.2</p>
+     * <p class="Deprecated">This operation is deprecated as of version 3.2.
      *
      * @param ctx The default context to be set.
      * @see getDefaultContext

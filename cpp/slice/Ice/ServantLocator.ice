@@ -40,7 +40,7 @@ local interface ServantLocator
      * must also call [finished] when you have finished using the
      * servant, provided that [locate] returned a non-null servant;
      * otherwise, you will get undefined behavior if you use
-     * servant locators such as the [Freeze::Evictor].</p>
+     * servant locators such as the [Freeze::Evictor].
      *
      * @param curr Information about the current operation for which
      * a servant is required.

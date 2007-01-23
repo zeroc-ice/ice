@@ -21,19 +21,19 @@ module Ice
  * An interface to associate implict contexts with communicators.
  *
  * When you make a remote invocation without an explicit [Context] parameter,
- * Ice uses the per-proxy [Context] (if any) combined with the [ImplicitContext]
+ * Ice uses the per-proxy [Context] (if any) combined with the <tt>ImplicitContext</tt>
  * associated with the communicator.</p>
- * <p>Ice provides several implementations of [ImplicitContext]. The implementation
- * used depends on the value of the Ice.ImplicitContext property.
+ * <p>Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
+ * used depends on the value of the <tt>Ice.ImplicitContext</tt> property.
  * <dl>
- * <dt>None (default)</dt>
+ * <dt><tt>None</tt> (default)</dt>
  * <dd>No implicit context at all.</dd>
- * <dt>PerThread</dt>
+ * <dt><tt>PerThread</tt></dt>
  * <dd>The implementation maintains a [Context] per thread.</dd>
- * <dt>Shared</dt>
+ * <dt><tt>Shared</tt></dt>
  * <dd>The implementation maintains a single [Context] shared 
  * by all threads, and serializes access to this [Context].</dd>
- * <dt>SharedWithoutLocking</dt>
+ * <dt><tt>SharedWithoutLocking</tt></dt>
  * <dd>
  * The implementation maintains a single 
  * [Context] shared by all threads, and does not serialize access to this [Context].

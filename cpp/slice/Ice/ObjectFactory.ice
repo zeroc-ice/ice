@@ -34,7 +34,7 @@ local interface ObjectFactory
      * Slice type id for interfaces of type <tt>Bar</tt> in the module
      * <tt>Foo</tt> is <tt>::Foo::Bar</tt>.
      *
-     * <p class="Note">The leading "<tt>::</tt>" is required.</p>
+     * <p class="Note">The leading "<tt>::</tt>" is required.
      *
      * @param type The object type.
      *

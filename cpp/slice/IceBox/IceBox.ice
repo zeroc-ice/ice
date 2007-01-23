@@ -90,7 +90,7 @@ local interface Service
      * configuration.
      *
      * <p class="Note">The [ServiceManager] owns this communicator, and is
-     * responsible for destroying it.</p>
+     * responsible for destroying it.
      *
      * @param name The service's name, as determined by the
      * configuration.
