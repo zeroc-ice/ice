@@ -1418,7 +1418,8 @@ namespace Ice
 		"Ice.CacheMessageBuffers", 1) == 1;
 	    _acmAbsoluteTimeoutMillis = 0;
 	    _nextRequestId = 1;
-	    _batchAutoFlush = instance_.initializationData().properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0;
+	    _batchAutoFlush = instance_.initializationData().properties.getPropertyAsIntWithDefault(
+                "Ice.BatchAutoFlush", 1) > 0;
 	    _batchStream = new IceInternal.BasicStream(instance, _batchAutoFlush);
 	    _batchStreamInUse = false;
 	    _batchRequestNum = 0;

@@ -17,7 +17,8 @@ Changes since version 3.1.1
   communicators that do not have a logger explicitly set.
 
 - Message batches are now automatically flushed when the total size of
-  the batch reaches the message size maximum.
+  the batch reaches the message size maximum. This feature can be controlled
+  using the Ice.BatchAutoFlush property, which is on by default.
 
 - Object adapter properties are now prefixed by "Ice.OA.". For example,
   "Ice.OA.<Adpater name>.Endpoints" instead of "<Adpater name>.Endpoints".
