@@ -21,6 +21,28 @@ import os, sys, shutil, re, string, getopt, glob, logging, fileinput
 #  external programs. I haven't figured out how to get commands with
 #  pipes or redirections to work properly. Stay tuned.
 #
+    
+def initDirectory(d):
+    """Check for the existance of the directory. If it isn't there make
+    it."""
+    if os.path.exists(d):
+        #
+        # Make sure its a directory and has correct permissions.
+        #
+        if not os.path.isdir(d):
+            print 'Path ' + d + ' exists but is not a directory.'
+            sys.exit(1)
+            
+        if os.access(d, os.X_OK | os.R_OK | os.W_OK):
+            logging.info('Path ' + d + ' exists and is ok, continuing')
+        else:
+            logging.warning('Directory ' + d + ' exists, but has incorrect permissions')
+            sys.exit(1)
+    else:
+        #
+        # This could fail due to lack of permissions.
+        #
+        os.makedirs(d, 0770)
 
 class ExtProgramError:
     def __init__(self, error = None):
