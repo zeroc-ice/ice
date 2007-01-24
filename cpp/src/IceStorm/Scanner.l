@@ -104,6 +104,10 @@ NL	[\n]
     return ICE_STORM_EXIT;
 }
 
+"current" {
+    return ICE_STORM_CURRENT;
+}
+
 "create" {
     return ICE_STORM_CREATE;
 }
@@ -122,10 +126,6 @@ NL	[\n]
 
 "unlink" {
     return ICE_STORM_UNLINK;
-}
-
-"graph" {
-    return ICE_STORM_GRAPH;
 }
 
 "show" {

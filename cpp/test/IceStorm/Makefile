@@ -12,9 +12,8 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= single \
-		  federation
-
-		# federation2 - nothing to do
+		  federation \
+		  federation2
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

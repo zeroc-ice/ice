@@ -131,39 +131,99 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
+    // The complete set of Ice::Identity -> manager proxies.
+    map<Ice::Identity, IceStorm::TopicManagerPrx> managers;
+    
+    // IceStorm.TopicManager.Proxy is the "default" manager.
     PropertiesPtr properties = communicator()->getProperties();
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
     string managerProxy = properties->getProperty(managerProxyProperty);
-    if(managerProxy.empty())
+    IceStorm::TopicManagerPrx defaultManager;
+    if(!managerProxy.empty())
     {
-	cerr << appName() << ": property `" << managerProxyProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
+	defaultManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->stringToProxy(managerProxy));
+	if(!defaultManager)
+	{
+	    cerr << appName() << ": `" << managerProxy << "' is not running" << endl;
+	    return EXIT_FAILURE;
+	}
+	managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
+			    defaultManager->ice_getIdentity(), defaultManager));
     }
 
-    ObjectPrx base = communicator()->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
-    if(!manager)
+    //
+    // Get remaining managers.
+    //
+    Ice::PropertyDict props = communicator()->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
     {
-	cerr << appName() << ": `" << managerProxy << "' is not running" << endl;
-	return EXIT_FAILURE;
+	for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+	{
+	    try
+	    {
+		IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::uncheckedCast(
+		    communicator()->stringToProxy(p->second));
+		managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
+				    manager->ice_getIdentity(), manager));
+	    }
+	    catch(const Ice::ProxyParseException&)
+	    {
+		cerr << appName() << ": malformed proxy: " << p->second << endl;
+		return EXIT_FAILURE;
+	    }
+	}
+    	if(props.empty() && !defaultManager)
+	{
+	    cerr << appName() << ": no manager proxies configured" << endl;
+	    return EXIT_FAILURE;
+	}
+
+	if(!defaultManager)
+	{
+	    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+	    if(!managerProxy.empty())
+	    {
+		defaultManager = IceStorm::TopicManagerPrx::uncheckedCast(
+		    communicator()->stringToProxy(managerProxy));
+	    }
+	    else
+	    {
+		defaultManager = managers.begin()->second;
+	    }
+	}
     }
 
-    Ice::SliceChecksumDict serverChecksums = manager->getSliceChecksums();
-    Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
-    for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
+    // Check slice checksums for each manager.
     {
-        Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
-        if(r == serverChecksums.end())
-        {
-            cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
-        }
-        else if(q->second != r->second)
-        {
-            cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'" << endl;
-        }
+	for(map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = managers.begin(); p != managers.end();
+	    ++p)
+	{
+	    try
+	    {
+		Ice::SliceChecksumDict serverChecksums = p->second->getSliceChecksums();
+		Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+		for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
+		{
+		    Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
+		    if(r == serverChecksums.end())
+		    {
+			cerr << appName() << ": " << communicator()->identityToString(p->first)
+			     << " is using unknown Slice type `" << q->first << "'" << endl;
+		    }
+		    else if(q->second != r->second)
+		    {
+			cerr << appName() << ": " << communicator()->identityToString(p->first)
+			     << " is using a different Slice definition of `" << q->first << "'" << endl;
+		    }
+		}
+	    }
+	    catch(const Ice::Exception& ex)
+	    {
+		cerr << communicator()->identityToString(p->first) << ": " << ex << endl;
+	    }
+	}
     }
-
-    ParserPtr p = Parser::createParser(communicator(), manager);
+	
+    ParserPtr p = Parser::createParser(communicator(), defaultManager, managers);
     int status = EXIT_SUCCESS;
 
     if(args.empty()) // No files given

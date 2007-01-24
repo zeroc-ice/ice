@@ -10,7 +10,6 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
-#include <IceStorm/WeightedGraph.h>
 #include <algorithm>
 
 #ifdef HAVE_READLINE
@@ -32,10 +31,49 @@ Parser* parser;
 
 }
 
-ParserPtr
-Parser::createParser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin)
+namespace
 {
-    return new Parser(communicator, admin);
+
+class UnknownManagerException : public Exception
+{
+public:
+    
+    UnknownManagerException(const string& name, const char* file, int line) :
+	Exception(file, line),
+	name(name)
+    {
+    }
+
+    virtual
+    ~UnknownManagerException() throw()
+    {
+    }
+    virtual string
+    ice_name() const
+    {
+	return "UnknownManagerException";
+    }
+    virtual Exception*
+    ice_clone() const
+    {
+	return new UnknownManagerException(*this);
+    }
+    
+    virtual void
+    ice_throw() const
+    {
+	throw *this;
+    }
+    const string name;
+};
+
+}
+
+ParserPtr
+Parser::createParser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
+		     const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers)
+{
+    return new Parser(communicator, admin, managers);
 }
 
 void
@@ -46,10 +84,10 @@ Parser::usage()
         "exit, quit                  Exit this program.\n"
         "create TOPICS               Add TOPICS.\n"
         "destroy TOPICS              Remove TOPICS.\n"
-        "link FROM TO COST           Link FROM to TO with the given COST.\n"
+        "link FROM TO [COST]         Link FROM to TO with the optional given COST.\n"
         "unlink FROM TO              Unlink TO from FROM.\n"
-        "graph DATA COST             Construct the link graph as described in DATA with COST\n"
-        "list [TOPICS]               Display information on TOPICS or all topics.\n"
+        "list SERVICE [TOPICS]       Display information on TOPICS or all topics for the given service.\n"
+        "current [TOPIC]             Set the current topic manager.\n"
 ;
 }
 
@@ -66,7 +104,9 @@ Parser::create(const list<string>& args)
     {
 	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
 	{
-            _admin->create(*i);
+	    string arg;
+	    IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
+	    manager->create(arg);
 	}
     }
     catch(const Exception& ex)
@@ -84,7 +124,9 @@ Parser::destroy(const list<string>& args)
     {
 	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
 	{
-	    TopicPrx topic = _admin->retrieve(*i);
+	    string arg;
+	    IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
+	    TopicPrx topic = manager->retrieve(arg);
 	    topic->destroy();
 	}
     }
@@ -101,9 +143,9 @@ Parser::link(const list<string>& _args)
 {
     list<string> args = _args;
 
-    if(args.size() != 3)
+    if(args.size() < 2)
     {
-	error("`link' requires exactly three arguments (type `help' for more info)");
+	error("`link' requires at least two arguments (type `help' for more info)");
 	return;
     }
 
@@ -114,7 +156,9 @@ Parser::link(const list<string>& _args)
 	
 	try
 	{
-	    fromTopic = _admin->retrieve(args.front());
+	    string arg;
+	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+	    fromTopic = manager->retrieve(arg);
 	}
 	catch(const IceStorm::NoSuchTopic&)
 	{
@@ -127,7 +171,9 @@ Parser::link(const list<string>& _args)
 	
 	try
 	{
-	    toTopic = _admin->retrieve(args.front());
+	    string arg;
+	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+	    toTopic = manager->retrieve(arg);
 	}
 	catch(const IceStorm::NoSuchTopic&)
 	{
@@ -137,9 +183,11 @@ Parser::link(const list<string>& _args)
 	    return;
 	}
 	args.pop_front();
-
-	Ice::Int cost = atoi(args.front().c_str());
-	
+	Ice::Int cost = 0;
+	if(!args.empty())
+	{
+	    cost = atoi(args.front().c_str());
+	}
 	fromTopic->link(toTopic, cost);
     }
     catch(const Exception& ex)
@@ -168,7 +216,9 @@ Parser::unlink(const list<string>& _args)
 	
 	try
 	{
-	    fromTopic = _admin->retrieve(args.front());
+	    string arg;
+	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+	    fromTopic = manager->retrieve(arg);
 	}
 	catch(const IceStorm::NoSuchTopic&)
 	{
@@ -181,7 +231,9 @@ Parser::unlink(const list<string>& _args)
 	
 	try
 	{
-	    toTopic = _admin->retrieve(args.front());
+	    string arg;
+	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+	    toTopic = manager->retrieve(arg);
 	}
 	catch(const IceStorm::NoSuchTopic&)
 	{
@@ -202,15 +254,50 @@ Parser::unlink(const list<string>& _args)
 }
 
 void
+Parser::current(const list<string>& _args)
+{
+    list<string> args = _args;
+
+    if(args.size() == 0)
+    {
+	cout << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
+	return;
+    }
+
+    try
+    {
+	IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
+	manager->ice_ping();
+	_defaultManager = manager;
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << args.front() << ": " << ex;
+	error(s.str());
+	return;
+    }
+}
+
+void
 Parser::dolist(const list<string>& _args)
 {
     list<string> args = _args;
 
     try
     {
-	if(args.size() == 0)
+	if(args.size() <= 1)
 	{
-	    TopicDict d = _admin->retrieveAll();
+	    IceStorm::TopicManagerPrx manager;
+	    if(args.size() == 1)
+	    {
+		manager = findManagerByCategory(args.front());
+	    }
+	    else
+	    {
+		manager = _defaultManager;
+	    }
+	    TopicDict d = manager->retrieveAll();
 	    if(!d.empty())
 	    {
 		for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
@@ -226,14 +313,15 @@ Parser::dolist(const list<string>& _args)
 	}
 	else
 	{
-	    while(args.size() != 0)
+	    IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
+	    args.pop_front();
+	    while(!args.empty())
 	    {
-		string name = args.front();
-		args.pop_front();
-		cout << name << endl;
 		try
 		{
-		    TopicPrx topic = _admin->retrieve(name);
+		    string arg = args.front();
+		    args.pop_front();
+		    TopicPrx topic = manager->retrieve(arg);
 		    LinkInfoSeq links = topic->getLinkInfoSeq();
 		    for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
 		    {
@@ -246,126 +334,6 @@ Parser::dolist(const list<string>& _args)
 		}
 	    }
 	}
-    }
-    catch(const Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
-Parser::graph(const list<string>& _args)
-{
-    list<string> args = _args;
-
-    if(args.size() != 2)
-    {
-	error("`graph' requires exactly two arguments (type `help' for more info)");
-	return;
-    }
-
-    string file = args.front();
-    args.pop_front();
-    int maxCost = atoi(args.front().c_str());
-    if(maxCost == 0)
-    {
-	error("`graph': cost must be a positive number");
-	return;
-    }
-    
-    try
-    {
-	WeightedGraph graph;
-	if(!graph.parse(file))
-	{
-	    cerr << file << ": parse failed" << endl;
-	    return;
-	}
-	
-	//
-	// Compute the new edge set.
-	//
-	{
-	    vector<int> edges;
-	    graph.compute(edges, maxCost);
-	    graph.swap(edges);
-	}
-
-	//
-	// Ensure each vertex is present.
-	//
-	vector<string> vertices = graph.getVertices();
-	TopicDict d = _admin->retrieveAll();
-	vector<string>::const_iterator p;
-
-	for(p = vertices.begin(); p != vertices.end(); ++p)
-	{
-	    if(d.find(*p) == d.end())
-	    {
-		cout << *p << ": referenced topic not found" << endl;
-		return;
-	    }
-	}
-
-	int links = 0;
-	int unlinks = 0;
-
-	//
-	// Get the edge set for reach vertex.
-	//
-	for(p = vertices.begin(); p != vertices.end(); ++p)
-	{
-	    TopicPrx topic = d[*p];
-	    assert(topic);
-	    LinkInfoSeq seq = topic->getLinkInfoSeq();
-
-	    vector<pair<string, int> > edges = graph.getEdgesFor(*p);
-	    for(vector<pair<string, int> >::const_iterator q = edges.begin(); q != edges.end(); ++q)
-	    {
-		bool link = true;
-		for(LinkInfoSeq::iterator r = seq.begin(); r != seq.end(); ++r)
-		{
-		    //
-		    // Found the link element.
-		    //
-		    if((*r).name == (*q).first)
-		    {
-			//
-			// If the cost is the same, then there is
-			// nothing to do.
-			//
-			if((*r).cost == (*q).second)
-			{
-			    link = false;
-			}
-			seq.erase(r);
-			break;
-		    }
-		}
-
-		//
-		// Else, need to rebind the link.
-		//
-		if(link)
-		{
-		    TopicPrx target = d[(*q).first];
-		    ++links;
-		    topic->link(target, (*q).second);
-		}
-	    }
-
-	    //
-	    // The remainder of the links are obsolete.
-	    //
-	    for(LinkInfoSeq::const_iterator r = seq.begin(); r != seq.end(); ++r)
-	    {
-		++unlinks;
-		topic->unlink((*r).theTopic);
-	    }
-	}
-	cout << "graph: " << links << " new or changed links. " << unlinks << " unlinks." << endl;
     }
     catch(const Exception& ex)
     {
@@ -667,8 +635,42 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin) :
+IceStorm::TopicManagerPrx
+Parser::findManagerById(const string& full, string& arg) const
+{
+    Ice::Identity id = _communicator->stringToIdentity(full);
+    arg = id.name;
+    if(id.category.empty())
+    {
+	return _defaultManager;
+    }
+   id.name = "TopicManager";
+    map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = _managers.find(id);
+    if(p == _managers.end())
+    {
+	throw UnknownManagerException(id.category, __FILE__, __LINE__);
+    }
+    return p->second;
+}
+
+IceStorm::TopicManagerPrx
+Parser::findManagerByCategory(const string& full) const
+{
+    Ice::Identity id;
+    id.category = full;
+    id.name = "TopicManager";
+    map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = _managers.find(id);
+    if(p == _managers.end())
+    {
+	throw UnknownManagerException(id.category, __FILE__, __LINE__);
+    }
+    return p->second;
+}
+
+Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
+	       const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers) :
     _communicator(communicator),
-    _admin(admin)
+    _defaultManager(admin),
+    _managers(managers)
 {
 }

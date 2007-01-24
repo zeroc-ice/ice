@@ -41,7 +41,6 @@ SERVICE_OBJS	= IceStorm.o \
 AOBJS		= Admin.o \
 		  Grammar.o \
 		  Scanner.o \
-		  WeightedGraph.o \
 		  Parser.o
 
 SRCS		= $(OBJS:.o=.cpp) \

@@ -36,12 +36,12 @@ yyerror(const char* s)
 
 %token ICE_STORM_HELP
 %token ICE_STORM_EXIT
+%token ICE_STORM_CURRENT
 %token ICE_STORM_CREATE
 %token ICE_STORM_DESTROY
 %token ICE_STORM_LIST
 %token ICE_STORM_LINK
 %token ICE_STORM_UNLINK
-%token ICE_STORM_GRAPH
 %token ICE_STORM_STRING
 %token ICE_STORM_SHOW
 %token ICE_STORM_COPYING
@@ -86,6 +86,15 @@ command
 {
     parser->create($2);
 }
+| ICE_STORM_CURRENT ';'
+{
+    std::list<std::string> args;
+    parser->current(args);
+}
+| ICE_STORM_CURRENT strings ';'
+{
+    parser->current($2);
+}
 | ICE_STORM_DESTROY strings ';'
 {
     parser->destroy($2);
@@ -97,10 +106,6 @@ command
 | ICE_STORM_UNLINK strings ';'
 {
     parser->unlink($2);
-}
-| ICE_STORM_GRAPH strings ';'
-{
-    parser->graph($2);
 }
 | ICE_STORM_LIST ';'
 {

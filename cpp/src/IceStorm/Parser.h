@@ -63,7 +63,8 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&,
+				  const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
 
     void usage();
 
@@ -72,7 +73,7 @@ public:
     void dolist(const std::list<std::string>&); // Don't name list - conflicts with std::list
     void link(const std::list<std::string>&);
     void unlink(const std::list<std::string>&);
-    void graph(const std::list<std::string>&);
+    void current(const std::list<std::string>&);
 
     void showBanner();
     void showCopying();
@@ -95,11 +96,16 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&);
+    IceStorm::TopicManagerPrx findManagerById(const std::string&, std::string&) const;
+    IceStorm::TopicManagerPrx findManagerByCategory(const std::string&) const;
 
+    Parser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&,
+	   const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
+
+    const Ice::CommunicatorPtr _communicator;
+    IceStorm::TopicManagerPrx _defaultManager;
+    const std::map<Ice::Identity, IceStorm::TopicManagerPrx> _managers;
     std::string _commands;
-    Ice::CommunicatorPtr _communicator;
-    IceStorm::TopicManagerPrx _admin;
     bool _continue;
     int _errors;
     int _currentLine;

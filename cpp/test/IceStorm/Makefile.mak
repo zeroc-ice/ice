@@ -12,8 +12,8 @@ top_srcdir	= ..\..
 !include $(top_srcdir)\config\Make.rules.mak
 
 SUBDIRS		= single \
-		  federation
-		  #federation2 - nothing to do
+		  federation \
+		  federation2
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

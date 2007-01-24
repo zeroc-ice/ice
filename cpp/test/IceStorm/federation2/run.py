@@ -8,8 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys
-import time
+import os, sys, time, threading, re
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -24,7 +23,7 @@ import TestUtil
 name = os.path.join("IceStorm", "federation2")
 testdir = os.path.join(toplevel, "test", name)
 
-exedir = os.path.join(toplevel, "test", "IceStorm", "federation")
+exedir = os.path.join(toplevel, "test", "IceStorm", "federation2")
 
 iceBox = TestUtil.getIceBox(exedir)
 iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
@@ -34,16 +33,32 @@ iceBoxEndpoints = ' --Ice.OA.IceBox.ServiceManager.Endpoints="default -p 12010" 
 
 iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
                   ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12011"' + \
-                  ' --Ice.OA.IceStorm.Publish.Endpoints="default"' + \
-		  " --IceBox.PrintServicesReady=IceStorm"
-iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager: default -p 12011"'
+                  ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12012"' + \
+                  ' --IceStorm.InstanceName=TestIceStorm1 ' + \
+		  ' --IceStorm.Discard.Interval=2' + \
+		  ' --IceBox.PrintServicesReady=IceStorm'
+iceStormReference = ' --IceStorm.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011"'
 
-def doTest(batch):
+iceBoxEndpoints2 = ' --Ice.OA.IceBox.ServiceManager.Endpoints="default -p 12020" --Ice.Default.Locator='
+
+iceStormService2 = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
+                  ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12021"' + \
+                  ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12022"' + \
+                  ' --IceStorm.InstanceName=TestIceStorm2 ' + \
+		  ' --IceStorm.Discard.Interval=2' + \
+		  ' --IceBox.PrintServicesReady=IceStorm'
+iceStormReference2 = ' --IceStorm.TopicManager.Proxy="TestIceStorm2/TopicManager: default -p 12021"'
+
+adminIceStormReference = ' --IceStormAdmin.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011" ' + \
+    '--IceStormAdmin.TopicManager.Proxy2="TestIceStorm2/TopicManager: default -p 12021"'
+
+def doTest(batch, subscriberRef = None):
     global testdir
     global iceStormReference
+    global iceStormReference2
 
-    publisher = os.path.join(toplevel, "test", "IceStorm", "federation", "publisher")
-    subscriber = os.path.join(toplevel, "test", "IceStorm", "federation", "subscriber")
+    publisher = os.path.join(toplevel, "test", "IceStorm", "federation2", "publisher")
+    subscriber = os.path.join(toplevel, "test", "IceStorm", "federation2", "subscriber")
 
     if batch:
         name = "batch subscriber"
@@ -51,6 +66,9 @@ def doTest(batch):
     else:
         name = "subscriber"
         batchOptions = ""
+
+    if subscriberRef == None:
+	subscriberRef = iceStormReference2
 
     #
     # Start the subscriber. The subscriber creates a lock-file which
@@ -63,8 +81,11 @@ def doTest(batch):
         pass # Ignore errors if the lockfile is not present
 
     print "starting " + name + "...",
-    command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
-    subscriberPipe = os.popen(command)
+    command = subscriber + batchOptions + TestUtil.clientServerOptions + subscriberRef + r' ' + \
+	subscriberLockFile 
+    if TestUtil.debug:
+	print "(" + command + ")",
+    subscriberPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe, False)
     print "ok"
@@ -85,8 +106,10 @@ def doTest(batch):
     # causes subscriber to terminate.
     #
     print "starting publisher...",
-    command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
-    publisherPipe = os.popen(command)
+    command = publisher + TestUtil.clientOptions + iceStormReference
+    if TestUtil.debug:
+	print "(" + command + ")",
+    publisherPipe = os.popen(command + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(publisherPipe)
@@ -110,36 +133,79 @@ def doTest(batch):
 
     return subscriberStatus or publisherStatus
 
+def startServers():
+    global iceBox
+    global iceBoxEndpoints
+    global iceBoxEndpoints2
+    global iceStormService
+    global iceStormService2
+    global iceStormDBEnv
+    global iceStormDBEnv2
+    print "starting icestorm services...",
+    command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+    if TestUtil.debug:
+	print "(" + command + ")",
+    iceBoxPipe = os.popen(command + " 2>&1")
+    TestUtil.getServerPid(iceBoxPipe)
+    TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
+    command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2
+    if TestUtil.debug:
+	print "(" + command + ")",
+    iceBoxPipe2 = os.popen(command + " 2>&1")
+    TestUtil.getServerPid(iceBoxPipe2)
+    TestUtil.waitServiceReady(iceBoxPipe2, "IceStorm")
+    print "ok"
+
+    return iceBoxPipe, iceBoxPipe2
+
+def stopServers(p1, p2 = None):
+    global iceBox
+    global iceBoxEndpoints
+    global iceBoxEndpoints2
+    print "shutting down icestorm services...",
+    command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
+    if TestUtil.debug:
+	print "(" + command + ")",
+    iceBoxAdminPipe = os.popen(command + " 2>&1")
+    iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
+    if iceBoxAdminStatus:
+	TestUtil.killServers()
+	sys.exit(1)
+    TestUtil.closePipe(p1)
+    if p2:
+	command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown' + " 2>&1"
+	if TestUtil.debug:
+	    print "(" + command + ")",
+	iceBoxAdminPipe = os.popen(command + " 2>&1")
+	iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
+	if iceBoxAdminStatus:
+	    TestUtil.killServers()
+	    sys.exit(1)
+	TestUtil.closePipe(p2)
+    print "ok"
+
 dbHome = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbHome)
 iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
-print "starting icestorm service...",
-command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
-iceBoxPipe = os.popen(command)
-TestUtil.getServerPid(iceBoxPipe)
-TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
-print "ok"
+dbHome2 = os.path.join(testdir, "db2")
+TestUtil.cleanDbDir(dbHome2)
+iceStormDBEnv2=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome2
 
-print "creating topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
+#
+# Test #1:
+#
+# create a cross service link fed1->fed2 and ensure the events are
+# published between them correctly.
+#
+iceBoxPipe1, iceBoxPipe2 = startServers()
 
-print "linking topics...",
-graph = os.path.join(testdir, "fed.xml")
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "graph ' + graph + r' 10"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
-#
-# The graph command generates output. We must read it otherwise
-# closing the pipe might return a non-zero status.
-#
-for output in iceStormAdminPipe.xreadlines():
-    pass
+print "setting up the topics...",
+command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
+    r' -e "create TestIceStorm1/fed1 TestIceStorm2/fed1; link TestIceStorm1/fed1 TestIceStorm2/fed1"'
+if TestUtil.debug:
+    print "(" + command + ")",
+iceStormAdminPipe = os.popen(command + " 2>&1")
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -156,12 +222,242 @@ onewayStatus = doTest(0)
 #
 batchStatus = doTest(1)
 
+if onewayStatus or batchStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
 #
-# Destroy the topic.
+# Test #2:
+#
+# Stop and restart the service and repeat the test. This ensures that
+# the database is correct.
+#
+
+#
+# Shutdown icestorm.
+#
+stopServers(iceBoxPipe1, iceBoxPipe2)
+
+iceBoxPipe1, iceBoxPipe2 = startServers()
+
+#
+# Test oneway subscribers.
+#
+onewayStatus = doTest(0)
+
+#
+# Test batch oneway subscribers.
+#
+batchStatus = doTest(1)
+
+if onewayStatus or batchStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
+#
+# Shutdown icestorm.
+#
+stopServers(iceBoxPipe1, iceBoxPipe2)
+
+#
+# This is used by the below test to confirm that the link warning is
+# emitted.
+#
+class ExpectorThread(threading.Thread):
+    def __init__(self, pipe):
+	self.mutex = threading.Lock()
+        self.pipe = pipe
+	# Suppress "adapter ready" messages. Under windows the eol isn't \n.
+        self.re = [ [ re.compile(" ready\r?\n$"), 0 ] ]
+        threading.Thread.__init__(self)
+
+    def run(self):
+        try:
+            while 1:
+                line = self.pipe.readline()
+                if not line: break
+    	    	found = False;
+		self.mutex.acquire()
+    	    	for item in self.re:
+    	    	    if item[0].search(line):
+			found = True
+    	    	    	item[1] = item[1] + 1
+    	    	    	break
+		self.mutex.release()
+    	    	if not found:
+		    print line,
+        except IOError:
+            pass
+
+	self.status = TestUtil.closePipe(self.pipe)
+
+    def getStatus(self):
+	return self.status
+
+    def matches(self, index):
+	self.mutex.acquire()
+	m = self.re[index][1]
+	self.mutex.release()
+	return m
+
+    def expect(self, r):
+	self.mutex.acquire()
+	self.re.append([r, 0])
+    	l = len(self.re)-1
+	self.mutex.release()
+	return l
+
+#
+# Test #3:
+#
+# Restart the first server and publish some events. Attach a
+# subscriber to the channel and make sure the events are received.
+#
+# Then re-start the linked downstream server and publish the events.
+# Ensure they are received by the linked server.
+#
+print "starting first icestorm server...",
+command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+if TestUtil.debug:
+    print "(" + command + ")",
+iceBoxPipe = os.popen(command + " 2>&1")
+TestUtil.getServerPid(iceBoxPipe)
+TestUtil.waitServiceReady(iceBoxPipe, "IceStorm", False)
+expectorThread = ExpectorThread(iceBoxPipe)
+expectorThread.start()
+index = expectorThread.expect(re.compile("fed1.link.*link offline"))
+expectorThread.expect(re.compile("connection refused"))
+print "ok"
+
+#
+# Test oneway subscribers.
+#
+onewayStatus = doTest(0, iceStormReference)
+
+if onewayStatus or expectorThread.matches(index) != 1:
+    TestUtil.killServers()
+    sys.exit(1)
+
+print "starting second icestorm server...",
+command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2
+if TestUtil.debug:
+    print "(" + command + ")",
+iceBoxPipe2 = os.popen(command + " 2>&1")
+TestUtil.getServerPid(iceBoxPipe2)
+TestUtil.waitServiceReady(iceBoxPipe2, "IceStorm")
+print "ok"
+
+#
+# Need to sleep for at least the discard interval.
+#
+time.sleep(3)
+
+#
+# Test oneway subscribers.
+#
+onewayStatus = doTest(0)
+
+if onewayStatus or expectorThread.matches(index) != 1:
+    TestUtil.killServers()
+    sys.exit(1)
+
+#
+# Test #4:
+#
+# Trash the TestIceStorm2 database. Then restart the servers and
+# verify that the link is removed.
+#
+stopServers(iceBoxPipe, iceBoxPipe2)
+expectorThread.join()
+if expectorThread.getStatus():
+    TestUtil.killServers()
+    sys.exit(1)
+
+TestUtil.cleanDbDir(dbHome2)
+
+iceBoxPipe, iceBoxPipe2 = startServers()
+
+print "checking link...",
+command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
+    r' -e "list TestIceStorm1 fed1"' + " 2>&1"
+if TestUtil.debug:
+    print "(" + command + ")",
+iceStormAdminPipe = os.popen(command + " 2>&1")
+line = iceStormAdminPipe.readline()
+if not re.compile("fed1 with cost 0").search(line):
+    print line
+    TestUtil.killServers()
+    sys.exit(1)
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
+if iceStormAdminStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+print "ok"
+
+print "starting publisher...",
+publisher = os.path.join(toplevel, "test", "IceStorm", "federation2", "publisher")
+command = publisher + TestUtil.clientOptions + iceStormReference
+if TestUtil.debug:
+    print "(" + command + ")",
+publisherPipe = os.popen(command + " 2>&1")
+print "ok"
+
+TestUtil.printOutputFromPipe(publisherPipe)
+
+publisherStatus = TestUtil.closePipe(publisherPipe)
+if publisherStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
+# The publisher must be run twice because all the events can be sent
+# out in one batch to the linked subscriber which means that the link
+# is not reaped until the next batch is sent.
+time.sleep(1)
+print "starting publisher...",
+publisher = os.path.join(toplevel, "test", "IceStorm", "federation2", "publisher")
+command = publisher + TestUtil.clientOptions + iceStormReference
+if TestUtil.debug:
+    print "(" + command + ")",
+publisherPipe = os.popen(command + " 2>&1")
+print "ok"
+
+TestUtil.printOutputFromPipe(publisherPipe)
+
+publisherStatus = TestUtil.closePipe(publisherPipe)
+if publisherStatus:
+    TestUtil.killServers()
+    sys.exit(1)
+
+# Verify that the link has disappeared.
+print "checking link...",
+command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
+    r' -e "list TestIceStorm1 fed1"' + " 2>&1"
+if TestUtil.debug:
+    print "(" + command + ")",
+iceStormAdminPipe = os.popen(command + " 2>&1")
+line = iceStormAdminPipe.readline()
+try:
+    if line and len(line) > 0:
+	TestUtil.killServers()
+	sys.exit(1)
+except IOError:
+    pass
+iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
+if iceStormAdminStatus:
+    print iceStormAdminStatus
+    TestUtil.killServers()
+    sys.exit(1)
+print "ok"
+
+#
+# Destroy the remaining topic.
 #
 print "destroying topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
+    r' -e "destroy TestIceStorm1/fed1"' + " 2>&1"
+if TestUtil.debug:
+    print "(" + command + ")",
+iceStormAdminPipe = os.popen(command + " 2>&1")
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -171,16 +467,8 @@ print "ok"
 #
 # Shutdown icestorm.
 #
-print "shutting down icestorm service...",
-command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
-iceBoxAdminPipe = os.popen(command)
-iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
-if iceBoxAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
-
-if TestUtil.serverStatus() or onewayStatus or batchStatus:
+stopServers(iceBoxPipe1, iceBoxPipe2)
+if TestUtil.serverStatus():
     TestUtil.killServers()
     sys.exit(1)
 

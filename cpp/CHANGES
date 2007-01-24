@@ -251,7 +251,27 @@ Changes since version 3.1.1
   Due to identity change the IceStorm database format was changed. The
   script config/upgradeicestorm.py can be used to upgrade old IceStorm
   databases to the new format.
-  
+
+- icestorm admin changes
+
+  Removed support for the "graph" command from icestormadmin.
+
+  The various icestormadmin commands take the topic manager as an
+  optional part of the arguments. For example, create MyTopicManager/foo
+  creates the topic "foo" on the topic manager using the InstanceName
+  MyTopicManager. See the Ice manual for more information.
+
+  These proxies are configured using the property prefix
+  IceStormAdmin.TopicManager.<any>.  IceStormAdmin.TopicManager.Default
+  is the default proxy (used by the commands if no topic provided).
+  IceStorm.TopicManager.Proxy also sets the default topic manager
+  for backwards compatibility reasons.
+
+  Added a new command "current" to set the default topic manager.
+
+  The list command now takes the topic manager as the first argument,
+  and the topics are the remaining arguments.
+
 - Added Ice.Override.Secure which forces a client to only use
   secure connections.
 

@@ -372,6 +372,9 @@ IceSSL:
     TrustOnly.Server
     TrustOnly.Server.<any>
 
+IceStormAdmin:
+    TopicManager.<any>
+
 IceStorm:
     Flush.Timeout
     InstanceName
