@@ -605,27 +605,33 @@ Client::run(int argc, char* argv[])
 	    keepAlive->getThreadControl().join();
 	}
 
-	try
-	{
-	    session->destroy();
-	}
-	catch(const Ice::Exception&)
-	{
-	}
+        if(session)
+        {
+            try
+            {
+                session->destroy();
+            }
+            catch(const Ice::Exception&)
+            {
+            }
+        }
 	throw;
     }
 
     keepAlive->destroy();
     keepAlive->getThreadControl().join();
 
-    try
+    if(session)
     {
-	session->destroy();
-    }
-    catch(const Ice::Exception&)
-    {
-	// Ignore. If the registry has been shutdown this will cause
-	// an exception.
+        try
+        {
+            session->destroy();
+        }
+        catch(const Ice::Exception&)
+        {
+            // Ignore. If the registry has been shutdown this will cause
+            // an exception.
+        }
     }
 
     return status;
