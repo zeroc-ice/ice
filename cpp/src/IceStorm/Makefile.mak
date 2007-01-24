@@ -47,7 +47,6 @@ SERVICE_OBJS	= IceStormInternal.obj \
 AOBJS		= Admin.obj \
 		  Grammar.obj \
 		  Scanner.obj \
-		  WeightedGraph.obj \
 		  Parser.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
