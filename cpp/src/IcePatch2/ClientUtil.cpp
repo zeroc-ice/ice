@@ -681,8 +681,15 @@ bool
 IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 {
     DecompressorPtr decompressor = new Decompressor(_dataDir);
+#if defined(__hppa)
+    //
+    // The thread stack size is only 64KB only HP-UX and that's not
+    // enough for this thread.
+    //
+    decompressor->start(256 * 1024); // 256KB
+#else 
     decompressor->start();
-
+#endif
     bool result;
 
     try
