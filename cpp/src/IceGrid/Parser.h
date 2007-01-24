@@ -122,7 +122,7 @@ public:
     void describeObject(const std::list<std::string>&);
     void listObject(const std::list<std::string>&);
 
-    void dumpFile(const std::string&, const std::list<std::string>&);
+    void showFile(const std::string&, const std::list<std::string>&);
 
     void showBanner();
     void showCopying();

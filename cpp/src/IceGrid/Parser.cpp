@@ -87,9 +87,9 @@ static const char* _commandsHelp[][3] = {
 { "node", "load",
 "node load NAME            Print the load of the node NAME.\n" 
 },
-{ "node", "dump",
-"node dump [OPTIONS] NAME [stderr | stdout]\n"
-"                          Dump node NAME stderr or stdout.\n"
+{ "node", "show",
+"node show [OPTIONS] NAME [stderr | stdout]\n"
+"                          Show node NAME stderr or stdout.\n"
 "                          Options:\n"
 "                           -f | --follow: Wait for new data to be available\n"
 "                           -t N | --tail N: Print the last N lines\n"
@@ -107,9 +107,9 @@ static const char* _commandsHelp[][3] = {
 { "registry", "ping",
 "registry ping NAME        Ping registry NAME.\n" 
 },
-{ "registry", "dump",
-"registry dump [OPTIONS] NAME [stderr | stdout]\n" 
-"                          Dump registry NAME stderr or stdout.\n" 
+{ "registry", "show",
+"registry show [OPTIONS] NAME [stderr | stdout]\n" 
+"                          Show registry NAME stderr or stdout.\n" 
 "                          Options:\n"
 "                           -f | --follow: Wait for new data to be available\n"
 "                           -t N | --tail N: Print the last N lines\n"
@@ -151,9 +151,9 @@ static const char* _commandsHelp[][3] = {
 { "server", "stderr",
 "server stderr ID MESSAGE  Write MESSAGE on server ID's stderr.\n" 
 },
-{ "server", "dump",
-"server dump [OPTIONS] ID [stderr | stdout | LOGFILE ]\n"
-"                          Dump server ID stderr, stdout or log file LOGFILE.\n"
+{ "server", "show",
+"server show [OPTIONS] ID [stderr | stdout | LOGFILE ]\n"
+"                          Show server ID stderr, stdout or log file LOGFILE.\n"
 "                          Options:\n"
 "                           -f | --follow: Wait for new data to be available\n"
 "                           -t N | --tail N: Print the last N lines\n"
@@ -1423,7 +1423,7 @@ Parser::listObject(const list<string>& args)
 }
 
 void
-Parser::dumpFile(const string& reader, const list<string>& origArgs)
+Parser::showFile(const string& reader, const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
     copyArgs.push_front("icegridadmin");
@@ -1450,7 +1450,7 @@ Parser::dumpFile(const string& reader, const list<string>& origArgs)
 
     if(args.size() != 2)
     {
-	invalidCommand(reader + " dump", "requires two arguments");
+	invalidCommand(reader + " show", "requires two arguments");
 	return;
     }
 

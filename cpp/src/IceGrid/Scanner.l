@@ -204,10 +204,6 @@ NL	[\n]
     return ICE_GRID_SHOW;
 }
 
-"dump" {
-    return ICE_GRID_DUMP;
-}
-
 "copying" {
     return ICE_GRID_COPYING;
 }
