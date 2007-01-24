@@ -53,7 +53,14 @@ sub page_header {
             . ']'
            )
 
-        : ( $results->errstr || $title );
+        : ( CGI::escapeHTML( $results->{query_simple} )
+	  ? ( 'No results for ['
+	    . CGI::escapeHTML( $results->{query_simple} )
+	    . ']'
+	    )
+	  : ( 'Please enter a query string.'
+	    )
+	  );
 
     my $default_logo = '<a href="http://swish-e.org"><img border="0" alt="Swish-e home page" src="http://swish-e.org/Images/swish-e.gif"></a> ' ;
 
@@ -69,10 +76,23 @@ sub page_header {
        <title>
           $html_title
        </title>
+       <style type="text/css">
+           body { font-family: Arial, Helvetica, sans-serif; }
+       </style>
     </head>
     <body>
 	<div style="width: 850px; margin-left: auto; margin-right: auto;">
-	    <a href="http://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo" style="border-style: none;"/></a>
+	    <div style="position: relative; width: 100%;">
+		<div>
+		    <h2>
+			$html_title
+		    </h1>
+		</div>
+		<div style="position: absolute; top: 0; right: 0;">
+		    <a href="http://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo"
+		       style="border-style: none;"/></a>
+		</div>
+	    </div>
 	    <hr>
 EOF
 }
