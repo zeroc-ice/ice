@@ -188,7 +188,26 @@ PlatformInfo::PlatformInfo(const string& prefix,
     os << osInfo.dwMajorVersion << "." << osInfo.dwMinorVersion;
     _release = os.str();
     _version = osInfo.szCSDVersion;
-    _machine = "x86"; // TODO?
+
+    switch(sysInfo.wProcessorArchitecture)
+    {
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    case 9: // PROCESSOR_ARCHITECTURE_AMD64
+#else
+    case PROCESSOR_ARCHITECTURE_AMD64:
+#endif
+	_machine = "x64";
+	break;
+    case PROCESSOR_ARCHITECTURE_IA64:
+	_machine = "IA64";
+	break;
+    case PROCESSOR_ARCHITECTURE_INTEL:
+	_machine = "x86";
+	break;
+    default:
+	_machine = "unknown";
+	break;
+    };
 #else
     struct utsname utsinfo;
     uname(&utsinfo);
