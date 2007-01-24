@@ -71,31 +71,9 @@ sub page_header {
        </title>
     </head>
     <body>
-<div style="width: 850px; margin-left: auto; margin-right: auto;">
-	<div style="position: relative; width: 100%;">
-	    <table class="ButtonTable">
-		<tr>
-		    <td>
-			<a href="../doc/3.2/reference/index.html">
-			    <img class="HomeButton" src="../doc/images/home.gif" alt="Home" style="border-style: none"/>
-			</a>
-		    </td>
-		    <td>
-			<a href="../doc/3.2/reference/_sindex.html">
-			    <img class="IndexButton" src="../doc/images/index.gif" alt="Index" style="border-style: none"/>
-			</a>
-		    </td>
-		</tr>
-	    </table>
-	    <table style="position: absolute; top: 0; right: 0;">
-		<tr>
-		    <td>
-			<a href="http://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo" style="border-style: none;"/></a>
-		    </td>
-		</tr>
-	    </table>
-	</div>
-	<hr>
+	<div style="width: 850px; margin-left: auto; margin-right: auto;">
+	    <a href="http://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo" style="border-style: none;"/></a>
+	    <hr>
 EOF
 }
 
@@ -336,30 +314,6 @@ EOF
 
 sub footer {
     return <<EOF;
-	    <hr>
-	    <div style="position: relative; width: 100%;">
-		<table class="ButtonTable">
-		    <tr>
-			<td>
-			    <a href="../doc/3.2/reference/index.html">
-				<img class="HomeButton" src="../doc/images/home.gif" alt="Home" style="border-style: none"/>
-			    </a>
-			</td>
-			<td>
-			    <a href="../doc/3.2/reference/_sindex.html">
-				<img class="IndexButton" src="../doc/images/index.gif" alt="Index" style="border-style: none"/>
-			    </a>
-			</td>
-		    </tr>
-		</table>
-		<table style="position: absolute; top: 0; right: 0;">
-		    <tr>
-			<td>
-			    <a href="http://www.zeroc.com"><img class="Logo" src="../doc/images/logo.gif" alt="Logo" style="border-style: none;"/></a>
-			</td>
-		    </tr>
-		</table>
-	    </div>
         </div>
     </body>
 </html>

@@ -17,7 +17,8 @@ namespace Slice
 {
 
 void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, const std::string&,
-	      const ::std::string&, const ::std::string&, const ::std::string&, unsigned, unsigned);
+	      const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
+              unsigned, unsigned);
 
 typedef ::std::set< ::std::string> Files;
 
@@ -30,6 +31,7 @@ public:
     static void setFooter(const ::std::string&);
     static void setImageDir(const ::std::string&);
     static void setLogoURL(const ::std::string&);
+    static void setSearchAction(const ::std::string&);
     static void setIndexCount(int);
     static void warnSummary(int);
     static void setSymbols(const ContainedList&);
@@ -51,6 +53,7 @@ protected:
     void printSummary(const ContainedPtr&, const ContainerPtr&, bool);
 
     void printHeaderFooter(const ContainedPtr&);
+    void printSearch();
     void printLogo(const ContainedPtr&, const ContainerPtr&, bool);
 
     ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false,
@@ -69,7 +72,6 @@ protected:
 
     static unsigned _indexCount;
     static unsigned _warnSummary;
-
 
 private:
 
@@ -96,6 +98,7 @@ private:
     static ::std::string _footer;
     static ::std::string _imageDir;
     static ::std::string _logoURL;
+    static ::std::string _searchAction;
     static ContainedList _symbols;
 };
 

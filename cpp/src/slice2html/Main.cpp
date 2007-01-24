@@ -36,6 +36,7 @@ usage(const char* n)
 	"--indexftr FILE      Use the contents of FILE as the footer of the index/toc page (default=--ftr).\n"
 	"--image-dir DIR      Directory containing images for style sheets.\n"
 	"--logo-url URL       Link to URL from logo image (requires --image-dir).\n"
+        "--search ACTION      Generate search box with specified ACTION.\n"
 	"--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
 	"--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
@@ -61,6 +62,7 @@ main(int argc, char* argv[])
     opts.addOpt("", "index", IceUtil::Options::NeedArg, "1");
     opts.addOpt("", "image-dir", IceUtil::Options::NeedArg);
     opts.addOpt("", "logo-url", IceUtil::Options::NeedArg);
+    opts.addOpt("", "search", IceUtil::Options::NeedArg);
     opts.addOpt("", "summary", IceUtil::Options::NeedArg, "0");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
@@ -139,6 +141,8 @@ main(int argc, char* argv[])
 
     string logoURL = opts.optArg("logo-url");
 
+    string searchAction = opts.optArg("search");
+
     string warnSummary = opts.optArg("summary");
     unsigned summaryCount;
     if(!warnSummary.empty())
@@ -207,7 +211,7 @@ main(int argc, char* argv[])
 	try
 	{
 	    Slice::generate(p, output, header, footer, indexHeader, indexFooter, imageDir, logoURL,
-		            indexCount, summaryCount);
+                            searchAction, indexCount, summaryCount);
 	}
 	catch(const string& err)
 	{

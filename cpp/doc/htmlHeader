@@ -5,18 +5,55 @@
 TITLE
 	</title>
 	<style type="text/css">
-	    body { font-family: Arial, Helvetica, sans-serif; }
-	    .Page { width: 850px; margin-left: auto; margin-right: auto; }
-	    .Symbol { font-family: "Courier New", Courier, mono; }
-	    .Synopsis { font-family: "Courier New", Courier, mono; font-weight: bold; }
-	    .Deprecated { font-style: italic; }
-	    .Warning { font-style: italic; }
-	    .Note { font-style: italic; }
-	    .HeaderFooter { position: relative; width: 100%; }
-	    .LogoTable { position: absolute; right: 0; top: 0; }
-	    .Logo { border-style: none; }
-	    .Button { border-style: none; }
-	    .ButtonGrey { border-style: none; cursor: default; }
+	    body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+	    .Page {
+                width: 850px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+	    .Symbol {
+                font-family: "Courier New", Courier, mono;
+            }
+	    .Synopsis {
+                font-family: "Courier New", Courier, mono;
+                font-weight: bold;
+            }
+	    .Deprecated {
+                font-style: italic;
+            }
+	    .Warning {
+                font-style: italic;
+            }
+	    .Note {
+                font-style: italic;
+            }
+	    .HeaderFooter {
+                position: relative;
+                width: 100%;
+            }
+	    .LogoTable {
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+	    .Logo {
+                border-style: none;
+            }
+	    .Button {
+                border-style: none;
+            }
+	    .ButtonGrey {
+                border-style: none;
+                cursor: default;
+            }
+	    .SearchTable {
+		position: absolute;
+		top: 0px;
+		margin-left: auto;
+		margin-right: auto;
+	    }
         </style>
     </head>
     <body>

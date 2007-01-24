@@ -35,7 +35,7 @@ void
 generate(const UnitPtr& unit, const string& dir,
 	 const string& header, const string& footer,
 	 const string& indexHeader, const string& indexFooter,
-	 const string& imageDir, const string& logoURL, unsigned indexCount, unsigned warnSummary)
+	 const string& imageDir, const string& logoURL, const string& searchAction, unsigned indexCount, unsigned warnSummary)
 {
     unit->mergeModules();
 
@@ -50,6 +50,7 @@ generate(const UnitPtr& unit, const string& dir,
     GeneratorBase::setFooter(footer);
     GeneratorBase::setImageDir(imageDir);
     GeneratorBase::setLogoURL(logoURL);
+    GeneratorBase::setSearchAction(searchAction);
     GeneratorBase::setIndexCount(indexCount);
     GeneratorBase::warnSummary(warnSummary);
 
@@ -95,6 +96,7 @@ string Slice::GeneratorBase::_header2;
 string Slice::GeneratorBase::_footer;
 string Slice::GeneratorBase::_imageDir;
 string Slice::GeneratorBase::_logoURL;
+string Slice::GeneratorBase::_searchAction;
 unsigned Slice::GeneratorBase::_indexCount = 0;
 unsigned Slice::GeneratorBase::_warnSummary = 0;
 ContainedList Slice::GeneratorBase::_symbols;
@@ -152,6 +154,15 @@ void
 Slice::GeneratorBase::setLogoURL(const string& logoURL)
 {
     _logoURL = logoURL;
+}
+
+//
+// Set search action, if any.
+//
+void
+Slice::GeneratorBase::setSearchAction(const string& searchAction)
+{
+    _searchAction = searchAction;
 }
 
 //
@@ -728,9 +739,38 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     end();
     end();
 
+    printSearch();
+
     printLogo(c, container, onEnumPage);
 
     end();
+}
+
+void
+Slice::GeneratorBase::printSearch()
+{
+    if(!_searchAction.empty())
+    {
+        _out << nl << "<div style=\"text-align: center;\">";
+        _out.inc();
+        start("table", "SearchTable");
+        start("tr");
+        start("td");
+        _out << nl << "<form method=\"get\" action=\"" << _searchAction << "\""
+             << " enctype=\"application/x-www-form-urlencoded\" class=\"form\">";
+        _out.inc();
+        start("div");
+        _out << nl << "<input maxlength=\"100\" value=\"\" type=\"text\" name=\"query\">";
+        _out << nl << "<input type=\"submit\" value=\"Search\" name=\"submit\">";
+        end();
+        _out.dec();
+        _out << nl << "</form>";
+        end();
+        end();
+        end();
+        _out.dec();
+        _out << nl << "</div>";
+    }
 }
 
 void
@@ -1543,6 +1583,8 @@ Slice::StartPageGenerator::printHeaderFooter()
     end();
     end();
     end();
+
+    printSearch();
 
     if(!imageDir.empty())
     {
