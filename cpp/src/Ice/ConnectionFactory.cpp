@@ -584,9 +584,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	_threadPerIncomingConnectionFactory = 0;
 
 	//
-	// Clear the OA. See
-	// http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1673 for
-	// the details of why this is necessary.
+	// Clear the OA. See bug 1673 for the details of why this is necessary.
 	//
 	_adapter = 0;
 
