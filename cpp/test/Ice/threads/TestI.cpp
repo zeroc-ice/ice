@@ -120,7 +120,7 @@ AdapterI::waitForWakeup(Ice::Int timeout, bool& notified, const Ice::Current&)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     _waiting = true;
-    notify();
+    notifyAll();
     test(!_notified);
     timedWait(IceUtil::Time::milliSeconds(timeout));
     notified = _notified;
@@ -141,7 +141,7 @@ AdapterI::wakeup(const Ice::Current&)
         wait();
     }
     _notified = true;
-    notify();
+    notifyAll();
 
     return tid;
 }

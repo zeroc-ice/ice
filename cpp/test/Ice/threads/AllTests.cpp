@@ -128,7 +128,7 @@ Counter::bump(int timeout)
     assert(_count < _target);
 
     _count++;
-    notify();
+    notifyAll();
 
     IceUtil::Time now = IceUtil::Time::now();
     IceUtil::Time end;
