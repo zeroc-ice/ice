@@ -148,7 +148,6 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     is.seekg(0, ios::end);
     if(offset >= is.tellg())
     {
-//        cerr << "reading at EOF " << offset << " " << is.tellg() << endl;
 	newOffset = is.tellg();
 	lines = Ice::StringSeq();
 	return true;
@@ -159,15 +158,17 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     // 
     newOffset = offset;
     lines = Ice::StringSeq();
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    is.seekg(static_cast<int>(offset));
+#else
     is.seekg(static_cast<streamoff>(offset), ios::beg);
+#endif
     int totalSize = 0;
     string line;
 
-//    cerr << "starting read " << offset << endl;
     for(int i = 0; is.good(); ++i)
     {
 	getline(is, line);
-//        cerr << "read " << " " << is.tellg() << " " << line << endl;
 
 	int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
 	if(lineSize + totalSize > size)
@@ -187,14 +188,21 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 	}
 
 	totalSize += lineSize;
+	lines.push_back(line);
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+	if(is.eof())
+	{
+	    newOffset += line.size();
+	}
+	else
+#else
 	if(!is.fail())
+#endif
 	{
 	    newOffset = is.tellg();
 	}
-	lines.push_back(line);
     }
 
-//    cerr << "finished read " << newOffset << " " << is.eof() << " " << lines.size()<< endl;
     if(is.bad())
     {
 	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");

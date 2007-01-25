@@ -416,9 +416,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     desc.serverTemplates["ServerTemplate"] = templ;
     try
     {
-	session->startUpdate();
 	admin->addApplication(desc);
-	session->finishUpdate();
 	test(false);
     }
     catch(const DeploymentException& ex)
@@ -432,7 +430,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
 
-#ifndef _WIN32
     cout << "testing stderr/stdout/log files... " << flush;
     string testDir = comm->getProperties()->getProperty("TestDir");
     assert(!testDir.empty());
@@ -722,7 +719,6 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
 
     cout << "ok" << endl;
-#endif
 
     keepAlive->destroy();
     keepAlive->getThreadControl().join();
