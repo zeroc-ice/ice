@@ -175,6 +175,9 @@ class ReaderThread(Thread):
 
 	self.status = closePipe(self.pipe)
 
+    def getPipe(self):
+	return self.pipe
+
     def getStatus(self):
 	return self.status
 
@@ -190,6 +193,8 @@ def joinServers():
 	allServerThreads.append(t)
     serverThreads = []
 
+# This joins with all servers and if any of them failed then
+# it returns the failure status.
 def serverStatus():
     global allServerThreads
     joinServers()
@@ -198,6 +203,19 @@ def serverStatus():
     	if status:
     	    return status
     return 0
+
+# This joins with a specific server (the one started with the given pipe)
+# returns its exit status. If the server cannot be found an exception
+# is raised.
+def specificServerStatus(pipe):
+    global serverThreads
+    for t in serverThreads:
+	if t.getPipe() == pipe:
+	    serverThreads.remove(t)
+	    t.join()
+	    status = t.getStatus()
+	    return status
+    raise "can't find server with pipe: " + str(pipe)
 
 def killServers():
 

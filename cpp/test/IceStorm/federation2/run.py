@@ -160,28 +160,27 @@ def startServers():
 
 def stopServers(p1, p2 = None):
     global iceBox
+    global iceBoxAdmin
     global iceBoxEndpoints
     global iceBoxEndpoints2
     print "shutting down icestorm services...",
-    command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
+    command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
     if TestUtil.debug:
 	print "(" + command + ")",
-    iceBoxAdminPipe = os.popen(command + " 2>&1")
-    iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
-    if iceBoxAdminStatus:
+    pipe = os.popen(command + " 2>&1")
+    status = TestUtil.closePipe(pipe)
+    if status or TestUtil.specificServerStatus(p1):
 	TestUtil.killServers()
 	sys.exit(1)
-    TestUtil.closePipe(p1)
     if p2:
-	command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown' + " 2>&1"
+	command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown'
 	if TestUtil.debug:
 	    print "(" + command + ")",
-	iceBoxAdminPipe = os.popen(command + " 2>&1")
-	iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
-	if iceBoxAdminStatus:
+	pipe = os.popen(command + " 2>&1")
+	status = TestUtil.closePipe(pipe)
+	if status or TestUtil.specificServerStatus(p2):
 	    TestUtil.killServers()
 	    sys.exit(1)
-	TestUtil.closePipe(p2)
     print "ok"
 
 dbHome = os.path.join(testdir, "db")
@@ -261,7 +260,7 @@ stopServers(iceBoxPipe1, iceBoxPipe2)
 
 #
 # This is used by the below test to confirm that the link warning is
-# emitted.
+# emitted. This class conforms with the TestUtil.ReaderThread protocol.
 #
 class ExpectorThread(threading.Thread):
     def __init__(self, pipe):
@@ -291,6 +290,11 @@ class ExpectorThread(threading.Thread):
 
 	self.status = TestUtil.closePipe(self.pipe)
 
+    # To comply with the ReaderThread protocol.
+    def getPipe(self):
+	return self.pipe
+
+    # To comply with the ReaderThread protocol.
     def getStatus(self):
 	return self.status
 
@@ -320,11 +324,13 @@ print "starting first icestorm server...",
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
 if TestUtil.debug:
     print "(" + command + ")",
-iceBoxPipe = os.popen(command + " 2>&1")
-TestUtil.getServerPid(iceBoxPipe)
-TestUtil.waitServiceReady(iceBoxPipe, "IceStorm", False)
-expectorThread = ExpectorThread(iceBoxPipe)
+iceBoxPipe1 = os.popen(command + " 2>&1")
+TestUtil.getServerPid(iceBoxPipe1)
+TestUtil.waitServiceReady(iceBoxPipe1, "IceStorm", False)
+expectorThread = ExpectorThread(iceBoxPipe1)
 expectorThread.start()
+global serverThreads
+TestUtil.serverThreads.append(expectorThread)
 index = expectorThread.expect(re.compile("fed1.link.*link offline"))
 expectorThread.expect(re.compile("connection refused"))
 print "ok"
@@ -367,15 +373,11 @@ if onewayStatus or expectorThread.matches(index) != 1:
 # Trash the TestIceStorm2 database. Then restart the servers and
 # verify that the link is removed.
 #
-stopServers(iceBoxPipe, iceBoxPipe2)
-expectorThread.join()
-if expectorThread.getStatus():
-    TestUtil.killServers()
-    sys.exit(1)
+stopServers(iceBoxPipe1, iceBoxPipe2)
 
 TestUtil.cleanDbDir(dbHome2)
 
-iceBoxPipe, iceBoxPipe2 = startServers()
+iceBoxPipe1, iceBoxPipe2 = startServers()
 
 print "checking link...",
 command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
