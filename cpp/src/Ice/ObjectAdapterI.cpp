@@ -771,7 +771,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         if(oldProps.size() == 0 && props.size() == 0)
 	{
             InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
+	    ex.reason = "object adapter \"" + _name + "\" requires configuration.";
 	    throw ex;
         }
     }
@@ -811,7 +811,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
         {
             InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "adapter cannot be configured for both thread pool and thread per connection";
+	    ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n"
+                "thread pool and thread per connection";
             throw ex;
         }
 

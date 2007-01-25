@@ -914,14 +914,14 @@ IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType ne
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeThreadPerConnection(bool newValue) const
+IceInternal::RoutableReference::changeThreadPerConnection(bool newTpc) const
 {
-    if(newValue == _threadPerConnection)
+    if(newTpc == _threadPerConnection)
     {
         return RoutableReferencePtr(const_cast<RoutableReference*>(this));
     }
     RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_threadPerConnection = newValue;
+    r->_threadPerConnection = newTpc;
     return r;
 }
 
