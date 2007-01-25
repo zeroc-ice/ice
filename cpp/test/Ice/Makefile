@@ -28,7 +28,8 @@ SUBDIRS		= operations \
 		  binding \
 		  retry \
 		  timeout \
-		  servantLocator
+		  servantLocator \
+		  threads
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
