@@ -87,7 +87,7 @@ class DbEnvEditor extends Editor
     protected void buildPropertiesPanel()
     {
 	super.buildPropertiesPanel();
-	_propertiesPanel.setName("DbEnv Properties");
+	_propertiesPanel.setName("Database Environment Properties");
     }
 
     private JTextArea _description = new JTextArea(3, 20);

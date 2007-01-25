@@ -154,60 +154,71 @@
 	</jar>
     </target>
 
-    <target name="icegridgui-compile" depends="ice-compile" if="java2">
+    <target name="icegridadmin-compile" depends="ice-compile" if="java2">
         <javac srcdir="${src.dir}" destdir="${lib.dir}"
 	    source="${jdk.version}" debug="${debug}" optimize="${optimize}"
 	    includes="IceGridGUI/**"
 	    deprecation="on"/>
     </target>
 
-    <target name="icegridgui-jar" depends="icegridgui-compile" if="java2">
-	<manifest file="${lib.dir}/icegridgui.mf">
-	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
-	    <attribute name="Class-Path" value="Ice.jar looks-2.0.4.jar forms-1.0.7.jar"/>
-	</manifest>
-	<jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
-	    <include name="IceGridGUI/**"/>
-	</jar>
-	<jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="resources"
-	    update="true">
-	    <include name="**"/>
-	</jar>
-	<delete file="${lib.dir}/icegridgui.mf" />
-    </target>
-
-    <condition property="icegrid-pro-precond">
+    <condition property="build-icegridadmin-pro-jar">
 	<and>
 	    <isset property="java2" />
 	    <isset property="hasProguard" />
-	    <available file="${jgoodies.looks}" />
-	    <available file="${jgoodies.forms}" />
-	    <available file="${berkeleydb.jar}" />
+<!--	    <available file="${jgoodies.looks}" />
+	    <available file="${jgoodies.forms}" /> -->
 	</and>	
     </condition>
 
-    <target name="icegrid-pro" depends="icegridgui-jar" if="icegrid-pro-precond">
-	<move file="${lib.dir}/IceGridGUI.jar" tofile="${lib.dir}/guitmp.jar" />
-	<taskdef resource="proguard/ant/task.properties"/>
-	<proguard>
-	    -injars ${lib.dir}/guitmp.jar
-	    -injars ${lib.dir}/Ice.jar(!META-INF/**)
-	    -injars ${jgoodies.looks}(!META-INF/**)
-	    -injars ${jgoodies.forms}(!META-INF/**)
+    <condition property="build-icegridadmin-plain-jar">
+	<and>
+	    <isset property="java2" />
+	    <not>
+               <isset property="build-icegridadmin-pro-jar" />
+            </not>
+	</and>	
+    </condition>
 
-	    -outjars ${lib.dir}/IceGridGUI.jar
-
-	    -libraryjars ${berkeleydb.jar}
-
-	    -include config/icegridgui.pro
-	</proguard>
-	<delete file="${lib.dir}/guitmp.jar" />
+    <target name="icegridadmin-plain-jar" depends="icegridadmin-compile" if="build-icegridadmin-plain-jar">
+	<manifest file="${lib.dir}/icegridgui.mf">
+	    <attribute name="Class-Path" value="Ice.jar ../resources/"/>
+	</manifest>
+        <jar jarfile="${lib.dir}/IceGridGUI.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
+	    <include name="IceGridGUI/**"/>
+	</jar>
+        <delete file="${lib.dir}/icegridgui.mf" />
     </target>
 
-    <target name="compile" depends="ice-compile, icegridgui-compile">
+    <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
+	<manifest file="${lib.dir}/icegridgui.mf">
+	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
+	    <attribute name="Class-Path" value="../doc/ ../resources/ ../../share/doc/Ice-${ice.version.major}.${ice.version.minor}.${ice.version.patch}/"/>
+	</manifest>
+	<jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
+	    <include name="IceGridGUI/**"/>
+	</jar>
+	<jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="resources"
+	    update="true">
+	    <include name="icons/**"/>
+	</jar>
+	<delete file="${lib.dir}/icegridgui.mf" />
+        <taskdef resource="proguard/ant/task.properties"/>
+
+        <proguard>
+             -injars ${lib.dir}/IceGridGUItemp.jar
+             -injars ${lib.dir}/Ice.jar(!META-INF/**,!Freeze/**)
+             -injars ${jgoodies.looks}(!META-INF/**)
+             -injars ${jgoodies.forms}(!META-INF/**)
+             -outjars ${lib.dir}/IceGridGUI.jar
+             -include config/icegridgui.pro
+        </proguard>
+	<delete file="${lib.dir}/IceGridGUItemp.jar" />
     </target>
 
-    <target name="jar" depends="ice-jar, icegrid-pro"/>
+    <target name="compile" depends="ice-compile, icegridadmin-compile">
+    </target>
+
+    <target name="jar" depends="ice-jar, icegridadmin-plain-jar, icegridadmin-pro-jar"/>
 
     <target name="all" depends="jar">
         <ant inheritAll="false" dir="demo"/>
