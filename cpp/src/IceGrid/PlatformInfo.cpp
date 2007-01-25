@@ -258,21 +258,22 @@ PlatformInfo::PlatformInfo(const string& prefix,
         }
     }
 
+#ifdef _WIN32
+    char cwd[_MAX_PATH];
+    if(_getcwd(cwd, _MAX_PATH) == NULL)
+#else
+	char cwd[PATH_MAX];
+    if(getcwd(cwd, PATH_MAX) == NULL)
+#endif
+    {
+        throw "cannot get the current directory:\n" + IcePatch2::lastError();
+    }
+    _cwd = string(cwd);
+
     _dataDir = properties->getProperty(prefix + ".Data");    
     if(!IcePatch2::isAbsolute(_dataDir))
     {
-#ifdef _WIN32
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
-	{
-	    throw "cannot get the current directory:\n" + IcePatch2::lastError();
-	}
-	
-	_dataDir = string(cwd) + '/' + _dataDir;
+	_dataDir = _cwd + '/' + _dataDir;
     }
     if(_dataDir[_dataDir.length() - 1] == '/')
     {
@@ -419,6 +420,12 @@ std::string
 PlatformInfo::getDataDir() const
 {
     return _dataDir;
+}
+
+std::string
+PlatformInfo::getCwd() const
+{
+    return _cwd;
 }
 
 #ifdef _WIN32

@@ -28,10 +28,11 @@ TestUtil.addLdPath(testdir)
 
 iceBox = TestUtil.getIceBox(testdir)
 
-IceGridAdmin.iceGridTest(name, "application.xml", "", '"icebox.exe=' + TestUtil.getIceBox(testdir) + '"')
+IceGridAdmin.iceGridTest(name, "application.xml", "--TestDir=\"" + testdir + "\"", \
+                         '"icebox.exe=' + TestUtil.getIceBox(testdir) + '"')
 
 # Tests with targets
-IceGridAdmin.iceGridTest(name, "application.xml", "-t", \
+IceGridAdmin.iceGridTest(name, "application.xml", "-t --TestDir=\"" + testdir + "\"", \
                          "icebox.exe=" + TestUtil.getIceBox(testdir) + \
                          " moreservers moreservices moreproperties")
 

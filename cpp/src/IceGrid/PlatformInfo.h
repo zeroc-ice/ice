@@ -43,6 +43,7 @@ public:
     LoadInfo getLoadInfo();
     std::string getHostname() const;
     std::string getDataDir() const;
+    std::string getCwd() const;
 
 private:
 
@@ -59,6 +60,7 @@ private:
     std::string _machine;
     int _nProcessors;
     std::string _dataDir;
+    std::string _cwd;
     std::string _endpoints;
 
 #if defined(_WIN32)

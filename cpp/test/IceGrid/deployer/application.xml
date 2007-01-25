@@ -138,6 +138,22 @@
           Param2="${AppVarOverrided}" ParamEscaped="${varpe}" ParamDoubleEscaped="${varpde}"/>
       </target>
 
+      <server id="LogServer" exe="${test.dir}/server" activation="on-demand" pwd=".">
+        <adapter name="Server" endpoints="default">
+  	  <object identity="${server}" type="::Test"/>
+        </adapter>
+
+        <log path="${test.dir}/log1.txt"/>
+        <log path="${test.dir}/log2.txt"/>
+        <log path="${test.dir}/log3.txt"/>
+        <log path="${test.dir}/log4.txt"/>
+        <env>MY_ENV_VARIABLE=12</env>
+        <properties>
+          <property name="Ice.StdErr" value="${node.datadir}/servers/${server}.out"/>
+          <property name="Ice.StdOut" value="${node.datadir}/servers/${server}.err"/>
+        </properties>
+      </server>
+
     </node>
 
   </application>

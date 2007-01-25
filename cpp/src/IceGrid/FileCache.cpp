@@ -33,15 +33,27 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	throw FileNotAvailableException("failed to open file `" + file + "'");
     }
 
-    streamoff blockSize = 16 * 1024; // Start reading a block of 16K from the end of the file.
+    if(originalCount < 0)
+    {
+        return 0;
+    }
+
     is.seekg(0, ios::end);
     streampos endOfFile = is.tellg();
+    if(originalCount == 0)
+    {
+        return endOfFile;
+    }
+
+    streamoff blockSize = 16 * 1024; // Start reading a block of 16K from the end of the file.
     streampos lastBlockOffset = endOfFile;
     int totalCount = 0;
-    streamoff totalSize = 0;
     string line;
+    deque<pair<streampos, string> > lines;
     do
     {
+        lines.clear();
+
 	//
 	// Move the current position of the stream to the new block to
 	// read.
@@ -59,24 +71,19 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	
 	//
 	// Read the block and count the number of lines in the block
-	// as well as the number of bytes read. If we found the "first
-	// last N line", we start throwing out the lines read at the
-	// begining of the file. The total size read will give us the
-	// position from the end of the file.
+	// If we found the "first last N lines", we start throwing out
+	// the lines read at the begining of the file.
 	//
-	deque<string> lines;
 	int count = originalCount - totalCount; // Number of lines left to find.
-	while(is.good() && is.tellg() < streamoff(lastBlockOffset))
+	while(is.good() && is.tellg() <= streamoff(lastBlockOffset))
 	{
+            streampos beg = is.tellg();
 	    getline(is, line);
-
-	    lines.push_back(line);
+	    lines.push_back(make_pair(beg, line));
 	    ++totalCount;
-	    totalSize += line.size() + 1;
 	    if(lines.size() == static_cast<unsigned int>(count + 1))
 	    {
 		--totalCount;
-		totalSize -= lines.front().size() + 1;
 		lines.pop_front();
 	    }
 	}
@@ -95,14 +102,21 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	    blockSize *= 2; // Read a bigger block.
 	}
     }
-    while(totalCount  < originalCount && !is.bad());
+    while(totalCount < originalCount && !is.bad());
 
     if(is.bad())
     {
 	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
     }
  
-   return endOfFile - totalSize;
+    if(lines.empty())
+    {
+        return 0;
+    }
+    else
+    {
+        return lines[0].first;
+    }
 }
 
 bool
@@ -134,6 +148,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     is.seekg(0, ios::end);
     if(offset >= is.tellg())
     {
+//        cerr << "reading at EOF " << offset << " " << is.tellg() << endl;
 	newOffset = is.tellg();
 	lines = Ice::StringSeq();
 	return true;
@@ -147,15 +162,20 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     is.seekg(static_cast<streamoff>(offset), ios::beg);
     int totalSize = 0;
     string line;
+
+//    cerr << "starting read " << offset << endl;
     for(int i = 0; is.good(); ++i)
     {
 	getline(is, line);
+//        cerr << "read " << " " << is.tellg() << " " << line << endl;
+
 	int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
 	if(lineSize + totalSize > size)
 	{
-	    if(size - totalSize - 5) // If there's some room left for a part of the string, return a partial string
+	    if(totalSize + 5 < size)
 	    {
-		line.substr(0, size - totalSize - 5);
+                // There's some room left for a part of the string, return a partial string
+                line = line.substr(0, size - totalSize - 5);
 		lines.push_back(line);
 		newOffset += line.size();
 	    }
@@ -163,7 +183,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 	    {
 		lines.push_back("");
 	    }
-	    break;
+            return false; // We didn't reach the end of file, we've just reached the size limit!
 	}
 
 	totalSize += lineSize;
@@ -174,6 +194,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 	lines.push_back(line);
     }
 
+//    cerr << "finished read " << newOffset << " " << is.eof() << " " << lines.size()<< endl;
     if(is.bad())
     {
 	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");

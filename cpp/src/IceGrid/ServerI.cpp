@@ -1972,10 +1972,22 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     }
 
     //
-    // Make sure the log paths are sorted.
+    // Simplify the log paths and transform relative paths into
+    // absolute paths, also make sure the logs are sorted.
     //
-    _logs = _desc->logs;
-    sort(_desc->logs.begin(), _desc->logs.begin());
+    for(Ice::StringSeq::const_iterator p = _desc->logs.begin(); p != _desc->logs.end(); ++p)
+    {
+        string path = IcePatch2::simplify(*p);
+        if(IcePatch2::isAbsolute(path))
+        {
+            _logs.push_back(path);
+        }
+        else
+        {
+            _logs.push_back(_node->getPlatformInfo().getCwd() + '/' + path);
+        }
+    }
+    sort(_logs.begin(), _logs.begin());
     
     //
     // Copy the descriptor properties. We shouldn't modify the
@@ -2648,7 +2660,11 @@ ServerI::getFilePath(const string& filename) const
     else if(!filename.empty() && filename[0] == '#')
     {
 	string path = IcePatch2::simplify(filename.substr(1));
-	if(find(_desc->logs.begin(), _desc->logs.end(), path) == _desc->logs.end())
+        if(!IcePatch2::isAbsolute(path))
+        {
+            path = _node->getPlatformInfo().getCwd() + "/" + path;
+        }
+	if(find(_logs.begin(), _logs.end(), path) == _logs.end())
 	{
 	    throw FileNotAvailableException("unknown log file `" + path + "'");
 	}

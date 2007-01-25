@@ -315,19 +315,20 @@ AdminSessionI::addFileIterator(const FileReaderPrx& reader,
 	throw ex;
     }
 
-    Ice::Long offset = 0;
-    if(nLines > 0)
+    //
+    // Always call getOffsetFromEnd even if nLines < 0. This allows to
+    // throw right away if the file doesn't exit.
+    //
+    Ice::Long offset;
+    try
     {
-	try
-	{
-	    offset = reader->getOffsetFromEnd(filename, nLines);
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    ostringstream os;
-	    os << ex;
-	    throw FileNotAvailableException(os.str());
-	}
+        offset = reader->getOffsetFromEnd(filename, nLines);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        ostringstream os;
+        os << ex;
+        throw FileNotAvailableException(os.str());
     }
 
     Ice::PropertiesPtr properties = reader->ice_getCommunicator()->getProperties();

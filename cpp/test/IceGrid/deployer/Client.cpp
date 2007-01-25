@@ -37,6 +37,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
     }
 
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+    args = communicator->getProperties()->parseCommandLineOptions("", args);
+    Ice::stringSeqToArgs(args, argc, argv);
+
     if(!withTarget)
     {
 	void allTests(const Ice::CommunicatorPtr&);
