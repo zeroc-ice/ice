@@ -45,9 +45,9 @@ THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
 !endif
 
 #
-# Define USE_STLPORT if using STLPort. Required if using MSVC++ 6.0.
-# STLPort must be installed in the same directory as the other third
-# party libraries.
+# Define USE_STLPORT if using STLPort. Automatically set to yes if using
+# MSVC++ 6.0. STLPort must be installed in the same directory as the
+# other third party libraries.
 #
 #USE_STLPORT		= yes
 
@@ -71,6 +71,10 @@ install_schemadir	= $(prefix)\schema
 install_docdir		= $(prefix)\doc
 
 OBJEXT			= .obj
+
+!if "$(CPP_COMPILER)" == "VC60"
+USE_STLPORT		= yes
+!endif
 
 !if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
