@@ -48,7 +48,9 @@ sub page_header {
 
     my $html_title = $results->results
         ? ( $results->navigation('hits')
-            . ' Results for ['
+            . ' Result'
+	    . ( $results->navigation('hits') == 1 ? ' ' : 's ' )
+	    . 'for ['
             . CGI::escapeHTML( $results->{query_simple} )
             . ']'
            )
@@ -237,10 +239,11 @@ EOF
     $links = qq[<tr><td colspan="2" bgcolor="#EEEEEE">$links</td></tr>] if $links;
 
     $query_simple = $query_simple
-        ? "&nbsp;Results for <b>$query_simple</b>"
+        ? "&nbsp;Result" . ( $hits == 1 ? ' ' : 's ' ) . "for <b>$query_simple</b>:"
         : '';
 
 
+    my $range = $hits == 1 ? "" : "$from to $to of $hits results.";
 
     return <<EOF;
 
@@ -249,7 +252,7 @@ EOF
             <td height=20 bgcolor="#5CACFC">
                 <font size="-1" face="Geneva, Arial, Helvetica, San-Serif">
                 $query_simple
-                &nbsp; $from to $to of $hits results.
+                &nbsp; $range
                 </font>
             </td>
         </tr>
