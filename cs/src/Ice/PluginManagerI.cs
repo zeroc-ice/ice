@@ -243,6 +243,17 @@ namespace Ice
             int start = pluginSpec.IndexOf(':');
             if(start != -1)
             {
+	        //
+		// Skip drive letter, if any.
+		//
+		if(pluginSpec.Length > 3 &&
+		   start == 1 &&
+		   System.Char.IsLetter(pluginSpec[0]) &&
+		   (pluginSpec[2] == '\\' || pluginSpec[2] == '/'))
+		{
+		    start = pluginSpec.IndexOf(':', 3);
+		}
+
                 //
                 // Find the whitespace.
                 //

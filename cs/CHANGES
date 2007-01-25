@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Fixed a bug in the plugin property parsing code: if the file name of
+  a plugin included a drive letter, the plugin did not load.
+
 - Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
   allow applications to determine, respectively, whether communicator has
   been shutdown or object adapter has been deactivated.
