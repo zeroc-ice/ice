@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- IceBox services no longer inherit the properties of the container
+  by default. If this is the desired behavior set the property
+  IceBox.InheritContainerProperties to 1.
+
 - Fixed a bug in the plugin property parsing code: if the file name of
   a plugin included a drive letter, the plugin did not load.
 

@@ -387,7 +387,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    Ice.Properties properties = _server.communicator().getProperties();
 	    if(properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	    {
-
 		Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs, properties);
 
 		//
@@ -418,7 +417,15 @@ public class ServiceManagerI extends _ServiceManagerDisp
 	    else
 	    {
 		String name = properties.getProperty("Ice.ProgramName");
-		Ice.Properties serviceProperties = Ice.Util.createProperties(serviceArgs, properties);
+		Ice.Properties serviceProperties;
+		if(properties.getPropertyAsInt("IceBox.InheritContainerProperties") > 0)
+		{
+		    serviceProperties = Ice.Util.createProperties(serviceArgs, properties);
+		}
+		else
+		{
+		    serviceProperties = Ice.Util.createProperties(serviceArgs);
+		}
 
 		if(name.equals(serviceProperties.getProperty("Ice.ProgramName")))
 		{

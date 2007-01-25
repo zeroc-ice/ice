@@ -1984,10 +1984,16 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     //
     PropertyDescriptorSeqDict properties = _desc->properties;
     PropertyDescriptorSeq& props = properties["config"];
-    if(getProperty(props, "Ice.Default.Locator") == "")
     {
-	props.push_back(createProperty("Ice.Default.Locator",
-				       _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
+	for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
+	{
+	    if(getProperty(p->second, "Ice.Default.Locator").empty())
+	    {
+		p->second.push_back(
+		    createProperty("Ice.Default.Locator",
+				   _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
+	    }
+	}
     }
     
     //

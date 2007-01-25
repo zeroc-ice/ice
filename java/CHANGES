@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- IceBox services no longer inherit the properties of the container
+  by default. If this is the desired behavior set the property
+  IceBox.InheritContainerProperties to 1.
+
 - The default mapping for Ice is now the Java 5 mapping. To use the Java 2
   mapping the slice translator must use the new "java:java2" global
   metadata.

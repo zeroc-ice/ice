@@ -443,7 +443,15 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
 	        else
 	        {
 		    string name = properties.getProperty("Ice.ProgramName");
-		    Ice.Properties serviceProperties = Ice.Util.createProperties(ref info.args, properties);
+		    Ice.Properties serviceProperties;
+		    if(properties.getPropertyAsInt("IceBox.InheritContainerProperties") > 0)
+		    {
+			serviceProperties = Ice.Util.createProperties(ref info.args, properties);
+		    }
+		    else
+		    {
+			serviceProperties = Ice.Util.createProperties(ref info.args);
+		    }
 
 		    if(name.Equals(serviceProperties.getProperty("Ice.ProgramName")))
 		    {

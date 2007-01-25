@@ -372,6 +372,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	//
 	PropertiesPtr properties = _communicator->getProperties();
 
+
 	if(properties->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
 	{
 	    PropertiesPtr serviceProperties = createProperties(info.args, properties);
@@ -402,7 +403,15 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	else
 	{	
 	    string name = properties->getProperty("Ice.ProgramName");
-	    PropertiesPtr serviceProperties = createProperties(info.args, properties);
+	    PropertiesPtr serviceProperties;
+	    if(properties->getPropertyAsInt("IceBox.InheritContainerProperties") > 0)
+	    {
+		serviceProperties = createProperties(info.args, properties);
+	    }
+	    else
+	    {
+		serviceProperties = createProperties(info.args);
+	    }
 	 
 	    if(name == serviceProperties->getProperty("Ice.ProgramName"))
 	    {

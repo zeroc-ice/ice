@@ -218,6 +218,7 @@ IceBox:
     ServiceManager.ThreadPool.SizeWarn
     ServiceManager.ThreadPool.StackSize
     UseSharedCommunicator.<any>
+    InheritContainerProperties
 
 IceGridAdmin:
     AuthenticateUsingSSL
