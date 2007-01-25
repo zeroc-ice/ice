@@ -252,10 +252,10 @@ static void integer_overflow PROTO((void));
 #endif
 
 //
-// Required to allow the code to compile with VC 6 (and newer
-// versions?) with bison 2.3.
+// Required to allow the code to compile with VC 6 and VC 71 with
+// bison 2.3.
 //
-#if defined(_MSC_VER) && _MSC_VER < 1300 // TODO: Change to "#ifdef _MSC_VER" if newer VC versions also need this.
+#if defined(_MSC_VER) && _MSC_VER < 1400
 #   define YYMALLOC malloc
 #   define YYFREE free
 #endif
