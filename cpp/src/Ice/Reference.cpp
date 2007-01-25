@@ -492,6 +492,12 @@ IceInternal::FixedReference::getEndpointSelection() const
     return Random;
 }
 
+bool
+IceInternal::FixedReference::getThreadPerConnection() const
+{
+    return false;
+}
+
 ReferencePtr
 IceInternal::FixedReference::changeSecure(bool) const
 {
@@ -581,6 +587,13 @@ IceInternal::FixedReference::changeCacheConnection(bool) const
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) const
+{
+    throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeThreadPerConnection(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
     return 0; // Keep the compiler happy.
@@ -783,6 +796,12 @@ IceInternal::RoutableReference::getEndpointSelection() const
     return _endpointSelection;
 }
 
+bool
+IceInternal::RoutableReference::getThreadPerConnection() const
+{
+    return _threadPerConnection;
+}
+
 ReferencePtr
 IceInternal::RoutableReference::changeSecure(bool newSecure) const
 {
@@ -894,6 +913,18 @@ IceInternal::RoutableReference::changeEndpointSelection(EndpointSelectionType ne
     return r;
 }
 
+ReferencePtr
+IceInternal::RoutableReference::changeThreadPerConnection(bool newValue) const
+{
+    if(newValue == _threadPerConnection)
+    {
+        return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_threadPerConnection = newValue;
+    return r;
+}
+
 int
 IceInternal::RoutableReference::hash() const
 {
@@ -943,6 +974,10 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     if(_overrideTimeout != rhs->_overrideTimeout || _overrideTimeout && _timeout != rhs->_timeout)
     {
 	return false;
+    }
+    if(_threadPerConnection != rhs->_threadPerConnection)
+    {
+        return false;
     }
     return _routerInfo == rhs->_routerInfo;
 }
@@ -1054,6 +1089,14 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 		return false;
 	    }
 	}
+        if(!_threadPerConnection && rhs->_threadPerConnection)
+        {
+            return true;
+        }
+        else if(rhs->_threadPerConnection < _threadPerConnection)
+        {
+            return false;
+        }
 	return _routerInfo < rhs->_routerInfo;
     }
     return false;
@@ -1073,7 +1116,8 @@ IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const
     _overrideCompress(false),
     _compress(false),
     _overrideTimeout(false),
-    _timeout(-1)
+    _timeout(-1),
+    _threadPerConnection(inst->threadPerConnection())
 {
 }
 
@@ -1089,7 +1133,8 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
     _overrideCompress(r._overrideCompress),
     _compress(r._compress),
     _overrideTimeout(r._overrideTimeout),
-    _timeout(r._timeout)
+    _timeout(r._timeout),
+    _threadPerConnection(r._threadPerConnection)
 {
 }
 
@@ -1205,7 +1250,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 	// Get an existing connection or create one if there's no
 	// existing connection to one of the given endpoints.
 	//
-	return factory->create(endpoints, false, comp);
+	return factory->create(endpoints, false, _threadPerConnection, comp);
     }
     else
     {
@@ -1226,7 +1271,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
 	    try
 	    {
 		endpoint.back() = *p;
-		return factory->create(endpoint, p + 1 == endpoints.end(), comp);
+		return factory->create(endpoint, p + 1 == endpoints.end(), _threadPerConnection, comp);
 	    }
 	    catch(const LocalException& ex)
 	    {
@@ -1348,6 +1393,12 @@ IceInternal::DirectReference::changeConnectionId(const string& newConnectionId) 
 }
 
 ReferencePtr
+IceInternal::DirectReference::changeLocatorCacheTimeout(int) const
+{
+    return DirectReferencePtr(const_cast<DirectReference*>(this));
+}
+
+ReferencePtr
 IceInternal::DirectReference::changeAdapterId(const string& newAdapterId) const
 {
     if(!newAdapterId.empty())
@@ -1376,12 +1427,6 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointIPtr>& newEnd
     r->_endpoints = newEndpoints;
     r->applyOverrides(r->_endpoints);
     return r;
-}
-
-ReferencePtr
-IceInternal::DirectReference::changeLocatorCacheTimeout(int) const
-{
-    return DirectReferencePtr(const_cast<DirectReference*>(this));
 }
 
 void

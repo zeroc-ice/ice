@@ -44,7 +44,7 @@ public:
 
     void waitUntilFinished();
 
-    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, bool&);
+    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, bool, bool&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushBatchRequests();
@@ -136,6 +136,9 @@ private:
     std::list<Ice::ConnectionIPtr> _connections;
 
     State _state;
+
+    bool _threadPerConnection;
+    size_t _threadPerConnectionStackSize;
 };
 
 }

@@ -72,6 +72,7 @@ public:
     virtual int getLocatorCacheTimeout() const = 0;
     virtual bool getCacheConnection() const = 0;
     virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
+    virtual bool getThreadPerConnection() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -96,6 +97,7 @@ public:
     virtual ReferencePtr changeLocatorCacheTimeout(int) const = 0;
     virtual ReferencePtr changeCacheConnection(bool) const = 0;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const = 0;
+    virtual ReferencePtr changeThreadPerConnection(bool) const = 0;
     
     virtual int hash() const; // Conceptually const.
 
@@ -159,6 +161,7 @@ public:
     virtual int getLocatorCacheTimeout() const;
     virtual bool getCacheConnection() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
+    virtual bool getThreadPerConnection() const;
 
     virtual ReferencePtr changeSecure(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
@@ -173,6 +176,7 @@ public:
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
+    virtual ReferencePtr changeThreadPerConnection(bool) const;
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
@@ -208,6 +212,7 @@ public:
     virtual bool getCollocationOptimization() const;
     virtual bool getCacheConnection() const;
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
+    virtual bool getThreadPerConnection() const;
 
     virtual ReferencePtr changeSecure(bool) const;
     virtual ReferencePtr changePreferSecure(bool) const;
@@ -218,6 +223,7 @@ public:
     virtual ReferencePtr changeConnectionId(const std::string&) const;
     virtual ReferencePtr changeCacheConnection(bool) const;
     virtual ReferencePtr changeEndpointSelection(Ice::EndpointSelectionType) const;
+    virtual ReferencePtr changeThreadPerConnection(bool) const;
 
     virtual Ice::ConnectionIPtr getConnection(bool&) const = 0;
 
@@ -252,6 +258,7 @@ private:
     bool _compress; // Only used if _overrideCompress == true
     bool _overrideTimeout;
     int _timeout; // Only used if _overrideTimeout == true
+    bool _threadPerConnection;
 };
 
 class DirectReference : public RoutableReference

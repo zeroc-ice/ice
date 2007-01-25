@@ -645,7 +645,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 	    }
         }
     }
-	
+
     return false;
 }
 
@@ -717,6 +717,24 @@ Ice::ObjectAdapterI::getServantManager() const
     return _servantManager;
 }
 
+bool
+Ice::ObjectAdapterI::getThreadPerConnection() const
+{
+    //
+    // No mutex lock necessary, _threadPerConnection is immutable.
+    //
+    return _threadPerConnection;
+}
+
+size_t
+Ice::ObjectAdapterI::getThreadPerConnectionStackSize() const
+{
+    //
+    // No mutex lock necessary, _threadPerConnectionStackSize is immutable.
+    //
+    return _threadPerConnectionStackSize;
+}
+
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
 				    const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
 				    const string& endpointInfo, const RouterPrx& router, bool noConfig) :
@@ -777,30 +795,52 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     __setNoDelete(true);
     try
     {
-	// First create the per-adapter thread pool, if
-	// necessary. This is done before the creation of the incoming
-	// connection factory as the thread pool is needed during
-	// creation for the call to incFdsInUse.
-	if(!_instance->threadPerConnection())
+        _threadPerConnection = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPerConnection") > 0;
+
+        int threadPoolSize = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+        if(threadPoolSize == 0)
+        {
+            threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
+        }
+        int threadPoolSizeMax = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+        if(threadPoolSizeMax == 0)
+        {
+            threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+        }
+
+        if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "adapter cannot be configured for both thread pool and thread per connection";
+            throw ex;
+        }
+
+        if(!_threadPerConnection && threadPoolSize == 0 && threadPoolSizeMax == 0)
+        {
+            _threadPerConnection = _instance->threadPerConnection();
+        }
+
+        if(_threadPerConnection)
+        {
+            _threadPerConnectionStackSize =
+                properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".ThreadPerConnection.StackSize",
+                                                        _instance->threadPerConnectionStackSize());
+        }
+
+        //
+        // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
+        // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
+        //
+	if(threadPoolSize > 0 || threadPoolSizeMax > 0)
 	{
 	    if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
 	       !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
 	    {
-	        int size = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-	        int sizeMax = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-	        if(size > 0 || sizeMax > 0)
-	        {
-		    _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
-	        }
+                _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
 	    }
 	    else
 	    {
-	        int size = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
-	        int sizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-	        if(size > 0 || sizeMax > 0)
-	        {
-		    _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
-	        }
+                _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
 	    }
 	}
 

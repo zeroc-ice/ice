@@ -44,7 +44,7 @@ Ice::ConnectionI::validate()
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    
-	    if(_threadPerConnection && _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
+	    if(_thread && _thread->getThreadControl() != IceUtil::ThreadControl())
 	    {
 		//
 		// In thread per connection mode, this connection's thread
@@ -318,7 +318,6 @@ bool
 Ice::ConnectionI::isFinished() const
 {
     IceUtil::ThreadPtr threadPerConnection;
-    IceUtil::ThreadPtr secondThreadPerConnection;
 
     {
 	//
@@ -338,33 +337,20 @@ Ice::ConnectionI::isFinished() const
 	    return false;
 	}
 
-	if(_threadPerConnection && _threadPerConnection->isAlive())
-	{
-	    return false;
-	}
-
-	if(_secondThreadPerConnection && _secondThreadPerConnection->isAlive())
+	if(_thread && _thread->isAlive())
 	{
 	    return false;
 	}
 
 	assert(_state == StateClosed);
 
-	threadPerConnection = _threadPerConnection;
-	_threadPerConnection = 0;
-
-	secondThreadPerConnection = _secondThreadPerConnection;
-	_secondThreadPerConnection = 0;
+	threadPerConnection = _thread;
+	_thread = 0;
     }
 
     if(threadPerConnection)
     {
 	threadPerConnection->getThreadControl().join();
-    }
-
-    if(secondThreadPerConnection)
-    {
-	secondThreadPerConnection->getThreadControl().join();
     }
 
     return true;
@@ -397,7 +383,6 @@ void
 Ice::ConnectionI::waitUntilFinished()
 {
     IceUtil::ThreadPtr threadPerConnection;
-    IceUtil::ThreadPtr secondThreadPerConnection;
 
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -458,11 +443,8 @@ Ice::ConnectionI::waitUntilFinished()
 	
 	assert(_state == StateClosed);
 
-	threadPerConnection = _threadPerConnection;
-	_threadPerConnection = 0;
-
-	secondThreadPerConnection = _secondThreadPerConnection;
-	_secondThreadPerConnection = 0;
+	threadPerConnection = _thread;
+	_thread = 0;
 
 	//
 	// Clear the OA. See
@@ -475,11 +457,6 @@ Ice::ConnectionI::waitUntilFinished()
     if(threadPerConnection)
     {
 	threadPerConnection->getThreadControl().join();
-    }
-
-    if(secondThreadPerConnection)
-    {
-	secondThreadPerConnection->getThreadControl().join();
     }
 }
 
@@ -1306,6 +1283,12 @@ Ice::ConnectionI::endpoint() const
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
+bool
+Ice::ConnectionI::threadPerConnection() const
+{
+    return _threadPerConnection; // No mutex protection necessary, _threadPerConnection is immutable.
+}
+
 void
 Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
@@ -1572,8 +1555,11 @@ Ice::ConnectionI::getTransceiver() const
 Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 			      const TransceiverPtr& transceiver,
 			      const EndpointIPtr& endpoint,
-			      const ObjectAdapterPtr& adapter) :
+			      const ObjectAdapterPtr& adapter,
+                              bool threadPerConnection,
+                              size_t threadPerConnectionStackSize) :
     EventHandler(instance),
+    _threadPerConnection(threadPerConnection),
     _transceiver(transceiver),
     _desc(transceiver->toString()),
     _type(transceiver->type()),
@@ -1638,7 +1624,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     __setNoDelete(true);
     try
     {
-	if(_instance->threadPerConnection() == 0)
+	if(!threadPerConnection)
 	{
 	    //
 	    // Only set _threadPool if we really need it, i.e., if we are
@@ -1662,25 +1648,15 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 	    // If we are in thread per connection mode, create the
 	    // thread for this connection.
 	    //
-	    _threadPerConnection = new ThreadPerConnection(this, false);
-	    _threadPerConnection->start(_instance->threadPerConnectionStackSize());
-
-	    if(_instance->threadPerConnection() == 2)
-	    {
-		//
-		// If we are in two threads per connection mode,
-		// create the second thread for this connection.
-		//
-		_secondThreadPerConnection = new ThreadPerConnection(this, true);
-		_secondThreadPerConnection->start(_instance->threadPerConnectionStackSize());
-	    }
+	    _thread = new ThreadPerConnection(this);
+	    _thread->start(threadPerConnectionStackSize);
 	}
     }
     catch(const IceUtil::Exception& ex)
     {
 	{
 	    Error out(_logger);
-	    if(_instance->threadPerConnection() > 0)
+	    if(threadPerConnection)
 	    {
 		out << "cannot create thread for connection:\n" << ex;
 	    }
@@ -1708,8 +1684,7 @@ Ice::ConnectionI::~ConnectionI()
     assert(_state == StateClosed);
     assert(!_transceiver);
     assert(_dispatchCount == 0);
-    assert(!_threadPerConnection);
-    assert(!_secondThreadPerConnection);
+    assert(!_thread);
 }
 
 void
@@ -2695,14 +2670,8 @@ Ice::ConnectionI::run()
     }
 }
 
-void
-Ice::ConnectionI::runSecond()
-{
-}
-
-Ice::ConnectionI::ThreadPerConnection::ThreadPerConnection(const ConnectionIPtr& connection, bool second) :
-    _connection(connection),
-    _second(second)
+Ice::ConnectionI::ThreadPerConnection::ThreadPerConnection(const ConnectionIPtr& connection) :
+    _connection(connection)
 {
 }
 
@@ -2716,14 +2685,7 @@ Ice::ConnectionI::ThreadPerConnection::run()
 
     try
     {
-	if(_second)
-	{
-	    _connection->runSecond();
-	}
-	else
-	{
-	    _connection->run();
-	}
+        _connection->run();
     }
     catch(const Exception& ex)
     {	

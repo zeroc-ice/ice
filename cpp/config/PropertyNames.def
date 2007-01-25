@@ -157,6 +157,8 @@ Ice:
     OA.<any>.RegisterProcess
     OA.<any>.ReplicaGroupId
     OA.<any>.Router
+    OA.<any>.ThreadPerConnection
+    OA.<any>.ThreadPerConnection.StackSize
     OA.<any>.ThreadPool.Size
     OA.<any>.ThreadPool.SizeMax
     OA.<any>.ThreadPool.SizeWarn

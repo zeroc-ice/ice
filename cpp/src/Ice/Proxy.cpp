@@ -800,6 +800,28 @@ IceProxy::Ice::Object::ice_connectionId(const string& id) const
     }
 }
 
+bool
+IceProxy::Ice::Object::ice_isThreadPerConnection() const
+{
+    return _reference->getThreadPerConnection();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_threadPerConnection(bool b) const
+{
+    ReferencePtr ref = _reference->changeThreadPerConnection(b);
+    if(ref == _reference)
+    {
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(ref);
+        return proxy;
+    }
+}
+
 ConnectionPtr
 IceProxy::Ice::Object::ice_connection()
 {

@@ -231,6 +231,9 @@ public:
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_connectionId(const ::std::string&) const;
 
+    bool ice_isThreadPerConnection() const;
+    ::Ice::ObjectPrx ice_threadPerConnection(bool) const;
+
     ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection();
     ::Ice::ConnectionPtr ice_getConnection();
     ::Ice::ConnectionPtr ice_getCachedConnection() const;

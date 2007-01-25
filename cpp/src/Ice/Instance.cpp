@@ -232,7 +232,7 @@ IceInternal::Instance::serverThreadPool()
     return _serverThreadPool;
 }
 
-int
+bool
 IceInternal::Instance::threadPerConnection() const
 {
     // No mutex lock, immutable.
@@ -457,7 +457,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _messageSizeMax(0),
     _clientACM(0),
     _serverACM(0),
-    _threadPerConnection(0),
+    _threadPerConnection(false),
     _threadPerConnectionStackSize(0),
     _defaultContext(new SharedContext),
     _implicitContext(0)
@@ -624,18 +624,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 	const_cast<Int&>(_clientACM) = _initData.properties->getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
 	const_cast<Int&>(_serverACM) = _initData.properties->getPropertyAsInt("Ice.ACM.Server");
 
-	{
-	    Int threadPerConnection = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection");
-	    if(threadPerConnection < 0)
-	    {
-		threadPerConnection = 0;
-	    }
-	    if(threadPerConnection > 2)
-	    {
-		threadPerConnection = 2;
-	    }
-	    const_cast<Int&>(_threadPerConnection) = threadPerConnection;
-	}
+	const_cast<bool&>(_threadPerConnection) = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
 	{
 	    Int stackSize = _initData.properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");

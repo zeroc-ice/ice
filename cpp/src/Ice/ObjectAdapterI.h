@@ -83,6 +83,8 @@ public:
 
     IceInternal::ThreadPoolPtr getThreadPool() const;
     IceInternal::ServantManagerPtr getServantManager() const;
+    bool getThreadPerConnection() const;
+    size_t getThreadPerConnectionStackSize() const;
 
 private:
 
@@ -121,6 +123,8 @@ private:
     bool _destroying;
     bool _destroyed;
     bool _noConfig;
+    bool _threadPerConnection;
+    size_t _threadPerConnectionStackSize;
 
     static std::string _propertyPrefix;
 
