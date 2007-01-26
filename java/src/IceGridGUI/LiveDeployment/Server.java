@@ -191,7 +191,7 @@ class Server extends ListArrayTreeNode
 
 		public String getTitle()
 		{
-		    return "Server " + _id + " " + (stdout ? "Stdout" : "Stderr");
+		    return "Server " + _id + " " + (stdout ? "stdout" : "stderr");
 		}
 
 		public String getDefaultFilename()

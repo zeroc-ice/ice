@@ -560,7 +560,7 @@ public class Root extends ListArrayTreeNode
 	}
 	else
 	{
-	    Slave newSlave = new Slave(this, info);
+	    Slave newSlave = new Slave(this, info, _replicaName);
 
 	    int i;
 	    for(i = 0; i < _slaves.size(); ++i)
@@ -930,14 +930,13 @@ public class Root extends ListArrayTreeNode
 
 		public String getTitle()
 		{
-		    return "Registry " + _label + " " + (stdout ? "Stdout" : "Stderr");
+		    return "Registry " + _label + " " + (stdout ? "stdout" : "stderr");
 		}
 		
 		public String getDefaultFilename()
 		{
 		    return _replicaName + (stdout ? ".out" : ".err");
 		}
-
 	    });
     } 
 
@@ -998,8 +997,7 @@ public class Root extends ListArrayTreeNode
 
 	storeLogPrefs();
     }
-
-    
+   
     private void loadLogPrefs()
     {
 	Preferences logPrefs = _coordinator.getPrefs().node("Log");

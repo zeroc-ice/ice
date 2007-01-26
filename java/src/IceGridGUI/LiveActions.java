@@ -131,7 +131,7 @@ public class LiveActions
 					       "Write message to stdout or stderr");
 	
 
-	_array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve Stdout")
+	_array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -141,7 +141,7 @@ public class LiveActions
 	_array[TreeNode.RETRIEVE_STDOUT].putValue(Action.SHORT_DESCRIPTION, 
 					       "Retrieve stdout");
 
-	_array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve Stderr")
+	_array[TreeNode.RETRIEVE_STDERR] = new AbstractAction("Retrieve stderr")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{

@@ -62,7 +62,7 @@ class Node extends ListTreeNode
 
 		public String getTitle()
 		{
-		    return "Node " + _id + " " + (stdout ? "Stdout" : "Stderr");
+		    return "Node " + _id + " " + (stdout ? "stdout" : "stderr");
 		}
 
 		public String getDefaultFilename()

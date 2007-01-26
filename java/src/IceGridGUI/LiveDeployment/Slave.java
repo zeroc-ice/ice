@@ -102,7 +102,7 @@ class Slave extends TreeNode
 
 		public String getTitle()
 		{
-		    return "Slave Registry " + _id + " " + (stdout ? "Stdout" : "Stderr");
+		    return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
 		}
 		
 		public String getDefaultFilename()
@@ -163,13 +163,15 @@ class Slave extends TreeNode
 	    tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    Slave(TreeNode parent, RegistryInfo info)
+    Slave(TreeNode parent, RegistryInfo info, String instanceName)
     {
 	super(parent, info.name);
 	_info = info;
+        _title = instanceName + " (" + info.name + ")";
     }   
 
-    private RegistryInfo _info;
+    private final RegistryInfo _info;
+    private final String _title;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private SlaveEditor _editor;
