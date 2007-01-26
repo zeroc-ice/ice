@@ -41,7 +41,8 @@ public class Root extends ListArrayTreeNode
 
 	_tree = new JTree(this, true);
 	_treeModel = (DefaultTreeModel)_tree.getModel();
-	_objectDialog = new ObjectDialog(this);
+	_addObjectDialog = new ObjectDialog(this, false);
+        _showObjectDialog = new ObjectDialog(this, true);
 
 	_tree.addTreeWillExpandListener(new javax.swing.event.TreeWillExpandListener()
 	    {
@@ -701,12 +702,12 @@ public class Root extends ListArrayTreeNode
 
     public void addObject()
     {
-	_objectDialog.showDialog();
+	_addObjectDialog.showDialog();
     }
 
     public void showObject(String proxy, String type)
     {
-        _objectDialog.showDialog(proxy, type);
+        _showObjectDialog.showDialog(proxy, type);
     }
 
     Root getRoot()
@@ -1087,7 +1088,8 @@ public class Root extends ListArrayTreeNode
     
     private String _label;
 
-    private ObjectDialog _objectDialog;
+    private ObjectDialog _addObjectDialog;
+    private ObjectDialog _showObjectDialog;
 
     //
     // ShowLogDialog
