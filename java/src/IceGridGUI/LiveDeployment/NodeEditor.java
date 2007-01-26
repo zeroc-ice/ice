@@ -63,6 +63,7 @@ class NodeEditor extends Editor
 	{
 	    _hostname.setText(info.hostname);
 	    _os.setText(info.os + " " + info.release + " " + info.version);
+            _os.setCaretPosition(0);
 	    _machineType.setText(info.machine + " with " + 
 				 info.nProcessors 
 				 + " CPU" 
@@ -107,6 +108,7 @@ class NodeEditor extends Editor
 	builder.nextLine();
 	builder.append("Operating System");
 	builder.append(_os, 3);
+
 	builder.nextLine();
 	builder.append("Machine Type");
 	builder.append(_machineType, 3);
