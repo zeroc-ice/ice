@@ -14,6 +14,7 @@ LIBNAME		= $(PKG).dll
 TARGETS		= $(bindir)\$(LIBNAME)
 
 SRCS		= AcceptorI.cs \
+		  AssemblyInfo.cs \
 		  ConnectorI.cs \
 		  EndpointI.cs \
 		  Instance.cs \
