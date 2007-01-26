@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZeroC, Inc")]
 [assembly: AssemblyProduct("IceSSL for C#")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2006, ZeroC, Inc")]
+[assembly: AssemblyCopyright("Copyright (c) 2003-2007, ZeroC, Inc")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]
 
