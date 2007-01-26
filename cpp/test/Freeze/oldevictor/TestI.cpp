@@ -96,6 +96,7 @@ Test::ServantI::setValueAsync_async(const AMD_Servant_setValueAsyncPtr& __cb, In
     Monitor<Mutex>::Lock sync(*this);
     _setValueAsyncCB = __cb;
     _setValueAsyncValue = value;
+    notify();
 }
 
 void
