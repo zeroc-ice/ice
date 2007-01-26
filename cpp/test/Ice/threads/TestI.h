@@ -69,8 +69,8 @@ public:
 
 private:
 
-    Test::AdapterSeq _adapters;
     ThreadHookIPtr _hook;
+    Test::AdapterSeq _adapters;
 };
 
 #endif

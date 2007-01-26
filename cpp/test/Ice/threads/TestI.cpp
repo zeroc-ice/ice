@@ -187,12 +187,13 @@ AdapterI::callSelf(const Test::AdapterPrx& proxy, const Ice::Current&)
 
 ServerI::ServerI(const Ice::CommunicatorPtr& communicator)
 {
+    _hook = new ThreadHookI;
+
     Ice::CommunicatorPtr comm;
     Ice::ObjectAdapterPtr adapter;
     Ice::InitializationData id;
     Test::AdapterPrx proxy;
 
-    _hook = new ThreadHookI;
     id.threadHook = _hook;
 
     Ice::Identity ident;

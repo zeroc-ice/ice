@@ -172,13 +172,13 @@ private:
 
     CounterPtr _counter;
     int _timeout;
-    bool _ok;
     IceUtil::ThreadControl::ID _id;
+    bool _ok;
 };
 typedef IceUtil::Handle<AMI_Server_pingI> AMI_Server_pingIPtr;
 
 AMI_Server_pingI::AMI_Server_pingI(const CounterPtr& counter, int timeout) :
-    _counter(counter), _timeout(timeout)
+    _counter(counter), _timeout(timeout), _ok(false)
 {
 }
 
