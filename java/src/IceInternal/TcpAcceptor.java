@@ -139,6 +139,7 @@ class TcpAcceptor implements Acceptor
 	    }
 	}
 
+	Network.setBlock(fd, false);
 	try
 	{
 	    java.net.Socket socket = fd.socket();
@@ -150,11 +151,6 @@ class TcpAcceptor implements Acceptor
 	    Ice.SocketException se = new Ice.SocketException();
 	    se.initCause(ex);
 	    throw se;
-	}
-
-	if(!_instance.threadPerConnection())
-	{
-	    Network.setBlock(fd, false);
 	}
 
         if(_traceLevels.network >= 1)
