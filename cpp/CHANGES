@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Added the property Ice.Default.EndpointSelection. If not defined,
+  the default value is "Random".
+
 - Proxies and object adapters can now be configured to use
   thread-per-connection.
 

@@ -84,6 +84,22 @@ public final class DefaultsAndOverrides
 	defaultCollocationOptimization =
 	    properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
+        value = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
+        if(value.equals("Random"))
+        {
+            defaultEndpointSelection = Ice.EndpointSelectionType.Random;
+        }
+        else if(value.equals("Ordered"))
+        {
+            defaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
+        }
+        else
+        {
+            Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
+            ex.str = value;
+            throw ex;
+        }
+
 	defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 
 	defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
@@ -92,6 +108,7 @@ public final class DefaultsAndOverrides
     final public String defaultHost;
     final public String defaultProtocol;
     final public boolean defaultCollocationOptimization;
+    final public Ice.EndpointSelectionType defaultEndpointSelection;
     final public int defaultLocatorCacheTimeout;
     final public boolean defaultPreferSecure;
 

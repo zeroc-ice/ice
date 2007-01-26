@@ -121,6 +121,7 @@ Ice:
     Compression.Level
     Config
     Default.CollocationOptimization
+    Default.EndpointSelection
     Default.Host
     Default.Locator
     Default.Locator.EndpointSelection

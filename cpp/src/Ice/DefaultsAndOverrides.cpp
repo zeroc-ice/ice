@@ -10,6 +10,7 @@
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
 #include <Ice/Network.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -64,6 +65,22 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
 
     const_cast<bool&>(defaultCollocationOptimization) =
 	properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
+
+    value = properties->getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
+    if(value == "Random")
+    {
+        defaultEndpointSelection = Random;
+    } 
+    else if(value == "Ordered")
+    {
+        defaultEndpointSelection = Ordered;
+    }
+    else
+    {
+        EndpointSelectionTypeParseException ex(__FILE__, __LINE__);
+        ex.str = value;
+        throw ex;
+    }
 
     const_cast<int&>(defaultLocatorCacheTimeout) = 
 	properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);

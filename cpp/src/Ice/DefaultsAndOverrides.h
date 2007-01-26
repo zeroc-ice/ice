@@ -13,6 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/PropertiesF.h>
+#include <Ice/Endpoint.h>
 
 namespace IceInternal
 {
@@ -26,6 +27,7 @@ public:
     std::string defaultHost;
     std::string defaultProtocol;
     bool defaultCollocationOptimization;
+    Ice::EndpointSelectionType defaultEndpointSelection;
     int defaultLocatorCacheTimeout;
     bool defaultPreferSecure;
 
