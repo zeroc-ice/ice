@@ -80,6 +80,7 @@ namespace IceInternal
 	public abstract int getLocatorCacheTimeout();
 	public abstract bool getCacheConnection();
 	public abstract Ice.EndpointSelectionType getEndpointSelection();
+        public abstract bool getThreadPerConnection();
 
 	//
 	// The change* methods (here and in derived classes) create
@@ -150,6 +151,7 @@ namespace IceInternal
 	public abstract Reference changeLocatorCacheTimeout(int newTimeout);
 	public abstract Reference changeCacheConnection(bool newCache);
 	public abstract Reference changeEndpointSelection(Ice.EndpointSelectionType newType);
+	public abstract Reference changeThreadPerConnection(bool newTpc);
 
 	public override int GetHashCode()
 	{
@@ -453,6 +455,11 @@ namespace IceInternal
 	    return Ice.EndpointSelectionType.Random;
 	}
 
+        public override bool getThreadPerConnection()
+        {
+            return false;
+        }
+
 	public override Reference changeSecure(bool sec)
 	{
 	    throw new Ice.FixedProxyException();
@@ -469,6 +476,24 @@ namespace IceInternal
 	}
 
 	public override Reference changeLocator(Ice.LocatorPrx newLocator)
+	{
+	    throw new Ice.FixedProxyException();
+	}
+
+	public override Reference changeCompress(bool newCompress)
+	{
+	    // TODO: FixedReferences should probably have a _compress flag,
+	    // that gets its default from the fixed connection this reference
+	    // refers to. This should be changable with changeCompress().
+	    throw new Ice.FixedProxyException();
+	}
+
+	public override Reference changeTimeout(int newTimeout)
+	{
+	    throw new Ice.FixedProxyException();
+	}
+
+	public override Reference changeConnectionId(string connectionId)
 	{
 	    throw new Ice.FixedProxyException();
 	}
@@ -503,23 +528,10 @@ namespace IceInternal
 	    throw new Ice.FixedProxyException();
 	}
 
-	public override Reference changeCompress(bool newCompress)
-	{
-	    // TODO: FixedReferences should probably have a _compress flag,
-	    // that gets its default from the fixed connection this reference
-	    // refers to. This should be changable with changeCompress().
-	    throw new Ice.FixedProxyException();
-	}
-
-	public override Reference changeTimeout(int newTimeout)
-	{
-	    throw new Ice.FixedProxyException();
-	}
-
-	public override Reference changeConnectionId(string connectionId)
-	{
-	    throw new Ice.FixedProxyException();
-	}
+	public override Reference changeThreadPerConnection(bool newTpc)
+        {
+            throw new Ice.FixedProxyException();
+        }
 
 	public override void streamWrite(BasicStream s)
 	{
@@ -766,6 +778,11 @@ namespace IceInternal
 	    return _endpointSelection;
 	}
 
+        public override bool getThreadPerConnection()
+        {
+            return _threadPerConnection;
+        }
+
 	public override Reference changeSecure(bool newSecure)
 	{
 	    if(newSecure == _secure)
@@ -811,28 +828,6 @@ namespace IceInternal
 	    return r;
 	}
 
-	public override Reference changeCacheConnection(bool newCache)
-	{
-	    if(newCache == _cacheConnection)
-	    {
-		return this;
-	    }
-	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	    r._cacheConnection = newCache;
-	    return r;
-	}
-
-	public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
-	{
-	    if(newType == _endpointSelection)
-	    {
-		return this;
-	    }
-	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	    r._endpointSelection = newType;
-	    return r;
-	}	
-
 	public override Reference changeCompress(bool newCompress)
 	{
 	    if(overrideCompress_ && compress_ == newCompress)
@@ -869,6 +864,39 @@ namespace IceInternal
 	    r.connectionId_ = id;
 	    return r;
 	}
+
+	public override Reference changeCacheConnection(bool newCache)
+	{
+	    if(newCache == _cacheConnection)
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r._cacheConnection = newCache;
+	    return r;
+	}
+
+	public override Reference changeEndpointSelection(Ice.EndpointSelectionType newType)
+	{
+	    if(newType == _endpointSelection)
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r._endpointSelection = newType;
+	    return r;
+	}	
+
+	public override Reference changeThreadPerConnection(bool newTpc)
+        {
+            if(newTpc == _threadPerConnection)
+            {
+                return this;
+            }
+            RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+            r._threadPerConnection = newTpc;
+            return r;
+        }
 
 	public override bool Equals(object obj)
 	{
@@ -921,6 +949,10 @@ namespace IceInternal
 	    {
 		return false;
 	    }
+            if(_threadPerConnection != rhs._threadPerConnection)
+            {
+                return false;
+            }
 	    return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.Equals(rhs._routerInfo);
 	}
 
@@ -941,21 +973,24 @@ namespace IceInternal
 			            bool sec,
 			            bool prefSec,
 			            RouterInfo rtrInfo,
-			            bool collocationOpt)
+			            bool collocationOpt,
+                                    bool cacheConnection,
+                                    Ice.EndpointSelectionType endpointSelection,
+                                    bool threadPerConnection)
 	    : base(inst, com, ident, ctx, fac, md)
 	{
 	    _secure = sec;
 	    _preferSecure = prefSec;
 	    _routerInfo = rtrInfo;
 	    _collocationOptimization = collocationOpt;
-	    _cacheConnection = true;
-	    _endpointSelection = Ice.EndpointSelectionType.Random;
+	    _cacheConnection = cacheConnection;
+	    _endpointSelection = endpointSelection;
 	    overrideCompress_ = false;
 	    compress_ = false;
 	    overrideTimeout_ = false;
 	    timeout_ = -1;
+            _threadPerConnection = threadPerConnection;
 	}
-
 
 	protected void applyOverrides(ref EndpointI[] endpts)
         {
@@ -1111,7 +1146,7 @@ namespace IceInternal
 		//
 		EndpointI[] arr = new EndpointI[endpoints.Count];
 		endpoints.CopyTo(arr);
-		return factory.create(arr, false, out comp);
+		return factory.create(arr, false, _threadPerConnection, out comp);
 	    }
 	    else
 	    {
@@ -1130,7 +1165,8 @@ namespace IceInternal
 		    try
 		    {
 			endpoint[0] = e;
-			return factory.create(endpoint, e != endpoints[endpoints.Count - 1], out comp);
+			return factory.create(endpoint, e != endpoints[endpoints.Count - 1], _threadPerConnection,
+                                              out comp);
 		    }
 		    catch(Ice.LocalException ex)
 		    {
@@ -1201,6 +1237,7 @@ namespace IceInternal
 	private bool compress_;
 	private bool overrideTimeout_;
 	private int timeout_;
+	private bool _threadPerConnection;
     }
 
     public class DirectReference : RoutableReference
@@ -1215,8 +1252,12 @@ namespace IceInternal
 			       bool prefSec,
 			       EndpointI[] endpts,
 			       RouterInfo rtrInfo,
-			       bool collocationOpt)
-	    : base(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt)
+			       bool collocationOpt,
+                               bool cacheConnection,
+                               Ice.EndpointSelectionType endpointSelection,
+                               bool threadPerConnection)
+	    : base(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt, cacheConnection,
+                   endpointSelection, threadPerConnection)
 	{
 	    _endpoints = endpts;
 	}
@@ -1296,7 +1337,8 @@ namespace IceInternal
 		getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
 	    return getInstance().referenceFactory().create(
 		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), getPreferSecure(), newAdapterId,
-		getRouterInfo(), locatorInfo, getCollocationOptimization(), getLocatorCacheTimeout());
+		getRouterInfo(), locatorInfo, getCollocationOptimization(), getCacheConnection(),
+                getEndpointSelection(), getThreadPerConnection(), getLocatorCacheTimeout());
 	}
 
 	public override Reference changeEndpoints(EndpointI[] newEndpoints)
@@ -1427,8 +1469,12 @@ namespace IceInternal
 			         RouterInfo rtrInfo,
 			         LocatorInfo locInfo,
 			         bool collocationOpt,
+                                 bool cacheConnection,
+                                 Ice.EndpointSelectionType endpointSelection,
+                                 bool threadPerConnection,
 				 int locatorCacheTimeout)
-	    : base(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt)
+	    : base(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt, cacheConnection,
+                   endpointSelection, threadPerConnection)
 	{
 	    adapterId_ = adptid;
 	    locatorInfo_ = locInfo;
@@ -1486,7 +1532,8 @@ namespace IceInternal
 	    }
 	    return getInstance().referenceFactory().create(
 		getIdentity(), getContext(), getFacet(), getMode(), getSecure(), getPreferSecure(), newEndpoints, 
-		getRouterInfo(), getCollocationOptimization());
+		getRouterInfo(), getCollocationOptimization(), getCacheConnection(), getEndpointSelection(),
+                getThreadPerConnection());
 	}
 
 	public override Reference changeLocatorCacheTimeout(int newTimeout)

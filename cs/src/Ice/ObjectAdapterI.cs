@@ -720,7 +720,15 @@ namespace Ice
 	    //
 	    return _servantManager;
 	}
-	
+
+        public bool getThreadPerConnection()
+        {
+            //
+            // No mutex lock necessary, _threadPerConnection is immutable.
+            //
+            return _threadPerConnection;
+        }
+
 	//
 	// Only for use by IceInternal.ObjectAdapterFactory
 	//
@@ -771,7 +779,7 @@ namespace Ice
 		    _incomingConnectionFactories = null;
 
 		    InitializationException ex = new InitializationException();
-		    ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
+		    ex.reason = "object adapter \"" + _name + "\" requires configuration.";
 		    throw ex;
 		}
 	    }
@@ -793,6 +801,46 @@ namespace Ice
 
 	    try
 	    {
+                _threadPerConnection =
+                    properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPerConnection") > 0;
+
+                int threadPoolSize = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+                if(threadPoolSize == 0)
+                {
+                    threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+                }
+                int threadPoolSizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+                if(threadPoolSizeMax == 0)
+                {
+                    threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+                }
+
+                if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
+                {
+                    InitializationException ex = new InitializationException();
+                    ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n" +
+                        "thread pool and thread per connection";
+                    throw ex;
+                }
+
+                if(!_threadPerConnection && threadPoolSize == 0 && threadPoolSizeMax == 0)
+                {
+                    _threadPerConnection = instance_.threadPerConnection();
+                }
+
+                if(threadPoolSize > 0 || threadPoolSizeMax > 0)
+                {
+                    if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").Length != 0 ||
+                       properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").Length != 0)
+                    {
+                        _threadPool = new IceInternal.ThreadPool(instance_, _propertyPrefix + _name + ".ThreadPool", 0);
+                    }
+                    else
+                    {
+                        _threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
+                    }
+                }
+
 	        if(router == null)
 		{
 		    router = RouterPrxHelper.uncheckedCast(
@@ -940,31 +988,6 @@ namespace Ice
 		{
 		    setLocator(instance_.referenceFactory().getDefaultLocator());
 		}
-		
-		if(!instance_.threadPerConnection())
-		{
-		    if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").Length != 0 ||
-		       properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").Length != 0)
-		    {
-		        int size = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-		        int sizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-		        if(size > 0 || sizeMax > 0)
-		        {
-			    _threadPool = 
-			        new IceInternal.ThreadPool(instance_, _propertyPrefix + _name + ".ThreadPool", 0);
-		        }
-		    }
-		    else
-		    {
-		        int size = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-		        int sizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-		        if(size > 0 || sizeMax > 0)
-		        {
-			    _threadPool = 
-			        new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
-		        }
-		    }
-		}
 	    }
 	    catch(LocalException)
 	    {
@@ -1065,7 +1088,9 @@ namespace Ice
 						    IceInternal.Reference.Mode.ModeTwoway, false, 
 						    instance_.defaultsAndOverrides().defaultPreferSecure, endpoints,
 						    null, 
-						    instance_.defaultsAndOverrides().defaultCollocationOptimization);
+						    instance_.defaultsAndOverrides().defaultCollocationOptimization,
+                                                    true, instance_.defaultsAndOverrides().defaultEndpointSelection,
+                                                    instance_.threadPerConnection());
 	    return instance_.proxyFactory().referenceToProxy(reference);
 	}
 	
@@ -1081,6 +1106,8 @@ namespace Ice
 						    false, instance_.defaultsAndOverrides().defaultPreferSecure, id,
 						    null, _locatorInfo, 
 						    instance_.defaultsAndOverrides().defaultCollocationOptimization,
+                                                    true, instance_.defaultsAndOverrides().defaultEndpointSelection,
+                                                    instance_.threadPerConnection(),
 						    instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    return instance_.proxyFactory().referenceToProxy(reference);
 	}
@@ -1346,6 +1373,7 @@ namespace Ice
 	private bool _destroying;
 	private bool _destroyed;
 	private bool _noConfig;
+        private bool _threadPerConnection;
 	static private string _propertyPrefix = "Ice.OA.";
     }
 }

@@ -114,6 +114,9 @@ namespace Ice
         ObjectPrx ice_timeout(int t);
         ObjectPrx ice_connectionId(string connectionId);
 
+        bool ice_isThreadPerConnection();
+        ObjectPrx ice_threadPerConnection(bool tpc);
+
 	[Obsolete("This method is deprecated, use ice_getConnection instead.")]
         Connection ice_connection();
         Connection ice_getConnection();
@@ -796,6 +799,26 @@ namespace Ice
 	public ObjectPrx ice_connectionId(string connectionId)
         {
             IceInternal.Reference @ref = _reference.changeConnectionId(connectionId);
+            if(@ref.Equals(_reference))
+            {
+                return this;
+            }
+            else
+            {
+                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+                proxy.setup(@ref);
+                return proxy;
+            }
+        }
+
+        public bool ice_isThreadPerConnection()
+        {
+            return _reference.getThreadPerConnection();
+        }
+
+        public ObjectPrx ice_threadPerConnection(bool tpc)
+        {
+            IceInternal.Reference @ref = _reference.changeThreadPerConnection(tpc);
             if(@ref.Equals(_reference))
             {
                 return this;

@@ -24,11 +24,13 @@ namespace IceInternal
 	       bool preferSecure,
 	       EndpointI[] endpoints,
 	       RouterInfo routerInfo,
-	       bool collocationOptimization)
+	       bool collocationOptimization,
+               bool cacheConnection,
+               Ice.EndpointSelectionType endpointSelection,
+               bool threadPerConnection)
 	{
 	    lock(this)
 	    {
-
 		if(instance_ == null)
 		{
 		    throw new Ice.CommunicatorDestroyedException();
@@ -44,7 +46,8 @@ namespace IceInternal
 		//
 		DirectReference @ref = new DirectReference(instance_, _communicator, ident, context, facet, mode,
 							   secure, preferSecure, endpoints, routerInfo, 
-							   collocationOptimization);
+							   collocationOptimization, cacheConnection, endpointSelection,
+                                                           threadPerConnection);
 		return updateCache(@ref);
 	    }
 	}
@@ -59,6 +62,9 @@ namespace IceInternal
 	                        RouterInfo routerInfo,
 	                        LocatorInfo locatorInfo,
 	                        bool collocationOptimization,
+                                bool cacheConnection,
+                                Ice.EndpointSelectionType endpointSelection,
+                                bool threadPerConnection,
 				int locatorCacheTimeout)
 	{
 	    lock(this)
@@ -78,7 +84,9 @@ namespace IceInternal
 		//
 		IndirectReference @ref = new IndirectReference(instance_,  _communicator, ident, context, facet, mode,
 							       secure, preferSecure, adapterId, routerInfo, locatorInfo,
-							       collocationOptimization, locatorCacheTimeout);
+							       collocationOptimization, cacheConnection,
+                                                               endpointSelection, threadPerConnection,
+                                                               locatorCacheTimeout);
 		return updateCache(@ref);
 	    }
 	}
@@ -408,6 +416,8 @@ namespace IceInternal
 		return create(ident, instance_.getDefaultContext(), facet, mode, secure, 
 			      instance_.defaultsAndOverrides().defaultPreferSecure, "",
 			      routerInfo, locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
+			      true, instance_.defaultsAndOverrides().defaultEndpointSelection,
+                              instance_.threadPerConnection(),
 			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 
@@ -462,7 +472,9 @@ namespace IceInternal
 		EndpointI[] ep = (EndpointI[])endpoints.ToArray(typeof(EndpointI));
 		return create(ident, instance_.getDefaultContext(), facet, mode, secure, 
 			      instance_.defaultsAndOverrides().defaultPreferSecure, ep, routerInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization, true,
+                              instance_.defaultsAndOverrides().defaultEndpointSelection,
+                              instance_.threadPerConnection());
 	    }
 	    else if(s[beg] == '@')
 	    {
@@ -503,6 +515,8 @@ namespace IceInternal
 		return create(ident, instance_.getDefaultContext(), facet, mode, secure,
 			      instance_.defaultsAndOverrides().defaultPreferSecure, adapter,
 			      routerInfo, locatorInfo, instance_.defaultsAndOverrides().defaultCollocationOptimization,
+                              true, instance_.defaultsAndOverrides().defaultEndpointSelection,
+                              instance_.threadPerConnection(),
 			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 
@@ -577,6 +591,12 @@ namespace IceInternal
                 @ref = @ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
             }
 
+            property = propertyPrefix + ".ThreadPerConnection";
+            if(properties.getProperty(property).Length != 0)
+            {
+                @ref = @ref.changeThreadPerConnection(properties.getPropertyAsInt(property) > 0);
+            }
+
             return @ref;
 	}
 
@@ -634,7 +654,9 @@ namespace IceInternal
 		}
 		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode,
 			      secure, instance_.defaultsAndOverrides().defaultPreferSecure, endpoints, routerInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization);
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization, true,
+                              instance_.defaultsAndOverrides().defaultEndpointSelection,
+                              instance_.threadPerConnection());
 	    }
 	    else
 	    {
@@ -643,7 +665,9 @@ namespace IceInternal
 		return create(ident, instance_.getDefaultContext(), facet, (Reference.Mode)mode,
 			      secure, instance_.defaultsAndOverrides().defaultPreferSecure, adapterId, 
 			      routerInfo, locatorInfo,
-			      instance_.defaultsAndOverrides().defaultCollocationOptimization,
+			      instance_.defaultsAndOverrides().defaultCollocationOptimization, true,
+                              instance_.defaultsAndOverrides().defaultEndpointSelection,
+                              instance_.threadPerConnection(),
 			      instance_.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	    }
 	}

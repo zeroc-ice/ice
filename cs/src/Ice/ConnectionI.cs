@@ -34,7 +34,7 @@ namespace Ice
 
 		lock(this)
 		{
-		    if(instance_.threadPerConnection() && _threadPerConnection != Thread.CurrentThread)
+		    if(_thread != null && _thread != Thread.CurrentThread)
 		    {
 			//
 			// In thread per connection mode, this connection's thread
@@ -302,16 +302,15 @@ namespace Ice
 
 	    try
 	    {
-		if(_transceiver != null || _dispatchCount != 0 ||
-		   (_threadPerConnection != null && _threadPerConnection.IsAlive))
+		if(_transceiver != null || _dispatchCount != 0 || (_thread != null && _thread.IsAlive))
 		{
 		    return false;
 		}
 
 		Debug.Assert(_state == StateClosed);
 
-		threadPerConnection = _threadPerConnection;
-		_threadPerConnection = null;
+		threadPerConnection = _thread;
+		_thread = null;
 	    }
 	    finally
 	    {
@@ -412,8 +411,13 @@ namespace Ice
 
 		Debug.Assert(_state == StateClosed);
 
-		threadPerConnection = _threadPerConnection;
-		_threadPerConnection = null;
+		threadPerConnection = _thread;
+		_thread = null;
+
+                //
+                // Clear the OA. See bug 1673 for the details of why this is necessary.
+                //
+                _adapter = null;
 	    }
 
 	    if(threadPerConnection != null)
@@ -1124,6 +1128,11 @@ namespace Ice
 	    return _endpoint;
 	}
 
+        public bool threadPerConnection()
+        {
+            return _threadPerConnection; // No mutex protection necessary, _threadPerConnection is immutable.
+        }
+
 	public void setAdapter(ObjectAdapter adapter)
 	{
 	    lock(this)
@@ -1186,19 +1195,19 @@ namespace Ice
 	
 	public override bool datagram()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    return _endpoint.datagram(); // No mutex protection necessary, _endpoint is immutable.
 	}
 	
 	public override bool readable()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    return true;
 	}
 	
 	public override void read(IceInternal.BasicStream stream)
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    _transceiver.read(stream, 0);
 
@@ -1212,7 +1221,7 @@ namespace Ice
 	
 	public override void message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    byte compress = 0;
 	    int requestId = 0;
@@ -1265,7 +1274,7 @@ namespace Ice
 
 	public override void finished(IceInternal.ThreadPool threadPool)
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    threadPool.promoteFollower();
 	    
@@ -1401,9 +1410,10 @@ namespace Ice
 	}
 
 	internal ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver,
-			     IceInternal.EndpointI endpoint, ObjectAdapter adapter)
+			     IceInternal.EndpointI endpoint, ObjectAdapter adapter, bool threadPerConnection)
 	    : base(instance)
 	{
+            _threadPerConnection = threadPerConnection;
 	    _transceiver = transceiver;
 	    _desc = transceiver.ToString();
 	    _type = transceiver.type();
@@ -1463,7 +1473,7 @@ namespace Ice
 
 	    try
 	    {
-		if(!instance_.threadPerConnection())
+		if(!threadPerConnection)
 		{
 		    //
 		    // Only set _threadPool if we really need it, i.e., if we are
@@ -1486,13 +1496,13 @@ namespace Ice
 		    // If we are in thread per connection mode, create the thread
 		    // for this connection.
 		    //
-		    _threadPerConnection = new Thread(new ThreadStart(ThreadPerConnection));
-		    _threadPerConnection.Start();
+		    _thread = new Thread(new ThreadStart(RunThreadPerConnection));
+		    _thread.Start();
 		}
 	    }
 	    catch(System.Exception ex)
 	    {
-		if(instance_.threadPerConnection())
+		if(threadPerConnection)
 		{
 		    _logger.error("cannot create thread for connection:\n" + ex);
 		}
@@ -1511,7 +1521,6 @@ namespace Ice
 
 	    _overrideCompress = instance_.defaultsAndOverrides().overrideCompress;
 	    _overrideCompressValue = instance_.defaultsAndOverrides().overrideCompressValue;
-
 	}
 
 #if DEBUG
@@ -1522,7 +1531,7 @@ namespace Ice
 		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 		IceUtil.Assert.FinalizerAssert(_transceiver == null);
 		IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
-		IceUtil.Assert.FinalizerAssert(_threadPerConnection == null);
+		IceUtil.Assert.FinalizerAssert(_thread == null);
 	    }
 	}
 #endif
@@ -1628,7 +1637,7 @@ namespace Ice
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection())
+		    if(!_threadPerConnection)
 		    {
 			registerWithPool();
 		    }
@@ -1645,7 +1654,7 @@ namespace Ice
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection())
+		    if(!_threadPerConnection)
 		    {
 			unregisterWithPool();
 		    }
@@ -1661,7 +1670,7 @@ namespace Ice
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection())
+		    if(!_threadPerConnection)
 		    {
 			registerWithPool(); // We need to continue to read in closing state.
 		    }
@@ -1670,7 +1679,7 @@ namespace Ice
 		
 		case StateClosed: 
 		{
-		    if(instance_.threadPerConnection())
+		    if(_threadPerConnection)
 		    {
 			//
 			// If we are in thread per connection mode, we
@@ -1810,7 +1819,7 @@ namespace Ice
 	
 	private void registerWithPool()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    if(!_registeredWithPool)
 	    {
@@ -1821,7 +1830,7 @@ namespace Ice
 	
 	private void unregisterWithPool()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    if(_registeredWithPool)
 	    {
@@ -2342,7 +2351,7 @@ namespace Ice
 	    }
 	}
 
-	public void ThreadPerConnection()
+	public void RunThreadPerConnection()
 	{
 	    if(instance_.initializationData().threadHook != null)
 	    {
@@ -2463,7 +2472,8 @@ namespace Ice
 	    }
 	}
 
-	private Thread _threadPerConnection;
+	private Thread _thread;
+        private bool _threadPerConnection;
 
 	private IceInternal.Transceiver _transceiver;
 	private string _desc;

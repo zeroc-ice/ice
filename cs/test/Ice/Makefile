@@ -27,7 +27,8 @@ SUBDIRS		= application \
 		  stream \
 		  retry \
 		  timeout \
-		  servantLocator
+		  servantLocator \
+		  threads
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

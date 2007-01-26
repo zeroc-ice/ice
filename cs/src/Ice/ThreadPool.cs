@@ -47,12 +47,6 @@ namespace IceInternal
 	    promote_ = true;
 	    warnUdp_ = instance_.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
-	    //
-	    // If we are in thread per connection mode, no thread pool should
-	    // ever be created.
-	    //
-	    Debug.Assert(!instance_.threadPerConnection());
-
 	    string programName = instance_.initializationData().properties.getProperty("Ice.ProgramName");
 	    if(programName.Length > 0)
 	    {

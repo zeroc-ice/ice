@@ -64,7 +64,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
-    "IceSSL/configuration", \
+    "Ice/threads", \
     "Glacier2/router", \
     "Glacier2/attack", \
     "IceGrid/simple", \
@@ -83,6 +83,7 @@ except getopt.GetoptError:
 if(args):
     usage()
 
+mono = 0
 loop = 0
 args = ""
 for o, a in opts:
@@ -102,9 +103,17 @@ for o, a in opts:
 	args += " " + o + " " + a
     if o == "--host" :
 	args += " " + o + " " + a
+    if o in ( "-m", "--mono" ):
+	args += " " + o
+        mono = 1
     if o in ( "--debug", "-m", "--mono", "--compress", "--threadPerConnection" ):
 	args += " " + o
-    
+
+if not mono:
+    tests.extend([\
+        "IceSSL/configuration", \
+    ])
+
 if loop:
     num = 1
     while 1:

@@ -80,7 +80,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public Ice.ConnectionI create(EndpointI[] endpts, bool hasMore, out bool compress)
+	public Ice.ConnectionI create(EndpointI[] endpts, bool hasMore, bool threadPerConnection, out bool compress)
 	{
 	    Debug.Assert(endpts.Length > 0);
 	    EndpointI[] endpoints = new EndpointI[endpts.Length];
@@ -135,7 +135,6 @@ namespace IceInternal
 			endpoints[i] = endpoints[i].timeout(defaultsAndOverrides.overrideTimeoutValue);
 		    }
 
-
 		    //
 		    // The Connection object does not take the
 		    // compression flag of endpoints into account, but
@@ -162,9 +161,10 @@ namespace IceInternal
 			{
                             //
                             // Don't return connections for which destruction has
-                            // been initiated.
+                            // been initiated. The connection must also match the
+                            // requested thread-per-connection setting.
                             //
-			    if(!conn.isDestroyed())
+			    if(!conn.isDestroyed() && conn.threadPerConnection() == threadPerConnection)
 			    {
                                 if(defaultsAndOverrides.overrideCompress)
                                 {
@@ -228,9 +228,10 @@ namespace IceInternal
                             {
                                 //
                                 // Don't return connections for which destruction has
-                                // been initiated.
+                                // been initiated. The connection must also match the
+                                // requested thread-per-connection setting.
                                 //
-                                if(!conn.isDestroyed())
+                                if(!conn.isDestroyed() && conn.threadPerConnection() == threadPerConnection)
                                 {
                                     if(defaultsAndOverrides.overrideCompress)
                                     {
@@ -290,7 +291,7 @@ namespace IceInternal
 			transceiver = connector.connect(timeout);
 			Debug.Assert(transceiver != null);
 		    }
-		    connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null);
+		    connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null, threadPerConnection);
 		    connection.validate();
 
                     if(defaultsAndOverrides.overrideCompress)
@@ -605,6 +606,11 @@ namespace IceInternal
 		threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
 		_threadPerIncomingConnectionFactory = null;
 
+                //
+                // Clear the OA. See bug 1673 for the details of why this is necessary.
+                //
+                _adapter = null;
+
 		//
 		// We want to wait until all connections are finished
 		// outside the thread synchronization.
@@ -699,25 +705,25 @@ namespace IceInternal
 	
 	public override bool datagram()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    return _endpoint.datagram();
 	}
 	
 	public override bool readable()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    return false;
 	}
 	
 	public override void read(BasicStream unused)
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    Debug.Assert(false); // Must not be called.
 	}
 	
 	public override void message(BasicStream unused, ThreadPool threadPool)
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    Ice.ConnectionI connection = null;
 	    
@@ -771,7 +777,8 @@ namespace IceInternal
 
 		    try
 		    {
-			connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter);
+			connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter,
+                                                         _threadPerConnection);
 		    }
 		    catch(Ice.LocalException)
 		    {
@@ -824,11 +831,12 @@ namespace IceInternal
 	
 	public override void finished(ThreadPool threadPool)
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	    lock(this)
 	    {
 		threadPool.promoteFollower();
+                Debug.Assert(threadPool == ((Ice.ObjectAdapterI)_adapter).getThreadPool());
 		
 		--_finishedCount;
 
@@ -881,7 +889,10 @@ namespace IceInternal
 	    {
 	        _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	    }
-	    
+
+            Ice.ObjectAdapterI adapterImpl = (Ice.ObjectAdapterI)_adapter;
+            _threadPerConnection = adapterImpl.getThreadPerConnection();
+
 	    EndpointI h = _endpoint;
 	    _transceiver = _endpoint.serverTransceiver(ref h);
 
@@ -895,7 +906,8 @@ namespace IceInternal
 		    
 		    try
 		    {
-			connection = new Ice.ConnectionI(instance_, _transceiver, _endpoint, _adapter);
+			connection = new Ice.ConnectionI(instance_, _transceiver, _endpoint, _adapter,
+                                                         _threadPerConnection);
 			connection.validate();
 		    }
 		    catch(Ice.LocalException)
@@ -922,7 +934,7 @@ namespace IceInternal
 		    Debug.Assert(_acceptor != null);
 		    _acceptor.listen();
 
-		    if(instance_.threadPerConnection())
+		    if(_threadPerConnection)
 		    {
 			try
 			{
@@ -1034,7 +1046,7 @@ namespace IceInternal
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection() && _acceptor != null)
+		    if(!_threadPerConnection && _acceptor != null)
 		    {
 			registerWithPool();
 		    }
@@ -1052,7 +1064,7 @@ namespace IceInternal
 		    {
 			return;
 		    }
-		    if(!instance_.threadPerConnection() && _acceptor != null)
+		    if(!_threadPerConnection && _acceptor != null)
 		    {
 			unregisterWithPool();
 		    }
@@ -1068,7 +1080,7 @@ namespace IceInternal
 		{
 		    if(_acceptor != null)
 		    {
-		        if(instance_.threadPerConnection())
+		        if(_threadPerConnection)
 		        {
 			    //
 			    // If we are in thread per connection mode, we connect
@@ -1103,7 +1115,7 @@ namespace IceInternal
 
 	private void registerWithPool()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    Debug.Assert(_acceptor != null);
 
 	    if(!_registeredWithPool)
@@ -1115,7 +1127,7 @@ namespace IceInternal
 	
 	private void unregisterWithPool()
 	{
-	    Debug.Assert(!instance_.threadPerConnection()); // Only for use with a thread pool.
+	    Debug.Assert(!_threadPerConnection); // Only for use with a thread pool.
 	    Debug.Assert(_acceptor != null);
 
 	    if(_registeredWithPool)
@@ -1220,7 +1232,8 @@ namespace IceInternal
 		    {
 			try
 			{
-			    connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter);
+			    connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter,
+                                                             _threadPerConnection);
 			}
 			catch(Ice.LocalException)
 			{
@@ -1270,7 +1283,7 @@ namespace IceInternal
 	private readonly Transceiver _transceiver;
 	private EndpointI _endpoint;
 	
-	private readonly Ice.ObjectAdapter _adapter;
+	private Ice.ObjectAdapter _adapter;
 	
 	private bool _registeredWithPool;
 	private int _finishedCount;
@@ -1280,6 +1293,8 @@ namespace IceInternal
 	private LinkedList _connections;
 	
 	private int _state;
+
+        private bool _threadPerConnection;
     }
 
 }

@@ -82,6 +82,22 @@ namespace IceInternal
 	    defaultCollocationOptimization =
 		properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
+	    val = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
+            if(val.Equals("Random"))
+            {
+                defaultEndpointSelection = Ice.EndpointSelectionType.Random;
+            }
+            else if(val.Equals("Ordered"))
+            {
+                defaultEndpointSelection = Ice.EndpointSelectionType.Ordered;
+            }
+            else
+            {
+                Ice.EndpointSelectionTypeParseException ex = new Ice.EndpointSelectionTypeParseException();
+                ex.str = val;
+                throw ex;
+            }
+
 	    defaultLocatorCacheTimeout = properties.getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 
 	    defaultPreferSecure = properties.getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
@@ -90,6 +106,7 @@ namespace IceInternal
 	public string defaultHost;
 	public string defaultProtocol;
 	public bool defaultCollocationOptimization;
+        public Ice.EndpointSelectionType defaultEndpointSelection;
 	public int defaultLocatorCacheTimeout;
 	public bool defaultPreferSecure;
 	
