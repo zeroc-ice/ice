@@ -434,6 +434,9 @@ public class Coordinator
 	    toolsMenu.add(_registryMenu);
 	    _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.ADD_OBJECT));
 	    _registryMenu.addSeparator();
+            _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDOUT));
+            _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.RETRIEVE_STDERR));
+            _registryMenu.addSeparator();
 	    _registryMenu.add(_liveActionsForMenu.get(IceGridGUI.LiveDeployment.TreeNode.SHUTDOWN_REGISTRY));
 
 	    //

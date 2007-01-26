@@ -24,11 +24,12 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
 
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.ButtonBarFactory;
+import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.util.LayoutStyle;
 
@@ -37,27 +38,36 @@ class ObjectDialog extends JDialog
     ObjectDialog(final Root root)
     {
 	super(root.getCoordinator().getMainFrame(), 
-	      "New Well-Known Object - IceGrid Admin", true);
+	      "Dynamic Well-Known Object - IceGrid Admin", true);
 	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
 	_mainFrame = root.getCoordinator().getMainFrame();
 	
+        _proxy.setLineWrap(true);
 	_type.setEditable(true);
+        
 
 	JButton okButton = new JButton("OK");
 	ActionListener okListener = new ActionListener()
 	    {
 		public void actionPerformed(ActionEvent e)
 		{
-		    String type = null;
-		    if(_type.getSelectedItem() != QUERY_OBJECT)
-		    {
-			type = _type.getSelectedItem().toString();
-		    }
-
-		    if(root.addObject(_proxy.getText(), type))
-		    {
-			setVisible(false);
-		    }
+                    if(_proxy.isEditable())
+                    {
+                        String type = null;
+                        if(_type.getSelectedItem() != QUERY_OBJECT)
+                        {
+                            type = _type.getSelectedItem().toString();
+                        }
+                        
+                        if(root.addObject(_proxy.getText(), type))
+                        {
+                            setVisible(false);
+                        }
+                    }
+                    else
+                    {
+                        setVisible(false);
+                    }
 		}
 	    };
 	    okButton.addActionListener(okListener);
@@ -78,9 +88,18 @@ class ObjectDialog extends JDialog
 	    builder.setDefaultDialogBorder();
 	    builder.setRowGroupingEnabled(true);
 	    builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	    
-	    builder.append("Proxy", _proxy);
-	    builder.nextLine();
+
+            builder.append("Proxy");
+            builder.nextLine();
+            builder.append("");
+            builder.nextRow(-2);
+            CellConstraints cc = new CellConstraints();
+            JScrollPane scrollPane = new JScrollPane(_proxy);
+            builder.add(scrollPane, 
+                        cc.xywh(builder.getColumn(), builder.getRow(), 1, 3));
+            builder.nextRow(2);
+            builder.nextLine();
+	
 	    builder.append("Type", _type);
 	    builder.nextLine();
 
@@ -100,12 +119,32 @@ class ObjectDialog extends JDialog
     void showDialog()
     {
 	_proxy.setText("");
+        _proxy.setEditable(true);
+        _proxy.setOpaque(true);
+
+        _type.setEnabled(true);
+        _type.setEditable(true);
 	_type.setSelectedItem(QUERY_OBJECT);
 	setLocationRelativeTo(_mainFrame);
 	setVisible(true);
     }
 
-    private JTextField _proxy = new JTextField(60);
+    void showDialog(String proxy, String type)
+    {
+        _proxy.setText(proxy);
+        _proxy.setEditable(false);
+        _proxy.setOpaque(false);
+        
+        _type.setEnabled(true);
+        _type.setEditable(true);
+        _type.setSelectedItem(type);
+        _type.setEnabled(false);
+        _type.setEditable(false);
+        setLocationRelativeTo(_mainFrame);
+	setVisible(true);
+    }
+
+    private JTextArea _proxy = new JTextArea(3, 40);
     private JComboBox _type = new JComboBox(new Object[]{QUERY_OBJECT});
     private JFrame _mainFrame;
 

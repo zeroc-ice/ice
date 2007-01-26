@@ -29,8 +29,10 @@ class Slave extends TreeNode
     //
     public boolean[] getAvailableActions()
     {
-	boolean[] actions = new boolean[ACTION_COUNT];
+        boolean[] actions = new boolean[ACTION_COUNT];
 	actions[SHUTDOWN_REGISTRY] = true;
+	actions[RETRIEVE_STDOUT] = true;
+	actions[RETRIEVE_STDERR] = true;
 	return actions;
     }
 
@@ -79,13 +81,47 @@ class Slave extends TreeNode
 	}
     }
 
+    public void retrieveOutput(final boolean stdout)
+    {
+	getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+	    {
+		public FileIteratorPrx open(int count)
+		    throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
+		{
+		    AdminSessionPrx session = getCoordinator().getSession();
+
+		    if(stdout)
+		    {
+			return session.openRegistryStdOut(_id, count);
+		    }
+		    else
+		    {
+			return session.openRegistryStdErr(_id, count);
+		    }
+		}
+
+		public String getTitle()
+		{
+		    return "Slave Registry " + _id + " " + (stdout ? "Stdout" : "Stderr");
+		}
+		
+		public String getDefaultFilename()
+		{
+		    return _id + (stdout ? ".out" : ".err");
+		}
+	    });
+    }
+
     public JPopupMenu getPopupMenu()
     {
 	LiveActions la = getCoordinator().getLiveActionsForPopup();
 
-	if(_popup == null)
+        if(_popup == null)
 	{
 	    _popup = new JPopupMenu();
+	    _popup.add(la.get(RETRIEVE_STDOUT));
+	    _popup.add(la.get(RETRIEVE_STDERR));
+	    _popup.addSeparator();
 	    _popup.add(la.get(SHUTDOWN_REGISTRY));
 	}
 	

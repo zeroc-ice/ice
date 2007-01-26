@@ -53,7 +53,6 @@ class RegistryEditor extends Editor
 			}
 		    }
 		}
-
 	    };
 
 	Action showDetails = new AbstractAction("Show details")
@@ -67,7 +66,19 @@ class RegistryEditor extends Editor
 			_target.showApplicationDetails(appName);
 		    }
 		}
+	    };
 
+        Action patch = new AbstractAction("Patch distribution")
+	    {
+		public void actionPerformed(ActionEvent e) 
+		{
+		    int selectedRow = _applications.getSelectedRow();
+		    if(selectedRow != -1)
+		    {
+			String appName = (String)_applications.getValueAt(selectedRow, 0);
+			_target.patch(appName);
+		    }
+		}
 	    };
 
 	Action removeApplication = new AbstractAction("Remove from registry")
@@ -105,6 +116,8 @@ class RegistryEditor extends Editor
 	appPopup.add(openDefinition);
 	appPopup.add(showDetails);
 	appPopup.addSeparator();
+	appPopup.add(patch);
+        appPopup.addSeparator();
 	appPopup.add(removeApplication);
 
 	_applications.addMouseListener(new MouseAdapter()
@@ -151,6 +164,20 @@ class RegistryEditor extends Editor
 	    KeyStroke.getKeyStroke("DELETE"), "delete");
 
 	
+        Action showObject = new AbstractAction("Show details")
+            {
+                public void actionPerformed(ActionEvent e) 
+		{
+                    int selectedRow = _objects.getSelectedRow();
+                    if(selectedRow != -1)
+                    {
+                        String proxy = (String)_objects.getValueAt(selectedRow, 0);
+                        String type = (String)_objects.getValueAt(selectedRow, 1);
+                        _target.showObject(proxy, type);
+                    }
+		}
+            };
+
 	Action addObject = new AbstractAction("Add a new well-known object")
 	    {
 		public void actionPerformed(ActionEvent e) 
@@ -177,6 +204,8 @@ class RegistryEditor extends Editor
 	objectsPopup.add(addObject);
 	objectsPopup.addSeparator();
 	final JMenuItem deleteObjectMenuItem = objectsPopup.add(deleteObject);
+        objectsPopup.addSeparator();
+        final JMenuItem showObjectMenuItem = objectsPopup.add(showObject);
 
 	_objects.addMouseListener(new MouseAdapter()
 	    {
@@ -194,6 +223,7 @@ class RegistryEditor extends Editor
 		{
 		    if (e.isPopupTrigger())
 		    {
+                        showObjectMenuItem.setEnabled(_objects.getSelectedRow() != -1);
 			deleteObjectMenuItem.setEnabled(_objects.getSelectedRow() != -1);
 			objectsPopup.show(_objects, e.getX(), e.getY());
 		    }

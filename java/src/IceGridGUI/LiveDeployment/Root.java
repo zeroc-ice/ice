@@ -284,9 +284,9 @@ public class Root extends ListArrayTreeNode
 	{   
 	    _coordinator.getMainFrame().setCursor(
 		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	   _coordinator.getAdmin().
-	       patchApplication_async(cb, applicationName, 
-				      shutdown == JOptionPane.YES_OPTION);
+            _coordinator.getAdmin().
+                patchApplication_async(cb, applicationName, 
+                                       shutdown == JOptionPane.YES_OPTION);
 	}
 	catch(Ice.LocalException e)
 	{
@@ -704,6 +704,10 @@ public class Root extends ListArrayTreeNode
 	_objectDialog.showDialog();
     }
 
+    public void showObject(String proxy, String type)
+    {
+        _objectDialog.showDialog(proxy, type);
+    }
 
     Root getRoot()
     {
