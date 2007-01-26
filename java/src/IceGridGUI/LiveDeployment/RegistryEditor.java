@@ -122,6 +122,19 @@ class RegistryEditor extends Editor
 
 	_applications.addMouseListener(new MouseAdapter()
 	    {
+                public void mouseClicked(MouseEvent e)
+                {
+                    if(e.getClickCount() == 2)
+                    {
+                        int selectedRow = _applications.getSelectedRow();
+                        if(selectedRow != -1)
+                        {
+                            String appName = (String)_applications.getValueAt(selectedRow, 0);
+                            _target.showApplicationDetails(appName);
+                        }
+                    }
+                }
+
 		public void mousePressed(MouseEvent e) 
 		{
 		    maybeShowPopup(e);
@@ -209,6 +222,20 @@ class RegistryEditor extends Editor
 
 	_objects.addMouseListener(new MouseAdapter()
 	    {
+                public void mouseClicked(MouseEvent e)
+                {
+                    if(e.getClickCount() == 2)
+                    {
+                        int selectedRow = _objects.getSelectedRow();
+                        if(selectedRow != -1)
+                        {
+                            String proxy = (String)_objects.getValueAt(selectedRow, 0);
+                            String type = (String)_objects.getValueAt(selectedRow, 1);
+                            _target.showObject(proxy, type);
+                        }
+                    }
+                }
+
 		public void mousePressed(MouseEvent e) 
 		{
 		    maybeShowPopup(e);
