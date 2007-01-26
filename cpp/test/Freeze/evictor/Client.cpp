@@ -463,11 +463,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	// Start a mutating operation so that the object is not idle.
 	//
 	servants[i]->setValueAsync_async(setCB, i + 300);
-	//
-	// Wait for setValueAsync to be dispatched.
-	//
-	ThreadControl::sleep(Time::milliSeconds(100));
-
+	
 	test(servants[i]->getValue() == i + 100);
 	//
 	// This operation modifies the object state but is not saved

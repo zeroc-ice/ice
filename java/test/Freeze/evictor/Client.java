@@ -454,17 +454,6 @@ public class Client
 	    //
 	    servants[i].setValueAsync_async(setCB, i + 300);
 	    
-	    //
-	    // Wait for setValueAsync to be dispatched.
-	    //
-	    try
-	    {
-		Thread.sleep(100);
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	    
 	    test(servants[i].getValue() == i + 100);
 	    //
 	    // This operation modifies the object state but is not saved

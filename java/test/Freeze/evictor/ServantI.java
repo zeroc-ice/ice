@@ -98,6 +98,7 @@ public class ServantI implements Test._ServantOperations
 	{
 	    _setValueAsyncCB = __cb;
 	    _setValueAsyncValue = value;
+            _tie.notify();
 	}
     }
 
@@ -106,12 +107,21 @@ public class ServantI implements Test._ServantOperations
     {
 	synchronized(_tie)
 	{
-	    if(_setValueAsyncCB != null)
-	    {
-		_tie.value = _setValueAsyncValue;
-		_setValueAsyncCB.ice_response();
-		_setValueAsyncCB = null;
-	    }
+            while(_setValueAsyncCB == null)
+            {
+                try
+                {
+                    _tie.wait();
+                }
+                catch(InterruptedException ie)
+                {
+                    break;
+                }
+            }
+
+            _tie.value = _setValueAsyncValue;
+            _setValueAsyncCB.ice_response();
+            _setValueAsyncCB = null;
         }
     }
 

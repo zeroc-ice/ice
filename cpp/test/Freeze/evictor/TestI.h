@@ -11,8 +11,8 @@
 #define TEST_I_H
 
 #include <Freeze/EvictorF.h>
+#include <IceUtil/IceUtil.h>
 #include <Test.h>
-#include <IceUtil/AbstractMutex.h>
 
 namespace Test
 {
@@ -23,7 +23,7 @@ typedef IceUtil::Handle<ServantI> ServantIPtr;
 class RemoteEvictorI;
 typedef IceUtil::Handle<RemoteEvictorI> RemoteEvictorIPtr;
 
-class ServantI : virtual public Servant, public IceUtil::AbstractMutexI<IceUtil::Mutex>
+class ServantI : public virtual Servant, public IceUtil::AbstractMutexI<IceUtil::Monitor<IceUtil::Mutex> >
 {
 public:
 
