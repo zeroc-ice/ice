@@ -674,6 +674,32 @@ IceRuby_ObjectPrx_ice_secure(VALUE self, VALUE b)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_isPreferSecure(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isPreferSecure() ? Qtrue : Qfalse;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_ice_preferSecure(VALUE self, VALUE b)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_preferSecure(RTEST(b)));
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_getRouter(VALUE self)
 {
     ICE_RUBY_TRY
@@ -924,6 +950,32 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 	Ice::ObjectPrx p = getProxy(self);
 	string idstr = getString(id);
 	return createProxy(p->ice_connectionId(idstr));
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_ice_isThreadPerConnection(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isThreadPerConnection() ? Qtrue : Qfalse;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_ice_threadPerConnection(VALUE self, VALUE b)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_threadPerConnection(RTEST(b)));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1336,6 +1388,8 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_endpointSelection", CAST_METHOD(IceRuby_ObjectPrx_ice_endpointSelection), 1);
     rb_define_method(_proxyClass, "ice_isSecure", CAST_METHOD(IceRuby_ObjectPrx_ice_isSecure), 0);
     rb_define_method(_proxyClass, "ice_secure", CAST_METHOD(IceRuby_ObjectPrx_ice_secure), 1);
+    rb_define_method(_proxyClass, "ice_isPreferSecure", CAST_METHOD(IceRuby_ObjectPrx_ice_isPreferSecure), 0);
+    rb_define_method(_proxyClass, "ice_preferSecure", CAST_METHOD(IceRuby_ObjectPrx_ice_preferSecure), 1);
     rb_define_method(_proxyClass, "ice_getRouter", CAST_METHOD(IceRuby_ObjectPrx_ice_getRouter), 0);
     rb_define_method(_proxyClass, "ice_router", CAST_METHOD(IceRuby_ObjectPrx_ice_router), 1);
     rb_define_method(_proxyClass, "ice_getLocator", CAST_METHOD(IceRuby_ObjectPrx_ice_getLocator), 0);
@@ -1353,6 +1407,9 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_compress", CAST_METHOD(IceRuby_ObjectPrx_ice_compress), 1);
     rb_define_method(_proxyClass, "ice_timeout", CAST_METHOD(IceRuby_ObjectPrx_ice_timeout), 1);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
+    rb_define_method(_proxyClass, "ice_isThreadPerConnection",
+                     CAST_METHOD(IceRuby_ObjectPrx_ice_isThreadPerConnection), 0);
+    rb_define_method(_proxyClass, "ice_threadPerConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_threadPerConnection), 1);
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
     rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
 

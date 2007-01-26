@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Proxies can now be configured to use thread-per-connection.
+
+- Added proxy methods ice_isPreferSecure and ice_preferSecure.
+
 - Plug-in is now compatible with ruby 1.8.1.
 
 - Added support for a user callback when SIGINT like signals are
