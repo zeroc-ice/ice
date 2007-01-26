@@ -22,7 +22,7 @@ PRELIBS		=
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
 LDFLAGS         = /LIBPATH:"$(THIRDPARTY_HOME)\lib"
 
-!if "$(USE_STLPORT)" != ""
+!if "$(CPP_COMPILER)" == "VC60"
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 !endif
 

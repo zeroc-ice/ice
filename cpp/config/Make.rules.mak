@@ -40,16 +40,17 @@ BCB		= C:\Program Files\Borland\BDS\4.0
 # or THIRDPARTY_HOME is not set in your environment variables then
 # change the following setting to reflect the installation location.
 #
-!if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty
+!if "$(CPP_COMPILER)" == "BCC2006"
+TPH_EXT		= BCC
+!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
+TPH_EXT		= VC80
+!else
+TPH_EXT		= $(CPP_COMPILER)
 !endif
 
-#
-# Define USE_STLPORT if using STLPort. Automatically set to yes if using
-# MSVC++ 6.0. STLPort must be installed in the same directory as the
-# other third party libraries.
-#
-#USE_STLPORT		= yes
+!if "$(THIRDPARTY_HOME)" == ""
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
+!endif
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
@@ -71,10 +72,6 @@ install_schemadir	= $(prefix)\schema
 install_docdir		= $(prefix)\doc
 
 OBJEXT			= .obj
-
-!if "$(CPP_COMPILER)" == "VC60"
-USE_STLPORT		= yes
-!endif
 
 !if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
