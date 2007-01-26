@@ -276,8 +276,14 @@ IcePy::PyException::getTypeName()
 #else
     PyObject* cls = (PyObject*)ex.get()->ob_type;
 #endif
-    PyObjectHandle str = PyObject_Str(cls);
-    return PyString_AsString(str.get());
+    PyObjectHandle name = PyObject_GetAttrString(cls, "__name__");
+    assert(name.get());
+    PyObjectHandle mod = PyObject_GetAttrString(cls, "__module__");
+    assert(mod.get());
+    string result = PyString_AsString(mod.get());
+    result += ".";
+    result += PyString_AsString(name.get());
+    return result;
 }
 
 IcePy::AllowThreads::AllowThreads()
