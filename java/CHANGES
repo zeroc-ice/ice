@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- Proxies and object adapters can now be configured to use
+  thread-per-connection.
+
 - IceBox services no longer inherit the properties of the container
   by default. If this is the desired behavior set the property
   IceBox.InheritContainerProperties to 1.

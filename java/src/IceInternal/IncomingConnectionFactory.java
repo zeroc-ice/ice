@@ -95,6 +95,11 @@ public final class IncomingConnectionFactory extends EventHandler
 	    threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
 	    _threadPerIncomingConnectionFactory = null;
 
+            //
+            // Clear the OA. See bug 1673 for the details of why this is necessary.
+            //
+            _adapter = null;
+
 	    //
 	    // We want to wait until all connections are finished outside the
 	    // thread synchronization.
@@ -199,21 +204,21 @@ public final class IncomingConnectionFactory extends EventHandler
     public boolean
     datagram()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
         return _endpoint.datagram();
     }
 
     public boolean
     readable()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
         return false;
     }
 
     public boolean
     read(BasicStream unused)
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
         assert(false); // Must not be called.
 	return false;
     }
@@ -221,7 +226,7 @@ public final class IncomingConnectionFactory extends EventHandler
     public void
     message(BasicStream unused, ThreadPool threadPool)
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	Ice.ConnectionI connection = null;
 
@@ -275,7 +280,7 @@ public final class IncomingConnectionFactory extends EventHandler
 
 		try
 		{
-		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter, _threadPerConnection);
 		}
 		catch(Ice.LocalException ex)
 		{
@@ -321,11 +326,13 @@ public final class IncomingConnectionFactory extends EventHandler
     public synchronized void
     finished(ThreadPool threadPool)
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
         threadPool.promoteFollower();
+        assert(threadPool == ((Ice.ObjectAdapterI)_adapter).getThreadPool());
 
 	--_finishedCount;
+
 	if(_finishedCount == 0 && _state == StateClosed)
 	{
 	    _acceptor.close();
@@ -375,6 +382,9 @@ public final class IncomingConnectionFactory extends EventHandler
 	    _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	}
 
+        Ice.ObjectAdapterI adapterImpl = (Ice.ObjectAdapterI)_adapter;
+        _threadPerConnection = adapterImpl.getThreadPerConnection();
+
 	EndpointIHolder h = new EndpointIHolder();
 	h.value = _endpoint;
 	_transceiver = _endpoint.serverTransceiver(h);
@@ -389,7 +399,8 @@ public final class IncomingConnectionFactory extends EventHandler
 		
 		try
 		{
-		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		    connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter,
+                                                     _threadPerConnection);
 		    connection.validate();
 		}
 		catch(Ice.LocalException ex)
@@ -416,7 +427,7 @@ public final class IncomingConnectionFactory extends EventHandler
 		assert(_acceptor != null);
 		_acceptor.listen();
 
-		if(_instance.threadPerConnection())
+		if(_threadPerConnection)
 		{
 		    //
 		    // If we are in thread per connection mode, we also use
@@ -500,7 +511,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection() && _acceptor != null)
+		if(!_threadPerConnection && _acceptor != null)
 		{
 		    registerWithPool();
 		}
@@ -520,7 +531,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection() && _acceptor != null)
+		if(!_threadPerConnection && _acceptor != null)
 		{
 		    unregisterWithPool();
 		}
@@ -538,7 +549,7 @@ public final class IncomingConnectionFactory extends EventHandler
             {
 	        if(_acceptor != null)
 		{
-		    if(_instance.threadPerConnection())
+		    if(_threadPerConnection)
 		    {
 		        //
 		        // If we are in thread per connection mode, we connect
@@ -576,7 +587,7 @@ public final class IncomingConnectionFactory extends EventHandler
     private void
     registerWithPool()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 	assert(_acceptor != null);
 
         if(!_registeredWithPool)
@@ -589,7 +600,7 @@ public final class IncomingConnectionFactory extends EventHandler
     private void
     unregisterWithPool()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 	assert(_acceptor != null);
 
         if(_registeredWithPool)
@@ -723,7 +734,8 @@ public final class IncomingConnectionFactory extends EventHandler
 		{
 		    try
 		    {
-			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter,
+                                                         _threadPerConnection);
 		    }
 		    catch(Ice.LocalException ex)
 		    {
@@ -769,7 +781,7 @@ public final class IncomingConnectionFactory extends EventHandler
     private final Transceiver _transceiver;
     private EndpointI _endpoint;
 
-    private final Ice.ObjectAdapter _adapter;
+    private Ice.ObjectAdapter _adapter;
 
     private boolean _registeredWithPool;
     private int _finishedCount;
@@ -779,4 +791,6 @@ public final class IncomingConnectionFactory extends EventHandler
     private java.util.LinkedList _connections = new java.util.LinkedList();
 
     private int _state;
+
+    private boolean _threadPerConnection;
 }

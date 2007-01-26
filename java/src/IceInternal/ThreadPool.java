@@ -33,12 +33,6 @@ public final class ThreadPool
 	_promote = true;
 	_warnUdp = _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
-	//
-	// If we are in thread per connection mode, no thread pool should
-	// ever be created.
-	//
-	assert(!_instance.threadPerConnection());
-
 	String programName = _instance.initializationData().properties.getProperty("Ice.ProgramName");
         if(programName.length() > 0)
         {
@@ -74,7 +68,7 @@ public final class ThreadPool
 
 	//
 	// We use just one thread as the default. This is the fastest
-	// psossible setting, still allows one level of nesting, and
+	// possible setting, still allows one level of nesting, and
 	// doesn't require to make the servants thread safe.
 	//
 	int size = _instance.initializationData().properties.getPropertyAsIntWithDefault(_prefix + ".Size", 1);
@@ -617,7 +611,7 @@ public final class ThreadPool
 				//
 				java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
 				iter.remove();
-				if(k.isValid() && key != _fdIntrReadKey)
+				if(k.isValid() && k != _fdIntrReadKey)
 				{
 				    if(TRACE_SELECT)
 				    {

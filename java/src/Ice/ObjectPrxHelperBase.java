@@ -784,6 +784,28 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public boolean
+    ice_isThreadPerConnection()
+    {
+        return _reference.getThreadPerConnection();
+    }
+
+    public ObjectPrx
+    ice_threadPerConnection(boolean tpc)
+    {
+        IceInternal.Reference ref = _reference.changeThreadPerConnection(tpc);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
     /**
      * @deprecated This method has been replaced with ice_collocationOptimized.
      **/

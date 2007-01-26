@@ -714,6 +714,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	return _servantManager;
     }
 
+    public boolean
+    getThreadPerConnection()
+    {	
+        //
+        // No mutex lock necessary, _threadPerConnection is immutable.
+        //
+        return _threadPerConnection;
+    }
+
     //
     // Only for use by IceInternal.ObjectAdapterFactory
     //
@@ -766,7 +775,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        _incomingConnectionFactories = null;
 
 	        InitializationException ex = new InitializationException();
-		ex.reason = "Object adapter \"" + _name + "\" requires configuration.";
+		ex.reason = "object adapter \"" + _name + "\" requires configuration.";
 		throw ex;
 	    }
 	}
@@ -788,6 +797,45 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	
         try
         {
+            _threadPerConnection = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPerConnection") > 0;
+
+            int threadPoolSize = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
+            if(threadPoolSize == 0)
+            {
+                threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+            }
+            int threadPoolSizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
+            if(threadPoolSizeMax == 0)
+            {
+                threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
+            }
+
+            if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
+            {
+                InitializationException ex = new InitializationException();
+                ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n" +
+                    "thread pool and thread per connection";
+                throw ex;
+            }
+
+            if(!_threadPerConnection && threadPoolSize == 0 && threadPoolSizeMax == 0)
+            {
+                _threadPerConnection = _instance.threadPerConnection();
+            }
+
+            if(threadPoolSize > 0 || threadPoolSizeMax > 0)
+            {
+                if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").length() != 0 ||
+                   properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").length() != 0)
+                {
+                    _threadPool = new IceInternal.ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
+                }
+                else
+                {
+                    _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
+                }
+            }
+
 	    if(router == null)
 	    {
 	        router = RouterPrxHelper.uncheckedCast(
@@ -876,8 +924,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        for(int i = 0; i < endpoints.size(); ++i)
 	        {
 		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
-                    _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(
-							 instance, endp, this, _name));
+                    _incomingConnectionFactories.add(
+                        new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
                 }
 		if(endpoints.size() == 0)
 		{
@@ -933,29 +981,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    else
 	    {
 		setLocator(_instance.referenceFactory().getDefaultLocator());
-	    }
-
-	    if(!_instance.threadPerConnection())
-	    {
-	        if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").length() != 0 ||
-		   properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").length() != 0)
- 		{
-		    int size = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-		    int sizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-		    if(size > 0 || sizeMax > 0)
-		    {
-		        _threadPool = new IceInternal.ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
-		    }
-		}
-		else
-		{
-		    int size = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-		    int sizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-		    if(size > 0 || sizeMax > 0)
-		    {
-		        _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
-		    }
-		}
 	    }
         }
         catch(LocalException ex)
@@ -1315,5 +1340,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _destroying;
     private boolean _destroyed;
     private boolean _noConfig;
+    private boolean _threadPerConnection;
     static private String _propertyPrefix = "Ice.OA.";
 }

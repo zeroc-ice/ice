@@ -125,6 +125,9 @@ public interface ObjectPrx
     ObjectPrx ice_timeout(int t);
     ObjectPrx ice_connectionId(String connectionId);
 
+    boolean ice_isThreadPerConnection();
+    ObjectPrx ice_threadPerConnection(boolean tpc);
+
     /**
      * @deprecated This method has been replaced with ice_getConnection.
      **/

@@ -94,6 +94,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
+    "Ice/threads", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

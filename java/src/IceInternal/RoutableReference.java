@@ -61,6 +61,12 @@ public abstract class RoutableReference extends Reference
 	return _endpointSelection;
     }
 
+    public final boolean
+    getThreadPerConnection()
+    {
+        return _threadPerConnection;
+    }
+
     public Reference
     changeSecure(boolean newSecure)
     {
@@ -110,30 +116,6 @@ public abstract class RoutableReference extends Reference
 	return r;
     }
 
-    public final Reference
-    changeCacheConnection(boolean newCache)
-    {
-        if(newCache == _cacheConnection)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._cacheConnection = newCache;
-	return r;
-    }
-
-    public final Reference
-    changeEndpointSelection(Ice.EndpointSelectionType newType)
-    {
-        if(newType == _endpointSelection)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._endpointSelection = newType;
-	return r;
-    }
-
     public Reference
     changeCompress(boolean newCompress)
     {
@@ -170,6 +152,42 @@ public abstract class RoutableReference extends Reference
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
 	r._connectionId = id;
 	return r;	
+    }
+
+    public final Reference
+    changeCacheConnection(boolean newCache)
+    {
+        if(newCache == _cacheConnection)
+	{
+	    return this;
+	}
+	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._cacheConnection = newCache;
+	return r;
+    }
+
+    public final Reference
+    changeEndpointSelection(Ice.EndpointSelectionType newType)
+    {
+        if(newType == _endpointSelection)
+	{
+	    return this;
+	}
+	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	r._endpointSelection = newType;
+	return r;
+    }
+
+    public Reference
+    changeThreadPerConnection(boolean newTpc)
+    {
+        if(newTpc == _threadPerConnection)
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._threadPerConnection = newTpc;
+        return r;	
     }
 
     public synchronized int
@@ -230,6 +248,10 @@ public abstract class RoutableReference extends Reference
 	{
 	    return false;
 	}
+	if(_threadPerConnection != rhs._threadPerConnection)
+	{
+	    return false;
+	}
 	return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
@@ -256,6 +278,7 @@ public abstract class RoutableReference extends Reference
 	_compress = false;
 	_overrideTimeout = false;
 	_timeout = -1;
+        _threadPerConnection = inst.threadPerConnection();
     }
 
     protected void
@@ -404,7 +427,8 @@ public abstract class RoutableReference extends Reference
 	    // Get an existing connection or create one if there's no
 	    // existing connection to one of the given endpoints.
 	    //
-	    return factory.create((EndpointI[])endpoints.toArray(new EndpointI[endpoints.size()]), false, compress);
+	    return factory.create((EndpointI[])endpoints.toArray(
+                new EndpointI[endpoints.size()]), false, _threadPerConnection, compress);
 	}
 	else
 	{
@@ -425,7 +449,7 @@ public abstract class RoutableReference extends Reference
 		try
 		{
 		    endpoint[0] = (EndpointI)i.next();
-		    return factory.create(endpoint, i.hasNext(), compress);
+		    return factory.create(endpoint, i.hasNext(), _threadPerConnection, compress);
 		}
 		catch(Ice.LocalException ex)
 		{
@@ -497,4 +521,5 @@ public abstract class RoutableReference extends Reference
     private boolean _compress; // Only used if _overrideCompress == true
     private boolean _overrideTimeout;
     private int _timeout; // Only used if _overrideTimeout == true
+    private boolean _threadPerConnection;
 }

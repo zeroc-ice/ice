@@ -78,6 +78,12 @@ public class FixedReference extends Reference
 	return Ice.EndpointSelectionType.Random;
     }
 
+    public boolean
+    getThreadPerConnection()
+    {
+        return false;
+    }
+
     public Reference
     changeSecure(boolean sec)
     {
@@ -136,6 +142,12 @@ public class FixedReference extends Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
 	throw new Ice.FixedProxyException();
+    }
+
+    public final Reference
+    changeThreadPerConnection(boolean newTpc)
+    {
+        throw new Ice.FixedProxyException();
     }
 
     public Reference

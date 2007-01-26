@@ -33,7 +33,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    
 	    synchronized(this)
 	    {
-		if(_instance.threadPerConnection() && _threadPerConnection != Thread.currentThread())
+		if(_thread != null && _thread != Thread.currentThread())
 		{
 		    //
 		    // In thread per connection mode, this connection's thread
@@ -319,16 +319,15 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	synchronized(this)
 	{
-	    if(_transceiver != null || _dispatchCount != 0 ||
-	       (_threadPerConnection != null &&	_threadPerConnection.isAlive()))
+	    if(_transceiver != null || _dispatchCount != 0 || (_thread != null && _thread.isAlive()))
 	    {
 		return false;
 	    }
 
 	    assert(_state == StateClosed);
 
-	    threadPerConnection = _threadPerConnection;
-	    _threadPerConnection = null;
+	    threadPerConnection = _thread;
+	    _thread = null;
 	}
 
 	if(threadPerConnection != null)
@@ -450,8 +449,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	    assert(_state == StateClosed);
 
-	    threadPerConnection = _threadPerConnection;
-	    _threadPerConnection = null;
+	    threadPerConnection = _thread;
+	    _thread = null;
+
+            //
+            // Clear the OA. See bug 1673 for the details of why this is necessary.
+            //
+            _adapter = null;
 	}
 
 	if(threadPerConnection != null)
@@ -1201,6 +1205,12 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return _endpoint;
     }
 
+    public boolean
+    threadPerConnection()
+    {
+        return _threadPerConnection; // No mutex protection necessary, _threadPerConnection is immutable.
+    }
+
     public synchronized void
     setAdapter(ObjectAdapter adapter)
     {
@@ -1261,21 +1271,21 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public boolean
     datagram()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 	return _endpoint.datagram(); // No mutex protection necessary, _endpoint is immutable.
     }
 
     public boolean
     readable()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
         return true;
     }
 
     public boolean
     read(IceInternal.BasicStream stream)
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	return _transceiver.read(stream, 0);
 
@@ -1290,7 +1300,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	MessageInfo info = new MessageInfo(stream);
 
@@ -1338,7 +1348,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     public void
     finished(IceInternal.ThreadPool threadPool)
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	threadPool.promoteFollower();
 
@@ -1475,9 +1485,10 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     }
 
     public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
-		       IceInternal.EndpointI endpoint, ObjectAdapter adapter)
+		       IceInternal.EndpointI endpoint, ObjectAdapter adapter, boolean threadPerConnection)
     {
         super(instance);
+        _threadPerConnection = threadPerConnection;
         _transceiver = transceiver;
 	_desc = transceiver.toString();
         _type = transceiver.type();
@@ -1541,7 +1552,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
 	try
 	{
-	    if(!_instance.threadPerConnection())
+	    if(!threadPerConnection)
 	    {
 		//
 		// Only set _threadPool if we really need it, i.e., if we are
@@ -1566,13 +1577,13 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		// If we are in thread per connection mode, create the thread
 		// for this connection.
 		//
-		_threadPerConnection = new ThreadPerConnection();
-		_threadPerConnection.start();
+		_thread = new ThreadPerConnection();
+		_thread.start();
 	    }
 	}
 	catch(java.lang.Exception ex)
 	{
-	    if(_instance.threadPerConnection())
+	    if(threadPerConnection)
 	    {
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -1606,7 +1617,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	IceUtil.Assert.FinalizerAssert(_state == StateClosed);
 	IceUtil.Assert.FinalizerAssert(_transceiver == null);
 	IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
-	IceUtil.Assert.FinalizerAssert(_threadPerConnection == null);
+	IceUtil.Assert.FinalizerAssert(_thread == null);
 
         super.finalize();
     }
@@ -1709,7 +1720,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection())
+		if(!_threadPerConnection)
 		{
 		    registerWithPool();
 		}
@@ -1726,7 +1737,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		{
                     return;
                 }
-		if(!_instance.threadPerConnection())
+		if(!_threadPerConnection)
 		{
 		    unregisterWithPool();
 		}
@@ -1742,7 +1753,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                 {
                     return;
                 }
-		if(!_instance.threadPerConnection())
+		if(!_threadPerConnection)
 		{
 		    registerWithPool(); // We need to continue to read in closing state.
 		}
@@ -1751,7 +1762,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    
             case StateClosed:
             {
-		if(_instance.threadPerConnection())
+		if(_threadPerConnection)
 		{
 		    //
 		    // If we are in thread per connection mode, we
@@ -1898,7 +1909,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     registerWithPool()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	if(!_registeredWithPool)
 	{
@@ -1910,7 +1921,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     unregisterWithPool()
     {
-	assert(!_instance.threadPerConnection()); // Only for use with a thread pool.
+	assert(!_threadPerConnection); // Only for use with a thread pool.
 
 	if(_registeredWithPool)
 	{
@@ -2661,7 +2672,8 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    }
 	}
     }
-    private Thread _threadPerConnection;
+    private Thread _thread;
+    private final boolean _threadPerConnection;
 
     private IceInternal.Transceiver _transceiver;
     private final String _desc;

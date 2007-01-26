@@ -91,7 +91,7 @@ public final class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(EndpointI[] endpts, boolean hasMore, Ice.BooleanHolder compress)
+    create(EndpointI[] endpts, boolean hasMore, boolean threadPerConnection, Ice.BooleanHolder compress)
     {
 	assert(endpts.length > 0);
 	EndpointI[] endpoints = new EndpointI[endpts.length];
@@ -168,9 +168,10 @@ public final class OutgoingConnectionFactory
 			
 			//
 			// Don't return connections for which destruction has
-			// been initiated.
+			// been initiated. The connection must also match the
+                        // requested thread-per-connection setting.
 			//
-			if(!connection.isDestroyed())
+			if(!connection.isDestroyed() && connection.threadPerConnection() == threadPerConnection)
 			{
 			    if(defaultsAndOverrides.overrideCompress)
 			    {
@@ -245,9 +246,10 @@ public final class OutgoingConnectionFactory
 			    
 			    //
 			    // Don't return connections for which destruction has
-			    // been initiated.
+                            // been initiated. The connection must also match the
+                            // requested thread-per-connection setting.
 			    //
-			    if(!connection.isDestroyed())
+                            if(!connection.isDestroyed() && connection.threadPerConnection() == threadPerConnection)
 			    {
 				if(defaultsAndOverrides.overrideCompress)
 				{
@@ -308,7 +310,7 @@ public final class OutgoingConnectionFactory
 		    transceiver = connector.connect(timeout);
 		    assert(transceiver != null);
 		}
-		connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
+		connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null, threadPerConnection);
 		connection.validate();
 
 		if(defaultsAndOverrides.overrideCompress)
