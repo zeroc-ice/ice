@@ -26,5 +26,6 @@ FileParserI::parse(const string& file, const AdminPrx& admin, const Ice::Current
     catch(const IceXML::ParserException& e)
     {
 	throw ParseException(e.reason());
+        return ApplicationDescriptor();
     }
 }

@@ -2683,6 +2683,7 @@ ServerI::getFilePath(const string& filename) const
     else
     {
 	throw FileNotAvailableException("unknown file");
+        return ""; // Keep the compiler happy.
     }
 }
 

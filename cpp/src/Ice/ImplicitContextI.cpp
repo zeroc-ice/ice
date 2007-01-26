@@ -148,6 +148,7 @@ ImplicitContextI::create(const std::string& kind)
 	throw Ice::InitializationException(
 	    __FILE__, __LINE__,
 	    "'" + kind + "' is not a valid value for Ice.ImplicitContext"); 
+        return 0; // Keep the compiler happy.
     }
 }
 
