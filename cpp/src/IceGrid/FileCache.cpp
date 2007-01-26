@@ -79,6 +79,11 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 	{
             streampos beg = is.tellg();
 	    getline(is, line);
+	    if(is.eof() && line.empty()) // Don't count the last line if it's empty.
+	    {
+		continue;
+	    }
+
 	    lines.push_back(make_pair(beg, line));
 	    ++totalCount;
 	    if(lines.size() == static_cast<unsigned int>(count + 1))

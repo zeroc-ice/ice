@@ -561,7 +561,9 @@ allTests(const Ice::CommunicatorPtr& comm)
         it->destroy();
         
         it = session->openServerLog("LogServer", testDir + "/log3.txt", 1);
-        test(it->read(1024, lines) && lines.empty());
+        test(it->read(1024, lines) && lines.size() == 2);
+        test(lines[0] == "one line file with EOL on last line");
+        test(lines[1].empty());
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
 
@@ -609,14 +611,16 @@ allTests(const Ice::CommunicatorPtr& comm)
         it->destroy();
         
         it = session->openServerLog("LogServer", testDir + "/log4.txt", 1);
-        test(it->read(1024, lines) && lines.empty());
-        test(it->read(1024, lines) && lines.empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log4.txt", 2);
         test(it->read(1024, lines) && lines.size() == 2);
         test(lines[0] == "line 3");
         test(lines[1].empty());
+        it->destroy();
+
+        it = session->openServerLog("LogServer", testDir + "/log4.txt", 2);
+        test(it->read(1024, lines) && lines.size() == 3);
+        test(lines[0] == "line 2");
+        test(lines[1] == "line 3");
+        test(lines[2].empty());
         it->destroy();
 
         it = session->openServerLog("LogServer", testDir + "/log4.txt", 100);
@@ -694,23 +698,19 @@ allTests(const Ice::CommunicatorPtr& comm)
         it->destroy();
 
         it = session->openServerLog("LogServer", testDir + "/log1.txt", 1);
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
+        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
+        test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
         test(it->read(1024, lines) && lines.empty());
         it->destroy();
         
         it = session->openServerLog("LogServer", testDir + "/log1.txt", 2);
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
-        test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
-        it->destroy();
-
-        it = session->openServerLog("LogServer", testDir + "/log1.txt", 3);
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineStart(lines[0]));
-        test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
         test(!it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && isLongLineStart(lines[1]));
         test(!it->read(1024, lines) && lines.size() == 1 && isLongLineContent(lines[0]));
         test(it->read(1024, lines) && lines.size() == 2 && isLongLineEnd(lines[0]) && lines[1].empty());
         it->destroy();
-
     }
     catch(const FileNotAvailableException& ex)
     {
