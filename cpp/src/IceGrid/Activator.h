@@ -32,7 +32,7 @@ class Activator : public IceUtil::Monitor< IceUtil::Mutex>, public IceUtil::Shar
 {
 public:
 
-    Activator(const TraceLevelsPtr&, const Ice::PropertiesPtr&);
+    Activator(const TraceLevelsPtr&);
     virtual ~Activator();
 
     virtual int activate(const std::string&, const std::string&, const std::string&,
@@ -84,8 +84,6 @@ private:
     int _fdIntrRead;
     int _fdIntrWrite;
 #endif
-
-    std::vector<std::string> _propertiesOverride;
 
     IceUtil::ThreadPtr _thread;
 };

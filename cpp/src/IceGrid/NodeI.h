@@ -84,6 +84,7 @@ public:
     PlatformInfo& getPlatformInfo() const;
     FileCachePtr getFileCache() const;
     NodePrx getProxy() const;
+    const PropertyDescriptorSeq& getPropertiesOverride() const;
 
     std::string getOutputDir() const;
     bool getRedirectErrToOut() const;
@@ -128,6 +129,7 @@ private:
     const std::string _serversDir;
     const std::string _tmpDir;
     const FileCachePtr _fileCache;
+    PropertyDescriptorSeq _propertiesOverride;
 
     unsigned long _serial;
 

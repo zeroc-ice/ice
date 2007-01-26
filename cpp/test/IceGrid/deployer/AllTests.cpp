@@ -365,39 +365,39 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(obj->getProperty("NodeProperty") == "NodeVar");
     test(obj->getProperty("ServerInstanceProperty") == "Server2");
 
-//     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
-//     test(obj->getProperty("AppProperty") == "AppVar");
-//     test(obj->getProperty("AppProperty2") == "OverrideMe");
-//     test(obj->getProperty("AppProperty21") == "Override");
-//     test(obj->getProperty("NodeProperty") == "NodeVar");
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    test(obj->getProperty("AppProperty") == ""); // IceBox server properties aren't inherited for IceBox1
+    test(obj->getProperty("AppProperty2") == "");
+    test(obj->getProperty("AppProperty21") == "");
+    test(obj->getProperty("NodeProperty") == "");
 
-//     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
-//     test(obj->getProperty("AppProperty") == "AppVar");
-//     test(obj->getProperty("AppProperty2") == "OverrideMe");
-//     test(obj->getProperty("AppProperty21") == "Override");
-//     test(obj->getProperty("NodeProperty") == "NodeVar");
-//     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverrideMe");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
 
-//     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));    
-//     test(obj->getProperty("AppProperty") == "AppVar");
-//     test(obj->getProperty("AppProperty2") == "OverrideMe");
-//     test(obj->getProperty("AppProperty21") == "Override");
-//     test(obj->getProperty("NodeProperty") == "NodeVar");
-//     test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
-//     test(obj->getProperty("ServiceInstanceProperty") == "Service2");
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));    
+    test(obj->getProperty("AppProperty") == "AppVar");
+    test(obj->getProperty("AppProperty2") == "OverrideMe");
+    test(obj->getProperty("AppProperty21") == "Override");
+    test(obj->getProperty("NodeProperty") == "NodeVar");
+    test(obj->getProperty("IceBoxInstanceProperty") == "IceBox2");
+    test(obj->getProperty("ServiceInstanceProperty") == "Service2");
 
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
     test(obj->getProperty("AppProperty") == "AppVar");
     test(obj->getProperty("AppProperty2") == "OverrideMe");
     test(obj->getProperty("AppProperty21") == "Override");
     test(obj->getProperty("NodeProperty") == "NodeVar");
-
-//     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
-//     test(obj->getProperty("ServerInstanceServiceProperty") == "service1");
-//     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service4@IceBox1.Service4.Service4"));
-//     test(obj->getProperty("ServerInstanceServiceProperty") == "service4");
-//     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service4@IceBox2.Service4.Service4"));
-//     test(obj->getProperty("IceBoxInstanceProperty") == "overriden");
+     
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    test(obj->getProperty("ServerInstanceServiceProperty") == "service1");
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox1-Service4@IceBox1.Service4.Service4"));
+    test(obj->getProperty("ServerInstanceServiceProperty") == "service4");
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service4@IceBox2.Service4.Service4"));
+    test(obj->getProperty("IceBoxInstanceProperty") == "overriden");
 
     cout << "ok" << endl;
 

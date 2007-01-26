@@ -1996,17 +1996,6 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
     //
     PropertyDescriptorSeqDict properties = _desc->properties;
     PropertyDescriptorSeq& props = properties["config"];
-    {
-	for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
-	{
-	    if(getProperty(p->second, "Ice.Default.Locator").empty())
-	    {
-		p->second.push_back(
-		    createProperty("Ice.Default.Locator",
-				   _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
-	    }
-	}
-    }
     
     //
     // Cache the path of the stderr/stdout file, first check if the
@@ -2031,6 +2020,27 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
 	}
     }
 
+    //
+    // Add the locator proxy property and the node properties override
+    //
+    {
+        const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
+	for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
+	{
+	    if(getProperty(p->second, "Ice.Default.Locator").empty())
+	    {
+		p->second.push_back(
+		    createProperty("Ice.Default.Locator",
+				   _node->getCommunicator()->getProperties()->getProperty("Ice.Default.Locator")));
+	    }
+            
+            if(!overrides.empty())
+            {
+                p->second.push_back(createProperty("# Node properties override"));
+                p->second.insert(p->second.end(), overrides.begin(), overrides.end());
+            }
+	}
+    }
 
     //
     // If the server is a session server and it wasn't udpated but
@@ -2070,7 +2080,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
 	    {
 		throw "couldn't create configuration file: " + configFilePath;
 	    }
-	    configfile << "# Server configuration file (" << IceUtil::Time::now().toDateTime();
+	    configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime();
 	    configfile << ", " << _desc->iceVersion << ")" << endl << endl;
 	    for(PropertyDescriptorSeq::const_iterator r = p->second.begin(); r != p->second.end(); ++r)
 	    {

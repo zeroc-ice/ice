@@ -281,7 +281,7 @@ NodeService::start(int argc, char* argv[])
     // Create the activator.
     //
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Node");
-    _activator = new Activator(traceLevels, properties);
+    _activator = new Activator(traceLevels);
 
     //
     // Collocate the IceGrid registry if we need to.

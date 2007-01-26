@@ -254,7 +254,7 @@ stringToSignal(const string& str)
 
 }
 
-Activator::Activator(const TraceLevelsPtr& traceLevels, const PropertiesPtr& properties) :
+Activator::Activator(const TraceLevelsPtr& traceLevels) :
     _traceLevels(traceLevels),
     _deactivating(false)
 {
@@ -287,40 +287,7 @@ Activator::Activator(const TraceLevelsPtr& traceLevels, const PropertiesPtr& pro
     fcntl(_fdIntrRead, F_SETFL, flags);
 #endif
 
-    //
-    // Parse the properties override property.
-    //
-    string props = properties->getProperty("IceGrid.Node.PropertiesOverride");
-    if(!props.empty())
-    {
-	string::size_type end = 0;
-	while(end != string::npos)
-	{
-	    const string delim = " \t\r\n";
-		
-	    string::size_type beg = props.find_first_not_of(delim, end);
-	    if(beg == string::npos)
-	    {
-		break;
-	    }
-		
-	    end = props.find_first_of(delim, beg);
-	    string arg;
-	    if(end == string::npos)
-	    {
-		arg = props.substr(beg);
-	    }
-	    else
-	    {
-		arg = props.substr(beg, end - beg);
-	    }
-	    if(arg.find("--") != 0)
-	    {
-		arg = "--" + arg;
-	    }
-	    _propertiesOverride.push_back(arg);
-	}
-    }    
+
 }
 
 Activator::~Activator()
@@ -417,7 +384,6 @@ Activator::activate(const string& name,
     StringSeq args;
     args.push_back(path);
     args.insert(args.end(), options.begin(), options.end());
-    args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
     
     if(_traceLevels->activator > 0)
     {
