@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <TestI.h>
 
@@ -62,7 +61,7 @@ Test::ServantI::init(const RemoteEvictorIPtr& remoteEvictor, const Freeze::Evict
 Int
 Test::ServantI::getValue(const Current&) const
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     return value;
 }
 
@@ -70,7 +69,7 @@ Int
 Test::ServantI::slowGetValue(const Current&) const
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     return value;
 }
 
@@ -79,7 +78,7 @@ Test::ServantI::slowGetValue_async(const AMD_Servant_slowGetValuePtr& cb,
 				   const Current&) const
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     (new DelayedResponse(cb, value))->start().detach();
 }
 
@@ -87,15 +86,14 @@ Test::ServantI::slowGetValue_async(const AMD_Servant_slowGetValuePtr& cb,
 void
 Test::ServantI::setValue(Int val, const Current&)
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     value = val;
 }
-
 
 void
 Test::ServantI::setValueAsync_async(const AMD_Servant_setValueAsyncPtr& __cb, Int value, const Current&)
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     _setValueAsyncCB = __cb;
     _setValueAsyncValue = value;
 }
@@ -103,13 +101,17 @@ Test::ServantI::setValueAsync_async(const AMD_Servant_setValueAsyncPtr& __cb, In
 void
 Test::ServantI::releaseAsync(const Current& current) const
 {
-    if(_setValueAsyncCB)
+    Monitor<Mutex>::Lock sync(*this);
+    //
+    // Wait until the previous _async has been dispatched
+    //
+    while(_setValueAsyncCB == 0)
     {
-	Mutex::Lock sync(*this);
-        const_cast<Int&>(value) = _setValueAsyncValue;
-        _setValueAsyncCB->ice_response();
-        const_cast<AMD_Servant_setValueAsyncPtr&>(_setValueAsyncCB) = 0;
+        wait();
     }
+    const_cast<Int&>(value) = _setValueAsyncValue;
+    _setValueAsyncCB->ice_response();
+    const_cast<AMD_Servant_setValueAsyncPtr&>(_setValueAsyncCB) = 0;
 }
 
 void
@@ -144,14 +146,14 @@ Test::ServantI::removeFacet(const string& name, const Current& current) const
 Ice::Int
 Test::ServantI::getTransientValue(const Current& current) const
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     return _transientValue;
 }
 
 void
 Test::ServantI::setTransientValue(Ice::Int val, const Current& current)
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     _transientValue = val;
 }
 
@@ -202,14 +204,14 @@ Test::FacetI::FacetI(const RemoteEvictorIPtr& remoteEvictor, const Freeze::Evict
 string
 Test::FacetI::getData(const Current&) const
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     return data;
 }
 
 void
 Test::FacetI::setData(const string& d, const Current&)
 {
-    Mutex::Lock sync(*this);
+    Monitor<Mutex>::Lock sync(*this);
     data = d;
 }
 
