@@ -68,7 +68,7 @@ class RegistryEditor extends Editor
 		}
 	    };
 
-        Action patch = new AbstractAction("Patch distribution")
+        final Action patch = new AbstractAction("Patch distribution")
 	    {
 		public void actionPerformed(ActionEvent e) 
 		{
@@ -147,8 +147,12 @@ class RegistryEditor extends Editor
 		
 		private void maybeShowPopup(MouseEvent e) 
 		{
-		    if (e.isPopupTrigger() && _applications.getSelectedRow() != -1)
+                    int selectedRow = _applications.getSelectedRow();
+		    if (e.isPopupTrigger() && selectedRow != -1)
 		    {
+                        String appName = (String)_applications.getValueAt(selectedRow, 0);
+                        ApplicationDescriptor desc = _target.getApplicationDescriptor(appName);
+                        patch.setEnabled(desc != null && desc.distrib.icepatch.length() > 0);
 			appPopup.show(_applications, e.getX(), e.getY());
 		    }
 		}
