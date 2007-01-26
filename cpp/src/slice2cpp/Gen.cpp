@@ -880,7 +880,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     if(findMetaData(p->getMetaData(), false) == "class")
     {
-	H << sp << nl << _dllExport << "class " << name << " : public IceUtil::Shared";
+	H << sp << nl << "class " << _dllExport << name << " : public IceUtil::Shared";
 	H << sb;
 	H.dec();
 	H << nl << "public:";
