@@ -22,24 +22,21 @@ final class UdpTransceiver implements Transceiver
     close()
     {
 	//
-	// NOTE: close() may have already been invoked by shutdownReadWrite().
+	// NOTE: closeSocket() may have already been invoked by shutdownReadWrite().
 	//
-        if(_fd != null)
-	{
-	    if(_traceLevels.network >= 1)
-	    {
-		String s = "closing udp connection\n" + toString();
-		_logger.trace(_traceLevels.networkCat, s);
-	    }
+	closeSocket();
 
+	if(_readSelector != null)
+	{
 	    try
 	    {
-		_fd.close();
+		_readSelector.close();
 	    }
 	    catch(java.io.IOException ex)
 	    {
+		// Ignore.
 	    }
-	    _fd = null;
+	    _readSelector = null;
 	}
     }
 
@@ -51,7 +48,7 @@ final class UdpTransceiver implements Transceiver
 	//
     }
 
-    public void
+    public synchronized void
     shutdownReadWrite()
     {
 	//
@@ -59,10 +56,14 @@ final class UdpTransceiver implements Transceiver
 	// cannot use the C++ technique of sending a "wakeup" packet to
 	// this socket because the Java implementation deadlocks when we
 	// call disconnect() while receive() is in progress. Therefore
-	// we close the socket here, which causes receive() to raise
-	// AsynchronousCloseException.
+	// we close the socket here and wake up the selector.
 	//
-	close();
+	closeSocket();
+
+	if(_readSelector != null)
+	{
+	    _readSelector.wakeup();
+	}
     }
 
     public void
@@ -141,69 +142,101 @@ final class UdpTransceiver implements Transceiver
         java.nio.ByteBuffer buf = stream.prepareRead();
         buf.position(0);
 
+	synchronized(this)
+	{
+	    assert(_fd != null);
+	    if(_readSelector == null)
+	    {
+		try
+		{
+		    _readSelector = java.nio.channels.Selector.open();
+		    _fd.register(_readSelector, java.nio.channels.SelectionKey.OP_READ, null);
+		}
+		catch(java.io.IOException ex)
+		{
+		    if(Network.connectionLost(ex))
+		    {
+			Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+			se.initCause(ex);
+			throw se;
+		    }
+
+		    Ice.SocketException se = new Ice.SocketException();
+		    se.initCause(ex);
+		    throw se;
+		}
+	    }
+	}
+
         int ret = 0;
         while(true)
         {
-            if(_connect)
-            {
-                //
-                // If we must connect, then we connect to the first peer that
-                // sends us a packet.
-                //
-                try
-                {
-                    assert(_fd != null);
-                    java.net.InetSocketAddress peerAddr = (java.net.InetSocketAddress)_fd.receive(buf);
-                    ret = buf.position();
-                    Network.doConnect(_fd, peerAddr, -1);
-                    _connect = false; // We're connected now
-
-                    if(_traceLevels.network >= 1)
-                    {
-                        String s = "connected udp socket\n" + toString();
-                        _logger.trace(_traceLevels.networkCat, s);
-                    }
-                }
-                catch(java.io.InterruptedIOException ex)
-                {
-                    continue;
-                }
-                catch(java.io.IOException ex)
-                {
-                    Ice.SocketException se = new Ice.SocketException();
-                    se.initCause(ex);
-                    throw se;
-                }
-            }
-            else
-            {
-		assert(_fd != null);
-                try
-                {
-                    _fd.receive(buf);
-                    ret = buf.position();
-		    if(ret == 0)
-		    {
-			continue;
-		    }
-                }
-		catch(java.nio.channels.AsynchronousCloseException ex)
+	    //
+	    // Check for shutdown.
+	    //
+	    java.nio.channels.DatagramChannel fd = null;
+	    synchronized(this)
+	    {
+		if(_fd == null)
 		{
 		    throw new Ice.ConnectionLostException();
 		}
-                catch(java.io.InterruptedIOException ex)
-                {
-                    continue;
-                }
-                catch(java.io.IOException ex)
-                {
-                    Ice.SocketException se = new Ice.SocketException();
-                    se.initCause(ex);
-                    throw se;
-                }
-            }
+		fd = _fd;
+	    }
 
-            break;
+	    try
+	    {
+		java.net.InetSocketAddress sender = (java.net.InetSocketAddress)fd.receive(buf);
+		if(sender == null || buf.position() == 0)
+		{
+		    //
+		    // Wait until packet arrives or socket is closed.
+		    //
+		    _readSelector.select();
+		    continue;
+		}
+
+		ret = buf.position();
+
+		if(_connect)
+		{
+		    //
+		    // If we must connect, then we connect to the first peer that
+		    // sends us a packet.
+		    //
+		    Network.doConnect(fd, sender, -1);
+		    _connect = false; // We're connected now
+
+		    if(_traceLevels.network >= 1)
+		    {
+			String s = "connected udp socket\n" + toString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
+		}
+
+		break;
+	    }
+	    catch(java.nio.channels.AsynchronousCloseException ex)
+	    {
+		throw new Ice.ConnectionLostException();
+	    }
+	    catch(java.io.InterruptedIOException ex)
+	    {
+		continue;
+	    }
+	    catch(java.io.IOException ex)
+	    {
+		if(Network.connectionLost(ex))
+		{
+		    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+		    se.initCause(ex);
+		    throw se;
+		}
+
+		Ice.SocketException se = new Ice.SocketException();
+		se.initCause(ex);
+		throw se;
+	    }
         }
 
         if(_traceLevels.network >= 3)
@@ -264,10 +297,7 @@ final class UdpTransceiver implements Transceiver
         {
             _fd = Network.createUdpSocket();
 	    setBufSize(instance);
-	    if(!instance.threadPerConnection())
-	    {
-		Network.setBlock(_fd, false);
-	    }
+	    Network.setBlock(_fd, false);
             _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
@@ -301,10 +331,7 @@ final class UdpTransceiver implements Transceiver
         {
             _fd = Network.createUdpSocket();
 	    setBufSize(instance);
-	    if(!instance.threadPerConnection())
-	    {
-		Network.setBlock(_fd, false);
-	    }
+	    Network.setBlock(_fd, false);
             _addr = new java.net.InetSocketAddress(host, port);
 	    if(_traceLevels.network >= 2)
 	    {
@@ -406,6 +433,28 @@ final class UdpTransceiver implements Transceiver
 	}
     }
 
+    private void
+    closeSocket()
+    {
+        if(_fd != null)
+	{
+	    if(_traceLevels.network >= 1)
+	    {
+		String s = "closing udp connection\n" + toString();
+		_logger.trace(_traceLevels.networkCat, s);
+	    }
+
+	    try
+	    {
+		_fd.close();
+	    }
+	    catch(java.io.IOException ex)
+	    {
+	    }
+	    _fd = null;
+	}
+    }
+
     protected synchronized void
     finalize()
         throws Throwable
@@ -425,6 +474,7 @@ final class UdpTransceiver implements Transceiver
     private int _sndSize;
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
+    private java.nio.channels.Selector _readSelector;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
