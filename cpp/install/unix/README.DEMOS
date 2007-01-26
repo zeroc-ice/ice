@@ -145,12 +145,12 @@ Running the C++ demos
 To run a demo, open a terminal terminal window, change to the desired
 demo directory, and enter the following command to run the server:
 
-$ ./server
+   $ ./server
 
 To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
-$ ./client
+   $ ./client
 
 
 Running the Java demos
