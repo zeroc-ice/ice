@@ -1,6 +1,15 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Proxies and object adapters can now be configured to use
+  thread-per-connection.
+
+- Added new property Ice.Default.PreferSecure, which if set to 1
+  causes secure connections to be prefered over non-secure connections.
+  By default this property is set to 0. Also added functions to control
+  this behavior on a per-proxy rather global basis, ice_isPreferSecure()
+  and ice_preferSecure().
+
 - Added support for a user callback when SIGINT like signals are
   sent to applications that use the Application interface. See
   Application.interruptCallback and Application.callbackOnInterrupt

@@ -1005,6 +1005,63 @@ proxyIceSecure(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceIsPreferSecure(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    PyObject* b;
+    try
+    {
+        b = (*self->proxy)->ice_isPreferSecure() ? Py_True : Py_False;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(b);
+    return b;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIcePreferSecure(ProxyObject* self, PyObject* args)
+{
+    PyObject* flag;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
+    {
+        return NULL;
+    }
+
+    int n = PyObject_IsTrue(flag);
+    if(n < 0)
+    {
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_preferSecure(n == 1);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceGetRouter(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1464,6 +1521,63 @@ proxyIceConnectionId(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceIsThreadPerConnection(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    PyObject* b;
+    try
+    {
+        b = (*self->proxy)->ice_isThreadPerConnection() ? Py_True : Py_False;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(b);
+    return b;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceThreadPerConnection(ProxyObject* self, PyObject* args)
+{
+    PyObject* flag;
+    if(!PyArg_ParseTuple(args, STRCAST("O"), &flag))
+    {
+        return NULL;
+    }
+
+    int n = PyObject_IsTrue(flag);
+    if(n < 0)
+    {
+        return NULL;
+    }
+
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_threadPerConnection(n == 1);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceGetConnection(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1908,6 +2022,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_isSecure() -> bool")) },
     { STRCAST("ice_secure"), (PyCFunction)proxyIceSecure, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_secure(bool) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isPreferSecure"), (PyCFunction)proxyIceIsPreferSecure, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isPreferSecure() -> bool")) },
+    { STRCAST("ice_preferSecure"), (PyCFunction)proxyIcePreferSecure, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_preferSecure(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_getRouter"), (PyCFunction)proxyIceGetRouter, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getRouter() -> Ice.RouterPrx")) },
     { STRCAST("ice_router"), (PyCFunction)proxyIceRouter, METH_VARARGS,
@@ -1942,6 +2060,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_timeout(int) -> Ice.ObjectPrx")) },
     { STRCAST("ice_connectionId"), (PyCFunction)proxyIceConnectionId, METH_VARARGS,
         PyDoc_STR(STRCAST("ice_connectionId(string) -> Ice.ObjectPrx")) },
+    { STRCAST("ice_isThreadPerConnection"), (PyCFunction)proxyIceIsThreadPerConnection, METH_NOARGS,
+        PyDoc_STR(STRCAST("ice_isThreadPerConnection() -> bool")) },
+    { STRCAST("ice_threadPerConnection"), (PyCFunction)proxyIceThreadPerConnection, METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_threadPerConnection(bool) -> Ice.ObjectPrx")) },
     { STRCAST("ice_connection"), (PyCFunction)proxyIceConnection, METH_NOARGS,
         PyDoc_STR(STRCAST("ice_connection() -> Ice.Connection")) }, // Deprecated
     { STRCAST("ice_getConnection"), (PyCFunction)proxyIceGetConnection, METH_NOARGS,
