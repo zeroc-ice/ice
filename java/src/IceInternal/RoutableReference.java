@@ -265,20 +265,23 @@ public abstract class RoutableReference extends Reference
 		      boolean sec,
 		      boolean prefSec,
 		      RouterInfo rtrInfo,
-		      boolean collocationOpt)
+		      boolean collocationOpt,
+                      boolean cacheConnection,
+                      Ice.EndpointSelectionType endpointSelection,
+                      boolean threadPerConnection)
     {
         super(inst, com, ident, ctx, fac, md);
 	_secure = sec;
 	_preferSecure = prefSec;
 	_routerInfo = rtrInfo;
 	_collocationOptimization = collocationOpt;
-	_cacheConnection = true;
-	_endpointSelection = Ice.EndpointSelectionType.Random;
+	_cacheConnection = cacheConnection;
+	_endpointSelection = endpointSelection;
 	_overrideCompress = false;
 	_compress = false;
 	_overrideTimeout = false;
 	_timeout = -1;
-        _threadPerConnection = inst.threadPerConnection();
+        _threadPerConnection = threadPerConnection;
     }
 
     protected void

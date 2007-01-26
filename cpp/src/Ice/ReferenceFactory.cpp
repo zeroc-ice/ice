@@ -59,7 +59,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      bool preferSecure,
 				      const vector<EndpointIPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
-				      bool collocationOptimization)
+				      bool collocationOptimization,
+                                      bool cacheConnection,
+                                      EndpointSelectionType endpointSelection,
+                                      bool threadPerConnection)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -77,7 +80,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
     return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, preferSecure,
-			       endpoints, routerInfo, collocationOptimization);
+			       endpoints, routerInfo, collocationOptimization, cacheConnection, endpointSelection,
+                               threadPerConnection);
 }
 
 ReferencePtr
@@ -91,6 +95,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const RouterInfoPtr& routerInfo,
 				      const LocatorInfoPtr& locatorInfo,
 				      bool collocationOptimization,
+                                      bool cacheConnection,
+                                      EndpointSelectionType endpointSelection,
+                                      bool threadPerConnection,
 				      int locatorCacheTimeout)
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -109,7 +116,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
     return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, preferSecure,
-				 adapterId, routerInfo, locatorInfo, collocationOptimization, locatorCacheTimeout);
+				 adapterId, routerInfo, locatorInfo, collocationOptimization, cacheConnection,
+                                 endpointSelection, threadPerConnection, locatorCacheTimeout);
 }
 
 ReferencePtr
@@ -425,7 +433,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
 		      _instance->defaultsAndOverrides()->defaultPreferSecure, "", routerInfo,
 		      locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, 
-		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
+                      true, _instance->defaultsAndOverrides()->defaultEndpointSelection,
+                      _instance->threadPerConnection(), _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 
     vector<EndpointIPtr> endpoints;
@@ -479,7 +488,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    return create(ident, _instance->getDefaultContext(), facet, mode, secure,
 	    		  _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, routerInfo,
-			  _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+			  _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
+                          _instance->defaultsAndOverrides()->defaultEndpointSelection,
+                          _instance->threadPerConnection());
 	    break;
 	}
 	case '@':
@@ -531,7 +542,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    
 	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
 	    		  _instance->defaultsAndOverrides()->defaultPreferSecure, adapter, routerInfo, locatorInfo,
-			  _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+			  _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
+                          _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection(),
 			  _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
 	    break;
 	}
@@ -615,6 +627,12 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
         ref = ref->changeCollocationOptimization(properties->getPropertyAsInt(property) > 0);
     }
 
+    property = propertyPrefix + ".ThreadPerConnection";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeThreadPerConnection(properties->getPropertyAsInt(property) > 0);
+    }
+
     return ref;
 }
 
@@ -676,14 +694,16 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	}
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure,
 		      _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, routerInfo,
-		      _instance->defaultsAndOverrides()->defaultCollocationOptimization);
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
+		      _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection());
     }
     else
     {
 	s->read(adapterId);
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure, 
 		      _instance->defaultsAndOverrides()->defaultPreferSecure, adapterId, routerInfo, locatorInfo,
-		      _instance->defaultsAndOverrides()->defaultCollocationOptimization,
+		      _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
+		      _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection(),
 		      _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     }
 }

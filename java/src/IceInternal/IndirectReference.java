@@ -24,9 +24,13 @@ public class IndirectReference extends RoutableReference
 		      RouterInfo rtrInfo,
 		      LocatorInfo locInfo,
 		      boolean collocationOpt,
+                      boolean cacheConnection,
+                      Ice.EndpointSelectionType endpointSelection,
+                      boolean threadPerConnection,
 		      int locatorCacheTimeout)
     {
-    	super(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt);
+    	super(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt, cacheConnection, endpointSelection,
+              threadPerConnection);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
 	_locatorCacheTimeout = locatorCacheTimeout;
@@ -90,7 +94,8 @@ public class IndirectReference extends RoutableReference
 	}
 	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
 						       getSecure(), getPreferSecure(), newEndpoints, getRouterInfo(),
-						       getCollocationOptimization());	
+						       getCollocationOptimization(), getCacheConnection(),
+                                                       getEndpointSelection(), getThreadPerConnection());
     }
 
     public Reference

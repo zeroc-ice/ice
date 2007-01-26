@@ -22,9 +22,13 @@ public class DirectReference extends RoutableReference
 		    boolean prefSec,
 		    EndpointI[] endpts,
 		    RouterInfo rtrInfo,
-		    boolean collocationOpt)
+		    boolean collocationOpt,
+                    boolean cacheConnection,
+                    Ice.EndpointSelectionType endpointSelection,
+                    boolean threadPerConnection)
     {
-    	super(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt);
+    	super(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt, cacheConnection, endpointSelection,
+              threadPerConnection);
         _endpoints = endpts;
     }
 
@@ -111,8 +115,9 @@ public class DirectReference extends RoutableReference
 	    getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
 	return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
 						       getSecure(), getPreferSecure(), newAdapterId, getRouterInfo(),
-						       locatorInfo, getCollocationOptimization(),
-						       getLocatorCacheTimeout());
+						       locatorInfo, getCollocationOptimization(), getCacheConnection(),
+                                                       getEndpointSelection(), getThreadPerConnection(),
+                                                       getLocatorCacheTimeout());
     }
 
     public Reference

@@ -20,7 +20,10 @@ public final class ReferenceFactory
            boolean preferSecure,
            EndpointI[] endpoints,
            RouterInfo routerInfo,
-	   boolean collocationOptimization)
+	   boolean collocationOptimization,
+           boolean cacheConnection,
+           Ice.EndpointSelectionType endpointSelection,
+           boolean threadPerConnection)
     {
         if(_instance == null)
         {
@@ -36,7 +39,8 @@ public final class ReferenceFactory
         // Create new reference
         //
         DirectReference ref = new DirectReference(_instance, _communicator, ident, context, facet, mode, secure,
-						  preferSecure, endpoints, routerInfo, collocationOptimization);
+						  preferSecure, endpoints, routerInfo, collocationOptimization,
+                                                  cacheConnection, endpointSelection, threadPerConnection);
 	return updateCache(ref);
     }
 
@@ -51,6 +55,9 @@ public final class ReferenceFactory
            RouterInfo routerInfo,
 	   LocatorInfo locatorInfo,
 	   boolean collocationOptimization,
+           boolean cacheConnection,
+           Ice.EndpointSelectionType endpointSelection,
+           boolean threadPerConnection,
 	   int locatorCacheTimeout)
     {
         if(_instance == null)
@@ -68,7 +75,8 @@ public final class ReferenceFactory
         //
         IndirectReference ref = new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure,
 						      preferSecure, adapterId, routerInfo, locatorInfo,
-						      collocationOptimization, locatorCacheTimeout);
+						      collocationOptimization, cacheConnection, endpointSelection,
+                                                      threadPerConnection, locatorCacheTimeout);
 	return updateCache(ref);
     }
 
@@ -394,7 +402,8 @@ public final class ReferenceFactory
 	{
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
 	    		  _instance.defaultsAndOverrides().defaultPreferSecure, "", routerInfo,
-	    		  locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization,
+	    		  locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization, true,
+                          _instance.defaultsAndOverrides().defaultEndpointSelection, _instance.threadPerConnection(),
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
 
@@ -449,7 +458,8 @@ public final class ReferenceFactory
 	    endpoints.toArray(endp);
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, 
 	    		  _instance.defaultsAndOverrides().defaultPreferSecure, endp, routerInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization);
+			  _instance.defaultsAndOverrides().defaultCollocationOptimization, true,
+                          _instance.defaultsAndOverrides().defaultEndpointSelection, _instance.threadPerConnection());
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -492,7 +502,8 @@ public final class ReferenceFactory
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
 	    		  _instance.defaultsAndOverrides().defaultPreferSecure, adapter,
 	    		  routerInfo, locatorInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization,
-			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
+                          true, _instance.defaultsAndOverrides().defaultEndpointSelection,
+                          _instance.threadPerConnection(), _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -567,6 +578,12 @@ public final class ReferenceFactory
 	    ref = ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
 	}
 
+        property = propertyPrefix + ".ThreadPerConnection";
+        if(properties.getProperty(property).length() != 0)
+        {
+            ref = ref.changeThreadPerConnection(properties.getPropertyAsInt(property) > 0);
+        }
+
 	return ref;
     }
 
@@ -625,7 +642,8 @@ public final class ReferenceFactory
 	    }
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure, 
 	    		  _instance.defaultsAndOverrides().defaultPreferSecure, endpoints,
-	    		  routerInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization);
+	    		  routerInfo, _instance.defaultsAndOverrides().defaultCollocationOptimization, true,
+                          _instance.defaultsAndOverrides().defaultEndpointSelection, _instance.threadPerConnection());
 	}
 	else
 	{
@@ -633,7 +651,8 @@ public final class ReferenceFactory
 	    adapterId = s.readString();
 	    return create(ident, _instance.getDefaultContext(), facet, mode, secure,
 	    		  _instance.defaultsAndOverrides().defaultPreferSecure, adapterId, routerInfo, locatorInfo,
-			  _instance.defaultsAndOverrides().defaultCollocationOptimization,
+			  _instance.defaultsAndOverrides().defaultCollocationOptimization, true,
+                          _instance.defaultsAndOverrides().defaultEndpointSelection, _instance.threadPerConnection(),
 			  _instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	}
     }

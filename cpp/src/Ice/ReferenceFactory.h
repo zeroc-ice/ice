@@ -33,13 +33,13 @@ public:
     //
     ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
 			Reference::Mode, bool, bool, const ::std::vector<EndpointIPtr>&,
-			const RouterInfoPtr&, bool);
+			const RouterInfoPtr&, bool, bool, Ice::EndpointSelectionType, bool);
     //
     // Create an indirect reference.
     //
     ReferencePtr create(const ::Ice::Identity&, const SharedContextPtr&, const ::std::string&,
 			Reference::Mode, bool, bool, const ::std::string&,
-			const RouterInfoPtr&, const LocatorInfoPtr&, bool, int);
+			const RouterInfoPtr&, const LocatorInfoPtr&, bool, bool, Ice::EndpointSelectionType, bool, int);
     //
     // Create a fixed reference.
     //

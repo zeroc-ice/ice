@@ -1060,7 +1060,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    _instance.referenceFactory().create(ident, new java.util.HashMap(), facet, 
 						IceInternal.Reference.ModeTwoway, false, 
 						_instance.defaultsAndOverrides().defaultPreferSecure, endpoints, null,
-						_instance.defaultsAndOverrides().defaultCollocationOptimization);
+						_instance.defaultsAndOverrides().defaultCollocationOptimization, true,
+						_instance.defaultsAndOverrides().defaultEndpointSelection,
+                                                _instance.threadPerConnection());
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
@@ -1078,7 +1080,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 						IceInternal.Reference.ModeTwoway, false, 
 						_instance.defaultsAndOverrides().defaultPreferSecure, id, null,
 						_locatorInfo, 
-						_instance.defaultsAndOverrides().defaultCollocationOptimization,
+						_instance.defaultsAndOverrides().defaultCollocationOptimization, true,
+						_instance.defaultsAndOverrides().defaultEndpointSelection,
+                                                _instance.threadPerConnection(),
 						_instance.defaultsAndOverrides().defaultLocatorCacheTimeout);
 	return _instance.proxyFactory().referenceToProxy(reference);
     }

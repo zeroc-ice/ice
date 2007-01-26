@@ -238,7 +238,8 @@ public:
 protected:
 
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
-		      const std::string&, Mode, bool, bool, const RouterInfoPtr&, bool);
+		      const std::string&, Mode, bool, bool, const RouterInfoPtr&, bool, bool,
+                      Ice::EndpointSelectionType, bool);
     RoutableReference(const RoutableReference&);
 
     Ice::ConnectionIPtr createConnection(const std::vector<EndpointIPtr>&, bool&) const;
@@ -266,7 +267,8 @@ class DirectReference : public RoutableReference
 public:
 
     DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&,
-		    const std::string&, Mode, bool, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool);
+		    const std::string&, Mode, bool, bool, const std::vector<EndpointIPtr>&, const RouterInfoPtr&, bool,
+                    bool, Ice::EndpointSelectionType, bool);
 
     virtual Type getType() const;
     virtual int getLocatorCacheTimeout() const;
@@ -306,7 +308,7 @@ public:
 
     IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&, 
 		      const std::string&, Mode, bool, bool, const std::string&, const RouterInfoPtr&,
-		      const LocatorInfoPtr&, bool, int);
+		      const LocatorInfoPtr&, bool, bool, Ice::EndpointSelectionType, bool, int);
 
     virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 

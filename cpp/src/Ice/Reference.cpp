@@ -1105,19 +1105,20 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
 						  Mode md, bool sec, bool prefSec, const RouterInfoPtr& rtrInfo,
-						  bool collocationOpt) :
+						  bool collocationOpt, bool cacheConnection,
+                                                  EndpointSelectionType endpointSelection, bool threadPerConnection) :
     Reference(inst, com, ident, ctx, fs, md),
     _secure(sec),
     _preferSecure(prefSec),
     _routerInfo(rtrInfo),
     _collocationOptimization(collocationOpt),
-    _cacheConnection(true),
-    _endpointSelection(Random),
+    _cacheConnection(cacheConnection),
+    _endpointSelection(endpointSelection),
     _overrideCompress(false),
     _compress(false),
     _overrideTimeout(false),
     _timeout(-1),
-    _threadPerConnection(inst->threadPerConnection())
+    _threadPerConnection(threadPerConnection)
 {
 }
 
@@ -1308,8 +1309,10 @@ void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
 					      const Identity& ident, const SharedContextPtr& ctx, const string& fs,
 					      Mode md, bool sec, bool prefSec, const vector<EndpointIPtr>& endpts,
-					      const RouterInfoPtr& rtrInfo, bool collocationOpt) :
-    RoutableReference(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt),
+					      const RouterInfoPtr& rtrInfo, bool collocationOpt, bool cacheConnection,
+                                              EndpointSelectionType endpointSelection, bool threadPerConnection) :
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt, cacheConnection,
+                      endpointSelection, threadPerConnection),
     _endpoints(endpts)
 {
 }
@@ -1408,7 +1411,8 @@ IceInternal::DirectReference::changeAdapterId(const string& newAdapterId) const
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 getSecure(), getPreferSecure(), newAdapterId, getRouterInfo(),
 							 locatorInfo, getCollocationOptimization(),
-							 getLocatorCacheTimeout());
+                                                         getCacheConnection(), getEndpointSelection(),
+                                                         getThreadPerConnection(), getLocatorCacheTimeout());
     }
     else
     {
@@ -1561,8 +1565,11 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
 						  Mode md, bool sec, bool prefSec, const string& adptid, 
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo,
-						  bool collocationOpt, int locatorCacheTimeout) :
-    RoutableReference(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt),
+						  bool collocationOpt, bool cacheConnection,
+                                                  EndpointSelectionType endpointSelection, bool threadPerConnection,
+                                                  int locatorCacheTimeout) :
+    RoutableReference(inst, com, ident, ctx, fs, md, sec, prefSec, rtrInfo, collocationOpt, cacheConnection,
+                      endpointSelection, threadPerConnection),
     _adapterId(adptid),
     _locatorInfo(locInfo),
     _locatorCacheTimeout(locatorCacheTimeout)
@@ -1625,7 +1632,8 @@ IceInternal::IndirectReference::changeEndpoints(const vector<EndpointIPtr>& newE
     {
 	return getInstance()->referenceFactory()->create(getIdentity(), getContext(), getFacet(), getMode(),
 							 getSecure(), getPreferSecure(), newEndpoints, getRouterInfo(),
-							 getCollocationOptimization());
+							 getCollocationOptimization(), getCacheConnection(),
+                                                         getEndpointSelection(), getThreadPerConnection());
     }
     else
     {
