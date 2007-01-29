@@ -27,6 +27,7 @@
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <csignal>
+#   include <fstream>
 #endif
 
 using namespace std;
@@ -399,11 +400,14 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
     }
 #else
     //
-    // Check for --daemon, --noclose and --nochdir.
+    // Check for --daemon, --noclose, --nochdir and --pidfile=
     //
     bool daemonize = false;
     bool closeFiles = true;
     bool changeDirectory = true;
+    string pidFile;
+    const char* pidFileArg = "--pidfile=";
+    const size_t pidFileLen = strlen(pidFileArg);
     int idx = 1;
     while(idx < argc)
     {
@@ -437,6 +441,16 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
 
             changeDirectory = false;
         }
+	else if(strncmp(argv[idx], pidFileArg, pidFileLen) == 0)
+        {
+	    pidFile = argv[idx] + pidFileLen;
+
+            for(int i = idx; i + 1 < argc; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            argc -= 1;
+        }
         else
         {
             ++idx;
@@ -449,9 +463,15 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
         return EXIT_FAILURE;
     }
 
+    if(pidFile.size() > 0 && !daemonize)
+    {
+        cerr << argv[0] << ": --pidfile=<file> must be used with --daemon" << endl;
+        return EXIT_FAILURE;
+    }
+
     if(daemonize)
     {
-        configureDaemon(changeDirectory, closeFiles);
+        configureDaemon(changeDirectory, closeFiles, pidFile);
     }
 #endif
 
@@ -877,11 +897,12 @@ Ice::Service::stopService(const string& name)
 #else
 
 void
-Ice::Service::configureDaemon(bool changeDirectory, bool closeFiles)
+Ice::Service::configureDaemon(bool changeDirectory, bool closeFiles, const string& pidFile)
 {
     _service = true;
     _changeDirectory = changeDirectory;
     _closeFiles = closeFiles;
+    _pidFile = pidFile;
 }
 
 #endif
@@ -1702,6 +1723,20 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
 		assert(fd == 2);
 	    }
         }
+	
+	//
+	// Write PID
+	//
+	if(_pidFile.size() > 0)
+	{
+	    ofstream of(_pidFile.c_str());
+	    of << getpid() << endl;
+
+	    if(!of)
+	    {
+		warning("Could not write PID file " + _pidFile);
+	    }
+	}
 
         //
         // Use the configured logger.

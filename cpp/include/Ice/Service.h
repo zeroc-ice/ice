@@ -141,7 +141,7 @@ public:
     // argument indicates whether extraneous file descriptors are
     // closed.
     //
-    void configureDaemon(bool, bool);
+    void configureDaemon(bool, bool, const std::string&);
 
 #endif
 
@@ -242,6 +242,7 @@ public:
 
     bool _changeDirectory;
     bool _closeFiles;
+    std::string _pidFile;
 
 #endif
 };
