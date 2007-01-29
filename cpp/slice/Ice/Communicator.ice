@@ -83,14 +83,17 @@ local interface Communicator
 
     /**
      *
-     * Wait until this communicator's server functionality has shut
-     * down completely. Calling [shutdown] initiates shut-down, and
-     * [waitForShutdown] only returns when all outstanding requests
-     * have completed. A typical use of this operation is to call it
+     * Wait until the application has called [shutdown] (or [destroy]).
+     * On the server side, this operation blocks the calling thread
+     * until all currently-executing operations have completed.
+     * On the client side, the operation simply block until another
+     * thread has called [shutdown] or [destroy].
+     *
+     * <p>A typical use of this operation is to call it
      * from the main thread, which then waits until some other thread
      * calls [shutdown]. After shut-down is complete, the main thread
      * returns and can do some cleanup work before it finally calls
-     * [destroy] to also shut down the client functionality, and then
+     * [destroy] to shut down the client functionality, and then
      * exits the application.
      *
      * @see shutdown
