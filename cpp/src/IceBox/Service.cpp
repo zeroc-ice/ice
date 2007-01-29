@@ -129,7 +129,8 @@ IceBox::IceBoxService::usage(const string& appName)
         "\n"
         "--daemon             Run as a daemon.\n"
         "--noclose            Do not close open file descriptors.\n"
-        "--nochdir            Do not change the current working directory."
+	"--nochdir            Do not change the current working directory.\n"
+	"--pidfile=<file>     Write process ID to <file>."
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);
