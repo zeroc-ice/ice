@@ -159,7 +159,7 @@ public class AdapterI : Test.AdapterDisp_
             proxy.ice_getConnection();
             test(false);
         }
-        catch(Ice.CollocationOptimizationException ex)
+        catch(Ice.CollocationOptimizationException)
         {
             // Expected.
         }
@@ -175,7 +175,7 @@ public class AdapterI : Test.AdapterDisp_
             proxy2.ice_getConnection();
             test(false);
         }
-        catch(Ice.CollocationOptimizationException ex)
+        catch(Ice.CollocationOptimizationException)
         {
             // Expected.
         }

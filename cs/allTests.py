@@ -64,6 +64,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
+    "IceSSL/configuration", \
     "Ice/threads", \
     "Glacier2/router", \
     "Glacier2/attack", \
