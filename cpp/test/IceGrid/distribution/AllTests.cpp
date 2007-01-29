@@ -15,6 +15,8 @@
 #include <TestCommon.h>
 #include <Test.h>
 
+#include <iterator>
+
 using namespace std;
 using namespace Test;
 using namespace IceGrid;
@@ -90,7 +92,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all"));
 	test(test->getServerFile("rootfile") == "");
 
-	admin->patchServer("server-all", true);
+        try
+        {
+            admin->patchServer("server-all", true);
+        }
+        catch(const PatchException& ex)
+        {
+            copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
+            test(false);
+        }
 
 	test(test->getServerFile("rootfile") == "rootfile");
 	test(test->getServerFile("dir1/file1") == "dummy-file1");
@@ -102,7 +112,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(test->getApplicationFile("dir1/file2") == "");
 	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
 
-	admin->patchServer("server-all-direct", true);
+        try
+        {
+            admin->patchServer("server-all-direct", true);
+        }
+        catch(const PatchException& ex)
+        {
+            copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
+            test(false);
+        }
 	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all-direct"));
 
 	test(test->getServerFile("rootfile") == "rootfile");
@@ -115,7 +133,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(test->getApplicationFile("dir1/file2") == "");
 	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
 
-	admin->patchApplication("Test", true);
+        try
+        {
+            admin->patchApplication("Test", true);
+        }
+        catch(const PatchException& ex)
+        {
+            copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
+            test(false);
+        }
 	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-dir1"));
 
 	test(test->getServerFile("rootfile") == "");
@@ -147,7 +173,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all"));
 	test(test->getServerFile("rootfile") == "rootfile");
 
-	admin->patchServer("server-all", true);
+        try
+        {
+            admin->patchServer("server-all", true);
+        }
+        catch(const PatchException& ex)
+        {
+            copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
+            test(false);
+        }
  
 	test(test->getServerFile("rootfile") == "rootfile-updated!");
 	test(test->getServerFile("dir1/file1") == "");
@@ -161,7 +195,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
 	test(test->getApplicationFile("dir2/file4") == "dummy-file4");
 
-	admin->patchServer("server-all-direct", true);
+        try
+        {
+            admin->patchServer("server-all-direct", true);
+        }
+        catch(const PatchException& ex)
+        {
+            copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
+            test(false);
+        }
 	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all-direct"));
 
 	test(test->getServerFile("rootfile") == "rootfile-updated!");
@@ -176,7 +218,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
 	test(test->getApplicationFile("dir2/file4") == "dummy-file4");
 
-	admin->patchApplication("Test", true);
+        try
+        {
+            admin->patchApplication("Test", true);
+        }
+        catch(const PatchException& ex)
+        {
+            copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
+            test(false);
+        }
 	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-dir1"));
 
 	test(test->getServerFile("rootfile") == "");
