@@ -78,16 +78,6 @@ IceSSL::AcceptorI::accept(int timeout)
     SOCKET fd = IceInternal::doAccept(_fd, timeout);
     IceInternal::setBlock(fd, false);
 
-    //
-    // Get a description of the remote address in case we need it later.
-    //
-    struct sockaddr_in remoteAddr;
-    string desc;
-    if(IceInternal::fdToRemoteAddress(fd, remoteAddr))
-    {
-	desc = IceInternal::addrToString(remoteAddr);
-    }
-
     BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
     if(!bio)
     {
@@ -107,129 +97,10 @@ IceSSL::AcceptorI::accept(int timeout)
     }
     SSL_set_bio(ssl, bio, bio);
 
-    if(_instance->networkTraceLevel() >= 2)
-    {
-	Trace out(_logger, _instance->networkTraceCategory());
-	out << "trying to validate incoming ssl connection\n" << IceInternal::fdToString(fd);
-    }
-
-    // TODO: The timeout is 0 when called by the thread pool.
-    // Make this configurable?
-    if(timeout == 0)
-    {
-	timeout = -1;
-    }
-
-    try
-    {
-	do
-	{
-	    int ret = SSL_accept(ssl);
-	    switch(SSL_get_error(ssl, ret))
-	    {
-	    case SSL_ERROR_NONE:
-		assert(SSL_is_init_finished(ssl));
-		break;
-	    case SSL_ERROR_ZERO_RETURN:
-	    {
-		ConnectionLostException ex(__FILE__, __LINE__);
-		ex.error = IceInternal::getSocketErrno();
-		throw ex;
-	    }
-	    case SSL_ERROR_WANT_READ:
-	    {
-		if(!selectRead(fd, timeout))
-		{
-		    throw ConnectTimeoutException(__FILE__, __LINE__);
-		}
-		break;
-	    }
-	    case SSL_ERROR_WANT_WRITE:
-	    {
-		if(!selectWrite(fd, timeout))
-		{
-		    throw ConnectTimeoutException(__FILE__, __LINE__);
-		}
-		break;
-	    }
-	    case SSL_ERROR_SYSCALL:
-	    {
-		if(ret == -1)
-		{
-		    if(IceInternal::interrupted())
-		    {
-			break;
-		    }
-
-		    if(IceInternal::wouldBlock())
-		    {
-			if(SSL_want_read(ssl))
-			{
-			    if(!selectRead(fd, timeout))
-			    {
-				throw ConnectTimeoutException(__FILE__, __LINE__);
-			    }
-			}
-			else if(SSL_want_write(ssl))
-			{
-			    if(!selectWrite(fd, timeout))
-			    {
-				throw ConnectTimeoutException(__FILE__, __LINE__);
-			    }
-			}
-
-			break;
-		    }
-
-		    if(IceInternal::connectionLost())
-		    {
-			ConnectionLostException ex(__FILE__, __LINE__);
-			ex.error = IceInternal::getSocketErrno();
-			throw ex;
-		    }
-		}
-
-		if(ret == 0)
-		{
-		    ConnectionLostException ex(__FILE__, __LINE__);
-		    ex.error = 0;
-		    throw ex;
-		}
-
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = IceInternal::getSocketErrno();
-		throw ex;
-	    }
-	    case SSL_ERROR_SSL:
-	    {
-		ProtocolException ex(__FILE__, __LINE__);
-		ex.reason = "SSL error occurred for new incoming connection:\nremote address = " + desc + "\n" +
-		    _instance->sslErrors();
-		throw ex;
-	    }
-	    }
-	}
-	while(!SSL_is_init_finished(ssl));
-
-	_instance->verifyPeer(ssl, fd, "", _adapterName, true);
-    }
-    catch(...)
-    {
-	SSL_free(ssl);
-	throw;
-    }
-
-    if(_instance->networkTraceLevel() >= 1)
-    {
-	Trace out(_logger, _instance->networkTraceCategory());
-	out << "accepted ssl connection\n" << IceInternal::fdToString(fd);
-    }
-
-    if(_instance->securityTraceLevel() >= 1)
-    {
-	_instance->traceConnection(ssl, true);
-    }
-
+    //
+    // SSL handshaking is performed in TransceiverI::initialize, since
+    // accept must not block.
+    //
     return new TransceiverI(_instance, ssl, fd, true, _adapterName);
 }
 

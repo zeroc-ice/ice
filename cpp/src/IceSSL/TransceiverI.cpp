@@ -391,8 +391,131 @@ IceSSL::TransceiverI::toString() const
 }
 
 void
-IceSSL::TransceiverI::initialize(int)
+IceSSL::TransceiverI::initialize(int timeout)
 {
+    if(_incoming)
+    {
+        if(_instance->networkTraceLevel() >= 2)
+        {
+            Trace out(_logger, _instance->networkTraceCategory());
+            out << "trying to validate incoming ssl connection\n" << IceInternal::fdToString(_fd);
+        }
+
+        // TODO: The timeout is 0 when called by the thread pool.
+        // Make this configurable?
+        if(timeout == 0)
+        {
+            timeout = -1;
+        }
+
+        do
+        {
+            int ret = SSL_accept(_ssl);
+            switch(SSL_get_error(_ssl, ret))
+            {
+            case SSL_ERROR_NONE:
+                assert(SSL_is_init_finished(_ssl));
+                break;
+            case SSL_ERROR_ZERO_RETURN:
+            {
+                ConnectionLostException ex(__FILE__, __LINE__);
+                ex.error = IceInternal::getSocketErrno();
+                throw ex;
+            }
+            case SSL_ERROR_WANT_READ:
+            {
+                if(!selectRead(_fd, timeout))
+                {
+                    throw ConnectTimeoutException(__FILE__, __LINE__);
+                }
+                break;
+            }
+            case SSL_ERROR_WANT_WRITE:
+            {
+                if(!selectWrite(_fd, timeout))
+                {
+                    throw ConnectTimeoutException(__FILE__, __LINE__);
+                }
+                break;
+            }
+            case SSL_ERROR_SYSCALL:
+            {
+                if(ret == -1)
+                {
+                    if(IceInternal::interrupted())
+                    {
+                        break;
+                    }
+
+                    if(IceInternal::wouldBlock())
+                    {
+                        if(SSL_want_read(_ssl))
+                        {
+                            if(!selectRead(_fd, timeout))
+                            {
+                                throw ConnectTimeoutException(__FILE__, __LINE__);
+                            }
+                        }
+                        else if(SSL_want_write(_ssl))
+                        {
+                            if(!selectWrite(_fd, timeout))
+                            {
+                                throw ConnectTimeoutException(__FILE__, __LINE__);
+                            }
+                        }
+
+                        break;
+                    }
+
+                    if(IceInternal::connectionLost())
+                    {
+                        ConnectionLostException ex(__FILE__, __LINE__);
+                        ex.error = IceInternal::getSocketErrno();
+                        throw ex;
+                    }
+                }
+
+                if(ret == 0)
+                {
+                    ConnectionLostException ex(__FILE__, __LINE__);
+                    ex.error = 0;
+                    throw ex;
+                }
+
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = IceInternal::getSocketErrno();
+                throw ex;
+            }
+            case SSL_ERROR_SSL:
+            {
+                struct sockaddr_in remoteAddr;
+                string desc;
+                if(IceInternal::fdToRemoteAddress(_fd, remoteAddr))
+                {
+                    desc = IceInternal::addrToString(remoteAddr);
+                }
+                ProtocolException ex(__FILE__, __LINE__);
+                ex.reason = "SSL error occurred for new incoming connection:\nremote address = " + desc + "\n" +
+                    _instance->sslErrors();
+                throw ex;
+            }
+            }
+        }
+        while(!SSL_is_init_finished(_ssl));
+
+        _instance->verifyPeer(_ssl, _fd, "", _adapterName, true);
+
+        if(_instance->networkTraceLevel() >= 1)
+        {
+            Trace out(_logger, _instance->networkTraceCategory());
+            out << "accepted ssl connection\n" << IceInternal::fdToString(_fd);
+        }
+
+        if(_instance->securityTraceLevel() >= 1)
+        {
+            _instance->traceConnection(_ssl, true);
+        }
+    }
 }
 
 ConnectionInfo
@@ -430,12 +553,6 @@ void
 IceSSL::TransceiverI::shutdown()
 {
     int err = SSL_shutdown(_ssl);
-
-    //
-    // The man page for SSL_shutdown claims that it can return -1, but
-    // in fact it never does.
-    //
-    assert(err >= 0);
 
     //
     // Call it one more time if it returned 0.
