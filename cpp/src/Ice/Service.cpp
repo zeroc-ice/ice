@@ -400,14 +400,12 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
     }
 #else
     //
-    // Check for --daemon, --noclose, --nochdir and --pidfile=
+    // Check for --daemon, --noclose, --nochdir and --pidfile
     //
     bool daemonize = false;
     bool closeFiles = true;
     bool changeDirectory = true;
     string pidFile;
-    const char* pidFileArg = "--pidfile=";
-    const size_t pidFileLen = strlen(pidFileArg);
     int idx = 1;
     while(idx < argc)
     {
@@ -441,15 +439,23 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
 
             changeDirectory = false;
         }
-	else if(strncmp(argv[idx], pidFileArg, pidFileLen) == 0)
+	else if(strcmp(argv[idx], "--pidfile") == 0)
         {
-	    pidFile = argv[idx] + pidFileLen;
+	    if(idx + 1 < argc)
+	    {
+		pidFile = argv[idx + 1];
+	    }
+	    else
+	    {
+		cerr << argv[0] << ": --pidfile must be followed by an argument" << endl;
+		return EXIT_FAILURE;
+	    }
 
-            for(int i = idx; i + 1 < argc; ++i)
+            for(int i = idx; i + 2 < argc; ++i)
             {
-                argv[i] = argv[i + 1];
+                argv[i] = argv[i + 2];
             }
-            argc -= 1;
+            argc -= 2;
         }
         else
         {
@@ -465,7 +471,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
 
     if(pidFile.size() > 0 && !daemonize)
     {
-        cerr << argv[0] << ": --pidfile=<file> must be used with --daemon" << endl;
+        cerr << argv[0] << ": --pidfile <file> must be used with --daemon" << endl;
         return EXIT_FAILURE;
     }
 
