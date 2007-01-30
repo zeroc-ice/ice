@@ -18,16 +18,14 @@
 # The IceGrid node user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=bernard
+user=iceuser
 
 #
 # The IceGrid node configuration file
 #
-#nodeconf="/etc/icegridnode.conf"
-nodeconf="/home/bernard/builds/ice/install/rpm/icegridnode.conf"
+nodeconf="/etc/icegridnode.conf"
 
-#prog="/usr/bin/icegridnode"
-prog="/home/bernard/builds/ice/bin/icegridnode"
+prog="/usr/bin/icegridnode"
 
 progbase=${prog##*/}
 pidfile=/var/run/$progbase.pid

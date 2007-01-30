@@ -17,16 +17,14 @@
 # The Glacier2 router user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=bernard
+user=iceuser
 
 #
 # The Glacier2 router configuration file
 #
-#routerconf="/etc/glacier2router.conf"
-routerconf="/home/bernard/builds/ice/install/rpm/glacier2router.conf"
+routerconf="/etc/glacier2router.conf"
 
-#prog="/usr/bin/glacier2router"
-prog="/home/bernard/builds/ice/bin/glacier2router"
+prog="/usr/bin/glacier2router"
 
 progbase=${prog##*/}
 pidfile=/var/run/$progbase.pid

@@ -20,16 +20,14 @@
 # The IceGrid registry user; root is allowed, but not necessary, therefore
 # it is recommended to use a non-root account.
 #
-user=bernard
+user=iceuser
 
 #
 # The IceGrid registry configuration file
 #
-#registryconf="/etc/icegridregistry.conf"
-registryconf="/home/bernard/builds/ice/install/rpm/icegridregistry.conf"
+registryconf="/etc/icegridregistry.conf"
 
-#prog="/usr/bin/icegridregistry"
-prog="/home/bernard/builds/ice/bin/icegridregistry"
+prog="/usr/bin/icegridregistry"
 
 progbase=${prog##*/}
 pidfile=/var/run/$progbase.pid
