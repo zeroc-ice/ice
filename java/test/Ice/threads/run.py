@@ -20,6 +20,10 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+if TestUtil.jdk14 and TestUtil.protocol == "ssl":
+    print "Skipping test for JDK 1.4 and SSL"
+    sys.exit(0)
+
 name = os.path.join("Ice", "threads")
 testdir = os.path.join(toplevel, "test", name)
 
