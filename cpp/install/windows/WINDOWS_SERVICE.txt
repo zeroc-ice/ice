@@ -1,0 +1,32 @@
+========================================================================
+Installing IceGrid registry, IceGrid node or Glacier2 router as a
+Windows Service
+========================================================================
+
+Step 1: Review and edit the configuration file (icegridregistry.cfg, 
+icegridnode.cfg or glacier2router.cfg)
+
+Step 2: Create the account for the user that will run the service 
+(iceuser in the sample configuration files). This user should be 
+initially Administrator (see note below).
+
+Step 3: For the IceGrid registry or node, log on as 'iceuser' and
+create any required data/database directory.
+
+Step 4: Install the service, for example:
+> icegridregistry --install IceGridRegistry \
+  --Ice.Config=C:\Ice-3.2.0\config\icegridregistry.cfg
+
+Step 5: In the Windows Services panel, edit the new Service.
+Change "Log on" to use the 'iceuser' account, instead of the Local
+System Account.
+
+Step 6: Start the service, and verify that the service starts
+properly.
+
+Step 7: Downgrade the 'iceuser' account to a regular Users account
+(see note below).
+
+Note: 'iceuser' needs to be Administrator the first time you start the
+service if you log messages to the Windows Event Log (see the 
+Ice.UseEventLog property).
