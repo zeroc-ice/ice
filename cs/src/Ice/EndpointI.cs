@@ -136,6 +136,13 @@ namespace IceInternal
 	//
 	public abstract bool equivalent(Transceiver transceiver);
 	public abstract bool equivalent(Acceptor acceptor);
+
+        //
+        // Returns true if the endpoint's transport requires thread-per-connection.
+        //
+        // TODO: Remove this when we no longer support SSL for .NET 1.1.
+        //
+        public abstract bool requiresThreadPerConnection();
     }
 
 }

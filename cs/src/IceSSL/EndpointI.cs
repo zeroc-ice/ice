@@ -426,6 +426,11 @@ namespace IceSSL
 	    return sslAcceptor.equivalent(host_, port_);
 	}
 
+        public override bool requiresThreadPerConnection()
+        {
+            return true;
+        }
+
 	public override int GetHashCode()
 	{
 	    return hashCode_;

@@ -578,7 +578,12 @@ namespace IceInternal
 	{
 	    return false;
 	}
-	
+
+        public override bool requiresThreadPerConnection()
+        {
+            return false;
+        }
+
 	public override int GetHashCode()
 	{
 	    return _hashCode;

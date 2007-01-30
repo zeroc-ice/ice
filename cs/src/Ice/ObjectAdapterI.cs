@@ -931,6 +931,15 @@ namespace Ice
 		    for(int i = 0; i < endpoints.Count; ++i)
 		    {
 		        IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
+                        //
+                        // TODO: Remove when we no longer support SSL for .NET 1.1.
+                        //
+                        if(!_threadPerConnection && endp.requiresThreadPerConnection())
+                        {
+                            Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
+                            ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endp.ToString();
+                            throw ex;
+                        }
 		        _incomingConnectionFactories.Add(
 			    new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
 		    }

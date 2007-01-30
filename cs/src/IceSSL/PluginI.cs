@@ -16,12 +16,6 @@ namespace IceSSL
 	public Ice.Plugin
 	create(Ice.Communicator communicator, string name, string[] args)
 	{
-	    if(communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
-	    {
-		communicator.getLogger().error("IceSSL requires Ice.ThreadPerConnection=1");
-		return null;
-	    }
-
 	    return new PluginI(communicator);
 	}
     }

@@ -429,7 +429,12 @@ namespace IceInternal
 	    }
 	    return tcpAcceptor.equivalent(_host, _port);
 	}
-	
+
+        public override bool requiresThreadPerConnection()
+        {
+            return false;
+        }
+
 	public override int GetHashCode()
 	{
 	    return _hashCode;
