@@ -85,6 +85,7 @@ for o, a in opts:
 # required.
 #
 javaCmd = "java"
+jdk14 = False
 if protocol == "ssl":
     javaPipeIn, javaPipeOut = os.popen4("java -version")
     if not javaPipeIn or not javaPipeOut:
@@ -104,6 +105,7 @@ if protocol == "ssl":
 	# we direct the JVM to use /dev/urandom instead of its default.
 	#
 	javaCmd = "java -Djava.security.egd=file:/dev/urandom"
+        jdk14 = True
     javaPipeIn.close()
     javaPipeOut.close()
 
