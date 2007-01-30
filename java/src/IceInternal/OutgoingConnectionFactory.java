@@ -106,6 +106,19 @@ public final class OutgoingConnectionFactory
 		throw new Ice.CommunicatorDestroyedException();
 	    }
 
+            //
+            // TODO: Remove when we no longer support SSL for JDK 1.4.
+            //
+            for(int i = 0; i < endpoints.length; i++)
+            {
+                if(!threadPerConnection && endpoints[i].requiresThreadPerConnection())
+                {
+                    Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
+                    ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endpoints[i].toString();
+                    throw ex;
+                }
+            }
+
 	    //
 	    // Reap connections for which destruction has completed.
 	    //
@@ -285,7 +298,7 @@ public final class OutgoingConnectionFactory
 	for(int i = 0; i < endpoints.length; i++)
 	{
 	    EndpointI endpoint = endpoints[i];
-	    
+
 	    try
 	    {
 		Transceiver transceiver = endpoint.clientTransceiver();

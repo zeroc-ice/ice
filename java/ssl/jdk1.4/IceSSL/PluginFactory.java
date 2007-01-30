@@ -14,12 +14,6 @@ public class PluginFactory implements Ice.PluginFactory
     public Ice.Plugin
     create(Ice.Communicator communicator, String name, String[] args)
     {
-	if(communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
-	{
-	    communicator.getLogger().error("IceSSL requires Ice.ThreadPerConnection");
-	    return null;
-	}
-
 	return new PluginI(communicator);
     }
 }

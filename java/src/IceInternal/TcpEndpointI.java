@@ -548,6 +548,12 @@ final class TcpEndpointI extends EndpointI
         return 0;
     }
 
+    public boolean
+    requiresThreadPerConnection()
+    {
+        return false;
+    }
+
     private void
     calcHashValue()
     {

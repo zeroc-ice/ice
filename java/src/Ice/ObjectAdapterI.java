@@ -924,6 +924,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	        for(int i = 0; i < endpoints.size(); ++i)
 	        {
 		    IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints.get(i);
+                    //
+                    // TODO: Remove when we no longer support SSL for JDK 1.4.
+                    //
+                    if(!_threadPerConnection && endp.requiresThreadPerConnection())
+                    {
+                        Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
+                        ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endp.toString();
+                        throw ex;
+                    }
                     _incomingConnectionFactories.add(
                         new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
                 }

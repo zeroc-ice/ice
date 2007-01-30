@@ -719,6 +719,12 @@ final class UdpEndpointI extends EndpointI
         return 0;
     }
 
+    public boolean
+    requiresThreadPerConnection()
+    {
+        return false;
+    }
+
     private void
     calcHashValue()
     {

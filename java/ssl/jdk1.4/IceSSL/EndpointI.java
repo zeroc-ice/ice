@@ -548,6 +548,12 @@ final class EndpointI extends IceInternal.EndpointI
 	return 0;
     }
 
+    public boolean
+    requiresThreadPerConnection()
+    {
+        return true;
+    }
+
     private void
     calcHashValue()
     {

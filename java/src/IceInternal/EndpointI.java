@@ -140,4 +140,11 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     //
     public abstract boolean equals(java.lang.Object obj);
     public abstract int compareTo(java.lang.Object obj); // From java.lang.Comparable.
+
+    //
+    // Returns true if the endpoint's transport requires thread-per-connection.
+    //
+    // TODO: Remove this when we no longer support SSL for JDK 1.4.
+    //
+    public abstract boolean requiresThreadPerConnection();
 }
