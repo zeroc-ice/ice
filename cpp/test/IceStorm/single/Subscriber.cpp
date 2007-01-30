@@ -81,40 +81,9 @@ private:
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-void
-createLock(const string& name)
-{
-    int fd = open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL, 0777);
-    assert(fd != -1);
-    close(fd);
-}
-
-void
-deleteLock(const string& name)
-{
-#ifdef _WIN32
-    int ret = _unlink(name.c_str());
-#else
-#   ifndef NDEBUG
-    int ret = 
-#   endif
-	unlink(name.c_str());
-#endif
-    assert(ret != -1);
-}
-
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    string lockfile = "subscriber.lock";
-
-    if(argc != 1)
-    {
-	lockfile = argv[1];
-    }
-
-    createLock(lockfile);
-
     PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
     string managerProxy = properties->getProperty(managerProxyProperty);
@@ -184,8 +153,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
 	(*p)->waitForEvents();
     }
-
-    deleteLock(lockfile);
 
     return EXIT_SUCCESS;
 }

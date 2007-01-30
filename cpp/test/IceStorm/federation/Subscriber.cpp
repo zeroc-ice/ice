@@ -61,31 +61,9 @@ int EventI::_count = 0;
 IceUtil::StaticMutex EventI::_countMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 void
-createLock(const string& name)
-{
-    int fd = open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL, 0777);
-    assert(fd != -1);
-    close(fd);
-}
-
-void
-deleteLock(const string& name)
-{
-#ifdef _WIN32
-    int ret = _unlink(name.c_str());
-#else
-#   ifndef NDEBUG
-    int ret = 
-#   endif
-	unlink(name.c_str());
-#endif
-    assert(ret != -1);
-}
-
-void
 usage(const char* appName)
 {
-    cerr << "Usage: " << appName << " [options] [lockfile]\n";
+    cerr << "Usage: " << appName << " [options]\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"
@@ -96,7 +74,6 @@ usage(const char* appName)
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
-    string lockfile = "subscriber.lock";
     bool batch = false;
 
     int idx = 1;
@@ -122,11 +99,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
 	    usage(argv[0]);
 	    return EXIT_FAILURE;
-	}
-	else
-	{
-            lockfile = argv[idx];
-	    ++idx;
 	}
     }
 
@@ -187,15 +159,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     fed2->subscribe(qos, objFed2);
     fed3->subscribe(qos, objFed3);
 
-    createLock(lockfile);
-
     communicator->waitForShutdown();
 
     fed1->unsubscribe(objFed1);
     fed2->unsubscribe(objFed2);
     fed3->unsubscribe(objFed3);
-
-    deleteLock(lockfile);
 
     return EXIT_SUCCESS;
 }

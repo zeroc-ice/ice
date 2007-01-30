@@ -51,60 +51,25 @@ def doTest(batch):
         name = "subscriber"
         batchOptions = ""
 
-    #
-    # Start the subscriber. The subscriber creates a lock-file which
-    # is used later to ensure that the subscriber actually goes away.
-    #
-    subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-    try:
-        os.remove(subscriberLockFile)
-    except:
-        pass # Ignore errors if the lockfile is not present
-
-    print "starting " + name + "...",
-    command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
-    subscriberPipe = os.popen(command)
+    command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference
+    if TestUtil.debug:
+	print "(" + command + ")",
+    subscriberPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
-    TestUtil.getAdapterReady(subscriberPipe, False)
-    print "ok"
-
-    print "checking " + name + " lockfile creation...",
-    lockCount = 0
-    while not os.path.isfile(subscriberLockFile):
-        if lockCount > 10:
-            print "failed!"
-            TestUtil.killServers()
-            sys.exit(1)
-        time.sleep(1)
-        lockCount = lockCount + 1    
-    print "ok"
+    TestUtil.getAdapterReady(subscriberPipe)
 
     #
     # Start the publisher. This should publish events which eventually
     # causes subscriber to terminate.
     #
-    print "starting publisher...",
-    command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
-    publisherPipe = os.popen(command)
-    print "ok"
+    command = publisher + TestUtil.clientOptions + iceStormReference
+    if TestUtil.debug:
+	print "(" + command + ")",
+    publisherPipe = os.popen(command + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)
 
-    #
-    # Verify that the subscriber has terminated.
-    #
-    print "checking " + name + " lockfile removal...",
-    lockCount = 0
-    while os.path.isfile(subscriberLockFile):
-        if lockCount > 60:
-            print "failed!"
-            TestUtil.killServers()
-            sys.exit(1)
-        time.sleep(1)
-        lockCount = lockCount + 1    
-    print "ok"
-
-    subscriberStatus = TestUtil.closePipe(subscriberPipe)
+    subscriberStatus = TestUtil.specificServerStatus(subscriberPipe, 30)
     publisherStatus = TestUtil.closePipe(publisherPipe)
 
     return subscriberStatus or publisherStatus
@@ -114,30 +79,20 @@ TestUtil.cleanDbDir(dbHome)
 iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
-command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
-iceBoxPipe = os.popen(command)
+command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+if TestUtil.debug:
+    print "(" + command + ")",
+iceBoxPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(iceBoxPipe)
 TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
-print "creating topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
-
-print "linking topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "link fed1 fed2 10"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
-iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "link fed2 fed3 5"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+print "setting up topics...",
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + \
+    r' -e "create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5"'
+if TestUtil.debug:
+    print "(" + command + ")",
+iceStormAdminPipe = os.popen(command + " 2>&1")
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -147,19 +102,27 @@ print "ok"
 #
 # Test oneway subscribers.
 #
+print "testing oneway subscribers...",
+sys.stdout.flush()
 onewayStatus = doTest(0)
+print "ok"
 
 #
 # Test batch oneway subscribers.
 #
+print "testing batch subscribers...",
+sys.stdout.flush()
 batchStatus = doTest(1)
+print "ok"
 
 #
 # Destroy the topics.
 #
 print "destroying topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"'
+if TestUtil.debug:
+    print "(" + command + ")",
+iceStormAdminPipe = os.popen(command + " 2>&1")
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -170,8 +133,10 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm service...",
-command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
-iceBoxAdminPipe = os.popen(command)
+command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
+if TestUtil.debug:
+    print "(" + command + ")",
+iceBoxAdminPipe = os.popen(command + " 2>&1")
 iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
 if iceBoxAdminStatus:
     TestUtil.killServers()

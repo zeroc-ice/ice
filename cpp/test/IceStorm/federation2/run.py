@@ -72,65 +72,25 @@ def doTest(batch, subscriberRef = None):
     if subscriberRef == None:
 	subscriberRef = iceStormReference2
 
-    #
-    # Start the subscriber. The subscriber creates a lock-file which
-    # is used later to ensure that the subscriber actually goes away.
-    #
-    subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-    try:
-        os.remove(subscriberLockFile)
-    except:
-        pass # Ignore errors if the lockfile is not present
-
-    print "starting " + name + "...",
-    command = subscriber + batchOptions + TestUtil.clientServerOptions + subscriberRef + r' ' + \
-	subscriberLockFile 
+    command = subscriber + batchOptions + TestUtil.clientServerOptions + subscriberRef
     if TestUtil.debug:
 	print "(" + command + ")",
     subscriberPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
-    TestUtil.getAdapterReady(subscriberPipe, False)
-    print "ok"
-
-    print "checking " + name + " lockfile creation...",
-    lockCount = 0
-    while not os.path.isfile(subscriberLockFile):
-        if lockCount > 10:
-            print "failed!"
-            TestUtil.killServers()
-            sys.exit(1)
-        time.sleep(1)
-        lockCount = lockCount + 1    
-    print "ok"
+    TestUtil.getAdapterReady(subscriberPipe)
 
     #
     # Start the publisher. This should publish events which eventually
     # causes subscriber to terminate.
     #
-    print "starting publisher...",
     command = publisher + TestUtil.clientOptions + iceStormReference
     if TestUtil.debug:
 	print "(" + command + ")",
     publisherPipe = os.popen(command + " 2>&1")
-    print "ok"
 
     TestUtil.printOutputFromPipe(publisherPipe)
 
-    #
-    # Verify that the subscriber has terminated.
-    #
-    print "checking " + name + " lockfile removal...",
-    lockCount = 0
-    while os.path.isfile(subscriberLockFile):
-        if lockCount > 10:
-            print "failed!"
-            TestUtil.killServers()
-            sys.exit(1)
-        time.sleep(1)
-        lockCount = lockCount + 1    
-    print "ok"
-
-    subscriberStatus = TestUtil.closePipe(subscriberPipe)
+    subscriberStatus = TestUtil.specificServerStatus(subscriberPipe, 30)
     publisherStatus = TestUtil.closePipe(publisherPipe)
 
     return subscriberStatus or publisherStatus
@@ -143,7 +103,6 @@ def startServers():
     global iceStormService2
     global iceStormDBEnv
     global iceStormDBEnv2
-    print "starting icestorm services...",
     command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
     if TestUtil.debug:
 	print "(" + command + ")",
@@ -156,7 +115,6 @@ def startServers():
     iceBoxPipe2 = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe2)
     TestUtil.waitServiceReady(iceBoxPipe2, "IceStorm")
-    print "ok"
 
     return iceBoxPipe, iceBoxPipe2
 
@@ -165,7 +123,6 @@ def stopServers(p1, p2 = None):
     global iceBoxAdmin
     global iceBoxEndpoints
     global iceBoxEndpoints2
-    print "shutting down icestorm services...",
     command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
     if TestUtil.debug:
 	print "(" + command + ")",
@@ -183,7 +140,6 @@ def stopServers(p1, p2 = None):
 	if status or TestUtil.specificServerStatus(p2):
 	    TestUtil.killServers()
 	    sys.exit(1)
-    print "ok"
 
 dbHome = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbHome)
@@ -199,9 +155,13 @@ iceStormDBEnv2=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome2
 # create a cross service link fed1->fed2 and ensure the events are
 # published between them correctly.
 #
+print "starting IceStorm services...",
+sys.stdout.flush()
 iceBoxPipe1, iceBoxPipe2 = startServers()
+print "ok"
 
 print "setting up the topics...",
+sys.stdout.flush()
 command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
     r' -e "create TestIceStorm1/fed1 TestIceStorm2/fed1; link TestIceStorm1/fed1 TestIceStorm2/fed1"'
 if TestUtil.debug:
@@ -216,12 +176,18 @@ print "ok"
 #
 # Test oneway subscribers.
 #
+print "testing federation with oneway subscribers...",
+sys.stdout.flush()
 onewayStatus = doTest(0)
+print "ok"
 
 #
 # Test batch oneway subscribers.
 #
+print "testing federation with batch subscribers...",
+sys.stdout.flush()
 batchStatus = doTest(1)
+print "ok"
 
 if onewayStatus or batchStatus:
     TestUtil.killServers()
@@ -233,6 +199,8 @@ if onewayStatus or batchStatus:
 # Stop and restart the service and repeat the test. This ensures that
 # the database is correct.
 #
+print "restarting services to ensure that the database content is preserved...",
+sys.stdout.flush()
 
 #
 # Shutdown icestorm.
@@ -240,16 +208,23 @@ if onewayStatus or batchStatus:
 stopServers(iceBoxPipe1, iceBoxPipe2)
 
 iceBoxPipe1, iceBoxPipe2 = startServers()
+print "ok"
 
 #
 # Test oneway subscribers.
 #
+print "retesting federation with oneway subscribers... ",
+sys.stdout.flush()
 onewayStatus = doTest(0)
+print "ok"
 
 #
 # Test batch oneway subscribers.
 #
+print "retesting federation with batch subscribers... ",
+sys.stdout.flush()
 batchStatus = doTest(1)
+print "ok"
 
 if onewayStatus or batchStatus:
     TestUtil.killServers()
@@ -322,7 +297,8 @@ class ExpectorThread(threading.Thread):
 # Then re-start the linked downstream server and publish the events.
 # Ensure they are received by the linked server.
 #
-print "starting first icestorm server...",
+print "restarting only one IceStorm server...",
+sys.stdout.flush()
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
 if TestUtil.debug:
     print "(" + command + ")",
@@ -340,13 +316,17 @@ print "ok"
 #
 # Test oneway subscribers.
 #
+print "testing that the federation link reports an error...",
+sys.stdout.flush()
 onewayStatus = doTest(0, iceStormReference)
+print "ok"
 
 if onewayStatus or expectorThread.matches(index) != 1:
     TestUtil.killServers()
     sys.exit(1)
 
-print "starting second icestorm server...",
+print "starting downstream icestorm server...",
+sys.stdout.flush()
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2
 if TestUtil.debug:
     print "(" + command + ")",
@@ -363,7 +343,10 @@ time.sleep(3)
 #
 # Test oneway subscribers.
 #
+print "testing link is reestablished...",
+sys.stdout.flush()
 onewayStatus = doTest(0)
+print "ok"
 
 if onewayStatus or expectorThread.matches(index) != 1:
     TestUtil.killServers()
@@ -375,13 +358,19 @@ if onewayStatus or expectorThread.matches(index) != 1:
 # Trash the TestIceStorm2 database. Then restart the servers and
 # verify that the link is removed.
 #
+print "destroying the downstream IceStorm service database...",
+sys.stdout.flush()
 stopServers(iceBoxPipe1, iceBoxPipe2)
 
 TestUtil.cleanDbDir(dbHome2)
+print "ok"
 
+print "restarting IceStorm servers...",
+sys.stdout.flush()
 iceBoxPipe1, iceBoxPipe2 = startServers()
+print "ok"
 
-print "checking link...",
+print "checking link still exists...",
 command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + r' -e "list TestIceStorm1 fed1"'
 if TestUtil.debug:
     print "(" + command + ")",
@@ -397,13 +386,13 @@ if iceStormAdminStatus:
     sys.exit(1)
 print "ok"
 
-print "starting publisher...",
+print "publishing some events...",
+sys.stdout.flush()
 publisher = os.path.join(toplevel, "test", "IceStorm", "federation2", "publisher")
 command = publisher + TestUtil.clientOptions + iceStormReference
 if TestUtil.debug:
     print "(" + command + ")",
 publisherPipe = os.popen(command + " 2>&1")
-print "ok"
 
 TestUtil.printOutputFromPipe(publisherPipe)
 
@@ -416,7 +405,6 @@ if publisherStatus:
 # out in one batch to the linked subscriber which means that the link
 # is not reaped until the next batch is sent.
 time.sleep(1)
-print "starting publisher...",
 publisher = os.path.join(toplevel, "test", "IceStorm", "federation2", "publisher")
 command = publisher + TestUtil.clientOptions + iceStormReference
 if TestUtil.debug:
@@ -432,7 +420,8 @@ if publisherStatus:
     sys.exit(1)
 
 # Verify that the link has disappeared.
-print "checking link...",
+print "verifying that the link has been destroyed...",
+sys.stdout.flush()
 command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
     r' -e "list TestIceStorm1 fed1"' + " 2>&1"
 if TestUtil.debug:
@@ -470,9 +459,12 @@ print "ok"
 #
 # Shutdown icestorm.
 #
+print "shutting down icestorm services...",
+sys.stdout.flush()
 stopServers(iceBoxPipe1, iceBoxPipe2)
 if TestUtil.serverStatus():
     TestUtil.killServers()
     sys.exit(1)
+print "ok"
 
 sys.exit(0)

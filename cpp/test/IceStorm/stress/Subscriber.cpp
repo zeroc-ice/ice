@@ -177,12 +177,14 @@ int ErraticEventI::_remaining = 0;
 void
 usage(const char* appName)
 {
-    cerr << "Usage: " << appName << " [options] [lockfile]\n";
-    // XXX:
+    cerr << "Usage: " << appName << " [options]\n";
     cerr <<	
 	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-b                   Use batch reliability.\n"
+	"-h, --help             Show this message.\n"
+	"--events <e>           Terminate after <e> are received.\n"
+	"--qos <key>,<value><e> Subscribe with this QoS.\n"
+        "--erratic <n>          Add <n> erratic subscribers.\n"
+        "--slow                 The subscribers sleeps 3 seconds after each event.\n"
 	;
 }
 

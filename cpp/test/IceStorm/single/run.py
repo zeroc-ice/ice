@@ -64,30 +64,13 @@ print "ok"
 publisher = os.path.join(testdir, "publisher")
 subscriber = os.path.join(testdir, "subscriber")
 
-#
-# Start the subscriber. The subscriber creates a lock-file which
-# is used later to ensure that the subscriber actually goes away.
-#
-subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-try:
-    os.remove(subscriberLockFile)
-except:
-    pass # Ignore errors if the lockfile is not present
-
 print "starting subscriber...",
-command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile
+command = subscriber + TestUtil.clientServerOptions + iceStormReference
 if TestUtil.debug:
     print "(" + command + ")"
 subscriberPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(subscriberPipe)
-TestUtil.getAdapterReady(subscriberPipe, False)
-print "ok"
-
-print "checking subscriber lockfile creation...",
-if not os.path.isfile(subscriberLockFile):
-    print "failed!"
-    TestUtil.killServers()
-    sys.exit(1)
+TestUtil.getAdapterReady(subscriberPipe)
 print "ok"
 
 #
@@ -101,21 +84,8 @@ if TestUtil.debug:
 publisherPipe = os.popen(command + " 2>&1")
 print "ok"
 
-TestUtil.printOutputFromPipe(subscriberPipe)
-    
-#
-# Verify that the subscriber has terminated.
-#
-print "checking subscriber lockfile removal...",
-lockCount = 0
-while os.path.isfile(subscriberLockFile):
-    if lockCount > 10:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
-    time.sleep(1)
-    lockCount = lockCount + 1    
-print "ok"
+subscriberStatus = TestUtil.specificServerStatus(subscriberPipe, 30)
+publisherStatus = TestUtil.closePipe(publisherPipe)
 
 #
 # Destroy the topic.
@@ -144,9 +114,6 @@ if iceBoxAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 print "ok"
-
-subscriberStatus = TestUtil.closePipe(subscriberPipe)
-publisherStatus = TestUtil.closePipe(publisherPipe)
 
 if TestUtil.serverStatus() or subscriberStatus or publisherStatus:
     TestUtil.killServers()
