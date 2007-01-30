@@ -13,6 +13,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/Random.h>
 #include <Event.h>
 
 #include <TestCommon.h>
@@ -147,7 +148,7 @@ public:
 	Lock sync(*this);
 
 	// Randomly close the connection.
-	if(!_done && (random() % 10 == 1 || ++_count == _total))
+	if(!_done && (IceUtil::random(10) == 1 || ++_count == _total))
 	{
 	    _done = true;
 	    current.con->close(true);
