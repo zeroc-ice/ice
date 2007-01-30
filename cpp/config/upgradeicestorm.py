@@ -103,9 +103,7 @@ if not os.path.exists(olddbenv):
 
 if not os.path.exists(newdbenv):
     error("database environment `" + newdbenv + "' doesn't exist")
-elif os.path.exists(os.path.join(newdbenv, "applications")) or \
-     os.path.exists(os.path.join(newdbenv, "adapters")) or \
-     os.path.exists(os.path.join(newdbenv, "objects")):
+elif os.path.exists(os.path.join(newdbenv, "topics")):
     error("database environment `" + newdbenv + "' already has databases")
 
 icedir = os.getenv("ICE_HOME")

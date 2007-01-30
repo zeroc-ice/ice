@@ -26,7 +26,7 @@ endif
 #
 CXXLIBS			=
 
-LDPLATFORMFLAGS         = -bind_at_load
+LDPLATFORMFLAGS         = -Wl,-bind_at_load
 
 shlibldflags		= $(CXXFLAGS) -L$(libdir)
 

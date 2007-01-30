@@ -93,6 +93,11 @@ and tools, you can either:
  - or add $ICE_HOME/lib to your DYLD_LIBRARY_PATH environment variable 
      $ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
+On Intel platforms, you also need to set DYLD_BIND_AT_LAUNCH to
+prevent random crashes at runtime in the dynamic linker binding code:
+
+$ export DYLD_BIND_AT_LAUNCH=1
+
 C++
 ---
 

@@ -51,7 +51,6 @@ protected:
     Ice::ObjectPrx _basePublisher;
     int _serial;
 
-    std::set<Ice::Identity> _subscribers;
     std::set<std::string> _syncSubscribers;
     std::map<int, std::set<std::string> > _waitForUpdates;
     std::map<int, std::map<std::string, std::string> > _updateFailures;

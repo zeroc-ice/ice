@@ -51,22 +51,17 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
 	return;
     }
 
-    //
-    // We need to ensure that this observer isn't already registered
-    // as IceStorm might otherwise replace a previous subscriber
-    // without any notification.
-    //
     assert(obsv);
-    if(_subscribers.find(obsv->ice_getIdentity()) != _subscribers.end())
+    try
+    {
+        IceStorm::QoS qos;
+        qos["reliability"] = "ordered";
+        initObserver(_topic->subscribeAndGetPublisher(qos, obsv->ice_twoway()));
+    }
+    catch(const IceStorm::AlreadySubscribed&)
     {
 	throw ObserverAlreadyRegisteredException(obsv->ice_getIdentity());
     }
-       
-    IceStorm::QoS qos;
-    qos["reliability"] = "ordered";
-    initObserver(_topic->subscribeAndGetPublisher(qos, obsv->ice_twoway()));
-
-    _subscribers.insert(obsv->ice_getIdentity());
 
     if(!name.empty())
     {
@@ -87,7 +82,6 @@ ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
     }
 
     assert(observer);
-    _subscribers.erase(observer->ice_getIdentity());
 
     if(!name.empty())
     {
