@@ -62,7 +62,7 @@ Subscriber::run(int argc, char* argv[])
     IceUtil::Options::StringVector remaining;
     try
     {
-        remaining = opts.parse(argc, argv);
+        remaining = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
