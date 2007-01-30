@@ -185,7 +185,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     try
     {
-        opts.parse(argc, argv);
+        opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
