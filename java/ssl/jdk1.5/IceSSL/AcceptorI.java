@@ -209,18 +209,11 @@ final class AcceptorI implements IceInternal.Acceptor
 	    throw ex;
 	}
 
-/*
-	if(_instance.networkTraceLevel() >= 1)
-	{
-	    String s = "accepted ssl connection\n" + IceInternal.Network.fdToString(fd);
-	    _logger.trace(_instance.networkTraceCategory(), s);
-	}
-
-	if(_instance.securityTraceLevel() >= 1)
-	{
-//	    _instance.traceConnection(fd, true);
-	}
-*/
+        if(_instance.networkTraceLevel() >= 1)
+        {
+            _logger.trace(_instance.networkTraceCategory(), "attempting to accept ssl connection\n" +
+                          IceInternal.Network.fdToString(fd));
+        }
 
 	return new TransceiverI(_instance, engine, fd, "", true, _adapterName);
     }

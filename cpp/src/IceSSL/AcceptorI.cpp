@@ -97,6 +97,12 @@ IceSSL::AcceptorI::accept(int timeout)
     }
     SSL_set_bio(ssl, bio, bio);
 
+    if(_instance->networkTraceLevel() >= 1)
+    {
+        Trace out(_logger, _instance->networkTraceCategory());
+        out << "attempting to accept ssl connection\n" << IceInternal::fdToString(fd);
+    }
+
     //
     // SSL handshaking is performed in TransceiverI::initialize, since
     // accept must not block.
