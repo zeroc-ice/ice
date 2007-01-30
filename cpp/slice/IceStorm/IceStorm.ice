@@ -115,6 +115,22 @@ exception AlreadySubscribed
 
 /**
  *
+ * This exception indicates that a subscription failed due to an
+ * invalid QoS.
+ *
+ **/
+exception BadQoS
+{
+    /*
+     *
+     * The reason for the failed.
+     *
+     */
+    string reason;
+};
+
+/**
+ *
  * Publishers publish information on a particular topic. A topic
  * logically represents a type.
  *
@@ -153,6 +169,8 @@ interface Topic
      * replaced. Note that this can cause a loss of events to the
      * subscribed object.
      *
+     * <p class="Deprecated">This operation is deprecated as of version 3.2.
+     *
      * @param qos The quality of service parameters for this
      * subscription.
      *
@@ -163,6 +181,7 @@ interface Topic
      * @see unsubscribe
      *
      **/
+    ["deprecate:subscribe is deprecated, use subscribeAndGetPublisher instead"]
     void subscribe(QoS theQoS, Object* subscriber);
 
     /**
@@ -181,11 +200,14 @@ interface Topic
      * @throws AlreadySubscribed Raised if the subscriber object is
      * already subscribed.
      *
+     * @throws BadQoS Raised if the requested quality of service
+     * is unavailable or invalid.
+     *
      * @see unsubscribe
      *
      **/
     Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-	throws AlreadySubscribed;
+	throws AlreadySubscribed, BadQoS;
 
     /**
      *

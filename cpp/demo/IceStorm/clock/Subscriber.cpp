@@ -9,6 +9,7 @@
 
 #include <Ice/Application.h>
 #include <IceStorm/IceStorm.h>
+#include <IceUtil/Options.h>
 
 #include <Clock.h>
 
@@ -42,9 +43,34 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.sub");
 }
 
+void
+usage(const string& n)
+{
+    cerr << "Usage: " << n << " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]\n" << endl;
+}
+
 int
 Subscriber::run(int argc, char* argv[])
 {
+    IceUtil::Options opts;
+    opts.addOpt("", "datagram");
+    opts.addOpt("", "twoway");
+    opts.addOpt("", "ordered");
+    opts.addOpt("", "oneway");
+    opts.addOpt("", "batch");
+
+    IceUtil::Options::StringVector remaining;
+    try
+    {
+        remaining = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::BadOptException& e)
+    {
+	cerr << argv[0] << ": " << e.reason << endl;
+	usage(appName());
+	return EXIT_FAILURE;
+    }
+
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
 	communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
     if(!manager)
@@ -54,9 +80,9 @@ Subscriber::run(int argc, char* argv[])
     }
 
     string topicName = "time";
-    if(argc != 1)
+    if(!remaining.empty())
     {
-	topicName = argv[1];
+	topicName = remaining.front();
     }
 
     IceStorm::TopicPrx topic;
@@ -82,15 +108,46 @@ Subscriber::run(int argc, char* argv[])
     //
     // Add a Servant for the Ice Object.
     //
-    Ice::ObjectPrx subscriber = adapter->addWithUUID(new ClockI);
-
-    //
-    // This demo requires no quality of service, so it will use
-    // the defaults.
-    //
     IceStorm::QoS qos;
+    Ice::ObjectPrx subscriber = adapter->addWithUUID(new ClockI);
+    //
+    // Set up the proxy.
+    //
+    if(opts.isSet("datagram"))
+    {
+	subscriber = subscriber->ice_datagram();
+    }
+    else if(opts.isSet("twoway"))
+    {
+	// Do nothing.
+    }
+    else if(opts.isSet("ordered"))
+    {
+	qos["reliability"] = "ordered";
+	subscriber = subscriber->ice_datagram();
+    }
+    else // default.
+    {
+	subscriber = subscriber->ice_oneway();
+    }
+    if(opts.isSet("batch"))
+    {
+	if(opts.isSet("twoway") || opts.isSet("ordered"))
+	{
+	    cerr << appName() << ": batch can only be set with oneway or datagram" << endl;
+	    return EXIT_FAILURE;
+	}
+	if(opts.isSet("datagram"))
+	{
+	    subscriber = subscriber->ice_batchDatagram();
+	}
+	else
+	{
+	    subscriber = subscriber->ice_batchOneway();
+	}
+    }
 
-    topic->subscribe(qos, subscriber);
+    topic->subscribeAndGetPublisher(qos, subscriber);
     adapter->activate();
 
     shutdownOnInterrupt();

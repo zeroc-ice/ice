@@ -14,14 +14,6 @@
 
 #include <TestCommon.h>
 
-#include <fcntl.h>
-#ifdef _WIN32
-#   include <io.h>
-#else
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -136,7 +128,15 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     IceStorm::QoS qos;
     if(batch)
     {
-        qos["reliability"] = "batch";
+	objFed1 = objFed1->ice_batchOneway();
+	objFed2 = objFed1->ice_batchOneway();
+	objFed3 = objFed1->ice_batchOneway();
+    }
+    else
+    {
+	objFed1 = objFed1->ice_oneway();
+	objFed2 = objFed1->ice_oneway();
+	objFed3 = objFed1->ice_oneway();
     }
 
     TopicPrx fed1;
@@ -155,9 +155,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    fed1->subscribe(qos, objFed1);
-    fed2->subscribe(qos, objFed2);
-    fed3->subscribe(qos, objFed3);
+    fed1->subscribeAndGetPublisher(qos, objFed1);
+    fed2->subscribeAndGetPublisher(qos, objFed2);
+    fed3->subscribeAndGetPublisher(qos, objFed3);
 
     communicator->waitForShutdown();
 

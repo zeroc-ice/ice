@@ -63,8 +63,8 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
     }
        
     IceStorm::QoS qos;
-    qos["reliability"] = "twoway ordered";
-    initObserver(_topic->subscribeAndGetPublisher(qos, obsv));
+    qos["reliability"] = "ordered";
+    initObserver(_topic->subscribeAndGetPublisher(qos, obsv->ice_twoway()));
 
     _subscribers.insert(obsv->ice_getIdentity());
 

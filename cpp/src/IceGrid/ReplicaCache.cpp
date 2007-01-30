@@ -167,8 +167,8 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
 	}
 	
 	IceStorm::QoS qos;
-	qos["reliability"] = "twoway ordered";
-	Ice::ObjectPrx publisher = _topic->subscribeAndGetPublisher(qos, observer);
+	qos["reliability"] = "ordered";
+	Ice::ObjectPrx publisher = _topic->subscribeAndGetPublisher(qos, observer->ice_twoway());
 	ReplicaObserverPrx::uncheckedCast(publisher)->replicaInit(replicas);
     }
     catch(const Ice::ConnectionRefusedException&)

@@ -249,6 +249,15 @@ Changes since version 3.1.1
   is used to send an event to only that particular subscriber. See
   demo/IceStorm/counter for a demo of this feature.
 
+  The possible values of the reliability QoS passed to
+  subscribeAndGetPublisher are now different. The only allowable value
+  is either "ordered" or the empty string. The delivery reliability
+  quality of service used by IceStorm is now derived from the the
+  proxy mode. For example, if oneway delivery is required then a
+  oneway proxy must be passed. The "ordered" QoS requires a twoway
+  proxy otherwise a BadQoS exception is raised. Topic::subscribe has
+  been deprecated and retains the old subscription QoS semantics.
+
   The property IceStorm.InstanceName is now used to produce unique identities
   for each IceStorm topic. The identities used are now:
 

@@ -26,15 +26,13 @@ CounterI::subscribe(const CounterObserverPrx& observer, const Ice::Current&)
 {
     Lock sync(*this);
 
-    IceStorm::QoS qos;
-    qos["reliability"] = "twoway";
-
     //
     // Subscribe to the IceStorm topic. This returns a per-subscriber
     // object which is then used to send the initialize event to just
     // the given subscriber.
     //
-    CounterObserverPrx o = CounterObserverPrx::uncheckedCast(_topic->subscribeAndGetPublisher(qos, observer));
+    CounterObserverPrx o = CounterObserverPrx::uncheckedCast(
+	_topic->subscribeAndGetPublisher(IceStorm::QoS(), observer));
     o->init(_value);
 }
 

@@ -125,14 +125,18 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     //
     // Activate the servants.
     //
-    ObjectPrx objFed1 = adapter->addWithUUID(eventFed1);
+    ObjectPrx obj = adapter->addWithUUID(eventFed1);
 
     adapter->activate();
 
     IceStorm::QoS qos;
     if(batch)
     {
-        qos["reliability"] = "batch";
+	obj = obj->ice_batchOneway();
+    }
+    else
+    {
+	obj = obj->ice_oneway();
     }
 
     TopicPrx fed1;
@@ -147,11 +151,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    fed1->subscribe(qos, objFed1);
+    fed1->subscribeAndGetPublisher(qos, obj);
 
     communicator->waitForShutdown();
 
-    fed1->unsubscribe(objFed1);
+    fed1->unsubscribe(obj);
 
     return EXIT_SUCCESS;
 }

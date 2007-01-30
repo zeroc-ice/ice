@@ -20,7 +20,7 @@ IceStorm.InstanceName=DemoIceStorm
 # IceStorm instances this must run on a fixed port (or use
 # IceGrid).
 #
-Ice.OA.IceStorm.Publish.Endpoints=default -p 10001
+Ice.OA.IceStorm.Publish.Endpoints=tcp -p 10001:udp -p 10001
 
 #
 # TopicManager Tracing

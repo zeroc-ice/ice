@@ -183,7 +183,7 @@ print "ok"
 
 print "Sending 5000 ordered events... ",
 sys.stdout.flush()
-status = doTest('--events 5000 --qos "reliability,twoway ordered" ' + iceStormReference, '--events 5000')
+status = doTest('--events 5000 --qos "reliability,ordered" ' + iceStormReference, '--events 5000')
 if status:
     print "failed!"
     TestUtil.killServers()
@@ -192,7 +192,7 @@ print "ok"
 
 print "Sending 5000 ordered events across a link... ",
 sys.stdout.flush()
-status = doTest('--events 5000 --qos "reliability,twoway ordered" ' + iceStormReference2, '--events 5000')
+status = doTest('--events 5000 --qos "reliability,ordered" ' + iceStormReference2, '--events 5000')
 if status:
     TestUtil.killServers()
     sys.exit(1)

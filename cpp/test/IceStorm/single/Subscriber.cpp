@@ -13,14 +13,6 @@
 #include <Single.h>
 #include <TestCommon.h>
 
-#include <fcntl.h>
-#ifdef _WIN32
-#   include <io.h>
-#else
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -30,26 +22,34 @@ class SingleI : public Single, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    SingleI(const CommunicatorPtr& communicator, const string& name, bool ordered = false) :
+    SingleI(const CommunicatorPtr& communicator, const string& name) :
 	_communicator(communicator),
 	_name(name),
 	_count(0),
-	_ordered(ordered),
 	_last(0)
     {
     }
 
-    virtual void event(int i, const Current&)
+    virtual void
+    event(int i, const Current& current)
     {
-	Lock sync(*this);
 
-	if(_ordered && i != _last)
+	if((_name == "default" || _name == "oneway" || _name == "batch") && current.requestId != 0)
+	{
+	    cerr << endl << "expected oneway request";
+	    test(false);
+	}
+	else if((_name == "twoway" || _name == "twoway ordered") && current.requestId == 0)
+	{
+	    cerr << endl << "expected twoway request";
+	}
+	if(_name == "twoway ordered" && i != _last)
 	{
 	    cerr << endl << "received unordered event for `" << _name << "': " << i << " " << _last;
 	    test(false);
 	}
+	Lock sync(*this);
 	++_last;
-
 	if(++_count == 1000)
 	{
 	    notify();
@@ -118,6 +118,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     // Create subscribers with different QoS.
     //
     vector<SingleIPtr> subscribers;
+    //
+    // First we use the old deprecated API.
+    //
     {
 	subscribers.push_back(new SingleI(communicator, "default"));
 	topic->subscribe(IceStorm::QoS(), adapter->addWithUUID(subscribers.back()));
@@ -141,10 +144,35 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
     }
     {
-	subscribers.push_back(new SingleI(communicator, "twoway ordered", true)); // Ordered
+	subscribers.push_back(new SingleI(communicator, "twoway ordered")); // Ordered
 	IceStorm::QoS qos;
 	qos["reliability"] = "twoway ordered";
 	topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
+    }
+    //
+    // Next we use the new API call with the new proxy semantics.
+    //
+    {
+	subscribers.push_back(new SingleI(communicator, "default"));
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_oneway());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "oneway"));
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_oneway());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "twoway"));
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back()));
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "batch"));
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_batchOneway());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "twoway ordered")); // Ordered
+	IceStorm::QoS qos;
+	qos["reliability"] = "ordered";
+	topic->subscribeAndGetPublisher(qos, adapter->addWithUUID(subscribers.back()));
     }
 
     adapter->activate();

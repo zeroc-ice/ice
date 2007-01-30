@@ -18,14 +18,6 @@
 
 #include <TestCommon.h>
 
-#include <fcntl.h>
-#ifdef _WIN32
-#   include <io.h>
-#else
-#   include <sys/types.h>
-#   include <sys/stat.h>
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -174,20 +166,6 @@ private:
 IceUtil::StaticMutex ErraticEventI::_remainingMutex = ICE_STATIC_MUTEX_INITIALIZER;
 int ErraticEventI::_remaining = 0;
 
-void
-usage(const char* appName)
-{
-    cerr << "Usage: " << appName << " [options]\n";
-    cerr <<	
-	"Options:\n"
-	"-h, --help             Show this message.\n"
-	"--events <e>           Terminate after <e> are received.\n"
-	"--qos <key>,<value><e> Subscribe with this QoS.\n"
-        "--erratic <n>          Add <n> erratic subscribers.\n"
-        "--slow                 The subscribers sleeps 3 seconds after each event.\n"
-	;
-}
-
 struct Subscription
 {
     Ice::ObjectAdapterPtr adapter;
@@ -277,6 +255,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
 
+    string reliability = "";
     EventIPtr servant;
     if(erratic)
     {
@@ -297,15 +276,20 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     else
     {
-	map<string, string>::const_iterator reliability = qos.find("reliability");
-	if(reliability != qos.end())
+	map<string, string>::iterator p = qos.find("reliability");
+	if(p != qos.end())
 	{
-	    if(reliability->second == "twoway ordered")
+	    reliability = p->second;
+	    if(reliability != "ordered")
 	    {
-		servant = new OrderEventI(communicator, events);
+		qos.erase(p);
 	    }
 	}
-	if(!servant)
+	if(reliability == "ordered")
+	{
+	    servant = new OrderEventI(communicator, events);
+	}
+	else
 	{
 	    servant = new CountEventI(communicator, events);
 	}
@@ -338,8 +322,20 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	for(vector<Subscription>::iterator p = subs.begin(); p != subs.end(); ++p)
 	{
 	    p->obj = p->adapter->addWithUUID(p->servant);
+	    if(reliability == "twoway" || reliability == "ordered")
+	    {
+		// Do nothing.
+	    }
+	    else if(reliability == "batch")
+	    {
+		p->obj = p->obj->ice_batchOneway();
+	    }
+	    else //if(reliability == "oneway")
+	    {
+		p->obj = p->obj->ice_oneway();
+	    }
 	    p->adapter->activate();
-	    topic->subscribe(qos, p->obj);
+	    topic->subscribeAndGetPublisher(qos, p->obj);
 	}
     }
 

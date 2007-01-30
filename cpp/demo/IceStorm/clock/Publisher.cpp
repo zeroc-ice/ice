@@ -9,6 +9,7 @@
 
 #include <Ice/Application.h>
 #include <IceStorm/IceStorm.h>
+#include <IceUtil/Options.h>
 
 #include <Clock.h>
 
@@ -29,9 +30,31 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.pub");
 }
 
+void
+usage(const string& n)
+{
+    cerr << "Usage: " << n << " [--datagram|--twoway|--oneway] [topic]\n" << endl;
+}
+
 int
 Publisher::run(int argc, char* argv[])
 {
+    IceUtil::Options opts;
+    opts.addOpt("", "datagram");
+    opts.addOpt("", "twoway");
+    opts.addOpt("", "oneway");
+
+    IceUtil::Options::StringVector remaining;
+    try
+    {
+        remaining = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::BadOptException& e)
+    {
+	cerr << argv[0] << ": " << e.reason << endl;
+	return EXIT_FAILURE;
+    }
+
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
 	communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
     if(!manager)
@@ -41,9 +64,9 @@ Publisher::run(int argc, char* argv[])
     }
 
     string topicName = "time";
-    if(argc != 1)
+    if(!remaining.empty())
     {
-	topicName = argv[1];
+	topicName = remaining.front();
     }
 
     //
@@ -71,7 +94,20 @@ Publisher::run(int argc, char* argv[])
     // Get the topic's publisher object, the Clock type, and create a
     // oneway Clock proxy (for efficiency reasons).
     //
-    ClockPrx clock = ClockPrx::uncheckedCast(topic->getPublisher()->ice_oneway());
+    Ice::ObjectPrx publisher = topic->getPublisher();
+    if(opts.isSet("datagram"))
+    {
+	publisher = publisher->ice_datagram();
+    }
+    else if(opts.isSet("twoway"))
+    {
+	// Do nothing.
+    }
+    else
+    {
+	publisher = publisher->ice_oneway();
+    }
+    ClockPrx clock = ClockPrx::uncheckedCast(publisher);
 
     cout << "publishing tick events. Press ^C to terminate the application." << endl;
     try
