@@ -382,8 +382,7 @@ TestUtil.cleanDbDir(dbHome2)
 iceBoxPipe1, iceBoxPipe2 = startServers()
 
 print "checking link...",
-command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
-    r' -e "list TestIceStorm1 fed1"' + " 2>&1"
+command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + r' -e "list TestIceStorm1 fed1"'
 if TestUtil.debug:
     print "(" + command + ")",
 iceStormAdminPipe = os.popen(command + " 2>&1")

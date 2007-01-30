@@ -483,61 +483,59 @@ TopicI::id() const
 void
 TopicI::reap()
 {
+    IceUtil::RecMutex::Lock topicSync(_topicRecordMutex);
+    if(_destroyed)
     {
-	IceUtil::RecMutex::Lock topicSync(_topicRecordMutex);
-	if(_destroyed)
-	{
-	    return;
-	}
-	bool updated = false;
-    
-	//
-	// Run through all invalid subscribers and remove them from the
-	// database.
-	//
-	list<SubscriberPtr> error;
-	{
-	    IceUtil::Mutex::Lock errorSync(_errorMutex);
-	    _error.swap(error);
-	}
+	return;
+    }
+    bool updated = false;
 
-	TraceLevelsPtr traceLevels = _instance->traceLevels();
-	for(list<SubscriberPtr>::const_iterator p = error.begin(); p != error.end(); ++p)
-	{
-	    SubscriberPtr subscriber = *p;
-	    assert(subscriber->persistent()); // Only persistent subscribers need to be reaped.
+    //
+    // Run through all invalid subscribers and remove them from the
+    // database.
+    //
+    list<SubscriberPtr> error;
+    {
+	IceUtil::Mutex::Lock errorSync(_errorMutex);
+	_error.swap(error);
+    }
 
-	    bool found = false;
-	    //
-	    // If this turns out to be a performance problem then we
-	    // can create an in memory map cache.
-	    //
-	    LinkRecordSeq::iterator q = _topicRecord.begin();
-	    while(q != _topicRecord.end())
+    TraceLevelsPtr traceLevels = _instance->traceLevels();
+    for(list<SubscriberPtr>::const_iterator p = error.begin(); p != error.end(); ++p)
+    {
+	SubscriberPtr subscriber = *p;
+	assert(subscriber->persistent()); // Only persistent subscribers need to be reaped.
+
+	bool found = false;
+	//
+	// If this turns out to be a performance problem then we
+	// can create an in memory map cache.
+	//
+	LinkRecordSeq::iterator q = _topicRecord.begin();
+	while(q != _topicRecord.end())
+	{
+	    if(q->obj->ice_getIdentity() == subscriber->id())
 	    {
-		if(q->obj->ice_getIdentity() == subscriber->id())
-		{
-		    _topicRecord.erase(q);
-		    updated = true;
-		    found = true;
-		    break;
-		}
-		++q;
+		_topicRecord.erase(q);
+		updated = true;
+		found = true;
+		break;
 	    }
-	    if(traceLevels->topic > 0)
+	    ++q;
+	}
+	if(traceLevels->topic > 0)
+	{
+	    Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
+	    out << "reaping " << _instance->communicator()->identityToString(subscriber->id());
+	    if(!found)
 	    {
-		Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-		out << "reaping " << _instance->communicator()->identityToString(subscriber->id());
-		if(!found)
-		{
-		    out << ": failed - not in database";
-		}
+		out << ": failed - not in database";
 	    }
 	}
-	if(updated)
-	{
-	    _topics.put(PersistentTopicMap::value_type(_id, _topicRecord));
-	}
+    }
+    if(updated)
+    {
+	_topics.put(PersistentTopicMap::value_type(_id, _topicRecord));
     }
 }
 

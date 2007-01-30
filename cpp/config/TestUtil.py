@@ -140,7 +140,6 @@ def isDarwin():
         return 0
 
 def closePipe(pipe):
-
     try:
 	status = pipe.close()
     except IOError, ex:
@@ -152,7 +151,6 @@ def closePipe(pipe):
             status = 0
 	else:
 	    raise
-
     return status
      
 class ReaderThread(Thread):
@@ -172,6 +170,7 @@ class ReaderThread(Thread):
         except IOError:
             pass
 
+	#print "TERMINATED: " + str(self.pipe)
 	self.status = closePipe(self.pipe)
 
     def getPipe(self):
@@ -206,12 +205,14 @@ def serverStatus():
 # This joins with a specific server (the one started with the given pipe)
 # returns its exit status. If the server cannot be found an exception
 # is raised.
-def specificServerStatus(pipe):
+def specificServerStatus(pipe, timeout = None):
     global serverThreads
     for t in serverThreads:
 	if t.getPipe() == pipe:
 	    serverThreads.remove(t)
-	    t.join()
+	    t.join(timeout)
+	    if t.isAlive():
+		raise "server with pipe " + str(pipe) + " did not exit within the timeout period."
 	    status = t.getStatus()
 	    return status
     raise "can't find server with pipe: " + str(pipe)

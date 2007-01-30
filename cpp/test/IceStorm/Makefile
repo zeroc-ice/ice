@@ -13,7 +13,8 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= single \
 		  federation \
-		  federation2
+		  federation2 \
+		  stress
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

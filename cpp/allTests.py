@@ -108,6 +108,7 @@ tests = [ \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
+    "IceStorm/stress", \
     "FreezeScript/dbmap", \
     "FreezeScript/evictor", \
     "IceGrid/simple", \
