@@ -6,46 +6,61 @@ Requirements
 Windows version
 ---------------
 
-Ice has been extensively tested with Windows XP, Windows 2003 Server
-and Windows 2000. Ice is also expected to work on  Windows 98, 
-Windows 98 SE, Windows ME, Windows NT 3.51 and Windows NT 4.0.
+Ice has been extensively tested on:
 
-Ice binary distributions for Visual Studio 6.0, Visual Studio .NET 
-2003 and Visual Studio 2005 are available from:
+- Windows XP x86
+- Windows 2003 Server x86 and x64
+- Windows Vista x86
+
+Ice is also expected to work on Windows 98, Windows 98 SE, Windows ME, 
+Windows NT 3.51, Windows NT 4.0, Windows 2000, but is not supported
+on these Windows versions.
+
+There are several Ice binary distributions available for Windows, each
+built with a different C++ compiler; these distributions can be 
+downloaded from:
 
   http://www.zeroc.com/download.html
 
 These binary distributions include everything necessary to build Ice 
-applications and require Windows 2000, Windows XP or Windows Server 
-2003.
-
+applications and require Windows XP, Windows Server 2003, or
+Windows Vista.
 
 C++ compiler
 ------------
 
-The following Microsoft Visual C++ compilers are supported:
+The following C++ compilers are supported:
 
-- Visual C++ 6.0 SP5 with STLport 4.5 (or later)
+- Microsoft Visual C++ 2005 (both Professional and Express editions)
 
-- Visual C++ .NET 2003 (aka VC++ 7.1)
+- Microsoft Visual C++ .NET 2003 (aka VC++ 7.1)
 
-- Visual C++ 2005 and Visual C++ 2005 Express (aka VC++ 8.0)
+- Microsoft Visual C++ 6.0 SP5 with STLport 4.5 (or later)
 
-The STL (Standard Template Library) that is included with Visual C++
-6.0 is not supported. You must use STLport 4.5 (or later) with Visual
-C++ 6.0.
+- Borland C++Builder 2006 Update 2
 
-For Visual C++ .NET 2003 and Visual C++ 2005, you can use the included
-STL library.
+The Standard Template Library included with Visual C++ 6.0 is not 
+supported. You must use STLport 4.5 (or later) with Visual C++ 6.0.
 
 Visual C++ 2005 Express is available for download from:
 
-http://msdn.microsoft.com/vstudio/express/visualc/
+   http://msdn.microsoft.com/vstudio/express/visualc/
 
-Users of Visual C++ 2005 Express must also install Microsoft's
+Users of Visual C++ 2005 Express must also install the Microsoft
 Platform SDK and follow the instructions at the link below:
 
-http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+   http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+
+
+NMAKE
+-----
+
+In order to build Ice you need Microsoft NMAKE utility. NMAKE is 
+include in all Microsoft C++ compiler distributions. If you are using
+the Borland C++ compiler, you can download NMAKE as part of the 
+Windows Platform SDK:
+ 
+   http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
 
 Third-party libraries
@@ -53,9 +68,9 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- STLport 4.5 or later (required for Visual C++ 6.0)
-- Berkeley DB 4.3.29
-- expat 1.9x
+- STLport 4.5 or later (only for Visual C++ 6.0)
+- Berkeley DB 4.5.20
+- expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)
 - bzip2 1.0
 
@@ -73,13 +88,13 @@ Finally, if you prefer to download and install the third-party
 dependencies yourself, you can find them at the following locations:
 
 STLport         http://www.stlport.org/download.html
-Berkeley DB     http://www.sleepycat.com/download
+Berkeley DB     http://www.oracle.com/technology/software/products/berkeley-db/index.html
 expat           http://sourceforge.net/projects/expat/
 OpenSSL         http://www.openssl.org
 bzip2           http://sources.redhat.com/bzip2
 
 For STLport installation instructions, please refer to
-http://www.stlport.org/doc/install.html
+   http://www.stlport.org/doc/install.html
 
 Note: For a regular build of bzip2, both the debug and the release
 library are named "libbz2.lib". In order to be able to have both a
@@ -105,7 +120,6 @@ before building Berkeley DB:
 
 - Add the lib directory for STLport.
 
-
 Python
 ------
 
@@ -113,7 +127,7 @@ You will need Python to run the automated test suite. If you have no
 interest in running the test scripts, Python is not required.
 
 You can download a Python distribution for Windows from
-http://www.python.org/download
+   http://www.python.org/download
 
 Important note for Windows 98, Windows 98 SE and Windows ME users:
 
@@ -122,79 +136,36 @@ these versions of Windows, you need Cygwin and the python interpreter
 that comes with Cygwin in order to run the test suite. Cygwin can be
 downloaded from:
 
-http://www.cygwin.com
+   http://www.cygwin.com
 
 
 ======================================================================
 Compilation and Testing
 ======================================================================
 
-Using your favorite Zip tool, unzip the Ice archive anywhere you like,
-then start the Microsoft Visual C++ IDE.
+Using your favorite Zip tool, unzip the Ice source archive anywhere 
+you like.
 
-First, you must make sure that your compiler finds all of the required
-third-party packages (include files, libraries, and DLLs):
+Add the third-party libraries bin directory to your PATH.
 
-- In Visual Studio, choose:
+Open a command prompt and change the working directory to Ice-@ver@.
+For example:
 
-  * Visual C++ 6.0: Tools->Options->Directories
+> cd C:\Ice-@ver@
 
-  * Visual C++ .NET 2003: Tools->Options->Projects->VC++ Directories
+Edit config/Make.rules to establish your build configuration. The
+comments in the file provide more information. In particular you
+must set CPP_COMPILER to the appropriate compiler.
 
-  * Visual C++ 2005: Tools->Options->Projects and Solutions->
-                                                    VC++ Directories
+Now you're ready to build Ice:
 
-- Select "Include files".
+> nmake /f Makefile.mak
 
-- Add the include directories for Berkeley DB, expat, OpenSSL, and
-  bzip2.
+You can now run the test suite, provided that you have installed 
+Python. Open a command prompt and change to the top- level Ice 
+directory. At the command prompt, execute:
 
-  If you used the binary installer for expat, then the proper include
-  directory is C:\Expat-1.95.8\Source\lib.
-
-  For Visual C++ 6.0, also add the include directory for STLport. Note
-  that you must add the "include\stlport" directory, not just
-  "include", and that this directory must precede any of the Visual
-  C++ include directories.
-
-- Select "Library files".
-
-- Add the library directories for Berkeley DB, expat, OpenSSL, and
-  bzip2 (and STLport, if required).
-
-  If you used the binary installer for expat, then the proper library
-  directory is C:\Expat-1.95.8\Libs.
-
-- Select "Executable files".
-
-- Add the directories that contain DLLs for Berkeley DB, expat,
-  OpenSSL and bzip2 (and STLport, if required).
-
-Now you are ready to compile Ice, so open the "all.dsw" workspace. If
-you are using Visual C++ .NET 2003 or Visual C++ 2005, then the 
-project files must first be converted from Visual C++ 6.0 to the new
-solution and project file format.
-
-Set your active project to either "all" or "minimal". "all" will
-compile everything including the tests and demos. "minimal" will not
-compile the tests or demos. To set your active project with Visual C++
-6.0, use Project->Set Active Project. For Visual C++ .NET 2003 and
-Visual C++ 2005, click on "all" or "minimal" in the class view, 
-then use Project->Set as StartUp Project.
-
-To start the compilation, use Build->Build for Visual C++ 6.0, or
-Build->Build all/minimal for Visual C++ .NET 2003 or Visual C++
-2005.
-
-NOTE: Visual C++ 2005 Express users should expect three demo projects
-      to fail. These projects require the Microsoft Foundation Classes
-      (MFC), which are not included in the Platform SDK.
-
-If you built the tests you can run the test suite, provided that you
-have installed Python. Open a command prompt and change to the top-
-level Ice directory. At the command prompt, execute:
-
-  python allTests.py
+> python allTests.py
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
@@ -203,28 +174,11 @@ If you want to try out any of the demos, make sure to update your PATH
 environment variable to add the "bin" directory, which contains the
 Ice DLLs and executables.
 
-
 ======================================================================
 x64 Platform
 ======================================================================
 
-You can target the x64 platform when building Ice with Visual C++ 
-2005. Follow these steps when converting the Ice Visual C++ 6.0 
-projects into Visual Studio 2005 projects:
-
- - Let Visual Studio 2005 automatically convert all your project
-   files.
- - In Build/Configuration Manager/Active solution platform, create
-   a new solution platform named x64 (from the drop-down list).
-   Keep the default selections (Copy settings from Win32 and
-   Create new project platforms).
- - In the Solution Explorer window, select all projects.
- - Select the Project/Properties menu.
- - Select All Configurations in the Configuration drop-down list.
- - In Configuration Properties/General, change "Output Directory"
-   to be just $(ConfigurationName) and "Intermediate Directory"
-   to be just $(ConfigurationName).
- - Finally, save all your project files.
+TBD!
 
 
 ======================================================================
@@ -263,11 +217,10 @@ http://support.microsoft.com/default.aspx?scid=kb;EN-US;158474
 Installation
 ======================================================================
 
-No automatic installation support is provided: you need to copy the
-contents of the bin, include, and lib directories to your preferred
-location. The include directory contains all Ice include files, the
-lib directory contains all Ice libraries, and the bin directory
-contains all Ice executables and DLLs.
+Simply run "nmake /f Makefile.mak install". This will install Ice in
+the directory specified by the "prefix" variable in
+config/Make.rules.mak. After installation, make sure that the
+<prefix>/bin directory is in your PATH.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files", the lib directory to the "Library files",
