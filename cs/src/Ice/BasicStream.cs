@@ -1737,7 +1737,7 @@ namespace IceInternal
 	    _buf.position(n);
 	}
 	
-	internal virtual int size()
+	public virtual int size()
 	{
 	    return _limit;
 	}
