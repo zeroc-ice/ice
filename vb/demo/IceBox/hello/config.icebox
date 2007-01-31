@@ -3,7 +3,7 @@ IceBox.InstanceName=DemoIceBox
 #
 # The IceBox server endpoint configuration.
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
+Ice.OA.IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 
 #
 # The hello service
@@ -15,7 +15,7 @@ IceBox.Service.Hello=helloservice.dll:HelloIceBox.HelloIceBoxS+HelloServiceI
 # the service. The following line sets the endpoints for this
 # adapter.
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Ice.OA.Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
