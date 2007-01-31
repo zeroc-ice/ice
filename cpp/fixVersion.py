@@ -292,6 +292,10 @@ if not patchIceE:
 	fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak"),
 			    [("VERSION[\t\s]*= " + vpatMatch, version)])
 
+	fileMatchAndReplace(os.path.join(icevb_home, "config", "makeconfig.py"),
+			    [("codeBase version=\"" + vpatMatch + "\.0\"", 
+	                    majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
+
 	fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
 			    [("IceStormService,([0-9]+b?)", soVersion(version))])
 
