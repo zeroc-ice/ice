@@ -324,6 +324,15 @@ final class TcpTransceiver implements Transceiver
         return _desc;
     }
 
+    public void
+    checkSendSize(BasicStream stream, int messageSizeMax)
+    {
+	if(stream.size() > messageSizeMax)
+	{
+	    throw new Ice.MemoryLimitException();
+	}
+    }
+
     //
     // Only for use by TcpConnector, TcpAcceptor
     //

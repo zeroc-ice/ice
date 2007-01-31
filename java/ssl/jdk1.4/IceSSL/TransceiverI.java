@@ -318,6 +318,15 @@ final class TransceiverI implements IceInternal.Transceiver
 	return _desc;
     }
 
+    public void
+    checkSendSize(IceInternal.BasicStream stream, int messageSizeMax)
+    {
+	if(stream.size() > messageSizeMax)
+	{
+	    throw new Ice.MemoryLimitException();
+	}
+    }
+
     ConnectionInfo
     getConnectionInfo()
     {

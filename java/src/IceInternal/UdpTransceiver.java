@@ -268,6 +268,20 @@ final class UdpTransceiver implements Transceiver
         return Network.fdToString(_fd);
     }
 
+    public void
+    checkSendSize(BasicStream stream, int messageSizeMax)
+    {
+	if(stream.size() > messageSizeMax)
+	{
+	    throw new Ice.MemoryLimitException();
+	}
+        final int packetSize = java.lang.Math.min(_maxPacketSize, _sndSize - _udpOverhead);
+	if(packetSize < stream.size())
+	{
+	    throw new Ice.DatagramLimitException();
+	}
+    }
+
     public final boolean
     equivalent(String host, int port)
     {

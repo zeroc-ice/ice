@@ -857,28 +857,45 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             //
             _batchStream.swap(os);
 
-            if(_batchAutoFlush && _batchStream.size() > _instance.messageSizeMax())
+            if(_batchAutoFlush)
             {
-                //
-                // Throw memory limit exception if the first message added causes us to
-                // go over limit. Otherwise put aside the marshalled message that caused
-                // limit to be exceeded and rollback stream to the marker.
-                //
-                if(_batchRequestNum == 0)
-                {
-                    resetBatch(true);
-                    throw new MemoryLimitException();
-                }
+		synchronized(_sendMutex)
+		{
+		    if(_transceiver == null)
+		    {
+			assert(_exception != null);
+			throw _exception; // The exception is immutable at this point.
+		    }
+		    //
+		    // Throw memory limit exception if the first
+		    // message added causes us to go over
+		    // limit. Otherwise put aside the marshalled
+		    // message that caused limit to be exceeded and
+		    // rollback stream to the marker.
+		    try
+		    {
+			_transceiver.checkSendSize(_batchStream, _instance.messageSizeMax());
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			if(_batchRequestNum == 0)
+			{
+			    resetBatch(true);
+			    throw ex;
+			}
 
-                lastRequest = new byte[_batchStream.size() - _batchMarker];
-                java.nio.ByteBuffer buffer = _batchStream.prepareRead();
-                buffer.position(_batchMarker);
-                buffer.get(lastRequest);
-                _batchStream.resize(_batchMarker, false);
-                autoflush = true;
-            }
-            else
-            {
+			lastRequest = new byte[_batchStream.size() - _batchMarker];
+			java.nio.ByteBuffer buffer = _batchStream.prepareRead();
+			buffer.position(_batchMarker);
+			buffer.get(lastRequest);
+			_batchStream.resize(_batchMarker, false);
+			autoflush = true;
+		    }
+		}
+	    }
+
+	    if(!autoflush)
+	    {
                 //
                 // Increment the number of requests in the batch.
                 //

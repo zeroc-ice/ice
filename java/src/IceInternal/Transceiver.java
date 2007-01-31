@@ -30,4 +30,5 @@ public interface Transceiver
     boolean read(BasicStream stream, int timeout);
     String type();
     String toString();
+    void checkSendSize(BasicStream stream, int messageSizeMax);
 }
