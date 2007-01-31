@@ -120,7 +120,7 @@ LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) EventLoggerMsg.res $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 
 EventLoggerI.obj: EventLoggerMsg.h
