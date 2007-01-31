@@ -108,6 +108,17 @@ Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults, co
 inline void checkIceVersion(Int version)
 {
 #ifndef ICE_IGNORE_VERSION
+
+#   if ICE_INT_VERSION % 100 > 50
+    //
+    // Beta version: exact match required
+    //
+    if(ICE_INT_VERSION != version)
+    {
+	throw VersionMismatchException(__FILE__, __LINE__);
+    }
+#   else
+
     //
     // Major and minor version numbers must match.
     //
@@ -115,6 +126,15 @@ inline void checkIceVersion(Int version)
     {
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
+
+    //
+    // Reject beta caller
+    //
+    if(version % 100 > 50)
+    {
+	throw VersionMismatchException(__FILE__, __LINE__);
+    }
+
     //
     // The caller's patch level cannot be greater than library's patch level. (Patch level changes are
     // backward-compatible, but not forward-compatible.)
@@ -123,6 +143,8 @@ inline void checkIceVersion(Int version)
     {
 	throw VersionMismatchException(__FILE__, __LINE__);
     }
+    
+#   endif    
 #endif
 }
 

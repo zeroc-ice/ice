@@ -36,7 +36,7 @@ prefix			= C:\IceVB-$(VERSION)
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.2.0
+VERSION			= 3.2b
 
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib

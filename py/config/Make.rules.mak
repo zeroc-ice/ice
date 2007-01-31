@@ -49,11 +49,8 @@ PYTHON_HOME		= C:\Python25
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION_MAJOR           = 3
-VERSION_MINOR           = 2
-VERSION_PATCH           = 0
-VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
-SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)
+VERSION			= 3.2b
+SOVERSION		= 32b
 libdir			= $(top_srcdir)\python
 
 install_slicedir	= $(prefix)\slice

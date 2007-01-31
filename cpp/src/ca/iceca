@@ -71,7 +71,7 @@ if sys.argv[script] == "import":
     # handles standard tarball installs.
     #
     for bindir in [os.path.dirname(sys.argv[0]), os.path.join(os.getenv("ICE_HOME"), "bin"), ".", "/usr/bin", \
-		   "/opt/Ice-3.2.0/bin"]:
+		   "/opt/Ice-3.2b/bin"]:
 	bindir = os.path.normpath(bindir)
 	if os.path.exists(os.path.join(bindir, "ImportKey.class")):
 	    break

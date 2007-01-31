@@ -50,10 +50,7 @@ else
 endif
 
 SHELL			= /bin/sh
-VERSION_MAJOR           = 3
-VERSION_MINOR           = 2
-VERSION_PATCH           = 0 
-VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
+VERSION			= 3.2b
 
 #
 # Checks for ICE_HOME environment variable.  If it isn't present,

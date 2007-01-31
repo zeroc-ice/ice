@@ -1,4 +1,4 @@
-version = 3.2.0
+version = 3.2b
 mono_root = /opt/mono
 
 name = icepatch2cs

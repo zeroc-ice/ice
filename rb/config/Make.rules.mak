@@ -49,11 +49,8 @@ STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION_MAJOR           = 3
-VERSION_MINOR           = 2
-VERSION_PATCH           = 0
-VERSION			= $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_PATCH)
-SOVERSION		= $(VERSION_MAJOR)$(VERSION_MINOR)
+VERSION			= 3.2b
+SOVERSION		= 32b
 libdir			= $(top_srcdir)\lib
 rubydir			= $(top_srcdir)\ruby
 

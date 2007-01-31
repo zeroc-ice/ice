@@ -70,7 +70,17 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 	    int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
 	    ostringstream os;
 	    os << majorVersion * 10 + minorVersion;
-            version = os.str();
+            
+	    int patchVersion = ICE_INT_VERSION % 100;
+	    if(patchVersion > 50)
+	    {
+		os << 'b';
+		if(patchVersion >= 52)
+		{
+		    os << (patchVersion - 50);
+		}
+	    }
+	    version = os.str();
         }
     }
     else
