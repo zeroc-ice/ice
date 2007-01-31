@@ -38,6 +38,7 @@ public:
     virtual std::string type() const;
     virtual std::string toString() const;
     virtual void initialize(int);
+    virtual void checkSendSize(const IceInternal::Buffer&, size_t);
 
     ConnectionInfo getConnectionInfo() const;
 

@@ -109,13 +109,18 @@ void
 IceInternal::UdpTransceiver::write(Buffer& buf, int)
 {
     assert(buf.i == buf.b.begin());
+    //
+    // The maximum packetSize is either the maximum allowable UDP
+    // packet size, or the UDP send buffer size (which ever is
+    // smaller).
+    //
     const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
     if(packetSize < static_cast<int>(buf.b.size()))
     {
 	//
 	// We don't log a warning here because the client gets an exception anyway.
 	//
-	throw Ice::DatagramLimitException(__FILE__, __LINE__);
+	throw DatagramLimitException(__FILE__, __LINE__);
     }
 
 repeat:
@@ -190,6 +195,11 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
 {
     assert(buf.i == buf.b.begin());
 
+    //
+    // The maximum packetSize is either the maximum allowable UDP
+    // packet size, or the UDP send buffer size (which ever is
+    // smaller).
+    //
     const int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
     if(packetSize < static_cast<int>(buf.b.size()))
     {
@@ -202,7 +212,7 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
 	    Warning out(_logger);
 	    out << "DatagramLimitException: maximum size of " << packetSize << " exceeded";
 	}
-	throw Ice::DatagramLimitException(__FILE__, __LINE__);
+	throw DatagramLimitException(__FILE__, __LINE__);
     }
     buf.b.resize(packetSize);
     buf.i = buf.b.begin();
@@ -335,6 +345,20 @@ IceInternal::UdpTransceiver::toString() const
 void
 IceInternal::UdpTransceiver::initialize(int)
 {
+}
+
+void
+IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf, size_t messageSizeMax)
+{
+    if(buf.b.size() > messageSizeMax)
+    {
+	throw MemoryLimitException(__FILE__, __LINE__);
+    }
+    const int packetSize = min(_maxPacketSize, _sndSize - _udpOverhead);
+    if(packetSize < static_cast<int>(buf.b.size()))
+    {
+	throw DatagramLimitException(__FILE__, __LINE__);
+    }
 }
 
 bool
@@ -475,18 +499,6 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	    sizeRequested = dfltSize;
 	}
 
-	//
-	// Ice.MessageSizeMax overrides UDP buffer sizes if Ice.MessageSizeMax + _udpOverhead is less.
-	//
-	size_t messageSizeMax = instance->messageSizeMax();
-	if(static_cast<size_t>(sizeRequested) > messageSizeMax + _udpOverhead)
-	{
-	    Warning out(_logger);
-	    out << "UDP " << direction << " buffer size: requested size of " << sizeRequested << " adjusted to ";
-	    sizeRequested = min(static_cast<int>(messageSizeMax), _maxPacketSize) + _udpOverhead;
-	    out << sizeRequested << " (Ice.MessageSizeMax takes precedence)";
-	}
-	    
 	if(sizeRequested != dfltSize)
 	{
 	    //

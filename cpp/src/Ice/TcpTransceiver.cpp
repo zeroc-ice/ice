@@ -343,6 +343,15 @@ IceInternal::TcpTransceiver::initialize(int)
 {
 }
 
+void
+IceInternal::TcpTransceiver::checkSendSize(const Buffer& buf, size_t messageSizeMax)
+{
+    if(buf.b.size() > messageSizeMax)
+    {
+	throw MemoryLimitException(__FILE__, __LINE__);
+    }
+}
+
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),

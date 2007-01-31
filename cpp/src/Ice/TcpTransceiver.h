@@ -35,6 +35,7 @@ public:
     virtual std::string type() const;
     virtual std::string toString() const;
     virtual void initialize(int);
+    virtual void checkSendSize(const Buffer&, size_t);
 
 private:
 

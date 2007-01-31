@@ -883,25 +883,39 @@ Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
         //
         _batchStream.swap(*os);
 
-        if(_batchAutoFlush && _batchStream.b.size() > _instance->messageSizeMax())
+        if(_batchAutoFlush)
 	{
+	    IceUtil::Mutex::Lock sendSync(_sendMutex);
+	    if(!_transceiver)
+	    {
+		assert(_exception.get());
+		_exception->ice_throw(); // The exception is immutable at this point.
+	    }
+
 	    //
 	    // Throw memory limit exception if the first message added causes us to 
 	    // go over limit. Otherwise put aside the marshalled message that caused
 	    // limit to be exceeded and rollback stream to the marker.
 	    //
-	    if(_batchRequestNum == 0)
+	    try
 	    {
-	        resetBatch(true);
-	        throw MemoryLimitException(__FILE__, __LINE__);
+		_transceiver->checkSendSize(_batchStream, _instance->messageSizeMax());
 	    }
-
-	    vector<Ice::Byte>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
-	    _batchStream.b.resize(_batchMarker);
-	    autoflush = true;
+	    catch(const Ice::Exception&)
+	    {
+		if(_batchRequestNum == 0)
+		{
+		    resetBatch(true);
+		    throw;
+		}
+		vector<Ice::Byte>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
+		_batchStream.b.resize(_batchMarker);
+		autoflush = true;
+	    }
 	}
-	else
-        {
+
+	if(!autoflush)
+	{
             //
 	    // Increment the number of requests in the batch.
 	    //

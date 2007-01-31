@@ -518,6 +518,15 @@ IceSSL::TransceiverI::initialize(int timeout)
     }
 }
 
+void
+IceSSL::TransceiverI::checkSendSize(const IceInternal::Buffer& buf, size_t messageSizeMax)
+{
+    if(buf.b.size() > messageSizeMax)
+    {
+	throw MemoryLimitException(__FILE__, __LINE__);
+    }
+}
+
 ConnectionInfo
 IceSSL::TransceiverI::getConnectionInfo() const
 {

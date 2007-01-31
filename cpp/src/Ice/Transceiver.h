@@ -38,6 +38,7 @@ public:
     virtual std::string type() const = 0;
     virtual std::string toString() const = 0;
     virtual void initialize(int) = 0;
+    virtual void checkSendSize(const Buffer&, size_t) = 0;
 };
 
 }

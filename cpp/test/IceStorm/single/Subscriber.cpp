@@ -34,7 +34,8 @@ public:
     event(int i, const Current& current)
     {
 
-	if((_name == "default" || _name == "oneway" || _name == "batch") && current.requestId != 0)
+	if((_name == "default" || _name == "oneway" || _name == "batch" || _name == "datagram" ||
+	    _name == "batch datagram") && current.requestId != 0)
 	{
 	    cerr << endl << "expected oneway request";
 	    test(false);
@@ -46,6 +47,11 @@ public:
 	if(_name == "twoway ordered" && i != _last)
 	{
 	    cerr << endl << "received unordered event for `" << _name << "': " << i << " " << _last;
+	    test(false);
+	}
+	if((_name == "datagram" || _name == "batch datagram") && current.con->type() != "udp")
+	{
+	    cerr << endl << "expected datagram to be received over udp";
 	    test(false);
 	}
 	Lock sync(*this);
@@ -61,11 +67,28 @@ public:
     {
 	Lock sync(*this);
 	cout << "testing " << _name << " reliability... " << flush;
+	bool datagram = _name == "datagram" || _name == "batch datagram";
+	IceUtil::Time timeout = (datagram) ? IceUtil::Time::seconds(5) : IceUtil::Time::seconds(20);
 	while(_count < 1000)
 	{
-	    if(!timedWait(IceUtil::Time::seconds(20)))
+	    if(!timedWait(timeout))
 	    {
-		test(false);
+		if(datagram && _count > 0)
+		{
+		    if(_count < 100)
+		    {
+			cout << "[" << _count << "/1000: This may be an error!!]";
+		    }
+		    else
+		    {
+			cout << "[" << _count << "/1000] ";
+		    }
+		    break;
+		}
+		else
+		{
+		    test(false);
+		}
 	    }
 	}
 	cout << "ok" << endl;
@@ -101,7 +124,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:udp");
 
     TopicPrx topic;
     try
@@ -149,6 +172,18 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	qos["reliability"] = "twoway ordered";
 	topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
     }
+    {
+	subscribers.push_back(new SingleI(communicator, "datagram"));
+	IceStorm::QoS qos;
+	qos["reliability"] = "oneway";
+	topic->subscribe(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_datagram());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "batch datagram"));
+	IceStorm::QoS qos;
+	qos["reliability"] = "batch";
+	topic->subscribe(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_datagram());
+    }
     //
     // Next we use the new API call with the new proxy semantics.
     //
@@ -173,6 +208,14 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	IceStorm::QoS qos;
 	qos["reliability"] = "ordered";
 	topic->subscribeAndGetPublisher(qos, adapter->addWithUUID(subscribers.back()));
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "datagram"));
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_datagram());
+    }
+    {
+	subscribers.push_back(new SingleI(communicator, "batch datagram"));
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_batchDatagram());
     }
 
     adapter->activate();

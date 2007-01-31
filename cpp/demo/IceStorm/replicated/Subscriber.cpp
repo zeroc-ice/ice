@@ -59,18 +59,14 @@ Subscriber::run(int argc, char* argv[])
     }
 
     //
-    // Set the requested quality of service "reliability" =
-    // "batch". This tells IceStorm to send events to the subscriber
-    // in batches at regular intervals.
-    //
-    IceStorm::QoS qos;
-    qos["reliability"] = "batch";
-
-    //
     // Create the servant to receive the events.
     //
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Clock.Subscriber");
-    Ice::ObjectPrx clock = adapter->addWithUUID(new ClockI);
+
+    //
+    // We want to use oneway batch messages.
+    //
+    Ice::ObjectPrx clock = adapter->addWithUUID(new ClockI)->ice_batchOneway();
 
     IceStorm::TopicPrx topic;
     Ice::ObjectProxySeq::const_iterator p;
@@ -103,7 +99,7 @@ Subscriber::run(int argc, char* argv[])
     for(p = topics.begin(); p != topics.end(); ++p)
     {
         topic = IceStorm::TopicPrx::uncheckedCast(*p);
-	topic->subscribe(qos, clock);
+	topic->subscribeAndGetPublisher(IceStorm::QoS(), clock);
     }
 
     adapter->activate();

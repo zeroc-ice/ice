@@ -28,8 +28,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerProxy);
-    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
+    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
+	communicator->stringToProxy(managerProxy));
     if(!manager)
     {
 	cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
@@ -58,12 +58,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
 	single->event(i);
     }
-
-    //
-    // Before we exit, we ping the proxy as twoway, to make sure that
-    // all oneways are delivered.
-    //
-    SinglePrx::uncheckedCast(single->ice_twoway())->ice_ping();
 
     return EXIT_SUCCESS;
 }
