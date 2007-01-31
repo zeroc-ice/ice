@@ -88,6 +88,7 @@ private:
 
     bool _destroyed; // Has this Topic been destroyed?
 };
+
 typedef IceUtil::Handle<TopicI> TopicIPtr;
 
 } // End namespace IceStorm
