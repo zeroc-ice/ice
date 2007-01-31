@@ -15,6 +15,10 @@ namespace Ice
 	public void destroy()
 	{
 	    instance_.destroy();
+            lock(this)
+            {
+                destroyed_ = true;
+            }
 	}
 
 	public void shutdown()
@@ -152,7 +156,7 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		if(!instance_.destroyed())
+		if(!destroyed_)
 		{
 		    if(!System.Environment.HasShutdownStarted)
 		    {
@@ -193,8 +197,8 @@ namespace Ice
 	    return instance_;
 	}
 	
-	
 	private IceInternal.Instance instance_;
+	private bool destroyed_ = false;
     }
 
 }

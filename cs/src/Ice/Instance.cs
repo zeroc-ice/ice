@@ -446,28 +446,6 @@ namespace IceInternal
 	    }
 	}
 	
-#if DEBUG
-	~Instance()
-	{
-            lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_state == StateDestroyed);
-		IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
-		IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
-		IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-		IceUtil.Assert.FinalizerAssert(_connectionMonitor == null);
-		IceUtil.Assert.FinalizerAssert(_servantFactoryManager == null);
-		IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
-		IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
-		IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
-		IceUtil.Assert.FinalizerAssert(_routerManager == null);
-		IceUtil.Assert.FinalizerAssert(_locatorManager == null);
-		IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
-		IceUtil.Assert.FinalizerAssert(_pluginManager == null);
-	    }
-	}
-#endif
-	
 	public void finishSetup(ref string[] args)
 	{
 	    //

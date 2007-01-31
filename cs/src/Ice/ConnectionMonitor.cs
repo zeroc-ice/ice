@@ -71,20 +71,10 @@ namespace IceInternal
 	    }
 
 	    _thread = new Thread(new ThreadStart(Run));
+            _thread.IsBackground = true;
 	    _thread.Name = threadName + "Ice.ConnectionMonitor";
 	    _thread.Start();
 	}
-	
-#if DEBUG
-	~ConnectionMonitor()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(instance_ == null);
-		IceUtil.Assert.FinalizerAssert(_connections == null);
-	    }
-	}
-#endif
 	
 	public void Run()
 	{

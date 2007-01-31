@@ -526,17 +526,6 @@ namespace IceInternal
 	    _pending = new Set();
 	}
 	
-#if DEBUG
-	~OutgoingConnectionFactory()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_destroyed);
-		IceUtil.Assert.FinalizerAssert(_connections == null);
-	    }
-	}
-#endif
-	
 	private readonly Instance instance_;
 	private bool _destroyed;
 	private Hashtable _connections;
@@ -958,6 +947,7 @@ namespace IceInternal
 			    //
 			    _threadPerIncomingConnectionFactory =
 				new Thread(new ThreadStart(ThreadPerIncomingConnectionFactory));
+                            _threadPerIncomingConnectionFactory.IsBackground = true;
 			    _threadPerIncomingConnectionFactory.Start();
 			}
 			catch(System.Exception ex)
@@ -1026,19 +1016,6 @@ namespace IceInternal
 		throw new Ice.SyscallException(ex);
 	    }
 	}
-	
-#if DEBUG
-	~IncomingConnectionFactory()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
-		IceUtil.Assert.FinalizerAssert(_acceptor == null);
-		IceUtil.Assert.FinalizerAssert(_connections == null);
-		IceUtil.Assert.FinalizerAssert(_threadPerIncomingConnectionFactory == null);
-	    }
-	}
-#endif
 	
 	private const int StateActive = 0;
 	private const int StateHolding = 1;

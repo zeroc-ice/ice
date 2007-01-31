@@ -592,16 +592,6 @@ namespace IceInternal
 	    }
 	}
 
-#if DEBUG
-	~UdpTransceiver()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_fd == null);
-	    }
-	}
-#endif
-	
 	private TraceLevels _traceLevels;
 	private Ice.Logger _logger;
 	private Ice.Stats _stats;

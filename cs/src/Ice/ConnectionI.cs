@@ -1497,6 +1497,7 @@ namespace Ice
 		    // for this connection.
 		    //
 		    _thread = new Thread(new ThreadStart(RunThreadPerConnection));
+                    _thread.IsBackground = true;
 		    _thread.Start();
 		}
 	    }
@@ -1523,19 +1524,6 @@ namespace Ice
 	    _overrideCompressValue = instance_.defaultsAndOverrides().overrideCompressValue;
 	}
 
-#if DEBUG
-	~ConnectionI()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_state == StateClosed);
-		IceUtil.Assert.FinalizerAssert(_transceiver == null);
-		IceUtil.Assert.FinalizerAssert(_dispatchCount == 0);
-		IceUtil.Assert.FinalizerAssert(_thread == null);
-	    }
-	}
-#endif
-	
 	private const int StateNotValidated = 0;
 	private const int StateActive = 1;
 	private const int StateHolding = 2;

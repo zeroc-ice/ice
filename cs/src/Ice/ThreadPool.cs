@@ -121,16 +121,6 @@ namespace IceInternal
 	    }
 	}
 	
-#if DEBUG
-	~ThreadPool()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_destroyed);
-	    }
-	}
-#endif
-	
 	public void destroy()
 	{
 	    lock(this)
@@ -921,6 +911,7 @@ namespace IceInternal
             public void Start()
             {
                 thread_ = new Thread(new ThreadStart(Run));
+                thread_.IsBackground = true;
                 thread_.Name = name_;
                 thread_.Start();
             }

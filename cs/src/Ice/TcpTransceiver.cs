@@ -275,16 +275,6 @@ namespace IceInternal
 	    _desc = Network.fdToString(_fd);
 	}
 	
-#if DEBUG
-	~TcpTransceiver()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(_fd == null);
-	    }
-	}
-#endif
-	
 	private Socket _fd;
 	private TraceLevels _traceLevels;
 	private Ice.Logger _logger;

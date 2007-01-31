@@ -237,19 +237,6 @@ namespace IceInternal
 	    _waitForShutdown = false;
 	}
 	
-#if DEBUG
-	~ObjectAdapterFactory()
-	{
-	    lock(this)
-	    {
-		IceUtil.Assert.FinalizerAssert(instance_ == null);
-		IceUtil.Assert.FinalizerAssert(_communicator == null);
-		IceUtil.Assert.FinalizerAssert(_adapters == null);
-		IceUtil.Assert.FinalizerAssert(!_waitForShutdown);
-	    }
-	}
-#endif
-	
 	private Instance instance_;
 	private Ice.Communicator _communicator;
 	private Hashtable _adapters;

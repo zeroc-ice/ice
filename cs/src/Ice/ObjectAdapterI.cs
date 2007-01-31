@@ -1012,37 +1012,27 @@ namespace Ice
             {
 		if(!_deactivated)
 		{
+                    string msg = "object adapter `" + getName() + "' has not been deactivated";
 		    if(!Environment.HasShutdownStarted)
 		    {
-			instance_.initializationData().logger.warning("object adapter `" + getName() +
-								      "' has not been deactivated");
+			instance_.initializationData().logger.warning(msg);
 		    }
 		    else
 		    {
-			Console.Error.WriteLine("object adapter `" + getName() + "' has not been deactivated");
+			Console.Error.WriteLine(msg);
 		    }
 		}
 		else if(instance_ != null)
 		{
+                    string msg = "object adapter `" + getName() + "' deactivation had not been waited for";
 		    if(!Environment.HasShutdownStarted)
 		    {
-			instance_.initializationData().logger.warning("object adapter `" + getName() +
-			                           "' deactivation had not been waited for");
+			instance_.initializationData().logger.warning(msg);
 		    }
 		    else
 		    {
-			Console.Error.WriteLine("object adapter `" + getName() + 
-						"' deactivation had not been waited for");
+			Console.Error.WriteLine(msg);
 		    }
-		}
-		else
-		{
-		    IceUtil.Assert.FinalizerAssert(_threadPool == null);
-		    //IceUtil.Assert.FinalizerAssert(_servantManager == null); // Not cleared,it needs to be immutable.
-		    IceUtil.Assert.FinalizerAssert(_communicator == null);
-		    IceUtil.Assert.FinalizerAssert(_incomingConnectionFactories == null);
-		    IceUtil.Assert.FinalizerAssert(_directCount == 0);
-		    IceUtil.Assert.FinalizerAssert(!_waitForActivate);
 		}
             }   
         }

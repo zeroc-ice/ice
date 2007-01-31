@@ -64,11 +64,11 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
-    "IceSSL/configuration", \
+    # "IceSSL/configuration", \ # IceSSL is added further down for Mono only
     "Ice/threads", \
     "Glacier2/router", \
     "Glacier2/attack", \
-    "IceGrid/simple", \
+    "IceGrid/simple" \
     ]
 
 def usage():
@@ -107,6 +107,7 @@ for o, a in opts:
     if o in ( "-m", "--mono" ):
 	args += " " + o
         mono = 1
+        print "MONO is TRUE"
     if o in ( "--debug", "-m", "--mono", "--compress", "--threadPerConnection" ):
 	args += " " + o
 
