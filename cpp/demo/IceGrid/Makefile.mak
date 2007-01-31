@@ -11,7 +11,7 @@ top_srcdir	= ..\..
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= allocate sessionActivation simple
+SUBDIRS		= allocate sessionActivation simple replication
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

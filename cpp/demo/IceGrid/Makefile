@@ -13,7 +13,8 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= simple \
 		  sessionActivation \
-		  allocate
+		  allocate \
+		  replication
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
