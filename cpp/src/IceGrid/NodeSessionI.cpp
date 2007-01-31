@@ -138,7 +138,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
 			   const LoadInfo& load) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
-    _node(NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000))),
+    _node(node),
     _info(info),
     _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
@@ -155,8 +155,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
 	objInfo.proxy = _node;
 	_database->addInternalObject(objInfo, true); // Add or update previous node proxy.
 
-	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
-	_proxy = NodeSessionPrx::uncheckedCast(prx);
+	_proxy = NodeSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
     }
     catch(const NodeActiveException&)
     {

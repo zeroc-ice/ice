@@ -149,7 +149,7 @@ public:
     }
 
     void
-    ice_response(const ServerPrx& proxy, const AdapterPrxDict& adpts, int at, int dt)
+    ice_response(const ServerPrx& server, const AdapterPrxDict& adapters, int at, int dt)
     {
 	if(_traceLevels && _traceLevels->server > 1)
 	{
@@ -158,15 +158,9 @@ public:
 	}
 
 	//
-	// Add the node session timeout on the proxies.
+	// Add the node session timeout on the proxies to ensure the
+	// timeout is large enough.
 	//
-	ServerPrx server = ServerPrx::uncheckedCast(proxy->ice_timeout(_timeout * 1000));
-	AdapterPrxDict adapters;
-	for(AdapterPrxDict::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
-	{
-	    adapters.insert(make_pair(p->first, AdapterPrx::uncheckedCast(p->second->ice_timeout(_timeout * 1000))));
-	}
-
 	_server->loadCallback(server, adapters, at + _timeout, dt + _timeout);
     }
 
@@ -556,7 +550,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
 	    // time to deactivate, up to "deactivation-timeout"
 	    // seconds).
 	    // 
-	    if(timeout > 0 && timeout != sessionTimeout)
+	    if(timeout > 0)
 	    {
 		node = NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000));
 	    }
@@ -608,7 +602,6 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
 	    Lock sync(*this);
 	    checkSession();
 	    node = _session->getNode();
-	    int sessionTimeout = _session->getTimeout();
 
 	    //
 	    // Check if we should use a specific timeout (the load
@@ -616,7 +609,7 @@ NodeEntry::destroyServer(const ServerEntryPtr& entry, const ServerInfo& info, in
 	    // time to deactivate, up to "deactivation-timeout"
 	    // seconds).
 	    // 
-	    if(timeout > 0 && timeout != sessionTimeout)
+	    if(timeout > 0)
 	    {
 		node = NodePrx::uncheckedCast(node->ice_timeout(timeout * 1000));
 	    }

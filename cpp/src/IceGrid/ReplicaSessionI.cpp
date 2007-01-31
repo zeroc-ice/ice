@@ -36,7 +36,7 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     _database(database),
     _wellKnownObjects(wellKnownObjects),
     _traceLevels(database->getTraceLevels()),
-    _internalRegistry(InternalRegistryPrx::uncheckedCast(proxy->ice_timeout(timeout * 1000))),
+    _internalRegistry(proxy),
     _info(info),
     _timeout(timeout),
     _timestamp(IceUtil::Time::now()),
@@ -50,8 +50,7 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
 	ObserverTopicPtr obsv = _database->getObserverTopic(RegistryObserverTopicName);
 	RegistryObserverTopicPtr::dynamicCast(obsv)->registryUp(toRegistryInfo(_info));
 
-	Ice::ObjectPrx prx = _database->getInternalAdapter()->addWithUUID(this)->ice_timeout(timeout * 1000);
-	_proxy = ReplicaSessionPrx::uncheckedCast(prx);
+	_proxy = ReplicaSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
     }
     catch(const ReplicaActiveException&)
     {
