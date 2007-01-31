@@ -814,26 +814,43 @@ namespace Ice
 		//
 		_batchStream.swap(os);
 
-		if(_batchAutoFlush && _batchStream.size() > instance_.messageSizeMax())
+		if(_batchAutoFlush)
 		{
-		    //
-		    // Throw memory limit exception if the first message added causes us to
-		    // go over limit. Otherwise put aside the marshalled message that caused
-		    // limit to be exceeded and rollback stream to the marker.
-		    //
-		    if(_batchRequestNum == 0)
+		    lock(_sendMutex)
 		    {
-		        resetBatch(true);
-			throw new MemoryLimitException();
+			if(_transceiver == null)
+			{
+			    Debug.Assert(_exception != null);
+			    throw _exception; // The exception is immutable at this point.
+			}
+			//
+			// Throw memory limit exception if the first
+			// message added causes us to go over
+			// limit. Otherwise put aside the marshalled
+			// message that caused limit to be exceeded and
+			// rollback stream to the marker.
+			//
+			try
+			{
+			    _transceiver.checkSendSize(_batchStream, instance_.messageSizeMax());
+			}
+			catch(Ice.LocalException ex)
+			{
+			    if(_batchRequestNum == 0)
+			    {
+				resetBatch(true);
+				throw ex;
+			    }
+			    int requestSize = _batchStream.size() - _batchMarker;
+			    lastRequest = new byte[requestSize];
+			    Buffer.BlockCopy(_batchStream.prepareRead().rawBytes(), _batchMarker, lastRequest, 0,
+					     requestSize);
+			    _batchStream.resize(_batchMarker, false);
+			    autoflush = true;
+			}
 		    }
-		
-		    int requestSize = _batchStream.size() - _batchMarker;
-		    lastRequest = new byte[requestSize];
-		    Buffer.BlockCopy(_batchStream.prepareRead().rawBytes(), _batchMarker, lastRequest, 0, requestSize);
-		    _batchStream.resize(_batchMarker, false);
-		    autoflush = true;
 		}
-		else
+		if(!autoflush)
 		{
 		    // 
 		    // Increment the number of requests in the batch.

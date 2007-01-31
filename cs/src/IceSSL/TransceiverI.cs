@@ -268,6 +268,14 @@ namespace IceSSL
 	    return desc_;
 	}
 
+    	public void checkSendSize(IceInternal.BasicStream stream, int messageSizeMax)
+	{
+	    if(stream.size() > messageSizeMax)
+	    {
+		throw new Ice.MemoryLimitException();
+	    }
+	}
+
 	public ConnectionInfo getConnectionInfo()
 	{
 	    return info_;

@@ -18,6 +18,21 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+def isCygwin():
+
+    # The substring on sys.platform is required because some cygwin
+    # versions return variations like "cygwin_nt-4.01".
+    if sys.platform[:6] == "cygwin":
+        return 1
+    else:
+        return 0
+
+def isWin32():
+    if sys.platform == "win32" or isCygwin():
+        return 1
+    else:
+        return 0
+
 def runTests(args, tests, num = 0):
 
     #
@@ -107,9 +122,11 @@ for o, a in opts:
     if o in ( "-m", "--mono" ):
 	args += " " + o
         mono = 1
-        print "MONO is TRUE"
     if o in ( "--debug", "-m", "--mono", "--compress", "--threadPerConnection" ):
 	args += " " + o
+
+if not isWin32():
+    mono = 1
 
 if not mono:
     tests.extend([\

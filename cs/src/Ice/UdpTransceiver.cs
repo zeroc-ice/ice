@@ -426,6 +426,19 @@ namespace IceInternal
 	{
 	    return Network.fdToString(_fd);
 	}
+
+	public void checkSendSize(BasicStream stream, int messageSizeMax)
+	{
+	    if(stream.size() > messageSizeMax)
+	    {
+		throw new Ice.MemoryLimitException();
+	    }
+	    int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
+	    if(packetSize < stream.size())
+	    {
+		throw new Ice.DatagramLimitException();
+	    }
+	}
 	
 	public bool equivalent(string host, int port)
 	{
