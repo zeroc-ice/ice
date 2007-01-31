@@ -286,10 +286,12 @@ namespace IceSSL
 #if DEBUG
 	~AcceptorI()
 	{
+	    /*
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(fd_ == null);
 	    }
+	    */
 	}
 #endif
 

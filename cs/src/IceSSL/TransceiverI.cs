@@ -298,10 +298,12 @@ namespace IceSSL
 #if DEBUG
 	~TransceiverI()
 	{
+	    /*
 	    lock(this)
 	    {
 		IceUtil.Assert.FinalizerAssert(fd_ == null);
 	    }
+	    */
 	}
 #endif
 
