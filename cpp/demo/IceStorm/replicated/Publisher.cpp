@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Thread.h>
 #include <Ice/Application.h>
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Query.h>
@@ -57,24 +58,19 @@ Publisher::run(int argc, char* argv[])
     }
 
     //
-    // Get the topic's publisher object, verify that it supports
-    // the Clock type, and create a oneway Clock proxy (for efficiency
-    // reasons). Use per-request load balancing with round robin from the
+    // Get the topic's publisher object, and configure a Clock proxy
+    // with per-request load balancing with round robin from the
     // IceGrid locator for the publisher object.
     //
-    ClockPrx clock = ClockPrx::uncheckedCast(topic->getPublisher()->ice_oneway()->
-    					     ice_locatorCacheTimeout(0)->ice_connectionCached(false));
+    ClockPrx clock = ClockPrx::uncheckedCast(
+        topic->getPublisher()->ice_oneway()->ice_locatorCacheTimeout(0)->ice_connectionCached(false));
 
     try
     {
         while(true)
         {
             clock->tick(IceUtil::Time::now().toDateTime());
-#ifdef _WIN32
-            Sleep(1000);
-#else
-            sleep(1);
-#endif
+            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
         }
     }
     catch(const Ice::CommunicatorDestroyedException&)

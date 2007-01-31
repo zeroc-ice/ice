@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
+#include <IceUtil/Thread.h>
 #include <Ice/Application.h>
 #include <IceStorm/IceStorm.h>
-#include <IceUtil/Options.h>
 
 #include <Clock.h>
 
@@ -91,8 +92,8 @@ Publisher::run(int argc, char* argv[])
     }
 
     //
-    // Get the topic's publisher object, the Clock type, and create a
-    // oneway Clock proxy (for efficiency reasons).
+    // Get the topic's publisher object, and create a Clock proxy with
+    // the mode specified as an argument of this application.
     //
     Ice::ObjectPrx publisher = topic->getPublisher();
     if(opts.isSet("datagram"))
@@ -115,11 +116,7 @@ Publisher::run(int argc, char* argv[])
 	while(true)
 	{
 	    clock->tick(IceUtil::Time::now().toDateTime());
-#ifdef _WIN32
-	    Sleep(1000);
-#else
-	    sleep(1);
-#endif
+            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 	}
     }
     catch(const Ice::CommunicatorDestroyedException&)

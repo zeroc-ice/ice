@@ -1,11 +1,11 @@
+This demo demonstrates how to deploy and setup IceStorm in a
+replicated fashion using IceGrid replica groups.
+
 To run the demo:
 
 Start the IceGrid service:
 
 $ icegridnode --Ice.Config=config.grid
-
-This configuration assumes there is a subdirectory named db in the
-current working directory.
 
 In a separate window:
 
@@ -17,5 +17,22 @@ In another window:
 
 $ publisher
 
-While the publisher continues to run "tick" messages should be
+While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
+
+The IceGrid application described in `application.xml' deploys three
+IceStorm service instances. The three IceStorm service instances share
+the same instance name and their objet adapters are configured to be
+members of IceGrid replica groups.
+
+When the subscriber starts, it retrieves all the topic manager object
+replicas. It then retrieves (or creates if it doesn't already exist)
+the topic named `time' on each topic manager. Finally, it subscribes
+to the `time' topic of each IceStorm service instance.
+
+The publisher just retrieves the publisher proxy of the `time' topic
+from a randomly selected IceStorm service instance. This publisher
+proxy is configured to use per-request load balancing so that each
+invocation is sent successively to each replica thanks to the round
+robin load balancing configured for the replica group (you can set
+Ice.Trace.Location=1 to see the locator invocations).

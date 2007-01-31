@@ -15,21 +15,21 @@
 class MTPrinter : public IceUtil::Shared
 {
 public:
-	MTPrinter()
-	{
-	}
 
-	void print(const std::string& data)
-	{
-	    IceUtil::Mutex::Lock sync(_mutex);
-	    std::cout << data << std::flush;
-	}
+    MTPrinter()
+    {
+    }
+    
+    void print(const std::string& data)
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        std::cout << data << std::flush;
+    }
     
 private:
 
-	IceUtil::Mutex _mutex;
+    IceUtil::Mutex _mutex;
 };
-
 typedef IceUtil::Handle<MTPrinter> MTPrinterPtr;
 
 class CounterObserverI : public Demo::CounterObserver, public IceUtil::Mutex
