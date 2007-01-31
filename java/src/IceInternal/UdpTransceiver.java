@@ -402,18 +402,6 @@ final class UdpTransceiver implements Transceiver
 		sizeRequested = dfltSize;
 	    }
 		
-	    //
-	    // Ice.MessageSizeMax overrides UDP buffer sizes if Ice.MessageSizeMax + _udpOverhead is less.
-	    //
-	    int messageSizeMax = instance.messageSizeMax();
-	    if(sizeRequested > messageSizeMax + _udpOverhead)
-	    {
-		int newSize = java.lang.Math.min(messageSizeMax, _maxPacketSize) + _udpOverhead;
-	        _logger.warning("UDP " + direction + " buffer size: request size of " + sizeRequested
-		                + " adjusted to " + newSize + " (Ice.MessageSizeMax takes precedence)");
-		sizeRequested = newSize;
-	    }
-
 	    if(sizeRequested != dfltSize)
 	    {
 		//
