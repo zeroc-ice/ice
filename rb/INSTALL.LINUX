@@ -9,14 +9,14 @@ Requirements
 ------------
 
 - Ice @ver@ for C++ development kit
-- Ruby 1.8.4 or 1.8.5
+- Ruby 1.8.1 or later
 
 You can build Ice for Ruby using a source or RPM installation of Ruby.
 If you prefer to use RPMs, the following components are required:
 
-  ruby-1.8.4
-  ruby-libs-1.8.4
-  ruby-devel-1.8.4
+  ruby
+  ruby-libs
+  ruby-devel
 
 
 Compiling Ice for Ruby
@@ -102,8 +102,8 @@ feature and wish to sponsor its development, please contact us at
 info@zeroc.com.
 
 
-SELinux Issue
--------------
+SELinux Issue on Red Hat Enterprise Linux
+-----------------------------------------
 
 If SELinux is enabled on your system, you may encounter this error
 message when Ruby attempts to load the Ice extension:
@@ -115,19 +115,19 @@ There are two ways to solve this problem:
 - Change the default security context for the Ice extension
   using the following command:
 
-  $ chcon -t texrel_shlib_t /opt/IceRuby-3.1.1/ruby/IceRuby.so
+  $ chcon -t texrel_shlib_t /opt/IceRuby-@ver@/ruby/IceRuby.so
 
-  Replace /opt/IceRuby-3.1.1 with your installation directory.
+  Replace /opt/IceRuby-@ver@ with your installation directory.
 
 - Disable SELinux completely by adding the following line to your
   /etc/sysconfig/selinux file:
 
   SELINUX=disabled
 
-For more information on SELinux in Fedora Core 5, refer to the FAQ at
+For more information on SELinux in Red Hat Enterprise Linux 4, refer to
 the link below:
 
-http://fedora.redhat.com/docs/selinux-faq-fc5/
+http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
 
 
 Running the demos
