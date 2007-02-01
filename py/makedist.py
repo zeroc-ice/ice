@@ -240,7 +240,7 @@ os.chdir(cwd)
 config = open(os.path.join("icepy", "config", "Make.rules"), "r")
 versionMajor = ""
 versionMinor = ""
-versionPatch = ""
+version = ""
 for l in config.readlines():
     if l.startswith("VERSION_MAJOR"):
         n, v = l.split('=')
@@ -248,13 +248,11 @@ for l in config.readlines():
     elif l.startswith("VERSION_MINOR"):
         n, v = l.split('=')
         versionMinor = v.strip()
-    elif l.startswith("VERSION_PATCH"):
+    elif l.startswith("VERSION"):
         n, v = l.split('=')
-        versionPatch = v.strip()
+        version = v.strip()
 
 config.close()
-
-version='%s.%s.%s' % (versionMajor, versionMinor, versionPatch) 
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icepy", "README*"), version)
