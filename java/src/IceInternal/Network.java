@@ -19,10 +19,11 @@ public final class Network
         // cases of connection loss. Unfortunately, our only choice is
         // to search the exception message for distinguishing phrases.
         //
-        String msg = ex.getMessage().toLowerCase();
-
+        String msg = ex.getMessage();
         if(msg != null)
         {
+            msg = msg.toLowerCase();
+
             final String[] msgs =
             {
                 "connection reset by peer", // ECONNRESET

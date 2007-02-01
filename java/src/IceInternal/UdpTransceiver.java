@@ -105,8 +105,16 @@ final class UdpTransceiver implements Transceiver
             }
 	    catch(java.nio.channels.AsynchronousCloseException ex)
 	    {
-		throw new Ice.ConnectionLostException();
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+                se.initCause(ex);
+                throw se;
 	    }
+            catch(java.net.PortUnreachableException ex)
+            {
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+                se.initCause(ex);
+                throw se;
+            }
             catch(java.io.InterruptedIOException ex)
             {
                 continue;
@@ -218,8 +226,16 @@ final class UdpTransceiver implements Transceiver
 	    }
 	    catch(java.nio.channels.AsynchronousCloseException ex)
 	    {
-		throw new Ice.ConnectionLostException();
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+                se.initCause(ex);
+                throw se;
 	    }
+            catch(java.net.PortUnreachableException ex)
+            {
+                Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+                se.initCause(ex);
+                throw se;
+            }
 	    catch(java.io.InterruptedIOException ex)
 	    {
 		continue;
