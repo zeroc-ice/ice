@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob, RPMTools
+import os, sys, shutil, fnmatch, re, glob
 
 #
 # Program usage.
@@ -368,8 +368,8 @@ if not skipDocs:
 # Get Ice version.
 #
 config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
-mmversion = re.search("([0-9]*\.[0-9]*)\.[0-9]*", version).group(1)
+version = re.search("ICE_STRING_VERSION \"([0-9\.b]*)\"", config.read()).group(1)
+mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("ice", "README*"), version, mmversion)
