@@ -44,49 +44,36 @@ configuration.
 Compiling Ice for Ruby
 ----------------------
 
-Follow these steps to build the extension:
+Follow these steps to build the Ice extension for Ruby:
 
-1. Start Visual C++ and choose Tools->Options->Directories.
 
-   - Select "Include files" and add entries for the following
-     directories:
+1) Open a command prompt that supports command-line compilation with
+   Visual C++. For example, you can execute the Visual C++ batch file
+   vcvars32.bat to configure your environment. Alternatively, you can
+   start a "Visual Studio Command Prompt" by selecting the appropriate
+   entry from the Visual Studio program group in your Start menu.
 
-     C:\Ice-@ver@-VC60\include
-     C:\Ice-@ver@-VC60\include\stlport
-     C:\ruby\lib\ruby\1.8\i386-mswin32
+2) Change to the Ice for Python source directory.
 
-     Note that the "stlport" entry must appear before any of the
-     standard Visual C++ include directories.
+3) Set the ICE_HOME environment variable with the Ice installation
+   directory. For example:
 
-   - Select "Library files" and add entries for the following
-     directories:
+   > set ICE_HOME=C:\Ice-@ver@
 
-     C:\Ice-@ver@-VC60\lib
-     C:\ruby\lib
+4) Edit config\Make.rules.mak and review the settings. In particular you
+   must set CPP_COMPILER to the appropriate compiler.
 
-   - Select "Executable files" and add an entry for the following
-     directory:
+5) Run nmake:
 
-     C:\Ice-@ver@-VC60\bin
-
-2. Open the all.dsw workspace in the Ice for Ruby source
-   directory.
-
-3. Choose Build->Set Active Configuration and select the following
-   project:
-
-   all - Win32 Release
-
-4. Choose Build->Build
+   > nmake /f Makefile.mak
 
 If no errors occurred, you can now begin using Ice for Ruby.
 
-NOTE: If you are using a Ruby interpreter that was compiled in debug
-mode, you must take the following steps:
+NOTES:
 
-1. Build the project configuration "all - Win32 Debug".
-
-2. Edit ruby/Ice.rb and change the line below
+ * Normally you should build with OPTIMIZE=yes. If you are using a Ruby
+   interpreter that was compiled in debug mode, set OPTIMIZE=no and edit
+   ruby/Ice.rb and change the line below
 
    require "IceRuby"
 

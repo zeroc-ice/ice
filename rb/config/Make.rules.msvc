@@ -18,7 +18,11 @@ LINK 		= link.exe
 PREOUT		= /out:
 PRELIBS		= 
 
-CPPFLAGS	= -nologo -W3 -WX -GR -GX -FD -D_CONSOLE -I"$(STLPORT_HOME)\include\stlport"
+CPPFLAGS	= -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE
+
+!if "$(STLPORT_HOME)" != ""
+CPPFLAGS	= $(CPPFLAGS) -I"$(STLPORT_HOME)\include\stlport"
+!endif
 
 !if "$(OPTIMIZE)" == "yes"
 
