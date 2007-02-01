@@ -422,22 +422,26 @@ namespace IceInternal
             return "udp";
         }
 
+        public void initialize(int timeout)
+        {
+        }
+
+        public void checkSendSize(BasicStream stream, int messageSizeMax)
+        {
+            if(stream.size() > messageSizeMax)
+            {
+                throw new Ice.MemoryLimitException();
+            }
+            int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
+            if(packetSize < stream.size())
+            {
+                throw new Ice.DatagramLimitException();
+            }
+        }
+
 	public override string ToString()
 	{
 	    return Network.fdToString(_fd);
-	}
-
-	public void checkSendSize(BasicStream stream, int messageSizeMax)
-	{
-	    if(stream.size() > messageSizeMax)
-	    {
-		throw new Ice.MemoryLimitException();
-	    }
-	    int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
-	    if(packetSize < stream.size())
-	    {
-		throw new Ice.DatagramLimitException();
-	    }
 	}
 	
 	public bool equivalent(string host, int port)

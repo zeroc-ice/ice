@@ -108,6 +108,7 @@ namespace Ice
 			    IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
 			    try
 			    {
+				_transceiver.initialize(timeout);
 				_transceiver.write(os, timeout);
 			    }
 			    catch(TimeoutException)
@@ -123,6 +124,7 @@ namespace Ice
 			ins.pos(0);
 			try
 			{
+                            _transceiver.initialize(timeout);
 			    _transceiver.read(ins, timeout);
 			}
 			catch(TimeoutException)
