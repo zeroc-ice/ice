@@ -140,8 +140,6 @@ filesToRemove = [ \
     os.path.join("icerb", "makedist.py"), \
     os.path.join("icerb", "makebindist.py"), \
     os.path.join("icerb", "makewindist.py"), \
-    os.path.join("icerb", "README.txt"), \
-    os.path.join("icerb", "README.Linux"), \
     ]
 filesToRemove.extend(find("icerb", ".dummy"))
 for x in filesToRemove:
@@ -227,7 +225,7 @@ if not skipTranslator:
 # Get Ice version.
 #
 config = open(os.path.join("icerb", "config", "Make.rules"), "r")
-version = re.search("^VERSION[ \t]+=[^\d]*([\d\.]+)", config.read(), re.M).group(1)
+version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icerb", "README*"), version)
@@ -259,7 +257,7 @@ os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
 #
 # Copy files (README, etc.).
 #
-#shutil.copyfile(os.path.join(icever, "CHANGES"), "IceRuby-" + version + "-CHANGES")
+shutil.copyfile(os.path.join(icever, "CHANGES"), "IceRuby-" + version + "-CHANGES")
 
 #
 # Done.
