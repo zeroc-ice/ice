@@ -66,10 +66,27 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
         throw ex;
     }
     _events.resize(1);
-    epoll_event event;
+    struct epoll_event event;
     event.events = EPOLLIN;
     event.data.fd = _fdIntrRead;
     if(epoll_ctl(_epollFd, EPOLL_CTL_ADD, _fdIntrRead, &event) != 0)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+#elif defined(__APPLE__)
+    _kqueueFd = kqueue();
+    if(_kqueueFd < 0)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+    _events.resize(1);
+    struct kevent event;
+    EV_SET(&event, _fdIntrRead, EVFILT_READ, EV_ADD, 0, 0, 0);
+    if(kevent(_kqueueFd, &event, 1, 0, 0, 0) < 0)
     {
         SocketException ex(__FILE__, __LINE__);
         ex.error = getSocketErrno();
@@ -180,7 +197,7 @@ IceInternal::ThreadPool::~ThreadPool()
         out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
     }
 
-#ifdef __linux
+#if defined(__linux)
     try
     {
         closeSocket(_epollFd);
@@ -189,6 +206,16 @@ IceInternal::ThreadPool::~ThreadPool()
     {
         Error out(_instance->initializationData().logger);
         out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
+    }
+#elif defined(__APPLE__)
+    try
+    {
+	closeSocket(_kqueueFd);
+    }
+    catch(const LocalException& ex)
+    {
+	Error out(_instance->initializationData().logger);
+	out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
     }
 #endif
 }
@@ -433,6 +460,18 @@ IceInternal::ThreadPool::run()
         }
 #elif defined(__linux)
         ret = epoll_wait(_epollFd, &_events[0], _events.size(), _timeout > 0 ? _timeout * 1000 : -1);
+#elif defined(__APPLE__)
+        if(_timeout > 0)
+        {
+            struct timespec ts;
+            ts.tv_sec = _timeout;
+            ts.tv_nsec = 0;
+            ret = kevent(_kqueueFd, 0, 0, &_events[0], _events.size(), &ts);
+        }
+        else
+        {
+            ret = kevent(_kqueueFd, 0, 0, &_events[0], _events.size(), 0);
+        }
 #else
         ret = poll(&_pollFdSet[0], _pollFdSet.size(), _timeout > 0 ? _timeout * 1000 : -1);
 #endif
@@ -479,6 +518,15 @@ IceInternal::ThreadPool::run()
                         break;
                     }
                 }
+#elif defined(__APPLE__)
+                for(int i = 0; i < ret; ++i)
+		{
+		    if(_events[i].ident == static_cast<unsigned int>(_fdIntrRead))
+		    {
+			interrupted = true;
+			break;
+		    }
+		}
 #else
                 assert(_pollFdSet[0].fd == _fdIntrRead);
                 interrupted = _pollFdSet[0].revents != 0;
@@ -532,6 +580,17 @@ IceInternal::ThreadPool::run()
                             continue;
                         }
                         _events.resize(_handlerMap.size() + 1);
+#elif defined(__APPLE__)
+                        struct kevent event;
+                        EV_SET(&event, change.first, EVFILT_READ, EV_ADD, 0, 0, 0);
+                        if(kevent(_kqueueFd, &event, 1, 0, 0, 0) < 0)
+                        {
+			    Error out(_instance->initializationData().logger);
+			    out << "error while adding filedescriptor to kqueue:\n";
+			    out << errorToString(getSocketErrno());
+			    continue;
+                        }
+			_events.resize(_handlerMap.size() + 1);
 #else
                         struct pollfd pollFd;
                         pollFd.fd = change.first;
@@ -562,6 +621,17 @@ IceInternal::ThreadPool::run()
                             continue;
                         }
                         _events.resize(_handlerMap.size() + 1);
+#elif defined(__APPLE__)
+                        struct kevent event;
+                        EV_SET(&event, change.first, EVFILT_READ, EV_DELETE, 0, 0, 0);
+                        if(kevent(_kqueueFd, &event, 1, 0, 0, 0) < 0)
+                        {
+			    Error out(_instance->initializationData().logger);
+			    out << "error while removing filedescriptor to kqueue:\n";
+			    out << errorToString(getSocketErrno());
+			    continue;
+                        }
+			_events.resize(_handlerMap.size() + 1);
 #else
                         for(vector<struct pollfd>::iterator p = _pollFdSet.begin(); p != _pollFdSet.end(); ++p)
                         {
@@ -606,6 +676,10 @@ IceInternal::ThreadPool::run()
                     for(int i = 0; i < ret; ++i)
                     {
                         SOCKET fd = _events[i].data.fd;
+#elif defined(__APPLE__)
+		    for(int i = 0; i < ret; ++i)
+		    {
+			SOCKET fd = _events[i].ident;
 #else
                     for(vector<struct pollfd>::const_iterator p = _pollFdSet.begin(); p != _pollFdSet.end(); ++p)
                     {

@@ -22,12 +22,14 @@
 #include <Ice/EventHandlerF.h>
 #include <list>
 
-#ifdef _WIN32
+#if defined(_WIN32)
 #   include <winsock2.h>
 #else
 #   define SOCKET int
-#   ifdef __linux
+#   if defined(__linux)
 #       include <sys/epoll.h>
+#   elif defined(__APPLE__)
+#       include <sys/event.h>
 #   else
 #       include <sys/poll.h>
 #   endif
@@ -81,6 +83,9 @@ private:
 #elif defined(__linux)
     int _epollFd;
     std::vector<struct epoll_event> _events;
+#elif defined(__APPLE__)
+    int _kqueueFd;
+    std::vector<struct kevent> _events;
 #else
     std::vector<struct pollfd> _pollFdSet;
 #endif
