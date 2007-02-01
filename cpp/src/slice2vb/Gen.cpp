@@ -3801,13 +3801,14 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << nl << "Dim cnt__ As Integer = 0";
 	_out << nl << "While True";
 	_out.inc();
+	_out << nl << "Dim delBase__ As Ice.ObjectDel_ = Nothing";
 	_out << nl << "Try";
 	_out.inc();
 	if(op->returnsData())
 	{
 	    _out << nl << "checkTwowayOnly__(\"" << op->name() << "\")";
 	}
-	_out << nl << "Dim delBase__ As Ice.ObjectDel_ = getDelegate__()";
+	_out << nl << "delBase__ = getDelegate__()";
 	_out << nl << "Dim del__ As _" << name << "Del = CType(delBase__, _" << name << "Del)";
 	_out << nl;
 	if(ret)
@@ -3824,16 +3825,16 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out.inc();
 	if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
 	{
-	    _out << nl << "cnt__ = handleExceptionWrapperRelaxed__(ex__, cnt__)";
+	    _out << nl << "cnt__ = handleExceptionWrapperRelaxed__(delBase__, ex__, cnt__)";
 	}
 	else
 	{
-	    _out << nl << "handleExceptionWrapper__(ex__)";
+	    _out << nl << "handleExceptionWrapper__(delBase__, ex__)";
 	}
 	_out.dec();
 	_out << nl << "Catch ex__ As Ice.LocalException";
 	_out.inc();
-	_out << nl << "cnt__ = handleException__(ex__, cnt__)";
+	_out << nl << "cnt__ = handleException__(delBase__, ex__, cnt__)";
 	_out.dec();
 	_out << nl << "End Try";
 	_out.dec();
