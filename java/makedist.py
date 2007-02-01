@@ -324,7 +324,7 @@ os.chdir(cwd)
 # Get Ice version.
 #
 config = open(os.path.join("icej", "src", "IceUtil", "Version.java"), "r")
-version = re.search("ICE_STRING_VERSION = \"([0-9\.]*)\"", config.read()).group(1)
+version = re.search("ICE_STRING_VERSION = \"([0-9\.b]*)\"", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icej", "README*"), version)
