@@ -13,11 +13,10 @@ PKG		= iceboxcs
 LIBNAME		= $(bindir)/$(PKG).dll
 ICEBOXNET	= $(bindir)/iceboxnet.exe
 ICEBOXADMINNET	= $(bindir)/iceboxadminnet.exe
-TARGETS		= $(ICEBOXNET) $(ICEBOXADMINNET) $(LIBNAME)
+TARGETS		= $(ICEBOXNET) $(LIBNAME)
 
 L_SRCS		= AssemblyInfo.cs
 I_SRCS		= Server.cs ServiceManagerI.cs
-A_SRCS		= Admin.cs
 
 SLICE_SRCS	= $(SDIR)/IceBox.ice
 
@@ -36,9 +35,6 @@ SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --checksum --ice -I. -I$(slicedir)
 $(ICEBOXNET): $(I_SRCS) $(LIBNAME)
 	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,icecs) $(I_SRCS)
 
-$(ICEBOXADMINNET): $(A_SRCS) $(LIBNAME)
-	$(MCS) $(EXE_MCSFLAGS) -out:$@ $(call ref,$(PKG)) $(call ref,icecs) $(A_SRCS)
-
 $(LIBNAME): $(L_SRCS) $(GEN_SRCS)
 	$(MCS) $(LIB_MCSFLAGS) $(call ref,glacier2cs) $(call ref,icecs) $(subst /,$(DSEP),$^)
 
@@ -56,6 +52,5 @@ endif
 
 install:: all
 	$(call installprogram,$(ICEBOXNET),$(install_bindir))
-	$(call installprogram,$(ICEBOXADMINNET),$(install_bindir))
 
 include .depend
