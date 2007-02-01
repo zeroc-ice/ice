@@ -10,7 +10,7 @@
 
 def test(b)
     if !b
-	raise RuntimeError, 'test assertion failed'
+        raise RuntimeError, 'test assertion failed'
     end
 end
 

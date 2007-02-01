@@ -60,11 +60,11 @@ IceSSL_opensslLockCallback(int mode, int n, const char* file, int line)
 {
     if(mode & CRYPTO_LOCK)
     {
-	locks[n].lock();
+        locks[n].lock();
     }
     else
     {
-	locks[n].unlock();
+        locks[n].unlock();
     }
 }
 
@@ -153,89 +153,89 @@ IceSSL::PluginI::setupSSL(const CommunicatorPtr& communicator)
 
     if(instanceCount == 1)
     {
-	PropertiesPtr properties = communicator->getProperties();
+        PropertiesPtr properties = communicator->getProperties();
 
-	//
-	// Create the mutexes and set the callbacks.
-	//
-	locks = new IceUtil::Mutex[CRYPTO_num_locks()];
-	CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
-	CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
+        //
+        // Create the mutexes and set the callbacks.
+        //
+        locks = new IceUtil::Mutex[CRYPTO_num_locks()];
+        CRYPTO_set_locking_callback(IceSSL_opensslLockCallback);
+        CRYPTO_set_id_callback(IceSSL_opensslThreadIdCallback);
 
-	//
-	// Load human-readable error messages.
-	//
-	SSL_load_error_strings();
+        //
+        // Load human-readable error messages.
+        //
+        SSL_load_error_strings();
 
-	//
-	// Initialize the SSL library.
-	//
-	SSL_library_init();
+        //
+        // Initialize the SSL library.
+        //
+        SSL_library_init();
 
-	//
-	// Initialize the PRNG.
-	//
+        //
+        // Initialize the PRNG.
+        //
 #ifdef WINDOWS
-	RAND_screen(); // Uses data from the screen if possible.
+        RAND_screen(); // Uses data from the screen if possible.
 #endif
-	char randFile[1024];
-	if(RAND_file_name(randFile, sizeof(randFile))) // Gets the name of a default seed file.
-	{
-	    RAND_load_file(randFile, 1024);
-	}
-	string randFiles = properties->getProperty("IceSSL.Random");
-	if(!randFiles.empty())
-	{
-	    vector<string> files;
+        char randFile[1024];
+        if(RAND_file_name(randFile, sizeof(randFile))) // Gets the name of a default seed file.
+        {
+            RAND_load_file(randFile, 1024);
+        }
+        string randFiles = properties->getProperty("IceSSL.Random");
+        if(!randFiles.empty())
+        {
+            vector<string> files;
 #ifdef _WIN32
-	    const string sep = ";";
+            const string sep = ";";
 #else
-	    const string sep = ":";
+            const string sep = ":";
 #endif
-	    string defaultDir = properties->getProperty("IceSSL.DefaultDir");
-	    if(!splitString(randFiles, sep, false, files))
-	    {
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = "IceSSL: invalid value for IceSSL.Random:\n" + randFiles;
-		throw ex;
-	    }
-	    for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
-	    {
-		string file = *p;
-		if(!checkPath(file, defaultDir, false))
-		{
-		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = "IceSSL: entropy data file not found:\n" + file;
-		    throw ex;
-		}
-		if(!RAND_load_file(file.c_str(), 1024))
-		{
-		    PluginInitializationException ex(__FILE__, __LINE__);
-		    ex.reason = "IceSSL: unable to load entropy data from " + file;
-		    throw ex;
-		}
-	    }
-	}
+            string defaultDir = properties->getProperty("IceSSL.DefaultDir");
+            if(!splitString(randFiles, sep, false, files))
+            {
+                PluginInitializationException ex(__FILE__, __LINE__);
+                ex.reason = "IceSSL: invalid value for IceSSL.Random:\n" + randFiles;
+                throw ex;
+            }
+            for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
+            {
+                string file = *p;
+                if(!checkPath(file, defaultDir, false))
+                {
+                    PluginInitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "IceSSL: entropy data file not found:\n" + file;
+                    throw ex;
+                }
+                if(!RAND_load_file(file.c_str(), 1024))
+                {
+                    PluginInitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "IceSSL: unable to load entropy data from " + file;
+                    throw ex;
+                }
+            }
+        }
 #ifndef _WIN32
-	//
-	// The Entropy Gathering Daemon (EGD) is not available on Windows.
-	// The file should be a Unix domain socket for the daemon.
-	//
-	string entropyDaemon = properties->getProperty("IceSSL.EntropyDaemon");
-	if(!entropyDaemon.empty())
-	{
-	    if(RAND_egd(entropyDaemon.c_str()) <= 0)
-	    {
-		PluginInitializationException ex(__FILE__, __LINE__);
-		ex.reason = "IceSSL: EGD failure using file " + entropyDaemon;
-		throw ex;
-	    }
-	}
+        //
+        // The Entropy Gathering Daemon (EGD) is not available on Windows.
+        // The file should be a Unix domain socket for the daemon.
+        //
+        string entropyDaemon = properties->getProperty("IceSSL.EntropyDaemon");
+        if(!entropyDaemon.empty())
+        {
+            if(RAND_egd(entropyDaemon.c_str()) <= 0)
+            {
+                PluginInitializationException ex(__FILE__, __LINE__);
+                ex.reason = "IceSSL: EGD failure using file " + entropyDaemon;
+                throw ex;
+            }
+        }
 #endif
-	if(!RAND_status())
-	{
-	    communicator->getLogger()->warning("IceSSL: insufficient data to initialize PRNG");
-	}
+        if(!RAND_status())
+        {
+            communicator->getLogger()->warning("IceSSL: insufficient data to initialize PRNG");
+        }
     }
 }
 
@@ -246,15 +246,15 @@ IceSSL::PluginI::cleanupSSL()
 
     if(--instanceCount == 0)
     {
-	CRYPTO_set_locking_callback(0);
-	CRYPTO_set_id_callback(0);
-	delete[] locks;
-	locks = 0;
+        CRYPTO_set_locking_callback(0);
+        CRYPTO_set_id_callback(0);
+        delete[] locks;
+        locks = 0;
 
-	CRYPTO_cleanup_all_ex_data();
-	RAND_cleanup();
-	ERR_free_strings();
-	EVP_cleanup();
+        CRYPTO_cleanup_all_ex_data();
+        RAND_cleanup();
+        ERR_free_strings();
+        EVP_cleanup();
     }
 }
 
@@ -303,23 +303,23 @@ IceSSL::getConnectionInfo(const ConnectionPtr& connection)
     IceInternal::TransceiverPtr transceiver = con->getTransceiver();
     if(!transceiver)
     {
-	throw ConnectionInvalidException(__FILE__, __LINE__, "connection closed");
+        throw ConnectionInvalidException(__FILE__, __LINE__, "connection closed");
     }
 
     TransceiverIPtr ssltransceiver = TransceiverIPtr::dynamicCast(con->getTransceiver());
     if(!ssltransceiver)
     {
-	throw ConnectionInvalidException(__FILE__, __LINE__, "not ssl connection");
+        throw ConnectionInvalidException(__FILE__, __LINE__, "not ssl connection");
     }
 
     try
     {
-	return ssltransceiver->getConnectionInfo();
+        return ssltransceiver->getConnectionInfo();
     }
     catch(const Ice::LocalException& ex)
     {
-	ostringstream os;
-	os << "couldn't get connection information:\n" << ex << endl;
-	throw ConnectionInvalidException(__FILE__, __LINE__, os.str());
+        ostringstream os;
+        os << "couldn't get connection information:\n" << ex << endl;
+        throw ConnectionInvalidException(__FILE__, __LINE__, os.str());
     }
 }

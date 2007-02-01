@@ -105,26 +105,26 @@ public sealed class ThrowerI : ThrowerDisp_
     
     public override void throwUndeclaredA(int a, Ice.Current current)
     {
-	A ex = new A();
-	ex.aMem = a;
+        A ex = new A();
+        ex.aMem = a;
         throw ex;
     }
     
     public override void throwUndeclaredB(int a, int b, Ice.Current current)
     {
         B ex = new B();
-	ex.aMem = a;
-	ex.bMem = b;
-	throw ex;
+        ex.aMem = a;
+        ex.bMem = b;
+        throw ex;
     }
     
     public override void throwUndeclaredC(int a, int b, int c, Ice.Current current)
     {
         C ex = new C();
-	ex.aMem = a;
-	ex.bMem = b;
-	ex.cMem = c;
-	throw ex;
+        ex.aMem = a;
+        ex.bMem = b;
+        ex.cMem = c;
+        throw ex;
     }
     
     private Ice.ObjectAdapter _adapter;

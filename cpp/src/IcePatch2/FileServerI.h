@@ -29,7 +29,7 @@ public:
     Ice::ByteSeq getChecksum(const Ice::Current&) const;
 
     void getFileCompressed_async(const AMD_FileServer_getFileCompressedPtr&, const std::string&, Ice::Int pos, 
-    				 Ice::Int num, const Ice::Current&) const;
+                                 Ice::Int num, const Ice::Current&) const;
 
 private:
 

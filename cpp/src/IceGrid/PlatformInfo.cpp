@@ -50,7 +50,7 @@ getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
     map<string, string>::const_iterator p = perfNames.find(name);
     if(p == perfNames.end())
     {
-	return "";
+        return "";
     }
     istringstream is(p->second);
     is >> idx;
@@ -60,8 +60,8 @@ getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
     localized.resize(size);
     while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
     {
-	size += 256;
-	localized.resize(size);
+        size += 256;
+        localized.resize(size);
     }
     return string(&localized[0]);
 }
@@ -94,8 +94,8 @@ toNodeInfo(const InternalNodeInfoPtr& node)
 }
 
 PlatformInfo::PlatformInfo(const string& prefix, 
-			   const Ice::CommunicatorPtr& communicator, 
-			   const TraceLevelsPtr& traceLevels) : 
+                           const Ice::CommunicatorPtr& communicator, 
+                           const TraceLevelsPtr& traceLevels) : 
     _traceLevels(traceLevels)
 {
     //
@@ -125,18 +125,18 @@ PlatformInfo::PlatformInfo(const string& prefix,
     nl.n_value = 0;
     if(knlist(&nl, 1, sizeof(nl)) == 0)
     {
-	_kmem = open("/dev/kmem", O_RDONLY);
+        _kmem = open("/dev/kmem", O_RDONLY);
 
-	//
-	// Give up root permissions to minimize security risks, it's
-	// only needed to access /dev/kmem.
-	//
+        //
+        // Give up root permissions to minimize security risks, it's
+        // only needed to access /dev/kmem.
+        //
         setuid(getuid());
         setgid(getgid());
     }
     else
     {
-	_kmem = -1;
+        _kmem = -1;
     }
 #endif
 
@@ -152,9 +152,9 @@ PlatformInfo::PlatformInfo(const string& prefix,
     size_t sz = sizeof(_nProcessors);
     if(sysctl(ncpu, 2, &_nProcessors, &sz, 0, 0) == -1)
     {
-	Ice::SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 #elif defined(__hpux)
     struct pst_dynamic dynInfo;
@@ -179,7 +179,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     unsigned long size = sizeof(hostname);
     if(GetComputerName(hostname, &size))
     {
-	_hostname = hostname;
+        _hostname = hostname;
     }
     OSVERSIONINFO osInfo;
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
@@ -196,17 +196,17 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #else
     case PROCESSOR_ARCHITECTURE_AMD64:
 #endif
-	_machine = "x64";
-	break;
+        _machine = "x64";
+        break;
     case PROCESSOR_ARCHITECTURE_IA64:
-	_machine = "IA64";
-	break;
+        _machine = "IA64";
+        break;
     case PROCESSOR_ARCHITECTURE_INTEL:
-	_machine = "x86";
-	break;
+        _machine = "x86";
+        break;
     default:
-	_machine = "unknown";
-	break;
+        _machine = "unknown";
+        break;
     };
 #else
     struct utsname utsinfo;
@@ -226,15 +226,15 @@ PlatformInfo::PlatformInfo(const string& prefix,
     string oldEndpointsPrefix;
     if(prefix == "IceGrid.Registry")
     {
-	_name = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
-	endpointsPrefix = "Ice.OA." + prefix + ".Client";
-	oldEndpointsPrefix = prefix + ".Client";
+        _name = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
+        endpointsPrefix = "Ice.OA." + prefix + ".Client";
+        oldEndpointsPrefix = prefix + ".Client";
     }
     else
     {
-	_name = properties->getProperty(prefix + ".Name");
-	endpointsPrefix = "Ice.OA." + prefix;
-	oldEndpointsPrefix = prefix;
+        _name = properties->getProperty(prefix + ".Name");
+        endpointsPrefix = "Ice.OA." + prefix;
+        oldEndpointsPrefix = prefix;
     }
 
     Ice::PropertyDict props = properties->getPropertiesForPrefix(endpointsPrefix);
@@ -254,7 +254,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
         else
         {
             _endpoints = properties->getPropertyWithDefault(
-                endpointsPrefix + ".Endpoints", properties->getProperty(oldEndpointsPrefix + ".Endpoints"));	
+                endpointsPrefix + ".Endpoints", properties->getProperty(oldEndpointsPrefix + ".Endpoints"));    
         }
     }
 
@@ -262,7 +262,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     char cwd[_MAX_PATH];
     if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
-	char cwd[PATH_MAX];
+        char cwd[PATH_MAX];
     if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
     {
@@ -273,11 +273,11 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _dataDir = properties->getProperty(prefix + ".Data");    
     if(!IcePatch2::isAbsolute(_dataDir))
     {
-	_dataDir = _cwd + '/' + _dataDir;
+        _dataDir = _cwd + '/' + _dataDir;
     }
     if(_dataDir[_dataDir.length() - 1] == '/')
     {
-	_dataDir = _dataDir.substr(0, _dataDir.length() - 1);
+        _dataDir = _dataDir.substr(0, _dataDir.length() - 1);
     }
 }
 
@@ -286,12 +286,12 @@ PlatformInfo::~PlatformInfo()
 #ifdef _WIN32
     if(_query != NULL)
     {
-	PdhCloseQuery(_query);
+        PdhCloseQuery(_query);
     }
 #elif defined(_AIX)
     if(_kmem > 0)
     {
-	close(_kmem);
+        close(_kmem);
     }
 #endif
 }
@@ -344,14 +344,14 @@ PlatformInfo::getLoadInfo()
     int usage = 100;
     if(_query == NULL)
     {
-	initQuery();
+        initQuery();
     }
     if(_query != NULL && _counter != NULL && PdhCollectQueryData(_query) == ERROR_SUCCESS)
     {
-	DWORD type;
-	PDH_FMT_COUNTERVALUE value;
-	PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
-	usage = static_cast<int>(value.longValue);
+        DWORD type;
+        PDH_FMT_COUNTERVALUE value;
+        PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
+        usage = static_cast<int>(value.longValue);
     }
 
     _last1Total += usage - _usages1.back();
@@ -377,34 +377,34 @@ PlatformInfo::getLoadInfo()
     double loadAvg[3];
     if(getloadavg(loadAvg, 3) != -1)
     {
-	info.avg1 = static_cast<float>(loadAvg[0]);
-	info.avg5 = static_cast<float>(loadAvg[1]);
-	info.avg15 = static_cast<float>(loadAvg[2]);
+        info.avg1 = static_cast<float>(loadAvg[0]);
+        info.avg5 = static_cast<float>(loadAvg[1]);
+        info.avg15 = static_cast<float>(loadAvg[2]);
     }
 #elif defined(__hpux)
     struct pst_dynamic dynInfo;
     if(pstat_getdynamic(&dynInfo, sizeof(dynInfo), 1, 0) >= 0)
     {
-	info.avg1 = dynInfo.psd_avg_1_min;
-	info.avg5 = dynInfo.psd_avg_5_min;
-	info.avg15 = dynInfo.psd_avg_15_min;
+        info.avg1 = dynInfo.psd_avg_1_min;
+        info.avg5 = dynInfo.psd_avg_5_min;
+        info.avg15 = dynInfo.psd_avg_15_min;
     }
 #elif defined(_AIX)
     if(_kmem > 1)
     {
-	long long avenrun[3];
-	struct nlist nl;
-	nl.n_name = "avenrun";
-	nl.n_value = 0;
-	if(knlist(&nl, 1, sizeof(nl)) == 0)
-	{
-	    if(pread(_kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
-	    {
-		info.avg1 = avenrun[0] / 65536.0f;
-		info.avg5 = avenrun[1] / 65536.0f;
-		info.avg15 = avenrun[2] / 65536.0f;
-	    }
-	}
+        long long avenrun[3];
+        struct nlist nl;
+        nl.n_name = "avenrun";
+        nl.n_value = 0;
+        if(knlist(&nl, 1, sizeof(nl)) == 0)
+        {
+            if(pread(_kmem, avenrun, sizeof(avenrun), nl.n_value) >= sizeof(avenrun))
+            {
+                info.avg1 = avenrun[0] / 65536.0f;
+                info.avg5 = avenrun[1] / 65536.0f;
+                info.avg15 = avenrun[2] / 65536.0f;
+            }
+        }
     }
 #endif
     return info;
@@ -438,11 +438,11 @@ PlatformInfo::initQuery()
     PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
     if(err != ERROR_SUCCESS)
     {
-	Ice::SyscallException ex(__FILE__, __LINE__);
-	ex.error = err;
-	Ice::Warning out(_traceLevels->logger);
-	out << "can't open performance data query:\n" << ex;
-	return;
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+        Ice::Warning out(_traceLevels->logger);
+        out << "can't open performance data query:\n" << ex;
+        return;
     }
 
     //
@@ -453,8 +453,8 @@ PlatformInfo::initQuery()
     buffer.resize(size);
     while(RegQueryValueEx(HKEY_PERFORMANCE_DATA, "Counter 09", 0, 0, &buffer[0], &size) == ERROR_MORE_DATA)
     {
-	size += 8192;
-	buffer.resize(size);
+        size += 8192;
+        buffer.resize(size);
     }
 
     map<string, string> perfNames;
@@ -462,15 +462,15 @@ PlatformInfo::initQuery()
     unsigned int i = 0;
     while(i < buffer.size() && buf[i])
     {
-	string index(&buf[i]);
-	i += static_cast<int>(index.size()) + 1;
-	if(i >= buffer.size())
-	{
-	    break;
-	}
-	string name(&buf[i]);
-	i += static_cast<int>(name.size()) + 1;
-	perfNames.insert(make_pair(name, index));
+        string index(&buf[i]);
+        i += static_cast<int>(index.size()) + 1;
+        if(i >= buffer.size())
+        {
+            break;
+        }
+        string name(&buf[i]);
+        i += static_cast<int>(name.size()) + 1;
+        perfNames.insert(make_pair(name, index));
     }
 
     //
@@ -486,10 +486,10 @@ PlatformInfo::initQuery()
     err = PdhAddCounter(_query, name.c_str(), 0, &_counter);
     if(err != ERROR_SUCCESS)
     {
-	Ice::SyscallException ex(__FILE__, __LINE__);
-	ex.error = err;
-	Ice::Warning out(_traceLevels->logger);
-	out << "can't add performance counter `" << name << "':\n" << ex;
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+        Ice::Warning out(_traceLevels->logger);
+        out << "can't add performance counter `" << name << "':\n" << ex;
     }
 }
 #endif

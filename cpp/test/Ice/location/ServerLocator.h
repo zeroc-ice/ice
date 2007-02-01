@@ -21,12 +21,12 @@ public:
     ServerLocatorRegistry();
     
     virtual void setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&,
-					     const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+                                             const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void setReplicatedAdapterDirectProxy_async(
-	const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr&,
-	const std::string&, const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+        const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr&,
+        const std::string&, const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&,
-					     const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
+                                             const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
     void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
     
     //
@@ -51,10 +51,10 @@ public:
     ServerLocator(const ::ServerLocatorRegistryPtr&, const ::Ice::LocatorRegistryPrx&);
 
     virtual void findObjectById_async(const ::Ice::AMD_Locator_findObjectByIdPtr&, const ::Ice::Identity&, 
-				      const ::Ice::Current&) const;
+                                      const ::Ice::Current&) const;
 
     virtual void findAdapterById_async(const ::Ice::AMD_Locator_findAdapterByIdPtr&, const ::std::string&, 
-				       const ::Ice::Current&) const;
+                                       const ::Ice::Current&) const;
 
     virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&) const;
 

@@ -30,7 +30,7 @@ public class Client
         }
         catch(System.Exception ex)
         {
-	    System.Console.Error.WriteLine(ex);
+            System.Console.Error.WriteLine(ex);
             status = 1;
         }
         
@@ -42,7 +42,7 @@ public class Client
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

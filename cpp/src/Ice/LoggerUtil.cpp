@@ -30,7 +30,7 @@ Ice::Print::flush()
     string s = _str.str();
     if(!s.empty())
     {
-	_logger->print(s);
+        _logger->print(s);
     }
     _str.str("");
 }
@@ -64,7 +64,7 @@ Ice::Warning::flush()
     string s = _str.str();
     if(!s.empty())
     {
-	_logger->warning(s);
+        _logger->warning(s);
     }
     _str.str("");
 }
@@ -98,7 +98,7 @@ Ice::Error::flush()
     string s = _str.str();
     if(!s.empty())
     {
-	_logger->error(s);
+        _logger->error(s);
     }
     _str.str("");
 }
@@ -133,7 +133,7 @@ Ice::Trace::flush()
     string s = _str.str();
     if(!s.empty())
     {
-	_logger->trace(_category, s);
+        _logger->trace(_category, s);
     }
     _str.str("");
 }

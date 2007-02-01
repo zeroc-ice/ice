@@ -66,21 +66,21 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         libName = libSpec;
         if(useIceVersion)
         {
-	    int majorVersion = (ICE_INT_VERSION / 10000);
-	    int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
-	    ostringstream os;
-	    os << majorVersion * 10 + minorVersion;
+            int majorVersion = (ICE_INT_VERSION / 10000);
+            int minorVersion = (ICE_INT_VERSION / 100) - majorVersion * 100;
+            ostringstream os;
+            os << majorVersion * 10 + minorVersion;
             
-	    int patchVersion = ICE_INT_VERSION % 100;
-	    if(patchVersion > 50)
-	    {
-		os << 'b';
-		if(patchVersion >= 52)
-		{
-		    os << (patchVersion - 50);
-		}
-	    }
-	    version = os.str();
+            int patchVersion = ICE_INT_VERSION % 100;
+            if(patchVersion > 50)
+            {
+                os << 'b';
+                if(patchVersion >= 52)
+                {
+                    os << (patchVersion - 50);
+                }
+            }
+            version = os.str();
         }
     }
     else
@@ -101,7 +101,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     lib = "lib" + libName;
     if(!version.empty()) 
     {
-	lib += "." + version;
+        lib += "." + version;
     }
     lib += ".dylib";
 #elif defined(__hpux)
@@ -112,7 +112,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     }
     else
     {
-	lib += ".sl";
+        lib += ".sl";
     }
 #elif defined(_AIX)
     lib = "lib" + libName + ".a(lib" + libName + ".so";

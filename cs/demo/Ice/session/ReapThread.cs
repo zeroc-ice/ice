@@ -16,81 +16,81 @@ public class ReapThread
 {
     public class SessionProxyPair
     {
-	public SessionProxyPair(SessionPrx p, SessionI s)
-	{
-	    proxy = p;
-	    session = s;
-	}
+        public SessionProxyPair(SessionPrx p, SessionI s)
+        {
+            proxy = p;
+            session = s;
+        }
 
-	public SessionPrx proxy;
-	public SessionI session;
+        public SessionPrx proxy;
+        public SessionI session;
     }
 
     public ReapThread()
     {
-    	_timeout = System.TimeSpan.FromSeconds(10);
-	_terminated = false;
-	_sessions = new ArrayList();
+        _timeout = System.TimeSpan.FromSeconds(10);
+        _terminated = false;
+        _sessions = new ArrayList();
     }
 
     public void run()
     {
-	lock(this)
-	{
-	    while(!_terminated)
-	    {
-		System.Threading.Monitor.Wait(this, _timeout);
-		if(!_terminated)
-		{
-		    ArrayList tmp = new ArrayList();
-		    foreach(SessionProxyPair p in _sessions)
-		    {
-			try
-			{
-			    //
-			    // Session destruction may take time in a
-			    // real-world example. Therefore the current time
-			    // is computed for each iteration.
-			    //
-			    if((System.DateTime.Now - p.session.timestamp()) > _timeout)
-			    {
-				string name = p.proxy.getName();
-				p.proxy.destroy();
-				Console.Out.WriteLine("The session " + name + " has timed out.");
-			    }
-			    else
-			    {
-				tmp.Add(p);
-			    }
-			}
-			catch(Ice.ObjectNotExistException)
-			{
-			    // Ignore.
-			}
-		    }
-		    _sessions = tmp;
-		}
-	    }
-	}
+        lock(this)
+        {
+            while(!_terminated)
+            {
+                System.Threading.Monitor.Wait(this, _timeout);
+                if(!_terminated)
+                {
+                    ArrayList tmp = new ArrayList();
+                    foreach(SessionProxyPair p in _sessions)
+                    {
+                        try
+                        {
+                            //
+                            // Session destruction may take time in a
+                            // real-world example. Therefore the current time
+                            // is computed for each iteration.
+                            //
+                            if((System.DateTime.Now - p.session.timestamp()) > _timeout)
+                            {
+                                string name = p.proxy.getName();
+                                p.proxy.destroy();
+                                Console.Out.WriteLine("The session " + name + " has timed out.");
+                            }
+                            else
+                            {
+                                tmp.Add(p);
+                            }
+                        }
+                        catch(Ice.ObjectNotExistException)
+                        {
+                            // Ignore.
+                        }
+                    }
+                    _sessions = tmp;
+                }
+            }
+        }
     }
 
     public void terminate()
     {
-	lock(this)
-	{
-	    _terminated = true;
-	    System.Threading.Monitor.Pulse(this);
+        lock(this)
+        {
+            _terminated = true;
+            System.Threading.Monitor.Pulse(this);
 
-	    _sessions.Clear();
-	}
+            _sessions.Clear();
+        }
     }
 
     public void add(SessionPrx proxy, SessionI session)
     {
-	lock(this)
-	{
-	    _sessions.Add(new SessionProxyPair(proxy, session));
-	}
+        lock(this)
+        {
+            _sessions.Add(new SessionProxyPair(proxy, session));
+        }
     }
 
     private bool _terminated;

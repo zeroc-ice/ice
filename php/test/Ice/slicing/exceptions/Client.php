@@ -25,7 +25,7 @@ function allTests()
         try
         {
             $test->baseAsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_Base $b)
         {
@@ -41,7 +41,7 @@ function allTests()
         try
         {
             $test->unknownDerivedAsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_Base $b)
         {
@@ -57,7 +57,7 @@ function allTests()
         try
         {
             $test->knownDerivedAsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownDerived $k)
         {
@@ -74,7 +74,7 @@ function allTests()
         try
         {
             $test->knownDerivedAsKnownDerived();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownDerived $k)
         {
@@ -91,7 +91,7 @@ function allTests()
         try
         {
             $test->unknownIntermediateAsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_Base $b)
         {
@@ -107,7 +107,7 @@ function allTests()
         try
         {
             $test->knownIntermediateAsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownIntermediate $ki)
         {
@@ -124,7 +124,7 @@ function allTests()
         try
         {
             $test->knownMostDerivedAsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownMostDerived $kmd)
         {
@@ -142,7 +142,7 @@ function allTests()
         try
         {
             $test->knownIntermediateAsKnownIntermediate();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownIntermediate $ki)
         {
@@ -159,7 +159,7 @@ function allTests()
         try
         {
             $test->knownMostDerivedAsKnownIntermediate();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownMostDerived $kmd)
         {
@@ -177,7 +177,7 @@ function allTests()
         try
         {
             $test->knownMostDerivedAsKnownMostDerived();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownMostDerived $kmd)
         {
@@ -195,7 +195,7 @@ function allTests()
         try
         {
             $test->unknownMostDerived1AsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownIntermediate $ki)
         {
@@ -212,7 +212,7 @@ function allTests()
         try
         {
             $test->unknownMostDerived1AsKnownIntermediate();
-	    test(false);
+            test(false);
         }
         catch(Test_KnownIntermediate $ki)
         {
@@ -229,7 +229,7 @@ function allTests()
         try
         {
             $test->unknownMostDerived2AsBase();
-	    test(false);
+            test(false);
         }
         catch(Test_Base $b)
         {

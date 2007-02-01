@@ -14,19 +14,19 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public void
     destroy()
     {
-	_instance.destroy();
+        _instance.destroy();
     }
 
     public void
     shutdown()
     {
-	_instance.objectAdapterFactory().shutdown();
+        _instance.objectAdapterFactory().shutdown();
     }
 
     public void
     waitForShutdown()
     {
-	_instance.objectAdapterFactory().waitForShutdown();
+        _instance.objectAdapterFactory().waitForShutdown();
     }
 
     public boolean
@@ -68,19 +68,19 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public ObjectAdapter
     createObjectAdapter(String name)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name, "", null);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, "", null);
     }
 
     public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, endpoints, null);
     }
 
     public ObjectAdapter
     createObjectAdapterWithRouter(String name, RouterPrx router)
     {
-	return _instance.objectAdapterFactory().createObjectAdapter(name, "", router);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, "", router);
     }
 
     public void
@@ -143,7 +143,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public java.util.Map
     getDefaultContext()
     {
-	return _instance.getDefaultContext();
+        return _instance.getDefaultContext();
     }
 
     /**
@@ -152,13 +152,13 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     public void
     setDefaultContext(java.util.Map ctx)
     {
-	_instance.setDefaultContext(ctx);
+        _instance.setDefaultContext(ctx);
     }
 
     public ImplicitContext
     getImplicitContext()
     {
-	return _instance.getImplicitContext();
+        return _instance.getImplicitContext();
     }
 
     public PluginManager
@@ -186,10 +186,10 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     finalize()
         throws Throwable
     {
-	if(!_instance.destroyed())
-	{
-	    _instance.logger().warning("Ice::Communicator::destroy() has not been called");
-	}
+        if(!_instance.destroyed())
+        {
+            _instance.logger().warning("Ice::Communicator::destroy() has not been called");
+        }
 
         super.finalize();
     }
@@ -202,15 +202,15 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
     void
     finishSetup(StringSeqHolder args)
     {
-	try
-	{
-	    _instance.finishSetup(args);
-	}
-	catch(RuntimeException ex)
-	{
-	    _instance.destroy();
-	    throw ex;
-	}
+        try
+        {
+            _instance.finishSetup(args);
+        }
+        catch(RuntimeException ex)
+        {
+            _instance.destroy();
+            throw ex;
+        }
     }
 
     //

@@ -16,73 +16,73 @@ class RegistryObserverI extends _RegistryObserverDisp
 
     RegistryObserverI(Coordinator coordinator)
     {
-	_coordinator = coordinator;
-	_trace = _coordinator.traceObservers();
+        _coordinator = coordinator;
+        _trace = _coordinator.traceObservers();
     }
 
     public void registryInit(final RegistryInfo[] registryInfos, Ice.Current current)
     {
-	if(_trace)
-	{
-	    if(registryInfos.length == 0)
-	    {
-		_coordinator.traceObserver("registryInit (no registry)");
-	    }
-	    else
-	    {
-		String names = "";
-		for(int i = 0; i < registryInfos.length; ++i)
-		{
-		    names += " " + registryInfos[i].name;
-		}
-		_coordinator.traceObserver("registryInit for registr" + 
-					   (registryInfos.length == 1 ? "y" : "ies")
-					   + names);
-	    }
-	}
+        if(_trace)
+        {
+            if(registryInfos.length == 0)
+            {
+                _coordinator.traceObserver("registryInit (no registry)");
+            }
+            else
+            {
+                String names = "";
+                for(int i = 0; i < registryInfos.length; ++i)
+                {
+                    names += " " + registryInfos[i].name;
+                }
+                _coordinator.traceObserver("registryInit for registr" + 
+                                           (registryInfos.length == 1 ? "y" : "ies")
+                                           + names);
+            }
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    for(int i = 0; i < registryInfos.length; ++i)
-		    {
-			_coordinator.registryUp(registryInfos[i]);
-		    }
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    for(int i = 0; i < registryInfos.length; ++i)
+                    {
+                        _coordinator.registryUp(registryInfos[i]);
+                    }
+                }
+            });
     }
 
     public void registryUp(final RegistryInfo registryInfo, Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("registryUp for registry " + registryInfo.name);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("registryUp for registry " + registryInfo.name);
+        }
 
- 	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.registryUp(registryInfo);
-		}
-	    });			   
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.registryUp(registryInfo);
+                }
+            });                    
     }
 
     public void registryDown(final String registryName, Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("registryDown for registry " + registryName);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("registryDown for registry " + registryName);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.registryDown(registryName);
-		}
-	    });			   
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.registryDown(registryName);
+                }
+            });                    
     }
 
     private final Coordinator _coordinator;

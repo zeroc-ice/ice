@@ -45,8 +45,8 @@ private:
     friend struct EvictorEntry;
     struct EvictorEntry : public IceUtil::Shared
     {
-	Ice::ObjectPrx proxy;
-	EvictorQueue::iterator pos;
+        Ice::ObjectPrx proxy;
+        EvictorQueue::iterator pos;
     };
 
     EvictorMap _map;

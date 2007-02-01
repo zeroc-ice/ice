@@ -34,7 +34,7 @@ public class TwowaysAMI
             {
                 while(!_called)
                 {
-		    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
+                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
                     
                     if(!_called)
                     {
@@ -81,23 +81,23 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opVoidExI : Test.AMI_MyClass_opVoid
     {
-	public override void ice_response()
-	{
-	    test(false);
-	}
+        public override void ice_response()
+        {
+            test(false);
+        }
 
-	public override void ice_exception(Ice.Exception ex)
-	{
-	    test(ex is Ice.TwowayOnlyException);
-	    callback.called();
-	}
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.TwowayOnlyException);
+            callback.called();
+        }
 
-	public virtual bool check()
-	{
-	    return callback.check();
-	}
+        public virtual bool check()
+        {
+            return callback.check();
+        }
 
-	private Callback callback = new Callback();
+        private Callback callback = new Callback();
     }
 
     private class AMI_MyClass_opByteI : Test.AMI_MyClass_opByte
@@ -124,23 +124,23 @@ public class TwowaysAMI
 
     private class AMI_MyClass_opByteExI : Test.AMI_MyClass_opByte
     {
-	public override void ice_response(byte r, byte b)
-	{
-	    test(false);
-	}
+        public override void ice_response(byte r, byte b)
+        {
+            test(false);
+        }
 
-	public override void ice_exception(Ice.Exception ex)
-	{
-	    test(ex is Ice.TwowayOnlyException);
-	    callback.called();
-	}
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(ex is Ice.TwowayOnlyException);
+            callback.called();
+        }
 
-	public virtual bool check()
-	{
-	    return callback.check();
-	}
+        public virtual bool check()
+        {
+            return callback.check();
+        }
 
-	private Callback callback = new Callback();
+        private Callback callback = new Callback();
     }
     
     private class AMI_MyClass_opBoolI : Test.AMI_MyClass_opBool
@@ -259,29 +259,29 @@ public class TwowaysAMI
     private class AMI_MyClass_opMyClassI : Test.AMI_MyClass_opMyClass
     {
         public AMI_MyClass_opMyClassI(Ice.Communicator comunicator)
-	{
-	    _communicator = comunicator;
-	}
+        {
+            _communicator = comunicator;
+        }
 
         public override void ice_response(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
         {
             test(c1.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
             test(c2.ice_getIdentity().Equals(_communicator.stringToIdentity("noSuchIdentity")));
             test(r.ice_getIdentity().Equals(_communicator.stringToIdentity("test")));
-	    // We can't do the callbacks below in thread per connection mode.
-	    if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
-	    {
-		r.opVoid();
-		c1.opVoid();
-		try
-		{
-		    c2.opVoid();
-		    test(false);
-		}
-		catch(Ice.ObjectNotExistException)
-		{
-		}
-	    }
+            // We can't do the callbacks below in thread per connection mode.
+            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+            {
+                r.opVoid();
+                c1.opVoid();
+                try
+                {
+                    c2.opVoid();
+                    test(false);
+                }
+                catch(Ice.ObjectNotExistException)
+                {
+                }
+            }
             callback.called();
         }
         
@@ -296,15 +296,15 @@ public class TwowaysAMI
         }
         
         private Callback callback = new Callback();
-	private Ice.Communicator _communicator;
+        private Ice.Communicator _communicator;
     }
     
     private class AMI_MyClass_opStructI : Test.AMI_MyClass_opStruct
     {
-	public AMI_MyClass_opStructI(Ice.Communicator comunicator)
-	{
-	    _communicator = comunicator;
-	}
+        public AMI_MyClass_opStructI(Ice.Communicator comunicator)
+        {
+            _communicator = comunicator;
+        }
 
         public override void ice_response(Test.Structure rso, Test.Structure so)
         {
@@ -313,11 +313,11 @@ public class TwowaysAMI
             test(rso.s.s.Equals("def"));
             test(so.e == Test.MyEnum.enum3);
             test(so.s.s.Equals("a new string"));
-	    // We can't do the callbacks below in thread per connection mode.
-	    if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
-	    {
-		so.p.opVoid();
-	    }
+            // We can't do the callbacks below in thread per connection mode.
+            if(_communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0)
+            {
+                so.p.opVoid();
+            }
             callback.called();
         }
         
@@ -670,26 +670,26 @@ public class TwowaysAMI
             test(ssso[3].Count == 1);
             test(ssso[3][0].Count == 1);
             test(ssso[4].Count == 0);
-	    test(ssso[0][0][0].Equals("abc"));
-	    test(ssso[0][0][1].Equals("de"));
-	    test(ssso[0][1][0].Equals("xyz"));
-	    test(ssso[1][0][0].Equals("hello"));
-	    test(ssso[2][0][0].Equals(""));
-	    test(ssso[2][0][1].Equals(""));
-	    test(ssso[2][1][0].Equals("abcd"));
-	    test(ssso[3][0][0].Equals(""));
+            test(ssso[0][0][0].Equals("abc"));
+            test(ssso[0][0][1].Equals("de"));
+            test(ssso[0][1][0].Equals("xyz"));
+            test(ssso[1][0][0].Equals("hello"));
+            test(ssso[2][0][0].Equals(""));
+            test(ssso[2][0][1].Equals(""));
+            test(ssso[2][1][0].Equals("abcd"));
+            test(ssso[3][0][0].Equals(""));
 
-	    test(rsso.Length == 3);
-	    test(rsso[0].Count == 0);
-	    test(rsso[1].Count == 1);
-	    test(rsso[1][0].Count == 1);
-	    test(rsso[2].Count == 2);
-	    test(rsso[2][0].Count == 2);
-	    test(rsso[2][1].Count == 1);
-	    test(rsso[1][0][0].Equals(""));
-	    test(rsso[2][0][0].Equals(""));
-	    test(rsso[2][0][1].Equals(""));
-	    test(rsso[2][1][0].Equals("abcd"));
+            test(rsso.Length == 3);
+            test(rsso[0].Count == 0);
+            test(rsso[1].Count == 1);
+            test(rsso[1][0].Count == 1);
+            test(rsso[2].Count == 2);
+            test(rsso[2][0].Count == 2);
+            test(rsso[2][1].Count == 1);
+            test(rsso[1][0][0].Equals(""));
+            test(rsso[2][0][0].Equals(""));
+            test(rsso[2][0][1].Equals(""));
+            test(rsso[2][1][0].Equals("abcd"));
             callback.called();
         }
         
@@ -856,7 +856,7 @@ public class TwowaysAMI
         internal AMI_MyClass_opIntSI(int l)
         {
             _l = l;
-	    callback = new Callback();
+            callback = new Callback();
         }
         
         public override void ice_response(Test.IntS r)
@@ -888,7 +888,7 @@ public class TwowaysAMI
         internal AMI_MyClass_opContextEqualI(Ice.Context d)
         {
             _d = d;
-	    callback = new Callback();
+            callback = new Callback();
         }
         
         public override void ice_response(Ice.Context r)
@@ -916,7 +916,7 @@ public class TwowaysAMI
         internal AMI_MyClass_opContextNotEqualI(Ice.Context d)
         {
             _d = d;
-	    callback = new Callback();
+            callback = new Callback();
         }
         
         public override void ice_response(Ice.Context r)
@@ -962,36 +962,36 @@ public class TwowaysAMI
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
     {
         {
-	    // Check that a call to a void operation raises TwowayOnlyException
-	    // in the ice_exception() callback instead of at the point of call.
-	    Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
-	    AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
-	    try
-	    {
-	        oneway.opVoid_async(cb);
-	    }
-	    catch(Ice.Exception)
-	    {
-	        test(false);
-	    }
-	    test(cb.check());
-	}
+            // Check that a call to a void operation raises TwowayOnlyException
+            // in the ice_exception() callback instead of at the point of call.
+            Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+            AMI_MyClass_opVoidExI cb = new AMI_MyClass_opVoidExI();
+            try
+            {
+                oneway.opVoid_async(cb);
+            }
+            catch(Ice.Exception)
+            {
+                test(false);
+            }
+            test(cb.check());
+        }
 
-	{
-	    // Check that a call to a twoway operation raises TwowayOnlyException
-	    // in the ice_exception() callback instead of at the point of call.
-	    Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
-	    AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
-	    try
-	    {
-	        oneway.opByte_async(cb, (byte)0, (byte)0);
-	    }
-	    catch(Ice.Exception)
-	    {
-	        test(false);
-	    }
-	    test(cb.check());
-	}
+        {
+            // Check that a call to a twoway operation raises TwowayOnlyException
+            // in the ice_exception() callback instead of at the point of call.
+            Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
+            AMI_MyClass_opByteExI cb = new AMI_MyClass_opByteExI();
+            try
+            {
+                oneway.opByte_async(cb, (byte)0, (byte)0);
+            }
+            catch(Ice.Exception)
+            {
+                test(false);
+            }
+            test(cb.check());
+        }
 
         {
             AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
@@ -1105,19 +1105,19 @@ public class TwowaysAMI
         }
         
         {
-	    Test.ByteSS bsi1 = new Test.ByteSS();
-	    bsi1.Add(new Test.ByteS());
-	    bsi1.Add(new Test.ByteS());
-	    bsi1[0].Add(0x01);
-	    bsi1[0].Add(0x11);
-	    bsi1[0].Add(0x12);
-	    bsi1[1].Add(0xff);
-	    Test.ByteSS bsi2 = new Test.ByteSS();
-	    bsi2.Add(new Test.ByteS());
-	    bsi2.Add(new Test.ByteS());
-	    bsi2[0].Add(0x0e);
-	    bsi2[1].Add(0xf2);
-	    bsi2[1].Add(0xf1);
+            Test.ByteSS bsi1 = new Test.ByteSS();
+            bsi1.Add(new Test.ByteS());
+            bsi1.Add(new Test.ByteS());
+            bsi1[0].Add(0x01);
+            bsi1[0].Add(0x11);
+            bsi1[0].Add(0x12);
+            bsi1[1].Add(0xff);
+            Test.ByteSS bsi2 = new Test.ByteSS();
+            bsi2.Add(new Test.ByteS());
+            bsi2.Add(new Test.ByteS());
+            bsi2[0].Add(0x0e);
+            bsi2[1].Add(0xf2);
+            bsi2[1].Add(0xf1);
             
             AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
             p.opByteSS_async(cb, bsi1, bsi2);
@@ -1126,12 +1126,12 @@ public class TwowaysAMI
         
         {
             Test.FloatSS fsi = new Test.FloatSS();
-	    fsi.Add(new Test.FloatS(new float[] { 3.14f }));
-	    fsi.Add(new Test.FloatS(new float[] { 1.11f }));
-	    fsi.Add(new Test.FloatS(new float[] { }));
+            fsi.Add(new Test.FloatS(new float[] { 3.14f }));
+            fsi.Add(new Test.FloatS(new float[] { 1.11f }));
+            fsi.Add(new Test.FloatS(new float[] { }));
 
             Test.DoubleSS dsi = new Test.DoubleSS();
-	    dsi.Add(new Test.DoubleS(new double[] { 1.1E10, 1.2E10, 1.3E10 }));
+            dsi.Add(new Test.DoubleS(new double[] { 1.1E10, 1.2E10, 1.3E10 }));
             
             AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
             p.opFloatDoubleSS_async(cb, fsi, dsi);
@@ -1139,45 +1139,45 @@ public class TwowaysAMI
         }
         
         {
-	    Test.StringSS ssi1 = new Test.StringSS();
-	    ssi1.Add(new Test.StringS());
-	    ssi1.Add(new Test.StringS());
-	    ssi1[0].Add("abc");
-	    ssi1[1].Add("de");
-	    ssi1[1].Add("fghi");
-	    Test.StringSS ssi2 = new Test.StringSS();
-	    ssi2.Add(new Test.StringS());
-	    ssi2.Add(new Test.StringS());
-	    ssi2.Add(new Test.StringS());
-	    ssi2[2].Add("xyz");
+            Test.StringSS ssi1 = new Test.StringSS();
+            ssi1.Add(new Test.StringS());
+            ssi1.Add(new Test.StringS());
+            ssi1[0].Add("abc");
+            ssi1[1].Add("de");
+            ssi1[1].Add("fghi");
+            Test.StringSS ssi2 = new Test.StringSS();
+            ssi2.Add(new Test.StringS());
+            ssi2.Add(new Test.StringS());
+            ssi2.Add(new Test.StringS());
+            ssi2[2].Add("xyz");
             
             AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
             p.opStringSS_async(cb, ssi1, ssi2);
             test(cb.check());
         }
 
-	{
-	    Test.StringSS[] sssi1 = { new Test.StringSS(), new Test.StringSS() };
-	    sssi1[0].Add(new Test.StringS());
-	    sssi1[0].Add(new Test.StringS());
-	    sssi1[0][0].Add("abc");
-	    sssi1[0][0].Add("de");
-	    sssi1[0][1].Add("xyz");
-	    sssi1[1].Add(new Test.StringS());
-	    sssi1[1][0].Add("hello");
-	    Test.StringSS[] sssi2 = { new Test.StringSS(), new Test.StringSS(), new Test.StringSS() };
-	    sssi2[0].Add(new Test.StringS());
-	    sssi2[0].Add(new Test.StringS());
-	    sssi2[0][0].Add("");
-	    sssi2[0][0].Add("");
-	    sssi2[0][1].Add("abcd");
-	    sssi2[1].Add(new Test.StringS());
-	    sssi2[1][0].Add("");
+        {
+            Test.StringSS[] sssi1 = { new Test.StringSS(), new Test.StringSS() };
+            sssi1[0].Add(new Test.StringS());
+            sssi1[0].Add(new Test.StringS());
+            sssi1[0][0].Add("abc");
+            sssi1[0][0].Add("de");
+            sssi1[0][1].Add("xyz");
+            sssi1[1].Add(new Test.StringS());
+            sssi1[1][0].Add("hello");
+            Test.StringSS[] sssi2 = { new Test.StringSS(), new Test.StringSS(), new Test.StringSS() };
+            sssi2[0].Add(new Test.StringS());
+            sssi2[0].Add(new Test.StringS());
+            sssi2[0][0].Add("");
+            sssi2[0][0].Add("");
+            sssi2[0][1].Add("abcd");
+            sssi2[1].Add(new Test.StringS());
+            sssi2[1][0].Add("");
 
-	    AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
-	    p.opStringSSS_async(cb, sssi1, sssi2);
-	    test(cb.check());
-	}
+            AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
+            p.opStringSSS_async(cb, sssi1, sssi2);
+            test(cb.check());
+        }
         
         {
             Test.ByteBoolD di1 = new Test.ByteBoolD();
@@ -1266,7 +1266,7 @@ public class TwowaysAMI
         }
         
         {
-	    Ice.Context ctx = new Ice.Context();
+            Ice.Context ctx = new Ice.Context();
             ctx["one"] = "ONE";
             ctx["two"] = "TWO";
             ctx["three"] = "THREE";
@@ -1294,166 +1294,166 @@ public class TwowaysAMI
                 p2.opContext_async(cb, ctx);
                 test(cb.check());
             }
-	    {
-		//
-		// Test that default context is obtained correctly from communicator.
-		//
+            {
+                //
+                // Test that default context is obtained correctly from communicator.
+                //
 /* DEPRECATED
-		Ice.Context dflt = new Ice.Context();
-		dflt["a"] = "b";
-		communicator.setDefaultContext(dflt);
-		{
-		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
-		    p.opContext_async(cb);
-		    test(cb.check());
-		}
+                Ice.Context dflt = new Ice.Context();
+                dflt["a"] = "b";
+                communicator.setDefaultContext(dflt);
+                {
+                    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(dflt);
+                    p.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
-		    p2.opContext_async(cb);
-		    test(cb.check());
-		}
+                p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_context(new Ice.Context()));
+                {
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(new Ice.Context());
+                    p2.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
-		    p2.opContext_async(cb);
-		    test(cb.check());
-		}
+                p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
+                {
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(dflt);
+                    p2.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		communicator.setDefaultContext(new Ice.Context());
-		{
-		    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(new Ice.Context());
-		    p2.opContext_async(cb);
-		    test(cb.check());
-		}
+                communicator.setDefaultContext(new Ice.Context());
+                {
+                    AMI_MyClass_opContextNotEqualI cb = new AMI_MyClass_opContextNotEqualI(new Ice.Context());
+                    p2.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		communicator.setDefaultContext(dflt);
-		Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
-						communicator.stringToProxy("test:default -p 12010 -t 10000"));
-		{
-		    Ice.Context tmp = new Ice.Context();
-		    tmp["a"] = "b";
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-		    c.opContext_async(cb);
-		    test(cb.check());
-		}
+                communicator.setDefaultContext(dflt);
+                Test.MyClassPrx c = Test.MyClassPrxHelper.checkedCast(
+                                                communicator.stringToProxy("test:default -p 12010 -t 10000"));
+                {
+                    Ice.Context tmp = new Ice.Context();
+                    tmp["a"] = "b";
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+                    c.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		dflt["a"] = "c";
-		Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
-		{
-		    Ice.Context tmp = new Ice.Context();
-		    tmp["a"] = "c";
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-		    c2.opContext_async(cb);
-		    test(cb.check());
-		}
+                dflt["a"] = "c";
+                Test.MyClassPrx c2 = Test.MyClassPrxHelper.uncheckedCast(c.ice_context(dflt));
+                {
+                    Ice.Context tmp = new Ice.Context();
+                    tmp["a"] = "c";
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+                    c2.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		dflt.Clear();
-		Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
-		{
-		    Ice.Context tmp = new Ice.Context();
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-		    c3.opContext_async(cb);
-		    test(cb.check());
-		}
+                dflt.Clear();
+                Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
+                {
+                    Ice.Context tmp = new Ice.Context();
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+                    c3.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
-		{
-		    Ice.Context tmp = new Ice.Context();
-		    tmp["a"] = "b";
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-		    c4.opContext_async(cb);
-		    test(cb.check());
-		}
+                Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
+                {
+                    Ice.Context tmp = new Ice.Context();
+                    tmp["a"] = "b";
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+                    c4.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		dflt["a"] = "d";
-		communicator.setDefaultContext(dflt);
+                dflt["a"] = "d";
+                communicator.setDefaultContext(dflt);
 
-		Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
-		{
-		    Ice.Context tmp = new Ice.Context();
-		    tmp["a"] = "d";
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
-		    c5.opContext_async(cb);
-		    test(cb.check());
-		}
+                Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
+                {
+                    Ice.Context tmp = new Ice.Context();
+                    tmp["a"] = "d";
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
+                    c5.opContext_async(cb);
+                    test(cb.check());
+                }
 
-		communicator.setDefaultContext(new Ice.Context());
+                communicator.setDefaultContext(new Ice.Context());
 */
-	    }
+            }
         }
 
-	{
-	    //
-	    // Test implicit context propagation
-	    //
-	    
-	    String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
-	    for(int i = 0; i < 3; i++)
-	    {
-		Ice.InitializationData initData = new Ice.InitializationData();
-		initData.properties = communicator.getProperties().ice_clone_();
-		initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
-		
-		Ice.Communicator ic = Ice.Util.initialize(initData);
-		
-		Ice.Context ctx = new Ice.Context();
-		ctx["one"] = "ONE";
-		ctx["two"] = "TWO";
-		ctx["three"] = "THREE";
-		
-		Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-		    ic.stringToProxy("test:default -p 12010 -t 10000"));
-		
-		ic.getImplicitContext().setContext(ctx);
-		test(ic.getImplicitContext().getContext().Equals(ctx));
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-		    p3.opContext_async(cb);
-		    test(cb.check());
-		}
-	
-		
-		ic.getImplicitContext().set("zero", "ZERO");
-		test(ic.getImplicitContext().get("zero").Equals("ZERO"));
-		test(ic.getImplicitContext().getWithDefault("foobar", "foo").Equals("foo"));
-		
-		ctx = ic.getImplicitContext().getContext();
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
-		    p3.opContext_async(cb);
-		    test(cb.check());
-		}
-		
-		Ice.Context prxContext = new Ice.Context();
-		prxContext["one"] = "UN";
-		prxContext["four"] = "QUATRE";
-		
-		Ice.Context combined = (Ice.Context)prxContext.Clone();
-		combined.AddRange(ctx);
-		test(combined["one"].Equals("UN"));
-		
-		p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
-		
-		ic.getImplicitContext().setContext(null);
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
-		    p3.opContext_async(cb);
-		    test(cb.check());
-		}
-		
-		ic.getImplicitContext().setContext(ctx);
-		{
-		    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
-		    p3.opContext_async(cb);
-		    test(cb.check());
-		}
-		
-		ic.destroy();
-	    }
-	}
+        {
+            //
+            // Test implicit context propagation
+            //
+            
+            String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
+            for(int i = 0; i < 3; i++)
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+                
+                Ice.Communicator ic = Ice.Util.initialize(initData);
+                
+                Ice.Context ctx = new Ice.Context();
+                ctx["one"] = "ONE";
+                ctx["two"] = "TWO";
+                ctx["three"] = "THREE";
+                
+                Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
+                    ic.stringToProxy("test:default -p 12010 -t 10000"));
+                
+                ic.getImplicitContext().setContext(ctx);
+                test(ic.getImplicitContext().getContext().Equals(ctx));
+                {
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+                    p3.opContext_async(cb);
+                    test(cb.check());
+                }
+        
+                
+                ic.getImplicitContext().set("zero", "ZERO");
+                test(ic.getImplicitContext().get("zero").Equals("ZERO"));
+                test(ic.getImplicitContext().getWithDefault("foobar", "foo").Equals("foo"));
+                
+                ctx = ic.getImplicitContext().getContext();
+                {
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
+                    p3.opContext_async(cb);
+                    test(cb.check());
+                }
+                
+                Ice.Context prxContext = new Ice.Context();
+                prxContext["one"] = "UN";
+                prxContext["four"] = "QUATRE";
+                
+                Ice.Context combined = (Ice.Context)prxContext.Clone();
+                combined.AddRange(ctx);
+                test(combined["one"].Equals("UN"));
+                
+                p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+                
+                ic.getImplicitContext().setContext(null);
+                {
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(prxContext);
+                    p3.opContext_async(cb);
+                    test(cb.check());
+                }
+                
+                ic.getImplicitContext().setContext(ctx);
+                {
+                    AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(combined);
+                    p3.opContext_async(cb);
+                    test(cb.check());
+                }
+                
+                ic.destroy();
+            }
+        }
         
         {
             Test.MyDerivedClassPrx derived = Test.MyDerivedClassPrxHelper.checkedCast(p);

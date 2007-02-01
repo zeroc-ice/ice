@@ -16,8 +16,8 @@ public class ServerManagerI : ServerManagerDisp_
         Ice.InitializationData initData)
     {
         _adapter = adapter;
-	_registry = registry;
-	_communicators = new ArrayList();
+        _registry = registry;
+        _communicators = new ArrayList();
         _initData = initData;
         _initData.properties.setProperty("Ice.OA.TestAdapter.Endpoints", "default");
         _initData.properties.setProperty("Ice.OA.TestAdapter.AdapterId", "TestAdapter");
@@ -28,12 +28,12 @@ public class ServerManagerI : ServerManagerDisp_
     
     public override void startServer(Ice.Current current)
     {
-	foreach(Ice.Communicator c in _communicators)
-	{
-	    c.waitForShutdown();
-	    c.destroy();
-	}
-	_communicators.Clear();
+        foreach(Ice.Communicator c in _communicators)
+        {
+            c.waitForShutdown();
+            c.destroy();
+        }
+        _communicators.Clear();
 
         //
         // Simulate a server: create a new communicator and object
@@ -44,7 +44,7 @@ public class ServerManagerI : ServerManagerDisp_
         // the adapter id instead of the endpoints.
         //
         Ice.Communicator serverCommunicator = Ice.Util.initialize(_initData);
-	_communicators.Add(serverCommunicator);
+        _communicators.Add(serverCommunicator);
 
         Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
@@ -53,9 +53,9 @@ public class ServerManagerI : ServerManagerDisp_
         adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
         adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
         
-	Ice.Object @object = new TestI(adapter, adapter2, _registry);
-	_registry.addObject(adapter.add(@object, serverCommunicator.stringToIdentity("test")));
-	_registry.addObject(adapter.add(@object, serverCommunicator.stringToIdentity("test2")));
+        Ice.Object @object = new TestI(adapter, adapter2, _registry);
+        _registry.addObject(adapter.add(@object, serverCommunicator.stringToIdentity("test")));
+        _registry.addObject(adapter.add(@object, serverCommunicator.stringToIdentity("test2")));
 
         adapter.activate();
         adapter2.activate();
@@ -63,11 +63,11 @@ public class ServerManagerI : ServerManagerDisp_
 
     public override void shutdown(Ice.Current current)
     {
-	foreach(Ice.Communicator c in _communicators)
-	{
-	    c.destroy();
-	}
-	_communicators.Clear();
+        foreach(Ice.Communicator c in _communicators)
+        {
+            c.destroy();
+        }
+        _communicators.Clear();
         _adapter.getCommunicator().shutdown();
     }
     

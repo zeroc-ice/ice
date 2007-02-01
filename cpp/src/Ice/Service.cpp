@@ -107,19 +107,19 @@ private:
     {
     public:
 
-	StatusThread(ServiceStatusManager* manager) :
-	    _manager(manager)
-	{
-	}
+        StatusThread(ServiceStatusManager* manager) :
+            _manager(manager)
+        {
+        }
 
-	virtual void run()
-	{
-	    _manager->run();
-	}
+        virtual void run()
+        {
+            _manager->run();
+        }
 
     private:
 
-	ServiceStatusManager* _manager;
+        ServiceStatusManager* _manager;
     };
     friend class StatusThread;
 
@@ -159,26 +159,26 @@ Ice::Service::shutdown()
 {
     if(_communicator)
     {
-	try
-	{
-	    _communicator->shutdown();
-	}
-	catch(const CommunicatorDestroyedException&)
-	{
-	    //
-	    // Expected if the service communicator is being destroyed.
-	    //
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    ostringstream ostr;
-	    ostr << "exception during shutdown:\n" << ex;
-	    warning(ostr.str());
-	}
-	catch(...)
-	{
-	    warning("unknown exception during shutdown");
-	}
+        try
+        {
+            _communicator->shutdown();
+        }
+        catch(const CommunicatorDestroyedException&)
+        {
+            //
+            // Expected if the service communicator is being destroyed.
+            //
+        }
+        catch(const Ice::Exception& ex)
+        {
+            ostringstream ostr;
+            ostr << "exception during shutdown:\n" << ex;
+            warning(ostr.str());
+        }
+        catch(...)
+        {
+            warning("unknown exception during shutdown");
+        }
     }
     return true;
 }
@@ -204,48 +204,48 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
     {
         if(strcmp(argv[idx], "--service") == 0)
         {
-	    //
-	    // When running as a service, we need a logger to use for reporting any
-	    // failures that occur prior to initializing a communicator. After we have
-	    // a communicator, we can use the configured logger instead. If a logger
-	    // is defined in InitializationData, we'll use that. Otherwise, we create
-	    // a temporary event logger.
-	    //
-	    // We postpone the initialization of the communicator until serviceMain so
-	    // that we can incorporate the executable's arguments and the service's
-	    // arguments into one vector.
-	    //
-	    _logger = initData.logger;
-	    if(!_logger)
-	    {
-		try
-		{
-		    //
-		    // Use the executable name as the source for the temporary logger.
-		    //
-		    string loggerName = _name;
-		    transform(loggerName.begin(), loggerName.end(), loggerName.begin(), ::tolower);
-		    string::size_type pos = loggerName.find_last_of("\\/");
-		    if(pos != string::npos)
-		    {
-			loggerName.erase(0, pos + 1); // Remove leading path.
-		    }
-		    pos = loggerName.rfind(".exe");
-		    if(pos != string::npos)
-		    {
-			loggerName.erase(pos, loggerName.size() - pos); // Remove .exe extension.
-		    }
+            //
+            // When running as a service, we need a logger to use for reporting any
+            // failures that occur prior to initializing a communicator. After we have
+            // a communicator, we can use the configured logger instead. If a logger
+            // is defined in InitializationData, we'll use that. Otherwise, we create
+            // a temporary event logger.
+            //
+            // We postpone the initialization of the communicator until serviceMain so
+            // that we can incorporate the executable's arguments and the service's
+            // arguments into one vector.
+            //
+            _logger = initData.logger;
+            if(!_logger)
+            {
+                try
+                {
+                    //
+                    // Use the executable name as the source for the temporary logger.
+                    //
+                    string loggerName = _name;
+                    transform(loggerName.begin(), loggerName.end(), loggerName.begin(), ::tolower);
+                    string::size_type pos = loggerName.find_last_of("\\/");
+                    if(pos != string::npos)
+                    {
+                        loggerName.erase(0, pos + 1); // Remove leading path.
+                    }
+                    pos = loggerName.rfind(".exe");
+                    if(pos != string::npos)
+                    {
+                        loggerName.erase(pos, loggerName.size() - pos); // Remove .exe extension.
+                    }
 
-		    _logger = new EventLoggerI(loggerName);
-		}
-		catch(const IceUtil::Exception& ex)
-		{
-		    ostringstream ostr;
-		    ostr << ex;
-		    error("unable to create EventLogger:\n" + ostr.str());
-		    return EXIT_FAILURE;
-		}
-	    }
+                    _logger = new EventLoggerI(loggerName);
+                }
+                catch(const IceUtil::Exception& ex)
+                {
+                    ostringstream ostr;
+                    ostr << ex;
+                    error("unable to create EventLogger:\n" + ostr.str());
+                    return EXIT_FAILURE;
+                }
+            }
 
             if(idx + 1 >= argc)
             {
@@ -439,17 +439,17 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
 
             changeDirectory = false;
         }
-	else if(strcmp(argv[idx], "--pidfile") == 0)
+        else if(strcmp(argv[idx], "--pidfile") == 0)
         {
-	    if(idx + 1 < argc)
-	    {
-		pidFile = argv[idx + 1];
-	    }
-	    else
-	    {
-		cerr << argv[0] << ": --pidfile must be followed by an argument" << endl;
-		return EXIT_FAILURE;
-	    }
+            if(idx + 1 < argc)
+            {
+                pidFile = argv[idx + 1];
+            }
+            else
+            {
+                cerr << argv[0] << ": --pidfile must be followed by an argument" << endl;
+                return EXIT_FAILURE;
+            }
 
             for(int i = idx; i + 2 < argc; ++i)
             {
@@ -835,8 +835,8 @@ Ice::Service::startService(const string& name, const vector<string>& args)
     }
     else
     {
-	showServiceStatus("Service failed to start.", status);
-	return EXIT_FAILURE;
+        showServiceStatus("Service failed to start.", status);
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
@@ -893,8 +893,8 @@ Ice::Service::stopService(const string& name)
     }
     else
     {
-	showServiceStatus("Service failed to stop.", status);
-	return EXIT_FAILURE;
+        showServiceStatus("Service failed to stop.", status);
+        return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
@@ -1137,11 +1137,11 @@ Ice::Service::terminateService(DWORD exitCode)
     status.dwControlsAccepted = 0;
     if(exitCode != 0)
     {
-	status.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
+        status.dwWin32ExitCode = ERROR_SERVICE_SPECIFIC_ERROR;
     }
     else
     {
-	status.dwWin32ExitCode = 0;
+        status.dwWin32ExitCode = 0;
     }
     status.dwServiceSpecificExitCode = exitCode;
     status.dwCheckPoint = 0;
@@ -1155,7 +1155,7 @@ Ice::Service::waitForServiceState(SC_HANDLE hService, DWORD pendingState, SERVIC
 {
     if(!QueryServiceStatus(hService, &status))
     {
-	return false;
+        return false;
     }
 
     //
@@ -1226,38 +1226,38 @@ Ice::Service::showServiceStatus(const string& msg, SERVICE_STATUS& status)
     switch(status.dwCurrentState)
     {
     case SERVICE_STOPPED:
-	state = "STOPPED";
-	break;
+        state = "STOPPED";
+        break;
     case SERVICE_START_PENDING:
-	state = "START PENDING";
-	break;
+        state = "START PENDING";
+        break;
     case SERVICE_STOP_PENDING:
-	state = "STOP PENDING";
-	break;
+        state = "STOP PENDING";
+        break;
     case SERVICE_RUNNING:
-	state = "RUNNING";
-	break;
+        state = "RUNNING";
+        break;
     case SERVICE_CONTINUE_PENDING:
-	state = "CONTINUE PENDING";
-	break;
+        state = "CONTINUE PENDING";
+        break;
     case SERVICE_PAUSE_PENDING:
-	state = "PAUSE PENDING";
-	break;
+        state = "PAUSE PENDING";
+        break;
     case SERVICE_PAUSED:
-	state = "PAUSED";
-	break;
+        state = "PAUSED";
+        break;
     default:
-	state = "UNKNOWN";
-	break;
+        state = "UNKNOWN";
+        break;
     }
 
     ostringstream ostr;
     ostr << msg << endl
-	 << "  Current state: " << state << endl
-	 << "  Exit code: " << status.dwWin32ExitCode << endl
-	 << "  Service specific exit code: " << status.dwServiceSpecificExitCode << endl
-	 << "  Check point: " << status.dwCheckPoint << endl
-	 << "  Wait hint: " << status.dwWaitHint;
+         << "  Current state: " << state << endl
+         << "  Exit code: " << status.dwWin32ExitCode << endl
+         << "  Service specific exit code: " << status.dwServiceSpecificExitCode << endl
+         << "  Check point: " << status.dwCheckPoint << endl
+         << "  Wait hint: " << status.dwWaitHint;
     trace(ostr.str());
 }
 
@@ -1314,14 +1314,14 @@ Ice::Service::serviceMain(int argc, char* argv[])
         ostringstream ostr;
         ostr << "exception occurred while initializing a communicator:\n" << ex;
         error(ostr.str());
-	terminateService(EXIT_FAILURE);
+        terminateService(EXIT_FAILURE);
         return;
     }
     catch(...)
     {
         delete[] args;
         error("unknown exception occurred while initializing a communicator");
-	terminateService(EXIT_FAILURE);
+        terminateService(EXIT_FAILURE);
         return;
     }
 
@@ -1345,8 +1345,8 @@ Ice::Service::serviceMain(int argc, char* argv[])
             //
             // Change the current status from START_PENDING to RUNNING.
             //
-	    serviceStatusManager->stopUpdate();
-	    serviceStatusManager->changeStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
+            serviceStatusManager->stopUpdate();
+            serviceStatusManager->changeStatus(SERVICE_RUNNING, SERVICE_ACCEPT_STOP | SERVICE_ACCEPT_SHUTDOWN);
 
             //
             // Wait for the service to be shut down.
@@ -1396,21 +1396,21 @@ Ice::Service::control(int ctrl)
     case SERVICE_CONTROL_SHUTDOWN:
     case SERVICE_CONTROL_STOP:
     {
-	serviceStatusManager->startUpdate(SERVICE_STOP_PENDING);
-	shutdown();
-	break;
+        serviceStatusManager->startUpdate(SERVICE_STOP_PENDING);
+        shutdown();
+        break;
     }
     default:
     {
-	if(ctrl != SERVICE_CONTROL_INTERROGATE)
-	{
-	    ostringstream ostr;
-	    ostr << "unrecognized service control code " << ctrl;
-	    error(ostr.str());
-	}
+        if(ctrl != SERVICE_CONTROL_INTERROGATE)
+        {
+            ostringstream ostr;
+            ostr << "unrecognized service control code " << ctrl;
+            error(ostr.str());
+        }
 
-	serviceStatusManager->reportStatus();
-	break;
+        serviceStatusManager->reportStatus();
+        break;
     }
     }
 }
@@ -1449,20 +1449,20 @@ Ice::ServiceStatusManager::stopUpdate()
     IceUtil::ThreadPtr thread;
 
     {
-	Lock sync(*this);
+        Lock sync(*this);
 
-	if(_thread)
-	{
-	    _stopped = true;
-	    notify();
-	    thread = _thread;
-	    _thread = 0;
-	}
+        if(_thread)
+        {
+            _stopped = true;
+            notify();
+            thread = _thread;
+            _thread = 0;
+        }
     }
 
     if(thread)
     {
-	thread->getThreadControl().join();
+        thread->getThreadControl().join();
     }
 }
 
@@ -1581,11 +1581,11 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 break;
             }
             cerr << argv[0] << ": failure occurred in daemon";
-	    if(strlen(msg) > 0)
-	    {
-		cerr << ':' << endl << msg;
-	    }
-	    cerr << endl;
+            if(strlen(msg) > 0)
+            {
+                cerr << ':' << endl << msg;
+            }
+            cerr << endl;
             _exit(EXIT_FAILURE);
         }
 
@@ -1644,7 +1644,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             }
         }
 
-	vector<int> fdsToClose;
+        vector<int> fdsToClose;
         if(_closeFiles)
         {
             //
@@ -1665,13 +1665,13 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             {
                 if(fcntl(i, F_GETFL) != -1)
                 {
-		    //
-		    // Don't close the write end of the pipe.
-		    //
-		    if(i != fds[1])
-		    {
-		       fdsToClose.push_back(i);
-		    }
+                    //
+                    // Don't close the write end of the pipe.
+                    //
+                    if(i != fds[1])
+                    {
+                       fdsToClose.push_back(i);
+                    }
                 }
             }
         }
@@ -1694,21 +1694,21 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         {
             //
             // Close unnecessary file descriptors.
-	    //
-	    PropertiesPtr properties = _communicator->getProperties();
-	    string stdOut = properties->getProperty("Ice.StdOut");
-	    string stdErr = properties->getProperty("Ice.StdErr");
+            //
+            PropertiesPtr properties = _communicator->getProperties();
+            string stdOut = properties->getProperty("Ice.StdOut");
+            string stdErr = properties->getProperty("Ice.StdErr");
 
-	    vector<int>::const_iterator p;
-	    for(p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
+            vector<int>::const_iterator p;
+            for(p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
             {
-		//
-		// NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
-		//
-		if((*p == 1 && !stdOut.empty()) || (*p == 2 && !stdErr.empty()))
-		{
-		    continue;
-		}
+                //
+                // NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
+                //
+                if((*p == 1 && !stdOut.empty()) || (*p == 2 && !stdErr.empty()))
+                {
+                    continue;
+                }
                 close(*p);
             }
 
@@ -1718,31 +1718,31 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             int fd;
             fd = open("/dev/null", O_RDWR);
             assert(fd == 0);
-	    if(stdOut.empty())
-	    {
-		fd = dup2(0, 1);
-		assert(fd == 1);
-	    }
-	    if(stdErr.empty())
-	    {
-		fd = dup2(1, 2);
-		assert(fd == 2);
-	    }
+            if(stdOut.empty())
+            {
+                fd = dup2(0, 1);
+                assert(fd == 1);
+            }
+            if(stdErr.empty())
+            {
+                fd = dup2(1, 2);
+                assert(fd == 2);
+            }
         }
-	
-	//
-	// Write PID
-	//
-	if(_pidFile.size() > 0)
-	{
-	    ofstream of(_pidFile.c_str());
-	    of << getpid() << endl;
+        
+        //
+        // Write PID
+        //
+        if(_pidFile.size() > 0)
+        {
+            ofstream of(_pidFile.c_str());
+            of << getpid() << endl;
 
-	    if(!of)
-	    {
-		warning("Could not write PID file " + _pidFile);
-	    }
-	}
+            if(!of)
+            {
+                warning("Could not write PID file " + _pidFile);
+            }
+        }
 
         //
         // Use the configured logger.

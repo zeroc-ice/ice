@@ -30,143 +30,143 @@ class Slave extends TreeNode
     public boolean[] getAvailableActions()
     {
         boolean[] actions = new boolean[ACTION_COUNT];
-	actions[SHUTDOWN_REGISTRY] = true;
-	actions[RETRIEVE_STDOUT] = true;
-	actions[RETRIEVE_STDERR] = true;
-	return actions;
+        actions[SHUTDOWN_REGISTRY] = true;
+        actions[RETRIEVE_STDOUT] = true;
+        actions[RETRIEVE_STDERR] = true;
+        return actions;
     }
 
     public void shutdownRegistry()
     {
-	final String prefix = "Shutting down registry '" + _id + "'...";
-	getCoordinator().getStatusBar().setText(prefix);
+        final String prefix = "Shutting down registry '" + _id + "'...";
+        getCoordinator().getStatusBar().setText(prefix);
 
-	AMI_Admin_shutdownRegistry cb = new AMI_Admin_shutdownRegistry()
-	    {
-		//
-		// Called by another thread!
-		//
-		public void ice_response()
-		{
-		    amiSuccess(prefix);
-		}
-		
-		public void ice_exception(Ice.UserException e)
-		{
-		    amiFailure(prefix, "Failed to shutdown " + _id, e);
-		}
+        AMI_Admin_shutdownRegistry cb = new AMI_Admin_shutdownRegistry()
+            {
+                //
+                // Called by another thread!
+                //
+                public void ice_response()
+                {
+                    amiSuccess(prefix);
+                }
+                
+                public void ice_exception(Ice.UserException e)
+                {
+                    amiFailure(prefix, "Failed to shutdown " + _id, e);
+                }
 
-		public void ice_exception(Ice.LocalException e)
-		{
-		    amiFailure(prefix, "Failed to shutdown " + _id, 
-			       e.toString());
-		}
-	    };
+                public void ice_exception(Ice.LocalException e)
+                {
+                    amiFailure(prefix, "Failed to shutdown " + _id, 
+                               e.toString());
+                }
+            };
 
-	try
-	{   
-	    getCoordinator().getMainFrame().setCursor(
-		Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-	    
-	    getCoordinator().getAdmin().shutdownRegistry_async(cb, _id);
-	}
-	catch(Ice.LocalException e)
-	{
-	    failure(prefix, "Failed to shutdown " + _id, e.toString());
-	}
-	finally
-	{
-	    getCoordinator().getMainFrame().setCursor(
-		Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
+        try
+        {   
+            getCoordinator().getMainFrame().setCursor(
+                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            
+            getCoordinator().getAdmin().shutdownRegistry_async(cb, _id);
+        }
+        catch(Ice.LocalException e)
+        {
+            failure(prefix, "Failed to shutdown " + _id, e.toString());
+        }
+        finally
+        {
+            getCoordinator().getMainFrame().setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
     }
 
     public void retrieveOutput(final boolean stdout)
     {
-	getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
-	    {
-		public FileIteratorPrx open(int count)
-		    throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
-		{
-		    AdminSessionPrx session = getCoordinator().getSession();
+        getRoot().openShowLogDialog(new ShowLogDialog.FileIteratorFactory()
+            {
+                public FileIteratorPrx open(int count)
+                    throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException
+                {
+                    AdminSessionPrx session = getCoordinator().getSession();
 
-		    if(stdout)
-		    {
-			return session.openRegistryStdOut(_id, count);
-		    }
-		    else
-		    {
-			return session.openRegistryStdErr(_id, count);
-		    }
-		}
+                    if(stdout)
+                    {
+                        return session.openRegistryStdOut(_id, count);
+                    }
+                    else
+                    {
+                        return session.openRegistryStdErr(_id, count);
+                    }
+                }
 
-		public String getTitle()
-		{
-		    return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
-		}
-		
-		public String getDefaultFilename()
-		{
-		    return _id + (stdout ? ".out" : ".err");
-		}
-	    });
+                public String getTitle()
+                {
+                    return "Registry " + _title + " " + (stdout ? "stdout" : "stderr");
+                }
+                
+                public String getDefaultFilename()
+                {
+                    return _id + (stdout ? ".out" : ".err");
+                }
+            });
     }
 
     public JPopupMenu getPopupMenu()
     {
-	LiveActions la = getCoordinator().getLiveActionsForPopup();
+        LiveActions la = getCoordinator().getLiveActionsForPopup();
 
         if(_popup == null)
-	{
-	    _popup = new JPopupMenu();
-	    _popup.add(la.get(RETRIEVE_STDOUT));
-	    _popup.add(la.get(RETRIEVE_STDERR));
-	    _popup.addSeparator();
-	    _popup.add(la.get(SHUTDOWN_REGISTRY));
-	}
-	
-	la.setTarget(this);
-	return _popup;
+        {
+            _popup = new JPopupMenu();
+            _popup.add(la.get(RETRIEVE_STDOUT));
+            _popup.add(la.get(RETRIEVE_STDERR));
+            _popup.addSeparator();
+            _popup.add(la.get(SHUTDOWN_REGISTRY));
+        }
+        
+        la.setTarget(this);
+        return _popup;
     }
 
 
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = new SlaveEditor();
-	}
-	_editor.show(_info);
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = new SlaveEditor();
+        }
+        _editor.show(_info);
+        return _editor;
     }
 
     public Component getTreeCellRendererComponent(
-	JTree tree,
-	Object value,
-	boolean sel,
-	boolean expanded,
-	boolean leaf,
-	int row,
-	boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus) 
     {
-	if(_cellRenderer == null)
-	{
-	    //
-	    // TODO: separate icon for master
-	    //
+        if(_cellRenderer == null)
+        {
+            //
+            // TODO: separate icon for master
+            //
 
-	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/registry.png"));
-	}
+            _cellRenderer = new DefaultTreeCellRenderer();
+            _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/registry.png"));
+        }
 
-	return _cellRenderer.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     Slave(TreeNode parent, RegistryInfo info, String instanceName)
     {
-	super(parent, info.name);
-	_info = info;
+        super(parent, info.name);
+        _info = info;
         _title = instanceName + " (" + info.name + ")";
     }   
 

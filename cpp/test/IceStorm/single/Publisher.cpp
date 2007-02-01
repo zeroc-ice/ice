@@ -24,28 +24,28 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {
-	cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
+        return EXIT_FAILURE;
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-	communicator->stringToProxy(managerProxy));
+        communicator->stringToProxy(managerProxy));
     if(!manager)
     {
-	cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
+        return EXIT_FAILURE;
     }
 
     TopicPrx topic;
     try
     {
-	topic = manager->retrieve("single");
+        topic = manager->retrieve("single");
     }
     catch(const NoSuchTopic& e)
     {
-	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-	return EXIT_FAILURE;
-	
+        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+        return EXIT_FAILURE;
+        
     }
     assert(topic);
 
@@ -56,7 +56,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway());
     for(int i = 0; i < 1000; ++i)
     {
-	single->event(i);
+        single->event(i);
     }
 
     return EXIT_SUCCESS;
@@ -70,26 +70,26 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = initialize(argc, argv);
-	status = run(argc, argv, communicator);
+        communicator = initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

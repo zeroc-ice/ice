@@ -44,143 +44,143 @@ public:
     
     Handle(T* p = 0)
     {
-	this->_ptr = p;
+        this->_ptr = p;
 
-	if(this->_ptr)
-	{
-	    incRef(this->_ptr);
-	}
+        if(this->_ptr)
+        {
+            incRef(this->_ptr);
+        }
     }
     
     template<typename Y>
     Handle(const Handle<Y>& r)
     {
-	this->_ptr = r._ptr;
+        this->_ptr = r._ptr;
 
-	if(this->_ptr)
-	{
-	    incRef(this->_ptr);
-	}
+        if(this->_ptr)
+        {
+            incRef(this->_ptr);
+        }
     }
 
     template<typename Y>
     Handle(const ::IceUtil::Handle<Y>& r)
     {
-	this->_ptr = r._ptr;
+        this->_ptr = r._ptr;
 
-	if(this->_ptr)
-	{
-	    incRef(this->_ptr);
-	}
+        if(this->_ptr)
+        {
+            incRef(this->_ptr);
+        }
     }
 
     Handle(const Handle& r)
     {
-	this->_ptr = r._ptr;
+        this->_ptr = r._ptr;
 
-	if(this->_ptr)
-	{
-	    incRef(this->_ptr);
-	}
+        if(this->_ptr)
+        {
+            incRef(this->_ptr);
+        }
     }
     
     ~Handle()
     {
-	if(this->_ptr)
-	{
-	    decRef(this->_ptr);
-	}
+        if(this->_ptr)
+        {
+            decRef(this->_ptr);
+        }
     }
     
     Handle& operator=(T* p)
     {
-	if(this->_ptr != p)
-	{
-	    if(p)
-	    {
-		incRef(p);
-	    }
+        if(this->_ptr != p)
+        {
+            if(p)
+            {
+                incRef(p);
+            }
 
-	    T* ptr = this->_ptr;
-	    this->_ptr = p;
+            T* ptr = this->_ptr;
+            this->_ptr = p;
 
-	    if(ptr)
-	    {
-		decRef(ptr);
-	    }
-	}
-	return *this;
+            if(ptr)
+            {
+                decRef(ptr);
+            }
+        }
+        return *this;
     }
         
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if(this->_ptr != r._ptr)
-	{
-	    if(r._ptr)
-	    {
-		incRef(r._ptr);
-	    }
+        if(this->_ptr != r._ptr)
+        {
+            if(r._ptr)
+            {
+                incRef(r._ptr);
+            }
 
-	    T* ptr = this->_ptr;
-	    this->_ptr = r._ptr;
+            T* ptr = this->_ptr;
+            this->_ptr = r._ptr;
 
-	    if(ptr)
-	    {
-		decRef(ptr);
-	    }
-	}
-	return *this;
+            if(ptr)
+            {
+                decRef(ptr);
+            }
+        }
+        return *this;
     }
 
     template<typename Y>
     Handle& operator=(const ::IceUtil::Handle<Y>& r)
     {
-	if(this->_ptr != r._ptr)
-	{
-	    if(r._ptr)
-	    {
-		incRef(r._ptr);
-	    }
+        if(this->_ptr != r._ptr)
+        {
+            if(r._ptr)
+            {
+                incRef(r._ptr);
+            }
 
-	    T* ptr = this->_ptr;
-	    this->_ptr = r._ptr;
+            T* ptr = this->_ptr;
+            this->_ptr = r._ptr;
 
-	    if(ptr)
-	    {
-		decRef(ptr);
-	    }
-	}
-	return *this;
+            if(ptr)
+            {
+                decRef(ptr);
+            }
+        }
+        return *this;
     }
 
     Handle& operator=(const Handle& r)
     {
-	if(this->_ptr != r._ptr)
-	{
-	    if(r._ptr)
-	    {
-		incRef(r._ptr);
-	    }
+        if(this->_ptr != r._ptr)
+        {
+            if(r._ptr)
+            {
+                incRef(r._ptr);
+            }
 
-	    T* ptr = this->_ptr;
-	    this->_ptr = r._ptr;
+            T* ptr = this->_ptr;
+            this->_ptr = r._ptr;
 
-	    if(ptr)
-	    {
-		decRef(ptr);
-	    }
-	}
-	return *this;
+            if(ptr)
+            {
+                decRef(ptr);
+            }
+        }
+        return *this;
     }
         
     template<class Y>
     static Handle dynamicCast(const ::IceUtil::HandleBase<Y>& r)
     {
 #ifdef __BCPLUSPLUS__
-	return Handle<T>(dynamic_cast<T*>(r._ptr));
+        return Handle<T>(dynamic_cast<T*>(r._ptr));
 #else
-	return Handle(dynamic_cast<T*>(r._ptr));
+        return Handle(dynamic_cast<T*>(r._ptr));
 #endif
     }
 
@@ -188,15 +188,15 @@ public:
     static Handle dynamicCast(Y* p)
     {
 #ifdef __BCPLUSPLUS__
-	return Handle<T>(dynamic_cast<T*>(p));
+        return Handle<T>(dynamic_cast<T*>(p));
 #else
-	return Handle(dynamic_cast<T*>(p));
+        return Handle(dynamic_cast<T*>(p));
 #endif
     }
 
     void __clearHandleUnsafe()
     {
-	this->_ptr = 0;
+        this->_ptr = 0;
     }
 };
 

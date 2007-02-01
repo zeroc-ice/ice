@@ -10,40 +10,40 @@
 public class ServantI implements Test._ServantOperations
 {
     static class DelayedResponse extends Thread
-    {	
-	DelayedResponse(Test.AMD_Servant_slowGetValue cb, int val)
-	{
-	    _cb = cb;
-	    _val = val;
-	}
-	
-	public void
+    {   
+        DelayedResponse(Test.AMD_Servant_slowGetValue cb, int val)
+        {
+            _cb = cb;
+            _val = val;
+        }
+        
+        public void
         run()
         { 
-	    try
-	    {
-		sleep(500);
-	    }
-	    catch(InterruptedException e)
-	    {
-		// Ignored
-	    }
-	    _cb.ice_response(_val);
-	}
+            try
+            {
+                sleep(500);
+            }
+            catch(InterruptedException e)
+            {
+                // Ignored
+            }
+            _cb.ice_response(_val);
+        }
 
-	private Test.AMD_Servant_slowGetValue _cb;
-	private int _val;
+        private Test.AMD_Servant_slowGetValue _cb;
+        private int _val;
     }
 
 
     ServantI(Test.Servant tie)
     {
-	_tie = tie;
+        _tie = tie;
     }
 
     ServantI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.Evictor evictor, int value)
     {
-	_tie = tie;
+        _tie = tie;
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
         _tie.value = value;
@@ -51,7 +51,7 @@ public class ServantI implements Test._ServantOperations
 
     void
     init(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor)
-    {	
+    {   
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
     }
@@ -65,48 +65,48 @@ public class ServantI implements Test._ServantOperations
     public int
     getValue(Ice.Current current)
     {
-	synchronized(_tie)
-	{
-	    return _tie.value;
-	}
+        synchronized(_tie)
+        {
+            return _tie.value;
+        }
     }
     
     public void
     slowGetValue_async(Test.AMD_Servant_slowGetValue cb, Ice.Current current)
     {
-	synchronized(_tie)
-	{
-	    Thread t = new DelayedResponse(cb, _tie.value);
-	    t.setDaemon(true);
-	    t.start();
-	}
+        synchronized(_tie)
+        {
+            Thread t = new DelayedResponse(cb, _tie.value);
+            t.setDaemon(true);
+            t.start();
+        }
     }
 
     public void
     setValue(int value, Ice.Current current)
     {
-	synchronized(_tie)
-	{
-	    _tie.value = value;
-	}
+        synchronized(_tie)
+        {
+            _tie.value = value;
+        }
     }
 
     public void
     setValueAsync_async(Test.AMD_Servant_setValueAsync __cb, int value, Ice.Current current)
     {
-	synchronized(_tie)
-	{
-	    _setValueAsyncCB = __cb;
-	    _setValueAsyncValue = value;
+        synchronized(_tie)
+        {
+            _setValueAsyncCB = __cb;
+            _setValueAsyncValue = value;
             _tie.notify();
-	}
+        }
     }
 
     public void
     releaseAsync(Ice.Current current)
     {
-	synchronized(_tie)
-	{
+        synchronized(_tie)
+        {
             while(_setValueAsyncCB == null)
             {
                 try
@@ -127,66 +127,66 @@ public class ServantI implements Test._ServantOperations
 
     public void
     addFacet(String name, String data, Ice.Current current)
-	throws Test.AlreadyRegisteredException
+        throws Test.AlreadyRegisteredException
     {
-	Test._FacetTie tie = new Test._FacetTie();
-	tie.ice_delegate(new FacetI(tie, _remoteEvictor, _evictor, 0, data));
+        Test._FacetTie tie = new Test._FacetTie();
+        tie.ice_delegate(new FacetI(tie, _remoteEvictor, _evictor, 0, data));
 
-	try
-	{
-	    _evictor.addFacet(tie, current.id, name);
-	}
-	catch(Ice.AlreadyRegisteredException ex)
-	{
-	    throw new Test.AlreadyRegisteredException();
-	}
+        try
+        {
+            _evictor.addFacet(tie, current.id, name);
+        }
+        catch(Ice.AlreadyRegisteredException ex)
+        {
+            throw new Test.AlreadyRegisteredException();
+        }
     }
 
     public void
     removeFacet(String name, Ice.Current current)
-	throws Test.NotRegisteredException
+        throws Test.NotRegisteredException
     {
-	try
-	{
-	    _evictor.removeFacet(current.id, name);
-	}
-	catch(Ice.NotRegisteredException ex)
-	{
-	    throw new Test.NotRegisteredException();
-	}
+        try
+        {
+            _evictor.removeFacet(current.id, name);
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
+            throw new Test.NotRegisteredException();
+        }
    
     }
 
     public synchronized int
     getTransientValue(Ice.Current current)
     {
-	return _transientValue;
+        return _transientValue;
     }
 
     public synchronized void
     setTransientValue(int val, Ice.Current current)
     {
-	_transientValue = val;
+        _transientValue = val;
     }
 
     public void
     keepInCache(Ice.Current current)
     {
-	_evictor.keep(current.id);
+        _evictor.keep(current.id);
     }
 
     public void
     release(Ice.Current current)
-	throws Test.NotRegisteredException
+        throws Test.NotRegisteredException
     {
-	try
-	{
-	    _evictor.release(current.id);
-	}
-	catch(Ice.NotRegisteredException e)
-	{
-	    throw new Test.NotRegisteredException();
-	}
+        try
+        {
+            _evictor.release(current.id);
+        }
+        catch(Ice.NotRegisteredException e)
+        {
+            throw new Test.NotRegisteredException();
+        }
     }
 
     protected RemoteEvictorI _remoteEvictor;

@@ -13,7 +13,7 @@ public class TestI : TestIntfDisp_
 {
     public override string getAdapterName(Ice.Current current)
     {
-	return current.adapter.getName();
+        return current.adapter.getName();
     }
 }
 

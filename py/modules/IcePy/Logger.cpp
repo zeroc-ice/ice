@@ -53,7 +53,7 @@ IcePy::LoggerWrapper::trace(const string& category, const string& message)
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("trace"), STRCAST("ss"), category.c_str(),
-					     message.c_str());
+                                             message.c_str());
     if(tmp.get() == NULL)
     {
         throwPythonException();

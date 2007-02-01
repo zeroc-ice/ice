@@ -24,8 +24,8 @@ public:
     virtual ~HelloServiceI();
 
     virtual void start(const ::std::string&,
-		       const ::Ice::CommunicatorPtr&,
-		       const ::Ice::StringSeq&);
+                       const ::Ice::CommunicatorPtr&,
+                       const ::Ice::StringSeq&);
 
     virtual void stop();
 

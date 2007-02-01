@@ -20,9 +20,9 @@ using namespace Freeze;
 
 
 Freeze::ObjectStore::ObjectStore(const string& facet, 
-				 bool createDb,  EvictorI* evictor,  
-				 const vector<IndexPtr>& indices,
-				 bool populateEmptyIndices) :
+                                 bool createDb,  EvictorI* evictor,  
+                                 const vector<IndexPtr>& indices,
+                                 bool populateEmptyIndices) :
     _facet(facet),
     _evictor(evictor),
     _indices(indices),
@@ -30,11 +30,11 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
 {
     if(facet == "")
     {
-	_dbName = EvictorI::defaultDb;
+        _dbName = EvictorI::defaultDb;
     }
     else
     {
-	_dbName = facet;
+        _dbName = facet;
     }
 
     ConnectionPtr catalogConnection = createConnection(_communicator, evictor->dbEnv()->getEnvName());
@@ -43,85 +43,85 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
     Catalog::iterator p = catalog.find(evictor->filename());
     if(p != catalog.end())
     {
-	if(p->second.evictor == false)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = evictor->filename() + " is an evictor database";
-	    throw ex;
-	}
+        if(p->second.evictor == false)
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = evictor->filename() + " is an evictor database";
+            throw ex;
+        }
     }
 
     DbEnv* dbEnv = evictor->dbEnv()->getEnv();
 
     try
     {
-	_db.reset(new Db(dbEnv, 0));
+        _db.reset(new Db(dbEnv, 0));
 
-	TransactionPtr tx = catalogConnection->beginTransaction();
-	DbTxn* txn = getTxn(tx);
+        TransactionPtr tx = catalogConnection->beginTransaction();
+        DbTxn* txn = getTxn(tx);
 
-	u_int32_t flags = DB_THREAD;
-	if(createDb)
-	{
-	    flags |= DB_CREATE;
-	}
-	_db->open(txn, evictor->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
+        u_int32_t flags = DB_THREAD;
+        if(createDb)
+        {
+            flags |= DB_CREATE;
+        }
+        _db->open(txn, evictor->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 
-	for(size_t i = 0; i < _indices.size(); ++i)
-	{
-	    _indices[i]->_impl->associate(this, txn, createDb, populateEmptyIndices);
-	}
-	
-	if(p == catalog.end())
-	{
-	    CatalogData catalogData;
-	    catalogData.evictor = true;
-	    catalog.put(Catalog::value_type(evictor->filename(), catalogData));
-	}
+        for(size_t i = 0; i < _indices.size(); ++i)
+        {
+            _indices[i]->_impl->associate(this, txn, createDb, populateEmptyIndices);
+        }
+        
+        if(p == catalog.end())
+        {
+            CatalogData catalogData;
+            catalogData.evictor = true;
+            catalog.put(Catalog::value_type(evictor->filename(), catalogData));
+        }
 
-	tx->commit();
+        tx->commit();
     }
     catch(const DbException& dx)
     {
-	TransactionPtr tx = catalogConnection->currentTransaction();
-	if(tx != 0)
-	{
-	    try
-	    {
-		tx->rollback();
-	    }
-	    catch(...)
-	    {
-	    }
-	}
+        TransactionPtr tx = catalogConnection->currentTransaction();
+        if(tx != 0)
+        {
+            try
+            {
+                tx->rollback();
+            }
+            catch(...)
+            {
+            }
+        }
 
-	if(dx.get_errno() == ENOENT)
-	{
-	    NotFoundException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
-	else
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
+        if(dx.get_errno() == ENOENT)
+        {
+            NotFoundException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
+        else
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
     }
     catch(...)
     {
-	TransactionPtr tx = catalogConnection->currentTransaction();
-	if(tx != 0)
-	{
-	    try
-	    {
-		tx->rollback();
-	    }
-	    catch(...)
-	    {
-	    }
-	}
-	throw;
+        TransactionPtr tx = catalogConnection->currentTransaction();
+        if(tx != 0)
+        {
+            try
+            {
+                tx->rollback();
+            }
+            catch(...)
+            {
+            }
+        }
+        throw;
     }
 }
 
@@ -129,7 +129,7 @@ Freeze::ObjectStore::~ObjectStore()
 {
     if(_db.get() != 0)
     {
-	close();
+        close();
     }
 }
 
@@ -138,19 +138,19 @@ Freeze::ObjectStore::close()
 {
     try
     {
-	_db->close(0);
-	
-	for(size_t i = 0; i < _indices.size(); ++i)
-	{
-	    _indices[i]->_impl->close();
-	}
-	_indices.clear();
+        _db->close(0);
+        
+        for(size_t i = 0; i < _indices.size(); ++i)
+        {
+            _indices[i]->_impl->close();
+        }
+        _indices.clear();
     }
     catch(const DbException& dx)
     {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
+        DatabaseException ex(__FILE__, __LINE__);
+        ex.message = dx.what();
+        throw ex;
     }
     _db.reset();
 }
@@ -171,43 +171,43 @@ Freeze::ObjectStore::dbHasObject(const Identity& ident) const
 
     for(;;)
     {
-	try
-	{
-	    int err = _db->get(0, &dbKey, &dbValue, 0);
-	    
-	    if(err == 0)
-	    {
-		return true;
-	    }
-	    else if(err == DB_NOTFOUND)
-	    {
-		return false;
-	    }
-	    else
-	    {
-		assert(0);
-		throw DatabaseException(__FILE__, __LINE__);
-	    }
-	}
-	catch(const DbDeadlockException&)
-	{
-	    if(_evictor->deadlockWarning())
-	    {
-		Warning out(_communicator->getLogger());
-		out << "Deadlock in Freeze::ObjectStore::dbHasObject while searching \"" 
-		    << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
-	    }
+        try
+        {
+            int err = _db->get(0, &dbKey, &dbValue, 0);
+            
+            if(err == 0)
+            {
+                return true;
+            }
+            else if(err == DB_NOTFOUND)
+            {
+                return false;
+            }
+            else
+            {
+                assert(0);
+                throw DatabaseException(__FILE__, __LINE__);
+            }
+        }
+        catch(const DbDeadlockException&)
+        {
+            if(_evictor->deadlockWarning())
+            {
+                Warning out(_communicator->getLogger());
+                out << "Deadlock in Freeze::ObjectStore::dbHasObject while searching \"" 
+                    << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
+            }
 
-	    //
-	    // Ignored, try again
-	    //
-	}
-	catch(const DbException& dx)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
+            //
+            // Ignored, try again
+            //
+        }
+        catch(const DbException& dx)
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
     }
 
 }
@@ -217,37 +217,37 @@ Freeze::ObjectStore::save(Key& key, Value& value, Byte status, DbTxn* tx)
 {
     switch(status)
     {
-	case EvictorElement::created:
-	case EvictorElement::modified:
-	{
-	    Dbt dbKey;
-	    Dbt dbValue;
-	    initializeInDbt(key, dbKey);
-	    initializeInDbt(value, dbValue);
-	    u_int32_t flags = (status == EvictorElement::created) ? DB_NOOVERWRITE : 0;
-	    int err = _db->put(tx, &dbKey, &dbValue, flags);
-	    if(err != 0)
-	    {
-		throw DatabaseException(__FILE__, __LINE__);
-	    }
-	    break;
-	}
+        case EvictorElement::created:
+        case EvictorElement::modified:
+        {
+            Dbt dbKey;
+            Dbt dbValue;
+            initializeInDbt(key, dbKey);
+            initializeInDbt(value, dbValue);
+            u_int32_t flags = (status == EvictorElement::created) ? DB_NOOVERWRITE : 0;
+            int err = _db->put(tx, &dbKey, &dbValue, flags);
+            if(err != 0)
+            {
+                throw DatabaseException(__FILE__, __LINE__);
+            }
+            break;
+        }
 
-	case EvictorElement::destroyed:
-	{
-	    Dbt dbKey;
-	    initializeInDbt(key, dbKey);
-	    int err = _db->del(tx, &dbKey, 0);
-	    if(err != 0)
-	    {
-		throw DatabaseException(__FILE__, __LINE__);
-	    }
-	    break;
-	}   
-	default:
-	{
-	    assert(0);
-	}
+        case EvictorElement::destroyed:
+        {
+            Dbt dbKey;
+            initializeInDbt(key, dbKey);
+            int err = _db->del(tx, &dbKey, 0);
+            if(err != 0)
+            {
+                throw DatabaseException(__FILE__, __LINE__);
+            }
+            break;
+        }   
+        default:
+        {
+            assert(0);
+        }
     }
 }
 
@@ -322,36 +322,36 @@ Freeze::ObjectStore::load(const Identity& ident)
 
     for(;;)
     {
-	try
-	{
-	    int rs = _db->get(0, &dbKey, &dbValue, 0);
-	    if(rs == DB_NOTFOUND)
-	    {
-		return 0;
-	    }
-	    else if(rs != 0)
-	    {
-		assert(0);
-		throw DatabaseException(__FILE__, __LINE__);
-	    }
-	    break; // for(;;)
-	}
-	catch(const DbDeadlockException&)
-	{
-	    if(_evictor->deadlockWarning())
-	    {
-		Warning out(_communicator->getLogger());
-		out << "Deadlock in Freeze::ObjectStore::load while searching \"" 
-		    << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
-	    }
-	    //
-	    // Ignored, try again
-	    //
-	}
-	catch(const DbException& dx)
-	{
-	    handleDbException(dx, value, dbValue, __FILE__, __LINE__);
-	}
+        try
+        {
+            int rs = _db->get(0, &dbKey, &dbValue, 0);
+            if(rs == DB_NOTFOUND)
+            {
+                return 0;
+            }
+            else if(rs != 0)
+            {
+                assert(0);
+                throw DatabaseException(__FILE__, __LINE__);
+            }
+            break; // for(;;)
+        }
+        catch(const DbDeadlockException&)
+        {
+            if(_evictor->deadlockWarning())
+            {
+                Warning out(_communicator->getLogger());
+                out << "Deadlock in Freeze::ObjectStore::load while searching \"" 
+                    << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
+            }
+            //
+            // Ignored, try again
+            //
+        }
+        catch(const DbException& dx)
+        {
+            handleDbException(dx, value, dbValue, __FILE__, __LINE__);
+        }
     }
     
     EvictorElementPtr result = new EvictorElement(*this);

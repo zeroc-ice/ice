@@ -91,15 +91,15 @@ public:
 private:
 
     IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterPtr&,
-			      const std::string&);
+                              const std::string&);
     virtual ~IncomingConnectionFactory();
     friend class Ice::ObjectAdapterI;
 
     enum State
     {
-	StateActive,
-	StateHolding,
-	StateClosed
+        StateActive,
+        StateHolding,
+        StateClosed
     };
 
     void setState(State);
@@ -111,13 +111,13 @@ private:
     class ThreadPerIncomingConnectionFactory : public IceUtil::Thread
     {
     public:
-	
-	ThreadPerIncomingConnectionFactory(const IncomingConnectionFactoryPtr&);
-	virtual void run();
+        
+        ThreadPerIncomingConnectionFactory(const IncomingConnectionFactoryPtr&);
+        virtual void run();
 
     private:
-	
-	IncomingConnectionFactoryPtr _factory;
+        
+        IncomingConnectionFactoryPtr _factory;
     };
     friend class ThreadPerIncomingConnectionFactory;
     IceUtil::ThreadPtr _threadPerIncomingConnectionFactory;

@@ -26,27 +26,27 @@ namespace Freeze
 {
 
 FREEZE_API EvictorPtr createEvictor(const Ice::ObjectAdapterPtr& adapter,
-				    const std::string& envName, 
-				    const std::string& filename,
-				    const ServantInitializerPtr& initializer = 0,
-				    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
-				    bool createDb = true);
+                                    const std::string& envName, 
+                                    const std::string& filename,
+                                    const ServantInitializerPtr& initializer = 0,
+                                    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
+                                    bool createDb = true);
 
 FREEZE_API EvictorPtr createEvictor(const Ice::ObjectAdapterPtr& adapter,
-				    const std::string& envName,
-				    DbEnv& dbEnv, 
-				    const std::string& filename,
-				    const ServantInitializerPtr& initializer = 0,
-				    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
-				    bool createDb = true);
+                                    const std::string& envName,
+                                    DbEnv& dbEnv, 
+                                    const std::string& filename,
+                                    const ServantInitializerPtr& initializer = 0,
+                                    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
+                                    bool createDb = true);
 
 
 FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
-					  const std::string& envName);
+                                          const std::string& envName);
 
 FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
-					  const std::string& envName, 
-					  DbEnv& dbEnv);
+                                          const std::string& envName, 
+                                          DbEnv& dbEnv);
 
 FREEZE_API const std::string& catalogName();
 

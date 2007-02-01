@@ -41,23 +41,23 @@ class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const WaitQueuePtr&, 
-	  const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
+          const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
     virtual ~NodeI();
 
     virtual void loadServer_async(const AMD_Node_loadServerPtr&, 
-				  const InternalServerDescriptorPtr&, 
-				  const std::string&,
-				  const Ice::Current&);
+                                  const InternalServerDescriptorPtr&, 
+                                  const std::string&,
+                                  const Ice::Current&);
 
     virtual void destroyServer_async(const AMD_Node_destroyServerPtr&, 
-				     const std::string&, 
-				     const std::string&,
-				     int, 
-				     const std::string&,
-				     const Ice::Current&);
+                                     const std::string&, 
+                                     const std::string&,
+                                     int, 
+                                     const std::string&,
+                                     const Ice::Current&);
 
     virtual void patch_async(const AMD_Node_patchPtr&, const PatcherFeedbackPrx&, const std::string&, 
-			     const std::string&, const InternalDistributionDescriptorPtr&, bool, const Ice::Current&);
+                             const std::string&, const InternalDistributionDescriptorPtr&, bool, const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
 

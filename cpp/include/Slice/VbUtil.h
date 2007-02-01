@@ -72,7 +72,7 @@ private:
         void validate(const ContainedPtr&);
 
         StringSet _history;
-	bool _globalMetaDataDone;
+        bool _globalMetaDataDone;
     };
 };
 

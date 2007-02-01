@@ -24,29 +24,29 @@ public final class Server extends Ice.Application
     public static void
     main(String[] args)
     {
-	Server server = new Server();
-	server.main("IceBox.Server", args);
+        Server server = new Server();
+        server.main("IceBox.Server", args);
     }
 
     public int
     run(String[] args)
     {
-	for(int i = 1; i < args.length; ++i)
-	{
-	    if(args[i].equals("-h") || args[i].equals("--help"))
-	    {
-		usage();
-		return 0;
-	    }
-	    else if(!args[i].startsWith("--"))
-	    {
-		System.err.println("Server: unknown option `" + args[i] + "'");
-		usage();
-		return 1;
-	    }
-	}
+        for(int i = 1; i < args.length; ++i)
+        {
+            if(args[i].equals("-h") || args[i].equals("--help"))
+            {
+                usage();
+                return 0;
+            }
+            else if(!args[i].startsWith("--"))
+            {
+                System.err.println("Server: unknown option `" + args[i] + "'");
+                usage();
+                return 1;
+            }
+        }
 
-	ServiceManagerI serviceManagerImpl = new ServiceManagerI(this, args);
-	return serviceManagerImpl.run();
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(this, args);
+        return serviceManagerImpl.run();
     }
 }

@@ -89,9 +89,9 @@ function twoways($communicator, $p)
     {
         $r = $p->opMyClass($p, $c1, $c2);
         // TODO: Identity tests
-	test($c1->ice_getIdentity() == $ICE->stringToIdentity("test"));
-	test($c2->ice_getIdentity() == $ICE->stringToIdentity("noSuchIdentity"));
-	test($r->ice_getIdentity() == $ICE->stringToIdentity("test"));
+        test($c1->ice_getIdentity() == $ICE->stringToIdentity("test"));
+        test($c2->ice_getIdentity() == $ICE->stringToIdentity("noSuchIdentity"));
+        test($r->ice_getIdentity() == $ICE->stringToIdentity("test"));
         $r->opVoid();
         $c1->opVoid();
         try

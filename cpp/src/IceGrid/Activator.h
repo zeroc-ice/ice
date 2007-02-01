@@ -37,9 +37,9 @@ public:
 
     virtual int activate(const std::string&, const std::string&, const std::string&,
 #ifndef _WIN32
-			 uid_t, gid_t, 
+                         uid_t, gid_t, 
 #endif
-			 const Ice::StringSeq&, const Ice::StringSeq&, const ServerIPtr&);
+                         const Ice::StringSeq&, const Ice::StringSeq&, const ServerIPtr&);
     virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
     virtual void kill(const std::string&);
     virtual void sendSignal(const std::string&, const std::string&);
@@ -67,11 +67,11 @@ private:
         DWORD pid;
         HANDLE hnd;
 #else
-	pid_t pid;
-	int pipeFd;
-	std::string msg;
+        pid_t pid;
+        int pipeFd;
+        std::string msg;
 #endif
-	ServerIPtr server;
+        ServerIPtr server;
     };
 
     TraceLevelsPtr _traceLevels;

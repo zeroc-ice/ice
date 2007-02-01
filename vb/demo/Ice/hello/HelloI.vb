@@ -14,13 +14,13 @@ Public Class HelloI
 
     Public Overloads Overrides Sub sayHello(ByVal delay As Integer, ByVal current As Ice.Current)
         If delay > 0 Then
-	    System.Threading.Thread.Sleep(delay)
-	End If
-	System.Console.Out.WriteLine("Hello World!")
+            System.Threading.Thread.Sleep(delay)
+        End If
+        System.Console.Out.WriteLine("Hello World!")
     End Sub
 
     Public Overloads Overrides Sub shutdown(ByVal current As Ice.Current)
-	System.Console.Out.WriteLine("Shutting down...")
-	current.adapter.getCommunicator().shutdown()
+        System.Console.Out.WriteLine("Shutting down...")
+        current.adapter.getCommunicator().shutdown()
     End Sub
 End Class

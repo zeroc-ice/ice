@@ -47,7 +47,7 @@ def copyLibrary(src, dst, name, python):
         soVer = name + '.' + version + ".dylib"
         soInt = name + '.' + intVer + ".dylib"
         soLib = name + ".dylib"
-    else:	
+    else:       
         soVer = soBase + '.' + version
         soInt = soBase + '.' + intVer
 
@@ -241,21 +241,21 @@ if symlinks:
         copyLibrary(topdir + "/lib", libdir, so, 1)
 else:
     for lib in iceLibraries:
-	if platform == "aix":
-	    shutil.copyfile(icehome + "/lib/" + lib + ".a", libdir + "/" + lib + ".a")
-	else:
-	    shutil.copyfile(icehome + "/lib/" + lib, libdir + "/" + lib)
+        if platform == "aix":
+            shutil.copyfile(icehome + "/lib/" + lib + ".a", libdir + "/" + lib + ".a")
+        else:
+            shutil.copyfile(icehome + "/lib/" + lib, libdir + "/" + lib)
     for lib in pyLibraries:
-	if platform == "aix":
-	    shutil.copyfile("lib/" + lib + ".a", libdir + "/" + lib + ".a")
-	else:
-	    shutil.copyfile(topdir + "/lib", libdir + "/" + lib)
+        if platform == "aix":
+            shutil.copyfile("lib/" + lib + ".a", libdir + "/" + lib + ".a")
+        else:
+            shutil.copyfile(topdir + "/lib", libdir + "/" + lib)
 
 if strip:
 
     stripOpts=""
     if platform == "macosx":
-	stripOpts="-x"
+        stripOpts="-x"
 
     for x in iceExecutables:
         os.system("strip " + stripOpts + " " + bindir + "/" + x)
@@ -263,9 +263,9 @@ if strip:
     for x in iceLibraries:
         if platform == "hpux":
             soLib = x + ".sl"
-	elif platform == "macosx":
+        elif platform == "macosx":
             soLib = x + ".dylib"
-	elif platform == "aix":
+        elif platform == "aix":
             soLib = x + ".a"
         else:
             soLib = x + ".so"
@@ -273,7 +273,7 @@ if strip:
     for x in pyLibraries:
         if platform == "hpux":
             soLib = x + ".sl"
-	elif platform == "aix":
+        elif platform == "aix":
             soLib = x + ".a"
         else:
             soLib = x + ".so"

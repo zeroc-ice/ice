@@ -14,9 +14,9 @@ class BackendServer extends Ice.Application
     public int
     run(String[] args)
     {
-	communicator().getProperties().setProperty("Ice.OA.BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
+        communicator().getProperties().setProperty("Ice.OA.BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("BackendAdapter");
-	adapter.addServantLocator(new ServantLocatorI(), "");
+        adapter.addServantLocator(new ServantLocatorI(), "");
         adapter.activate();
         communicator().waitForShutdown();
         return 0;

@@ -42,86 +42,86 @@ encodeChar(string::value_type b, string& s, const string& special)
 {
     switch(b)
     {
-	case '\\': 
-	{
-	    s.append("\\\\");
-	    break;
-	}
-	
-	case '\'': 
-	{
-	    s.append("\\'");
-	    break;
-	}
-	
-	case '"': 
-	{
-	    s.append("\\\"");
-	    break;
-	}
-	
-	case '\b': 
-	{
-	    s.append("\\b");
-	    break;
-	}
-	
-	case '\f': 
-	{
-	    s.append("\\f");
-	    break;
-	}
-	
-	case '\n': 
-	{
-	    s.append("\\n");
-	    break;
-	}
-	
-	case '\r': 
-	{
-	    s.append("\\r");
-	    break;
-	}
-	
-	case '\t': 
-	{
-	    s.append("\\t");
-	    break;
-	}
-	
-	default: 
-	{
-	    unsigned char i = static_cast<unsigned char>(b);
-	    if(!(i >= 32 && i <= 126))
-	    {
-		s.push_back('\\');
-		string octal = toOctalString(i);
-		//
-		// Add leading zeroes so that we avoid problems during
-		// decoding. For example, consider the escaped string
-		// \0013 (i.e., a character with value 1 followed by the
-		// character '3'). If the leading zeroes were omitted, the
-		// result would be incorrectly interpreted as a single
-		// character with value 11.
-		//
-		for(string::size_type j = octal.size(); j < 3; j++)
-		{
-		    s.push_back('0');
-		}
-		s.append(octal);
-	    }
-	    else if(special.find(b) != string::npos)
-	    {
-		s.push_back('\\');
-		s.push_back(b);
-	    }
-	    else
-	    {
-		s.push_back(b);
-	    }
-	    break;
-	}
+        case '\\': 
+        {
+            s.append("\\\\");
+            break;
+        }
+        
+        case '\'': 
+        {
+            s.append("\\'");
+            break;
+        }
+        
+        case '"': 
+        {
+            s.append("\\\"");
+            break;
+        }
+        
+        case '\b': 
+        {
+            s.append("\\b");
+            break;
+        }
+        
+        case '\f': 
+        {
+            s.append("\\f");
+            break;
+        }
+        
+        case '\n': 
+        {
+            s.append("\\n");
+            break;
+        }
+        
+        case '\r': 
+        {
+            s.append("\\r");
+            break;
+        }
+        
+        case '\t': 
+        {
+            s.append("\\t");
+            break;
+        }
+        
+        default: 
+        {
+            unsigned char i = static_cast<unsigned char>(b);
+            if(!(i >= 32 && i <= 126))
+            {
+                s.push_back('\\');
+                string octal = toOctalString(i);
+                //
+                // Add leading zeroes so that we avoid problems during
+                // decoding. For example, consider the escaped string
+                // \0013 (i.e., a character with value 1 followed by the
+                // character '3'). If the leading zeroes were omitted, the
+                // result would be incorrectly interpreted as a single
+                // character with value 11.
+                //
+                for(string::size_type j = octal.size(); j < 3; j++)
+                {
+                    s.push_back('0');
+                }
+                s.append(octal);
+            }
+            else if(special.find(b) != string::npos)
+            {
+                s.push_back('\\');
+                s.push_back(b);
+            }
+            else
+            {
+                s.push_back(b);
+            }
+            break;
+        }
     }
 }
 
@@ -136,16 +136,16 @@ IceUtil::escapeString(const string& s, const string& special)
     string::size_type i;
     for(i = 0; i < special.size(); ++i)
     {
-	if(static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
-	{
-	    throw IllegalArgumentException(__FILE__, __LINE__, "special characters must be in ASCII range 32-126");
-	}
+        if(static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "special characters must be in ASCII range 32-126");
+        }
     }
     
     string result;
     for(i = 0; i < s.size(); ++i)
     {
-	encodeChar(s[i], result, special);
+        encodeChar(s[i], result, special);
     }
     
     return result;
@@ -178,86 +178,86 @@ decodeChar(const string& s, string::size_type start, string::size_type end, stri
 
     if(s[start] != '\\')
     {
-	c = checkChar(s[start++]);
+        c = checkChar(s[start++]);
     }
     else
     {
-	if(start + 1 == end)
-	{
-	    throw IllegalArgumentException(__FILE__, __LINE__, "trailing backslash in argument");
-	}
-	switch(s[++start])
-	{
-	    case '\\': 
-	    case '\'': 
-	    case '"': 
-	    {
-		c = s[start++];
-		break;
-	    }
-	    case 'b': 
-	    {
-		++start;
-		c = '\b';
-		break;
-	    }
-	    case 'f': 
-	    {
-		++start;
-		c = '\f';
-		break;
-	    }
-	    case 'n': 
-	    {
-		++start;
-		c = '\n';
-		break;
-	    }
-	    case 'r': 
-	    {
-		++start;
-		c = '\r';
-		break;
-	    }
-	    case 't': 
-	    {
-		++start;
-		c = '\t';
-		break;
-	    }
-	    case '0':
-	    case '1':
-	    case '2':
-	    case '3':
-	    case '4':
-	    case '5':
-	    case '6':
-	    case '7':
-	    {
-		int oct = 0;
-		for(int j = 0; j < 3 && start < end; ++j)
-		{
-		    int charVal = s[start++] - '0';
-		    if(charVal < 0 || charVal > 7)
-		    {
-		        --start;
-			break;
-		    }
-		    oct = oct * 8 + charVal;
-		}
-		if(oct > 255)
-		{
-		    throw IllegalArgumentException(__FILE__, __LINE__, "octal value out of range");
-		}
-		c = (char)oct;
-		break;
-	    }
-	    default:
-	    {
-		c = checkChar(s[start++]);
-		break;
-	    }
-	}
+        if(start + 1 == end)
+        {
+            throw IllegalArgumentException(__FILE__, __LINE__, "trailing backslash in argument");
+        }
+        switch(s[++start])
+        {
+            case '\\': 
+            case '\'': 
+            case '"': 
+            {
+                c = s[start++];
+                break;
+            }
+            case 'b': 
+            {
+                ++start;
+                c = '\b';
+                break;
+            }
+            case 'f': 
+            {
+                ++start;
+                c = '\f';
+                break;
+            }
+            case 'n': 
+            {
+                ++start;
+                c = '\n';
+                break;
+            }
+            case 'r': 
+            {
+                ++start;
+                c = '\r';
+                break;
+            }
+            case 't': 
+            {
+                ++start;
+                c = '\t';
+                break;
+            }
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            {
+                int oct = 0;
+                for(int j = 0; j < 3 && start < end; ++j)
+                {
+                    int charVal = s[start++] - '0';
+                    if(charVal < 0 || charVal > 7)
+                    {
+                        --start;
+                        break;
+                    }
+                    oct = oct * 8 + charVal;
+                }
+                if(oct > 255)
+                {
+                    throw IllegalArgumentException(__FILE__, __LINE__, "octal value out of range");
+                }
+                c = (char)oct;
+                break;
+            }
+            default:
+            {
+                c = checkChar(s[start++]);
+                break;
+            }
+        }
     }
     nextStart = start;
     return c;
@@ -271,7 +271,7 @@ static void decodeString(const string& s, string::size_type start, string::size_
 {
     while(start < end)
     {
-	sb.push_back(decodeChar(s, start, end, start));
+        sb.push_back(decodeChar(s, start, end, start));
     }
 }
 
@@ -291,20 +291,20 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
     }
     if(start > end)
     {
-	throw IllegalArgumentException(__FILE__, __LINE__, "start offset must <= end offset");
+        throw IllegalArgumentException(__FILE__, __LINE__, "start offset must <= end offset");
     }
 
     result.reserve(end - start);
 
     try
     {
-	result.clear();
-	decodeString(s, start, end, result);
-	return true;
+        result.clear();
+        decodeString(s, start, end, result);
+        return true;
     }
     catch(...)
     {
-	return false;
+        return false;
     }
 }
 
@@ -320,17 +320,17 @@ IceUtil::checkQuote(const string& s, string::size_type start)
     string::value_type quoteChar = s[start];
     if(quoteChar == '"' || quoteChar == '\'')
     {
-	start++;
-	string::size_type pos;
-	while(start < s.size() && (pos = s.find(quoteChar, start)) != string::npos)
-	{
-	    if(s[pos - 1] != '\\')
-	    {
-		return pos;
-	    }
-	    start = pos + 1;
-	}
-	return string::npos; // Unmatched quote.
+        start++;
+        string::size_type pos;
+        while(start < s.size() && (pos = s.find(quoteChar, start)) != string::npos)
+        {
+            if(s[pos - 1] != '\\')
+            {
+                return pos;
+            }
+            start = pos + 1;
+        }
+        return string::npos; // Unmatched quote.
     }
     return 0; // Not quoted.
 }

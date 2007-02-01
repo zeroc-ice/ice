@@ -16,7 +16,7 @@ public class Server : Ice.Application
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
         adapter.add(new CallbackI(), communicator().stringToIdentity("callback"));
         adapter.activate();
-	communicator().waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
     }
 

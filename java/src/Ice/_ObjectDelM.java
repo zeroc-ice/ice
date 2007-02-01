@@ -15,44 +15,44 @@ public class _ObjectDelM implements _ObjectDel
     ice_isA(String __id, java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
-							     __context, __compress);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_isA", OperationMode.Nonmutating,
+                                                             __context, __compress);
         try
         {
-	    try
-	    {
-		IceInternal.BasicStream __os = __og.os();
-		__os.writeString(__id);
-	    }
-	    catch(LocalException __ex)
-	    {
-		__og.abort(__ex);
-	    }
-	    boolean __ok = __og.invoke();
-	    try
-	    {
-		IceInternal.BasicStream __is = __og.is();
-		if(!__ok)
-		{
-		    try
-		    {
-			__is.throwException();
-		    }
-		    catch(UserException __ex)
-		    {
-			throw new UnknownUserException(__ex.ice_name());
-		    }
-		}
-		return __is.readBool();
-	    }
-	    catch(LocalException __ex)
-	    {
-		throw new IceInternal.LocalExceptionWrapper(__ex, false);
-	    }
+            try
+            {
+                IceInternal.BasicStream __os = __og.os();
+                __os.writeString(__id);
+            }
+            catch(LocalException __ex)
+            {
+                __og.abort(__ex);
+            }
+            boolean __ok = __og.invoke();
+            try
+            {
+                IceInternal.BasicStream __is = __og.is();
+                if(!__ok)
+                {
+                    try
+                    {
+                        __is.throwException();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new UnknownUserException(__ex.ice_name());
+                    }
+                }
+                return __is.readBool();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            }
         }
         finally
         {
-	    __connection.reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -60,34 +60,34 @@ public class _ObjectDelM implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
-							     __context, __compress);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ping", OperationMode.Nonmutating,
+                                                             __context, __compress);
         try
         {
-	    boolean __ok = __og.invoke();
-	    try
-	    {
-		IceInternal.BasicStream __is = __og.is();
-		if(!__ok)
-		{
-		    try
-		    {
-			__is.throwException();
-		    }
-		    catch(UserException __ex)
-		    {
-			throw new UnknownUserException(__ex.ice_name());
-		    }
-		}
-	    }
-	    catch(LocalException __ex)
-	    {
-		throw new IceInternal.LocalExceptionWrapper(__ex, false);
-	    }
+            boolean __ok = __og.invoke();
+            try
+            {
+                IceInternal.BasicStream __is = __og.is();
+                if(!__ok)
+                {
+                    try
+                    {
+                        __is.throwException();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new UnknownUserException(__ex.ice_name());
+                    }
+                }
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            }
         }
         finally
         {
-	    __connection.reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -95,35 +95,35 @@ public class _ObjectDelM implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
-							     __context, __compress);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_ids", OperationMode.Nonmutating,
+                                                             __context, __compress);
         try
         {
-	    boolean __ok = __og.invoke();
-	    try
-	    {
-		IceInternal.BasicStream __is = __og.is();
-		if(!__ok)
-		{
-		    try
-		    {
-			__is.throwException();
-		    }
-		    catch(UserException __ex)
-		    {
-			throw new UnknownUserException(__ex.ice_name());
-		    }
-		}
-		return __is.readStringSeq();
-	    }
-	    catch(LocalException __ex)
-	    {
-		throw new IceInternal.LocalExceptionWrapper(__ex, false);
-	    }
+            boolean __ok = __og.invoke();
+            try
+            {
+                IceInternal.BasicStream __is = __og.is();
+                if(!__ok)
+                {
+                    try
+                    {
+                        __is.throwException();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new UnknownUserException(__ex.ice_name());
+                    }
+                }
+                return __is.readStringSeq();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            }
         }
         finally
         {
-	    __connection.reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -131,35 +131,35 @@ public class _ObjectDelM implements _ObjectDel
     ice_id(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
-							     __context, __compress);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, "ice_id", OperationMode.Nonmutating,
+                                                             __context, __compress);
         try
         {
-	    boolean __ok = __og.invoke();
-	    try
-	    {
-		IceInternal.BasicStream __is = __og.is();
-		if(!__ok)
-		{
-		    try
-		    {
-			__is.throwException();
-		    }
-		    catch(UserException __ex)
-		    {
-			throw new UnknownUserException(__ex.ice_name());
-		    }
-		}
-		return __is.readString();
-	    }
-	    catch(LocalException __ex)
-	    {
-		throw new IceInternal.LocalExceptionWrapper(__ex, false);
-	    }
+            boolean __ok = __og.invoke();
+            try
+            {
+                IceInternal.BasicStream __is = __og.is();
+                if(!__ok)
+                {
+                    try
+                    {
+                        __is.throwException();
+                    }
+                    catch(UserException __ex)
+                    {
+                        throw new UnknownUserException(__ex.ice_name());
+                    }
+                }
+                return __is.readString();
+            }
+            catch(LocalException __ex)
+            {
+                throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            }
         }
         finally
         {
-	    __connection.reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
@@ -167,20 +167,20 @@ public class _ObjectDelM implements _ObjectDel
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams, java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-	IceInternal.Outgoing __og = __connection.getOutgoing(__reference, operation, mode, __context, __compress);
+        IceInternal.Outgoing __og = __connection.getOutgoing(__reference, operation, mode, __context, __compress);
         try
         {
             if(inParams != null)
             {
-		try
-		{
-		    IceInternal.BasicStream __os = __og.os();
-		    __os.writeBlob(inParams);
-		}
-		catch(LocalException __ex)
-		{
-		    __og.abort(__ex);
-		}
+                try
+                {
+                    IceInternal.BasicStream __os = __og.os();
+                    __os.writeBlob(inParams);
+                }
+                catch(LocalException __ex)
+                {
+                    __og.abort(__ex);
+                }
             }
             boolean ok = __og.invoke();
             if(__reference.getMode() == IceInternal.Reference.ModeTwoway)
@@ -203,15 +203,15 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-	    __connection.reclaimOutgoing(__og);
+            __connection.reclaimOutgoing(__og);
         }
     }
 
     public ConnectionI
     __getConnection(BooleanHolder compress)
     {
-	compress.value = __compress;
-	return __connection;
+        compress.value = __compress;
+        return __connection;
     }
 
     //
@@ -230,8 +230,8 @@ public class _ObjectDelM implements _ObjectDel
         // upon initialization.
         //
 
-	assert(__reference == null);
-	assert(__connection == null);
+        assert(__reference == null);
+        assert(__connection == null);
 
         __reference = from.__reference;
         __connection = from.__connection;
@@ -250,12 +250,12 @@ public class _ObjectDelM implements _ObjectDel
         // upon initialization.
         //
 
-	assert(__reference == null);
-	assert(__connection == null);
+        assert(__reference == null);
+        assert(__connection == null);
 
-	__reference = ref;
-	BooleanHolder compress = new BooleanHolder();
-	__connection = __reference.getConnection(compress);
+        __reference = ref;
+        BooleanHolder compress = new BooleanHolder();
+        __connection = __reference.getConnection(compress);
         __compress = compress.value;
     }
 }

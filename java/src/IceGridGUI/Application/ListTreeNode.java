@@ -22,214 +22,214 @@ abstract class ListTreeNode extends TreeNode
 {
     public Enumeration children()
     {
-	return new Enumeration()
-	    {
-		public boolean hasMoreElements()
-		{
-		    return _p.hasNext();
-		}
+        return new Enumeration()
+            {
+                public boolean hasMoreElements()
+                {
+                    return _p.hasNext();
+                }
 
-		public Object nextElement()
-		{
-		    return _p.next();
-		}
-		
-		private java.util.Iterator _p = _children.iterator();
-	    };
+                public Object nextElement()
+                {
+                    return _p.next();
+                }
+                
+                private java.util.Iterator _p = _children.iterator();
+            };
     }
     
     public boolean getAllowsChildren()
     {
-	return true;
+        return true;
     }
     
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
-	if(childIndex < 0)
-	{
-	    throw new ArrayIndexOutOfBoundsException(childIndex);
-	}
-	else if(childIndex < _children.size())
-	{
-	    return (javax.swing.tree.TreeNode)_children.get(childIndex);
-	}
-	else
-	{
-	    throw new ArrayIndexOutOfBoundsException(childIndex);
-	}
+        if(childIndex < 0)
+        {
+            throw new ArrayIndexOutOfBoundsException(childIndex);
+        }
+        else if(childIndex < _children.size())
+        {
+            return (javax.swing.tree.TreeNode)_children.get(childIndex);
+        }
+        else
+        {
+            throw new ArrayIndexOutOfBoundsException(childIndex);
+        }
     }
    
     public int getChildCount()
     {
-	return _children.size();
+        return _children.size();
     }
     
     public int getIndex(javax.swing.tree.TreeNode node)
     {
-	return _children.indexOf(node);
+        return _children.indexOf(node);
     }
 
     public boolean isLeaf()
     {
-	return _children.isEmpty();
+        return _children.isEmpty();
     }
 
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = new Editor();
-	}
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = new Editor();
+        }
+        return _editor;
     }
 
     protected Editor createEditor()
     {
-	assert false;
-	return null;
+        assert false;
+        return null;
     }
 
     protected ListTreeNode(boolean brandNew, TreeNode parent, String id)
     {
-	super(parent, id);
-	_editable = new Editable(brandNew);
+        super(parent, id);
+        _editable = new Editable(brandNew);
     }
 
     void write(XMLWriter writer) throws java.io.IOException
     {
-	java.util.Iterator p = _children.iterator();
-	while(p.hasNext())
-	{
-	    TreeNode node = (TreeNode)p.next();
-	    node.write(writer);
-	}
+        java.util.Iterator p = _children.iterator();
+        while(p.hasNext())
+        {
+            TreeNode node = (TreeNode)p.next();
+            node.write(writer);
+        }
     }
 
     void insertChild(TreeNode child, boolean fireEvent)
-	throws UpdateFailedException
+        throws UpdateFailedException
     {
-	DefaultTreeModel treeModel = fireEvent ?
-	    getRoot().getTreeModel() : null;
-	
-	if(!insertSortedChild(child, _children, treeModel))
-	{
-	    throw new UpdateFailedException(this, child.getId());
-	}
+        DefaultTreeModel treeModel = fireEvent ?
+            getRoot().getTreeModel() : null;
+        
+        if(!insertSortedChild(child, _children, treeModel))
+        {
+            throw new UpdateFailedException(this, child.getId());
+        }
     }
 
     void insertChildren(java.util.List newChildren, boolean fireEvent)
-	throws UpdateFailedException
+        throws UpdateFailedException
     {
-	DefaultTreeModel treeModel = fireEvent ?
-	    getRoot().getTreeModel() : null;
-	
-	String badChildId = insertSortedChildren(newChildren, _children, treeModel);
-	
-	if(badChildId != null)
-	{
-	    throw new UpdateFailedException(this, badChildId);
-	}
+        DefaultTreeModel treeModel = fireEvent ?
+            getRoot().getTreeModel() : null;
+        
+        String badChildId = insertSortedChildren(newChildren, _children, treeModel);
+        
+        if(badChildId != null)
+        {
+            throw new UpdateFailedException(this, badChildId);
+        }
     }
 
     int removeChild(TreeNode child)
     {
-	int index = getIndex(child);
-	_children.remove(child);
-	
-	getRoot().getTreeModel().nodesWereRemoved(this,
-						  new int[]{index},
-						  new Object[]{child});
-	return index;
+        int index = getIndex(child);
+        _children.remove(child);
+        
+        getRoot().getTreeModel().nodesWereRemoved(this,
+                                                  new int[]{index},
+                                                  new Object[]{child});
+        return index;
     }
 
     void removeChildren(String[] childIds)
     {
-	removeSortedChildren(childIds, _children, getRoot().getTreeModel());
+        removeSortedChildren(childIds, _children, getRoot().getTreeModel());
     }
 
     void childrenChanged(java.util.List children)
     {
-	childrenChanged(children, getRoot().getTreeModel());
+        childrenChanged(children, getRoot().getTreeModel());
     }
 
     Editable getEditable()
     {
-	return _editable;
+        return _editable;
     }
 
     javax.swing.ComboBoxModel createComboBoxModel()
     {
-	return new ComboBoxModel();
+        return new ComboBoxModel();
     }
     
     javax.swing.ComboBoxModel createComboBoxModel(Object item)
     {
-	return new ComboBoxModel(item);
+        return new ComboBoxModel(item);
     }
     
     //
     // Adapts ListTreeNode to a ComboBoxModel
     //
     class ComboBoxModel extends javax.swing.AbstractListModel 
-	implements javax.swing.ComboBoxModel
+        implements javax.swing.ComboBoxModel
     {
-	public Object getElementAt(int index)
-	{
-	    if(_firstItem != null)
-	    {
-		if(index == 0)
-		{
-		    return _firstItem;
-		}
-		else
-		{
-		    return getChildAt(index - 1);
-		}
-	    }
-	    else
-	    {
-		return getChildAt(index);
-	    }
-	}
+        public Object getElementAt(int index)
+        {
+            if(_firstItem != null)
+            {
+                if(index == 0)
+                {
+                    return _firstItem;
+                }
+                else
+                {
+                    return getChildAt(index - 1);
+                }
+            }
+            else
+            {
+                return getChildAt(index);
+            }
+        }
 
-	public int getSize()
-	{
-	    if(_firstItem != null)
-	    {
-		return getChildCount() + 1;
-	    }
-	    else
-	    {
-		return getChildCount();
-	    }
-	}
-	
-	public Object getSelectedItem()
-	{
-	    return _selectedItem;
-	}
+        public int getSize()
+        {
+            if(_firstItem != null)
+            {
+                return getChildCount() + 1;
+            }
+            else
+            {
+                return getChildCount();
+            }
+        }
+        
+        public Object getSelectedItem()
+        {
+            return _selectedItem;
+        }
 
-	public void setSelectedItem(Object obj)
-	{
-	    if(obj != _selectedItem)
-	    {
-		_selectedItem = obj;
-		fireContentsChanged(this, -1, -1);
-	    }
-	}
+        public void setSelectedItem(Object obj)
+        {
+            if(obj != _selectedItem)
+            {
+                _selectedItem = obj;
+                fireContentsChanged(this, -1, -1);
+            }
+        }
 
-	ComboBoxModel(Object firstItem)
-	{
-	    _firstItem = firstItem;
-	}
+        ComboBoxModel(Object firstItem)
+        {
+            _firstItem = firstItem;
+        }
 
-	ComboBoxModel()
-	{
-	    _firstItem = null;
-	}
+        ComboBoxModel()
+        {
+            _firstItem = null;
+        }
 
-	private final Object _firstItem;
-	private Object _selectedItem;
+        private final Object _firstItem;
+        private Object _selectedItem;
     }
 
     protected final java.util.LinkedList _children = new java.util.LinkedList();

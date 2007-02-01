@@ -20,33 +20,33 @@ class MonitorMutexTestThread : public Thread
 public:
     
     MonitorMutexTestThread(Monitor<Mutex>& m) :
-	_monitor(m),
-	_tryLock(false)
+        _monitor(m),
+        _tryLock(false)
     {
     }
 
     virtual void run()
     {
-	Monitor<Mutex>::TryLock tlock(_monitor);
-	test(!tlock.acquired());
-	
-	{
-	    Mutex::Lock lock(_tryLockMutex);
-	    _tryLock = true;
-	}
-	_tryLockCond.signal();
+        Monitor<Mutex>::TryLock tlock(_monitor);
+        test(!tlock.acquired());
+        
+        {
+            Mutex::Lock lock(_tryLockMutex);
+            _tryLock = true;
+        }
+        _tryLockCond.signal();
 
-	Monitor<Mutex>::Lock lock(_monitor);
+        Monitor<Mutex>::Lock lock(_monitor);
     }
 
     void
     waitTryLock()
     {
-	Mutex::Lock lock(_tryLockMutex);
-	while(!_tryLock)
-	{
-	    _tryLockCond.wait(lock);
-	}
+        Mutex::Lock lock(_tryLockMutex);
+        while(!_tryLock)
+        {
+            _tryLockCond.wait(lock);
+        }
     }
 
 private:
@@ -67,16 +67,16 @@ class MonitorMutexTestThread2 : public Thread
 public:
     
     MonitorMutexTestThread2(Monitor<Mutex>& monitor) :
-	finished(false),
-	_monitor(monitor)
+        finished(false),
+        _monitor(monitor)
     {
     }
 
     virtual void run()
     {
-	Monitor<Mutex>::Lock lock(_monitor);
-	_monitor.wait();
-	finished = true;
+        Monitor<Mutex>::Lock lock(_monitor);
+        _monitor.wait();
+        finished = true;
     }
 
     bool finished;
@@ -106,27 +106,27 @@ MonitorMutexTest::run()
     ThreadControl control2;
 
     {
-	Monitor<Mutex>::Lock lock(monitor);
-	
-	try
-	{
-	    Monitor<Mutex>::TryLock tlock(monitor);
-	    test(!tlock.acquired());
-	}
-	catch(const ThreadLockedException&)
-	{
-	    //
-	    // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation
-	    // as well as in Fedora Core 5.
-	    //
-	}
+        Monitor<Mutex>::Lock lock(monitor);
+        
+        try
+        {
+            Monitor<Mutex>::TryLock tlock(monitor);
+            test(!tlock.acquired());
+        }
+        catch(const ThreadLockedException&)
+        {
+            //
+            // pthread_mutex_trylock returns EDEADLK in FreeBSD's new threading implementation
+            // as well as in Fedora Core 5.
+            //
+        }
 
-	// TEST: Start thread, try to acquire the mutex.
-	t = new MonitorMutexTestThread(monitor);
-	control = t->start();
-	
-	// TEST: Wait until the tryLock has been tested.
-	t->waitTryLock();
+        // TEST: Start thread, try to acquire the mutex.
+        t = new MonitorMutexTestThread(monitor);
+        control = t->start();
+        
+        // TEST: Wait until the tryLock has been tested.
+        t->waitTryLock();
     }
 
     //
@@ -145,8 +145,8 @@ MonitorMutexTest::run()
     ThreadControl::sleep(Time::seconds(1));
     
     {
-	Monitor<Mutex>::Lock lock(monitor);
-	monitor.notify();
+        Monitor<Mutex>::Lock lock(monitor);
+        monitor.notify();
     }
 
     // Give one thread time to terminate
@@ -155,8 +155,8 @@ MonitorMutexTest::run()
     test((t2->finished && !t3->finished) || (t3->finished && !t2->finished));
 
     {
-	Monitor<Mutex>::Lock lock(monitor);
-	monitor.notify();
+        Monitor<Mutex>::Lock lock(monitor);
+        monitor.notify();
     }
     control.join();
     control2.join();
@@ -171,8 +171,8 @@ MonitorMutexTest::run()
     ThreadControl::sleep(Time::seconds(1));
 
     {
-	Monitor<Mutex>::Lock lock(monitor);
-	monitor.notifyAll();
+        Monitor<Mutex>::Lock lock(monitor);
+        monitor.notifyAll();
     }
 
     control.join();
@@ -180,7 +180,7 @@ MonitorMutexTest::run()
 
     // TEST: timedWait
     {
-	Monitor<Mutex>::Lock lock(monitor);
-	test(!monitor.timedWait(Time::milliSeconds(500)));
+        Monitor<Mutex>::Lock lock(monitor);
+        test(!monitor.timedWait(Time::milliSeconds(500)));
     }
 }

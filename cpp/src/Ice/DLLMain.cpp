@@ -34,7 +34,7 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
     }
     else if(reason == DLL_THREAD_DETACH)
     {
-	Ice::ImplicitContextI::cleanupThread();
+        Ice::ImplicitContextI::cleanupThread();
     }
 
     return TRUE;

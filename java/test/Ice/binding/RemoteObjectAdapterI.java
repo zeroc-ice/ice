@@ -14,28 +14,28 @@ public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
     public
     RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
     {
-	_adapter = adapter;
-	_testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
-								_adapter.getCommunicator().stringToIdentity("test")));
-	_adapter.activate();
+        _adapter = adapter;
+        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
+                                                                _adapter.getCommunicator().stringToIdentity("test")));
+        _adapter.activate();
     }
 
     public TestIntfPrx
     getTestIntf(Ice.Current current)
     {
-	return _testIntf;
+        return _testIntf;
     }
 
     public void
     deactivate(Ice.Current current)
     {
-	try
-	{
-	    _adapter.destroy();
-	}
-	catch(Ice.ObjectAdapterDeactivatedException ex)
-	{
-	}
+        try
+        {
+            _adapter.destroy();
+        }
+        catch(Ice.ObjectAdapterDeactivatedException ex)
+        {
+        }
     }
 
     final Ice.ObjectAdapter _adapter;

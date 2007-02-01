@@ -14,8 +14,8 @@ public class HelloI extends _HelloDisp
     public
     HelloI(String name, int id)
     {
-	_name = name;
-	_id = id;
+        _name = name;
+        _id = id;
     }
 
     public void

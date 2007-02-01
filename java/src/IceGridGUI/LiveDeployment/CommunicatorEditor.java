@@ -21,46 +21,46 @@ class CommunicatorEditor extends Editor
 {
     protected CommunicatorEditor()
     {
-	_description.setEditable(false);
-	_description.setOpaque(false);
+        _description.setEditable(false);
+        _description.setOpaque(false);
     }
 
     protected void show(CommunicatorDescriptor descriptor, 
-			java.util.SortedMap properties,
-			Utils.Resolver resolver)
+                        java.util.SortedMap properties,
+                        Utils.Resolver resolver)
     {
-	_description.setText(resolver.substitute(descriptor.description));
-	_properties.setSortedMap(properties);
+        _description.setText(resolver.substitute(descriptor.description));
+        _properties.setSortedMap(properties);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
-	builder.append("Description");
-	builder.nextLine();
-	builder.append("");
-	builder.nextRow(-2);
-	CellConstraints cc = new CellConstraints();
-	JScrollPane scrollPane = new JScrollPane(_description);
-	builder.add(scrollPane, 
-		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
-	builder.nextRow(2);
-	builder.nextLine();
-	
-	builder.append("Properties");
-	builder.nextLine();
-	builder.append("");
-	builder.nextLine();
-	builder.append("");
+        builder.append("Description");
+        builder.nextLine();
+        builder.append("");
+        builder.nextRow(-2);
+        CellConstraints cc = new CellConstraints();
+        JScrollPane scrollPane = new JScrollPane(_description);
+        builder.add(scrollPane, 
+                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 3));
+        builder.nextRow(2);
+        builder.nextLine();
+        
+        builder.append("Properties");
+        builder.nextLine();
+        builder.append("");
+        builder.nextLine();
+        builder.append("");
 
-	builder.nextLine();
-	builder.append("");
+        builder.nextLine();
+        builder.append("");
 
-	builder.nextRow(-6);
-	scrollPane = new JScrollPane(_properties);
-	builder.add(scrollPane, 
-		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
-	builder.nextRow(6);
-	builder.nextLine();
+        builder.nextRow(-6);
+        scrollPane = new JScrollPane(_properties);
+        builder.add(scrollPane, 
+                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.nextRow(6);
+        builder.nextLine();
     }
 
     private JTextArea _description = new JTextArea(3, 20);

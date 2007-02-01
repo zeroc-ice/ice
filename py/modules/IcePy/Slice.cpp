@@ -41,17 +41,17 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     vector<string> argSeq;
     try
     {
-	argSeq = IceUtil::Options::split(cmd);
+        argSeq = IceUtil::Options::split(cmd);
     }
     catch(const IceUtil::BadOptException& ex)
     {
-	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-	return NULL;
+        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+        return NULL;
     }
     catch(const IceUtil::APIException& ex)
     {
-	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-	return NULL;
+        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+        return NULL;
     }
 
     if(list != NULL)
@@ -72,23 +72,23 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     vector<string> files;
     try
     {
-	argSeq.insert(argSeq.begin(), ""); // dummy argv[0]
-	files = opts.parse(argSeq);
-	if(files.empty())
-	{
-	    PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
-	    return NULL;
-	}
+        argSeq.insert(argSeq.begin(), ""); // dummy argv[0]
+        files = opts.parse(argSeq);
+        if(files.empty())
+        {
+            PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
+            return NULL;
+        }
     }
     catch(const IceUtil::BadOptException& ex)
     {
-	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-	return NULL;
+        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+        return NULL;
     }
     catch(const IceUtil::APIException& ex)
     {
-	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-	return NULL;
+        PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+        return NULL;
     }
 
     string cppArgs;
@@ -100,27 +100,27 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     bool checksum = false;
     if(opts.isSet("D"))
     {
-	vector<string> optargs = opts.argVec("D");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -D" + *i;
-	}
+        vector<string> optargs = opts.argVec("D");
+        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        {
+            cppArgs += " -D" + *i;
+        }
     }
     if(opts.isSet("U"))
     {
-	vector<string> optargs = opts.argVec("U");
-	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-	{
-	    cppArgs += " -U" + *i;
-	}
+        vector<string> optargs = opts.argVec("U");
+        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        {
+            cppArgs += " -U" + *i;
+        }
     }
     if(opts.isSet("I"))
     {
-	includePaths = opts.argVec("I");
-	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
-	{
-	    cppArgs += " -I" + *i;
-	}
+        includePaths = opts.argVec("I");
+        for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+        {
+            cppArgs += " -I" + *i;
+        }
     }
     debug = opts.isSet("d") || opts.isSet("debug");
     caseSensitive = opts.isSet("case-sensitive");

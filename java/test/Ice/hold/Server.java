@@ -50,7 +50,7 @@ public class Server
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

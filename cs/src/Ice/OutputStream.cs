@@ -11,51 +11,51 @@ namespace Ice
 {
     public interface OutputStream
     {
-	Communicator communicator();
+        Communicator communicator();
 
-	void writeBool(bool v);
-	void writeBoolSeq(bool[] v);
+        void writeBool(bool v);
+        void writeBoolSeq(bool[] v);
 
-	void writeByte(byte v);
-	void writeByteSeq(byte[] v);
+        void writeByte(byte v);
+        void writeByteSeq(byte[] v);
 
-	void writeShort(short v);
-	void writeShortSeq(short[] v);
+        void writeShort(short v);
+        void writeShortSeq(short[] v);
 
-	void writeInt(int v);
-	void writeIntSeq(int[] v);
+        void writeInt(int v);
+        void writeIntSeq(int[] v);
 
-	void writeLong(long v);
-	void writeLongSeq(long[] v);
+        void writeLong(long v);
+        void writeLongSeq(long[] v);
 
-	void writeFloat(float v);
-	void writeFloatSeq(float[] v);
+        void writeFloat(float v);
+        void writeFloatSeq(float[] v);
 
-	void writeDouble(double v);
-	void writeDoubleSeq(double[] v);
+        void writeDouble(double v);
+        void writeDoubleSeq(double[] v);
 
-	void writeString(string v);
-	void writeStringSeq(string[] v);
+        void writeString(string v);
+        void writeStringSeq(string[] v);
 
-	void writeSize(int sz);
+        void writeSize(int sz);
 
-	void writeProxy(ObjectPrx v);
+        void writeProxy(ObjectPrx v);
 
-	void writeObject(Ice.Object v);
+        void writeObject(Ice.Object v);
 
-	void writeTypeId(string id);
+        void writeTypeId(string id);
 
-	void writeException(UserException ex);
+        void writeException(UserException ex);
 
-	void startSlice();
-	void endSlice();
+        void startSlice();
+        void endSlice();
 
-	void startEncapsulation();
-	void endEncapsulation();
+        void startEncapsulation();
+        void endEncapsulation();
 
-	void writePendingObjects();
+        void writePendingObjects();
 
-	byte[] finished();
-	void destroy();
+        byte[] finished();
+        void destroy();
     }
 }

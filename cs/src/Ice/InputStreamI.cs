@@ -11,192 +11,192 @@ namespace Ice
 {
     public class InputStreamI : InputStream
     {
-	public InputStreamI(Communicator communicator, byte[] data)
-	{
-	    _communicator = communicator;
+        public InputStreamI(Communicator communicator, byte[] data)
+        {
+            _communicator = communicator;
 
-	    _is = new IceInternal.BasicInputStream(Util.getInstance(communicator), this);
-	    _is.resize(data.Length, true);
-	    IceInternal.ByteBuffer buf = _is.prepareRead();
-	    buf.position(0);
-	    buf.put(data);
-	    buf.position(0);
-	}
+            _is = new IceInternal.BasicInputStream(Util.getInstance(communicator), this);
+            _is.resize(data.Length, true);
+            IceInternal.ByteBuffer buf = _is.prepareRead();
+            buf.position(0);
+            buf.put(data);
+            buf.position(0);
+        }
 
-	public Communicator communicator()
-	{
-	    return _communicator;
-	}
+        public Communicator communicator()
+        {
+            return _communicator;
+        }
 
-	public void sliceObjects(bool slice)
-	{
-	    _is.sliceObjects(slice);
-	}
+        public void sliceObjects(bool slice)
+        {
+            _is.sliceObjects(slice);
+        }
 
-	public bool readBool()
-	{
-	    return _is.readBool();
-	}
+        public bool readBool()
+        {
+            return _is.readBool();
+        }
 
-	public bool[] readBoolSeq()
-	{
-	    return _is.readBoolSeq();
-	}
+        public bool[] readBoolSeq()
+        {
+            return _is.readBoolSeq();
+        }
 
-	public byte readByte()
-	{
-	    return _is.readByte();
-	}
+        public byte readByte()
+        {
+            return _is.readByte();
+        }
 
-	public byte[] readByteSeq()
-	{
-	    return _is.readByteSeq();
-	}
+        public byte[] readByteSeq()
+        {
+            return _is.readByteSeq();
+        }
 
-	public short readShort()
-	{
-	    return _is.readShort();
-	}
+        public short readShort()
+        {
+            return _is.readShort();
+        }
 
-	public short[] readShortSeq()
-	{
-	    return _is.readShortSeq();
-	}
+        public short[] readShortSeq()
+        {
+            return _is.readShortSeq();
+        }
 
-	public int readInt()
-	{
-	    return _is.readInt();
-	}
+        public int readInt()
+        {
+            return _is.readInt();
+        }
 
-	public int[] readIntSeq()
-	{
-	    return _is.readIntSeq();
-	}
+        public int[] readIntSeq()
+        {
+            return _is.readIntSeq();
+        }
 
-	public long readLong()
-	{
-	    return _is.readLong();
-	}
+        public long readLong()
+        {
+            return _is.readLong();
+        }
 
-	public long[] readLongSeq()
-	{
-	    return _is.readLongSeq();
-	}
+        public long[] readLongSeq()
+        {
+            return _is.readLongSeq();
+        }
 
-	public float readFloat()
-	{
-	    return _is.readFloat();
-	}
+        public float readFloat()
+        {
+            return _is.readFloat();
+        }
 
-	public float[] readFloatSeq()
-	{
-	    return _is.readFloatSeq();
-	}
+        public float[] readFloatSeq()
+        {
+            return _is.readFloatSeq();
+        }
 
-	public double readDouble()
-	{
-	    return _is.readDouble();
-	}
+        public double readDouble()
+        {
+            return _is.readDouble();
+        }
 
-	public double[] readDoubleSeq()
-	{
-	    return _is.readDoubleSeq();
-	}
+        public double[] readDoubleSeq()
+        {
+            return _is.readDoubleSeq();
+        }
 
-	public string readString()
-	{
-	    return _is.readString();
-	}
+        public string readString()
+        {
+            return _is.readString();
+        }
 
-	public string[] readStringSeq()
-	{
-	    return _is.readStringSeq();
-	}
+        public string[] readStringSeq()
+        {
+            return _is.readStringSeq();
+        }
 
-	public int readSize()
-	{
-	    return _is.readSize();
-	}
+        public int readSize()
+        {
+            return _is.readSize();
+        }
 
-	public ObjectPrx readProxy()
-	{
-	    return _is.readProxy();
-	}
+        public ObjectPrx readProxy()
+        {
+            return _is.readProxy();
+        }
 
-	private class Patcher : IceInternal.Patcher
-	{
-	    public Patcher(ReadObjectCallback cb)
-	    {
-		_cb = cb;
-	    }
+        private class Patcher : IceInternal.Patcher
+        {
+            public Patcher(ReadObjectCallback cb)
+            {
+                _cb = cb;
+            }
 
-	    public override void patch(Ice.Object v)
-	    {
-		_cb.invoke(v);
-	    }
+            public override void patch(Ice.Object v)
+            {
+                _cb.invoke(v);
+            }
 
-	    public override string type()
-	    {
-		return "unknown";
-	    }
+            public override string type()
+            {
+                return "unknown";
+            }
 
-	    ReadObjectCallback _cb;
-	}
+            ReadObjectCallback _cb;
+        }
 
-	public void readObject(ReadObjectCallback cb)
-	{
-	    _is.readObject(new Patcher(cb));
-	}
+        public void readObject(ReadObjectCallback cb)
+        {
+            _is.readObject(new Patcher(cb));
+        }
 
-	public string readTypeId()
-	{
-	    return _is.readTypeId();
-	}
+        public string readTypeId()
+        {
+            return _is.readTypeId();
+        }
 
-	public void throwException()
-	{
-	    _is.throwException();
-	}
+        public void throwException()
+        {
+            _is.throwException();
+        }
 
-	public void startSlice()
-	{
-	    _is.startReadSlice();
-	}
+        public void startSlice()
+        {
+            _is.startReadSlice();
+        }
 
-	public void endSlice()
-	{
-	    _is.endReadSlice();
-	}
+        public void endSlice()
+        {
+            _is.endReadSlice();
+        }
 
-	public void skipSlice()
-	{
-	    _is.skipSlice();
-	}
+        public void skipSlice()
+        {
+            _is.skipSlice();
+        }
 
-	public void startEncapsulation()
-	{
-	    _is.startReadEncaps();
-	}
+        public void startEncapsulation()
+        {
+            _is.startReadEncaps();
+        }
 
-	public void endEncapsulation()
-	{
-	    _is.endReadEncaps();
-	}
+        public void endEncapsulation()
+        {
+            _is.endReadEncaps();
+        }
 
-	public void readPendingObjects()
-	{
-	    _is.readPendingObjects();
-	}
+        public void readPendingObjects()
+        {
+            _is.readPendingObjects();
+        }
 
-	public void destroy()
-	{
-	    if(_is != null)
-	    {
-		_is = null;
-	    }
-	}
+        public void destroy()
+        {
+            if(_is != null)
+            {
+                _is = null;
+            }
+        }
 
-	private Communicator _communicator;
-	private IceInternal.BasicInputStream _is;
+        private Communicator _communicator;
+        private IceInternal.BasicInputStream _is;
     }
 }

@@ -48,19 +48,19 @@ private:
     {
     public:
 
-	CallbackSenderThread(const CallbackSenderIPtr& callbackSender) :
-	    _callbackSender(callbackSender)
-	{
-	}
+        CallbackSenderThread(const CallbackSenderIPtr& callbackSender) :
+            _callbackSender(callbackSender)
+        {
+        }
 
-	virtual void run()
-	{
-	    _callbackSender->run();
-	}
+        virtual void run()
+        {
+            _callbackSender->run();
+        }
 
     private:
 
-	const CallbackSenderIPtr _callbackSender;
+        const CallbackSenderIPtr _callbackSender;
     };
 
     IceUtil::ThreadPtr _callbackSenderThread;

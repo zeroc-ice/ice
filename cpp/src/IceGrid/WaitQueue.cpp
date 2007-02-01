@@ -42,74 +42,74 @@ WaitQueue::run()
 {
     while(true)
     {
-	list<WaitItemPtr> expired;
-	{
-	    Lock sync(*this);
-	    if(_waitQueue.empty() && !_destroyed)
-	    {
-		wait();
-	    }
-	    
-	    if(_destroyed)
-	    {
-		break;
-	    }
-	    
-	    //
-	    // Notify expired items.
-	    //
-	    while(!_waitQueue.empty() && !_destroyed)
-	    {
-		WaitItemPtr item = _waitQueue.front();		    
-		if(item->getExpirationTime() <= IceUtil::Time::now())
-		{
-		    expired.push_back(item);
-		    _waitQueue.pop_front();	
-		}
-		else if(!expired.empty())
-		{
-		    break;
-		}
-		else
-		{
-		    //
-		    // Wait until the next item expire or a notification. Note: in any case we 
-		    // get out of this loop to get a chance to execute the work queue.
-		    //
-		    timedWait(item->getExpirationTime() - IceUtil::Time::now());	    		    
-		}
-	    }
-	}
+        list<WaitItemPtr> expired;
+        {
+            Lock sync(*this);
+            if(_waitQueue.empty() && !_destroyed)
+            {
+                wait();
+            }
+            
+            if(_destroyed)
+            {
+                break;
+            }
+            
+            //
+            // Notify expired items.
+            //
+            while(!_waitQueue.empty() && !_destroyed)
+            {
+                WaitItemPtr item = _waitQueue.front();              
+                if(item->getExpirationTime() <= IceUtil::Time::now())
+                {
+                    expired.push_back(item);
+                    _waitQueue.pop_front();     
+                }
+                else if(!expired.empty())
+                {
+                    break;
+                }
+                else
+                {
+                    //
+                    // Wait until the next item expire or a notification. Note: in any case we 
+                    // get out of this loop to get a chance to execute the work queue.
+                    //
+                    timedWait(item->getExpirationTime() - IceUtil::Time::now());                            
+                }
+            }
+        }
 
-	if(!expired.empty())
-	{
-	    for(list<WaitItemPtr>::iterator p = expired.begin(); p != expired.end(); ++p)
-	    {
-		try
-		{
-		    (*p)->expired(false);
-		}
-		catch(const Ice::LocalException&)
-		{
-		    //
-		    // TODO: Add some tracing.
-		    //
-		}
-	    }
-	}
+        if(!expired.empty())
+        {
+            for(list<WaitItemPtr>::iterator p = expired.begin(); p != expired.end(); ++p)
+            {
+                try
+                {
+                    (*p)->expired(false);
+                }
+                catch(const Ice::LocalException&)
+                {
+                    //
+                    // TODO: Add some tracing.
+                    //
+                }
+            }
+        }
 
-	if(_destroyed)
-	{
-	    break;
-	}
+        if(_destroyed)
+        {
+            break;
+        }
     }
 
     if(!_waitQueue.empty())
     {
-	for(list<WaitItemPtr>::iterator p = _waitQueue.begin(); p != _waitQueue.end(); ++p)
-	{
-	    (*p)->expired(true);
-	}
+        for(list<WaitItemPtr>::iterator p = _waitQueue.begin(); p != _waitQueue.end(); ++p)
+        {
+            (*p)->expired(true);
+        }
     }
     _waitQueue.clear(); // Break cyclic reference counts.
 }
@@ -118,9 +118,9 @@ void
 WaitQueue::destroy()
 {
     {
-	Lock sync(*this);
-	_destroyed = true;
-	notify();
+        Lock sync(*this);
+        _destroyed = true;
+        notify();
     }
 
     getThreadControl().join();
@@ -132,7 +132,7 @@ WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
     Lock sync(*this);
     if(_destroyed)
     {
-	return;
+        return;
     }
 
     //
@@ -146,17 +146,17 @@ WaitQueue::add(const WaitItemPtr& item, const IceUtil::Time& wait)
     list<WaitItemPtr>::iterator p = _waitQueue.begin();
     while(p != _waitQueue.end())
     {
-	if((*p)->getExpirationTime() >= expire)
-	{
-	    break;
-	}
-	++p;
+        if((*p)->getExpirationTime() >= expire)
+        {
+            break;
+        }
+        ++p;
     }
     _waitQueue.insert(p, item);
 
     if(notifyThread)
     {
-	notify();
+        notify();
     }
 }
 
@@ -167,12 +167,12 @@ WaitQueue::remove(const WaitItemPtr& item)
     list<WaitItemPtr>::iterator p = _waitQueue.begin();
     while(p != _waitQueue.end())
     {
-	if((*p).get() == item.get())
-	{
-	    _waitQueue.erase(p);
-	    return true;
-	}
-	++p;
+        if((*p).get() == item.get())
+        {
+            _waitQueue.erase(p);
+            return true;
+        }
+        ++p;
     }
     return false;
 }

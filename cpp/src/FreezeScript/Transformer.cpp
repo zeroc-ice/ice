@@ -1911,7 +1911,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
                 Ice::ByteSeq outKeyBytes, outValueBytes;
                 transformRecord(inKeyBytes, inValueBytes, outKeyBytes, outValueBytes);
                 Dbt dbNewKey(&outKeyBytes[0], static_cast<unsigned>(outKeyBytes.size())),
-			     dbNewValue(&outValueBytes[0], static_cast<unsigned>(outValueBytes.size()));
+                             dbNewValue(&outValueBytes[0], static_cast<unsigned>(outValueBytes.size()));
                 if(_info->newDb->put(_info->newDbTxn, &dbNewKey, &dbNewValue, DB_NOOVERWRITE) == DB_KEYEXIST)
                 {
                     _info->errorReporter->error("duplicate key encountered");
@@ -1941,7 +1941,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
         {
             dbc->close();
         }
-	_info->objectFactory->deactivate();
+        _info->objectFactory->deactivate();
         throw;
     }
 
@@ -2051,7 +2051,7 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
     p = attributes.find("name");
     if(p != attributes.end())
     {
-	_name = p->second;
+        _name = p->second;
     }
 
     p = attributes.find("key");
@@ -2077,13 +2077,13 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
     }
     if(pos == string::npos)
     {
-	_oldKeyName = keyTypes;
-	_newKeyName = keyTypes;
+        _oldKeyName = keyTypes;
+        _newKeyName = keyTypes;
     }
     else
     {
-	_oldKeyName = keyTypes.substr(0, pos);
-	_newKeyName = keyTypes.substr(pos + 1);
+        _oldKeyName = keyTypes.substr(0, pos);
+        _newKeyName = keyTypes.substr(pos + 1);
     }
 
     pos = valueTypes.find(',');
@@ -2093,13 +2093,13 @@ FreezeScript::DatabaseDescriptor::DatabaseDescriptor(const DescriptorPtr& parent
     }
     if(pos == string::npos)
     {
-	_oldValueName = valueTypes;
-	_newValueName = valueTypes;
+        _oldValueName = valueTypes;
+        _newValueName = valueTypes;
     }
     else
     {
-	_oldValueName = valueTypes.substr(0, pos);
-	_newValueName = valueTypes.substr(pos + 1);
+        _oldValueName = valueTypes.substr(0, pos);
+        _newValueName = valueTypes.substr(pos + 1);
     }
 }
 
@@ -2136,12 +2136,12 @@ FreezeScript::DatabaseDescriptor::execute(const SymbolTablePtr& st)
 
     if(_info->connection != 0)
     {
-	Freeze::Catalog catalog(_info->connection, Freeze::catalogName());
-	Freeze::CatalogData catalogData;
-	catalogData.evictor = false;
-	catalogData.key = _info->newKeyType->typeId(); 
-	catalogData.value = _info->newValueType->typeId();
-	catalog.put(Freeze::Catalog::value_type(_info->newDbName, catalogData));
+        Freeze::Catalog catalog(_info->connection, Freeze::catalogName());
+        Freeze::CatalogData catalogData;
+        catalogData.evictor = false;
+        catalogData.key = _info->newKeyType->typeId(); 
+        catalogData.value = _info->newValueType->typeId();
+        catalog.put(Freeze::Catalog::value_type(_info->newDbName, catalogData));
     }
 
     //
@@ -2182,24 +2182,24 @@ FreezeScript::TransformDBDescriptor::addChild(const DescriptorPtr& child)
 
     if(db)
     {
-	string name = db->name();
-	map<string, DatabaseDescriptorPtr>::iterator p = _databases.find(name);
-	if(p != _databases.end())
-	{
-	    if(name.empty())
-	    {
-		_info->errorReporter->error("duplicate <database> element");
-	    }
-	    else
-	    {
-		_info->errorReporter->error(string("duplicate <database> element for ") + name);
-	    }
-	}
-	else
-	{
-	    _databases[name] = db;
-	    _children.push_back(db);
-	}
+        string name = db->name();
+        map<string, DatabaseDescriptorPtr>::iterator p = _databases.find(name);
+        if(p != _databases.end())
+        {
+            if(name.empty())
+            {
+                _info->errorReporter->error("duplicate <database> element");
+            }
+            else
+            {
+                _info->errorReporter->error(string("duplicate <database> element for ") + name);
+            }
+        }
+        else
+        {
+            _databases[name] = db;
+            _children.push_back(db);
+        }
     }
     else if(transform)
     {
@@ -2243,7 +2243,7 @@ FreezeScript::TransformDBDescriptor::validate()
 
     if(_databases.empty())
     {
-	_info->errorReporter->error("no <database> element defined");
+        _info->errorReporter->error("no <database> element defined");
     }
 
     for(vector<DescriptorPtr>::iterator p = _children.begin(); p != _children.end(); ++p)
@@ -2258,12 +2258,12 @@ FreezeScript::TransformDBDescriptor::execute(const SymbolTablePtr& sym)
     map<string, DatabaseDescriptorPtr>::iterator p = _databases.find(_info->newDbName);
     if(p == _databases.end())
     {
-	p = _databases.find("");
+        p = _databases.find("");
     }
 
     if(p == _databases.end())
     {
-	_info->errorReporter->error("no <database> element found for `" + _info->newDbName + "'");
+        _info->errorReporter->error("no <database> element found for `" + _info->newDbName + "'");
     }
 
     p->second->execute(sym);
@@ -3000,11 +3000,11 @@ FreezeScript::assignOrTransform(const DataPtr& dest, const DataPtr& src, bool co
 
 void
 FreezeScript::transformDatabase(const Ice::CommunicatorPtr& communicator,
-				const FreezeScript::ObjectFactoryPtr& objectFactory,
+                                const FreezeScript::ObjectFactoryPtr& objectFactory,
                                 const Slice::UnitPtr& oldUnit, const Slice::UnitPtr& newUnit,
                                 Db* oldDb, Db* newDb, DbTxn* newDbTxn, const Freeze::ConnectionPtr& connection,
-				const string& newDbName, const string& facetName, bool purgeObjects, ostream& errors,
-				bool suppress, istream& is)
+                                const string& newDbName, const string& facetName, bool purgeObjects, ostream& errors,
+                                bool suppress, istream& is)
 {
 
     TransformInfoIPtr info = new TransformInfoI;

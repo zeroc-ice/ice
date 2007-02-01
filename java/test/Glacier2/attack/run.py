@@ -29,7 +29,7 @@ ice_home = os.environ['ICE_HOME']
 router = os.path.join(ice_home, "bin", "glacier2router")
 
 command = router + TestUtil.cppClientServerOptions + \
-	  r' --Ice.PrintProcessId' \
+          r' --Ice.PrintProcessId' \
           r' --Glacier2.RoutingTable.MaxSize=10' + \
           r' --Ice.OA.Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
           r' --Ice.OA.Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \

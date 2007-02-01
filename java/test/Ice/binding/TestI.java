@@ -18,6 +18,6 @@ public class TestI extends _TestIntfDisp
     public String
     getAdapterName(Ice.Current current)
     {
-	return current.adapter.getName();
+        return current.adapter.getName();
     }
 }

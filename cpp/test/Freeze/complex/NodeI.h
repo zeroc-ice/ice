@@ -26,12 +26,12 @@ public:
 
     NumberNodeI(int n)
     {
-	number = n;
+        number = n;
     }
 
     virtual int calc(const Ice::Current&)
     {
-	return number;
+        return number;
     }
 };
 
@@ -45,13 +45,13 @@ public:
 
     AddNodeI(const NodePtr& l, const NodePtr& r)
     {
-	left = l;
-	right = r;
+        left = l;
+        right = r;
     }
 
     virtual int calc(const Ice::Current&)
     {
-	return left->calc() + right->calc();
+        return left->calc() + right->calc();
     }
 };
 
@@ -65,13 +65,13 @@ public:
 
     MultiplyNodeI(const NodePtr& l, const NodePtr& r)
     {
-	left = l;
-	right = r;
+        left = l;
+        right = r;
     }
 
     virtual int calc(const Ice::Current&)
     {
-	return left->calc() * right->calc();
+        return left->calc() * right->calc();
     }
 };
 
@@ -81,26 +81,26 @@ public:
 
     virtual Ice::ObjectPtr create(const std::string& type)
     {
-	if(type == "::Complex::MultiplyNode")
-	{
-	    return new MultiplyNodeI();
-	}
-	if(type == "::Complex::AddNode")
-	{
-	    return new AddNodeI();
-	}
-	if(type == "::Complex::NumberNode")
-	{
-	    return new NumberNodeI();
-	}
-	std::cout << "create: " << type << std::endl;
-	assert(false);
-	return 0;
+        if(type == "::Complex::MultiplyNode")
+        {
+            return new MultiplyNodeI();
+        }
+        if(type == "::Complex::AddNode")
+        {
+            return new AddNodeI();
+        }
+        if(type == "::Complex::NumberNode")
+        {
+            return new NumberNodeI();
+        }
+        std::cout << "create: " << type << std::endl;
+        assert(false);
+        return 0;
     }
 
     virtual void destroy()
     {
-	// Nothing to do
+        // Nothing to do
     }
 };
 

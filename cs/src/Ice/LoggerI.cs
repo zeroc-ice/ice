@@ -14,78 +14,78 @@ namespace Ice
 
     public sealed class LoggerI : LocalObjectImpl, Logger
     {
-	public LoggerI(string prefix)
-	{
-	    if(prefix.Length > 0)
-	    {
-		_prefix = prefix + ": ";
-	    }
-	    
-	    _date = "G";
-	}
-	
-	public void print(string message)
-	{
-	    lock(_globalMutex)
-	    {
-		System.Console.Error.WriteLine(message);
-	    }
-	}
+        public LoggerI(string prefix)
+        {
+            if(prefix.Length > 0)
+            {
+                _prefix = prefix + ": ";
+            }
+            
+            _date = "G";
+        }
+        
+        public void print(string message)
+        {
+            lock(_globalMutex)
+            {
+                System.Console.Error.WriteLine(message);
+            }
+        }
 
-	public void trace(string category, string message)
-	{
-	    System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
-	    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-	    s.Append(' ');
-	    s.Append(_prefix);
-	    s.Append(category);
-	    s.Append(": ");
-	    s.Append(message);
-	    s.Append(" ]");
-	    s.Replace("\n", "\n  ");
+        public void trace(string category, string message)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
+            s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+            s.Append(' ');
+            s.Append(_prefix);
+            s.Append(category);
+            s.Append(": ");
+            s.Append(message);
+            s.Append(" ]");
+            s.Replace("\n", "\n  ");
 
-	    lock(_globalMutex)
-	    {
-		System.Console.Error.WriteLine(s.ToString());
-	    }
-	}
-	
-	public void warning(string message)
-	{
-	    System.Text.StringBuilder s = new System.Text.StringBuilder();
-	    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-	    s.Append(' ');
-	    s.Append(_prefix);
-	    s.Append("warning: ");
-	    s.Append(message);
+            lock(_globalMutex)
+            {
+                System.Console.Error.WriteLine(s.ToString());
+            }
+        }
+        
+        public void warning(string message)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+            s.Append(' ');
+            s.Append(_prefix);
+            s.Append("warning: ");
+            s.Append(message);
 
-	    lock(_globalMutex)
-	    {
-		System.Console.Error.WriteLine(s.ToString());
-	    }
-	}
-	
-	public void error(string message)
-	{
-	    System.Text.StringBuilder s = new System.Text.StringBuilder();
-	    s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
-	    s.Append(' ');
-	    s.Append(_prefix);
-	    s.Append("error: ");
-	    s.Append(message);
+            lock(_globalMutex)
+            {
+                System.Console.Error.WriteLine(s.ToString());
+            }
+        }
+        
+        public void error(string message)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+            s.Append(' ');
+            s.Append(_prefix);
+            s.Append("error: ");
+            s.Append(message);
 
-	    lock(_globalMutex)
-	    {
-		System.Console.Error.WriteLine(s.ToString());
-	    }
-	}
-	
-	internal string _prefix = "";
-	internal static object _globalMutex;
-	internal string _date = null;
-	static LoggerI()
-	{
-	    _globalMutex = new object();
-	}
+            lock(_globalMutex)
+            {
+                System.Console.Error.WriteLine(s.ToString());
+            }
+        }
+        
+        internal string _prefix = "";
+        internal static object _globalMutex;
+        internal string _date = null;
+        static LoggerI()
+        {
+            _globalMutex = new object();
+        }
     }
 }

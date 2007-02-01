@@ -61,7 +61,7 @@ def sedFile(path, patt, replace):
 
     dstLines = []
     for x in srcLines:
-	dstLines.append(re.sub(patt, replace, x))
+        dstLines.append(re.sub(patt, replace, x))
 
     src.close()
     dst = open(path, "w")
@@ -195,7 +195,7 @@ hintPathReplace = r'\1IceCS-' + version + r'\3'
 projectFiles = find(os.path.join("icevb", "demo"), "*.vbproj")
 for x in projectFiles:
     if not x.endswith("D.vbproj"):
-	sedFile(x, hintPathSearch, hintPathReplace)
+        sedFile(x, hintPathSearch, hintPathReplace)
 
 #
 # Create source archives.

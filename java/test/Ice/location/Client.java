@@ -12,7 +12,7 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	AllTests.allTests(communicator);
+        AllTests.allTests(communicator);
         return 0;
     }
 
@@ -24,9 +24,9 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(args);
-	    initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
+            initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);
         }
@@ -49,7 +49,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

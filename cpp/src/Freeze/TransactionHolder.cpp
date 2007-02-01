@@ -16,7 +16,7 @@ Freeze::TransactionHolder::TransactionHolder(const ConnectionPtr& connection)
 {
     if(connection->currentTransaction() == 0)
     {
-	_transaction = connection->beginTransaction();
+        _transaction = connection->beginTransaction();
     }
 }
 
@@ -24,13 +24,13 @@ Freeze::TransactionHolder::~TransactionHolder()
 {
     try
     {
-	rollback();
+        rollback();
     }
     catch(...)
     {
-	//
-	// Ignored to avoid crash during stack unwinding
-	//
+        //
+        // Ignored to avoid crash during stack unwinding
+        //
     }
 }
 
@@ -39,16 +39,16 @@ Freeze::TransactionHolder::commit()
 {
     if(_transaction != 0)
     {
-	try
-	{
-	    _transaction->commit();
-	    _transaction = 0;
-	}
-	catch(...)
-	{
-	    _transaction = 0;
-	    throw;
-	}
+        try
+        {
+            _transaction->commit();
+            _transaction = 0;
+        }
+        catch(...)
+        {
+            _transaction = 0;
+            throw;
+        }
     }
 }
 
@@ -57,15 +57,15 @@ Freeze::TransactionHolder::rollback()
 {
     if(_transaction != 0)
     {
-	try
-	{
-	    _transaction->rollback();
-	    _transaction = 0;
-	}
-	catch(...)
-	{
-	    _transaction = 0;
-	    throw;
-	}
+        try
+        {
+            _transaction->rollback();
+            _transaction = 0;
+        }
+        catch(...)
+        {
+            _transaction = 0;
+            throw;
+        }
     }
 }

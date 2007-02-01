@@ -50,17 +50,17 @@ Module ClockC
                 End Try
             End Try
 
-	    Dim clock As ClockPrx = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway())
+            Dim clock As ClockPrx = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway())
 
-	    Console.Out.WriteLine("publishing tick events. Press ^C to terminate the application.")
-	    Try
-	        While 1
-	            clock.tick(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"))
+            Console.Out.WriteLine("publishing tick events. Press ^C to terminate the application.")
+            Try
+                While 1
+                    clock.tick(DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss"))
 
-		    System.Threading.Thread.Sleep(1000)
-	        End While
-	    Catch ex As Ice.CommunicatorDestroyedException
-	    End Try
+                    System.Threading.Thread.Sleep(1000)
+                End While
+            Catch ex As Ice.CommunicatorDestroyedException
+            End Try
 
             Return 0
         End Function

@@ -37,18 +37,18 @@ public class ProxyIdentityKey
     public boolean
     equals(java.lang.Object obj)
     {
-	if(this == obj)
-	{
-	    return true;
-	}
+        if(this == obj)
+        {
+            return true;
+        }
 
-	if(obj instanceof ProxyIdentityKey)
-	{
-	    ProxyIdentityKey other = (ProxyIdentityKey)obj;
-	    return (_hashCode == other._hashCode) && _identity.equals(other._identity);
-	}
+        if(obj instanceof ProxyIdentityKey)
+        {
+            ProxyIdentityKey other = (ProxyIdentityKey)obj;
+            return (_hashCode == other._hashCode) && _identity.equals(other._identity);
+        }
 
-	return false;
+        return false;
     }
 
     public Ice.ObjectPrx

@@ -84,8 +84,8 @@ def twoways(communicator, p)
     r.opVoid()
     c1.opVoid()
     begin
-	c2.opVoid()
-	test(false)
+        c2.opVoid()
+        test(false)
     rescue Ice::ObjectNotExistException
     end
 
@@ -381,7 +381,7 @@ def twoways(communicator, p)
     ro, d = p.opLongFloatD(di1, di2)
 
     for k in d.keys
-	test((d[k] - di1[k]).abs < 0.01)
+        test((d[k] - di1[k]).abs < 0.01)
     end
     test(ro.length == 4)
     test(ro[999999110] - -1.1 < 0.01)
@@ -424,15 +424,15 @@ def twoways(communicator, p)
     #
     lengths = [ 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 ]
     for l in lengths
-	s = []
-	for i in (0...l)
-	    s.push(i)
-	end
-	r = p.opIntS(s)
-	test(r.length == l)
-	for j in (0...r.length)
-	    test(r[j] == -j)
-	end
+        s = []
+        for i in (0...l)
+            s.push(i)
+        end
+        r = p.opIntS(s)
+        test(r.length == l)
+        for j in (0...r.length)
+            test(r[j] == -j)
+        end
     end
 
     #
@@ -507,7 +507,7 @@ def twoways(communicator, p)
         ic = Ice.initialize(initData)
         
         ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
-	
+        
         p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
         
         ic.getImplicitContext().setContext(ctx)

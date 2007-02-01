@@ -28,26 +28,26 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
     bool newEntry = i == _map.end();
     if(!newEntry)
     {
-	//
-	// Got an entry already, dequeue the entry from its current position.
-	//
-	ec->entry = i->second;
-	_queue.erase(ec->entry->pos);
+        //
+        // Got an entry already, dequeue the entry from its current position.
+        //
+        ec->entry = i->second;
+        _queue.erase(ec->entry->pos);
     }
     else
     {
-	//
-	// We do not have an entry. Ask the derived class to
-	// instantiate a servant and add a new entry to the map.
-	//
-	ec->entry = new EvictorEntry;
-	ec->entry->servant = add(c, ec->entry->userCookie); // Down-call
-	if(!ec->entry->servant)
-	{
-	    return 0;
-	}
-	ec->entry->useCount = 0;
-	i = _map.insert(std::make_pair(c.id, ec->entry)).first;
+        //
+        // We do not have an entry. Ask the derived class to
+        // instantiate a servant and add a new entry to the map.
+        //
+        ec->entry = new EvictorEntry;
+        ec->entry->servant = add(c, ec->entry->userCookie); // Down-call
+        if(!ec->entry->servant)
+        {
+            return 0;
+        }
+        ec->entry->useCount = 0;
+        i = _map.insert(std::make_pair(c.id, ec->entry)).first;
     }
 
     //
@@ -93,13 +93,13 @@ EvictorBase::evictServants()
     //
     for(int i = static_cast<int>(_map.size() - _size); i > 0; --i)
     {
-	EvictorQueue::reverse_iterator p = _queue.rbegin();
-	if((*p)->second->useCount == 0)
-	{
-	    evict((*p)->second->servant, (*p)->second->userCookie); // Down-call
-	    EvictorMap::iterator pos = *p;
-	    _queue.erase((*p)->second->pos);
-	    _map.erase(pos);
-	}
+        EvictorQueue::reverse_iterator p = _queue.rbegin();
+        if((*p)->second->useCount == 0)
+        {
+            evict((*p)->second->servant, (*p)->second->userCookie); // Down-call
+            EvictorMap::iterator pos = *p;
+            _queue.erase((*p)->second->pos);
+            _map.erase(pos);
+        }
     }
 }

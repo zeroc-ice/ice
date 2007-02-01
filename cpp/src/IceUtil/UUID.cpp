@@ -40,9 +40,9 @@ public:
     
     PidInitializer()
     {
-	pid_t p = getpid();
-	myPid[0] = (p >> 8) & 0x7F;
-	myPid[1] = p & 0xFF;
+        pid_t p = getpid();
+        myPid[0] = (p >> 8) & 0x7F;
+        myPid[1] = p & 0xFF;
     }
 };
 static PidInitializer pidInitializer;
@@ -56,11 +56,11 @@ inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
 {
     if(hb < 10)
     {
-	*hexBuffer++ = '0' + hb;
+        *hexBuffer++ = '0' + hb;
     }
     else
     {
-	*hexBuffer++ = 'A' + (hb - 10);
+        *hexBuffer++ = 'A' + (hb - 10);
     } 
 }
 
@@ -68,8 +68,8 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 {
     for(size_t i = 0; i < len; i++)
     {
-	halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
-	halfByteToHex((bytes[i] & 0x0F), hexBuffer);
+        halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
+        halfByteToHex((bytes[i] & 0x0F), hexBuffer);
     }
 }
 
@@ -93,12 +93,12 @@ IceUtil::generateUUID()
 #else
     struct UUID
     {
-	unsigned char timeLow[4];
-	unsigned char timeMid[2];
-	unsigned char timeHighAndVersion[2];
-	unsigned char clockSeqHiAndReserved;
-	unsigned char clockSeqLow;
-	unsigned char node[6];
+        unsigned char timeLow[4];
+        unsigned char timeMid[2];
+        unsigned char timeHighAndVersion[2];
+        unsigned char clockSeqHiAndReserved;
+        unsigned char clockSeqLow;
+        unsigned char node[6];
     };
     UUID uuid;
 

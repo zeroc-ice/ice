@@ -19,7 +19,7 @@ public sealed class CallbackI : Test.CallbackDisp_
     public override void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
-	proxy.callback(current.ctx);
+        proxy.callback(current.ctx);
     }
 
     public override void
@@ -45,12 +45,12 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public override void
     callback(Ice.Current current)
     {
-	lock(this)
-	{
-	    Debug.Assert(!_callback);
-	    _callback = true;
-	    System.Threading.Monitor.Pulse(this);
-	}
+        lock(this)
+        {
+            Debug.Assert(!_callback);
+            _callback = true;
+            System.Threading.Monitor.Pulse(this);
+        }
     }
 
     public override void
@@ -66,20 +66,20 @@ public sealed class CallbackReceiverI : CallbackReceiverDisp_
     public bool
     callbackOK()
     {
-	lock(this)
-	{
-	    while(!_callback)
-	    {
-		System.Threading.Monitor.Wait(this, 5000);
-		if(!_callback)
-		{
-		    return false;
-		}
-	    }
-	    
-	    _callback = false;
-	    return true;
-	}
+        lock(this)
+        {
+            while(!_callback)
+            {
+                System.Threading.Monitor.Wait(this, 5000);
+                if(!_callback)
+                {
+                    return false;
+                }
+            }
+            
+            _callback = false;
+            return true;
+        }
     }
 
     private bool _callback;

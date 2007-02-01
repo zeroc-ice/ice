@@ -122,7 +122,7 @@ for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icepy", "slice", x), 1)
 for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
     if not os.path.exists(os.path.join("icepy", "config", os.path.basename(x))):
-	shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
+        shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
 
 #
 # Remove files.
@@ -211,13 +211,13 @@ if not skipTranslator:
     os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
 
     if isHpUx():
-	os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
+        os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
     elif isDarwin():
-	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
+        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
     elif isAIX():
-	os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
+        os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
     else:
-	os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
 
@@ -243,14 +243,14 @@ versionMinor = ""
 versionPatch = ""
 for l in config.readlines():
     if l.startswith("VERSION_MAJOR"):
-	n, v = l.split('=')
-	versionMajor = v.strip()
+        n, v = l.split('=')
+        versionMajor = v.strip()
     elif l.startswith("VERSION_MINOR"):
-	n, v = l.split('=')
-	versionMinor = v.strip()
+        n, v = l.split('=')
+        versionMinor = v.strip()
     elif l.startswith("VERSION_PATCH"):
-	n, v = l.split('=')
-	versionPatch = v.strip()
+        n, v = l.split('=')
+        versionPatch = v.strip()
 
 config.close()
 

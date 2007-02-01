@@ -17,98 +17,98 @@ public class XMLWriter
 {
     public XMLWriter(File file) throws FileNotFoundException, IOException
     {
-	try
-	{
-	    _writer = new BufferedWriter(
-		new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
-	}
-	catch(UnsupportedEncodingException e)
-	{
-	    assert false;
-	}
-	_writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + _newline);
-	_writer.write("<!-- This file was written by IceGrid Admin -->" + _newline);
+        try
+        {
+            _writer = new BufferedWriter(
+                new OutputStreamWriter(new FileOutputStream(file), "UTF-8"));
+        }
+        catch(UnsupportedEncodingException e)
+        {
+            assert false;
+        }
+        _writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" + _newline);
+        _writer.write("<!-- This file was written by IceGrid Admin -->" + _newline);
     }
 
     public void writeElement(String name, java.util.List attributes)
-	throws IOException
+        throws IOException
     {
-	_writer.write(_indent);
-	_writer.write("<" + name);
-	writeAttributes(attributes);
-	_writer.write("/>" + _newline);
+        _writer.write(_indent);
+        _writer.write("<" + name);
+        writeAttributes(attributes);
+        _writer.write("/>" + _newline);
     }
 
     public void writeElement(String name) throws IOException
     {
-	writeElement(name, (java.util.List)null);
+        writeElement(name, (java.util.List)null);
     }
 
     public void writeElement(String name, String content) throws IOException
     {
-	_writer.write(_indent);
-	_writer.write("<" + name + ">" + escape(content) + 
-		      "</" + name + ">" + _newline);
+        _writer.write(_indent);
+        _writer.write("<" + name + ">" + escape(content) + 
+                      "</" + name + ">" + _newline);
     }
 
     public void writeStartTag(String name, java.util.List attributes)
-	throws IOException
+        throws IOException
     {
-	_writer.write(_indent);
-	_writer.write("<" + name);
-	writeAttributes(attributes);
-	_writer.write(">");
-	_writer.write(_newline);
-	increaseIndent();
+        _writer.write(_indent);
+        _writer.write("<" + name);
+        writeAttributes(attributes);
+        _writer.write(">");
+        _writer.write(_newline);
+        increaseIndent();
     }
 
     public void writeStartTag(String name) throws IOException
     {
-	writeStartTag(name, null);
+        writeStartTag(name, null);
     }
 
     public void writeEndTag(String name) throws IOException
     {
-	decreaseIndent();
-	_writer.write(_indent);
-	_writer.write("</" + name + ">" + _newline);
+        decreaseIndent();
+        _writer.write(_indent);
+        _writer.write("</" + name + ">" + _newline);
     }
 
     public void close()  throws IOException
     {
-	_writer.close();
+        _writer.close();
     }
 
     public void flush() throws IOException
     {
-	_writer.flush();
+        _writer.flush();
     }
 
     private void writeAttributes(java.util.List attributes)
-	throws IOException
+        throws IOException
     {
-	if(attributes != null)
-	{
-	    java.util.Iterator p = attributes.iterator();
-	    while(p.hasNext())
-	    {
-		String[] pair = (String[])p.next();
-		_writer.write(" " + pair[0] + "=\"" + pair[1] + "\"");
-	    }
-	}
+        if(attributes != null)
+        {
+            java.util.Iterator p = attributes.iterator();
+            while(p.hasNext())
+            {
+                String[] pair = (String[])p.next();
+                _writer.write(" " + pair[0] + "=\"" + pair[1] + "\"");
+            }
+        }
     }
 
     private void increaseIndent()
     {
-	_indent += "   ";
+        _indent += "   ";
     }
 
     private void decreaseIndent()
     {
-	if(_indent.length() > 0)
-	{
-	    _indent = _indent.substring(3);
-	}
+        if(_indent.length() > 0)
+        {
+            _indent = _indent.substring(3);
+        }
     }
 
     private String

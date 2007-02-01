@@ -139,32 +139,32 @@ public class AllTests
         }
         System.out.println("ok");
 
-	if(!collocated)
-	{
-	    System.out.print("testing UnexpectedObjectException...");
-	    System.out.flush();
-	    ref = "uoet:default -p 12010 -t 10000";
-	    base = communicator.stringToProxy(ref);
-	    test(base != null);
-	    UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(base);
-	    test(uoet != null);
-	    try
-	    {
-		uoet.op();
-		test(false);
-	    }
-	    catch(Ice.UnexpectedObjectException ex)
-	    {
-		test(ex.type.equals("::Test::AlsoEmpty"));
-		test(ex.expectedType.equals("::Test::Empty"));
-	    }
-	    catch(java.lang.Exception ex)
-	    {
-		System.out.println(ex);
-		test(false);
-	    }
-	    System.out.println("ok");
-	}
+        if(!collocated)
+        {
+            System.out.print("testing UnexpectedObjectException...");
+            System.out.flush();
+            ref = "uoet:default -p 12010 -t 10000";
+            base = communicator.stringToProxy(ref);
+            test(base != null);
+            UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(base);
+            test(uoet != null);
+            try
+            {
+                uoet.op();
+                test(false);
+            }
+            catch(Ice.UnexpectedObjectException ex)
+            {
+                test(ex.type.equals("::Test::AlsoEmpty"));
+                test(ex.expectedType.equals("::Test::Empty"));
+            }
+            catch(java.lang.Exception ex)
+            {
+                System.out.println(ex);
+                test(false);
+            }
+            System.out.println("ok");
+        }
 
         return initial;
     }

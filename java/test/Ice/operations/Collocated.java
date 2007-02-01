@@ -17,7 +17,7 @@ public class Collocated
         Ice.Identity id = communicator.stringToIdentity("test");
         adapter.add(new MyDerivedClassI(adapter, id), id);
         adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
-	adapter.activate();
+        adapter.activate();
 
         AllTests.allTests(communicator, true);
 
@@ -32,9 +32,9 @@ public class Collocated
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(argsH);
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(args, communicator);
         }

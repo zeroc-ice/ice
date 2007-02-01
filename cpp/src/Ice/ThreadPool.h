@@ -94,13 +94,13 @@ private:
     class EventHandlerThread : public IceUtil::Thread
     {
     public:
-	
-	EventHandlerThread(const ThreadPoolPtr&);
-	virtual void run();
+        
+        EventHandlerThread(const ThreadPoolPtr&);
+        virtual void run();
 
     private:
 
-	ThreadPoolPtr _pool;
+        ThreadPoolPtr _pool;
     };
     friend class EventHandlerThread;
 

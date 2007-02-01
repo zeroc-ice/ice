@@ -56,7 +56,7 @@ class AMIException(CallbackBase):
         test(False)
 
     def ice_exception(self, ex):
-	test(isinstance(ex, Ice.ConnectionLostException))
+        test(isinstance(ex, Ice.ConnectionLostException))
         self.called()
 
 def allTests(communicator):
@@ -84,7 +84,7 @@ def allTests(communicator):
     print "calling operation to kill connection with second proxy...",
     try:
         retry2.op(True)
-	test(False)
+        test(False)
     except Ice.ConnectionLostException:
         print "ok"
 

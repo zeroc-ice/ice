@@ -15,35 +15,35 @@ public class Client : Ice.Application
     private static void menu()
     {
         Console.Write(
-	    "usage:\n" +
-	    "t: send greeting as twoway\n" +
-	    "o: send greeting as oneway\n" +
-	    "O: send greeting as batch oneway\n" +
-	    "d: send greeting as datagram\n" +
-	    "D: send greeting as batch datagram\n" +
-	    "f: flush all batch requests\n");
-	if(_haveSSL)
-	{
-	    Console.Write("\nS: switch secure mode on/off");
-	}
-	Console.WriteLine(
-	    "\nx: exit\n" +
-	    "?: help\n");
+            "usage:\n" +
+            "t: send greeting as twoway\n" +
+            "o: send greeting as oneway\n" +
+            "O: send greeting as batch oneway\n" +
+            "d: send greeting as datagram\n" +
+            "D: send greeting as batch datagram\n" +
+            "f: flush all batch requests\n");
+        if(_haveSSL)
+        {
+            Console.Write("\nS: switch secure mode on/off");
+        }
+        Console.WriteLine(
+            "\nx: exit\n" +
+            "?: help\n");
     }
     
     public override int run(string[] args)
     {
-	try
-	{
-	    communicator().getPluginManager().getPlugin("IceSSL");
-	    _haveSSL = true;
-	}
-	catch(Ice.NotRegisteredException)
-	{
-	}
+        try
+        {
+            communicator().getPluginManager().getPlugin("IceSSL");
+            _haveSSL = true;
+        }
+        catch(Ice.NotRegisteredException)
+        {
+        }
 
         HelloPrx twoway = HelloPrxHelper.checkedCast(
-	    communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
+            communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             Console.Error.WriteLine("invalid proxy");
@@ -54,7 +54,7 @@ public class Client : Ice.Application
         HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
         HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
         
-	bool secure = false;
+        bool secure = false;
         
         menu();
         
@@ -84,25 +84,25 @@ public class Client : Ice.Application
                 }
                 else if(line.Equals("d"))
                 {
-		    if(secure)
-		    {
-			Console.WriteLine("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			datagram.sayHello();
-		    }
+                    if(secure)
+                    {
+                        Console.WriteLine("secure datagrams are not supported");
+                    }
+                    else
+                    {
+                        datagram.sayHello();
+                    }
                 }
                 else if(line.Equals("D"))
                 {
-		    if(secure)
-		    {
-			Console.WriteLine("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			batchDatagram.sayHello();
-		    }
+                    if(secure)
+                    {
+                        Console.WriteLine("secure datagrams are not supported");
+                    }
+                    else
+                    {
+                        batchDatagram.sayHello();
+                    }
                 }
                 else if(line.Equals("f"))
                 {
@@ -110,23 +110,23 @@ public class Client : Ice.Application
                 }
                 else if(_haveSSL && line.Equals("S"))
                 {
-		    secure = !secure;
+                    secure = !secure;
 
-		    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-		    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-		    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-		    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-		    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
-		    
-		    if(secure)
-		    {
-			Console.WriteLine("secure mode is now on");
-		    }
-		    else
-		    {
-			Console.WriteLine("secure mode is now off");
-		    }
-		}
+                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+                    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+                    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+                    
+                    if(secure)
+                    {
+                        Console.WriteLine("secure mode is now on");
+                    }
+                    else
+                    {
+                        Console.WriteLine("secure mode is now off");
+                    }
+                }
                 else if(line.Equals("x"))
                 {
                     // Nothing to do
@@ -143,7 +143,7 @@ public class Client : Ice.Application
             }
             catch(System.Exception ex)
             {
-		Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
             }
         }
         while (!line.Equals("x"));

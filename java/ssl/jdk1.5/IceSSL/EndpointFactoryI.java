@@ -13,37 +13,37 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
 {
     EndpointFactoryI(Instance instance)
     {
-	_instance = instance;
+        _instance = instance;
     }
 
     public short
     type()
     {
-	return EndpointI.TYPE;
+        return EndpointI.TYPE;
     }
 
     public String
     protocol()
     {
-	return "ssl";
+        return "ssl";
     }
 
     public IceInternal.EndpointI
     create(String str)
     {
-	return new EndpointI(_instance, str);
+        return new EndpointI(_instance, str);
     }
 
     public IceInternal.EndpointI
     read(IceInternal.BasicStream s)
     {
-	return new EndpointI(_instance, s);
+        return new EndpointI(_instance, s);
     }
 
     public void
     destroy()
     {
-	_instance = null;
+        _instance = null;
     }
 
     private Instance _instance;

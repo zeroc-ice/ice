@@ -61,35 +61,35 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::StringSeq seq;
     if(arglist)
     {
-	if(PyObject_IsInstance(arglist, (PyObject*)&PyList_Type))
-	{
-	    if(!listToStringSeq(arglist, seq))
-	    {
-		return -1;
-	    }
-	}
-	else if(arglist != Py_None)
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("args must be None or a list"));
-	    return -1;
-	}
+        if(PyObject_IsInstance(arglist, (PyObject*)&PyList_Type))
+        {
+            if(!listToStringSeq(arglist, seq))
+            {
+                return -1;
+            }
+        }
+        else if(arglist != Py_None)
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("args must be None or a list"));
+            return -1;
+        }
     }
 
     Ice::PropertiesPtr defaults;
     if(defaultsObj)
     {
-	PyObject* propType = lookupType("Ice.PropertiesI");
-	assert(propType != NULL);
-	if(PyObject_IsInstance(defaultsObj, propType))
-	{
-	    PyObjectHandle impl = PyObject_GetAttrString(defaultsObj, STRCAST("_impl"));
-	    defaults = getProperties(impl.get());
-	}
-	else if(defaultsObj != Py_None)
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("defaults must be None or a Ice.Properties"));
-	    return -1;
-	}
+        PyObject* propType = lookupType("Ice.PropertiesI");
+        assert(propType != NULL);
+        if(PyObject_IsInstance(defaultsObj, propType))
+        {
+            PyObjectHandle impl = PyObject_GetAttrString(defaultsObj, STRCAST("_impl"));
+            defaults = getProperties(impl.get());
+        }
+        else if(defaultsObj != Py_None)
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("defaults must be None or a Ice.Properties"));
+            return -1;
+        }
     }
 
 

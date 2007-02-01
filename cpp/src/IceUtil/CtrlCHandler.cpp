@@ -70,7 +70,7 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
     CtrlCHandlerCallback callback = _handler->getCallback();
     if(callback != 0)
     {
-	callback(dwCtrlType);
+        callback(dwCtrlType);
     }
     return TRUE;
 }
@@ -81,14 +81,14 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     StaticMutex::Lock lock(globalMutex);
     if(_handler != 0)
     {
-	throw CtrlCHandlerException(__FILE__, __LINE__);
+        throw CtrlCHandlerException(__FILE__, __LINE__);
     }
     else
     {
-	_callback = callback;
-	_handler = this;
-	lock.release();
-	SetConsoleCtrlHandler(handlerRoutine, TRUE);
+        _callback = callback;
+        _handler = this;
+        lock.release();
+        SetConsoleCtrlHandler(handlerRoutine, TRUE);
     }
 }
 
@@ -96,8 +96,8 @@ CtrlCHandler::~CtrlCHandler()
 {
     SetConsoleCtrlHandler(handlerRoutine, FALSE);
     {
-	StaticMutex::Lock lock(globalMutex);
-	_handler = 0;
+        StaticMutex::Lock lock(globalMutex);
+        _handler = 0;
     }
 }
 
@@ -120,38 +120,38 @@ sigwaitThread(void*)
     //
     for(;;)
     {
-	int signal = 0;
-	int rc = sigwait(&ctrlCLikeSignals, &signal);
+        int signal = 0;
+        int rc = sigwait(&ctrlCLikeSignals, &signal);
 #if defined(__APPLE__)
-	//
-	// WORKAROUND: sigwait is not a cancelation point on MacOS X. To cancel this thread, the 
-	// destructor cancels the thread and send a signal to the thread to unblock sigwait, then
-	// we explicitly test for cancellation.
-	//
-	pthread_testcancel();
+        //
+        // WORKAROUND: sigwait is not a cancelation point on MacOS X. To cancel this thread, the 
+        // destructor cancels the thread and send a signal to the thread to unblock sigwait, then
+        // we explicitly test for cancellation.
+        //
+        pthread_testcancel();
 #endif
-	//
-	// Some sigwait() implementations incorrectly return EINTR
-	// when interrupted by an unblocked caught signal
-	//
-	if(rc == EINTR)
-	{
-	    continue;
-	}
-	assert(rc == 0);
-	
-	rc = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
-	assert(rc == 0);
-	
-	CtrlCHandlerCallback callback = _handler->getCallback();
-	
-	if(callback != 0)
-	{
-	    callback(signal);
-	}
+        //
+        // Some sigwait() implementations incorrectly return EINTR
+        // when interrupted by an unblocked caught signal
+        //
+        if(rc == EINTR)
+        {
+            continue;
+        }
+        assert(rc == 0);
+        
+        rc = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
+        assert(rc == 0);
+        
+        CtrlCHandlerCallback callback = _handler->getCallback();
+        
+        if(callback != 0)
+        {
+            callback(signal);
+        }
 
-	rc = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
-	assert(rc == 0);
+        rc = pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+        assert(rc == 0);
     }
     return 0;
 }
@@ -164,29 +164,29 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     StaticMutex::Lock lock(globalMutex);
     if(_handler != 0)
     {
-	throw CtrlCHandlerException(__FILE__, __LINE__);
+        throw CtrlCHandlerException(__FILE__, __LINE__);
     }
     else
     {
-	_callback = callback;
-	_handler = this;
-	lock.release();
-	
-	// We block these CTRL+C like signals in the main thread,
-	// and by default all other threads will inherit this signal
-	// disposition.
-	
-	sigset_t ctrlCLikeSignals;
-	sigemptyset(&ctrlCLikeSignals);
-	sigaddset(&ctrlCLikeSignals, SIGHUP);
-	sigaddset(&ctrlCLikeSignals, SIGINT);
-	sigaddset(&ctrlCLikeSignals, SIGTERM);
-	int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
-	assert(rc == 0);
+        _callback = callback;
+        _handler = this;
+        lock.release();
+        
+        // We block these CTRL+C like signals in the main thread,
+        // and by default all other threads will inherit this signal
+        // disposition.
+        
+        sigset_t ctrlCLikeSignals;
+        sigemptyset(&ctrlCLikeSignals);
+        sigaddset(&ctrlCLikeSignals, SIGHUP);
+        sigaddset(&ctrlCLikeSignals, SIGINT);
+        sigaddset(&ctrlCLikeSignals, SIGTERM);
+        int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
+        assert(rc == 0);
 
-	// Joinable thread
-	rc = pthread_create(&_tid, 0, sigwaitThread, 0);
-	assert(rc == 0);
+        // Joinable thread
+        rc = pthread_create(&_tid, 0, sigwaitThread, 0);
+        assert(rc == 0);
     }
 }
 
@@ -209,8 +209,8 @@ CtrlCHandler::~CtrlCHandler()
     assert(status == PTHREAD_CANCELED);
 #endif
     {
-	StaticMutex::Lock lock(globalMutex);
-	_handler = 0;
+        StaticMutex::Lock lock(globalMutex);
+        _handler = 0;
     }
 }
 

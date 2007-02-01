@@ -20,7 +20,7 @@ class PhoneBookServer : public Ice::Application
 public:
     
     PhoneBookServer(const string& envName) :
-	_envName(envName)
+        _envName(envName)
     {
     }
 
@@ -74,7 +74,7 @@ PhoneBookServer::run(int argc, char* argv[])
     Ice::Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
-	evictor->setSize(evictorSize);
+        evictor->setSize(evictorSize);
     }
 
     //

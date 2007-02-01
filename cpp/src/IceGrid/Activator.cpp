@@ -41,14 +41,14 @@ class TerminationListenerThread : public IceUtil::Thread
 public:
 
     TerminationListenerThread(Activator& activator) :
-	_activator(activator)
+        _activator(activator)
     {
     }
 
     virtual 
     void run()
     {
-	_activator.runTerminationListener();
+        _activator.runTerminationListener();
     }
 
 private:
@@ -81,8 +81,8 @@ reportChildError(int err, int fd, const char* cannot, const char* name)
     strcat(msg, "'");
     if(err)
     {
-	strcat(msg, ": ");
-	strcat(msg, strerror(err));
+        strcat(msg, ": ");
+        strcat(msg, strerror(err));
     }
     write(fd, msg, strlen(msg));
     close(fd);
@@ -102,68 +102,68 @@ signalToString(int signal)
 {
     switch(signal)
     {
-	case SIGHUP:
-	{
-	    return ICE_STRING(SIGHUP);
-	}
-	case SIGINT:
-	{
-	    return ICE_STRING(SIGINT);
-	}
-	case SIGQUIT:
-	{
-	    return ICE_STRING(SIGQUIT);
-	}
-	case SIGILL:
-	{
-	    return ICE_STRING(SIGILL);
-	}
-	case SIGTRAP:
-	{
-	    return ICE_STRING(SIGTRAP);
-	}
-	case SIGABRT:
-	{
-	    return ICE_STRING(SIGABRT);
-	}
-	case SIGBUS:
-	{
-	    return ICE_STRING(SIGBUS);
-	}
-	case SIGFPE:
-	{
-	    return ICE_STRING(SIGFPE);
-	}
-	case SIGKILL:
-	{
-	    return ICE_STRING(SIGKILL);
-	}
-	case SIGUSR1:
-	{
-	    return ICE_STRING(SIGUSR1);
-	}
-	case SIGSEGV:
-	{
-	    return ICE_STRING(SIGSEGV);
-	}
-	case SIGPIPE:
-	{
-	    return ICE_STRING(SIGPIPE);
-	}
-	case SIGALRM:
-	{
-	    return ICE_STRING(SIGALRM);
-	}
-	case SIGTERM:
-	{
-	    return ICE_STRING(SIGTERM);
-	}
-	default:
-	{
-	    ostringstream os;
-	    os << "signal " << signal;
-	    return os.str();
-	}
+        case SIGHUP:
+        {
+            return ICE_STRING(SIGHUP);
+        }
+        case SIGINT:
+        {
+            return ICE_STRING(SIGINT);
+        }
+        case SIGQUIT:
+        {
+            return ICE_STRING(SIGQUIT);
+        }
+        case SIGILL:
+        {
+            return ICE_STRING(SIGILL);
+        }
+        case SIGTRAP:
+        {
+            return ICE_STRING(SIGTRAP);
+        }
+        case SIGABRT:
+        {
+            return ICE_STRING(SIGABRT);
+        }
+        case SIGBUS:
+        {
+            return ICE_STRING(SIGBUS);
+        }
+        case SIGFPE:
+        {
+            return ICE_STRING(SIGFPE);
+        }
+        case SIGKILL:
+        {
+            return ICE_STRING(SIGKILL);
+        }
+        case SIGUSR1:
+        {
+            return ICE_STRING(SIGUSR1);
+        }
+        case SIGSEGV:
+        {
+            return ICE_STRING(SIGSEGV);
+        }
+        case SIGPIPE:
+        {
+            return ICE_STRING(SIGPIPE);
+        }
+        case SIGALRM:
+        {
+            return ICE_STRING(SIGALRM);
+        }
+        case SIGTERM:
+        {
+            return ICE_STRING(SIGTERM);
+        }
+        default:
+        {
+            ostringstream os;
+            os << "signal " << signal;
+            return os.str();
+        }
     }
 #endif
 }
@@ -177,77 +177,77 @@ stringToSignal(const string& str)
 
     if(str == ICE_STRING(SIGHUP))
     {
-	return SIGHUP;
+        return SIGHUP;
     }
     else if(str ==  ICE_STRING(SIGINT))
     {
-	return SIGINT;
+        return SIGINT;
     }
     else if(str == ICE_STRING(SIGQUIT))
     {
-	return SIGQUIT;
+        return SIGQUIT;
     }
     else if(str == ICE_STRING(SIGILL))
     {
-	return SIGILL;
+        return SIGILL;
     }
     else if(str == ICE_STRING(SIGTRAP))
     {
-	return SIGTRAP;
+        return SIGTRAP;
     }
     else if(str == ICE_STRING(SIGABRT))
     {
-	return SIGABRT;
+        return SIGABRT;
     }
     else if(str == ICE_STRING(SIGBUS))
     {
-	return SIGBUS;
+        return SIGBUS;
     }
     else if(str == ICE_STRING(SIGFPE))
     {
-	return SIGFPE;
+        return SIGFPE;
     }
     else if(str == ICE_STRING(SIGKILL))
     {
-	return SIGKILL;
+        return SIGKILL;
     }
     else if(str == ICE_STRING(SIGUSR1))
     {
-	return SIGUSR1;
+        return SIGUSR1;
     }
     else if(str == ICE_STRING(SIGSEGV))
     {
-	return SIGSEGV;
+        return SIGSEGV;
     }
     else if(str == ICE_STRING(SIGUSR2))
     {
-	return SIGUSR2;
+        return SIGUSR2;
     }
     else if(str == ICE_STRING(SIGPIPE))
     {
-	return SIGPIPE;
+        return SIGPIPE;
     }
     else if(str == ICE_STRING(SIGALRM))
     {
-	return SIGALRM;
+        return SIGALRM;
     }
     else if(str == ICE_STRING(SIGTERM))
     {
-	return SIGTERM;
+        return SIGTERM;
     }
     else
     {
-	if(str != "")
-	{
-	    char* end;
-	    long int signal = strtol(str.c_str(), &end, 10);
-	    if(*end == '\0' && signal > 0 && signal < 64)
-	    {
-		return static_cast<int>(signal);
-	    }
-	}
-	throw BadSignalException("unknown signal `" + str + "'");
-	return SIGTERM; // Keep the compiler happy.
+        if(str != "")
+        {
+            char* end;
+            long int signal = strtol(str.c_str(), &end, 10);
+            if(*end == '\0' && signal > 0 && signal < 64)
+            {
+                return static_cast<int>(signal);
+            }
+        }
+        throw BadSignalException("unknown signal `" + str + "'");
+        return SIGTERM; // Keep the compiler happy.
     }
 }
 #endif
@@ -268,17 +268,17 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
 
     if(_hIntr == NULL)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 #else
     int fds[2];
     if(pipe(fds) != 0)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -307,56 +307,56 @@ Activator::~Activator()
 
 int
 Activator::activate(const string& name,
-		    const string& exePath,
-		    const string& pwdPath,
+                    const string& exePath,
+                    const string& pwdPath,
 #ifndef _WIN32      
-		    uid_t uid,
-		    gid_t gid,
+                    uid_t uid,
+                    gid_t gid,
 #endif
-		    const Ice::StringSeq& options,
-		    const Ice::StringSeq& envs,
-		    const ServerIPtr& server)
+                    const Ice::StringSeq& options,
+                    const Ice::StringSeq& envs,
+                    const ServerIPtr& server)
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
     if(_deactivating)
     {
-	throw string("The node is being shutdown.");
+        throw string("The node is being shutdown.");
     }
 
     string path = exePath;
     if(path.empty())
     {
-	throw string("The server executable path is empty.");
+        throw string("The server executable path is empty.");
     }
 
     string pwd = IcePatch2::simplify(pwdPath);
 #ifdef _WIN32
     if(!IcePatch2::isAbsolute(path))
     {
-	if(path.find('/') == string::npos)
-	{
-	    //
-	    // Get the absolute pathname of the executable.
-	    //
-	    char absbuf[_MAX_PATH];
-	    char* filePart;
-	    string ext = path.size() <= 4 || path[path.size() - 4] != '.' ? ".exe" : "";
-	    if(SearchPath(NULL, path.c_str(), ext.c_str(), _MAX_PATH, absbuf, &filePart) == 0)
-	    {
-		if(_traceLevels->activator > 0)
-		{
-		    Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-		    out << "cannot convert `" << path << "' into an absolute path";
-		}
-		throw string("The server executable path `" + path + "' can't be converted into an absolute path.");
-	    }
-	    path = absbuf;
-	}
-   	else if(!pwd.empty())
-	{
-	    path = pwd + "/" + path;
-	}
+        if(path.find('/') == string::npos)
+        {
+            //
+            // Get the absolute pathname of the executable.
+            //
+            char absbuf[_MAX_PATH];
+            char* filePart;
+            string ext = path.size() <= 4 || path[path.size() - 4] != '.' ? ".exe" : "";
+            if(SearchPath(NULL, path.c_str(), ext.c_str(), _MAX_PATH, absbuf, &filePart) == 0)
+            {
+                if(_traceLevels->activator > 0)
+                {
+                    Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+                    out << "cannot convert `" << path << "' into an absolute path";
+                }
+                throw string("The server executable path `" + path + "' can't be converted into an absolute path.");
+            }
+            path = absbuf;
+        }
+        else if(!pwd.empty())
+        {
+            path = pwd + "/" + path;
+        }
     }
 
     //
@@ -364,17 +364,17 @@ Activator::activate(const string& name,
     //
     if(!pwd.empty())
     {
-	char absbuf[_MAX_PATH];
-	if(_fullpath(absbuf, pwd.c_str(), _MAX_PATH) == NULL)
-	{
-	    if(_traceLevels->activator > 0)
-	    {
-		Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-		out << "cannot convert `" << pwd << "' into an absolute path";
-	    }
-	    throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
-	}
-	pwd = absbuf;
+        char absbuf[_MAX_PATH];
+        if(_fullpath(absbuf, pwd.c_str(), _MAX_PATH) == NULL)
+        {
+            if(_traceLevels->activator > 0)
+            {
+                Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+                out << "cannot convert `" << pwd << "' into an absolute path";
+            }
+            throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
+        }
+        pwd = absbuf;
     }
 #endif
 
@@ -387,41 +387,41 @@ Activator::activate(const string& name,
     
     if(_traceLevels->activator > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "activating server `" << name << "'";
-	if(_traceLevels->activator > 1)
-	{
-	    out << "\n";
-	    out << "path = " << path << "\n";
-	    if(pwd.empty())
-	    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+        out << "activating server `" << name << "'";
+        if(_traceLevels->activator > 1)
+        {
+            out << "\n";
+            out << "path = " << path << "\n";
+            if(pwd.empty())
+            {
 #ifdef _WIN32
-		char cwd[_MAX_PATH];
-		if(_getcwd(cwd, _MAX_PATH) != NULL)
+                char cwd[_MAX_PATH];
+                if(_getcwd(cwd, _MAX_PATH) != NULL)
 #else
-		char cwd[PATH_MAX];
-		if(getcwd(cwd, PATH_MAX) != NULL)
+                char cwd[PATH_MAX];
+                if(getcwd(cwd, PATH_MAX) != NULL)
 #endif
-		{
-		    out << "pwd = " << string(cwd) << "\n";
-		}
-	    }
-	    else
-	    {
-		out << "pwd = " << pwd << "\n";
-	    }
+                {
+                    out << "pwd = " << string(cwd) << "\n";
+                }
+            }
+            else
+            {
+                out << "pwd = " << pwd << "\n";
+            }
 #ifndef _WIN32
-	    out << "uid/gid = " << uid << "/" << gid << "\n";
+            out << "uid/gid = " << uid << "/" << gid << "\n";
 #endif
-	    if(!envs.empty())
-	    {
-		out << "envs = " << toString(envs, ", ") << "\n";
-	    }
-	    if(!args.empty())
-	    {
-		out << "args = " << toString(args);
-	    }
-	}
+            if(!envs.empty())
+            {
+                out << "envs = " << toString(envs, ", ") << "\n";
+            }
+            if(!args.empty())
+            {
+                out << "args = " << toString(args);
+            }
+        }
     }
 
     //
@@ -500,8 +500,8 @@ Activator::activate(const string& name,
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
-	    	string key = s.substr(0, pos);
-		std::transform(key.begin(), key.end(), key.begin(), toupper);
+                string key = s.substr(0, pos);
+                std::transform(key.begin(), key.end(), key.begin(), toupper);
                 envMap.insert(map<string, string>::value_type(key, s.substr(pos + 1)));
             }
             var += s.size();
@@ -514,9 +514,9 @@ Activator::activate(const string& name,
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
-	        string key = s.substr(0, pos);
-		std::transform(key.begin(), key.end(), key.begin(), toupper);
-		envMap.erase(key);
+                string key = s.substr(0, pos);
+                std::transform(key.begin(), key.end(), key.begin(), toupper);
+                envMap.erase(key);
                 envMap.insert(map<string, string>::value_type(key, s.substr(pos + 1)));
             }
         }
@@ -591,9 +591,9 @@ Activator::activate(const string& name,
     int fds[2];
     if(pipe(fds) != 0)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 
     //
@@ -604,8 +604,8 @@ Activator::activate(const string& name,
     int i = 0;
     for(StringSeq::const_iterator p = args.begin(); p != args.end(); ++p, ++i)
     {
-	assert(i < argc);
-	argv[i] = strdup(p->c_str());
+        assert(i < argc);
+        argv[i] = strdup(p->c_str());
     }
     assert(i == argc);
     argv[argc] = 0;
@@ -615,7 +615,7 @@ Activator::activate(const string& name,
     i = 0;
     for(StringSeq::const_iterator q = envs.begin(); q != envs.end(); ++q)
     {
-	envArray[i++] = strdup(q->c_str());
+        envArray[i++] = strdup(q->c_str());
     }
 
     //
@@ -626,118 +626,118 @@ Activator::activate(const string& name,
     pid_t pid = fork();
     if(pid == -1)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 
     if(pid == 0) // Child process.
     {
-	//
-	// Until exec, we can only use async-signal safe functions
-	//
+        //
+        // Until exec, we can only use async-signal safe functions
+        //
 
-	//
-	// Change the uid/gid under which the process will run.
-	//
-	if(setgid(gid) == -1)
-	{
-	    ostringstream os;
-	    os << gid;
-	    reportChildError(getSystemErrno(), fds[1], "cannot set process group id", os.str().c_str());
-	}	    
-	
-	if(setuid(uid) == -1)
-	{
-	    ostringstream os;
-	    os << uid;
-	    reportChildError(getSystemErrno(), fds[1], "cannot set process user id", os.str().c_str());
-	}
+        //
+        // Change the uid/gid under which the process will run.
+        //
+        if(setgid(gid) == -1)
+        {
+            ostringstream os;
+            os << gid;
+            reportChildError(getSystemErrno(), fds[1], "cannot set process group id", os.str().c_str());
+        }           
+        
+        if(setuid(uid) == -1)
+        {
+            ostringstream os;
+            os << uid;
+            reportChildError(getSystemErrno(), fds[1], "cannot set process user id", os.str().c_str());
+        }
 
-	//
-	// Assign a new process group for this process. 
-	//
-	setpgid(0, 0);
+        //
+        // Assign a new process group for this process. 
+        //
+        setpgid(0, 0);
 
-	//
-	// Close all file descriptors, except for standard input,
-	// standard output, standard error, and the write side
-	// of the newly created pipe.
-	//
-	int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
-	for(int fd = 3; fd < maxFd; ++fd)
-	{
-	    if(fd != fds[1])
-	    {
-		close(fd);
-	    }
-	}
+        //
+        // Close all file descriptors, except for standard input,
+        // standard output, standard error, and the write side
+        // of the newly created pipe.
+        //
+        int maxFd = static_cast<int>(sysconf(_SC_OPEN_MAX));
+        for(int fd = 3; fd < maxFd; ++fd)
+        {
+            if(fd != fds[1])
+            {
+                close(fd);
+            }
+        }
 
-	for(i = 0; i < envCount; i++)
-	{
-	    if(putenv(envArray[i]) != 0)
-	    {
-		reportChildError(errno, fds[1], "cannot set environment variable",  envArray[i]); 
-	    }
-	}
-	//
-	// Each env is leaked on purpose ... see man putenv().
-	//
-	delete[] envArray;
+        for(i = 0; i < envCount; i++)
+        {
+            if(putenv(envArray[i]) != 0)
+            {
+                reportChildError(errno, fds[1], "cannot set environment variable",  envArray[i]); 
+            }
+        }
+        //
+        // Each env is leaked on purpose ... see man putenv().
+        //
+        delete[] envArray;
 
-	//
-	// Change working directory.
-	//
-	if(strlen(pwdCStr) != 0)
-	{
-	    if(chdir(pwdCStr) == -1)
-	    {
-		reportChildError(errno, fds[1], "cannot change working directory to",  pwdCStr);
-	    }
-	}	
+        //
+        // Change working directory.
+        //
+        if(strlen(pwdCStr) != 0)
+        {
+            if(chdir(pwdCStr) == -1)
+            {
+                reportChildError(errno, fds[1], "cannot change working directory to",  pwdCStr);
+            }
+        }       
 
-	if(execvp(argv[0], argv) == -1)
-	{
-	    reportChildError(errno, fds[1], "cannot execute",  argv[0]);
-	}
+        if(execvp(argv[0], argv) == -1)
+        {
+            reportChildError(errno, fds[1], "cannot execute",  argv[0]);
+        }
     }
     else // Parent process.
     {
-	close(fds[1]);
+        close(fds[1]);
 
-	for(i = 0; argv[i]; i++)
-	{
-	    free(argv[i]);
-	}
-	free(argv);
+        for(i = 0; argv[i]; i++)
+        {
+            free(argv[i]);
+        }
+        free(argv);
 
-	for(i = 0; i < envCount; ++i)
-	{
-	    free(envArray[i]);
-	}
-	delete[] envArray;
+        for(i = 0; i < envCount; ++i)
+        {
+            free(envArray[i]);
+        }
+        delete[] envArray;
 
-	Process process;
-	process.pid = pid;
-	process.pipeFd = fds[0];
-	process.server = server;
-	_processes.insert(make_pair(name, process));
-	
-	int flags = fcntl(process.pipeFd, F_GETFL);
-	flags |= O_NONBLOCK;
-	fcntl(process.pipeFd, F_SETFL, flags);
+        Process process;
+        process.pid = pid;
+        process.pipeFd = fds[0];
+        process.server = server;
+        _processes.insert(make_pair(name, process));
+        
+        int flags = fcntl(process.pipeFd, F_GETFL);
+        flags |= O_NONBLOCK;
+        fcntl(process.pipeFd, F_SETFL, flags);
 
-	setInterrupt();
+        setInterrupt();
 
     //  
     // Don't print the following trace, this might interfere with the
     // output of the started process if it fails with an error message.
     //
-// 	if(_traceLevels->activator > 0)
-// 	{
-// 	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-// 	    out << "activated server `" << name << "' (pid = " << pid << ")";
-// 	}
+//      if(_traceLevels->activator > 0)
+//      {
+//          Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+//          out << "activated server `" << name << "' (pid = " << pid << ")";
+//      }
     }
 
     return pid;
@@ -751,10 +751,10 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
     Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
-	//
-	// Server is already deactivated.
-	//
-	return;
+        //
+        // Server is already deactivated.
+        //
+        return;
     }
 #endif
 
@@ -763,21 +763,21 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
     //
     if(process)
     {
-	if(_traceLevels->activator > 1)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	    out << "deactivating `" << name << "' using process proxy";
-	}
-	try
-	{
-	    process->shutdown();
-	    return;
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    Ice::Warning out(_traceLevels->logger);
-	    out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << ex;
-	}
+        if(_traceLevels->activator > 1)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+            out << "deactivating `" << name << "' using process proxy";
+        }
+        try
+        {
+            process->shutdown();
+            return;
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            Ice::Warning out(_traceLevels->logger);
+            out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << ex;
+        }
     }
 
     if(_traceLevels->activator > 1)
@@ -820,10 +820,10 @@ Activator::kill(const string& name)
     Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
-	//
-	// Server is already deactivated.
-	//
-	return;
+        //
+        // Server is already deactivated.
+        //
+        return;
     }
 
     HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
@@ -840,8 +840,8 @@ Activator::kill(const string& name)
 
     if(_traceLevels->activator > 1)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "terminating server `" << name << "' (pid = " << pid << ")";
+        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+        out << "terminating server `" << name << "' (pid = " << pid << ")";
     }
 
 #else
@@ -869,24 +869,24 @@ Activator::sendSignal(const string& name, int signal)
     Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
-	//
-	// Server is already deactivated.
-	//
-	return;
+        //
+        // Server is already deactivated.
+        //
+        return;
     }
 
     int ret = ::kill(static_cast<pid_t>(pid), signal);
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 
     if(_traceLevels->activator > 1)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "sent " << signalToString(signal) << " to server `" << name << "' (pid = " << pid << ")";
+        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+        out << "sent " << signalToString(signal) << " to server `" << name << "' (pid = " << pid << ")";
     }
 #endif
 }
@@ -899,7 +899,7 @@ Activator::getServerPid(const string& name)
     map<string, Process>::const_iterator p = _processes.find(name);
     if(p == _processes.end())
     {
-	return 0;
+        return 0;
     }
 
     return static_cast<Ice::Int>(p->second.pid);
@@ -921,7 +921,7 @@ Activator::waitForShutdown()
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
     while(!_deactivating)
     {
-	wait();
+        wait();
     }
 }
 
@@ -945,9 +945,9 @@ Activator::destroy()
 {
     map<string, Process> processes;
     {
-	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	assert(_deactivating);
-	processes = _processes;
+        IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+        assert(_deactivating);
+        processes = _processes;
     }
 
     //
@@ -955,30 +955,30 @@ Activator::destroy()
     //
     for(map<string, Process>::iterator p = processes.begin(); p != processes.end(); ++p)
     {
-	//
-	// Stop the server. The listener thread should detect the
-	// process deactivation and remove it from the activator's
-	// list of active processes.
-	//
-	try
-	{
-	    p->second.server->stop_async(0);
-	}
-	catch(const ServerStopException&)
-	{
-	    // Server already stopped or destroyed.
-	}
-	catch(const ObjectNotExistException&)
-	{
-	    //
-	    // Expected if the server was in the process of being destroyed.
-	    //
-	}
-	catch(const Ice::LocalException& ex)
-	{
-	    Ice::Warning out(_traceLevels->logger);
-	    out << "unexpected exception raised by server `" << p->first << "' stop:\n" << ex;
-	}
+        //
+        // Stop the server. The listener thread should detect the
+        // process deactivation and remove it from the activator's
+        // list of active processes.
+        //
+        try
+        {
+            p->second.server->stop_async(0);
+        }
+        catch(const ServerStopException&)
+        {
+            // Server already stopped or destroyed.
+        }
+        catch(const ObjectNotExistException&)
+        {
+            //
+            // Expected if the server was in the process of being destroyed.
+            //
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            Ice::Warning out(_traceLevels->logger);
+            out << "unexpected exception raised by server `" << p->first << "' stop:\n" << ex;
+        }
     }
 
     //
@@ -996,21 +996,21 @@ Activator::runTerminationListener()
 {
     while(true)
     {
-	try
-	{
-	    terminationListener();
-	    break;
-	}
-	catch(const Exception& ex)
-	{
-	    Error out(_traceLevels->logger);
-	    out << "exception in process termination listener:\n" << ex;
-	}
-	catch(...)
-	{
-	    Error out(_traceLevels->logger);
-	    out << "unknown exception in process termination listener";
-	}
+        try
+        {
+            terminationListener();
+            break;
+        }
+        catch(const Exception& ex)
+        {
+            Error out(_traceLevels->logger);
+            out << "exception in process termination listener:\n" << ex;
+        }
+        catch(...)
+        {
+            Error out(_traceLevels->logger);
+            out << "unknown exception in process termination listener";
+        }
     }
 }
 
@@ -1051,60 +1051,60 @@ Activator::terminationListener()
         assert(pos < handles.size());
         HANDLE hnd = handles[pos];
 
-	vector<Process> terminated;
-	bool deactivated = false;
-	{
-	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	    
-	    if(hnd == _hIntr)
-	    {
-		clearInterrupt();
-	    }
-	    else
-	    {
-		for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
-		{
-		    if(p->second.hnd == hnd)
-		    {
-			terminated.push_back(p->second);
-			_processes.erase(p);
-			break;
-		    }
-		}
+        vector<Process> terminated;
+        bool deactivated = false;
+        {
+            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+            
+            if(hnd == _hIntr)
+            {
+                clearInterrupt();
+            }
+            else
+            {
+                for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+                {
+                    if(p->second.hnd == hnd)
+                    {
+                        terminated.push_back(p->second);
+                        _processes.erase(p);
+                        break;
+                    }
+                }
             }
 
-	    deactivated = _deactivating && _processes.empty();
-	}
-	
-	for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
-	{
-	    DWORD status;
-	    GetExitCodeProcess(p->hnd, &status);
-	    CloseHandle(p->hnd);
-	    assert(status != STILL_ACTIVE);
+            deactivated = _deactivating && _processes.empty();
+        }
+        
+        for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+        {
+            DWORD status;
+            GetExitCodeProcess(p->hnd, &status);
+            CloseHandle(p->hnd);
+            assert(status != STILL_ACTIVE);
 
-	    if(_traceLevels->activator > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-		out << "detected termination of server `" << p->server->getId() << "'";
-		if(status != 0)
-		{
-		    out << "\nexit code = " << status;
-		}
-	    }
+            if(_traceLevels->activator > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+                out << "detected termination of server `" << p->server->getId() << "'";
+                if(status != 0)
+                {
+                    out << "\nexit code = " << status;
+                }
+            }
 
-	    try
-	    {
-		p->server->terminated("", status);
-	    }
-	    catch(const Ice::LocalException& ex)
-	    {
-		Ice::Warning out(_traceLevels->logger);
-		out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
-	    }
-	}
+            try
+            {
+                p->server->terminated("", status);
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                Ice::Warning out(_traceLevels->logger);
+                out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
+            }
+        }
 
-	if(deactivated)
+        if(deactivated)
         {
             return;
         }
@@ -1112,197 +1112,197 @@ Activator::terminationListener()
 #else
     while(true)
     {
-	fd_set fdSet;
-	int maxFd = _fdIntrRead;
-	FD_ZERO(&fdSet);
-	FD_SET(_fdIntrRead, &fdSet);
-	
-	{
-	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+        fd_set fdSet;
+        int maxFd = _fdIntrRead;
+        FD_ZERO(&fdSet);
+        FD_SET(_fdIntrRead, &fdSet);
+        
+        {
+            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
-	    for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
-	    {
-		int fd = p->second.pipeFd;
-		FD_SET(fd, &fdSet);
-		if(maxFd < fd)
-		{
-		    maxFd = fd;
-		}
-	    }
-	}
-	
+            for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            {
+                int fd = p->second.pipeFd;
+                FD_SET(fd, &fdSet);
+                if(maxFd < fd)
+                {
+                    maxFd = fd;
+                }
+            }
+        }
+        
     repeatSelect:
-	int ret = ::select(maxFd + 1, &fdSet, 0, 0, 0);
-	assert(ret != 0);
-	
-	if(ret == -1)
-	{
+        int ret = ::select(maxFd + 1, &fdSet, 0, 0, 0);
+        assert(ret != 0);
+        
+        if(ret == -1)
+        {
 #ifdef EPROTO
-	    if(errno == EINTR || errno == EPROTO)
-	    {
-		goto repeatSelect;
-	    }
+            if(errno == EINTR || errno == EPROTO)
+            {
+                goto repeatSelect;
+            }
 #else
-	    if(errno == EINTR)
-	    {
-		goto repeatSelect;
-	    }
+            if(errno == EINTR)
+            {
+                goto repeatSelect;
+            }
 #endif
-	    
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    throw ex;
-	}
-	
-	vector<Process> terminated;
-	bool deactivated = false;
-	{
-	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
-	    
-	    if(FD_ISSET(_fdIntrRead, &fdSet))
-	    {
-		clearInterrupt();
+            
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+        
+        vector<Process> terminated;
+        bool deactivated = false;
+        {
+            IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+            
+            if(FD_ISSET(_fdIntrRead, &fdSet))
+            {
+                clearInterrupt();
 
-		if(_deactivating && _processes.empty())
+                if(_deactivating && _processes.empty())
                 {
                     return;
                 }
-	    }
-	    
-	    map<string, Process>::iterator p = _processes.begin();
-	    while(p != _processes.end())
-	    {
-		int fd = p->second.pipeFd;
-		if(!FD_ISSET(fd, &fdSet))   
-		{
-		    ++p;
-		    continue;
-		}
+            }
+            
+            map<string, Process>::iterator p = _processes.begin();
+            while(p != _processes.end())
+            {
+                int fd = p->second.pipeFd;
+                if(!FD_ISSET(fd, &fdSet))   
+                {
+                    ++p;
+                    continue;
+                }
 
-		char s[16];
-		ssize_t rs;
-		string message;
+                char s[16];
+                ssize_t rs;
+                string message;
 
-		//
-		// Read the message over the pipe.
-		//
-		while((rs = read(fd, &s, 16)) > 0)
-		{
-		    message.append(s, rs);
-		}
+                //
+                // Read the message over the pipe.
+                //
+                while((rs = read(fd, &s, 16)) > 0)
+                {
+                    message.append(s, rs);
+                }
 
-		//
-		// Keep the received message.
-		//
-		if(!message.empty())
-		{
-		    p->second.msg += message;
-		}
+                //
+                // Keep the received message.
+                //
+                if(!message.empty())
+                {
+                    p->second.msg += message;
+                }
 
-		if(rs == -1)
-		{
-		    if(errno != EAGAIN || message.empty())
-		    {
-			SyscallException ex(__FILE__, __LINE__);
-			ex.error = getSystemErrno();
-			throw ex;
-		    }
+                if(rs == -1)
+                {
+                    if(errno != EAGAIN || message.empty())
+                    {
+                        SyscallException ex(__FILE__, __LINE__);
+                        ex.error = getSystemErrno();
+                        throw ex;
+                    }
 
-		    ++p;
-		}
-		else if(rs == 0)
-		{    
-		    //
-		    // If the pipe was closed, the process has terminated.
-		    //
+                    ++p;
+                }
+                else if(rs == 0)
+                {    
+                    //
+                    // If the pipe was closed, the process has terminated.
+                    //
 
-		    terminated.push_back(p->second);
+                    terminated.push_back(p->second);
     
-		    close(p->second.pipeFd);
-		    _processes.erase(p++);
-		}
-	    }
+                    close(p->second.pipeFd);
+                    _processes.erase(p++);
+                }
+            }
 
-	    //
-	    // We are deactivating and there's no more active processes.
-	    //
-	    deactivated = _deactivating && _processes.empty();
-	}
-	
-	for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
-	{
-	    int status;
+            //
+            // We are deactivating and there's no more active processes.
+            //
+            deactivated = _deactivating && _processes.empty();
+        }
+        
+        for(vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+        {
+            int status;
 #if defined(__linux)
-	    int nRetry = 0;
-	    while(true) // The while loop is necessary for the linux workaround.
-	    {
-		pid_t pid = waitpid(p->pid, &status, 0);
-		if(pid < 0)
-		{
-		    //
-		    // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't 
-		    // block and reports an incorrect ECHILD error on the first call. We sleep a 
-		    // little and retry to work around this issue (it appears from testing that a
-		    // single retry is enough but to make sure we retry up to 10 times before to throw.)
-		    //
-		    if(errno == ECHILD && nRetry < 10)
-		    {
-			// Wait 1ms, 11ms, 21ms, etc.
-			IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); 
-			++nRetry;
-			continue;
-		    }
-		    SyscallException ex(__FILE__, __LINE__);
-		    ex.error = getSystemErrno();
-		    throw ex;
-		}
-		assert(pid == p->pid);
-		break;
-	    }
+            int nRetry = 0;
+            while(true) // The while loop is necessary for the linux workaround.
+            {
+                pid_t pid = waitpid(p->pid, &status, 0);
+                if(pid < 0)
+                {
+                    //
+                    // Some Linux distribution have a bogus waitpid() (e.g.: CentOS 4.x). It doesn't 
+                    // block and reports an incorrect ECHILD error on the first call. We sleep a 
+                    // little and retry to work around this issue (it appears from testing that a
+                    // single retry is enough but to make sure we retry up to 10 times before to throw.)
+                    //
+                    if(errno == ECHILD && nRetry < 10)
+                    {
+                        // Wait 1ms, 11ms, 21ms, etc.
+                        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(nRetry * 10 + 1)); 
+                        ++nRetry;
+                        continue;
+                    }
+                    SyscallException ex(__FILE__, __LINE__);
+                    ex.error = getSystemErrno();
+                    throw ex;
+                }
+                assert(pid == p->pid);
+                break;
+            }
 #else
-	    pid_t pid = waitpid(p->pid, &status, 0);
-	    if(pid < 0)
-	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-	    assert(pid == p->pid);
+            pid_t pid = waitpid(p->pid, &status, 0);
+            if(pid < 0)
+            {
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = getSystemErrno();
+                throw ex;
+            }
+            assert(pid == p->pid);
 #endif
 
-	    if(_traceLevels->activator > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-		out << "detected termination of server `" << p->server->getId() << "'";
-		if(!p->msg.empty())
-		{
-		    out << "\nreason = " << p->msg;
-		}
-		if(WIFEXITED(status) && status != 0)
-		{
-		    out << "\nexit code = " << WEXITSTATUS(status);
-		}
-		else if(WIFSIGNALED(status))
-		{
-		    out << "\nsignal = " << signalToString(WTERMSIG(status));
-		}
-	    }
+            if(_traceLevels->activator > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+                out << "detected termination of server `" << p->server->getId() << "'";
+                if(!p->msg.empty())
+                {
+                    out << "\nreason = " << p->msg;
+                }
+                if(WIFEXITED(status) && status != 0)
+                {
+                    out << "\nexit code = " << WEXITSTATUS(status);
+                }
+                else if(WIFSIGNALED(status))
+                {
+                    out << "\nsignal = " << signalToString(WTERMSIG(status));
+                }
+            }
 
-	    try
-	    {
-		p->server->terminated(p->msg, status);
-	    }
-	    catch(const Ice::LocalException& ex)
-	    {
-		Ice::Warning out(_traceLevels->logger);
-		out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
-	    }
-	}
+            try
+            {
+                p->server->terminated(p->msg, status);
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                Ice::Warning out(_traceLevels->logger);
+                out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
+            }
+        }
 
-	if(deactivated)
-	{
-	    return;
-	}
+        if(deactivated)
+        {
+            return;
+        }
     }
 #endif
 }

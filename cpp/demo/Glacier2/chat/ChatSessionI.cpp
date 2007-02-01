@@ -44,7 +44,7 @@ ChatRoom::instance()
     IceUtil::StaticMutex::Lock sync(_instanceMutex);
     if(!_instance)
     {
-	_instance = new ChatRoom;
+        _instance = new ChatRoom;
     }
 
     return _instance;
@@ -64,10 +64,10 @@ ChatRoom::leave(const ChatCallbackPrx& callback)
     list<ChatCallbackPrx>::iterator p;
     for(p = _members.begin(); p != _members.end(); ++p)
     {
-	if(Ice::proxyIdentityEqual(callback, *p))
-	{
-	    break;
-	}
+        if(Ice::proxyIdentityEqual(callback, *p))
+        {
+            break;
+        }
     }
 
     assert(p != _members.end());
@@ -80,13 +80,13 @@ ChatRoom::message(const string& data) const
     Lock sync(*this);
     for(list<ChatCallbackPrx>::const_iterator p = _members.begin(); p != _members.end(); ++p)
     {
-	try
-	{
-	    (*p)->message(data);
-	}
-	catch(const Ice::LocalException&)
-	{
-	}
+        try
+        {
+            (*p)->message(data);
+        }
+        catch(const Ice::LocalException&)
+        {
+        }
     }
 }
 
@@ -101,10 +101,10 @@ ChatSessionI::setCallback(const ChatCallbackPrx& callback, const Ice::Current& c
     Lock sync(*this);
     if(!_callback)
     {
-	_callback = callback;
-	ChatRoomPtr chatRoom = ChatRoom::instance();
-	chatRoom->message(_userId + " has entered the chat room.");
-	chatRoom->enter(callback);
+        _callback = callback;
+        ChatRoomPtr chatRoom = ChatRoom::instance();
+        chatRoom->message(_userId + " has entered the chat room.");
+        chatRoom->enter(callback);
     }
 }
 
@@ -120,10 +120,10 @@ ChatSessionI::destroy(const Ice::Current& current)
     Lock sync(*this);
     if(_callback)
     {
-	ChatRoomPtr chatRoom = ChatRoom::instance();
-	chatRoom->leave(_callback);
-	_callback = 0;
-	chatRoom->message(_userId + " has left the chat room.");
+        ChatRoomPtr chatRoom = ChatRoom::instance();
+        chatRoom->leave(_callback);
+        _callback = 0;
+        chatRoom->message(_userId + " has left the chat room.");
     }
     current.adapter->remove(current.id);
 }

@@ -24,26 +24,26 @@ class PatcherFeedbackI : public PatcherFeedback
 public:
 
     PatcherFeedbackI(const string& node, 
-		     const NodeSessionIPtr& session, 
-		     const Ice::Identity id,
-		     const PatcherFeedbackAggregatorPtr& aggregator) :
-	_node(node),
-	_session(session),
-	_id(id),
-	_aggregator(aggregator)
+                     const NodeSessionIPtr& session, 
+                     const Ice::Identity id,
+                     const PatcherFeedbackAggregatorPtr& aggregator) :
+        _node(node),
+        _session(session),
+        _id(id),
+        _aggregator(aggregator)
     {
     }
 
     void finished(const Ice::Current&)
     {
-	_aggregator->finished(_node);
-	_session->removeFeedback(this, _id);
+        _aggregator->finished(_node);
+        _session->removeFeedback(this, _id);
     }
 
     virtual void failed(const string& reason, const Ice::Current& = Ice::Current())
     {
-	_aggregator->failed(_node, reason);
-	_session->removeFeedback(this, _id);
+        _aggregator->failed(_node, reason);
+        _session->removeFeedback(this, _id);
     }
 
 private:
@@ -57,10 +57,10 @@ private:
 };
 
 PatcherFeedbackAggregator::PatcherFeedbackAggregator(Ice::Identity id,
-						     const TraceLevelsPtr& traceLevels,
-						     const string& type,
-						     const string& name,
-						     int nodeCount) : 
+                                                     const TraceLevelsPtr& traceLevels,
+                                                     const string& type,
+                                                     const string& name,
+                                                     int nodeCount) : 
     _id(id),
     _traceLevels(traceLevels),
     _type(type),
@@ -79,13 +79,13 @@ PatcherFeedbackAggregator::finished(const string& node)
     Lock sync(*this);
     if(_successes.find(node) != _successes.end() || _failures.find(node) != _failures.end())
     {
-	return;
+        return;
     }
     
     if(_traceLevels->patch > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	out << "finished patching of " << _type << " `" << _name << "' on node `" << node << "'";
+        Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+        out << "finished patching of " << _type << " `" << _name << "' on node `" << node << "'";
     }
     
     _successes.insert(node);
@@ -98,13 +98,13 @@ PatcherFeedbackAggregator::failed(const string& node, const string& failure)
     Lock sync(*this);
     if(_successes.find(node) != _successes.end() || _failures.find(node) != _failures.end())
     {
-	return;
+        return;
     }
     
     if(_traceLevels->patch > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	out << "patching of " << _type << " `" << _name << "' on node `" << node <<"' failed:\n" << failure;
+        Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+        out << "patching of " << _type << " `" << _name << "' on node `" << node <<"' failed:\n" << failure;
     }
     
     _failures.insert(node);
@@ -117,25 +117,25 @@ PatcherFeedbackAggregator::checkIfDone()
 {
     if(static_cast<int>(_successes.size() + _failures.size()) == _count)
     {
-	if(!_failures.empty())
-	{
-	    sort(_reasons.begin(), _reasons.end());
-	    PatchException ex;
-	    ex.reasons = _reasons;
-	    exception(ex);
-	}
-	else
-	{
-	    response();
-	}
+        if(!_failures.empty())
+        {
+            sort(_reasons.begin(), _reasons.end());
+            PatchException ex;
+            ex.reasons = _reasons;
+            exception(ex);
+        }
+        else
+        {
+            response();
+        }
     }
 }
 
 NodeSessionI::NodeSessionI(const DatabasePtr& database, 
-			   const NodePrx& node, 
-			   const InternalNodeInfoPtr& info,
-			   int timeout,
-			   const LoadInfo& load) :
+                           const NodePrx& node, 
+                           const InternalNodeInfoPtr& info,
+                           int timeout,
+                           const LoadInfo& load) :
     _database(database),
     _traceLevels(database->getTraceLevels()),
     _node(node),
@@ -148,34 +148,34 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
     __setNoDelete(true);
     try
     {
-	_database->getNode(info->name, true)->setSession(this);
+        _database->getNode(info->name, true)->setSession(this);
 
-	ObjectInfo objInfo;
-	objInfo.type = Node::ice_staticId();
-	objInfo.proxy = _node;
-	_database->addInternalObject(objInfo, true); // Add or update previous node proxy.
+        ObjectInfo objInfo;
+        objInfo.type = Node::ice_staticId();
+        objInfo.proxy = _node;
+        _database->addInternalObject(objInfo, true); // Add or update previous node proxy.
 
-	_proxy = NodeSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
+        _proxy = NodeSessionPrx::uncheckedCast(_database->getInternalAdapter()->addWithUUID(this));
     }
     catch(const NodeActiveException&)
     {
-	__setNoDelete(false);
-	throw;
+        __setNoDelete(false);
+        throw;
     }
     catch(...)
     {
-	try
-	{
-	    _database->removeInternalObject(_node->ice_getIdentity());
-	}
-	catch(const ObjectNotRegisteredException&)
-	{
-	}
+        try
+        {
+            _database->removeInternalObject(_node->ice_getIdentity());
+        }
+        catch(const ObjectNotRegisteredException&)
+        {
+        }
 
-	_database->getNode(info->name)->setSession(0);
+        _database->getNode(info->name)->setSession(0);
 
-	__setNoDelete(false);
-	throw;
+        __setNoDelete(false);
+        throw;
     }
     __setNoDelete(false);
 }
@@ -186,7 +186,7 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
     _timestamp = IceUtil::Time::now();
@@ -194,9 +194,9 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
 
     if(_traceLevels->node > 2)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-	out << "node `" << _info->name << "' keep alive ";
-	out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
+        Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+        out << "node `" << _info->name << "' keep alive ";
+        out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
     }
 }
 
@@ -206,12 +206,12 @@ NodeSessionI::setReplicaObserver(const ReplicaObserverPrx& observer, const Ice::
     Lock sync(*this);
     if(_destroy)
     {
-	return;
+        return;
     }
     else if(_replicaObserver) // This might happen on activation of the node.
     {
-	assert(_replicaObserver == observer);
-	return;
+        assert(_replicaObserver == observer);
+        return;
     }
 
     _replicaObserver = observer;
@@ -255,16 +255,16 @@ NodeSessionI::getServers(const Ice::Current& current) const
     Ice::StringSeq names;
     for(ServerEntrySeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
     {
-	names.push_back((*p)->getId());
+        names.push_back((*p)->getId());
     }
     return names;
 }
 
 void
 NodeSessionI::waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr& cb, 
-					     const std::string& application, 
-					     int revision, 
-					     const Ice::Current&) const
+                                             const std::string& application, 
+                                             int revision, 
+                                             const Ice::Current&) const
 {
     _database->waitForApplicationUpdate(cb, application, revision);
 }
@@ -281,7 +281,7 @@ NodeSessionI::timestamp() const
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     return _timestamp;
 }
@@ -294,10 +294,10 @@ NodeSessionI::shutdown()
 
 void
 NodeSessionI::patch(const PatcherFeedbackAggregatorPtr& aggregator, 
-		    const string& application,
-		    const string& server,
-		    const InternalDistributionDescriptorPtr& dist, 
-		    bool shutdown)
+                    const string& application,
+                    const string& server,
+                    const InternalDistributionDescriptorPtr& dist, 
+                    bool shutdown)
 {
     Ice::Identity id;
     id.category = _database->getInstanceName();
@@ -306,21 +306,21 @@ NodeSessionI::patch(const PatcherFeedbackAggregatorPtr& aggregator,
     PatcherFeedbackPtr obj = new PatcherFeedbackI(_info->name, this, id, aggregator);
     try
     {
-	PatcherFeedbackPrx feedback = PatcherFeedbackPrx::uncheckedCast(_database->getInternalAdapter()->add(obj, id));
-	_node->patch(feedback, application, server, dist, shutdown);
+        PatcherFeedbackPrx feedback = PatcherFeedbackPrx::uncheckedCast(_database->getInternalAdapter()->add(obj, id));
+        _node->patch(feedback, application, server, dist, shutdown);
 
-	Lock sync(*this);
-	if(_destroy)
-	{
-	    throw NodeUnreachableException(_info->name, "node is down");
-	}
-	_feedbacks.insert(obj);
+        Lock sync(*this);
+        if(_destroy)
+        {
+            throw NodeUnreachableException(_info->name, "node is down");
+        }
+        _feedbacks.insert(obj);
     }
     catch(const Ice::LocalException& ex)
     {
-	ostringstream os;
-	os << "node unreachable:\n" << ex;
-	obj->failed(os.str());
+        ostringstream os;
+        os << "node unreachable:\n" << ex;
+        obj->failed(os.str());
     }
 }
 
@@ -360,12 +360,12 @@ void
 NodeSessionI::destroyImpl(bool shutdown)
 {
     {
-	Lock sync(*this);
-	if(_destroy)
-	{
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-	}	
-	_destroy = true;
+        Lock sync(*this);
+        if(_destroy)
+        {
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        }       
+        _destroy = true;
     }
 
     ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
@@ -377,7 +377,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     // 
     if(!shutdown)
     {
-	_database->removeInternalObject(_node->ice_getIdentity());
+        _database->removeInternalObject(_node->ice_getIdentity());
     }
 
     //
@@ -390,8 +390,8 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     if(_replicaObserver)
     {
-	_database->getReplicaCache().unsubscribe(_replicaObserver);
-	_replicaObserver = 0;
+        _database->getReplicaCache().unsubscribe(_replicaObserver);
+        _replicaObserver = 0;
     }
 
     //
@@ -409,18 +409,18 @@ NodeSessionI::destroyImpl(bool shutdown)
     _feedbacks.swap(feedbacks);
     for(set<PatcherFeedbackPtr>::const_iterator p = feedbacks.begin(); p != feedbacks.end(); ++p)
     {
-	(*p)->failed("node is down");
+        (*p)->failed("node is down");
     }
 
     if(!shutdown)
     {
-	try
-	{
-	    _database->getInternalAdapter()->remove(_proxy->ice_getIdentity());
-	}
-	catch(const Ice::ObjectAdapterDeactivatedException&)
-	{
-	}
+        try
+        {
+            _database->getInternalAdapter()->remove(_proxy->ice_getIdentity());
+        }
+        catch(const Ice::ObjectAdapterDeactivatedException&)
+        {
+        }
     }
 }
 
@@ -429,14 +429,14 @@ NodeSessionI::removeFeedback(const PatcherFeedbackPtr& feedback, const Ice::Iden
 {
     try
     {
-	_database->getInternalAdapter()->remove(id);
+        _database->getInternalAdapter()->remove(id);
     }
     catch(const Ice::LocalException&)
     {
     }
     {
-	Lock sync(*this);
-	_feedbacks.erase(feedback);
+        Lock sync(*this);
+        _feedbacks.erase(feedback);
     }
 }
 

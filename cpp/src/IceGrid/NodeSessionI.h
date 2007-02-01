@@ -65,13 +65,13 @@ public:
     virtual void loadServers_async(const AMD_NodeSession_loadServersPtr&, const Ice::Current&) const;
     virtual Ice::StringSeq getServers(const Ice::Current&) const;
     virtual void waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr&,
-						const std::string&, int, const Ice::Current&) const;
+                                                const std::string&, int, const Ice::Current&) const;
     virtual void destroy(const Ice::Current& = Ice::Current());
     
     virtual IceUtil::Time timestamp() const;
     virtual void shutdown();
     void patch(const PatcherFeedbackAggregatorPtr&, const std::string&,  const std::string&, 
-	       const InternalDistributionDescriptorPtr&, bool);
+               const InternalDistributionDescriptorPtr&, bool);
 
     const NodePrx& getNode() const;
     const InternalNodeInfoPtr& getInfo() const;

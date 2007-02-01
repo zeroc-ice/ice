@@ -38,7 +38,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
-	      r' --Ice.NullHandleAbort' + \
+              r' --Ice.NullHandleAbort' + \
               r' --Ice.ThreadPool.Server.Size=0';
 
 registryOptions = r' --Ice.Warn.Connections=0' + \
@@ -77,7 +77,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
         command += ' --IceGrid.Registry.DynamicRegistration'        
 
     if TestUtil.debug:
-    	print "(" + command + ")"
+        print "(" + command + ")"
 
     iceGridPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceGridPipe)
@@ -97,7 +97,7 @@ def startIceGridNode(testdir):
         cleanDbDir(dataDir)
 
     overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
+                      ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
 
     print "starting icegrid node...",
     command = iceGrid + TestUtil.cppClientServerOptions + ' --nowarn ' + nodeOptions + \
@@ -125,14 +125,14 @@ def iceGridAdmin(cmd, ignoreFailure = False):
 
     user = r"admin1"
     if cmd == "registry shutdown":
-	user = r"shutdown"
+        user = r"shutdown"
     command = iceGridAdmin + TestUtil.cppClientOptions + \
               r' --Ice.Default.Locator="IceGrid/Locator:default -p ' + iceGridPort + '" ' + \
               r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
               r' -e "' + cmd + '"'
 
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
 
     iceGridAdminPipe = os.popen(command + " 2>&1")
 
@@ -256,11 +256,11 @@ def cleanDbDir(path):
             fullpath = os.path.join(path, filename);
             if os.path.isdir(fullpath):
                 cleanDbDir(fullpath)
-		try:
-		    os.rmdir(fullpath)
-		except OSError:
-		    # This might fail if the directory is empty (because it itself is
-		    # a CVS directory).
-		    pass
+                try:
+                    os.rmdir(fullpath)
+                except OSError:
+                    # This might fail if the directory is empty (because it itself is
+                    # a CVS directory).
+                    pass
             else:
                 os.remove(fullpath)

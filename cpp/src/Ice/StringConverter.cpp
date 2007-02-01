@@ -19,8 +19,8 @@ namespace Ice
 
 Byte* 
 UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart, 
-				const wchar_t* sourceEnd,
-				UTF8Buffer& buffer) const
+                                const wchar_t* sourceEnd,
+                                UTF8Buffer& buffer) const
 {
     //
     // The "chunk size" is the maximum of the number of characters in the
@@ -34,27 +34,27 @@ UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart,
     ConversionResult result;
 
     while((result =
-	  convertUTFWstringToUTF8(sourceStart, sourceEnd, 
-				  targetStart, targetEnd, lenientConversion))
-	  == targetExhausted)
+          convertUTFWstringToUTF8(sourceStart, sourceEnd, 
+                                  targetStart, targetEnd, lenientConversion))
+          == targetExhausted)
     {
-	targetStart = buffer.getMoreBytes(chunkSize, targetStart);
-	targetEnd = targetStart + chunkSize;
+        targetStart = buffer.getMoreBytes(chunkSize, targetStart);
+        targetEnd = targetStart + chunkSize;
     }
-	
+        
     switch(result)
     {
-	case conversionOK:
-	    break;
-	case sourceExhausted:
-	    throw StringConversionException(__FILE__, __LINE__, "wide string source exhausted");
-	case sourceIllegal:
-	    throw StringConversionException(__FILE__, __LINE__, "wide string source illegal");
-	default:
-	{
-	    assert(0);
-	    throw StringConversionException(__FILE__, __LINE__);
-	}
+        case conversionOK:
+            break;
+        case sourceExhausted:
+            throw StringConversionException(__FILE__, __LINE__, "wide string source exhausted");
+        case sourceIllegal:
+            throw StringConversionException(__FILE__, __LINE__, "wide string source illegal");
+        default:
+        {
+            assert(0);
+            throw StringConversionException(__FILE__, __LINE__);
+        }
     }
     return targetStart;
 }
@@ -62,24 +62,24 @@ UnicodeWstringConverter::toUTF8(const wchar_t* sourceStart,
 
 void 
 UnicodeWstringConverter::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-				  wstring& target) const
+                                  wstring& target) const
 {
     ConversionResult result = 
-	convertUTF8ToUTFWstring(sourceStart, sourceEnd, target, lenientConversion);
+        convertUTF8ToUTFWstring(sourceStart, sourceEnd, target, lenientConversion);
 
     switch(result)
-    {	 
-	case conversionOK:
-	    break;
-	case sourceExhausted:
-	    throw StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
-	case sourceIllegal:
-	    throw StringConversionException(__FILE__, __LINE__, "UTF-8 string source illegal");
-	default:
-	{
-	    assert(0);
-	    throw StringConversionException(__FILE__, __LINE__);
-	}
+    {    
+        case conversionOK:
+            break;
+        case sourceExhausted:
+            throw StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
+        case sourceIllegal:
+            throw StringConversionException(__FILE__, __LINE__, "UTF-8 string source illegal");
+        default:
+        {
+            assert(0);
+            throw StringConversionException(__FILE__, __LINE__);
+        }
     }
 }
 }

@@ -58,31 +58,31 @@ IceInternal::Buffer::Container::reserve(size_type n)
 {
     if(n > _capacity)
     {
-	_capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
-	_capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
+        _capacity = std::max<size_type>(n, std::min(2 * _capacity, _maxCapacity));
+        _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
     }
     else if(n < _capacity)
     {
-	_capacity = n;
+        _capacity = n;
     }
     else
     {
-	return;
+        return;
     }
     
     if(_buf)
     {
-	_buf = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
+        _buf = reinterpret_cast<pointer>(::realloc(_buf, _capacity));
     }
     else
     {
-	_buf = reinterpret_cast<pointer>(::malloc(_capacity));
+        _buf = reinterpret_cast<pointer>(::malloc(_capacity));
     }
-	
+        
     if(!_buf)
     {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = getSystemErrno();
+        throw ex;
     }
 }

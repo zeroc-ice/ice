@@ -140,32 +140,32 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     if(!collocated)
     {
-	cout << "testing UnexpectedObjectException... " << flush;
-	ref = "uoet:default -p 12010 -t 10000";
-	base = communicator->stringToProxy(ref);
-	test(base);
-	UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrx::uncheckedCast(base);
-	test(uoet);
-	try
-	{
-	    uoet->op();
-	    test(false);
-	}
-	catch(const Ice::UnexpectedObjectException& ex)
-	{
-	    test(ex.type == "::Test::AlsoEmpty");
-	    test(ex.expectedType == "::Test::Empty");
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cout << ex << endl;
-	    test(false);
-	}
-	catch(...)
-	{
-	    test(false);
-	}
-	cout << "ok" << endl;
+        cout << "testing UnexpectedObjectException... " << flush;
+        ref = "uoet:default -p 12010 -t 10000";
+        base = communicator->stringToProxy(ref);
+        test(base);
+        UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrx::uncheckedCast(base);
+        test(uoet);
+        try
+        {
+            uoet->op();
+            test(false);
+        }
+        catch(const Ice::UnexpectedObjectException& ex)
+        {
+            test(ex.type == "::Test::AlsoEmpty");
+            test(ex.expectedType == "::Test::Empty");
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            test(false);
+        }
+        catch(...)
+        {
+            test(false);
+        }
+        cout << "ok" << endl;
     }
 
     return initial;

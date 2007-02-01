@@ -14,78 +14,78 @@ class SessionI extends _SessionDisp
     public
     SessionI(String name)
     {
-	_name = name;
-	_timestamp = System.currentTimeMillis();
-	System.out.println("The session " + _name + " is now created.");
+        _name = name;
+        _timestamp = System.currentTimeMillis();
+        System.out.println("The session " + _name + " is now created.");
     }
 
     synchronized public HelloPrx
     createHello(Ice.Current c)
     {
-	if(_destroy)
-	{
-	    throw new Ice.ObjectNotExistException();
-	}
-	HelloPrx hello = HelloPrxHelper.uncheckedCast(c.adapter.addWithUUID(new HelloI(_name, _nextId++)));
-	_objs.add(hello);
-	return hello;
+        if(_destroy)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+        HelloPrx hello = HelloPrxHelper.uncheckedCast(c.adapter.addWithUUID(new HelloI(_name, _nextId++)));
+        _objs.add(hello);
+        return hello;
     }
 
     synchronized public void
     refresh(Ice.Current c)
     {
-	if(_destroy)
-	{
-	    throw new Ice.ObjectNotExistException();
-	}
-	_timestamp = System.currentTimeMillis();
+        if(_destroy)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+        _timestamp = System.currentTimeMillis();
     }
 
     synchronized public String
     getName(Ice.Current c)
     {
-	if(_destroy)
-	{
-	    throw new Ice.ObjectNotExistException();
-	}
-	return _name;
+        if(_destroy)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+        return _name;
     }
     
     synchronized public void
     destroy(Ice.Current c)
     {
-	if(_destroy)
-	{
-	    throw new Ice.ObjectNotExistException();
-	}
+        if(_destroy)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
 
-	_destroy = true;
-	System.out.println("The session " + _name + " is now destroyed.");
-	try
-	{
-	    c.adapter.remove(c.id);
-	    java.util.Iterator p = _objs.iterator();
-	    while(p.hasNext())
-	    {
-		c.adapter.remove(((HelloPrx)p.next()).ice_getIdentity());
-	    }
-	}
-	catch(Ice.ObjectAdapterDeactivatedException e)
-	{
-	    // This method is called on shutdown of the server, in
-	    // which case this exception is expected.
-	}
-	_objs.clear();
+        _destroy = true;
+        System.out.println("The session " + _name + " is now destroyed.");
+        try
+        {
+            c.adapter.remove(c.id);
+            java.util.Iterator p = _objs.iterator();
+            while(p.hasNext())
+            {
+                c.adapter.remove(((HelloPrx)p.next()).ice_getIdentity());
+            }
+        }
+        catch(Ice.ObjectAdapterDeactivatedException e)
+        {
+            // This method is called on shutdown of the server, in
+            // which case this exception is expected.
+        }
+        _objs.clear();
     }
 
     synchronized public long
     timestamp()
     {
-	if(_destroy)
-	{
-	    throw new Ice.ObjectNotExistException();
-	}
-	return _timestamp;
+        if(_destroy)
+        {
+            throw new Ice.ObjectNotExistException();
+        }
+        return _timestamp;
     }
 
     private String _name;

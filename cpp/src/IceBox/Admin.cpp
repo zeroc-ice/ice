@@ -58,24 +58,24 @@ Client::run(int argc, char* argv[])
     vector<string> commands;
     try
     {
-    	commands = opts.parse(argc, (const char**)argv);
+        commands = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
         cerr << e.reason << endl;
-	usage();
-	return EXIT_FAILURE;
+        usage();
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-	usage();
-	return EXIT_SUCCESS;
+        usage();
+        return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+        cout << ICE_STRING_VERSION << endl;
+        return EXIT_SUCCESS;
     }
 
     if(commands.empty())
@@ -93,34 +93,34 @@ Client::run(int argc, char* argv[])
     if(properties->getProperty("Ice.Default.Locator").empty())
     {
         //
-	// DEPRECATED PROPERTY: Remove extra code in future release.
-	//
-	string managerEndpoints = 
-	    properties->getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.Endpoints",
-	   				       properties->getProperty("IceBox.ServiceManager.Endpoints"));
-	if(managerEndpoints.empty())
-	{
-	    cerr << appName() << ": property `Ice.OA.IceBox.ServiceManager.Endpoints' is not set" << endl;
-	    return EXIT_FAILURE;
-	}
+        // DEPRECATED PROPERTY: Remove extra code in future release.
+        //
+        string managerEndpoints = 
+            properties->getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.Endpoints",
+                                               properties->getProperty("IceBox.ServiceManager.Endpoints"));
+        if(managerEndpoints.empty())
+        {
+            cerr << appName() << ": property `Ice.OA.IceBox.ServiceManager.Endpoints' is not set" << endl;
+            return EXIT_FAILURE;
+        }
 
-	managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
+        managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
     }
     else
     {
         //
-	// DEPRECATED PROPERTY: Remove extra code in future release.
-	//
-	string managerAdapterId = 
-	    properties->getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.AdapterId",
-	    				       properties->getProperty("IceBox.ServiceManager.AdapterId"));
-	if(managerAdapterId.empty())
-	{
-	    cerr << appName() << ": property `Ice.OA.IceBox.ServiceManager.AdapterId' is not set" << endl;
-	    return EXIT_FAILURE;
-	}
+        // DEPRECATED PROPERTY: Remove extra code in future release.
+        //
+        string managerAdapterId = 
+            properties->getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.AdapterId",
+                                               properties->getProperty("IceBox.ServiceManager.AdapterId"));
+        if(managerAdapterId.empty())
+        {
+            cerr << appName() << ": property `Ice.OA.IceBox.ServiceManager.AdapterId' is not set" << endl;
+            return EXIT_FAILURE;
+        }
 
-	managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
+        managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
     }
 
     ObjectPrx base = communicator()->stringToProxy(managerProxy);
@@ -154,48 +154,48 @@ Client::run(int argc, char* argv[])
         {
             manager->shutdown();
         }
-	else if((*r) == "start")
-	{
-	    if(++r == commands.end())
-	    {
+        else if((*r) == "start")
+        {
+            if(++r == commands.end())
+            {
                 cerr << appName() << ": no service name specified." << endl;
                 return EXIT_FAILURE;
-	    }
+            }
 
-	    try
-	    {
-	        manager->startService(*r);
-	    }
-	    catch(const IceBox::NoSuchServiceException&)
-	    {
+            try
+            {
+                manager->startService(*r);
+            }
+            catch(const IceBox::NoSuchServiceException&)
+            {
                 cerr << appName() << ": unknown service `" << *r << "'" << endl;
-	    }
-	    catch(const IceBox::AlreadyStartedException&)
-	    {
+            }
+            catch(const IceBox::AlreadyStartedException&)
+            {
                 cerr << appName() << ": service already started." << endl;
-	    }
-	}
-	else if((*r) == "stop")
-	{
-	    if(++r == commands.end())
-	    {
+            }
+        }
+        else if((*r) == "stop")
+        {
+            if(++r == commands.end())
+            {
                 cerr << appName() << ": no service name specified." << endl;
                 return EXIT_FAILURE;
-	    }
+            }
 
-	    try
-	    {
-	        manager->stopService(*r);
-	    }
-	    catch(const IceBox::NoSuchServiceException&)
-	    {
+            try
+            {
+                manager->stopService(*r);
+            }
+            catch(const IceBox::NoSuchServiceException&)
+            {
                 cerr << appName() << ": unknown service `" << *r << "'" << endl;
-	    }
-	    catch(const IceBox::AlreadyStoppedException&)
-	    {
+            }
+            catch(const IceBox::AlreadyStoppedException&)
+            {
                 cerr << appName() << ": service already stopped." << endl;
-	    }
-	}
+            }
+        }
         else
         {
             cerr << appName() << ": unknown command `" << *r << "'" << endl;

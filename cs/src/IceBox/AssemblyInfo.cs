@@ -20,6 +20,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyProduct("IceBox for C#")]
 [assembly: AssemblyCopyright("Copyright (c) 2003-2007, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
-[assembly: AssemblyCulture("")]		
+[assembly: AssemblyCulture("")]         
 [assembly: AssemblyVersion("3.2.51")]
 [assembly: AssemblyDelaySign(false)]

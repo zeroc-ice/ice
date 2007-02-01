@@ -65,10 +65,10 @@ for oldfile in files:
         value = "int"
 
     command = transformdb + " --old " + os.path.join(directory, "fail", oldfile) + " --new " + \
-	os.path.join(directory, "fail", newfile) + " -o tmp.xml --key string --value " + value
+        os.path.join(directory, "fail", newfile) + " -o tmp.xml --key string --value " + value
 
     if TestUtil.debug:
-	print command
+        print command
 
     stdin, stdout, stderr = os.popen3(command)
     lines1 = stderr.readlines()

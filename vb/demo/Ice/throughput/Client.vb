@@ -53,7 +53,7 @@ Module ThroughputC
 
             Dim structSeq() As StringDouble = New StringDouble(StringDoubleSeqSize.value - 1) {}
             For i As Integer = 0 To StringDoubleSeqSize.value - 1
-		structSeq(i) = New StringDouble
+                structSeq(i) = New StringDouble
                 structSeq(i).s = "hello"
                 structSeq(i).d = 3.14
             Next
@@ -65,22 +65,22 @@ Module ThroughputC
                 fixedSeq(i).d = 0
             Next
 
-	    '
-	    ' A method needs to be invoked thousands of times before the JIT compiler
-	    ' will convert it to native code. To ensure an accurate throughput measurement,
-	    ' we need to "warm up" the JIT compiler.
-	    '
+            '
+            ' A method needs to be invoked thousands of times before the JIT compiler
+            ' will convert it to native code. To ensure an accurate throughput measurement,
+            ' we need to "warm up" the JIT compiler.
+            '
             Dim emptyBytes() As Byte = New Byte(0) {}
             Dim emptyStrings() As String = New String(0) {}
             Dim emptyStructs() As StringDouble = New StringDouble(0) {}
-	    emptyStructs(0) = New StringDouble
+            emptyStructs(0) = New StringDouble
             Dim emptyFixed() As Fixed = New Fixed(0) {}
-	    emptyFixed(0) = New Fixed
+            emptyFixed(0) = New Fixed
 
-	    Dim repetitions As Integer = 10000
-	    Console.Out.Write("warming up the JIT compiler...")
-	    Console.Out.Flush()
-	    For i As Integer = 0 To repetitions - 1
+            Dim repetitions As Integer = 10000
+            Console.Out.Write("warming up the JIT compiler...")
+            Console.Out.Flush()
+            For i As Integer = 0 To repetitions - 1
                throughput.sendByteSeq(emptyBytes)
                throughput.sendStringSeq(emptyStrings)
                throughput.sendStructSeq(emptyStructs)
@@ -95,9 +95,9 @@ Module ThroughputC
                throughput.echoStringSeq(emptyStrings)
                throughput.echoStructSeq(emptyStructs)
                throughput.echoFixedSeq(emptyFixed)
-	    Next
-	    throughput.endWarmup()
-	    Console.Out.WriteLine("ok")
+            Next
+            throughput.endWarmup()
+            Console.Out.WriteLine("ok")
 
             menu()
 

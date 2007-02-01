@@ -22,22 +22,22 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     
     for(int i = 1; i < argc; ++i)
     {
-	if(strcmp(argv[i], "--with-deploy") == 0)
-	{
-	    withDeploy = true;
-	    break;
-	}
+        if(strcmp(argv[i], "--with-deploy") == 0)
+        {
+            withDeploy = true;
+            break;
+        }
     }
 
     if(!withDeploy)
     {
-	void allTests(const Ice::CommunicatorPtr&);
-	allTests(communicator);
+        void allTests(const Ice::CommunicatorPtr&);
+        allTests(communicator);
     }
     else
     {
-	void allTestsWithDeploy(const Ice::CommunicatorPtr&);
-	allTestsWithDeploy(communicator);
+        void allTestsWithDeploy(const Ice::CommunicatorPtr&);
+        allTestsWithDeploy(communicator);
     }
 
     return EXIT_SUCCESS;
@@ -52,26 +52,26 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

@@ -30,8 +30,8 @@ IceInternal::TcpAcceptor::close()
 {
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "stopping to accept tcp connections at " << toString();
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "stopping to accept tcp connections at " << toString();
     }
 
     SOCKET fd = _fd;
@@ -44,18 +44,18 @@ IceInternal::TcpAcceptor::listen()
 {
     try
     {
-	doListen(_fd, _backlog);
+        doListen(_fd, _backlog);
     }
     catch(...)
     {
-	_fd = INVALID_SOCKET;
-	throw;
+        _fd = INVALID_SOCKET;
+        throw;
     }
 
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "accepting tcp connections at " << toString();
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "accepting tcp connections at " << toString();
     }
 }
 
@@ -67,8 +67,8 @@ IceInternal::TcpAcceptor::accept(int timeout)
 
     if(_traceLevels->network >= 1)
     {
-	Trace out(_logger, _traceLevels->networkCat);
-	out << "accepted tcp connection\n" << fdToString(fd);
+        Trace out(_logger, _traceLevels->networkCat);
+        out << "accepted tcp connection\n" << fdToString(fd);
     }
 
     return new TcpTransceiver(_instance, fd);
@@ -116,20 +116,20 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
 
     try
     {
-	_fd = createSocket(false);
-	setBlock(_fd, false);
-	getAddress(host, port, _addr);
-	if(_traceLevels->network >= 2)
-	{
-	    Trace out(_logger, _traceLevels->networkCat);
-	    out << "attempting to bind to tcp socket " << toString();
-	}
-	doBind(_fd, _addr);
+        _fd = createSocket(false);
+        setBlock(_fd, false);
+        getAddress(host, port, _addr);
+        if(_traceLevels->network >= 2)
+        {
+            Trace out(_logger, _traceLevels->networkCat);
+            out << "attempting to bind to tcp socket " << toString();
+        }
+        doBind(_fd, _addr);
     }
     catch(...)
     {
-	_fd = INVALID_SOCKET;
-	throw;
+        _fd = INVALID_SOCKET;
+        throw;
     }
 }
 

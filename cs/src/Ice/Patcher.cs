@@ -24,7 +24,7 @@ namespace IceInternal
             type_ = type;
         }
 
-	public abstract void patch(Ice.Object v);
+        public abstract void patch(Ice.Object v);
 
         public virtual string type()
         {
@@ -32,57 +32,57 @@ namespace IceInternal
             return type_.FullName;
         }
 
-	public virtual void invoke(Ice.Object v)
-	{
-	    patch(v);
-	}
+        public virtual void invoke(Ice.Object v)
+        {
+            patch(v);
+        }
 
         protected System.Type type_;
     }
 
     public sealed class ParamPatcher : Patcher
     {
-	public ParamPatcher(System.Type type, string expectedSliceType) : base(type)
-	{
-	    _expectedSliceType = expectedSliceType;
-	}
+        public ParamPatcher(System.Type type, string expectedSliceType) : base(type)
+        {
+            _expectedSliceType = expectedSliceType;
+        }
 
-	public override void patch(Ice.Object v)
-	{
+        public override void patch(Ice.Object v)
+        {
             Debug.Assert(type_ != null);
-	    if(v != null && !type_.IsInstanceOfType(v))
-	    {
-		Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException(
-			"unexpected class instance of type `" + v.ice_id()
-                    	+ "'; expected instance of type '" + _expectedSliceType + "'");
-		ex.type = v.ice_id();
-		ex.expectedType = _expectedSliceType;
-	    }
-	    value = v;
-	}
+            if(v != null && !type_.IsInstanceOfType(v))
+            {
+                Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException(
+                        "unexpected class instance of type `" + v.ice_id()
+                        + "'; expected instance of type '" + _expectedSliceType + "'");
+                ex.type = v.ice_id();
+                ex.expectedType = _expectedSliceType;
+            }
+            value = v;
+        }
 
-	public Ice.Object value;
-	private string _expectedSliceType;
+        public Ice.Object value;
+        private string _expectedSliceType;
     }
 
     public sealed class SequencePatcher : Patcher
     {
-	public SequencePatcher(ICollection seq, System.Type type, int index) : base(type)
-	{
-	    _seq = seq;
-	    _index = index;
-	}
+        public SequencePatcher(ICollection seq, System.Type type, int index) : base(type)
+        {
+            _seq = seq;
+            _index = index;
+        }
     
         private static object dummyObject = new object();
 
-	public override void patch(Ice.Object v)
-	{
-	    Debug.Assert(type_ != null);
-	    if(v != null && !type_.IsInstanceOfType(v))
-	    {
-		throw new System.InvalidCastException("expected element of type " + type() +
-						      " but received " + v.GetType().FullName); 
-	    }
+        public override void patch(Ice.Object v)
+        {
+            Debug.Assert(type_ != null);
+            if(v != null && !type_.IsInstanceOfType(v))
+            {
+                throw new System.InvalidCastException("expected element of type " + type() +
+                                                      " but received " + v.GetType().FullName); 
+            }
 
             try 
             {
@@ -96,36 +96,36 @@ namespace IceInternal
                         }
                     }
 
-		    //
-		    // Ugly work-around for broken CollectionBase implementation:
-		    //
-		    // CollectionBase provides implementations of the IList.Add method
-		    // and indexer. However, stupidly, these implementations do not permit
-		    // null to be added or assigned even though, according to the doc, this should work.
-		    // (Attempts to put a null into the collection raise ArgumentNullException.)
-		    // That's why the above code grows the sequence by adding a dummy object.
-		    //
-		    // Furthermore, CollectionBase.Add and the indexer are (incorrectly) non-virtual so,
-		    // when we treat _seq as an IList, we always dispatch into the CollectionBase
-		    // implementation, not into the implementation of the generated sequence type.
-		    // This makes it impossible to assign v to a sequence element if v is null.
-		    //
-		    // The ugly work-around is to use reflection to ensure that we get the
-		    // actual run-time type of the generated sequence, and then
-		    // use dynamic invocation to make sure that we dispatch to the generated indexer,
-		    // instead of the broken indexer provided by CollectionBase.
-		    //
-		    if(v == null)
-		    {
-			object[] ov = new object[2];
-			ov[0] = _index;
-			ov[1] = null;
-			_seq.GetType().GetProperty("Item").GetSetMethod().Invoke(_seq, ov);
-		    }
-		    else
-		    {
-			((IList)_seq)[_index] = v;
-		    }
+                    //
+                    // Ugly work-around for broken CollectionBase implementation:
+                    //
+                    // CollectionBase provides implementations of the IList.Add method
+                    // and indexer. However, stupidly, these implementations do not permit
+                    // null to be added or assigned even though, according to the doc, this should work.
+                    // (Attempts to put a null into the collection raise ArgumentNullException.)
+                    // That's why the above code grows the sequence by adding a dummy object.
+                    //
+                    // Furthermore, CollectionBase.Add and the indexer are (incorrectly) non-virtual so,
+                    // when we treat _seq as an IList, we always dispatch into the CollectionBase
+                    // implementation, not into the implementation of the generated sequence type.
+                    // This makes it impossible to assign v to a sequence element if v is null.
+                    //
+                    // The ugly work-around is to use reflection to ensure that we get the
+                    // actual run-time type of the generated sequence, and then
+                    // use dynamic invocation to make sure that we dispatch to the generated indexer,
+                    // instead of the broken indexer provided by CollectionBase.
+                    //
+                    if(v == null)
+                    {
+                        object[] ov = new object[2];
+                        ov[0] = _index;
+                        ov[1] = null;
+                        _seq.GetType().GetProperty("Item").GetSetMethod().Invoke(_seq, ov);
+                    }
+                    else
+                    {
+                        ((IList)_seq)[_index] = v;
+                    }
                 }
                 else
                 {
@@ -136,9 +136,9 @@ namespace IceInternal
             {
                 throw new Ice.MarshalException("Unexpected failure during patching", ex);
             }
-	}
+        }
 
-	private ICollection _seq;
-	private int _index;
+        private ICollection _seq;
+        private int _index;
     }
 }

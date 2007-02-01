@@ -28,19 +28,19 @@ public:
     LocatorRegistryI(const DatabasePtr&, bool, bool, ReplicaSessionManager&);
     
     virtual void setAdapterDirectProxy_async(const Ice::AMD_LocatorRegistry_setAdapterDirectProxyPtr&,
-					     const std::string&, const Ice::ObjectPrx&, const Ice::Current&);
+                                             const std::string&, const Ice::ObjectPrx&, const Ice::Current&);
 
     virtual void setReplicatedAdapterDirectProxy_async(
-	const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr&, const std::string&, const std::string&, 
-	const Ice::ObjectPrx&, const Ice::Current&);
+        const Ice::AMD_LocatorRegistry_setReplicatedAdapterDirectProxyPtr&, const std::string&, const std::string&, 
+        const Ice::ObjectPrx&, const Ice::Current&);
 
     virtual void setServerProcessProxy_async(const Ice::AMD_LocatorRegistry_setServerProcessProxyPtr&,
-					     const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
+                                             const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
 private:
 
     void setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr&, const std::string&, const std::string&,
-			       const Ice::ObjectPrx&);
+                               const Ice::ObjectPrx&);
     
     const DatabasePtr _database;
     const bool _dynamicRegistration;

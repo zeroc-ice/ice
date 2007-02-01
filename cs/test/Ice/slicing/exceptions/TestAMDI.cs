@@ -47,7 +47,7 @@ public sealed class TestI : TestIntfDisp_
     }
     
     public override void knownDerivedAsKnownDerived_async(AMD_TestIntf_knownDerivedAsKnownDerived cb,
-    							  Ice.Current current)
+                                                          Ice.Current current)
     {
         KnownDerived d = new KnownDerived();
         d.b = "KnownDerived.b";
@@ -81,7 +81,7 @@ public sealed class TestI : TestIntfDisp_
     }
     
     public override void knownIntermediateAsKnownIntermediate_async(
-    				AMD_TestIntf_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
+                                AMD_TestIntf_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
     {
         KnownIntermediate ki = new KnownIntermediate();
         ki.b = "KnownIntermediate.b";
@@ -90,7 +90,7 @@ public sealed class TestI : TestIntfDisp_
     }
     
     public override void knownMostDerivedAsKnownIntermediate_async(AMD_TestIntf_knownMostDerivedAsKnownIntermediate cb,
-    								   Ice.Current current)
+                                                                   Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -100,7 +100,7 @@ public sealed class TestI : TestIntfDisp_
     }
     
     public override void knownMostDerivedAsKnownMostDerived_async(AMD_TestIntf_knownMostDerivedAsKnownMostDerived cb,
-    								  Ice.Current current)
+                                                                  Ice.Current current)
     {
         KnownMostDerived kmd = new KnownMostDerived();
         kmd.b = "KnownMostDerived.b";
@@ -119,7 +119,7 @@ public sealed class TestI : TestIntfDisp_
     }
     
     public override void unknownMostDerived1AsKnownIntermediate_async(
-    				AMD_TestIntf_unknownMostDerived1AsKnownIntermediate cb, Ice.Current current)
+                                AMD_TestIntf_unknownMostDerived1AsKnownIntermediate cb, Ice.Current current)
     {
         UnknownMostDerived1 umd1 = new UnknownMostDerived1();
         umd1.b = "UnknownMostDerived1.b";

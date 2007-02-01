@@ -1239,7 +1239,7 @@ FreezeScript::RecordDescriptor::RecordDescriptor(const DescriptorPtr& parent, in
                                                  const ErrorReporterPtr& errorReporter,
                                                  const IceXML::Attributes& attributes,
                                                  const Slice::UnitPtr& unit,
-						 const FreezeScript::ObjectFactoryPtr& objectFactory) :
+                                                 const FreezeScript::ObjectFactoryPtr& objectFactory) :
     Descriptor(parent, line, factory, errorReporter), 
     ExecutableContainerDescriptor(parent, line, factory, errorReporter, attributes, "record"),
     _unit(unit),
@@ -1322,7 +1322,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo* 
         {
             dbc->close();
         }
-	_objectFactory->deactivate();
+        _objectFactory->deactivate();
         throw;
     }
 
@@ -1870,16 +1870,16 @@ FreezeScript::DumpVisitor::visitObject(const ObjectRefPtr& data)
         ObjectDataPtr value = data->getValue();
         if(value)
         {
-	    set<const ObjectData*>::iterator p = _objectHistory.find(value.get());
-	    if(p == _objectHistory.end())
-	    {
-		_objectHistory.insert(value.get());
-		DataMemberMap& members = value->getMembers();
-		for(DataMemberMap::iterator q = members.begin(); q != members.end(); ++q)
-		{
-		    q->second->visit(*this);
-		}
-	    }
+            set<const ObjectData*>::iterator p = _objectHistory.find(value.get());
+            if(p == _objectHistory.end())
+            {
+                _objectHistory.insert(value.get());
+                DataMemberMap& members = value->getMembers();
+                for(DataMemberMap::iterator q = members.begin(); q != members.end(); ++q)
+                {
+                    q->second->visit(*this);
+                }
+            }
         }
     }
 }

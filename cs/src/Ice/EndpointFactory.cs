@@ -12,11 +12,11 @@ namespace IceInternal
 
     public interface EndpointFactory
     {
-	short type();
-	string protocol();
-	EndpointI create(string str);
-	EndpointI read(BasicStream s);
-	void destroy();
+        short type();
+        string protocol();
+        EndpointI create(string str);
+        EndpointI read(BasicStream s);
+        void destroy();
     }
 
 }

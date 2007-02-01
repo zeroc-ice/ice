@@ -52,22 +52,22 @@ Publisher::run(int argc, char* argv[])
     }
     catch(const IceUtil::BadOptException& e)
     {
-	cerr << argv[0] << ": " << e.reason << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": " << e.reason << endl;
+        return EXIT_FAILURE;
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-	communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
+        communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
     if(!manager)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     string topicName = "time";
     if(!remaining.empty())
     {
-	topicName = remaining.front();
+        topicName = remaining.front();
     }
 
     //
@@ -76,19 +76,19 @@ Publisher::run(int argc, char* argv[])
     IceStorm::TopicPrx topic;
     try
     {
-	topic = manager->retrieve(topicName);
+        topic = manager->retrieve(topicName);
     }
     catch(const IceStorm::NoSuchTopic&)
     {
-	try
-	{
-	    topic = manager->create(topicName);
-	}
-	catch(const IceStorm::TopicExists&)
-	{
-	    cerr << appName() << ": temporary failure. try again." << endl;
-	    return EXIT_FAILURE;
-	}
+        try
+        {
+            topic = manager->create(topicName);
+        }
+        catch(const IceStorm::TopicExists&)
+        {
+            cerr << appName() << ": temporary failure. try again." << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     //
@@ -99,38 +99,38 @@ Publisher::run(int argc, char* argv[])
     int optsSet = 0;
     if(opts.isSet("datagram"))
     {
-	publisher = publisher->ice_datagram();
-	++optsSet;
+        publisher = publisher->ice_datagram();
+        ++optsSet;
     }
     else if(opts.isSet("twoway"))
     {
-	// Do nothing.
-	++optsSet;
+        // Do nothing.
+        ++optsSet;
     }
     else if(opts.isSet("oneway") || optsSet == 0)
     {
-	publisher = publisher->ice_oneway();
-	++optsSet;
+        publisher = publisher->ice_oneway();
+        ++optsSet;
     }
     if(optsSet != 1)
     {
-	usage(appName());
-	return EXIT_FAILURE;
+        usage(appName());
+        return EXIT_FAILURE;
     }
     ClockPrx clock = ClockPrx::uncheckedCast(publisher);
 
     cout << "publishing tick events. Press ^C to terminate the application." << endl;
     try
     {
-	while(true)
-	{
-	    clock->tick(IceUtil::Time::now().toDateTime());
+        while(true)
+        {
+            clock->tick(IceUtil::Time::now().toDateTime());
             IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
-	}
+        }
     }
     catch(const Ice::CommunicatorDestroyedException&)
     {
-	// Ignore
+        // Ignore
     }
 
     return EXIT_SUCCESS;

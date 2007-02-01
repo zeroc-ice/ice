@@ -13,20 +13,20 @@ public class ServerLocator : Test.TestLocatorDisp_
     {
         _registry = registry;
         _registryPrx = registryPrx;
-	_requestCount = 0;
+        _requestCount = 0;
     }
     
     public override void findAdapterById_async(Ice.AMD_Locator_findAdapterById response, string adapter,
-    					       Ice.Current current)
+                                               Ice.Current current)
     {
-	++_requestCount;
+        ++_requestCount;
         response.ice_response(_registry.getAdapter(adapter));
     }
     
     public override void findObjectById_async(Ice.AMD_Locator_findObjectById response, Ice.Identity id,
-    					      Ice.Current current)
+                                              Ice.Current current)
     {
-	++_requestCount;
+        ++_requestCount;
         response.ice_response(_registry.getObject(id));
     }
     
@@ -37,7 +37,7 @@ public class ServerLocator : Test.TestLocatorDisp_
 
     public override int getRequestCount(Ice.Current current)
     {
-	return _requestCount;
+        return _requestCount;
     }
 
     private ServerLocatorRegistry _registry;

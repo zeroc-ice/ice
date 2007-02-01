@@ -15,14 +15,14 @@ Public NotInheritable Class ThroughputI
     Public Sub New()
         _warmup = True
 
-	_byteSeq = New Byte(ByteSeqSize.value) {}
+        _byteSeq = New Byte(ByteSeqSize.value) {}
         _stringSeq = New String(StringSeqSize.value - 1) {}
         For i As Integer = 0 To StringSeqSize.value - 1
             _stringSeq(i) = "hello"
         Next
         _structSeq = New StringDouble(StringDoubleSeqSize.value - 1) {}
         For i As Integer = 0 To StringDoubleSeqSize.value - 1
-	    _structSeq(i) = New StringDouble
+            _structSeq(i) = New StringDouble
             _structSeq(i).s = "hello"
             _structSeq(i).d = 3.14
         Next
@@ -44,13 +44,13 @@ Public NotInheritable Class ThroughputI
     Public Overloads Overrides Function recvByteSeq(ByVal current As Ice.Current) As Byte()
         If _warmup Then
             Return _emptyByteSeq
-	Else
+        Else
             Return _byteSeq
-	End If
+        End If
     End Function
 
     Public Overloads Overrides Function echoByteSeq(ByVal seq() As Byte, ByVal current As Ice.Current) As Byte()
-	Return seq
+        Return seq
     End Function
 
     Public Overloads Overrides Sub sendStringSeq(ByVal seq() As String, ByVal current As Ice.Current)
@@ -59,9 +59,9 @@ Public NotInheritable Class ThroughputI
     Public Overloads Overrides Function recvStringSeq(ByVal current As Ice.Current) As String()
         If _warmup Then
             Return _emptyStringSeq
-	Else
+        Else
             Return _stringSeq
-	End If
+        End If
     End Function
 
     Public Overloads Overrides Function echoStringSeq(ByVal seq() As String, ByVal current As Ice.Current) As String()
@@ -74,9 +74,9 @@ Public NotInheritable Class ThroughputI
     Public Overloads Overrides Function recvStructSeq(ByVal current As Ice.Current) As StringDouble()
         If _warmup Then
             Return _emptyStructSeq
-	Else
+        Else
             Return _structSeq
-	End If
+        End If
     End Function
 
     Public Overloads Overrides Function echoStructSeq(ByVal seq As StringDouble(), ByVal current As Ice.Current) As StringDouble()
@@ -89,9 +89,9 @@ Public NotInheritable Class ThroughputI
     Public Overloads Overrides Function recvFixedSeq(ByVal current As Ice.Current) As Fixed()
         If _warmup Then
             Return _emptyFixedSeq
-	Else
+        Else
             Return _fixedSeq
-	End If
+        End If
     End Function
 
     Public Overloads Overrides Function echoFixedSeq(ByVal seq As Fixed(), ByVal current As Ice.Current) As Fixed()

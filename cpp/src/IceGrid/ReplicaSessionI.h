@@ -30,7 +30,7 @@ class ReplicaSessionI : public ReplicaSession, public IceUtil::Mutex
 public:
 
     ReplicaSessionI(const DatabasePtr&, const WellKnownObjectsManagerPtr&, const InternalReplicaInfoPtr&,
-		    const InternalRegistryPrx&, int);
+                    const InternalRegistryPrx&, int);
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
@@ -38,7 +38,7 @@ public:
     virtual void setEndpoints(const StringObjectProxyDict&, const Ice::Current&);
     virtual void registerWellKnownObjects(const ObjectInfoSeq&, const Ice::Current&);
     virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 
-				       const Ice::Current&);
+                                       const Ice::Current&);
     virtual void receivedUpdate(TopicName, int, const std::string&, const Ice::Current&);
     virtual void destroy(const Ice::Current& = Ice::Current());
     

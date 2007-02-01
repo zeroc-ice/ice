@@ -30,7 +30,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
 
 void
 Test::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
-				 string& target) const
+                                 string& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
     target.resize(size);
@@ -63,7 +63,7 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
 
 void
 Test::WstringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
-				  wstring& target) const
+                                  wstring& target) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
     string s;

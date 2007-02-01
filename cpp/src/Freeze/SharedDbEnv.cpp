@@ -59,7 +59,7 @@ inline bool
 operator<(const MapKey& lhs, const MapKey& rhs)
 {
     return (lhs.communicator < rhs.communicator) ||
-	((lhs.communicator == rhs.communicator) && (lhs.envName < rhs.envName));
+        ((lhs.communicator == rhs.communicator) && (lhs.envName < rhs.envName));
 }
 
 #if DB_VERSION_MAJOR != 4
@@ -92,13 +92,13 @@ SharedDbEnvMap* sharedDbEnvMap;
 
 Freeze::SharedDbEnvPtr 
 Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator,
-			 const string& envName, DbEnv* env)
+                         const string& envName, DbEnv* env)
 {
     StaticMutex::Lock lock(_mapMutex);
 
     if(sharedDbEnvMap == 0)
     {
-	sharedDbEnvMap = new SharedDbEnvMap;
+        sharedDbEnvMap = new SharedDbEnvMap;
     }
 
     MapKey key;
@@ -106,11 +106,11 @@ Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator,
     key.communicator = communicator;
 
     {
-	SharedDbEnvMap::iterator p = sharedDbEnvMap->find(key);
-	if(p != sharedDbEnvMap->end())
-	{
-	    return p->second;
-	}
+        SharedDbEnvMap::iterator p = sharedDbEnvMap->find(key);
+        if(p != sharedDbEnvMap->end())
+        {
+            return p->second;
+        }
     }
 
     //
@@ -132,8 +132,8 @@ Freeze::SharedDbEnv::~SharedDbEnv()
 {
     if(_trace >= 1)
     {
-	Trace out(_communicator->getLogger(), "Freeze.DbEnv");
-	out << "closing database environment \"" << _envName << "\"";
+        Trace out(_communicator->getLogger(), "Freeze.DbEnv");
+        out << "closing database environment \"" << _envName << "\"";
     }
 
     //
@@ -146,22 +146,22 @@ Freeze::SharedDbEnv::~SharedDbEnv()
     //
     if(_thread != 0)
     {
-	_thread->terminate();
-	_thread = 0;
+        _thread->terminate();
+        _thread = 0;
     }
     
     if(_envHolder.get() != 0)
     {
-	try
-	{
-	    _envHolder->close(0);
-	}
-	catch(const ::DbException& dx)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
+        try
+        {
+            _envHolder->close(0);
+        }
+        catch(const ::DbException& dx)
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
     }
 }
 
@@ -177,47 +177,47 @@ void Freeze::SharedDbEnv::__decRef()
     if(--_refCount == 0)
     {
         IceUtil::StaticMutex::TryLock mapLock(_mapMutex);
-	if(!mapLock.acquired())
-	{
-	    //
-	    // Reacquire mutex in proper order and check again
-	    //
-	    lock.release();
-	    mapLock.acquire();
-	    lock.acquire();
-	    if(_refCount > 0)
-	    {
-		return;
-	    }
-	}
+        if(!mapLock.acquired())
+        {
+            //
+            // Reacquire mutex in proper order and check again
+            //
+            lock.release();
+            mapLock.acquire();
+            lock.acquire();
+            if(_refCount > 0)
+            {
+                return;
+            }
+        }
 
-	//
-	// Remove from map
-	//
+        //
+        // Remove from map
+        //
 
         MapKey key;
         key.envName = _envName;
         key.communicator = _communicator;
-	size_t one;
-	one = sharedDbEnvMap->erase(key);
-	assert(one == 1);
+        size_t one;
+        one = sharedDbEnvMap->erase(key);
+        assert(one == 1);
 
-	if(sharedDbEnvMap->size() == 0)
-	{
-	    delete sharedDbEnvMap;
-	    sharedDbEnvMap = 0;
-	}
+        if(sharedDbEnvMap->size() == 0)
+        {
+            delete sharedDbEnvMap;
+            sharedDbEnvMap = 0;
+        }
 
-	//
-	// Keep lock to prevent somebody else to re-open this DbEnv
-	// before it's closed.
-	//
-	delete this;
+        //
+        // Keep lock to prevent somebody else to re-open this DbEnv
+        // before it's closed.
+        //
+        delete this;
     }
 }
 
 Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
-				 const Ice::CommunicatorPtr& communicator, DbEnv* env) :
+                                 const Ice::CommunicatorPtr& communicator, DbEnv* env) :
     _env(env),
     _envName(envName),
     _communicator(communicator),
@@ -229,113 +229,113 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 
     if(_env == 0)
     {
-	_envHolder.reset(new DbEnv(0));
-	_env = _envHolder.get();
+        _envHolder.reset(new DbEnv(0));
+        _env = _envHolder.get();
 
-	if(_trace >= 1)
-	{
-	    Trace out(_communicator->getLogger(), "Freeze.DbEnv");
-	    out << "opening database environment \"" << envName << "\"";
-	}
+        if(_trace >= 1)
+        {
+            Trace out(_communicator->getLogger(), "Freeze.DbEnv");
+            out << "opening database environment \"" << envName << "\"";
+        }
 
-	string propertyPrefix = string("Freeze.DbEnv.") + envName;
-	
-	try
-	{
-	    _env->set_errpfx(reinterpret_cast<char*>(this));
+        string propertyPrefix = string("Freeze.DbEnv.") + envName;
+        
+        try
+        {
+            _env->set_errpfx(reinterpret_cast<char*>(this));
 
-	    _env->set_errcall(dbErrCallback);
+            _env->set_errcall(dbErrCallback);
 
 #ifdef _WIN32
-	    //
-	    // Berkeley DB may use a different C++ runtime
-	    //
-	    _env->set_alloc(::malloc, ::realloc, ::free);
+            //
+            // Berkeley DB may use a different C++ runtime
+            //
+            _env->set_alloc(::malloc, ::realloc, ::free);
 #endif
-	    
-	    //
-	    // Deadlock detection
-	    //
-	    _env->set_lk_detect(DB_LOCK_YOUNGEST);
-	    
-	    u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN;
-	    
-	    if(properties->getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") != 0)
-	    {
-		flags |= DB_RECOVER_FATAL | DB_CREATE;
-	    }
-	    else
-	    {
-		flags |= DB_RECOVER | DB_CREATE;
-	    }
-	    
-	    if(properties->getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) != 0)
-	    {
-		flags |= DB_PRIVATE;
-	    }
-	    
-	    /*
-	      
-	    //
-	    // Does not seem to work reliably in 4.1.25
-	    //
-	    
-	    time_t timeStamp = properties->getPropertyAsIntWithDefault(propertyPrefix + ".TxTimestamp", 0);
-	    
-	    if(timeStamp != 0)
-	    {
-	    try
-	    {
-	    set_tx_timestamp(&timeStamp);
-	    }
-	    catch(const ::DbException& dx)
-	    {
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	    }
-	    }
-	    */
-	    
-	    //
-	    // Maybe we can deprecate this property since it can be set in the DB_CONFIG file
-	    //
-	    bool autoDelete = (properties->getPropertyAsIntWithDefault(
-				   propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
-	    
-	    if(autoDelete)
-	    {
-		_env->set_flags(DB_LOG_AUTOREMOVE, 1);
-	    }
-	    
-	    //
-	    // Threading
-	    // 
-	    flags |= DB_THREAD;
-	    
-	    string dbHome = properties->getPropertyWithDefault(
-		propertyPrefix + ".DbHome", envName);
-	    
-	    _env->open(dbHome.c_str(), flags, FREEZE_DB_MODE);
-	}
-	catch(const ::DbException& dx)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
-	
-	//
-	// Default checkpoint period is every 120 seconds
-	//
-	Int checkpointPeriod = properties->getPropertyAsIntWithDefault(
-	    propertyPrefix + ".CheckpointPeriod", 120);
-	Int kbyte = properties->getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
-	
-	if(checkpointPeriod > 0)
-	{
-	    _thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod), kbyte, _trace);
-	}
+            
+            //
+            // Deadlock detection
+            //
+            _env->set_lk_detect(DB_LOCK_YOUNGEST);
+            
+            u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN;
+            
+            if(properties->getPropertyAsInt(propertyPrefix + ".DbRecoverFatal") != 0)
+            {
+                flags |= DB_RECOVER_FATAL | DB_CREATE;
+            }
+            else
+            {
+                flags |= DB_RECOVER | DB_CREATE;
+            }
+            
+            if(properties->getPropertyAsIntWithDefault(propertyPrefix + ".DbPrivate", 1) != 0)
+            {
+                flags |= DB_PRIVATE;
+            }
+            
+            /*
+              
+            //
+            // Does not seem to work reliably in 4.1.25
+            //
+            
+            time_t timeStamp = properties->getPropertyAsIntWithDefault(propertyPrefix + ".TxTimestamp", 0);
+            
+            if(timeStamp != 0)
+            {
+            try
+            {
+            set_tx_timestamp(&timeStamp);
+            }
+            catch(const ::DbException& dx)
+            {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+            }
+            }
+            */
+            
+            //
+            // Maybe we can deprecate this property since it can be set in the DB_CONFIG file
+            //
+            bool autoDelete = (properties->getPropertyAsIntWithDefault(
+                                   propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
+            
+            if(autoDelete)
+            {
+                _env->set_flags(DB_LOG_AUTOREMOVE, 1);
+            }
+            
+            //
+            // Threading
+            // 
+            flags |= DB_THREAD;
+            
+            string dbHome = properties->getPropertyWithDefault(
+                propertyPrefix + ".DbHome", envName);
+            
+            _env->open(dbHome.c_str(), flags, FREEZE_DB_MODE);
+        }
+        catch(const ::DbException& dx)
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
+        
+        //
+        // Default checkpoint period is every 120 seconds
+        //
+        Int checkpointPeriod = properties->getPropertyAsIntWithDefault(
+            propertyPrefix + ".CheckpointPeriod", 120);
+        Int kbyte = properties->getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
+        
+        if(checkpointPeriod > 0)
+        {
+            _thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod), kbyte, _trace);
+        }
     }
 
     //
@@ -361,9 +361,9 @@ void
 Freeze::CheckpointThread::terminate()
 {
     {
-	Lock sync(*this);
-	_done = true;
-	notify();
+        Lock sync(*this);
+        _done = true;
+        notify();
     }
     
     getThreadControl().join();
@@ -375,33 +375,33 @@ Freeze::CheckpointThread::run()
 {
     for(;;)
     {
-	{
-	    Lock sync(*this);
-	    while(!_done && timedWait(_checkpointPeriod))
-	    {
-		//
-		// Loop
-		//
-	    }
-	    if(_done)
-	    {
-		return;
-	    }
-	}
+        {
+            Lock sync(*this);
+            while(!_done && timedWait(_checkpointPeriod))
+            {
+                //
+                // Loop
+                //
+            }
+            if(_done)
+            {
+                return;
+            }
+        }
 
-	try
-	{
-	    if(_trace >= 2)
-	    {
-		Trace out(_dbEnv.getCommunicator()->getLogger(), "Freeze.DbEnv");
-		out << "checkpointing environment \"" << _dbEnv.getEnvName() << "\"";
-	    }
-	    _dbEnv.getEnv()->txn_checkpoint(_kbyte, 0, 0);
-	}
-	catch(const DbException& dx)
-	{
-	    Warning out(_dbEnv.getCommunicator()->getLogger());
-	    out << "checkpoint on DbEnv \"" << _dbEnv.getEnvName() << "\" raised DbException: " << dx.what();
-	}
+        try
+        {
+            if(_trace >= 2)
+            {
+                Trace out(_dbEnv.getCommunicator()->getLogger(), "Freeze.DbEnv");
+                out << "checkpointing environment \"" << _dbEnv.getEnvName() << "\"";
+            }
+            _dbEnv.getEnv()->txn_checkpoint(_kbyte, 0, 0);
+        }
+        catch(const DbException& dx)
+        {
+            Warning out(_dbEnv.getCommunicator()->getLogger());
+            out << "checkpoint on DbEnv \"" << _dbEnv.getEnvName() << "\" raised DbException: " << dx.what();
+        }
     }
 }

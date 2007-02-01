@@ -17,64 +17,64 @@ def test(b):
 def testExceptions(obj, collocated):
 
     try:
-	obj.requestFailedException()
-	test(false)
+        obj.requestFailedException()
+        test(false)
     except Ice.ObjectNotExistException, ex:
-	if not collocated:
-	    test(ex.id == obj.ice_getIdentity())
-	    test(ex.facet == obj.ice_getFacet())
-	    test(ex.operation == "requestFailedException")
+        if not collocated:
+            test(ex.id == obj.ice_getIdentity())
+            test(ex.facet == obj.ice_getFacet())
+            test(ex.operation == "requestFailedException")
 
     try:
-	obj.unknownUserException()
-	test(false)
+        obj.unknownUserException()
+        test(false)
     except Ice.UnknownUserException, ex:
-	test(ex.unknown == "reason")
-	pass
+        test(ex.unknown == "reason")
+        pass
 
     try:
-	obj.unknownLocalException()
-	test(false)
+        obj.unknownLocalException()
+        test(false)
     except Ice.UnknownLocalException, ex:
-	test(ex.unknown == "reason")
-	pass
+        test(ex.unknown == "reason")
+        pass
 
     try:
-	obj.unknownException()
-	test(false)
+        obj.unknownException()
+        test(false)
     except Ice.UnknownException, ex:
-	test(ex.unknown == "reason")
-	pass
+        test(ex.unknown == "reason")
+        pass
 
     try:
-	obj.userException()
-	test(false)
+        obj.userException()
+        test(false)
     except Ice.UnknownUserException, ex:
-	#print ex.unknown
-	test(not collocated)
-	test(ex.unknown.find("Test.TestIntfUserException") >= 0)
+        #print ex.unknown
+        test(not collocated)
+        test(ex.unknown.find("Test.TestIntfUserException") >= 0)
     except Test.TestIntfUserException:
-	test(collocated)
+        test(collocated)
 
     try:
-	obj.localException()
-	test(false)
+        obj.localException()
+        test(false)
     except Ice.UnknownLocalException, ex:
-	#print ex.unknown
-	test(not collocated)
-	test(ex.unknown.find("Ice.SocketException") >= 0)
+        #print ex.unknown
+        test(not collocated)
+        test(ex.unknown.find("Ice.SocketException") >= 0)
     except SocketException:
-	test(collocated)
+        test(collocated)
 
     try:
-	obj.pythonException()
-	test(false)
+        obj.pythonException()
+        test(false)
     except Ice.UnknownException, ex:
-	#print ex.unknown
-	test(not collocated)
-	test(ex.unknown.find("RuntimeError: message") >= 0)
+        #print ex.unknown
+        test(not collocated)
+        test(ex.unknown.find("RuntimeError: message") >= 0)
     except RuntimeError:
-	test(collocated)
+        test(collocated)
 
 def allTests(communicator, collocated):
     print "testing stringToProxy... ",
@@ -95,9 +95,9 @@ def allTests(communicator, collocated):
     base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000")
     obj = Test.TestIntfPrx.checkedCast(base)
     try:
-	Test.TestIntfPrx.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010 -t 10000"))
+        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010 -t 10000"))
     except Ice.ObjectNotExistException:
-	pass
+        pass
     print "ok"
 
     print "testing default servant locator...",
@@ -107,13 +107,13 @@ def allTests(communicator, collocated):
     base = communicator.stringToProxy("locate:default -p 12010 -t 10000")
     obj = Test.TestIntfPrx.checkedCast(base)
     try:
-	Test.TestIntfPrx.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010 -t 10000"))
+        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010 -t 10000"))
     except Ice.ObjectNotExistException:
-	pass
+        pass
     try:
-	Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:default -p 12010 -t 10000"))
+        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:default -p 12010 -t 10000"))
     except Ice.ObjectNotExistException:
-	pass
+        pass
     print "ok"
 
     print "testing locate exceptions... ",

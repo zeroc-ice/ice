@@ -23,7 +23,7 @@ using namespace std;
 using namespace oracle::occi;
 
 DeptFactoryI::DeptFactoryI(Environment* env, StatelessConnectionPool* pool, 
-			   const string& category) :
+                           const string& category) :
     _env(env),
     _pool(pool),
     _category(category)
@@ -58,18 +58,18 @@ DeptFactoryI::findAll(const Ice::Current& current)
 
     ConnectionHolderPtr conh = new ConnectionHolder(_pool);
     {
-	StatementHolder stmth(conh);
+        StatementHolder stmth(conh);
     
-	auto_ptr<ResultSet> rs(stmth.statement()->executeQuery("SELECT REF(d) FROM DEPT_VIEW d"));
-	
-	while(rs->next() != ResultSet::END_OF_FETCH)
-	{
-	    Ice::Identity deptId;
-	    deptId.category = _category;
-	    deptId.name = encodeRef(rs->getRef(1), _env);
-	    
-	    result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
-	}
+        auto_ptr<ResultSet> rs(stmth.statement()->executeQuery("SELECT REF(d) FROM DEPT_VIEW d"));
+        
+        while(rs->next() != ResultSet::END_OF_FETCH)
+        {
+            Ice::Identity deptId;
+            deptId.category = _category;
+            deptId.name = encodeRef(rs->getRef(1), _env);
+            
+            result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
+        }
     }
     conh->commit();
     return result;
@@ -82,20 +82,20 @@ DeptFactoryI::findByName(const string& name, const Ice::Current& current)
     HR::DeptPrxSeq result;
     ConnectionHolderPtr conh = new ConnectionHolder(_pool);
     {
-	StatementHolder stmth(conh);
-	stmth.statement()->setSQL("SELECT REF(d) FROM DEPT_VIEW d WHERE DNAME = :1");
-	stmth.statement()->setString(1, name);
-	
-	auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
-	
-	while(rs->next() != ResultSet::END_OF_FETCH)
-	{
-	    Ice::Identity deptId;
-	    deptId.category = _category;
-	    deptId.name = encodeRef(rs->getRef(1), _env);
-	    
-	    result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
-	}
+        StatementHolder stmth(conh);
+        stmth.statement()->setSQL("SELECT REF(d) FROM DEPT_VIEW d WHERE DNAME = :1");
+        stmth.statement()->setString(1, name);
+        
+        auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
+        
+        while(rs->next() != ResultSet::END_OF_FETCH)
+        {
+            Ice::Identity deptId;
+            deptId.category = _category;
+            deptId.name = encodeRef(rs->getRef(1), _env);
+            
+            result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
+        }
     }
     conh->commit();
     return result;
@@ -111,10 +111,10 @@ DeptFactoryI::findDeptByNo(int deptno, const Ice::Current& current)
     
     if(!ref.isNull())
     {
-	Ice::Identity deptId;
-	deptId.category = _category;
-	deptId.name = encodeRef(ref, _env);
-	result = HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
+        Ice::Identity deptId;
+        deptId.category = _category;
+        deptId.name = encodeRef(ref, _env);
+        result = HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
     }
     conh->commit();
     return result;
@@ -129,10 +129,10 @@ DeptFactoryI::findEmpByNo(int empno, const Ice::Current& current)
 
     if(!ref.isNull())
     {
-	Ice::Identity empId;
-	empId.category = _category;
-	empId.name = encodeRef(ref, _env);
-	result = HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId));
+        Ice::Identity empId;
+        empId.category = _category;
+        empId.name = encodeRef(ref, _env);
+        result = HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId));
     }
     conh->commit();
     return result;
@@ -148,7 +148,7 @@ DeptFactoryI::findDeptRefByNo(int deptno, Connection* con) const
     
     if(rs->next() == ResultSet::END_OF_FETCH)
     {
-	return Ref<DEPT_T>();
+        return Ref<DEPT_T>();
     }
     return rs->getRef(1);
 }
@@ -163,7 +163,7 @@ DeptFactoryI::findEmpRefByNo(int empno, Connection* con) const
 
     if(rs->next() == ResultSet::END_OF_FETCH)
     {
-	return Ref<EMP_T>();
+        return Ref<EMP_T>();
     }
     return rs->getRef(1);
 }

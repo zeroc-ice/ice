@@ -80,12 +80,12 @@ IceRuby_Operation_free(OperationPtr* p)
 extern "C"
 VALUE
 IceRuby_defineOperation(VALUE /*self*/, VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE inParams,
-			VALUE outParams, VALUE returnType, VALUE exceptions)
+                        VALUE outParams, VALUE returnType, VALUE exceptions)
 {
     ICE_RUBY_TRY
     {
-	OperationIPtr op = new OperationI(name, mode, sendMode, amd, inParams, outParams, returnType, exceptions);
-	return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
+        OperationIPtr op = new OperationI(name, mode, sendMode, amd, inParams, outParams, returnType, exceptions);
+        return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -97,11 +97,11 @@ IceRuby_Operation_invoke(VALUE self, VALUE proxy, VALUE opArgs, VALUE ctx)
 {
     ICE_RUBY_TRY
     {
-	assert(TYPE(opArgs) == T_ARRAY);
+        assert(TYPE(opArgs) == T_ARRAY);
 
-	OperationPtr op = getOperation(self);
-	assert(op);
-	return op->invoke(getProxy(proxy), opArgs, ctx);
+        OperationPtr op = getOperation(self);
+        assert(op);
+        return op->invoke(getProxy(proxy), opArgs, ctx);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -113,9 +113,9 @@ IceRuby_Operation_deprecate(VALUE self, VALUE msg)
 {
     ICE_RUBY_TRY
     {
-	OperationPtr op = getOperation(self);
-	assert(op);
-	op->deprecate(getString(msg));
+        OperationPtr op = getOperation(self);
+        assert(op);
+        op->deprecate(getString(msg));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -143,17 +143,17 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 // OperationI implementation.
 //
 IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE amd, VALUE inParams, VALUE outParams,
-				VALUE returnType, VALUE exceptions)
+                                VALUE returnType, VALUE exceptions)
 {
     _name = getString(name);
     _amd = amd == Qtrue;
     if(_amd)
     {
-	_dispatchName = fixIdent(_name, IdentNormal) + "_async";
+        _dispatchName = fixIdent(_name, IdentNormal) + "_async";
     }
     else
     {
-	_dispatchName = fixIdent(_name, IdentNormal);
+        _dispatchName = fixIdent(_name, IdentNormal);
     }
 
     //
@@ -178,13 +178,13 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     _sendsClasses = false;
     for(i = 0; i < RARRAY(inParams)->len; ++i)
     {
-	ParamInfoPtr param = new ParamInfo;
-	param->type = getType(RARRAY(inParams)->ptr[i]);
-	_inParams.push_back(param);
-	if(!_sendsClasses)
-	{
-	    _sendsClasses = param->type->usesClasses();
-	}
+        ParamInfoPtr param = new ParamInfo;
+        param->type = getType(RARRAY(inParams)->ptr[i]);
+        _inParams.push_back(param);
+        if(!_sendsClasses)
+        {
+            _sendsClasses = param->type->usesClasses();
+        }
     }
 
     //
@@ -193,13 +193,13 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     _returnsClasses = false;
     for(i = 0; i < RARRAY(outParams)->len; ++i)
     {
-	ParamInfoPtr param = new ParamInfo;
-	param->type = getType(RARRAY(outParams)->ptr[i]);
-	_outParams.push_back(param);
-	if(!_returnsClasses)
-	{
-	    _returnsClasses = param->type->usesClasses();
-	}
+        ParamInfoPtr param = new ParamInfo;
+        param->type = getType(RARRAY(outParams)->ptr[i]);
+        _outParams.push_back(param);
+        if(!_returnsClasses)
+        {
+            _returnsClasses = param->type->usesClasses();
+        }
     }
 
     //
@@ -207,12 +207,12 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     //
     if(!NIL_P(returnType))
     {
-	_returnType = new ParamInfo;
-	_returnType->type = getType(returnType);
-	if(!_returnsClasses)
-	{
-	    _returnsClasses = _returnType->type->usesClasses();
-	}
+        _returnType = new ParamInfo;
+        _returnType->type = getType(returnType);
+        if(!_returnsClasses)
+        {
+            _returnsClasses = _returnType->type->usesClasses();
+        }
     }
 
     //
@@ -220,7 +220,7 @@ IceRuby::OperationI::OperationI(VALUE name, VALUE mode, VALUE sendMode, VALUE am
     //
     for(i = 0; i < RARRAY(exceptions)->len; ++i)
     {
-	_exceptions.push_back(getException(RARRAY(exceptions)->ptr[i]));
+        _exceptions.push_back(getException(RARRAY(exceptions)->ptr[i]));
     }
 }
 
@@ -237,8 +237,8 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 
     if(!_deprecateMessage.empty())
     {
-	rb_warning(_deprecateMessage.c_str());
-	_deprecateMessage.clear(); // Only show the warning once.
+        rb_warning(_deprecateMessage.c_str());
+        _deprecateMessage.clear(); // Only show the warning once.
     }
 
     checkTwowayOnly(proxy);
@@ -251,17 +251,17 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
 
     if(!NIL_P(hctx))
     {
-	Ice::Context ctx;
-	if(!hashToContext(hctx, ctx))
-	{
-	    throw RubyException(rb_eArgError, "context argument must be nil or a hash");
-	}
+        Ice::Context ctx;
+        if(!hashToContext(hctx, ctx))
+        {
+            throw RubyException(rb_eArgError, "context argument must be nil or a hash");
+        }
 
-	status = proxy->ice_invoke(_name, _sendMode, params, result, ctx);
+        status = proxy->ice_invoke(_name, _sendMode, params, result, ctx);
     }
     else
     {
-	status = proxy->ice_invoke(_name, _sendMode, params, result);
+        status = proxy->ice_invoke(_name, _sendMode, params, result);
     }
 
     //
@@ -269,31 +269,31 @@ IceRuby::OperationI::invoke(const Ice::ObjectPrx& proxy, VALUE args, VALUE hctx)
     //
     if(proxy->ice_isTwoway())
     {
-	if(!status)
-	{
-	    //
-	    // Unmarshal a user exception.
-	    //
-	    volatile VALUE ex = unmarshalException(result, communicator);
-	    throw RubyException(ex);
-	}
-	else if(_outParams.size() > 0 || _returnType)
-	{
-	    //
-	    // Unmarshal the results. If there is more than one value to be returned, then return them
-	    // in an array of the form [result, outParam1, ...]. Otherwise just return the value.
-	    //
-	    volatile VALUE results = unmarshalResults(result, communicator);
+        if(!status)
+        {
+            //
+            // Unmarshal a user exception.
+            //
+            volatile VALUE ex = unmarshalException(result, communicator);
+            throw RubyException(ex);
+        }
+        else if(_outParams.size() > 0 || _returnType)
+        {
+            //
+            // Unmarshal the results. If there is more than one value to be returned, then return them
+            // in an array of the form [result, outParam1, ...]. Otherwise just return the value.
+            //
+            volatile VALUE results = unmarshalResults(result, communicator);
 
-	    if(RARRAY(results)->len > 1)
-	    {
-		return results;
-	    }
-	    else
-	    {
-		return RARRAY(results)->ptr[0];
-	    }
-	}
+            if(RARRAY(results)->len > 1)
+            {
+                return results;
+            }
+            else
+            {
+                return RARRAY(results)->ptr[0];
+            }
+        }
     }
 
     return Qnil;
@@ -304,17 +304,17 @@ IceRuby::OperationI::deprecate(const string& msg)
 {
     if(!msg.empty())
     {
-	_deprecateMessage = msg;
+        _deprecateMessage = msg;
     }
     else
     {
-	_deprecateMessage = "operation " + _name + " is deprecated";
+        _deprecateMessage = "operation " + _name + " is deprecated";
     }
 }
 
 void
 IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VALUE args, bool async,
-				    vector<Ice::Byte>& bytes)
+                                    vector<Ice::Byte>& bytes)
 {
     //
     // Validate the number of arguments.
@@ -323,45 +323,45 @@ IceRuby::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, VA
     long paramCount = static_cast<long>(_inParams.size());
     if(argc != paramCount)
     {
-	string fixedName = fixIdent(_name, IdentNormal);
-	throw RubyException(rb_eArgError, "%s expects %ld in parameters", fixedName.c_str(), paramCount);
+        string fixedName = fixIdent(_name, IdentNormal);
+        throw RubyException(rb_eArgError, "%s expects %ld in parameters", fixedName.c_str(), paramCount);
     }
 
     if(!_inParams.empty())
     {
-	//
-	// Marshal the in parameters.
-	//
-	Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
+        //
+        // Marshal the in parameters.
+        //
+        Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
 
-	ObjectMap objectMap;
-	long i = 0;
-	for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
-	{
-	    volatile VALUE arg = RARRAY(args)->ptr[i];
-	    if(!(*p)->type->validate(arg))
-	    {
-		string opName;
-		if(async)
-		{
-		    opName = fixIdent(_name, IdentNormal) + "_async";
-		}
-		else
-		{
-		    opName = fixIdent(_name, IdentNormal);
-		}
-		throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'",
-				    async ? i + 2 : i + 1, opName.c_str());
-	    }
-	    (*p)->type->marshal(arg, os, &objectMap);
-	}
+        ObjectMap objectMap;
+        long i = 0;
+        for(ParamInfoList::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
+        {
+            volatile VALUE arg = RARRAY(args)->ptr[i];
+            if(!(*p)->type->validate(arg))
+            {
+                string opName;
+                if(async)
+                {
+                    opName = fixIdent(_name, IdentNormal) + "_async";
+                }
+                else
+                {
+                    opName = fixIdent(_name, IdentNormal);
+                }
+                throw RubyException(rb_eTypeError, "invalid value for argument %ld in operation `%s'",
+                                    async ? i + 2 : i + 1, opName.c_str());
+            }
+            (*p)->type->marshal(arg, os, &objectMap);
+        }
 
-	if(_sendsClasses)
-	{
-	    os->writePendingObjects();
-	}
+        if(_sendsClasses)
+        {
+            os->writePendingObjects();
+        }
 
-	os->finished(bytes);
+        os->finished(bytes);
     }
 }
 
@@ -381,18 +381,18 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
     for(ParamInfoList::iterator p = _outParams.begin(); p != _outParams.end(); ++p, ++i)
     {
-	void* closure = reinterpret_cast<void*>(i);
-	(*p)->type->unmarshal(is, *p, results, closure);
+        void* closure = reinterpret_cast<void*>(i);
+        (*p)->type->unmarshal(is, *p, results, closure);
     }
 
     if(_returnType)
     {
-	_returnType->type->unmarshal(is, _returnType, results, 0);
+        _returnType->type->unmarshal(is, _returnType, results, 0);
     }
 
     if(_returnsClasses)
     {
-	is->readPendingObjects();
+        is->readPendingObjects();
     }
 
     RARRAY(results)->len = numResults;
@@ -409,34 +409,34 @@ IceRuby::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ic
     string id = is->readString();
     while(!id.empty())
     {
-	ExceptionInfoPtr info = lookupExceptionInfo(id);
-	if(info)
-	{
-	    volatile VALUE ex = info->unmarshal(is);
-	    if(info->usesClasses)
-	    {
-		is->readPendingObjects();
-	    }
+        ExceptionInfoPtr info = lookupExceptionInfo(id);
+        if(info)
+        {
+            volatile VALUE ex = info->unmarshal(is);
+            if(info->usesClasses)
+            {
+                is->readPendingObjects();
+            }
 
-	    if(validateException(ex))
-	    {
-		return ex;
-	    }
-	    else
-	    {
-		volatile VALUE cls = CLASS_OF(ex);
-		volatile VALUE path = callRuby(rb_class_path, cls);
-		assert(TYPE(path) == T_STRING);
-		Ice::UnknownUserException e(__FILE__, __LINE__);
-		e.unknown = RSTRING(path)->ptr;
-		throw e;
-	    }
-	}
-	else
-	{
-	    is->skipSlice();
-	    id = is->readString();
-	}
+            if(validateException(ex))
+            {
+                return ex;
+            }
+            else
+            {
+                volatile VALUE cls = CLASS_OF(ex);
+                volatile VALUE path = callRuby(rb_class_path, cls);
+                assert(TYPE(path) == T_STRING);
+                Ice::UnknownUserException e(__FILE__, __LINE__);
+                e.unknown = RSTRING(path)->ptr;
+                throw e;
+            }
+        }
+        else
+        {
+            is->skipSlice();
+            id = is->readString();
+        }
     }
 
     //
@@ -453,10 +453,10 @@ IceRuby::OperationI::validateException(VALUE ex) const
 {
     for(ExceptionInfoList::const_iterator p = _exceptions.begin(); p != _exceptions.end(); ++p)
     {
-	if(callRuby(rb_obj_is_kind_of, ex, (*p)->rubyClass))
-	{
-	    return true;
-	}
+        if(callRuby(rb_obj_is_kind_of, ex, (*p)->rubyClass))
+        {
+            return true;
+        }
     }
 
     return false;
@@ -467,9 +467,9 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 {
     if((_returnType != 0 || !_outParams.empty()) && !proxy->ice_isTwoway())
     {
-	Ice::TwowayOnlyException ex(__FILE__, __LINE__);
-	ex.operation = _name;
-	throw ex;
+        Ice::TwowayOnlyException ex(__FILE__, __LINE__);
+        ex.operation = _name;
+        throw ex;
     }
 }
 

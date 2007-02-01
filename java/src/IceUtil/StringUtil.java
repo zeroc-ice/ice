@@ -86,76 +86,76 @@ public final class StringUtil
     {
         switch(b)
         {
-	    case (byte)'\\':
-	    {
-		sb.append("\\\\");
-		break;
-	    }
-	    case (byte)'\'':
-	    {
-		sb.append("\\'");
-		break;
-	    }
-	    case (byte)'"':
-	    {
-		sb.append("\\\"");
-		break;
-	    }
-	    case (byte)'\b':
-	    {
-		sb.append("\\b");
-		break;
-	    }
-	    case (byte)'\f':
-	    {
-		sb.append("\\f");
-		break;
-	    }
-	    case (byte)'\n':
-	    {
-		sb.append("\\n");
-		break;
-	    }
-	    case (byte)'\r':
-	    {
-		sb.append("\\r");
-		break;
-	    }
-	    case (byte)'\t':
-	    {
-		sb.append("\\t");
-		break;
-	    }
-	    default:
-	    {
-		if(!(b >= 32 && b <= 126))
-		{
-		    sb.append('\\');
-		    String octal = Integer.toOctalString(b < 0 ? b + 256 : b);
-		    //
-		    // Add leading zeroes so that we avoid problems during
-		    // decoding. For example, consider the encoded string
-		    // \0013 (i.e., a character with value 1 followed by
-		    // the character '3'). If the leading zeroes were omitted,
-		    // the result would be incorrectly interpreted by the
-		    // decoder as a single character with value 11.
-		    //
-		    for(int j = octal.length(); j < 3; j++)
-		    {
-			sb.append('0');
-		    }
-		    sb.append(octal);
-		}
-		else if(special != null && special.indexOf((char)b) != -1)
-		{
-		    sb.append('\\');
-		    sb.append((char)b);
-		}
-		else
-		{
-		    sb.append((char)b);
-		}
-	    }
+            case (byte)'\\':
+            {
+                sb.append("\\\\");
+                break;
+            }
+            case (byte)'\'':
+            {
+                sb.append("\\'");
+                break;
+            }
+            case (byte)'"':
+            {
+                sb.append("\\\"");
+                break;
+            }
+            case (byte)'\b':
+            {
+                sb.append("\\b");
+                break;
+            }
+            case (byte)'\f':
+            {
+                sb.append("\\f");
+                break;
+            }
+            case (byte)'\n':
+            {
+                sb.append("\\n");
+                break;
+            }
+            case (byte)'\r':
+            {
+                sb.append("\\r");
+                break;
+            }
+            case (byte)'\t':
+            {
+                sb.append("\\t");
+                break;
+            }
+            default:
+            {
+                if(!(b >= 32 && b <= 126))
+                {
+                    sb.append('\\');
+                    String octal = Integer.toOctalString(b < 0 ? b + 256 : b);
+                    //
+                    // Add leading zeroes so that we avoid problems during
+                    // decoding. For example, consider the encoded string
+                    // \0013 (i.e., a character with value 1 followed by
+                    // the character '3'). If the leading zeroes were omitted,
+                    // the result would be incorrectly interpreted by the
+                    // decoder as a single character with value 11.
+                    //
+                    for(int j = octal.length(); j < 3; j++)
+                    {
+                        sb.append('0');
+                    }
+                    sb.append(octal);
+                }
+                else if(special != null && special.indexOf((char)b) != -1)
+                {
+                    sb.append('\\');
+                    sb.append((char)b);
+                }
+                else
+                {
+                    sb.append((char)b);
+                }
+            }
         }
     }
 
@@ -168,15 +168,15 @@ public final class StringUtil
     escapeString(String s, String special)
     {
         if(special != null)
-	{
-	    for(int i = 0; i < special.length(); ++i)
-	    {
-		if(special.charAt(i) < 32 || special.charAt(i) > 126)
-		{
-		    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
-		}
-	    }
-	}
+        {
+            for(int i = 0; i < special.length(); ++i)
+            {
+                if(special.charAt(i) < 32 || special.charAt(i) > 126)
+                {
+                    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
+                }
+            }
+        }
 
         byte[] bytes = null;
         try
@@ -201,11 +201,11 @@ public final class StringUtil
     private static char
     checkChar(char c)
     {
-	if(!(c >= 32 && c <= 126))
-	{
-	    throw new IllegalArgumentException("illegal input character");
-	}
-	return c;
+        if(!(c >= 32 && c <= 126))
+        {
+            throw new IllegalArgumentException("illegal input character");
+        }
+        return c;
     }
 
     //
@@ -215,97 +215,97 @@ public final class StringUtil
     //
     private static char decodeChar(String s, int start, int end, Ice.IntHolder nextStart)
     {
-	assert(start >= 0);
-	assert(start < end);
-	assert(end <= s.length());
+        assert(start >= 0);
+        assert(start < end);
+        assert(end <= s.length());
 
-	char c;
+        char c;
 
-	if(s.charAt(start) != '\\')
-	{
-	    c = checkChar(s.charAt(start++));
-	}
-	else
-	{
-	    if(start + 1 == end)
-	    {
-		throw new IllegalArgumentException("trailing backslash in argument");
-	    }
-	    switch(s.charAt(++start))
-	    {
-		case '\\': 
-		case '\'': 
-		case '"': 
-		{
-		    c = s.charAt(start++);
-		    break;
-		}
-		case 'b': 
-		{
-		    ++start;
-		    c = '\b';
-		    break;
-		}
-		case 'f': 
-		{
-		    ++start;
-		    c = '\f';
-		    break;
-		}
-		case 'n': 
-		{
-		    ++start;
-		    c = '\n';
-		    break;
-		}
-		case 'r': 
-		{
-		    ++start;
-		    c = '\r';
-		    break;
-		}
-		case 't': 
-		{
-		    ++start;
-		    c = '\t';
-		    break;
-		}
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		{
-		    int oct = 0;
-		    for(int j = 0; j < 3 && start < end; ++j)
-		    {
-		        int charVal = s.charAt(start++) - '0';
-			if(charVal < 0 || charVal > 7)
-			{
-			    --start;
-			    break;
-			}
-			oct = oct * 8 + charVal;
-		    }
-		    if(oct > 255)
-		    {
-		        throw new IllegalArgumentException("octal value out of range");
-		    }
-		    c = (char)oct;
-		    break;
-		}
-		default:
-		{
-		    c = checkChar(s.charAt(start++));
-		    break;
-		}
-	    }
-	}
-	nextStart.value = start;
-	return c;
+        if(s.charAt(start) != '\\')
+        {
+            c = checkChar(s.charAt(start++));
+        }
+        else
+        {
+            if(start + 1 == end)
+            {
+                throw new IllegalArgumentException("trailing backslash in argument");
+            }
+            switch(s.charAt(++start))
+            {
+                case '\\': 
+                case '\'': 
+                case '"': 
+                {
+                    c = s.charAt(start++);
+                    break;
+                }
+                case 'b': 
+                {
+                    ++start;
+                    c = '\b';
+                    break;
+                }
+                case 'f': 
+                {
+                    ++start;
+                    c = '\f';
+                    break;
+                }
+                case 'n': 
+                {
+                    ++start;
+                    c = '\n';
+                    break;
+                }
+                case 'r': 
+                {
+                    ++start;
+                    c = '\r';
+                    break;
+                }
+                case 't': 
+                {
+                    ++start;
+                    c = '\t';
+                    break;
+                }
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                {
+                    int oct = 0;
+                    for(int j = 0; j < 3 && start < end; ++j)
+                    {
+                        int charVal = s.charAt(start++) - '0';
+                        if(charVal < 0 || charVal > 7)
+                        {
+                            --start;
+                            break;
+                        }
+                        oct = oct * 8 + charVal;
+                    }
+                    if(oct > 255)
+                    {
+                        throw new IllegalArgumentException("octal value out of range");
+                    }
+                    c = (char)oct;
+                    break;
+                }
+                default:
+                {
+                    c = checkChar(s.charAt(start++));
+                    break;
+                }
+            }
+        }
+        nextStart.value = start;
+        return c;
     }
 
     //
@@ -315,12 +315,12 @@ public final class StringUtil
     private static void
     decodeString(String s, int start, int end, StringBuffer sb)
     {
-	Ice.IntHolder nextStart = new Ice.IntHolder();
+        Ice.IntHolder nextStart = new Ice.IntHolder();
         while(start < end)
-	{
-	    sb.append(decodeChar(s, start, end, nextStart));
-	    start = nextStart.value;
-	}
+        {
+            sb.append(decodeChar(s, start, end, nextStart));
+            start = nextStart.value;
+        }
     }
 
     //
@@ -330,37 +330,37 @@ public final class StringUtil
     unescapeString(String s, int start, int end, Ice.StringHolder result)
     {
         if(start < 0)
-	{
-	    throw new IllegalArgumentException("start offset must be >= 0");
-	}
-	if(end > s.length())
-	{
-	    throw new IllegalArgumentException("end offset must <= s.length()");
-	}
-	if(start > end)
-	{
-	    throw new IllegalArgumentException("start offset must <= end offset");
-	}
+        {
+            throw new IllegalArgumentException("start offset must be >= 0");
+        }
+        if(end > s.length())
+        {
+            throw new IllegalArgumentException("end offset must <= s.length()");
+        }
+        if(start > end)
+        {
+            throw new IllegalArgumentException("start offset must <= end offset");
+        }
 
-	try
-	{
-	    StringBuffer sb = new StringBuffer();
-	    decodeString(s, start, end, sb);
-	    String decodedString = sb.toString();
+        try
+        {
+            StringBuffer sb = new StringBuffer();
+            decodeString(s, start, end, sb);
+            String decodedString = sb.toString();
 
-	    byte[] arr = new byte[decodedString.length()];
-	    for(int i = 0; i < arr.length; ++i)
-	    {
-	        arr[i] = (byte)decodedString.charAt(i);
-	    }
+            byte[] arr = new byte[decodedString.length()];
+            for(int i = 0; i < arr.length; ++i)
+            {
+                arr[i] = (byte)decodedString.charAt(i);
+            }
 
-	    result.value = new String(arr, 0, arr.length, "UTF8");
-	    return true;
-	}
-	catch(java.lang.Exception ex)
-	{
-	    return false;
-	}
+            result.value = new String(arr, 0, arr.length, "UTF8");
+            return true;
+        }
+        catch(java.lang.Exception ex)
+        {
+            return false;
+        }
     }
 
     public static int

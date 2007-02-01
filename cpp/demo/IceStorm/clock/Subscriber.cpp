@@ -25,7 +25,7 @@ public:
     virtual void
     tick(const string& time, const Ice::Current&)
     {
-	cout << time << endl;
+        cout << time << endl;
     }
 };
 
@@ -66,41 +66,41 @@ Subscriber::run(int argc, char* argv[])
     }
     catch(const IceUtil::BadOptException& e)
     {
-	cerr << argv[0] << ": " << e.reason << endl;
-	usage(appName());
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": " << e.reason << endl;
+        usage(appName());
+        return EXIT_FAILURE;
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-	communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
+        communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));
     if(!manager)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     string topicName = "time";
     if(!remaining.empty())
     {
-	topicName = remaining.front();
+        topicName = remaining.front();
     }
 
     IceStorm::TopicPrx topic;
     try
     {
-	topic = manager->retrieve(topicName);
+        topic = manager->retrieve(topicName);
     }
     catch(const IceStorm::NoSuchTopic&)
     {
-	try
-	{
-	    topic = manager->create(topicName);
-	}
-	catch(const IceStorm::TopicExists&)
-	{
-	    cerr << appName() << ": temporary failure. try again." << endl;
-	    return EXIT_FAILURE;
-	}
+        try
+        {
+            topic = manager->create(topicName);
+        }
+        catch(const IceStorm::TopicExists&)
+        {
+            cerr << appName() << ": temporary failure. try again." << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Clock.Subscriber");
@@ -116,47 +116,47 @@ Subscriber::run(int argc, char* argv[])
     int optsSet = 0;
     if(opts.isSet("datagram"))
     {
-	subscriber = subscriber->ice_datagram();
-	++optsSet;
+        subscriber = subscriber->ice_datagram();
+        ++optsSet;
     }
     if(opts.isSet("twoway"))
     {
-	// Do nothing to the subscriber proxy. Its already twoway.
-	++optsSet;
+        // Do nothing to the subscriber proxy. Its already twoway.
+        ++optsSet;
     }
     if(opts.isSet("ordered"))
     {
-	qos["reliability"] = "ordered";
-	// Do nothing to the subscriber proxy. Its already twoway.
-	++optsSet;
+        qos["reliability"] = "ordered";
+        // Do nothing to the subscriber proxy. Its already twoway.
+        ++optsSet;
     }
     if(opts.isSet("oneway") || optsSet == 0)
     {
-	subscriber = subscriber->ice_oneway();
-	++optsSet;
+        subscriber = subscriber->ice_oneway();
+        ++optsSet;
     }
 
     if(optsSet != 1)
     {
-	usage(appName());
-	return EXIT_FAILURE;
+        usage(appName());
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("batch"))
     {
-	if(opts.isSet("twoway") || opts.isSet("ordered"))
-	{
-	    cerr << appName() << ": batch can only be set with oneway or datagram" << endl;
-	    return EXIT_FAILURE;
-	}
-	if(opts.isSet("datagram"))
-	{
-	    subscriber = subscriber->ice_batchDatagram();
-	}
-	else
-	{
-	    subscriber = subscriber->ice_batchOneway();
-	}
+        if(opts.isSet("twoway") || opts.isSet("ordered"))
+        {
+            cerr << appName() << ": batch can only be set with oneway or datagram" << endl;
+            return EXIT_FAILURE;
+        }
+        if(opts.isSet("datagram"))
+        {
+            subscriber = subscriber->ice_batchDatagram();
+        }
+        else
+        {
+            subscriber = subscriber->ice_batchOneway();
+        }
     }
 
     topic->subscribeAndGetPublisher(qos, subscriber);

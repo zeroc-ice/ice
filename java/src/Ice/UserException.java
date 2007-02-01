@@ -14,15 +14,15 @@ public abstract class UserException extends Exception
     public java.lang.Object clone()
     {
         java.lang.Object o = null;
-	try
-	{
-	    o = super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false; // Impossible
-	}
-	return o;
+        try
+        {
+            o = super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false; // Impossible
+        }
+        return o;
     }
 
     public abstract String

@@ -295,14 +295,14 @@ def allTests(communicator):
     adapter.add(obj, communicator.stringToIdentity("x"))
     try:
         adapter.add(obj, communicator.stringToIdentity("x"))
-	test(false)
+        test(false)
     except Ice.AlreadyRegisteredException:
         pass
 
     adapter.remove(communicator.stringToIdentity("x"))
     try:
         adapter.remove(communicator.stringToIdentity("x"))
-	test(false)
+        test(false)
     except Ice.NotRegisteredException:
         pass
 
@@ -316,7 +316,7 @@ def allTests(communicator):
     adapter.addServantLocator(loc, "x")
     try:
         adapter.addServantLocator(loc, "x")
-	test(false)
+        test(false)
     except Ice.AlreadyRegisteredException:
         pass
 
@@ -328,7 +328,7 @@ def allTests(communicator):
     communicator.addObjectFactory(of, "x")
     try:
         communicator.addObjectFactory(of, "x")
-	test(false)
+        test(false)
     except Ice.AlreadyRegisteredException:
         pass
     print "ok"

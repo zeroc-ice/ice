@@ -36,7 +36,7 @@ main(int argc, char* argv[])
     //
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-	
+        
     SessionControlClient app;
     return app.main(argc, argv, initData);
 }
@@ -60,8 +60,8 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "testing destroy... " << flush;
     try
     {
-	session->destroyFromClient();
-	test(false);
+        session->destroyFromClient();
+        test(false);
     }
     catch(const Ice::ConnectionLostException&)
     {
@@ -69,7 +69,7 @@ SessionControlClient::run(int argc, char* argv[])
     try
     {
         session->ice_ping();
-	test(false);
+        test(false);
     }
     catch(const Ice::ConnectionLostException&)
     {
@@ -79,16 +79,16 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "testing create exceptions... " << flush;
     try
     {
-	router->createSession("rejectme", "abc123");
-	test(false);
+        router->createSession("rejectme", "abc123");
+        test(false);
     }
     catch(const Glacier2::CannotCreateSessionException&)
     {
     }
     try
     {
-	router->createSession("localexception", "abc123");
-	test(false);
+        router->createSession("localexception", "abc123");
+        test(false);
     }
     catch(const Glacier2::CannotCreateSessionException&)
     {
@@ -105,12 +105,12 @@ SessionControlClient::run(int argc, char* argv[])
     admin->shutdown();
     try
     {
-	admin->ice_ping();
-	test(false);
+        admin->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 
     return EXIT_SUCCESS;

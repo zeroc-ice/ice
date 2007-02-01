@@ -13,18 +13,18 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
-	public void
-	run()
-	{
-	    try
-	    {
-		communicator().destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
+        public void
+        run()
+        {
+            try
+            {
+                communicator().destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void
@@ -41,34 +41,34 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-	//
-	// Since this is an interactive demo we want to clear the
-	// Application installed interrupt callback and install our
-	// own shutdown hook.
-	//
-	setInterruptHook(new ShutdownHook());
+        //
+        // Since this is an interactive demo we want to clear the
+        // Application installed interrupt callback and install our
+        // own shutdown hook.
+        //
+        setInterruptHook(new ShutdownHook());
 
-	//
-	// First we try to connect to the object with the `hello'
-	// identity. If it's not registered with the registry, we
-	// search for an object with the ::Demo::Hello type.
-	//
-	HelloPrx hello = null;
-	try
-	{
-	    hello = HelloPrxHelper.checkedCast(communicator().stringToProxy("hello"));
-	}
-	catch(Ice.NotRegisteredException ex)
-	{
-	    IceGrid.QueryPrx query = 
-	        IceGrid.QueryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Query"));
-	    hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
-	}
-	if(hello == null)
-	{
+        //
+        // First we try to connect to the object with the `hello'
+        // identity. If it's not registered with the registry, we
+        // search for an object with the ::Demo::Hello type.
+        //
+        HelloPrx hello = null;
+        try
+        {
+            hello = HelloPrxHelper.checkedCast(communicator().stringToProxy("hello"));
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
+            IceGrid.QueryPrx query = 
+                IceGrid.QueryPrxHelper.checkedCast(communicator().stringToProxy("DemoIceGrid/Query"));
+            hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
+        }
+        if(hello == null)
+        {
             System.err.println("couldn't find a `::Demo::Hello' object");
-	    return 1;
-	}
+            return 1;
+        }
 
         menu();
 
@@ -125,8 +125,8 @@ public class Client extends Ice.Application
     public static void
     main(String[] args)
     {
-	Client app = new Client();
-	int status = app.main("Client", args, "config.client");
-	System.exit(status);
+        Client app = new Client();
+        int status = app.main("Client", args, "config.client");
+        System.exit(status);
     }
 }

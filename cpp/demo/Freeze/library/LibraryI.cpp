@@ -24,19 +24,19 @@ BookI::destroy(const Ice::Current&)
     IceUtil::Mutex::Lock lock(*this);
     if(_destroyed)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     _destroyed = true;
 
     try
     {
-	_library->remove(description);
+        _library->remove(description);
     }
     catch(const Freeze::DatabaseException& ex)
     {
-	DatabaseException e;
-	e.message = ex.message;
-	throw e;
+        DatabaseException e;
+        e.message = ex.message;
+        throw e;
     }
 }
 
@@ -68,7 +68,7 @@ BookI::getRenterName(const Ice::Current&) const
 
     if(rentalCustomerName.empty())
     {
-	throw BookNotRentedException();
+        throw BookNotRentedException();
     }
     return rentalCustomerName;
 }
@@ -85,7 +85,7 @@ BookI::rentBook(const string& name, const Ice::Current&)
 
     if(!rentalCustomerName.empty())
     {
-	throw BookRentedException();
+        throw BookRentedException();
     }
     rentalCustomerName = name;
 }
@@ -102,7 +102,7 @@ BookI::returnBook(const Ice::Current&)
 
     if(rentalCustomerName.empty())
     {
-	throw BookNotRentedException();
+        throw BookNotRentedException();
     }
     rentalCustomerName.clear();;
 }
@@ -128,14 +128,14 @@ class IsbnToBook
 public:
 
     IsbnToBook(const Ice::ObjectAdapterPtr& adapter) :
-	_adapter(adapter)
+        _adapter(adapter)
     {
     }
 
     BookPrx
     operator()(const string& isbn)
     {
-	return BookPrx::uncheckedCast(_adapter->createProxy(createBookIdentity(isbn)));
+        return BookPrx::uncheckedCast(_adapter->createProxy(createBookIdentity(isbn)));
     }
 
 private:
@@ -144,8 +144,8 @@ private:
 };
 
 LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator, 
-		   const string& envName, const string& dbName,
-		   const Freeze::EvictorPtr& evictor) :
+                   const string& envName, const string& dbName,
+                   const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
     _connection(Freeze::createConnection(communicator, envName)),
     _authors(_connection, dbName)
@@ -163,25 +163,25 @@ LibraryI::createBook(const Demo::BookDescription& description, const Ice::Curren
     //
     BookPrx book;
     {
-	book = IsbnToBook(c.adapter)(description.isbn);
+        book = IsbnToBook(c.adapter)(description.isbn);
     }
 #else
     BookPrx book = IsbnToBook(c.adapter)(description.isbn);
 #endif
     try
     {
-	book->ice_ping();
+        book->ice_ping();
 
-	//
-	// The book already exists.
-	//
-	throw BookExistsException();
+        //
+        // The book already exists.
+        //
+        throw BookExistsException();
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	//
-	// Book doesn't exist, ignore the exception.
-	//
+        //
+        // Book doesn't exist, ignore the exception.
+        //
     }
 
     BookPtr bookI = new BookI(this);
@@ -205,7 +205,7 @@ LibraryI::createBook(const Demo::BookDescription& description, const Ice::Curren
     StringIsbnSeqDict::iterator p =  _authors.find(description.authors);
     if(p != _authors.end())
     {
-	isbnSeq = p->second;
+        isbnSeq = p->second;
     }
 
     isbnSeq.push_back(description.isbn);
@@ -224,16 +224,16 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
 
     try
     {
-	BookPrx book = IsbnToBook(c.adapter)(isbn);
-	book->ice_ping();
-	return book;
+        BookPrx book = IsbnToBook(c.adapter)(isbn);
+        book->ice_ping();
+        return book;
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	//
-	// Book doesn't exist, return a null proxy.
-	//
-	return 0;
+        //
+        // Book doesn't exist, return a null proxy.
+        //
+        return 0;
     }
 }
 
@@ -252,8 +252,8 @@ LibraryI::findByAuthors(const string& authors, const Ice::Current& c) const
 
     if(p != _authors.end())
     {
-	books.reserve(p->second.size());
-	transform(p->second.begin(), p->second.end(), back_inserter(books), IsbnToBook(c.adapter));
+        books.reserve(p->second.size());
+        transform(p->second.begin(), p->second.end(), back_inserter(books), IsbnToBook(c.adapter));
     }
 
     return books;
@@ -286,43 +286,43 @@ LibraryI::remove(const BookDescription& description)
 
     try
     {
-	StringIsbnSeqDict::iterator p = _authors.find(description.authors);
-	
-	assert(p != _authors.end());
+        StringIsbnSeqDict::iterator p = _authors.find(description.authors);
+        
+        assert(p != _authors.end());
 
-	//
-	// Remove the isbn number from the sequence.
-	//
-	Ice::StringSeq isbnSeq  = p->second;
-	isbnSeq.erase(remove_if(isbnSeq.begin(), isbnSeq.end(), bind2nd(equal_to<string>(), description.isbn)),
-			 isbnSeq.end());
-	
-	if(isbnSeq.empty())
-	{
-	    //
-	    // If there are no further associated isbn numbers then remove
-	    // the record.
-	    //
-	    _authors.erase(p);
-	}
-	else
-	{
-	    //
-	    // Otherwise, write back the new record.
-	    //
-	    p.set(isbnSeq);
-	}
+        //
+        // Remove the isbn number from the sequence.
+        //
+        Ice::StringSeq isbnSeq  = p->second;
+        isbnSeq.erase(remove_if(isbnSeq.begin(), isbnSeq.end(), bind2nd(equal_to<string>(), description.isbn)),
+                         isbnSeq.end());
+        
+        if(isbnSeq.empty())
+        {
+            //
+            // If there are no further associated isbn numbers then remove
+            // the record.
+            //
+            _authors.erase(p);
+        }
+        else
+        {
+            //
+            // Otherwise, write back the new record.
+            //
+            p.set(isbnSeq);
+        }
 
-	//
-	// This can throw EvictorDeactivatedException (which indicates
-	// an internal error). The exception is currently ignored.
-	//
-	_evictor->remove(createBookIdentity(description.isbn));
+        //
+        // This can throw EvictorDeactivatedException (which indicates
+        // an internal error). The exception is currently ignored.
+        //
+        _evictor->remove(createBookIdentity(description.isbn));
     }
     catch(const Freeze::DatabaseException& ex)
     {
-	DatabaseException e;
-	e.message = ex.message;
-	throw e;
+        DatabaseException e;
+        e.message = ex.message;
+        throw e;
     }
 }

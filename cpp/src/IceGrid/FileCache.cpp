@@ -30,7 +30,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     ifstream is(file.c_str());
     if(is.fail())
     {
-	throw FileNotAvailableException("failed to open file `" + file + "'");
+        throw FileNotAvailableException("failed to open file `" + file + "'");
     }
 
     if(originalCount < 0)
@@ -54,64 +54,64 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     {
         lines.clear();
 
-	//
-	// Move the current position of the stream to the new block to
-	// read.
-	//
-	is.clear();
-	if(lastBlockOffset - blockSize > streamoff(0))
-	{
-	    is.seekg(lastBlockOffset - blockSize);
-	    getline(is, line); // Ignore the first line as it's most likely not complete.
-	}
-	else
-	{
-	    is.seekg(0, ios::beg); // We've reach the begining of the file.
-	}
-	
-	//
-	// Read the block and count the number of lines in the block
-	// If we found the "first last N lines", we start throwing out
-	// the lines read at the begining of the file.
-	//
-	int count = originalCount - totalCount; // Number of lines left to find.
-	while(is.good() && is.tellg() <= streamoff(lastBlockOffset))
-	{
+        //
+        // Move the current position of the stream to the new block to
+        // read.
+        //
+        is.clear();
+        if(lastBlockOffset - blockSize > streamoff(0))
+        {
+            is.seekg(lastBlockOffset - blockSize);
+            getline(is, line); // Ignore the first line as it's most likely not complete.
+        }
+        else
+        {
+            is.seekg(0, ios::beg); // We've reach the begining of the file.
+        }
+        
+        //
+        // Read the block and count the number of lines in the block
+        // If we found the "first last N lines", we start throwing out
+        // the lines read at the begining of the file.
+        //
+        int count = originalCount - totalCount; // Number of lines left to find.
+        while(is.good() && is.tellg() <= streamoff(lastBlockOffset))
+        {
             streampos beg = is.tellg();
-	    getline(is, line);
-	    if(is.eof() && line.empty()) // Don't count the last line if it's empty.
-	    {
-		continue;
-	    }
+            getline(is, line);
+            if(is.eof() && line.empty()) // Don't count the last line if it's empty.
+            {
+                continue;
+            }
 
-	    lines.push_back(make_pair(beg, line));
-	    ++totalCount;
-	    if(lines.size() == static_cast<unsigned int>(count + 1))
-	    {
-		--totalCount;
-		lines.pop_front();
-	    }
-	}
+            lines.push_back(make_pair(beg, line));
+            ++totalCount;
+            if(lines.size() == static_cast<unsigned int>(count + 1))
+            {
+                --totalCount;
+                lines.pop_front();
+            }
+        }
 
-	if(lastBlockOffset - blockSize < streamoff(0))
-	{
-	    break; // We're done if the block started at the begining of the file.
-	}
-	else if(totalCount < originalCount)
-	{
-	    //
-	    // Otherwise, it we still didn't find the required number of lines, 
-	    // read another block of text before this block.
-	    //
-	    lastBlockOffset -= blockSize; // Position of the block we just read.
-	    blockSize *= 2; // Read a bigger block.
-	}
+        if(lastBlockOffset - blockSize < streamoff(0))
+        {
+            break; // We're done if the block started at the begining of the file.
+        }
+        else if(totalCount < originalCount)
+        {
+            //
+            // Otherwise, it we still didn't find the required number of lines, 
+            // read another block of text before this block.
+            //
+            lastBlockOffset -= blockSize; // Position of the block we just read.
+            blockSize *= 2; // Read a bigger block.
+        }
     }
     while(totalCount < originalCount && !is.bad());
 
     if(is.bad())
     {
-	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
     }
  
     if(lines.empty())
@@ -131,18 +131,18 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     if(size > _messageSizeMax)
     {
-	size = _messageSizeMax;
+        size = _messageSizeMax;
     }
 
     if(size <= 5)
     {
-	throw FileNotAvailableException("maximum bytes per read request is too low");
+        throw FileNotAvailableException("maximum bytes per read request is too low");
     }
 
     ifstream is(file.c_str());
     if(is.fail())
     {
-	throw FileNotAvailableException("failed to open file `" + file + "'");
+        throw FileNotAvailableException("failed to open file `" + file + "'");
     }
 
     //
@@ -153,9 +153,9 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
     is.seekg(0, ios::end);
     if(offset >= is.tellg())
     {
-	newOffset = is.tellg();
-	lines = Ice::StringSeq();
-	return true;
+        newOffset = is.tellg();
+        lines = Ice::StringSeq();
+        return true;
     }
 
     //
@@ -173,44 +173,44 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     for(int i = 0; is.good(); ++i)
     {
-	getline(is, line);
+        getline(is, line);
 
-	int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
-	if(lineSize + totalSize > size)
-	{
-	    if(totalSize + 5 < size)
-	    {
+        int lineSize = static_cast<int>(line.size()) + 5; // 5 bytes for the encoding of the string size (worst case)
+        if(lineSize + totalSize > size)
+        {
+            if(totalSize + 5 < size)
+            {
                 // There's some room left for a part of the string, return a partial string
                 line = line.substr(0, size - totalSize - 5);
-		lines.push_back(line);
-		newOffset += line.size();
-	    }
-	    else
-	    {
-		lines.push_back("");
-	    }
+                lines.push_back(line);
+                newOffset += line.size();
+            }
+            else
+            {
+                lines.push_back("");
+            }
             return false; // We didn't reach the end of file, we've just reached the size limit!
-	}
+        }
 
-	totalSize += lineSize;
-	lines.push_back(line);
+        totalSize += lineSize;
+        lines.push_back(line);
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-	if(is.eof())
-	{
-	    newOffset += line.size();
-	}
-	else
+        if(is.eof())
+        {
+            newOffset += line.size();
+        }
+        else
 #else
-	if(!is.fail())
+        if(!is.fail())
 #endif
-	{
-	    newOffset = is.tellg();
-	}
+        {
+            newOffset = is.tellg();
+        }
     }
 
     if(is.bad())
     {
-	throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
     }
 
     return is.eof();

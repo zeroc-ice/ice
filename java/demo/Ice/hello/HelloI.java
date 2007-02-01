@@ -15,7 +15,7 @@ public class HelloI extends _HelloDisp
     sayHello(int delay, Ice.Current current)
     {
         if(delay > 0)
-	{
+        {
             try
             {
                 Thread.currentThread().sleep(delay);
@@ -23,7 +23,7 @@ public class HelloI extends _HelloDisp
             catch(InterruptedException ex1)
             {
             }
-	}
+        }
         System.out.println("Hello World!");
     }
 
@@ -31,6 +31,6 @@ public class HelloI extends _HelloDisp
     shutdown(Ice.Current current)
     {
         System.out.println("Shutting down...");
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 }

@@ -20,14 +20,14 @@ ThroughputI::ThroughputI() :
     int i;
     for(i = 0; i < Demo::StringDoubleSeqSize; ++i)
     {
-	_structSeq[i].s = "hello";
-	_structSeq[i].d = 3.14;
+        _structSeq[i].s = "hello";
+        _structSeq[i].d = 3.14;
     }
     for(i = 0; i < Demo::FixedSeqSize; ++i)
     {
-	_fixedSeq[i].i = 0;
-	_fixedSeq[i].j = 0;
-	_fixedSeq[i].d = 0;
+        _fixedSeq[i].i = 0;
+        _fixedSeq[i].j = 0;
+        _fixedSeq[i].d = 0;
     }
 }
 

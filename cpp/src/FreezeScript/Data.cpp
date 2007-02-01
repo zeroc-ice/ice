@@ -2494,28 +2494,28 @@ FreezeScript::ObjectFactory::create(const string& id)
 
     if(_factory)
     {
-	if(id == Ice::Object::ice_staticId())
-	{
-	    result = new ObjectReader(_factory, _unit->builtin(Slice::Builtin::KindObject));
-	}
-	else
-	{
-	    Slice::TypeList l = _unit->lookupTypeNoBuiltin(id);
-	    if(!l.empty())
-	    {
-		Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(l.front());
-		if(!decl)
-		{
-		    _factory->getErrorReporter()->error("Slice definition for `" + id + "' is not a class");
-		}
-		Slice::ClassDefPtr def = decl->definition();
-		if(!def)
-		{
-		    _factory->getErrorReporter()->error("no class definition for `" + id + "'");
-		}
-		result = new ObjectReader(_factory, decl);
-	    }
-	}
+        if(id == Ice::Object::ice_staticId())
+        {
+            result = new ObjectReader(_factory, _unit->builtin(Slice::Builtin::KindObject));
+        }
+        else
+        {
+            Slice::TypeList l = _unit->lookupTypeNoBuiltin(id);
+            if(!l.empty())
+            {
+                Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(l.front());
+                if(!decl)
+                {
+                    _factory->getErrorReporter()->error("Slice definition for `" + id + "' is not a class");
+                }
+                Slice::ClassDefPtr def = decl->definition();
+                if(!def)
+                {
+                    _factory->getErrorReporter()->error("no class definition for `" + id + "'");
+                }
+                result = new ObjectReader(_factory, decl);
+            }
+        }
     }
 
     return result;

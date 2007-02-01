@@ -44,7 +44,7 @@ def printOutputFromPipe(pipe):
         if not line:
             break
         if line.find("warning") == -1:
-	    os.write(1, line)
+            os.write(1, line)
 
 def error(message):
     print "error: " + message
@@ -66,7 +66,7 @@ def transformdb(db, desc, oldSlice, newSlice):
     os.close(temp)
 
     transformdb = os.path.join(bindir, "transformdb") + " -i --old " + oldSliceFile + " --new " + newSliceFile + \
-	" -f " + descFile + " " + olddbenv + " " + db + " " + newdbenv + " 2>&1"
+        " -f " + descFile + " " + olddbenv + " " + db + " " + newdbenv + " 2>&1"
 
     pipe = os.popen(transformdb)
     printOutputFromPipe(pipe)

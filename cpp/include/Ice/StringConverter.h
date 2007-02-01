@@ -47,13 +47,13 @@ public:
     // past the last byte returned by getMoreBytes).
     //
     virtual Byte* toUTF8(const charT* sourceStart, const charT* sourceEnd,
-			 UTF8Buffer&) const = 0;
+                         UTF8Buffer&) const = 0;
 
     //
     // Unmarshals a UTF-8 sequence into a basic_string
     //
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-			  std::basic_string<charT>& target) const = 0;
+                          std::basic_string<charT>& target) const = 0;
 };
 
 typedef BasicStringConverter<char> StringConverter;
@@ -71,10 +71,10 @@ class ICE_API UnicodeWstringConverter : public WstringConverter
 public:
 
     virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd,
-			 UTF8Buffer&) const;
+                         UTF8Buffer&) const;
 
     virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-			  std::wstring& target) const;
+                          std::wstring& target) const;
 };
 }
 #endif

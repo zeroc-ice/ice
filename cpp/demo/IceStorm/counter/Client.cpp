@@ -40,15 +40,15 @@ Client::run(int argc, char* argv[])
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
+        return EXIT_FAILURE;
     }
 
     CounterPrx counter = CounterPrx::uncheckedCast(communicator()->stringToProxy(proxy));
     if(!counter)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     MTPrinterPtr printer = new MTPrinter();
@@ -65,36 +65,36 @@ Client::run(int argc, char* argv[])
     char c;
     do
     {
-	try
-	{
-	    printer->print("==> ");
-	    cin >> c;
-	    if(c == 'i')
-	    {
-		counter->inc(1);
-	    }
-	    else if(c == 'd')
-	    {
-		counter->inc(-1);
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu(printer);
-	    }
-	    else
-	    {
-		cout << "unknown command `" << c << "'" << endl;
-		menu(printer);
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	}
+        try
+        {
+            printer->print("==> ");
+            cin >> c;
+            if(c == 'i')
+            {
+                counter->inc(1);
+            }
+            else if(c == 'd')
+            {
+                counter->inc(-1);
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu(printer);
+            }
+            else
+            {
+                cout << "unknown command `" << c << "'" << endl;
+                menu(printer);
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+        }
     }
     while(cin.good() && c != 'x');
 
@@ -107,9 +107,9 @@ void
 Client::menu(const MTPrinterPtr& printer)
 {
     printer->print(
-	"usage:\n"
-	"i: increment the counter\n"
-	"d: decrement the counter\n"
-	"x: exit\n"
-	"?: help\n");
+        "usage:\n"
+        "i: increment the counter\n"
+        "d: decrement the counter\n"
+        "x: exit\n"
+        "?: help\n");
 }

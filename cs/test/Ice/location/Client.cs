@@ -22,7 +22,7 @@ public class Client
         
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
             communicator = Ice.Util.initialize(ref args, initData);
@@ -42,7 +42,7 @@ public class Client
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

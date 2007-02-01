@@ -32,42 +32,42 @@ public final class Util
     public static Properties
     createProperties(String[] args)
     {
-	StringSeqHolder argsH = new StringSeqHolder(args);
+        StringSeqHolder argsH = new StringSeqHolder(args);
         return createProperties(argsH);
     }
 
     public static Properties
     createProperties(String[] args, Properties defaults)
     {
-	StringSeqHolder argsH = new StringSeqHolder(args);
+        StringSeqHolder argsH = new StringSeqHolder(args);
         return createProperties(argsH, defaults);
     }
 
     public static Communicator
     initialize(StringSeqHolder args)
     {
-	return initialize(args, null);
+        return initialize(args, null);
     }
 
     public static Communicator
     initialize(String[] args)
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
-	return initialize(argsH);
+        return initialize(argsH);
     }
 
     public static Communicator
     initialize(StringSeqHolder args, InitializationData initData)
     {
-	if(initData == null)
-	{
-	    initData = new InitializationData();
-	}
-	else
-	{
-	    initData = (InitializationData)initData.clone();
-	}
-	initData.properties = createProperties(args, initData.properties);
+        if(initData == null)
+        {
+            initData = new InitializationData();
+        }
+        else
+        {
+            initData = (InitializationData)initData.clone();
+        }
+        initData.properties = createProperties(args, initData.properties);
 
         CommunicatorI result = new CommunicatorI(initData);
         result.finishSetup(args);
@@ -78,22 +78,22 @@ public final class Util
     initialize(String[] args, InitializationData initData)
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
-	return initialize(argsH, initData);
+        return initialize(argsH, initData);
     }
 
     public static Communicator
     initialize(InitializationData initData)
     {
-	if(initData == null)
-	{
-	    initData = new InitializationData();
-	}
-	else
-	{
-	    initData = (InitializationData)initData.clone();
-	}
+        if(initData == null)
+        {
+            initData = new InitializationData();
+        }
+        else
+        {
+            initData = (InitializationData)initData.clone();
+        }
 
-	CommunicatorI result = new CommunicatorI(initData);
+        CommunicatorI result = new CommunicatorI(initData);
         result.finishSetup(new StringSeqHolder(new String[0]));
         return result;
     }
@@ -110,9 +110,9 @@ public final class Util
     public static Communicator
     initializeWithLogger(StringSeqHolder args, Logger logger)
     {
-    	InitializationData initData = new InitializationData();
-	initData.logger = logger;
-	return initialize(args, initData);
+        InitializationData initData = new InitializationData();
+        initData.logger = logger;
+        return initialize(args, initData);
     }
 
     /**
@@ -121,9 +121,9 @@ public final class Util
     public static Communicator
     initializeWithLogger(String[] args, Logger logger)
     {
-    	InitializationData initData = new InitializationData();
-	initData.logger = logger;
-	return initialize(args, initData);
+        InitializationData initData = new InitializationData();
+        initData.logger = logger;
+        return initialize(args, initData);
     }
 
     /**
@@ -132,9 +132,9 @@ public final class Util
     public static Communicator
     initializeWithProperties(StringSeqHolder args, Properties properties)
     {
-    	InitializationData initData = new InitializationData();
-	initData.properties = properties;
-	return initialize(args, initData);
+        InitializationData initData = new InitializationData();
+        initData.properties = properties;
+        return initialize(args, initData);
     }
 
     /**
@@ -143,9 +143,9 @@ public final class Util
     public static Communicator
     initializeWithProperties(String[] args, Properties properties)
     {
-    	InitializationData initData = new InitializationData();
-	initData.properties = properties;
-	return initialize(args, initData);
+        InitializationData initData = new InitializationData();
+        initData.properties = properties;
+        return initialize(args, initData);
     }
 
     /**
@@ -154,10 +154,10 @@ public final class Util
     public static Communicator
     initializeWithPropertiesAndLogger(StringSeqHolder args, Properties properties, Logger logger)
     {
-    	InitializationData initData = new InitializationData();
-	initData.properties = properties;
-	initData.logger = logger;
-	return initialize(args, initData);
+        InitializationData initData = new InitializationData();
+        initData.properties = properties;
+        initData.logger = logger;
+        return initialize(args, initData);
     }
 
     /**
@@ -166,10 +166,10 @@ public final class Util
     public static Communicator
     initializeWithPropertiesAndLogger(String[] args, Properties properties, Logger logger)
     {
-    	InitializationData initData = new InitializationData();
-	initData.properties = properties;
-	initData.logger = logger;
-	return initialize(args, initData);
+        InitializationData initData = new InitializationData();
+        initData.properties = properties;
+        initData.logger = logger;
+        return initialize(args, initData);
     }
 
     public static IceInternal.Instance
@@ -182,7 +182,7 @@ public final class Util
     public static IceInternal.ProtocolPluginFacade
     getProtocolPluginFacade(Communicator communicator)
     {
-	return new IceInternal.ProtocolPluginFacadeI(communicator);
+        return new IceInternal.ProtocolPluginFacadeI(communicator);
     }
 
     public static Identity
@@ -298,62 +298,62 @@ public final class Util
     public static int
     proxyIdentityCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-	if(lhs == null && rhs == null)
-	{
-	    return 0;
-	}
-	else if(lhs == null && rhs != null)
-	{
-	    return -1;
-	}
-	else if(lhs != null && rhs == null)
-	{
-	    return 1;
-	}
-	else
-	{
-	    Identity lhsIdentity = lhs.ice_getIdentity();
-	    Identity rhsIdentity = rhs.ice_getIdentity();
-	    int n;
-	    if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
-	    {
-		return n;
-	    }
-	    return lhsIdentity.category.compareTo(rhsIdentity.category);
-	}
+        if(lhs == null && rhs == null)
+        {
+            return 0;
+        }
+        else if(lhs == null && rhs != null)
+        {
+            return -1;
+        }
+        else if(lhs != null && rhs == null)
+        {
+            return 1;
+        }
+        else
+        {
+            Identity lhsIdentity = lhs.ice_getIdentity();
+            Identity rhsIdentity = rhs.ice_getIdentity();
+            int n;
+            if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+            {
+                return n;
+            }
+            return lhsIdentity.category.compareTo(rhsIdentity.category);
+        }
     }
 
     public static int
     proxyIdentityAndFacetCompare(ObjectPrx lhs, ObjectPrx rhs)
     {
-	if(lhs == null && rhs == null)
-	{
-	    return 0;
-	}
-	else if(lhs == null && rhs != null)
-	{
-	    return -1;
-	}
-	else if(lhs != null && rhs == null)
-	{
-	    return 1;
-	}
-	else
-	{
-	    Identity lhsIdentity = lhs.ice_getIdentity();
-	    Identity rhsIdentity = rhs.ice_getIdentity();
-	    int n;
-	    if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
-	    {
-		return n;
-	    }
-	    if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
-	    {
-		return n;
-	    }
-	    
-	    String lhsFacet = lhs.ice_getFacet();
-	    String rhsFacet = rhs.ice_getFacet();
+        if(lhs == null && rhs == null)
+        {
+            return 0;
+        }
+        else if(lhs == null && rhs != null)
+        {
+            return -1;
+        }
+        else if(lhs != null && rhs == null)
+        {
+            return 1;
+        }
+        else
+        {
+            Identity lhsIdentity = lhs.ice_getIdentity();
+            Identity rhsIdentity = rhs.ice_getIdentity();
+            int n;
+            if((n = lhsIdentity.name.compareTo(rhsIdentity.name)) != 0)
+            {
+                return n;
+            }
+            if((n = lhsIdentity.category.compareTo(rhsIdentity.category)) != 0)
+            {
+                return n;
+            }
+            
+            String lhsFacet = lhs.ice_getFacet();
+            String rhsFacet = rhs.ice_getFacet();
             if(lhsFacet == null && rhsFacet == null)
             {
                 return 0;
@@ -367,7 +367,7 @@ public final class Util
                 return 1;
             }
             return lhsFacet.compareTo(rhsFacet);
-	}
+        }
     }
 
     public static InputStream
@@ -386,26 +386,26 @@ public final class Util
     getProcessLogger()
     {
         synchronized(_processLoggerMutex)
-	{
-	    if(_processLogger == null)
-	    {
-	        //
-		// TODO: Would be nice to be able to use process name as prefix by default.
-		//
-	        _processLogger = new LoggerI("");
-	    }
+        {
+            if(_processLogger == null)
+            {
+                //
+                // TODO: Would be nice to be able to use process name as prefix by default.
+                //
+                _processLogger = new LoggerI("");
+            }
 
-	    return _processLogger;
-	}
+            return _processLogger;
+        }
     }
 
     public static void
     setProcessLogger(Logger logger)
     {
         synchronized(_processLoggerMutex)
-	{
-	    _processLogger = logger;
-	}
+        {
+            _processLogger = logger;
+        }
     }
 
     private static String _localAddress = null;

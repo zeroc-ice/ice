@@ -18,12 +18,12 @@ ObjectFactory::create(const string& type)
 {
     if(type == "::Demo::Printer")
     {
-	return new PrinterI;
+        return new PrinterI;
     }
 
     if(type == "::Demo::DerivedPrinter")
     {
-	return new DerivedPrinterI;
+        return new DerivedPrinterI;
     }
 
     assert(false);

@@ -20,21 +20,21 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool withTemplates = false;
     if(argc > 1)
     {
-	int i = 1;
-	while(i < argc)
-	{
-	    if(strcmp(argv[i], "-t") == 0)
-	    {
-		withTarget = true;
-		break;
-	    }
-	    else if(strcmp(argv[i], "-e") == 0)
-	    {
-		withTemplates = true;
-		break;
-	    }
-	    i++;
-	}
+        int i = 1;
+        while(i < argc)
+        {
+            if(strcmp(argv[i], "-t") == 0)
+            {
+                withTarget = true;
+                break;
+            }
+            else if(strcmp(argv[i], "-e") == 0)
+            {
+                withTemplates = true;
+                break;
+            }
+            i++;
+        }
     }
 
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
@@ -43,13 +43,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(!withTarget)
     {
-	void allTests(const Ice::CommunicatorPtr&);
-	allTests(communicator);
+        void allTests(const Ice::CommunicatorPtr&);
+        allTests(communicator);
     }
     else
     {
-	void allTestsWithTarget(const Ice::CommunicatorPtr&);
-	allTestsWithTarget(communicator);
+        void allTestsWithTarget(const Ice::CommunicatorPtr&);
+        allTestsWithTarget(communicator);
     }
 
     return EXIT_SUCCESS;
@@ -63,26 +63,26 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

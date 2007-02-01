@@ -83,14 +83,14 @@ interface i8 { void op(double BYTE); };
 interface i9 { void op(out double byte); };
 interface i10 { void op(out double BYTE); };
 
-interface \true {};	// OK, escaped keyword
+interface \true {};     // OK, escaped keyword
 
-interface _a;		// Illegal leading underscore
-interface _true;	// Illegal leading underscore
-interface \_true;	// Illegal leading underscore
+interface _a;           // Illegal leading underscore
+interface _true;        // Illegal leading underscore
+interface \_true;       // Illegal leading underscore
 
-interface b_;		// Illegal underscore
-interface tr_ue;	// Illegal underscore
-interface \tr_ue;	// Illegal underscore
+interface b_;           // Illegal underscore
+interface tr_ue;        // Illegal underscore
+interface \tr_ue;       // Illegal underscore
 
 };

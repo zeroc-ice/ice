@@ -28,12 +28,12 @@ struct DictIndex
 
     bool operator==(const DictIndex& rhs) const
     {
-	return member == rhs.member;
+        return member == rhs.member;
     }
 
     bool operator!=(const DictIndex& rhs) const
     {
-	return member != rhs.member;
+        return member != rhs.member;
     }
 };
 
@@ -74,44 +74,44 @@ usage(const char* n)
         "-v, --version         Display the Ice version.\n"
         "--header-ext EXT      Use EXT instead of the default `h' extension.\n"
         "--source-ext EXT      Use EXT instead of the default `cpp' extension.\n"
-	"--add-header HDR[,GUARD]\n"
-	"                      Add #include for HDR (with guard GUARD) to generated source file.\n"
+        "--add-header HDR[,GUARD]\n"
+        "                      Add #include for HDR (with guard GUARD) to generated source file.\n"
         "-DNAME                Define NAME as 1.\n"
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
         "-IDIR                 Put DIR in the include file search path.\n"
-	"-E                    Print preprocessor output on stdout.\n"
+        "-E                    Print preprocessor output on stdout.\n"
         "--include-dir DIR     Use DIR as the header include directory in source files.\n"
         "--dll-export SYMBOL   Use SYMBOL for DLL exports.\n"
         "--dict NAME,KEY,VALUE[,sort[,COMPARE]]\n"
-	"                      Create a Freeze dictionary with the name NAME,\n"
+        "                      Create a Freeze dictionary with the name NAME,\n"
         "                      using KEY as key, and VALUE as value. This\n"
         "                      option may be specified multiple times for\n"
         "                      different names. NAME may be a scoped name.\n"
-	"                      By default, keys are sorted using their binary\n"
-	"                      Ice-encoding representation. Use 'sort' to sort\n"
-	"                      with the COMPARE functor class. COMPARE's default\n"
-	"                      value is std::less<KEY>\n"
-	"--index NAME,TYPE,MEMBER[,{case-sensitive|case-insensitive}]\n" 
+        "                      By default, keys are sorted using their binary\n"
+        "                      Ice-encoding representation. Use 'sort' to sort\n"
+        "                      with the COMPARE functor class. COMPARE's default\n"
+        "                      value is std::less<KEY>\n"
+        "--index NAME,TYPE,MEMBER[,{case-sensitive|case-insensitive}]\n" 
         "                      Create a Freeze evictor index with the name\n"
         "                      NAME for member MEMBER of class TYPE. This\n"
         "                      option may be specified multiple times for\n"
         "                      different names. NAME may be a scoped name.\n"
         "                      When member is a string, the case can be\n"
         "                      sensitive or insensitive (default is sensitive).\n"
-	"--dict-index DICT[,MEMBER][,{case-sensitive|case-insensitive}]\n"
-	"                 [,sort[,COMPARE]]\n"
-	"                      Add an index to dictionary DICT. If MEMBER is \n"
+        "--dict-index DICT[,MEMBER][,{case-sensitive|case-insensitive}]\n"
+        "                 [,sort[,COMPARE]]\n"
+        "                      Add an index to dictionary DICT. If MEMBER is \n"
         "                      specified, then DICT's VALUE must be a class or\n"
-	"                      a struct, and MEMBER must designate a member of\n"
-	"                      VALUE. Otherwise, the entire VALUE is used for \n"
-	"                      indexing. When the secondary key is a string, \n"
-	"                      the case can be sensitive or insensitive (default\n"
-	"                      is sensitive).\n"
-	"                      By default, keys are sorted using their binary\n"
-	"                      Ice-encoding representation. Use 'sort' to sort\n"
-	"                      with the COMPARE functor class. COMPARE's default\n"
-	"                      value is std::less<secondary key type>.\n"
+        "                      a struct, and MEMBER must designate a member of\n"
+        "                      VALUE. Otherwise, the entire VALUE is used for \n"
+        "                      indexing. When the secondary key is a string, \n"
+        "                      the case can be sensitive or insensitive (default\n"
+        "                      is sensitive).\n"
+        "                      By default, keys are sorted using their binary\n"
+        "                      Ice-encoding representation. Use 'sort' to sort\n"
+        "                      with the COMPARE functor class. COMPARE's default\n"
+        "                      value is std::less<secondary key type>.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
@@ -124,17 +124,17 @@ checkIdentifier(string n, string t, string s)
 {
     if(s.empty() || (!isalpha(s[0]) && s[0] != '_'))
     {
-	cerr << n << ": `" << t << "' is not a valid type name" << endl;
-	return false;
+        cerr << n << ": `" << t << "' is not a valid type name" << endl;
+        return false;
     }
     
     for(unsigned int i = 1; i < s.size(); ++i)
     {
-	if(!isalnum(s[i]) && s[i] != '_')
-	{
-	    cerr << n << ": `" << t << "' is not a valid type name" << endl;
-	    return false;
-	}
+        if(!isalnum(s[i]) && s[i] != '_')
+        {
+            cerr << n << ": `" << t << "' is not a valid type name" << endl;
+            return false;
+        }
     }
 
     return true;
@@ -147,18 +147,18 @@ printFreezeTypes(Output& out, const vector<Dict>& dicts, const vector<Index>& in
     out << "\n// Freeze types in this file:";
     for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
     {
-	out << "\n// name=\"" << p->name << "\", key=\"" 
-	    << p->key << "\", value=\"" << p->value << "\"";
+        out << "\n// name=\"" << p->name << "\", key=\"" 
+            << p->key << "\", value=\"" << p->value << "\"";
     }
     
     for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
     {
-	out << "\n// name=\"" << q->name << "\", type=\"" << q->type 
-	    << "\", member=\"" << q->member << "\"";
-	if(q->caseSensitive == false)
-	{
-	    out << " (case insensitive)";
-	}
+        out << "\n// name=\"" << q->name << "\", type=\"" << q->type 
+            << "\", member=\"" << q->member << "\"";
+        if(q->caseSensitive == false)
+        {
+            out << " (case insensitive)";
+        }
     }
     out << '\n';
 }
@@ -169,24 +169,24 @@ getCompare(const T& t, const string& keyType)
 {
     if(t.sort)
     {
-	if(t.userCompare == "")
-	{
-	    return "std::less< " + keyType + ">";
-	}
-	else
-	{
-	    return t.userCompare;
-	}
+        if(t.userCompare == "")
+        {
+            return "std::less< " + keyType + ">";
+        }
+        else
+        {
+            return t.userCompare;
+        }
     }
     else
     {
-	return ICE_ENCODING_COMPARE;
+        return ICE_ENCODING_COMPARE;
     }
 }
 
 void
 writeCodecH(const TypePtr& type, const StringList& metaData, const string& name, const string& freezeType, Output& H,
-	    const string& dllExport)
+            const string& dllExport)
 {
     H << sp << nl << "class " << dllExport << name;
     H << sb;
@@ -259,14 +259,14 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
     string staticName = "__";
     for(string::const_iterator p = name.begin(); p != name.end(); ++p)
     {
-	if((*p) == ':')
-	{
-	    staticName += '_';
-	}
-	else
-	{
-	    staticName += *p;
-	}
+        if((*p) == ':')
+        {
+            staticName += '_';
+        }
+        else
+        {
+            staticName += *p;
+        }
     }
     staticName += "_typeId";
 
@@ -288,35 +288,35 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
 
 void
 writeDictWithIndicesH(const string& name, const Dict& dict, 
-		      const vector<IndexType> indexTypes, 
-		      const TypePtr& keyType, const StringList& keyMetaData, const TypePtr& valueType,
-		      const StringList& valueMetaData, Output& H, const string& dllExport)
+                      const vector<IndexType> indexTypes, 
+                      const TypePtr& keyType, const StringList& keyMetaData, const TypePtr& valueType,
+                      const StringList& valueMetaData, Output& H, const string& dllExport)
 {
     string compare = getCompare(dict, typeToString(keyType, false, keyMetaData));
     
     string templateParams = string("< ") + typeToString(keyType, false, keyMetaData) + ", "
-	+ typeToString(valueType, false, valueMetaData) + ", " + name + "KeyCodec, " 
-	+ name + "ValueCodec, " + compare + " >";
+        + typeToString(valueType, false, valueMetaData) + ", " + name + "KeyCodec, " 
+        + name + "ValueCodec, " + compare + " >";
 
     string keyCompareParams =
-	string("< ") + typeToString(keyType, false, keyMetaData) + ", "
-	+ name + "KeyCodec, " + compare + " >";
+        string("< ") + typeToString(keyType, false, keyMetaData) + ", "
+        + name + "KeyCodec, " + compare + " >";
 
     vector<string> capitalizedMembers;
     size_t i;
     for(i = 0; i < dict.indices.size(); ++i)
     {
-	const string& member = dict.indices[i].member;
-	if(!member.empty())
-	{
-	    string capitalizedMember = member;
-	    capitalizedMember[0] = toupper(capitalizedMember[0]);
-	    capitalizedMembers.push_back(capitalizedMember);
-	}
-	else
-	{
-	    capitalizedMembers.push_back("Value");
-	}
+        const string& member = dict.indices[i].member;
+        if(!member.empty())
+        {
+            string capitalizedMember = member;
+            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMembers.push_back(capitalizedMember);
+        }
+        else
+        {
+            capitalizedMembers.push_back("Value");
+        }
     }
 
     H << sp << nl << "class " << dllExport << name 
@@ -346,46 +346,46 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
-	string className = capitalizedMembers[i] + "Index";
+        string className = capitalizedMembers[i] + "Index";
 
-	string indexCompare = 
-	    getCompare(dict.indices[i], typeToString(indexTypes[i].type, false, indexTypes[i].metaData));
-	
-	string indexCompareParams =
-	    string("< ") + typeToString(indexTypes[i].type, false, indexTypes[i].metaData) + ", "
-	    + className + ", " + indexCompare + " >";
+        string indexCompare = 
+            getCompare(dict.indices[i], typeToString(indexTypes[i].type, false, indexTypes[i].metaData));
+        
+        string indexCompareParams =
+            string("< ") + typeToString(indexTypes[i].type, false, indexTypes[i].metaData) + ", "
+            + className + ", " + indexCompare + " >";
 
-	H << sp << nl << "class " << dllExport << className
-	  << " : public Freeze::MapIndex" << indexCompareParams;	
-	H << sb;
+        H << sp << nl << "class " << dllExport << className
+          << " : public Freeze::MapIndex" << indexCompareParams;        
+        H << sb;
 
-	H.dec();
-	H << sp << nl << "public:";
-	H << sp;
-	H.inc();
-	H << nl << capitalizedMembers[i] << "Index(const std::string&, const " 
-	  << indexCompare << "& = " << indexCompare << "());";
-	
-	H << sp;
+        H.dec();
+        H << sp << nl << "public:";
+        H << sp;
+        H.inc();
+        H << nl << capitalizedMembers[i] << "Index(const std::string&, const " 
+          << indexCompare << "& = " << indexCompare << "());";
+        
+        H << sp;
 
-	//
-	// Codec
-	//
-	H << nl << "static void write(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << ", Freeze::Key&, const Ice::CommunicatorPtr&);";
+        //
+        // Codec
+        //
+        H << nl << "static void write(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << ", Freeze::Key&, const Ice::CommunicatorPtr&);";
 
-	H << nl << "static void read(" 
-	  << typeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << "&, const Freeze::Key&, const ::Ice::CommunicatorPtr&);";
+        H << nl << "static void read(" 
+          << typeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << "&, const Freeze::Key&, const ::Ice::CommunicatorPtr&);";
 
-	H.dec();
-	H << sp << nl << "protected:";
-	H << sp;
-	H.inc();
+        H.dec();
+        H << sp << nl << "protected:";
+        H << sp;
+        H.inc();
 
-	H << nl << "virtual void marshalKey(const Freeze::Value&, Freeze::Key&) const;";
-	
-	H << eb << ';';
+        H << nl << "virtual void marshalKey(const Freeze::Value&, Freeze::Key&) const;";
+        
+        H << eb << ';';
     }
 
     //
@@ -409,14 +409,14 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     H << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
-	string indexName = dict.indices[i].member;
-	if(indexName.empty())
-	{
-	    indexName = "index";
-	}
-	indexName = string("\"") + indexName + "\"";
+        string indexName = dict.indices[i].member;
+        if(indexName.empty())
+        {
+            indexName = "index";
+        }
+        indexName = string("\"") + indexName + "\"";
 
-	H << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
+        H << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
     }
     H << nl << "this->_helper.reset(Freeze::MapHelper::create(__connection, __dbName, "
       << name + "KeyCodec::typeId(), "
@@ -433,35 +433,35 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
     //
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
-	H << sp;
-	H << nl << "iterator findBy" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ", bool = true);";
-	H << nl << "const_iterator findBy" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ", bool = true) const;";
-	
-	H << nl << "iterator lowerBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ");";
-	H << nl << "const_iterator lowerBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
-	
-	H << nl << "iterator upperBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ");";
-	H << nl << "const_iterator upperBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
+        H << sp;
+        H << nl << "iterator findBy" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ", bool = true);";
+        H << nl << "const_iterator findBy" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ", bool = true) const;";
+        
+        H << nl << "iterator lowerBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ");";
+        H << nl << "const_iterator lowerBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
+        
+        H << nl << "iterator upperBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ");";
+        H << nl << "const_iterator upperBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
 
-	H << nl << "std::pair<iterator, iterator> equalRangeFor" 
-	  << capitalizedMembers[i] << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) 
-	  << ");";
-	
-	H << nl << "std::pair<const_iterator, const_iterator> equalRangeFor" 
-	  << capitalizedMembers[i] << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << ") const;";
+        H << nl << "std::pair<iterator, iterator> equalRangeFor" 
+          << capitalizedMembers[i] << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) 
+          << ");";
+        
+        H << nl << "std::pair<const_iterator, const_iterator> equalRangeFor" 
+          << capitalizedMembers[i] << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << ") const;";
 
-	string countFunction = dict.indices[i].member.empty() ? string("valueCount")
-	    : dict.indices[i].member + "Count";
+        string countFunction = dict.indices[i].member.empty() ? string("valueCount")
+            : dict.indices[i].member + "Count";
 
-	H << nl << "int " << countFunction
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
+        H << nl << "int " << countFunction
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << ") const;";
     }
     
     H << eb << ';';
@@ -469,35 +469,35 @@ writeDictWithIndicesH(const string& name, const Dict& dict,
 
 void
 writeDictWithIndicesC(const string& name, const string& absolute, const Dict& dict, 
-		      const vector<IndexType> indexTypes, 
-		      const TypePtr& keyType, const StringList& keyMetaData, const TypePtr& valueType,
-		      const StringList& valueMetaData, Output& C)
+                      const vector<IndexType> indexTypes, 
+                      const TypePtr& keyType, const StringList& keyMetaData, const TypePtr& valueType,
+                      const StringList& valueMetaData, Output& C)
 { 
     string compare = getCompare(dict, typeToString(keyType, false, keyMetaData));
     
     string templateParams = string("< ") + typeToString(keyType, false, keyMetaData) + ", "
-	+ typeToString(valueType, false, valueMetaData) + ", " + name + "KeyCodec, " 
-	+ name + "ValueCodec, " + compare + " >";
+        + typeToString(valueType, false, valueMetaData) + ", " + name + "KeyCodec, " 
+        + name + "ValueCodec, " + compare + " >";
 
     string keyCompareParams =
-	string("< ") + typeToString(keyType, false, keyMetaData) + ", "
-	+ name + "KeyCodec, " + compare + " >";
+        string("< ") + typeToString(keyType, false, keyMetaData) + ", "
+        + name + "KeyCodec, " + compare + " >";
     
     vector<string> capitalizedMembers;
     size_t i;
     for(i = 0; i < dict.indices.size(); ++i)
     {
-	const string& member = dict.indices[i].member;
-	if(!member.empty())
-	{
-	    string capitalizedMember = member;
-	    capitalizedMember[0] = toupper(capitalizedMember[0]);
-	    capitalizedMembers.push_back(capitalizedMember);
-	}
-	else
-	{
-	    capitalizedMembers.push_back("Value");
-	}
+        const string& member = dict.indices[i].member;
+        if(!member.empty())
+        {
+            string capitalizedMember = member;
+            capitalizedMember[0] = toupper(capitalizedMember[0]);
+            capitalizedMembers.push_back(capitalizedMember);
+        }
+        else
+        {
+            capitalizedMembers.push_back("Value");
+        }
     }
     
 
@@ -506,119 +506,119 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     //
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
-	string className = capitalizedMembers[i] + "Index";
+        string className = capitalizedMembers[i] + "Index";
 
-	string indexCompare = 
-	    getCompare(dict.indices[i], typeToString(indexTypes[i].type, false, indexTypes[i].metaData));
+        string indexCompare = 
+            getCompare(dict.indices[i], typeToString(indexTypes[i].type, false, indexTypes[i].metaData));
 
-	string indexCompareParams =
-	    string("< ") + typeToString(indexTypes[i].type, false, indexTypes[i].metaData) + ", "
-	    + className + ", " + indexCompare + " >";
+        string indexCompareParams =
+            string("< ") + typeToString(indexTypes[i].type, false, indexTypes[i].metaData) + ", "
+            + className + ", " + indexCompare + " >";
 
-	C << sp << nl << absolute << "::" << className << "::" << className
-	  << "(const std::string& __name, "
-	  << "const " << indexCompare << "& __compare)";
+        C << sp << nl << absolute << "::" << className << "::" << className
+          << "(const std::string& __name, "
+          << "const " << indexCompare << "& __compare)";
 
-	C.inc();
-	C << nl << ": Freeze::MapIndex"
-	  << indexCompareParams << "(__name, __compare)";
-	C.dec();
-	C << sb;
-	C << eb;
+        C.inc();
+        C << nl << ": Freeze::MapIndex"
+          << indexCompareParams << "(__name, __compare)";
+        C.dec();
+        C << sb;
+        C << eb;
 
-	C << sp << nl << "void" 
-	  << nl << absolute << "::" << className << "::" 
-	  << "marshalKey(const Freeze::Value& __v, Freeze::Key& __k) const";
-	C << sb;
-	
-	bool optimize = false;
+        C << sp << nl << "void" 
+          << nl << absolute << "::" << className << "::" 
+          << "marshalKey(const Freeze::Value& __v, Freeze::Key& __k) const";
+        C << sb;
+        
+        bool optimize = false;
 
-	if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
-	{
-	    optimize = true;
-	    C << nl << "__k = __v;";
-	}
-	else
-	{
-	    //
-	    // Can't optimize
-	    //
-	    C << nl << typeToString(valueType, false, valueMetaData) << " __x;";
-	    C << nl << absolute << "ValueCodec::read(__x, __v, _communicator);";
-	    string param = "__x";
-	    
-	    if(!dict.indices[i].member.empty())
-	    {
-		if(ClassDeclPtr::dynamicCast(valueType) != 0)
-		{
-		    param += "->" + dict.indices[i].member;
-		}
-		else
-		{
-		    param += "." + dict.indices[i].member;
-		}
-	    }
-	    C << nl << "write(" << param << ", __k, _communicator);";
-	}
-	C << eb;
-	
-	C << sp << nl << "void" 
-	  << nl << absolute << "::" << className << "::" 
-	  << "write(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << " __index, Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator)";
-	C << sb;
-	
-	if(optimize)
-	{
-	    C << nl << absolute << "ValueCodec::write(__index, __bytes, __communicator);";
-	}
-	else
-	{
-	    assert(!indexTypes[i].type->usesClasses());
+        if(dict.indices[i].member.empty() && dict.indices[i].caseSensitive)
+        {
+            optimize = true;
+            C << nl << "__k = __v;";
+        }
+        else
+        {
+            //
+            // Can't optimize
+            //
+            C << nl << typeToString(valueType, false, valueMetaData) << " __x;";
+            C << nl << absolute << "ValueCodec::read(__x, __v, _communicator);";
+            string param = "__x";
+            
+            if(!dict.indices[i].member.empty())
+            {
+                if(ClassDeclPtr::dynamicCast(valueType) != 0)
+                {
+                    param += "->" + dict.indices[i].member;
+                }
+                else
+                {
+                    param += "." + dict.indices[i].member;
+                }
+            }
+            C << nl << "write(" << param << ", __k, _communicator);";
+        }
+        C << eb;
+        
+        C << sp << nl << "void" 
+          << nl << absolute << "::" << className << "::" 
+          << "write(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << " __index, Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator)";
+        C << sb;
+        
+        if(optimize)
+        {
+            C << nl << absolute << "ValueCodec::write(__index, __bytes, __communicator);";
+        }
+        else
+        {
+            assert(!indexTypes[i].type->usesClasses());
 
-	    C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-	    C << nl << "IceInternal::BasicStream __stream(__instance.get());";
-	    
-	    string valueS;
-	    if(dict.indices[i].caseSensitive)
-	    {
-		valueS = "__index";
-	    }
-	    else
-	    {
-		C << nl << typeToString(indexTypes[i].type, false, indexTypes[i].metaData) 
-		  << " __lowerCaseIndex = __index;";
-		C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
-		valueS = "__lowerCaseIndex";
-	    }
-	    
-	    writeMarshalUnmarshalCode(C, indexTypes[i].type, valueS, true, "__stream", false, indexTypes[i].metaData);
-	    C << nl << "::std::vector<Ice::Byte>(__stream.b.begin(), __stream.b.end()).swap(__bytes);";
-	}
-	C << eb;
+            C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get());";
+            
+            string valueS;
+            if(dict.indices[i].caseSensitive)
+            {
+                valueS = "__index";
+            }
+            else
+            {
+                C << nl << typeToString(indexTypes[i].type, false, indexTypes[i].metaData) 
+                  << " __lowerCaseIndex = __index;";
+                C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
+                valueS = "__lowerCaseIndex";
+            }
+            
+            writeMarshalUnmarshalCode(C, indexTypes[i].type, valueS, true, "__stream", false, indexTypes[i].metaData);
+            C << nl << "::std::vector<Ice::Byte>(__stream.b.begin(), __stream.b.end()).swap(__bytes);";
+        }
+        C << eb;
 
-	C << sp << nl << "void" 
-	  << nl << absolute << "::" << className << "::" 
-	  << "read(" << typeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << "& __index, const Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator)";
-	C << sb;
-	
-	if(optimize)
-	{
-	    C << nl << absolute << "ValueCodec::read(__index, __bytes, __communicator);";
-	}
-	else
-	{
-	    C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
-	    C << nl << "IceInternal::BasicStream __stream(__instance.get());";
-	    
-	    C << nl << "__stream.b.resize(__bytes.size());";
-	    C << nl << "::memcpy(&__stream.b[0], &__bytes[0], __bytes.size());";
-	    C << nl << "__stream.i = __stream.b.begin();";
-	    writeMarshalUnmarshalCode(C, indexTypes[i].type, "__index", false, "__stream", false, 
-	    			      indexTypes[i].metaData);
-	}
-	C << eb;
+        C << sp << nl << "void" 
+          << nl << absolute << "::" << className << "::" 
+          << "read(" << typeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << "& __index, const Freeze::Key& __bytes, const Ice::CommunicatorPtr& __communicator)";
+        C << sb;
+        
+        if(optimize)
+        {
+            C << nl << absolute << "ValueCodec::read(__index, __bytes, __communicator);";
+        }
+        else
+        {
+            C << nl << "IceInternal::InstancePtr __instance = IceInternal::getInstance(__communicator);";
+            C << nl << "IceInternal::BasicStream __stream(__instance.get());";
+            
+            C << nl << "__stream.b.resize(__bytes.size());";
+            C << nl << "::memcpy(&__stream.b[0], &__bytes[0], __bytes.size());";
+            C << nl << "__stream.i = __stream.b.begin();";
+            writeMarshalUnmarshalCode(C, indexTypes[i].type, "__index", false, "__stream", false, 
+                                      indexTypes[i].metaData);
+        }
+        C << eb;
     }
 
     //
@@ -637,14 +637,14 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     C << nl << "std::vector<Freeze::MapIndexBasePtr> __indices;";
     for(i = 0; i < capitalizedMembers.size(); ++i)
     {
-	string indexName = dict.indices[i].member;
-	if(indexName.empty())
-	{
-	    indexName = "index";
-	}
-	indexName = string("\"") + indexName + "\"";
+        string indexName = dict.indices[i].member;
+        if(indexName.empty())
+        {
+            indexName = "index";
+        }
+        indexName = string("\"") + indexName + "\"";
 
-	C << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
+        C << nl << "__indices.push_back(new " << capitalizedMembers[i] << "Index(" << indexName << "));";
     }
     C << nl << "_helper.reset(Freeze::MapHelper::create(__connection, __dbName, "
       << absolute + "KeyCodec::typeId(), "
@@ -655,108 +655,108 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
     // Find and count functions
     //
     for(i = 0; i < capitalizedMembers.size(); ++i)
-    {	
-	string indexClassName = capitalizedMembers[i] + "Index";
-	
-	string indexName = dict.indices[i].member;
-	if(indexName.empty())
-	{
-	    indexName = "index";
-	}
-	indexName = string("\"") + indexName + "\"";
+    {   
+        string indexClassName = capitalizedMembers[i] + "Index";
+        
+        string indexName = dict.indices[i].member;
+        if(indexName.empty())
+        {
+            indexName = "index";
+        }
+        indexName = string("\"") + indexName + "\"";
 
-	C << sp << nl << absolute << "::iterator"
-	  << nl << absolute << "::" << "findBy" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << " __index, bool __onlyDups)";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return iterator(_helper->index(" << indexName 
-	  << ")->untypedFind(__bytes, false, __onlyDups), _communicator);";
-	C << eb;
+        C << sp << nl << absolute << "::iterator"
+          << nl << absolute << "::" << "findBy" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << " __index, bool __onlyDups)";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return iterator(_helper->index(" << indexName 
+          << ")->untypedFind(__bytes, false, __onlyDups), _communicator);";
+        C << eb;
 
-	C << sp << nl << absolute << "::const_iterator"
-	  << nl << absolute << "::" << "findBy" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
-	  << " __index, bool __onlyDups) const";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return const_iterator(_helper->index(" << indexName 
-	  << ")->untypedFind(__bytes, true, __onlyDups), _communicator);";
-	C << eb;
+        C << sp << nl << absolute << "::const_iterator"
+          << nl << absolute << "::" << "findBy" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData)
+          << " __index, bool __onlyDups) const";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return const_iterator(_helper->index(" << indexName 
+          << ")->untypedFind(__bytes, true, __onlyDups), _communicator);";
+        C << eb;
 
-	C << sp << nl << absolute << "::iterator"
-	  << nl << absolute << "::" << "lowerBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index)";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return iterator(_helper->index(" << indexName 
-	  << ")->untypedLowerBound(__bytes, false), _communicator);";
-	C << eb;
+        C << sp << nl << absolute << "::iterator"
+          << nl << absolute << "::" << "lowerBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index)";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return iterator(_helper->index(" << indexName 
+          << ")->untypedLowerBound(__bytes, false), _communicator);";
+        C << eb;
 
-	C << sp << nl << absolute << "::const_iterator"
-	  << nl << absolute << "::" << "lowerBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return const_iterator(_helper->index(" << indexName 
-	  << ")->untypedLowerBound(__bytes, true), _communicator);";
-	C << eb;
-	
-	C << sp << nl << absolute << "::iterator"
-	  << nl << absolute << "::" << "upperBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index)";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return iterator(_helper->index(" << indexName 
-	  << ")->untypedUpperBound(__bytes, false), _communicator);";
-	C << eb;
+        C << sp << nl << absolute << "::const_iterator"
+          << nl << absolute << "::" << "lowerBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return const_iterator(_helper->index(" << indexName 
+          << ")->untypedLowerBound(__bytes, true), _communicator);";
+        C << eb;
+        
+        C << sp << nl << absolute << "::iterator"
+          << nl << absolute << "::" << "upperBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index)";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return iterator(_helper->index(" << indexName 
+          << ")->untypedUpperBound(__bytes, false), _communicator);";
+        C << eb;
 
-	C << sp << nl << absolute << "::const_iterator"
-	  << nl << absolute << "::" << "upperBoundFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return const_iterator(_helper->index(" << indexName 
-	  << ")->untypedUpperBound(__bytes, true), _communicator);";
-	C << eb;
-	
-	C << sp << nl << "std::pair<" << absolute << "::iterator, "
-	  << absolute << "::iterator>"
-	  << nl << absolute << "::" << "equalRangeFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index)";
-	C << sb;
-	C << nl << "return std::make_pair(lowerBoundFor" << capitalizedMembers[i]
-	  << "(__index), upperBoundFor" << capitalizedMembers[i] << "(__index));";
-	C << eb;
+        C << sp << nl << absolute << "::const_iterator"
+          << nl << absolute << "::" << "upperBoundFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return const_iterator(_helper->index(" << indexName 
+          << ")->untypedUpperBound(__bytes, true), _communicator);";
+        C << eb;
+        
+        C << sp << nl << "std::pair<" << absolute << "::iterator, "
+          << absolute << "::iterator>"
+          << nl << absolute << "::" << "equalRangeFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index)";
+        C << sb;
+        C << nl << "return std::make_pair(lowerBoundFor" << capitalizedMembers[i]
+          << "(__index), upperBoundFor" << capitalizedMembers[i] << "(__index));";
+        C << eb;
 
-	C << sp << nl << "std::pair<" << absolute << "::const_iterator, "
-	  << absolute << "::const_iterator>"
-	  << nl << absolute << "::" << "equalRangeFor" << capitalizedMembers[i]
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
-	C << sb;
-	C << nl << "return std::make_pair(lowerBoundFor" << capitalizedMembers[i]
-	  << "(__index), upperBoundFor" << capitalizedMembers[i] << "(__index));";
-	C << eb;
+        C << sp << nl << "std::pair<" << absolute << "::const_iterator, "
+          << absolute << "::const_iterator>"
+          << nl << absolute << "::" << "equalRangeFor" << capitalizedMembers[i]
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
+        C << sb;
+        C << nl << "return std::make_pair(lowerBoundFor" << capitalizedMembers[i]
+          << "(__index), upperBoundFor" << capitalizedMembers[i] << "(__index));";
+        C << eb;
 
-	string countFunction = dict.indices[i].member.empty() ? string("valueCount") 
-	    : dict.indices[i].member + "Count";
+        string countFunction = dict.indices[i].member.empty() ? string("valueCount") 
+            : dict.indices[i].member + "Count";
 
-	C << sp << nl << "int"
-	  << nl << absolute << "::" << countFunction
-	  << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
-	C << sb;
-	C << nl << "Freeze::Key __bytes;";
-	C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
-	C << nl << "return _helper->index(" << indexName 
-	  << ")->untypedCount(__bytes);";
-	C << eb;
+        C << sp << nl << "int"
+          << nl << absolute << "::" << countFunction
+          << "(" << inputTypeToString(indexTypes[i].type, false, indexTypes[i].metaData) << " __index) const";
+        C << sb;
+        C << nl << "Freeze::Key __bytes;";
+        C << nl << indexClassName << "::" << "write(__index, __bytes, _communicator);";
+        C << nl << "return _helper->index(" << indexName 
+          << ")->untypedCount(__bytes);";
+        C << eb;
     }
 }
 
@@ -767,42 +767,42 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
     string absolute = dict.name;
     if(absolute.find("::") == 0)
     {
-	absolute.erase(0, 2);
+        absolute.erase(0, 2);
     }
     string name = absolute;
     vector<string> scope;
     string::size_type pos;
     while((pos = name.find("::")) != string::npos)
     {
-	string s = name.substr(0, pos);
-	name.erase(0, pos + 2);
-	
-	if(!checkIdentifier(n, absolute, s))
-	{
-	    return false;
-	}
-	
-	scope.push_back(s);
+        string s = name.substr(0, pos);
+        name.erase(0, pos + 2);
+        
+        if(!checkIdentifier(n, absolute, s))
+        {
+            return false;
+        }
+        
+        scope.push_back(s);
     }
     
     if(!checkIdentifier(n, absolute, name))
     {
-	return false;
+        return false;
     }
 
     TypeList keyTypes = u->lookupType(dict.key, false);
     if(keyTypes.empty())
     {
-	cerr << n << ": `" << dict.key << "' is not a valid type" << endl;
-	return false;
+        cerr << n << ": `" << dict.key << "' is not a valid type" << endl;
+        return false;
     }
     TypePtr keyType = keyTypes.front();
     
     TypeList valueTypes = u->lookupType(dict.value, false);
     if(valueTypes.empty())
     {
-	cerr << n << ": `" << dict.value << "' is not a valid type" << endl;
-	return false;
+        cerr << n << ": `" << dict.value << "' is not a valid type" << endl;
+        return false;
     }
     TypePtr valueType = valueTypes.front();
     
@@ -810,8 +810,8 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
     
     for(q = scope.begin(); q != scope.end(); ++q)
     {
-	H << sp;
-	H << nl << "namespace " << *q << nl << '{';
+        H << sp;
+        H << nl << "namespace " << *q << nl << '{';
     }
 
     writeCodecH(keyType, dict.keyMetaData, name + "KeyCodec", "Key", H, dllExport);
@@ -821,127 +821,127 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
 
     if(dict.indices.size() == 0)
     {
-	string compare = getCompare(dict, typeToString(keyType, false, dict.keyMetaData));
+        string compare = getCompare(dict, typeToString(keyType, false, dict.keyMetaData));
 
-	H << sp << nl << "typedef Freeze::Map< " << typeToString(keyType, false, dict.keyMetaData) 
-	  << ", " << typeToString(valueType, false, dict.valueMetaData) << ", "
-	  << name << "KeyCodec, " << name << "ValueCodec, " << compare
-	  << " > " << name << ";";
+        H << sp << nl << "typedef Freeze::Map< " << typeToString(keyType, false, dict.keyMetaData) 
+          << ", " << typeToString(valueType, false, dict.valueMetaData) << ", "
+          << name << "KeyCodec, " << name << "ValueCodec, " << compare
+          << " > " << name << ";";
     }
     else
     {
-	for(vector<DictIndex>::const_iterator p = dict.indices.begin();
-	    p != dict.indices.end(); ++p)
-	{
-	    const DictIndex& index = *p;
-	    if(index.member.empty())
-	    {
-		if(dict.indices.size() > 1)
-		{
-		    cerr << n << ": bad index for dictionary `" << dict.name << "'" << endl;
-		    return false;
-		}
-		
-		if(!Dictionary::legalKeyType(valueType))
-		{
-		    cerr << n << ": `" << dict.value << "' is not a valid index type" << endl;
-		    return false; 
-		}
+        for(vector<DictIndex>::const_iterator p = dict.indices.begin();
+            p != dict.indices.end(); ++p)
+        {
+            const DictIndex& index = *p;
+            if(index.member.empty())
+            {
+                if(dict.indices.size() > 1)
+                {
+                    cerr << n << ": bad index for dictionary `" << dict.name << "'" << endl;
+                    return false;
+                }
+                
+                if(!Dictionary::legalKeyType(valueType))
+                {
+                    cerr << n << ": `" << dict.value << "' is not a valid index type" << endl;
+                    return false; 
+                }
 
 
-		if(index.caseSensitive == false)
-		{
-		    //
-		    // Let's check value is a string
-		    //
-		
-		    BuiltinPtr builtInType = BuiltinPtr::dynamicCast(valueType);
-		    
-		    if(builtInType == 0 || builtInType->kind() != Builtin::KindString)
-		    {
-			cerr << n << ": VALUE is a `" << dict.value << "', not a string" << endl;
-			return false; 
-		    }
-		}
-		IndexType iType;
-		iType.type = valueType;
-		iType.metaData = dict.valueMetaData;
-		indexTypes.push_back(iType);
-	    }
-	    else
-	    {
-		DataMemberPtr dataMember = 0;
-		DataMemberList dataMembers;
-		
-		ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(valueType);
-		if(classDecl != 0)
-		{
-		    dataMembers = classDecl->definition()->allDataMembers();
-		}
-		else
-		{
-		    StructPtr structDecl = StructPtr::dynamicCast(valueType);
-		    if(structDecl == 0)
-		    {
-			cerr << n << ": `" << dict.value << "' is neither a class nor a struct." << endl;
-			return false;
-		    }
-		    dataMembers = structDecl->dataMembers();
-		}
-		DataMemberList::const_iterator d = dataMembers.begin();
-		while(d != dataMembers.end() && dataMember == 0)
-		{
-		    if((*d)->name() == index.member)
-		    {
-			dataMember = *d;
-		    }
-		    else
-		    {
-			++d;
-		    }
-		}
-		
-		if(dataMember == 0)
-		{
-		    cerr << n << ": The value of `" << dict.name 
-			 << "' has no data member named `" << index.member << "'" << endl;
-		    return false;
-		}
-		
-		TypePtr dataMemberType = dataMember->type();
+                if(index.caseSensitive == false)
+                {
+                    //
+                    // Let's check value is a string
+                    //
+                
+                    BuiltinPtr builtInType = BuiltinPtr::dynamicCast(valueType);
+                    
+                    if(builtInType == 0 || builtInType->kind() != Builtin::KindString)
+                    {
+                        cerr << n << ": VALUE is a `" << dict.value << "', not a string" << endl;
+                        return false; 
+                    }
+                }
+                IndexType iType;
+                iType.type = valueType;
+                iType.metaData = dict.valueMetaData;
+                indexTypes.push_back(iType);
+            }
+            else
+            {
+                DataMemberPtr dataMember = 0;
+                DataMemberList dataMembers;
+                
+                ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(valueType);
+                if(classDecl != 0)
+                {
+                    dataMembers = classDecl->definition()->allDataMembers();
+                }
+                else
+                {
+                    StructPtr structDecl = StructPtr::dynamicCast(valueType);
+                    if(structDecl == 0)
+                    {
+                        cerr << n << ": `" << dict.value << "' is neither a class nor a struct." << endl;
+                        return false;
+                    }
+                    dataMembers = structDecl->dataMembers();
+                }
+                DataMemberList::const_iterator d = dataMembers.begin();
+                while(d != dataMembers.end() && dataMember == 0)
+                {
+                    if((*d)->name() == index.member)
+                    {
+                        dataMember = *d;
+                    }
+                    else
+                    {
+                        ++d;
+                    }
+                }
+                
+                if(dataMember == 0)
+                {
+                    cerr << n << ": The value of `" << dict.name 
+                         << "' has no data member named `" << index.member << "'" << endl;
+                    return false;
+                }
+                
+                TypePtr dataMemberType = dataMember->type();
 
-		if(!Dictionary::legalKeyType(dataMemberType))
-		{
-		    cerr << n << ": `" << index.member << "' cannot be used as an index" << endl;
-		    return false; 
-		}
+                if(!Dictionary::legalKeyType(dataMemberType))
+                {
+                    cerr << n << ": `" << index.member << "' cannot be used as an index" << endl;
+                    return false; 
+                }
 
-		if(index.caseSensitive == false)
-		{
-		    //
-		    // Let's check member is a string
-		    //
-		    BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
-		    if(memberType == 0 || memberType->kind() != Builtin::KindString)
-		    {
-			cerr << n << ": `" << index.member << "' is not a string " << endl;
-			return false;
-		    }
-		}
-		IndexType iType;
-		iType.type = dataMemberType;
-		indexTypes.push_back(iType);
-	    }
-	}
-	writeDictWithIndicesH(name, dict, indexTypes, keyType, dict.keyMetaData, valueType, dict.valueMetaData, H, 
-			      dllExport);
+                if(index.caseSensitive == false)
+                {
+                    //
+                    // Let's check member is a string
+                    //
+                    BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
+                    if(memberType == 0 || memberType->kind() != Builtin::KindString)
+                    {
+                        cerr << n << ": `" << index.member << "' is not a string " << endl;
+                        return false;
+                    }
+                }
+                IndexType iType;
+                iType.type = dataMemberType;
+                indexTypes.push_back(iType);
+            }
+        }
+        writeDictWithIndicesH(name, dict, indexTypes, keyType, dict.keyMetaData, valueType, dict.valueMetaData, H, 
+                              dllExport);
     }
 
 
     for(q = scope.begin(); q != scope.end(); ++q)
     {
-	H << sp;
-	H << nl << '}';
+        H << sp;
+        H << nl << '}';
     }
 
     writeCodecC(keyType, dict.keyMetaData, absolute + "KeyCodec", "Key", false, C);
@@ -949,8 +949,8 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
     
     if(indexTypes.size() > 0)
     {
-	writeDictWithIndicesC(name, absolute, dict, indexTypes, keyType, dict.keyMetaData, valueType,
-			      dict.valueMetaData, C);
+        writeDictWithIndicesC(name, absolute, dict, indexTypes, keyType, dict.keyMetaData, valueType,
+                              dict.valueMetaData, C);
     }
 
     return true;
@@ -995,7 +995,7 @@ writeIndexH(const string& memberTypeString, const string& name, Output& H, const
 
 void
 writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& memberName,
-	    bool caseSensitive, const string& fullName, const string& name, Output& C)
+            bool caseSensitive, const string& fullName, const string& name, Output& C)
 {
     string inputType = inputTypeToString(memberType, false);
 
@@ -1057,13 +1057,13 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
     string valueS;
     if(caseSensitive)
     {
-	valueS = "__index";
+        valueS = "__index";
     }
     else
     {
-	C << nl << typeToString(memberType, false) << " __lowerCaseIndex = __index;";
-	C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
-	valueS = "__lowerCaseIndex";
+        C << nl << typeToString(memberType, false) << " __lowerCaseIndex = __index;";
+        C << nl << "std::transform(__lowerCaseIndex.begin(), __lowerCaseIndex.end(), __lowerCaseIndex.begin(), tolower);";
+        valueS = "__lowerCaseIndex";
     }
 
     writeMarshalUnmarshalCode(C, memberType, valueS, true, "__stream", false);
@@ -1081,41 +1081,41 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
     string absolute = index.name;
     if(absolute.find("::") == 0)
     {
-	absolute.erase(0, 2);
+        absolute.erase(0, 2);
     }
     string name = absolute;
     vector<string> scope;
     string::size_type pos;
     while((pos = name.find("::")) != string::npos)
     {
-	string s = name.substr(0, pos);
-	name.erase(0, pos + 2);
-	
-	if(!checkIdentifier(n, absolute, s))
-	{
-	    return false;
-	}
-	
-	scope.push_back(s);
+        string s = name.substr(0, pos);
+        name.erase(0, pos + 2);
+        
+        if(!checkIdentifier(n, absolute, s))
+        {
+            return false;
+        }
+        
+        scope.push_back(s);
     }
     
     if(!checkIdentifier(n, absolute, name))
     {
-	return false;
+        return false;
     }
 
     TypeList types = u->lookupType(index.type, false);
     if(types.empty())
     {
-	cerr << n << ": `" << index.type << "' is not a valid type" << endl;
-	return false;
+        cerr << n << ": `" << index.type << "' is not a valid type" << endl;
+        return false;
     }
     TypePtr type = types.front();
     
     ClassDeclPtr classDecl = ClassDeclPtr::dynamicCast(type);
     if(classDecl == 0)
     {
-	cerr << n << ": `" << index.type << "' is not a class" << endl;
+        cerr << n << ": `" << index.type << "' is not a class" << endl;
         return false;
     }
 
@@ -1124,49 +1124,49 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
     DataMemberList::const_iterator p = dataMembers.begin();
     while(p != dataMembers.end() && dataMember == 0)
     {
-	if((*p)->name() == index.member)
-	{
-	    dataMember = *p;
-	}
-	else
-	{
-	    ++p;
-	}
+        if((*p)->name() == index.member)
+        {
+            dataMember = *p;
+        }
+        else
+        {
+            ++p;
+        }
     }
 
     if(dataMember == 0)
     {
-	cerr << n << ": `" << index.type << "' has no data member named `" << index.member << "'" << endl;
+        cerr << n << ": `" << index.type << "' has no data member named `" << index.member << "'" << endl;
         return false;
     }
     
     if(index.caseSensitive == false)
     {
-	//
-	// Let's check member is a string
-	//
-	BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMember->type());
-	if(memberType == 0 || memberType->kind() != Builtin::KindString)
-	{
-	    cerr << n << ": `" << index.member << "'is not a string " << endl;
-	    return false; 
-	}
+        //
+        // Let's check member is a string
+        //
+        BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMember->type());
+        if(memberType == 0 || memberType->kind() != Builtin::KindString)
+        {
+            cerr << n << ": `" << index.member << "'is not a string " << endl;
+            return false; 
+        }
     }
    
     vector<string>::const_iterator q;
     
     for(q = scope.begin(); q != scope.end(); ++q)
     {
-	H << sp;
-	H << nl << "namespace " << *q << nl << '{';
+        H << sp;
+        H << nl << "namespace " << *q << nl << '{';
     }
 
     writeIndexH(inputTypeToString(dataMember->type(), false), name, H, dllExport);
     
     for(q = scope.begin(); q != scope.end(); ++q)
     {
-	H << sp;
-	H << nl << '}';
+        H << sp;
+        H << nl << '}';
     }
 
     writeIndexC(type, dataMember->type(), index.member, index.caseSensitive, absolute, name, C);
@@ -1203,21 +1203,21 @@ main(int argc, char* argv[])
     }
     catch(const IceUtil::BadOptException& e)
     {
-	cerr << argv[0] << ": " << e.reason << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": " << e.reason << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return EXIT_SUCCESS;
+        usage(argv[0]);
+        return EXIT_SUCCESS;
     }
 
     if(opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+        cout << ICE_STRING_VERSION << endl;
+        return EXIT_SUCCESS;
     }
 
     string headerExtension = opts.optArg("header-ext");
@@ -1229,19 +1229,19 @@ main(int argc, char* argv[])
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -D" + Preprocessor::addQuotes(*i);
+        cppArgs += " -D" + Preprocessor::addQuotes(*i);
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -U" + Preprocessor::addQuotes(*i);
+        cppArgs += " -U" + Preprocessor::addQuotes(*i);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs += " -I" + Preprocessor::addQuotes(*i);
+        cppArgs += " -I" + Preprocessor::addQuotes(*i);
     }
 
     bool preprocess= opts.isSet("E");
@@ -1254,330 +1254,330 @@ main(int argc, char* argv[])
     optargs = opts.argVec("dict");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	string s = *i;
-	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	
-	Dict dict;
+        string s = *i;
+        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        
+        Dict dict;
 
-	string::size_type pos;
-	pos = s.find(',');
-	if(pos != string::npos)
-	{
-	    dict.name = s.substr(0, pos);
-	    s.erase(0, pos + 1);
-	}
-	pos = s.find(',');
-	if(pos != string::npos)
-	{
-	    if(s.find("[\"") == 0)
-	    {
-		string::size_type end = s.find("\"]");
-		if(end != string::npos && end < pos)
-		{
-		    dict.key = s.substr(end + 2, pos - end - 2);
-		    dict.keyMetaData.push_back(s.substr(2, end - 2));
-		}
-		else
-		{
-		    dict.key = s.substr(0, pos);
-		}
-	    }
-	    else
-	    {
-		dict.key = s.substr(0, pos);
-	    }
-	    s.erase(0, pos + 1);
-	}
-	pos = s.find(',');
-	if(pos == string::npos)
-	{
-	    if(s.find("[\"") == 0)
-	    {
-		string::size_type end = s.find("\"]");
-		if(end != string::npos)
-		{
-		    dict.value = s.substr(end + 2);
-		    dict.valueMetaData.push_back(s.substr(2, end - 2));
-		}
-		else
-		{
-		    dict.value = s;
-		}
-	    }
-	    else
-	    {
-		dict.value = s;
-	    }
-	    dict.sort = false;
-	}
-	else
-	{
-	    if(s.find("[\"") == 0)
-	    {
-		string::size_type end = s.find("\"]");
-		if(end != string::npos && end < pos)
-		{
-		    dict.value = s.substr(end + 2, pos - end - 2);
-		    dict.valueMetaData.push_back(s.substr(2, end - 2));
-		}
-		else
-		{
-		    dict.value = s.substr(0, pos);
-		}
-	    }
-	    else
-	    {
-		dict.value = s.substr(0, pos);
-	    }
-	    s.erase(0, pos + 1);
+        string::size_type pos;
+        pos = s.find(',');
+        if(pos != string::npos)
+        {
+            dict.name = s.substr(0, pos);
+            s.erase(0, pos + 1);
+        }
+        pos = s.find(',');
+        if(pos != string::npos)
+        {
+            if(s.find("[\"") == 0)
+            {
+                string::size_type end = s.find("\"]");
+                if(end != string::npos && end < pos)
+                {
+                    dict.key = s.substr(end + 2, pos - end - 2);
+                    dict.keyMetaData.push_back(s.substr(2, end - 2));
+                }
+                else
+                {
+                    dict.key = s.substr(0, pos);
+                }
+            }
+            else
+            {
+                dict.key = s.substr(0, pos);
+            }
+            s.erase(0, pos + 1);
+        }
+        pos = s.find(',');
+        if(pos == string::npos)
+        {
+            if(s.find("[\"") == 0)
+            {
+                string::size_type end = s.find("\"]");
+                if(end != string::npos)
+                {
+                    dict.value = s.substr(end + 2);
+                    dict.valueMetaData.push_back(s.substr(2, end - 2));
+                }
+                else
+                {
+                    dict.value = s;
+                }
+            }
+            else
+            {
+                dict.value = s;
+            }
+            dict.sort = false;
+        }
+        else
+        {
+            if(s.find("[\"") == 0)
+            {
+                string::size_type end = s.find("\"]");
+                if(end != string::npos && end < pos)
+                {
+                    dict.value = s.substr(end + 2, pos - end - 2);
+                    dict.valueMetaData.push_back(s.substr(2, end - 2));
+                }
+                else
+                {
+                    dict.value = s.substr(0, pos);
+                }
+            }
+            else
+            {
+                dict.value = s.substr(0, pos);
+            }
+            s.erase(0, pos + 1);
 
-	    pos = s.find(',');
-	    if(pos == string::npos)
-	    {
-		if(s != "sort")
-		{
-		    cerr << argv[0] << ": " << *i 
-			 << ": nothing or ',sort' expected after value-type" << endl;
-		    usage(argv[0]);
-		    return EXIT_FAILURE;
-		}
-		dict.sort = true;
-	    }
-	    else
-	    {
-		string sort = s.substr(0, pos);
-		s.erase(0, pos + 1);
-		if(sort != "sort")
-		{
-		    cerr << argv[0] << ": " << *i 
-			 << ": nothing or ',sort' expected after value-type" << endl;
-		    usage(argv[0]);
-		    return EXIT_FAILURE;
-		}
-		dict.sort = true;
-		dict.userCompare = s;
-	    }
-	}
+            pos = s.find(',');
+            if(pos == string::npos)
+            {
+                if(s != "sort")
+                {
+                    cerr << argv[0] << ": " << *i 
+                         << ": nothing or ',sort' expected after value-type" << endl;
+                    usage(argv[0]);
+                    return EXIT_FAILURE;
+                }
+                dict.sort = true;
+            }
+            else
+            {
+                string sort = s.substr(0, pos);
+                s.erase(0, pos + 1);
+                if(sort != "sort")
+                {
+                    cerr << argv[0] << ": " << *i 
+                         << ": nothing or ',sort' expected after value-type" << endl;
+                    usage(argv[0]);
+                    return EXIT_FAILURE;
+                }
+                dict.sort = true;
+                dict.userCompare = s;
+            }
+        }
 
-	if(dict.name.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no name specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        if(dict.name.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
 
-	if(dict.key.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no key specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        if(dict.key.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no key specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
 
-	if(dict.value.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no value specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        if(dict.value.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no value specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
 
-	dicts.push_back(dict);
+        dicts.push_back(dict);
     }
     
     vector<Index> indices;
     optargs = opts.argVec("index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	string s = *i;
-	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	
-	Index index;
+        string s = *i;
+        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        
+        Index index;
 
-	string::size_type pos;
-	pos = s.find(',');
-	if(pos != string::npos)
-	{
-	    index.name = s.substr(0, pos);
-	    s.erase(0, pos + 1);
-	}
-	pos = s.find(',');
-	if(pos != string::npos)
-	{
-	    index.type = s.substr(0, pos);
-	    s.erase(0, pos + 1);
-	}
-	pos = s.find(',');
-	string caseString;
-	if(pos != string::npos)
-	{
-	    index.member = s.substr(0, pos);
-	    s.erase(0, pos + 1);
-	    caseString = s;
-	}
-	else
-	{
-	    index.member = s;
-	    caseString = "case-sensitive";
-	}
+        string::size_type pos;
+        pos = s.find(',');
+        if(pos != string::npos)
+        {
+            index.name = s.substr(0, pos);
+            s.erase(0, pos + 1);
+        }
+        pos = s.find(',');
+        if(pos != string::npos)
+        {
+            index.type = s.substr(0, pos);
+            s.erase(0, pos + 1);
+        }
+        pos = s.find(',');
+        string caseString;
+        if(pos != string::npos)
+        {
+            index.member = s.substr(0, pos);
+            s.erase(0, pos + 1);
+            caseString = s;
+        }
+        else
+        {
+            index.member = s;
+            caseString = "case-sensitive";
+        }
 
-	if(index.name.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no name specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        if(index.name.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
 
-	if(index.type.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no type specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        if(index.type.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no type specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
 
-	if(index.member.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no member specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-	
-	if(caseString != "case-sensitive" && caseString != "case-insensitive")
-	{
-	    cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-	index.caseSensitive = (caseString == "case-sensitive");
+        if(index.member.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no member specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
+        
+        if(caseString != "case-sensitive" && caseString != "case-insensitive")
+        {
+            cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
+        index.caseSensitive = (caseString == "case-sensitive");
 
-	indices.push_back(index);
+        indices.push_back(index);
     }
 
     optargs = opts.argVec("dict-index");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	string s = *i;
-	s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-	
-	string dictName;
-	DictIndex index;
-	index.sort = false;
-	index.caseSensitive = true;
+        string s = *i;
+        s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+        
+        string dictName;
+        DictIndex index;
+        index.sort = false;
+        index.caseSensitive = true;
 
-	string::size_type pos = s.find(',');
-	if(pos == string::npos)
-	{
-	    dictName = s;
-	}
-	else
-	{
-	    dictName = s.substr(0, pos);
-	    s.erase(0, pos + 1);
+        string::size_type pos = s.find(',');
+        if(pos == string::npos)
+        {
+            dictName = s;
+        }
+        else
+        {
+            dictName = s.substr(0, pos);
+            s.erase(0, pos + 1);
 
-	    bool done = false;
-	    while(!done)
-	    {
-		pos = s.find(',');
-		if(pos == string::npos)
-		{
-		    if(s == "sort")
-		    {
-			index.sort = true;
-		    }
-		    else if(s == "case-sensitive")
-		    {
-			index.caseSensitive = true;
-		    }
-		    else if(s == "case-insensitive")
-		    {
-			index.caseSensitive = false;
-		    }
-		    else if(index.member.empty())
-		    {
-			if(s == "\\sort")
-			{
-			    index.member = "sort";
-			}
-			else
-			{
-			    index.member = s;
-			}
-		    }
-		    else
-		    {
-			cerr << argv[0] << ": " << *i << ": syntax error" << endl;
-			usage(argv[0]);
-			return EXIT_FAILURE;
-		    }
-		    done = true;
-		}
-		else
-		{
-		    string subs = s.substr(0, pos);
-		    s.erase(0, pos + 1);
-		    
-		    if(subs == "sort")
-		    {
-			index.sort = true;
-			index.userCompare = s;
-			done = true;
-		    }
-		    else if(subs == "case-sensitive")
-		    {
-			index.caseSensitive = true;
-		    }
-		    else if(subs == "case-insensitive")
-		    {
-			index.caseSensitive = false;
-		    }
-		    else if(index.member.empty())
-		    {
-			if(subs == "\\sort")
-			{
-			    index.member = "sort";
-			}
-			else
-			{
-			    index.member = subs;
-			}
-		    }
-		    else
-		    {
-			cerr << argv[0] << ": " << *i << ": syntax error" << endl;
-			usage(argv[0]);
-			return EXIT_FAILURE;
-		    }
-		}
-	    }
-	}
-	    
-	if(dictName.empty())
-	{
-	    cerr << argv[0] << ": " << *i << ": no dictionary specified" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+            bool done = false;
+            while(!done)
+            {
+                pos = s.find(',');
+                if(pos == string::npos)
+                {
+                    if(s == "sort")
+                    {
+                        index.sort = true;
+                    }
+                    else if(s == "case-sensitive")
+                    {
+                        index.caseSensitive = true;
+                    }
+                    else if(s == "case-insensitive")
+                    {
+                        index.caseSensitive = false;
+                    }
+                    else if(index.member.empty())
+                    {
+                        if(s == "\\sort")
+                        {
+                            index.member = "sort";
+                        }
+                        else
+                        {
+                            index.member = s;
+                        }
+                    }
+                    else
+                    {
+                        cerr << argv[0] << ": " << *i << ": syntax error" << endl;
+                        usage(argv[0]);
+                        return EXIT_FAILURE;
+                    }
+                    done = true;
+                }
+                else
+                {
+                    string subs = s.substr(0, pos);
+                    s.erase(0, pos + 1);
+                    
+                    if(subs == "sort")
+                    {
+                        index.sort = true;
+                        index.userCompare = s;
+                        done = true;
+                    }
+                    else if(subs == "case-sensitive")
+                    {
+                        index.caseSensitive = true;
+                    }
+                    else if(subs == "case-insensitive")
+                    {
+                        index.caseSensitive = false;
+                    }
+                    else if(index.member.empty())
+                    {
+                        if(subs == "\\sort")
+                        {
+                            index.member = "sort";
+                        }
+                        else
+                        {
+                            index.member = subs;
+                        }
+                    }
+                    else
+                    {
+                        cerr << argv[0] << ": " << *i << ": syntax error" << endl;
+                        usage(argv[0]);
+                        return EXIT_FAILURE;
+                    }
+                }
+            }
+        }
+            
+        if(dictName.empty())
+        {
+            cerr << argv[0] << ": " << *i << ": no dictionary specified" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
 
-	bool found = false;
-	for(vector<Dict>::iterator p = dicts.begin(); p != dicts.end(); ++p)
-	{
-	    if(p->name == dictName)
-	    {
-		if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
-		{
-		    cerr << argv[0] << ": --dict-index " << *i 
-			 << ": this dict-index is defined twice" << endl;
-		    return EXIT_FAILURE;
-		}
-		p->indices.push_back(index);
-		found = true;
-		break;
-	    }
-	}
-	if(!found)
-	{
-	    cerr << argv[0] << ": " << *i << ": unknown dictionary" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        bool found = false;
+        for(vector<Dict>::iterator p = dicts.begin(); p != dicts.end(); ++p)
+        {
+            if(p->name == dictName)
+            {
+                if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
+                {
+                    cerr << argv[0] << ": --dict-index " << *i 
+                         << ": this dict-index is defined twice" << endl;
+                    return EXIT_FAILURE;
+                }
+                p->indices.push_back(index);
+                found = true;
+                break;
+            }
+        }
+        if(!found)
+        {
+            cerr << argv[0] << ": " << *i << ": unknown dictionary" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
     }
 
     string output = opts.optArg("output-dir");
@@ -1590,16 +1590,16 @@ main(int argc, char* argv[])
 
     if(dicts.empty() && indices.empty())
     {
-	cerr << argv[0] << ": no Freeze types specified" << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": no Freeze types specified" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(args.empty())
     {
-	cerr << argv[0] << ": no file name base specified" << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": no file name base specified" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     string fileH = args[0];
@@ -1609,8 +1609,8 @@ main(int argc, char* argv[])
     fileC += "." + sourceExtension;
     if(!output.empty())
     {
-	fileH = output + '/' + fileH;
-	fileC = output + '/' + fileC;
+        fileH = output + '/' + fileH;
+        fileC = output + '/' + fileC;
     }
 
     UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive);
@@ -1621,193 +1621,193 @@ main(int argc, char* argv[])
 
     for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
-	Preprocessor icecpp(argv[0], args[idx], cppArgs);
+        Preprocessor icecpp(argv[0], args[idx], cppArgs);
 
         //
         // Add an include file for each Slice file. Note that the .h extension
         // is replaced with headerExtension later.
         //
-	includes.push_back(icecpp.getBaseName() + ".h");
+        includes.push_back(icecpp.getBaseName() + ".h");
 
-	FILE* cppHandle = icecpp.preprocess(false);
+        FILE* cppHandle = icecpp.preprocess(false);
 
-	if(cppHandle == 0)
-	{
-	    u->destroy();
-	    return EXIT_FAILURE;
-	}
+        if(cppHandle == 0)
+        {
+            u->destroy();
+            return EXIT_FAILURE;
+        }
 
-	if(preprocess)
-	{
-	    char buf[4096];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
-		if(fputs(buf, stdout) == EOF)
-		{
-		    u->destroy();
-		    return EXIT_FAILURE;
-		}
-	    }
-	}
-	else
-	{
-	    status = u->parse(cppHandle, debug);
-	}
+        if(preprocess)
+        {
+            char buf[4096];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
+                if(fputs(buf, stdout) == EOF)
+                {
+                    u->destroy();
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+        else
+        {
+            status = u->parse(cppHandle, debug);
+        }
 
-	if(!icecpp.close())
-	{
-	    u->destroy();
-	    return EXIT_FAILURE;	    
-	}
+        if(!icecpp.close())
+        {
+            u->destroy();
+            return EXIT_FAILURE;            
+        }
     }
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-	u->mergeModules();
-	u->sort();
+        u->mergeModules();
+        u->sort();
 
-	{
-	    for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
-	    {
-		if(p->length() && (*p)[p->length() - 1] != '/')
-		{
-		    *p += '/';
-		}
-	    }
-	}
+        {
+            for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+            {
+                if(p->length() && (*p)[p->length() - 1] != '/')
+                {
+                    *p += '/';
+                }
+            }
+        }
 
-	Output H;
-	H.open(fileH.c_str());
-	if(!H)
-	{
-	    cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
-	    u->destroy();
-	    return EXIT_FAILURE;
-	}
-	printHeader(H);
-	printFreezeTypes(H, dicts, indices);
+        Output H;
+        H.open(fileH.c_str());
+        if(!H)
+        {
+            cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
+            u->destroy();
+            return EXIT_FAILURE;
+        }
+        printHeader(H);
+        printFreezeTypes(H, dicts, indices);
 
-	Output C;
-	C.open(fileC.c_str());
-	if(!C)
-	{
-	    cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
-	    u->destroy();
-	    return EXIT_FAILURE;
-	}
-	printHeader(C);
-	printFreezeTypes(C, dicts, indices);
+        Output C;
+        C.open(fileC.c_str());
+        if(!C)
+        {
+            cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
+            u->destroy();
+            return EXIT_FAILURE;
+        }
+        printHeader(C);
+        printFreezeTypes(C, dicts, indices);
 
-	for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
-	{
-	    string hdr = *i;
-	    string guard;
-	    string::size_type pos = hdr.rfind(',');
-	    if(pos != string::npos)
-	    {
-		hdr = i->substr(0, pos);
-		guard = i->substr(pos + 1);
-	    }
-	    if(!guard.empty())
-	    {
-		C << "\n#ifndef " << guard;
-		C << "\n#define " << guard;
-	    }
-	    C << "\n#include <";
-	    if(!include.empty())
-	    {
-		C << include << '/';
-	    }
-	    C << hdr << '>';
-	    if(!guard.empty())
-	    {
-		C << "\n#endif";
-	    }
-	}
+        for(vector<string>::const_iterator i = extraHeaders.begin(); i != extraHeaders.end(); ++i)
+        {
+            string hdr = *i;
+            string guard;
+            string::size_type pos = hdr.rfind(',');
+            if(pos != string::npos)
+            {
+                hdr = i->substr(0, pos);
+                guard = i->substr(pos + 1);
+            }
+            if(!guard.empty())
+            {
+                C << "\n#ifndef " << guard;
+                C << "\n#define " << guard;
+            }
+            C << "\n#include <";
+            if(!include.empty())
+            {
+                C << include << '/';
+            }
+            C << hdr << '>';
+            if(!guard.empty())
+            {
+                C << "\n#endif";
+            }
+        }
 
-	string s = fileH;
-	transform(s.begin(), s.end(), s.begin(), ToIfdef());
-	H << "\n#ifndef __" << s << "__";
-	H << "\n#define __" << s << "__";
-	H << '\n';
-	
-	if(dicts.size() > 0)
-	{
-	    H << "\n#include <Freeze/Map.h>";
-	}
+        string s = fileH;
+        transform(s.begin(), s.end(), s.begin(), ToIfdef());
+        H << "\n#ifndef __" << s << "__";
+        H << "\n#define __" << s << "__";
+        H << '\n';
+        
+        if(dicts.size() > 0)
+        {
+            H << "\n#include <Freeze/Map.h>";
+        }
 
-	if(indices.size() > 0)
-	{
-	    H << "\n#include <Freeze/Index.h>";
-	}
+        if(indices.size() > 0)
+        {
+            H << "\n#include <Freeze/Index.h>";
+        }
 
-	
-	{
-	    for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
-	    {
-		H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
-	    }
-	}
+        
+        {
+            for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
+            {
+                H << "\n#include <" << changeInclude(*p, includePaths) << "." + headerExtension + ">";
+            }
+        }
 
         C << "\n#include <Ice/BasicStream.h>";
-	C << "\n#include <";
-	if(include.size())
-	{
-	    C << include << '/';
-	}
-	C << includeH << '>';
+        C << "\n#include <";
+        if(include.size())
+        {
+            C << include << '/';
+        }
+        C << includeH << '>';
 
-	printVersionCheck(H);
-	printVersionCheck(C);
+        printVersionCheck(H);
+        printVersionCheck(C);
 
-	printDllExportStuff(H, dllExport);
-	if(dllExport.size())
-	{
-	    dllExport += " ";
-	}
+        printDllExportStuff(H, dllExport);
+        if(dllExport.size())
+        {
+            dllExport += " ";
+        }
 
-	{
-	    for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
-	    {
-		try
-		{
-		    if(!writeDict(argv[0], u, *p, H, C, dllExport))
-		    {
-			u->destroy();
-			return EXIT_FAILURE;
-		    }
-		}
-		catch(...)
-		{
-		    cerr << argv[0] << ": unknown exception" << endl;
-		    u->destroy();
-		    return EXIT_FAILURE;
-		}
-	    } 
+        {
+            for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
+            {
+                try
+                {
+                    if(!writeDict(argv[0], u, *p, H, C, dllExport))
+                    {
+                        u->destroy();
+                        return EXIT_FAILURE;
+                    }
+                }
+                catch(...)
+                {
+                    cerr << argv[0] << ": unknown exception" << endl;
+                    u->destroy();
+                    return EXIT_FAILURE;
+                }
+            } 
 
 
-	    for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
-	    {
-		try
-		{
-		    if(!writeIndex(argv[0], u, *q, H, C, dllExport))
-		    {
-			u->destroy();
-			return EXIT_FAILURE;
-		    }
-		}
-		catch(...)
-		{
-		    cerr << argv[0] << ": unknown exception" << endl;
-		    u->destroy();
-		    return EXIT_FAILURE;
-		}
-	    }
+            for(vector<Index>::const_iterator q = indices.begin(); q != indices.end(); ++q)
+            {
+                try
+                {
+                    if(!writeIndex(argv[0], u, *q, H, C, dllExport))
+                    {
+                        u->destroy();
+                        return EXIT_FAILURE;
+                    }
+                }
+                catch(...)
+                {
+                    cerr << argv[0] << ": unknown exception" << endl;
+                    u->destroy();
+                    return EXIT_FAILURE;
+                }
+            }
 
-	}
+        }
 
-	H << "\n\n#endif\n";
-	C << '\n';
+        H << "\n\n#endif\n";
+        C << '\n';
     }
     
     u->destroy();

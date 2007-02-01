@@ -229,7 +229,7 @@ interface SessionManager
      *
      **/
     Session* create(string userId, SessionControl* control)
-	throws CannotCreateSessionException;
+        throws CannotCreateSessionException;
 };
 
 /**
@@ -261,7 +261,7 @@ interface SSLSessionManager
      *
      **/
     Session* create(SSLInfo info, SessionControl* control)
-	throws CannotCreateSessionException;
+        throws CannotCreateSessionException;
 };
 
 };

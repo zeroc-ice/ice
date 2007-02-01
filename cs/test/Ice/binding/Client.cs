@@ -39,14 +39,14 @@ public class Client
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }
         
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

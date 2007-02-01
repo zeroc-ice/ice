@@ -65,18 +65,18 @@ ContactI::destroy(const Ice::Current& c)
 {
     try
     {
-	_factory->getEvictor()->remove(c.id);
+        _factory->getEvictor()->remove(c.id);
     }
     catch(const Freeze::DatabaseException& ex)
     {
-	DatabaseException e;
-	e.message = ex.message;
-	throw e;
+        DatabaseException e;
+        e.message = ex.message;
+        throw e;
     }
 }
 
 PhoneBookI::PhoneBookI(const Freeze::EvictorPtr& evictor, const ContactFactoryPtr& contactFactory,
-		       const NameIndexPtr& index) :
+                       const NameIndexPtr& index) :
     _evictor(evictor),
     _contactFactory(contactFactory),
     _index(index)
@@ -88,13 +88,13 @@ class IdentityToContact
 public:
 
     IdentityToContact(const Ice::ObjectAdapterPtr& adapter) :
-	_adapter(adapter)
+        _adapter(adapter)
     {
     }
 
-	ContactPrx operator()(const Ice::Identity& ident)
+        ContactPrx operator()(const Ice::Identity& ident)
     {
-	return ContactPrx::uncheckedCast(_adapter->createProxy(ident));
+        return ContactPrx::uncheckedCast(_adapter->createProxy(ident));
     }
 
 private:
@@ -136,19 +136,19 @@ PhoneBookI::findContacts(const string& name, const Ice::Current& c) const
 {
     try
     {
-	vector<Ice::Identity> identities = _index->find(name);
-	
-	Contacts contacts;
-	contacts.reserve(identities.size());
-	transform(identities.begin(), identities.end(), back_inserter(contacts), IdentityToContact(c.adapter));
+        vector<Ice::Identity> identities = _index->find(name);
+        
+        Contacts contacts;
+        contacts.reserve(identities.size());
+        transform(identities.begin(), identities.end(), back_inserter(contacts), IdentityToContact(c.adapter));
 
-	return contacts;
+        return contacts;
     }
     catch(const Freeze::DatabaseException& ex)
     {
-	DatabaseException e;
-	e.message = ex.message;
-	throw e;
+        DatabaseException e;
+        e.message = ex.message;
+        throw e;
     }
 }
 

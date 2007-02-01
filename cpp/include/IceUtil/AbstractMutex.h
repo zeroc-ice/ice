@@ -43,17 +43,17 @@ public:
 
     virtual void lock() const
     {
-	T::lock();
+        T::lock();
     }
 
     virtual void unlock() const
     {
-	T::unlock();
+        T::unlock();
     }
 
     virtual bool tryLock() const
     {
-	return T::tryLock();
+        return T::tryLock();
     }
 
     virtual ~AbstractMutexI()
@@ -72,17 +72,17 @@ public:
 
     virtual void lock() const
     {
-	T::readLock();
+        T::readLock();
     }
 
     virtual void unlock() const
     {
-	T::unlock();
+        T::unlock();
     }
 
     virtual bool tryLock() const
     {
-	return T::tryReadLock();
+        return T::tryReadLock();
     }
 
     virtual ~AbstractMutexReadI()
@@ -101,17 +101,17 @@ public:
 
     virtual void lock() const
     {
-	T::writeLock();
+        T::writeLock();
     }
 
     virtual void unlock() const
     {
-	T::unlock();
+        T::unlock();
     }
 
     virtual bool tryLock() const
     {
-	return T::tryWriteLock();
+        return T::tryWriteLock();
     }
 
     virtual ~AbstractMutexWriteI()

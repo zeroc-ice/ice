@@ -14,7 +14,7 @@ public class HelloI : HelloDisp_
 {
     public HelloI(string name)
     {
-	_name = name;
+        _name = name;
     }
 
     public override void sayHello(Ice.Current current)

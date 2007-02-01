@@ -21,7 +21,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, bool conn,
-					const string& conId, bool co, bool pub) :
+                                        const string& conId, bool co, bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -54,209 +54,209 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 
     while(true)
     {
-	beg = str.find_first_not_of(delim, end);
-	if(beg == string::npos)
-	{
-	    break;
-	}
-	
-	end = str.find_first_of(delim, beg);
-	if(end == string::npos)
-	{
-	    end = str.length();
-	}
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            break;
+        }
+        
+        end = str.find_first_of(delim, beg);
+        if(end == string::npos)
+        {
+            end = str.length();
+        }
 
-	string option = str.substr(beg, end - beg);
-	if(option.length() != 2 || option[0] != '-')
-	{
-	    EndpointParseException ex(__FILE__, __LINE__);
-	    ex.str = "udp " + str;
-	    throw ex;
-	}
+        string option = str.substr(beg, end - beg);
+        if(option.length() != 2 || option[0] != '-')
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "udp " + str;
+            throw ex;
+        }
 
-	string argument;
-	string::size_type argumentBeg = str.find_first_not_of(delim, end);
-	if(argumentBeg != string::npos && str[argumentBeg] != '-')
-	{
-	    beg = argumentBeg;
-	    end = str.find_first_of(delim + ":", beg);
-	    if(end == string::npos)
-	    {
-		end = str.length();
-	    }
-	    argument = str.substr(beg, end - beg);
-	}
+        string argument;
+        string::size_type argumentBeg = str.find_first_not_of(delim, end);
+        if(argumentBeg != string::npos && str[argumentBeg] != '-')
+        {
+            beg = argumentBeg;
+            end = str.find_first_of(delim + ":", beg);
+            if(end == string::npos)
+            {
+                end = str.length();
+            }
+            argument = str.substr(beg, end - beg);
+        }
 
-	switch(option[1])
-	{
-	    case 'v':
-	    {
-		if(argument.empty())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+        switch(option[1])
+        {
+            case 'v':
+            {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		string::size_type pos = argument.find('.');
-		if(pos == string::npos)
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
-		string majorStr = argument.substr(0, pos);
-		string minorStr = argument.substr(pos + 1, string::npos);
+                string::size_type pos = argument.find('.');
+                if(pos == string::npos)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                string majorStr = argument.substr(0, pos);
+                string minorStr = argument.substr(pos + 1, string::npos);
 
-		istringstream majStr(majorStr);
-		Int majVersion;
-		if(!(majStr >> majVersion) || !majStr.eof())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+                istringstream majStr(majorStr);
+                Int majVersion;
+                if(!(majStr >> majVersion) || !majStr.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		istringstream minStr(minorStr);
-		Int minVersion;
-		if(!(minStr >> minVersion) || !minStr.eof())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+                istringstream minStr(minorStr);
+                Int minVersion;
+                if(!(minStr >> minVersion) || !minStr.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+                if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		if(majVersion != protocolMajor)
-		{
-		    UnsupportedProtocolException ex(__FILE__, __LINE__);
-		    ex.badMajor = majVersion;
-		    ex.badMinor = minVersion;
-		    ex.major = static_cast<unsigned char>(protocolMajor);
-		    ex.minor = static_cast<unsigned char>(protocolMinor);
-		    throw ex;
-		}
+                if(majVersion != protocolMajor)
+                {
+                    UnsupportedProtocolException ex(__FILE__, __LINE__);
+                    ex.badMajor = majVersion;
+                    ex.badMinor = minVersion;
+                    ex.major = static_cast<unsigned char>(protocolMajor);
+                    ex.minor = static_cast<unsigned char>(protocolMinor);
+                    throw ex;
+                }
 
-		const_cast<Byte&>(_protocolMajor) = majVersion;
-		const_cast<Byte&>(_protocolMinor) = minVersion;
+                const_cast<Byte&>(_protocolMajor) = majVersion;
+                const_cast<Byte&>(_protocolMinor) = minVersion;
 
-		break;
-	    }
+                break;
+            }
 
-	    case 'e':
-	    {
-		if(argument.empty())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
-		string::size_type pos = argument.find('.');
-		string majorStr = argument.substr(0, pos);
-		string minorStr = argument.substr(pos + 1, string::npos);
+            case 'e':
+            {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                string::size_type pos = argument.find('.');
+                string majorStr = argument.substr(0, pos);
+                string minorStr = argument.substr(pos + 1, string::npos);
 
-		istringstream majStr(majorStr);
-		Int majVersion;
-		if(!(majStr >> majVersion) || !majStr.eof())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+                istringstream majStr(majorStr);
+                Int majVersion;
+                if(!(majStr >> majVersion) || !majStr.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		istringstream minStr(minorStr);
-		Int minVersion;
-		if(!(minStr >> minVersion) || !minStr.eof())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+                istringstream minStr(minorStr);
+                Int minVersion;
+                if(!(minStr >> minVersion) || !minStr.eof())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
+                if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
 
-		if(majVersion != static_cast<unsigned char>(encodingMajor))
-		{
-		    UnsupportedEncodingException ex(__FILE__, __LINE__);
-		    ex.badMajor = majVersion;
-		    ex.badMinor = minVersion;
-		    ex.major = static_cast<unsigned char>(encodingMajor);
-		    ex.minor = static_cast<unsigned char>(encodingMinor);
-		    throw ex;
-		}
+                if(majVersion != static_cast<unsigned char>(encodingMajor))
+                {
+                    UnsupportedEncodingException ex(__FILE__, __LINE__);
+                    ex.badMajor = majVersion;
+                    ex.badMinor = minVersion;
+                    ex.major = static_cast<unsigned char>(encodingMajor);
+                    ex.minor = static_cast<unsigned char>(encodingMinor);
+                    throw ex;
+                }
 
-		const_cast<Byte&>(_encodingMajor) = majVersion;
-		const_cast<Byte&>(_encodingMinor) = minVersion;
+                const_cast<Byte&>(_encodingMajor) = majVersion;
+                const_cast<Byte&>(_encodingMinor) = minVersion;
 
-		break;
-	    }
+                break;
+            }
 
-	    case 'h':
-	    {
-		if(argument.empty())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
-		const_cast<string&>(_host) = argument;
-		break;
-	    }
+            case 'h':
+            {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                const_cast<string&>(_host) = argument;
+                break;
+            }
 
-	    case 'p':
-	    {
-		istringstream p(argument);
-		if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
-		break;
-	    }
+            case 'p':
+            {
+                istringstream p(argument);
+                if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                break;
+            }
 
-	    case 'c':
-	    {
-		if(!argument.empty())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
-		const_cast<bool&>(_connect) = true;
-		break;
-	    }
+            case 'c':
+            {
+                if(!argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                const_cast<bool&>(_connect) = true;
+                break;
+            }
 
-	    case 'z':
-	    {
-		if(!argument.empty())
-		{
-		    EndpointParseException ex(__FILE__, __LINE__);
-		    ex.str = "udp " + str;
-		    throw ex;
-		}
-		const_cast<bool&>(_compress) = true;
-		break;
-	    }
+            case 'z':
+            {
+                if(!argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "udp " + str;
+                    throw ex;
+                }
+                const_cast<bool&>(_compress) = true;
+                break;
+            }
 
-	    default:
-	    {
-		EndpointParseException ex(__FILE__, __LINE__);
-		ex.str = "udp " + str;
-		throw ex;
-	    }
-	}
+            default:
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+        }
     }
 }
 
@@ -280,21 +280,21 @@ IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     s->read(const_cast<Byte&>(_encodingMinor));
     if(_protocolMajor != protocolMajor)
     {
-	UnsupportedProtocolException ex(__FILE__, __LINE__);
-	ex.badMajor = _protocolMajor;
-	ex.badMinor = _protocolMinor;
-	ex.major = static_cast<unsigned char>(protocolMajor);
-	ex.minor = static_cast<unsigned char>(protocolMinor);
-	throw ex;
+        UnsupportedProtocolException ex(__FILE__, __LINE__);
+        ex.badMajor = _protocolMajor;
+        ex.badMinor = _protocolMinor;
+        ex.major = static_cast<unsigned char>(protocolMajor);
+        ex.minor = static_cast<unsigned char>(protocolMinor);
+        throw ex;
     }
     if(_encodingMajor != encodingMajor)
     {
-	UnsupportedEncodingException ex(__FILE__, __LINE__);
-	ex.badMajor = _encodingMajor;
-	ex.badMinor = _encodingMinor;
-	ex.major = static_cast<unsigned char>(encodingMajor);
-	ex.minor = static_cast<unsigned char>(encodingMinor);
-	throw ex;
+        UnsupportedEncodingException ex(__FILE__, __LINE__);
+        ex.badMajor = _encodingMajor;
+        ex.badMinor = _encodingMinor;
+        ex.major = static_cast<unsigned char>(encodingMajor);
+        ex.minor = static_cast<unsigned char>(encodingMinor);
+        throw ex;
     }
     // Not transmitted.
     //s->read(const_cast<bool&>(_connect));
@@ -335,28 +335,28 @@ IceInternal::UdpEndpointI::toString() const
 
     if(_protocolMajor != Byte(1) || _protocolMinor != Byte(0))
     {
-	s << " -v "
-	  << static_cast<unsigned>(static_cast<unsigned char>(_protocolMajor)) << "."
-	  << static_cast<unsigned>(static_cast<unsigned char>(_protocolMinor));
+        s << " -v "
+          << static_cast<unsigned>(static_cast<unsigned char>(_protocolMajor)) << "."
+          << static_cast<unsigned>(static_cast<unsigned char>(_protocolMinor));
     }
 
     if(_encodingMajor != Byte(1) || _encodingMinor != Byte(0))
     {
-	s << " -e "
-	  << static_cast<unsigned>(static_cast<unsigned char>(_encodingMajor)) << "."
-	  << static_cast<unsigned>(static_cast<unsigned char>(_encodingMinor));
+        s << " -e "
+          << static_cast<unsigned>(static_cast<unsigned char>(_encodingMajor)) << "."
+          << static_cast<unsigned>(static_cast<unsigned char>(_encodingMinor));
     }
 
     s << " -h " << _host << " -p " << _port;
 
     if(_connect)
     {
-	s << " -c";
+        s << " -c";
     }
 
     if(_compress)
     {
-	s << " -z";
+        s << " -z";
     }
 
     return s.str();
@@ -385,11 +385,11 @@ IceInternal::UdpEndpointI::connectionId(const string& connectionId) const
 {
     if(connectionId == _connectionId)
     {
-	return const_cast<UdpEndpointI*>(this);
+        return const_cast<UdpEndpointI*>(this);
     }
     else
     {
-	return new UdpEndpointI(_instance, _host, _port, _connect, connectionId, _compress, _publish);
+        return new UdpEndpointI(_instance, _host, _port, _connect, connectionId, _compress, _publish);
     }
 }
 
@@ -404,11 +404,11 @@ IceInternal::UdpEndpointI::compress(bool compress) const
 {
     if(compress == _compress)
     {
-	return const_cast<UdpEndpointI*>(this);
+        return const_cast<UdpEndpointI*>(this);
     }
     else
     {
-	return new UdpEndpointI(_instance, _host, _port, _connect, _connectionId, compress, _publish);
+        return new UdpEndpointI(_instance, _host, _port, _connect, _connectionId, compress, _publish);
     }
 }
 
@@ -487,7 +487,7 @@ IceInternal::UdpEndpointI::expand(bool server) const
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
             endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connect, _connectionId, _compress, 
-	    				     hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+                                             hosts.size() == 1 || hosts[i] != "127.0.0.1"));
         }
     }
     else
@@ -509,7 +509,7 @@ IceInternal::UdpEndpointI::equivalent(const TransceiverPtr& transceiver) const
     const UdpTransceiver* udpTransceiver = dynamic_cast<const UdpTransceiver*>(transceiver.get());
     if(!udpTransceiver)
     {
-	return false;
+        return false;
     }
     return udpTransceiver->equivalent(_host, _port);
 }
@@ -526,72 +526,72 @@ IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
     const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
     if(!p)
     {
-	return false;
+        return false;
     }
 
     if(this == p)
     {
-	return true;
+        return true;
     }
 
     if(_port != p->_port)
     {
-	return false;
+        return false;
     }
 
     if(_compress != p->_compress)
     {
-	return false;
+        return false;
     }
 
     if(_connectionId != p->_connectionId)
     {
-	return false;
+        return false;
     }
 
     if(_connect != p->_connect)
     {
-	return false;
+        return false;
     }
 
     if(_protocolMajor != p->_protocolMajor)
     {
-	return false;
+        return false;
     }
 
     if(_protocolMinor != p->_protocolMinor)
     {
-	return false;
+        return false;
     }
 
     if(_encodingMajor != p->_encodingMajor)
     {
-	return false;
+        return false;
     }
 
     if(_encodingMinor != p->_encodingMinor)
     {
-	return false;
+        return false;
     }
 
     if(_host != p->_host)
     {
-	//
-	// We do the most time-consuming part of the comparison last.
-	//
-	struct sockaddr_in laddr;
-	struct sockaddr_in raddr;
-	try
-	{
-	    getAddress(_host, _port, laddr);
-	    getAddress(p->_host, p->_port, raddr);
-	}
-	catch(const DNSException&)
-	{
-	    return false;
-	}
+        //
+        // We do the most time-consuming part of the comparison last.
+        //
+        struct sockaddr_in laddr;
+        struct sockaddr_in raddr;
+        try
+        {
+            getAddress(_host, _port, laddr);
+            getAddress(p->_host, p->_port, raddr);
+        }
+        catch(const DNSException&)
+        {
+            return false;
+        }
 
-	return compareAddress(laddr, raddr);
+        return compareAddress(laddr, raddr);
     }
 
     return true;
@@ -614,112 +614,112 @@ IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
 
     if(this == p)
     {
-	return false;
+        return false;
     }
 
     if(_port < p->_port)
     {
-	return true;
+        return true;
     }
     else if(p->_port < _port)
     {
-	return false;
+        return false;
     }
 
     if(_connectionId < p->_connectionId)
     {
-	return true;
+        return true;
     }
     else if(p->_connectionId < _connectionId)
     {
-	return false;
+        return false;
     }
 
     if(!_compress && p->_compress)
     {
-	return true;
+        return true;
     }
     else if(p->_compress < _compress)
     {
-	return false;
+        return false;
     }
 
     if(!_connect && p->_connect)
     {
-	return true;
+        return true;
     }
     else if(!p->_connect && _connect)
     {
-	return false;
+        return false;
     }
 
     if(_protocolMajor < p->_protocolMajor)
     {
-	return true;
+        return true;
     }
     else if(p->_protocolMajor < _protocolMajor)
     {
-	return false;
+        return false;
     }
 
     if(_protocolMinor < p->_protocolMinor)
     {
-	return true;
+        return true;
     }
     else if(p->_protocolMinor < _protocolMinor)
     {
-	return false;
+        return false;
     }
 
     if(_encodingMajor < p->_encodingMajor)
     {
-	return true;
+        return true;
     }
     else if(p->_encodingMajor < _encodingMajor)
     {
-	return false;
+        return false;
     }
 
     if(_encodingMinor < p->_encodingMinor)
     {
-	return true;
+        return true;
     }
     else if(p->_encodingMinor < _encodingMinor)
     {
-	return false;
+        return false;
     }
 
     if(_host != p->_host)
     {
-	//
-	// We do the most time-consuming part of the comparison last.
-	//
-	struct sockaddr_in laddr;
-	try
-	{
-	    getAddress(_host, _port, laddr);
-	}
-	catch(const DNSException&)
-	{
-	}
+        //
+        // We do the most time-consuming part of the comparison last.
+        //
+        struct sockaddr_in laddr;
+        try
+        {
+            getAddress(_host, _port, laddr);
+        }
+        catch(const DNSException&)
+        {
+        }
 
-	struct sockaddr_in raddr;
-	try
-	{
-	    getAddress(p->_host, p->_port, raddr);
-	}
-	catch(const DNSException&)
-	{
-	}
+        struct sockaddr_in raddr;
+        try
+        {
+            getAddress(p->_host, p->_port, raddr);
+        }
+        catch(const DNSException&)
+        {
+        }
 
-	if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-	{
-	    return true;
-	}
-	else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-	{
-	    return false;
-	}
+        if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+        {
+            return true;
+        }
+        else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+        {
+            return false;
+        }
     }
 
     return false;

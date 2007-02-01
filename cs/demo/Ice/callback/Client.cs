@@ -15,35 +15,35 @@ public class Client : Ice.Application
     private static void menu()
     {
         Console.Out.Write("usage:\n"
-	                  + "t: send callback as twoway\n"
-			  + "o: send callback as oneway\n"
-			  + "O: send callback as batch oneway\n"
-			  + "d: send callback as datagram\n"
-			  + "D: send callback as batch datagram\n"
-			  + "f: flush all batch requests");
-	if(_haveSSL)
-	{
-	    Console.Out.Write("\nS: switch secure mode on/off");
-	}
-	Console.Out.WriteLine("\ns: shutdown server\n"
-			      + "x: exit\n"
-			      + "?: help\n");
+                          + "t: send callback as twoway\n"
+                          + "o: send callback as oneway\n"
+                          + "O: send callback as batch oneway\n"
+                          + "d: send callback as datagram\n"
+                          + "D: send callback as batch datagram\n"
+                          + "f: flush all batch requests");
+        if(_haveSSL)
+        {
+            Console.Out.Write("\nS: switch secure mode on/off");
+        }
+        Console.Out.WriteLine("\ns: shutdown server\n"
+                              + "x: exit\n"
+                              + "?: help\n");
     }
     
     public override int run(string[] args)
     {
-	try
-	{
-	    communicator().getPluginManager().getPlugin("IceSSL");
-	    _haveSSL = true;
-	}
-	catch(Ice.NotRegisteredException)
-	{
-	}
+        try
+        {
+            communicator().getPluginManager().getPlugin("IceSSL");
+            _haveSSL = true;
+        }
+        catch(Ice.NotRegisteredException)
+        {
+        }
 
         CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
-	    communicator().propertyToProxy("Callback.Client.CallbackServer").
-	        ice_twoway().ice_timeout(-1).ice_secure(false));
+            communicator().propertyToProxy("Callback.Client.CallbackServer").
+                ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             Console.Error.WriteLine("invalid proxy");
@@ -59,12 +59,12 @@ public class Client : Ice.Application
         adapter.activate();
         
         CallbackReceiverPrx twowayR = CallbackReceiverPrxHelper.uncheckedCast(
-					adapter.createProxy(communicator().stringToIdentity("callbackReceiver")));
+                                        adapter.createProxy(communicator().stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(
-					twowayR.ice_oneway());
+                                        twowayR.ice_oneway());
         CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
         
-	bool secure = false;
+        bool secure = false;
 
         menu();
         
@@ -94,25 +94,25 @@ public class Client : Ice.Application
                 }
                 else if(line.Equals("d"))
                 {
-		    if(secure)
-		    {
-			Console.Out.WriteLine("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			datagram.initiateCallback(datagramR);
-		    }
+                    if(secure)
+                    {
+                        Console.Out.WriteLine("secure datagrams are not supported");
+                    }
+                    else
+                    {
+                        datagram.initiateCallback(datagramR);
+                    }
                 }
                 else if(line.Equals("D"))
                 {
-		    if(secure)
-		    {
-			Console.Out.WriteLine("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			batchDatagram.initiateCallback(datagramR);
-		    }
+                    if(secure)
+                    {
+                        Console.Out.WriteLine("secure datagrams are not supported");
+                    }
+                    else
+                    {
+                        batchDatagram.initiateCallback(datagramR);
+                    }
                 }
                 else if(line.Equals("f"))
                 {
@@ -120,27 +120,27 @@ public class Client : Ice.Application
                 }
                 else if(_haveSSL && line.Equals("S"))
                 {
-		    secure = !secure;
+                    secure = !secure;
 
-		    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-		    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-		    batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-		    datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-		    batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+                    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+                    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+                    batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+                    datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+                    batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 
-		    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
-		    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
-		    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
+                    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
+                    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
+                    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
 
-		    if(secure)
-		    {
-			Console.Out.WriteLine("secure mode is now on");
-		    }
-		    else
-		    {
-			Console.Out.WriteLine("secure mode is now off");
-		    }
-		}
+                    if(secure)
+                    {
+                        Console.Out.WriteLine("secure mode is now on");
+                    }
+                    else
+                    {
+                        Console.Out.WriteLine("secure mode is now off");
+                    }
+                }
                 else if(line.Equals("s"))
                 {
                     twoway.shutdown();
@@ -161,7 +161,7 @@ public class Client : Ice.Application
             }
             catch(System.Exception ex)
             {
-	    	Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
             }
         }
         while(!line.Equals("x"));

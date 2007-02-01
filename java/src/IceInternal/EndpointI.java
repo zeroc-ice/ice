@@ -27,7 +27,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     public String
     toString()
     {
-	return _toString();
+        return _toString();
     }
 
     //

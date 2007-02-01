@@ -16,7 +16,7 @@ using namespace Demo;
 class PrinterI : public Printer {
 public:
     virtual void printString(const string & s,
-			     const Ice::Current &);
+                             const Ice::Current &);
 };
 
 void 
@@ -32,29 +32,29 @@ main(int argc, char* argv[])
     int status = 0;
     Ice::CommunicatorPtr ic;
     try {
-	ic = Ice::initialize(argc, argv);
-	Ice::ObjectAdapterPtr adapter
-	    = ic->createObjectAdapterWithEndpoints(
-		"SimplePrinterAdapter", "default -p 10000");
-	Ice::ObjectPtr object = new PrinterI;
-	adapter->add(object,
-		     ic->stringToIdentity("SimplePrinter"));
-	adapter->activate();
-	ic->waitForShutdown();
+        ic = Ice::initialize(argc, argv);
+        Ice::ObjectAdapterPtr adapter
+            = ic->createObjectAdapterWithEndpoints(
+                "SimplePrinterAdapter", "default -p 10000");
+        Ice::ObjectPtr object = new PrinterI;
+        adapter->add(object,
+                     ic->stringToIdentity("SimplePrinter"));
+        adapter->activate();
+        ic->waitForShutdown();
     } catch (const Ice::Exception & e) {
-	cerr << e << endl;
-	status = 1;
+        cerr << e << endl;
+        status = 1;
     } catch (const char * msg) {
-	cerr << msg << endl;
-	status = 1;
+        cerr << msg << endl;
+        status = 1;
     }
     if (ic) {
         try {
-	    ic->destroy();
-	} catch (const Ice::Exception & e) {
-	    cerr << e << endl;
-	    status = 1;
-	}
+            ic->destroy();
+        } catch (const Ice::Exception & e) {
+            cerr << e << endl;
+            status = 1;
+        }
     }
     return status;
 }

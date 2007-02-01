@@ -20,7 +20,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 public:
 
     SessionKeepAliveThread(const IceGrid::SessionPrx& session, long timeout) :
-	_session(session),
+        _session(session),
         _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
     {
@@ -35,15 +35,15 @@ public:
             timedWait(_timeout);
             if(_destroy)
             {
-	        break;
-	    }
+                break;
+            }
             try
             {
                 _session->keepAlive();
             }
             catch(const Ice::Exception&)
             {
-		break;
+                break;
             }
         }
     }
@@ -102,7 +102,7 @@ HelloClient::run(int argc, char* argv[])
     callbackOnInterrupt();
 
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-	communicator()->stringToProxy("DemoIceGrid/Registry"));
+        communicator()->stringToProxy("DemoIceGrid/Registry"));
     if(!registry)
     {
         cerr << argv[0] << ": could not contact registry" << endl;
@@ -111,101 +111,101 @@ HelloClient::run(int argc, char* argv[])
 
     while(true)
     {
-	cout << "This demo accepts any user-id / password combination.\n";
+        cout << "This demo accepts any user-id / password combination.\n";
 
-	string id;
-	cout << "user id: " << flush;
-	getline(cin, id);
-	id = trim(id);
+        string id;
+        cout << "user id: " << flush;
+        getline(cin, id);
+        id = trim(id);
 
-	string password;
-	cout << "password: " << flush;
-	getline(cin, password);
-	password = trim(password);
+        string password;
+        cout << "password: " << flush;
+        getline(cin, password);
+        password = trim(password);
 
-	try
-	{
-	    IceUtil::Mutex::Lock sync(_mutex);
-	    _session = registry->createSession(id, password);
- 	    break;
-	}
-	catch(const IceGrid::PermissionDeniedException& ex)
-	{
-	    cout << "permission denied:\n" << ex.reason << endl;
-	}
+        try
+        {
+            IceUtil::Mutex::Lock sync(_mutex);
+            _session = registry->createSession(id, password);
+            break;
+        }
+        catch(const IceGrid::PermissionDeniedException& ex)
+        {
+            cout << "permission denied:\n" << ex.reason << endl;
+        }
     }
 
     {
-	IceUtil::Mutex::Lock sync(_mutex);
-	_keepAlive = new SessionKeepAliveThread(_session, registry->getSessionTimeout() / 2);
-	_keepAlive->start();
+        IceUtil::Mutex::Lock sync(_mutex);
+        _keepAlive = new SessionKeepAliveThread(_session, registry->getSessionTimeout() / 2);
+        _keepAlive->start();
     }
 
     try
     {
-	//
-	// First try to retrieve object by identity, which will work
-	// if the application-single.xml descriptor is used. Otherwise
-	// we retrieve object by type, which will succeed if the
-	// application-multiple.xml descriptor is used.
-	//
-	HelloPrx hello;
-	try
-	{
-	    hello = HelloPrx::checkedCast(_session->allocateObjectById(communicator()->stringToIdentity("hello")));
-	}
-	catch(const IceGrid::ObjectNotRegisteredException&)
-	{
-	    hello = HelloPrx::checkedCast(_session->allocateObjectByType("::Demo::Hello"));
-	}
-	
-	menu();
-	
-	char c;
-	do
-	{
-	    try
-	    {
-		cout << "==> ";
-		cin >> c;
-		if(c == 't')
-		{
-		    hello->sayHello();
-		}
-		else if(c == 's')
-		{
-		    hello->shutdown();
-		}
-		else if(c == 'x')
-		{
-		    // Nothing to do
-		}
-		else if(c == '?')
-		{
-		    menu();
-		}
-		else
-		{
-		    cout << "unknown command `" << c << "'" << endl;
-		    menu();
-		}
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-		cerr << ex << endl;
-	    }
-	}
-	while(cin.good() && c != 'x');
+        //
+        // First try to retrieve object by identity, which will work
+        // if the application-single.xml descriptor is used. Otherwise
+        // we retrieve object by type, which will succeed if the
+        // application-multiple.xml descriptor is used.
+        //
+        HelloPrx hello;
+        try
+        {
+            hello = HelloPrx::checkedCast(_session->allocateObjectById(communicator()->stringToIdentity("hello")));
+        }
+        catch(const IceGrid::ObjectNotRegisteredException&)
+        {
+            hello = HelloPrx::checkedCast(_session->allocateObjectByType("::Demo::Hello"));
+        }
+        
+        menu();
+        
+        char c;
+        do
+        {
+            try
+            {
+                cout << "==> ";
+                cin >> c;
+                if(c == 't')
+                {
+                    hello->sayHello();
+                }
+                else if(c == 's')
+                {
+                    hello->shutdown();
+                }
+                else if(c == 'x')
+                {
+                    // Nothing to do
+                }
+                else if(c == '?')
+                {
+                    menu();
+                }
+                else
+                {
+                    cout << "unknown command `" << c << "'" << endl;
+                    menu();
+                }
+            }
+            catch(const Ice::Exception& ex)
+            {
+                cerr << ex << endl;
+            }
+        }
+        while(cin.good() && c != 'x');
     }
     catch(const IceGrid::AllocationException& ex)
     {
-	cerr << argv[0] << ": could not allocate object: " << ex.reason << endl;
-	status = EXIT_FAILURE;
+        cerr << argv[0] << ": could not allocate object: " << ex.reason << endl;
+        status = EXIT_FAILURE;
     }
     catch(...)
     {
-	cerr << "unexpected exception" << endl;
-	status = EXIT_FAILURE;
+        cerr << "unexpected exception" << endl;
+        status = EXIT_FAILURE;
     }
 
     cleanup();
@@ -219,15 +219,15 @@ HelloClient::interruptCallback(int)
 
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }
@@ -243,14 +243,14 @@ HelloClient::cleanup()
     //
     if(_keepAlive)
     {
-	_keepAlive->destroy();
-	_keepAlive->getThreadControl().join();
-	_keepAlive = 0;
+        _keepAlive->destroy();
+        _keepAlive->getThreadControl().join();
+        _keepAlive = 0;
     }
     if(_session)
     {
-	_session->destroy();
-	_session = 0;
+        _session->destroy();
+        _session = 0;
     }
 }
 
@@ -258,11 +258,11 @@ void
 HelloClient::menu()
 {
     cout <<
-	"usage:\n"
-	"t: send greeting\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+        "usage:\n"
+        "t: send greeting\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: help\n";
 }
 
 string

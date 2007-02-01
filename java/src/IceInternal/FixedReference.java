@@ -13,14 +13,14 @@ public class FixedReference extends Reference
 {
     public
     FixedReference(Instance inst,
-		   Ice.Communicator com,
-    		   Ice.Identity ident,
-		   java.util.Map ctx,
-		   String fs,
-		   int md,
-		   Ice.ConnectionI[] fixedConns)
+                   Ice.Communicator com,
+                   Ice.Identity ident,
+                   java.util.Map ctx,
+                   String fs,
+                   int md,
+                   Ice.ConnectionI[] fixedConns)
     {
-    	super(inst, com, ident, ctx, fs, md);
+        super(inst, com, ident, ctx, fs, md);
         _fixedConnections = fixedConns;
     }
 
@@ -33,19 +33,19 @@ public class FixedReference extends Reference
     public boolean
     getSecure()
     {
-	return false;
+        return false;
     }
 
     public boolean
     getPreferSecure()
     {
-	return false;
+        return false;
     }
 
     public String
     getAdapterId()
     {
-	return "";
+        return "";
     }
 
     public EndpointI[]
@@ -63,19 +63,19 @@ public class FixedReference extends Reference
     public int
     getLocatorCacheTimeout()
     {
-	return 0;
+        return 0;
     }
 
     public final boolean
     getCacheConnection()
     {
-	return false;
+        return false;
     }
 
     public final Ice.EndpointSelectionType
     getEndpointSelection()
     {
-	return Ice.EndpointSelectionType.Random;
+        return Ice.EndpointSelectionType.Random;
     }
 
     public boolean
@@ -87,61 +87,61 @@ public class FixedReference extends Reference
     public Reference
     changeSecure(boolean sec)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changePreferSecure(boolean prefSec)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeCollocationOptimization(boolean newCollocationOptimization)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeAdapterId(String newAdapterId)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeEndpoints(EndpointI[] newEndpoints)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeLocatorCacheTimeout(int newTimeout)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public final Reference
     changeCacheConnection(boolean newCache)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public final Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public final Reference
@@ -153,74 +153,74 @@ public class FixedReference extends Reference
     public Reference
     changeCompress(boolean newCompress)
     {
-	// TODO: FixedReferences should probably have a _compress flag,
-	// that gets its default from the fixed connection this reference
-	// refers to. This should be changable with changeCompress().
-	throw new Ice.FixedProxyException();
+        // TODO: FixedReferences should probably have a _compress flag,
+        // that gets its default from the fixed connection this reference
+        // refers to. This should be changable with changeCompress().
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeConnectionId(String connectionId)
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public void
     streamWrite(BasicStream s)
-	throws Ice.MarshalException
+        throws Ice.MarshalException
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public String
     toString()
-	throws Ice.MarshalException
+        throws Ice.MarshalException
     {
-	throw new Ice.FixedProxyException();
+        throw new Ice.FixedProxyException();
     }
 
     public Ice.ConnectionI
     getConnection(Ice.BooleanHolder compress)
     {
         Ice.ConnectionI[] filteredConns = filterConnections(_fixedConnections);
-	if(filteredConns.length == 0)
-	{
-	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
-	    ex.proxy = ""; // No stringified representation for fixed proxies.
-	    throw ex;
-	}
+        if(filteredConns.length == 0)
+        {
+            Ice.NoEndpointException ex = new Ice.NoEndpointException();
+            ex.proxy = ""; // No stringified representation for fixed proxies.
+            throw ex;
+        }
 
-	Ice.ConnectionI connection = filteredConns[0];
-	assert(connection != null);
-	connection.throwException(); // Throw in case our connection is already destroyed.
-	compress.value = connection.endpoint().compress();
+        Ice.ConnectionI connection = filteredConns[0];
+        assert(connection != null);
+        connection.throwException(); // Throw in case our connection is already destroyed.
+        compress.value = connection.endpoint().compress();
 
-	return connection;
+        return connection;
     }
 
     public boolean
     equals(java.lang.Object obj)
     {
         if(this == obj)
-	{
-	    return true;
-	}
-	if(!(obj instanceof FixedReference))
-	{
-	    return false;
-	}
+        {
+            return true;
+        }
+        if(!(obj instanceof FixedReference))
+        {
+            return false;
+        }
         FixedReference rhs = (FixedReference)obj;
         if(!super.equals(rhs))
         {
             return false;
         }
-	return java.util.Arrays.equals(_fixedConnections, rhs._fixedConnections);
+        return java.util.Arrays.equals(_fixedConnections, rhs._fixedConnections);
     }
 
     //
@@ -281,8 +281,8 @@ public class FixedReference extends Reference
         // partitioning the endpoint vector, so that non-secure
         // endpoints come first.
         //
-	DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-	if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
+        DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
+        if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
         {
             java.util.Iterator i = connections.iterator();
             while(i.hasNext())
@@ -306,26 +306,26 @@ public class FixedReference extends Reference
 
     static class ConnectionComparator implements java.util.Comparator
     {
-	public int
-	compare(java.lang.Object l, java.lang.Object r)
-	{
-	    Ice.ConnectionI lc = (Ice.ConnectionI)l;
-	    Ice.ConnectionI rc = (Ice.ConnectionI)r;
-	    boolean ls = lc.endpoint().secure();
-	    boolean rs = rc.endpoint().secure();
-	    if((ls && rs) || (!ls && !rs))
-	    {
-		return 0;
-	    }
-	    else if(!ls && rs)
-	    {
-		return -1;
-	    }
-	    else
-	    {
-		return 1;
-	    }
-	}
+        public int
+        compare(java.lang.Object l, java.lang.Object r)
+        {
+            Ice.ConnectionI lc = (Ice.ConnectionI)l;
+            Ice.ConnectionI rc = (Ice.ConnectionI)r;
+            boolean ls = lc.endpoint().secure();
+            boolean rs = rc.endpoint().secure();
+            if((ls && rs) || (!ls && !rs))
+            {
+                return 0;
+            }
+            else if(!ls && rs)
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
     }
     
     private static ConnectionComparator _connectionComparator = new ConnectionComparator();

@@ -20,12 +20,12 @@ FileParserI::parse(const string& file, const AdminPrx& admin, const Ice::Current
 {
     try
     {
-	return DescriptorParser::parseDescriptor(file, Ice::StringSeq(), map<string, string>(),
-						 current.adapter->getCommunicator(), admin);
+        return DescriptorParser::parseDescriptor(file, Ice::StringSeq(), map<string, string>(),
+                                                 current.adapter->getCommunicator(), admin);
     }
     catch(const IceXML::ParserException& e)
     {
-	throw ParseException(e.reason());
+        throw ParseException(e.reason());
         return ApplicationDescriptor();
     }
 }

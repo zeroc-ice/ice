@@ -36,7 +36,7 @@ nodeOptions = r' --Ice.Warn.Connections=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
               r' --Ice.OA.IceGrid.Node.ThreadPool.SizeWarn=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
-	      r' --Ice.NullHandleAbort' + \
+              r' --Ice.NullHandleAbort' + \
               r' --Ice.ThreadPool.Server.Size=0' + \
               r' --Ice.ServerIdleTime=0';
 
@@ -83,10 +83,10 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
     i = 0
     while i < (nreplicas + 1):
 
-	if i == 0:
+        if i == 0:
             name = "registry"
-	else:
-	    name = "replica-" + str(i)
+        else:
+            name = "replica-" + str(i)
 
         dataDir = os.path.join(testdir, "db", name)
         if not os.path.exists(dataDir):
@@ -101,10 +101,10 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
               r' --IceGrid.Registry.Data=' + dataDir
 
         if i > 0:
-	    cmd += r' --IceGrid.Registry.ReplicaName=' + name + ' ' + getDefaultLocatorProperty()
+            cmd += r' --IceGrid.Registry.ReplicaName=' + name + ' ' + getDefaultLocatorProperty()
 
         if TestUtil.debug:
-	    print "(" + cmd + ")",
+            print "(" + cmd + ")",
 
         pipe = os.popen(cmd + " 2>&1")
         TestUtil.getServerPid(pipe)
@@ -137,7 +137,7 @@ def startIceGridNode(testdir):
         cleanDbDir(dataDir)
 
     overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
+                      ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"'
 
     print "starting icegrid node...",
     command = iceGrid + TestUtil.clientServerOptions + ' --nowarn ' + nodeOptions + \
@@ -164,7 +164,7 @@ def iceGridAdmin(cmd, ignoreFailure = False):
 
     user = r"admin1"
     if cmd == "registry shutdown":
-	user = r"shutdown"
+        user = r"shutdown"
     command = iceGridAdmin + TestUtil.clientOptions + ' ' + getDefaultLocatorProperty() + \
               r" --IceGridAdmin.Username=" + user + " --IceGridAdmin.Password=test1 " + \
               r' -e "' + cmd + '"'
@@ -303,11 +303,11 @@ def cleanDbDir(path):
             fullpath = os.path.join(path, filename);
             if os.path.isdir(fullpath):
                 cleanDbDir(fullpath)
-		try:
-		    os.rmdir(fullpath)
-		except OSError:
-		    # This might fail if the directory is empty (because it itself is
-		    # a CVS directory).
-		    pass
+                try:
+                    os.rmdir(fullpath)
+                except OSError:
+                    # This might fail if the directory is empty (because it itself is
+                    # a CVS directory).
+                    pass
             else:
                 os.remove(fullpath)

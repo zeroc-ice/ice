@@ -19,7 +19,7 @@ class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     CallbackBase() :
-	_called(false)
+        _called(false)
     {
     }
 
@@ -29,26 +29,26 @@ public:
 
     bool check()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while(!_called)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(30)))
-	    {
-		return false;
-	    }
-	}
-	_called = false;
-	return true;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        while(!_called)
+        {
+            if(!timedWait(IceUtil::Time::seconds(30)))
+            {
+                return false;
+            }
+        }
+        _called = false;
+        return true;
     }
 
 protected:
 
     void called()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(!_called);
-	_called = true;
-	notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        assert(!_called);
+        _called = true;
+        notify();
     }
 
 private:
@@ -62,18 +62,18 @@ public:
 
     virtual void ice_response(Ice::Int pid)
     {
-	_pid = pid;
-	called();
+        _pid = pid;
+        called();
     }
 
     virtual void ice_exception(const Ice::Exception& ex)
     {
-	test(false);
+        test(false);
     }
 
     Ice::Int pid() const
     {
-	return _pid;
+        return _pid;
     }
 
 private:
@@ -89,12 +89,12 @@ public:
 
     virtual void ice_response()
     {
-	called();
+        called();
     }
 
     virtual void ice_exception(const Ice::Exception&)
     {
-	test(false);
+        test(false);
     }
 };
 
@@ -106,27 +106,27 @@ public:
 
     virtual void ice_response()
     {
-	test(false);
+        test(false);
     }
 
     virtual void ice_exception(const Ice::Exception& ex)
     {
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const Ice::ConnectionLostException&)
-	{
-	}
-	catch(const Ice::ConnectFailedException&)
-	{
-	}
-	catch(Ice::Exception& ex)
-	{
-	    cout << ex << endl;
-	    test(false);
-	}
-	called();
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::ConnectionLostException&)
+        {
+        }
+        catch(const Ice::ConnectFailedException&)
+        {
+        }
+        catch(Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            test(false);
+        }
+        called();
     }
 };
 
@@ -136,27 +136,27 @@ class AMI_Test_idempotentAbortI : public AMI_TestIntf_idempotentAbort, public Ca
 {
     virtual void ice_response()
     {
-	test(false);
+        test(false);
     }
 
     virtual void ice_exception(const Ice::Exception& ex)
     {
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const Ice::ConnectionLostException&)
-	{
-	}
-	catch(const Ice::ConnectFailedException&)
-	{
-	}
-	catch(Ice::Exception& ex)
-	{
-	    cout << ex << endl;
-	    test(false);
-	}
-	called();
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Ice::ConnectionLostException&)
+        {
+        }
+        catch(const Ice::ConnectFailedException&)
+        {
+        }
+        catch(Ice::Exception& ex)
+        {
+            cout << ex << endl;
+            test(false);
+        }
+        called();
     }
 };
 
@@ -170,7 +170,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     ref << "test";
     for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
-	ref << ":default -t 60000 -p " << *p;
+        ref << ":default -t 60000 -p " << *p;
     }
     Ice::ObjectPrx base = communicator->stringToProxy(ref.str());
     test(base);
@@ -186,121 +186,121 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     bool ami = false;
     for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, ++j)
     {
-	if(j > 3)
-	{
-	    j = 0;
-	    ami = !ami;
-	}
+        if(j > 3)
+        {
+            j = 0;
+            ami = !ami;
+        }
 
-	if(!ami)
-	{
-	    cout << "testing server #" << i << "... " << flush;
-	    int pid = obj->pid();
-	    test(pid != oldPid);
-	    cout << "ok" << endl;
-	    oldPid = pid;
-	}
-	else
-	{
-	    cout << "testing server #" << i << " with AMI... " << flush;
-	    AMI_Test_pidIPtr cb = new AMI_Test_pidI();
-	    obj->pid_async(cb);
-	    test(cb->check());
-	    int pid = cb->pid();
-	    test(pid != oldPid);
-	    cout << "ok" << endl;
-	    oldPid = pid;
-	}
+        if(!ami)
+        {
+            cout << "testing server #" << i << "... " << flush;
+            int pid = obj->pid();
+            test(pid != oldPid);
+            cout << "ok" << endl;
+            oldPid = pid;
+        }
+        else
+        {
+            cout << "testing server #" << i << " with AMI... " << flush;
+            AMI_Test_pidIPtr cb = new AMI_Test_pidI();
+            obj->pid_async(cb);
+            test(cb->check());
+            int pid = cb->pid();
+            test(pid != oldPid);
+            cout << "ok" << endl;
+            oldPid = pid;
+        }
 
-	if(j == 0)
-	{
-	    if(!ami)
-	    {
-		cout << "shutting down server #" << i << "... " << flush;
-		obj->shutdown();
-		cout << "ok" << endl;
-	    }
-	    else
-	    {
-		cout << "shutting down server #" << i << " with AMI... " << flush;
-		AMI_Test_shutdownIPtr cb = new AMI_Test_shutdownI;
-		obj->shutdown_async(cb);
-		test(cb->check());
-		cout << "ok" << endl;
-	    }
-	}
-	else if(j == 1 || i + 1 > ports.size())
-	{
-	    if(!ami)
-	    {
-		cout << "aborting server #" << i << "... " << flush;
-		try
-		{
-		    obj->abort();
-		    test(false);
-		}
-		catch(const Ice::ConnectionLostException&)
-		{
-		    cout << "ok" << endl;
-		}
-		catch(const Ice::ConnectFailedException&)
-		{
-		    cout << "ok" << endl;
-		}
-	    }
-	    else
-	    {
-		cout << "aborting server #" << i << " with AMI... " << flush;
-		AMI_Test_abortIPtr cb = new AMI_Test_abortI;
-		obj->abort_async(cb);
-		test(cb->check());
-		cout << "ok" << endl;
-	    }
-	}
-	else if(j == 2 || j == 3)
-	{
-	    if(!ami)
-	    {
-		cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent call... " << flush;
-		try
-		{
-		    obj->idempotentAbort();
-		    test(false);
-		}
-		catch(const Ice::ConnectionLostException&)
-		{
-		    cout << "ok" << endl;
-		}
-		catch(const Ice::ConnectFailedException&)
-		{
-		    cout << "ok" << endl;
-		}
-	    }
-	    else
-	    {
-		cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
-		AMI_Test_idempotentAbortIPtr cb = new AMI_Test_idempotentAbortI;
-		obj->idempotentAbort_async(cb);
-		test(cb->check());
-		cout << "ok" << endl;
-	    }
+        if(j == 0)
+        {
+            if(!ami)
+            {
+                cout << "shutting down server #" << i << "... " << flush;
+                obj->shutdown();
+                cout << "ok" << endl;
+            }
+            else
+            {
+                cout << "shutting down server #" << i << " with AMI... " << flush;
+                AMI_Test_shutdownIPtr cb = new AMI_Test_shutdownI;
+                obj->shutdown_async(cb);
+                test(cb->check());
+                cout << "ok" << endl;
+            }
+        }
+        else if(j == 1 || i + 1 > ports.size())
+        {
+            if(!ami)
+            {
+                cout << "aborting server #" << i << "... " << flush;
+                try
+                {
+                    obj->abort();
+                    test(false);
+                }
+                catch(const Ice::ConnectionLostException&)
+                {
+                    cout << "ok" << endl;
+                }
+                catch(const Ice::ConnectFailedException&)
+                {
+                    cout << "ok" << endl;
+                }
+            }
+            else
+            {
+                cout << "aborting server #" << i << " with AMI... " << flush;
+                AMI_Test_abortIPtr cb = new AMI_Test_abortI;
+                obj->abort_async(cb);
+                test(cb->check());
+                cout << "ok" << endl;
+            }
+        }
+        else if(j == 2 || j == 3)
+        {
+            if(!ami)
+            {
+                cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent call... " << flush;
+                try
+                {
+                    obj->idempotentAbort();
+                    test(false);
+                }
+                catch(const Ice::ConnectionLostException&)
+                {
+                    cout << "ok" << endl;
+                }
+                catch(const Ice::ConnectFailedException&)
+                {
+                    cout << "ok" << endl;
+                }
+            }
+            else
+            {
+                cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
+                AMI_Test_idempotentAbortIPtr cb = new AMI_Test_idempotentAbortI;
+                obj->idempotentAbort_async(cb);
+                test(cb->check());
+                cout << "ok" << endl;
+            }
 
-	    ++i;
-	}
-	else
-	{
-	    assert(false);
-	}
+            ++i;
+        }
+        else
+        {
+            assert(false);
+        }
     }
 
     cout << "testing whether all servers are gone... " << flush;
     try
     {
-	obj->ice_ping();
-	test(false);
+        obj->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 }

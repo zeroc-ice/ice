@@ -47,7 +47,7 @@ interface Registry
      *
      **/
     Session* createSession(string userId, string password)
-	throws PermissionDeniedException;
+        throws PermissionDeniedException;
 
     /**
      *
@@ -68,7 +68,7 @@ interface Registry
      *
      **/
     AdminSession* createAdminSession(string userId, string password)
-	throws PermissionDeniedException;
+        throws PermissionDeniedException;
 
     /**
      *
@@ -89,7 +89,7 @@ interface Registry
      *
      **/
     Session* createSessionFromSecureConnection()
-	throws PermissionDeniedException;
+        throws PermissionDeniedException;
 
     /**
      *
@@ -106,7 +106,7 @@ interface Registry
      *
      **/
     AdminSession* createAdminSessionFromSecureConnection()
-	throws PermissionDeniedException;
+        throws PermissionDeniedException;
 
     /**
      *

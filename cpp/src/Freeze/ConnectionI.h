@@ -43,7 +43,7 @@ public:
     virtual ~ConnectionI();
 
     ConnectionI(const Ice::CommunicatorPtr& communicator, 
-		const std::string& envName, DbEnv*);
+                const std::string& envName, DbEnv*);
 
     void
     closeAllIterators();
@@ -101,11 +101,11 @@ ConnectionI::dbTxn() const
 {
     if(_transaction == 0)
     {
-	return 0;
+        return 0;
     }
     else
     {
-	return _transaction->dbTxn();
+        return _transaction->dbTxn();
     }
 }
 

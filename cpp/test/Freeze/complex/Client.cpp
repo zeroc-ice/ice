@@ -32,22 +32,22 @@ validate(const Complex::ComplexDict& m)
     Parser myParser;
     for(p = m.begin(); p != m.end(); ++p)
     {
-	//
-	// Verify the stored record is correct.
-	//
+        //
+        // Verify the stored record is correct.
+        //
         // COMPILERFIX: VC.NET reports an unhandled
         // exception if the test is written this way:
         //
-	//test(p->first.result == p->second->calc());
+        //test(p->first.result == p->second->calc());
         //
         Complex::NodePtr n = p->second;
-	test(p->first.result == n->calc());
+        test(p->first.result == n->calc());
 
-	//
-	// Verify that the expression & result again.
-	//
-	Complex::NodePtr root = myParser.parse(p->first.expression);
-	test(root->calc() == p->first.result);
+        //
+        // Verify that the expression & result again.
+        //
+        Complex::NodePtr root = myParser.parse(p->first.expression);
+        test(root->calc() == p->first.result);
     }
     cout << "ok" << endl;
 
@@ -71,12 +71,12 @@ populate(Complex::ComplexDict& m)
     Parser myParser;
     for(size_t i = 0 ; i < nexpressions; ++i)
     {
-	Complex::NodePtr root = myParser.parse(expressions[i]);
-	assert(root);
-	Complex::Key k;
-	k.expression = expressions[i];
-	k.result = root->calc();
-	m.put(pair<const Complex::Key, const Complex::NodePtr>(k, root));
+        Complex::NodePtr root = myParser.parse(expressions[i]);
+        assert(root);
+        Complex::Key k;
+        k.expression = expressions[i];
+        k.result = root->calc();
+        m.put(pair<const Complex::Key, const Complex::NodePtr>(k, root));
     }
     cout << "ok" << endl;
 
@@ -87,8 +87,8 @@ static void
 usage(const char* name)
 {
     cerr << "Usage: " << name << " [options] validate|populate\n";
-    cerr <<	
-	"Options:\n"
+    cerr <<     
+        "Options:\n"
         "--dbdir           Location of the database directory.\n";
 }
 
@@ -105,11 +105,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, Complex::C
 
     if(argc > 1 && strcmp(argv[1], "populate") == 0)
     {
-	return populate(m);
+        return populate(m);
     }
     if(argc > 1 && strcmp(argv[1], "validate") == 0)
     {
-	return validate(m);
+        return validate(m);
     }
     usage(argv[0]);
 
@@ -126,59 +126,59 @@ main(int argc, char* argv[])
 
     try
     {
-	//
-	// Scan for --dbdir command line argument.
-	//
-	int i = 1;
-	while(i < argc)
-	{
-	    if(strcmp(argv[i], "--dbdir") == 0)
-	    {
-		if(i +1 >= argc)
-		{
-		    usage(argv[0]);
-		    return EXIT_FAILURE;
-		}
+        //
+        // Scan for --dbdir command line argument.
+        //
+        int i = 1;
+        while(i < argc)
+        {
+            if(strcmp(argv[i], "--dbdir") == 0)
+            {
+                if(i +1 >= argc)
+                {
+                    usage(argv[0]);
+                    return EXIT_FAILURE;
+                }
 
-		envName = argv[i+1];
-		envName += "/";
-		envName += "db";
+                envName = argv[i+1];
+                envName += "/";
+                envName += "db";
 
-		//
-		// Consume arguments
-		//
-		while(i < argc - 2)
-		{
-		    argv[i] = argv[i+2];
-		    ++i;
-		}
-		argc -= 2;
-	    }
-	    else
-	    {
-		++i;
-	    }
-	}
+                //
+                // Consume arguments
+                //
+                while(i < argc - 2)
+                {
+                    argv[i] = argv[i+2];
+                    ++i;
+                }
+                argc -= 2;
+            }
+            else
+            {
+                ++i;
+            }
+        }
 
-	communicator = Ice::initialize(argc, argv);
-	Freeze::ConnectionPtr connection = createConnection(communicator, envName);
-	Complex::ComplexDict m(connection, "test");
-	status = run(argc, argv, communicator, m);
+        communicator = Ice::initialize(argc, argv);
+        Freeze::ConnectionPtr connection = createConnection(communicator, envName);
+        Complex::ComplexDict m(connection, "test");
+        status = run(argc, argv, communicator, m);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     try
     {
-	communicator->destroy();
+        communicator->destroy();
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     return status;

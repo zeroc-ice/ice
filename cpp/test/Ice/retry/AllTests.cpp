@@ -19,7 +19,7 @@ class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     CallbackBase() :
-	_called(false)
+        _called(false)
     {
     }
 
@@ -29,26 +29,26 @@ public:
 
     bool check()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	while(!_called)
-	{
-	    if(!timedWait(IceUtil::Time::seconds(5)))
-	    {
-		return false;
-	    }
-	}
-	_called = false;
-	return true;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        while(!_called)
+        {
+            if(!timedWait(IceUtil::Time::seconds(5)))
+            {
+                return false;
+            }
+        }
+        _called = false;
+        return true;
     }
 
 protected:
 
     void called()
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	assert(!_called);
-	_called = true;
-	notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        assert(!_called);
+        _called = true;
+        notify();
     }
 
 private:
@@ -62,12 +62,12 @@ public:
 
     virtual void ice_response()
     {
-	called();
+        called();
     }
 
     virtual void ice_exception(const ::Ice::Exception&)
     {
-	test(false);
+        test(false);
     }
 };
 
@@ -79,13 +79,13 @@ public:
 
     virtual void ice_response()
     {
-	test(false);
+        test(false);
     }
 
     virtual void ice_exception(const ::Ice::Exception& ex)
     {
-	test(dynamic_cast<const Ice::ConnectionLostException*>(&ex));
-	called();
+        test(dynamic_cast<const Ice::ConnectionLostException*>(&ex));
+        called();
     }
 };
 
@@ -118,12 +118,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "calling operation to kill connection with second proxy... " << flush;
     try
     {
-	retry2->op(true);
-	test(false);
+        retry2->op(true);
+        test(false);
     }
     catch(Ice::ConnectionLostException)
     {
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 
     cout << "calling regular operation with first proxy again... " << flush;

@@ -32,7 +32,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "changing state between active and hold rapidly... " << flush;
     for(int i = 0; i < 100; ++i)
     {
-	hold->putOnHold(0);
+        hold->putOnHold(0);
     }
     cout << "ok" << endl;
 

@@ -36,11 +36,11 @@ IceRuby_Logger_print(VALUE self, VALUE message)
 {
     ICE_RUBY_TRY
     {
-	Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string msg = getString(message);
-	(*p)->print(msg);
+        string msg = getString(message);
+        (*p)->print(msg);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -52,12 +52,12 @@ IceRuby_Logger_trace(VALUE self, VALUE category, VALUE message)
 {
     ICE_RUBY_TRY
     {
-	Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string cat = getString(category);
-	string msg = getString(message);
-	(*p)->trace(cat, msg);
+        string cat = getString(category);
+        string msg = getString(message);
+        (*p)->trace(cat, msg);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -69,11 +69,11 @@ IceRuby_Logger_warning(VALUE self, VALUE message)
 {
     ICE_RUBY_TRY
     {
-	Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string msg = getString(message);
-	(*p)->warning(msg);
+        string msg = getString(message);
+        (*p)->warning(msg);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -85,11 +85,11 @@ IceRuby_Logger_error(VALUE self, VALUE message)
 {
     ICE_RUBY_TRY
     {
-	Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::LoggerPtr* p = reinterpret_cast<Ice::LoggerPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string msg = getString(message);
-	(*p)->error(msg);
+        string msg = getString(message);
+        (*p)->error(msg);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -101,8 +101,8 @@ IceRuby_getProcessLogger()
 {
     ICE_RUBY_TRY
     {
-	Ice::LoggerPtr logger = Ice::getProcessLogger();
-	return createLogger(logger);
+        Ice::LoggerPtr logger = Ice::getProcessLogger();
+        return createLogger(logger);
     }
     ICE_RUBY_CATCH
     return Qnil;

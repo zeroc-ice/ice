@@ -12,7 +12,7 @@ namespace IceInternal
 
     public interface Connector
     {
-	Transceiver connect(int timeout);
+        Transceiver connect(int timeout);
     }
 
 }

@@ -22,12 +22,12 @@ public:
     virtual void SBaseAsObject_async(const ::Test::AMD_TestIntf_SBaseAsObjectPtr&, const ::Ice::Current&);
     virtual void SBaseAsSBase_async(const ::Test::AMD_TestIntf_SBaseAsSBasePtr&, const ::Ice::Current&);
     virtual void SBSKnownDerivedAsSBase_async(const ::Test::AMD_TestIntf_SBSKnownDerivedAsSBasePtr&,
-					      const ::Ice::Current&);
+                                              const ::Ice::Current&);
     virtual void SBSKnownDerivedAsSBSKnownDerived_async(const ::Test::AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerivedPtr&,
-	                                                const ::Ice::Current&);
+                                                        const ::Ice::Current&);
 
     virtual void SBSUnknownDerivedAsSBase_async(const ::Test::AMD_TestIntf_SBSUnknownDerivedAsSBasePtr&,
-	                                        const ::Ice::Current&);
+                                                const ::Ice::Current&);
 
     virtual void SUnknownAsObject_async(const ::Test::AMD_TestIntf_SUnknownAsObjectPtr&, const ::Ice::Current&);
 
@@ -46,20 +46,20 @@ public:
     virtual void returnTest1_async(const ::Test::AMD_TestIntf_returnTest1Ptr&, const ::Ice::Current&);
     virtual void returnTest2_async(const ::Test::AMD_TestIntf_returnTest2Ptr&, const ::Ice::Current&);
     virtual void returnTest3_async(const ::Test::AMD_TestIntf_returnTest3Ptr&, const ::Test::BPtr&, const ::Test::BPtr&,
-				   const ::Ice::Current&);
+                                   const ::Ice::Current&);
 
     virtual void sequenceTest_async(const ::Test::AMD_TestIntf_sequenceTestPtr&,
-				    const ::Test::SS1Ptr&, const ::Test::SS2Ptr&, const ::Ice::Current&);
+                                    const ::Test::SS1Ptr&, const ::Test::SS2Ptr&, const ::Ice::Current&);
 
     virtual void dictionaryTest_async(const ::Test::AMD_TestIntf_dictionaryTestPtr&,
-				      const ::Test::BDict&, const ::Ice::Current&);
+                                      const ::Test::BDict&, const ::Ice::Current&);
 
     virtual void throwBaseAsBase_async(const ::Test::AMD_TestIntf_throwBaseAsBasePtr&, const ::Ice::Current&);
     virtual void throwDerivedAsBase_async(const ::Test::AMD_TestIntf_throwDerivedAsBasePtr&, const ::Ice::Current&);
     virtual void throwDerivedAsDerived_async(const ::Test::AMD_TestIntf_throwDerivedAsDerivedPtr&,
-					     const ::Ice::Current&);
+                                             const ::Ice::Current&);
     virtual void throwUnknownDerivedAsBase_async(const ::Test::AMD_TestIntf_throwUnknownDerivedAsBasePtr&,
-						 const ::Ice::Current&);
+                                                 const ::Ice::Current&);
 
     virtual void useForward_async(const ::Test::AMD_TestIntf_useForwardPtr&, const ::Ice::Current&);
 

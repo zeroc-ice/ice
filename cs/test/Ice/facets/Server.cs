@@ -39,7 +39,7 @@ public class Server
         }
         catch(System.Exception ex)
         {
-	    System.Console.WriteLine(ex);
+            System.Console.WriteLine(ex);
             status = 1;
         }
         
@@ -51,14 +51,14 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.WriteLine(ex);
+                System.Console.WriteLine(ex);
                 status = 1;
             }
         }
         
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

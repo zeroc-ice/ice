@@ -28,7 +28,7 @@ class Request : public IceUtil::Shared
 public:
 
     Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
-    	    const Ice::Context&, const Ice::AMD_Array_Object_ice_invokePtr&);
+            const Ice::Context&, const Ice::AMD_Array_Object_ice_invokePtr&);
     
     bool invoke(const RequestQueuePtr&);
     bool override(const RequestPtr&) const;

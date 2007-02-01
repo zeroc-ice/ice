@@ -15,16 +15,16 @@ public class IncomingBase
     IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
                  byte compress, int requestId)
     {
-	_response = response;
+        _response = response;
         _compress = compress;
         _os = new BasicStream(instance);
-	_connection = connection;
+        _connection = connection;
 
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _current.con = _connection;
-	_current.requestId = requestId;
+        _current.requestId = requestId;
 
         _cookie = new Ice.LocalObjectHolder();
 
@@ -33,29 +33,29 @@ public class IncomingBase
     protected
     IncomingBase(IncomingBase in) // Adopts the argument. It must not be used afterwards.
     {
-	_current = in._current;
-	in._current = null;
+        _current = in._current;
+        in._current = null;
 
-	_servant = in._servant;
-	in._servant = null;
+        _servant = in._servant;
+        in._servant = null;
 
-	_locator = in._locator;
-	in._locator = null;
+        _locator = in._locator;
+        in._locator = null;
 
-	_cookie = in._cookie;
-	in._cookie = null;
+        _cookie = in._cookie;
+        in._cookie = null;
 
-	_response = in._response;
-	in._response = false;
+        _response = in._response;
+        in._response = false;
 
-	_compress = in._compress;
-	in._compress = 0;
+        _compress = in._compress;
+        in._compress = 0;
 
-	_os = in._os;
-	in._os = null;
+        _os = in._os;
+        in._os = null;
 
-	_connection = in._connection;
-	in._connection = null;
+        _connection = in._connection;
+        in._connection = null;
     }
 
     //
@@ -63,7 +63,7 @@ public class IncomingBase
     //
     public void
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
-    	  int requestId)
+          int requestId)
     {
         //
         // Don't recycle the Current object, because servants may keep a reference to it.
@@ -72,60 +72,60 @@ public class IncomingBase
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _current.con = connection;
-	_current.requestId = requestId;
+        _current.requestId = requestId;
 
-	if(_cookie == null)
-	{
-	    _cookie = new Ice.LocalObjectHolder();
-	}
+        if(_cookie == null)
+        {
+            _cookie = new Ice.LocalObjectHolder();
+        }
 
-	_response = response;
+        _response = response;
 
         _compress = compress;
 
-	if(_os == null)
-	{
-	    _os = new BasicStream(instance);
-	}
+        if(_os == null)
+        {
+            _os = new BasicStream(instance);
+        }
 
-	_connection = connection;
+        _connection = connection;
     }
 
     public void
     reclaim()
     {
-	_servant = null;
+        _servant = null;
 
-	_locator = null;
+        _locator = null;
 
-	if(_cookie != null)
-	{
-	    _cookie.value = null;
-	}
+        if(_cookie != null)
+        {
+            _cookie.value = null;
+        }
 
-	if(_os != null)
-	{
-	    _os.reset();
-	}
+        if(_os != null)
+        {
+            _os.reset();
+        }
     }
 
     final protected void
     __warning(java.lang.Exception ex)
     {
-	assert(_os != null);
+        assert(_os != null);
 
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	out.setUseTab(false);
-	out.print("dispatch exception:");
-	out.print("\nidentity: " + _os.instance().identityToString(_current.id));
-	out.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
-	out.print("\noperation: " + _current.operation);
-	out.print("\n");
-	ex.printStackTrace(pw);
-	pw.flush();
-	_os.instance().initializationData().logger.warning(sw.toString());
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+        out.setUseTab(false);
+        out.print("dispatch exception:");
+        out.print("\nidentity: " + _os.instance().identityToString(_current.id));
+        out.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
+        out.print("\noperation: " + _current.operation);
+        out.print("\n");
+        ex.printStackTrace(pw);
+        pw.flush();
+        _os.instance().initializationData().logger.warning(sw.toString());
     }
 
     final protected void
@@ -133,51 +133,51 @@ public class IncomingBase
     {
         try
         {
-	    throw exc;
-	}
-	catch(Ice.RequestFailedException ex)
-	{
-	    if(ex.id == null)
-	    {
-		ex.id = _current.id;
-	    }
-	    
-	    if(ex.facet == null)
-	    {
-		ex.facet = _current.facet;
-	    }
-	    
-	    if(ex.operation == null || ex.operation.length() == 0)
-	    {
-		ex.operation = _current.operation;
-	    }
+            throw exc;
+        }
+        catch(Ice.RequestFailedException ex)
+        {
+            if(ex.id == null)
+            {
+                ex.id = _current.id;
+            }
+            
+            if(ex.facet == null)
+            {
+                ex.facet = _current.facet;
+            }
+            
+            if(ex.operation == null || ex.operation.length() == 0)
+            {
+                ex.operation = _current.operation;
+            }
 
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+            {
+                __warning(ex);
+            }
 
             if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		if(ex instanceof Ice.ObjectNotExistException)
-		{
-		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
-		}
-		else if(ex instanceof Ice.FacetNotExistException)
-		{
-		    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
-		}
-		else if(ex instanceof Ice.OperationNotExistException)
-		{
-		    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
-		}
-		else
-		{
-		    assert(false);
-		}
-		ex.id.__write(_os);
+                if(ex instanceof Ice.ObjectNotExistException)
+                {
+                    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+                }
+                else if(ex instanceof Ice.FacetNotExistException)
+                {
+                    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+                }
+                else if(ex instanceof Ice.OperationNotExistException)
+                {
+                    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+                }
+                else
+                {
+                    assert(false);
+                }
+                ex.id.__write(_os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -192,150 +192,150 @@ public class IncomingBase
                     _os.writeStringSeq(facetPath2);
                 }
 
-		_os.writeString(ex.operation);
+                _os.writeString(ex.operation);
 
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
         }
         catch(Ice.UnknownLocalException ex)
         {
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
-		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _os.writeString(ex.unknown);
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
         }
         catch(Ice.UnknownUserException ex)
         {
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
-		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _os.writeString(ex.unknown);
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
         }
         catch(Ice.UnknownException ex)
         {
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
-		_os.writeString(ex.unknown);
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                _os.writeString(ex.unknown);
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
         }
         catch(Ice.LocalException ex)
         {
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
 
             if(_response)
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
-		//_os.writeString(ex.toString());
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		_os.writeString(sw.toString());
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
+                //_os.writeString(ex.toString());
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _os.writeString(sw.toString());
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
         }
-	catch(Ice.UserException ex)
-	{
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-	    
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
-		//_os.writeString(ex.toString());
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		_os.writeString(sw.toString());
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
-	}
-	catch(java.lang.Exception ex)
-	{
-	    if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	    {
-		__warning(ex);
-	    }
-	    
-	    if(_response)
-	    {
-		_os.endWriteEncaps();
-		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)DispatchStatus._DispatchUnknownException);
-		//_os.writeString(ex.toString());
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		_os.writeString(sw.toString());
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
-	}
+        catch(Ice.UserException ex)
+        {
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
+            
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+                //_os.writeString(ex.toString());
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _os.writeString(sw.toString());
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
+        }
+        catch(java.lang.Exception ex)
+        {
+            if(_os.instance().initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            {
+                __warning(ex);
+            }
+            
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+                //_os.writeString(ex.toString());
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _os.writeString(sw.toString());
+                _connection.sendResponse(_os, _compress);
+            }
+            else
+            {
+                _connection.sendNoResponse();
+            }
+        }
     }
 
     protected Ice.Current _current;

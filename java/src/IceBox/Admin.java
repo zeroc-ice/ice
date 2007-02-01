@@ -61,43 +61,43 @@ public final class Admin
 
             Ice.Properties properties = communicator().getProperties();
 
-	    Ice.Identity managerIdentity = new Ice.Identity();
-	    managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-	    managerIdentity.name = "ServiceManager";
+            Ice.Identity managerIdentity = new Ice.Identity();
+            managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+            managerIdentity.name = "ServiceManager";
 
-	    String managerProxy;
-	    if(properties.getProperty("Ice.Default.Locator").length() == 0)
-	    {
-	        //
-		// DEPREACTED PROPERTIES: Remove extra code in future release.
-		//
-		String managerEndpoints = 
-		    properties.getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.Endpoints",
-						      properties.getProperty("IceBox.ServiceManager.Endpoints"));
-		if(managerEndpoints.length() == 0)
-		{
-		    System.err.println(appName() + ": property `IceBox.ServiceManager.Endpoints' is not set");
-		    return 1;
-		}
+            String managerProxy;
+            if(properties.getProperty("Ice.Default.Locator").length() == 0)
+            {
+                //
+                // DEPREACTED PROPERTIES: Remove extra code in future release.
+                //
+                String managerEndpoints = 
+                    properties.getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.Endpoints",
+                                                      properties.getProperty("IceBox.ServiceManager.Endpoints"));
+                if(managerEndpoints.length() == 0)
+                {
+                    System.err.println(appName() + ": property `IceBox.ServiceManager.Endpoints' is not set");
+                    return 1;
+                }
 
-		managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
-	    }
-	    else
-	    {
-	        //
-		// DEPREACTED PROPERTIES: Remove extra code in future release.
-		//
-		String managerAdapterId = 
-		    properties.getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.AdapterId",
-		    				      properties.getProperty("IceBox.ServiceManager.AdapterId"));
-		if(managerAdapterId.length() == 0)
-		{
-		    System.err.println(appName() + ": property `IceBox.ServiceManager.AdapterId' is not set");
-		    return 1;
-		}
+                managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
+            }
+            else
+            {
+                //
+                // DEPREACTED PROPERTIES: Remove extra code in future release.
+                //
+                String managerAdapterId = 
+                    properties.getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.AdapterId",
+                                                      properties.getProperty("IceBox.ServiceManager.AdapterId"));
+                if(managerAdapterId.length() == 0)
+                {
+                    System.err.println(appName() + ": property `IceBox.ServiceManager.AdapterId' is not set");
+                    return 1;
+                }
 
-		managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
-	    }
+                managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
+            }
 
             Ice.ObjectPrx base = communicator().stringToProxy(managerProxy);
             IceBox.ServiceManagerPrx manager = IceBox.ServiceManagerPrxHelper.checkedCast(base);
@@ -115,49 +115,49 @@ public final class Admin
                     manager.shutdown();
                 }
                 else if(command.equals("start"))
-		{
-		    if(++i >= commands.size())
-		    {
+                {
+                    if(++i >= commands.size())
+                    {
                         System.err.println(appName() + ": no service name specified.");
                         return 1;
-		    }
+                    }
 
-		    String service = (String)commands.get(i);
-		    try
-		    {
-		        manager.startService(service);
-		    }
-		    catch(IceBox.NoSuchServiceException ex)
-		    {
+                    String service = (String)commands.get(i);
+                    try
+                    {
+                        manager.startService(service);
+                    }
+                    catch(IceBox.NoSuchServiceException ex)
+                    {
                         System.err.println(appName() + ": unknown service `" + service + "'");
-		    }
-		    catch(IceBox.AlreadyStartedException ex)
-		    {
-		        System.err.println(appName() + "service already started.");
-		    }
-		}
+                    }
+                    catch(IceBox.AlreadyStartedException ex)
+                    {
+                        System.err.println(appName() + "service already started.");
+                    }
+                }
                 else if(command.equals("stop"))
-		{
-		    if(++i >= commands.size())
-		    {
+                {
+                    if(++i >= commands.size())
+                    {
                         System.err.println(appName() + ": no service name specified.");
                         return 1;
-		    }
+                    }
 
-		    String service = (String)commands.get(i);
-		    try
-		    {
-		        manager.stopService(service);
-		    }
-		    catch(IceBox.NoSuchServiceException ex)
-		    {
+                    String service = (String)commands.get(i);
+                    try
+                    {
+                        manager.stopService(service);
+                    }
+                    catch(IceBox.NoSuchServiceException ex)
+                    {
                         System.err.println(appName() + ": unknown service `" + service + "'");
-		    }
-		    catch(IceBox.AlreadyStoppedException ex)
-		    {
-		        System.err.println(appName() + "service already stopped.");
-		    }
-		}
+                    }
+                    catch(IceBox.AlreadyStoppedException ex)
+                    {
+                        System.err.println(appName() + "service already stopped.");
+                    }
+                }
                 else
                 {
                     System.err.println(appName() + ": unknown command `" + command + "'");

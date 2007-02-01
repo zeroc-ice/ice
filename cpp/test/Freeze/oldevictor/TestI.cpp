@@ -20,16 +20,16 @@ class DelayedResponse : public Thread
 public:
 
     DelayedResponse(const Test::AMD_Servant_slowGetValuePtr& cb, int val) :
-	_cb(cb),
-	_val(val)
+        _cb(cb),
+        _val(val)
     {
     }
     
     virtual void
     run()
     {
-	ThreadControl::sleep(Time::milliSeconds(500));
-	_cb->ice_response(_val);
+        ThreadControl::sleep(Time::milliSeconds(500));
+        _cb->ice_response(_val);
     }
 
 private:
@@ -75,7 +75,7 @@ Test::ServantI::slowGetValue(const Current&) const
 
 void
 Test::ServantI::slowGetValue_async(const AMD_Servant_slowGetValuePtr& cb,
-				   const Current&) const
+                                   const Current&) const
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
     Monitor<Mutex>::Lock sync(*this);
@@ -122,11 +122,11 @@ Test::ServantI::addFacet(const string& name, const string& data, const Current& 
 
     try
     {
-	_evictor->addFacet(facet, current.id, name);
+        _evictor->addFacet(facet, current.id, name);
     }
     catch(const Ice::AlreadyRegisteredException&)
     {
-	throw Test::AlreadyRegisteredException();
+        throw Test::AlreadyRegisteredException();
     }
 }
 
@@ -135,11 +135,11 @@ Test::ServantI::removeFacet(const string& name, const Current& current) const
 {
     try
     {
-	_evictor->removeFacet(current.id, name);
+        _evictor->removeFacet(current.id, name);
     }
     catch(const Ice::NotRegisteredException&)
     {
-	throw Test::NotRegisteredException();
+        throw Test::NotRegisteredException();
     }
 }
 
@@ -169,11 +169,11 @@ Test::ServantI::release(const Current& current)
 {
     try
     {
-	_evictor->release(current.id);
+        _evictor->release(current.id);
     }
     catch(const Ice::NotRegisteredException&)
     {
-	throw NotRegisteredException();
+        throw NotRegisteredException();
     }
 }
 
@@ -182,11 +182,11 @@ Test::ServantI::destroy(const Current& current)
 {
     try
     {
-	_evictor->remove(current.id);
+        _evictor->remove(current.id);
     }
     catch(const Ice::NotRegisteredException&)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
@@ -224,7 +224,7 @@ public:
     void init(const Test::RemoteEvictorIPtr& remoteEvictor, const Freeze::EvictorPtr& evictor)
     {
         _remoteEvictor = remoteEvictor;
-	_evictor = evictor;
+        _evictor = evictor;
     }
     
     virtual void
@@ -242,7 +242,7 @@ private:
 
 
 Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& envName,
-				     const string& category) :
+                                     const string& category) :
     _adapter(adapter),
     _category(category)
 {
@@ -274,19 +274,19 @@ Test::RemoteEvictorI::createServant(const string& id, Int value, const Current&)
     ServantPtr servant = new ServantI(this, _evictor, value);
     try
     {
-	return ServantPrx::uncheckedCast(_evictor->add(servant, ident));
+        return ServantPrx::uncheckedCast(_evictor->add(servant, ident));
     }
     catch(const Ice::AlreadyRegisteredException&)
     {
-	throw Test::AlreadyRegisteredException();
+        throw Test::AlreadyRegisteredException();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
-	throw EvictorDeactivatedException();
+        throw EvictorDeactivatedException();
     }
     catch(const Freeze::EvictorDeactivatedException&)
     {
-	throw EvictorDeactivatedException();
+        throw EvictorDeactivatedException();
     }
 
 }
@@ -326,7 +326,7 @@ Test::RemoteEvictorI::destroyAllServants(const string& facetName, const Current&
     Freeze::EvictorIteratorPtr p = _evictor->getIterator(facetName, batchSize);
     while(p->hasNext())
     {
-	_evictor->remove(p->next());
+        _evictor->remove(p->next());
     }
 }
 
@@ -343,7 +343,7 @@ Test::RemoteEvictorFactoryI::createEvictor(const string& name, const Current& cu
 {
     RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(_adapter, _envName, name);  
     return RemoteEvictorPrx::uncheckedCast(_adapter->add(remoteEvictor, 
-    						         _adapter->getCommunicator()->stringToIdentity(name)));
+                                                         _adapter->getCommunicator()->stringToIdentity(name)));
 }
 
 void

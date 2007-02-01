@@ -22,8 +22,8 @@ public:
     
     ~SliceChecksumDictDestroyer()
     {
-	delete _sliceChecksums;
-	_sliceChecksums = 0;
+        delete _sliceChecksums;
+        _sliceChecksums = 0;
     }
 };
 static SliceChecksumDictDestroyer destroyer;
@@ -34,7 +34,7 @@ Ice::sliceChecksums()
     IceUtil::StaticMutex::Lock lock(_mutex);
     if(_sliceChecksums == 0)
     {
-	_sliceChecksums = new SliceChecksumDict();
+        _sliceChecksums = new SliceChecksumDict();
     }
     return *_sliceChecksums;
 }
@@ -44,7 +44,7 @@ IceInternal::SliceChecksumInit::SliceChecksumInit(const char* checksums[])
     IceUtil::StaticMutex::Lock lock(_mutex);
     if(_sliceChecksums == 0)
     {
-	_sliceChecksums = new SliceChecksumDict();
+        _sliceChecksums = new SliceChecksumDict();
     }
 
     for(int i = 0; checksums[i] != 0; i += 2)

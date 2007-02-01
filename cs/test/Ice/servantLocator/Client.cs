@@ -15,8 +15,8 @@ public class Client
     {
         public override int run(string[] args)
         {
-	    TestIntfPrx obj = AllTests.allTests(communicator(), false);
-	    obj.shutdown();
+            TestIntfPrx obj = AllTests.allTests(communicator(), false);
+            obj.shutdown();
             return 0;
         }
     }
@@ -25,9 +25,9 @@ public class Client
     {
         TestClient app = new TestClient();
         int result = app.main(args);
-	if(result != 0)
-	{
-	    System.Environment.Exit(result);
-	}
+        if(result != 0)
+        {
+            System.Environment.Exit(result);
+        }
     }
 }

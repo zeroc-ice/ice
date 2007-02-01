@@ -16,23 +16,23 @@ public class FileI extends _FileDisp
     public
     FileI(String name, DirectoryI parent)
     {
-	_name = name;
-	_parent = parent;
+        _name = name;
+        _parent = parent;
 
-	assert(_parent != null);
+        assert(_parent != null);
 
-	// Create an identity
-	//
-	Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
+        // Create an identity
+        //
+        Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(Ice.Util.generateUUID());
 
-	// Add the identity to the object adapter
-	//
-	_adapter.add(this, myID);
+        // Add the identity to the object adapter
+        //
+        _adapter.add(this, myID);
 
-	// Create a proxy for the new node and add it as a child to the parent
-	//
-	NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
-	_parent.addChild(thisNode);
+        // Create a proxy for the new node and add it as a child to the parent
+        //
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
+        _parent.addChild(thisNode);
     }
 
     // Slice Node::name() operation
@@ -40,7 +40,7 @@ public class FileI extends _FileDisp
     public String
     name(Ice.Current current)
     {
-	return _name;
+        return _name;
     }
 
     // Slice File::read() operation
@@ -48,16 +48,16 @@ public class FileI extends _FileDisp
     public String[]
     read(Ice.Current current)
     {
-	return _lines;
+        return _lines;
     }
 
     // Slice File::write() operation
 
     public void
     write(String[] text, Ice.Current current)
-	throws GenericError
+        throws GenericError
     {
-	_lines = text;
+        _lines = text;
     }
 
     public static Ice.ObjectAdapter _adapter;

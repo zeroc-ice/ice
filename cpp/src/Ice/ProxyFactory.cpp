@@ -39,11 +39,11 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 {
     if(proxy)
     {
-	return proxy->__reference()->toString();
+        return proxy->__reference()->toString();
     }
     else
     {
-	return "";
+        return "";
     }
 }
 
@@ -69,13 +69,13 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
 {
     if(proxy)
     {
-	proxy->__reference()->getIdentity().__write(s);
-	proxy->__reference()->streamWrite(s);
+        proxy->__reference()->getIdentity().__write(s);
+        proxy->__reference()->streamWrite(s);
     }
     else
     {
-	Identity ident;
-	ident.__write(s);
+        Identity ident;
+        ident.__write(s);
     }
 }
 
@@ -104,48 +104,48 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
 
     if(one)
     {
-	LocatorInfoPtr li = ref->getLocatorInfo();
-	if(li)
-	{
-	    //
-	    // We retry ObjectNotExistException if the reference is
-	    // indirect.
-	    //
-	    li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
-	}
-	else if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
-	{
-	    //
-	    // If we have a router, an ObjectNotExistException with an
-	    // operation name "ice_add_proxy" indicates to the client
-	    // that the router isn't aware of the proxy (for example,
-	    // because it was evicted by the router). In this case, we
-	    // must *always* retry, so that the missing proxy is added
-	    // to the router.
-	    //
-	    if(traceLevels->retry >= 1)
-	    {
-		Trace out(logger, traceLevels->retryCat);
-		out << "retrying operation call to add proxy to router\n" << ex;
-	    }
-	    return; // We must always retry, so we don't look at the retry count.
-	}
-	else
-	{
-	    //
-	    // For all other cases, we don't retry
-	    // ObjectNotExistException.
-	    //
-	    ex.ice_throw();
-	}
+        LocatorInfoPtr li = ref->getLocatorInfo();
+        if(li)
+        {
+            //
+            // We retry ObjectNotExistException if the reference is
+            // indirect.
+            //
+            li->clearObjectCache(IndirectReferencePtr::dynamicCast(ref));
+        }
+        else if(ref->getRouterInfo() && one->operation == "ice_add_proxy")
+        {
+            //
+            // If we have a router, an ObjectNotExistException with an
+            // operation name "ice_add_proxy" indicates to the client
+            // that the router isn't aware of the proxy (for example,
+            // because it was evicted by the router). In this case, we
+            // must *always* retry, so that the missing proxy is added
+            // to the router.
+            //
+            if(traceLevels->retry >= 1)
+            {
+                Trace out(logger, traceLevels->retryCat);
+                out << "retrying operation call to add proxy to router\n" << ex;
+            }
+            return; // We must always retry, so we don't look at the retry count.
+        }
+        else
+        {
+            //
+            // For all other cases, we don't retry
+            // ObjectNotExistException.
+            //
+            ex.ice_throw();
+        }
     }
     else if(dynamic_cast<const RequestFailedException*>(&ex))
     {
-	//
+        //
         // We don't retry other *NotExistException, which are all
         // derived from RequestFailedException.
-	//
-	ex.ice_throw();
+        //
+        ex.ice_throw();
     }
 
     //
@@ -172,7 +172,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     //
     if(dynamic_cast<const MarshalException*>(&ex))
     {
-	ex.ice_throw();
+        ex.ice_throw();
     }
 
     ++cnt;
@@ -180,33 +180,33 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     
     if(cnt > static_cast<int>(_retryIntervals.size()))
     {
-	if(traceLevels->retry >= 1)
-	{
-	    Trace out(logger, traceLevels->retryCat);
-	    out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
-	}
-	ex.ice_throw();
+        if(traceLevels->retry >= 1)
+        {
+            Trace out(logger, traceLevels->retryCat);
+            out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
+        }
+        ex.ice_throw();
     }
 
     int interval = _retryIntervals[cnt - 1];
 
     if(traceLevels->retry >= 1)
     {
-	Trace out(logger, traceLevels->retryCat);
-	out << "retrying operation call";
-	if(interval > 0)
-	{
-	    out << " in " << interval << "ms";
-	}
-	out << " because of exception\n" << ex;
+        Trace out(logger, traceLevels->retryCat);
+        out << "retrying operation call";
+        if(interval > 0)
+        {
+            out << " in " << interval << "ms";
+        }
+        out << " because of exception\n" << ex;
     }
     
     if(interval > 0)
     {
-	//
-	// Sleep before retrying.
-	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
+        //
+        // Sleep before retrying.
+        //
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(interval));
     }
 }
 
@@ -220,46 +220,46 @@ IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :
 
     while(true)
     {
-	const string delim = " \t";
+        const string delim = " \t";
     
-	beg = str.find_first_not_of(delim, end);
-	if(beg == string::npos)
-	{
-	    if(_retryIntervals.empty())
-	    {
-		_retryIntervals.push_back(0);
-	    }
-	    break;
-	}
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            if(_retryIntervals.empty())
+            {
+                _retryIntervals.push_back(0);
+            }
+            break;
+        }
 
-	end = str.find_first_of(delim, beg);
-	if(end == string::npos)
-	{
-	    end = str.length();
-	}
-	
-	if(beg == end)
-	{
-	    break;
-	}
+        end = str.find_first_of(delim, beg);
+        if(end == string::npos)
+        {
+            end = str.length();
+        }
+        
+        if(beg == end)
+        {
+            break;
+        }
 
-	istringstream value(str.substr(beg, end - beg));
+        istringstream value(str.substr(beg, end - beg));
 
-	int v;
-	if(!(value >> v) || !value.eof())
-	{
-	    v = 0;
-	}
+        int v;
+        if(!(value >> v) || !value.eof())
+        {
+            v = 0;
+        }
 
-	//
-	// If -1 is the first value, no retry and wait intervals.
-	//
-	if(v == -1 && _retryIntervals.empty())
-	{
-	    break;
-	}
+        //
+        // If -1 is the first value, no retry and wait intervals.
+        //
+        if(v == -1 && _retryIntervals.empty())
+        {
+            break;
+        }
 
-	_retryIntervals.push_back(v > 0 ? v : 0);
+        _retryIntervals.push_back(v > 0 ? v : 0);
     }
 }
 

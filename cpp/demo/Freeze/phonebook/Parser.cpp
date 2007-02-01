@@ -52,28 +52,28 @@ Parser::addContacts(const list<string>& args)
 {
     if(args.empty())
     {
-	error("`add' requires at least one argument (type `help' for more info)");
-	return;
+        error("`add' requires at least one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	for(list<string>::const_iterator p = args.begin(); p != args.end(); ++p)
-	{
-	    ContactPrx contact = _phoneBook->createContact();
-	    contact->setName(*p);
-	    cout << "added new contact for `" << *p << "'" << endl;
-	}
+        for(list<string>::const_iterator p = args.begin(); p != args.end(); ++p)
+        {
+            ContactPrx contact = _phoneBook->createContact();
+            contact->setName(*p);
+            cout << "added new contact for `" << *p << "'" << endl;
+        }
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -82,26 +82,26 @@ Parser::findContacts(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`find' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`find' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	_foundContacts = _phoneBook->findContacts(args.front());
-	_current = _foundContacts.begin();
-	cout << "number of contacts found: " << _foundContacts.size() << endl;
-	printCurrent();
+        _foundContacts = _phoneBook->findContacts(args.front());
+        _current = _foundContacts.begin();
+        cout << "number of contacts found: " << _foundContacts.size() << endl;
+        printCurrent();
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -110,7 +110,7 @@ Parser::nextFoundContact()
 {
     if(_current != _foundContacts.end())
     {
-	++_current;
+        ++_current;
     }
     printCurrent();
 }
@@ -120,17 +120,17 @@ Parser::printCurrent()
 {
     try
     {
-	if(_current != _foundContacts.end())
-	{
-	    cout << "current contact is:" << endl;
-	    cout << "name: " << (*_current)->getName() << endl;
-	    cout << "address: " << (*_current)->getAddress() << endl;
-	    cout << "phone: " << (*_current)->getPhone() << endl;
-	}
-	else
-	{
-	    cout << "no current contact" << endl;
-	}
+        if(_current != _foundContacts.end())
+        {
+            cout << "current contact is:" << endl;
+            cout << "name: " << (*_current)->getName() << endl;
+            cout << "address: " << (*_current)->getAddress() << endl;
+            cout << "phone: " << (*_current)->getPhone() << endl;
+        }
+        else
+        {
+            cout << "no current contact" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -138,13 +138,13 @@ Parser::printCurrent()
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -153,21 +153,21 @@ Parser::setCurrentName(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`name' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`name' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	if(_current != _foundContacts.end())
-	{
-	    (*_current)->setName(args.front());
-	    cout << "changed name to `" << args.front() << "'" << endl;
-	}
-	else
-	{
-	    cout << "no current contact" << endl;
-	}
+        if(_current != _foundContacts.end())
+        {
+            (*_current)->setName(args.front());
+            cout << "changed name to `" << args.front() << "'" << endl;
+        }
+        else
+        {
+            cout << "no current contact" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -175,13 +175,13 @@ Parser::setCurrentName(const list<string>& args)
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -190,21 +190,21 @@ Parser::setCurrentAddress(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`address' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`address' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	if(_current != _foundContacts.end())
-	{
-	    (*_current)->setAddress(args.front());
-	    cout << "changed address to `" << args.front() << "'" << endl;
-	}
-	else
-	{
-	    cout << "no current contact" << endl;
-	}
+        if(_current != _foundContacts.end())
+        {
+            (*_current)->setAddress(args.front());
+            cout << "changed address to `" << args.front() << "'" << endl;
+        }
+        else
+        {
+            cout << "no current contact" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -212,13 +212,13 @@ Parser::setCurrentAddress(const list<string>& args)
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -227,21 +227,21 @@ Parser::setCurrentPhone(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`phone' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`phone' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	if(_current != _foundContacts.end())
-	{
-	    (*_current)->setPhone(args.front());
-	    cout << "changed phone number to `" << args.front() << "'" << endl;
-	}
-	else
-	{
-	    cout << "no current contact" << endl;
-	}
+        if(_current != _foundContacts.end())
+        {
+            (*_current)->setPhone(args.front());
+            cout << "changed phone number to `" << args.front() << "'" << endl;
+        }
+        else
+        {
+            cout << "no current contact" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -249,13 +249,13 @@ Parser::setCurrentPhone(const list<string>& args)
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -264,15 +264,15 @@ Parser::removeCurrent()
 {
     try
     {
-	if(_current != _foundContacts.end())
-	{
-	    (*_current)->destroy();
-	    cout << "removed current contact" << endl;
-	}
-	else
-	{
-	    cout << "no current contact" << endl;
-	}
+        if(_current != _foundContacts.end())
+        {
+            (*_current)->destroy();
+            cout << "removed current contact" << endl;
+        }
+        else
+        {
+            cout << "no current contact" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -280,13 +280,13 @@ Parser::removeCurrent()
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -295,23 +295,23 @@ Parser::setEvictorSize(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`size' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`size' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	_phoneBook->setEvictorSize(atoi(args.front().c_str()));
+        _phoneBook->setEvictorSize(atoi(args.front().c_str()));
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -320,13 +320,13 @@ Parser::shutdown()
 {
     try
     {
-	_phoneBook->shutdown();
+        _phoneBook->shutdown();
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -335,105 +335,105 @@ Parser::getInput(char* buf, int& result, int maxSize)
 {
     if(!_commands.empty())
     {
-	if(_commands == ";")
-	{
-	    result = 0;
-	}
-	else
-	{
+        if(_commands == ";")
+        {
+            result = 0;
+        }
+        else
+        {
 #if defined(_MSC_VER) && !defined(_STLP_MSVC)
-	    // COMPILERBUG: Stupid Visual C++ defines min and max as macros
-	    result = _MIN(maxSize, static_cast<int>(_commands.length()));
+            // COMPILERBUG: Stupid Visual C++ defines min and max as macros
+            result = _MIN(maxSize, static_cast<int>(_commands.length()));
 #else
-	    result = min(maxSize, static_cast<int>(_commands.length()));
+            result = min(maxSize, static_cast<int>(_commands.length()));
 #endif
-	    strncpy(buf, _commands.c_str(), result);
-	    _commands.erase(0, result);
-	    if(_commands.empty())
-	    {
-		_commands = ";";
-	    }
-	}
+            strncpy(buf, _commands.c_str(), result);
+            _commands.erase(0, result);
+            if(_commands.empty())
+            {
+                _commands = ";";
+            }
+        }
     }
     else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
         const char* prompt = parser->getPrompt();
-	char* line = readline(const_cast<char*>(prompt));
-	if(!line)
-	{
-	    result = 0;
-	}
-	else
-	{
-	    if(*line)
-	    {
-		add_history(line);
-	    }
+        char* line = readline(const_cast<char*>(prompt));
+        if(!line)
+        {
+            result = 0;
+        }
+        else
+        {
+            if(*line)
+            {
+                add_history(line);
+            }
 
-	    result = strlen(line) + 1;
-	    if(result > maxSize)
-	    {
-		free(line);
-		error("input line too long");
-		result = 0;
-	    }
-	    else
-	    {
-		strcpy(buf, line);
-		strcat(buf, "\n");
-		free(line);
-	    }
-	}
+            result = strlen(line) + 1;
+            if(result > maxSize)
+            {
+                free(line);
+                error("input line too long");
+                result = 0;
+            }
+            else
+            {
+                strcpy(buf, line);
+                strcat(buf, "\n");
+                free(line);
+            }
+        }
 
 #else
 
-	cout << parser->getPrompt() << flush;
+        cout << parser->getPrompt() << flush;
 
-	string line;
-	while(true)
-	{
-	    char c = static_cast<char>(getc(yyin));
-	    if(c == EOF)
-	    {
-		if(line.size())
-		{
-		    line += '\n';
-		}
-		break;
-	    }
+        string line;
+        while(true)
+        {
+            char c = static_cast<char>(getc(yyin));
+            if(c == EOF)
+            {
+                if(line.size())
+                {
+                    line += '\n';
+                }
+                break;
+            }
 
-	    line += c;
+            line += c;
 
-	    if(c == '\n')
-	    {
-		break;
-	    }
-	}
-	
-	result = static_cast<int>(line.length());
-	if(result > maxSize)
-	{
-	    error("input line too long");
-	    buf[0] = EOF;
-	    result = 1;
-	}
-	else
-	{
-	    strcpy(buf, line.c_str());
-	}
+            if(c == '\n')
+            {
+                break;
+            }
+        }
+        
+        result = static_cast<int>(line.length());
+        if(result > maxSize)
+        {
+            error("input line too long");
+            buf[0] = EOF;
+            result = 1;
+        }
+        else
+        {
+            strcpy(buf, line.c_str());
+        }
 
 #endif
     }
     else
     {
-	if(((result = static_cast<int>(fread(buf, 1, maxSize, yyin))) == 0) && ferror(yyin))
-	{
-	    error("input in flex scanner failed");
-	    buf[0] = EOF;
-	    result = 1;
-	}
+        if(((result = static_cast<int>(fread(buf, 1, maxSize, yyin))) == 0) && ferror(yyin))
+        {
+            error("input in flex scanner failed");
+            buf[0] = EOF;
+            result = 1;
+        }
     }
 }
 
@@ -456,12 +456,12 @@ Parser::getPrompt()
 
     if(_continue)
     {
-	_continue = false;
-	return "(cont) ";
+        _continue = false;
+        return "(cont) ";
     }
     else
     {
-	return ">>> ";
+        return ">>> ";
     }
 }
 
@@ -470,11 +470,11 @@ Parser::error(const char* s)
 {
     if(_commands.empty() && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
+        cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
     else
     {
-	cerr << "error: " << s << endl;
+        cerr << "error: " << s << endl;
     }
     _errors++;
 }
@@ -490,11 +490,11 @@ Parser::warning(const char* s)
 {
     if(_commands.empty() && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
+        cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
     else
     {
-	cerr << "warning: " << s << endl;
+        cerr << "warning: " << s << endl;
     }
 }
 
@@ -529,7 +529,7 @@ Parser::parse(FILE* file, bool debug)
     int status = yyparse();
     if(_errors)
     {
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     parser = 0;
@@ -561,7 +561,7 @@ Parser::parse(const string& commands, bool debug)
     int status = yyparse();
     if(_errors)
     {
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     parser = 0;

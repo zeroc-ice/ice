@@ -27,18 +27,18 @@ Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool ch
 {
     if(chapter)
     {
-	_chapter = "chapter";
+        _chapter = "chapter";
     }
     else
     {
-	_chapter = "section";
+        _chapter = "section";
     }
-	
+        
     O.open(file.c_str());
     if(!O)
     {
-	cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
-	return;
+        cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
+        return;
     }
 }
 
@@ -71,13 +71,13 @@ Slice::Gen::visitUnitStart(const UnitPtr& p)
 {
     if(_standAlone)
     {
-	O << "<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
-	printHeader();
-	start("article");
+        O << "<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
+        printHeader();
+        start("article");
     }
     else
     {
-	printHeader();
+        printHeader();
     }
 
     return true;
@@ -88,7 +88,7 @@ Slice::Gen::visitUnitEnd(const UnitPtr& p)
 {
     if(_standAlone)
     {
-	end();
+        end();
     }
 }
 
@@ -100,11 +100,11 @@ Slice::Gen::visitModuleStart(const ModulePtr& p)
     string metadata, deprecateReason;
     if(p->findMetaData("deprecate", metadata))
     {
-	deprecateReason = "This module has been deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This module has been deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     start("section", "Overview", false);
@@ -125,262 +125,262 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 {
     ModuleList modules = p->modules();
     modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		  modules.end());
+                  modules.end());
 
     if(!modules.empty() && !_noIndex)
     {
-	start("section", "Module Index", false);
-	start("variablelist");
-	for(ModuleList::const_iterator q = modules.begin(); q != modules.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Module Index", false);
+        start("variablelist");
+        for(ModuleList::const_iterator q = modules.begin(); q != modules.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     ClassList classesAndInterfaces = p->classes();
     classesAndInterfaces.erase(remove_if(classesAndInterfaces.begin(), classesAndInterfaces.end(),
-					 ::IceUtil::constMemFun(&Contained::includeLevel)),
-			       classesAndInterfaces.end());
+                                         ::IceUtil::constMemFun(&Contained::includeLevel)),
+                               classesAndInterfaces.end());
     ClassList classes;
     ClassList interfaces;
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
-		   ::IceUtil::constMemFun(&ClassDef::isInterface));
+                   ::IceUtil::constMemFun(&ClassDef::isInterface));
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
-		   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
+                   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
 
     if(!classes.empty() && !_noIndex)
     {
-	start("section", "Class Index", false);
-	start("variablelist");
-	for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Class Index", false);
+        start("variablelist");
+        for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     if(!interfaces.empty() && !_noIndex)
     {
-	start("section", "Interface Index", false);
-	start("variablelist");
-	for(ClassList::const_iterator q = interfaces.begin(); q != interfaces.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Interface Index", false);
+        start("variablelist");
+        for(ClassList::const_iterator q = interfaces.begin(); q != interfaces.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     ExceptionList exceptions = p->exceptions();
     exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		     exceptions.end());
+                     exceptions.end());
 
     if(!exceptions.empty() && !_noIndex)
     {
-	start("section", "Exception Index", false);
-	start("variablelist");
-	for(ExceptionList::const_iterator q = exceptions.begin(); q != exceptions.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Exception Index", false);
+        start("variablelist");
+        for(ExceptionList::const_iterator q = exceptions.begin(); q != exceptions.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     StructList structs = p->structs();
     structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		  structs.end());
+                  structs.end());
 
     if(!structs.empty() && !_noIndex)
     {
-	start("section", "Struct Index", false);
-	start("variablelist");
-	for(StructList::const_iterator q = structs.begin(); q != structs.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Struct Index", false);
+        start("variablelist");
+        for(StructList::const_iterator q = structs.begin(); q != structs.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     SequenceList sequences = p->sequences();
     sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		    sequences.end());
+                    sequences.end());
 
     if(!sequences.empty() && !_noIndex)
     {
-	start("section", "Sequence Index", false);
-	start("variablelist");
-	for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Sequence Index", false);
+        start("variablelist");
+        for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     DictionaryList dictionaries = p->dictionaries();
     dictionaries.erase(remove_if(dictionaries.begin(), dictionaries.end(),
-				 ::IceUtil::constMemFun(&Contained::includeLevel)),
-		       dictionaries.end());
+                                 ::IceUtil::constMemFun(&Contained::includeLevel)),
+                       dictionaries.end());
 
     if(!dictionaries.empty() && !_noIndex)
     {
-	start("section", "Dictionary Index", false);
-	start("variablelist");
-	for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Dictionary Index", false);
+        start("variablelist");
+        for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     EnumList enums = p->enums();
     enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
-		enums.end());
+                enums.end());
 
     if(!enums.empty() && !_noIndex)
     {
-	start("section", "Enum Index", false);
-	start("variablelist");
-	for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    string metadata;
-	    printSummary(*q, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Enum Index", false);
+        start("variablelist");
+        for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            string metadata;
+            printSummary(*q, (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     end();
 
     {
-	for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    if((*q)->isLocal())
-	    {
-		O << "local ";
-	    }
-	    TypePtr type = (*q)->type();
-	    O << "sequence&lt;" << toString(type, p) << "&gt; <type>" << (*q)->name() << "</type>;</synopsis>";
-	    O.restoreIndent();
+        for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            if((*q)->isLocal())
+            {
+                O << "local ";
+            }
+            TypePtr type = (*q)->type();
+            O << "sequence&lt;" << toString(type, p) << "&gt; <type>" << (*q)->name() << "</type>;</synopsis>";
+            O.restoreIndent();
 
-	    string metadata, deprecateReason;
-	    if((*q)->findMetaData("deprecate", metadata))
-	    {
-		deprecateReason = "This type has been deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    deprecateReason = metadata.substr(10);
-		}
-	    }
+            string metadata, deprecateReason;
+            if((*q)->findMetaData("deprecate", metadata))
+            {
+                deprecateReason = "This type has been deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    deprecateReason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, deprecateReason);
-	    end();
-	}
+            printComment(*q, deprecateReason);
+            end();
+        }
     }
     
     {
-	for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    if((*q)->isLocal())
-	    {
-		O << "local ";
-	    }
-	    TypePtr keyType = (*q)->keyType();
-	    TypePtr valueType = (*q)->valueType();
-	    O << "dictionary&lt;" << toString(keyType, p) << ", " << toString(valueType, p) << "&gt; <type>"
-	      << (*q)->name() << "</type>;</synopsis>";
-	    O.restoreIndent();
+        for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            if((*q)->isLocal())
+            {
+                O << "local ";
+            }
+            TypePtr keyType = (*q)->keyType();
+            TypePtr valueType = (*q)->valueType();
+            O << "dictionary&lt;" << toString(keyType, p) << ", " << toString(valueType, p) << "&gt; <type>"
+              << (*q)->name() << "</type>;</synopsis>";
+            O.restoreIndent();
 
-	    string metadata, deprecateReason;
-	    if((*q)->findMetaData("deprecate", metadata))
-	    {
-		deprecateReason = "This type has been deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    deprecateReason = metadata.substr(10);
-		}
-	    }
+            string metadata, deprecateReason;
+            if((*q)->findMetaData("deprecate", metadata))
+            {
+                deprecateReason = "This type has been deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    deprecateReason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, deprecateReason);
-	    end();
-	}
+            printComment(*q, deprecateReason);
+            end();
+        }
     }
 }
 
@@ -395,11 +395,11 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     bool deprecatedClass = p->findMetaData("deprecate", metadata);
     if(deprecatedClass)
     {
-	deprecateReason = "This type has been deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This type has been deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     O.zeroIndent();
@@ -407,51 +407,51 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     printMetaData(p);
     if(p->isLocal())
     {
-	O << "local ";
+        O << "local ";
     }
     if(p->isInterface())
     {
-	O << "interface";
+        O << "interface";
     }
     else
     {
-	O << "class";
+        O << "class";
     }
     O << " <classname>" << p->name() << "</classname>";
     ClassList bases = p->bases();
     if(!bases.empty() && !bases.front()->isInterface())
     {
-	O.inc();
-	O << nl << "extends ";
-	O.inc();
-	O << nl << toString(bases.front(), p);
-	bases.pop_front();
-	O.dec();
-	O.dec();
+        O.inc();
+        O << nl << "extends ";
+        O.inc();
+        O << nl << toString(bases.front(), p);
+        bases.pop_front();
+        O.dec();
+        O.dec();
     }
     if(!bases.empty())
     {
-	O.inc();
-	if(p->isInterface())
-	{
-	    O << nl << "extends ";
-	}
-	else
-	{
-	    O << nl << "implements ";
-	}
-	O.inc();
-	ClassList::const_iterator q = bases.begin();
-	while(q != bases.end())
-	{
-	    O << nl << toString(*q, p);
-	    if(++q != bases.end())
-	    {
-		O << ",";
-	    }
-	}
-	O.dec();
-	O.dec();
+        O.inc();
+        if(p->isInterface())
+        {
+            O << nl << "extends ";
+        }
+        else
+        {
+            O << nl << "implements ";
+        }
+        O.inc();
+        ClassList::const_iterator q = bases.begin();
+        while(q != bases.end())
+        {
+            O << nl << toString(*q, p);
+            if(++q != bases.end())
+            {
+                O << ",";
+            }
+        }
+        O.dec();
+        O.dec();
     }
     O << "</synopsis>";
     O.restoreIndent();
@@ -460,138 +460,138 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     OperationList operations = p->operations();
     if(!operations.empty() && !_noIndex)
     {
-	start("section", "Operation Index", false);
-	start("variablelist");
-	for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    printSummary(*q, deprecatedClass || (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Operation Index", false);
+        start("variablelist");
+        for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            printSummary(*q, deprecatedClass || (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     DataMemberList dataMembers = p->dataMembers();
     if(!dataMembers.empty() && !_noIndex)
     {
-	start("section", "Data Member Index", false);
-	start("variablelist");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    printSummary(*q, deprecatedClass || (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Data Member Index", false);
+        start("variablelist");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            printSummary(*q, deprecatedClass || (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     end();
 
     {
-	for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    TypePtr returnType = (*q)->returnType();
-	    O << (returnType ? toString(returnType, p) : string("<type>void</type>")) << " <function>" << (*q)->name()
-	      << "</function>(";
-	    O.inc();
-	    ParamDeclList paramList = (*q)->parameters();
-	    ParamDeclList::const_iterator r = paramList.begin();
-	    while(r != paramList.end())
-	    {
-		if((*r)->isOutParam())
-		{
-		    O << "out ";
-		}
-		O << toString((*r)->type(), *q) << " <parameter>";
-		O << (*r)->name() << "</parameter>";
-		if(++r != paramList.end())
-		{
-		    O << ',';
-		    O << nl;
-		}
-	    }
-	    O << ')';
-	    O.dec();
-	    ExceptionList throws = (*q)->throws();
-	    if(!throws.empty())
-	    {
-		O.inc();
-		O << nl << "throws";
-		O.inc();
-		ExceptionList::const_iterator t = throws.begin();
-		while(t != throws.end())
-		{
-		    O << nl << toString(*t, p);
-		    if(++t != throws.end())
-		    {
-			O << ',';
-		    }
-		}
-		O.dec();
-		O.dec();
-	    }
-	    O << ";</synopsis>";
-	    O.restoreIndent();
+        for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            TypePtr returnType = (*q)->returnType();
+            O << (returnType ? toString(returnType, p) : string("<type>void</type>")) << " <function>" << (*q)->name()
+              << "</function>(";
+            O.inc();
+            ParamDeclList paramList = (*q)->parameters();
+            ParamDeclList::const_iterator r = paramList.begin();
+            while(r != paramList.end())
+            {
+                if((*r)->isOutParam())
+                {
+                    O << "out ";
+                }
+                O << toString((*r)->type(), *q) << " <parameter>";
+                O << (*r)->name() << "</parameter>";
+                if(++r != paramList.end())
+                {
+                    O << ',';
+                    O << nl;
+                }
+            }
+            O << ')';
+            O.dec();
+            ExceptionList throws = (*q)->throws();
+            if(!throws.empty())
+            {
+                O.inc();
+                O << nl << "throws";
+                O.inc();
+                ExceptionList::const_iterator t = throws.begin();
+                while(t != throws.end())
+                {
+                    O << nl << toString(*t, p);
+                    if(++t != throws.end())
+                    {
+                        O << ',';
+                    }
+                }
+                O.dec();
+                O.dec();
+            }
+            O << ";</synopsis>";
+            O.restoreIndent();
 
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This operation has been deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            string reason;
+            metadata.clear();
+            if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This operation has been deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, reason);
-	    end();
-	}
+            printComment(*q, reason);
+            end();
+        }
     }
 
     {
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    TypePtr type = (*q)->type();
-	    O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
-	    O.restoreIndent();
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            TypePtr type = (*q)->type();
+            O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
+            O.restoreIndent();
 
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This member has been deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            string reason;
+            metadata.clear();
+            if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This member has been deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, reason);
-	    end();
-	}
+            printComment(*q, reason);
+            end();
+        }
     }
-	
+        
     end();
 
     return true;
@@ -608,11 +608,11 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     bool deprecatedException = p->findMetaData("deprecate", metadata);
     if(deprecatedException)
     {
-	deprecateReason = "This type has been deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This type has been deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     O.zeroIndent();
@@ -620,18 +620,18 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     printMetaData(p);
     if(p->isLocal())
     {
-	O << "local ";
+        O << "local ";
     }
     O << "exception <classname>" << p->name() << "</classname>";
     ExceptionPtr base = p->base();
     if(base)
     {
-	O.inc();
-	O << nl << "extends ";
-	O.inc();
-	O << nl << toString(base, p);
-	O.dec();
-	O.dec();
+        O.inc();
+        O << nl << "extends ";
+        O.inc();
+        O << nl << toString(base, p);
+        O.dec();
+        O.dec();
     }
     O << "</synopsis>";
     O.restoreIndent();
@@ -640,52 +640,52 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     if(!dataMembers.empty() && !_noIndex)
     {
-	start("section", "Data Member Index", false);
-	start("variablelist");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    printSummary(*q, deprecatedException || (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Data Member Index", false);
+        start("variablelist");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            printSummary(*q, deprecatedException || (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     end();
 
     {
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    TypePtr type = (*q)->type();
-	    O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
-	    O.restoreIndent();
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            TypePtr type = (*q)->type();
+            O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
+            O.restoreIndent();
 
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This member has been deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            string reason;
+            metadata.clear();
+            if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This member has been deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, reason);
-	    end();
-	}
+            printComment(*q, reason);
+            end();
+        }
     }
-	
+        
     end();
 
     return true;
@@ -702,11 +702,11 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     bool deprecatedStruct = p->findMetaData("deprecate", metadata);
     if(deprecatedStruct)
     {
-	deprecateReason = "This type has been deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This type has been deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     O.zeroIndent();
@@ -714,7 +714,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     printMetaData(p);
     if(p->isLocal())
     {
-	O << "local ";
+        O << "local ";
     }
     O << "struct <structname>" << p->name() << "</structname>";
     O << "</synopsis>";
@@ -724,52 +724,52 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     if(!dataMembers.empty() && !_noIndex)
     {
-	start("section", "Data Member Index", false);
-	start("variablelist");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p);
-	    end();
-	    start("listitem");
-	    printSummary(*q, deprecatedStruct || (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Data Member Index", false);
+        start("variablelist");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p);
+            end();
+            start("listitem");
+            printSummary(*q, deprecatedStruct || (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     end();
 
     {
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    TypePtr type = (*q)->type();
-	    O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
-	    O.restoreIndent();
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            TypePtr type = (*q)->type();
+            O << toString(type, p) << " <structfield>" << (*q)->name() << "</structfield>;</synopsis>";
+            O.restoreIndent();
 
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedStruct || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This member has been deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            string reason;
+            metadata.clear();
+            if(deprecatedStruct || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This member has been deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, reason);
-	    end();
-	}
+            printComment(*q, reason);
+            end();
+        }
     }
-	
+        
     end();
 
     return true;
@@ -785,11 +785,11 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     bool deprecatedEnum = p->findMetaData("deprecate", metadata);
     if(deprecatedEnum)
     {
-	deprecateReason = "This type has been deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This type has been deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     O.zeroIndent();
@@ -797,7 +797,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     printMetaData(p);
     if(p->isLocal())
     {
-	O << "local ";
+        O << "local ";
     }
     O << "enum <type>" << p->name() << "</type>";
     O << "</synopsis>";
@@ -807,49 +807,49 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     EnumeratorList enumerators = p->getEnumerators();
     if(!enumerators.empty() && !_noIndex)
     {
-	start("section", "Enumerator Index", false);
-	start("variablelist");
-	for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
-	{
-	    start("varlistentry");
-	    start("term");
-	    O << toString(*q, p->container());
-	    end();
-	    start("listitem");
-	    printSummary(*q, deprecatedEnum || (*q)->findMetaData("deprecate", metadata));
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Enumerator Index", false);
+        start("variablelist");
+        for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+        {
+            start("varlistentry");
+            start("term");
+            O << toString(*q, p->container());
+            end();
+            start("listitem");
+            printSummary(*q, deprecatedEnum || (*q)->findMetaData("deprecate", metadata));
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     end();
 
     {
-	for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
-	{
-	    start("section id=" + containedToId(*q), (*q)->name());
-	    O.zeroIndent();
-	    O << nl << "<synopsis>";
-	    printMetaData(*q);
-	    O << "<constant>" << (*q)->name() << "</constant></synopsis>";
-	    O.restoreIndent();
+        for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+        {
+            start("section id=" + containedToId(*q), (*q)->name());
+            O.zeroIndent();
+            O << nl << "<synopsis>";
+            printMetaData(*q);
+            O << "<constant>" << (*q)->name() << "</constant></synopsis>";
+            O.restoreIndent();
 
-	    //
-	    // Enumerators do not support metadata.
-	    //
-	    string reason;
-	    if(deprecatedEnum)
-	    {
-		reason = "This enumerator has been deprecated.";
-	    }
+            //
+            // Enumerators do not support metadata.
+            //
+            string reason;
+            if(deprecatedEnum)
+            {
+                reason = "This enumerator has been deprecated.";
+            }
 
-	    printComment(*q, reason);
-	    end();
-	}
+            printComment(*q, reason);
+            end();
+        }
     }
-	
+        
     end();
 }
 
@@ -887,34 +887,34 @@ Slice::Gen::getComment(const ContainedPtr& contained, const ContainerPtr& contai
     string comment;
     for(unsigned int i = 0; i < s.size(); ++i)
     {
-	if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
-	{
-	    comment += '[';
-	    ++i;
-	}
-	else if(s[i] == '[')
-	{
-	    string literal;
-	    for(++i; i < s.size(); ++i)
-	    {
-		if(s[i] == ']')
-		{
-		    break;
-		}
-		
-		literal += s[i];
-	    }
-	    comment += toString(literal, container);
-	}
-	else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
-	{
-	    comment += '.';
-	    break;
-	}
-	else
-	{
-	    comment += s[i];
-	}
+        if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
+        {
+            comment += '[';
+            ++i;
+        }
+        else if(s[i] == '[')
+        {
+            string literal;
+            for(++i; i < s.size(); ++i)
+            {
+                if(s[i] == ']')
+                {
+                    break;
+                }
+                
+                literal += s[i];
+            }
+            comment += toString(literal, container);
+        }
+        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
+        {
+            comment += '.';
+            break;
+        }
+        else
+        {
+            comment += s[i];
+        }
 
     }
     return comment;
@@ -927,29 +927,29 @@ Slice::Gen::getTagged(const string& tag, string& comment)
     string::size_type begin = 0;
     while(begin < comment.size())
     {
-	begin = comment.find("@" + tag, begin);
-	if(begin == string::npos)
-	{
-	    return result;
-	}
-	
-	string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
-	if(pos1 == string::npos)
-	{
-	    comment.erase(begin);
-	    return result;
-	}
-	
-	string::size_type pos2 = comment.find('@', pos1);
-	string line = comment.substr(pos1, pos2 - pos1);
-	comment.erase(begin, pos2 - 1 - begin);
+        begin = comment.find("@" + tag, begin);
+        if(begin == string::npos)
+        {
+            return result;
+        }
+        
+        string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
+        if(pos1 == string::npos)
+        {
+            comment.erase(begin);
+            return result;
+        }
+        
+        string::size_type pos2 = comment.find('@', pos1);
+        string line = comment.substr(pos1, pos2 - pos1);
+        comment.erase(begin, pos2 - 1 - begin);
 
-	string::size_type pos3 = line.find_last_not_of(" \t\r\n");
-	if(pos3 != string::npos)
-	{
-	    line.erase(pos3 + 1);
-	}
-	result.push_back(line);
+        string::size_type pos3 = line.find_last_not_of(" \t\r\n");
+        if(pos3 != string::npos)
+        {
+            line.erase(pos3 + 1);
+        }
+        result.push_back(line);
     }
 
     return result;
@@ -962,17 +962,17 @@ Slice::Gen::printMetaData(const ContainedPtr& p)
 
     if(!metaData.empty())
     {
-	O << "[";
-	list<string>::const_iterator q = metaData.begin();
-	while(q != metaData.end())
-	{
-	    O << " \"" << *q << "\"";
-	    if(++q != metaData.end())
-	    {
-		O << ",";
-	    }
-	}
-	O << " ]" << nl;
+        O << "[";
+        list<string>::const_iterator q = metaData.begin();
+        while(q != metaData.end())
+        {
+            O << " \"" << *q << "\"";
+            if(++q != metaData.end())
+            {
+                O << ",";
+            }
+        }
+        O << " ]" << nl;
     }
 }
 
@@ -982,7 +982,7 @@ Slice::Gen::printComment(const ContainedPtr& p, const string& deprecateReason)
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
     {
-	container = p->container();
+        container = p->container();
     }
 
     string comment = getComment(p, container, false);
@@ -996,223 +996,223 @@ Slice::Gen::printComment(const ContainedPtr& p, const string& deprecateReason)
     string::size_type pos = comment.find_last_not_of(" \t\r\n");
     if(pos != string::npos)
     {
-	comment.erase(pos + 1);
-	O.zeroIndent();
-	O << nl << comment;
-	O.restoreIndent();
+        comment.erase(pos + 1);
+        O.zeroIndent();
+        O << nl << comment;
+        O.restoreIndent();
     }
 
     end();
 
     if(!deprecateReason.empty())
     {
-	start("caution");
-	start("title");
-	O << nl << "Deprecated";
-	end();
-	start("para");
-	O << nl << deprecateReason;
-	end();
-	end();
+        start("caution");
+        start("title");
+        O << nl << "Deprecated";
+        end();
+        start("para");
+        O << nl << deprecateReason;
+        end();
+        end();
     }
 
     if(!par.empty())
     {
-	start("section", "Parameters", false);
-	start("variablelist");
-	for(StringList::const_iterator q = par.begin(); q != par.end(); ++q)
-	{
-	    string term;
-	    pos = q->find_first_of(" \t\r\n");
-	    if(pos != string::npos)
-	    {
-		term = q->substr(0, pos);
-	    }
-	    string item;
-	    pos = q->find_first_not_of(" \t\r\n", pos);
-	    if(pos != string::npos)
-	    {
-		item = q->substr(pos);
-	    }
-	    
-	    start("varlistentry");
-	    start("term");
-	    O << "<parameter>" << term << "</parameter>";
-	    end();
-	    start("listitem");
-	    start("para");
-	    O << nl << item;
-	    end();
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Parameters", false);
+        start("variablelist");
+        for(StringList::const_iterator q = par.begin(); q != par.end(); ++q)
+        {
+            string term;
+            pos = q->find_first_of(" \t\r\n");
+            if(pos != string::npos)
+            {
+                term = q->substr(0, pos);
+            }
+            string item;
+            pos = q->find_first_not_of(" \t\r\n", pos);
+            if(pos != string::npos)
+            {
+                item = q->substr(pos);
+            }
+            
+            start("varlistentry");
+            start("term");
+            O << "<parameter>" << term << "</parameter>";
+            end();
+            start("listitem");
+            start("para");
+            O << nl << item;
+            end();
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     if(!ret.empty())
     {
-	start("section", "Return Value", false);
-	start("para");
-	O << nl << ret.front();
-	end();
-	end();
+        start("section", "Return Value", false);
+        start("para");
+        O << nl << ret.front();
+        end();
+        end();
     }
 
     if(!throws.empty())
     {
-	start("section", "Exceptions", false);
-	start("variablelist");
-	for(StringList::const_iterator q = throws.begin(); q != throws.end(); ++q)
-	{
-	    string term;
-	    pos = q->find_first_of(" \t\r\n");
-	    if(pos != string::npos)
-	    {
-		term = q->substr(0, pos);
-	    }
-	    string item;
-	    pos = q->find_first_not_of(" \t\r\n", pos);
-	    if(pos != string::npos)
-	    {
-		item = q->substr(pos);
-	    }
-	    
-	    start("varlistentry");
-	    start("term");
-	    O << toString(term, container);
-	    end();
-	    start("listitem");
-	    start("para");
-	    O << nl << item;
-	    end();
-	    end();
-	    end();
-	}
-	end();
-	end();
+        start("section", "Exceptions", false);
+        start("variablelist");
+        for(StringList::const_iterator q = throws.begin(); q != throws.end(); ++q)
+        {
+            string term;
+            pos = q->find_first_of(" \t\r\n");
+            if(pos != string::npos)
+            {
+                term = q->substr(0, pos);
+            }
+            string item;
+            pos = q->find_first_not_of(" \t\r\n", pos);
+            if(pos != string::npos)
+            {
+                item = q->substr(pos);
+            }
+            
+            start("varlistentry");
+            start("term");
+            O << toString(term, container);
+            end();
+            start("listitem");
+            start("para");
+            O << nl << item;
+            end();
+            end();
+            end();
+        }
+        end();
+        end();
     }
 
     ClassList derivedClasses;
     ClassDefPtr def = ClassDefPtr::dynamicCast(p);
     if(def)
     {
-	derivedClasses = p->unit()->findDerivedClasses(def);
+        derivedClasses = p->unit()->findDerivedClasses(def);
     }
     if(!derivedClasses.empty())
     {
-	start("section", "Derived Classes and Interfaces", false);
-	O << nl << "<para>";
-	start("simplelist type=\"inline\"");
-	for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
-	{
-	    start("member");
-	    O << toString(*q, container);
-	    end();
-	}
-	end();
-	O << "</para>";
-	end();
+        start("section", "Derived Classes and Interfaces", false);
+        O << nl << "<para>";
+        start("simplelist type=\"inline\"");
+        for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
+        {
+            start("member");
+            O << toString(*q, container);
+            end();
+        }
+        end();
+        O << "</para>";
+        end();
     }
 
     ExceptionList derivedExceptions;
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if(ex)
     {
-	derivedExceptions = p->unit()->findDerivedExceptions(ex);
-	if(!derivedExceptions.empty())
-	{
-	    start("section", "Derived Exceptions", false);
-	    O << nl << "<para>";
-	    start("simplelist type=\"inline\"");
-	    for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
-	    {
-		start("member");
-		O << toString(*q, container);
-		end();
-	    }
-	    end();
-	    O << "</para>";
-	    end();
-	}
-	ContainedList usedBy;
-	usedBy = p->unit()->findUsedBy(ex);
-	if(!usedBy.empty())
-	{
-	    start("section", "Used By", false);
-	    O << nl << "<para>";
-	    start("simplelist type=\"inline\"");
-	    for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
-	    {
-		start("member");
-		O << toString(*q, container);
-		end();
-	    }
-	    end();
-	    O << "</para>";
-	    end();
-	}
+        derivedExceptions = p->unit()->findDerivedExceptions(ex);
+        if(!derivedExceptions.empty())
+        {
+            start("section", "Derived Exceptions", false);
+            O << nl << "<para>";
+            start("simplelist type=\"inline\"");
+            for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
+            {
+                start("member");
+                O << toString(*q, container);
+                end();
+            }
+            end();
+            O << "</para>";
+            end();
+        }
+        ContainedList usedBy;
+        usedBy = p->unit()->findUsedBy(ex);
+        if(!usedBy.empty())
+        {
+            start("section", "Used By", false);
+            O << nl << "<para>";
+            start("simplelist type=\"inline\"");
+            for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+            {
+                start("member");
+                O << toString(*q, container);
+                end();
+            }
+            end();
+            O << "</para>";
+            end();
+        }
     }
 
     ContainedList usedBy;
     ConstructedPtr constructed;
     if(def)
     {
-	constructed = def->declaration();
+        constructed = def->declaration();
     }
     else
     {
-	constructed = ConstructedPtr::dynamicCast(p);
+        constructed = ConstructedPtr::dynamicCast(p);
     }
     if(constructed)
     {
-	usedBy = p->unit()->findUsedBy(constructed);
+        usedBy = p->unit()->findUsedBy(constructed);
     }
     if(!usedBy.empty())
     {
-	//
-	// We first accumulate the strings in a list instead of printing
-	// each stringified entry in the usedBy list. This is necessary because
-	// the usedBy list can contain operations and parameters. But toString()
-	// on a parameter returns the string for the parameter's operation, so
-	// we can end up printing the same operation name more than once.
-	//
-	list<string> strings;
-	for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
-	{
-	    strings.push_back(toString(*q, container));
-	}
-	strings.sort();
-	strings.unique();
+        //
+        // We first accumulate the strings in a list instead of printing
+        // each stringified entry in the usedBy list. This is necessary because
+        // the usedBy list can contain operations and parameters. But toString()
+        // on a parameter returns the string for the parameter's operation, so
+        // we can end up printing the same operation name more than once.
+        //
+        list<string> strings;
+        for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+        {
+            strings.push_back(toString(*q, container));
+        }
+        strings.sort();
+        strings.unique();
 
-	start("section", "Used By", false);
-	O << nl << "<para>";
-	start("simplelist type=\"inline\"");
-	for(list<string>::const_iterator p = strings.begin(); p != strings.end(); ++p)
-	{
-	    start("member");
-	    O << *p;
-	    end();
-	}
-	end();
-	O << "</para>";
-	end();
+        start("section", "Used By", false);
+        O << nl << "<para>";
+        start("simplelist type=\"inline\"");
+        for(list<string>::const_iterator p = strings.begin(); p != strings.end(); ++p)
+        {
+            start("member");
+            O << *p;
+            end();
+        }
+        end();
+        O << "</para>";
+        end();
     }
 
     if(!see.empty())
     {
-	start("section", "See Also", false);
-	O << nl << "<para>";
-	start("simplelist type=\"inline\"");
-	for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
-	{
-	    start("member");
-	    O << toString(*q, container);
-	    end();
-	}
-	end();
-	O << "</para>";
-	end();
+        start("section", "See Also", false);
+        O << nl << "<para>";
+        start("simplelist type=\"inline\"");
+        for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
+        {
+            start("member");
+            O << toString(*q, container);
+            end();
+        }
+        end();
+        O << "</para>";
+        end();
     }
 }
 
@@ -1222,7 +1222,7 @@ Slice::Gen::printSummary(const ContainedPtr& p, bool deprecated)
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
     {
-	container = p->container();
+        container = p->container();
     }
 
     string summary = getComment(p, container, true);
@@ -1231,7 +1231,7 @@ Slice::Gen::printSummary(const ContainedPtr& p, bool deprecated)
     O << nl << summary;
     if(deprecated)
     {
-	O << nl << "<emphasis>Deprecated.</emphasis>";
+        O << nl << "<emphasis>Deprecated.</emphasis>";
     }
     O.restoreIndent();
     end();
@@ -1251,12 +1251,12 @@ Slice::Gen::start(const std::string& element, const std::string& title, bool asL
     O << se(titleElement);
     if(asLiteral)
     {
-	O << "<literal>";
+        O << "<literal>";
     }
     O << title;
     if(asLiteral)
     {
-	O << "</literal>";
+        O << "</literal>";
     }
     end();
 }
@@ -1275,7 +1275,7 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     string scoped = contained->scoped();
     if(scoped[0] == ':')
     {
-	scoped.erase(0, 2);
+        scoped.erase(0, 2);
     }
 
     string id;
@@ -1283,15 +1283,15 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
 
     for(unsigned int i = 0; i < scoped.size(); ++i)
     {
-	if(scoped[i] == ':')
-	{
-	    id += '.';
-	    ++i;
-	}
-	else
-	{
-	    id += scoped[i];
-	}
+        if(scoped[i] == ':')
+        {
+            id += '.';
+            ++i;
+        }
+        else
+        {
+            id += scoped[i];
+        }
     }
 
     //
@@ -1300,8 +1300,8 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     //
     if(id.size() > 44)
     {
-	id.erase(0, id.size() - 44);
-	assert(id.size() == 44);
+        id.erase(0, id.size() - 44);
+        assert(id.size() == 44);
     }
 
     //
@@ -1309,7 +1309,7 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     //
     if(id[0] == '.')
     {
-	id.erase(0, 1);
+        id.erase(0, 1);
     }
 
     return '"' + id + '"';
@@ -1324,21 +1324,21 @@ Slice::Gen::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr
 
     if(!q) // Container is the global module
     {
-	return s.substr(2);
+        return s.substr(2);
     }
     
     do
     {
-	string s2 = q->scoped();
-	s2 += "::";
+        string s2 = q->scoped();
+        s2 += "::";
 
-	if(s.find(s2) == 0)
-	{
-	    return s.substr(s2.size());
-	}
+        if(s.find(s2) == 0)
+        {
+            return s.substr(s2.size());
+        }
 
-	p = q->container();
-	q = ContainedPtr::dynamicCast(p);
+        p = q->container();
+        q = ContainedPtr::dynamicCast(p);
     }
     while(q);
 
@@ -1354,130 +1354,130 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, 
 
     static const char* builtinTable[] =
     {
-	"byte",
-	"bool",
-	"short",
-	"int",
-	"long",
-	"float",
-	"double",
-	"string",
-	"Object",
-	"Object*",
-	"LocalObject"
+        "byte",
+        "bool",
+        "short",
+        "int",
+        "long",
+        "float",
+        "double",
+        "string",
+        "Object",
+        "Object*",
+        "LocalObject"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
-	s = builtinTable[builtin->kind()];
-	tag = "type";
+        s = builtinTable[builtin->kind()];
+        tag = "type";
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
     if(proxy)
     {
-	if(withLink && proxy->_class()->includeLevel() == 0)
-	{
-	    linkend = containedToId(proxy->_class());
-	}
-	s = getScopedMinimized(proxy->_class(), container);
-	s += "*";
-	tag = "classname";
+        if(withLink && proxy->_class()->includeLevel() == 0)
+        {
+            linkend = containedToId(proxy->_class());
+        }
+        s = getScopedMinimized(proxy->_class(), container);
+        s += "*";
+        tag = "classname";
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
     if(cl)
     {
-	//
+        //
         // We must generate the id from the definition, not from the
         // declaration, provided that a definition is available.
-	//
-	ContainedPtr definition = cl->definition();
-	if(withLink && definition && definition->includeLevel() == 0)
-	{
-	    linkend = containedToId(definition);
-	}
-	s = getScopedMinimized(cl, container);
-	tag = "classname";
+        //
+        ContainedPtr definition = cl->definition();
+        if(withLink && definition && definition->includeLevel() == 0)
+        {
+            linkend = containedToId(definition);
+        }
+        s = getScopedMinimized(cl, container);
+        tag = "classname";
     }
 
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if(ex)
     {
-	if(withLink && ex->includeLevel() == 0)
-	{
-	    linkend = containedToId(ex);
-	}
-	s = getScopedMinimized(ex, container);
-	tag = "classname";
+        if(withLink && ex->includeLevel() == 0)
+        {
+            linkend = containedToId(ex);
+        }
+        s = getScopedMinimized(ex, container);
+        tag = "classname";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
     if(st)
     {
-	if(withLink && st->includeLevel() == 0)
-	{
-	    linkend = containedToId(st);
-	}
-	s = getScopedMinimized(st, container);
-	tag = "structname";
+        if(withLink && st->includeLevel() == 0)
+        {
+            linkend = containedToId(st);
+        }
+        s = getScopedMinimized(st, container);
+        tag = "structname";
     }
 
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
     if(en)
     {
-	if(withLink && en->includeLevel() == 0)
-	{
-	    linkend = containedToId(en);
-	}
-	s = getScopedMinimized(en, container);
-	tag = "constant";
+        if(withLink && en->includeLevel() == 0)
+        {
+            linkend = containedToId(en);
+        }
+        s = getScopedMinimized(en, container);
+        tag = "constant";
     }
 
     OperationPtr op = OperationPtr::dynamicCast(p);
     if(op)
     {
-	if(withLink && op->includeLevel() == 0)
-	{
-	    linkend = containedToId(op);
-	}
-	s = getScopedMinimized(op, container);
-	tag = "function";
+        if(withLink && op->includeLevel() == 0)
+        {
+            linkend = containedToId(op);
+        }
+        s = getScopedMinimized(op, container);
+        tag = "function";
     }
 
     ParamDeclPtr pd = ParamDeclPtr::dynamicCast(p);
     if(pd)
     {
-	op = OperationPtr::dynamicCast(pd->container());
-	assert(op);
-	if(withLink && pd->includeLevel() == 0)
-	{
-	    linkend = containedToId(op);
-	}
-	s = getScopedMinimized(op, container);
-	tag = "function";
+        op = OperationPtr::dynamicCast(pd->container());
+        assert(op);
+        if(withLink && pd->includeLevel() == 0)
+        {
+            linkend = containedToId(op);
+        }
+        s = getScopedMinimized(op, container);
+        tag = "function";
     }
 
     if(s.empty())
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(p);
-	assert(contained);
-	if(withLink && contained->includeLevel() == 0)
-	{
-	    linkend = containedToId(contained);
-	}
-	s = getScopedMinimized(contained, container);
-	tag = "type";
+        ContainedPtr contained = ContainedPtr::dynamicCast(p);
+        assert(contained);
+        if(withLink && contained->includeLevel() == 0)
+        {
+            linkend = containedToId(contained);
+        }
+        s = getScopedMinimized(contained, container);
+        tag = "type";
     }
 
     if(linkend.empty())
     {
-	return "<" + tag + ">" + s + "</" + tag + ">";
+        return "<" + tag + ">" + s + "</" + tag + ">";
     }
     else
     {
-	return "<link linkend=" + linkend + "><" + tag + ">" + s + "</" + tag + "></link>";
+        return "<link linkend=" + linkend + "><" + tag + ">" + s + "</" + tag + "></link>";
     }
 }
 
@@ -1489,13 +1489,13 @@ Slice::Gen::toString(const string& str, const ContainerPtr& container, bool with
     TypeList types = container->lookupType(s, false);
     if(!types.empty())
     {
-	return toString(types.front(), container, withLink);
+        return toString(types.front(), container, withLink);
     }
 
     ContainedList contList = container->lookupContained(s, false);
     if(!contList.empty())
     {
-	return toString(contList.front(), container, withLink);
+        return toString(contList.front(), container, withLink);
     }
 
     //

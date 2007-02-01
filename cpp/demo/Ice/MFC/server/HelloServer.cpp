@@ -51,11 +51,11 @@ BOOL CHelloServerApp::InitInstance()
     try
     {
         int argc = 0;
-	Ice::InitializationData initData;
+        Ice::InitializationData initData;
         initData.properties = Ice::createProperties();
-	initData.properties->load("config");
+        initData.properties->load("config");
         log = new LogI;
-	initData.logger = log;
+        initData.logger = log;
         communicator = Ice::initialize(argc, 0, initData);
         adapter = communicator->createObjectAdapter("Hello");
     }

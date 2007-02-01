@@ -21,17 +21,17 @@ main(int argc, char** argv)
 {
     try
     {
-	initializeTestSuite();
+        initializeTestSuite();
 
-	for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
-	{
-	    (*p)->start();
-	}
+        for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
+        {
+            (*p)->start();
+        }
     }
     catch(const TestFailed& e)
     {
-	cout << "test " << e.name << " failed" << endl;
-	return EXIT_FAILURE;
+        cout << "test " << e.name << " failed" << endl;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 }

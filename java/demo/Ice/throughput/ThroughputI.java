@@ -18,28 +18,28 @@ public final class ThroughputI extends _ThroughputDisp
 
         _byteSeq = new byte[ByteSeqSize.value];
 
-	_stringSeq = new String[StringSeqSize.value];
-	for(int i = 0; i < StringSeqSize.value; ++i)
-	{
-	    _stringSeq[i] = "hello";
-	}
+        _stringSeq = new String[StringSeqSize.value];
+        for(int i = 0; i < StringSeqSize.value; ++i)
+        {
+            _stringSeq[i] = "hello";
+        }
 
-	_structSeq = new StringDouble[StringDoubleSeqSize.value];
-	for(int i = 0; i < StringDoubleSeqSize.value; ++i)
-	{
-	    _structSeq[i] = new StringDouble();
-	    _structSeq[i].s = "hello";
-	    _structSeq[i].d = 3.14;
-	}
+        _structSeq = new StringDouble[StringDoubleSeqSize.value];
+        for(int i = 0; i < StringDoubleSeqSize.value; ++i)
+        {
+            _structSeq[i] = new StringDouble();
+            _structSeq[i].s = "hello";
+            _structSeq[i].d = 3.14;
+        }
 
-	_fixedSeq = new Fixed[FixedSeqSize.value];
-	for(int i = 0; i < FixedSeqSize.value; ++i)
-	{
-	    _fixedSeq[i] = new Fixed();
-	    _fixedSeq[i].i = 0;
-	    _fixedSeq[i].j = 0;
-	    _fixedSeq[i].d = 0;
-	}
+        _fixedSeq = new Fixed[FixedSeqSize.value];
+        for(int i = 0; i < FixedSeqSize.value; ++i)
+        {
+            _fixedSeq[i] = new Fixed();
+            _fixedSeq[i].i = 0;
+            _fixedSeq[i].j = 0;
+            _fixedSeq[i].d = 0;
+        }
     }
 
     public void
@@ -57,13 +57,13 @@ public final class ThroughputI extends _ThroughputDisp
     recvByteSeq(Ice.Current current)
     {
         if(_warmup)
-	{
+        {
             return _emptyByteSeq;
-	}
-	else
-	{
+        }
+        else
+        {
             return _byteSeq;
-	}
+        }
     }
 
     public byte[]
@@ -81,13 +81,13 @@ public final class ThroughputI extends _ThroughputDisp
     recvStringSeq(Ice.Current current)
     {
         if(_warmup)
-	{
+        {
             return _emptyStringSeq;
-	}
-	else
-	{
+        }
+        else
+        {
             return _stringSeq;
-	}
+        }
     }
 
     public String[]
@@ -105,13 +105,13 @@ public final class ThroughputI extends _ThroughputDisp
     recvStructSeq(Ice.Current current)
     {
         if(_warmup)
-	{
+        {
             return _emptyStructSeq;
-	}
-	else
-	{
+        }
+        else
+        {
             return _structSeq;
-	}
+        }
     }
 
     public StringDouble[]
@@ -129,13 +129,13 @@ public final class ThroughputI extends _ThroughputDisp
     recvFixedSeq(Ice.Current current)
     {
         if(_warmup)
-	{
+        {
             return _emptyFixedSeq;
-	}
-	else
-	{
+        }
+        else
+        {
             return _fixedSeq;
-	}
+        }
     }
 
     public Fixed[]

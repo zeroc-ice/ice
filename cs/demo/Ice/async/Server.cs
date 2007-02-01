@@ -14,10 +14,10 @@ public class Server : Ice.Application
         callbackOnInterrupt();
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
-	_workQueue = new WorkQueue();
+        _workQueue = new WorkQueue();
         adapter.add(new HelloI(_workQueue), communicator().stringToIdentity("hello"));
 
-	_workQueue.Start();
+        _workQueue.Start();
         adapter.activate();
 
         communicator().waitForShutdown();
@@ -27,30 +27,30 @@ public class Server : Ice.Application
     public override void interruptCallback(int sig)
     {
         _workQueue.destroy();
-	_workQueue.Join();
+        _workQueue.Join();
 
-	try
-	{
-	    communicator().destroy();
-	}
-	catch(Ice.Exception ex)
-	{
-	    System.Console.Error.WriteLine(appName() + ": " + ex);
-	}
-	catch(System.Exception ex)
-	{
-	    System.Console.Error.WriteLine(appName() + ": unknown exception: " + ex);
-	}
+        try
+        {
+            communicator().destroy();
+        }
+        catch(Ice.Exception ex)
+        {
+            System.Console.Error.WriteLine(appName() + ": " + ex);
+        }
+        catch(System.Exception ex)
+        {
+            System.Console.Error.WriteLine(appName() + ": unknown exception: " + ex);
+        }
     }
 
     public static void Main(string[] args)
     {
         Server app = new Server();
         int status = app.main(args, "config.server");
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 
     private WorkQueue _workQueue;

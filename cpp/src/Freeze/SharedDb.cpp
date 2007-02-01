@@ -31,15 +31,15 @@ checkTypes(const SharedDb& sharedDb, const string& key, const string& value)
 {
     if(key != sharedDb.key())
     {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = sharedDb.dbName() + "'s key type is " + sharedDb.key() + ", not " + key;
-	throw ex;
+        DatabaseException ex(__FILE__, __LINE__);
+        ex.message = sharedDb.dbName() + "'s key type is " + sharedDb.key() + ", not " + key;
+        throw ex;
     }
     if(value != sharedDb.value())
     {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = sharedDb.dbName() + "'s value type is " + sharedDb.value() + ", not " + value;
-	throw ex;
+        DatabaseException ex(__FILE__, __LINE__);
+        ex.message = sharedDb.dbName() + "'s value type is " + sharedDb.value() + ", not " + value;
+        throw ex;
     }
 }
 }
@@ -68,29 +68,29 @@ Freeze::catalogName()
 
 SharedDbPtr 
 Freeze::SharedDb::get(const ConnectionIPtr& connection, 
-		      const string& dbName,
-		      const string& key,
-		      const string& value,
-		      const KeyCompareBasePtr& keyCompare,
-		      const vector<MapIndexBasePtr>& indices,
-		      bool createDb)
+                      const string& dbName,
+                      const string& key,
+                      const string& value,
+                      const KeyCompareBasePtr& keyCompare,
+                      const vector<MapIndexBasePtr>& indices,
+                      bool createDb)
 {
     if(dbName == _catalogName)
     {
-	//
-	// We don't want to lock the _mapMutex to retrieve the catalog
-	//
-	
-	SharedDbPtr result = connection->dbEnv()->getCatalog();
-	checkTypes(*result, key, value);
-	return result;
+        //
+        // We don't want to lock the _mapMutex to retrieve the catalog
+        //
+        
+        SharedDbPtr result = connection->dbEnv()->getCatalog();
+        checkTypes(*result, key, value);
+        return result;
     }
     
     StaticMutex::Lock lock(_mapMutex);
 
     if(sharedDbMap == 0)
     {
-	sharedDbMap = new SharedDbMap;
+        sharedDbMap = new SharedDbMap;
     }
 
     MapKey mapKey;
@@ -99,20 +99,20 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     mapKey.dbName = dbName;
 
     {
-	SharedDbMap::iterator p = sharedDbMap->find(mapKey);
-	if(p != sharedDbMap->end())
-	{
-	    checkTypes(*(p->second), key, value);
-	    p->second->connectIndices(indices);
-	    return p->second;
-	}
+        SharedDbMap::iterator p = sharedDbMap->find(mapKey);
+        if(p != sharedDbMap->end())
+        {
+            checkTypes(*(p->second), key, value);
+            p->second->connectIndices(indices);
+            return p->second;
+        }
     }
 
     //
     // MapKey not found, let's create and open a new Db
     //
     auto_ptr<SharedDb> result(new SharedDb(mapKey, key, value, connection, 
-					   keyCompare, indices, createDb));
+                                           keyCompare, indices, createDb));
     
     //
     // Insert it into the map
@@ -131,7 +131,7 @@ Freeze::SharedDb::openCatalog(SharedDbEnv& dbEnv)
 
     if(sharedDbMap == 0)
     {
-	sharedDbMap = new SharedDbMap;
+        sharedDbMap = new SharedDbMap;
     }
 
     MapKey mapKey;
@@ -145,17 +145,17 @@ Freeze::SharedDb::openCatalog(SharedDbEnv& dbEnv)
     // Insert it into the map
     //
     pair<SharedDbMap::iterator, bool> insertResult 
-	= sharedDbMap->insert(SharedDbMap::value_type(mapKey, result.get()));
+        = sharedDbMap->insert(SharedDbMap::value_type(mapKey, result.get()));
     
     if(!insertResult.second)
     {
-	//
-	// That's very wrong: the catalog is associated with another env
-	//
-	assert(0);
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = "Catalog already opened";
-	throw ex;
+        //
+        // That's very wrong: the catalog is associated with another env
+        //
+        assert(0);
+        DatabaseException ex(__FILE__, __LINE__);
+        ex.message = "Catalog already opened";
+        throw ex;
     }
     
     return result.release();
@@ -166,8 +166,8 @@ Freeze::SharedDb::~SharedDb()
 {
     if(_trace >= 1)
     {
-	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-	out << "closing Db \"" << _mapKey.dbName << "\"";
+        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+        out << "closing Db \"" << _mapKey.dbName << "\"";
     }
 
     cleanup(false);
@@ -177,8 +177,8 @@ void Freeze::SharedDb::__incRef()
 {
     if(_trace >= 2)
     {
-	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-	out << "incremeting reference count for Db \"" << _mapKey.dbName << "\"";
+        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+        out << "incremeting reference count for Db \"" << _mapKey.dbName << "\"";
     }
 
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
@@ -189,57 +189,57 @@ void Freeze::SharedDb::__decRef()
 {
     if(_trace >= 2)
     {
-	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-	out << "removing reference count for Db \"" << _mapKey.dbName << "\"";
+        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+        out << "removing reference count for Db \"" << _mapKey.dbName << "\"";
     }
 
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
     if(--_refCount == 0)
     {
         IceUtil::StaticMutex::TryLock mapLock(_mapMutex);
-	if(!mapLock.acquired())
-	{
-	    //
-	    // Reacquire mutex in proper order and check again
-	    //
-	    lock.release();
-	    mapLock.acquire();
-	    lock.acquire();
-	    if(_refCount > 0)
-	    {
-		return;
-	    }
-	}
+        if(!mapLock.acquired())
+        {
+            //
+            // Reacquire mutex in proper order and check again
+            //
+            lock.release();
+            mapLock.acquire();
+            lock.acquire();
+            if(_refCount > 0)
+            {
+                return;
+            }
+        }
 
-	//
-	// Remove from map
-	//
-	size_t one;
-	one = sharedDbMap->erase(_mapKey);
-	assert(one == 1);
+        //
+        // Remove from map
+        //
+        size_t one;
+        one = sharedDbMap->erase(_mapKey);
+        assert(one == 1);
 
-	if(sharedDbMap->size() == 0)
-	{
-	    delete sharedDbMap;
-	    sharedDbMap = 0;
-	}
+        if(sharedDbMap->size() == 0)
+        {
+            delete sharedDbMap;
+            sharedDbMap = 0;
+        }
 
-	//
-	// Keep lock to prevent somebody else to re-open this Db
-	// before it's closed.
-	//
-	delete this;
+        //
+        // Keep lock to prevent somebody else to re-open this Db
+        // before it's closed.
+        //
+        delete this;
     }
 }
 
   
 Freeze::SharedDb::SharedDb(const MapKey& mapKey, 
-			   const string& key,
-			   const string& value,
-			   const ConnectionIPtr& connection, 
-			   const KeyCompareBasePtr& keyCompare,
-			   const vector<MapIndexBasePtr>& indices,
-			   bool createDb) :
+                           const string& key,
+                           const string& value,
+                           const ConnectionIPtr& connection, 
+                           const KeyCompareBasePtr& keyCompare,
+                           const vector<MapIndexBasePtr>& indices,
+                           bool createDb) :
     Db(connection->dbEnv()->getEnv(), 0),
     _mapKey(mapKey),
     _refCount(0),
@@ -248,128 +248,128 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 {
     if(_trace >= 1)
     {
-	Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-	out << "opening Db \"" << _mapKey.dbName << "\"";
+        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+        out << "opening Db \"" << _mapKey.dbName << "\"";
     }
 
     ConnectionPtr catalogConnection = 
-	createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
+        createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
     Catalog catalog(catalogConnection, _catalogName);
     
     Catalog::iterator ci = catalog.find(_mapKey.dbName);
     
     if(ci != catalog.end())
     {
-	if(ci->second.evictor)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = _mapKey.dbName + " is an evictor database";
-	    throw ex;
-	}
+        if(ci->second.evictor)
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = _mapKey.dbName + " is an evictor database";
+            throw ex;
+        }
 
-	_key = ci->second.key;
-	_value = ci->second.value;
-	checkTypes(*this, key, value);
+        _key = ci->second.key;
+        _value = ci->second.value;
+        checkTypes(*this, key, value);
     }
     else
     {
-	_key = key;
-	_value = value;
+        _key = key;
+        _value = value;
     }
 
     set_app_private(this);
     if(_keyCompare->compareEnabled())
     {
-	set_bt_compare(&customCompare);
+        set_bt_compare(&customCompare);
     }
 
     try
     {
-	TransactionPtr tx = catalogConnection->beginTransaction();
-	DbTxn* txn = getTxn(tx);
+        TransactionPtr tx = catalogConnection->beginTransaction();
+        DbTxn* txn = getTxn(tx);
 
-	u_int32_t flags = DB_THREAD;
-	if(createDb)
-	{
-	    flags |= DB_CREATE;
-	}
-	open(txn, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+        u_int32_t flags = DB_THREAD;
+        if(createDb)
+        {
+            flags |= DB_CREATE;
+        }
+        open(txn, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
-	for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
-	    p != indices.end(); ++p)
-	{
-	    const MapIndexBasePtr& indexBase = *p; 
-	    assert(indexBase->_impl == 0);
-	    assert(indexBase->_communicator == 0);
-	    indexBase->_communicator = connection->communicator();
+        for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
+            p != indices.end(); ++p)
+        {
+            const MapIndexBasePtr& indexBase = *p; 
+            assert(indexBase->_impl == 0);
+            assert(indexBase->_communicator == 0);
+            indexBase->_communicator = connection->communicator();
 
-	    auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
-	    
+            auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
+            
 #ifndef NDEBUG
-	    bool inserted = 
+            bool inserted = 
 #endif
-		_indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
-	    assert(inserted);
-	    
-	    indexBase->_impl = indexI.release();
-	}
+                _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
+            assert(inserted);
+            
+            indexBase->_impl = indexI.release();
+        }
 
-	if(ci == catalog.end())
-	{
-	    CatalogData catalogData;
-	    catalogData.evictor = false;
-	    catalogData.key = key;
-	    catalogData.value = value;
-	    catalog.put(Catalog::value_type(_mapKey.dbName, catalogData));
-	}
-	
-	tx->commit();
+        if(ci == catalog.end())
+        {
+            CatalogData catalogData;
+            catalogData.evictor = false;
+            catalogData.key = key;
+            catalogData.value = value;
+            catalog.put(Catalog::value_type(_mapKey.dbName, catalogData));
+        }
+        
+        tx->commit();
     }
     catch(const ::DbException& dx)
     {
-	TransactionPtr tx = catalogConnection->currentTransaction();
-	if(tx != 0)
-	{
-	    try
-	    {
-		tx->rollback();
-	    }
-	    catch(...)
-	    {
-	    }
-	}
+        TransactionPtr tx = catalogConnection->currentTransaction();
+        if(tx != 0)
+        {
+            try
+            {
+                tx->rollback();
+            }
+            catch(...)
+            {
+            }
+        }
 
-	cleanup(true);
+        cleanup(true);
 
-	if(dx.get_errno() == ENOENT)
-	{
-	    NotFoundException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
-	else
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
+        if(dx.get_errno() == ENOENT)
+        {
+            NotFoundException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
+        else
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
     }
     catch(...)
     {
-	TransactionPtr tx = catalogConnection->currentTransaction();
-	if(tx != 0)
-	{
-	    try
-	    {
-		tx->rollback();
-	    }
-	    catch(...)
-	    {
-	    }
-	}
+        TransactionPtr tx = catalogConnection->currentTransaction();
+        if(tx != 0)
+        {
+            try
+            {
+                tx->rollback();
+            }
+            catch(...)
+            {
+            }
+        }
 
-	cleanup(true);
-	throw;
+        cleanup(true);
+        throw;
     }
 }
 
@@ -385,20 +385,20 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey, DbEnv* env) :
 
     if(_trace >= 1)
     {
-	Trace out(_mapKey.communicator->getLogger(), "Freeze.Db");
-	out << "opening Db \"" << _mapKey.dbName << "\"";
+        Trace out(_mapKey.communicator->getLogger(), "Freeze.Db");
+        out << "opening Db \"" << _mapKey.dbName << "\"";
     }
 
     try
     {
-	u_int32_t flags = DB_THREAD | DB_CREATE | DB_AUTO_COMMIT;
-	open(0, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+        u_int32_t flags = DB_THREAD | DB_CREATE | DB_AUTO_COMMIT;
+        open(0, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
     }
     catch(const ::DbException& dx)
     {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
+        DatabaseException ex(__FILE__, __LINE__);
+        ex.message = dx.what();
+        throw ex;
     }
 }
 
@@ -406,15 +406,15 @@ void
 Freeze::SharedDb::connectIndices(const vector<MapIndexBasePtr>& indices) const
 {
     for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
-	p != indices.end(); ++p)
+        p != indices.end(); ++p)
     {
-	const MapIndexBasePtr& indexBase = *p; 
-	assert(indexBase->_impl == 0);
+        const MapIndexBasePtr& indexBase = *p; 
+        assert(indexBase->_impl == 0);
 
-	IndexMap::const_iterator q = _indices.find(indexBase->name());
-	assert(q != _indices.end());
-	indexBase->_impl = q->second;
-	indexBase->_communicator = _mapKey.communicator;
+        IndexMap::const_iterator q = _indices.find(indexBase->name());
+        assert(q != _indices.end());
+        indexBase->_impl = q->second;
+        indexBase->_communicator = _mapKey.communicator;
     }
 }
 
@@ -423,21 +423,21 @@ Freeze::SharedDb::cleanup(bool noThrow)
 {
     try
     {
-	for(IndexMap::iterator p = _indices.begin(); p != _indices.end(); ++p)
-	{
-	    delete p->second;
-	}
-	_indices.clear();
-	
-	close(0);
+        for(IndexMap::iterator p = _indices.begin(); p != _indices.end(); ++p)
+        {
+            delete p->second;
+        }
+        _indices.clear();
+        
+        close(0);
     }
     catch(const ::DbException& dx)
     {
-	if(!noThrow)
-	{
-	    DatabaseException ex(__FILE__, __LINE__);
-	    ex.message = dx.what();
-	    throw ex;
-	}
+        if(!noThrow)
+        {
+            DatabaseException ex(__FILE__, __LINE__);
+            ex.message = dx.what();
+            throw ex;
+        }
     }
 }

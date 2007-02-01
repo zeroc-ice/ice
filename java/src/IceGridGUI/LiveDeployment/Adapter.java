@@ -26,137 +26,137 @@ class Adapter extends TreeNode
 {
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = new AdapterEditor();
-	}
-	_editor.show(this);
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = new AdapterEditor();
+        }
+        _editor.show(this);
+        return _editor;
     }
 
     public Component getTreeCellRendererComponent(
-	JTree tree,
-	Object value,
-	boolean sel,
-	boolean expanded,
-	boolean leaf,
-	int row,
-	boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus) 
     {
-	if(_cellRenderer == null)
-	{
-	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _activeIcon = Utils.getIcon("/icons/16x16/adapter_active.png");
-	    _inactiveIcon = Utils.getIcon("/icons/16x16/adapter_inactive.png");
-	}
+        if(_cellRenderer == null)
+        {
+            _cellRenderer = new DefaultTreeCellRenderer();
+            _activeIcon = Utils.getIcon("/icons/16x16/adapter_active.png");
+            _inactiveIcon = Utils.getIcon("/icons/16x16/adapter_inactive.png");
+        }
 
-	if(_currentEndpoints == null || _currentEndpoints.length() == 0)
-	{
-	    _cellRenderer.setLeafIcon(_inactiveIcon);
-	}
-	else
-	{
-	    _cellRenderer.setLeafIcon(_activeIcon);
-	}
+        if(_currentEndpoints == null || _currentEndpoints.length() == 0)
+        {
+            _cellRenderer.setLeafIcon(_inactiveIcon);
+        }
+        else
+        {
+            _cellRenderer.setLeafIcon(_activeIcon);
+        }
 
-	_cellRenderer.setToolTipText(_toolTip);
-	return _cellRenderer.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        _cellRenderer.setToolTipText(_toolTip);
+        return _cellRenderer.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     Adapter(TreeNode parent, String adapterName, Utils.Resolver resolver,
-	    String adapterId, AdapterDescriptor descriptor, Ice.ObjectPrx proxy)
+            String adapterId, AdapterDescriptor descriptor, Ice.ObjectPrx proxy)
     {
-	super(parent, adapterName);
-	_resolver = resolver;
-	_adapterId = adapterId;
-	_descriptor = descriptor;
+        super(parent, adapterName);
+        _resolver = resolver;
+        _adapterId = adapterId;
+        _descriptor = descriptor;
 
-	setCurrentEndpoints(proxy);
+        setCurrentEndpoints(proxy);
     }
 
     AdapterDescriptor getDescriptor()
     {
-	return _descriptor;
+        return _descriptor;
     }
     
     Utils.Resolver getResolver()
     {
-	return _resolver;
+        return _resolver;
     }
 
     String getCurrentEndpoints()
     {
-	return _currentEndpoints;
+        return _currentEndpoints;
     }
 
     java.util.Map getProperties()
     {
-	if(_parent instanceof Server)
-	{
-	    return ((Server)_parent).getProperties();
-	}
-	else
-	{
-	    return ((Service)_parent).getProperties();
-	}
+        if(_parent instanceof Server)
+        {
+            return ((Server)_parent).getProperties();
+        }
+        else
+        {
+            return ((Service)_parent).getProperties();
+        }
     }
 
     boolean update(AdapterDynamicInfo info)
     {
-	if(info == null)
-	{
-	    setCurrentEndpoints(null);
-	    getRoot().getTreeModel().nodeChanged(this);
-	    return true;
-	}
-	else if(info.id.equals(_adapterId))
-	{
-	    setCurrentEndpoints(info.proxy);
-	    getRoot().getTreeModel().nodeChanged(this);
-	    return true;
-	}
-	else
-	{
-	    return false;
-	}
+        if(info == null)
+        {
+            setCurrentEndpoints(null);
+            getRoot().getTreeModel().nodeChanged(this);
+            return true;
+        }
+        else if(info.id.equals(_adapterId))
+        {
+            setCurrentEndpoints(info.proxy);
+            getRoot().getTreeModel().nodeChanged(this);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     boolean update(java.util.List infoList)
     {
-	java.util.Iterator p = infoList.iterator();
-	while(p.hasNext())
-	{
-	    AdapterDynamicInfo info = (AdapterDynamicInfo)p.next();
-	    if(update(info))
-	    {
-		return true;
-	    }
-	}
-	return false;
+        java.util.Iterator p = infoList.iterator();
+        while(p.hasNext())
+        {
+            AdapterDynamicInfo info = (AdapterDynamicInfo)p.next();
+            if(update(info))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setCurrentEndpoints(Ice.ObjectPrx proxy)
     {
-	if(proxy == null)
-	{
-	    _currentEndpoints = null;
-	    _toolTip = "Inactive";
-	}
-	else
-	{
-	    String str = proxy.toString();
-	    int index = str.indexOf(':');
-	    if(index == -1 || index == str.length() - 1)
-	    {
-		_currentEndpoints = "";
-	    }
-	    else
-	    {
-		_currentEndpoints = str.substring(index + 1);
-	    }
-	    _toolTip = "Published endpoints: " + _currentEndpoints;
-	}
+        if(proxy == null)
+        {
+            _currentEndpoints = null;
+            _toolTip = "Inactive";
+        }
+        else
+        {
+            String str = proxy.toString();
+            int index = str.indexOf(':');
+            if(index == -1 || index == str.length() - 1)
+            {
+                _currentEndpoints = "";
+            }
+            else
+            {
+                _currentEndpoints = str.substring(index + 1);
+            }
+            _toolTip = "Published endpoints: " + _currentEndpoints;
+        }
     }
 
 

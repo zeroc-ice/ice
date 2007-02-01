@@ -77,7 +77,7 @@ public:
     virtual void ice_exception(const Ice::Exception&) = 0;
 
     void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
-		  const std::vector<Ice::Byte>&, const Context*);
+                  const std::vector<Ice::Byte>&, const Context*);
 
 protected:
 
@@ -92,7 +92,7 @@ public:
     virtual void ice_exception(const Ice::Exception&) = 0;
 
     void __invoke(const Ice::ObjectPrx&, const std::string& operation, OperationMode,
-		  const std::pair<const Byte*, const Byte*>&, const Context*);
+                  const std::pair<const Byte*, const Byte*>&, const Context*);
 
 protected:
 

@@ -19,25 +19,25 @@ class SlaveEditor extends Editor
 {
     SlaveEditor()
     {
-	_hostname.setEditable(false);
+        _hostname.setEditable(false);
     }
 
     void show(RegistryInfo info)
     {
-	_hostname.setText(info.hostname);
+        _hostname.setText(info.hostname);
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
-	builder.append("Hostname" );
-	builder.append(_hostname, 3);
-	builder.nextLine();
+        builder.append("Hostname" );
+        builder.append(_hostname, 3);
+        builder.nextLine();
     }
 
     protected void buildPropertiesPanel()
     {
-	super.buildPropertiesPanel();
-	_propertiesPanel.setName("Slave Registry Properties");
+        super.buildPropertiesPanel();
+        _propertiesPanel.setName("Slave Registry Properties");
     }
 
     private JTextField _hostname = new JTextField(20);

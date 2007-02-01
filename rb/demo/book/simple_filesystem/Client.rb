@@ -20,25 +20,25 @@ def listRecursive(dir, depth)
     indent = ''
     depth = depth + 1
     for i in (0...depth)
-	indent += "\t"
+        indent += "\t"
     end
 
     contents = dir.list()
 
     for node in contents
-	subdir = Filesystem::DirectoryPrx::checkedCast(node)
-	file = Filesystem::FilePrx::uncheckedCast(node)
-	print indent + node.name()
-	if subdir
-	    puts "(directory):"
-	    listRecursive(subdir, depth)
-	else
-	    puts "(file):"
-	    text = file.read()
-	    for line in text
-		puts indent + "\t" + line
-	    end
-	end
+        subdir = Filesystem::DirectoryPrx::checkedCast(node)
+        file = Filesystem::FilePrx::uncheckedCast(node)
+        print indent + node.name()
+        if subdir
+            puts "(directory):"
+            listRecursive(subdir, depth)
+        else
+            puts "(file):"
+            text = file.read()
+            for line in text
+                puts indent + "\t" + line
+            end
+        end
     end
 end
 
@@ -71,11 +71,11 @@ if ic
     # Clean up
     #
     begin
-	ic.destroy()
+        ic.destroy()
     rescue => ex
-	puts ex
-	print ex.backtrace.join("\n")
-	status = 1
+        puts ex
+        print ex.backtrace.join("\n")
+        status = 1
     end
 end
 

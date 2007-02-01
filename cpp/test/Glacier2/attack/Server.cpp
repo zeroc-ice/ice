@@ -19,13 +19,13 @@ class ServantLocatorI : virtual public ServantLocator
 public:
 
     ServantLocatorI() :
-	_backend(new BackendI)
+        _backend(new BackendI)
     {
     }
-	
+        
     virtual ObjectPtr locate(const Current&, LocalObjectPtr&)
     {
-	return _backend;
+        return _backend;
     }
 
     virtual void finished(const Current&, const ObjectPtr&, const LocalObjectPtr&)

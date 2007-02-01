@@ -34,18 +34,18 @@ class DefaultServantLocator : public Ice::ServantLocator
 public:
     
     DefaultServantLocator(const Ice::ObjectPtr& servant) :
-	_servant(servant)
+        _servant(servant)
     {
     }
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&)
     {
-	return _servant;
+        return _servant;
     }
 
     virtual void finished(const Ice::Current& curr, 
-			  const Ice::ObjectPtr& servant, 
-			  const Ice::LocalObjectPtr& cookie)
+                          const Ice::ObjectPtr& servant, 
+                          const Ice::LocalObjectPtr& cookie)
     {
     }
 
@@ -70,7 +70,7 @@ main(int argc, char* argv[])
     initData.properties->load("config.server");
 
     const string connectInfo = initData.properties
-	->getPropertyWithDefault("Oracle.ConnectInfo", "scott/tiger");
+        ->getPropertyWithDefault("Oracle.ConnectInfo", "scott/tiger");
     CurrentSqlContext currentCtx(connectInfo);
     initData.threadHook = currentCtx.getHook();
 
@@ -92,12 +92,12 @@ HRServer::run(int argc, char* argv[])
     const string deptCategory = "Dept";
 
     adapter->addServantLocator(new DefaultServantLocator(new EmpI(_currentCtx, empCategory, deptCategory)),
-			       empCategory);
+                               empCategory);
 
     adapter->addServantLocator(new DefaultServantLocator(new DeptI(_currentCtx, empCategory)), deptCategory);
 
     adapter->add(new DeptFactoryI(_currentCtx, deptCategory, empCategory), 
-		 communicator()->stringToIdentity("DeptFactory"));
+                 communicator()->stringToIdentity("DeptFactory"));
     
     adapter->activate();
     communicator()->waitForShutdown();

@@ -17,7 +17,7 @@ namespace Slice
 {
 
 void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, const std::string&,
-	      const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
+              const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
               unsigned, unsigned);
 
 typedef ::std::set< ::std::string> Files;
@@ -57,7 +57,7 @@ protected:
     void printLogo(const ContainedPtr&, const ContainerPtr&, bool);
 
     ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false,
-			   unsigned* = 0, bool = false);
+                           unsigned* = 0, bool = false);
     ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0);
     ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
 

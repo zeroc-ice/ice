@@ -35,12 +35,12 @@ TestBase::start()
     cout << "running " << _name << " test... " << flush;
     try
     {
-	run();
+        run();
     }
     catch(const IceUtil::Exception& e)
     {
-	cout << e << " failed" << endl;
-	throw TestFailed(_name);
+        cout << e << " failed" << endl;
+        throw TestFailed(_name);
     }
     cout << "ok" << endl;
 }

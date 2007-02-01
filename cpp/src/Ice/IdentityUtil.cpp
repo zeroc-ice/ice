@@ -81,10 +81,10 @@ Ice::identityToString(const Identity& ident)
 {
     if(ident.category.empty())
     {
-	return IceUtil::escapeString(ident.name, "/");
+        return IceUtil::escapeString(ident.name, "/");
     }
     else
     {
-	return IceUtil::escapeString(ident.category, "/") + '/' + IceUtil::escapeString(ident.name, "/");
+        return IceUtil::escapeString(ident.category, "/") + '/' + IceUtil::escapeString(ident.name, "/");
     }
 }

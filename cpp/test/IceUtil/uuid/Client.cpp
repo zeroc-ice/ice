@@ -34,35 +34,35 @@ public:
     typedef set<T> ItemSet;
     
     InsertThread(int threadId, ItemSet& itemSet, GenerateFunc func, long howMany, bool verbose)
-	: _threadId(threadId), _itemSet(itemSet), _func(func), _howMany(howMany), _verbose(verbose)
+        : _threadId(threadId), _itemSet(itemSet), _func(func), _howMany(howMany), _verbose(verbose)
     {
     }
 
     void run()
     {
-	for(long i = 0; i < _howMany; i++)
-	{
-	    T item = _func();
+        for(long i = 0; i < _howMany; i++)
+        {
+            T item = _func();
 
-	    StaticMutex::Lock lock(staticMutex);
+            StaticMutex::Lock lock(staticMutex);
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
-	    pair<ItemSet::iterator, bool> ok = _itemSet.insert(item);
+            pair<ItemSet::iterator, bool> ok = _itemSet.insert(item);
 #else
-	    pair<typename ItemSet::iterator, bool> ok = _itemSet.insert(item);
+            pair<typename ItemSet::iterator, bool> ok = _itemSet.insert(item);
 #endif
-	    if(!ok.second)
-	    {
-		cerr << "******* iteration " << i << endl;
-		cerr << "******* Duplicate item: " << *ok.first << endl;
-	    }
+            if(!ok.second)
+            {
+                cerr << "******* iteration " << i << endl;
+                cerr << "******* Duplicate item: " << *ok.first << endl;
+            }
 
-	    test(ok.second);
+            test(ok.second);
 
-	    if(_verbose && i > 0 && (i % 100000 == 0))
-	    {
-		cout << "Thread " << _threadId << ": generated " << i << " UUIDs." << endl; 
-	    }
-	}
+            if(_verbose && i > 0 && (i % 100000 == 0))
+            {
+                cout << "Thread " << _threadId << ": generated " << i << " UUIDs." << endl; 
+            }
+        }
     }
 
 
@@ -80,7 +80,7 @@ struct GenerateUUID
     string
     operator()()
     {
-	return generateUUID();
+        return generateUUID();
     }
 };
 
@@ -89,15 +89,15 @@ struct GenerateRandomString
     string
     operator()()
     {
-	string s;
-	s.resize(20);
-	char buf[20];
-	IceUtil::generateRandom(buf, static_cast<int>(sizeof(buf)));
-	for(unsigned int i = 0; i < sizeof(buf); ++i)
-	{
-	    s[i] = 33 + buf[i] % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
-	}
-	return s;
+        string s;
+        s.resize(20);
+        char buf[20];
+        IceUtil::generateRandom(buf, static_cast<int>(sizeof(buf)));
+        for(unsigned int i = 0; i < sizeof(buf); ++i)
+        {
+            s[i] = 33 + buf[i] % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+        }
+        return s;
     }
 };
 IceUtil::StaticMutex lock;
@@ -108,7 +108,7 @@ public:
     int
     operator()()
     {
-	return IceUtil::random();
+        return IceUtil::random();
     }
 
 };
@@ -119,17 +119,17 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     cout << "Generating " << howMany << " " << name << "s using " << threadCount << " thread";
     if(threadCount > 1)
     {
-	cout << "s";
+        cout << "s";
     }
     cout << "... ";
     
     if(verbose)
     {
-	cout << endl;
+        cout << endl;
     }
     else
     {
-	cout << flush;
+        cout << flush;
     }
 
     set<T> itemSet;
@@ -139,12 +139,12 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     Time start = Time::now();
     for(int i = 0; i < threadCount; i++)
     {
-	ThreadPtr t = new InsertThread<T, GenerateFunc>(i, itemSet, func, howMany / threadCount, verbose); 
-	threads.push_back(t->start());
+        ThreadPtr t = new InsertThread<T, GenerateFunc>(i, itemSet, func, howMany / threadCount, verbose); 
+        threads.push_back(t->start());
     }
     for(vector<ThreadControl>::iterator p = threads.begin(); p != threads.end(); ++p)
     {
-	p->join();
+        p->join();
     }
     Time finish = Time::now();
 
@@ -153,9 +153,9 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     if(verbose)
     {
         cout << "Each " << name << " took an average of "  
-	     << (double) ((finish - start).toMicroSeconds()) / howMany 
-	     << " micro seconds to generate and insert into a set." 
-	     << endl;
+             << (double) ((finish - start).toMicroSeconds()) / howMany 
+             << " micro seconds to generate and insert into a set." 
+             << endl;
     }
 }
 
@@ -167,33 +167,33 @@ int main(int argc, char* argv[])
 
     if(argc > 3)
     {
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
     else if(argc == 3)
     {
-	howMany = atol(argv[1]);
-	if (howMany == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-	threadCount = atoi(argv[2]);
-	if(threadCount <= 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-	verbose = true;
+        howMany = atol(argv[1]);
+        if (howMany == 0)
+        {
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
+        threadCount = atoi(argv[2]);
+        if(threadCount <= 0)
+        {
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
+        verbose = true;
     }
     else if(argc == 2)
     {
-	howMany = atol(argv[1]);
-	if (howMany == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        howMany = atol(argv[1]);
+        if (howMany == 0)
+        {
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
     }
 
     runTest<string, GenerateUUID>(threadCount, GenerateUUID(), howMany, verbose, "UUID");

@@ -51,23 +51,23 @@ IceInternal::BasicStream::clear()
 {
     while(_currentReadEncaps && _currentReadEncaps != &_preAllocatedReadEncaps)
     {
-	ReadEncaps* oldEncaps = _currentReadEncaps;
-	_currentReadEncaps = _currentReadEncaps->previous;
-	delete oldEncaps;
+        ReadEncaps* oldEncaps = _currentReadEncaps;
+        _currentReadEncaps = _currentReadEncaps->previous;
+        delete oldEncaps;
     }
 
     while(_currentWriteEncaps && _currentWriteEncaps != &_preAllocatedWriteEncaps)
     {
-	WriteEncaps* oldEncaps = _currentWriteEncaps;
-	_currentWriteEncaps = _currentWriteEncaps->previous;
-	delete oldEncaps;
+        WriteEncaps* oldEncaps = _currentWriteEncaps;
+        _currentWriteEncaps = _currentWriteEncaps->previous;
+        delete oldEncaps;
     }
 
     while(_seqDataStack)
     {
-	SeqData* oldSeqData = _seqDataStack;
-	_seqDataStack = _seqDataStack->previous;
-	delete oldSeqData;
+        SeqData* oldSeqData = _seqDataStack;
+        _seqDataStack = _seqDataStack->previous;
+        delete oldSeqData;
     }
 
     delete _objectList;
@@ -91,34 +91,34 @@ IceInternal::BasicStream::swap(BasicStream& other)
 
     if(_currentReadEncaps || other._currentReadEncaps)
     {
-	_preAllocatedReadEncaps.swap(other._preAllocatedReadEncaps);
+        _preAllocatedReadEncaps.swap(other._preAllocatedReadEncaps);
 
-	if(!_currentReadEncaps)
-	{
-	    _currentReadEncaps = &_preAllocatedReadEncaps;
-	    other._currentReadEncaps = 0;
-	}
-	else if(!other._currentReadEncaps)
-	{
-	    other._currentReadEncaps = &other._preAllocatedReadEncaps;
-	    _currentReadEncaps = 0;
-	}
+        if(!_currentReadEncaps)
+        {
+            _currentReadEncaps = &_preAllocatedReadEncaps;
+            other._currentReadEncaps = 0;
+        }
+        else if(!other._currentReadEncaps)
+        {
+            other._currentReadEncaps = &other._preAllocatedReadEncaps;
+            _currentReadEncaps = 0;
+        }
     }
 
     if(_currentWriteEncaps || other._currentWriteEncaps)
     {
-	_preAllocatedWriteEncaps.swap(other._preAllocatedWriteEncaps);
+        _preAllocatedWriteEncaps.swap(other._preAllocatedWriteEncaps);
 
-	if(!_currentWriteEncaps)
-	{
-	    _currentWriteEncaps = &_preAllocatedWriteEncaps;
-	    other._currentWriteEncaps = 0;
-	}
-	else if(!other._currentWriteEncaps)
-	{
-	    other._currentWriteEncaps = &other._preAllocatedWriteEncaps;
-	    _currentWriteEncaps = 0;
-	}
+        if(!_currentWriteEncaps)
+        {
+            _currentWriteEncaps = &_preAllocatedWriteEncaps;
+            other._currentWriteEncaps = 0;
+        }
+        else if(!other._currentWriteEncaps)
+        {
+            other._currentWriteEncaps = &other._preAllocatedWriteEncaps;
+            _currentWriteEncaps = 0;
+        }
     }
 
     std::swap(_seqDataStack, other._seqDataStack);
@@ -179,7 +179,7 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
 {
     if(numElements == 0) // Optimization to avoid pushing a useless stack frame.
     {
-	return;
+        return;
     }
 
     //
@@ -192,17 +192,17 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
     int bytesLeft = static_cast<int>(b.end() - i);
     if(_seqDataStack->previous == 0) // Outermost sequence
     {
-	//
-	// The sequence must fit within the message.
-	//
-	if(numElements * minSize > bytesLeft) 
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
+        //
+        // The sequence must fit within the message.
+        //
+        if(numElements * minSize > bytesLeft) 
+        {
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
     }
     else // Nested sequence
     {
-	checkSeq(bytesLeft);
+        checkSeq(bytesLeft);
     }
 }
 
@@ -212,17 +212,17 @@ IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
     int bytesLeft = static_cast<int>(b.end() - i);
     if(_seqDataStack == 0) // Outermost sequence
     {
-	//
-	// The sequence must fit within the message.
-	//
-	if(numElements * elemSize > bytesLeft) 
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
+        //
+        // The sequence must fit within the message.
+        //
+        if(numElements * elemSize > bytesLeft) 
+        {
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
     }
     else // Nested sequence
     {
-	checkSeq(bytesLeft - numElements * elemSize);
+        checkSeq(bytesLeft - numElements * elemSize);
     }
 }
 
@@ -231,7 +231,7 @@ IceInternal::BasicStream::endSeq(int sz)
 {
     if(sz == 0) // Pop only if something was pushed previously.
     {
-	return;
+        return;
     }
 
     //
@@ -300,11 +300,11 @@ IceInternal::BasicStream::skipEncaps()
     read(sz);
     if(sz < 0)
     {
-	throw NegativeSizeException(__FILE__, __LINE__);
+        throw NegativeSizeException(__FILE__, __LINE__);
     }
     if(i - sizeof(Int) + sz > b.end())
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     i += sz - sizeof(Int);
 }
@@ -343,7 +343,7 @@ IceInternal::BasicStream::startReadSlice()
     read(sz);
     if(sz < 0)
     {
-	throw NegativeSizeException(__FILE__, __LINE__);
+        throw NegativeSizeException(__FILE__, __LINE__);
     }
     _readSlice = i - b.begin();
 }
@@ -360,12 +360,12 @@ IceInternal::BasicStream::skipSlice()
     read(sz);
     if(sz < 0)
     {
-	throw NegativeSizeException(__FILE__, __LINE__);
+        throw NegativeSizeException(__FILE__, __LINE__);
     }
     i += sz - sizeof(Int);
     if(i > b.end())
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 }
 
@@ -375,14 +375,14 @@ IceInternal::BasicStream::writeTypeId(const string& id)
     TypeIdWriteMap::const_iterator k = _currentWriteEncaps->typeIdMap->find(id);
     if(k != _currentWriteEncaps->typeIdMap->end())
     {
-	write(true);
-	writeSize(k->second);
+        write(true);
+        writeSize(k->second);
     }
     else
     {
-	_currentWriteEncaps->typeIdMap->insert(make_pair(id, ++_currentWriteEncaps->typeIdIndex));
-	write(false);
-	write(id, false);
+        _currentWriteEncaps->typeIdMap->insert(make_pair(id, ++_currentWriteEncaps->typeIdIndex));
+        write(false);
+        write(id, false);
     }
 }
 
@@ -393,19 +393,19 @@ IceInternal::BasicStream::readTypeId(string& id)
     read(isIndex);
     if(isIndex)
     {
-	Ice::Int index;
-	readSize(index);
-	TypeIdReadMap::const_iterator k = _currentReadEncaps->typeIdMap->find(index);
-	if(k == _currentReadEncaps->typeIdMap->end())
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	id = k->second;
+        Ice::Int index;
+        readSize(index);
+        TypeIdReadMap::const_iterator k = _currentReadEncaps->typeIdMap->find(index);
+        if(k == _currentReadEncaps->typeIdMap->end())
+        {
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        id = k->second;
     }
     else
     {
-	read(id, false);
-	_currentReadEncaps->typeIdMap->insert(make_pair(++_currentReadEncaps->typeIdIndex, id));
+        read(id, false);
+        _currentReadEncaps->typeIdMap->insert(make_pair(++_currentReadEncaps->typeIdIndex, id));
     }
 }
 
@@ -414,9 +414,9 @@ IceInternal::BasicStream::writeBlob(const vector<Byte>& v)
 {
     if(!v.empty())
     {
-	Container::size_type pos = b.size();
-	resize(pos + v.size());
-	memcpy(&b[pos], &v[0], v.size());
+        Container::size_type pos = b.size();
+        resize(pos + v.size());
+        memcpy(&b[pos], &v[0], v.size());
     }
 }
 
@@ -425,16 +425,16 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 {
     if(sz > 0)
     {
-	if(b.end() - i < sz)
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	vector<Byte>(i, i + sz).swap(v);
-	i += sz;
+        if(b.end() - i < sz)
+        {
+            throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        vector<Byte>(i, i + sz).swap(v);
+        i += sz;
     }
     else
     {
-	v.clear();
+        v.clear();
     }
 }
 
@@ -445,9 +445,9 @@ IceInternal::BasicStream::write(const Byte* begin, const Byte* end)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz);
-	memcpy(&b[pos], begin, sz);
+        Container::size_type pos = b.size();
+        resize(pos + sz);
+        memcpy(&b[pos], begin, sz);
     }
 }
 
@@ -476,9 +476,9 @@ IceInternal::BasicStream::write(const vector<bool>& v)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz);
-	copy(v.begin(), v.end(), b.begin() + pos);
+        Container::size_type pos = b.size();
+        resize(pos + sz);
+        copy(v.begin(), v.end(), b.begin() + pos);
     }
 }
 
@@ -517,7 +517,7 @@ IceInternal::BasicStream::write(const bool* begin, const bool* end)
     {
         Container::size_type pos = b.size();
         resize(pos + sz);
-	BasicStreamWriteBoolHelper<sizeof(bool)>::write(begin, pos, b, sz);
+        BasicStreamWriteBoolHelper<sizeof(bool)>::write(begin, pos, b, sz);
     }
 }
 
@@ -550,11 +550,11 @@ struct BasicStreamReadBoolHelper
         bool* array = new bool[sz];
         for(int idx = 0; idx < sz; ++idx)
         {
-	    array[idx] = static_cast<bool>(*(i + idx));
+            array[idx] = static_cast<bool>(*(i + idx));
         }
         v.first = array;
         v.second = array + sz;
-	return array;
+        return array;
     }
 };
 
@@ -565,7 +565,7 @@ struct BasicStreamReadBoolHelper<1>
     {
         v.first = reinterpret_cast<bool*>(i);
         v.second = reinterpret_cast<bool*>(i) + sz;
-	return 0;
+        return 0;
     }
 };
 
@@ -580,7 +580,7 @@ IceInternal::BasicStream::read(pair<const bool*, const bool*>& v)
     if(sz > 0)
     {
         checkFixedSeq(sz, 1);
-	result = BasicStreamReadBoolHelper<sizeof(bool)>::read(v, sz, i);
+        result = BasicStreamReadBoolHelper<sizeof(bool)>::read(v, sz, i);
         i += sz;
     }
     else
@@ -614,19 +614,19 @@ IceInternal::BasicStream::write(const Short* begin, const Short* end)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz * sizeof(Short));
+        Container::size_type pos = b.size();
+        resize(pos + sz * sizeof(Short));
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Short) - 1;
-	Byte* dest = &(*(b.begin() + pos));
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    src += 2 * sizeof(Short);
-	}
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Short) - 1;
+        Byte* dest = &(*(b.begin() + pos));
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest++ = *src--;
+            *dest++ = *src--;
+            src += 2 * sizeof(Short);
+        }
 #else
-	memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Short));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Short));
 #endif
     }
 }
@@ -636,7 +636,7 @@ IceInternal::BasicStream::read(Short& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Short)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Short);
@@ -658,26 +658,26 @@ IceInternal::BasicStream::read(vector<Short>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Short)));
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Short));
-	v.resize(sz);
+        checkFixedSeq(sz, static_cast<int>(sizeof(Short)));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Short));
+        v.resize(sz);
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Short) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Short);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Short) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Short);
+        }
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
     {
-	v.clear();
+        v.clear();
     }
 }
 
@@ -689,35 +689,35 @@ IceInternal::BasicStream::read(pair<const Short*, const Short*>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Short)));
+        checkFixedSeq(sz, static_cast<int>(sizeof(Short)));
 #if defined(__i386) || defined(_M_IX86)
         v.first = reinterpret_cast<Short*>(i);
-	i += sz * static_cast<int>(sizeof(Short));
+        i += sz * static_cast<int>(sizeof(Short));
         v.second = reinterpret_cast<Short*>(i);
 #else
         result = new Short[sz];
         v.first = result;
         v.second = result + sz;
 
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Short));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Short));
 #  ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Short) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Short);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Short) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Short);
+        }
 #  else
-	copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
     else
     {
-	v.first = v.second = 0;
+        v.first = v.second = 0;
     }
     return result;
 }
@@ -729,21 +729,21 @@ IceInternal::BasicStream::write(const Int* begin, const Int* end)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz * sizeof(Int));
+        Container::size_type pos = b.size();
+        resize(pos + sz * sizeof(Int));
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Int) - 1;
-	Byte* dest = &(*(b.begin() + pos));
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    src += 2 * sizeof(Int);
-	}
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Int) - 1;
+        Byte* dest = &(*(b.begin() + pos));
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            src += 2 * sizeof(Int);
+        }
 #else
-	memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Int));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Int));
 #endif
     }
 }
@@ -755,28 +755,28 @@ IceInternal::BasicStream::read(vector<Int>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Int)));
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Int));
-	v.resize(sz);
+        checkFixedSeq(sz, static_cast<int>(sizeof(Int)));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Int));
+        v.resize(sz);
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Int) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Int);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Int) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Int);
+        }
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
     {
-	v.clear();
+        v.clear();
     }
 }
 
@@ -788,37 +788,37 @@ IceInternal::BasicStream::read(pair<const Int*, const Int*>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Int)));
+        checkFixedSeq(sz, static_cast<int>(sizeof(Int)));
 #if defined(__i386) || defined(_M_IX86)
         v.first = reinterpret_cast<Int*>(i);
-	i += sz * static_cast<int>(sizeof(Int));
+        i += sz * static_cast<int>(sizeof(Int));
         v.second = reinterpret_cast<Int*>(i);
 #else
         result = new Int[sz];
         v.first = result;
         v.second = result + sz;
 
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Int));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Int));
 #  ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Int) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Int);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Int) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Int);
+        }
 #  else
-	copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
     else
     {
-	v.first = v.second = 0;
+        v.first = v.second = 0;
     }
     return result;
 }
@@ -859,25 +859,25 @@ IceInternal::BasicStream::write(const Long* begin, const Long* end)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz * sizeof(Long));
+        Container::size_type pos = b.size();
+        resize(pos + sz * sizeof(Long));
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Long) - 1;
-	Byte* dest = &(*(b.begin() + pos));
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    src += 2 * sizeof(Long);
-	}
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Long) - 1;
+        Byte* dest = &(*(b.begin() + pos));
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            src += 2 * sizeof(Long);
+        }
 #else
-	memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Long));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Long));
 #endif
     }
 }
@@ -887,7 +887,7 @@ IceInternal::BasicStream::read(Long& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Long)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Long);
@@ -921,32 +921,32 @@ IceInternal::BasicStream::read(vector<Long>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Long)));
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Long));
-	v.resize(sz);
+        checkFixedSeq(sz, static_cast<int>(sizeof(Long)));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Long));
+        v.resize(sz);
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Long) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Long);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Long) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Long);
+        }
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
     {
-	v.clear();
+        v.clear();
     }
 }
 
@@ -958,41 +958,41 @@ IceInternal::BasicStream::read(pair<const Long*, const Long*>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Long)));
+        checkFixedSeq(sz, static_cast<int>(sizeof(Long)));
 #if defined(__i386) || defined(_M_IX86)
         v.first = reinterpret_cast<Long*>(i);
-	i += sz * static_cast<int>(sizeof(Long));
+        i += sz * static_cast<int>(sizeof(Long));
         v.second = reinterpret_cast<Long*>(i);
 #else
         result = new Long[sz];
         v.first = result;
         v.second = result + sz;
 
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Long));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Long));
 #  ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Long) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Long);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Long) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Long);
+        }
 #  else
-	copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
     else
     {
-	v.first = v.second = 0;
+        v.first = v.second = 0;
     }
     return result;
 }
@@ -1025,21 +1025,21 @@ IceInternal::BasicStream::write(const Float* begin, const Float* end)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz * sizeof(Float));
+        Container::size_type pos = b.size();
+        resize(pos + sz * sizeof(Float));
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Float) - 1;
-	Byte* dest = &(*(b.begin() + pos));
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    src += 2 * sizeof(Float);
-	}
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Float) - 1;
+        Byte* dest = &(*(b.begin() + pos));
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            src += 2 * sizeof(Float);
+        }
 #else
-	memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Float));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Float));
 #endif
     }
 }
@@ -1049,7 +1049,7 @@ IceInternal::BasicStream::read(Float& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Float)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Float);
@@ -1075,28 +1075,28 @@ IceInternal::BasicStream::read(vector<Float>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Float)));
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Float));
-	v.resize(sz);
+        checkFixedSeq(sz, static_cast<int>(sizeof(Float)));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Float));
+        v.resize(sz);
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Float) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Float);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Float) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Float);
+        }
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
     {
-	v.clear();
+        v.clear();
     }
 }
 
@@ -1108,37 +1108,37 @@ IceInternal::BasicStream::read(pair<const Float*, const Float*>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Float)));
+        checkFixedSeq(sz, static_cast<int>(sizeof(Float)));
 #if defined(__i386) || defined(_M_IX86)
         v.first = reinterpret_cast<Float*>(i);
-	i += sz * static_cast<int>(sizeof(Float));
+        i += sz * static_cast<int>(sizeof(Float));
         v.second = reinterpret_cast<Float*>(i);
 #else
         result = new Float[sz];
         v.first = result;
         v.second = result + sz;
 
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Float));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Float));
 #  ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Float) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Float);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Float) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Float);
+        }
 #  else
-	copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
     else
     {
-	v.first = v.second = 0;
+        v.first = v.second = 0;
     }
     return result;
 }
@@ -1179,25 +1179,25 @@ IceInternal::BasicStream::write(const Double* begin, const Double* end)
     writeSize(sz);
     if(sz > 0)
     {
-	Container::size_type pos = b.size();
-	resize(pos + sz * sizeof(Double));
+        Container::size_type pos = b.size();
+        resize(pos + sz * sizeof(Double));
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Double) - 1;
-	Byte* dest = &(*(b.begin() + pos));
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    *dest++ = *src--;
-	    src += 2 * sizeof(Double);
-	}
+        const Byte* src = reinterpret_cast<const Byte*>(begin) + sizeof(Double) - 1;
+        Byte* dest = &(*(b.begin() + pos));
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            *dest++ = *src--;
+            src += 2 * sizeof(Double);
+        }
 #else
-	memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Double));
+        memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Double));
 #endif
     }
 }
@@ -1207,7 +1207,7 @@ IceInternal::BasicStream::read(Double& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Double)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Double);
@@ -1241,32 +1241,32 @@ IceInternal::BasicStream::read(vector<Double>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Double)));
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Double));
-	v.resize(sz);
+        checkFixedSeq(sz, static_cast<int>(sizeof(Double)));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Double));
+        v.resize(sz);
 #ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Double) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Double);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&v[0]) + sizeof(Double) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Double);
+        }
 #else
-	copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
     else
     {
-	v.clear();
+        v.clear();
     }
 }
 
@@ -1278,41 +1278,41 @@ IceInternal::BasicStream::read(pair<const Double*, const Double*>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, static_cast<int>(sizeof(Double)));
+        checkFixedSeq(sz, static_cast<int>(sizeof(Double)));
 #if defined(__i386) || defined(_M_IX86)
         v.first = reinterpret_cast<Double*>(i);
-	i += sz * static_cast<int>(sizeof(Double));
+        i += sz * static_cast<int>(sizeof(Double));
         v.second = reinterpret_cast<Double*>(i);
 #else
         result = new Double[sz];
         v.first = result;
         v.second = result + sz;
 
-	Container::iterator begin = i;
-	i += sz * static_cast<int>(sizeof(Double));
+        Container::iterator begin = i;
+        i += sz * static_cast<int>(sizeof(Double));
 #  ifdef ICE_BIG_ENDIAN
-	const Byte* src = &(*begin);
-	Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Double) - 1;
-	for(int j = 0 ; j < sz ; ++j)
-	{
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    *dest-- = *src++;
-	    dest += 2 * sizeof(Double);
-	}
+        const Byte* src = &(*begin);
+        Byte* dest = reinterpret_cast<Byte*>(&result[0]) + sizeof(Double) - 1;
+        for(int j = 0 ; j < sz ; ++j)
+        {
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            *dest-- = *src++;
+            dest += 2 * sizeof(Double);
+        }
 #  else
-	copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
+        copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
 #endif
     }
     else
     {
-	v.first = v.second = 0;
+        v.first = v.second = 0;
     }
     return result;
 }
@@ -1339,22 +1339,22 @@ IceInternal::BasicStream::writeConverted(const string& v)
     // Impossible to tell, so we guess. If we don't guess correctly,
     // we'll have to fix the mistake afterwards
     //
-	
+        
     Int guessedSize = static_cast<Int>(v.size());
     writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
-	
+        
     size_t firstIndex = b.size();
     StreamUTF8BufferI buffer(*this);
-	    
+            
     Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
     if(lastByte != b.end())
     {
         b.resize(lastByte - b.begin());
     }
     size_t lastIndex = b.size();
-	
+        
     Int actualSize = static_cast<Int>(lastIndex - firstIndex);
-	
+        
     //
     // Check against the guess
     //
@@ -1362,29 +1362,29 @@ IceInternal::BasicStream::writeConverted(const string& v)
     {
         if(guessedSize <= 254 && actualSize > 254)
         {
-    	    //
-    	    // Move the UTF-8 sequence 4 bytes further
-    	    // Use memmove instead of memcpy since the source and destination typically overlap.
-    	    //
-    	    resize(b.size() + 4);
-    	    memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+            //
+            // Move the UTF-8 sequence 4 bytes further
+            // Use memmove instead of memcpy since the source and destination typically overlap.
+            //
+            resize(b.size() + 4);
+            memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
         }
         else if(guessedSize > 254 && actualSize <= 254)
         {
-    	    //
-    	    // Move the UTF-8 sequence 4 bytes back
-    	    //
-    	    memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
-    	    resize(b.size() - 4);
+            //
+            // Move the UTF-8 sequence 4 bytes back
+            //
+            memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+            resize(b.size() - 4);
         }
     
         if(guessedSize <= 254)
         {
-    	    rewriteSize(actualSize, b.begin() + firstIndex - 1);
+            rewriteSize(actualSize, b.begin() + firstIndex - 1);
         }
         else
         {
-    	    rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
         }
     }
 }
@@ -1396,10 +1396,10 @@ IceInternal::BasicStream::write(const string* begin, const string* end, bool con
     writeSize(sz);
     if(sz > 0)
     {
-	for(int i = 0; i < sz; ++i)
-	{
-	    write(begin[i], convert);
-	}
+        for(int i = 0; i < sz; ++i)
+        {
+            write(begin[i], convert);
+        }
     }
 }
 
@@ -1410,15 +1410,15 @@ IceInternal::BasicStream::read(vector<string>& v, bool convert)
     readSize(sz);
     if(sz > 0)
     {
-	startSeq(sz, 1);
-	v.resize(sz);
-	for(int j = 0; j < sz; ++j)
-	{
-	    read(v[j], convert);
-	    checkSeq();
-	    endElement();
-	}
-	endSeq(sz);
+        startSeq(sz, 1);
+        v.resize(sz);
+        for(int j = 0; j < sz; ++j)
+        {
+            read(v[j], convert);
+            checkSeq();
+            endElement();
+        }
+        endSeq(sz);
     }
     else
     {
@@ -1432,7 +1432,7 @@ IceInternal::BasicStream::write(const wstring& v)
     if(v.empty())
     {
         writeSize(0);
-	return;
+        return;
     }
 
     //
@@ -1440,22 +1440,22 @@ IceInternal::BasicStream::write(const wstring& v)
     // Impossible to tell, so we guess. If we don't guess correctly,
     // we'll have to fix the mistake afterwards
     //
-	
+        
     Int guessedSize = static_cast<Int>(v.size());
     writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
-	
+        
     size_t firstIndex = b.size();
     StreamUTF8BufferI buffer(*this);
-	    
+            
     Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
     if(lastByte != b.end())
     {
         b.resize(lastByte - b.begin());
     }
     size_t lastIndex = b.size();
-	
+        
     Int actualSize = static_cast<Int>(lastIndex - firstIndex);
-	
+        
     //
     // Check against the guess
     //
@@ -1463,29 +1463,29 @@ IceInternal::BasicStream::write(const wstring& v)
     {
         if(guessedSize <= 254 && actualSize > 254)
         {
-    	    //
-    	    // Move the UTF-8 sequence 4 bytes further
-    	    // Use memmove instead of memcpy since the source and destination typically overlap.
-    	    //
-    	    resize(b.size() + 4);
-    	    memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+            //
+            // Move the UTF-8 sequence 4 bytes further
+            // Use memmove instead of memcpy since the source and destination typically overlap.
+            //
+            resize(b.size() + 4);
+            memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
         }
         else if(guessedSize > 254 && actualSize <= 254)
         {
-    	    //
-    	    // Move the UTF-8 sequence 4 bytes back
-    	    //
-    	    memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
-    	    resize(b.size() - 4);
+            //
+            // Move the UTF-8 sequence 4 bytes back
+            //
+            memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+            resize(b.size() - 4);
         }
     
         if(guessedSize <= 254)
         {
-    	    rewriteSize(actualSize, b.begin() + firstIndex - 1);
+            rewriteSize(actualSize, b.begin() + firstIndex - 1);
         }
         else
         {
-    	    rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
         }
     }
 }
@@ -1497,10 +1497,10 @@ IceInternal::BasicStream::write(const wstring* begin, const wstring* end)
     writeSize(sz);
     if(sz > 0)
     {
-	for(int i = 0; i < sz; ++i)
-	{
-	    write(begin[i]);
-	}
+        for(int i = 0; i < sz; ++i)
+        {
+            write(begin[i]);
+        }
     }
 }
 
@@ -1511,15 +1511,15 @@ IceInternal::BasicStream::read(vector<wstring>& v)
     readSize(sz);
     if(sz > 0)
     {
-	startSeq(sz, 1);
-	v.resize(sz);
-	for(int j = 0; j < sz; ++j)
-	{
-	    read(v[j]);
-	    checkSeq();
-	    endElement();
-	}
-	endSeq(sz);
+        startSeq(sz, 1);
+        v.resize(sz);
+        for(int j = 0; j < sz; ++j)
+        {
+            read(v[j]);
+            checkSeq();
+            endElement();
+        }
+        endSeq(sz);
     }
     else
     {
@@ -1544,50 +1544,50 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 {
     if(!_currentWriteEncaps) // Lazy initialization.
     {
-	_currentWriteEncaps = &_preAllocatedWriteEncaps;
-	_currentWriteEncaps->start = b.size();
+        _currentWriteEncaps = &_preAllocatedWriteEncaps;
+        _currentWriteEncaps->start = b.size();
     }
 
     if(!_currentWriteEncaps->toBeMarshaledMap) // Lazy initialization.
     {
-	_currentWriteEncaps->toBeMarshaledMap = new PtrToIndexMap;
-	_currentWriteEncaps->marshaledMap = new PtrToIndexMap;
-	_currentWriteEncaps->typeIdMap = new TypeIdWriteMap;
+        _currentWriteEncaps->toBeMarshaledMap = new PtrToIndexMap;
+        _currentWriteEncaps->marshaledMap = new PtrToIndexMap;
+        _currentWriteEncaps->typeIdMap = new TypeIdWriteMap;
     }
 
     if(v)
     {
-	//
-	// Look for this instance in the to-be-marshaled map.
-	//
-	PtrToIndexMap::iterator p = _currentWriteEncaps->toBeMarshaledMap->find(v);
-	if(p == _currentWriteEncaps->toBeMarshaledMap->end())
-	{
-	    //
-	    // Didn't find it, try the marshaled map next.
-	    //
-	    PtrToIndexMap::iterator q = _currentWriteEncaps->marshaledMap->find(v);
-	    if(q == _currentWriteEncaps->marshaledMap->end())
-	    {
-		//
-		// We haven't seen this instance previously, create a
-		// new index, and insert it into the to-be-marshaled
-		// map.
-		//
-		q = _currentWriteEncaps->toBeMarshaledMap->insert(
-		    _currentWriteEncaps->toBeMarshaledMap->end(),
-		    pair<const ObjectPtr, Int>(v, ++_currentWriteEncaps->writeIndex));
-	    }
-	    p = q;
-	}
-	//
-	// Write the index for the instance.
-	//
-	write(-(p->second));
+        //
+        // Look for this instance in the to-be-marshaled map.
+        //
+        PtrToIndexMap::iterator p = _currentWriteEncaps->toBeMarshaledMap->find(v);
+        if(p == _currentWriteEncaps->toBeMarshaledMap->end())
+        {
+            //
+            // Didn't find it, try the marshaled map next.
+            //
+            PtrToIndexMap::iterator q = _currentWriteEncaps->marshaledMap->find(v);
+            if(q == _currentWriteEncaps->marshaledMap->end())
+            {
+                //
+                // We haven't seen this instance previously, create a
+                // new index, and insert it into the to-be-marshaled
+                // map.
+                //
+                q = _currentWriteEncaps->toBeMarshaledMap->insert(
+                    _currentWriteEncaps->toBeMarshaledMap->end(),
+                    pair<const ObjectPtr, Int>(v, ++_currentWriteEncaps->writeIndex));
+            }
+            p = q;
+        }
+        //
+        // Write the index for the instance.
+        //
+        write(-(p->second));
     }
     else
     {
-	write(0); // Write null pointer.
+        write(0); // Write null pointer.
     }
 }
 
@@ -1596,14 +1596,14 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 {
     if(!_currentReadEncaps) // Lazy initialization.
     {
-	_currentReadEncaps = &_preAllocatedReadEncaps;
+        _currentReadEncaps = &_preAllocatedReadEncaps;
     }
 
     if(!_currentReadEncaps->patchMap) // Lazy initialization.
     {
-	_currentReadEncaps->patchMap = new PatchMap;
-	_currentReadEncaps->unmarshaledMap = new IndexToPtrMap;
-	_currentReadEncaps->typeIdMap = new TypeIdReadMap;
+        _currentReadEncaps->patchMap = new PatchMap;
+        _currentReadEncaps->unmarshaledMap = new IndexToPtrMap;
+        _currentReadEncaps->typeIdMap = new TypeIdReadMap;
     }
 
     ObjectPtr v;
@@ -1613,30 +1613,30 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 
     if(index == 0)
     {
-	patchFunc(patchAddr, v); // Null Ptr.
-	return;
+        patchFunc(patchAddr, v); // Null Ptr.
+        return;
     }
 
     if(index < 0 && patchAddr)
     {
-	PatchMap::iterator p = _currentReadEncaps->patchMap->find(-index);
-	if(p == _currentReadEncaps->patchMap->end())
-	{
-	    //
-	    // We have no outstanding instances to be patched for this
-	    // index, so make a new entry in the patch map.
-	    //
-	    p = _currentReadEncaps->patchMap->insert(make_pair(-index, PatchList())).first;
-	}
-	//
-	// Append a patch entry for this instance.
-	//
-	PatchEntry e;
-	e.patchFunc = patchFunc;
-	e.patchAddr = patchAddr;
-	p->second.push_back(e);
-	patchPointers(-index, _currentReadEncaps->unmarshaledMap->end(), p);
-	return;
+        PatchMap::iterator p = _currentReadEncaps->patchMap->find(-index);
+        if(p == _currentReadEncaps->patchMap->end())
+        {
+            //
+            // We have no outstanding instances to be patched for this
+            // index, so make a new entry in the patch map.
+            //
+            p = _currentReadEncaps->patchMap->insert(make_pair(-index, PatchList())).first;
+        }
+        //
+        // Append a patch entry for this instance.
+        //
+        PatchEntry e;
+        e.patchFunc = patchFunc;
+        e.patchAddr = patchAddr;
+        p->second.push_back(e);
+        patchPointers(-index, _currentReadEncaps->unmarshaledMap->end(), p);
+        return;
     }
     assert(index > 0);
 
@@ -1645,16 +1645,16 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
     string id = mostDerivedId;
     while(true)
     {
-	//
-	// If we slice all the way down to Ice::Object, we throw
-	// because Ice::Object is abstract.
-	//
+        //
+        // If we slice all the way down to Ice::Object, we throw
+        // because Ice::Object is abstract.
+        //
         if(id == Ice::Object::ice_staticId())
-	{
-	    throw NoObjectFactoryException(__FILE__, __LINE__,
-	                                   "class sliced to ::Ice::Object, which is abstract",
-					   mostDerivedId);
-	}
+        {
+            throw NoObjectFactoryException(__FILE__, __LINE__,
+                                           "class sliced to ::Ice::Object, which is abstract",
+                                           mostDerivedId);
+        }
 
         //
         // Try to find a factory registered for the specific type.
@@ -1709,7 +1709,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
                     traceSlicing("class", id, _slicingCat, _instance->initializationData().logger);
                 }
                 skipSlice(); // Slice off this derived part -- we don't understand it.
-		readTypeId(id); // Read next id for next iteration.
+                readTypeId(id); // Read next id for next iteration.
                 continue;
             }
             else
@@ -1720,8 +1720,8 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
             }
         }
 
-	IndexToPtrMap::const_iterator unmarshaledPos =
-			    _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
+        IndexToPtrMap::const_iterator unmarshaledPos =
+                            _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
 
         //
         // Record each object instance so that readPendingObjects can
@@ -1734,9 +1734,9 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
         }
         _objectList->push_back(v);
 
-	v->__read(this, false);
-	patchPointers(index, unmarshaledPos, _currentReadEncaps->patchMap->end());
-	return;
+        v->__read(this, false);
+        patchPointers(index, unmarshaledPos, _currentReadEncaps->patchMap->end());
+        return;
     }
 
     //
@@ -1754,7 +1754,7 @@ IceInternal::BasicStream::write(const UserException& v)
     v.__write(this);
     if(v.__usesClasses())
     {
-	writePendingObjects();
+        writePendingObjects();
     }
 }
 
@@ -1768,49 +1768,49 @@ IceInternal::BasicStream::throwException()
     read(id, false);
     for(;;)
     {
-	//
-	// Look for a factory for this ID.
-	//
-	UserExceptionFactoryPtr factory = factoryTable->getExceptionFactory(id);
-	if(factory)
-	{
-	    //
-	    // Got factory -- get the factory to instantiate the
-	    // exception, initialize the exception members, and throw
-	    // the exception.
-	    //
-	    try
-	    {
-		factory->createAndThrow();
-	    }
-	    catch(UserException& ex)
-	    {
-		ex.__read(this, false);
-		if(usesClasses)
-		{
-		    readPendingObjects();
-		}
-		ex.ice_throw();
-	    }
-	}
-	else
-	{
-	    //
-	    // Performance sensitive, so we use lazy initialization
-	    // for tracing.
-	    //
-	    if(_traceSlicing == -1)
-	    {
-		_traceSlicing = _instance->traceLevels()->slicing;
-		_slicingCat = _instance->traceLevels()->slicingCat;
-	    }
-	    if(_traceSlicing > 0)
-	    {
-		traceSlicing("exception", id, _slicingCat, _instance->initializationData().logger);
-	    }
-	    skipSlice(); // Slice off what we don't understand.
-	    read(id, false); // Read type id for next slice.
-	}
+        //
+        // Look for a factory for this ID.
+        //
+        UserExceptionFactoryPtr factory = factoryTable->getExceptionFactory(id);
+        if(factory)
+        {
+            //
+            // Got factory -- get the factory to instantiate the
+            // exception, initialize the exception members, and throw
+            // the exception.
+            //
+            try
+            {
+                factory->createAndThrow();
+            }
+            catch(UserException& ex)
+            {
+                ex.__read(this, false);
+                if(usesClasses)
+                {
+                    readPendingObjects();
+                }
+                ex.ice_throw();
+            }
+        }
+        else
+        {
+            //
+            // Performance sensitive, so we use lazy initialization
+            // for tracing.
+            //
+            if(_traceSlicing == -1)
+            {
+                _traceSlicing = _instance->traceLevels()->slicing;
+                _slicingCat = _instance->traceLevels()->slicingCat;
+            }
+            if(_traceSlicing > 0)
+            {
+                traceSlicing("exception", id, _slicingCat, _instance->initializationData().logger);
+            }
+            skipSlice(); // Slice off what we don't understand.
+            read(id, false); // Read type id for next slice.
+        }
     }
 
     //
@@ -1827,35 +1827,35 @@ IceInternal::BasicStream::writePendingObjects()
 {
     if(_currentWriteEncaps && _currentWriteEncaps->toBeMarshaledMap)
     {
-	while(_currentWriteEncaps->toBeMarshaledMap->size())
-	{
-	    PtrToIndexMap savedMap = *_currentWriteEncaps->toBeMarshaledMap;
-	    writeSize(static_cast<Int>(savedMap.size()));
-	    for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
-	    {
-		//
-		// Add an instance from the old to-be-marshaled map to
-		// the marshaled map and then ask the instance to
-		// marshal itself. Any new class instances that are
-		// triggered by the classes marshaled are added to
-		// toBeMarshaledMap.
-		//
-		_currentWriteEncaps->marshaledMap->insert(*p);
-		writeInstance(p->first, p->second);
-	    }
+        while(_currentWriteEncaps->toBeMarshaledMap->size())
+        {
+            PtrToIndexMap savedMap = *_currentWriteEncaps->toBeMarshaledMap;
+            writeSize(static_cast<Int>(savedMap.size()));
+            for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
+            {
+                //
+                // Add an instance from the old to-be-marshaled map to
+                // the marshaled map and then ask the instance to
+                // marshal itself. Any new class instances that are
+                // triggered by the classes marshaled are added to
+                // toBeMarshaledMap.
+                //
+                _currentWriteEncaps->marshaledMap->insert(*p);
+                writeInstance(p->first, p->second);
+            }
 
-	    //
-	    // We have marshaled all the instances for this pass,
-	    // substract what we have marshaled from the
-	    // toBeMarshaledMap.
-	    //
-	    PtrToIndexMap newMap;
-	    set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(),
-			   _currentWriteEncaps->toBeMarshaledMap->end(),
-			   savedMap.begin(), savedMap.end(),
-			   insert_iterator<PtrToIndexMap>(newMap, newMap.begin()));
-	    *_currentWriteEncaps->toBeMarshaledMap = newMap;
-	}
+            //
+            // We have marshaled all the instances for this pass,
+            // substract what we have marshaled from the
+            // toBeMarshaledMap.
+            //
+            PtrToIndexMap newMap;
+            set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(),
+                           _currentWriteEncaps->toBeMarshaledMap->end(),
+                           savedMap.begin(), savedMap.end(),
+                           insert_iterator<PtrToIndexMap>(newMap, newMap.begin()));
+            *_currentWriteEncaps->toBeMarshaledMap = newMap;
+        }
     }
     writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
 }
@@ -1866,11 +1866,11 @@ IceInternal::BasicStream::readPendingObjects()
     Int num;
     do
     {
-	readSize(num);
-	for(Int k = num; k > 0; --k)
-	{
-	    read(0, 0);
-	}
+        readSize(num);
+        for(Int k = num; k > 0; --k)
+        {
+            read(0, 0);
+        }
     }
     while(num);
 
@@ -1970,7 +1970,7 @@ IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
 
 void
 IceInternal::BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator unmarshaledPos,
-					PatchMap::iterator patchPos)
+                                        PatchMap::iterator patchPos)
 {
     //
     // Called whenever we have unmarshaled a new instance. The index
@@ -1981,34 +1981,34 @@ IceInternal::BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator
     // with the new address.
     //
     assert(   (unmarshaledPos != _currentReadEncaps->unmarshaledMap->end()
-	       && patchPos == _currentReadEncaps->patchMap->end())
-	   || (unmarshaledPos == _currentReadEncaps->unmarshaledMap->end()
-	       && patchPos != _currentReadEncaps->patchMap->end())
-	  );
+               && patchPos == _currentReadEncaps->patchMap->end())
+           || (unmarshaledPos == _currentReadEncaps->unmarshaledMap->end()
+               && patchPos != _currentReadEncaps->patchMap->end())
+          );
 
     if(unmarshaledPos != _currentReadEncaps->unmarshaledMap->end())
     {
-	//
-	// We have just unmarshaled an instance -- check if something
-	// needs patching for that instance.
-	//
-	patchPos = _currentReadEncaps->patchMap->find(index);
-	if(patchPos == _currentReadEncaps->patchMap->end())
-	{
-	    return; // We don't have anything to patch for the instance just unmarshaled.
-	}
+        //
+        // We have just unmarshaled an instance -- check if something
+        // needs patching for that instance.
+        //
+        patchPos = _currentReadEncaps->patchMap->find(index);
+        if(patchPos == _currentReadEncaps->patchMap->end())
+        {
+            return; // We don't have anything to patch for the instance just unmarshaled.
+        }
     }
     else
     {
-	//
-	// We have just unmarshaled an index -- check if we have
-	// unmarshaled the instance for that index yet.
-	//
-	unmarshaledPos = _currentReadEncaps->unmarshaledMap->find(index);
-	if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
-	{
-	    return; // We haven't unmarshaled the instance yet.
-	}
+        //
+        // We have just unmarshaled an index -- check if we have
+        // unmarshaled the instance for that index yet.
+        //
+        unmarshaledPos = _currentReadEncaps->unmarshaledMap->find(index);
+        if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
+        {
+            return; // We haven't unmarshaled the instance yet.
+        }
     }
     assert(patchPos->second.size() > 0);
 
@@ -2020,7 +2020,7 @@ IceInternal::BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator
     //
     for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
     {
-	(*k->patchFunc)(k->patchAddr, v);
+        (*k->patchFunc)(k->patchAddr, v);
     }
 
     //

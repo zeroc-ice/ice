@@ -35,7 +35,7 @@ public class AllTests
             {
                 while(!_called)
                 {
-		    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
+                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
                     
                     if(!_called)
                     {
@@ -177,7 +177,7 @@ public class AllTests
     {
         public override void ice_response(Ice.Object o)
         {
-	    AllTests.test(false);
+            AllTests.test(false);
         }
         
         public override void ice_exception(Ice.Exception exc)
@@ -909,11 +909,11 @@ public class AllTests
             try
             {
                 testPrx.SUnknownAsObject();
-		test(false);
+                test(false);
             }
-	    catch(Ice.NoObjectFactoryException)
-	    {
-	    }
+            catch(Ice.NoObjectFactoryException)
+            {
+            }
             catch(Exception)
             {
                 test(false);
@@ -924,16 +924,16 @@ public class AllTests
         Console.Out.Write("unknown with Object as Object (AMI)... ");
         Console.Out.Flush();
         {
-	    try
-	    {
-		AMI_Test_SUnknownAsObjectI cb = new AMI_Test_SUnknownAsObjectI();
-		testPrx.SUnknownAsObject_async(cb);
-		test(cb.check());
-	    }
-	    catch(Exception)
-	    {
-	        test(false);
-	    }
+            try
+            {
+                AMI_Test_SUnknownAsObjectI cb = new AMI_Test_SUnknownAsObjectI();
+                testPrx.SUnknownAsObject_async(cb);
+                test(cb.check());
+            }
+            catch(Exception)
+            {
+                test(false);
+            }
         }
         Console.Out.WriteLine("ok");
         
@@ -1275,8 +1275,8 @@ public class AllTests
                 try
                 {
                     D3 p3 = (D3) b2;
-		    test(false);
-		    D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
+                    test(false);
+                    D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
                 }
                 catch(InvalidCastException)
                 {
@@ -1329,8 +1329,8 @@ public class AllTests
             try
             {
                 D3 p3 = (D3) b2;
-		test(false);
-		D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
+                test(false);
+                D3 tmp = p3; p3 = tmp; // Stop compiler warning about unused variable.
             }
             catch(InvalidCastException)
             {
@@ -1368,8 +1368,8 @@ public class AllTests
                 try
                 {
                     D3 p1 = (D3) b1;
-		    test(false);
-		    D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
+                    test(false);
+                    D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
                 }
                 catch(InvalidCastException)
                 {
@@ -1423,8 +1423,8 @@ public class AllTests
             try
             {
                 D3 p1 = (D3) b1;
-		test(false);
-		D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
+                test(false);
+                D3 tmp = p1; p1 = tmp; // Stop compiler warning about unused variable.
             }
             catch(InvalidCastException)
             {

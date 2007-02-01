@@ -20,27 +20,27 @@ class ReplicaGroup extends TreeNode
     static public ReplicaGroupDescriptor 
     copyDescriptor(ReplicaGroupDescriptor d)
     {
-	return (ReplicaGroupDescriptor)d.clone();
+        return (ReplicaGroupDescriptor)d.clone();
     }
 
     public Component getTreeCellRendererComponent(
-	    JTree tree,
-	    Object value,
-	    boolean sel,
-	    boolean expanded,
-	    boolean leaf,
-	    int row,
-	    boolean hasFocus) 
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) 
     {
-	if(_cellRenderer == null)
-	{
-	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _cellRenderer.setLeafIcon(
-		Utils.getIcon("/icons/16x16/replica_group.png"));
-	}
+        if(_cellRenderer == null)
+        {
+            _cellRenderer = new DefaultTreeCellRenderer();
+            _cellRenderer.setLeafIcon(
+                Utils.getIcon("/icons/16x16/replica_group.png"));
+        }
 
-	return _cellRenderer.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
     
     //
@@ -48,173 +48,173 @@ class ReplicaGroup extends TreeNode
     //
     public boolean[] getAvailableActions()
     {
-	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = !_ephemeral;
-	
-	if(((TreeNode)_parent).getAvailableActions()[PASTE])
-	{
-	    actions[PASTE] = true;
-	}
-	actions[DELETE] = true;
+        boolean[] actions = new boolean[ACTION_COUNT];
+        actions[COPY] = !_ephemeral;
+        
+        if(((TreeNode)_parent).getAvailableActions()[PASTE])
+        {
+            actions[PASTE] = true;
+        }
+        actions[DELETE] = true;
 
-	if(!_ephemeral)
-	{
-	    actions[SHOW_VARS] = true;
-	    actions[SUBSTITUTE_VARS] = true;
-	}
-	return actions;
+        if(!_ephemeral)
+        {
+            actions[SHOW_VARS] = true;
+            actions[SUBSTITUTE_VARS] = true;
+        }
+        return actions;
     }
 
     public void copy()
     {
-	getCoordinator().setClipboard(copyDescriptor(_descriptor));
-	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
+        getCoordinator().setClipboard(copyDescriptor(_descriptor));
+        getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
 
     }
     public void paste()
     {
-	((TreeNode)_parent).paste();
+        ((TreeNode)_parent).paste();
     }
 
     public void destroy()
     {
-	ReplicaGroups replicaGroups = (ReplicaGroups)_parent;
-	replicaGroups.removeChild(this);
+        ReplicaGroups replicaGroups = (ReplicaGroups)_parent;
+        replicaGroups.removeChild(this);
 
-	if(!_ephemeral)
-	{
-	    replicaGroups.removeDescriptor(_descriptor);
-	    replicaGroups.getEditable().
-		removeElement(_id, _editable, ReplicaGroup.class);
-	    getRoot().updated();
-	}
+        if(!_ephemeral)
+        {
+            replicaGroups.removeDescriptor(_descriptor);
+            replicaGroups.getEditable().
+                removeElement(_id, _editable, ReplicaGroup.class);
+            getRoot().updated();
+        }
     }
 
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = (ReplicaGroupEditor)getRoot().getEditor(ReplicaGroupEditor.class, this);
-	}
-	_editor.show(this);
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = (ReplicaGroupEditor)getRoot().getEditor(ReplicaGroupEditor.class, this);
+        }
+        _editor.show(this);
+        return _editor;
     }
 
     protected Editor createEditor()
     {
-	return new ReplicaGroupEditor();
+        return new ReplicaGroupEditor();
     }
 
     public boolean isEphemeral()
     {
-	return _ephemeral;
+        return _ephemeral;
     }
 
     Object getDescriptor()
     {
-	return _descriptor;
+        return _descriptor;
     }
     
     Object saveDescriptor()
     {
-	return _descriptor.clone();
+        return _descriptor.clone();
     }
     void restoreDescriptor(Object savedDescriptor)
     {
-	ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor)savedDescriptor;
-	_descriptor.id = clone.id;
-	_descriptor.description = clone.description;
-	_descriptor.objects = clone.objects;
-	_descriptor.loadBalancing = clone.loadBalancing;
+        ReplicaGroupDescriptor clone = (ReplicaGroupDescriptor)savedDescriptor;
+        _descriptor.id = clone.id;
+        _descriptor.description = clone.description;
+        _descriptor.objects = clone.objects;
+        _descriptor.loadBalancing = clone.loadBalancing;
     }
 
     void commit()
     {
-	_editable.commit();
+        _editable.commit();
     }
     
     Editable getEditable()
     {
-	return _editable;
+        return _editable;
     }
    
     ReplicaGroup(boolean brandNew,
-		 TreeNode parent,
-		 ReplicaGroupDescriptor descriptor)
+                 TreeNode parent,
+                 ReplicaGroupDescriptor descriptor)
     {
-	super(parent, descriptor.id);
-	_ephemeral = false;
-	_editable = new Editable(brandNew);
-	rebuild(descriptor);
+        super(parent, descriptor.id);
+        _ephemeral = false;
+        _editable = new Editable(brandNew);
+        rebuild(descriptor);
     }
     
     ReplicaGroup(TreeNode parent, ReplicaGroupDescriptor descriptor)
     {
-	super(parent, descriptor.id);
-	_ephemeral = true;
-	_editable = null;
-	rebuild(descriptor);
+        super(parent, descriptor.id);
+        _ephemeral = true;
+        _editable = null;
+        rebuild(descriptor);
     }
     
     void write(XMLWriter writer) throws java.io.IOException
     {
-	if(!_ephemeral)
-	{
-	    java.util.List attributes = new java.util.LinkedList();
-	    attributes.add(createAttribute("id", _descriptor.id));
-			   	   
-	    if(_descriptor.loadBalancing == null && 
-	       _descriptor.description.length() == 0 && _descriptor.objects.isEmpty())
-	    {
-		writer.writeElement("replica-group", attributes);
-	    }
-	    else
-	    {
-		writer.writeStartTag("replica-group", attributes);
+        if(!_ephemeral)
+        {
+            java.util.List attributes = new java.util.LinkedList();
+            attributes.add(createAttribute("id", _descriptor.id));
+                                   
+            if(_descriptor.loadBalancing == null && 
+               _descriptor.description.length() == 0 && _descriptor.objects.isEmpty())
+            {
+                writer.writeElement("replica-group", attributes);
+            }
+            else
+            {
+                writer.writeStartTag("replica-group", attributes);
 
-		if(_descriptor.description.length() > 0)
-		{
-		    writer.writeElement("description", _descriptor.description);
-		}
-		assert _descriptor.loadBalancing != null;
+                if(_descriptor.description.length() > 0)
+                {
+                    writer.writeElement("description", _descriptor.description);
+                }
+                assert _descriptor.loadBalancing != null;
 
-		attributes.clear();
-		if(_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
-		{
-		    attributes.add(createAttribute("type", "random")); 
-		}
-		else if(_descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
-		{
-		    attributes.add(createAttribute("type", "ordered")); 
-		}
-		else if(_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
-		{
-		    attributes.add(createAttribute("type", "round-robin")); 
-		}
-		else if(_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
-		{
-		    attributes.add(createAttribute("type", "adaptive"));
-		    AdaptiveLoadBalancingPolicy policy = 
-			(AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
-		    attributes.add(createAttribute("load-sample", policy.loadSample));
-		}
-		attributes.add(createAttribute("n-replicas", 
-					       _descriptor.loadBalancing.nReplicas));
-		writer.writeElement("load-balancing", attributes);
-	     
-		writeObjects("object", writer, _descriptor.objects, null);
-		writer.writeEndTag("replica-group");
-	    }
-	}
+                attributes.clear();
+                if(_descriptor.loadBalancing instanceof RandomLoadBalancingPolicy)
+                {
+                    attributes.add(createAttribute("type", "random")); 
+                }
+                else if(_descriptor.loadBalancing instanceof OrderedLoadBalancingPolicy)
+                {
+                    attributes.add(createAttribute("type", "ordered")); 
+                }
+                else if(_descriptor.loadBalancing instanceof RoundRobinLoadBalancingPolicy)
+                {
+                    attributes.add(createAttribute("type", "round-robin")); 
+                }
+                else if(_descriptor.loadBalancing instanceof AdaptiveLoadBalancingPolicy)
+                {
+                    attributes.add(createAttribute("type", "adaptive"));
+                    AdaptiveLoadBalancingPolicy policy = 
+                        (AdaptiveLoadBalancingPolicy)_descriptor.loadBalancing;
+                    attributes.add(createAttribute("load-sample", policy.loadSample));
+                }
+                attributes.add(createAttribute("n-replicas", 
+                                               _descriptor.loadBalancing.nReplicas));
+                writer.writeElement("load-balancing", attributes);
+             
+                writeObjects("object", writer, _descriptor.objects, null);
+                writer.writeEndTag("replica-group");
+            }
+        }
     }
 
 
     void rebuild(ReplicaGroupDescriptor descriptor)
     {
-	_descriptor = descriptor;
-	//
-	// And that's it since there is no children
-	//
+        _descriptor = descriptor;
+        //
+        // And that's it since there is no children
+        //
     }
 
     private ReplicaGroupDescriptor _descriptor;

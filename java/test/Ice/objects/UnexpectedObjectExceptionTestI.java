@@ -14,12 +14,12 @@ public final class UnexpectedObjectExceptionTestI extends Ice.Blobject
     public boolean
     ice_invoke(byte[] inParams, Ice.ByteSeqHolder outParams, Ice.Current current)
     {
-	Ice.Communicator communicator = current.adapter.getCommunicator();
-	Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
-	AlsoEmpty ae = new AlsoEmpty();
-	Test.AlsoEmptyHelper.write(out, ae);
-	out.writePendingObjects();
-	outParams.value = out.finished();
-	return true;
+        Ice.Communicator communicator = current.adapter.getCommunicator();
+        Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
+        AlsoEmpty ae = new AlsoEmpty();
+        Test.AlsoEmptyHelper.write(out, ae);
+        out.writePendingObjects();
+        outParams.value = out.finished();
+        return true;
     }
 }

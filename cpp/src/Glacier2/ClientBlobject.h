@@ -35,7 +35,7 @@ public:
     virtual ~ClientBlobject();
 
     virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
-    				  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
+                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
 
     Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&); // Returns evicted proxies.
 

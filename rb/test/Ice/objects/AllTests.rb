@@ -18,24 +18,24 @@ require 'TestI.rb'
 #
 class MyObjectFactory
     def create(type)
-	if type == '::Test::B'
-	    return BI.new
-	elsif type == '::Test::C'
-	    return CI.new
-	elsif type == '::Test::D'
-	    return DI.new
-	end
-	fail "unknown type"
+        if type == '::Test::B'
+            return BI.new
+        elsif type == '::Test::C'
+            return CI.new
+        elsif type == '::Test::D'
+            return DI.new
+        end
+        fail "unknown type"
     end
 
     def destroy
-	# Nothing to do
+        # Nothing to do
     end
 end
 
 def test(b)
     if !b
-	raise RuntimeError, 'test assertion failed'
+        raise RuntimeError, 'test assertion failed'
     end
 end
 
@@ -154,19 +154,19 @@ def allTests(communicator)
     uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)
     test(uoet)
     begin
-	uoet.op()
-	test(false)
+        uoet.op()
+        test(false)
     rescue Ice::UnexpectedObjectException => ex
-	test(ex.type == "::Test::AlsoEmpty")
-	test(ex.expectedType == "::Test::Empty")
+        test(ex.type == "::Test::AlsoEmpty")
+        test(ex.expectedType == "::Test::Empty")
     rescue Ice::Exception => ex
-	puts $!
-	print ex.backtrace.join("\n")
-	test(false)
+        puts $!
+        print ex.backtrace.join("\n")
+        test(false)
     rescue => ex
-	puts $!
-	print ex.backtrace.join("\n")
-	test(false)
+        puts $!
+        print ex.backtrace.join("\n")
+        test(false)
     end
     puts "ok"
 

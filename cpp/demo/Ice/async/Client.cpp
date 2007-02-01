@@ -54,8 +54,8 @@ AsyncClient::run(int argc, char* argv[])
     HelloPrx hello = HelloPrx::checkedCast(communicator()->propertyToProxy("Hello.Proxy"));
     if(!hello)
     {
-	cerr << argv[0] << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     menu();
@@ -63,40 +63,40 @@ AsyncClient::run(int argc, char* argv[])
     char c;
     do
     {
-	try
-	{
-	    cout << "==> ";
-	    cin >> c;
-	    if(c == 'i')
-	    {
-	        hello->sayHello(0);
-	    }
-	    else if(c == 'd')
-	    {
-		hello->sayHello_async(new AMI_Hello_sayHelloI, 5000);
-	    }
-	    else if(c == 's')
-	    {
-		hello->shutdown();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		cout << "unknown command `" << c << "'" << endl;
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	}
+        try
+        {
+            cout << "==> ";
+            cin >> c;
+            if(c == 'i')
+            {
+                hello->sayHello(0);
+            }
+            else if(c == 'd')
+            {
+                hello->sayHello_async(new AMI_Hello_sayHelloI, 5000);
+            }
+            else if(c == 's')
+            {
+                hello->shutdown();
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu();
+            }
+            else
+            {
+                cout << "unknown command `" << c << "'" << endl;
+                menu();
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+        }
     }
     while(cin.good() && c != 'x');
 
@@ -125,10 +125,10 @@ void
 AsyncClient::menu()
 {
     cout <<
-	"usage:\n"
-	"i: send immediate greeting\n"
-	"d: send delayed greeting\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+        "usage:\n"
+        "i: send immediate greeting\n"
+        "d: send delayed greeting\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: help\n";
 }

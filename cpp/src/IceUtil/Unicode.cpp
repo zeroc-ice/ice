@@ -23,35 +23,35 @@ template<size_t wcharSize>
 struct WstringHelper
 {
     static ConversionResult toUTF8(
-	const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
-	Byte*& targetStart, Byte* targetEnd, ConversionFlags flags);
+        const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+        Byte*& targetStart, Byte* targetEnd, ConversionFlags flags);
 
     static ConversionResult fromUTF8(
-	const Byte*& sourceStart, const Byte* sourceEnd, 
-	wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
+        const Byte*& sourceStart, const Byte* sourceEnd, 
+        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags);
 };
 
 template<>
 struct WstringHelper<2>
 {
     static ConversionResult toUTF8(
-	const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
-	Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
+        const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+        Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
     {
-	return ConvertUTF16toUTF8(
-	    reinterpret_cast<const UTF16**>(&sourceStart),
-	    reinterpret_cast<const UTF16*>(sourceEnd),
-	    &targetStart, targetEnd, flags);
+        return ConvertUTF16toUTF8(
+            reinterpret_cast<const UTF16**>(&sourceStart),
+            reinterpret_cast<const UTF16*>(sourceEnd),
+            &targetStart, targetEnd, flags);
     }
     
     static ConversionResult fromUTF8(
-	const Byte*& sourceStart, const Byte* sourceEnd, 
-	wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
+        const Byte*& sourceStart, const Byte* sourceEnd, 
+        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
     {
-	return ConvertUTF8toUTF16(
-	    &sourceStart, sourceEnd,
-	    reinterpret_cast<UTF16**>(&targetStart),
-	    reinterpret_cast<UTF16*>(targetEnd), flags);
+        return ConvertUTF8toUTF16(
+            &sourceStart, sourceEnd,
+            reinterpret_cast<UTF16**>(&targetStart),
+            reinterpret_cast<UTF16*>(targetEnd), flags);
     }
 };
 
@@ -59,23 +59,23 @@ template<>
 struct WstringHelper<4>
 {
     static ConversionResult toUTF8(
-	const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
-	Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
+        const wchar_t*& sourceStart, const wchar_t* sourceEnd, 
+        Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
     {
-	return ConvertUTF32toUTF8(
-	    reinterpret_cast<const UTF32**>(&sourceStart),
-	    reinterpret_cast<const UTF32*>(sourceEnd),
-	    &targetStart, targetEnd, flags);
+        return ConvertUTF32toUTF8(
+            reinterpret_cast<const UTF32**>(&sourceStart),
+            reinterpret_cast<const UTF32*>(sourceEnd),
+            &targetStart, targetEnd, flags);
     }
     
     static ConversionResult fromUTF8(
-	const Byte*& sourceStart, const Byte* sourceEnd, 
-	wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
+        const Byte*& sourceStart, const Byte* sourceEnd, 
+        wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
     {
-	return ConvertUTF8toUTF32(
-	    &sourceStart, sourceEnd,
-	    reinterpret_cast<UTF32**>(&targetStart),
-	    reinterpret_cast<UTF32*>(targetEnd), flags);
+        return ConvertUTF8toUTF32(
+            &sourceStart, sourceEnd,
+            reinterpret_cast<UTF32**>(&targetStart),
+            reinterpret_cast<UTF32*>(targetEnd), flags);
     }
 };
 }
@@ -90,7 +90,7 @@ IceUtil::convertUTFWstringToUTF8(
     Byte*& targetStart, Byte* targetEnd, ConversionFlags flags)
 {
     return WstringHelper<sizeof(wchar_t)>::toUTF8(
-	sourceStart, sourceEnd, targetStart, targetEnd, flags);
+        sourceStart, sourceEnd, targetStart, targetEnd, flags);
 }
 
 ConversionResult
@@ -99,12 +99,12 @@ IceUtil::convertUTF8ToUTFWstring(
     wchar_t*& targetStart, wchar_t* targetEnd, ConversionFlags flags)
 {
     return WstringHelper<sizeof(wchar_t)>::fromUTF8(
-	sourceStart, sourceEnd, targetStart, targetEnd, flags);
+        sourceStart, sourceEnd, targetStart, targetEnd, flags);
 }
 
 ConversionResult 
 IceUtil::convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd, 
-				 std::wstring& target, ConversionFlags flags)
+                                 std::wstring& target, ConversionFlags flags)
 {
     //
     // Could be reimplemented without this temporary wchar_t buffer
@@ -115,13 +115,13 @@ IceUtil::convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd
     wchar_t* targetEnd = targetStart + size;
 
     ConversionResult result =  
-	convertUTF8ToUTFWstring(sourceStart, sourceEnd, targetStart,
-				targetEnd, flags);
+        convertUTF8ToUTFWstring(sourceStart, sourceEnd, targetStart,
+                                targetEnd, flags);
 
     if(result == conversionOK)
     {
-	std::wstring s(outBuf, static_cast<size_t>(targetStart - outBuf));
-	s.swap(target);
+        std::wstring s(outBuf, static_cast<size_t>(targetStart - outBuf));
+        s.swap(target);
     }
     delete[] outBuf;
     return result;
@@ -135,7 +135,7 @@ IceUtil::convertUTF8ToUTFWstring(const Byte*& sourceStart, const Byte* sourceEnd
 const char* IceUtil::UTFConversionException::_name = "IceUtil::UTFConversionException";
 
 IceUtil::UTFConversionException::UTFConversionException(const char* file, int line, 
-							ConversionResult cr): 
+                                                        ConversionResult cr): 
     Exception(file, line),
     _conversionResult(cr)
 {}
@@ -152,18 +152,18 @@ IceUtil::UTFConversionException::ice_print(ostream& os) const
     Exception::ice_print(os);
     switch(_conversionResult)
     {
-	case sourceExhausted:
-	    os << ": source exhausted";
-	    break;
-	case targetExhausted:
-	    os << ": target exhausted";
-	    break;
-	case sourceIllegal:
-	    os << ": illegal source";
-	    break;
-	default:
-	    assert(0);
-	    break;
+        case sourceExhausted:
+            os << ": source exhausted";
+            break;
+        case targetExhausted:
+            os << ": target exhausted";
+            break;
+        case sourceIllegal:
+            os << ": illegal source";
+            break;
+        default:
+            assert(0);
+            break;
     };
 }
 
@@ -200,18 +200,18 @@ IceUtil::wstringToString(const wstring& wstr)
     const wchar_t* sourceStart = wstr.data();
   
     ConversionResult cr = 
-	convertUTFWstringToUTF8(
-	    sourceStart, sourceStart + wstr.size(), 
-	    targetStart, targetEnd, lenientConversion);
-	
+        convertUTFWstringToUTF8(
+            sourceStart, sourceStart + wstr.size(), 
+            targetStart, targetEnd, lenientConversion);
+        
     if(cr != conversionOK)
     {
-	delete[] outBuf;
-	throw UTFConversionException(__FILE__, __LINE__, cr);
+        delete[] outBuf;
+        throw UTFConversionException(__FILE__, __LINE__, cr);
     }
     
     string s(reinterpret_cast<char*>(outBuf),
-	     static_cast<size_t>(targetStart - outBuf));
+             static_cast<size_t>(targetStart - outBuf));
     s.swap(target);
     delete[] outBuf;
     return target;
@@ -224,12 +224,12 @@ IceUtil::stringToWstring(const string& str)
     const Byte* sourceStart = reinterpret_cast<const Byte*>(str.data());
     
     ConversionResult cr 
-	= convertUTF8ToUTFWstring(sourceStart, sourceStart + str.size(),
-				  result, lenientConversion);
+        = convertUTF8ToUTFWstring(sourceStart, sourceStart + str.size(),
+                                  result, lenientConversion);
 
     if(cr != conversionOK)
     {
-	throw UTFConversionException(__FILE__, __LINE__, cr);
+        throw UTFConversionException(__FILE__, __LINE__, cr);
     }
     return result;
 }

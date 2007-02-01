@@ -13,13 +13,13 @@ public sealed class SessionI : Glacier2.SessionDisp_
 {
     public SessionI(string userId)
     {
-	_userId = userId;
+        _userId = userId;
     }
 
     public override void destroy(Ice.Current current)
     {
-	Console.WriteLine("destroying session for user `" + _userId + "'");
-	current.adapter.remove(current.id);
+        Console.WriteLine("destroying session for user `" + _userId + "'");
+        current.adapter.remove(current.id);
     }
 
     private readonly string _userId;

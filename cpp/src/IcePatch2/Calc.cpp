@@ -25,7 +25,7 @@ struct FileInfoPathLess: public binary_function<const FileInfo&, const FileInfo&
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
-	return lhs.path < rhs.path;
+        return lhs.path < rhs.path;
     }
 };
 
@@ -34,20 +34,20 @@ struct IFileInfoPathEqual: public binary_function<const FileInfo&, const FileInf
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
-	if(lhs.path.size() != rhs.path.size())
-	{
-	    return false;
-	}
+        if(lhs.path.size() != rhs.path.size())
+        {
+            return false;
+        }
 
-	for(string::size_type i = 0; i < lhs.path.size(); ++i)
-	{
-	    if(::tolower(lhs.path[i]) != ::tolower(rhs.path[i]))
-	    {
-		return false;
-	    }
-	}
+        for(string::size_type i = 0; i < lhs.path.size(); ++i)
+        {
+            if(::tolower(lhs.path[i]) != ::tolower(rhs.path[i]))
+            {
+                return false;
+            }
+        }
 
-	return true;
+        return true;
     }
 };
 
@@ -56,18 +56,18 @@ struct IFileInfoPathLess: public binary_function<const FileInfo&, const FileInfo
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
-	for(string::size_type i = 0; i < lhs.path.size() && i < rhs.path.size(); ++i)
-	{
-	    if(::tolower(lhs.path[i]) < ::tolower(rhs.path[i]))
-	    {
-		return true;
-	    }
-	    else if(::tolower(lhs.path[i]) > ::tolower(rhs.path[i]))
-	    {
-		return false;
-	    }
-	}
-	return lhs.path.size() < rhs.path.size();
+        for(string::size_type i = 0; i < lhs.path.size() && i < rhs.path.size(); ++i)
+        {
+            if(::tolower(lhs.path[i]) < ::tolower(rhs.path[i]))
+            {
+                return true;
+            }
+            else if(::tolower(lhs.path[i]) > ::tolower(rhs.path[i]))
+            {
+                return false;
+            }
+        }
+        return lhs.path.size() < rhs.path.size();
     }
 };
 
@@ -78,22 +78,22 @@ public:
     virtual bool
     remove(const string& path)
     {
-	cout << "removing: " << path << endl;
-	return true;
+        cout << "removing: " << path << endl;
+        return true;
     }
 
     virtual bool
     checksum(const string& path)
     {
-	cout << "checksum: " << path << endl;
-	return true;
+        cout << "checksum: " << path << endl;
+        return true;
     }
 
     virtual bool
     compress(const string& path)
     {
-	cout << "compress: " << path << endl;
-	return true;
+        cout << "compress: " << path << endl;
+        return true;
     }
 };
 
@@ -132,32 +132,32 @@ main(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
         cerr << e.reason << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return EXIT_SUCCESS;
+        usage(argv[0]);
+        return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+        cout << ICE_STRING_VERSION << endl;
+        return EXIT_SUCCESS;
     }
     bool doCompress = opts.isSet("compress");
     bool dontCompress = opts.isSet("no-compress");
     if(doCompress && dontCompress)
     {
         cerr << argv[0] << ": only one of -z and -Z are mutually exclusive" << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
     if(doCompress)
     {
@@ -185,120 +185,120 @@ main(int argc, char* argv[])
 
     try
     {
-	StringSeq::iterator p;
-	string absDataDir = dataDir;
+        StringSeq::iterator p;
+        string absDataDir = dataDir;
     
-	string cwd;
-	if(OS::getcwd(cwd) != 0)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
+        string cwd;
+        if(OS::getcwd(cwd) != 0)
+        {
+            throw "cannot get the current directory:\n" + lastError();
+        }
 
-	if(!isAbsolute(absDataDir))
-	{
-	    absDataDir = simplify(cwd + '/' + absDataDir);
-	}
-	
-	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	{
-	    if(!isAbsolute(*p))
-	    {
-		*p = cwd + '/' + *p;
-	    }
-	}
+        if(!isAbsolute(absDataDir))
+        {
+            absDataDir = simplify(cwd + '/' + absDataDir);
+        }
+        
+        for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+        {
+            if(!isAbsolute(*p))
+            {
+                *p = cwd + '/' + *p;
+            }
+        }
 
-	//
-	// We must call simplify() here: under Cygwin, any path starting with
-	// a double slash simply doesn't work. But, if dataDir is "/", we end
-	// up with paths that start with "//" unless we call simplify().
-	//
-	string absDataDirWithSlash = simplify(absDataDir + '/');
+        //
+        // We must call simplify() here: under Cygwin, any path starting with
+        // a double slash simply doesn't work. But, if dataDir is "/", we end
+        // up with paths that start with "//" unless we call simplify().
+        //
+        string absDataDirWithSlash = simplify(absDataDir + '/');
 
-	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	{
-	    if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
-	    {
-		throw "`" + *p + "' is not a path in `" + dataDir + "'";
-	    }
-	    
-	    p->erase(0, absDataDirWithSlash.size());
-	}
+        for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+        {
+            if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
+            {
+                throw "`" + *p + "' is not a path in `" + dataDir + "'";
+            }
+            
+            p->erase(0, absDataDirWithSlash.size());
+        }
     
-	FileInfoSeq infoSeq;
-	    
-	if(fileSeq.empty())
-	{
-	    CalcCB calcCB;
-	    if(!getFileInfoSeq(absDataDir, compress, verbose ? &calcCB : 0, infoSeq))
-	    {
-		return EXIT_FAILURE;
-	    }
-	}
-	else
-	{
-	    loadFileInfoSeq(absDataDir, infoSeq);
+        FileInfoSeq infoSeq;
+            
+        if(fileSeq.empty())
+        {
+            CalcCB calcCB;
+            if(!getFileInfoSeq(absDataDir, compress, verbose ? &calcCB : 0, infoSeq))
+            {
+                return EXIT_FAILURE;
+            }
+        }
+        else
+        {
+            loadFileInfoSeq(absDataDir, infoSeq);
 
-	    for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	    {
-		FileInfoSeq partialInfoSeq;
+            for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
+            {
+                FileInfoSeq partialInfoSeq;
 
-		CalcCB calcCB;
-		if(!getFileInfoSeqSubDir(absDataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
-		{
-		    return EXIT_FAILURE;
-		}
+                CalcCB calcCB;
+                if(!getFileInfoSeqSubDir(absDataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
+                {
+                    return EXIT_FAILURE;
+                }
 
-		FileInfoSeq newInfoSeq;
-		newInfoSeq.reserve(infoSeq.size());
+                FileInfoSeq newInfoSeq;
+                newInfoSeq.reserve(infoSeq.size());
 
-		set_difference(infoSeq.begin(),
-			       infoSeq.end(),
-			       partialInfoSeq.begin(),
-			       partialInfoSeq.end(),
-			       back_inserter(newInfoSeq),
-			       FileInfoPathLess());
+                set_difference(infoSeq.begin(),
+                               infoSeq.end(),
+                               partialInfoSeq.begin(),
+                               partialInfoSeq.end(),
+                               back_inserter(newInfoSeq),
+                               FileInfoPathLess());
 
-		infoSeq.swap(newInfoSeq);
+                infoSeq.swap(newInfoSeq);
 
-		newInfoSeq.clear();
-		newInfoSeq.reserve(infoSeq.size() + partialInfoSeq.size());
+                newInfoSeq.clear();
+                newInfoSeq.reserve(infoSeq.size() + partialInfoSeq.size());
 
-		set_union(infoSeq.begin(),
-			  infoSeq.end(),
-			  partialInfoSeq.begin(),
-			  partialInfoSeq.end(),
-			  back_inserter(newInfoSeq),
-			  FileInfoPathLess());
+                set_union(infoSeq.begin(),
+                          infoSeq.end(),
+                          partialInfoSeq.begin(),
+                          partialInfoSeq.end(),
+                          back_inserter(newInfoSeq),
+                          FileInfoPathLess());
 
-		infoSeq.swap(newInfoSeq);
-	    }
-	}
+                infoSeq.swap(newInfoSeq);
+            }
+        }
 
-	if(caseInsensitive)
-	{
-	    FileInfoSeq newInfoSeq = infoSeq;
-	    sort(newInfoSeq.begin(), newInfoSeq.end(), IFileInfoPathLess());
+        if(caseInsensitive)
+        {
+            FileInfoSeq newInfoSeq = infoSeq;
+            sort(newInfoSeq.begin(), newInfoSeq.end(), IFileInfoPathLess());
 
-	    string ex;
-	    FileInfoSeq::iterator p = newInfoSeq.begin();
-	    while((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
-	    {
-		do
-		{
-		    ex += '\n' + dataDir + '/' + p->path;
-		    ++p;
-		}
-		while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
-	    }
+            string ex;
+            FileInfoSeq::iterator p = newInfoSeq.begin();
+            while((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
+            {
+                do
+                {
+                    ex += '\n' + dataDir + '/' + p->path;
+                    ++p;
+                }
+                while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
+            }
 
-	    if(!ex.empty())
-	    {
-		ex = "duplicate files:" + ex;
-		throw ex;
-	    }
-	}
+            if(!ex.empty())
+            {
+                ex = "duplicate files:" + ex;
+                throw ex;
+            }
+        }
 
-	saveFileInfoSeq(absDataDir, infoSeq);
+        saveFileInfoSeq(absDataDir, infoSeq);
     }
     catch(const string& ex)
     {

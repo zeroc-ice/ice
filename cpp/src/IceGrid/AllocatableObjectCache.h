@@ -59,12 +59,12 @@ private:
 
     virtual void allocated(const AllocatablePtr& allocatable, const SessionIPtr& session)
     {
-	response(AllocatableObjectEntryPtr::dynamicCast(allocatable)->getProxy());
+        response(AllocatableObjectEntryPtr::dynamicCast(allocatable)->getProxy());
     }
 
     virtual void canceled(const AllocationException& ex)
     {
-	exception(ex);
+        exception(ex);
     }
 };
 typedef IceUtil::Handle<ObjectAllocationRequest> ObjectAllocationRequestPtr;
@@ -92,20 +92,20 @@ private:
     {
     public:
 
-	TypeEntry();
+        TypeEntry();
 
-	void add(const AllocatableObjectEntryPtr&);
-	bool remove(const AllocatableObjectEntryPtr&);
-	
-	void addAllocationRequest(const ObjectAllocationRequestPtr&);
-	bool canTryAllocate(const AllocatableObjectEntryPtr&, bool);
+        void add(const AllocatableObjectEntryPtr&);
+        bool remove(const AllocatableObjectEntryPtr&);
+        
+        void addAllocationRequest(const ObjectAllocationRequestPtr&);
+        bool canTryAllocate(const AllocatableObjectEntryPtr&, bool);
 
-	const std::vector<AllocatableObjectEntryPtr>& getObjects() const { return _objects; }
+        const std::vector<AllocatableObjectEntryPtr>& getObjects() const { return _objects; }
 
     private:
-	
-	std::vector<AllocatableObjectEntryPtr> _objects;
-	std::list<ObjectAllocationRequestPtr> _requests;
+        
+        std::vector<AllocatableObjectEntryPtr> _objects;
+        std::list<ObjectAllocationRequestPtr> _requests;
     };
 
     const Ice::CommunicatorPtr _communicator;

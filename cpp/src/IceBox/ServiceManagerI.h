@@ -39,10 +39,10 @@ public:
         ::std::string name;
         ServicePtr service;
         ::IceInternal::DynamicLibraryPtr library;
-	::Ice::CommunicatorPtr communicator;
-	::std::string envName;
-	bool active;
-	Ice::StringSeq args;
+        ::Ice::CommunicatorPtr communicator;
+        ::std::string envName;
+        bool active;
+        Ice::StringSeq args;
     };
 
     bool start();

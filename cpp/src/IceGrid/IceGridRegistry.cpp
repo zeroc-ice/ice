@@ -76,31 +76,31 @@ RegistryService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
         error(e.reason);
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
     if(opts.isSet("version"))
     {
-	print(ICE_STRING_VERSION);
-	return false;
+        print(ICE_STRING_VERSION);
+        return false;
     }
     nowarn = opts.isSet("nowarn");
 
     if(!args.empty())
     {
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
 
     Ice::PropertiesPtr properties = communicator()->getProperties();
@@ -110,9 +110,9 @@ RegistryService::start(int argc, char* argv[])
     //
     if(!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
-	Warning out(communicator()->getLogger());
-	out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";
-	out << "you should set individual adapter thread pools instead.";
+        Warning out(communicator()->getLogger());
+        out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";
+        out << "you should set individual adapter thread pools instead.";
     }
 
     TraceLevelsPtr traceLevels = new TraceLevels(communicator(), "IceGrid.Registry");
@@ -120,7 +120,7 @@ RegistryService::start(int argc, char* argv[])
     _registry = new RegistryI(communicator(), traceLevels);
     if(!_registry->start(nowarn))
     {
-	return false;
+        return false;
     }
 
     return true;
@@ -147,7 +147,7 @@ RegistryService::stop()
 
 CommunicatorPtr
 RegistryService::initializeCommunicator(int& argc, char* argv[], 
-					const InitializationData& initializationData)
+                                        const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
@@ -166,31 +166,31 @@ void
 RegistryService::usage(const string& appName)
 {
     string options =
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.\n"
-	"--nowarn             Don't print any security warnings.";
+        "Options:\n"
+        "-h, --help           Show this message.\n"
+        "-v, --version        Display the Ice version.\n"
+        "--nowarn             Don't print any security warnings.";
 #ifdef _WIN32
     if(checkSystem())
     {
         options.append(
-	"\n"
-	"\n"
-	"--service NAME       Run as the Windows service NAME.\n"
-	"\n"
-	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
-	"                     Install as Windows service NAME. If DISP is\n"
-	"                     provided, use it as the display name,\n"
-	"                     otherwise NAME is used. If EXEC is provided,\n"
-	"                     use it as the service executable, otherwise\n"
-	"                     this executable is used. Any additional\n"
-	"                     arguments are passed unchanged to the\n"
-	"                     service at startup.\n"
-	"--uninstall NAME     Uninstall Windows service NAME.\n"
-	"--start NAME [args]  Start Windows service NAME. Any additional\n"
-	"                     arguments are passed unchanged to the\n"
-	"                     service.\n"
-	"--stop NAME          Stop Windows service NAME."
+        "\n"
+        "\n"
+        "--service NAME       Run as the Windows service NAME.\n"
+        "\n"
+        "--install NAME [--display DISP] [--executable EXEC] [args]\n"
+        "                     Install as Windows service NAME. If DISP is\n"
+        "                     provided, use it as the display name,\n"
+        "                     otherwise NAME is used. If EXEC is provided,\n"
+        "                     use it as the service executable, otherwise\n"
+        "                     this executable is used. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service at startup.\n"
+        "--uninstall NAME     Uninstall Windows service NAME.\n"
+        "--start NAME [args]  Start Windows service NAME. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service.\n"
+        "--stop NAME          Stop Windows service NAME."
         );
     }
 #else
@@ -199,8 +199,8 @@ RegistryService::usage(const string& appName)
         "\n"
         "--daemon             Run as a daemon.\n"
         "--noclose            Do not close open file descriptors.\n"
-	"--nochdir            Do not change the current working directory.\n"
-	"--pidfile <file>     Write process ID to <file>."
+        "--nochdir            Do not change the current working directory.\n"
+        "--pidfile <file>     Write process ID to <file>."
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);

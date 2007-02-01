@@ -112,7 +112,7 @@ currentGetter(CurrentObject* self, void* closure)
     {
         if(self->adapter == NULL)
         {
-	    self->adapter = wrapObjectAdapter(self->current->adapter);
+            self->adapter = wrapObjectAdapter(self->current->adapter);
             if(self->adapter == NULL)
             {
                 return NULL;
@@ -124,14 +124,14 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_CONNECTION:
     {
-	if(self->con == NULL)
-	{
-	    self->con = createConnection(self->current->con, self->current->adapter->getCommunicator());
-	    if(self->con == NULL)
-	    {
-		return NULL;
-	    }
-	}
+        if(self->con == NULL)
+        {
+            self->con = createConnection(self->current->con, self->current->adapter->getCommunicator());
+            if(self->con == NULL)
+            {
+                return NULL;
+            }
+        }
         Py_INCREF(self->con);
         result = self->con;
         break;

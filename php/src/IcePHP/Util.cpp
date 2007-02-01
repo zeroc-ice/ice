@@ -178,7 +178,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     {
         string s = zendTypeToString(Z_TYPE_PP(nameVal));
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected a string value for identity member `name' but received %s",
-			 s.c_str());
+                         s.c_str());
         return false;
     }
 
@@ -186,7 +186,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     {
         string s = zendTypeToString(Z_TYPE_PP(categoryVal));
         php_error_docref(NULL TSRMLS_CC, E_ERROR,
-			 "expected a string value for identity member `category' but received %s", s.c_str());
+                         "expected a string value for identity member `category' but received %s", s.c_str());
         return false;
     }
 
@@ -225,7 +225,7 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an array for the context argument but received %s",
-			 s.c_str());
+                         s.c_str());
         return false;
     }
 
@@ -301,7 +301,7 @@ IcePHP::getObject(zval* zv TSRMLS_DC)
     if(!zv)
     {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "method %s() must be invoked on an object",
-			 get_active_function_name(TSRMLS_C));
+                         get_active_function_name(TSRMLS_C));
         return 0;
     }
 
@@ -324,32 +324,32 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
     }
     catch(const Ice::TwowayOnlyException& e)
     {
-	string name = e.ice_name();
-	zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-	if(!cls)
-	{
-	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-	    return;
-	}
+        string name = e.ice_name();
+        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+        if(!cls)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            return;
+        }
 
-	zval* zex;
-	MAKE_STD_ZVAL(zex);
-	if(object_init_ex(zex, cls) != SUCCESS)
-	{
-	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-	    return;
-	}
+        zval* zex;
+        MAKE_STD_ZVAL(zex);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            return;
+        }
 
-	//
-	// Set the unknown member.
-	//
-	zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
-				    const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
+        //
+        // Set the unknown member.
+        //
+        zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
+                                    const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
 
-	//
-	// Throw the exception.
-	//
-	zend_throw_exception_object(zex TSRMLS_CC);
+        //
+        // Throw the exception.
+        //
+        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::UnknownException& e)
     {
@@ -491,7 +491,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str()) TSRMLS_CC);
         zend_update_property_string(cls, zex, "expectedType", sizeof("expectedType") - 1,
-	                            const_cast<char*>(e.expectedType.c_str()) TSRMLS_CC);
+                                    const_cast<char*>(e.expectedType.c_str()) TSRMLS_CC);
 
         //
         // Throw the exception.

@@ -57,7 +57,7 @@ else:
 for [file, content] in files:
     file = os.path.join(datadir, file)
     if not os.path.exists(os.path.dirname(file)):
-	os.makedirs(os.path.dirname(file))
+        os.makedirs(os.path.dirname(file))
     f = open(file, 'w')    
     f.write(content)
     f.close()

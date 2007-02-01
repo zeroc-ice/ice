@@ -64,27 +64,27 @@ populateDB(const Freeze::ConnectionPtr& connection, ByteIntMap& m)
     
     for(;;)
     {
-	try
-	{
-	    TransactionHolder txHolder(connection);
-	    for(size_t j = 0; j < length; ++j)
-	    {
-		m.put(ByteIntMap::value_type(alphabet[j], static_cast<Int>(j)));
-	    }
-	    txHolder.commit();
-	    break;
-	}
-	catch(const DeadlockException&)
-	{
+        try
+        {
+            TransactionHolder txHolder(connection);
+            for(size_t j = 0; j < length; ++j)
+            {
+                m.put(ByteIntMap::value_type(alphabet[j], static_cast<Int>(j)));
+            }
+            txHolder.commit();
+            break;
+        }
+        catch(const DeadlockException&)
+        {
 #ifdef SHOW_EXCEPTIONS
-	    cerr << "t" << flush;
+            cerr << "t" << flush;
 #endif
 
-	    length = length / 2;
-	    //
-	    // Try again
-	    //
-	}
+            length = length / 2;
+            //
+            // Try again
+            //
+        }
     }
 }
 
@@ -93,45 +93,45 @@ class ReadThread : public IceUtil::Thread
 public:
 
     ReadThread(const CommunicatorPtr& communicator, const string& envName, const string& dbName) :
-	_connection(createConnection(communicator, envName)),
-	_map(_connection, dbName)
+        _connection(createConnection(communicator, envName)),
+        _map(_connection, dbName)
     {
     }
 
     virtual void
     run()
     {
-	for(int i = 0; i < 10; ++i)
-	{
-	    for(;;)
-	    {
-		try
-		{
-		    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
-		    {
-			test(p->first == p->second + 'a');
-			IceUtil::ThreadControl::yield();
-		    }
-		    break; // for(;;)
-		}
-		catch(const DeadlockException&)
-		{
+        for(int i = 0; i < 10; ++i)
+        {
+            for(;;)
+            {
+                try
+                {
+                    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
+                    {
+                        test(p->first == p->second + 'a');
+                        IceUtil::ThreadControl::yield();
+                    }
+                    break; // for(;;)
+                }
+                catch(const DeadlockException&)
+                {
 #ifdef SHOW_EXCEPTIONS
-		    cerr << "r" << flush;
+                    cerr << "r" << flush;
 #endif
-		    //
-		    // Try again
-		    //
-		}
-		catch(const InvalidPositionException&)
-		{
+                    //
+                    // Try again
+                    //
+                }
+                catch(const InvalidPositionException&)
+                {
 #ifdef SHOW_EXCEPTIONS
-		    cerr << "i" << flush;
+                    cerr << "i" << flush;
 #endif
-		    break;
-		}
-	    }
-	}
+                    break;
+                }
+            }
+        }
     }
 
 private:
@@ -146,51 +146,51 @@ class WriteThread : public IceUtil::Thread
 public:
 
     WriteThread(const CommunicatorPtr& communicator, const string& envName, const string& dbName) :
-	_connection(createConnection(communicator, envName)),
-	_map(_connection, dbName)
+        _connection(createConnection(communicator, envName)),
+        _map(_connection, dbName)
     {
     }
 
     virtual void
     run()
     {
-	//
-	// Delete an recreate each object
-	//
-	for(int i = 0; i < 4; ++i)
-	{
-	    for(;;)
-	    {
-		try
-		{
-		    TransactionHolder txHolder(_connection);
-		    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
-		    {
-			p.set(p->second + 1);
-			_map.erase(p);
-		    }
-		    break; // for(;;)
-		    txHolder.commit();
-		}
-		catch(const DeadlockException&)
-		{
+        //
+        // Delete an recreate each object
+        //
+        for(int i = 0; i < 4; ++i)
+        {
+            for(;;)
+            {
+                try
+                {
+                    TransactionHolder txHolder(_connection);
+                    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
+                    {
+                        p.set(p->second + 1);
+                        _map.erase(p);
+                    }
+                    break; // for(;;)
+                    txHolder.commit();
+                }
+                catch(const DeadlockException&)
+                {
 #ifdef SHOW_EXCEPTIONS
-		    cerr << "w" << flush;
+                    cerr << "w" << flush;
 #endif
-		    //
-		    // Try again
-		    //
-		}
-		catch(const InvalidPositionException&)
-		{
+                    //
+                    // Try again
+                    //
+                }
+                catch(const InvalidPositionException&)
+                {
 #ifdef SHOW_EXCEPTIONS
-		    cerr << "I" << flush;
+                    cerr << "I" << flush;
 #endif
-		    break;
-		}
-	    }
-	    populateDB(_connection, _map);
-	}
+                    break;
+                }
+            }
+            populateDB(_connection, _map);
+        }
     }
 
 private:
@@ -222,18 +222,18 @@ run(const CommunicatorPtr& communicator, const string& envName)
     //
     for(j = alphabet.begin(); j != alphabet.end(); ++j)
     {
-	p = m.find(*j);
-	test(p != m.end());
-	test(p->first == *j && p->second == j - alphabet.begin());
+        p = m.find(*j);
+        test(p != m.end());
+        test(p->first == *j && p->second == j - alphabet.begin());
     }
     //
     // Next try const iterator
     //
     for(j = alphabet.begin(); j != alphabet.end(); ++j)
     {
-	cp = m.find(*j);
-	test(cp != m.end());
-	test(cp->first == *j && cp->second == j - alphabet.begin());
+        cp = m.find(*j);
+        test(cp != m.end());
+        test(cp->first == *j && cp->second == j - alphabet.begin());
     }
    
     test(!m.empty());
@@ -262,27 +262,27 @@ run(const CommunicatorPtr& communicator, const string& envName)
     bytes.push_back('c');
     for(j = bytes.begin(); j != bytes.end(); ++j)
     {
-	p = m.find(*j);
-	test(p != m.end());
-	m.erase(p);
-	
-	//
-	// Release locks to avoid self deadlock
-	//
-	p = m.end();
-	
-	p = m.find(*j);
-	test(p == m.end());
-	vector<Byte>::iterator r = find(alphabet.begin(), alphabet.end(), *j);
-	test(r != alphabet.end());
-	alphabet.erase(r);
+        p = m.find(*j);
+        test(p != m.end());
+        m.erase(p);
+        
+        //
+        // Release locks to avoid self deadlock
+        //
+        p = m.end();
+        
+        p = m.find(*j);
+        test(p == m.end());
+        vector<Byte>::iterator r = find(alphabet.begin(), alphabet.end(), *j);
+        test(r != alphabet.end());
+        alphabet.erase(r);
     }
 
     for(j = alphabet.begin(); j != alphabet.end(); ++j)
     {
-	cp = m.find(*j);
-	test(cp != m.end());
-	test(cp->first == *j && cp->second == (j - alphabet.begin()) + offset);
+        cp = m.find(*j);
+        test(cp != m.end());
+        test(cp->first == *j && cp->second == (j - alphabet.begin()) + offset);
     }
 
     cout << "ok" << endl;
@@ -486,8 +486,8 @@ run(const CommunicatorPtr& communicator, const string& envName)
     map<Byte, const Int>::const_iterator pit;
     for(pit = pairs.begin(); pit != pairs.end(); ++pit)
     {
-	p = m.find(pit->first);
-	test(p != m.end());
+        p = m.find(pit->first);
+        test(p != m.end());
     }
     cout << "ok" << endl;
 
@@ -498,10 +498,10 @@ run(const CommunicatorPtr& communicator, const string& envName)
     size_t length = alphabet.size();
     for(size_t k = 0; k < length; ++k)
     {
-	p = m.findByValue(static_cast<Int>(k));
-	test(p != m.end());
-	test(p->first == alphabet[k]);
-	test(++p == m.end());
+        p = m.findByValue(static_cast<Int>(k));
+        test(p != m.end());
+        test(p->first == alphabet[k]);
+        test(++p == m.end());
     }
 
     //
@@ -531,12 +531,12 @@ run(const CommunicatorPtr& communicator, const string& envName)
     
     try
     {
-	p.set(18);
-	test(false);
+        p.set(18);
+        test(false);
     }
     catch(const DatabaseException&)
     {
-	// Expected
+        // Expected
     }
     test(p->first == alphabet[17] || p->first == alphabet[21]);
     test(++p == m.end());
@@ -551,177 +551,177 @@ run(const CommunicatorPtr& communicator, const string& envName)
     vector<IceUtil::ThreadControl> controls;
     for(int i = 0; i < 5; ++i)
     {
-	IceUtil::ThreadPtr rt = new ReadThread(communicator, envName, dbName);
-	controls.push_back(rt->start());
-	IceUtil::ThreadPtr wt = new WriteThread(communicator, envName, dbName);
-	controls.push_back(wt->start());
+        IceUtil::ThreadPtr rt = new ReadThread(communicator, envName, dbName);
+        controls.push_back(rt->start());
+        IceUtil::ThreadPtr wt = new WriteThread(communicator, envName, dbName);
+        controls.push_back(wt->start());
     }
     for(vector<IceUtil::ThreadControl>::iterator q = controls.begin(); q != controls.end(); ++q)
     {
-	q->join();
+        q->join();
     }
     cout << "ok" << endl;
 
     cout << "testing index creation... " << flush;
     
     {
-	IntIdentityMap iim(connection, "intIdentity");
-	
-	Ice::Identity odd;
-	odd.name = "foo";
-	odd.category = "odd";
-	
-	Ice::Identity even;
-	even.name = "bar";
-	even.category = "even";
-	    
-	TransactionHolder txHolder(connection);
-	for(int i = 0; i < 1000; i++)
-	{
-	    if(i % 2 == 0)
-	    {
-		iim.put(IntIdentityMap::value_type(i, even));
-	    }
-	    else
-	    {
-		iim.put(IntIdentityMap::value_type(i, odd));
-	    }
-	}
-	txHolder.commit();
+        IntIdentityMap iim(connection, "intIdentity");
+        
+        Ice::Identity odd;
+        odd.name = "foo";
+        odd.category = "odd";
+        
+        Ice::Identity even;
+        even.name = "bar";
+        even.category = "even";
+            
+        TransactionHolder txHolder(connection);
+        for(int i = 0; i < 1000; i++)
+        {
+            if(i % 2 == 0)
+            {
+                iim.put(IntIdentityMap::value_type(i, even));
+            }
+            else
+            {
+                iim.put(IntIdentityMap::value_type(i, odd));
+            }
+        }
+        txHolder.commit();
     }
     
     { 
-	IntIdentityMapWithIndex iim(connection, "intIdentity");
-	test(iim.categoryCount("even") == 500);
-	test(iim.categoryCount("odd") == 500);
+        IntIdentityMapWithIndex iim(connection, "intIdentity");
+        test(iim.categoryCount("even") == 500);
+        test(iim.categoryCount("odd") == 500);
 
-	{
-	    int count = 0;
-	    IntIdentityMapWithIndex::iterator p = iim.findByCategory("even");
-	    while(p != iim.end())
-	    {
-		test(p->first % 2 == 0);
-		++p;
-		++count;
-	    }
-	    test(count == 500);
-	}
-	 
-	{   
-	    int count = 0;
-	    IntIdentityMapWithIndex::iterator p = iim.findByCategory("odd");
-	    while(p != iim.end())
-	    {
-		test(p->first % 2 == 1);
-		++p;
-		++count;
-	    }
-	    test(count == 500);
-	}
-	iim.clear();
+        {
+            int count = 0;
+            IntIdentityMapWithIndex::iterator p = iim.findByCategory("even");
+            while(p != iim.end())
+            {
+                test(p->first % 2 == 0);
+                ++p;
+                ++count;
+            }
+            test(count == 500);
+        }
+         
+        {   
+            int count = 0;
+            IntIdentityMapWithIndex::iterator p = iim.findByCategory("odd");
+            while(p != iim.end())
+            {
+                test(p->first % 2 == 1);
+                ++p;
+                ++count;
+            }
+            test(count == 500);
+        }
+        iim.clear();
     }
     cout << "ok" << endl;
 
     cout << "testing sorting... " << flush;
     { 
-	SortedMap sm(connection, "sortedMap");
-	    
-	TransactionHolder txHolder(connection);
-	for(int i = 0; i < 1000; i++)
-	{
-	    int k = rand() % 1000; 
+        SortedMap sm(connection, "sortedMap");
+            
+        TransactionHolder txHolder(connection);
+        for(int i = 0; i < 1000; i++)
+        {
+            int k = rand() % 1000; 
 
-	    Ice::Identity id;
-	    id.name = "foo";
-	    id.category = 'a' + static_cast<char>(k % 26);
+            Ice::Identity id;
+            id.name = "foo";
+            id.category = 'a' + static_cast<char>(k % 26);
 
-	    sm.put(SortedMap::value_type(k, id));
-	}
-	txHolder.commit();
+            sm.put(SortedMap::value_type(k, id));
+        }
+        txHolder.commit();
     }
     
     { 
-	SortedMap sm(connection, "sortedMap");
-	{
-	    for(int i = 0; i < 100; ++i)
-	    {
-		int k = rand() % 1000;
-		SortedMap::iterator p = sm.lower_bound(k);
-		if(p != sm.end())
-		{
-		    test(p->first >= k);
-		    SortedMap::iterator q = sm.upper_bound(k);
-		    if(q == sm.end())
-		    {
-			test(p->first == k);
-		    }
-		    else
-		    {
-			test((p->first == k && q->first > k) || 
-			     (p->first > k && q->first == p->first));
-		    }
-		}
-	    }
-	}
-	 
-	{
-	    for(int i = 0; i < 100; ++i)
-	    {
-		string category;
-		category = static_cast<char>('a' + rand() % 26);
-	       
-		SortedMap::iterator p = sm.findByCategory(category);
-		if(p != sm.end())
-		{
-		    SortedMap::iterator q = sm.lowerBoundForCategory(category);
-		    test(p == q);
-		    do
-		    {
-			q++;
-		    } while(q != sm.end() && q->second.category == category);
-		    
-		    if(q != sm.end())
-		    {
-			test(q == sm.upperBoundForCategory(category));
-		    }
-		}
-		else
-		{
-		    SortedMap::iterator q = sm.lowerBoundForCategory(category);
-		    if(q != sm.end())
-		    {
-			test(p != q);
-			test(q->second.category < category);
-			category = q->second.category;
-			
-			do
-			{
-			    q++;
-			} while(q != sm.end() && q->second.category == category);
-			
-			if(q != sm.end())
-			{
-			    test(q == sm.upperBoundForCategory(category));
-			}
-		    }
-		}
-	    }
-	}
+        SortedMap sm(connection, "sortedMap");
+        {
+            for(int i = 0; i < 100; ++i)
+            {
+                int k = rand() % 1000;
+                SortedMap::iterator p = sm.lower_bound(k);
+                if(p != sm.end())
+                {
+                    test(p->first >= k);
+                    SortedMap::iterator q = sm.upper_bound(k);
+                    if(q == sm.end())
+                    {
+                        test(p->first == k);
+                    }
+                    else
+                    {
+                        test((p->first == k && q->first > k) || 
+                             (p->first > k && q->first == p->first));
+                    }
+                }
+            }
+        }
+         
+        {
+            for(int i = 0; i < 100; ++i)
+            {
+                string category;
+                category = static_cast<char>('a' + rand() % 26);
+               
+                SortedMap::iterator p = sm.findByCategory(category);
+                if(p != sm.end())
+                {
+                    SortedMap::iterator q = sm.lowerBoundForCategory(category);
+                    test(p == q);
+                    do
+                    {
+                        q++;
+                    } while(q != sm.end() && q->second.category == category);
+                    
+                    if(q != sm.end())
+                    {
+                        test(q == sm.upperBoundForCategory(category));
+                    }
+                }
+                else
+                {
+                    SortedMap::iterator q = sm.lowerBoundForCategory(category);
+                    if(q != sm.end())
+                    {
+                        test(p != q);
+                        test(q->second.category < category);
+                        category = q->second.category;
+                        
+                        do
+                        {
+                            q++;
+                        } while(q != sm.end() && q->second.category == category);
+                        
+                        if(q != sm.end())
+                        {
+                            test(q == sm.upperBoundForCategory(category));
+                        }
+                    }
+                }
+            }
+        }
 
-	{
-	    string category = "z";
-	    SortedMap::iterator p = sm.lowerBoundForCategory(category);
-	    
-	    while(p != sm.end())
-	    {
-		test(p->second.category <= category);
-		category = p->second.category;
-		// cerr << category << ":" << p->first << endl;
-		++p;
-	    }
-	}
-	
-	sm.clear();
+        {
+            string category = "z";
+            SortedMap::iterator p = sm.lowerBoundForCategory(category);
+            
+            while(p != sm.end())
+            {
+                test(p->second.category <= category);
+                category = p->second.category;
+                // cerr << category << ":" << p->first << endl;
+                ++p;
+            }
+        }
+        
+        sm.clear();
     }
 
     cout << "ok" << endl;
@@ -729,29 +729,29 @@ run(const CommunicatorPtr& communicator, const string& envName)
     cout << "testing wstring... " << flush;
 
     { 
-	WstringWstringMap wsm(connection, "wstringMap");
-	    
-	TransactionHolder txHolder(connection);
-	wsm.put(WstringWstringMap::value_type(L"AAAAA", L"aaaaa"));
-	wsm.put(WstringWstringMap::value_type(L"BBBBB", L"bbbbb"));
-	wsm.put(WstringWstringMap::value_type(L"CCCCC", L"ccccc"));
-	wsm.put(WstringWstringMap::value_type(L"DDDDD", L"ddddd"));
-	wsm.put(WstringWstringMap::value_type(L"EEEEE", L"eeeee"));
-	txHolder.commit();
+        WstringWstringMap wsm(connection, "wstringMap");
+            
+        TransactionHolder txHolder(connection);
+        wsm.put(WstringWstringMap::value_type(L"AAAAA", L"aaaaa"));
+        wsm.put(WstringWstringMap::value_type(L"BBBBB", L"bbbbb"));
+        wsm.put(WstringWstringMap::value_type(L"CCCCC", L"ccccc"));
+        wsm.put(WstringWstringMap::value_type(L"DDDDD", L"ddddd"));
+        wsm.put(WstringWstringMap::value_type(L"EEEEE", L"eeeee"));
+        txHolder.commit();
     }
 
     { 
-	WstringWstringMap wsm(connection, "wstringMap");
-	{
-	     WstringWstringMap::iterator p = wsm.find(L"BBBBB");
-	     test(p != wsm.end());
-	     test(p->second == L"bbbbb");
-	     
-	     p = wsm.findByValue(L"ddddd");
-	     test(p != wsm.end());
-	     test(p->first == L"DDDDD");
-	}
-	wsm.clear();
+        WstringWstringMap wsm(connection, "wstringMap");
+        {
+             WstringWstringMap::iterator p = wsm.find(L"BBBBB");
+             test(p != wsm.end());
+             test(p->second == L"bbbbb");
+             
+             p = wsm.findByValue(L"ddddd");
+             test(p != wsm.end());
+             test(p->first == L"DDDDD");
+        }
+        wsm.clear();
     }
 
     cout << "ok" << endl;
@@ -769,30 +769,30 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	if(argc != 1)
-	{
-	    envName = argv[1];
-	    envName += "/";
-	    envName += "db";
-	}
+        communicator = Ice::initialize(argc, argv);
+        if(argc != 1)
+        {
+            envName = argv[1];
+            envName += "/";
+            envName += "db";
+        }
        
-	status = run(communicator, envName);
+        status = run(communicator, envName);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     try
     {
-	communicator->destroy();
+        communicator->destroy();
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     return status;

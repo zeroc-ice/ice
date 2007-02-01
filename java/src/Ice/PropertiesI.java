@@ -44,7 +44,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public int
     getPropertyAsInt(String key)
     {
-	return getPropertyAsIntWithDefault(key, 0);
+        return getPropertyAsIntWithDefault(key, 0);
     }
 
     public synchronized int
@@ -60,20 +60,20 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             return value;
         }
 
-	try
-	{
-	    return Integer.parseInt(result);
-	}
-	catch(NumberFormatException ex)
-	{
-	    return 0;
-	}
+        try
+        {
+            return Integer.parseInt(result);
+        }
+        catch(NumberFormatException ex)
+        {
+            return 0;
+        }
     }
 
     public synchronized java.util.Map
     getPropertiesForPrefix(String prefix)
     {
-	java.util.HashMap result = new java.util.HashMap();
+        java.util.HashMap result = new java.util.HashMap();
         java.util.Iterator p = _properties.entrySet().iterator();
         while(p.hasNext())
         {
@@ -82,68 +82,68 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             String value = (String)entry.getValue();
             if(prefix.length() == 0 || key.startsWith(prefix))
             {
-		result.put(key, value);
+                result.put(key, value);
             }
         }
-	return result;
+        return result;
     }
 
     public void
     setProperty(String key, String value)
     {
-	//
-	// Check if the property is legal.
-	//
-	Logger logger = Ice.Util.getProcessLogger();
-	if(key == null || key.length() == 0)
-	{
-	    return;
-	}
+        //
+        // Check if the property is legal.
+        //
+        Logger logger = Ice.Util.getProcessLogger();
+        if(key == null || key.length() == 0)
+        {
+            return;
+        }
 
         int dotPos = key.indexOf('.');
-	if(dotPos != -1)
-	{
-	    String prefix = key.substring(0, dotPos);
-	    for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
-	    {
-	        String pattern = IceInternal.PropertyNames.validProps[i][0];
-		dotPos = pattern.indexOf('.');
-		assert(dotPos != -1);
-		String propPrefix = pattern.substring(1, dotPos - 1);
-		if(!propPrefix.equals(prefix))
-		{
-		    continue;
-		}
+        if(dotPos != -1)
+        {
+            String prefix = key.substring(0, dotPos);
+            for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
+            {
+                String pattern = IceInternal.PropertyNames.validProps[i][0];
+                dotPos = pattern.indexOf('.');
+                assert(dotPos != -1);
+                String propPrefix = pattern.substring(1, dotPos - 1);
+                if(!propPrefix.equals(prefix))
+                {
+                    continue;
+                }
 
-		boolean found = false;
-		for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
-		{
-		    pattern = IceInternal.PropertyNames.validProps[i][j];
-		    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
-		    java.util.regex.Matcher m = pComp.matcher(key);
-		    found = m.matches();
-		}
-		if(!found)
-		{
-		    logger.warning("unknown property: " + key);
-		}
-	    }
-	}
+                boolean found = false;
+                for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
+                {
+                    pattern = IceInternal.PropertyNames.validProps[i][j];
+                    java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
+                    java.util.regex.Matcher m = pComp.matcher(key);
+                    found = m.matches();
+                }
+                if(!found)
+                {
+                    logger.warning("unknown property: " + key);
+                }
+            }
+        }
 
-	synchronized(this)
-	{
-	    //
-	    // Set or clear the property.
-	    //
-	    if(value != null && value.length() > 0)
-	    {
-		_properties.put(key, value);
-	    }
-	    else
-	    {
-		_properties.remove(key);
-	    }
-	}
+        synchronized(this)
+        {
+            //
+            // Set or clear the property.
+            //
+            if(value != null && value.length() > 0)
+            {
+                _properties.put(key, value);
+            }
+            else
+            {
+                _properties.remove(key);
+            }
+        }
     }
 
     public synchronized String[]
@@ -164,11 +164,11 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public String[]
     parseCommandLineOptions(String pfx, String[] options)
     {
-	if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
-	{
-	    pfx += '.';
-	}
-	pfx = "--" + pfx;
+        if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
+        {
+            pfx += '.';
+        }
+        pfx = "--" + pfx;
 
         java.util.ArrayList result = new java.util.ArrayList();
         for(int i = 0; i < options.length; i++)
@@ -197,10 +197,10 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     parseIceCommandLineOptions(String[] options)
     {
         String[] args = options;
-	for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
-	{
-	    args = parseCommandLineOptions(IceInternal.PropertyNames.clPropNames[i], args);
-	}
+        for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+        {
+            args = parseCommandLineOptions(IceInternal.PropertyNames.clPropNames[i], args);
+        }
         return args;
     }
 
@@ -209,7 +209,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     {
         try
         {
-	    java.io.FileInputStream fis = new java.io.FileInputStream(file);
+            java.io.FileInputStream fis = new java.io.FileInputStream(file);
             java.io.InputStreamReader isr = new java.io.InputStreamReader(fis, "UTF-8");
             java.io.BufferedReader br = new java.io.BufferedReader(isr);
             parse(br);
@@ -217,7 +217,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         catch(java.io.IOException ex)
         {
             FileException fe = new FileException();
-	    fe.path = file;
+            fe.path = file;
             fe.initCause(ex); // Exception chaining
             throw fe;
         }
@@ -240,12 +240,12 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 
     PropertiesI(StringSeqHolder args, Properties defaults)
     {
-	if(defaults != null)
-	{
-	    _properties.putAll(defaults.getPropertiesForPrefix(""));
-	}
-	
-	boolean loadConfigFiles = false;
+        if(defaults != null)
+        {
+            _properties.putAll(defaults.getPropertiesForPrefix(""));
+        }
+        
+        boolean loadConfigFiles = false;
 
         for(int i = 0; i < args.value.length; i++)
         {
@@ -257,7 +257,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
                     line += "=1";
                 }
                 parseLine(line.substring(2));
-		loadConfigFiles = true;
+                loadConfigFiles = true;
 
                 String[] arr = new String[args.value.length - 1];
                 System.arraycopy(args.value, 0, arr, 0, i);
@@ -269,12 +269,12 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             }
         }
 
-	if(loadConfigFiles)
-	{
-	    loadConfig();
-	}
+        if(loadConfigFiles)
+        {
+            loadConfig();
+        }
 
-	args.value = parseIceCommandLineOptions(args.value);
+        args.value = parseIceCommandLineOptions(args.value);
     }
 
     private void

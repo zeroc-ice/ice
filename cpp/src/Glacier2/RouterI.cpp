@@ -19,9 +19,9 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAdapterPtr& serverAdapter,
-			   const ConnectionPtr& connection, const string& userId, const SessionPrx& session,
-			   const Identity& controlId, const FilterManagerPtr& filters,
-			   const Ice::Context& sslContext) :
+                           const ConnectionPtr& connection, const string& userId, const SessionPrx& session,
+                           const Identity& controlId, const FilterManagerPtr& filters,
+                           const Ice::Context& sslContext) :
     _communicator(clientAdapter->getCommunicator()),
     _clientBlobject(new ClientBlobject(_communicator, filters, sslContext)),
     _serverAdapter(serverAdapter),
@@ -39,26 +39,26 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     if(_communicator->getProperties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
         const_cast<Ice::ObjectPrx&>(_clientProxy) = 
-	    clientAdapter->createProxy(_communicator->stringToIdentity("dummy"));
+            clientAdapter->createProxy(_communicator->stringToIdentity("dummy"));
     }
 
     if(serverAdapter)
     {
-	ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
-	Identity ident;
-	ident.name = "dummy";
-	ident.category.resize(20);
-	char buf[20];
-	IceUtil::generateRandom(buf, static_cast<int>(sizeof(buf)));
-	for(unsigned int i = 0; i < sizeof(buf); ++i)
-	{
-	    const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
-	    ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
-	}
-	serverProxy = serverAdapter->createProxy(ident);
+        ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);
+        Identity ident;
+        ident.name = "dummy";
+        ident.category.resize(20);
+        char buf[20];
+        IceUtil::generateRandom(buf, static_cast<int>(sizeof(buf)));
+        for(unsigned int i = 0; i < sizeof(buf); ++i)
+        {
+            const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
+            ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
+        }
+        serverProxy = serverAdapter->createProxy(ident);
 
-	ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
-	serverBlobject = new ServerBlobject(_communicator, _connection);
+        ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);
+        serverBlobject = new ServerBlobject(_communicator, _connection);
     }
 }
 
@@ -75,43 +75,43 @@ Glacier2::RouterI::destroy()
     
     if(_serverBlobject)
     {
-	_serverBlobject->destroy();
+        _serverBlobject->destroy();
     }
 
     if(_session)
     {
         if(_serverAdapter)
-	{
-	    try
-	    {
-	        //
-	        // Remove the session control object.
-	        //
-	        _serverAdapter->remove(_controlId);
-	    }
-	    catch(const NotRegisteredException&)
-	    {
-	    }
-	    catch(const ObjectAdapterDeactivatedException&)
-	    {
-		//
-		// Expected if the router has been shutdown.
-		//
-	    }
-	}
+        {
+            try
+            {
+                //
+                // Remove the session control object.
+                //
+                _serverAdapter->remove(_controlId);
+            }
+            catch(const NotRegisteredException&)
+            {
+            }
+            catch(const ObjectAdapterDeactivatedException&)
+            {
+                //
+                // Expected if the router has been shutdown.
+                //
+            }
+        }
 
-	//
-	// This can raise an exception, therefore it must be the last
-	// statement in this destroy() function.
-	//
-	if(_sslContext.size() > 0)
-	{
-	    _session->destroy(_sslContext);
-	}
-	else
-	{
-	    _session->destroy();
-	}
+        //
+        // This can raise an exception, therefore it must be the last
+        // statement in this destroy() function.
+        //
+        if(_sslContext.size() > 0)
+        {
+            _session->destroy(_sslContext);
+        }
+        else
+        {
+            _session->destroy();
+        }
     }
 }
 
@@ -231,7 +231,7 @@ Glacier2::RouterI::toString() const
     out << "id = " << _userId << '\n';
     if(_serverProxy)
     {
-	out << "category = " << _serverProxy->ice_getIdentity().category << '\n';
+        out << "category = " << _serverProxy->ice_getIdentity().category << '\n';
     }
     out << _connection->toString();
 

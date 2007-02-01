@@ -64,24 +64,24 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isA(String __id, java.util.Map __context)
     {
-	return ice_isA(__id, __context, true);
+        return ice_isA(__id, __context, true);
     }
 
     private boolean
     ice_isA(String __id, java.util.Map __context, boolean __explicitCtx)
     {
-	if(__explicitCtx && __context == null)
-	{
-	    __context = _emptyContext;
-	}
-	
+        if(__explicitCtx && __context == null)
+        {
+            __context = _emptyContext;
+        }
+        
         int __cnt = 0;
         while(true)
         {
-	    _ObjectDel __del = null;
+            _ObjectDel __del = null;
             try
             {
-	        __checkTwowayOnly("ice_isA");
+                __checkTwowayOnly("ice_isA");
                 __del = __getDelegate();
                 return __del.ice_isA(__id, __context);
             }
@@ -105,24 +105,24 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final void
     ice_ping(java.util.Map __context)
     {
-	ice_ping(__context, true);
+        ice_ping(__context, true);
     }
 
     private void
     ice_ping(java.util.Map __context, boolean __explicitCtx)
     {
-	if(__explicitCtx && __context == null)
-	{
-	    __context = _emptyContext;
-	}
+        if(__explicitCtx && __context == null)
+        {
+            __context = _emptyContext;
+        }
 
         int __cnt = 0;
         while(true)
         {
-	    _ObjectDel __del = null;
+            _ObjectDel __del = null;
             try
             {
-	        __checkTwowayOnly("ice_ping");
+                __checkTwowayOnly("ice_ping");
                 __del = __getDelegate();
                 __del.ice_ping(__context);
                 return;
@@ -147,24 +147,24 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final String[]
     ice_ids(java.util.Map __context)
     {
-	return ice_ids(__context, true);
+        return ice_ids(__context, true);
     }
 
     private String[]
     ice_ids(java.util.Map __context, boolean __explicitCtx)
     {
-	if(__explicitCtx && __context == null)
-	{
-	    __context = _emptyContext;
-	}
+        if(__explicitCtx && __context == null)
+        {
+            __context = _emptyContext;
+        }
 
         int __cnt = 0;
         while(true)
         {
-	    _ObjectDel __del = null;
+            _ObjectDel __del = null;
             try
             {
-	        __checkTwowayOnly("ice_ids");
+                __checkTwowayOnly("ice_ids");
                 __del = __getDelegate();
                 return __del.ice_ids(__context);
             }
@@ -188,24 +188,24 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final String
     ice_id(java.util.Map __context)
     {
-	return ice_id(__context, true);
+        return ice_id(__context, true);
     }
 
     private String
     ice_id(java.util.Map __context, boolean __explicitCtx)
     {
-	if(__explicitCtx && __context == null)
-	{
-	    __context = _emptyContext;
-	}
+        if(__explicitCtx && __context == null)
+        {
+            __context = _emptyContext;
+        }
 
         int __cnt = 0;
         while(true)
         {
-	    _ObjectDel __del = null;
+            _ObjectDel __del = null;
             try
             {
-	        __checkTwowayOnly("ice_id");
+                __checkTwowayOnly("ice_id");
                 __del = __getDelegate();
                 return __del.ice_id(__context);
             }
@@ -230,22 +230,22 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map context)
     {
-	return ice_invoke(operation, mode, inParams, outParams, context, true);
+        return ice_invoke(operation, mode, inParams, outParams, context, true);
     }
     
     private boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map context, boolean explicitCtx)
     {
-	if(explicitCtx && context == null)
-	{
-	    context = _emptyContext;
-	}
+        if(explicitCtx && context == null)
+        {
+            context = _emptyContext;
+        }
 
         int __cnt = 0;
         while(true)
         {
-	    _ObjectDel __del = null;
+            _ObjectDel __del = null;
             try
             {
                 __del = __getDelegate();
@@ -272,20 +272,20 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final void
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
     {
-	__checkTwowayOnly("ice_invoke_async");
-	cb.__invoke(this, operation, mode, inParams, null);
+        __checkTwowayOnly("ice_invoke_async");
+        cb.__invoke(this, operation, mode, inParams, null);
     }
 
     public final void
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
-		     java.util.Map context)
+                     java.util.Map context)
     {
-	if(context == null)
-	{
-	    context = _emptyContext;
-	}
-	__checkTwowayOnly("ice_invoke_async");
-       	cb.__invoke(this, operation, mode, inParams, context);
+        if(context == null)
+        {
+            context = _emptyContext;
+        }
+        __checkTwowayOnly("ice_invoke_async");
+        cb.__invoke(this, operation, mode, inParams, context);
     }
     
     public final Identity
@@ -298,9 +298,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_identity(Identity newIdentity)
     {
         if(newIdentity.name.equals(""))
-	{
-	    throw new IllegalIdentityException();
-	}
+        {
+            throw new IllegalIdentityException();
+        }
         if(newIdentity.equals(_reference.getIdentity()))
         {
             return this;
@@ -319,7 +319,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newIdentity(Identity newIdentity)
     {
-	return ice_identity(newIdentity);
+        return ice_identity(newIdentity);
     }
 
     public final java.util.Map
@@ -331,9 +331,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_context(java.util.Map newContext)
     {
-	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-	proxy.setup(_reference.changeContext(newContext));
-	return proxy;
+        ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+        proxy.setup(_reference.changeContext(newContext));
+        return proxy;
     }
 
     /**
@@ -342,15 +342,15 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newContext(java.util.Map newContext)
     {
-	return ice_context(newContext);
+        return ice_context(newContext);
     }
 
     public final ObjectPrx
     ice_defaultContext()
     {
-	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-	proxy.setup(_reference.defaultContext());
-	return proxy;
+        ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+        proxy.setup(_reference.defaultContext());
+        return proxy;
     }
 
     public final String
@@ -385,7 +385,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newFacet(String newFacet)
     {
-	return ice_facet(newFacet);
+        return ice_facet(newFacet);
     }
 
     public final String
@@ -415,7 +415,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newAdapterId(String newAdapterId)
     {
-	return ice_adapterId(newAdapterId);
+        return ice_adapterId(newAdapterId);
     }
 
     public final Endpoint[]
@@ -433,8 +433,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-	    IceInternal.EndpointI[] edpts = new IceInternal.EndpointI[newEndpoints.length];
-	    edpts = (IceInternal.EndpointI[])java.util.Arrays.asList(newEndpoints).toArray(edpts);
+            IceInternal.EndpointI[] edpts = new IceInternal.EndpointI[newEndpoints.length];
+            edpts = (IceInternal.EndpointI[])java.util.Arrays.asList(newEndpoints).toArray(edpts);
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
             proxy.setup(_reference.changeEndpoints(edpts));
             return proxy;
@@ -447,13 +447,13 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_newEndpoints(Endpoint[] newEndpoints)
     {
-	return ice_endpoints(newEndpoints);
+        return ice_endpoints(newEndpoints);
     }
 
     public final int
     ice_getLocatorCacheTimeout()
     {
-	return _reference.getLocatorCacheTimeout();
+        return _reference.getLocatorCacheTimeout();
     }
 
     public final ObjectPrx
@@ -474,7 +474,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isConnectionCached()
     {
-	return _reference.getCacheConnection();
+        return _reference.getCacheConnection();
     }
 
     public final ObjectPrx
@@ -495,7 +495,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Ice.EndpointSelectionType
     ice_getEndpointSelection()
     {
-	return _reference.getEndpointSelection();
+        return _reference.getEndpointSelection();
     }
 
     public final ObjectPrx
@@ -516,7 +516,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isSecure()
     {
-	return _reference.getSecure();
+        return _reference.getSecure();
     }
 
     public final ObjectPrx
@@ -537,7 +537,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isPreferSecure()
     {
-	return _reference.getPreferSecure();
+        return _reference.getPreferSecure();
     }
 
     public final ObjectPrx
@@ -558,8 +558,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Ice.RouterPrx
     ice_getRouter()
     {
-	IceInternal.RouterInfo ri = _reference.getRouterInfo();
-	return ri != null ? ri.getRouter() : null;
+        IceInternal.RouterInfo ri = _reference.getRouterInfo();
+        return ri != null ? ri.getRouter() : null;
     }
 
     public final ObjectPrx
@@ -581,8 +581,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Ice.LocatorPrx
     ice_getLocator()
     {
-	IceInternal.LocatorInfo ri = _reference.getLocatorInfo();
-	return ri != null ? ri.getLocator() : null;
+        IceInternal.LocatorInfo ri = _reference.getLocatorInfo();
+        return ri != null ? ri.getLocator() : null;
     }
 
     public final ObjectPrx
@@ -604,7 +604,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isCollocationOptimized()
     {
-	return _reference.getCollocationOptimization();
+        return _reference.getCollocationOptimization();
     }
 
     /**
@@ -649,7 +649,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isTwoway()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeTwoway;
+        return _reference.getMode() == IceInternal.Reference.ModeTwoway;
     }
 
     public final ObjectPrx
@@ -670,7 +670,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isOneway()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeOneway;
+        return _reference.getMode() == IceInternal.Reference.ModeOneway;
     }
 
     public final ObjectPrx
@@ -691,7 +691,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isBatchOneway()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
+        return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
     }
 
     public final ObjectPrx
@@ -712,7 +712,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isDatagram()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeDatagram;
+        return _reference.getMode() == IceInternal.Reference.ModeDatagram;
     }
 
     public final ObjectPrx
@@ -733,7 +733,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final boolean
     ice_isBatchDatagram()
     {
-	return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
+        return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
     }
 
     public final ObjectPrx
@@ -821,7 +821,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         int __cnt = 0;
         while(true)
         {
-	    _ObjectDel __del = null;
+            _ObjectDel __del = null;
             try
             {
                 __del = __getDelegate();
@@ -837,11 +837,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final Connection
     ice_getCachedConnection()
     {
-    	_ObjectDel __del = null;
+        _ObjectDel __del = null;
         synchronized(this)
-	{
-	    __del = _delegate;
-	}
+        {
+            __del = _delegate;
+        }
         
         if(__del != null)
         {
@@ -853,23 +853,23 @@ public class ObjectPrxHelperBase implements ObjectPrx
             {
             }
         }
-	return null;
+        return null;
     }
 
     public final boolean
     equals(java.lang.Object r)
     {
-	if(this == r)
-	{
-	    return true;
-	}
+        if(this == r)
+        {
+            return true;
+        }
 
-	if(r instanceof ObjectPrxHelperBase)
-	{
-	    return _reference.equals(((ObjectPrxHelperBase)r)._reference);
-	}
+        if(r instanceof ObjectPrxHelperBase)
+        {
+            return _reference.equals(((ObjectPrxHelperBase)r)._reference);
+        }
 
-	return false;
+        return false;
     }
 
     public final IceInternal.Reference
@@ -910,63 +910,63 @@ public class ObjectPrxHelperBase implements ObjectPrx
         // called upon initialization.
         //
 
-	assert(_reference == null);
-	assert(_delegate == null);
+        assert(_reference == null);
+        assert(_delegate == null);
 
         _reference = ref;
 
-	if(_reference.getCacheConnection())
-	{
-	    //
-	    // The _delegate attribute is only used if "cache connection"
-	    // is enabled. If it's not enabled, we don't keep track of the
-	    // delegate -- a new delegate is created for each invocations.
-	    //	
-	    
-	    if(delegateD != null)
-	    {
-		_ObjectDelD delegate = __createDelegateD();
-		delegate.__copyFrom(delegateD);
-		_delegate = delegate;
-	    }
-	    else if(delegateM != null)
-	    {
-		_ObjectDelM delegate = __createDelegateM();
-		delegate.__copyFrom(delegateM);
-		_delegate = delegate;
-	    }
-	}
+        if(_reference.getCacheConnection())
+        {
+            //
+            // The _delegate attribute is only used if "cache connection"
+            // is enabled. If it's not enabled, we don't keep track of the
+            // delegate -- a new delegate is created for each invocations.
+            //  
+            
+            if(delegateD != null)
+            {
+                _ObjectDelD delegate = __createDelegateD();
+                delegate.__copyFrom(delegateD);
+                _delegate = delegate;
+            }
+            else if(delegateM != null)
+            {
+                _ObjectDelM delegate = __createDelegateM();
+                delegate.__copyFrom(delegateM);
+                _delegate = delegate;
+            }
+        }
     }
 
     public final int
     __handleException(_ObjectDel delegate, LocalException ex, int cnt)
     {
-	//
-	// Only _delegate needs to be mutex protected here.
-	//
-	synchronized(this)
-	{
-	    if(delegate == _delegate)
-	    {
-		_delegate = null;
-	    }
-	}
+        //
+        // Only _delegate needs to be mutex protected here.
+        //
+        synchronized(this)
+        {
+            if(delegate == _delegate)
+            {
+                _delegate = null;
+            }
+        }
 
-	IceInternal.ProxyFactory proxyFactory;
-	try
-	{
-	    proxyFactory = _reference.getInstance().proxyFactory();
-	}
-	catch(CommunicatorDestroyedException e)
-	{
-	    //
+        IceInternal.ProxyFactory proxyFactory;
+        try
+        {
+            proxyFactory = _reference.getInstance().proxyFactory();
+        }
+        catch(CommunicatorDestroyedException e)
+        {
+            //
             // The communicator is already destroyed, so we cannot
             // retry.
-	    //
-	    throw ex;
-	}
+            //
+            throw ex;
+        }
 
-	return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
+        return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
     }
 
     public final void
@@ -974,10 +974,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         synchronized(this)
         {
-	    if(delegate == _delegate)
-	    {
-		_delegate = null;
-	    }
+            if(delegate == _delegate)
+            {
+                _delegate = null;
+            }
         }
 
         if(!ex.retry())
@@ -997,10 +997,10 @@ public class ObjectPrxHelperBase implements ObjectPrx
         {
             synchronized(this)
             {
-		if(delegate == _delegate)
-		{
-		    _delegate = null;
-		}
+                if(delegate == _delegate)
+                {
+                    _delegate = null;
+                }
             }
             return cnt;
         }
@@ -1009,17 +1009,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final void
     __checkTwowayOnly(String name)
     {
-	//
-	// No mutex lock necessary, there is nothing mutable in this
-	// operation.
-	//
+        //
+        // No mutex lock necessary, there is nothing mutable in this
+        // operation.
+        //
 
         if(!ice_isTwoway())
-	{
-	    TwowayOnlyException ex = new TwowayOnlyException();
-	    ex.operation = name;
-	    throw ex;
-	}
+        {
+            TwowayOnlyException ex = new TwowayOnlyException();
+            ex.operation = name;
+            throw ex;
+        }
     }
 
     public final synchronized _ObjectDel
@@ -1027,50 +1027,50 @@ public class ObjectPrxHelperBase implements ObjectPrx
     {
         if(_delegate != null)
         {
-	    return _delegate;
-	}
+            return _delegate;
+        }
 
-	_ObjectDel delegate = null;
-	if(_reference.getCollocationOptimization())
-	{
-	    ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
-	    if(adapter != null)
-	    {
-		_ObjectDelD d = __createDelegateD();
-		d.setup(_reference, adapter);
-		delegate = d;
-	    }
-	}
+        _ObjectDel delegate = null;
+        if(_reference.getCollocationOptimization())
+        {
+            ObjectAdapter adapter = _reference.getInstance().objectAdapterFactory().findObjectAdapter(this);
+            if(adapter != null)
+            {
+                _ObjectDelD d = __createDelegateD();
+                d.setup(_reference, adapter);
+                delegate = d;
+            }
+        }
 
-	if(delegate == null)
-	{
-	    _ObjectDelM d = __createDelegateM();
-	    d.setup(_reference);
-	    delegate = d;
+        if(delegate == null)
+        {
+            _ObjectDelM d = __createDelegateM();
+            d.setup(_reference);
+            delegate = d;
 
-	    //
-	    // If this proxy is for a non-local object, and we are
-	    // using a router, then add this proxy to the router info
-	    // object.
-	    //
-	    IceInternal.RouterInfo ri = _reference.getRouterInfo();
-	    if(ri != null)
-	    {
-		ri.addProxy(this);
-	    }
-	}
+            //
+            // If this proxy is for a non-local object, and we are
+            // using a router, then add this proxy to the router info
+            // object.
+            //
+            IceInternal.RouterInfo ri = _reference.getRouterInfo();
+            if(ri != null)
+            {
+                ri.addProxy(this);
+            }
+        }
 
-	if(_reference.getCacheConnection())
-	{
-	    //
-	    // The _delegate attribute is only used if "cache connection"
-	    // is enabled. If it's not enabled, we don't keep track of the
-	    // delegate -- a new delegate is created for each invocations.
-	    //
-	    _delegate = delegate;
-	}
+        if(_reference.getCacheConnection())
+        {
+            //
+            // The _delegate attribute is only used if "cache connection"
+            // is enabled. If it's not enabled, we don't keep track of the
+            // delegate -- a new delegate is created for each invocations.
+            //
+            _delegate = delegate;
+        }
 
-	return delegate;
+        return delegate;
     }
 
     protected _ObjectDelM
@@ -1096,8 +1096,8 @@ public class ObjectPrxHelperBase implements ObjectPrx
         // upon initial initialization.
         //
 
-	assert(_reference == null);
-	assert(_delegate == null);
+        assert(_reference == null);
+        assert(_delegate == null);
 
         _reference = ref;
     }

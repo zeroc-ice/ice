@@ -47,42 +47,42 @@ HRServer::run(int argc, char* argv[])
 
     try
     {
-	env = Environment::createEnvironment(Environment::Mode(Environment::THREADED_MUTEXED | Environment::OBJECT));
-	DbTypesMap(env);
-	
-	pool = env->createStatelessConnectionPool(username, password, connectString, 5, 2, 1, 
-						  StatelessConnectionPool::HOMOGENEOUS);
+        env = Environment::createEnvironment(Environment::Mode(Environment::THREADED_MUTEXED | Environment::OBJECT));
+        DbTypesMap(env);
+        
+        pool = env->createStatelessConnectionPool(username, password, connectString, 5, 2, 1, 
+                                                  StatelessConnectionPool::HOMOGENEOUS);
 
-	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("HR");
-	
-	DeptFactoryIPtr factory = new DeptFactoryI(env, pool, category);
-	adapter->addServantLocator(new OCCIServantLocator(factory), category);
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("HR");
+        
+        DeptFactoryIPtr factory = new DeptFactoryI(env, pool, category);
+        adapter->addServantLocator(new OCCIServantLocator(factory), category);
 
-	adapter->add(factory, communicator()->stringToIdentity("DeptFactory"));
-	
-	adapter->activate();
-	communicator()->waitForShutdown();
+        adapter->add(factory, communicator()->stringToIdentity("DeptFactory"));
+        
+        adapter->activate();
+        communicator()->waitForShutdown();
     }
     catch(...)
     {
-	if(pool != 0)
-	{
-	    env->terminateStatelessConnectionPool(pool);
-	}
-	if(env != 0)
-	{
-	    Environment::terminateEnvironment(env);
-	}
-	throw;
+        if(pool != 0)
+        {
+            env->terminateStatelessConnectionPool(pool);
+        }
+        if(env != 0)
+        {
+            Environment::terminateEnvironment(env);
+        }
+        throw;
     }
 
     if(pool != 0)
     {
-	env->terminateStatelessConnectionPool(pool);
+        env->terminateStatelessConnectionPool(pool);
     }
     if(env != 0)
     {
-	Environment::terminateEnvironment(env);
+        Environment::terminateEnvironment(env);
     }
     return EXIT_SUCCESS;
 }

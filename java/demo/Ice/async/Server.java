@@ -16,14 +16,14 @@ public class Server extends Ice.Application
         public void
         run()
         {
-	    _workQueue.destroy();
-	    try
-	    {
-	        _workQueue.join();
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
+            _workQueue.destroy();
+            try
+            {
+                _workQueue.join();
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
 
             try
             {
@@ -39,13 +39,13 @@ public class Server extends Ice.Application
     public int
     run(String[] args)
     {
-	setInterruptHook(new ShutdownHook());
+        setInterruptHook(new ShutdownHook());
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
-	_workQueue = new WorkQueue();
+        _workQueue = new WorkQueue();
         adapter.add(new HelloI(_workQueue), communicator().stringToIdentity("hello"));
 
-	_workQueue.start();
+        _workQueue.start();
         adapter.activate();
 
         communicator().waitForShutdown();

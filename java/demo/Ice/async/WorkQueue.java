@@ -14,100 +14,100 @@ public class WorkQueue extends Thread
     class CallbackEntry
     {
         AMD_Hello_sayHello cb;
-	int delay;
+        int delay;
     }
 
     public synchronized void
     run()
     {
         while(!_done)
-	{
-	    if(_callbacks.size() == 0)
-	    {
-	        try
-		{
-	            wait();
-		}
-		catch(java.lang.InterruptedException ex)
-		{
-		}
-	    }
+        {
+            if(_callbacks.size() == 0)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+            }
 
-	    if(_callbacks.size() != 0)
-	    {
-	        //
-		// Get next work item.
-		//
-		CallbackEntry entry = (CallbackEntry)_callbacks.getFirst();
+            if(_callbacks.size() != 0)
+            {
+                //
+                // Get next work item.
+                //
+                CallbackEntry entry = (CallbackEntry)_callbacks.getFirst();
 
-		//
-		// Wait for the amount of time indicated in delay to
-		// emulate a process that takes a significant period of
-		// time to complete.
-		//
-	        try
-		{
-		    wait(entry.delay);
-		}
-		catch(java.lang.InterruptedException ex)
-		{
-		}
+                //
+                // Wait for the amount of time indicated in delay to
+                // emulate a process that takes a significant period of
+                // time to complete.
+                //
+                try
+                {
+                    wait(entry.delay);
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
 
-		if(!_done)
-		{
-		    //
-		    // Print greeting and send response.
-		    //
-		    _callbacks.removeFirst();
-		    System.err.println("Belated Hello World!");
-		    entry.cb.ice_response();
-		}
-	    }
-	}
+                if(!_done)
+                {
+                    //
+                    // Print greeting and send response.
+                    //
+                    _callbacks.removeFirst();
+                    System.err.println("Belated Hello World!");
+                    entry.cb.ice_response();
+                }
+            }
+        }
 
-	//
-	// Throw exception for any outstanding requests.
-	//
-	java.util.Iterator p = _callbacks.iterator();
-	while(p.hasNext())
-	{
-	    CallbackEntry entry = (CallbackEntry)p.next();
-	    entry.cb.ice_exception(new RequestCanceledException());
-	}
+        //
+        // Throw exception for any outstanding requests.
+        //
+        java.util.Iterator p = _callbacks.iterator();
+        while(p.hasNext())
+        {
+            CallbackEntry entry = (CallbackEntry)p.next();
+            entry.cb.ice_exception(new RequestCanceledException());
+        }
     }
 
     public synchronized void
     add(AMD_Hello_sayHello cb, int delay)
     {
         if(!_done)
-	{
-	    //
-	    // Add the work item.
-	    //
-	    CallbackEntry entry = new CallbackEntry();
-	    entry.cb = cb;
-	    entry.delay = delay;
+        {
+            //
+            // Add the work item.
+            //
+            CallbackEntry entry = new CallbackEntry();
+            entry.cb = cb;
+            entry.delay = delay;
 
-	    if(_callbacks.size() == 0)
-	    {
-	        notify();
-	    }
-	    _callbacks.add(entry);
-	}
-	else
-	{
-	    //
-	    // Destroyed, throw exception.
-	    //
-	    cb.ice_exception(new RequestCanceledException());
-	}
+            if(_callbacks.size() == 0)
+            {
+                notify();
+            }
+            _callbacks.add(entry);
+        }
+        else
+        {
+            //
+            // Destroyed, throw exception.
+            //
+            cb.ice_exception(new RequestCanceledException());
+        }
     }
 
     public synchronized void
     destroy()
     {
         _done = true;
-	notify();
+        notify();
     }
 
     private java.util.LinkedList _callbacks = new java.util.LinkedList();

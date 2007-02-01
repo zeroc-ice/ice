@@ -28,11 +28,11 @@ ConnectionHolder::commit()
     _txDone = true;
     try
     {
-	_con->commit();
+        _con->commit();
     }
     catch(const SQLException& e)
     {
-	throw HR::SqlException(e.what());
+        throw HR::SqlException(e.what());
     }
 }
 
@@ -42,11 +42,11 @@ ConnectionHolder::rollback()
     _txDone = true;
     try
     {
-	_con->rollback();
+        _con->rollback();
     }
     catch(const SQLException& e)
     {
-	throw HR::SqlException(e.what());
+        throw HR::SqlException(e.what());
     }
 }
 
@@ -54,19 +54,19 @@ ConnectionHolder::~ConnectionHolder()
 {
     if(!_txDone)
     {
-	_txDone = true;
-	try
-	{
-	    _con->rollback();
-	}
-	catch(const std::exception&)
-	{
-	}
+        _txDone = true;
+        try
+        {
+            _con->rollback();
+        }
+        catch(const std::exception&)
+        {
+        }
     }
 
     try
     {
-	_pool->releaseConnection(_con);
+        _pool->releaseConnection(_con);
     }
     catch(const std::exception&)
     {
@@ -104,15 +104,15 @@ encodeRef(const RefAny& ref, Environment* env)
 
     if(status == OCI_SUCCESS)
     {
-	result.assign(reinterpret_cast<char*>(buffer), length);
+        result.assign(reinterpret_cast<char*>(buffer), length);
     }
     else
     {
-	cerr << "encodeRef failed: ";
-	sb4 errcode = 0;
-	OraText buf[512];
-	OCIErrorGet(error, 1, 0, &errcode, buf, 512, OCI_HTYPE_ERROR);
-	cerr << reinterpret_cast<char*>(buf) << endl;
+        cerr << "encodeRef failed: ";
+        sb4 errcode = 0;
+        OraText buf[512];
+        OCIErrorGet(error, 1, 0, &errcode, buf, 512, OCI_HTYPE_ERROR);
+        cerr << reinterpret_cast<char*>(buf) << endl;
     }
 
     OCIHandleFree(error, OCI_HTYPE_ERROR);
@@ -128,26 +128,26 @@ decodeRef(const string& str, Environment* env, Connection* con)
     OCIHandleAlloc(env->getOCIEnvironment(), reinterpret_cast<void**>(&error), OCI_HTYPE_ERROR, 0, 0);
 
     sword status = OCIRefFromHex(env->getOCIEnvironment(), error,
-				 con->getOCIServiceContext(), 
-				 reinterpret_cast<const OraText*>(str.c_str()), str.length(),
-				 &ref);
+                                 con->getOCIServiceContext(), 
+                                 reinterpret_cast<const OraText*>(str.c_str()), str.length(),
+                                 &ref);
 
     
 
     if(status == OCI_SUCCESS)
-    {	
-	OCIHandleFree(error, OCI_HTYPE_ERROR);
-	return RefAny(con, ref);
+    {   
+        OCIHandleFree(error, OCI_HTYPE_ERROR);
+        return RefAny(con, ref);
     }
     else
     {
-	cerr << "decodeRef failed: ";
-	sb4 errcode = 0;
-	OraText buf[512];
-	OCIErrorGet(error, 1, 0, &errcode, buf, 512, OCI_HTYPE_ERROR);
-	cerr << reinterpret_cast<char*>(buf) << endl;
+        cerr << "decodeRef failed: ";
+        sb4 errcode = 0;
+        OraText buf[512];
+        OCIErrorGet(error, 1, 0, &errcode, buf, 512, OCI_HTYPE_ERROR);
+        cerr << reinterpret_cast<char*>(buf) << endl;
 
-	OCIHandleFree(error, OCI_HTYPE_ERROR);
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        OCIHandleFree(error, OCI_HTYPE_ERROR);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }

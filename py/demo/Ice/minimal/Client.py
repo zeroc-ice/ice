@@ -20,9 +20,9 @@ try:
     hello = Demo.HelloPrx.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"))
     if not hello:
         print args[0] + ": invalid proxy"
-	status = 1
+        status = 1
     else:
-	hello.sayHello()
+        hello.sayHello()
 except:
     traceback.print_exc()
     status = 1
@@ -32,6 +32,6 @@ if communicator:
         communicator.destroy()
     except:
         traceback.print_exc()
-	status = 1
+        status = 1
 
 sys.exit(status)

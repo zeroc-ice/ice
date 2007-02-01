@@ -32,15 +32,15 @@ public:
     virtual ~ServiceI();
 
     virtual void start(const string&,
-		       const CommunicatorPtr&,
-		       const StringSeq&);
+                       const CommunicatorPtr&,
+                       const StringSeq&);
 
     virtual void start(const CommunicatorPtr&, 
-		       const ObjectAdapterPtr&, 
-		       const ObjectAdapterPtr&,
-		       const string&, 
-		       const Ice::Identity&,
-		       const string&);
+                       const ObjectAdapterPtr&, 
+                       const ObjectAdapterPtr&,
+                       const string&, 
+                       const Ice::Identity&,
+                       const string&);
 
     virtual TopicManagerPrx getTopicManager() const;    
 
@@ -70,11 +70,11 @@ createIceStorm(CommunicatorPtr communicator)
 
 ServicePtr
 IceStorm::Service::create(const CommunicatorPtr& communicator,
-			  const ObjectAdapterPtr& topicAdapter,
-			  const ObjectAdapterPtr& publishAdapter,
-			  const string& name,
-			  const Ice::Identity& id,
-			  const string& dbEnv)
+                          const ObjectAdapterPtr& topicAdapter,
+                          const ObjectAdapterPtr& publishAdapter,
+                          const string& name,
+                          const Ice::Identity& id,
+                          const string& dbEnv)
 {
     ServiceI* service = new ServiceI;
     ServicePtr svc = service;
@@ -113,26 +113,26 @@ IceStorm::ServiceI::start(
     
     try
     {
-	_manager = new TopicManagerI(_instance, _topicAdapter, name, "topics");
-	_managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, topicManagerId));
+        _manager = new TopicManagerI(_instance, _topicAdapter, name, "topics");
+        _managerProxy = TopicManagerPrx::uncheckedCast(_topicAdapter->add(_manager, topicManagerId));
     }
     catch(const Ice::Exception&)
     {
-	_instance = 0;
-	throw;
+        _instance = 0;
+        throw;
     }
-	
+        
     _topicAdapter->activate();
     _publishAdapter->activate();
 }
 
 void
 IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
-			  const ObjectAdapterPtr& topicAdapter,
-			  const ObjectAdapterPtr& publishAdapter,
-			  const string& name,
-			  const Ice::Identity& id,
-			  const string& dbEnv)
+                          const ObjectAdapterPtr& topicAdapter,
+                          const ObjectAdapterPtr& publishAdapter,
+                          const string& name,
+                          const Ice::Identity& id,
+                          const string& dbEnv)
 {
     string instanceName = communicator->getProperties()->getPropertyWithDefault(name + ".InstanceName", "IceStorm");
     _instance = new Instance(instanceName, name, communicator, publishAdapter);
@@ -142,13 +142,13 @@ IceStorm::ServiceI::start(const CommunicatorPtr& communicator,
     //
     try
     {
-	_manager = new TopicManagerI(_instance, topicAdapter, dbEnv, "topics");
-	_managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager, id));
+        _manager = new TopicManagerI(_instance, topicAdapter, dbEnv, "topics");
+        _managerProxy = TopicManagerPrx::uncheckedCast(topicAdapter->add(_manager, id));
     }
     catch(const Ice::Exception&)
     {
-	_instance = 0;
-	throw;
+        _instance = 0;
+        throw;
     }
 }
 
@@ -163,20 +163,20 @@ IceStorm::ServiceI::stop()
 {
     if(_topicAdapter)
     {
-	_topicAdapter->deactivate();
+        _topicAdapter->deactivate();
     }
     if(_publishAdapter)
     {
-	_publishAdapter->deactivate();
+        _publishAdapter->deactivate();
     }
 
     if(_topicAdapter)
     {
-	_topicAdapter->waitForDeactivate();
+        _topicAdapter->waitForDeactivate();
     }
     if(_publishAdapter)
     {
-	_publishAdapter->waitForDeactivate();
+        _publishAdapter->waitForDeactivate();
     }
 
     //

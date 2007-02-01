@@ -55,10 +55,10 @@ def uncomment(file, patt):
     doComment = 0
     newLines = []
     for x in origLines:
-	if expr.match(x) != None and x[0] == '#':
-	    newLines.append(x[1:])
-	else:
-	    newLines.append(x)
+        if expr.match(x) != None and x[0] == '#':
+            newLines.append(x[1:])
+        else:
+            newLines.append(x)
 
     newFile.writelines(newLines)
     newFile.close()
@@ -79,14 +79,14 @@ def fixMakeRules(file, patt, text):
     doComment = 0
     newLines = []
     for x in origLines:
-	if expr.match(x) != None:
-	    newLines.append('ifneq ($(ICE_HOME),)\n')
-	    newLines.append(x.rstrip() + text + "\n")
-	    newLines.append('else\n')
-	    newLines.append(x)
-	    newLines.append('endif\n')
-	else:
-	    newLines.append(x)
+        if expr.match(x) != None:
+            newLines.append('ifneq ($(ICE_HOME),)\n')
+            newLines.append(x.rstrip() + text + "\n")
+            newLines.append('else\n')
+            newLines.append(x)
+            newLines.append('endif\n')
+        else:
+            newLines.append(x)
 
     newFile.writelines(newLines)
     newFile.close()
@@ -107,11 +107,11 @@ def fixMakeVar(file, patt, text):
     doComment = 0
     newLines = []
     for x in origLines:
-	m = expr.match(x)
-	if m != None:
-	    newLines.append(m.group() + text + x[m.end():])
-	else:
-	    newLines.append(x)
+        m = expr.match(x)
+        if m != None:
+            newLines.append(m.group() + text + x[m.end():])
+        else:
+            newLines.append(x)
 
     newFile.writelines(newLines)
     newFile.close()

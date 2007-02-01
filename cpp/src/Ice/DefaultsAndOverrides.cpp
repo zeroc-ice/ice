@@ -38,33 +38,33 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     value = properties->getProperty("Ice.Override.Timeout");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideTimeout) = true;
-	const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
+        const_cast<bool&>(overrideTimeout) = true;
+        const_cast<Int&>(overrideTimeoutValue) = properties->getPropertyAsInt("Ice.Override.Timeout");
     }
 
     value = properties->getProperty("Ice.Override.ConnectTimeout");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideConnectTimeout) = true;
-	const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
+        const_cast<bool&>(overrideConnectTimeout) = true;
+        const_cast<Int&>(overrideConnectTimeoutValue) = properties->getPropertyAsInt("Ice.Override.ConnectTimeout");
     }
 
     value = properties->getProperty("Ice.Override.Compress");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideCompress) = true;
-	const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
+        const_cast<bool&>(overrideCompress) = true;
+        const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
     }
 
     value = properties->getProperty("Ice.Override.Secure");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideSecure) = true;
-	const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure");
+        const_cast<bool&>(overrideSecure) = true;
+        const_cast<bool&>(overrideSecureValue) = properties->getPropertyAsInt("Ice.Override.Secure");
     }
 
     const_cast<bool&>(defaultCollocationOptimization) =
-	properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
+        properties->getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
 
     value = properties->getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
     if(value == "Random")
@@ -83,8 +83,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     }
 
     const_cast<int&>(defaultLocatorCacheTimeout) = 
-	properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
+        properties->getPropertyAsIntWithDefault("Ice.Default.LocatorCacheTimeout", -1);
 
     const_cast<bool&>(defaultPreferSecure) =
-	properties->getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
+        properties->getPropertyAsIntWithDefault("Ice.Default.PreferSecure", 0) > 0;
 }

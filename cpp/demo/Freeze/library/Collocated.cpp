@@ -19,7 +19,7 @@ class LibraryCollocated : public Ice::Application
 public:
     
     LibraryCollocated(const string& envName) :
-	_envName(envName)
+        _envName(envName)
     {
     }
 
@@ -61,7 +61,7 @@ LibraryCollocated::run(int argc, char* argv[])
     Ice::Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {
-	evictor->setSize(evictorSize);
+        evictor->setSize(evictorSize);
     }
     
     //
@@ -96,15 +96,15 @@ LibraryCollocated::interruptCallback(int)
 {
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }

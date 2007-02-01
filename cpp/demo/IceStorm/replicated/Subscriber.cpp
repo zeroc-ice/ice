@@ -72,34 +72,34 @@ Subscriber::run(int argc, char* argv[])
     Ice::ObjectProxySeq::const_iterator p;
     for(p = managers.begin(); p != managers.end(); ++p)
     {
-	//
-	// Add a Servant for the Ice Object.
-	//
-	IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(*p);
+        //
+        // Add a Servant for the Ice Object.
+        //
+        IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(*p);
 
-	try
-	{
+        try
+        {
             topic = manager->retrieve(topicName);
-	}
-	catch(const IceStorm::NoSuchTopic&)
-	{
-	    try
-	    {
-	        topic = manager->create(topicName);
-	    }
-	    catch(const IceStorm::TopicExists&)
-	    {
-	        cerr << appName() << ": temporary failure. try again." << endl;
-		return EXIT_FAILURE;
-	    }
-	}
+        }
+        catch(const IceStorm::NoSuchTopic&)
+        {
+            try
+            {
+                topic = manager->create(topicName);
+            }
+            catch(const IceStorm::TopicExists&)
+            {
+                cerr << appName() << ": temporary failure. try again." << endl;
+                return EXIT_FAILURE;
+            }
+        }
     }
 
     Ice::ObjectProxySeq topics = query->findAllReplicas(topic);
     for(p = topics.begin(); p != topics.end(); ++p)
     {
         topic = IceStorm::TopicPrx::uncheckedCast(*p);
-	topic->subscribeAndGetPublisher(IceStorm::QoS(), clock);
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), clock);
     }
 
     adapter->activate();

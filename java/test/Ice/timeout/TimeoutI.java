@@ -13,28 +13,28 @@ class TimeoutI extends _TimeoutDisp
 {
     static class ActivateAdapterThread extends Thread
     {
-	ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)
-	{
-	    _adapter = adapter;
-	    _timeout = timeout;
-	}
+        ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)
+        {
+            _adapter = adapter;
+            _timeout = timeout;
+        }
 
-	public void
-	run()
-	{
-	    _adapter.waitForHold();
-	    try
-	    {
-		sleep(_timeout);
-	    }
-	    catch(InterruptedException ex)
-	    {
-	    }
-	    _adapter.activate();
-	}
+        public void
+        run()
+        {
+            _adapter.waitForHold();
+            try
+            {
+                sleep(_timeout);
+            }
+            catch(InterruptedException ex)
+            {
+            }
+            _adapter.activate();
+        }
 
-	Ice.ObjectAdapter _adapter;
-	int _timeout;
+        Ice.ObjectAdapter _adapter;
+        int _timeout;
     }
 
     public void
@@ -50,26 +50,26 @@ class TimeoutI extends _TimeoutDisp
     public void
     sleep(int to, Ice.Current current)
     {
-	try
-	{
-	    Thread.currentThread().sleep(to);
-	}
-	catch(InterruptedException ex)
-	{
-	}
+        try
+        {
+            Thread.currentThread().sleep(to);
+        }
+        catch(InterruptedException ex)
+        {
+        }
     }
 
     public void
     holdAdapter(int to, Ice.Current current)
     {
-	current.adapter.hold();
-	Thread thread = new ActivateAdapterThread(current.adapter, to);
-	thread.start();
+        current.adapter.hold();
+        Thread thread = new ActivateAdapterThread(current.adapter, to);
+        thread.start();
     }
 
     public void
     shutdown(Ice.Current current)
     {
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 }

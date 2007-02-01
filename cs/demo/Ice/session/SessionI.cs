@@ -15,96 +15,96 @@ public class SessionI : SessionDisp_
 {
     public SessionI(string name)
     {
-	_name = name;
-	_timestamp = System.DateTime.Now;
-	_nextId = 0;
-	_destroy = false;
-	_objs = new ArrayList();
+        _name = name;
+        _timestamp = System.DateTime.Now;
+        _nextId = 0;
+        _destroy = false;
+        _objs = new ArrayList();
 
-	Console.Out.WriteLine("The session " + _name + " is now created.");
+        Console.Out.WriteLine("The session " + _name + " is now created.");
     }
 
     public override HelloPrx createHello(Ice.Current c)
     {
-	lock(this)
-	{
-	    if(_destroy)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	    
-	    HelloPrx hello = HelloPrxHelper.uncheckedCast(c.adapter.addWithUUID(new HelloI(_name, _nextId++)));
-	    _objs.Add(hello);
-	    return hello;
-	}
+        lock(this)
+        {
+            if(_destroy)
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            
+            HelloPrx hello = HelloPrxHelper.uncheckedCast(c.adapter.addWithUUID(new HelloI(_name, _nextId++)));
+            _objs.Add(hello);
+            return hello;
+        }
     }
 
     public override void refresh(Ice.Current c)
     {
-	lock(this)
-	{
-	    if(_destroy)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	    
-	    _timestamp = System.DateTime.Now;
-	}
+        lock(this)
+        {
+            if(_destroy)
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            
+            _timestamp = System.DateTime.Now;
+        }
     }
 
     public override string getName(Ice.Current c)
     {
-	lock(this)
-	{
-	    if(_destroy)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	    
-	    return _name;
-	}
+        lock(this)
+        {
+            if(_destroy)
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            
+            return _name;
+        }
     }
 
     public override void destroy(Ice.Current c)
     {
-	lock(this)
-	{
-	    if(_destroy)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	    
-	    _destroy = true;
-	    
-	    Console.Out.WriteLine("The session " + _name +  " is now destroyed.");
-	    try
-	    {
-		c.adapter.remove(c.id);
-		foreach(HelloPrx p in _objs)
-		{
-		    c.adapter.remove(p.ice_getIdentity());
-		}
-	    }
-	    catch(Ice.ObjectAdapterDeactivatedException)
-	    {
-		// This method is called on shutdown of the server, in which
-		// case this exception is expected.
-	    }
-	}
+        lock(this)
+        {
+            if(_destroy)
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            
+            _destroy = true;
+            
+            Console.Out.WriteLine("The session " + _name +  " is now destroyed.");
+            try
+            {
+                c.adapter.remove(c.id);
+                foreach(HelloPrx p in _objs)
+                {
+                    c.adapter.remove(p.ice_getIdentity());
+                }
+            }
+            catch(Ice.ObjectAdapterDeactivatedException)
+            {
+                // This method is called on shutdown of the server, in which
+                // case this exception is expected.
+            }
+        }
 
-	_objs.Clear();
+        _objs.Clear();
     }
 
     public System.DateTime timestamp() 
     {
-	lock(this)
-	{
-	    if(_destroy)
-	    {
-		throw new Ice.ObjectNotExistException();
-	    }
-	    return _timestamp;
-	}
+        lock(this)
+        {
+            if(_destroy)
+            {
+                throw new Ice.ObjectNotExistException();
+            }
+            return _timestamp;
+        }
     }
 
     private string _name;

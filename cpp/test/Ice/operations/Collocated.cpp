@@ -37,28 +37,28 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties(argc, argv);
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator, initData);
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator, initData);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

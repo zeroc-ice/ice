@@ -32,7 +32,7 @@ testdir = os.path.join(toplevel, "test", name)
 # Test client/server without on demand activation.
 #
 IceGridAdmin.iceGridClientServerTest(name, "", "--Ice.OA.TestAdapter.Endpoints=default" + \
-					       " --Ice.OA.TestAdapter.AdapterId=TestAdapter")
+                                               " --Ice.OA.TestAdapter.AdapterId=TestAdapter")
 
 #
 # Test client/server with on demand activation.

@@ -31,44 +31,44 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
 
-	//
-	// For this test, we want to disable retries.
-	//
-	initData.properties->setProperty("Ice.RetryIntervals", "-1");
+        //
+        // For this test, we want to disable retries.
+        //
+        initData.properties->setProperty("Ice.RetryIntervals", "-1");
 
-	//
-	// This test kills connections, so we don't want warnings.
-	//
-	initData.properties->setProperty("Ice.Warn.Connections", "0");
+        //
+        // This test kills connections, so we don't want warnings.
+        //
+        initData.properties->setProperty("Ice.Warn.Connections", "0");
 
-	//
-	// Check for AMI timeouts every second.
-	//
-	initData.properties->setProperty("Ice.MonitorConnections", "1");
+        //
+        // Check for AMI timeouts every second.
+        //
+        initData.properties->setProperty("Ice.MonitorConnections", "1");
 
-	communicator = Ice::initialize(argc, argv, initData);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv, initData);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
         cerr << ex << endl;
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

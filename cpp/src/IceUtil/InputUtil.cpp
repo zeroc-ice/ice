@@ -36,11 +36,11 @@ static const string allDigits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 //
 static const char digitVal[] =
 {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,		// '0' - '9'
-    100, 100, 100, 100, 100, 100, 100,		// punctuation
-    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,	// 'A' - 'J'
-    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,	// 'K' - 'T'
-    30, 31, 32, 33, 34, 35			// 'U' - 'Z'
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9,               // '0' - '9'
+    100, 100, 100, 100, 100, 100, 100,          // punctuation
+    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,     // 'A' - 'J'
+    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,     // 'K' - 'T'
+    30, 31, 32, 33, 34, 35                      // 'U' - 'Z'
 };
 
 static IceUtil::Int64
@@ -51,7 +51,7 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     if(endptr)
     {
-	*endptr = const_cast<char *>(s);
+        *endptr = const_cast<char *>(s);
     }
 
     //
@@ -59,7 +59,7 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     while(*s && isspace(*s))
     {
-	++s;
+        ++s;
     }
 
     //
@@ -68,12 +68,12 @@ strToInt64Impl(const char* s, char** endptr, int base)
     int sign = 1;
     if(*s == '+')
     {
-	++s;
+        ++s;
     }
     else if(*s == '-')
     {
-	sign = -1;
-	++s;
+        sign = -1;
+        ++s;
     }
 
     //
@@ -81,34 +81,34 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     if(base == 0)
     {
-	if(*s == '0')
-	{
-	    base = 8;
-	    ++s;
-	    
-	    //
-	    // We have at least this zero
-	    //
-	    if(endptr)
-	    {
-		*endptr = const_cast<char *>(s);
-	    }
-	    
-	    if(*s == 'x' || *s == 'X')
-	    {
-		base = 16;
-		++s;
-	    }
-	}
-	else
-	{
-	    base = 10;
-	}
+        if(*s == '0')
+        {
+            base = 8;
+            ++s;
+            
+            //
+            // We have at least this zero
+            //
+            if(endptr)
+            {
+                *endptr = const_cast<char *>(s);
+            }
+            
+            if(*s == 'x' || *s == 'X')
+            {
+                base = 16;
+                ++s;
+            }
+        }
+        else
+        {
+            base = 10;
+        }
     }
     else if(base < 2 || base > 36)
     {
-	errno = EINVAL;
-	return 0;
+        errno = EINVAL;
+        return 0;
     }
 
     //
@@ -116,10 +116,10 @@ strToInt64Impl(const char* s, char** endptr, int base)
     //
     if(*s == '\0')
     {
-	//
-	// We did not read any new digit so we don't update endptr
-	//
-	return 0;
+        //
+        // We did not read any new digit so we don't update endptr
+        //
+        return 0;
     }
 
     Int64 result = 0;
@@ -127,43 +127,43 @@ strToInt64Impl(const char* s, char** endptr, int base)
     bool digitFound = false;
     const string validDigits(allDigits.begin(), allDigits.begin() + base);
     while(*s && validDigits.find_first_of(toupper(*s)) != validDigits.npos)
-    {	
-	digitFound = true;
-	if(!overflow)
-	{
-	    int digit = digitVal[toupper(*s) - '0'];
-	    assert(digit != 100);
-	    if(result < _I64_MAX / base)
-	    {
-		result *= base;
-		result += digit;
-	    }
-	    else if((digit <= _I64_MAX % base) || (sign == -1 && digit == _I64_MAX % base + 1))
-	    {
-		result *= base;
-		result += digit;
-	    }
-	    else
-	    {
-		overflow = true;
-		result = sign == -1 ? _I64_MIN : _I64_MAX;
-	    }
-	}
-	++s;
+    {   
+        digitFound = true;
+        if(!overflow)
+        {
+            int digit = digitVal[toupper(*s) - '0'];
+            assert(digit != 100);
+            if(result < _I64_MAX / base)
+            {
+                result *= base;
+                result += digit;
+            }
+            else if((digit <= _I64_MAX % base) || (sign == -1 && digit == _I64_MAX % base + 1))
+            {
+                result *= base;
+                result += digit;
+            }
+            else
+            {
+                overflow = true;
+                result = sign == -1 ? _I64_MIN : _I64_MAX;
+            }
+        }
+        ++s;
     }
 
     if(overflow)
     {
-	errno = ERANGE;
+        errno = ERANGE;
     }
     else
     {
-	result *= sign;
+        result *= sign;
     }
 
     if(digitFound && endptr != 0)
     {
-	*endptr = const_cast<char *>(s);
+        *endptr = const_cast<char *>(s);
     }
  
     return result;

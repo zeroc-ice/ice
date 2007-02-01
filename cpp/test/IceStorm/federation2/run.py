@@ -35,8 +35,8 @@ iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIc
                   ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12011"' + \
                   ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12012"' + \
                   ' --IceStorm.InstanceName=TestIceStorm1 ' + \
-		  ' --IceStorm.Discard.Interval=2' + \
-		  ' --IceBox.PrintServicesReady=IceStorm' + \
+                  ' --IceStorm.Discard.Interval=2' + \
+                  ' --IceBox.PrintServicesReady=IceStorm' + \
                   " --IceBox.InheritContainerProperties=1"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011"'
 
@@ -46,8 +46,8 @@ iceStormService2 = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getI
                   ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12021"' + \
                   ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12022"' + \
                   ' --IceStorm.InstanceName=TestIceStorm2 ' + \
-		  ' --IceStorm.Discard.Interval=2' + \
-		  ' --IceBox.PrintServicesReady=IceStorm' + \
+                  ' --IceStorm.Discard.Interval=2' + \
+                  ' --IceBox.PrintServicesReady=IceStorm' + \
                   " --IceBox.InheritContainerProperties=1"
 iceStormReference2 = ' --IceStorm.TopicManager.Proxy="TestIceStorm2/TopicManager: default -p 12021"'
 
@@ -70,11 +70,11 @@ def doTest(batch, subscriberRef = None):
         batchOptions = ""
 
     if subscriberRef == None:
-	subscriberRef = iceStormReference2
+        subscriberRef = iceStormReference2
 
     command = subscriber + batchOptions + TestUtil.clientServerOptions + subscriberRef
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     subscriberPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe)
@@ -85,7 +85,7 @@ def doTest(batch, subscriberRef = None):
     #
     command = publisher + TestUtil.clientOptions + iceStormReference
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     publisherPipe = os.popen(command + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)
@@ -105,13 +105,13 @@ def startServers():
     global iceStormDBEnv2
     command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     iceBoxPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe)
     TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
     command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     iceBoxPipe2 = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe2)
     TestUtil.waitServiceReady(iceBoxPipe2, "IceStorm")
@@ -125,21 +125,21 @@ def stopServers(p1, p2 = None):
     global iceBoxEndpoints2
     command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     pipe = os.popen(command + " 2>&1")
     status = TestUtil.closePipe(pipe)
     if status or TestUtil.specificServerStatus(p1):
-	TestUtil.killServers()
-	sys.exit(1)
+        TestUtil.killServers()
+        sys.exit(1)
     if p2:
-	command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown'
-	if TestUtil.debug:
-	    print "(" + command + ")",
-	pipe = os.popen(command + " 2>&1")
-	status = TestUtil.closePipe(pipe)
-	if status or TestUtil.specificServerStatus(p2):
-	    TestUtil.killServers()
-	    sys.exit(1)
+        command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown'
+        if TestUtil.debug:
+            print "(" + command + ")",
+        pipe = os.popen(command + " 2>&1")
+        status = TestUtil.closePipe(pipe)
+        if status or TestUtil.specificServerStatus(p2):
+            TestUtil.killServers()
+            sys.exit(1)
 
 dbHome = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbHome)
@@ -241,9 +241,9 @@ stopServers(iceBoxPipe1, iceBoxPipe2)
 #
 class ExpectorThread(threading.Thread):
     def __init__(self, pipe):
-	self.mutex = threading.Lock()
+        self.mutex = threading.Lock()
         self.pipe = pipe
-	# Suppress "adapter ready" messages. Under windows the eol isn't \n.
+        # Suppress "adapter ready" messages. Under windows the eol isn't \n.
         self.re = [ [ re.compile(" ready\r?\n$"), 0 ] ]
         threading.Thread.__init__(self)
 
@@ -252,41 +252,41 @@ class ExpectorThread(threading.Thread):
             while 1:
                 line = self.pipe.readline()
                 if not line: break
-    	    	found = False;
-		self.mutex.acquire()
-    	    	for item in self.re:
-    	    	    if item[0].search(line):
-			found = True
-    	    	    	item[1] = item[1] + 1
-    	    	    	break
-		self.mutex.release()
-    	    	if not found:
-		    print line,
+                found = False;
+                self.mutex.acquire()
+                for item in self.re:
+                    if item[0].search(line):
+                        found = True
+                        item[1] = item[1] + 1
+                        break
+                self.mutex.release()
+                if not found:
+                    print line,
         except IOError:
             pass
 
-	self.status = TestUtil.closePipe(self.pipe)
+        self.status = TestUtil.closePipe(self.pipe)
 
     # To comply with the ReaderThread protocol.
     def getPipe(self):
-	return self.pipe
+        return self.pipe
 
     # To comply with the ReaderThread protocol.
     def getStatus(self):
-	return self.status
+        return self.status
 
     def matches(self, index):
-	self.mutex.acquire()
-	m = self.re[index][1]
-	self.mutex.release()
-	return m
+        self.mutex.acquire()
+        m = self.re[index][1]
+        self.mutex.release()
+        return m
 
     def expect(self, r):
-	self.mutex.acquire()
-	self.re.append([r, 0])
-    	l = len(self.re)-1
-	self.mutex.release()
-	return l
+        self.mutex.acquire()
+        self.re.append([r, 0])
+        l = len(self.re)-1
+        self.mutex.release()
+        return l
 
 #
 # Test #3:
@@ -430,8 +430,8 @@ iceStormAdminPipe = os.popen(command + " 2>&1")
 line = iceStormAdminPipe.readline()
 try:
     if line and len(line) > 0:
-	TestUtil.killServers()
-	sys.exit(1)
+        TestUtil.killServers()
+        sys.exit(1)
 except IOError:
     pass
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)

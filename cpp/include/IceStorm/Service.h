@@ -32,11 +32,11 @@ class ICE_STORM_API Service : public ::IceBox::Service
 public:
 
     static ServicePtr create(const Ice::CommunicatorPtr&,
-			     const Ice::ObjectAdapterPtr&,
-			     const Ice::ObjectAdapterPtr&,
-			     const std::string&,
-			     const Ice::Identity&,
-			     const std::string&);
+                             const Ice::ObjectAdapterPtr&,
+                             const Ice::ObjectAdapterPtr&,
+                             const std::string&,
+                             const Ice::Identity&,
+                             const std::string&);
 
     virtual void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) = 0;
 

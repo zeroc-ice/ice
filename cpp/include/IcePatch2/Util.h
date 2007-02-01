@@ -56,30 +56,30 @@ struct FileInfoEqual: public std::binary_function<const FileInfo&, const FileInf
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
-	if(lhs.path != rhs.path)
-	{
-	    return false;
-	}
+        if(lhs.path != rhs.path)
+        {
+            return false;
+        }
 
-	//
-	// For the size portion of the comparison, we only distinquish
-	// between file (size >= 0) and directory (size == -1). We do
-	// not take the actual size into account, as it might be set
-	// to 0 if no compressed file is available.
-	//
-	Ice::Int lsz = lhs.size > 0 ? 0 : lhs.size;
-	Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
-	if(lsz != rsz)
-	{
-	    return false;
-	}
+        //
+        // For the size portion of the comparison, we only distinquish
+        // between file (size >= 0) and directory (size == -1). We do
+        // not take the actual size into account, as it might be set
+        // to 0 if no compressed file is available.
+        //
+        Ice::Int lsz = lhs.size > 0 ? 0 : lhs.size;
+        Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
+        if(lsz != rsz)
+        {
+            return false;
+        }
 
-	if(lhs.executable != rhs.executable)
-	{
-	    return false;
-	}
-	
-	return lhs.checksum == rhs.checksum;
+        if(lhs.executable != rhs.executable)
+        {
+            return false;
+        }
+        
+        return lhs.checksum == rhs.checksum;
     }
 };
 
@@ -88,48 +88,48 @@ struct FileInfoWithoutFlagsLess: public std::binary_function<const FileInfo&, co
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
-	return compareWithoutFlags(lhs, rhs) < 0;
+        return compareWithoutFlags(lhs, rhs) < 0;
     }
 
     int
     compareWithoutFlags(const FileInfo& lhs, const FileInfo& rhs)
     {
-	if(lhs.path < rhs.path)
-	{
-	    return -1;
-	}
-	else if(rhs.path < lhs.path)
-	{
-	    return 1;
-	}
+        if(lhs.path < rhs.path)
+        {
+            return -1;
+        }
+        else if(rhs.path < lhs.path)
+        {
+            return 1;
+        }
 
-	//
-	// For the size portion of the comparison, we only distinquish
-	// between file (size >= 0) and directory (size == -1). We do
-	// not take the actual size into account, as it might be set
-	// to 0 if no compressed file is available.
-	//
-	Ice::Int lsz = lhs.size > 0 ? 0 : lhs.size;
-	Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
-	if(lsz < rsz)
-	{
-	    return -1;
-	}
-	else if(rsz < lsz)
-	{
-	    return 1;
-	}
+        //
+        // For the size portion of the comparison, we only distinquish
+        // between file (size >= 0) and directory (size == -1). We do
+        // not take the actual size into account, as it might be set
+        // to 0 if no compressed file is available.
+        //
+        Ice::Int lsz = lhs.size > 0 ? 0 : lhs.size;
+        Ice::Int rsz = rhs.size > 0 ? 0 : rhs.size;
+        if(lsz < rsz)
+        {
+            return -1;
+        }
+        else if(rsz < lsz)
+        {
+            return 1;
+        }
 
-	if(lhs.checksum < rhs.checksum)
-	{
-	    return -1;
-	}
-	else if(rhs.checksum < lhs.checksum)
-	{
-	    return 1;
-	}
-	
-	return 0;
+        if(lhs.checksum < rhs.checksum)
+        {
+            return -1;
+        }
+        else if(rhs.checksum < lhs.checksum)
+        {
+            return 1;
+        }
+        
+        return 0;
     }
 };
 
@@ -138,17 +138,17 @@ struct FileInfoLess : public FileInfoWithoutFlagsLess
     bool
     operator()(const FileInfo& lhs, const FileInfo& rhs)
     {
-	int rc = compareWithoutFlags(lhs, rhs);
-	if(rc < 0)
-	{
-	    return true;
-	}
-	else if(rc > 0)
-	{
-	    return false;
-	}
+        int rc = compareWithoutFlags(lhs, rhs);
+        if(rc < 0)
+        {
+            return true;
+        }
+        else if(rc > 0)
+        {
+            return false;
+        }
 
-	return lhs.executable < rhs.executable;
+        return lhs.executable < rhs.executable;
     }
 };
 

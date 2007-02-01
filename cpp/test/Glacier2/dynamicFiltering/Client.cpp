@@ -36,7 +36,7 @@ main(int argc, char* argv[])
     //
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-	
+        
     SessionControlClient app;
     return app.main(argc, argv, initData);
 }
@@ -51,7 +51,7 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "accessing test controller... " << flush;
     Ice::CommunicatorPtr controlComm = Ice::initialize(argc, argv, initData);
     TestControllerPrx controller = TestControllerPrx::checkedCast(
-	controlComm->stringToProxy("testController:tcp -p 12013"));
+        controlComm->stringToProxy("testController:tcp -p 12013"));
     test(controller);
     TestToken currentState;
     TestToken newState;
@@ -73,61 +73,61 @@ SessionControlClient::run(int argc, char* argv[])
     bool printOk = false;
     while(currentState.code == Running)
     {
-	controller->step(currentSession, currentState, newState);
-	currentState = newState;
+        controller->step(currentSession, currentState, newState);
+        currentState = newState;
 
-	if(currentState.code != Running)
-	{
-	    cout << "ok" << endl;
-	    break;
-	}
+        if(currentState.code != Running)
+        {
+            cout << "ok" << endl;
+            break;
+        }
 
-	//
-	// If we are running the first case for this configuration, print the configuration description.
-	//
-	if(currentState.caseIndex == 0)
-	{
-	    if(printOk)
-	    {
-		cout << "ok" << endl;
-	    }
-	    else
-	    {
-		printOk = true;
-	    }
-	    cout << currentState.description << "... " << flush;
-	}
+        //
+        // If we are running the first case for this configuration, print the configuration description.
+        //
+        if(currentState.caseIndex == 0)
+        {
+            if(printOk)
+            {
+                cout << "ok" << endl;
+            }
+            else
+            {
+                printOk = true;
+            }
+            cout << currentState.description << "... " << flush;
+        }
 
-	if(currentState.expectedResult)
-	{
-	    BackendPrx prx = BackendPrx::uncheckedCast(communicator()->stringToProxy(currentState.testReference));
-	    try
-	    {
-		prx->check();
-	    }
-	    catch(const Exception& ex)
-	    {
-		cerr << ex << endl;
-		test(false);
-	    }
-	}
-	else
-	{
-	    BackendPrx prx = BackendPrx::uncheckedCast(communicator()->stringToProxy(currentState.testReference));
-	    try
-	    {
-		prx->check();
-		test(false);
-	    }
-	    catch(const ObjectNotExistException&)
-	    {
-	    }
-	    catch(const Exception& ex)
-	    {
-		cerr << ex << endl;
-		test(false);
-	    }
-	}
+        if(currentState.expectedResult)
+        {
+            BackendPrx prx = BackendPrx::uncheckedCast(communicator()->stringToProxy(currentState.testReference));
+            try
+            {
+                prx->check();
+            }
+            catch(const Exception& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+        else
+        {
+            BackendPrx prx = BackendPrx::uncheckedCast(communicator()->stringToProxy(currentState.testReference));
+            try
+            {
+                prx->check();
+                test(false);
+            }
+            catch(const ObjectNotExistException&)
+            {
+            }
+            catch(const Exception& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
     }
 
     //
@@ -135,7 +135,7 @@ SessionControlClient::run(int argc, char* argv[])
     //
     try
     {
-	router->destroySession();
+        router->destroySession();
     }
     catch(const ConnectionLostException&)
     {
@@ -148,16 +148,16 @@ SessionControlClient::run(int argc, char* argv[])
 
     try
     {
-	//
-	// Shut down the test server.
-	//
-	currentSession = Test::TestSessionPrx::uncheckedCast(router->createSession("userid", "abc123"));
-	currentSession->shutdown();
+        //
+        // Shut down the test server.
+        //
+        currentSession = Test::TestSessionPrx::uncheckedCast(router->createSession("userid", "abc123"));
+        currentSession->shutdown();
     }
     catch(const Glacier2::CannotCreateSessionException& ex)
     {
-	cerr << ex.reason << endl;
-	throw ex;
+        cerr << ex.reason << endl;
+        throw ex;
     }
 
     //
@@ -170,12 +170,12 @@ SessionControlClient::run(int argc, char* argv[])
     admin->shutdown();
     try
     {
-	admin->ice_ping();
-	test(false);
+        admin->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 
     return EXIT_SUCCESS;

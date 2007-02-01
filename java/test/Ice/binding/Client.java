@@ -12,7 +12,7 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	AllTests.allTests(communicator);
+        AllTests.allTests(communicator);
         return 0;
     }
 
@@ -46,7 +46,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

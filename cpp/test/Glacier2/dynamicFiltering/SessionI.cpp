@@ -22,7 +22,7 @@ Glacier2::SessionPrx
 SessionManagerI::create(const string&, const Glacier2::SessionControlPrx& sessionControl, const Ice::Current& current)
 {
     Glacier2::SessionPrx newSession = Glacier2::SessionPrx::uncheckedCast(
-	current.adapter->addWithUUID(new SessionI(sessionControl, _controller)));
+        current.adapter->addWithUUID(new SessionI(sessionControl, _controller)));
     _controller->addSession(SessionTuple(newSession, sessionControl));
     return newSession;
 }

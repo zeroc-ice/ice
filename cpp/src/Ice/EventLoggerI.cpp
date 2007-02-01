@@ -70,7 +70,7 @@ Ice::EventLoggerI::EventLoggerI(const string& appName) :
     // "EventMessageFile" key should contain the path to this DLL.
     //
     err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ, 
-			(unsigned char*)path, static_cast<DWORD>(strlen(path) + 1));
+                        (unsigned char*)path, static_cast<DWORD>(strlen(path) + 1));
     if(err != ERROR_SUCCESS)
     {
         RegCloseKey(hKey);

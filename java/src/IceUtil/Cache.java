@@ -18,45 +18,45 @@ public class Cache
 {
     public Cache(Store store)
     {
-	_store = store;
+        _store = store;
     }
     
     public Object 
     getIfPinned(Object key)
     {
-	synchronized(_map)
-	{
-	    CacheValue val = (CacheValue) _map.get(key);
-	    return val == null ? null : val.obj;
-	}
+        synchronized(_map)
+        {
+            CacheValue val = (CacheValue) _map.get(key);
+            return val == null ? null : val.obj;
+        }
     }
     
     public Object
     unpin(Object key)
     {
-	synchronized(_map)
-	{
-	    CacheValue val = (CacheValue) _map.remove(key);
-	    return val == null ? null : val.obj;
-	}
+        synchronized(_map)
+        {
+            CacheValue val = (CacheValue) _map.remove(key);
+            return val == null ? null : val.obj;
+        }
     }
 
     public void
     clear()
     {
-	synchronized(_map)
-	{
-	    _map.clear();
-	}
+        synchronized(_map)
+        {
+            _map.clear();
+        }
     }
     
     public int
     size()
     {
-	synchronized(_map)
-	{
-	    return _map.size();
-	}
+        synchronized(_map)
+        {
+            return _map.size();
+        }
     }
 
     //
@@ -68,19 +68,19 @@ public class Cache
     public Object
     pin(Object key, Object o)
     {
-	synchronized(_map)
-	{
-	    CacheValue existingVal = (CacheValue) _map.put(key, new CacheValue(o));
-	    if(existingVal != null)
-	    {
-		_map.put(key, existingVal);
-		return existingVal.obj;
-	    }
-	    else
-	    {
-		return null;
-	    }
-	}
+        synchronized(_map)
+        {
+            CacheValue existingVal = (CacheValue) _map.put(key, new CacheValue(o));
+            if(existingVal != null)
+            {
+                _map.put(key, existingVal);
+                return existingVal.obj;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 
     //
@@ -90,7 +90,7 @@ public class Cache
     public Object
     pin(Object key)
     {
-	return pinImpl(key, null);
+        return pinImpl(key, null);
     }
 
     //
@@ -102,138 +102,138 @@ public class Cache
     public Object
     putIfAbsent(Object key, Object newObj)
     {
-	return pinImpl(key, newObj);
+        return pinImpl(key, newObj);
     }
 
     
     static private class CacheValue
     {
-	CacheValue()
-	{
-	}
+        CacheValue()
+        {
+        }
 
-	CacheValue(Object obj)
-	{
-	    this.obj = obj;
-	}
+        CacheValue(Object obj)
+        {
+            this.obj = obj;
+        }
 
-	Object obj = null;
-	CountDownLatch latch = null;
+        Object obj = null;
+        CountDownLatch latch = null;
     }
 
     private Object
     pinImpl(Object key, Object newObj)
     {
-	for(;;)
-	{
-	    CacheValue val = null;
-	    CountDownLatch latch = null;
-	    
-	    synchronized(_map)
-	    {
-		val = (CacheValue) _map.get(key); 
-		if(val == null) 
-		{ 
-		    val = new CacheValue(); 
-		    _map.put(key, val); 
-		} 
-		else 
-		{ 
-		    if(val.obj != null) 
-		    { 
-			return val.obj;        
-		    } 
-		    if(val.latch == null) 
-		    { 
-			// 
-			// The first queued thread creates the latch 
-			// 
-			val.latch = new CountDownLatch(1); 
-		    } 
-		    latch = val.latch; 
-		} 
-	    }
-	    
-	    if(latch != null) 
-	    { 
-		try
-		{
-		    latch.await();
-		}
-		catch(InterruptedException e)
-		{
-		    // Ignored
-		}
-		
-		// 
-		// val could be stale now, e.g. some other thread pinned and unpinned the 
-		// object while we were waiting. 
-		// So start over. 
-		// 
-		continue;
-	    } 
-	    else 
-	    {                     
-		Object obj;
-		try
-		{
-		    obj = _store.load(key);
-		}
-		catch(RuntimeException e)
-		{
-		    synchronized(_map) 
-		    {
-			_map.remove(key);
-			latch = val.latch; 
-			val.latch = null; 
-		    }
-		    if(latch != null)  
-		    { 
-			latch.countDown();
-			assert latch.getCount() == 0;
-		    }
-		    throw e;
-		}
-		
-		synchronized(_map) 
-		{ 
-		    if(obj != null) 
-		    {  
-			val.obj = obj; 
-		    } 
-		    else 
-		    { 
-			if(newObj == null)
-			{
-			    //
-			    // pin() did not find the object
-			    //
-			    
-			    // 
-			    // The waiting threads will have to call load() to see by themselves. 
-			    // 
-			    _map.remove(key);
-			}
-			else
-			{
-			    //
-			    // putIfAbsent() inserts key/newObj
-			    //
-			    val.obj = newObj;
-			}
-		    } 
-		    
-		    latch = val.latch; 
-		    val.latch = null; 
-		} 
-		if(latch != null)  
-		{ 
-		    latch.countDown();
-		    assert latch.getCount() == 0;
-		} 
-		return obj;
-	    }          
-	}
+        for(;;)
+        {
+            CacheValue val = null;
+            CountDownLatch latch = null;
+            
+            synchronized(_map)
+            {
+                val = (CacheValue) _map.get(key); 
+                if(val == null) 
+                { 
+                    val = new CacheValue(); 
+                    _map.put(key, val); 
+                } 
+                else 
+                { 
+                    if(val.obj != null) 
+                    { 
+                        return val.obj;        
+                    } 
+                    if(val.latch == null) 
+                    { 
+                        // 
+                        // The first queued thread creates the latch 
+                        // 
+                        val.latch = new CountDownLatch(1); 
+                    } 
+                    latch = val.latch; 
+                } 
+            }
+            
+            if(latch != null) 
+            { 
+                try
+                {
+                    latch.await();
+                }
+                catch(InterruptedException e)
+                {
+                    // Ignored
+                }
+                
+                // 
+                // val could be stale now, e.g. some other thread pinned and unpinned the 
+                // object while we were waiting. 
+                // So start over. 
+                // 
+                continue;
+            } 
+            else 
+            {                     
+                Object obj;
+                try
+                {
+                    obj = _store.load(key);
+                }
+                catch(RuntimeException e)
+                {
+                    synchronized(_map) 
+                    {
+                        _map.remove(key);
+                        latch = val.latch; 
+                        val.latch = null; 
+                    }
+                    if(latch != null)  
+                    { 
+                        latch.countDown();
+                        assert latch.getCount() == 0;
+                    }
+                    throw e;
+                }
+                
+                synchronized(_map) 
+                { 
+                    if(obj != null) 
+                    {  
+                        val.obj = obj; 
+                    } 
+                    else 
+                    { 
+                        if(newObj == null)
+                        {
+                            //
+                            // pin() did not find the object
+                            //
+                            
+                            // 
+                            // The waiting threads will have to call load() to see by themselves. 
+                            // 
+                            _map.remove(key);
+                        }
+                        else
+                        {
+                            //
+                            // putIfAbsent() inserts key/newObj
+                            //
+                            val.obj = newObj;
+                        }
+                    } 
+                    
+                    latch = val.latch; 
+                    val.latch = null; 
+                } 
+                if(latch != null)  
+                { 
+                    latch.countDown();
+                    assert latch.getCount() == 0;
+                } 
+                return obj;
+            }          
+        }
     }
 
 

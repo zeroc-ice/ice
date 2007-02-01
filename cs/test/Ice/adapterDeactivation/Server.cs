@@ -27,9 +27,9 @@ public class Server
     {
         TestServer app = new TestServer();
         int result = app.main(args);
-	if(result != 0)
-	{
-	    System.Environment.Exit(result);
-	}
+        if(result != 0)
+        {
+            System.Environment.Exit(result);
+        }
     }
 }

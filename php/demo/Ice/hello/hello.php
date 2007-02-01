@@ -29,26 +29,26 @@ if(isset($_POST["submitted"]))
     echo "<P>Status:<BR><B>\n";
     try
     {
-	if($have_ssl)
-	{
-	    $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
-	}
-	else
-	{
-	    $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
-	}
+        if($have_ssl)
+        {
+            $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
+        }
+        else
+        {
+            $p = $ICE->stringToProxy("hello:tcp -p 10000:udp -p 10000");
+        }
 
-	if(isset($_POST["mode"]))
-	{
-	    if($_POST["mode"] == "oneway")
-	    {
-		$p = $p->ice_oneway();
-	    }
-	    elseif($_POST["mode"] == "datagram")
-	    {
-		$p = $p->ice_datagram();
-	    }
-	}
+        if(isset($_POST["mode"]))
+        {
+            if($_POST["mode"] == "oneway")
+            {
+                $p = $p->ice_oneway();
+            }
+            elseif($_POST["mode"] == "datagram")
+            {
+                $p = $p->ice_datagram();
+            }
+        }
 
         if(isset($_POST["secure"]) and $_POST["secure"] == "yes")
         {

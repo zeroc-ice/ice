@@ -37,12 +37,12 @@ main(int argc, char** argv)
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties(argc, argv);
-	
-	initData.properties->setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
-	initData.stringConverter = new Test::StringConverterI();
-	initData.wstringConverter = new Test::WstringConverterI();
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        
+        initData.properties->setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
+        initData.stringConverter = new Test::StringConverterI();
+        initData.wstringConverter = new Test::WstringConverterI();
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

@@ -21,7 +21,7 @@ Freeze::ConnectionI::beginTransaction()
 {
     if(_transaction != 0)
     {
-	throw TransactionAlreadyInProgressException(__FILE__, __LINE__);
+        throw TransactionAlreadyInProgressException(__FILE__, __LINE__);
     }
     closeAllIterators();
     _transaction = new TransactionI(this);
@@ -39,21 +39,21 @@ Freeze::ConnectionI::close()
 {
     if(_transaction != 0)
     {
-	try
-	{
-	    _transaction->rollback();
-	}
-	catch(const  DatabaseException&)
-	{
-	    //
-	    // Ignored
-	    //
-	}
+        try
+        {
+            _transaction->rollback();
+        }
+        catch(const  DatabaseException&)
+        {
+            //
+            // Ignored
+            //
+        }
     }
 
     while(!_mapList.empty())
     {
-	(*_mapList.begin())->close();
+        (*_mapList.begin())->close();
     }
     
     _dbEnv = 0;
@@ -79,7 +79,7 @@ Freeze::ConnectionI::~ConnectionI()
 }
 
 Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator, 
-				 const string& envName, DbEnv* dbEnv) :
+                                 const string& envName, DbEnv* dbEnv) :
     _communicator(communicator),
     _dbEnv(SharedDbEnv::get(communicator, envName, dbEnv)),
     _envName(envName),
@@ -93,9 +93,9 @@ void
 Freeze::ConnectionI::closeAllIterators()
 {
     for(list<MapHelperI*>::iterator p = _mapList.begin(); p != _mapList.end();
-	++p)
+        ++p)
     {
-	(*p)->closeAllIterators();
+        (*p)->closeAllIterators();
     }
 }
 
@@ -113,7 +113,7 @@ Freeze::ConnectionI::unregisterMap(MapHelperI* m)
 
 Freeze::ConnectionPtr 
 Freeze::createConnection(const CommunicatorPtr& communicator,
-			 const string& envName)
+                         const string& envName)
 {
     
     return new ConnectionI(communicator, envName, 0);
@@ -121,8 +121,8 @@ Freeze::createConnection(const CommunicatorPtr& communicator,
 
 Freeze::ConnectionPtr 
 Freeze::createConnection(const CommunicatorPtr& communicator,
-			 const string& envName,
-			 DbEnv& dbEnv)
+                         const string& envName,
+                         DbEnv& dbEnv)
 {
     return new ConnectionI(communicator, envName, &dbEnv);
 }

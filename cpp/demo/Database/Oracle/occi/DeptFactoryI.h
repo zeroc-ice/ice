@@ -19,7 +19,7 @@ class DeptFactoryI : public HR::DeptFactory
 public:
 
     DeptFactoryI(oracle::occi::Environment* env, oracle::occi::StatelessConnectionPool*, 
-		 const std::string&);
+                 const std::string&);
     
     virtual HR::DeptPrx createDept(int, const HR::DeptDesc&, const Ice::Current&);
 
@@ -34,17 +34,17 @@ public:
     
     oracle::occi::Environment* getEnv() const
     {
-	return _env;
+        return _env;
     }
     
     oracle::occi::StatelessConnectionPool* getConnectionPool() const
     {
-	return _pool;
+        return _pool;
     }
     
     const std::string& getCategory() const
     {
-	return _category;
+        return _category;
     }
 
 private:

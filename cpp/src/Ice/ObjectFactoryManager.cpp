@@ -28,10 +28,10 @@ IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const st
     if((_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
        || _factoryMap.find(id) != _factoryMap.end())
     {
-	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = "object factory";
-	ex.id = id;
-	throw ex;
+        AlreadyRegisteredException ex(__FILE__, __LINE__);
+        ex.kindOfObject = "object factory";
+        ex.id = id;
+        throw ex;
     }
 
     _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ObjectFactoryPtr>(id, factory));
@@ -42,41 +42,41 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 {
     ObjectFactoryPtr factory = 0;
     {
-	IceUtil::Mutex::Lock sync(*this);
-	
-	FactoryMap::iterator p = _factoryMap.end();
-	if(_factoryMapHint != _factoryMap.end())
-	{
-	    if(_factoryMapHint->first == id)
-	    {
-		p = _factoryMapHint;
-	    }
-	}
-	
-	if(p == _factoryMap.end())
-	{
-	    p = _factoryMap.find(id);
-	    if(p == _factoryMap.end())
-	    {
-		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "object factory";
-		ex.id = id;
-		throw ex;
-	    }
-	}
-	assert(p != _factoryMap.end());
-	
-	factory = p->second;
-	
-	if(p == _factoryMapHint)
-	{
-	    _factoryMap.erase(p++);
-	    _factoryMapHint = p;
-	}
-	else
-	{
-	    _factoryMap.erase(p);
-	}
+        IceUtil::Mutex::Lock sync(*this);
+        
+        FactoryMap::iterator p = _factoryMap.end();
+        if(_factoryMapHint != _factoryMap.end())
+        {
+            if(_factoryMapHint->first == id)
+            {
+                p = _factoryMapHint;
+            }
+        }
+        
+        if(p == _factoryMap.end())
+        {
+            p = _factoryMap.find(id);
+            if(p == _factoryMap.end())
+            {
+                NotRegisteredException ex(__FILE__, __LINE__);
+                ex.kindOfObject = "object factory";
+                ex.id = id;
+                throw ex;
+            }
+        }
+        assert(p != _factoryMap.end());
+        
+        factory = p->second;
+        
+        if(p == _factoryMapHint)
+        {
+            _factoryMap.erase(p++);
+            _factoryMapHint = p;
+        }
+        else
+        {
+            _factoryMap.erase(p);
+        }
     }
     
     //
@@ -96,25 +96,25 @@ IceInternal::ObjectFactoryManager::find(const string& id) const
     FactoryMap::iterator p = factoryMap.end();
     if(_factoryMapHint != factoryMap.end())
     {
-	if(_factoryMapHint->first == id)
-	{
-	    p = _factoryMapHint;
-	}
+        if(_factoryMapHint->first == id)
+        {
+            p = _factoryMapHint;
+        }
     }
     
     if(p == factoryMap.end())
     {
-	p = factoryMap.find(id);
+        p = factoryMap.find(id);
     }
     
     if(p != factoryMap.end())
     {
-	_factoryMapHint = p;
-	return p->second;
+        _factoryMapHint = p;
+        return p->second;
     }
     else
     {
-	return 0;
+        return 0;
     }
 }
 
@@ -128,14 +128,14 @@ IceInternal::ObjectFactoryManager::destroy()
 {
     FactoryMap oldMap;
     {
-	IceUtil::Mutex::Lock sync(*this);
-	oldMap.swap(_factoryMap);
-	_factoryMapHint = _factoryMap.end();
+        IceUtil::Mutex::Lock sync(*this);
+        oldMap.swap(_factoryMap);
+        _factoryMapHint = _factoryMap.end();
     }
 
     //
     // Destroy all outside lock
     //
     for_each(oldMap.begin(), oldMap.end(),
-	     Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
+             Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
 }

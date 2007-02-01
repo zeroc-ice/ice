@@ -22,35 +22,35 @@ class ServiceTemplate extends Communicator
     static public TemplateDescriptor
     copyDescriptor(TemplateDescriptor templateDescriptor)
     {
-	TemplateDescriptor copy = (TemplateDescriptor)
-	    templateDescriptor.clone();
+        TemplateDescriptor copy = (TemplateDescriptor)
+            templateDescriptor.clone();
 
-	copy.descriptor = PlainService.copyDescriptor( 
-	    (ServiceDescriptor)copy.descriptor);
-	
-	return copy;
+        copy.descriptor = PlainService.copyDescriptor( 
+            (ServiceDescriptor)copy.descriptor);
+        
+        return copy;
     }
     
     public Component getTreeCellRendererComponent(
-	    JTree tree,
-	    Object value,
-	    boolean sel,
-	    boolean expanded,
-	    boolean leaf,
-	    int row,
-	    boolean hasFocus) 
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) 
     {
-	if(_cellRenderer == null)
-	{
-	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _cellRenderer.setOpenIcon(
-		Utils.getIcon("/icons/16x16/service_template.png"));
-	    _cellRenderer.setClosedIcon(
-		Utils.getIcon("/icons/16x16/service_template.png"));
-	}
+        if(_cellRenderer == null)
+        {
+            _cellRenderer = new DefaultTreeCellRenderer();
+            _cellRenderer.setOpenIcon(
+                Utils.getIcon("/icons/16x16/service_template.png"));
+            _cellRenderer.setClosedIcon(
+                Utils.getIcon("/icons/16x16/service_template.png"));
+        }
 
-	return _cellRenderer.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
 
@@ -59,205 +59,205 @@ class ServiceTemplate extends Communicator
     //
     public boolean[] getAvailableActions()
     {
-	boolean[] actions = new boolean[ACTION_COUNT];
+        boolean[] actions = new boolean[ACTION_COUNT];
 
-	if(((TreeNode)_parent).getAvailableActions()[PASTE])
-	{
-	    actions[PASTE] = true;
-	}
-	else
-	{
-	    Object clipboard = getCoordinator().getClipboard();
-	    actions[PASTE] = clipboard != null && 
-		(clipboard instanceof AdapterDescriptor
-		 || clipboard instanceof DbEnvDescriptor);
-	}
+        if(((TreeNode)_parent).getAvailableActions()[PASTE])
+        {
+            actions[PASTE] = true;
+        }
+        else
+        {
+            Object clipboard = getCoordinator().getClipboard();
+            actions[PASTE] = clipboard != null && 
+                (clipboard instanceof AdapterDescriptor
+                 || clipboard instanceof DbEnvDescriptor);
+        }
 
-	actions[DELETE] = true;
+        actions[DELETE] = true;
 
-	if(!_ephemeral)
-	{	
-	    actions[COPY] = true;
-	    actions[NEW_ADAPTER] = true;
-	    actions[NEW_DBENV] = true;
-	}
-	
-	return actions;
+        if(!_ephemeral)
+        {       
+            actions[COPY] = true;
+            actions[NEW_ADAPTER] = true;
+            actions[NEW_DBENV] = true;
+        }
+        
+        return actions;
     }
     public void copy()
     {
-	getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
-	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
+        getCoordinator().setClipboard(copyDescriptor(_templateDescriptor));
+        getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
     
     public JPopupMenu getPopupMenu()
     {
-	ApplicationActions actions = getCoordinator().getActionsForPopup();
-	if(_popup == null)
-	{
-	    _popup = new JPopupMenu();
-	    _popup.add(actions.get(NEW_ADAPTER));
-	    _popup.add(actions.get(NEW_DBENV));
-	}
-	actions.setTarget(this);
-	return _popup;
+        ApplicationActions actions = getCoordinator().getActionsForPopup();
+        if(_popup == null)
+        {
+            _popup = new JPopupMenu();
+            _popup.add(actions.get(NEW_ADAPTER));
+            _popup.add(actions.get(NEW_DBENV));
+        }
+        actions.setTarget(this);
+        return _popup;
     }
 
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = (ServiceTemplateEditor)getRoot().getEditor(ServiceTemplateEditor.class, this);
-	}
-	_editor.show(this);
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = (ServiceTemplateEditor)getRoot().getEditor(ServiceTemplateEditor.class, this);
+        }
+        _editor.show(this);
+        return _editor;
     }
 
     protected Editor createEditor()
     {
-	return new ServiceTemplateEditor();
+        return new ServiceTemplateEditor();
     }
 
     ServiceTemplate(boolean brandNew, ServiceTemplates parent,
-		    String name, TemplateDescriptor descriptor)
-	throws UpdateFailedException
+                    String name, TemplateDescriptor descriptor)
+        throws UpdateFailedException
     {
-	super(parent, name);
-	_editable = new Editable(brandNew);
-	_ephemeral = false;
-	rebuild(descriptor);
+        super(parent, name);
+        _editable = new Editable(brandNew);
+        _ephemeral = false;
+        rebuild(descriptor);
     }
     
     ServiceTemplate(ServiceTemplates parent, String name, TemplateDescriptor descriptor)
     {
-	super(parent, name);
-	_ephemeral = true;
-	_editable = null;
-	_templateDescriptor = descriptor;
+        super(parent, name);
+        _ephemeral = true;
+        _editable = null;
+        _templateDescriptor = descriptor;
     }
 
     void write(XMLWriter writer) throws java.io.IOException
     {
-	if(!_ephemeral)
-	{
-	    java.util.List attributes = new java.util.LinkedList();
-	    attributes.add(createAttribute("id", _id));
-	    writer.writeStartTag("service-template", attributes);
-	    writeParameters(writer, _templateDescriptor.parameters,
-			    _templateDescriptor.parameterDefaults);
-	    
-	    ServiceDescriptor descriptor = (ServiceDescriptor)_templateDescriptor.descriptor;
+        if(!_ephemeral)
+        {
+            java.util.List attributes = new java.util.LinkedList();
+            attributes.add(createAttribute("id", _id));
+            writer.writeStartTag("service-template", attributes);
+            writeParameters(writer, _templateDescriptor.parameters,
+                            _templateDescriptor.parameterDefaults);
+            
+            ServiceDescriptor descriptor = (ServiceDescriptor)_templateDescriptor.descriptor;
 
-	    writer.writeStartTag("service", PlainService.createAttributes(descriptor));
+            writer.writeStartTag("service", PlainService.createAttributes(descriptor));
 
-	    if(descriptor.description.length() > 0)
-	    {
-		writer.writeElement("description", descriptor.description);
-	    }
-	    
-	    writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
-	    writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
-	    _adapters.write(writer, descriptor.propertySet.properties);
-	    _dbEnvs.write(writer);
-	    writer.writeEndTag("service");
-	    writer.writeEndTag("service-template");
-	}
+            if(descriptor.description.length() > 0)
+            {
+                writer.writeElement("description", descriptor.description);
+            }
+            
+            writePropertySet(writer, descriptor.propertySet, descriptor.adapters, descriptor.logs);
+            writeLogs(writer, descriptor.logs, descriptor.propertySet.properties);
+            _adapters.write(writer, descriptor.propertySet.properties);
+            _dbEnvs.write(writer);
+            writer.writeEndTag("service");
+            writer.writeEndTag("service-template");
+        }
     }
 
     void rebuild(TemplateDescriptor descriptor)
-	throws UpdateFailedException
+        throws UpdateFailedException
     {
-	_templateDescriptor = descriptor;
+        _templateDescriptor = descriptor;
 
-	_adapters.clear();
-	_dbEnvs.clear();
+        _adapters.clear();
+        _dbEnvs.clear();
 
-	if(!_ephemeral)
-	{
-	    _adapters.init(_templateDescriptor.descriptor.adapters);
-	    _dbEnvs.init(_templateDescriptor.descriptor.dbEnvs);
-	}
+        if(!_ephemeral)
+        {
+            _adapters.init(_templateDescriptor.descriptor.adapters);
+            _dbEnvs.init(_templateDescriptor.descriptor.dbEnvs);
+        }
     }
 
     void commit()
     {
-	_editable.commit();
+        _editable.commit();
     }
 
     public Object getDescriptor()
     {
-	return _templateDescriptor;
+        return _templateDescriptor;
     }
 
     CommunicatorDescriptor getCommunicatorDescriptor()
     {
-	return _templateDescriptor.descriptor;
+        return _templateDescriptor.descriptor;
     }
 
     public boolean isEphemeral()
     {
-	return _ephemeral;
+        return _ephemeral;
     }
     
     public void destroy()
     {
-	ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
+        ServiceTemplates serviceTemplates = (ServiceTemplates)_parent;
 
-	if(_ephemeral)
-	{
-	    serviceTemplates.removeChild(this);
-	}
-	else
-	{
-	    serviceTemplates.removeDescriptor(_id);
-	    getRoot().removeServiceInstances(_id);
-	    serviceTemplates.removeChild(this);
-	    serviceTemplates.getEditable().
-		removeElement(_id, _editable, ServiceTemplate.class);
-	    getRoot().updated();
-	}
+        if(_ephemeral)
+        {
+            serviceTemplates.removeChild(this);
+        }
+        else
+        {
+            serviceTemplates.removeDescriptor(_id);
+            getRoot().removeServiceInstances(_id);
+            serviceTemplates.removeChild(this);
+            serviceTemplates.getEditable().
+                removeElement(_id, _editable, ServiceTemplate.class);
+            getRoot().updated();
+        }
     }
 
     java.util.List findInstances()
     {
-	return getRoot().findServiceInstances(_id);
+        return getRoot().findServiceInstances(_id);
     }
 
     Editable getEditable()
     {
-	return _editable;
+        return _editable;
     }
 
     Editable getEnclosingEditable()
     {
-	return _editable;
+        return _editable;
     }
 
     public Object saveDescriptor()
     {
-	//
-	// Shallow copy
-	//
-	TemplateDescriptor clone = (TemplateDescriptor)_templateDescriptor.clone();
-	clone.descriptor = (ServiceDescriptor)_templateDescriptor.descriptor.clone();
-	return clone;
+        //
+        // Shallow copy
+        //
+        TemplateDescriptor clone = (TemplateDescriptor)_templateDescriptor.clone();
+        clone.descriptor = (ServiceDescriptor)_templateDescriptor.descriptor.clone();
+        return clone;
     }
     
     public void restoreDescriptor(Object savedDescriptor)
     {
-	TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
-	//
-	// Keep the same object
-	//
-	_templateDescriptor.parameters = clone.parameters;
+        TemplateDescriptor clone = (TemplateDescriptor)savedDescriptor;
+        //
+        // Keep the same object
+        //
+        _templateDescriptor.parameters = clone.parameters;
 
-	ServiceDescriptor sd = (ServiceDescriptor)_templateDescriptor.descriptor;
-	ServiceDescriptor csd = (ServiceDescriptor)clone.descriptor;
+        ServiceDescriptor sd = (ServiceDescriptor)_templateDescriptor.descriptor;
+        ServiceDescriptor csd = (ServiceDescriptor)clone.descriptor;
 
-	sd.propertySet = csd.propertySet;
-	sd.description = csd.description;
-	sd.name = csd.name;
-	sd.entry = csd.entry;
+        sd.propertySet = csd.propertySet;
+        sd.description = csd.description;
+        sd.name = csd.name;
+        sd.entry = csd.entry;
     }
 
     private TemplateDescriptor _templateDescriptor;

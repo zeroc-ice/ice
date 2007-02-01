@@ -87,10 +87,10 @@ private:
 
     struct OptionDetails : public IceUtil::Shared
     {
-	LengthType length;
-	ArgType arg;
+        LengthType length;
+        ArgType arg;
         RepeatType repeat;
-	bool hasDefault;
+        bool hasDefault;
     };
     typedef IceUtil::Handle<OptionDetails> ODPtr;
 

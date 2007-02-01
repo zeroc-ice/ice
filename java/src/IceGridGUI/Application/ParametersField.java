@@ -35,155 +35,155 @@ public class ParametersField extends JTable
 {
     public ParametersField(Editor editor)
     {
-	_editor = editor;
+        _editor = editor;
 
-	_columnNames = new java.util.Vector(2);
-	_columnNames.add("Name");
-	_columnNames.add("Default value");
+        _columnNames = new java.util.Vector(2);
+        _columnNames.add("Name");
+        _columnNames.add("Default value");
 
-	JComboBox comboBox = new JComboBox(
-	    new Object[]{_noDefault});
-	comboBox.setEditable(true);
-	_cellEditor = new DefaultCellEditor(comboBox);
+        JComboBox comboBox = new JComboBox(
+            new Object[]{_noDefault});
+        comboBox.setEditable(true);
+        _cellEditor = new DefaultCellEditor(comboBox);
 
-	Action deleteRow = new AbstractAction("Delete selected row(s)")
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    if(isEditing()) 
-		    {
-			getCellEditor().stopCellEditing();
-		    }
-		    
-		    for(;;)
-		    {
-			int selectedRow = getSelectedRow();
-			if(selectedRow == -1)
-			{
-			    break;
-			}
-			else
-			{
-			    _model.removeRow(selectedRow);
-			}
-		    }
-		}
-	    };
-	getActionMap().put("delete", deleteRow);
-	getInputMap().put(
-	    KeyStroke.getKeyStroke("DELETE"), "delete");
+        Action deleteRow = new AbstractAction("Delete selected row(s)")
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    if(isEditing()) 
+                    {
+                        getCellEditor().stopCellEditing();
+                    }
+                    
+                    for(;;)
+                    {
+                        int selectedRow = getSelectedRow();
+                        if(selectedRow == -1)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            _model.removeRow(selectedRow);
+                        }
+                    }
+                }
+            };
+        getActionMap().put("delete", deleteRow);
+        getInputMap().put(
+            KeyStroke.getKeyStroke("DELETE"), "delete");
 
     }
 
     public void set(java.util.List names, java.util.Map values)
     {
-	//
-	// Transform map into vector of vectors
-	//
-	java.util.Vector vector = new java.util.Vector(names.size());
-	java.util.Iterator p = names.iterator();
-	while(p.hasNext())
-	{
-	    java.util.Vector row = new java.util.Vector(2);
-	    String name = (String)p.next();
-	    
-	    row.add(name);
-	    
-	    Object val = values.get(name);
-	    if(val == null)
-	    {
-		row.add(_noDefault);
-	    }
-	    else
-	    {
-		row.add(val);
-	    }
-	    vector.add(row);
-	}
+        //
+        // Transform map into vector of vectors
+        //
+        java.util.Vector vector = new java.util.Vector(names.size());
+        java.util.Iterator p = names.iterator();
+        while(p.hasNext())
+        {
+            java.util.Vector row = new java.util.Vector(2);
+            String name = (String)p.next();
+            
+            row.add(name);
+            
+            Object val = values.get(name);
+            if(val == null)
+            {
+                row.add(_noDefault);
+            }
+            else
+            {
+                row.add(val);
+            }
+            vector.add(row);
+        }
 
 
-	java.util.Vector newRow = new java.util.Vector(2);
-	newRow.add("");
-	newRow.add(_noDefault);
-	vector.add(newRow);
+        java.util.Vector newRow = new java.util.Vector(2);
+        newRow.add("");
+        newRow.add(_noDefault);
+        vector.add(newRow);
 
-	_model = new DefaultTableModel(vector, _columnNames);
-	
-	_model.addTableModelListener(new TableModelListener()
-	    {
-		public void tableChanged(TableModelEvent e)
-		{
-		    Object lastKey = _model.getValueAt(
-			_model.getRowCount() - 1 , 0);
-		    if(lastKey != null && !lastKey.equals(""))
-		    {
-			_model.addRow(new Object[]{"", _noDefault});
-		    }
-		    
-		    _editor.updated();
-		}
-	    });
-	setModel(_model);
+        _model = new DefaultTableModel(vector, _columnNames);
+        
+        _model.addTableModelListener(new TableModelListener()
+            {
+                public void tableChanged(TableModelEvent e)
+                {
+                    Object lastKey = _model.getValueAt(
+                        _model.getRowCount() - 1 , 0);
+                    if(lastKey != null && !lastKey.equals(""))
+                    {
+                        _model.addRow(new Object[]{"", _noDefault});
+                    }
+                    
+                    _editor.updated();
+                }
+            });
+        setModel(_model);
 
-	TableColumn valColumn = getColumnModel().getColumn(1);
-	valColumn.setCellEditor(_cellEditor);
+        TableColumn valColumn = getColumnModel().getColumn(1);
+        valColumn.setCellEditor(_cellEditor);
 
-	setPreferredScrollableViewportSize(getPreferredSize());	
+        setPreferredScrollableViewportSize(getPreferredSize()); 
     }
 
 
     public java.util.Map get(java.util.List names)
     {
-	assert names != null;
+        assert names != null;
 
-	java.util.Map values = new java.util.HashMap();
+        java.util.Map values = new java.util.HashMap();
 
-	if(isEditing()) 
-	{
-	    getCellEditor().stopCellEditing();
-	}
-	java.util.Vector vector = _model.getDataVector();
-	
-	java.util.Iterator p = vector.iterator();
-	while(p.hasNext())
-	{
-	    java.util.Vector row = (java.util.Vector)p.next();
-	    
-	    //
-	    // Eliminate rows with null or empty names
-	    //
-	    String name = (String)row.elementAt(0);
-	    if(name != null)
-	    {
-		name = name.trim();
-		
-		if(!name.equals(""))
-		{
-		    names.add(name);
-		     
-		    Object val = row.elementAt(1);
-		    
-		    //
-		    // Eliminate entries with "default" value
-		    //
-		    if(val != _noDefault)
-		    {
-			assert val != null;
-			values.put(name, val);
-		    }
-		}
-	    }
-	}
-	return values;
+        if(isEditing()) 
+        {
+            getCellEditor().stopCellEditing();
+        }
+        java.util.Vector vector = _model.getDataVector();
+        
+        java.util.Iterator p = vector.iterator();
+        while(p.hasNext())
+        {
+            java.util.Vector row = (java.util.Vector)p.next();
+            
+            //
+            // Eliminate rows with null or empty names
+            //
+            String name = (String)row.elementAt(0);
+            if(name != null)
+            {
+                name = name.trim();
+                
+                if(!name.equals(""))
+                {
+                    names.add(name);
+                     
+                    Object val = row.elementAt(1);
+                    
+                    //
+                    // Eliminate entries with "default" value
+                    //
+                    if(val != _noDefault)
+                    {
+                        assert val != null;
+                        values.put(name, val);
+                    }
+                }
+            }
+        }
+        return values;
     }
 
     private final Object _noDefault = new Object()
-	{
-	    public String toString()
-	    {
-		return "No default";
-	    }
-	};
+        {
+            public String toString()
+            {
+                return "No default";
+            }
+        };
 
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;

@@ -58,10 +58,10 @@ private:
 
     enum State
     {
-	Initial,
-	Pending,
-	Canceled,
-	Allocated
+        Initial,
+        Pending,
+        Canceled,
+        Allocated
     };
 
     const SessionIPtr _session;

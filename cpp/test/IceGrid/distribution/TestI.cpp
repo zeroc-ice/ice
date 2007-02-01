@@ -28,7 +28,7 @@ TestI::getServerFile(const string& path, const Ice::Current&)
     string content;
     if(is.good())
     {
-	is >> content;
+        is >> content;
     }
     return content;
 }
@@ -41,7 +41,7 @@ TestI::getApplicationFile(const string& path, const Ice::Current&)
     string content;
     if(is.good())
     {
-	is >> content;
+        is >> content;
     }
     return content;
 }

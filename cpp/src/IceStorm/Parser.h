@@ -64,7 +64,7 @@ class Parser : public ::IceUtil::SimpleShared
 public:
 
     static ParserPtr createParser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&,
-				  const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
+                                  const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
 
     void usage();
 
@@ -100,7 +100,7 @@ private:
     IceStorm::TopicManagerPrx findManagerByCategory(const std::string&) const;
 
     Parser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&,
-	   const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
+           const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
 
     const Ice::CommunicatorPtr _communicator;
     IceStorm::TopicManagerPrx _defaultManager;

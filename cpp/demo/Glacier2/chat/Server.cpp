@@ -21,7 +21,7 @@ public:
     virtual Glacier2::SessionPrx
     create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new ChatSessionI(userId)));
+        return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(new ChatSessionI(userId)));
     }
 };
 
@@ -32,13 +32,13 @@ public:
     virtual int
     run(int, char*[])
     {
-	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
-	
-	adapter->add(new ChatSessionManagerI, communicator()->stringToIdentity("ChatSessionManager"));
-	adapter->activate();
-	communicator()->waitForShutdown();
-	
-	return EXIT_SUCCESS;
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
+        
+        adapter->add(new ChatSessionManagerI, communicator()->stringToIdentity("ChatSessionManager"));
+        adapter->activate();
+        communicator()->waitForShutdown();
+        
+        return EXIT_SUCCESS;
     }
 };
 

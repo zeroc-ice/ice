@@ -58,7 +58,7 @@ public class SliceTask extends org.apache.tools.ant.Task
         _dependencyFile = null;
         _outputDir = null;
         _outputDirString = null;
-	_caseSensitive = false;
+        _caseSensitive = false;
         _ice = false;
         _includePath = null;
     }
@@ -145,10 +145,10 @@ public class SliceTask extends org.apache.tools.ant.Task
     public void
     addConfiguredMeta(SliceMeta meta)
     {
-	if(meta.getValue().length() > 0)
-	{
-	    _meta.add(meta);
-	}
+        if(meta.getValue().length() > 0)
+        {
+            _meta.add(meta);
+        }
     }
 
     //
@@ -157,48 +157,48 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected java.util.HashMap
     readDependencies()
     {
-	if(_dependencyFile == null)
-	{
-	    if(_outputDir != null)
-	    {
-		_dependencyFile = new File(_outputDir, ".depend");
-	    }
-	    else
-	    {
-		_dependencyFile = new File(".depend");
-	    }
-	}
+        if(_dependencyFile == null)
+        {
+            if(_outputDir != null)
+            {
+                _dependencyFile = new File(_outputDir, ".depend");
+            }
+            else
+            {
+                _dependencyFile = new File(".depend");
+            }
+        }
 
-	try
-	{
-	    java.io.ObjectInputStream in = new java.io.ObjectInputStream(new java.io.FileInputStream(_dependencyFile));
-	    java.util.HashMap dependencies = (java.util.HashMap)in.readObject();
-	    in.close();
-	    return dependencies;
-	}
-	catch(java.io.IOException ex)
-	{
-	}
-	catch(java.lang.ClassNotFoundException ex)
-	{
-	}
-	
-	return new java.util.HashMap();
+        try
+        {
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(new java.io.FileInputStream(_dependencyFile));
+            java.util.HashMap dependencies = (java.util.HashMap)in.readObject();
+            in.close();
+            return dependencies;
+        }
+        catch(java.io.IOException ex)
+        {
+        }
+        catch(java.lang.ClassNotFoundException ex)
+        {
+        }
+        
+        return new java.util.HashMap();
     }
 
     protected void
     writeDependencies(java.util.HashMap dependencies)
     {
-	try
-	{
-	    java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(new FileOutputStream(_dependencyFile));
-	    out.writeObject(dependencies);
-	    out.close();
-	}
-	catch(java.io.IOException ex)
-	{
-	    throw new BuildException("Unable to write dependencies in file " + _dependencyFile.getPath() + ": " + ex);
-	}
+        try
+        {
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(new FileOutputStream(_dependencyFile));
+            out.writeObject(dependencies);
+            out.close();
+        }
+        catch(java.io.IOException ex)
+        {
+            throw new BuildException("Unable to write dependencies in file " + _dependencyFile.getPath() + ": " + ex);
+        }
     }
 
     //
@@ -208,22 +208,22 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected java.util.List
     parseDependencies(String allDependencies)
     {
-	java.util.List dependencies = new java.util.LinkedList();
-	try
-	{
-	    BufferedReader in = new BufferedReader(new StringReader(allDependencies));
-	    StringBuffer depline = new StringBuffer();
-	    String line;
+        java.util.List dependencies = new java.util.LinkedList();
+        try
+        {
+            BufferedReader in = new BufferedReader(new StringReader(allDependencies));
+            StringBuffer depline = new StringBuffer();
+            String line;
 
-	    while((line = in.readLine()) != null)
-	    {
-		if(line.endsWith("\\"))
-		{
-		    depline.append(line.substring(0, line.length() - 1));
-		}
-		else
-		{
-		    depline.append(line);
+            while((line = in.readLine()) != null)
+            {
+                if(line.endsWith("\\"))
+                {
+                    depline.append(line.substring(0, line.length() - 1));
+                }
+                else
+                {
+                    depline.append(line);
 
                     //
                     // It's easier to split up the filenames if we first convert Windows
@@ -250,43 +250,43 @@ public class SliceTask extends org.apache.tools.ant.Task
                         ++pos;
                     }
 
-		    //
-		    // Split the dependencies up into filenames. Note that filenames containing
-		    // spaces are escaped and the initial file may have escaped colons
+                    //
+                    // Split the dependencies up into filenames. Note that filenames containing
+                    // spaces are escaped and the initial file may have escaped colons
                     // (e.g., "C\:/Program\ Files/...").
                     //
-		    java.util.ArrayList l = new java.util.ArrayList();
+                    java.util.ArrayList l = new java.util.ArrayList();
                     StringBuffer file = new StringBuffer();
                     pos = 0;
-		    while(pos < chars.length)
-		    {
-			if(Character.isWhitespace(chars[pos]))
-			{
-			    if(file.length() > 0)
-			    {
-				l.add(file.toString());
-				file = new StringBuffer();
-			    }
-			}
+                    while(pos < chars.length)
+                    {
+                        if(Character.isWhitespace(chars[pos]))
+                        {
+                            if(file.length() > 0)
+                            {
+                                l.add(file.toString());
+                                file = new StringBuffer();
+                            }
+                        }
                         else if(chars[pos] != '\\') // Skip backslash of an escaped character.
                         {
                             file.append(chars[pos]);
                         }
-			++pos;
-		    }
+                        ++pos;
+                    }
                     if(file.length() > 0)
                     {
                         l.add(file.toString());
                     }
 
-		    //
-		    // Create SliceDependency. We need to remove the trailing colon from the first file.
+                    //
+                    // Create SliceDependency. We need to remove the trailing colon from the first file.
                     // We also normalize the pathname for this platform.
-		    //
-		    SliceDependency depend = new SliceDependency();
-		    depend._dependencies = new String[l.size()];
-		    l.toArray(depend._dependencies);
-		    depend._timeStamp = new java.util.Date().getTime();
+                    //
+                    SliceDependency depend = new SliceDependency();
+                    depend._dependencies = new String[l.size()];
+                    l.toArray(depend._dependencies);
+                    depend._timeStamp = new java.util.Date().getTime();
                     pos = depend._dependencies[0].lastIndexOf(':');
                     assert(pos == depend._dependencies[0].length() - 1);
                     depend._dependencies[0] = depend._dependencies[0].substring(0, pos);
@@ -294,57 +294,57 @@ public class SliceTask extends org.apache.tools.ant.Task
                     {
                         depend._dependencies[i] = new File(depend._dependencies[i]).toString();
                     }
-		    dependencies.add(depend);
+                    dependencies.add(depend);
 
-		    depline = new StringBuffer();
-		}
-	    }
-	}
-	catch(java.io.IOException ex)
-	{
-	    throw new BuildException("Unable to read dependencies from slice translator: " + ex);
-	}
-	
-	return dependencies;
+                    depline = new StringBuffer();
+                }
+            }
+        }
+        catch(java.io.IOException ex)
+        {
+            throw new BuildException("Unable to read dependencies from slice translator: " + ex);
+        }
+        
+        return dependencies;
 
     }
     
     protected String
     getIceHome()
     {
-	//
-	// _iceHome used to be set in the constructor. It appears that the
-	// current project isn't available at that point and consequently, the
-	// properties that allow us to find the ice translators based on the
-	// contents the 'ice.dir' property in the ant projects aren't available
-	// yet.
-	//
-	if(_iceHome == null)
-	{
-	    //
-	    // Check for the presence of the ICE_HOME environment variable.
-	    //
-	    java.util.Vector env = Execute.getProcEnvironment();
-	    java.util.Enumeration e = env.elements();
-	    while(e.hasMoreElements())
-	    {
-		String entry = (String)e.nextElement();
-		if(entry.startsWith("ICE_HOME="))
-		{
-		    _iceHome = entry.substring(entry.indexOf('=') + 1);
-		    break;
-		}
-	    }
+        //
+        // _iceHome used to be set in the constructor. It appears that the
+        // current project isn't available at that point and consequently, the
+        // properties that allow us to find the ice translators based on the
+        // contents the 'ice.dir' property in the ant projects aren't available
+        // yet.
+        //
+        if(_iceHome == null)
+        {
+            //
+            // Check for the presence of the ICE_HOME environment variable.
+            //
+            java.util.Vector env = Execute.getProcEnvironment();
+            java.util.Enumeration e = env.elements();
+            while(e.hasMoreElements())
+            {
+                String entry = (String)e.nextElement();
+                if(entry.startsWith("ICE_HOME="))
+                {
+                    _iceHome = entry.substring(entry.indexOf('=') + 1);
+                    break;
+                }
+            }
 
-	    if(_iceHome == null)
-	    {
-		if(getProject().getProperties().containsKey("ice.bin.dir"))
-		{
-		    _iceHome = (String)getProject().getProperties().get("ice.bin.dir");
-		}
-	    }
-	}
-	return _iceHome;
+            if(_iceHome == null)
+            {
+                if(getProject().getProperties().containsKey("ice.bin.dir"))
+                {
+                    _iceHome = (String)getProject().getProperties().get("ice.bin.dir");
+                }
+            }
+        }
+        return _iceHome;
     }
 
     //
@@ -361,37 +361,37 @@ public class SliceTask extends org.apache.tools.ant.Task
     //
     protected class SliceDependency implements java.io.Serializable
     {
-	private void writeObject(java.io.ObjectOutputStream out)
-	    throws java.io.IOException
+        private void writeObject(java.io.ObjectOutputStream out)
+            throws java.io.IOException
         {
-	    out.writeObject(_dependencies);
-	    out.writeLong(_timeStamp);
-	}
+            out.writeObject(_dependencies);
+            out.writeLong(_timeStamp);
+        }
 
-	private void readObject(java.io.ObjectInputStream in) 
-	    throws java.io.IOException, java.lang.ClassNotFoundException
+        private void readObject(java.io.ObjectInputStream in) 
+            throws java.io.IOException, java.lang.ClassNotFoundException
         {
-	    _dependencies = (String[])in.readObject();
-	    _timeStamp = in.readLong();
-	}
+            _dependencies = (String[])in.readObject();
+            _timeStamp = in.readLong();
+        }
 
-	public boolean
-	isUpToDate()
+        public boolean
+        isUpToDate()
         {
-	    for(int i = 0; i < _dependencies.length; ++i)
-	    {
-		File dep = new File(_dependencies[i]);
-		if(!dep.exists() || _timeStamp < dep.lastModified())
-		{
-		    return false;
-		}
-	    }
+            for(int i = 0; i < _dependencies.length; ++i)
+            {
+                File dep = new File(_dependencies[i]);
+                if(!dep.exists() || _timeStamp < dep.lastModified())
+                {
+                    return false;
+                }
+            }
 
-	    return true;
-	}
+            return true;
+        }
 
-	public String[] _dependencies;
-	public long _timeStamp;
+        public String[] _dependencies;
+        public long _timeStamp;
     }
 
     protected File _dependencyFile;

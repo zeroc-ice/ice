@@ -38,9 +38,9 @@ class TopicManagerI : public TopicManager, public IceUtil::Mutex
 public:
 
     TopicManagerI(const InstancePtr&,
-		  const Ice::ObjectAdapterPtr&,
-		  const std::string&,
-		  const std::string&);
+                  const Ice::ObjectAdapterPtr&,
+                  const std::string&,
+                  const std::string&);
     ~TopicManagerI();
 
     virtual TopicPrx create(const std::string&, const Ice::Current&);

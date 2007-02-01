@@ -38,7 +38,7 @@ class Notification : public Ice::ThreadNotification
 public:
     
     Notification(size_t index) :
-	_index(index)
+        _index(index)
     {
     }
 
@@ -48,35 +48,35 @@ public:
 
     virtual void stop()
     {
-	if(_current != 0 && _index < _current->size())
-	{
+        if(_current != 0 && _index < _current->size())
+        {
 #ifdef TRACE
-	    cerr << "Disconnecting from Oracle in thread " << IceUtil::ThreadControl().id() << endl;
+            cerr << "Disconnecting from Oracle in thread " << IceUtil::ThreadControl().id() << endl;
 #endif
-	    EXEC SQL BEGIN DECLARE SECTION;
-	    sql_context ctx = (*_current)[_index];
-	    EXEC SQL END DECLARE SECTION;
-	    
-	    if(ctx != 0)
-	    {
-		(*_current)[_index] = 0;
-		EXEC SQL CONTEXT USE :ctx;
+            EXEC SQL BEGIN DECLARE SECTION;
+            sql_context ctx = (*_current)[_index];
+            EXEC SQL END DECLARE SECTION;
+            
+            if(ctx != 0)
+            {
+                (*_current)[_index] = 0;
+                EXEC SQL CONTEXT USE :ctx;
 
-		sqlca sqlca;
-		EXEC SQL ROLLBACK RELEASE;
-		EXEC SQL CONTEXT FREE :ctx;
-	    }
+                sqlca sqlca;
+                EXEC SQL ROLLBACK RELEASE;
+                EXEC SQL CONTEXT FREE :ctx;
+            }
 
-	    if(find_if(_current->begin(), _current->end(), bind2nd(not_equal_to<sql_context>(), static_cast<void*>(0)))
-	       == _current->end())
-	    {
+            if(find_if(_current->begin(), _current->end(), bind2nd(not_equal_to<sql_context>(), static_cast<void*>(0)))
+               == _current->end())
+            {
 #ifdef TRACE
-		cerr << "Deleting _current in thread " << IceUtil::ThreadControl().id() << endl;
+                cerr << "Deleting _current in thread " << IceUtil::ThreadControl().id() << endl;
 #endif
-		delete _current;
-		_current = 0;
-	    }
-	}
+                delete _current;
+                _current = 0;
+            }
+        }
     }
 
 private:
@@ -90,8 +90,8 @@ CurrentSqlContext::CurrentSqlContext(const string& connectInfo) :
     _connectInfo(connectInfo)
 {
     {
-	IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
-	_index = _currentIndex++;
+        IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+        _index = _currentIndex++;
     }
     _hook = new Notification(_index);
 }
@@ -106,11 +106,11 @@ CurrentSqlContext::operator sql_context() const
 {
     if(_current == 0)
     {
-	_current = new std::vector<sql_context>(_index + 1);
+        _current = new std::vector<sql_context>(_index + 1);
     }
     if(_index >= _current->size())
     {
-	_current->resize(_index + 1);
+        _current->resize(_index + 1);
     }
 
     EXEC SQL BEGIN DECLARE SECTION;
@@ -123,18 +123,18 @@ CurrentSqlContext::operator sql_context() const
     if(ctx == 0)
     {
 #ifdef TRACE
-	cerr << "Connecting to Oracle in thread " << IceUtil::ThreadControl().id() << endl;
+        cerr << "Connecting to Oracle in thread " << IceUtil::ThreadControl().id() << endl;
 #endif
-	//
-	// Allocate and connect
-	//
-	sqlca sqlca;
-	
-	EXEC SQL CONTEXT ALLOCATE :ctx;
-	EXEC SQL CONTEXT USE :ctx;
-	EXEC SQL CONNECT :connectInfo;
+        //
+        // Allocate and connect
+        //
+        sqlca sqlca;
+        
+        EXEC SQL CONTEXT ALLOCATE :ctx;
+        EXEC SQL CONTEXT USE :ctx;
+        EXEC SQL CONNECT :connectInfo;
 
-	(*_current)[_index] = ctx;
+        (*_current)[_index] = ctx;
     }
 
     return ctx;

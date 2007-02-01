@@ -41,7 +41,7 @@ usage(const char* n)
         "-DNAME=DEF           Define NAME as DEF.\n"
         "-UNAME               Remove any definition for NAME.\n"
         "-IDIR                Put DIR in the include file search path.\n"
-	"-E                   Print preprocessor output on stdout.\n"
+        "-E                   Print preprocessor output on stdout.\n"
         "--output-dir DIR     Create files in the directory DIR.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
@@ -75,21 +75,21 @@ main(int argc, char* argv[])
     }
     catch(const IceUtil::BadOptException& e)
     {
-	cerr << argv[0] << ": " << e.reason << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": " << e.reason << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return EXIT_SUCCESS;
+        usage(argv[0]);
+        return EXIT_SUCCESS;
     }
 
     if(opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+        cout << ICE_STRING_VERSION << endl;
+        return EXIT_SUCCESS;
     }
 
     string cppArgs;
@@ -97,19 +97,19 @@ main(int argc, char* argv[])
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -D" + *i;
+        cppArgs += " -D" + *i;
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -U" + *i;
+        cppArgs += " -U" + *i;
     }
 
     vector<string> includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs += " -I" + *i;
+        cppArgs += " -I" + *i;
     }
 
     bool preprocess = opts.isSet("E");
@@ -145,71 +145,71 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-	if(preprocess)
-	{
-	    char buf[4096];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
-		if(fputs(buf, stdout) == EOF)
-		{
-		    return EXIT_FAILURE;
-		}
-	    }
-	    if(!icecpp.close())
-	    {
-		return EXIT_FAILURE;
-	    }
-	}
-	else
-	{
-	    UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
-	    int parseStatus = u->parse(cppHandle, debug);
+        if(preprocess)
+        {
+            char buf[4096];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
+                if(fputs(buf, stdout) == EOF)
+                {
+                    return EXIT_FAILURE;
+                }
+            }
+            if(!icecpp.close())
+            {
+                return EXIT_FAILURE;
+            }
+        }
+        else
+        {
+            UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
+            int parseStatus = u->parse(cppHandle, debug);
 
-	    if(!icecpp.close())
-	    {
-		u->destroy();
-		return EXIT_FAILURE;
-	    }
+            if(!icecpp.close())
+            {
+                u->destroy();
+                return EXIT_FAILURE;
+            }
 
-	    if(parseStatus == EXIT_FAILURE)
-	    {
-		status = EXIT_FAILURE;
-	    }
-	    else
-	    {
-		string base = icecpp.getBaseName();
-		string::size_type pos = base.find_last_of("/\\");
-		if(pos != string::npos)
-		{
-		    base.erase(0, pos + 1);
-		}
+            if(parseStatus == EXIT_FAILURE)
+            {
+                status = EXIT_FAILURE;
+            }
+            else
+            {
+                string base = icecpp.getBaseName();
+                string::size_type pos = base.find_last_of("/\\");
+                if(pos != string::npos)
+                {
+                    base.erase(0, pos + 1);
+                }
 
-		string file = base + ".rb";
-		if(!output.empty())
-		{
-		    file = output + '/' + file;
-		}
+                string file = base + ".rb";
+                if(!output.empty())
+                {
+                    file = output + '/' + file;
+                }
 
-		IceUtil::Output out;
-		out.open(file.c_str());
-		if(!out)
-		{
-		    cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
-		    u->destroy();
-		    return EXIT_FAILURE;
-		}
+                IceUtil::Output out;
+                out.open(file.c_str());
+                if(!out)
+                {
+                    cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
+                    u->destroy();
+                    return EXIT_FAILURE;
+                }
 
-		printHeader(out);
-		out << "\n# Generated from file `" << base << ".ice'\n";
+                printHeader(out);
+                out << "\n# Generated from file `" << base << ".ice'\n";
 
-		//
-		// Generate the Ruby mapping.
-		//
-		generate(u, all, checksum, includePaths, out);
-	    }
+                //
+                // Generate the Ruby mapping.
+                //
+                generate(u, all, checksum, includePaths, out);
+            }
 
-	    u->destroy();
-	}
+            u->destroy();
+        }
     }
 
     return status;

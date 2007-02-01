@@ -51,7 +51,7 @@ def printOutputFromPipe(pipe):
         if not line:
             break
         if line.find("warning") == -1:
-	    os.write(1, line)
+            os.write(1, line)
 
 def error(message):
     print "error: " + message
@@ -92,7 +92,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(0)
     elif x == "-o":
-	iceVersion = "3.1"
+        iceVersion = "3.1"
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -138,7 +138,7 @@ desc = \
 '<transformdb>' + \
 ' ' + \
 '    <database name="applications" key="string" value="::IceGrid::ApplicationDescriptor,::IceGrid::ApplicationInfo">' + \
-'	<record>' + \
+'       <record>' + \
 '            <set target="newvalue.revision" value="1"/>' + \
 '            <set target="newvalue.uuid" value="generateUUID()"/>' + \
 '            <set target="newvalue.createUser" value="\'IceGrid Registry (database upgrade)\'"/>' + \

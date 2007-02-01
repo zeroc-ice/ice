@@ -263,12 +263,12 @@ module CI
 {
     interface base1
     {
-    	void op();
+        void op();
     };
 
     interface base2
     {
-    	void OP();
+        void OP();
     };
 
     interface derived extends base1, base2

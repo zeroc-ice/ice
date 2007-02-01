@@ -26,8 +26,8 @@ import Test, AllTests
 
 class TestClient(Ice.Application):
     def run(self, args):
-	obj = AllTests.allTests(self.communicator(), False)
-	obj.shutdown()
+        obj = AllTests.allTests(self.communicator(), False)
+        obj.shutdown()
         return 0
 
 app = TestClient()

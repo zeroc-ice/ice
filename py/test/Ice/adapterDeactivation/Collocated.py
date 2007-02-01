@@ -33,7 +33,7 @@ class TestServer(Ice.Application):
         adapter.addServantLocator(locator, "")
         adapter.activate()
 
-	AllTests.allTests(self.communicator())
+        AllTests.allTests(self.communicator())
 
         adapter.waitForDeactivate()
         return 0

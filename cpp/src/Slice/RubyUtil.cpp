@@ -73,10 +73,10 @@ private:
 
     struct MemberInfo
     {
-	string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local variable.
-	string fixedName;
-	TypePtr type;
-	bool inherited;
+        string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local variable.
+        string fixedName;
+        TypePtr type;
+        bool inherited;
     };
     typedef list<MemberInfo> MemberInfoList;
 
@@ -105,14 +105,14 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] = 
     {       
-	"BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "clone", "def", "display", "do", "dup",
-	"else", "elsif", "end", "ensure", "extend", "false", "for", "freeze", "hash", "if", "in", "inspect", "method",
-	"methods", "module", "next", "new", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "send",
-	"super", "taint", "then", "true", "undef", "unless", "untaint", "until", "when", "while", "yield"
+        "BEGIN", "END", "alias", "and", "begin", "break", "case", "class", "clone", "def", "display", "do", "dup",
+        "else", "elsif", "end", "ensure", "extend", "false", "for", "freeze", "hash", "if", "in", "inspect", "method",
+        "methods", "module", "next", "new", "nil", "not", "or", "redo", "rescue", "retry", "return", "self", "send",
+        "super", "taint", "then", "true", "undef", "unless", "untaint", "until", "when", "while", "yield"
     };
     bool found =  binary_search(&keywordList[0],
-				&keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-				name);
+                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                                name);
     return found ? "_" + name : name;
 }
 
@@ -128,24 +128,24 @@ splitScopedName(const string& scoped)
     string::size_type pos;
     while((pos = scoped.find("::", next)) != string::npos)
     {
-	pos += 2;
-	if(pos != scoped.size())
-	{
-	    string::size_type endpos = scoped.find("::", pos);
-	    if(endpos != string::npos && endpos > pos)
-	    {
-		ids.push_back(scoped.substr(pos, endpos - pos));
-	    }
-	}
-	next = pos;
+        pos += 2;
+        if(pos != scoped.size())
+        {
+            string::size_type endpos = scoped.find("::", pos);
+            if(endpos != string::npos && endpos > pos)
+            {
+                ids.push_back(scoped.substr(pos, endpos - pos));
+            }
+        }
+        next = pos;
     }
     if(next != scoped.size())
     {
-	ids.push_back(scoped.substr(next));
+        ids.push_back(scoped.substr(next));
     }
     else
     {
-	ids.push_back("");
+        ids.push_back("");
     }
 
     return ids;
@@ -183,17 +183,17 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = p->scoped();
     if(_classHistory.count(scoped) == 0)
     {
-	string name = "T_" + fixIdent(p->name(), IdentToUpper);
-	_out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
-	_out.inc();
-	_out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
-	if(!p->isLocal())
-	{
-	    _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-	}
-	_out.dec();
-	_out << nl << "end";
-	_classHistory.insert(scoped); // Avoid redundant declarations.
+        string name = "T_" + fixIdent(p->name(), IdentToUpper);
+        _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+        _out.inc();
+        _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
+        if(!p->isLocal())
+        {
+            _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
+        }
+        _out.dec();
+        _out << nl << "end";
+        _classHistory.insert(scoped); // Avoid redundant declarations.
     }
 }
 
@@ -217,129 +217,129 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-	if(!bases.empty() && !bases.front()->isInterface())
-	{
-	    base = bases.front();
-	    _out << nl << "include " << getAbsolute(bases.front(), IdentToUpper) << "_mixin";
-	}
-	else
-	{
-	    _out << nl << "include ::Ice::Object_mixin";
-	}
+        if(!bases.empty() && !bases.front()->isInterface())
+        {
+            base = bases.front();
+            _out << nl << "include " << getAbsolute(bases.front(), IdentToUpper) << "_mixin";
+        }
+        else
+        {
+            _out << nl << "include ::Ice::Object_mixin";
+        }
 
-	//
-	// ice_ids
-	//
-	ClassList allBases = p->allBases();
-	StringList ids;
+        //
+        // ice_ids
+        //
+        ClassList allBases = p->allBases();
+        StringList ids;
 #if defined(__IBMCPP__) && defined(NDEBUG)
 //
 // VisualAge C++ 6.0 does not see that ClassDef is a Contained,
 // when inlining is on. The code below issues a warning: better
 // than an error!
 //
-	transform(allBases.begin(), allBases.end(), back_inserter(ids),
-		  IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
+        transform(allBases.begin(), allBases.end(), back_inserter(ids),
+                  IceUtil::constMemFun<string,ClassDef>(&Contained::scoped));
 #else
-	transform(allBases.begin(), allBases.end(), back_inserter(ids), IceUtil::constMemFun(&Contained::scoped));
+        transform(allBases.begin(), allBases.end(), back_inserter(ids), IceUtil::constMemFun(&Contained::scoped));
 #endif
-	StringList other;
-	other.push_back(scoped);
-	other.push_back("::Ice::Object");
-	other.sort();
-	ids.merge(other);
-	ids.unique();
-	_out << sp << nl << "def ice_ids(current=nil)";
-	_out.inc();
-	_out << nl << "[";
-	for(StringList::iterator q = ids.begin(); q != ids.end(); ++q)
-	{
-	    if(q != ids.begin())
-	    {
-		_out << ", ";
-	    }
-	    _out << "'" << *q << "'";
-	}
-	_out << ']';
-	_out.dec();
-	_out << nl << "end";
+        StringList other;
+        other.push_back(scoped);
+        other.push_back("::Ice::Object");
+        other.sort();
+        ids.merge(other);
+        ids.unique();
+        _out << sp << nl << "def ice_ids(current=nil)";
+        _out.inc();
+        _out << nl << "[";
+        for(StringList::iterator q = ids.begin(); q != ids.end(); ++q)
+        {
+            if(q != ids.begin())
+            {
+                _out << ", ";
+            }
+            _out << "'" << *q << "'";
+        }
+        _out << ']';
+        _out.dec();
+        _out << nl << "end";
 
-	//
-	// ice_id
-	//
-	_out << sp << nl << "def ice_id(current=nil)";
-	_out.inc();
-	_out << nl << "'" << scoped << "'";
-	_out.dec();
-	_out << nl << "end";
+        //
+        // ice_id
+        //
+        _out << sp << nl << "def ice_id(current=nil)";
+        _out.inc();
+        _out << nl << "'" << scoped << "'";
+        _out.dec();
+        _out << nl << "end";
     }
 
     if(!ops.empty())
     {
-	//
-	// Emit a comment for each operation.
-	//
-	_out << sp
-	     << nl << "#"
-	     << nl << "# Operation signatures."
-	     << nl << "#";
-	for(oli = ops.begin(); oli != ops.end(); ++oli)
-	{
-	    string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
+        //
+        // Emit a comment for each operation.
+        //
+        _out << sp
+             << nl << "#"
+             << nl << "# Operation signatures."
+             << nl << "#";
+        for(oli = ops.begin(); oli != ops.end(); ++oli)
+        {
+            string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
 /* If AMI/AMD is ever implemented...
-	    if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
-	    {
-		_out << nl << "# def " << fixedOpName << "_async(_cb";
+            if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
+            {
+                _out << nl << "# def " << fixedOpName << "_async(_cb";
 
-		ParamDeclList params = (*oli)->parameters();
+                ParamDeclList params = (*oli)->parameters();
 
-		for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
-		{
-		    if(!(*pli)->isOutParam())
-		    {
-			_out << ", " << fixIdent((*pli)->name(), IdentToLower);
-		    }
-		}
-		if(!p->isLocal())
-		{
-		    _out << ", current=nil";
-		}
-		_out << ")";
-	    }
-	    else
+                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
+                {
+                    if(!(*pli)->isOutParam())
+                    {
+                        _out << ", " << fixIdent((*pli)->name(), IdentToLower);
+                    }
+                }
+                if(!p->isLocal())
+                {
+                    _out << ", current=nil";
+                }
+                _out << ")";
+            }
+            else
 */
-	    {
-		_out << nl << "# def " << fixedOpName << "(";
+            {
+                _out << nl << "# def " << fixedOpName << "(";
 
-		ParamDeclList params = (*oli)->parameters();
+                ParamDeclList params = (*oli)->parameters();
 
-		bool first = true;
-		for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
-		{
-		    if(!(*pli)->isOutParam())
-		    {
-			if(first)
-			{
-			    first = false;
-			}
-			else
-			{
-			    _out << ", ";
-			}
-			_out << fixIdent((*pli)->name(), IdentToLower);
-		    }
-		}
-		if(!p->isLocal())
-		{
-		    if(!first)
-		    {
-			_out << ", ";
-		    }
-		    _out << "current=nil";
-		}
-		_out << ")";
-	    }
-	}
+                bool first = true;
+                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
+                {
+                    if(!(*pli)->isOutParam())
+                    {
+                        if(first)
+                        {
+                            first = false;
+                        }
+                        else
+                        {
+                            _out << ", ";
+                        }
+                        _out << fixIdent((*pli)->name(), IdentToLower);
+                    }
+                }
+                if(!p->isLocal())
+                {
+                    if(!first)
+                    {
+                        _out << ", ";
+                    }
+                    _out << "current=nil";
+                }
+                _out << ")";
+            }
+        }
     }
 
     //
@@ -357,15 +357,15 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     if(!members.empty())
     {
-	_out << sp << nl << "attr_accessor ";
-	for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
-	{
-	    if(q != members.begin())
-	    {
-		_out << ", ";
-	    }
-	    _out << ":" << fixIdent((*q)->name(), IdentNormal);
-	}
+        _out << sp << nl << "attr_accessor ";
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            if(q != members.begin())
+            {
+                _out << ", ";
+            }
+            _out << ":" << fixIdent((*q)->name(), IdentNormal);
+        }
     }
 
     _out.dec();
@@ -373,65 +373,65 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-	//
-	// Class.
-	//
-	_out << nl << "class " << name;
-	if(base)
-	{
-	    _out << " < " << getAbsolute(base, IdentToUpper);
-	}
-	_out.inc();
-	_out << nl << "include " << name << "_mixin";
+        //
+        // Class.
+        //
+        _out << nl << "class " << name;
+        if(base)
+        {
+            _out << " < " << getAbsolute(base, IdentToUpper);
+        }
+        _out.inc();
+        _out << nl << "include " << name << "_mixin";
 
-	//
-	// initialize
-	//
-	MemberInfoList allMembers;
-	collectClassMembers(p, allMembers, false);
-	bool inheritsMembers = false;
-	if(!allMembers.empty())
-	{
-	    _out << sp << nl << "def initialize";
-	    _out << spar;
-	    MemberInfoList::iterator q;
-	    for(q = allMembers.begin(); q != allMembers.end(); ++q)
-	    {
-		ostringstream ostr;
-		ostr << q->lowerName << '=' << getDefaultValue(q->type);
-		_out << ostr.str();
-		if(q->inherited)
-		{
-		    inheritsMembers = true;
-		}
-	    }
-	    _out << epar;
-	    _out.inc();
-	    if(inheritsMembers)
-	    {
-		_out << nl << "super" << spar;
-		for(q = allMembers.begin(); q != allMembers.end(); ++q)
-		{
-		    if(q->inherited)
-		    {
-			_out << q->lowerName;
-		    }
-		}
-		_out << epar;
-	    }
-	    for(q = allMembers.begin(); q != allMembers.end(); ++q)
-	    {
-		if(!q->inherited)
-		{
-		    _out << nl << '@' << q->fixedName << " = " << q->lowerName;
-		}
-	    }
-	    _out.dec();
-	    _out << nl << "end";
-	}
+        //
+        // initialize
+        //
+        MemberInfoList allMembers;
+        collectClassMembers(p, allMembers, false);
+        bool inheritsMembers = false;
+        if(!allMembers.empty())
+        {
+            _out << sp << nl << "def initialize";
+            _out << spar;
+            MemberInfoList::iterator q;
+            for(q = allMembers.begin(); q != allMembers.end(); ++q)
+            {
+                ostringstream ostr;
+                ostr << q->lowerName << '=' << getDefaultValue(q->type);
+                _out << ostr.str();
+                if(q->inherited)
+                {
+                    inheritsMembers = true;
+                }
+            }
+            _out << epar;
+            _out.inc();
+            if(inheritsMembers)
+            {
+                _out << nl << "super" << spar;
+                for(q = allMembers.begin(); q != allMembers.end(); ++q)
+                {
+                    if(q->inherited)
+                    {
+                        _out << q->lowerName;
+                    }
+                }
+                _out << epar;
+            }
+            for(q = allMembers.begin(); q != allMembers.end(); ++q)
+            {
+                if(!q->inherited)
+                {
+                    _out << nl << '@' << q->fixedName << " = " << q->lowerName;
+                }
+            }
+            _out.dec();
+            _out << nl << "end";
+        }
 
-	_out.dec();
-	_out << nl << "end"; // End of class.
+        _out.dec();
+        _out << nl << "end"; // End of class.
     }
 
     //
@@ -440,87 +440,87 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(!p->isLocal())
     {
-	_out << nl << "module " << name << "Prx_mixin";
-	_out.inc();
-	for(ClassList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
-	{
-	    _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
-	}
-	for(oli = ops.begin(); oli != ops.end(); ++oli)
-	{
-	    string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
-	    if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
-	    {
-		fixedOpName.insert(0, "_");
-	    }
-	    TypePtr ret = (*oli)->returnType();
-	    ParamDeclList paramList = (*oli)->parameters();
-	    string inParams;
+        _out << nl << "module " << name << "Prx_mixin";
+        _out.inc();
+        for(ClassList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
+        {
+            _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
+        }
+        for(oli = ops.begin(); oli != ops.end(); ++oli)
+        {
+            string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
+            if(fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
+            {
+                fixedOpName.insert(0, "_");
+            }
+            TypePtr ret = (*oli)->returnType();
+            ParamDeclList paramList = (*oli)->parameters();
+            string inParams;
 
-	    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-	    {
-		if(!(*q)->isOutParam())
-		{
-		    if(!inParams.empty())
-		    {
-			inParams.append(", ");
-		    }
-		    inParams.append(fixIdent((*q)->name(), IdentToLower));
-		}
-	    }
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(!(*q)->isOutParam())
+                {
+                    if(!inParams.empty())
+                    {
+                        inParams.append(", ");
+                    }
+                    inParams.append(fixIdent((*q)->name(), IdentToLower));
+                }
+            }
 
-	    _out << sp << nl << "def " << fixedOpName << "(";
-	    if(!inParams.empty())
-	    {
-		_out << inParams << ", ";
-	    }
-	    _out << "_ctx=nil)";
-	    _out.inc();
-	    _out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
-	    _out << "], _ctx)";
-	    _out.dec();
-	    _out << nl << "end";
+            _out << sp << nl << "def " << fixedOpName << "(";
+            if(!inParams.empty())
+            {
+                _out << inParams << ", ";
+            }
+            _out << "_ctx=nil)";
+            _out.inc();
+            _out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
+            _out << "], _ctx)";
+            _out.dec();
+            _out << nl << "end";
 
-	    if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
-	    {
-		_out << sp << nl << "def " << fixedOpName << "_async(_cb";
-		if(!inParams.empty())
-		{
-		    _out << ", " << inParams;
-		}
-		_out << ", _ctx=nil)";
-		_out.inc();
-		_out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invokeAsync(self, _cb, [" << inParams;
-		if(!inParams.empty() && inParams.find(',') == string::npos)
-		{
-		    _out << ", ";
-		}
-		_out << "], _ctx)";
-		_out.dec();
-		_out << nl << "end";
-	    }
-	}
-	_out.dec();
-	_out << nl << "end"; // End of mix-in module for proxy.
+            if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
+            {
+                _out << sp << nl << "def " << fixedOpName << "_async(_cb";
+                if(!inParams.empty())
+                {
+                    _out << ", " << inParams;
+                }
+                _out << ", _ctx=nil)";
+                _out.inc();
+                _out << nl << name << "_mixin::OP_" << (*oli)->name() << ".invokeAsync(self, _cb, [" << inParams;
+                if(!inParams.empty() && inParams.find(',') == string::npos)
+                {
+                    _out << ", ";
+                }
+                _out << "], _ctx)";
+                _out.dec();
+                _out << nl << "end";
+            }
+        }
+        _out.dec();
+        _out << nl << "end"; // End of mix-in module for proxy.
 
-	_out << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
-	_out.inc();
-	_out << nl << "include " << name << "Prx_mixin";
+        _out << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
+        _out.inc();
+        _out << nl << "include " << name << "Prx_mixin";
 
-	_out << sp << nl << "def " << name << "Prx.checkedCast(proxy, facetOrCtx=nil, _ctx=nil)";
-	_out.inc();
-	_out << nl << "ice_checkedCast(proxy, '" << scoped << "', facetOrCtx, _ctx)";
-	_out.dec();
-	_out << nl << "end";
+        _out << sp << nl << "def " << name << "Prx.checkedCast(proxy, facetOrCtx=nil, _ctx=nil)";
+        _out.inc();
+        _out << nl << "ice_checkedCast(proxy, '" << scoped << "', facetOrCtx, _ctx)";
+        _out.dec();
+        _out << nl << "end";
 
-	_out << sp << nl << "def " << name << "Prx.uncheckedCast(proxy, facet='')";
-	_out.inc();
-	_out << nl << "ice_uncheckedCast(proxy, facet)";
-	_out.dec();
-	_out << nl << "end";
+        _out << sp << nl << "def " << name << "Prx.uncheckedCast(proxy, facet='')";
+        _out.inc();
+        _out << nl << "ice_uncheckedCast(proxy, facet)";
+        _out.dec();
+        _out << nl << "end";
 
-	_out.dec();
-	_out << nl << "end"; // End of proxy class.
+        _out.dec();
+        _out << nl << "end"; // End of proxy class.
     }
 
     //
@@ -531,21 +531,21 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
     if(!p->isLocal())
     {
-	_out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
+        _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
     }
     _out.dec();
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
     _out << sp << nl << "T_" << name << ".defineClass(" << (p->isInterface() ? string("nil") : name) << ", "
-	 << (p->isAbstract() ? "true" : "false") << ", ";
+         << (p->isAbstract() ? "true" : "false") << ", ";
     if(!base)
     {
-	_out << "nil";
+        _out << "nil";
     }
     else
     {
-	_out << getAbsolute(base, IdentToUpper, "T_");
+        _out << getAbsolute(base, IdentToUpper, "T_");
     }
     _out << ", [";
     //
@@ -554,19 +554,19 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     // TODO: Necessary?
     //
     {
-	int interfaceCount = 0;
-	for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-	{
-	    if((*q)->isInterface())
-	    {
-		if(interfaceCount > 0)
-		{
-		    _out << ", ";
-		}
-		_out << getAbsolute(*q, IdentToUpper, "T_");
-		++interfaceCount;
-	    }
-	}
+        int interfaceCount = 0;
+        for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        {
+            if((*q)->isInterface())
+            {
+                if(interfaceCount > 0)
+                {
+                    _out << ", ";
+                }
+                _out << getAbsolute(*q, IdentToUpper, "T_");
+                ++interfaceCount;
+            }
+        }
     }
     //
     // Members
@@ -580,25 +580,25 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << "], [";
     if(members.size() > 1)
     {
-	_out.inc();
-	_out << nl;
+        _out.inc();
+        _out << nl;
     }
     {
-	for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
-	{
-	    if(q != members.begin())
-	    {
-		_out << ',' << nl;
-	    }
-	    _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
-	    writeType((*q)->type());
-	    _out << ']';
-	}
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            if(q != members.begin())
+            {
+                _out << ',' << nl;
+            }
+            _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
+            writeType((*q)->type());
+            _out << ']';
+        }
     }
     if(members.size() > 1)
     {
-	_out.dec();
-	_out << nl;
+        _out.dec();
+        _out << nl;
     }
     _out << "])";
     _out << nl << name << "_mixin::ICE_TYPE = T_" << name;
@@ -613,106 +613,106 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(!p->isLocal())
     {
-	_out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, T_" << name << ')';
-	_out << nl << name << "Prx::ICE_TYPE = T_" << name << "Prx";
+        _out << sp << nl << "T_" << name << "Prx.defineProxy(" << name << "Prx, T_" << name << ')';
+        _out << nl << name << "Prx::ICE_TYPE = T_" << name << "Prx";
 
-	if(!ops.empty())
-	{
-	    _out << sp;
-	}
-	for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
-	{
-	    ParamDeclList params = (*s)->parameters();
-	    ParamDeclList::iterator t;
-	    int count;
+        if(!ops.empty())
+        {
+            _out << sp;
+        }
+        for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
+        {
+            ParamDeclList params = (*s)->parameters();
+            ParamDeclList::iterator t;
+            int count;
 
-	    _out << nl << name << "_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('"
-		 << (*s)->name() << "', ";
-	    switch((*s)->mode())
-	    {
-	    case Operation::Normal:
-		_out << "::Ice::OperationMode::Normal";
-		break;
-	    case Operation::Nonmutating:
-		_out << "::Ice::OperationMode::Nonmutating";
-		break;
-	    case Operation::Idempotent:
-		_out << "::Ice::OperationMode::Idempotent";
-		break;
-	    }
-	    _out << ", ";
-	    switch((*s)->sendMode())
-	    {
-	    case Operation::Normal:
-		_out << "::Ice::OperationMode::Normal";
-		break;
-	    case Operation::Nonmutating:
-		_out << "::Ice::OperationMode::Nonmutating";
-		break;
-	    case Operation::Idempotent:
-		_out << "::Ice::OperationMode::Idempotent";
-		break;
-	    }
-	    _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", [";
-	    for(t = params.begin(), count = 0; t != params.end(); ++t)
-	    {
-		if(!(*t)->isOutParam())
-		{
-		    if(count > 0)
-		    {
-			_out << ", ";
-		    }
-		    writeType((*t)->type());
-		    ++count;
-		}
-	    }
-	    _out << "], [";
-	    for(t = params.begin(), count = 0; t != params.end(); ++t)
-	    {
-		if((*t)->isOutParam())
-		{
-		    if(count > 0)
-		    {
-			_out << ", ";
-		    }
-		    writeType((*t)->type());
-		    ++count;
-		}
-	    }
-	    _out << "], ";
-	    TypePtr returnType = (*s)->returnType();
-	    if(returnType)
-	    {
-		writeType(returnType);
-	    }
-	    else
-	    {
-		_out << "nil";
-	    }
-	    _out << ", [";
-	    ExceptionList exceptions = (*s)->throws();
-	    for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
-	    {
-		if(u != exceptions.begin())
-		{
-		    _out << ", ";
-		}
-		_out << getAbsolute(*u, IdentToUpper, "T_");
-	    }
-	    _out << "])";
+            _out << nl << name << "_mixin::OP_" << (*s)->name() << " = ::Ice::__defineOperation('"
+                 << (*s)->name() << "', ";
+            switch((*s)->mode())
+            {
+            case Operation::Normal:
+                _out << "::Ice::OperationMode::Normal";
+                break;
+            case Operation::Nonmutating:
+                _out << "::Ice::OperationMode::Nonmutating";
+                break;
+            case Operation::Idempotent:
+                _out << "::Ice::OperationMode::Idempotent";
+                break;
+            }
+            _out << ", ";
+            switch((*s)->sendMode())
+            {
+            case Operation::Normal:
+                _out << "::Ice::OperationMode::Normal";
+                break;
+            case Operation::Nonmutating:
+                _out << "::Ice::OperationMode::Nonmutating";
+                break;
+            case Operation::Idempotent:
+                _out << "::Ice::OperationMode::Idempotent";
+                break;
+            }
+            _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "true" : "false") << ", [";
+            for(t = params.begin(), count = 0; t != params.end(); ++t)
+            {
+                if(!(*t)->isOutParam())
+                {
+                    if(count > 0)
+                    {
+                        _out << ", ";
+                    }
+                    writeType((*t)->type());
+                    ++count;
+                }
+            }
+            _out << "], [";
+            for(t = params.begin(), count = 0; t != params.end(); ++t)
+            {
+                if((*t)->isOutParam())
+                {
+                    if(count > 0)
+                    {
+                        _out << ", ";
+                    }
+                    writeType((*t)->type());
+                    ++count;
+                }
+            }
+            _out << "], ";
+            TypePtr returnType = (*s)->returnType();
+            if(returnType)
+            {
+                writeType(returnType);
+            }
+            else
+            {
+                _out << "nil";
+            }
+            _out << ", [";
+            ExceptionList exceptions = (*s)->throws();
+            for(ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+            {
+                if(u != exceptions.begin())
+                {
+                    _out << ", ";
+                }
+                _out << getAbsolute(*u, IdentToUpper, "T_");
+            }
+            _out << "])";
 
-	    string deprecateMetadata;
-	    if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
-	    {
-		string msg;
-		string::size_type pos = deprecateMetadata.find(':');
-		if(pos != string::npos && pos < deprecateMetadata.size() - 1)
-		{
-		    msg = deprecateMetadata.substr(pos + 1);
-		}
-		_out << nl << name << "_mixin::OP_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
-	    }
-	}
+            string deprecateMetadata;
+            if((*s)->findMetaData("deprecate", deprecateMetadata) || p->findMetaData("deprecate", deprecateMetadata))
+            {
+                string msg;
+                string::size_type pos = deprecateMetadata.find(':');
+                if(pos != string::npos && pos < deprecateMetadata.size() - 1)
+                {
+                    msg = deprecateMetadata.substr(pos + 1);
+                }
+                _out << nl << name << "_mixin::OP_" << (*s)->name() << ".deprecate(\"" << msg << "\")";
+            }
+        }
     }
 
     _out.dec();
@@ -734,16 +734,16 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string baseName;
     if(base)
     {
-	baseName = getAbsolute(base, IdentToUpper);
-	_out << baseName;
+        baseName = getAbsolute(base, IdentToUpper);
+        _out << baseName;
     }
     else if(p->isLocal())
     {
-	_out << "Ice::LocalException";
+        _out << "Ice::LocalException";
     }
     else
     {
-	_out << "Ice::UserException";
+        _out << "Ice::UserException";
     }
     _out.inc();
 
@@ -759,41 +759,41 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     bool inheritsMembers = false;
     if(!allMembers.empty())
     {
-	_out << spar;
-	for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-	{
-	    ostringstream ostr;
-	    ostr << q->lowerName << '=' << getDefaultValue(q->type);
-	    _out << ostr.str();
-	    if(q->inherited)
-	    {
-		inheritsMembers = true;
-	    }
-	}
-	_out << epar;
+        _out << spar;
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            ostringstream ostr;
+            ostr << q->lowerName << '=' << getDefaultValue(q->type);
+            _out << ostr.str();
+            if(q->inherited)
+            {
+                inheritsMembers = true;
+            }
+        }
+        _out << epar;
     }
     _out.inc();
     if(!allMembers.empty())
     {
-	if(inheritsMembers)
-	{
-	    _out << nl << "super" << spar;
-	    for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-	    {
-		if(q->inherited)
-		{
-		    _out << q->lowerName;
-		}
-	    }
-	    _out << epar;
-	}
-	for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-	{
-	    if(!q->inherited)
-	    {
-		_out << nl << '@' << q->fixedName << " = " << q->lowerName;
-	    }
-	}
+        if(inheritsMembers)
+        {
+            _out << nl << "super" << spar;
+            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            {
+                if(q->inherited)
+                {
+                    _out << q->lowerName;
+                }
+            }
+            _out << epar;
+        }
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            if(!q->inherited)
+            {
+                _out << nl << '@' << q->fixedName << " = " << q->lowerName;
+            }
+        }
     }
     _out.dec();
     _out << nl << "end";
@@ -821,15 +821,15 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     if(!members.empty())
     {
-	_out << sp << nl << "attr_accessor ";
-	for(dmli = members.begin(); dmli != members.end(); ++dmli)
-	{
-	    if(dmli != members.begin())
-	    {
-		_out << ", ";
-	    }
-	    _out << ':' << fixIdent((*dmli)->name(), IdentNormal);
-	}
+        _out << sp << nl << "attr_accessor ";
+        for(dmli = members.begin(); dmli != members.end(); ++dmli)
+        {
+            if(dmli != members.begin())
+            {
+                _out << ", ";
+            }
+            _out << ':' << fixIdent((*dmli)->name(), IdentNormal);
+        }
     }
 
     _out.dec();
@@ -841,17 +841,17 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", ";
     if(!base)
     {
-	_out << "nil";
+        _out << "nil";
     }
     else
     {
-	 _out << getAbsolute(base, IdentToUpper, "T_");
+         _out << getAbsolute(base, IdentToUpper, "T_");
     }
     _out << ", [";
     if(members.size() > 1)
     {
-	_out.inc();
-	_out << nl;
+        _out.inc();
+        _out << nl;
     }
     //
     // Data members are represented as an array:
@@ -862,18 +862,18 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     for(dmli = members.begin(); dmli != members.end(); ++dmli)
     {
-	if(dmli != members.begin())
-	{
-	    _out << ',' << nl;
-	}
-	_out << "[\"" << fixIdent((*dmli)->name(), IdentNormal) << "\", ";
-	writeType((*dmli)->type());
-	_out << ']';
+        if(dmli != members.begin())
+        {
+            _out << ',' << nl;
+        }
+        _out << "[\"" << fixIdent((*dmli)->name(), IdentNormal) << "\", ";
+        writeType((*dmli)->type());
+        _out << ']';
     }
     if(members.size() > 1)
     {
-	_out.dec();
-	_out << nl;
+        _out.dec();
+        _out << nl;
     }
     _out << "])";
     _out << nl << name << "::ICE_TYPE = T_" << name;
@@ -893,14 +893,14 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     MemberInfoList::iterator r;
 
     {
-	DataMemberList members = p->dataMembers();
-	for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
-	{
-	    memberList.push_back(MemberInfo());
-	    memberList.back().lowerName = fixIdent((*q)->name(), IdentToLower);
-	    memberList.back().fixedName = fixIdent((*q)->name(), IdentNormal);
-	    memberList.back().type = (*q)->type();
-	}
+        DataMemberList members = p->dataMembers();
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            memberList.push_back(MemberInfo());
+            memberList.back().lowerName = fixIdent((*q)->name(), IdentToLower);
+            memberList.back().fixedName = fixIdent((*q)->name(), IdentNormal);
+            memberList.back().type = (*q)->type();
+        }
     }
 
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
@@ -909,23 +909,23 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     if(!memberList.empty())
     {
-	_out << nl << "def initialize(";
-	for(r = memberList.begin(); r != memberList.end(); ++r)
-	{
-	    if(r != memberList.begin())
-	    {
-		_out << ", ";
-	    }
-	    _out << r->lowerName << '=' << getDefaultValue(r->type);
-	}
-	_out << ")";
-	_out.inc();
-	for(r = memberList.begin(); r != memberList.end(); ++r)
-	{
-	    _out << nl << '@' << r->fixedName << " = " << r->lowerName;
-	}
-	_out.dec();
-	_out << nl << "end";
+        _out << nl << "def initialize(";
+        for(r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            if(r != memberList.begin())
+            {
+                _out << ", ";
+            }
+            _out << r->lowerName << '=' << getDefaultValue(r->type);
+        }
+        _out << ")";
+        _out.inc();
+        for(r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            _out << nl << '@' << r->fixedName << " = " << r->lowerName;
+        }
+        _out.dec();
+        _out << nl << "end";
     }
 
     //
@@ -937,7 +937,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     int iter = 0;
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-	writeHash("@" + r->fixedName, r->type, iter);
+        writeHash("@" + r->fixedName, r->type, iter);
     }
     _out << nl << "_h % 0x7fffffff";
     _out.dec();
@@ -952,11 +952,11 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-	if(r != memberList.begin())
-	{
-	    _out << " or";
-	}
-	_out << nl << "@" << r->fixedName << " != other." << r->fixedName;
+        if(r != memberList.begin())
+        {
+            _out << " or";
+        }
+        _out << nl << "@" << r->fixedName << " != other." << r->fixedName;
     }
     _out.dec();
     _out << nl << "true";
@@ -977,15 +977,15 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     if(!memberList.empty())
     {
-	_out << sp << nl << "attr_accessor ";
-	for(r = memberList.begin(); r != memberList.end(); ++r)
-	{
-	    if(r != memberList.begin())
-	    {
-		_out << ", ";
-	    }
-	    _out << ':' << r->fixedName;
-	}
+        _out << sp << nl << "attr_accessor ";
+        for(r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            if(r != memberList.begin())
+            {
+                _out << ", ";
+            }
+            _out << ':' << r->fixedName;
+        }
     }
 
     _out.dec();
@@ -1004,23 +1004,23 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     if(memberList.size() > 1)
     {
-	_out.inc();
-	_out << nl;
+        _out.inc();
+        _out << nl;
     }
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-	if(r != memberList.begin())
-	{
-	    _out << ',' << nl;
-	}
-	_out << "[\"" << r->fixedName << "\", ";
-	writeType(r->type);
-	_out << ']';
+        if(r != memberList.begin())
+        {
+            _out << ',' << nl;
+        }
+        _out << "[\"" << r->fixedName << "\", ";
+        writeType(r->type);
+        _out << ']';
     }
     if(memberList.size() > 1)
     {
-	_out.dec();
-	_out << nl;
+        _out.dec();
+        _out << nl;
     }
     _out << "])";
 
@@ -1083,10 +1083,10 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sp << nl << "def initialize(val)";
     _out.inc();
     {
-	ostringstream assertion;
-	assertion << "fail(\"invalid value #{val} for " << name << "\") unless(val >= 0 and val < "
-		  << enums.size() << ')';
-	_out << nl << assertion.str();
+        ostringstream assertion;
+        assertion << "fail(\"invalid value #{val} for " << name << "\") unless(val >= 0 and val < "
+                  << enums.size() << ')';
+        _out << nl << assertion.str();
     }
     _out << nl << "@val = val";
     _out.dec();
@@ -1096,15 +1096,15 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     // from_int
     //
     {
-	_out << sp << nl << "def " << name << ".from_int(val)";
-	ostringstream sz;
-	sz << enums.size() - 1;
-	_out.inc();
-	_out << nl << "raise IndexError, \"#{val} is out of range 0.." << sz.str() << "\" if(val < 0 || val > "
-	     << sz.str() << ')';
-	_out << nl << "@@_values[val]";
-	_out.dec();
-	_out << nl << "end";
+        _out << sp << nl << "def " << name << ".from_int(val)";
+        ostringstream sz;
+        sz << enums.size() - 1;
+        _out.inc();
+        _out << nl << "raise IndexError, \"#{val} is out of range 0.." << sz.str() << "\" if(val < 0 || val > "
+             << sz.str() << ')';
+        _out << nl << "@@_values[val]";
+        _out.dec();
+        _out << nl << "end";
     }
 
     //
@@ -1165,24 +1165,24 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sp << nl << "@@_names = [";
     for(q = enums.begin(); q != enums.end(); ++q)
     {
-	if(q != enums.begin())
-	{
-	    _out << ", ";
-	}
-	_out << "'" << (*q)->name() << "'";
+        if(q != enums.begin())
+        {
+            _out << ", ";
+        }
+        _out << "'" << (*q)->name() << "'";
     }
     _out << ']';
 
     _out << nl << "@@_values = [";
     for(EnumeratorList::size_type j = 0; j < enums.size(); ++j)
     {
-	if(j > 0)
-	{
-	    _out << ", ";
-	}
-	ostringstream idx;
-	idx << j;
-	_out << name << ".new(" << idx.str() << ')';
+        if(j > 0)
+        {
+            _out << ", ";
+        }
+        ostringstream idx;
+        idx << j;
+        _out << name << ".new(" << idx.str() << ')';
     }
     _out << ']';
 
@@ -1192,9 +1192,9 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sp;
     for(q = enums.begin(), i = 0; q != enums.end(); ++q, ++i)
     {
-	ostringstream idx;
-	idx << i;
-	_out << nl << fixIdent((*q)->name(), IdentToUpper) << " = @@_values[" << idx.str() << "]";
+        ostringstream idx;
+        idx << i;
+        _out << nl << fixIdent((*q)->name(), IdentToUpper) << " = @@_values[" << idx.str() << "]";
     }
 
     _out << sp << nl << "private_class_method :new";
@@ -1208,11 +1208,11 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << sp << nl << "T_" << name << " = ::Ice::__defineEnum('" << scoped << "', " << name << ", [";
     for(q = enums.begin(); q != enums.end(); ++q)
     {
-	if(q != enums.begin())
-	{
-	    _out << ", ";
-	}
-	_out << name << "::" << fixIdent((*q)->name(), IdentToUpper);
+        if(q != enums.begin())
+        {
+            _out << ", ";
+        }
+        _out << name << "::" << fixIdent((*q)->name(), IdentToUpper);
     }
     _out << "])";
 
@@ -1233,131 +1233,131 @@ Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
     Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
     if(b)
     {
-	switch(b->kind())
-	{
-	case Slice::Builtin::KindBool:
-	{
-	    _out << value;
-	    break;
-	}
-	case Slice::Builtin::KindByte:
-	case Slice::Builtin::KindShort:
-	case Slice::Builtin::KindInt:
-	case Slice::Builtin::KindFloat:
-	case Slice::Builtin::KindDouble:
-	{
-	    _out << value;
-	    break;
-	}
-	case Slice::Builtin::KindLong:
-	{
-	    IceUtil::Int64 l;
-	    IceUtil::stringToInt64(value, l);
-	    _out << value;
-	    break;
-	}
+        switch(b->kind())
+        {
+        case Slice::Builtin::KindBool:
+        {
+            _out << value;
+            break;
+        }
+        case Slice::Builtin::KindByte:
+        case Slice::Builtin::KindShort:
+        case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+        {
+            _out << value;
+            break;
+        }
+        case Slice::Builtin::KindLong:
+        {
+            IceUtil::Int64 l;
+            IceUtil::stringToInt64(value, l);
+            _out << value;
+            break;
+        }
 
-	case Slice::Builtin::KindString:
-	{
-	    //
-	    // Expand strings into the basic source character set. We can't use isalpha() and the like
-	    // here because they are sensitive to the current locale.
-	    //
-	    static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
-						   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-						   "0123456789"
-						   "_{}[]#()<>%:;.?*+-/^&|~!=, '";
-	    static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
+        case Slice::Builtin::KindString:
+        {
+            //
+            // Expand strings into the basic source character set. We can't use isalpha() and the like
+            // here because they are sensitive to the current locale.
+            //
+            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                   "0123456789"
+                                                   "_{}[]#()<>%:;.?*+-/^&|~!=, '";
+            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
-	    _out << "\"";				       // Opening "
+            _out << "\"";                                      // Opening "
 
-	    for(string::const_iterator c = value.begin(); c != value.end(); ++c)
-	    {
-		switch(*c)
-		{
-		case '"':
-		{
-		    _out << "\\\"";
-		    break;
-		}
-		case '\\':
-		{
-		    _out << "\\\\";
-		    break;
-		}
-		case '\r':
-		{
-		    _out << "\\r";
-		    break;
-		}
-		case '\n':
-		{
-		    _out << "\\n";
-		    break;
-		}
-		case '\t':
-		{
-		    _out << "\\t";
-		    break;
-		}
-		case '\b':
-		{
-		    _out << "\\b";
-		    break;
-		}
-		case '\f':
-		{
-		    _out << "\\f";
-		    break;
-		}
-		default:
-		{
-		    if(charSet.find(*c) == charSet.end())
-		    {
-			unsigned char uc = *c;		  // Char may be signed, so make it positive.
-			stringstream s;
-			s << "\\";			      // Print as octal if not in basic source character set.
-			s.flags(ios_base::oct);
-			s.width(3);
-			s.fill('0');
-			s << static_cast<unsigned>(uc);
-			_out << s.str();
-		    }
-		    else
-		    {
-			_out << *c;			     // Print normally if in basic source character set.
-		    }
-		    break;
-		}
-		}
-	    }
+            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            {
+                switch(*c)
+                {
+                case '"':
+                {
+                    _out << "\\\"";
+                    break;
+                }
+                case '\\':
+                {
+                    _out << "\\\\";
+                    break;
+                }
+                case '\r':
+                {
+                    _out << "\\r";
+                    break;
+                }
+                case '\n':
+                {
+                    _out << "\\n";
+                    break;
+                }
+                case '\t':
+                {
+                    _out << "\\t";
+                    break;
+                }
+                case '\b':
+                {
+                    _out << "\\b";
+                    break;
+                }
+                case '\f':
+                {
+                    _out << "\\f";
+                    break;
+                }
+                default:
+                {
+                    if(charSet.find(*c) == charSet.end())
+                    {
+                        unsigned char uc = *c;            // Char may be signed, so make it positive.
+                        stringstream s;
+                        s << "\\";                            // Print as octal if not in basic source character set.
+                        s.flags(ios_base::oct);
+                        s.width(3);
+                        s.fill('0');
+                        s << static_cast<unsigned>(uc);
+                        _out << s.str();
+                    }
+                    else
+                    {
+                        _out << *c;                          // Print normally if in basic source character set.
+                    }
+                    break;
+                }
+                }
+            }
 
-	    _out << "\"";				       // Closing "
-	    break;
-	}
+            _out << "\"";                                      // Closing "
+            break;
+        }
 
-	case Slice::Builtin::KindObject:
-	case Slice::Builtin::KindObjectProxy:
-	case Slice::Builtin::KindLocalObject:
-	    assert(false);
-	}
+        case Slice::Builtin::KindObject:
+        case Slice::Builtin::KindObjectProxy:
+        case Slice::Builtin::KindLocalObject:
+            assert(false);
+        }
     }
     else if(en)
     {
-	_out << getAbsolute(en, IdentToUpper) << "::";
-	string::size_type colon = value.rfind(':');
-	if(colon != string::npos)
-	{
-	    _out << fixIdent(value.substr(colon + 1), IdentToUpper);
-	}
-	else
-	{
-	    _out << fixIdent(value, IdentToUpper);
-	}
+        _out << getAbsolute(en, IdentToUpper) << "::";
+        string::size_type colon = value.rfind(':');
+        if(colon != string::npos)
+        {
+            _out << fixIdent(value.substr(colon + 1), IdentToUpper);
+        }
+        else
+        {
+            _out << fixIdent(value, IdentToUpper);
+        }
     }
     else
     {
-	assert(false); // Unknown const type.
+        assert(false); // Unknown const type.
     }
 }
 
@@ -1367,72 +1367,72 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
-	switch(builtin->kind())
-	{
-	    case Builtin::KindBool:
-	    {
-		_out << "::Ice::T_bool";
-		break;
-	    }
-	    case Builtin::KindByte:
-	    {
-		_out << "::Ice::T_byte";
-		break;
-	    }
-	    case Builtin::KindShort:
-	    {
-		_out << "::Ice::T_short";
-		break;
-	    }
-	    case Builtin::KindInt:
-	    {
-		_out << "::Ice::T_int";
-		break;
-	    }
-	    case Builtin::KindLong:
-	    {
-		_out << "::Ice::T_long";
-		break;
-	    }
-	    case Builtin::KindFloat:
-	    {
-		_out << "::Ice::T_float";
-		break;
-	    }
-	    case Builtin::KindDouble:
-	    {
-		_out << "::Ice::T_double";
-		break;
-	    }
-	    case Builtin::KindString:
-	    {
-		_out << "::Ice::T_string";
-		break;
-	    }
-	    case Builtin::KindObject:
-	    {
-		_out << "::Ice::T_Object";
-		break;
-	    }
-	    case Builtin::KindObjectProxy:
-	    {
-		_out << "::Ice::T_ObjectPrx";
-		break;
-	    }
-	    case Builtin::KindLocalObject:
-	    {
-		_out << "::Ice::T_LocalObject";
-		break;
-	    }
-	}
-	return;
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                _out << "::Ice::T_bool";
+                break;
+            }
+            case Builtin::KindByte:
+            {
+                _out << "::Ice::T_byte";
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                _out << "::Ice::T_short";
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                _out << "::Ice::T_int";
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                _out << "::Ice::T_long";
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                _out << "::Ice::T_float";
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                _out << "::Ice::T_double";
+                break;
+            }
+            case Builtin::KindString:
+            {
+                _out << "::Ice::T_string";
+                break;
+            }
+            case Builtin::KindObject:
+            {
+                _out << "::Ice::T_Object";
+                break;
+            }
+            case Builtin::KindObjectProxy:
+            {
+                _out << "::Ice::T_ObjectPrx";
+                break;
+            }
+            case Builtin::KindLocalObject:
+            {
+                _out << "::Ice::T_LocalObject";
+                break;
+            }
+        }
+        return;
     }
 
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {
-	_out << getAbsolute(prx->_class(), IdentToUpper, "T_") << "Prx";
-	return;
+        _out << getAbsolute(prx->_class(), IdentToUpper, "T_") << "Prx";
+        return;
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(p);
@@ -1446,48 +1446,48 @@ Slice::Ruby::CodeVisitor::getDefaultValue(const TypePtr& p)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
-	switch(builtin->kind())
-	{
-	    case Builtin::KindBool:
-	    {
-		return "false";
-	    }
-	    case Builtin::KindByte:
-	    case Builtin::KindShort:
-	    case Builtin::KindInt:
-	    case Builtin::KindLong:
-	    {
-		return "0";
-	    }
-	    case Builtin::KindFloat:
-	    case Builtin::KindDouble:
-	    {
-		return "0.0";
-	    }
-	    case Builtin::KindString:
-	    {
-		return "''";
-	    }
-	    case Builtin::KindObject:
-	    case Builtin::KindObjectProxy:
-	    case Builtin::KindLocalObject:
-	    {
-		return "nil";
-	    }
-	}
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                return "false";
+            }
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                return "0";
+            }
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            {
+                return "0.0";
+            }
+            case Builtin::KindString:
+            {
+                return "''";
+            }
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                return "nil";
+            }
+        }
     }
 
     EnumPtr en = EnumPtr::dynamicCast(p);
     if(en)
     {
-	EnumeratorList enums = en->getEnumerators();
-	return getAbsolute(en, IdentToUpper) + "::" + fixIdent(enums.front()->name(), IdentToUpper);
+        EnumeratorList enums = en->getEnumerators();
+        return getAbsolute(en, IdentToUpper) + "::" + fixIdent(enums.front()->name(), IdentToUpper);
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
     if(st)
     {
-	return getAbsolute(st, IdentToUpper) + ".new";
+        return getAbsolute(st, IdentToUpper) + ".new";
     }
 
     return "nil";
@@ -1505,19 +1505,19 @@ Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoLi
     ClassList bases = p->bases();
     if(!bases.empty() && !bases.front()->isInterface())
     {
-	collectClassMembers(bases.front(), allMembers, true);
+        collectClassMembers(bases.front(), allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
 
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-	MemberInfo m;
-	m.lowerName = fixIdent((*q)->name(), IdentToLower);
-	m.fixedName = fixIdent((*q)->name(), IdentNormal);
-	m.type = (*q)->type();
-	m.inherited = inherited;
-	allMembers.push_back(m);
+        MemberInfo m;
+        m.lowerName = fixIdent((*q)->name(), IdentToLower);
+        m.fixedName = fixIdent((*q)->name(), IdentNormal);
+        m.type = (*q)->type();
+        m.inherited = inherited;
+        allMembers.push_back(m);
     }
 }
 
@@ -1527,19 +1527,19 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
     ExceptionPtr base = p->base();
     if(base)
     {
-	collectExceptionMembers(base, allMembers, true);
+        collectExceptionMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
 
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-	MemberInfo m;
-	m.lowerName = fixIdent((*q)->name(), IdentToLower);
-	m.fixedName = fixIdent((*q)->name(), IdentNormal);
-	m.type = (*q)->type();
-	m.inherited = inherited;
-	allMembers.push_back(m);
+        MemberInfo m;
+        m.lowerName = fixIdent((*q)->name(), IdentToLower);
+        m.fixedName = fixIdent((*q)->name(), IdentNormal);
+        m.type = (*q)->type();
+        m.inherited = inherited;
+        allMembers.push_back(m);
     }
 }
 
@@ -1551,7 +1551,7 @@ normalizePath(const string& path)
     string::size_type pos;
     while((pos = result.find("//")) != string::npos)
     {
-	result.replace(pos, 2, "/");
+        result.replace(pos, 2, "/");
     }
     return result;
 }
@@ -1569,22 +1569,22 @@ changeInclude(const string& inc, const vector<string>& includePaths)
     //
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
-	string includePath = *p;
+        string includePath = *p;
 
-	if(orig.compare(0, p->size(), *p) == 0)
-	{
-	    string s = orig.substr(p->size());
-	    if(s.size() < curr.size())
-	    {
-		curr = s;
-	    }
-	}
+        if(orig.compare(0, p->size(), *p) == 0)
+        {
+            string s = orig.substr(p->size());
+            if(s.size() < curr.size())
+            {
+                curr = s;
+            }
+        }
     }
 
     string::size_type pos = curr.rfind('.');
     if(pos != string::npos)
     {
-	curr.erase(pos);
+        curr.erase(pos);
     }
 
     return curr;
@@ -1597,22 +1597,22 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<s
 
     if(!all)
     {
-	vector<string> paths = includePaths;
-	for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
-	{
-	    if(p->size() && (*p)[p->size() - 1] != '/')
-	    {
-		*p += '/';
-	    }
-	    *p = normalizePath(*p);
-	}
+        vector<string> paths = includePaths;
+        for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
+        {
+            if(p->size() && (*p)[p->size() - 1] != '/')
+            {
+                *p += '/';
+            }
+            *p = normalizePath(*p);
+        }
 
-	StringList includes = un->includeFiles();
-	for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
-	{
-	    string file = changeInclude(*q, paths);
-	    out << nl << "require '" << file << ".rb'";
-	}
+        StringList includes = un->includeFiles();
+        for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+        {
+            string file = changeInclude(*q, paths);
+            out << nl << "require '" << file << ".rb'";
+        }
     }
 
     CodeVisitor codeVisitor(out);
@@ -1620,23 +1620,23 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<s
 
     if(checksum)
     {
-	ChecksumMap checksums = createChecksums(un);
-	if(!checksums.empty())
-	{
-	    out << sp;
-	    for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
-	    {
-		out << nl << "::Ice::SliceChecksums[\"" << p->first << "\"] = \"";
-		ostringstream str;
-		str.flags(ios_base::hex);
-		str.fill('0');
-		for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
-		{
-		    str << (int)(*q);
-		}
-		out << str.str() << "\"";
-	    }
-	}
+        ChecksumMap checksums = createChecksums(un);
+        if(!checksums.empty())
+        {
+            out << sp;
+            for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
+            {
+                out << nl << "::Ice::SliceChecksums[\"" << p->first << "\"] = \"";
+                ostringstream str;
+                str.flags(ios_base::hex);
+                str.fill('0');
+                for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                {
+                    str << (int)(*q);
+                }
+                out << str.str() << "\"";
+            }
+        }
     }
 
     out << nl; // Trailing newline.
@@ -1649,36 +1649,36 @@ Slice::Ruby::splitString(const string& str, vector<string>& args, const string& 
     string::size_type end = 0;
     while(true)
     {
-	beg = str.find_first_not_of(delim, end);
-	if(beg == string::npos)
-	{
-	    break;
-	}
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            break;
+        }
 
-	//
-	// Check for quoted argument.
-	//
-	char ch = str[beg];
-	if(ch == '"' || ch == '\'')
-	{
-	    beg++;
-	    end = str.find(ch, beg);
-	    if(end == string::npos)
-	    {
-		return false;
-	    }
-	    args.push_back(str.substr(beg, end - beg));
-	    end++; // Skip end quote.
-	}
-	else
-	{
-	    end = str.find_first_of(delim + "'\"", beg);
-	    if(end == string::npos)
-	    {
-		end = str.length();
-	    }
-	    args.push_back(str.substr(beg, end - beg));
-	}
+        //
+        // Check for quoted argument.
+        //
+        char ch = str[beg];
+        if(ch == '"' || ch == '\'')
+        {
+            beg++;
+            end = str.find(ch, beg);
+            if(end == string::npos)
+            {
+                return false;
+            }
+            args.push_back(str.substr(beg, end - beg));
+            end++; // Skip end quote.
+        }
+        else
+        {
+            end = str.find_first_of(delim + "'\"", beg);
+            if(end == string::npos)
+            {
+                end = str.length();
+            }
+            args.push_back(str.substr(beg, end - beg));
+        }
     }
 
     return true;
@@ -1689,25 +1689,25 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 {
     if(ident[0] != ':')
     {
-	string id = ident;
-	switch(style)
-	{
-	case IdentNormal:
-	    break;
-	case IdentToUpper:
-	    if(id[0] >= 'a' && id[0] <= 'z')
-	    {
-		id[0] += 'A' - 'a';
-	    }
-	    break;
-	case IdentToLower:
-	    if(id[0] >= 'A' && id[0] <= 'Z')
-	    {
-		id[0] += 'a' - 'A';
-	    }
-	    break;
-	}
-	return lookupKwd(id);
+        string id = ident;
+        switch(style)
+        {
+        case IdentNormal:
+            break;
+        case IdentToUpper:
+            if(id[0] >= 'a' && id[0] <= 'z')
+            {
+                id[0] += 'A' - 'a';
+            }
+            break;
+        case IdentToLower:
+            if(id[0] >= 'A' && id[0] <= 'Z')
+            {
+                id[0] += 'a' - 'A';
+            }
+            break;
+        }
+        return lookupKwd(id);
     }
 
     vector<string> ids = splitScopedName(ident);
@@ -1716,11 +1716,11 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
     ostringstream result;
     for(vector<string>::size_type i = 0; i < ids.size() - 1; ++i)
     {
-	//
-	// We assume all intermediate names must be upper-case (i.e., they represent
-	// the names of modules or classes).
-	//
-	result << "::" << fixIdent(ids[i], IdentToUpper);
+        //
+        // We assume all intermediate names must be upper-case (i.e., they represent
+        // the names of modules or classes).
+        //
+        result << "::" << fixIdent(ids[i], IdentToUpper);
     }
     result << "::" << fixIdent(ids[ids.size() - 1], style);
     return result.str();
@@ -1733,11 +1733,11 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 
     if(prefix.empty())
     {
-	return scope + fixIdent(cont->name(), style);
+        return scope + fixIdent(cont->name(), style);
     }
     else
     {
-	return scope + prefix + fixIdent(cont->name(), style);
+        return scope + prefix + fixIdent(cont->name(), style);
     }
 }
 
@@ -1753,7 +1753,7 @@ Slice::Ruby::printHeader(IceUtil::Output& out)
 "# ICE_LICENSE file included in this distribution.\n"
 "#\n"
 "# **********************************************************************\n"
-	;
+        ;
 
     out << header;
     out << "\n# Ice version " << ICE_STRING_VERSION;

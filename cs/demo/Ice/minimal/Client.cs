@@ -14,22 +14,22 @@ public class Client
 {
     public static void Main(string[] args)
     {
-	int status = 0;
+        int status = 0;
         Ice.Communicator communicator = null;
 
         try
         {
             communicator = Ice.Util.initialize(ref args);
-	    HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
-	    if(hello == null)
-	    {
-		Console.Error.WriteLine("invalid proxy");
-		status = 1;
-	    }
-	    else
-	    {
-		hello.sayHello();
-	    }
+            HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
+            if(hello == null)
+            {
+                Console.Error.WriteLine("invalid proxy");
+                status = 1;
+            }
+            else
+            {
+                hello.sayHello();
+            }
         }
         catch(System.Exception ex)
         {

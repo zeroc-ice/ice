@@ -56,19 +56,19 @@ struct ForEachCommunicator : std::unary_function<CommunicatorDescriptorPtr&, voi
     void
     operator()(const ServiceInstanceDescriptor& descriptor)
     {
-	assert(descriptor.descriptor);
-	operator()(descriptor.descriptor);
+        assert(descriptor.descriptor);
+        operator()(descriptor.descriptor);
     }
 
     void
     operator()(const CommunicatorDescriptorPtr& descriptor)
     {
-	_function(descriptor);
-	IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
-	if(iceBox)
-	{
-	    for_each(iceBox->services.begin(), iceBox->services.end(), forEachCommunicator(_function));
-	}
+        _function(descriptor);
+        IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(descriptor);
+        if(iceBox)
+        {
+            for_each(iceBox->services.begin(), iceBox->services.end(), forEachCommunicator(_function));
+        }
     }
 
     Function _function;
@@ -92,7 +92,7 @@ public:
      explicit ObjFunc(T& obj, void (T::*f)(A)) : _obj(obj), _mfn(f) { }
     void operator()(A arg) const
     {
-	(_obj.*_mfn)(arg);
+        (_obj.*_mfn)(arg);
     }
 };
 
@@ -108,10 +108,10 @@ inline getMatchingKeys(const T& m, const std::string& expression)
     std::vector<std::string> keys;
     for(typename T::const_iterator p = m.begin(); p != m.end(); ++p)
     {
-	if(expression.empty() || IceUtil::match(p->first, expression, true))
-	{
-	    keys.push_back(p->first);
-	}
+        if(expression.empty() || IceUtil::match(p->first, expression, true))
+        {
+            keys.push_back(p->first);
+        }
     }
     return keys;
 }

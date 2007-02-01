@@ -29,12 +29,12 @@ Glacier2::CryptPermissionsVerifierI::checkPermissions(
 
     if(p == _passwords.end())
     {
-	return false;
+        return false;
     }
 
     if(p->second.size() != 13) // Crypt passwords are 13 characters long.
     {
-	return false;
+        return false;
     }
 
     char buff[14];

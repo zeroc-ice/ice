@@ -13,7 +13,7 @@ public class HelloI extends _HelloDisp
 {
     public HelloI(String name)
     {
-	_name = name;
+        _name = name;
     }
 
     public void

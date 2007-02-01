@@ -18,8 +18,8 @@ namespace Generate
 {
     class Generate
     {
-	static void Main(string[] args)
-	{   
+        static void Main(string[] args)
+        {   
             try
             {
 
@@ -107,7 +107,7 @@ namespace Generate
                 string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
                 for(int i = 3; i < args.Length; ++i)
                 {
-		    cmdArgs += " " + handlePathSpaces(args[i]);
+                    cmdArgs += " " + handlePathSpaces(args[i]);
                 }
 
                 bool needCompile = false;
@@ -166,7 +166,7 @@ namespace Generate
                 Console.Error.WriteLine(ex);
                 Environment.Exit(1);
             }
-	}
+        }
 
         //
         // Return all the files ending in ".ice" in the specified dir.
@@ -174,43 +174,43 @@ namespace Generate
         // this because, for three-letter file extensions, it returns files
         // with extensions that have three *or more* letters :-(
         //
-	private static ArrayList getSliceFiles(string dir)
-	{
-	    ArrayList result = new ArrayList();
-	    string[] files = Directory.GetFiles(dir);
-	    foreach(string file in files)
-	    {
-	        if(file.EndsWith(".ice"))
-		{
-		    result.Add(file);
-		}
-	    }
-	    return result;
-	}
+        private static ArrayList getSliceFiles(string dir)
+        {
+            ArrayList result = new ArrayList();
+            string[] files = Directory.GetFiles(dir);
+            foreach(string file in files)
+            {
+                if(file.EndsWith(".ice"))
+                {
+                    result.Add(file);
+                }
+            }
+            return result;
+        }
 
-	static volatile Process p;
+        static volatile Process p;
 
-	private static void RedirectStandardOutput()
-	{
-	    string output = p.StandardOutput.ReadToEnd();
-	    Console.Out.Write(output);
-	    Console.Out.Flush();
-	}
+        private static void RedirectStandardOutput()
+        {
+            string output = p.StandardOutput.ReadToEnd();
+            Console.Out.Write(output);
+            Console.Out.Flush();
+        }
 
-	private static void RedirectStandardError()
-	{
-	    string output = p.StandardError.ReadToEnd();
-	    Console.Error.Write(output);
-	    Console.Error.Flush();
-	}
+        private static void RedirectStandardError()
+        {
+            string output = p.StandardError.ReadToEnd();
+            Console.Error.Write(output);
+            Console.Error.Flush();
+        }
 
-	private static string handlePathSpaces(string dir)
-	{
-	    if(dir.IndexOf(' ') != -1)
-	    {
-		return "\"" + dir + "\"";
-	    }
-	    return dir;
-	}
+        private static string handlePathSpaces(string dir)
+        {
+            if(dir.IndexOf(' ') != -1)
+            {
+                return "\"" + dir + "\"";
+            }
+            return dir;
+        }
     }
-}	    
+}           

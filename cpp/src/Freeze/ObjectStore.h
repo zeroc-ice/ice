@@ -36,7 +36,7 @@ class ObjectStore : public Cache
 public:
 
     ObjectStore(const std::string&, bool, EvictorI*, 
-		const std::vector<IndexPtr>& = std::vector<IndexPtr>(), bool = false);
+                const std::vector<IndexPtr>& = std::vector<IndexPtr>(), bool = false);
 
     virtual ~ObjectStore();
 

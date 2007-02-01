@@ -164,13 +164,13 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps):
     #
     updated = False
     for line in oldFile.readlines():
-	for (regexp, replace) in regexps:
-	    match = regexp.search(line)
-	    if match != None:
-		oldLine = line
-		line = oldLine.replace(match.group(1), replace)
-		updated = True
-	newFile.write(line)
+        for (regexp, replace) in regexps:
+            match = regexp.search(line)
+            if match != None:
+                oldLine = line
+                line = oldLine.replace(match.group(1), replace)
+                updated = True
+        newFile.write(line)
 
     newFile.close()
     oldFile.close()
@@ -196,7 +196,7 @@ except getopt.GetoptError:
 for o, a in opts:
     if o in ("-h", "--help"):
         usage()
-	sys.exit(0)
+        sys.exit(0)
     if o in ("-e"):
         patchIceE = True
 if len(args) != 1:
@@ -217,87 +217,87 @@ if not patchIceE:
     #
     ice_home = findSourceTree("ice", os.path.join("include", "IceUtil", "Config.h"))
     if ice_home:
-	fileMatchAndReplace(os.path.join(ice_home, "include", "IceUtil", "Config.h"),
-			    [("ICE_STRING_VERSION \"" + vpatMatch + "\"", version), \
+        fileMatchAndReplace(os.path.join(ice_home, "include", "IceUtil", "Config.h"),
+                            [("ICE_STRING_VERSION \"" + vpatMatch + "\"", version), \
                              ("ICE_INT_VERSION ([0-9]*)", intVersion(version))])
 
-	fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules"),
-			    [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
+        fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules"),
+                            [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
                              ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
                              ("VERSION[\t\s]*= " + vpatMatch, version),
                              ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
                        
 
-	fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules.mak"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version),
-			    ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(ice_home, "config", "Make.rules.mak"),
+                            [("VERSION[\t\s]*= " + vpatMatch, version),
+                            ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
-	fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "iceca"),
-			    [("Ice-" + vpatMatch, version)])
+        fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "iceca"),
+                            [("Ice-" + vpatMatch, version)])
 
-	fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "clock", "config.icebox"),
-			    [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "clock", "config.icebox"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
 
-	fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
-			    [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
         
         fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
-			    [("IceStormService,([0-9]+b?)", soVersion(version))])
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
 
     #
     # Fix version in IceJ sources
     #
     icej_home = findSourceTree("icej", os.path.join("src", "IceUtil", "Version.java"))
     if icej_home:
-	fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
-			    [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
-			     ("ICE_INT_VERSION = ([0-9]*)", intVersion(version))])
+        fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
+                            [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
+                             ("ICE_INT_VERSION = ([0-9]*)", intVersion(version))])
 
-	fileMatchAndReplace(os.path.join(icej_home, "demo", "IceStorm", "clock", "config.icebox"),
-			    [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(icej_home, "demo", "IceStorm", "clock", "config.icebox"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
 
     #
     # Fix version in IceCS sources
     #
     icecs_home = findSourceTree("icecs", os.path.join("src", "Ice", "AssemblyInfo.cs"))
     if icecs_home:
-	for f in find(icecs_home, "AssemblyInfo.cs"):
-	    if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
-		fileMatchAndReplace(f, [("AssemblyVersion\(\"" + vpatMatch + "\"",
+        for f in find(icecs_home, "AssemblyInfo.cs"):
+            if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
+                fileMatchAndReplace(f, [("AssemblyVersion\(\"" + vpatMatch + "\"",
                                          majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
 
-	fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.cs"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version)])
+        fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.cs"),
+                            [("VERSION[\t\s]*= " + vpatMatch, version)])
 
-	fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.mak"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version)])
+        fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.mak"),
+                            [("VERSION[\t\s]*= " + vpatMatch, version)])
 
-	fileMatchAndReplace(os.path.join(icecs_home, "config", "makeconfig.py"),
-			    [("version=*\"([0-9]*\.[0-9]*\.[0-9]*).0\"",
+        fileMatchAndReplace(os.path.join(icecs_home, "config", "makeconfig.py"),
+                            [("version=*\"([0-9]*\.[0-9]*\.[0-9]*).0\"",
                               majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
-	cmd = "chmod 770 " + os.path.join(icecs_home, "config", "makeconfig.py")
-	os.system(cmd)
+        cmd = "chmod 770 " + os.path.join(icecs_home, "config", "makeconfig.py")
+        os.system(cmd)
 
-	fileMatchAndReplace(os.path.join(icecs_home, "demo", "IceStorm", "clock", "config.icebox"),
-			    [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(icecs_home, "demo", "IceStorm", "clock", "config.icebox"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
 
-	for f in find(icecs_home, "*.pc"):
-	    fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*" + vpatMatch, version)])
+        for f in find(icecs_home, "*.pc"):
+            fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*" + vpatMatch, version)])
 
     #
     # Fix version in IceVB sources
     #
     icevb_home = findSourceTree("icevb", os.path.join("generate", "Generate.vb"))
     if icevb_home:
-	fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version)])
+        fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak"),
+                            [("VERSION[\t\s]*= " + vpatMatch, version)])
 
-	fileMatchAndReplace(os.path.join(icevb_home, "config", "makeconfig.py"),
-			    [("codeBase version=\"" + vpatMatch + "\.0\"", 
-	                    majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
+        fileMatchAndReplace(os.path.join(icevb_home, "config", "makeconfig.py"),
+                            [("codeBase version=\"" + vpatMatch + "\.0\"", 
+                            majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
 
-	fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
-			    [("IceStormService,([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
 
     #
     # Fix version in IcePHP
@@ -310,39 +310,39 @@ if not patchIceE:
                              ("VERSION[\t\s]*= " + vpatMatch, version),
                              ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
                        
-	fileMatchAndReplace(os.path.join(icephp_home, "config", "Make.rules.mak"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version),
-			    ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(icephp_home, "config", "Make.rules.mak"),
+                            [("VERSION[\t\s]*= " + vpatMatch, version),
+                            ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
         print "Please update icephp/src/IcePHP/Profile.cpp: too difficult to parse!"
-	
+        
     #
     # Fix version in IcePy
     #
     icepy_home = findSourceTree("icepy", os.path.join("modules", "IcePy", "Config.h"))
     if icepy_home:
         fileMatchAndReplace(os.path.join(icepy_home, "config", "Make.rules"),
-			    [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
+                            [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
                              ("VERSION_MINOR[\t\s]*= ([0-9]*)", minorVersion(version)),
                              ("VERSION[\t\s]*= " + vpatMatch, version),
                              ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
         fileMatchAndReplace(os.path.join(icepy_home, "config", "Make.rules.mak"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version),
-			    ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
+                            [("VERSION[\t\s]*= " + vpatMatch, version),
+                            ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
     #
     # Fix version in IceRuby
     #
     icerb_home = findSourceTree("icerb", os.path.join("src", "IceRuby", "Config.h"))
     if icerb_home:
-	fileMatchAndReplace(os.path.join(icerb_home, "config", "Make.rules"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version),
-			    ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(icerb_home, "config", "Make.rules"),
+                            [("VERSION[\t\s]*= " + vpatMatch, version),
+                            ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
         fileMatchAndReplace(os.path.join(icerb_home, "config", "Make.rules.mak"),
-			    [("VERSION[\t\s]*= " + vpatMatch, version),
-			    ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
+                            [("VERSION[\t\s]*= " + vpatMatch, version),
+                            ("SOVERSION[\t\s]*= ([0-9]+b?)", soVersion(version))])
 
     print "Running 'make config' in IceCS"
     os.chdir(icecs_home)

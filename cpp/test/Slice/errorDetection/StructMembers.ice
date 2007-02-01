@@ -12,41 +12,41 @@
 module Test
 {
 
-struct s1		// Illegal empty struct
+struct s1               // Illegal empty struct
 {
 };
 
 struct s2
 {
-    long l;		// One member, OK
+    long l;             // One member, OK
 };
 
 struct s4
 {
-    [ "Hi" ] long l;	// One member with metadata, OK
+    [ "Hi" ] long l;    // One member with metadata, OK
 };
 
-struct s5		// Two members, OK
+struct s5               // Two members, OK
 {
     long l;
     byte b;
 };
 
 struct s6
-{			// Two members with metadata, OK
-    [ "Hi" ]	long l;
-		byte b;
+{                       // Two members with metadata, OK
+    [ "Hi" ]    long l;
+                byte b;
 };
 
-struct s7		// Two members with metadata, OK
+struct s7               // Two members with metadata, OK
 {
-    [ "Hi" ]	long l;
-    [ "there" ]	byte b;
+    [ "Hi" ]    long l;
+    [ "there" ] byte b;
 };
 
 struct s8
 {
-    [ "hi" ] long ;	// Missing data member name
+    [ "hi" ] long ;     // Missing data member name
 };
 
 struct s9
@@ -56,12 +56,12 @@ struct s9
 
 struct s10
 {
-    long ;		// Missing data member name
+    long ;              // Missing data member name
 };
 
 struct s11
 {
-    long		// Missing data member name
+    long                // Missing data member name
 };
 
 };

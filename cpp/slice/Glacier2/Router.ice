@@ -108,7 +108,7 @@ interface Router extends Ice::Router
      *
      **/
     Session* createSession(string userId, string password)
-	throws PermissionDeniedException, CannotCreateSessionException;
+        throws PermissionDeniedException, CannotCreateSessionException;
 
     /**
      *
@@ -140,7 +140,7 @@ interface Router extends Ice::Router
      *
      **/
     Session* createSessionFromSecureConnection()
-	throws PermissionDeniedException, CannotCreateSessionException;
+        throws PermissionDeniedException, CannotCreateSessionException;
 
     /**
      *
@@ -151,7 +151,7 @@ interface Router extends Ice::Router
      *
      **/
     void destroySession()
-	throws SessionNotExistException;
+        throws SessionNotExistException;
 
     /**
      *

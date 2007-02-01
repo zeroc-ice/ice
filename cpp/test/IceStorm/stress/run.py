@@ -35,8 +35,8 @@ iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIc
                   ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12011"' + \
                   ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12012"' + \
                   ' --IceStorm.InstanceName=TestIceStorm1 ' + \
-		  ' --IceStorm.Discard.Interval=2' + \
-		  ' --IceBox.PrintServicesReady=IceStorm' + \
+                  ' --IceStorm.Discard.Interval=2' + \
+                  ' --IceBox.PrintServicesReady=IceStorm' + \
                   " --IceBox.InheritContainerProperties=1"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011"'
 
@@ -46,8 +46,8 @@ iceStormService2 = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getI
                   ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12021"' + \
                   ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12022"' + \
                   ' --IceStorm.InstanceName=TestIceStorm2 ' + \
-		  ' --IceStorm.Discard.Interval=2' + \
-		  ' --IceBox.PrintServicesReady=IceStorm' + \
+                  ' --IceStorm.Discard.Interval=2' + \
+                  ' --IceBox.PrintServicesReady=IceStorm' + \
                   " --IceBox.InheritContainerProperties=1"
 iceStormReference2 = ' --IceStorm.TopicManager.Proxy="TestIceStorm2/TopicManager: default -p 12021"'
 
@@ -64,39 +64,39 @@ def doTest(subOpts, pubOpts):
 
     subscriberPipes = []
     if type(subOpts) != type([]):
-    	subOpts = [ subOpts ]
+        subOpts = [ subOpts ]
     for opts in subOpts:
-	command = subscriber + TestUtil.clientServerOptions + r' ' + opts
-	if TestUtil.debug:
-	    print "(" + command + ")",
-	    sys.stdout.flush()
-	pipe = os.popen(command + " 2>&1")
-	TestUtil.getServerPid(pipe)
-	TestUtil.getAdapterReady(pipe)
-	subscriberPipes.append(pipe)
+        command = subscriber + TestUtil.clientServerOptions + r' ' + opts
+        if TestUtil.debug:
+            print "(" + command + ")",
+            sys.stdout.flush()
+        pipe = os.popen(command + " 2>&1")
+        TestUtil.getServerPid(pipe)
+        TestUtil.getAdapterReady(pipe)
+        subscriberPipes.append(pipe)
 
     command = publisher + TestUtil.clientOptions + iceStormReference + r' ' + pubOpts
     if TestUtil.debug:
-	print "(" + command + ")",
-	sys.stdout.flush()
+        print "(" + command + ")",
+        sys.stdout.flush()
     publisherPipe = os.popen(command + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)
 
     publisherStatus = TestUtil.closePipe(publisherPipe)
     if publisherStatus:
-	print "(publisher failed)",
-	return publisherStatus
+        print "(publisher failed)",
+        return publisherStatus
     for p in subscriberPipes:
-	try:
-	    sys.stdout.flush()
-	    subscriberStatus = TestUtil.specificServerStatus(p, 30)
-	except:
-	    print "(subscriber failed)",
-	    return 1
-    	if subscriberStatus:
-	    print "(subscriber failed)",
-    	    return subscriberStatus
+        try:
+            sys.stdout.flush()
+            subscriberStatus = TestUtil.specificServerStatus(p, 30)
+        except:
+            print "(subscriber failed)",
+            return 1
+        if subscriberStatus:
+            print "(subscriber failed)",
+            return subscriberStatus
 
     return 0
 
@@ -113,15 +113,15 @@ def startServers():
     # Clear the idle timeout otherwise the IceBox ThreadPool will timeout.
     command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + ' --Ice.ServerIdleTime=0'
     if TestUtil.debug:
-	print "(" + command + ")",
-	sys.stdout.flush()
+        print "(" + command + ")",
+        sys.stdout.flush()
     iceBoxPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe)
     TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
     command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints2 + iceStormService2 + iceStormDBEnv2 + ' --Ice.ServerIdleTime=0'
     if TestUtil.debug:
-	print "(" + command + ")",
-	sys.stdout.flush()
+        print "(" + command + ")",
+        sys.stdout.flush()
     iceBoxPipe2 = os.popen(command + " 2>&1")
     TestUtil.getServerPid(iceBoxPipe2)
     TestUtil.waitServiceReady(iceBoxPipe2, "IceStorm")
@@ -138,23 +138,23 @@ def stopServers(p1, p2 = None):
     sys.stdout.flush()
     command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
     if TestUtil.debug:
-	print "(" + command + ")",
-	sys.stdout.flush()
+        print "(" + command + ")",
+        sys.stdout.flush()
     pipe = os.popen(command + " 2>&1")
     status = TestUtil.closePipe(pipe)
     if status or TestUtil.specificServerStatus(p1):
-	TestUtil.killServers()
-	sys.exit(1)
+        TestUtil.killServers()
+        sys.exit(1)
     if p2:
-	command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown'
-	if TestUtil.debug:
-	    print "(" + command + ")",
-	    sys.stdout.flush()
-	pipe = os.popen(command + " 2>&1")
-	status = TestUtil.closePipe(pipe)
-	if status or TestUtil.specificServerStatus(p2):
-	    TestUtil.killServers()
-	    sys.exit(1)
+        command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints2 + r' shutdown'
+        if TestUtil.debug:
+            print "(" + command + ")",
+            sys.stdout.flush()
+        pipe = os.popen(command + " 2>&1")
+        status = TestUtil.closePipe(pipe)
+        if status or TestUtil.specificServerStatus(p2):
+            TestUtil.killServers()
+            sys.exit(1)
     print "ok"
 
 dbHome = os.path.join(testdir, "db")
@@ -271,8 +271,8 @@ print "ok"
 
 print "Sending 20000 unordered events with erratic subscriber across a link... ",
 status = doTest(['--erratic 10 --events 20000' + iceStormReference, '--events 20000 ' + iceStormReference, \
-		 '--erratic 10 --events 20000' + iceStormReference2, '--events 20000 ' + iceStormReference2], \
-		'--events 20000 --oneway')
+                 '--erratic 10 --events 20000' + iceStormReference2, '--events 20000 ' + iceStormReference2], \
+                '--events 20000 --oneway')
 if status:
     print "failed!"
     TestUtil.killServers()

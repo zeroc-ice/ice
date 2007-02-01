@@ -185,9 +185,9 @@ def fixVersion(files, version, mmversion):
         os.rename(file, origfile)
         oldFile = open(origfile, "r")
         newFile = open(file, "w")
-	line = oldFile.read();
-	line = re.sub("@ver@", version, line)
-	line = re.sub("@mmver@", mmversion, line)
+        line = oldFile.read();
+        line = re.sub("@ver@", version, line)
+        line = re.sub("@mmver@", mmversion, line)
         newFile.write(line)
         newFile.close()
         oldFile.close()

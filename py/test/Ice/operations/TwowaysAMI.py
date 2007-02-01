@@ -148,21 +148,21 @@ class AMI_MyClass_opMyEnumI(CallbackBase):
 class AMI_MyClass_opMyClassI(CallbackBase):
     def __init__(self, communicator):
         CallbackBase.__init__(self)
-	self._communicator = communicator
+        self._communicator = communicator
 
     def ice_response(self, r, c1, c2):
         test(c1.ice_getIdentity() == self._communicator.stringToIdentity("test"))
         test(c2.ice_getIdentity() == self._communicator.stringToIdentity("noSuchIdentity"))
         test(r.ice_getIdentity() == self._communicator.stringToIdentity("test"))
-	# We can't do the callbacks below in thread per connection mode.
-	if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
-	    r.opVoid()
-	    c1.opVoid()
-	    try:
-		c2.opVoid()
-		test(False)
-	    except Ice.ObjectNotExistException:
-		pass
+        # We can't do the callbacks below in thread per connection mode.
+        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+            r.opVoid()
+            c1.opVoid()
+            try:
+                c2.opVoid()
+                test(False)
+            except Ice.ObjectNotExistException:
+                pass
         self.called()
 
     def ice_exception(self, ex):
@@ -180,9 +180,9 @@ class AMI_MyClass_opStructI(CallbackBase):
         test(rso.s.s == "def")
         test(so.e == Test.MyEnum.enum3)
         test(so.s.s == "a new string")
-	# We can't do the callbacks below in thread per connection mode.
-	if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
-	    so.p.opVoid()
+        # We can't do the callbacks below in thread per connection mode.
+        if self._communicator.getProperties().getPropertyAsInt("Ice.ThreadPerConnection") == 0:
+            so.p.opVoid()
         self.called()
 
     def ice_exception(self, ex):
@@ -527,9 +527,9 @@ def twowaysAMI(communicator, p):
     oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
     cb = AMI_MyClass_opVoidExI()
     try:
-	oneway.opVoid_async(cb)
+        oneway.opVoid_async(cb)
     except Ice.Exception:
-	test(False)
+        test(False)
     test(cb.check())
 
     # Check that a call to a twoway operation raises TwowayOnlyException
@@ -537,9 +537,9 @@ def twowaysAMI(communicator, p):
     oneway = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
     cb = AMI_MyClass_opByteExI()
     try:
-	oneway.opByte_async(cb, 0, 0)
+        oneway.opByte_async(cb, 0, 0)
     except Ice.Exception:
-	test(False)
+        test(False)
     test(cb.check())
 
     #
@@ -867,7 +867,7 @@ def twowaysAMI(communicator, p):
         ic = Ice.initialize(data=initData)
         
         ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
-	
+        
         p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
         
         ic.getImplicitContext().setContext(ctx)

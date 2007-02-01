@@ -24,28 +24,28 @@ class CountDownLatchTestThread : public Thread
 public:
     
     CountDownLatchTestThread(CountDownLatch& latch, int& val, bool takeOne) :
-	_latch(latch),
-	_val(val),
-	_takeOne(takeOne)
+        _latch(latch),
+        _val(val),
+        _takeOne(takeOne)
     {
     }
 
     virtual void run()
     {  
 
-	if(_takeOne)
-	{
-	    _latch.countDown();
-	}
-	
-	if(_latch.getCount() == 0)
-	{
-	    test(_val == magic);
-	}
-	
-	_latch.await();
-	test(_latch.getCount() == 0);
-	test(_val == magic);
+        if(_takeOne)
+        {
+            _latch.countDown();
+        }
+        
+        if(_latch.getCount() == 0)
+        {
+            test(_val == magic);
+        }
+        
+        _latch.await();
+        test(_latch.getCount() == 0);
+        test(_val == magic);
     }
 
 private:
@@ -76,8 +76,8 @@ CountDownLatchTest::run()
     ThreadPtr t1[wave1Count];
     for(i = 0; i < wave1Count; i++)
     {
-	t1[i] = new CountDownLatchTestThread(latch, val, false);
-	t1[i]->start();
+        t1[i] = new CountDownLatchTestThread(latch, val, false);
+        t1[i]->start();
     }
  
     //
@@ -92,8 +92,8 @@ CountDownLatchTest::run()
     ThreadPtr t2[fullCount - 1];
     for(i = 0; i < fullCount - 1; i++)
     {
-	t2[i] = new CountDownLatchTestThread(latch, val, true);
-	t2[i]->start();
+        t2[i] = new CountDownLatchTestThread(latch, val, true);
+        t2[i]->start();
     }
     
     //
@@ -101,17 +101,17 @@ CountDownLatchTest::run()
     //
     do
     {
-	ThreadControl::sleep(Time::milliSeconds(100));
-	
-	for(i = 0; i < wave1Count; i++)
-	{
-	    test(t1[i]->isAlive());
-	}
-	
-	for(i = 0; i < fullCount - 1; i++)
-	{
-	    test(t2[i]->isAlive());
-	}
+        ThreadControl::sleep(Time::milliSeconds(100));
+        
+        for(i = 0; i < wave1Count; i++)
+        {
+            test(t1[i]->isAlive());
+        }
+        
+        for(i = 0; i < fullCount - 1; i++)
+        {
+            test(t2[i]->isAlive());
+        }
 
     } while(latch.getCount() > 1);
     
@@ -127,12 +127,12 @@ CountDownLatchTest::run()
     //
     for(i = 0; i < wave1Count; i++)
     {
-	t1[i]->getThreadControl().join();
+        t1[i]->getThreadControl().join();
     }
 
     for(i = 0; i < fullCount - 1; i++)
     {
-	t2[i]->getThreadControl().join();
+        t2[i]->getThreadControl().join();
     }
     
     test(latch.getCount() == 0);
@@ -141,14 +141,14 @@ CountDownLatchTest::run()
     ThreadPtr t3[wave2Count];
     for(i = 0; i < wave2Count; i++)
     {
-	t3[i] = new CountDownLatchTestThread(latch, val, true);
-	t3[i]->start();
+        t3[i] = new CountDownLatchTestThread(latch, val, true);
+        t3[i]->start();
     }
     test(latch.getCount() == 0);
     
     for(i = 0; i < wave2Count; i++)
     {
-	t3[i]->getThreadControl().join();
+        t3[i]->getThreadControl().join();
     }
     test(latch.getCount() == 0);
 }

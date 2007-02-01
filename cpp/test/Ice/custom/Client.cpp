@@ -33,8 +33,8 @@ main(int argc, char** argv)
     try
     {
         Ice::InitializationData initData;
-	initData.stringConverter = new Test::StringConverterI();
-	initData.wstringConverter = new Test::WstringConverterI();
+        initData.stringConverter = new Test::StringConverterI();
+        initData.wstringConverter = new Test::WstringConverterI();
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }

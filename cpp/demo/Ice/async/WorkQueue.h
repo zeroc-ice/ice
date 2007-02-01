@@ -33,7 +33,7 @@ private:
     struct CallbackEntry
     {
         Demo::AMD_Hello_sayHelloPtr cb;
-	int delay;
+        int delay;
     };
 
     IceUtil::Monitor<IceUtil::Mutex> _monitor;

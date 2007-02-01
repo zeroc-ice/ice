@@ -49,14 +49,14 @@ def createTestIntfPrx(adapters):
     endpoints = []
     test = None
     for p in adapters:
-	test = p.getTestIntf()
-	edpts = test.ice_getEndpoints()
-	endpoints.extend(edpts)
+        test = p.getTestIntf()
+        edpts = test.ice_getEndpoints()
+        endpoints.extend(edpts)
     return Test.TestIntfPrx.uncheckedCast(test.ice_endpoints(endpoints))
 
 def deactivate(com, adapters):
     for p in adapters:
-	com.deactivateObjectAdapter(p)
+        com.deactivateObjectAdapter(p)
 
 def allTests(communicator):
     ref = "communicator:default -p 12010 -t 10000"
@@ -80,10 +80,10 @@ def allTests(communicator):
     test(test3.ice_getConnection() == test2.ice_getConnection())
 
     try:
-	test3.ice_ping()
-	test(False)
+        test3.ice_ping()
+        test(False)
     except Ice.ConnectionRefusedException:
-	pass
+        pass
 
     print "ok"
 
@@ -100,21 +100,21 @@ def allTests(communicator):
     #
     names = ["Adapter11", "Adapter12", "Adapter13"]
     while len(names) > 0:
-	adpts = adapters[:]
+        adpts = adapters[:]
 
-	test1 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test2 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test3 = createTestIntfPrx(adpts)
+        test1 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test2 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test3 = createTestIntfPrx(adpts)
 
-	test(test1.ice_getConnection() == test2.ice_getConnection())
-	test(test2.ice_getConnection() == test3.ice_getConnection())
+        test(test1.ice_getConnection() == test2.ice_getConnection())
+        test(test2.ice_getConnection() == test3.ice_getConnection())
 
-	name = test1.getAdapterName()
-	if names.count(name) > 0:
-	    names.remove(name)
-	test1.ice_getConnection().close(False)
+        name = test1.getAdapterName()
+        if names.count(name) > 0:
+            names.remove(name)
+        test1.ice_getConnection().close(False)
 
     #
     # Ensure that the proxy correctly caches the connection (we
@@ -128,7 +128,7 @@ def allTests(communicator):
     i = 0
     nRetry = 5
     while i < nRetry and t.getAdapterName() == name:
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     
     for a in adapters:
@@ -142,21 +142,21 @@ def allTests(communicator):
     names.append("Adapter12")
     names.append("Adapter13")
     while len(names) > 0:
-	adpts = adapters[:]
+        adpts = adapters[:]
 
-	test1 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test2 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test3 = createTestIntfPrx(adpts)
+        test1 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test2 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test3 = createTestIntfPrx(adpts)
 
-	test(test1.ice_getConnection() == test2.ice_getConnection())
-	test(test2.ice_getConnection() == test3.ice_getConnection())
+        test(test1.ice_getConnection() == test2.ice_getConnection())
+        test(test2.ice_getConnection() == test3.ice_getConnection())
 
-	name = test1.getAdapterName()
-	if names.count(name) > 0:
-	    names.remove(name)
-	test1.ice_getConnection().close(False)
+        name = test1.getAdapterName()
+        if names.count(name) > 0:
+            names.remove(name)
+        test1.ice_getConnection().close(False)
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -183,21 +183,21 @@ def allTests(communicator):
     #
     names = ["AdapterAMI11", "AdapterAMI12", "AdapterAMI13"]
     while len(names) > 0:
-	adpts = adapters[:]
+        adpts = adapters[:]
 
-	test1 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test2 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test3 = createTestIntfPrx(adpts)
+        test1 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test2 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test3 = createTestIntfPrx(adpts)
 
-	test(test1.ice_getConnection() == test2.ice_getConnection())
-	test(test2.ice_getConnection() == test3.ice_getConnection())
+        test(test1.ice_getConnection() == test2.ice_getConnection())
+        test(test2.ice_getConnection() == test3.ice_getConnection())
 
-	name = getAdapterNameWithAMI(test1)
-	if names.count(name) > 0:
-	    names.remove(name)
-	test1.ice_getConnection().close(False)
+        name = getAdapterNameWithAMI(test1)
+        if names.count(name) > 0:
+            names.remove(name)
+        test1.ice_getConnection().close(False)
 
     #
     # Ensure that the proxy correctly caches the connection (we
@@ -211,7 +211,7 @@ def allTests(communicator):
     i = 0
     nRetry = 5
     while i < nRetry and getAdapterNameWithAMI(t) == name:
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     
     for a in adapters:
@@ -225,21 +225,21 @@ def allTests(communicator):
     names.append("AdapterAMI12")
     names.append("AdapterAMI13")
     while len(names) > 0:
-	adpts = adapters[:]
+        adpts = adapters[:]
 
-	test1 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test2 = createTestIntfPrx(adpts)
-	random.shuffle(adpts)
-	test3 = createTestIntfPrx(adpts)
+        test1 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test2 = createTestIntfPrx(adpts)
+        random.shuffle(adpts)
+        test3 = createTestIntfPrx(adpts)
 
-	test(test1.ice_getConnection() == test2.ice_getConnection())
-	test(test2.ice_getConnection() == test3.ice_getConnection())
+        test(test1.ice_getConnection() == test2.ice_getConnection())
+        test(test2.ice_getConnection() == test3.ice_getConnection())
 
-	name = getAdapterNameWithAMI(test1)
-	if names.count(name) > 0:
-	    names.remove(name)
-	test1.ice_getConnection().close(False)
+        name = getAdapterNameWithAMI(test1)
+        if names.count(name) > 0:
+            names.remove(name)
+        test1.ice_getConnection().close(False)
 
     #
     # Deactivate an adapter and ensure that we can still
@@ -265,10 +265,10 @@ def allTests(communicator):
 
     names = ["Adapter21", "Adapter22", "Adapter23"]
     while len(names) > 0:
-	name = t.getAdapterName()
-	if names.count(name) > 0:
-	    names.remove(name)
-	t.ice_getConnection().close(False)
+        name = t.getAdapterName()
+        if names.count(name) > 0:
+            names.remove(name)
+        t.ice_getConnection().close(False)
 
     t = Test.TestIntfPrx.uncheckedCast(t.ice_endpointSelection(Ice.EndpointSelectionType.Random))
     test(t.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random)
@@ -277,10 +277,10 @@ def allTests(communicator):
     names.append("Adapter22")
     names.append("Adapter23")
     while len(names) > 0:
-	name = t.getAdapterName()
-	if names.count(name) > 0:
-	    names.remove(name)
-	t.ice_getConnection().close(False)
+        name = t.getAdapterName()
+        if names.count(name) > 0:
+            names.remove(name)
+        t.ice_getConnection().close(False)
 
     deactivate(com, adapters)
 
@@ -304,24 +304,24 @@ def allTests(communicator):
     #
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter31":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[0])
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter32":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[1])
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter33":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[2])
 
     try:
-	t.getAdapterName()
+        t.getAdapterName()
     except Ice.ConnectionRefusedException:
-	pass
+        pass
 
     endpoints = t.ice_getEndpoints()
 
@@ -334,19 +334,19 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("Adapter36", endpoints[2].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter36":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     t.ice_getConnection().close(True)
     adapters.append(com.createObjectAdapter("Adapter35", endpoints[1].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter35":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     t.ice_getConnection().close(True)
     adapters.append(com.createObjectAdapter("Adapter34", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter34":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
 
     deactivate(com, adapters)
@@ -369,10 +369,10 @@ def allTests(communicator):
 
     test3 = Test.TestIntfPrx.uncheckedCast(test1)
     try:
-	test(test3.ice_getConnection() == test1.ice_getConnection())
-	test(False)
+        test(test3.ice_getConnection() == test1.ice_getConnection())
+        test(False)
     except Ice.ConnectionRefusedException:
-	pass
+        pass
 
     print "ok"
 
@@ -388,18 +388,18 @@ def allTests(communicator):
 
     names = ["Adapter51", "Adapter52", "Adapter53"]
     while len(names) > 0:
-	name = t.getAdapterName()
-	if names.count(name) > 0:
-	    names.remove(name)
+        name = t.getAdapterName()
+        if names.count(name) > 0:
+            names.remove(name)
 
     com.deactivateObjectAdapter(adapters[0])
 
     names.append("Adapter52")
     names.append("Adapter53")
     while len(names) > 0:
-	name = t.getAdapterName()
-	if names.count(name) > 0:
-	    names.remove(name)
+        name = t.getAdapterName()
+        if names.count(name) > 0:
+            names.remove(name)
 
     com.deactivateObjectAdapter(adapters[2])
 
@@ -421,18 +421,18 @@ def allTests(communicator):
 
     names = ["AdapterAMI51", "AdapterAMI52", "AdapterAMI53"]
     while len(names) > 0:
-	name = getAdapterNameWithAMI(t)
-	if names.count(name) > 0:
-	    names.remove(name)
+        name = getAdapterNameWithAMI(t)
+        if names.count(name) > 0:
+            names.remove(name)
 
     com.deactivateObjectAdapter(adapters[0])
 
     names.append("AdapterAMI52")
     names.append("AdapterAMI53")
     while len(names) > 0:
-	name = getAdapterNameWithAMI(t)
-	if names.count(name) > 0:
-	    names.remove(name)
+        name = getAdapterNameWithAMI(t)
+        if names.count(name) > 0:
+            names.remove(name)
 
     com.deactivateObjectAdapter(adapters[2])
 
@@ -462,24 +462,24 @@ def allTests(communicator):
     #
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter61":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[0])
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter62":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[1])
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter63":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[2])
 
     try:
-	t.getAdapterName()
+        t.getAdapterName()
     except Ice.ConnectionRefusedException:
-	pass
+        pass
 
     endpoints = t.ice_getEndpoints()
 
@@ -492,17 +492,17 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("Adapter66", endpoints[2].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter66":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     adapters.append(com.createObjectAdapter("Adapter65", endpoints[1].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter65":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     adapters.append(com.createObjectAdapter("Adapter64", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter64":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
 
     deactivate(com, adapters)
@@ -529,24 +529,24 @@ def allTests(communicator):
     #
     i = 0
     while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI61":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[0])
     i = 0
     while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI62":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[1])
     i = 0
     while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI63":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     com.deactivateObjectAdapter(adapters[2])
 
     try:
-	t.getAdapterName()
+        t.getAdapterName()
     except Ice.ConnectionRefusedException:
-	pass
+        pass
 
     endpoints = t.ice_getEndpoints()
 
@@ -559,17 +559,17 @@ def allTests(communicator):
     adapters.append(com.createObjectAdapter("AdapterAMI66", endpoints[2].toString()))
     i = 0
     while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI66":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     adapters.append(com.createObjectAdapter("AdapterAMI65", endpoints[1].toString()))
     i = 0
     while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI65":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
     adapters.append(com.createObjectAdapter("AdapterAMI64", endpoints[0].toString()))
     i = 0
     while i < nRetry and getAdapterNameWithAMI(t) == "AdapterAMI64":
-	i = i + 1
+        i = i + 1
     test(i == nRetry)
 
     deactivate(com, adapters)
@@ -588,53 +588,53 @@ def allTests(communicator):
     testUDP = Test.TestIntfPrx.uncheckedCast(t.ice_datagram())
     test(t.ice_getConnection() != testUDP.ice_getConnection())
     try:
-	testUDP.getAdapterName()
+        testUDP.getAdapterName()
     except Ice.TwowayOnlyException:
-	pass
+        pass
 
     print "ok"
 
     if(len(communicator.getProperties().getProperty("Ice.Plugin.IceSSL")) > 0):
-	print "testing unsecure vs. secure endpoints...",
+        print "testing unsecure vs. secure endpoints...",
 
-	adapters = []
-	adapters.append(com.createObjectAdapter("Adapter81", "ssl"))
-	adapters.append(com.createObjectAdapter("Adapter82", "tcp"))
-	
-	t = createTestIntfPrx(adapters)
-	for i in range(0, 5):
-	    test(t.getAdapterName() == "Adapter82")
-	    t.ice_getConnection().close(False)
+        adapters = []
+        adapters.append(com.createObjectAdapter("Adapter81", "ssl"))
+        adapters.append(com.createObjectAdapter("Adapter82", "tcp"))
+        
+        t = createTestIntfPrx(adapters)
+        for i in range(0, 5):
+            test(t.getAdapterName() == "Adapter82")
+            t.ice_getConnection().close(False)
 
-	testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
-	test(testSecure.ice_isSecure())
+        testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
+        test(testSecure.ice_isSecure())
         testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(False))
         test(not testSecure.ice_isSecure())
-	testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
-	test(testSecure.ice_isSecure())
-	test(t.ice_getConnection() != testSecure.ice_getConnection())
+        testSecure = Test.TestIntfPrx.uncheckedCast(t.ice_secure(True))
+        test(testSecure.ice_isSecure())
+        test(t.ice_getConnection() != testSecure.ice_getConnection())
 
-	com.deactivateObjectAdapter(adapters[1])
+        com.deactivateObjectAdapter(adapters[1])
 
-	for i in range(0, 5):
-	    test(t.getAdapterName() == "Adapter81")
-	    t.ice_getConnection().close(False)
+        for i in range(0, 5):
+            test(t.getAdapterName() == "Adapter81")
+            t.ice_getConnection().close(False)
 
-	com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString()) # Reactive tcp OA.
+        com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString()) # Reactive tcp OA.
 
-	for i in range(0, 5):
-	    test(t.getAdapterName() == "Adapter83")
-	    t.ice_getConnection().close(False)
+        for i in range(0, 5):
+            test(t.getAdapterName() == "Adapter83")
+            t.ice_getConnection().close(False)
 
-	com.deactivateObjectAdapter(adapters[0])
-	try:
-	    testSecure.ice_ping()
-	    test(False)
-	except Ice.ConnectionRefusedException:
-	    pass
+        com.deactivateObjectAdapter(adapters[0])
+        try:
+            testSecure.ice_ping()
+            test(False)
+        except Ice.ConnectionRefusedException:
+            pass
 
-	deactivate(com, adapters)
+        deactivate(com, adapters)
 
-	print "ok"
+        print "ok"
 
     com.shutdown()

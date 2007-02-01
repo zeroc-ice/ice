@@ -247,7 +247,7 @@ public:
 
     RecordDescriptor(const DescriptorPtr&, int, const DataFactoryPtr&, const ErrorReporterPtr&,
                      const IceXML::Attributes&, const Slice::UnitPtr&, 
-		     const FreezeScript::ObjectFactoryPtr&);
+                     const FreezeScript::ObjectFactoryPtr&);
 
     virtual void execute(const SymbolTablePtr&, ExecuteInfo*);
 

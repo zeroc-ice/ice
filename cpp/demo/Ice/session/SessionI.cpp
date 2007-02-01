@@ -17,21 +17,21 @@ class HelloI : public Hello
 public:
 
     HelloI(const string& name, int id) :
-	_name(name),
-	_id(id)
+        _name(name),
+        _id(id)
     {
     }
 
     virtual ~HelloI()
     {
-	cout << "Hello object #" << _id << " for session `" << _name << "' destroyed" << endl;
+        cout << "Hello object #" << _id << " for session `" << _name << "' destroyed" << endl;
     }
 
     void
     sayHello(const Ice::Current&) const
     {
-	cout << "Hello object #" << _id << " for session `" << _name << "' says:\n"
-	     << "Hello " << _name << "!" << endl;
+        cout << "Hello object #" << _id << " for session `" << _name << "' says:\n"
+             << "Hello " << _name << "!" << endl;
     }
 
 private:
@@ -55,7 +55,7 @@ SessionI::createHello(const Ice::Current& c)
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
     HelloPrx hello = HelloPrx::uncheckedCast(c.adapter->addWithUUID(new HelloI(_name, _nextId++)));
@@ -69,7 +69,7 @@ SessionI::refresh(const Ice::Current& c)
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
     _timestamp = IceUtil::Time::now();
@@ -81,7 +81,7 @@ SessionI::getName(const Ice::Current&) const
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
     return _name;
@@ -93,7 +93,7 @@ SessionI::destroy(const Ice::Current& c)
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
     _destroy = true;
@@ -101,16 +101,16 @@ SessionI::destroy(const Ice::Current& c)
     cout << "The session " << _name << " is now destroyed." << endl;
     try
     {
-	c.adapter->remove(c.id);
-	for(list<HelloPrx>::const_iterator p = _objs.begin(); p != _objs.end(); ++p)
-	{
-	    c.adapter->remove((*p)->ice_getIdentity());
-	}
+        c.adapter->remove(c.id);
+        for(list<HelloPrx>::const_iterator p = _objs.begin(); p != _objs.end(); ++p)
+        {
+            c.adapter->remove((*p)->ice_getIdentity());
+        }
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
-	// This method is called on shutdown of the server, in which
-	// case this exception is expected.
+        // This method is called on shutdown of the server, in which
+        // case this exception is expected.
     }
 
     _objs.clear();
@@ -122,7 +122,7 @@ SessionI::timestamp() const
     Lock sync(*this);
     if(_destroy)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     return _timestamp;
 }

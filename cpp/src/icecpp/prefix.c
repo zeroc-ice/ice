@@ -79,13 +79,13 @@ Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 #include <windows.h>
 #endif
 
-static char *get_key_value	PROTO((char *));
-static char *translate_name	PROTO((char *));
-static char *concat		PVPROTO((char *, ...));
-static char *save_string	PROTO((char *, int));
+static char *get_key_value      PROTO((char *));
+static char *translate_name     PROTO((char *));
+static char *concat             PVPROTO((char *, ...));
+static char *save_string        PROTO((char *, int));
 
 #ifdef _WIN32
-static char *lookup_key		PROTO((char *));
+static char *lookup_key         PROTO((char *));
 static HKEY reg_key = (HKEY) INVALID_HANDLE_VALUE;
 #endif
 
@@ -158,7 +158,7 @@ concat VPROTO((char *first, ...))
   while (arg != 0)
     {
       while (*arg)
-	*end++ = *arg++;
+        *end++ = *arg++;
       arg = va_arg (args, char *);
     }
   *end = '\000';
@@ -197,11 +197,11 @@ lookup_key (key)
   if (reg_key == (HKEY) INVALID_HANDLE_VALUE)
     {
       res = RegOpenKeyExA (HKEY_LOCAL_MACHINE, "SOFTWARE", 0,
-			   KEY_READ, &reg_key);
+                           KEY_READ, &reg_key);
 
       if (res == ERROR_SUCCESS)
-	res = RegOpenKeyExA (reg_key, "Free Software Foundation", 0,
-			     KEY_READ, &reg_key);
+        res = RegOpenKeyExA (reg_key, "Free Software Foundation", 0,
+                             KEY_READ, &reg_key);
 
       if (res != ERROR_SUCCESS)
         {
@@ -247,9 +247,9 @@ translate_name (name)
   for (keylen = 0;
        (name[keylen + 1] != 0 && name[keylen + 1] != '/'
 #ifdef DIR_SEPARATOR
-	&& name[keylen + 1] != DIR_SEPARATOR
+        && name[keylen + 1] != DIR_SEPARATOR
 #endif
-	);
+        );
        keylen++)
     ;
 
@@ -291,12 +291,12 @@ update_path (path, key)
   if (! strncmp (path, PREFIX, strlen (PREFIX)) && key != 0)
     {
       if (key[0] != '$')
-	key = concat ("@", key, NULL_PTR);
+        key = concat ("@", key, NULL_PTR);
 
       path = concat (key, &path[strlen (PREFIX)], NULL_PTR);
 
       while (path[0] == '@' || path[0] == '$')
-	path = translate_name (path);
+        path = translate_name (path);
     }
       
 #ifdef DIR_SEPARATOR
@@ -307,8 +307,8 @@ update_path (path, key)
 
       path = save_string (path, len);
       for (i = 0; i < len; i++)
-	if (path[i] == '/')
-	  path[i] = DIR_SEPARATOR;
+        if (path[i] == '/')
+          path[i] = DIR_SEPARATOR;
     }
 #endif
 

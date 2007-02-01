@@ -47,7 +47,7 @@ IceUtil::Exception::ice_print(ostream& out) const
 {
     if(_file && _line > 0)
     {
-	out << _file << ':' << _line << ": ";
+        out << _file << ':' << _line << ": ";
     }
     out << ice_name();
 }
@@ -88,7 +88,7 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
 {
     if(nullHandleAbort)
     {
-	abort();
+        abort();
     }
 }
 

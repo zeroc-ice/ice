@@ -171,7 +171,7 @@ public class SimpleInternalFrame extends JPanel {
     }
     
     public JLabel getTitleLabel() {
-	return titleLabel;
+        return titleLabel;
     }
 
 
@@ -290,12 +290,12 @@ public class SimpleInternalFrame extends JPanel {
         gradientPanel.setBorder(BorderFactory.createEmptyBorder(3, 4, 3, 1));
 
         headerPanel = new JPanel(new BorderLayout());
-	
-	Dimension prefSize = new Dimension(0, 24);
-	Dimension maxSize = new Dimension(Short.MAX_VALUE, 24);
-	headerPanel.setMinimumSize(prefSize);
-	headerPanel.setPreferredSize(prefSize);
-	headerPanel.setMaximumSize(maxSize);
+        
+        Dimension prefSize = new Dimension(0, 24);
+        Dimension maxSize = new Dimension(Short.MAX_VALUE, 24);
+        headerPanel.setMinimumSize(prefSize);
+        headerPanel.setPreferredSize(prefSize);
+        headerPanel.setMaximumSize(maxSize);
 
         headerPanel.add(gradientPanel, BorderLayout.CENTER);
         setToolBar(bar);

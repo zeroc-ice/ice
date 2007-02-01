@@ -24,61 +24,61 @@ ReapThread::run()
     vector<ReapableItem> reap;
     while(true)
     {
-	{
-	    Lock sync(*this);
-	    if(_terminated)
-	    {
-		break;
-	    }
+        {
+            Lock sync(*this);
+            if(_terminated)
+            {
+                break;
+            }
 
-	    calcWakeInterval();
+            calcWakeInterval();
 
-	    //
-	    // If the wake interval is zero then we wait forever.
-	    //
-	    if(_wakeInterval == IceUtil::Time())
-	    {
-		assert(_sessions.empty());
-		wait();
-	    }
-	    else
-	    {
-		assert(!_sessions.empty());
-		timedWait(_wakeInterval);
-	    }
-	    
-	    if(_terminated)
-	    {
-		break;
-	    }
+            //
+            // If the wake interval is zero then we wait forever.
+            //
+            if(_wakeInterval == IceUtil::Time())
+            {
+                assert(_sessions.empty());
+                wait();
+            }
+            else
+            {
+                assert(!_sessions.empty());
+                timedWait(_wakeInterval);
+            }
+            
+            if(_terminated)
+            {
+                break;
+            }
 
-	    list<ReapableItem>::iterator p = _sessions.begin();
-	    while(p != _sessions.end())
-	    {
-		try
-		{
-		    if((IceUtil::Time::now() - p->item->timestamp()) > p->timeout)
-		    {
-			reap.push_back(*p);
-			p = _sessions.erase(p);
-		    }
-		    else
-		    {
-			++p;
-		    }
-		}
-		catch(const Ice::ObjectNotExistException&)
-		{
-		    p = _sessions.erase(p);
-		}
-	    }
-	}
+            list<ReapableItem>::iterator p = _sessions.begin();
+            while(p != _sessions.end())
+            {
+                try
+                {
+                    if((IceUtil::Time::now() - p->item->timestamp()) > p->timeout)
+                    {
+                        reap.push_back(*p);
+                        p = _sessions.erase(p);
+                    }
+                    else
+                    {
+                        ++p;
+                    }
+                }
+                catch(const Ice::ObjectNotExistException&)
+                {
+                    p = _sessions.erase(p);
+                }
+            }
+        }
 
-	for(vector<ReapableItem>::const_iterator p = reap.begin(); p != reap.end(); ++p)
-	{
-	    p->item->destroy(false);
-	}
-	reap.clear();
+        for(vector<ReapableItem>::const_iterator p = reap.begin(); p != reap.end(); ++p)
+        {
+            p->item->destroy(false);
+        }
+        reap.clear();
     }
 }
 
@@ -87,20 +87,20 @@ ReapThread::terminate()
 {
     list<ReapableItem> reap;
     {
-	Lock sync(*this);
-	if(_terminated)
-	{
-	    assert(_sessions.empty());
-	    return;
-	}
-	_terminated = true;
-	notify();
-	reap.swap(_sessions);
+        Lock sync(*this);
+        if(_terminated)
+        {
+            assert(_sessions.empty());
+            return;
+        }
+        _terminated = true;
+        notify();
+        reap.swap(_sessions);
     }
 
     for(list<ReapableItem>::iterator p = reap.begin(); p != reap.end(); ++p)
     {
-	p->item->destroy(true);
+        p->item->destroy(true);
     }
 }
 
@@ -110,7 +110,7 @@ ReapThread::add(const ReapablePtr& reapable, int timeout)
     Lock sync(*this);
     if(_terminated)
     {
-	return;
+        return;
     }
 
     //
@@ -118,7 +118,7 @@ ReapThread::add(const ReapablePtr& reapable, int timeout)
     //
     if(timeout < 10)
     {
-	timeout = 10;
+        timeout = 10;
     }
 
     ReapableItem item;
@@ -132,7 +132,7 @@ ReapThread::add(const ReapablePtr& reapable, int timeout)
     //
     if(calcWakeInterval())
     {
-	notify();
+        notify();
     }
 
     //
@@ -154,11 +154,11 @@ ReapThread::calcWakeInterval()
     bool first = true;
     for(list<ReapableItem>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
     {
-	if(first || p->timeout < minimum)
-	{
-	    minimum = p->timeout;
-	    first = false;
-	}
+        if(first || p->timeout < minimum)
+        {
+            minimum = p->timeout;
+            first = false;
+        }
     }
 
     _wakeInterval = minimum;

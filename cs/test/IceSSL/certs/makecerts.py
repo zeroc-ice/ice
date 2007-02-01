@@ -47,7 +47,7 @@ cppcerts = os.path.join(os.environ["ICE_HOME"], "test", "IceSSL", "certs")
 
 for x in ("cacert1.pem", "cacert2.pem"):
     if force or not os.path.exists(x):
-	shutil.copyfile(os.path.join(cppcerts, x), x)
+        shutil.copyfile(os.path.join(cppcerts, x), x)
 
 certs = [\
     "c_rsa_nopass_ca1_exp", \
@@ -60,10 +60,10 @@ certs = [\
 
 for x in certs:
     if force or not os.path.exists(x + ".pfx"):
-	cert = os.path.join(cppcerts, x)
-	os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + x + \
-		  ".pfx -passout pass:password")
-	print "Created " + x + ".pfx"
+        cert = os.path.join(cppcerts, x)
+        os.system("openssl pkcs12 -in " + cert + "_pub.pem -inkey " + cert + "_priv.pem -export -out " + x + \
+                  ".pfx -passout pass:password")
+        print "Created " + x + ".pfx"
 
 #
 # Done.

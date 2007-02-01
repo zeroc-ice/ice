@@ -33,37 +33,37 @@ public:
     StringSetIPtr 
     categories() const
     {
-	return _categories;
+        return _categories;
     }
 
     StringSetIPtr 
     adapterIds() const
     {
-	return _adapters;
+        return _adapters;
     }
 
     IdentitySetIPtr 
     identities() const
     {
-	return _identities;
+        return _identities;
     }
 
     StringSetPrx 
     categoriesPrx() const
     {
-	return _categoriesPrx;
+        return _categoriesPrx;
     }
 
     StringSetPrx
     adapterIdsPrx() const
     {
-	return _adapterIdsPrx;
+        return _adapterIdsPrx;
     }
 
     IdentitySetPrx
     identitiesPrx() const
     {
-	return _identitiesPrx;
+        return _identitiesPrx;
     }
 
     static FilterManager* 

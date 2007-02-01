@@ -13,75 +13,75 @@ class PhoneBookI extends _PhoneBookDisp
 {
     public ContactPrx
     createContact(Ice.Current current)
-	throws DatabaseException
+        throws DatabaseException
     {
-	//
-	// Generate a new unique identity.
-	//
-	Ice.Identity ident = new Ice.Identity();
-	ident.name = Ice.Util.generateUUID();
-	ident.category = "contact";
+        //
+        // Generate a new unique identity.
+        //
+        Ice.Identity ident = new Ice.Identity();
+        ident.name = Ice.Util.generateUUID();
+        ident.category = "contact";
 
-	//
-	// Create a new Contact Servant.
-	//
-	ContactI contact = new ContactI(_contactFactory);
+        //
+        // Create a new Contact Servant.
+        //
+        ContactI contact = new ContactI(_contactFactory);
     
-	//
-	// Create a new Ice Object in the evictor, using the new
-	// identity and the new Servant.
-	//
-	_evictor.add(contact, ident);
+        //
+        // Create a new Ice Object in the evictor, using the new
+        // identity and the new Servant.
+        //
+        _evictor.add(contact, ident);
 
-	return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
+        return ContactPrxHelper.uncheckedCast(current.adapter.createProxy(ident));
     }
 
     public ContactPrx[]
     findContacts(String name, Ice.Current current)
-	throws DatabaseException
+        throws DatabaseException
     {
-	try
-	{
-	    Ice.Identity[] identities = _index.find(name);
+        try
+        {
+            Ice.Identity[] identities = _index.find(name);
 
-	    ContactPrx[] contacts = new ContactPrx[identities.length];
-	    for(int i = 0; i < identities.length; ++i)
-	    {
-		contacts[i] = ContactPrxHelper.uncheckedCast
-		    (current.adapter.createProxy(identities[i]));
-	    }
-	    return contacts;
-	}
-	catch(Freeze.DatabaseException ex)
-	{
-	    DatabaseException e = new DatabaseException();
-	    e.message = ex.message;
-	    throw e;
-	}
+            ContactPrx[] contacts = new ContactPrx[identities.length];
+            for(int i = 0; i < identities.length; ++i)
+            {
+                contacts[i] = ContactPrxHelper.uncheckedCast
+                    (current.adapter.createProxy(identities[i]));
+            }
+            return contacts;
+        }
+        catch(Freeze.DatabaseException ex)
+        {
+            DatabaseException e = new DatabaseException();
+            e.message = ex.message;
+            throw e;
+        }
     }
 
     public void
     setEvictorSize(int size, Ice.Current current)
-	throws DatabaseException
+        throws DatabaseException
     {
-	//
-	// No synchronization necessary, _evictor is immutable.
-	//
-	_evictor.setSize(size);
+        //
+        // No synchronization necessary, _evictor is immutable.
+        //
+        _evictor.setSize(size);
     }
 
     public void
     shutdown(Ice.Current current)
     {
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     PhoneBookI(Freeze.Evictor evictor, ContactFactory contactFactory, 
-	       NameIndex index)
+               NameIndex index)
     {
-	_evictor = evictor;
-	_contactFactory = contactFactory;
-	_index = index;
+        _evictor = evictor;
+        _contactFactory = contactFactory;
+        _index = index;
     }
     
     private Freeze.Evictor _evictor;

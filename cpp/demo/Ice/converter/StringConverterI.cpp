@@ -34,32 +34,32 @@ Demo::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
     {
         unsigned char byte = sourceStart[i];
         if(byte <= 0x7F)
-	{
-	    if(outputBytesLeft == 0)
-	    {
-	        targetStart = buffer.getMoreBytes(chunkSize, targetStart + chunkSize);
-		offset = 0;
-	    }
+        {
+            if(outputBytesLeft == 0)
+            {
+                targetStart = buffer.getMoreBytes(chunkSize, targetStart + chunkSize);
+                offset = 0;
+            }
 
-	    targetStart[offset] = byte;
+            targetStart[offset] = byte;
 
-	    ++offset;
-	    --outputBytesLeft;
-	}
-	else
-	{
-	    if(outputBytesLeft <= 1)
-	    {
-	        targetStart = buffer.getMoreBytes(chunkSize, targetStart + chunkSize - outputBytesLeft);
-		offset = 0;
-	    }
+            ++offset;
+            --outputBytesLeft;
+        }
+        else
+        {
+            if(outputBytesLeft <= 1)
+            {
+                targetStart = buffer.getMoreBytes(chunkSize, targetStart + chunkSize - outputBytesLeft);
+                offset = 0;
+            }
 
-	    targetStart[offset] = 0xC0 | ((byte & 0xC0) >> 6); 
-	    targetStart[offset + 1] = 0x80 | (byte & 0x3F);
+            targetStart[offset] = 0xC0 | ((byte & 0xC0) >> 6); 
+            targetStart[offset + 1] = 0x80 | (byte & 0x3F);
 
-	    offset += 2;
-	    outputBytesLeft -= 2;
-	}
+            offset += 2;
+            outputBytesLeft -= 2;
+        }
     }
 
     return targetStart + offset;
@@ -67,7 +67,7 @@ Demo::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, I
 
 void
 Demo::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd, 
-				 string& target) const
+                                 string& target) const
 {
     size_t inSize = static_cast<size_t>(sourceEnd - sourceStart);
     target.resize(inSize);
@@ -77,21 +77,21 @@ Demo::StringConverterI::fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* 
     while(i < inSize)
     {
         if((sourceStart[i] & 0xC0) == 0xC0)
-	{
-	    if(i + 1 >= inSize)
-	    {
-	        throw Ice::StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
-	    }
-	    target[targetIndex] = (sourceStart[i] & 0x03) << 6;
-	    target[targetIndex] = target[targetIndex] | (sourceStart[i + 1] & 0x3F);
-	    i += 2;
-	}
-	else
-	{
-	    target[targetIndex] = sourceStart[i];
-	    ++i;
-	}
-	++targetIndex;
+        {
+            if(i + 1 >= inSize)
+            {
+                throw Ice::StringConversionException(__FILE__, __LINE__, "UTF-8 string source exhausted");
+            }
+            target[targetIndex] = (sourceStart[i] & 0x03) << 6;
+            target[targetIndex] = target[targetIndex] | (sourceStart[i + 1] & 0x3F);
+            i += 2;
+        }
+        else
+        {
+            target[targetIndex] = sourceStart[i];
+            ++i;
+        }
+        ++targetIndex;
     }
 
     target.resize(targetIndex);

@@ -19,7 +19,7 @@ public sealed class TestCheckedCastI : Test.TestCheckedCastDisp_
     ice_isA(string s, Ice.Current current)
     {
         _ctx = current.ctx;
-	return base.ice_isA(s, current);
+        return base.ice_isA(s, current);
     }
 
     private Ice.Context _ctx;

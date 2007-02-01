@@ -10,7 +10,7 @@
 
 def test(b)
     if !b
-	raise RuntimeError, 'test assertion failed'
+        raise RuntimeError, 'test assertion failed'
     end
 end
 
@@ -29,7 +29,7 @@ def allTests(communicator)
     STDOUT.flush
     test(Ice::SliceChecksums.length > 0)
     for i in Ice::SliceChecksums.keys
-	test(!i.include?("Local"))
+        test(!i.include?("Local"))
     end
 
     #
@@ -44,19 +44,19 @@ def allTests(communicator)
     #
     patt = Regexp.new("\\d+")
     for i in d.keys
-	n = 0
-	m = patt.match(i)
-	if m
-	    n = i[m.begin(0)...i.length].to_i
-	end
+        n = 0
+        m = patt.match(i)
+        if m
+            n = i[m.begin(0)...i.length].to_i
+        end
 
-	test(Ice::SliceChecksums.has_key?(i))
+        test(Ice::SliceChecksums.has_key?(i))
 
-	if n <= 1
-	    test(Ice::SliceChecksums[i] == d[i])
-	else
-	    test(Ice::SliceChecksums[i] != d[i])
-	end
+        if n <= 1
+            test(Ice::SliceChecksums[i] == d[i])
+        else
+            test(Ice::SliceChecksums[i] != d[i])
+        end
     end
 
     puts "ok"

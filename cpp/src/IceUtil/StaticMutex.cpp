@@ -55,14 +55,14 @@ Init::~Init()
 {
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
     for(MutexList::iterator p = _mutexList->begin(); 
-	p != _mutexList->end(); ++p)
+        p != _mutexList->end(); ++p)
     {
-	DeleteCriticalSection(*p);
-	delete *p;
+        DeleteCriticalSection(*p);
+        delete *p;
     }
 #   else
     for_each(_mutexList->begin(), _mutexList->end(), 
-	     CloseHandle);
+             CloseHandle);
 #   endif
     delete _mutexList;
     DeleteCriticalSection(&_criticalSection);
@@ -83,25 +83,25 @@ void IceUtil::StaticMutex::initialize() const
     if(_mutex == 0)
     {
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
-	CRITICAL_SECTION* newMutex = new CRITICAL_SECTION;
-	InitializeCriticalSection(newMutex);
+        CRITICAL_SECTION* newMutex = new CRITICAL_SECTION;
+        InitializeCriticalSection(newMutex);
 #   else
-	_recursionCount = 0;
-	
-	HANDLE newMutex = CreateMutex(0, false, 0);
-	if(newMutex == 0)
-	{
-	    LeaveCriticalSection(&_criticalSection);
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        _recursionCount = 0;
+        
+        HANDLE newMutex = CreateMutex(0, false, 0);
+        if(newMutex == 0)
+        {
+            LeaveCriticalSection(&_criticalSection);
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
 #   endif
 
-	//
-	// _mutex is written after the new initialized CRITICAL_SECTION/Mutex
-	//
-	void* oldVal = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&_mutex), newMutex, 0);
-	assert(oldVal == 0);
-	_mutexList->push_back(_mutex);
+        //
+        // _mutex is written after the new initialized CRITICAL_SECTION/Mutex
+        //
+        void* oldVal = InterlockedCompareExchangePointer(reinterpret_cast<void**>(&_mutex), newMutex, 0);
+        assert(oldVal == 0);
+        _mutexList->push_back(_mutex);
 
     }
     LeaveCriticalSection(&_criticalSection);

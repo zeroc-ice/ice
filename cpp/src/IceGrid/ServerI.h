@@ -47,26 +47,26 @@ public:
 
     enum InternalServerState
     {
-	Loading,
-	Patching,
-	Inactive,
-	Activating,
-	WaitForActivation,
-	ActivationTimeout,
-	Active,
-	Deactivating,
-	DeactivatingWaitForProcess,
-	Destroying,
-	Destroyed
+        Loading,
+        Patching,
+        Inactive,
+        Activating,
+        WaitForActivation,
+        ActivationTimeout,
+        Active,
+        Deactivating,
+        DeactivatingWaitForProcess,
+        Destroying,
+        Destroyed
     };
 
     enum ServerActivation
     {
-	Always,
-	Session,
-	OnDemand,
-	Manual,
-	Disabled
+        Always,
+        Session,
+        OnDemand,
+        Manual,
+        Disabled
     };
 
     ServerI(const NodeIPtr&, const ServerPrx&, const std::string&, const std::string&, int);

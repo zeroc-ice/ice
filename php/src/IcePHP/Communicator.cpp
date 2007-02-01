@@ -324,7 +324,7 @@ ZEND_FUNCTION(Ice_Communicator_identityToString)
     ice_object* obj = getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
-	return;
+        return;
     }
     assert(obj->ptr);
     Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
@@ -357,7 +357,7 @@ ZEND_FUNCTION(Ice_Communicator_stringToIdentity)
     ice_object* obj = getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
-	return;
+        return;
     }
     assert(obj->ptr);
     Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
@@ -527,7 +527,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleFreeStorage,
-					   NULL TSRMLS_CC);
+                                           NULL TSRMLS_CC);
     result.handlers = &_handlers;
 
     return result;
@@ -587,11 +587,11 @@ handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
         if(!obj->ptr)
         {
-	    if(ICE_G(profile) == NULL)
-	    {
+            if(ICE_G(profile) == NULL)
+            {
                 php_error_docref(NULL TSRMLS_CC, E_ERROR, "$ICE used before a profile was loaded");
                 return 0;
-	    }
+            }
 
             try
             {

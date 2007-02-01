@@ -39,8 +39,8 @@ class UnknownManagerException : public Exception
 public:
     
     UnknownManagerException(const string& name, const char* file, int line) :
-	Exception(file, line),
-	name(name)
+        Exception(file, line),
+        name(name)
     {
     }
 
@@ -51,18 +51,18 @@ public:
     virtual string
     ice_name() const
     {
-	return "UnknownManagerException";
+        return "UnknownManagerException";
     }
     virtual Exception*
     ice_clone() const
     {
-	return new UnknownManagerException(*this);
+        return new UnknownManagerException(*this);
     }
     
     virtual void
     ice_throw() const
     {
-	throw *this;
+        throw *this;
     }
     const string name;
 };
@@ -71,7 +71,7 @@ public:
 
 ParserPtr
 Parser::createParser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
-		     const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers)
+                     const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers)
 {
     return new Parser(communicator, admin, managers);
 }
@@ -102,18 +102,18 @@ Parser::create(const list<string>& args)
 
     try
     {
-	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
-	{
-	    string arg;
-	    IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
-	    manager->create(arg);
-	}
+        for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+        {
+            string arg;
+            IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
+            manager->create(arg);
+        }
     }
     catch(const Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -122,19 +122,19 @@ Parser::destroy(const list<string>& args)
 {
     try
     {
-	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
-	{
-	    string arg;
-	    IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
-	    TopicPrx topic = manager->retrieve(arg);
-	    topic->destroy();
-	}
+        for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+        {
+            string arg;
+            IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
+            TopicPrx topic = manager->retrieve(arg);
+            topic->destroy();
+        }
     }
     catch(const Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -145,56 +145,56 @@ Parser::link(const list<string>& _args)
 
     if(args.size() < 2)
     {
-	error("`link' requires at least two arguments (type `help' for more info)");
-	return;
+        error("`link' requires at least two arguments (type `help' for more info)");
+        return;
     }
 
     try
     {    
-	TopicPrx fromTopic;
-	TopicPrx toTopic;
-	
-	try
-	{
-	    string arg;
-	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-	    fromTopic = manager->retrieve(arg);
-	}
-	catch(const IceStorm::NoSuchTopic&)
-	{
-	    ostringstream s;
-	    s << args.front() << ": topic doesn't exist";
-	    error(s.str());
-	    return;
-	}
-	args.pop_front();
-	
-	try
-	{
-	    string arg;
-	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-	    toTopic = manager->retrieve(arg);
-	}
-	catch(const IceStorm::NoSuchTopic&)
-	{
-	    ostringstream s;
-	    s << args.front() << ": topic doesn't exist";
-	    error(s.str());
-	    return;
-	}
-	args.pop_front();
-	Ice::Int cost = 0;
-	if(!args.empty())
-	{
-	    cost = atoi(args.front().c_str());
-	}
-	fromTopic->link(toTopic, cost);
+        TopicPrx fromTopic;
+        TopicPrx toTopic;
+        
+        try
+        {
+            string arg;
+            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+            fromTopic = manager->retrieve(arg);
+        }
+        catch(const IceStorm::NoSuchTopic&)
+        {
+            ostringstream s;
+            s << args.front() << ": topic doesn't exist";
+            error(s.str());
+            return;
+        }
+        args.pop_front();
+        
+        try
+        {
+            string arg;
+            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+            toTopic = manager->retrieve(arg);
+        }
+        catch(const IceStorm::NoSuchTopic&)
+        {
+            ostringstream s;
+            s << args.front() << ": topic doesn't exist";
+            error(s.str());
+            return;
+        }
+        args.pop_front();
+        Ice::Int cost = 0;
+        if(!args.empty())
+        {
+            cost = atoi(args.front().c_str());
+        }
+        fromTopic->link(toTopic, cost);
     }
     catch(const Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -205,51 +205,51 @@ Parser::unlink(const list<string>& _args)
 
     if(args.size() != 2)
     {
-	error("`unlink' requires exactly two arguments (type `help' for more info)");
-	return;
+        error("`unlink' requires exactly two arguments (type `help' for more info)");
+        return;
     }
 
     try
     {    
-	TopicPrx fromTopic;
-	TopicPrx toTopic;
-	
-	try
-	{
-	    string arg;
-	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-	    fromTopic = manager->retrieve(arg);
-	}
-	catch(const IceStorm::NoSuchTopic&)
-	{
-	    ostringstream s;
-	    s << args.front() << ": topic doesn't exist";
-	    error(s.str());
-	    return;
-	}
-	args.pop_front();
-	
-	try
-	{
-	    string arg;
-	    IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-	    toTopic = manager->retrieve(arg);
-	}
-	catch(const IceStorm::NoSuchTopic&)
-	{
-	    ostringstream s;
-	    s << args.front() << ": topic doesn't exist";
-	    error(s.str());
-	    return;
-	}
+        TopicPrx fromTopic;
+        TopicPrx toTopic;
+        
+        try
+        {
+            string arg;
+            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+            fromTopic = manager->retrieve(arg);
+        }
+        catch(const IceStorm::NoSuchTopic&)
+        {
+            ostringstream s;
+            s << args.front() << ": topic doesn't exist";
+            error(s.str());
+            return;
+        }
+        args.pop_front();
+        
+        try
+        {
+            string arg;
+            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
+            toTopic = manager->retrieve(arg);
+        }
+        catch(const IceStorm::NoSuchTopic&)
+        {
+            ostringstream s;
+            s << args.front() << ": topic doesn't exist";
+            error(s.str());
+            return;
+        }
 
-	fromTopic->unlink(toTopic);
+        fromTopic->unlink(toTopic);
     }
     catch(const Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -260,22 +260,22 @@ Parser::current(const list<string>& _args)
 
     if(args.size() == 0)
     {
-	cout << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
-	return;
+        cout << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
+        return;
     }
 
     try
     {
-	IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
-	manager->ice_ping();
-	_defaultManager = manager;
+        IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
+        manager->ice_ping();
+        _defaultManager = manager;
     }
     catch(const Exception& ex)
     {
-	ostringstream s;
-	s << args.front() << ": " << ex;
-	error(s.str());
-	return;
+        ostringstream s;
+        s << args.front() << ": " << ex;
+        error(s.str());
+        return;
     }
 }
 
@@ -286,60 +286,60 @@ Parser::dolist(const list<string>& _args)
 
     try
     {
-	if(args.size() <= 1)
-	{
-	    IceStorm::TopicManagerPrx manager;
-	    if(args.size() == 1)
-	    {
-		manager = findManagerByCategory(args.front());
-	    }
-	    else
-	    {
-		manager = _defaultManager;
-	    }
-	    TopicDict d = manager->retrieveAll();
-	    if(!d.empty())
-	    {
-		for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
-		{
-		    if(i != d.begin())
-		    {
-			cout << ", ";
-		    }
-		    cout << i->first;
-		}
-		cout << endl;
-	    }
-	}
-	else
-	{
-	    IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
-	    args.pop_front();
-	    while(!args.empty())
-	    {
-		try
-		{
-		    string arg = args.front();
-		    args.pop_front();
-		    TopicPrx topic = manager->retrieve(arg);
-		    LinkInfoSeq links = topic->getLinkInfoSeq();
-		    for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
-		    {
-			cout << "\t" << (*p).name << " with cost " << (*p).cost << endl;
-		    }
-		}
-		catch(const NoSuchTopic&)
-		{
-		    cout << "\tNo such topic" << endl;
-		}
-	    }
-	}
+        if(args.size() <= 1)
+        {
+            IceStorm::TopicManagerPrx manager;
+            if(args.size() == 1)
+            {
+                manager = findManagerByCategory(args.front());
+            }
+            else
+            {
+                manager = _defaultManager;
+            }
+            TopicDict d = manager->retrieveAll();
+            if(!d.empty())
+            {
+                for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+                {
+                    if(i != d.begin())
+                    {
+                        cout << ", ";
+                    }
+                    cout << i->first;
+                }
+                cout << endl;
+            }
+        }
+        else
+        {
+            IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
+            args.pop_front();
+            while(!args.empty())
+            {
+                try
+                {
+                    string arg = args.front();
+                    args.pop_front();
+                    TopicPrx topic = manager->retrieve(arg);
+                    LinkInfoSeq links = topic->getLinkInfoSeq();
+                    for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
+                    {
+                        cout << "\t" << (*p).name << " with cost " << (*p).cost << endl;
+                    }
+                }
+                catch(const NoSuchTopic&)
+                {
+                    cout << "\tNo such topic" << endl;
+                }
+            }
+        }
     }
     catch(const Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -366,105 +366,105 @@ Parser::getInput(char* buf, int& result, int maxSize)
 {
     if(!_commands.empty())
     {
-	if(_commands == ";")
-	{
-	    result = 0;
-	}
-	else
-	{
+        if(_commands == ";")
+        {
+            result = 0;
+        }
+        else
+        {
 #if defined(_MSC_VER) && !defined(_STLP_MSVC)
-	    // COMPILERBUG: Stupid Visual C++ defines min and max as macros
-	    result = _MIN(maxSize, static_cast<int>(_commands.length()));
+            // COMPILERBUG: Stupid Visual C++ defines min and max as macros
+            result = _MIN(maxSize, static_cast<int>(_commands.length()));
 #else
-	    result = min(maxSize, static_cast<int>(_commands.length()));
+            result = min(maxSize, static_cast<int>(_commands.length()));
 #endif
-	    strncpy(buf, _commands.c_str(), result);
-	    _commands.erase(0, result);
-	    if(_commands.empty())
-	    {
-		_commands = ";";
-	    }
-	}
+            strncpy(buf, _commands.c_str(), result);
+            _commands.erase(0, result);
+            if(_commands.empty())
+            {
+                _commands = ";";
+            }
+        }
     }
     else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
         const char* prompt = parser->getPrompt();
-	char* line = readline(const_cast<char*>(prompt));
-	if(!line)
-	{
-	    result = 0;
-	}
-	else
-	{
-	    if(*line)
-	    {
-		add_history(line);
-	    }
+        char* line = readline(const_cast<char*>(prompt));
+        if(!line)
+        {
+            result = 0;
+        }
+        else
+        {
+            if(*line)
+            {
+                add_history(line);
+            }
 
-	    result = strlen(line) + 1;
-	    if(result > maxSize)
-	    {
-		free(line);
-		error("input line too long");
-		result = 0;
-	    }
-	    else
-	    {
-		strcpy(buf, line);
-		strcat(buf, "\n");
-		free(line);
-	    }
-	}
+            result = strlen(line) + 1;
+            if(result > maxSize)
+            {
+                free(line);
+                error("input line too long");
+                result = 0;
+            }
+            else
+            {
+                strcpy(buf, line);
+                strcat(buf, "\n");
+                free(line);
+            }
+        }
 
 #else
 
-	cout << parser->getPrompt() << flush;
+        cout << parser->getPrompt() << flush;
 
-	string line;
-	while(true)
-	{
-	    char c = static_cast<char>(getc(yyin));
-	    if(c == EOF)
-	    {
-		if(line.size())
-		{
-		    line += '\n';
-		}
-		break;
-	    }
+        string line;
+        while(true)
+        {
+            char c = static_cast<char>(getc(yyin));
+            if(c == EOF)
+            {
+                if(line.size())
+                {
+                    line += '\n';
+                }
+                break;
+            }
 
-	    line += c;
+            line += c;
 
-	    if(c == '\n')
-	    {
-		break;
-	    }
-	}
-	
-	result = (int) line.length();
-	if(result > maxSize)
-	{
-	    error("input line too long");
-	    buf[0] = EOF;
-	    result = 1;
-	}
-	else
-	{
-	    strcpy(buf, line.c_str());
-	}
+            if(c == '\n')
+            {
+                break;
+            }
+        }
+        
+        result = (int) line.length();
+        if(result > maxSize)
+        {
+            error("input line too long");
+            buf[0] = EOF;
+            result = 1;
+        }
+        else
+        {
+            strcpy(buf, line.c_str());
+        }
 
 #endif
     }
     else
     {
-	if(((result = (int) fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
-	{
-	    error("input in flex scanner failed");
-	    buf[0] = EOF;
-	    result = 1;
-	}
+        if(((result = (int) fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+        {
+            error("input in flex scanner failed");
+            buf[0] = EOF;
+            result = 1;
+        }
     }
 }
 
@@ -487,12 +487,12 @@ Parser::getPrompt()
 
     if(_continue)
     {
-	_continue = false;
-	return "(cont) ";
+        _continue = false;
+        return "(cont) ";
     }
     else
     {
-	return ">>> ";
+        return ">>> ";
     }
 }
 
@@ -505,13 +505,13 @@ Parser::scanPosition(const char* s)
     idx = line.find("line");
     if(idx != string::npos)
     {
-	line.erase(0, idx + 4);
+        line.erase(0, idx + 4);
     }
 
     idx = line.find_first_not_of(" \t\r#");
     if(idx != string::npos)
     {
-	line.erase(0, idx);
+        line.erase(0, idx);
     }
 
     _currentLine = atoi(line.c_str()) - 1;
@@ -519,24 +519,24 @@ Parser::scanPosition(const char* s)
     idx = line.find_first_of(" \t\r");
     if(idx != string::npos)
     {
-	line.erase(0, idx);
+        line.erase(0, idx);
     }
 
     idx = line.find_first_not_of(" \t\r\"");
     if(idx != string::npos)
     {
-	line.erase(0, idx);
+        line.erase(0, idx);
 
-	idx = line.find_first_of(" \t\r\"");
-	if(idx != string::npos)
-	{
-	    _currentFile = line.substr(0, idx);
-	    line.erase(0, idx + 1);
-	}
-	else
-	{
-	    _currentFile = line;
-	}
+        idx = line.find_first_of(" \t\r\"");
+        if(idx != string::npos)
+        {
+            _currentFile = line.substr(0, idx);
+            line.erase(0, idx + 1);
+        }
+        else
+        {
+            _currentFile = line;
+        }
     }
 }
 
@@ -545,11 +545,11 @@ Parser::error(const char* s)
 {
     if(_commands.empty() && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
+        cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
     else
     {
-	cerr << "error: " << s << endl;
+        cerr << "error: " << s << endl;
     }
     _errors++;
 }
@@ -565,11 +565,11 @@ Parser::warning(const char* s)
 {
     if(_commands.empty() && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
+        cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
     else
     {
-	cerr << "warning: " << s << endl;
+        cerr << "warning: " << s << endl;
     }
 }
 
@@ -600,7 +600,7 @@ Parser::parse(FILE* file, bool debug)
     int status = yyparse();
     if(_errors)
     {
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     parser = 0;
@@ -628,7 +628,7 @@ Parser::parse(const std::string& commands, bool debug)
     int status = yyparse();
     if(_errors)
     {
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     parser = 0;
@@ -642,13 +642,13 @@ Parser::findManagerById(const string& full, string& arg) const
     arg = id.name;
     if(id.category.empty())
     {
-	return _defaultManager;
+        return _defaultManager;
     }
    id.name = "TopicManager";
     map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = _managers.find(id);
     if(p == _managers.end())
     {
-	throw UnknownManagerException(id.category, __FILE__, __LINE__);
+        throw UnknownManagerException(id.category, __FILE__, __LINE__);
     }
     return p->second;
 }
@@ -662,13 +662,13 @@ Parser::findManagerByCategory(const string& full) const
     map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = _managers.find(id);
     if(p == _managers.end())
     {
-	throw UnknownManagerException(id.category, __FILE__, __LINE__);
+        throw UnknownManagerException(id.category, __FILE__, __LINE__);
     }
     return p->second;
 }
 
 Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
-	       const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers) :
+               const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers) :
     _communicator(communicator),
     _defaultManager(admin),
     _managers(managers)

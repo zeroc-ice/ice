@@ -101,7 +101,7 @@ final class UnknownEndpointI extends EndpointI
     public EndpointI
     compress(boolean compress)
     {
-	return this;
+        return this;
     }
 
     //
@@ -188,7 +188,7 @@ final class UnknownEndpointI extends EndpointI
     expand(boolean server)
     {
         assert(false);
-	return null;
+        return null;
     }
 
     //

@@ -14,8 +14,8 @@ Module AllocateS
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Hello")
-	    Dim properties As Ice.Properties = communicator().getProperties()
-	    Dim id As Ice.Identity = communicator().stringToIdentity(properties.getProperty("Identity"))
+            Dim properties As Ice.Properties = communicator().getProperties()
+            Dim id As Ice.Identity = communicator().stringToIdentity(properties.getProperty("Identity"))
             adapter.add(New HelloI(properties.getProperty("Ice.ServerId")), id)
             adapter.activate()
             communicator.waitForShutdown()

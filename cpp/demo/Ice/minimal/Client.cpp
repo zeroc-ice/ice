@@ -21,35 +21,35 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
-	if(!hello)
-	{
-	    cerr << argv[0] << ": invalid proxy" << endl;
-	    status = EXIT_FAILURE;
-	}
-	else
-	{
-	    hello->sayHello();
-	}
+        communicator = Ice::initialize(argc, argv);
+        HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
+        if(!hello)
+        {
+            cerr << argv[0] << ": invalid proxy" << endl;
+            status = EXIT_FAILURE;
+        }
+        else
+        {
+            hello->sayHello();
+        }
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

@@ -120,14 +120,14 @@ public:
 
     ServiceDescriptorPtr getDescriptor() const;
     ServiceDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
-				     const PropertySetDescriptorDict&) const;
+                                     const PropertySetDescriptorDict&) const;
 
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
 
 protected:
 
     void instantiateImpl(const ServiceDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
-			 const PropertySetDescriptorDict&) const;
+                         const PropertySetDescriptorDict&) const;
 
 private:
     
@@ -146,7 +146,7 @@ public:
 
     ServerDescriptorPtr getDescriptor() const;
     virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&,
- 					    const PropertySetDescriptorDict&) const;
+                                            const PropertySetDescriptorDict&) const;
 
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&, const ServerInfo&) const;
@@ -167,10 +167,10 @@ class InstanceHelper
 protected:
 
     std::map<std::string, std::string> instantiateParams(const Resolver&, 
-							 const std::string&, 
-							 const std::map<std::string, std::string>&,
-							 const std::vector<std::string>&,
-							 const std::map<std::string, std::string>&) const;
+                                                         const std::string&, 
+                                                         const std::map<std::string, std::string>&,
+                                                         const std::vector<std::string>&,
+                                                         const std::map<std::string, std::string>&) const;
 };
 
 
@@ -206,7 +206,7 @@ public:
     bool operator!=(const IceBoxHelper&) const;    
 
     virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
-					    const PropertySetDescriptorDict&) const;
+                                            const PropertySetDescriptorDict&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
@@ -218,7 +218,7 @@ public:
 protected:
 
     void instantiateImpl(const IceBoxDescriptorPtr&, const Resolver&, const PropertyDescriptorSeq&,
-			 const PropertySetDescriptorDict&) const;
+                         const PropertySetDescriptorDict&) const;
 
 private:
     

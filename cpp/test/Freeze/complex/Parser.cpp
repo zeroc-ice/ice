@@ -45,7 +45,7 @@ Parser::parse(const string& commands, bool debug)
 
     if(_errors)
     {
-	return 0;
+        return 0;
     }
 
     return _result;
@@ -70,17 +70,17 @@ Parser::getInput(char* buf, int& result, int maxSize)
     if(!_buf.empty())
     {
 #if defined(_MSC_VER) && !defined(_STLP_MSVC)
-	// COMPILERBUG: Stupid Visual C++ defines min and max as macros
-	result = _MIN(maxSize, static_cast<int>(_buf.length()));
+        // COMPILERBUG: Stupid Visual C++ defines min and max as macros
+        result = _MIN(maxSize, static_cast<int>(_buf.length()));
 #else
-	result = min(maxSize, static_cast<int>(_buf.length()));
+        result = min(maxSize, static_cast<int>(_buf.length()));
 #endif
-	strncpy(buf, _buf.c_str(), result);
-	_buf.erase(0, result);
+        strncpy(buf, _buf.c_str(), result);
+        _buf.erase(0, result);
     }
     else
     {
-	result = 0;
+        result = 0;
     }
 }
 

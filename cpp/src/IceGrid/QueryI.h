@@ -31,7 +31,7 @@ public:
     virtual Ice::ObjectPrx findObjectByType(const ::std::string&, const ::Ice::Current&) const;
 
     virtual Ice::ObjectPrx findObjectByTypeOnLeastLoadedNode(const ::std::string&, LoadSample,
-							     const ::Ice::Current&) const;
+                                                             const ::Ice::Current&) const;
 
     virtual Ice::ObjectProxySeq findAllObjectsByType(const ::std::string&, const ::Ice::Current&) const;
 

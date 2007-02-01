@@ -30,7 +30,7 @@ class MapIndexI
 public:
     
     MapIndexI(const ConnectionIPtr&, SharedDb&,
-	      DbTxn*, bool, const MapIndexBasePtr&);
+              DbTxn*, bool, const MapIndexBasePtr&);
 
     ~MapIndexI();
    
@@ -45,17 +45,17 @@ public:
 
     const std::string name() const
     {
-	return _index->name();
+        return _index->name();
     }
     
     Db* db() const
     {
-	return _db.get();
+        return _db.get();
     }
 
     const MapIndexBasePtr& getKeyCompare() const
     {
-	return _index;
+        return _index;
     }
 
 private:
@@ -73,9 +73,9 @@ public:
     using Db::get;
 
     static SharedDbPtr get(const ConnectionIPtr&, const std::string&,
-			   const std::string&, const std::string&,
-			   const KeyCompareBasePtr&,
-			   const std::vector<MapIndexBasePtr>&, bool);
+                           const std::string&, const std::string&,
+                           const KeyCompareBasePtr&,
+                           const std::vector<MapIndexBasePtr>&, bool);
 
     static SharedDbPtr openCatalog(SharedDbEnv&);
 
@@ -101,7 +101,7 @@ public:
     virtual int 
     get(DbTxn *txnid, Dbt *key, Dbt *data, u_int32_t flags)
     {
-	return ::Db::get(txnid, key, data, flags);
+        return ::Db::get(txnid, key, data, flags);
     }
 #endif
 
@@ -111,19 +111,19 @@ private:
 
     struct MapKey
     {
-	std::string envName;
-	Ice::CommunicatorPtr communicator;
-	std::string dbName;
+        std::string envName;
+        Ice::CommunicatorPtr communicator;
+        std::string dbName;
 
-	inline bool
-	operator<(const MapKey& rhs) const;
+        inline bool
+        operator<(const MapKey& rhs) const;
     };
 
     typedef std::map<MapKey, Freeze::SharedDb*> SharedDbMap;
    
     SharedDb(const MapKey&, const std::string&, const std::string&,
-	     const ConnectionIPtr&, const KeyCompareBasePtr&,
-	     const std::vector<MapIndexBasePtr>&, bool);
+             const ConnectionIPtr&, const KeyCompareBasePtr&,
+             const std::vector<MapIndexBasePtr>&, bool);
     
     SharedDb(const MapKey&, DbEnv*);
     
@@ -170,8 +170,8 @@ inline bool
 SharedDb::MapKey::operator<(const MapKey& rhs) const
 {
     return (communicator < rhs.communicator) ||
-	((communicator == rhs.communicator) && (dbName < rhs.dbName)) ||
-	((communicator == rhs.communicator) && (dbName == rhs.dbName) && (envName < rhs.envName));
+        ((communicator == rhs.communicator) && (dbName < rhs.dbName)) ||
+        ((communicator == rhs.communicator) && (dbName == rhs.dbName) && (envName < rhs.envName));
 }
     
 }

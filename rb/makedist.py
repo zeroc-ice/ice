@@ -107,7 +107,7 @@ print "Checking out C++ sources using CVS tag " + tag + "..."
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/slice")
 if not skipDocs or not skipTranslator:
     os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-	      " ice/bin ice/config ice/doc ice/include ice/lib ice/src")
+              " ice/bin ice/config ice/doc ice/include ice/lib ice/src")
 
 #
 # Copy Slice directories.
@@ -130,7 +130,7 @@ for x in slicedirs:
 #
 #for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
 #    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
-#	shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
+#       shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
 
 #
 # Remove files.
@@ -217,9 +217,9 @@ if not skipTranslator:
     cwd = os.getcwd()
     os.chdir(os.path.join("icerb", "src"))
     if verbose:
-	quiet = ""
+        quiet = ""
     else:
-	quiet = " -s"
+        quiet = " -s"
     os.system("gmake" + quiet + " clean")
     os.chdir(cwd)
 

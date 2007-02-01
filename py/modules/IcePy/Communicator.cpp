@@ -105,29 +105,29 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     Ice::InitializationData data;
     if(initData)
     {
-	PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
-	PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
-	PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
+        PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
+        PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
+        PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
 
-	if(properties.get() && properties.get() != Py_None)
-	{
-	    //
-	    // Get the properties implementation.
-	    //
-	    PyObjectHandle impl = PyObject_GetAttrString(properties.get(), STRCAST("_impl"));
-	    assert(impl.get() != NULL);
-	    data.properties = getProperties(impl.get());
-	}
+        if(properties.get() && properties.get() != Py_None)
+        {
+            //
+            // Get the properties implementation.
+            //
+            PyObjectHandle impl = PyObject_GetAttrString(properties.get(), STRCAST("_impl"));
+            assert(impl.get() != NULL);
+            data.properties = getProperties(impl.get());
+        }
 
-	if(logger.get() && logger.get() != Py_None)
-	{
-	    data.logger = new LoggerWrapper(logger.get());
-	}
+        if(logger.get() && logger.get() != Py_None)
+        {
+            data.logger = new LoggerWrapper(logger.get());
+        }
 
-	if(threadHook.get() && threadHook.get() != Py_None)
-	{
-	    data.threadHook = new ThreadNotificationWrapper(threadHook.get());
-	}
+        if(threadHook.get() && threadHook.get() != Py_None)
+        {
+            data.threadHook = new ThreadNotificationWrapper(threadHook.get());
+        }
 
     }
 
@@ -149,32 +149,32 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     int i = 0;
     for(Ice::StringSeq::const_iterator s = seq.begin(); s != seq.end(); ++s, ++i)
     {
-	argv[i] = strdup(s->c_str());
+        argv[i] = strdup(s->c_str());
     }
     argv[argc] = 0;
 
     Ice::CommunicatorPtr communicator;
     try
     {
-	if(hasArgs)
-	{
-	    communicator = Ice::initialize(argc, argv, data);
-	}
-	else
-	{
-	    communicator = Ice::initialize(data);
-	}
+        if(hasArgs)
+        {
+            communicator = Ice::initialize(argc, argv, data);
+        }
+        else
+        {
+            communicator = Ice::initialize(data);
+        }
     }
     catch(const Ice::Exception& ex)
     {
-	for(i = 0; i < argc + 1; ++i)
-	{
-	    free(argv[i]);
-	}
-	delete[] argv;
+        for(i = 0; i < argc + 1; ++i)
+        {
+            free(argv[i]);
+        }
+        delete[] argv;
 
-	setPythonException(ex);
-	return -1;
+        setPythonException(ex);
+        return -1;
     }
     
     //
@@ -182,18 +182,18 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     if(arglist)
     {
-	PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL); // Clear the list.
+        PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL); // Clear the list.
 
-	for(i = 0; i < argc; ++i)
-	{
-	    PyObjectHandle str = Py_BuildValue(STRCAST("s"), argv[i]);
-	    PyList_Append(arglist, str.get());
-	}
+        for(i = 0; i < argc; ++i)
+        {
+            PyObjectHandle str = Py_BuildValue(STRCAST("s"), argv[i]);
+            PyList_Append(arglist, str.get());
+        }
     }
 
     for(i = 0; i < argc + 1; ++i)
     {
-	free(argv[i]);
+        free(argv[i]);
     }
     delete[] argv;
 
@@ -204,7 +204,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
     if(p != _communicatorMap.end())
     {
-	_communicatorMap.erase(p);
+        _communicatorMap.erase(p);
     }
     _communicatorMap.insert(CommunicatorMap::value_type(communicator, (PyObject*)self));
 
@@ -223,7 +223,7 @@ communicatorDealloc(CommunicatorObject* self)
     //
     if(p != _communicatorMap.end())
     {
-	_communicatorMap.erase(p);
+        _communicatorMap.erase(p);
     }
 
     if(self->shutdownThread)
@@ -246,7 +246,7 @@ communicatorDestroy(CommunicatorObject* self)
     assert(self->communicator);
     try
     {
-	AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
+        AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->destroy();
     }
     catch(const Ice::Exception& ex)
@@ -268,7 +268,7 @@ communicatorShutdown(CommunicatorObject* self)
     assert(self->communicator);
     try
     {
-	AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
+        AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->shutdown();
     }
     catch(const Ice::Exception& ex)
@@ -324,20 +324,20 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                 t->start();
             }
 
-	    while(!self->shutdown)
-	    {
-		bool done;
-		{
-		    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-		    done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
-		}
-		
-		if(!done)
-		{
-		    Py_INCREF(Py_False);
-		    return Py_False;
-		}
-	    }
+            while(!self->shutdown)
+            {
+                bool done;
+                {
+                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                    done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+                }
+                
+                if(!done)
+                {
+                    Py_INCREF(Py_False);
+                    return Py_False;
+                }
+            }
         }
 
         assert(self->shutdown);
@@ -541,7 +541,7 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
     assert(self->communicator);
     try
     {
-	AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
+        AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
         (*self->communicator)->flushBatchRequests();
     }
     catch(const Ice::Exception& ex)
@@ -634,9 +634,9 @@ communicatorGetLogger(CommunicatorObject* self)
     LoggerWrapperPtr wrapper = LoggerWrapperPtr::dynamicCast(logger);
     if(wrapper)
     {
-	PyObject* obj = wrapper->getObject();
-	Py_INCREF(obj);
-	return obj;
+        PyObject* obj = wrapper->getObject();
+        Py_INCREF(obj);
+        return obj;
     }
 
     return createLogger(logger);
@@ -725,7 +725,7 @@ communicatorSetDefaultContext(CommunicatorObject* self, PyObject* args)
     Ice::Context ctx;
     if(!dictionaryToContext(dict, ctx))
     {
-	return NULL;
+        return NULL;
     }
 
     try
@@ -765,12 +765,12 @@ communicatorGetDefaultContext(CommunicatorObject* self)
     PyObjectHandle dict = PyDict_New();
     if(dict.get() == NULL)
     {
-	return NULL;
+        return NULL;
     }
 
     if(!contextToDictionary(ctx, dict.get()))
     {
-	return NULL;
+        return NULL;
     }
 
     return dict.release();
@@ -786,7 +786,7 @@ communicatorGetImplicitContext(CommunicatorObject* self)
     
     if(implicitContext == 0)
     {
-	return 0;
+        return 0;
     }
 
     return createImplicitContext(implicitContext);
@@ -882,7 +882,7 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
     PyObject* proxy;
     if(!PyArg_ParseTuple(args, STRCAST("sO"), &name, &proxy))
     {
-	return NULL;
+        return NULL;
     }
 
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
@@ -890,12 +890,12 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
     Ice::RouterPrx router;
     if(PyObject_IsInstance(proxy, routerProxyType))
     {
-	router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+        router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
     }
     else if(proxy != Py_None)
     {
-	PyErr_Format(PyExc_ValueError, STRCAST("ice_createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
-	return NULL;
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_createObjectAdapterWithRouter requires None or Ice.RouterPrx"));
+        return NULL;
     }
 
     AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
@@ -947,8 +947,8 @@ communicatorGetDefaultRouter(CommunicatorObject* self)
 
     if(!router)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
@@ -965,7 +965,7 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
     PyObject* proxy;
     if(!PyArg_ParseTuple(args, STRCAST("O"), &proxy))
     {
-	return NULL;
+        return NULL;
     }
 
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
@@ -973,23 +973,23 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
     Ice::RouterPrx router;
     if(PyObject_IsInstance(proxy, routerProxyType))
     {
-	router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+        router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
     }
     else if(proxy != Py_None)
     {
-	PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultRouter requires None or Ice.RouterPrx"));
-	return NULL;
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultRouter requires None or Ice.RouterPrx"));
+        return NULL;
     }
 
     assert(self->communicator);
     try
     {
-	(*self->communicator)->setDefaultRouter(router);
+        (*self->communicator)->setDefaultRouter(router);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     Py_INCREF(Py_None);
@@ -1016,8 +1016,8 @@ communicatorGetDefaultLocator(CommunicatorObject* self)
 
     if(!locator)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
@@ -1034,7 +1034,7 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
     PyObject* proxy;
     if(!PyArg_ParseTuple(args, STRCAST("O"), &proxy))
     {
-	return NULL;
+        return NULL;
     }
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
@@ -1042,23 +1042,23 @@ communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
     Ice::LocatorPrx locator;
     if(PyObject_IsInstance(proxy, locatorProxyType))
     {
-	locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
+        locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
     }
     else if(proxy != Py_None)
     {
-	PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultLocator requires None or Ice.LocatorPrx"));
-	return NULL;
+        PyErr_Format(PyExc_ValueError, STRCAST("ice_setDefaultLocator requires None or Ice.LocatorPrx"));
+        return NULL;
     }
 
     assert(self->communicator);
     try
     {
-	(*self->communicator)->setDefaultLocator(locator);
+        (*self->communicator)->setDefaultLocator(locator);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     Py_INCREF(Py_None);
@@ -1088,11 +1088,11 @@ static PyMethodDef CommunicatorMethods[] =
     { STRCAST("createObjectAdapter"), (PyCFunction)communicatorCreateObjectAdapter, METH_VARARGS,
         PyDoc_STR(STRCAST("createObjectAdapter(name) -> Ice.ObjectAdapter")) },
     { STRCAST("createObjectAdapterWithEndpoints"), (PyCFunction)communicatorCreateObjectAdapterWithEndpoints,
-	METH_VARARGS,
-	PyDoc_STR(STRCAST("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter")) },
+        METH_VARARGS,
+        PyDoc_STR(STRCAST("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter")) },
     { STRCAST("createObjectAdapterWithRouter"), (PyCFunction)communicatorCreateObjectAdapterWithRouter,
-	METH_VARARGS,
-	PyDoc_STR(STRCAST("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")) },
+        METH_VARARGS,
+        PyDoc_STR(STRCAST("createObjectAdapterWithRouter(name, router) -> Ice.ObjectAdapter")) },
     { STRCAST("addObjectFactory"), (PyCFunction)communicatorAddObjectFactory, METH_VARARGS,
         PyDoc_STR(STRCAST("addObjectFactory(factory, id) -> None")) },
     { STRCAST("findObjectFactory"), (PyCFunction)communicatorFindObjectFactory, METH_VARARGS,
@@ -1208,8 +1208,8 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
     if(p != _communicatorMap.end())
     {
-	Py_INCREF(p->second);
-	return p->second;
+        Py_INCREF(p->second);
+        return p->second;
     }
 
     CommunicatorObject* obj = communicatorNew(NULL);

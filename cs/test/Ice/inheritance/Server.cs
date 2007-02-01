@@ -44,7 +44,7 @@ public class Server
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

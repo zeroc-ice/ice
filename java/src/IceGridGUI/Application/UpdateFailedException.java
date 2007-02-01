@@ -12,13 +12,13 @@ public class UpdateFailedException extends Exception
 {
     UpdateFailedException(TreeNode parent, String id)
     {
-	_parent = parent;
-	_id = id;
+        _parent = parent;
+        _id = id;
     }
     
     public String toString()
     {
-	return _parent.getFullId().toString() + " has already a child with '" + _id + "' as ID.";
+        return _parent.getFullId().toString() + " has already a child with '" + _id + "' as ID.";
     }
     
     private TreeNode _parent;

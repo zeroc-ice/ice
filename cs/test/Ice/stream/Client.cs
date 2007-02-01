@@ -114,36 +114,36 @@ public class Client
 
     public class MyClassFactoryWrapper : Ice.LocalObjectImpl, Ice.ObjectFactory
     {
-	public MyClassFactoryWrapper()
-	{
-	    _factory = null;
-	}
+        public MyClassFactoryWrapper()
+        {
+            _factory = null;
+        }
 
         public Ice.Object create(string type)
         {
-	    if(_factory != null)
-	    {
-		return _factory.create(type);
-	    }
-	    return new Test.MyClass();
+            if(_factory != null)
+            {
+                return _factory.create(type);
+            }
+            return new Test.MyClass();
         }
 
         public void destroy()
         {
         }
 
-	public void setFactory(Ice.ObjectFactory factory)
-	{
-	    _factory = factory;
-	}
+        public void setFactory(Ice.ObjectFactory factory)
+        {
+            _factory = factory;
+        }
 
-	private Ice.ObjectFactory _factory;
+        private Ice.ObjectFactory _factory;
     }
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-	MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-	communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
+        MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
+        communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
 
         Ice.InputStream @in;
         Ice.OutputStream @out;

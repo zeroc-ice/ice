@@ -218,36 +218,36 @@ FreezeScript::readCatalog(const Ice::CommunicatorPtr& communicator, const string
     try
     {
 #ifdef _WIN32
-	//
-	// Berkeley DB may use a different C++ runtime.
-	//
-	dbEnv.set_alloc(::malloc, ::realloc, ::free);
+        //
+        // Berkeley DB may use a different C++ runtime.
+        //
+        dbEnv.set_alloc(::malloc, ::realloc, ::free);
 #endif
 
-	//
-	// Open the database environment.
-	//
-	{
-	    u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE | DB_THREAD | DB_RECOVER;
-	    dbEnv.open(dbEnvName.c_str(), flags, mode);
-	}
+        //
+        // Open the database environment.
+        //
+        {
+            u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE | DB_THREAD | DB_RECOVER;
+            dbEnv.open(dbEnvName.c_str(), flags, mode);
+        }
 
-	Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, dbEnvName, dbEnv);
-	Freeze::Catalog catalog(connection, Freeze::catalogName());
-	for(Freeze::Catalog::const_iterator p = catalog.begin(); p != catalog.end(); ++p)
-	{
-	    result.insert(make_pair(p->first, p->second));
-	}
+        Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, dbEnvName, dbEnv);
+        Freeze::Catalog catalog(connection, Freeze::catalogName());
+        for(Freeze::Catalog::const_iterator p = catalog.begin(); p != catalog.end(); ++p)
+        {
+            result.insert(make_pair(p->first, p->second));
+        }
     }
     catch(const DbException& ex)
     {
-	dbEnv.close(0);
-	throw FailureException(__FILE__, __LINE__, string("database error: ") + ex.what());
+        dbEnv.close(0);
+        throw FailureException(__FILE__, __LINE__, string("database error: ") + ex.what());
     }
     catch(...)
     {
-	dbEnv.close(0);
-	throw FailureException(__FILE__, __LINE__, "unknown exception");
+        dbEnv.close(0);
+        throw FailureException(__FILE__, __LINE__, "unknown exception");
     }
 
     dbEnv.close(0);

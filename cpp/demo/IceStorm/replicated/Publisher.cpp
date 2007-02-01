@@ -54,7 +54,7 @@ Publisher::run(int argc, char* argv[])
     catch(const IceStorm::NoSuchTopic&)
     {
         cerr << appName() << ": topics not created yet, run subscriber." << endl;
-	return EXIT_FAILURE;
+        return EXIT_FAILURE;
     }
 
     //

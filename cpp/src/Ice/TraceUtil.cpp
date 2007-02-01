@@ -53,29 +53,29 @@ printRequestHeader(ostream& s, BasicStream& stream)
     s << "\nmode = " << static_cast<int>(mode) << ' ';
     switch(mode)
     {
-	case Normal:
-	{
-	    s << "(normal)";
-	    break;
-	}
+        case Normal:
+        {
+            s << "(normal)";
+            break;
+        }
 
-	case Nonmutating:
-	{
-	    s << "(nonmutating)";
-	    break;
-	}
+        case Nonmutating:
+        {
+            s << "(nonmutating)";
+            break;
+        }
 
-	case Idempotent:
-	{
-	    s << "(idempotent)";
-	    break;
-	}
+        case Idempotent:
+        {
+            s << "(idempotent)";
+            break;
+        }
 
-	default:
-	{
-	    s << "(unknown)";
-	    break;
-	}
+        default:
+        {
+            s << "(unknown)";
+            break;
+        }
     }
 
     Int sz;
@@ -83,14 +83,14 @@ printRequestHeader(ostream& s, BasicStream& stream)
     s << "\ncontext = ";
     while(sz--)
     {
-	pair<string, string> pair;
-	stream.read(pair.first);
-	stream.read(pair.second);
-	s << pair.first << '/' << pair.second;
-	if(sz)
-	{
-	    s << ", ";
-	}
+        pair<string, string> pair;
+        stream.read(pair.first);
+        stream.read(pair.second);
+        s << pair.first << '/' << pair.second;
+        if(sz)
+        {
+            s << ", ";
+        }
     }
 }
 
@@ -98,7 +98,7 @@ static void
 printHeader(ostream& s, BasicStream& stream)
 {
     Byte magicNumber;
-    stream.read(magicNumber);	// Don't bother printing the magic number
+    stream.read(magicNumber);   // Don't bother printing the magic number
     stream.read(magicNumber);
     stream.read(magicNumber);
     stream.read(magicNumber);
@@ -123,41 +123,41 @@ printHeader(ostream& s, BasicStream& stream)
 
     switch(type)
     {
-	case requestMsg:
-	{
-	    s << "(request)";
-	    break;
-	}
+        case requestMsg:
+        {
+            s << "(request)";
+            break;
+        }
 
-	case requestBatchMsg:
-	{
-	    s << "(batch request)";
-	    break;
-	}
+        case requestBatchMsg:
+        {
+            s << "(batch request)";
+            break;
+        }
 
-	case replyMsg:
-	{
-	    s << "(reply)";
-	    break;
-	}
+        case replyMsg:
+        {
+            s << "(reply)";
+            break;
+        }
 
-	case closeConnectionMsg:
-	{
-	    s << "(close connection)";
-	    break;
-	}
+        case closeConnectionMsg:
+        {
+            s << "(close connection)";
+            break;
+        }
 
-	case validateConnectionMsg:
-	{
-	    s << "(validate connection)";
-	    break;
-	}
+        case validateConnectionMsg:
+        {
+            s << "(validate connection)";
+            break;
+        }
 
-	default:
-	{
-	    s << "(unknown)";
-	    break;
-	}
+        default:
+        {
+            s << "(unknown)";
+            break;
+        }
     }
 
     Byte compress;
@@ -166,29 +166,29 @@ printHeader(ostream& s, BasicStream& stream)
 
     switch(compress)
     {
-	case 0:
-	{
-	    s << "(not compressed; do not compress response, if any)";
-	    break;
-	}
+        case 0:
+        {
+            s << "(not compressed; do not compress response, if any)";
+            break;
+        }
 
-	case 1:
-	{
-	    s << "(not compressed; compress response, if any)";
-	    break;
-	}
+        case 1:
+        {
+            s << "(not compressed; compress response, if any)";
+            break;
+        }
 
-	case 2:
-	{
-	    s << "(compressed; compress response, if any)";
-	    break;
-	}
+        case 2:
+        {
+            s << "(compressed; compress response, if any)";
+            break;
+        }
 
-	default:
-	{
-	    s << "(unknown)";
-	    break;
-	}
+        default:
+        {
+            s << "(unknown)";
+            break;
+        }
     }
 
     Int size;
@@ -198,198 +198,198 @@ printHeader(ostream& s, BasicStream& stream)
 
 void
 IceInternal::traceHeader(const char* heading, const BasicStream& str, const LoggerPtr& logger,
-			 const TraceLevelsPtr& tl)
+                         const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-	BasicStream& stream = const_cast<BasicStream&>(str);
-	BasicStream::Container::iterator p = stream.i;
-	stream.i = stream.b.begin();
+        BasicStream& stream = const_cast<BasicStream&>(str);
+        BasicStream::Container::iterator p = stream.i;
+        stream.i = stream.b.begin();
 
-	ostringstream s;
-	s << heading;
-	printHeader(s, stream);
+        ostringstream s;
+        s << heading;
+        printHeader(s, stream);
 
-	logger->trace(tl->protocolCat, s.str());
-	stream.i = p;
+        logger->trace(tl->protocolCat, s.str());
+        stream.i = p;
     }
 }
 
 void
 IceInternal::traceRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
-			  const TraceLevelsPtr& tl)
+                          const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-	BasicStream& stream = const_cast<BasicStream&>(str);
-	BasicStream::Container::iterator p = stream.i;
-	stream.i = stream.b.begin();
+        BasicStream& stream = const_cast<BasicStream&>(str);
+        BasicStream::Container::iterator p = stream.i;
+        stream.i = stream.b.begin();
 
-	ostringstream s;
-	s << heading;
-	printHeader(s, stream);
+        ostringstream s;
+        s << heading;
+        printHeader(s, stream);
 
-	Int requestId;
-	stream.read(requestId);
-	s << "\nrequest id = " << requestId;
-	if(requestId == 0)
-	{
-	    s << " (oneway)";
-	}
+        Int requestId;
+        stream.read(requestId);
+        s << "\nrequest id = " << requestId;
+        if(requestId == 0)
+        {
+            s << " (oneway)";
+        }
 
-	printRequestHeader(s, stream);
+        printRequestHeader(s, stream);
 
-	logger->trace(tl->protocolCat, s.str());
-	stream.i = p;
+        logger->trace(tl->protocolCat, s.str());
+        stream.i = p;
     }
 }
 
 void
 IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, const LoggerPtr& logger,
-			       const TraceLevelsPtr& tl)
+                               const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-	BasicStream& stream = const_cast<BasicStream&>(str);
-	BasicStream::Container::iterator p = stream.i;
-	stream.i = stream.b.begin();
+        BasicStream& stream = const_cast<BasicStream&>(str);
+        BasicStream::Container::iterator p = stream.i;
+        stream.i = stream.b.begin();
 
-	ostringstream s;
-	s << heading;
-	printHeader(s, stream);
+        ostringstream s;
+        s << heading;
+        printHeader(s, stream);
 
-	int batchRequestNum;
-	stream.read(batchRequestNum);
-	s << "\nnumber of requests = " << batchRequestNum;
+        int batchRequestNum;
+        stream.read(batchRequestNum);
+        s << "\nnumber of requests = " << batchRequestNum;
 
-	for(int i = 0; i < batchRequestNum; ++i)
-	{
-	    s << "\nrequest #" << i << ':';
-	    printRequestHeader(s, stream);
-	    stream.skipEncaps();
-	}
+        for(int i = 0; i < batchRequestNum; ++i)
+        {
+            s << "\nrequest #" << i << ':';
+            printRequestHeader(s, stream);
+            stream.skipEncaps();
+        }
 
-	logger->trace(tl->protocolCat, s.str());
-	stream.i = p;
+        logger->trace(tl->protocolCat, s.str());
+        stream.i = p;
     }
 }
 
 void
 IceInternal::traceReply(const char* heading, const BasicStream& str, const LoggerPtr& logger,
-			const TraceLevelsPtr& tl)
+                        const TraceLevelsPtr& tl)
 {
     if(tl->protocol >= 1)
     {
-	BasicStream& stream = const_cast<BasicStream&>(str);
-	BasicStream::Container::iterator p = stream.i;
-	stream.i = stream.b.begin();
+        BasicStream& stream = const_cast<BasicStream&>(str);
+        BasicStream::Container::iterator p = stream.i;
+        stream.i = stream.b.begin();
 
-	ostringstream s;
-	s << heading;
-	printHeader(s, stream);
+        ostringstream s;
+        s << heading;
+        printHeader(s, stream);
 
-	Int requestId;
-	stream.read(requestId);
-	s << "\nrequest id = " << requestId;
+        Int requestId;
+        stream.read(requestId);
+        s << "\nrequest id = " << requestId;
 
-	Byte status;
-	stream.read(status);
-	s << "\nreply status = " << static_cast<int>(status) << ' ';
-	switch(static_cast<DispatchStatus>(status))
-	{
-	    case DispatchOK:
-	    {
-		s << "(ok)";
-		break;
-	    }
+        Byte status;
+        stream.read(status);
+        s << "\nreply status = " << static_cast<int>(status) << ' ';
+        switch(static_cast<DispatchStatus>(status))
+        {
+            case DispatchOK:
+            {
+                s << "(ok)";
+                break;
+            }
 
-	    case DispatchUserException:
-	    {
-		s << "(user exception)";
-		break;
-	    }
+            case DispatchUserException:
+            {
+                s << "(user exception)";
+                break;
+            }
 
-	    case DispatchObjectNotExist:
-	    case DispatchFacetNotExist:
-	    case DispatchOperationNotExist:
-	    {
-		switch(static_cast<DispatchStatus>(status))
-		{
-		    case DispatchObjectNotExist:
-		    {
-			s << "(object not exist)";
-			break;
-		    }
+            case DispatchObjectNotExist:
+            case DispatchFacetNotExist:
+            case DispatchOperationNotExist:
+            {
+                switch(static_cast<DispatchStatus>(status))
+                {
+                    case DispatchObjectNotExist:
+                    {
+                        s << "(object not exist)";
+                        break;
+                    }
 
-		    case DispatchFacetNotExist:
-		    {
-			s << "(facet not exist)";
-			break;
-		    }
+                    case DispatchFacetNotExist:
+                    {
+                        s << "(facet not exist)";
+                        break;
+                    }
 
-		    case DispatchOperationNotExist:
-		    {
-			s << "(operation not exist)";
-			break;
-		    }
+                    case DispatchOperationNotExist:
+                    {
+                        s << "(operation not exist)";
+                        break;
+                    }
 
-		    default:
-		    {
-			assert(false);
-			break;
-		    }
-		}
+                    default:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
 
-		printIdentityFacetOperation(s, stream);
-		break;
-	    }
+                printIdentityFacetOperation(s, stream);
+                break;
+            }
 
-	    case DispatchUnknownException:
-	    case DispatchUnknownLocalException:
-	    case DispatchUnknownUserException:
-	    {
-		switch(static_cast<DispatchStatus>(status))
-		{
-		    case DispatchUnknownException:
-		    {
-			s << "(unknown exception)";
-			break;
-		    }
+            case DispatchUnknownException:
+            case DispatchUnknownLocalException:
+            case DispatchUnknownUserException:
+            {
+                switch(static_cast<DispatchStatus>(status))
+                {
+                    case DispatchUnknownException:
+                    {
+                        s << "(unknown exception)";
+                        break;
+                    }
 
-		    case DispatchUnknownLocalException:
-		    {
-			s << "(unknown local exception)";
-			break;
-		    }
+                    case DispatchUnknownLocalException:
+                    {
+                        s << "(unknown local exception)";
+                        break;
+                    }
 
-		    case DispatchUnknownUserException:
-		    {
-			s << "(unknown user exception)";
-			break;
-		    }
+                    case DispatchUnknownUserException:
+                    {
+                        s << "(unknown user exception)";
+                        break;
+                    }
 
-		    default:
-		    {
-			assert(false);
-			break;
-		    }
-		}
-		
-		string unknown;
-		stream.read(unknown, false);
-		s << "\nunknown = " << unknown;
-		break;
-	    }
+                    default:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+                
+                string unknown;
+                stream.read(unknown, false);
+                s << "\nunknown = " << unknown;
+                break;
+            }
 
-	    default:
-	    {
-		s << "(unknown)";
-		break;
-	    }
-	}
+            default:
+            {
+                s << "(unknown)";
+                break;
+            }
+        }
 
-	logger->trace(tl->protocolCat, s.str());
-	stream.i = p;
+        logger->trace(tl->protocolCat, s.str());
+        stream.i = p;
     }
 }
 
@@ -402,9 +402,9 @@ IceInternal::traceSlicing(const char* kind, const string& typeId, const char* sl
     static set<string> slicingIds;
     if(slicingIds.insert(typeId).second)
     {
-	string s("unknown ");
-	s += kind;
-	s += " type `" + typeId + "'";
-	logger->trace(slicingCat, s);
+        string s("unknown ");
+        s += kind;
+        s += " type `" + typeId + "'";
+        logger->trace(slicingCat, s);
     }
 }

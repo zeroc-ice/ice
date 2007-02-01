@@ -16,9 +16,9 @@ module Ice
     # Exceptions.
     #
     class Exception < ::StandardError
-	def ice_name
-	    to_s
-	end
+        def ice_name
+            to_s
+        end
     end
 
     class UserException < Exception
@@ -34,12 +34,12 @@ module Ice
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')
 
     module Object_mixin
-	def ice_isA(id, current=nil)
-	    return ice_ids().include?(id)
-	end
+        def ice_isA(id, current=nil)
+            return ice_ids().include?(id)
+        end
 
-	def ice_ping(current=nil)
-	end
+        def ice_ping(current=nil)
+        end
     end
 
     T_Object.defineClass(nil, true, nil, [], [])
@@ -55,12 +55,12 @@ module Ice
     # InitializationData.
     #
     class InitializationData
-	def initialize(properties=nil, logger=nil)
-	    @properties = properties
-	    @logger = logger
-	end
+        def initialize(properties=nil, logger=nil)
+            @properties = properties
+            @logger = logger
+        end
 
-	attr_accessor :properties, :logger
+        attr_accessor :properties, :logger
     end
 
     #
@@ -90,7 +90,7 @@ module Ice
     class CtrlCHandler
         def initialize
             if @@_self != nil
-		raise RuntimeError, "Only a single instance of a CtrlCHandler can be instantiated."
+                raise RuntimeError, "Only a single instance of a CtrlCHandler can be instantiated."
             end
             @@_self = self
 
@@ -104,11 +104,11 @@ module Ice
             #
             # Setup and install signal handlers
             #
-	    if Signal.list.has_key?('HUP')
-		Signal.trap('HUP') { signalHandler('HUP') }
-	    end
-	    Signal.trap('INT') { signalHandler('INT') }
-	    Signal.trap('TERM') { signalHandler('TERM') }
+            if Signal.list.has_key?('HUP')
+                Signal.trap('HUP') { signalHandler('HUP') }
+            end
+            Signal.trap('INT') { signalHandler('INT') }
+            Signal.trap('TERM') { signalHandler('TERM') }
 
             @thr = Thread.new { main }
         end
@@ -145,11 +145,11 @@ module Ice
             #
             # Cleanup any state set by the CtrlCHandler.
             #
-	    if Signal.list.has_key?('HUP')
-		Signal.trap('HUP', 'SIG_DFL')
-	    end
-	    Signal.trap('INT', 'SIG_DFL')
-	    Signal.trap('TERM', 'SIG_DFL')
+            if Signal.list.has_key?('HUP')
+                Signal.trap('HUP', 'SIG_DFL')
+            end
+            Signal.trap('INT', 'SIG_DFL')
+            Signal.trap('TERM', 'SIG_DFL')
             @@_self = nil
         end
 
@@ -182,52 +182,52 @@ module Ice
     # Ice::Application.
     #
     class Application
-	def initialize
-	    if self.instance_of?(Application):
-		raise RuntimeError, "Ice.Application is an abstract class"
-	    end
-	end
+        def initialize
+            if self.instance_of?(Application):
+                raise RuntimeError, "Ice.Application is an abstract class"
+            end
+        end
 
-	def main(args, configFile=nil, initData=nil)
-	    if @@_communicator
-		print $0 + ": only one instance of the Application class can be used"
-		return false
-	    end
+        def main(args, configFile=nil, initData=nil)
+            if @@_communicator
+                print $0 + ": only one instance of the Application class can be used"
+                return false
+            end
             @@_ctrlCHandler = CtrlCHandler.new
 
-	    @@_interrupted = false
-	    @@_appName = $0
+            @@_interrupted = false
+            @@_appName = $0
 
-	    status = 0
+            status = 0
 
-	    begin
-		if initData.nil?
-		    initData = InitializationData.new
-		end
-		if configFile
-		    initData.properties = Ice::createProperties
-		    initData.properties.load(configFile)
-		end
-		@@_application = self
-		@@_communicator = Ice::initialize(args, initData)
-		@@_destroyed = false
+            begin
+                if initData.nil?
+                    initData = InitializationData.new
+                end
+                if configFile
+                    initData.properties = Ice::createProperties
+                    initData.properties.load(configFile)
+                end
+                @@_application = self
+                @@_communicator = Ice::initialize(args, initData)
+                @@_destroyed = false
 
-		#
-		# Used by destroyOnInterruptCallback.
-		#
-		@@_nohup = @@_communicator.getProperties().getPropertyAsInt("Ice.Nohup") > 0
+                #
+                # Used by destroyOnInterruptCallback.
+                #
+                @@_nohup = @@_communicator.getProperties().getPropertyAsInt("Ice.Nohup") > 0
 
-		#
-		# The default is to destroy when a signal is received.
-		#
-		Application::destroyOnInterrupt
+                #
+                # The default is to destroy when a signal is received.
+                #
+                Application::destroyOnInterrupt
 
-		status = run(args)
-	    rescue => ex
-		puts $!.inspect
-		puts ex.backtrace.join("\n")
-		status = 1
-	    end
+                status = run(args)
+            rescue => ex
+                puts $!.inspect
+                puts ex.backtrace.join("\n")
+                status = 1
+            end
 
             #
             # Don't want any new interrupt and at this point (post-run),
@@ -253,223 +253,223 @@ module Ice
                 @@_application = nil
             }
 
-	    if @@_communicator
-		begin
-		    @@_communicator.destroy()
-		rescue => ex
-		    puts $!
-		    puts ex.backtrace.join("\n")
-		    status = 1
-		end
+            if @@_communicator
+                begin
+                    @@_communicator.destroy()
+                rescue => ex
+                    puts $!
+                    puts ex.backtrace.join("\n")
+                    status = 1
+                end
 
-		@@_communicator = nil
-	    end
+                @@_communicator = nil
+            end
 
             @@_ctrlCHandler.destroy()
             @@_ctrlCHandler = nil
 
-	    return status
-	end
+            return status
+        end
 
-	def run(args)
-	    raise RuntimeError, 'run() not implemented'
-	end
+        def run(args)
+            raise RuntimeError, 'run() not implemented'
+        end
 
-	def interruptCallback(sig)
-	end
+        def interruptCallback(sig)
+        end
 
-	def Application.appName
-	    @@_appName
-	end
+        def Application.appName
+            @@_appName
+        end
 
-	def Application.communicator
-	    @@_communicator
-	end
+        def Application.communicator
+            @@_communicator
+        end
 
-	def Application.destroyOnInterrupt
-	    @@_mutex.synchronize {
-		if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-		    @@_released = true
-		    @@_condVar.signal
-		end
+        def Application.destroyOnInterrupt
+            @@_mutex.synchronize {
+                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                    @@_released = true
+                    @@_condVar.signal
+                end
                 @@_ctrlCHandler.setCallback(@@_destroyOnInterruptCallbackProc)
-	    }
-	end
+            }
+        end
 
         # No support for this since no server side in Ice for ruby.
-	#def Application.shutdownOnInterrupt
-	#end
+        #def Application.shutdownOnInterrupt
+        #end
 
-	def Application.ignoreInterrupt
-	    @@_mutex.synchronize {
-		if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-		    @@_released = true
-		    @@_condVar.signal
-		end
+        def Application.ignoreInterrupt
+            @@_mutex.synchronize {
+                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                    @@_released = true
+                    @@_condVar.signal
+                end
                 @@_ctrlCHandler.setCallback(nil)
-	    }
-	end
+            }
+        end
 
         def Application.callbackOnInterrupt()
-	    @@_mutex.synchronize {
-		if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-		    @@_released = true
-		    @@_condVar.signal
+            @@_mutex.synchronize {
+                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                    @@_released = true
+                    @@_condVar.signal
                 end
                 @@_ctrlCHandler.setCallback(@@_callbackOnInterruptCallbackProc)
-	    }
-	end
+            }
+        end
 
-	def Application.holdInterrupt
-	    @@_mutex.synchronize {
-		if @@_ctrlCHandler.getCallback != @@_holdInterruptCallbackProc
-		    @@_previousCallback = @@_ctrlCHandler.getCallback
-		    @@_released = false
-		    @@_ctrlCHandler.setCallback(@@_holdInterruptCallbackProc)
-		end
-		# else, we were already holding signals
-	    }
-	end
+        def Application.holdInterrupt
+            @@_mutex.synchronize {
+                if @@_ctrlCHandler.getCallback != @@_holdInterruptCallbackProc
+                    @@_previousCallback = @@_ctrlCHandler.getCallback
+                    @@_released = false
+                    @@_ctrlCHandler.setCallback(@@_holdInterruptCallbackProc)
+                end
+                # else, we were already holding signals
+            }
+        end
 
-	def Application.releaseInterrupt
-	    @@_mutex.synchronize {
-		if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-		    #
-		    # Note that it's very possible no signal is held;
-		    # in this case the callback is just replaced and
-		    # setting _released to true and signalling _condVar
-		    # do no harm.
-		    #
-		    @@_released = true
-		    @@_ctrlCHandler.setCallback(@@_previousCallback)
-		    @@_condVar.signal
-		end
-		# Else nothing to release.
-	    }
-	end
+        def Application.releaseInterrupt
+            @@_mutex.synchronize {
+                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                    #
+                    # Note that it's very possible no signal is held;
+                    # in this case the callback is just replaced and
+                    # setting _released to true and signalling _condVar
+                    # do no harm.
+                    #
+                    @@_released = true
+                    @@_ctrlCHandler.setCallback(@@_previousCallback)
+                    @@_condVar.signal
+                end
+                # Else nothing to release.
+            }
+        end
 
-	def Application.interrupted
-	    @@_mutex.synchronize {
-		return @@_interrupted
-	    }
-	end
+        def Application.interrupted
+            @@_mutex.synchronize {
+                return @@_interrupted
+            }
+        end
 
-	def Application.holdInterruptCallback(sig)
-	    callback = @@_mutex.synchronize {
-		while not @@_released
-		    @@_condVar.wait(@@_mutex)
-		end
+        def Application.holdInterruptCallback(sig)
+            callback = @@_mutex.synchronize {
+                while not @@_released
+                    @@_condVar.wait(@@_mutex)
+                end
                 if @@_destroyed
                     return
                 end
                 @@_ctrlCHandler.getCallback
-	    }
+            }
 
-	    #
-	    # Use the current callback to process this (old) signal.
-	    #
-	    if callback
-		callback.call(sig)
-	    end
-	end
+            #
+            # Use the current callback to process this (old) signal.
+            #
+            if callback
+                callback.call(sig)
+            end
+        end
 
-	def Application.destroyOnInterruptCallback(sig)
-	    @@_mutex.synchronize {
+        def Application.destroyOnInterruptCallback(sig)
+            @@_mutex.synchronize {
                 if @@_destroyed or @@_nohup and sig == 'HUP'
                     return
                 end
-		@@_callbackInProcess = true
-		@@_interrupted = true
-		@@_destroyed = true
-	    }
+                @@_callbackInProcess = true
+                @@_interrupted = true
+                @@_destroyed = true
+            }
 
-	    begin
-		@@_communicator.destroy()
-	    rescue => ex
-		puts $!
-		puts @@_appName + " (while destroying in response to signal " + sig + "):"
-		puts ex.backtrace.join("\n")
-	    end
-	    @@_mutex.synchronize {
-		@@_callbackInProcess = false
-		@@_condVar.signal
-	    }
-	end
+            begin
+                @@_communicator.destroy()
+            rescue => ex
+                puts $!
+                puts @@_appName + " (while destroying in response to signal " + sig + "):"
+                puts ex.backtrace.join("\n")
+            end
+            @@_mutex.synchronize {
+                @@_callbackInProcess = false
+                @@_condVar.signal
+            }
+        end
 
-	def Application.callbackOnInterruptCallback(sig)
+        def Application.callbackOnInterruptCallback(sig)
             # For SIGHUP the user callback is always called. It can
             # decide what to do.
-	    @@_mutex.synchronize {
+            @@_mutex.synchronize {
                 if @@_destroyed
                     #
                     # Being destroyed by main thread.
                     #
                     return
                 end
-		@@_interrupted = true
-		@@_callbackInProcess = true
-	    }
+                @@_interrupted = true
+                @@_callbackInProcess = true
+            }
 
-	    begin
-		@@_application.interruptCallback(sig)
-	    rescue => ex
-		puts $!
-		puts @@_appName + " (while interrupting in response to signal " + sig + "):"
-		puts ex.backtrace.join("\n")
-	    end
-	    @@_mutex.synchronize {
-		@@_callbackInProcess = false
-		@@_condVar.signal
-	    }
-	end
+            begin
+                @@_application.interruptCallback(sig)
+            rescue => ex
+                puts $!
+                puts @@_appName + " (while interrupting in response to signal " + sig + "):"
+                puts ex.backtrace.join("\n")
+            end
+            @@_mutex.synchronize {
+                @@_callbackInProcess = false
+                @@_condVar.signal
+            }
+        end
 
-	@@_appName = nil
-	@@_communicator = nil
-	@@_application = nil
-	@@_ctrlCHandler = nil
-	@@_previousCallback = nil
-	@@_interrupted = false
-	@@_released = false
-	@@_destroyed = false
-	@@_callbackInProgress = false
-	@@_condVar = ConditionVariable.new
-	@@_mutex = Mutex.new
-	@@_holdInterruptCallbackProc = Proc.new { |sig| Application::holdInterruptCallback(sig) }
-	@@_destroyOnInterruptCallbackProc = Proc.new { |sig| Application::destroyOnInterruptCallback(sig) }
-	@@_callbackOnInterruptCallbackProc = Proc.new { |sig| Application::callbackOnInterruptCallback(sig) }
+        @@_appName = nil
+        @@_communicator = nil
+        @@_application = nil
+        @@_ctrlCHandler = nil
+        @@_previousCallback = nil
+        @@_interrupted = false
+        @@_released = false
+        @@_destroyed = false
+        @@_callbackInProgress = false
+        @@_condVar = ConditionVariable.new
+        @@_mutex = Mutex.new
+        @@_holdInterruptCallbackProc = Proc.new { |sig| Application::holdInterruptCallback(sig) }
+        @@_destroyOnInterruptCallbackProc = Proc.new { |sig| Application::destroyOnInterruptCallback(sig) }
+        @@_callbackOnInterruptCallbackProc = Proc.new { |sig| Application::callbackOnInterruptCallback(sig) }
     end
 
     #
     # Proxy comparison functions.
     #
     def Ice.proxyIdentityEqual(lhs, rhs)
-	if (lhs && !lhs.is_a?(ObjectPrx)) || (rhs && !rhs.is_a?(ObjectPrx))
-	    raise TypeError, 'argument is not a proxy'
-	end
-	if lhs.nil? && rhs.nil?
-	    return true
-	elsif lhs.nil? && rhs
-	    return false
-	elsif lhs && rhs.nil?
-	    return false
-	else
-	    return lhs.ice_getIdentity() == rhs.ice_getIdentity()
-	end
+        if (lhs && !lhs.is_a?(ObjectPrx)) || (rhs && !rhs.is_a?(ObjectPrx))
+            raise TypeError, 'argument is not a proxy'
+        end
+        if lhs.nil? && rhs.nil?
+            return true
+        elsif lhs.nil? && rhs
+            return false
+        elsif lhs && rhs.nil?
+            return false
+        else
+            return lhs.ice_getIdentity() == rhs.ice_getIdentity()
+        end
     end
 
     def Ice.proxyIdentityAndFacetEqual(lhs, rhs)
-	if (lhs && !lhs.is_a?(ObjectPrx)) || (rhs && !rhs.is_a?(ObjectPrx))
-	    raise TypeError, 'argument is not a proxy'
-	end
-	if lhs.nil? && rhs.nil?
-	    return true
-	elsif lhs.nil? && rhs
-	    return false
-	elsif lhs && rhs.nil?
-	    return false
-	else
-	    return lhs.ice_getIdentity() == rhs.ice_getIdentity() && lhs.ice_getFacet() == rhs.ice_getFacet()
-	end
+        if (lhs && !lhs.is_a?(ObjectPrx)) || (rhs && !rhs.is_a?(ObjectPrx))
+            raise TypeError, 'argument is not a proxy'
+        end
+        if lhs.nil? && rhs.nil?
+            return true
+        elsif lhs.nil? && rhs
+            return false
+        elsif lhs && rhs.nil?
+            return false
+        else
+            return lhs.ice_getIdentity() == rhs.ice_getIdentity() && lhs.ice_getFacet() == rhs.ice_getFacet()
+        end
     end
 end
 

@@ -51,7 +51,7 @@ class InitialI : Initial
     
     public override void shutdown(Ice.Current current)
     {
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
     
     private Simple _simple;

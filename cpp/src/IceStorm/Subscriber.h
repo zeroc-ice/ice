@@ -36,9 +36,9 @@ public:
 
     enum QueueState
     {
-	QueueStateError,
-	QueueStateFlush,
-	QueueStateNoFlush
+        QueueStateError,
+        QueueStateFlush,
+        QueueStateNoFlush
     };
     virtual QueueState queue(bool, const std::vector<EventDataPtr>&);
     //
@@ -70,10 +70,10 @@ protected:
 
     enum SubscriberState
     {
-	SubscriberStateOnline,
-	SubscriberStateFlushPending,
-	SubscriberStateOffline,
-	SubscriberStateError
+        SubscriberStateOnline,
+        SubscriberStateFlushPending,
+        SubscriberStateOffline,
+        SubscriberStateError
     };
     SubscriberState _state; // The subscriber state.
     EventDataSeq _events; // The queue of events to send.

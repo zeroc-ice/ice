@@ -27,12 +27,12 @@ class HelloI(Demo.Hello):
 class Server(Ice.Application):
     def run(self, args):
         properties = self.communicator().getProperties()
-	adapter = self.communicator().createObjectAdapter("Hello")
-	id = self.communicator().stringToIdentity(properties.getProperty("Identity"))
-	adapter.add(HelloI(properties.getProperty("Ice.ServerId")), id)
-	adapter.activate()
-	self.communicator().waitForShutdown()
-	return 0
+        adapter = self.communicator().createObjectAdapter("Hello")
+        id = self.communicator().stringToIdentity(properties.getProperty("Identity"))
+        adapter.add(HelloI(properties.getProperty("Ice.ServerId")), id)
+        adapter.activate()
+        self.communicator().waitForShutdown()
+        return 0
 
 app = Server()
 sys.exit(app.main(sys.argv))

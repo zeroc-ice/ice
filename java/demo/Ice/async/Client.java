@@ -30,25 +30,25 @@ public class Client extends Ice.Application
     public class AMI_Hello_sayHelloI extends AMI_Hello_sayHello
     {
         public void ice_response()
-	{
-	}
+        {
+        }
 
-	public void ice_exception(Ice.LocalException ex)
-	{
-	    ex.printStackTrace();
-	}
+        public void ice_exception(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+        }
 
-	public void ice_exception(Ice.UserException ex)
-	{
-	    if(ex instanceof Demo.RequestCanceledException)
-	    {
-	        System.out.println("Request canceled");
-	    }
-	    else
-	    {
-	        ex.printStackTrace();
-	    }
-	}
+        public void ice_exception(Ice.UserException ex)
+        {
+            if(ex instanceof Demo.RequestCanceledException)
+            {
+                System.out.println("Request canceled");
+            }
+            else
+            {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private static void
@@ -71,7 +71,7 @@ public class Client extends Ice.Application
         // Application installed interrupt callback and install our
         // own shutdown hook.
         //
-	setInterruptHook(new ShutdownHook());
+        setInterruptHook(new ShutdownHook());
 
         HelloPrx hello = HelloPrxHelper.checkedCast(communicator().propertyToProxy("Hello.Proxy"));
         if(hello == null)
@@ -98,16 +98,16 @@ public class Client extends Ice.Application
                 }
                 if(line.equals("i"))
                 {
-		    hello.sayHello(0);
+                    hello.sayHello(0);
                 }
                 else if(line.equals("d"))
                 {
                     hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
-		}
+                }
                 else if(line.equals("s"))
                 {
-		    hello.shutdown();
-		}
+                    hello.shutdown();
+                }
                 else if(line.equals("x"))
                 {
                     // Nothing to do

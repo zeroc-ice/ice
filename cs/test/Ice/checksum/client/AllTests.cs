@@ -17,7 +17,7 @@ public class AllTests
     {
         if(!b)
         {
-	    throw new Exception();
+            throw new Exception();
         }
     }
 

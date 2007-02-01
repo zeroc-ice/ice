@@ -16,170 +16,170 @@ public class AllTests
 {
     private static void test(bool b)
     {
-	if(!b)
-	{
-	    throw new System.Exception();
-	}
+        if(!b)
+        {
+            throw new System.Exception();
+        }
     }
     
     private class Callback
     {
-	internal Callback()
-	{
-	    _called = false;
-	}
-	
-	public virtual bool check()
-	{
-	    lock(this)
-	    {
-		while(!_called)
-		{
-		    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
-		    
-		    if(!_called)
-		    {
-			return false; // Must be timeout.
-		    }
-		}
-		
-		return true;
-	    }
-	}
-	
-	public virtual void called()
-	{
-	    lock(this)
-	    {
-		Debug.Assert(!_called);
-		_called = true;
-		Monitor.Pulse(this);
-	    }
-	}
-	
-	private bool _called;
+        internal Callback()
+        {
+            _called = false;
+        }
+        
+        public virtual bool check()
+        {
+            lock(this)
+            {
+                while(!_called)
+                {
+                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
+                    
+                    if(!_called)
+                    {
+                        return false; // Must be timeout.
+                    }
+                }
+                
+                return true;
+            }
+        }
+        
+        public virtual void called()
+        {
+            lock(this)
+            {
+                Debug.Assert(!_called);
+                _called = true;
+                Monitor.Pulse(this);
+            }
+        }
+        
+        private bool _called;
     }
     
     private class AMI_Thrower_throwAasAI : AMI_Thrower_throwAasA
     {
-	public AMI_Thrower_throwAasAI()
-	{
-	    InitBlock();
-	}
-	private void InitBlock()
-	{
-	    callback = new Callback();
-	}
-	public override void ice_response()
-	{
-	    AllTests.test(false);
-	}
-	
-	public override void ice_exception(Ice.Exception exc)
-	{
-	    try
-	    {
-		throw exc;
-	    }
-	    catch(A ex)
-	    {
-		AllTests.test(ex.aMem == 1);
-	    }
-	    catch(Exception)
-	    {
-		AllTests.test(false);
-	    }
-	    callback.called();
-	}
-	
-	public virtual bool check()
-	{
-	    return callback.check();
-	}
-	
-	private Callback callback;
+        public AMI_Thrower_throwAasAI()
+        {
+            InitBlock();
+        }
+        private void InitBlock()
+        {
+            callback = new Callback();
+        }
+        public override void ice_response()
+        {
+            AllTests.test(false);
+        }
+        
+        public override void ice_exception(Ice.Exception exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(A ex)
+            {
+                AllTests.test(ex.aMem == 1);
+            }
+            catch(Exception)
+            {
+                AllTests.test(false);
+            }
+            callback.called();
+        }
+        
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+        
+        private Callback callback;
     }
     
     private class AMI_Thrower_throwAasAObjectNotExistI : AMI_Thrower_throwAasA
     {
-	public AMI_Thrower_throwAasAObjectNotExistI(Ice.Communicator comm)
-	{
-	    InitBlock(comm);
-	}
-	private void InitBlock(Ice.Communicator comm)
-	{
-	    callback = new Callback();
-	    communicator = comm;
-	}
-	public override void ice_response()
-	{
-	    AllTests.test(false);
-	}
-	
-	public override void ice_exception(Ice.Exception exc)
-	{
-	    try
-	    {
-		throw exc;
-	    }
-	    catch(Ice.ObjectNotExistException ex)
-	    {
-		Ice.Identity id = communicator.stringToIdentity("does not exist");
-		AllTests.test(ex.id.Equals(id));
-	    }
-	    catch(Exception)
-	    {
-		AllTests.test(false);
-	    }
-	    callback.called();
-	}
-	
-	public virtual bool check()
-	{
-	    return callback.check();
-	}
-	
-	private Ice.Communicator communicator;
-	private Callback callback;
+        public AMI_Thrower_throwAasAObjectNotExistI(Ice.Communicator comm)
+        {
+            InitBlock(comm);
+        }
+        private void InitBlock(Ice.Communicator comm)
+        {
+            callback = new Callback();
+            communicator = comm;
+        }
+        public override void ice_response()
+        {
+            AllTests.test(false);
+        }
+        
+        public override void ice_exception(Ice.Exception exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.ObjectNotExistException ex)
+            {
+                Ice.Identity id = communicator.stringToIdentity("does not exist");
+                AllTests.test(ex.id.Equals(id));
+            }
+            catch(Exception)
+            {
+                AllTests.test(false);
+            }
+            callback.called();
+        }
+        
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+        
+        private Ice.Communicator communicator;
+        private Callback callback;
     }
     
     private class AMI_Thrower_throwAasAFacetNotExistI : AMI_Thrower_throwAasA
     {
-	public override void ice_response()
-	{
-	    AllTests.test(false);
-	}
-	
-	public override void ice_exception(Ice.Exception exc)
-	{
-	    try
-	    {
-		throw exc;
-	    }
-	    catch(Ice.FacetNotExistException ex)
-	    {
-		AllTests.test(ex.facet.Equals("no such facet"));
-	    }
-	    catch(Exception)
-	    {
-		AllTests.test(false);
-	    }
-	    callback.called();
-	}
-	
-	public virtual bool check()
-	{
-	    return callback.check();
-	}
-	
-	private Callback callback = new Callback();
+        public override void ice_response()
+        {
+            AllTests.test(false);
+        }
+        
+        public override void ice_exception(Ice.Exception exc)
+        {
+            try
+            {
+                throw exc;
+            }
+            catch(Ice.FacetNotExistException ex)
+            {
+                AllTests.test(ex.facet.Equals("no such facet"));
+            }
+            catch(Exception)
+            {
+                AllTests.test(false);
+            }
+            callback.called();
+        }
+        
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+        
+        private Callback callback = new Callback();
     }
     
     private class AMI_Thrower_throwAorDasAorDI : AMI_Thrower_throwAorDasAorD
     {
         public AMI_Thrower_throwAorDasAorDI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -223,7 +223,7 @@ public class AllTests
     {
         public AMI_Thrower_throwBasAI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -264,7 +264,7 @@ public class AllTests
     {
         public AMI_Thrower_throwCasAI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -306,7 +306,7 @@ public class AllTests
     {
         public AMI_Thrower_throwBasBI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -347,7 +347,7 @@ public class AllTests
     {
         public AMI_Thrower_throwCasBI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -389,7 +389,7 @@ public class AllTests
     {
         public AMI_Thrower_throwCasCI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -431,7 +431,7 @@ public class AllTests
     {
         public AMI_Thrower_throwUndeclaredAI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -470,7 +470,7 @@ public class AllTests
     {
         public AMI_Thrower_throwUndeclaredBI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -509,7 +509,7 @@ public class AllTests
     {
         public AMI_Thrower_throwUndeclaredCI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -548,7 +548,7 @@ public class AllTests
     {
         public AMI_Thrower_throwLocalExceptionI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -587,7 +587,7 @@ public class AllTests
     {
         public AMI_Thrower_throwNonIceExceptionI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -626,7 +626,7 @@ public class AllTests
     {
         public AMI_WrongOperation_noSuchOperationI()
         {
-	    InitBlock();
+            InitBlock();
         }
         private void InitBlock()
         {
@@ -667,57 +667,57 @@ public class AllTests
         {
             Console.Write("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
-	    try
-	    {
-	        first = communicator.createObjectAdapter("TestAdapter0");
-	    }
-	    catch(Ice.InitializationException)
-	    {
-	        // Expected
-	    }
-
-	    communicator.getProperties().setProperty("Ice.OA.TestAdapter0.Endpoints", "default");
-	    first = communicator.createObjectAdapter("TestAdapter0");
             try
             {
-	        communicator.createObjectAdapter("TestAdapter0");
-		test(false);
+                first = communicator.createObjectAdapter("TestAdapter0");
+            }
+            catch(Ice.InitializationException)
+            {
+                // Expected
+            }
+
+            communicator.getProperties().setProperty("Ice.OA.TestAdapter0.Endpoints", "default");
+            first = communicator.createObjectAdapter("TestAdapter0");
+            try
+            {
+                communicator.createObjectAdapter("TestAdapter0");
+                test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
                 // Expected.
             }
 
-	    try
-	    {
-		Ice.ObjectAdapter second = 
-		    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011 -t 10000");
-		test(false);
+            try
+            {
+                Ice.ObjectAdapter second = 
+                    communicator.createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011 -t 10000");
+                test(false);
 
-		//
-		// Quell mono error that variable second isn't used. 
-		// 
-		second.deactivate(); 
-	    }
-	    catch(Ice.AlreadyRegisteredException)
-	    {
-		// Expected
-	    }
-	    test(communicator.getProperties().getProperty("Ice.OA.TestAdapter0.Endpoints").Equals("default"));
+                //
+                // Quell mono error that variable second isn't used. 
+                // 
+                second.deactivate(); 
+            }
+            catch(Ice.AlreadyRegisteredException)
+            {
+                // Expected
+            }
+            test(communicator.getProperties().getProperty("Ice.OA.TestAdapter0.Endpoints").Equals("default"));
             first.deactivate();
             Console.WriteLine("ok");
         }
 
         {
             Console.Write("testing servant registration exceptions... ");
-	    communicator.getProperties().setProperty("Ice.OA.TestAdapter1.Endpoints", "default");
+            communicator.getProperties().setProperty("Ice.OA.TestAdapter1.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
             adapter.add(obj, communicator.stringToIdentity("x"));
             try
             {
                 adapter.add(obj, communicator.stringToIdentity("x"));
-		test(false);
+                test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
@@ -727,7 +727,7 @@ public class AllTests
             try
             {
                 adapter.remove(communicator.stringToIdentity("x"));
-		test(false);
+                test(false);
             }
             catch(Ice.NotRegisteredException)
             {
@@ -738,14 +738,14 @@ public class AllTests
         
         {
             Console.Write("testing servant locator registration exceptions... ");
-	    communicator.getProperties().setProperty("Ice.OA.TestAdapter2.Endpoints", "default");
+            communicator.getProperties().setProperty("Ice.OA.TestAdapter2.Endpoints", "default");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
             Ice.ServantLocator loc = new ServantLocatorI();
             adapter.addServantLocator(loc, "x");
             try
             {
                 adapter.addServantLocator(loc, "x");
-		test(false);
+                test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
@@ -762,7 +762,7 @@ public class AllTests
             try
             {
                 communicator.addObjectFactory(of, "::x");
-		test(false);
+                test(false);
             }
             catch(Ice.AlreadyRegisteredException)
             {
@@ -958,22 +958,22 @@ public class AllTests
                 thrower.throwUndeclaredA(1);
                 test(false);
             }
-	    catch(A ex)
-	    {
-	        //
-		// We get the original exception with collocation
-		// optimization.
-		//
-		test(collocated);
-		test(ex.aMem == 1);
-	    }
+            catch(A ex)
+            {
+                //
+                // We get the original exception with collocation
+                // optimization.
+                //
+                test(collocated);
+                test(ex.aMem == 1);
+            }
             catch(Ice.UnknownUserException)
             {
-	        //
-		// We get an unknown user exception without collocation
-		// optimization.
-		//
-		test(!collocated);
+                //
+                // We get an unknown user exception without collocation
+                // optimization.
+                //
+                test(!collocated);
             }
             catch(Exception)
             {
@@ -985,23 +985,23 @@ public class AllTests
                 thrower.throwUndeclaredB(1, 2);
                 test(false);
             }
-	    catch(B ex)
-	    {
-	        //
-		// We get the original exception with collocation
-		// optimization.
-		//
-		test(collocated);
-		test(ex.aMem == 1);
-		test(ex.bMem == 2);
-	    }
+            catch(B ex)
+            {
+                //
+                // We get the original exception with collocation
+                // optimization.
+                //
+                test(collocated);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+            }
             catch(Ice.UnknownUserException)
             {
-	        //
-		// We get an unknown user exception without collocation
-		// optimization.
-		//
-		test(!collocated);
+                //
+                // We get an unknown user exception without collocation
+                // optimization.
+                //
+                test(!collocated);
             }
             catch(Exception)
             {
@@ -1013,24 +1013,24 @@ public class AllTests
                 thrower.throwUndeclaredC(1, 2, 3);
                 test(false);
             }
-	    catch(C ex)
-	    {
-	        //
-		// We get the original exception with collocation
-		// optimization.
-		//
-		test(collocated);
-		test(ex.aMem == 1);
-		test(ex.bMem == 2);
-		test(ex.cMem == 3);
-	    }
+            catch(C ex)
+            {
+                //
+                // We get the original exception with collocation
+                // optimization.
+                //
+                test(collocated);
+                test(ex.aMem == 1);
+                test(ex.bMem == 2);
+                test(ex.cMem == 3);
+            }
             catch(Ice.UnknownUserException)
             {
-	        //
-		// We get an unknown user exception without collocation
-		// optimization.
-		//
-		test(!collocated);
+                //
+                // We get an unknown user exception without collocation
+                // optimization.
+                //
+                test(!collocated);
             }
             catch(Exception)
             {

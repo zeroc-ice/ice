@@ -33,30 +33,30 @@ namespace Ice
 
     public interface Object : System.ICloneable
     {
-	int ice_hash();
+        int ice_hash();
 
         bool ice_isA(string s);
-	bool ice_isA(string s, Current current);
+        bool ice_isA(string s, Current current);
 
         void ice_ping();
-	void ice_ping(Current current);
+        void ice_ping(Current current);
 
         string[] ice_ids();
-	string[] ice_ids(Current current);
+        string[] ice_ids(Current current);
 
         string ice_id();
-	string ice_id(Current current);
+        string ice_id(Current current);
 
-	void ice_preMarshal();
-	void ice_postUnmarshal();
+        void ice_preMarshal();
+        void ice_postUnmarshal();
 
-	IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
+        IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
 
-	void write__(IceInternal.BasicStream os__);
-	void read__(IceInternal.BasicStream is__, bool rid__);
+        void write__(IceInternal.BasicStream os__);
+        void read__(IceInternal.BasicStream is__, bool rid__);
 
-	void write__(OutputStream outS__);
-	void read__(InputStream inS__, bool rid__);
+        void write__(OutputStream outS__);
+        void read__(InputStream inS__, bool rid__);
     }
 
     public abstract class ObjectImpl : Object
@@ -76,7 +76,7 @@ namespace Ice
         }
 
         public static readonly string[] ids__ = new string[] { "::Ice::Object" };
-	
+        
         public virtual bool ice_isA(string s)
         {
             return s.Equals(ids__[0]);
@@ -86,7 +86,7 @@ namespace Ice
         {
             return s.Equals(ids__[0]);
         }
-	
+        
         public static IceInternal.DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
@@ -97,7 +97,7 @@ namespace Ice
             os__.writeBool(__ret);
             return IceInternal.DispatchStatus.DispatchOK;
         }
-	
+        
         public virtual void ice_ping()
         {
             // Nothing to do.
@@ -107,14 +107,14 @@ namespace Ice
         {
             // Nothing to do.
         }
-	
+        
         public static IceInternal.DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
             __obj.ice_ping(__current);
             return IceInternal.DispatchStatus.DispatchOK;
         }
-	
+        
         public virtual string[] ice_ids()
         {
             return ids__;
@@ -124,7 +124,7 @@ namespace Ice
         {
             return ids__;
         }
-	
+        
         public static IceInternal.DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
@@ -132,7 +132,7 @@ namespace Ice
             os__.writeStringSeq(__obj.ice_ids(__current));
             return IceInternal.DispatchStatus.DispatchOK;
         }
-	
+        
         public virtual string ice_id()
         {
             return ids__[0];
@@ -142,7 +142,7 @@ namespace Ice
         {
             return ids__[0];
         }
-	
+        
         public static IceInternal.DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
@@ -151,12 +151,12 @@ namespace Ice
             os__.writeString(__ret);
             return IceInternal.DispatchStatus.DispatchOK;
         }
-	
+        
         public static string ice_staticId()
         {
             return ids__[0];
         }
-	
+        
         public virtual void ice_preMarshal()
         {
         }
@@ -169,7 +169,7 @@ namespace Ice
         {
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
         };
-	
+        
         public virtual IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             int pos = System.Array.BinarySearch(all__, current.operation);
@@ -177,7 +177,7 @@ namespace Ice
             {
                 return IceInternal.DispatchStatus.DispatchOperationNotExist;
             }
-	    
+            
             switch(pos)
             {
                 case 0: 
@@ -197,11 +197,11 @@ namespace Ice
                     return ice_ping___(this, inc, current);
                 }
             }
-	    
+            
             Debug.Assert(false);
             return IceInternal.DispatchStatus.DispatchOperationNotExist;
         }
-	
+        
         public virtual void write__(IceInternal.BasicStream os__)
         {
             os__.writeTypeId(ice_staticId());
@@ -209,7 +209,7 @@ namespace Ice
             os__.writeSize(0); // For compatibility with the old AFM.  
             os__.endWriteSlice();
         }
-	
+        
         public virtual void read__(IceInternal.BasicStream is__, bool rid__)
         {
 
@@ -217,89 +217,89 @@ namespace Ice
             {
                 /* string myId = */ is__.readTypeId();
             }
-	    
+            
             is__.startReadSlice();
-	    
+            
             // For compatibility with the old AFM.
             int sz = is__.readSize();
             if(sz != 0)
             {
                 throw new MarshalException();
             }
-	    
+            
             is__.endReadSlice();
         }
 
-	public virtual void write__(OutputStream outS__)
-	{
-	    outS__.writeTypeId(ice_staticId());
-	    outS__.startSlice();
-	    outS__.writeSize(0); // For compatibility with the old AFM.
-	    outS__.endSlice();
-	}
+        public virtual void write__(OutputStream outS__)
+        {
+            outS__.writeTypeId(ice_staticId());
+            outS__.startSlice();
+            outS__.writeSize(0); // For compatibility with the old AFM.
+            outS__.endSlice();
+        }
 
-	public virtual void read__(InputStream inS__, bool rid__)
-	{
-	    if(rid__)
-	    {
-		/* string myId = */ inS__.readTypeId();
-	    }
+        public virtual void read__(InputStream inS__, bool rid__)
+        {
+            if(rid__)
+            {
+                /* string myId = */ inS__.readTypeId();
+            }
 
-	    inS__.startSlice();
+            inS__.startSlice();
 
-	    // For compatibility with the old AFM.
-	    int sz = inS__.readSize();
-	    if(sz != 0)
-	    {
-		throw new MarshalException();
-	    }
+            // For compatibility with the old AFM.
+            int sz = inS__.readSize();
+            if(sz != 0)
+            {
+                throw new MarshalException();
+            }
 
-	    inS__.endSlice();
-	}
+            inS__.endSlice();
+        }
 
-	private static string
-	operationModeToString(OperationMode mode)
-	{
-	    if(mode == Ice.OperationMode.Normal)
-	    {
-		return "::Ice::Normal";
-	    }
-	    if(mode == Ice.OperationMode.Nonmutating)
-	    {
-		return "::Ice::Nonmutating";
-	    }
+        private static string
+        operationModeToString(OperationMode mode)
+        {
+            if(mode == Ice.OperationMode.Normal)
+            {
+                return "::Ice::Normal";
+            }
+            if(mode == Ice.OperationMode.Nonmutating)
+            {
+                return "::Ice::Nonmutating";
+            }
 
-	    if(mode == Ice.OperationMode.Idempotent)
-	    {
-		return "::Ice::Idempotent";
-	    }
+            if(mode == Ice.OperationMode.Idempotent)
+            {
+                return "::Ice::Idempotent";
+            }
 
-	    return "???";
-	}
+            return "???";
+        }
 
-	protected static void
-	checkMode__(OperationMode expected, OperationMode received)
-	{
-	    if(expected != received)
-	    {
-		if(expected == OperationMode.Idempotent 
-		   && received == OperationMode.Nonmutating)
-		{
-		    //
-		    // Fine: typically an old client still using the 
-		    // deprecated nonmutating keyword
-		    //
-		}
-		else
-		{
-		    Ice.MarshalException ex = new Ice.MarshalException();
-		    ex.reason = "unexpected operation mode. expected = "
-			+ operationModeToString(expected) + " received = "
-			+ operationModeToString(received);
-		    throw ex;
-		}
-	    }
-	}
+        protected static void
+        checkMode__(OperationMode expected, OperationMode received)
+        {
+            if(expected != received)
+            {
+                if(expected == OperationMode.Idempotent 
+                   && received == OperationMode.Nonmutating)
+                {
+                    //
+                    // Fine: typically an old client still using the 
+                    // deprecated nonmutating keyword
+                    //
+                }
+                else
+                {
+                    Ice.MarshalException ex = new Ice.MarshalException();
+                    ex.reason = "unexpected operation mode. expected = "
+                        + operationModeToString(expected) + " received = "
+                        + operationModeToString(received);
+                    throw ex;
+                }
+            }
+        }
         public static Ice.Current defaultCurrent = new Ice.Current();
     }
 
@@ -307,7 +307,7 @@ namespace Ice
     {
         // Returns true if ok, false if user exception.
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
-	
+        
         public override IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             byte[] inParams;
@@ -333,7 +333,7 @@ namespace Ice
     public abstract class BlobjectAsync : Ice.ObjectImpl
     {
         public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
-	
+        
         public override IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             byte[] inParams;

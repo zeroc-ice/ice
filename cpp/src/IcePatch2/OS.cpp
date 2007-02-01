@@ -68,7 +68,7 @@ OS::getcwd(string& cwd)
     wchar_t cwdbuf[_MAX_PATH];
     if(_wgetcwd(cwdbuf, _MAX_PATH) == NULL)
     {
-	return -1;
+        return -1;
     }
     cwd = IceUtil::wstringToString(cwdbuf);
     return 0;
@@ -124,7 +124,7 @@ OS::getcwd(string& cwd)
     char cwdbuf[PATH_MAX];
     if(::getcwd(cwdbuf, PATH_MAX) == NULL)
     {
-	return -1;
+        return -1;
     }
     cwd = cwdbuf;
     return 0;

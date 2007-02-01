@@ -24,7 +24,7 @@ interface CallbackReceiver
     void callback();
 
     void callbackEx()
-	throws CallbackException;
+        throws CallbackException;
 };
 
 interface Callback
@@ -32,7 +32,7 @@ interface Callback
     void initiateCallback(CallbackReceiver* proxy);
 
     void initiateCallbackEx(CallbackReceiver* proxy)
-	throws CallbackException;
+        throws CallbackException;
 
     void shutdown();
 };

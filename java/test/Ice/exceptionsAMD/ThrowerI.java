@@ -21,7 +21,7 @@ public final class ThrowerI extends _ThrowerDisp
     shutdown_async(AMD_Thrower_shutdown cb, Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
-	cb.ice_response();
+        cb.ice_response();
     }
 
     public void
@@ -54,13 +54,13 @@ public final class ThrowerI extends _ThrowerDisp
         {
             A ex = new A();
             ex.aMem = a;
-	    cb.ice_exception(ex);
+            cb.ice_exception(ex);
         }
         else
         {
             D ex = new D();
             ex.dMem = a;
-	    cb.ice_exception(ex);
+            cb.ice_exception(ex);
         }
     }
 
@@ -68,11 +68,11 @@ public final class ThrowerI extends _ThrowerDisp
     throwBasA_async(AMD_Thrower_throwBasA cb, int a, int b, Ice.Current current)
         throws A
     {
-	B ex = new B();
-	ex.aMem = a;
-	ex.bMem = b;
-	throw ex;
-	//cb.ice_exception(ex);
+        B ex = new B();
+        ex.aMem = a;
+        ex.bMem = b;
+        throw ex;
+        //cb.ice_exception(ex);
     }
 
     public void
@@ -83,29 +83,29 @@ public final class ThrowerI extends _ThrowerDisp
         ex.aMem = a;
         ex.bMem = b;
         throw ex;
-	//cb.ice_exception(ex);
+        //cb.ice_exception(ex);
     }
 
     public void
     throwCasA_async(AMD_Thrower_throwCasA cb, int a, int b, int c, Ice.Current current)
         throws A
     {
-	C ex = new C();
-	ex.aMem = a;
-	ex.bMem = b;
-	ex.cMem = c;
-	cb.ice_exception(ex);
+        C ex = new C();
+        ex.aMem = a;
+        ex.bMem = b;
+        ex.cMem = c;
+        cb.ice_exception(ex);
     }
 
     public void
     throwCasB_async(AMD_Thrower_throwCasB cb, int a, int b, int c, Ice.Current current)
         throws B
     {
-	C ex = new C();
-	ex.aMem = a;
-	ex.bMem = b;
-	ex.cMem = c;
-	cb.ice_exception(ex);
+        C ex = new C();
+        ex.aMem = a;
+        ex.bMem = b;
+        ex.cMem = c;
+        cb.ice_exception(ex);
     }
 
     public void
@@ -116,7 +116,7 @@ public final class ThrowerI extends _ThrowerDisp
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-	cb.ice_exception(ex);
+        cb.ice_exception(ex);
     }
 
     public void
@@ -130,10 +130,10 @@ public final class ThrowerI extends _ThrowerDisp
     public void
     throwUndeclaredB_async(AMD_Thrower_throwUndeclaredB cb, int a, int b, Ice.Current current)
     {
-	B ex = new B();
-	ex.aMem = a;
-	ex.bMem = b;
-	cb.ice_exception(ex);
+        B ex = new B();
+        ex.aMem = a;
+        ex.bMem = b;
+        cb.ice_exception(ex);
     }
 
     public void

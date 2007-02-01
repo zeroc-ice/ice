@@ -15,20 +15,20 @@ public class Server : Ice.Application
 {
     public override int run(string[] args)
     {
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionFactory");
 
-	ReapThread reaper = new ReapThread();
-	Thread reaperThread = new Thread(new ThreadStart(reaper.run));
-	reaperThread.Start();
+        ReapThread reaper = new ReapThread();
+        Thread reaperThread = new Thread(new ThreadStart(reaper.run));
+        reaperThread.Start();
 
-	adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
-	adapter.activate();
-	communicator().waitForShutdown();
+        adapter.add(new SessionFactoryI(reaper), communicator().stringToIdentity("SessionFactory"));
+        adapter.activate();
+        communicator().waitForShutdown();
 
-	reaper.terminate();
-	reaperThread.Join();
+        reaper.terminate();
+        reaperThread.Join();
 
-	return 0;
+        return 0;
     }
 
     public static void Main(string[] args)

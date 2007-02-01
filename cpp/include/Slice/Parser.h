@@ -283,17 +283,17 @@ public:
 
     enum Kind
     {
-	KindByte,
-	KindBool,
-	KindShort,
-	KindInt,
-	KindLong,
-	KindFloat,
-	KindDouble,
-	KindString,
-	KindObject,
-	KindObjectProxy,
-	KindLocalObject
+        KindByte,
+        KindBool,
+        KindShort,
+        KindInt,
+        KindLong,
+        KindFloat,
+        KindDouble,
+        KindString,
+        KindObject,
+        KindObjectProxy,
+        KindLocalObject
     };
 
     virtual bool isLocal() const;
@@ -343,18 +343,18 @@ public:
 
     enum ContainedType
     {
-	ContainedTypeSequence,
-	ContainedTypeDictionary,
-	ContainedTypeEnum,
-	ContainedTypeEnumerator,
-	ContainedTypeModule,
-	ContainedTypeClass,
-	ContainedTypeException,
-	ContainedTypeStruct,
-	ContainedTypeOperation,
-	ContainedTypeParamDecl,
-	ContainedTypeDataMember,
-	ContainedTypeConstant
+        ContainedTypeSequence,
+        ContainedTypeDictionary,
+        ContainedTypeEnum,
+        ContainedTypeEnumerator,
+        ContainedTypeModule,
+        ContainedTypeClass,
+        ContainedTypeException,
+        ContainedTypeStruct,
+        ContainedTypeOperation,
+        ContainedTypeParamDecl,
+        ContainedTypeDataMember,
+        ContainedTypeConstant
     };
     virtual ContainedType containedType() const = 0;
 
@@ -396,11 +396,11 @@ public:
     StructPtr createStruct(const std::string&, bool);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-    				   const StringList&, bool);
+                                   const StringList&, bool);
     EnumPtr createEnum(const std::string&, bool);
     EnumeratorPtr createEnumerator(const std::string&);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-    			 const std::string&);
+                         const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -543,9 +543,9 @@ public:
     //
     enum Mode
     {
-	Normal,
-	Nonmutating,
-	Idempotent
+        Normal,
+        Nonmutating,
+        Idempotent
     };
 
     TypePtr returnType() const;
@@ -762,7 +762,7 @@ public:
 protected:
 
     Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const StringList&, const TypePtr&, 
-    	       const StringList&, bool);
+               const StringList&, bool);
     friend class Container;
 
     TypePtr _keyType;
@@ -839,7 +839,7 @@ public:
 
     static bool isLegalType(const std::string&, const TypePtr&, const UnitPtr&);
     static bool typesAreCompatible(const std::string&, const TypePtr&,
-	                           const SyntaxTreeBasePtr&, const std::string&, const UnitPtr&);
+                                   const SyntaxTreeBasePtr&, const std::string&, const UnitPtr&);
     static bool isInRange(const std::string&, const TypePtr&, const std::string&, const UnitPtr&);
 
 protected:

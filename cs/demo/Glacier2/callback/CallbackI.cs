@@ -15,26 +15,26 @@ public sealed class CallbackI : CallbackDisp_
     public override void initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
         Console.WriteLine("initiating callback");
-	try
-	{
-	    proxy.callback(current.ctx);
-	}
-	catch(System.Exception ex)
-	{
-	    Console.Error.WriteLine(ex);
-	}
+        try
+        {
+            proxy.callback(current.ctx);
+        }
+        catch(System.Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+        }
     }
 
     public override void shutdown(Ice.Current current)
     {
         Console.WriteLine("Shutting down...");
-	try
-	{
-	    current.adapter.getCommunicator().shutdown();
-	}
-	catch(System.Exception ex)
-	{
-	    Console.Error.WriteLine(ex);
-	}
+        try
+        {
+            current.adapter.getCommunicator().shutdown();
+        }
+        catch(System.Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+        }
     }
 }

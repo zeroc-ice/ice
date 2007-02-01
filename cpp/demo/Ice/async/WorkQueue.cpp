@@ -25,34 +25,34 @@ WorkQueue::run()
     while(!_done)
     {
         if(_callbacks.size() == 0)
-	{
-	    _monitor.wait();
-	}
+        {
+            _monitor.wait();
+        }
 
-	if(_callbacks.size() != 0)
-	{
-	    //
-	    // Get next work item.
-	    //
-	    CallbackEntry entry = _callbacks.front();
+        if(_callbacks.size() != 0)
+        {
+            //
+            // Get next work item.
+            //
+            CallbackEntry entry = _callbacks.front();
 
-	    //
-	    // Wait for the amount of time indicated in delay to 
-	    // emulate a process that takes a significant period of
-	    // time to complete.
-    	    //
-	    _monitor.timedWait(IceUtil::Time::milliSeconds(entry.delay));
+            //
+            // Wait for the amount of time indicated in delay to 
+            // emulate a process that takes a significant period of
+            // time to complete.
+            //
+            _monitor.timedWait(IceUtil::Time::milliSeconds(entry.delay));
 
-	    if(!_done)
-	    {
-	        //
-	        // Print greeting and send response.
-	        //
-	        _callbacks.pop_front();
-	        cout << "Belated Hello World!" << endl;
-	        entry.cb->ice_response();
-	    }
-	}
+            if(!_done)
+            {
+                //
+                // Print greeting and send response.
+                //
+                _callbacks.pop_front();
+                cout << "Belated Hello World!" << endl;
+                entry.cb->ice_response();
+            }
+        }
     }
 
     //
@@ -79,17 +79,17 @@ WorkQueue::add(const Demo::AMD_Hello_sayHelloPtr& cb, int delay)
         entry.cb = cb;
         entry.delay = delay;
 
-	if(_callbacks.size() == 0)
-	{
+        if(_callbacks.size() == 0)
+        {
             _monitor.notify();
-	}
+        }
         _callbacks.push_back(entry);
     }
     else
     {
         //
-	// Destroyed, throw exception.
-	//
+        // Destroyed, throw exception.
+        //
         cb->ice_exception(Demo::RequestCanceledException());
     }
 }

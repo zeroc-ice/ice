@@ -13,8 +13,8 @@ public final class Outgoing
 {
     public
     Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
-	     java.util.Map context, boolean compress)
-	throws LocalExceptionWrapper
+             java.util.Map context, boolean compress)
+        throws LocalExceptionWrapper
     {
         _connection = connection;
         _reference = ref;
@@ -23,7 +23,7 @@ public final class Outgoing
         _os = new BasicStream(ref.getInstance());
         _compress = compress;
 
-	writeHeader(operation, mode, context);
+        writeHeader(operation, mode, context);
     }
 
     //
@@ -31,12 +31,12 @@ public final class Outgoing
     //
     public void
     reset(Reference ref, String operation, Ice.OperationMode mode, java.util.Map context, boolean compress)
-	throws LocalExceptionWrapper
+        throws LocalExceptionWrapper
     {
-	_reference = ref;
+        _reference = ref;
         _state = StateUnsent;
         _exception = null;
-	_compress = compress;
+        _compress = compress;
 
         writeHeader(operation, mode, context);
     }
@@ -44,8 +44,8 @@ public final class Outgoing
     public void
     reclaim()
     {
-	_is.reset();
-	_os.reset();
+        _is.reset();
+        _os.reset();
     }
 
     // Returns true if ok, false if user exception.
@@ -53,7 +53,7 @@ public final class Outgoing
     invoke()
         throws LocalExceptionWrapper
     {
-	assert(_state == StateUnsent);
+        assert(_state == StateUnsent);
 
         _os.endWriteEncaps();
 
@@ -61,35 +61,35 @@ public final class Outgoing
         {
             case Reference.ModeTwoway:
             {
-		//
-		// We let all exceptions raised by sending directly
-		// propagate to the caller, because they can be
-		// retried without violating "at-most-once". In case
-		// of such exceptions, the connection object does not
-		// call back on this object, so we don't need to lock
-		// the mutex, keep track of state, or save exceptions.
-		//
-		_connection.sendRequest(_os, this, _compress);
+                //
+                // We let all exceptions raised by sending directly
+                // propagate to the caller, because they can be
+                // retried without violating "at-most-once". In case
+                // of such exceptions, the connection object does not
+                // call back on this object, so we don't need to lock
+                // the mutex, keep track of state, or save exceptions.
+                //
+                _connection.sendRequest(_os, this, _compress);
 
-		//
-		// Wait until the request has completed, or until the
-		// request times out.
-		//
+                //
+                // Wait until the request has completed, or until the
+                // request times out.
+                //
 
-		boolean timedOut = false;
+                boolean timedOut = false;
 
                 synchronized(this)
                 {
-		    //
-		    // It's possible that the request has already
-		    // completed, due to a regular response, or because of
-		    // an exception. So we only change the state to "in
-		    // progress" if it is still "unsent".
-		    //
-		    if(_state == StateUnsent)
-		    {
-			_state = StateInProgress;
-		    }
+                    //
+                    // It's possible that the request has already
+                    // completed, due to a regular response, or because of
+                    // an exception. So we only change the state to "in
+                    // progress" if it is still "unsent".
+                    //
+                    if(_state == StateUnsent)
+                    {
+                        _state = StateInProgress;
+                    }
 
                     int timeout = _connection.timeout();
                     while(_state == StateInProgress && !timedOut)
@@ -99,7 +99,7 @@ public final class Outgoing
                             if(timeout >= 0)
                             {
                                 wait(timeout);
-				
+                                
                                 if(_state == StateInProgress)
                                 {
                                     timedOut = true;
@@ -115,37 +115,37 @@ public final class Outgoing
                         }
                     }
                 }
-		
-		if(timedOut)
-		{
+                
+                if(timedOut)
+                {
                     //
                     // Must be called outside the synchronization of
                     // this object
                     //
                     _connection.exception(new Ice.TimeoutException());
 
-		    //
-		    // We must wait until the exception set above has
-		    // propagated to this Outgoing object.
-		    //
-		    synchronized(this)
-		    {
-			while(_state == StateInProgress)
-			{
-			    try
-			    {
-				wait();
-			    }
-			    catch(InterruptedException ex)
-			    {
-			    }
-			}
-		    }
+                    //
+                    // We must wait until the exception set above has
+                    // propagated to this Outgoing object.
+                    //
+                    synchronized(this)
+                    {
+                        while(_state == StateInProgress)
+                        {
+                            try
+                            {
+                                wait();
+                            }
+                            catch(InterruptedException ex)
+                            {
+                            }
+                        }
+                    }
                 }
 
                 if(_exception != null)
                 {
-		    _exception.fillInStackTrace();
+                    _exception.fillInStackTrace();
 
                     //      
                     // A CloseConnectionException indicates graceful
@@ -155,11 +155,11 @@ public final class Outgoing
                     // guarantees that all outstanding requests can safely
                     // be repeated.
                     //
-		    // An ObjectNotExistException can always be retried as
-		    // well without violating "at-most-once".
-		    //
+                    // An ObjectNotExistException can always be retried as
+                    // well without violating "at-most-once".
+                    //
                     if(_exception instanceof Ice.CloseConnectionException || 
-		       _exception instanceof Ice.ObjectNotExistException)
+                       _exception instanceof Ice.ObjectNotExistException)
                     {
                         throw _exception;
                     }
@@ -176,7 +176,7 @@ public final class Outgoing
                 {
                     return false;
                 }
-		
+                
                 assert(_state == StateOK);
                 break;
             }
@@ -184,28 +184,28 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-		//
-		// For oneway and datagram requests, the connection object
+                //
+                // For oneway and datagram requests, the connection object
                 // never calls back on this object. Therefore we don't
                 // need to lock the mutex or save exceptions. We simply
                 // let all exceptions from sending propagate to the
                 // caller, because such exceptions can be retried without
                 // violating "at-most-once".
-		//
-		_state = StateInProgress;
-		_connection.sendRequest(_os, null, _compress);
+                //
+                _state = StateInProgress;
+                _connection.sendRequest(_os, null, _compress);
                 break;
             }
 
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-		//
-		// For batch oneways and datagrams, the same rules as for
-		// regular oneways and datagrams (see comment above)
-		// apply.
-		//
-		_state = StateInProgress;
+                //
+                // For batch oneways and datagrams, the same rules as for
+                // regular oneways and datagrams (see comment above)
+                // apply.
+                //
+                _state = StateInProgress;
                 _connection.finishBatchRequest(_os, _compress);
                 break;
             }
@@ -218,100 +218,100 @@ public final class Outgoing
     abort(Ice.LocalException ex)
         throws LocalExceptionWrapper
     {
-	assert(_state == StateUnsent);
+        assert(_state == StateUnsent);
 
-	//
-	// If we didn't finish a batch oneway or datagram request, we
-	// must notify the connection about that we give up ownership
-	// of the batch stream.
-	//
-	int mode = _reference.getMode();
-	if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
-	{
-	    _connection.abortBatchRequest();
+        //
+        // If we didn't finish a batch oneway or datagram request, we
+        // must notify the connection about that we give up ownership
+        // of the batch stream.
+        //
+        int mode = _reference.getMode();
+        if(mode == Reference.ModeBatchOneway || mode == Reference.ModeBatchDatagram)
+        {
+            _connection.abortBatchRequest();
 
-	    //
-	    // If we abort a batch requests, we cannot retry, because
-	    // not only the batch request that caused the problem will
-	    // be aborted, but all other requests in the batch as
-	    // well.
-	    //
-	    throw new LocalExceptionWrapper(ex, false);
-	}
+            //
+            // If we abort a batch requests, we cannot retry, because
+            // not only the batch request that caused the problem will
+            // be aborted, but all other requests in the batch as
+            // well.
+            //
+            throw new LocalExceptionWrapper(ex, false);
+        }
 
-	throw ex;
+        throw ex;
     }
 
     public synchronized void
     finished(BasicStream is)
     {
-	assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
-	
-	assert(_state <= StateInProgress);
-	
-	_is.swap(is);
-	int status = (int)_is.readByte();
-	
-	switch(status)
-	{
-	    case DispatchStatus._DispatchOK:
-	    {
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// oneway requests as blobs.
-		//
-		_is.startReadEncaps();
-		_state = StateOK; // The state must be set last, in case there is an exception.
-		break;
-	    }
-	    
-	    case DispatchStatus._DispatchUserException:
-	    {
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// oneway requests as blobs.
-		//
-		_is.startReadEncaps();
-		_state = StateUserException; // The state must be set last, in case there is an exception.
-		break;
-	    }
-	    
-	    case DispatchStatus._DispatchObjectNotExist:
-	    case DispatchStatus._DispatchFacetNotExist:
-	    case DispatchStatus._DispatchOperationNotExist:
-	    {
-		Ice.RequestFailedException ex = null;
-		switch((int)status)
-		{
-		    case DispatchStatus._DispatchObjectNotExist:
-		    {
-			ex = new Ice.ObjectNotExistException();
-			break;
-		    }
-		    
-		    case DispatchStatus._DispatchFacetNotExist:
-		    {
-			ex = new Ice.FacetNotExistException();
-			break;
-		    }
-		    
-		    case DispatchStatus._DispatchOperationNotExist:
-		    {
-			ex = new Ice.OperationNotExistException();
-			break;
-		    }
-		    
-		    default:
-		    {
-			assert(false);
-			break;
-		    }
-		}
-		
-		ex.id = new Ice.Identity();
-		ex.id.__read(_is);
+        assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
+        
+        assert(_state <= StateInProgress);
+        
+        _is.swap(is);
+        int status = (int)_is.readByte();
+        
+        switch(status)
+        {
+            case DispatchStatus._DispatchOK:
+            {
+                //
+                // Input and output parameters are always sent in an
+                // encapsulation, which makes it possible to forward
+                // oneway requests as blobs.
+                //
+                _is.startReadEncaps();
+                _state = StateOK; // The state must be set last, in case there is an exception.
+                break;
+            }
+            
+            case DispatchStatus._DispatchUserException:
+            {
+                //
+                // Input and output parameters are always sent in an
+                // encapsulation, which makes it possible to forward
+                // oneway requests as blobs.
+                //
+                _is.startReadEncaps();
+                _state = StateUserException; // The state must be set last, in case there is an exception.
+                break;
+            }
+            
+            case DispatchStatus._DispatchObjectNotExist:
+            case DispatchStatus._DispatchFacetNotExist:
+            case DispatchStatus._DispatchOperationNotExist:
+            {
+                Ice.RequestFailedException ex = null;
+                switch((int)status)
+                {
+                    case DispatchStatus._DispatchObjectNotExist:
+                    {
+                        ex = new Ice.ObjectNotExistException();
+                        break;
+                    }
+                    
+                    case DispatchStatus._DispatchFacetNotExist:
+                    {
+                        ex = new Ice.FacetNotExistException();
+                        break;
+                    }
+                    
+                    case DispatchStatus._DispatchOperationNotExist:
+                    {
+                        ex = new Ice.OperationNotExistException();
+                        break;
+                    }
+                    
+                    default:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+                
+                ex.id = new Ice.Identity();
+                ex.id.__read(_is);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -319,70 +319,70 @@ public final class Outgoing
                 String[] facetPath = _is.readStringSeq();
                 if(facetPath.length > 0)
                 {
-		    if(facetPath.length > 1)
-		    {
-		        throw new Ice.MarshalException();
-		    }
+                    if(facetPath.length > 1)
+                    {
+                        throw new Ice.MarshalException();
+                    }
                     ex.facet = facetPath[0];
                 }
-		else
-		{
-		    ex.facet = "";
-		}
+                else
+                {
+                    ex.facet = "";
+                }
 
-		ex.operation = _is.readString();
-		_exception = ex;
+                ex.operation = _is.readString();
+                _exception = ex;
 
-		_state = StateLocalException; // The state must be set last, in case there is an exception.
-		break;
-	    }
-	    
-	    case DispatchStatus._DispatchUnknownException:
-	    case DispatchStatus._DispatchUnknownLocalException:
-	    case DispatchStatus._DispatchUnknownUserException:
-	    {
-		Ice.UnknownException ex = null;
-		switch((int)status)
-		{
-		    case DispatchStatus._DispatchUnknownException:
-		    {
-			ex = new Ice.UnknownException();
-			break;
-		    }
-		    
-		    case DispatchStatus._DispatchUnknownLocalException:
-		    {
-			ex = new Ice.UnknownLocalException();
-			break;
-		    }
-		    
-		    case DispatchStatus._DispatchUnknownUserException: 
-		    {
-			ex = new Ice.UnknownUserException();
-			break;
-		    }
-		    
-		    default:
-		    {
-			assert(false);
-			break;
-		    }
-		}
-		
-		ex.unknown = _is.readString();
-		_exception = ex;
+                _state = StateLocalException; // The state must be set last, in case there is an exception.
+                break;
+            }
+            
+            case DispatchStatus._DispatchUnknownException:
+            case DispatchStatus._DispatchUnknownLocalException:
+            case DispatchStatus._DispatchUnknownUserException:
+            {
+                Ice.UnknownException ex = null;
+                switch((int)status)
+                {
+                    case DispatchStatus._DispatchUnknownException:
+                    {
+                        ex = new Ice.UnknownException();
+                        break;
+                    }
+                    
+                    case DispatchStatus._DispatchUnknownLocalException:
+                    {
+                        ex = new Ice.UnknownLocalException();
+                        break;
+                    }
+                    
+                    case DispatchStatus._DispatchUnknownUserException: 
+                    {
+                        ex = new Ice.UnknownUserException();
+                        break;
+                    }
+                    
+                    default:
+                    {
+                        assert(false);
+                        break;
+                    }
+                }
+                
+                ex.unknown = _is.readString();
+                _exception = ex;
 
-		_state = StateLocalException; // The state must be set last, in case there is an exception.
-		break;
-	    }
-	    
-	    default:
-	    {
-		_exception = new Ice.UnknownReplyStatusException();
-		_state = StateLocalException;
-		break;
-	    }
-	}
+                _state = StateLocalException; // The state must be set last, in case there is an exception.
+                break;
+            }
+            
+            default:
+            {
+                _exception = new Ice.UnknownReplyStatusException();
+                _state = StateLocalException;
+                break;
+            }
+        }
 
         notify();
     }
@@ -390,13 +390,13 @@ public final class Outgoing
     public synchronized void
     finished(Ice.LocalException ex)
     {
-	assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
-	
-	assert(_state <= StateInProgress);
+        assert(_reference.getMode() == Reference.ModeTwoway); // Can only be called for twoways.
+        
+        assert(_state <= StateInProgress);
 
-	_state = StateLocalException;
-	_exception = ex;
-	notify();
+        _state = StateLocalException;
+        _exception = ex;
+        notify();
     }
 
     public BasicStream
@@ -413,7 +413,7 @@ public final class Outgoing
 
     private void
     writeHeader(String operation, Ice.OperationMode mode, java.util.Map context)
-	throws LocalExceptionWrapper
+        throws LocalExceptionWrapper
     {
         switch(_reference.getMode())
         {
@@ -421,7 +421,7 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-		_os.writeBlob(IceInternal.Protocol.requestHdr);
+                _os.writeBlob(IceInternal.Protocol.requestHdr);
                 break;
             }
 
@@ -433,66 +433,66 @@ public final class Outgoing
             }
         }
 
-	try
-	{
-	    _reference.getIdentity().__write(_os);
+        try
+        {
+            _reference.getIdentity().__write(_os);
 
-	    //
-	    // For compatibility with the old FacetPath.
-	    //
-	    String facet = _reference.getFacet();
-	    if(facet == null || facet.length() == 0)
-	    {
-		_os.writeStringSeq(null);
-	    }
-	    else
-	    {
-		String[] facetPath = { facet };
-		_os.writeStringSeq(facetPath);
-	    }
+            //
+            // For compatibility with the old FacetPath.
+            //
+            String facet = _reference.getFacet();
+            if(facet == null || facet.length() == 0)
+            {
+                _os.writeStringSeq(null);
+            }
+            else
+            {
+                String[] facetPath = { facet };
+                _os.writeStringSeq(facetPath);
+            }
 
-	    _os.writeString(operation);
+            _os.writeString(operation);
 
-	    _os.writeByte((byte)mode.value());
+            _os.writeByte((byte)mode.value());
 
-	    if(context != null)
-	    {
-		//
-		// Explicit context
-		//
-		Ice.ContextHelper.write(_os, context);
-	    }
-	    else
-	    {
-		//
-		// Implicit context
-		//
-		Ice.ImplicitContextI implicitContext =
-		    _reference.getInstance().getImplicitContext();
+            if(context != null)
+            {
+                //
+                // Explicit context
+                //
+                Ice.ContextHelper.write(_os, context);
+            }
+            else
+            {
+                //
+                // Implicit context
+                //
+                Ice.ImplicitContextI implicitContext =
+                    _reference.getInstance().getImplicitContext();
 
-		java.util.Map prxContext = _reference.getContext();
-		
-		if(implicitContext == null)
-		{
-		    Ice.ContextHelper.write(_os, prxContext);
-		}
-		else
-		{
-		    implicitContext.write(prxContext, _os);
-		}
-	    }
+                java.util.Map prxContext = _reference.getContext();
+                
+                if(implicitContext == null)
+                {
+                    Ice.ContextHelper.write(_os, prxContext);
+                }
+                else
+                {
+                    implicitContext.write(prxContext, _os);
+                }
+            }
 
-	    //
-	    // Input and output parameters are always sent in an
-	    // encapsulation, which makes it possible to forward requests as
-	    // blobs.
-	    //
-	    _os.startWriteEncaps();
-	}
-	catch(Ice.LocalException ex)
-	{
-	    abort(ex);
-	}
+            //
+            // Input and output parameters are always sent in an
+            // encapsulation, which makes it possible to forward requests as
+            // blobs.
+            //
+            _os.startWriteEncaps();
+        }
+        catch(Ice.LocalException ex)
+        {
+            abort(ex);
+        }
     }
 
     private Ice.ConnectionI _connection;

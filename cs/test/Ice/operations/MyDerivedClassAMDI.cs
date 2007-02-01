@@ -14,10 +14,10 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
     private static void test(bool b)
     {
-	if (!b)
-	{
-	    throw new Exception();
-	}
+        if (!b)
+        {
+            throw new Exception();
+        }
     }
 
     internal class Thread_opVoid
@@ -27,30 +27,30 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
             _cb = cb;
         }
         
-	public void Start()
-	{
-	    lock(this)
-	    {
-		_thread = new Thread(new ThreadStart(Run));
-		_thread.Start();
-	    }
-	}
+        public void Start()
+        {
+            lock(this)
+            {
+                _thread = new Thread(new ThreadStart(Run));
+                _thread.Start();
+            }
+        }
 
         public void Run()
         {
             _cb.ice_response();
         }
 
-	public void Join()
-	{
-	    lock(this)
-	    {
-		_thread.Join();
-	    }
-	}
+        public void Join()
+        {
+            lock(this)
+            {
+                _thread.Join();
+            }
+        }
         
         private Test.AMD_MyClass_opVoid _cb;
-	private Thread _thread;
+        private Thread _thread;
     }
     
     public MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
@@ -85,8 +85,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     
     public override void opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
     {
-	System.Threading.Thread.Sleep(duration);
-	cb.ice_response();
+        System.Threading.Thread.Sleep(duration);
+        cb.ice_response();
     }
 
     public override void opBool_async(Test.AMD_MyClass_opBool cb, bool p1, bool p2, Ice.Current current)
@@ -215,7 +215,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     {
         Test.MyClassPrx p2 = p1;
         Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(
-						_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+                                                _adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity)), p2, p3);
     }
     
@@ -299,19 +299,19 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     
     public override void opByteSOneway_async(Test.AMD_MyClass_opByteSOneway cb, Test.ByteS s, Ice.Current current)
     {
-	cb.ice_response();
+        cb.ice_response();
     }
 
     public override void opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, Test.DoubleS p2, 
-					          Ice.Current current)
+                                                  Ice.Current current)
     {
-	double d = 1278312346.0 / 13.0;
-	test(p1 == d);
-	for(int i = 0; i < p2.Count; ++i)
-	{
-	    test(p2[i] == d);
-	}
-	cb.ice_response();
+        double d = 1278312346.0 / 13.0;
+        test(p1 == d);
+        for(int i = 0; i < p2.Count; ++i)
+        {
+            test(p2[i] == d);
+        }
+        cb.ice_response();
     }
 
     public override void opStringS_async(Test.AMD_MyClass_opStringS cb, Test.StringS p1, Test.StringS p2, Ice.Current current)

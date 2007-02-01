@@ -20,19 +20,19 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     static class Thread_opVoid extends Thread
     {
-	public
-	Thread_opVoid(Test.AMD_MyClass_opVoid cb)
-	{
-	    _cb = cb;
-	}
-	
-	public void
-	run()
-	{
-	    _cb.ice_response();
-	}
+        public
+        Thread_opVoid(Test.AMD_MyClass_opVoid cb)
+        {
+            _cb = cb;
+        }
+        
+        public void
+        run()
+        {
+            _cb.ice_response();
+        }
 
-	private Test.AMD_MyClass_opVoid _cb;
+        private Test.AMD_MyClass_opVoid _cb;
     }
 
     public
@@ -44,73 +44,73 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     shutdown_async(Test.AMD_MyClass_shutdown cb,
-		   Ice.Current current)
+                   Ice.Current current)
     {
-	while(_opVoidThread != null)
-	{
-	    try
-	    {
-		_opVoidThread.join();
-		_opVoidThread = null;
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
-	}
+        while(_opVoidThread != null)
+        {
+            try
+            {
+                _opVoidThread.join();
+                _opVoidThread = null;
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+        }
 
         _adapter.getCommunicator().shutdown();
-	cb.ice_response();
+        cb.ice_response();
     }
 
     public void
     opVoid_async(Test.AMD_MyClass_opVoid cb,
-		 Ice.Current current)
+                 Ice.Current current)
     {
-	while(_opVoidThread != null)
-	{
-	    try
-	    {
-		_opVoidThread.join();
-		_opVoidThread = null;
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
-	}
+        while(_opVoidThread != null)
+        {
+            try
+            {
+                _opVoidThread.join();
+                _opVoidThread = null;
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+        }
 
-	_opVoidThread = new Thread_opVoid(cb);
-	_opVoidThread.start();
+        _opVoidThread = new Thread_opVoid(cb);
+        _opVoidThread.start();
     }
 
     public void
     opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
     {
-	while(true)
-	{
-	    try
-	    {
-		Thread.currentThread().sleep(duration);
-		cb.ice_response();
-		break;
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
-	}	
+        while(true)
+        {
+            try
+            {
+                Thread.currentThread().sleep(duration);
+                cb.ice_response();
+                break;
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+        }       
     }
 
     public void
     opBool_async(Test.AMD_MyClass_opBool cb,
-		 boolean p1, boolean p2,
-		 Ice.Current current)
+                 boolean p1, boolean p2,
+                 Ice.Current current)
     {
-	cb.ice_response(p2, p1);
+        cb.ice_response(p2, p1);
     }
 
     public void
     opBoolS_async(Test.AMD_MyClass_opBoolS cb,
-		  boolean[] p1, boolean[] p2,
-		  Ice.Current current)
+                  boolean[] p1, boolean[] p2,
+                  Ice.Current current)
     {
         boolean[] p3 = new boolean[p1.length + p2.length];
         System.arraycopy(p1, 0, p3, 0, p1.length);
@@ -126,8 +126,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opBoolSS_async(Test.AMD_MyClass_opBoolSS cb,
-		   boolean[][] p1, boolean[][] p2,
-		   Ice.Current current)
+                   boolean[][] p1, boolean[][] p2,
+                   Ice.Current current)
     {
         boolean[][] p3 = new boolean[p1.length + p2.length][];
         System.arraycopy(p1, 0, p3, 0, p1.length);
@@ -143,16 +143,16 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opByte_async(Test.AMD_MyClass_opByte cb,
-		 byte p1, byte p2,
-		 Ice.Current current)
+                 byte p1, byte p2,
+                 Ice.Current current)
     {
         cb.ice_response(p1, (byte)(p1 ^ p2));
     }
 
     public void
     opByteBoolD_async(Test.AMD_MyClass_opByteBoolD cb,
-		      java.util.Map p1, java.util.Map p2,
-		      Ice.Current current)
+                      java.util.Map p1, java.util.Map p2,
+                      Ice.Current current)
     {
         java.util.Map p3 = p1;
         java.util.Map r = new java.util.HashMap();
@@ -163,8 +163,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opByteS_async(Test.AMD_MyClass_opByteS cb,
-		  byte[] p1, byte[] p2,
-		  Ice.Current current)
+                  byte[] p1, byte[] p2,
+                  Ice.Current current)
     {
         byte[] p3 = new byte[p1.length];
         for(int i = 0; i < p1.length; i++)
@@ -180,8 +180,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opByteSS_async(Test.AMD_MyClass_opByteSS cb,
-		   byte[][] p1, byte[][] p2,
-		   Ice.Current current)
+                   byte[][] p1, byte[][] p2,
+                   Ice.Current current)
     {
         byte[][] p3 = new byte[p1.length][];
         for(int i = 0; i < p1.length; i++)
@@ -197,16 +197,16 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opFloatDouble_async(Test.AMD_MyClass_opFloatDouble cb,
-			float p1, double p2,
-			Ice.Current current)
+                        float p1, double p2,
+                        Ice.Current current)
     {
         cb.ice_response(p2, p1, p2);
     }
 
     public void
     opFloatDoubleS_async(Test.AMD_MyClass_opFloatDoubleS cb,
-			 float[] p1, double[] p2,
-			 Ice.Current current)
+                         float[] p1, double[] p2,
+                         Ice.Current current)
     {
         float[] p3 = p1;
         double[] p4 = new double[p2.length];
@@ -225,8 +225,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opFloatDoubleSS_async(Test.AMD_MyClass_opFloatDoubleSS cb,
-			  float[][] p1, double[][] p2,
-			  Ice.Current current)
+                          float[][] p1, double[][] p2,
+                          Ice.Current current)
     {
         float[][] p3 = p1;
         double[][] p4 = new double[p2.length][];
@@ -242,8 +242,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opLongFloatD_async(Test.AMD_MyClass_opLongFloatD cb,
-		       java.util.Map p1, java.util.Map p2,
-		       Ice.Current current)
+                       java.util.Map p1, java.util.Map p2,
+                       Ice.Current current)
     {
         java.util.Map p3 = p1;
         java.util.Map r = new java.util.HashMap();
@@ -254,27 +254,27 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opMyClass_async(Test.AMD_MyClass_opMyClass cb,
-		    Test.MyClassPrx p1,
-		    Ice.Current current)
+                    Test.MyClassPrx p1,
+                    Ice.Current current)
     {
         Test.MyClassPrx p2 = p1;
         Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-	    _adapter.createProxy(_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+            _adapter.createProxy(_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
         cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity)), p2, p3);
     }
 
     public void
     opMyEnum_async(Test.AMD_MyClass_opMyEnum cb,
-		   Test.MyEnum p1,
-		   Ice.Current current)
+                   Test.MyEnum p1,
+                   Ice.Current current)
     {
         cb.ice_response(Test.MyEnum.enum3, p1);
     }
 
     public void
     opShortIntD_async(Test.AMD_MyClass_opShortIntD cb,
-		      java.util.Map p1, java.util.Map p2,
-		      Ice.Current current)
+                      java.util.Map p1, java.util.Map p2,
+                      Ice.Current current)
     {
         java.util.Map p3 = p1;
         java.util.Map r = new java.util.HashMap();
@@ -285,16 +285,16 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opShortIntLong_async(Test.AMD_MyClass_opShortIntLong cb,
-			 short p1, int p2, long p3,
-			 Ice.Current current)
+                         short p1, int p2, long p3,
+                         Ice.Current current)
     {
         cb.ice_response(p3, p1, p2, p3);
     }
 
     public void
     opShortIntLongS_async(Test.AMD_MyClass_opShortIntLongS cb,
-			  short[] p1, int[] p2, long[] p3,
-			  Ice.Current current)
+                          short[] p1, int[] p2, long[] p3,
+                          Ice.Current current)
     {
         short[] p4 = p1;
         int[] p5 = new int[p2.length];
@@ -310,8 +310,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opShortIntLongSS_async(Test.AMD_MyClass_opShortIntLongSS cb,
-			   short[][] p1, int[][] p2, long[][] p3,
-			   Ice.Current current)
+                           short[][] p1, int[][] p2, long[][] p3,
+                           Ice.Current current)
     {
         short[][] p4 = p1;
         int[][] p5 = new int[p2.length][];
@@ -327,16 +327,16 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opString_async(Test.AMD_MyClass_opString cb,
-		   String p1, String p2,
-		   Ice.Current current)
+                   String p1, String p2,
+                   Ice.Current current)
     {
-	cb.ice_response(p1 + " " + p2, p2 + " " + p1);
+        cb.ice_response(p1 + " " + p2, p2 + " " + p1);
     }
 
     public void
     opStringMyEnumD_async(Test.AMD_MyClass_opStringMyEnumD cb,
-			  java.util.Map p1, java.util.Map p2,
-			  Ice.Current current)
+                          java.util.Map p1, java.util.Map p2,
+                          Ice.Current current)
     {
         java.util.Map p3 = p1;
         java.util.Map r = new java.util.HashMap();
@@ -348,11 +348,11 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public void
     opIntS_async(Test.AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
     {
-	int[] r = new int[s.length];
-	for(int i = 0; i < r.length; ++i)
-	{
-	    r[i] = -s[i];
-	}
+        int[] r = new int[s.length];
+        for(int i = 0; i < r.length; ++i)
+        {
+            r[i] = -s[i];
+        }
         cb.ice_response(r);
     }
 
@@ -371,19 +371,19 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     public void
     opDoubleMarshaling_async(Test.AMD_MyClass_opDoubleMarshaling cb, double p1, double[] p2, Ice.Current current)
     {
-	double d = 1278312346.0 / 13.0;
-	test(p1 == d);
-	for(int i = 0; i < p2.length; ++i)
-	{
-	    test(p2[i] == d);
-	}
-	cb.ice_response();
+        double d = 1278312346.0 / 13.0;
+        test(p1 == d);
+        for(int i = 0; i < p2.length; ++i)
+        {
+            test(p2[i] == d);
+        }
+        cb.ice_response();
     }
 
     public void
     opStringS_async(Test.AMD_MyClass_opStringS cb,
-		    String[] p1, String[] p2,
-		    Ice.Current current)
+                    String[] p1, String[] p2,
+                    Ice.Current current)
     {
         String[] p3 = new String[p1.length + p2.length];
         System.arraycopy(p1, 0, p3, 0, p1.length);
@@ -399,8 +399,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringSS_async(Test.AMD_MyClass_opStringSS cb,
-		     String[][] p1, String[][] p2,
-		     Ice.Current current)
+                     String[][] p1, String[][] p2,
+                     Ice.Current current)
     {
         String[][] p3 = new String[p1.length + p2.length][];
         System.arraycopy(p1, 0, p3, 0, p1.length);
@@ -416,8 +416,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringSSS_async(Test.AMD_MyClass_opStringSSS cb,
-		     String[][][] p1, String[][][] p2,
-		     Ice.Current current)
+                     String[][][] p1, String[][][] p2,
+                     Ice.Current current)
     {
         String[][][] p3 = new String[p1.length + p2.length][][];
         System.arraycopy(p1, 0, p3, 0, p1.length);
@@ -433,8 +433,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStringStringD_async(Test.AMD_MyClass_opStringStringD cb,
-			  java.util.Map p1, java.util.Map p2,
-			  Ice.Current current)
+                          java.util.Map p1, java.util.Map p2,
+                          Ice.Current current)
     {
         java.util.Map p3 = p1;
         java.util.Map r = new java.util.HashMap();
@@ -445,8 +445,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opStruct_async(Test.AMD_MyClass_opStruct cb,
-		   Test.Structure p1, Test.Structure p2,
-		   Ice.Current current)
+                   Test.Structure p1, Test.Structure p2,
+                   Ice.Current current)
     {
         Test.Structure p3 = p1;
         p3.s.s = "a new string";
@@ -455,9 +455,9 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
     public void
     opDerived_async(Test.AMD_MyDerivedClass_opDerived cb,
-		    Ice.Current current)
+                    Ice.Current current)
     {
-	cb.ice_response();
+        cb.ice_response();
     }
 
     private Ice.ObjectAdapter _adapter;

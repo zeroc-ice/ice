@@ -40,13 +40,13 @@ class CallbackClient extends Ice.Application
             System.out.println("ok");
         }
 
-	{
-	    System.out.print("getting the session timeout... ");
+        {
+            System.out.print("getting the session timeout... ");
             System.out.flush();
-	    long timeout = router.getSessionTimeout();
-	    test(timeout == 30);
+            long timeout = router.getSessionTimeout();
+            test(timeout == 30);
             System.out.println("ok");
-	}
+        }
 
         Ice.ObjectPrx base;
 
@@ -71,19 +71,19 @@ class CallbackClient extends Ice.Application
             }
             catch(Ice.SocketException ex)
             {
-		//
-		// The JSSE implementation in the AIX JDK appears to have a
-		// bug that causes a "bad certificate" exception to be raised
-		// when the connection is forcefully dropped and a retry occurs.
-		//
-		if(System.getProperty("os.name").equals("AIX"))
-		{
-		    System.out.println("ok");
-		}
-		else
-		{
-		    test(false);
-		}
+                //
+                // The JSSE implementation in the AIX JDK appears to have a
+                // bug that causes a "bad certificate" exception to be raised
+                // when the connection is forcefully dropped and a retry occurs.
+                //
+                if(System.getProperty("os.name").equals("AIX"))
+                {
+                    System.out.println("ok");
+                }
+                else
+                {
+                    test(false);
+                }
             }
         }
 
@@ -179,7 +179,7 @@ class CallbackClient extends Ice.Application
         {
             System.out.print("creating and activating callback receiver adapter... ");
             System.out.flush();
-	    communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
+            communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
             adapter = communicator().createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
             adapter.activate();
             System.out.println("ok");
@@ -273,48 +273,48 @@ class CallbackClient extends Ice.Application
             }
         }
 
-	{
-	    System.out.print("testing whether other allowed category is accepted... ");
+        {
+            System.out.print("testing whether other allowed category is accepted... ");
             System.out.flush();
             java.util.Map context = new java.util.HashMap();
             context.put("_fwd", "t");
-	    CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-		twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
-	    otherCategoryTwoway.initiateCallback(twowayR, context);
-	    test(callbackReceiverImpl.callbackOK());
-	    System.out.println("ok");
-	}
-	
-	{
-	    System.out.print("testing whether disallowed category gets rejected... ");
+            CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+                twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
+            otherCategoryTwoway.initiateCallback(twowayR, context);
+            test(callbackReceiverImpl.callbackOK());
+            System.out.println("ok");
+        }
+        
+        {
+            System.out.print("testing whether disallowed category gets rejected... ");
             System.out.flush();
             java.util.Map context = new java.util.HashMap();
             context.put("_fwd", "t");
-	    try
-	    {
-		CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-		    twoway.ice_identity(communicator().stringToIdentity("c3/callback")));
-		otherCategoryTwoway.initiateCallback(twowayR, context);
-		test(false);
-	    }
-	    catch(Ice.ObjectNotExistException ex)
-	    {
-		System.out.println("ok");
-	    }
-	}
-	
-	{
-	    System.out.print("testing whether user-id as category is accepted... ");
+            try
+            {
+                CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+                    twoway.ice_identity(communicator().stringToIdentity("c3/callback")));
+                otherCategoryTwoway.initiateCallback(twowayR, context);
+                test(false);
+            }
+            catch(Ice.ObjectNotExistException ex)
+            {
+                System.out.println("ok");
+            }
+        }
+        
+        {
+            System.out.print("testing whether user-id as category is accepted... ");
             System.out.flush();
             java.util.Map context = new java.util.HashMap();
             context.put("_fwd", "t");
-	    CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-		twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
-	    otherCategoryTwoway.initiateCallback(twowayR, context);
-	    test(callbackReceiverImpl.callbackOK());
-	    System.out.println("ok");
-	}
-	
+            CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+                twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
+            otherCategoryTwoway.initiateCallback(twowayR, context);
+            test(callbackReceiverImpl.callbackOK());
+            System.out.println("ok");
+        }
+        
         {
             System.out.print("testing server shutdown... ");
             System.out.flush();
@@ -349,13 +349,13 @@ class CallbackClient extends Ice.Application
             {
                 test(false);
             }
-	    catch(Ice.ConnectionLostException ex)
-	    {
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		test(false);
-	    }
+            catch(Ice.ConnectionLostException ex)
+            {
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
             System.out.println("ok");
         }
         
@@ -373,69 +373,69 @@ class CallbackClient extends Ice.Application
             }
             catch(Ice.SocketException ex)
             {
-		//
-		// The JSSE implementation in the AIX JDK appears to have a
-		// bug that causes a "bad certificate" exception to be raised
-		// when the connection is forcefully dropped and a retry occurs.
-		//
-		if(System.getProperty("os.name").equals("AIX"))
-		{
-		    System.out.println("ok");
-		}
-		else
-		{
-		    test(false);
-		}
+                //
+                // The JSSE implementation in the AIX JDK appears to have a
+                // bug that causes a "bad certificate" exception to be raised
+                // when the connection is forcefully dropped and a retry occurs.
+                //
+                if(System.getProperty("os.name").equals("AIX"))
+                {
+                    System.out.println("ok");
+                }
+                else
+                {
+                    test(false);
+                }
             }
         }
-	
-	if(args.length >= 1 && args[0].equals("--shutdown"))
-	{
-	    {
-		System.out.print("uninstalling router with communicator... ");
-		System.out.flush();
-		communicator().setDefaultRouter(null);
-		System.out.println("ok");
-	    }
-	    
-	    Ice.ObjectPrx adminBase;
-	    
-	    {
-		System.out.print("testing stringToProxy for admin object... ");
-		adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
-		System.out.println("ok");
-	    }
-	    
+        
+        if(args.length >= 1 && args[0].equals("--shutdown"))
+        {
+            {
+                System.out.print("uninstalling router with communicator... ");
+                System.out.flush();
+                communicator().setDefaultRouter(null);
+                System.out.println("ok");
+            }
+            
+            Ice.ObjectPrx adminBase;
+            
+            {
+                System.out.print("testing stringToProxy for admin object... ");
+                adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
+                System.out.println("ok");
+            }
+            
 /*
-	    {
-		System.out.print("uninstalling router with admin object... ");
-		adminBase.ice_router(null);
-		System.out.println("ok");
-	    }
+            {
+                System.out.print("uninstalling router with admin object... ");
+                adminBase.ice_router(null);
+                System.out.println("ok");
+            }
 */
-	    
-	    Glacier2.AdminPrx admin;
-	    
-	    {
-		System.out.print("testing checked cast for admin object... ");
-		admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
-		test(admin != null);
-		System.out.println("ok");
-	    }
-	    
-	    System.out.print("testing Glacier2 shutdown... ");
-	    admin.shutdown();
-	    try
-	    {
-		admin.ice_ping();
-		test(false);
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		System.out.println("ok");
-	    }
-	}
-	
+            
+            Glacier2.AdminPrx admin;
+            
+            {
+                System.out.print("testing checked cast for admin object... ");
+                admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
+                test(admin != null);
+                System.out.println("ok");
+            }
+            
+            System.out.print("testing Glacier2 shutdown... ");
+            admin.shutdown();
+            try
+            {
+                admin.ice_ping();
+                test(false);
+            }
+            catch(Ice.LocalException ex)
+            {
+                System.out.println("ok");
+            }
+        }
+        
         return 0;
     }
 

@@ -22,7 +22,7 @@ class Subscriber(Ice.Application):
         properties = self.communicator().getProperties()
 
         manager = IceStorm.TopicManagerPrx.checkedCast(\
-	    self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
+            self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
         if not manager:
             print args[0] + ": invalid proxy"
             return False
@@ -43,18 +43,18 @@ class Subscriber(Ice.Application):
                 print self.appName() + ": temporay error. try again"
                 return False
 
-	adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
+        adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
 
-	#
-	# Add a Servant for the Ice Object.
-	#
-	subscriber = adapter.addWithUUID(ClockI());
+        #
+        # Add a Servant for the Ice Object.
+        #
+        subscriber = adapter.addWithUUID(ClockI());
 
-	#
-	# This demo requires no quality of service, so it will use
-	# the defaults.
-	#
-	qos = {}
+        #
+        # This demo requires no quality of service, so it will use
+        # the defaults.
+        #
+        qos = {}
 
         topic.subscribe(qos, subscriber)
         adapter.activate()
@@ -66,8 +66,8 @@ class Subscriber(Ice.Application):
         # Unsubscribe all subscribed objects.
         #
         topic.unsubscribe(subscriber)
-	    
-	return True
+            
+        return True
 
 app = Subscriber()
 sys.exit(app.main(sys.argv, "config.sub"))

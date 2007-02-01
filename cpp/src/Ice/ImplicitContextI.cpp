@@ -80,14 +80,14 @@ public:
 
     struct Slot
     {
-	Slot() :
-	    context(0),
-	    owner(-1) // just to avoid UMR; a random value would work as well
-	{
-	}
+        Slot() :
+            context(0),
+            owner(-1) // just to avoid UMR; a random value would work as well
+        {
+        }
 
-	Context* context;
-	long owner;
+        Context* context;
+        long owner;
     };
 
 
@@ -129,25 +129,25 @@ ImplicitContextI::create(const std::string& kind)
 {
     if(kind == "None" || kind == "")
     {
-	return 0;
+        return 0;
     }
     else if(kind == "Shared")
     {
-	return new SharedImplicitContext;
+        return new SharedImplicitContext;
     }
     else if(kind == "SharedWithoutLocking")
     {
-	return new SharedImplicitContextWithoutLocking;
+        return new SharedImplicitContextWithoutLocking;
     }
     else if(kind == "PerThread")
     {
-	return new PerThreadImplicitContext;
+        return new PerThreadImplicitContext;
     }
     else
     {
-	throw Ice::InitializationException(
-	    __FILE__, __LINE__,
-	    "'" + kind + "' is not a valid value for Ice.ImplicitContext"); 
+        throw Ice::InitializationException(
+            __FILE__, __LINE__,
+            "'" + kind + "' is not a valid value for Ice.ImplicitContext"); 
         return 0; // Keep the compiler happy.
     }
 }
@@ -158,8 +158,8 @@ ImplicitContextI::cleanupThread()
 {
     if(PerThreadImplicitContext::_nextId > 0)
     {
-	PerThreadImplicitContext::threadDestructor(
-	    TlsGetValue(PerThreadImplicitContext::_key));
+        PerThreadImplicitContext::threadDestructor(
+            TlsGetValue(PerThreadImplicitContext::_key));
     } 
 }
 #endif
@@ -186,7 +186,7 @@ SharedImplicitContextWithoutLocking::get(const string& k) const
     Context::const_iterator p = _context.find(k);
     if(p == _context.end())
     {
-	throw NotSetException(__FILE__, __LINE__, k);
+        throw NotSetException(__FILE__, __LINE__, k);
     }
     return p->second;
 }
@@ -197,7 +197,7 @@ SharedImplicitContextWithoutLocking::getWithDefault(const string& k, const strin
     Context::const_iterator p = _context.find(k);
     if(p == _context.end())
     {
-	return d;
+        return d;
     }
     return p->second;
 }
@@ -213,7 +213,7 @@ SharedImplicitContextWithoutLocking::remove(const string& k)
 {
     if(_context.erase(k) == 0)
     {
-	throw NotSetException(__FILE__, __LINE__, k);
+        throw NotSetException(__FILE__, __LINE__, k);
     }
 }
 
@@ -222,17 +222,17 @@ SharedImplicitContextWithoutLocking::write(const Context& proxyCtx, ::IceInterna
 {
     if(proxyCtx.size() == 0)
     {
-	__write(s, _context, __U__Context());
+        __write(s, _context, __U__Context());
     }
     else if(_context.size() == 0)
     {
-	__write(s, proxyCtx, __U__Context());
+        __write(s, proxyCtx, __U__Context());
     }
     else
     {
-	Context combined = proxyCtx;
-	combined.insert(_context.begin(), _context.end());
-	__write(s, combined, __U__Context());
+        Context combined = proxyCtx;
+        combined.insert(_context.begin(), _context.end());
+        __write(s, combined, __U__Context());
     }
 }
 
@@ -241,16 +241,16 @@ SharedImplicitContextWithoutLocking::combine(const Context& proxyCtx, Context& c
 {
     if(proxyCtx.size() == 0)
     {
-	ctx = _context;
+        ctx = _context;
     }
     else if(_context.size() == 0)
     {
-	ctx = proxyCtx;
+        ctx = proxyCtx;
     }
     else
     {
-	ctx = proxyCtx;
-	ctx.insert(_context.begin(), _context.end());
+        ctx = proxyCtx;
+        ctx.insert(_context.begin(), _context.end());
     }
 
 }
@@ -307,19 +307,19 @@ SharedImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream
     IceUtil::Mutex::Lock lock(_mutex);
     if(proxyCtx.size() == 0)
     {
-	__write(s, _context, __U__Context());
+        __write(s, _context, __U__Context());
     }
     else if(_context.size() == 0)
     {
-	lock.release();
-	__write(s, proxyCtx, __U__Context());
+        lock.release();
+        __write(s, proxyCtx, __U__Context());
     }
     else
     {
-	Context combined = proxyCtx;
-	combined.insert(_context.begin(), _context.end());
-	lock.release();
-	__write(s, combined, __U__Context());
+        Context combined = proxyCtx;
+        combined.insert(_context.begin(), _context.end());
+        lock.release();
+        __write(s, combined, __U__Context());
     }
 }
 
@@ -350,22 +350,22 @@ PerThreadImplicitContext::PerThreadImplicitContext()
     _id = _nextId++;
     if(_id == 0)
     {
-	//
-	// Initialize; note that we never dealloc this key (it would be
-	// complex, and since it's a static variable, it's not really a leak)
-	//
+        //
+        // Initialize; note that we never dealloc this key (it would be
+        // complex, and since it's a static variable, it's not really a leak)
+        //
 #ifdef _WIN32
-	_key = TlsAlloc();
-	if(_key == TLS_OUT_OF_INDEXES)
-	{
-	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        _key = TlsAlloc();
+        if(_key == TLS_OUT_OF_INDEXES)
+        {
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
 #else
-	int err = pthread_key_create(&_key, &threadDestructor);
-	if(err != 0)
-	{
-	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
-	}
+        int err = pthread_key_create(&_key, &threadDestructor);
+        if(err != 0)
+        {
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+        }
 #endif
     }
     
@@ -374,17 +374,17 @@ PerThreadImplicitContext::PerThreadImplicitContext()
     //
     if(_indexInUse == 0)
     {
-	_indexInUse = new IndexInUse(1);
+        _indexInUse = new IndexInUse(1);
     }
     size_t i = 0;
     while(i < _indexInUse->size() && (*_indexInUse)[i])
     {
-	i++;
+        i++;
     }
 
     if(i == _indexInUse->size())
     {
-	_indexInUse->resize(i + 1);
+        _indexInUse->resize(i + 1);
     }
     (*_indexInUse)[i] = true;
     _index = i;
@@ -397,8 +397,8 @@ PerThreadImplicitContext::~PerThreadImplicitContext()
 
     if(find(_indexInUse->begin(), _indexInUse->end(), true) == _indexInUse->end())
     {
-	delete _indexInUse;
-	_indexInUse = 0;
+        delete _indexInUse;
+        _indexInUse = 0;
     }
 }
 
@@ -408,17 +408,17 @@ PerThreadImplicitContext::threadDestructor(void* v)
     SlotVector* sv = static_cast<SlotVector*>(v);
     if(sv != 0)
     {
-	//
-	// Cleanup each slot
-	//
-	for(SlotVector::iterator p = sv->begin(); p != sv->end(); ++p)
-	{
-	    delete p->context;
-	}
-	//
-	// Then the vector
-	//
-	delete sv;
+        //
+        // Cleanup each slot
+        //
+        for(SlotVector::iterator p = sv->begin(); p != sv->end(); ++p)
+        {
+            delete p->context;
+        }
+        //
+        // Then the vector
+        //
+        delete sv;
     }
 }
 
@@ -432,65 +432,65 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
 #endif
     if(sv == 0)
     {
-	if(!allocate)
-	{
-	    return 0;
-	}
+        if(!allocate)
+        {
+            return 0;
+        }
 
-	sv = new SlotVector(_index + 1);
+        sv = new SlotVector(_index + 1);
 #ifdef _WIN32
 
-	if(TlsSetValue(_key, sv) == 0)
-	{
-	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        if(TlsSetValue(_key, sv) == 0)
+        {
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
 #else
-	if(int err = pthread_setspecific(_key, sv))
-	{
-	    throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
-	}
+        if(int err = pthread_setspecific(_key, sv))
+        {
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+        }
 #endif
     }
     else
     {
-	if(sv->size() <= _index)
-	{
-	    if(!allocate)
-	    {
-		return 0;
-	    }
-	    else
-	    {
-		sv->resize(_index + 1);
-	    }
-	}
+        if(sv->size() <= _index)
+        {
+            if(!allocate)
+            {
+                return 0;
+            }
+            else
+            {
+                sv->resize(_index + 1);
+            }
+        }
     }
 
     Slot& slot = (*sv)[_index];
     if(slot.context != 0)
     {
-	if(slot.owner != _id)
-	{
-	    //
-	    // Reuse the slot from another (dead) communicator
-	    //
-	    slot.context->clear();
-	    slot.owner = _id;
-	}
-	//
-	// else keep this slot.context
-	//
+        if(slot.owner != _id)
+        {
+            //
+            // Reuse the slot from another (dead) communicator
+            //
+            slot.context->clear();
+            slot.owner = _id;
+        }
+        //
+        // else keep this slot.context
+        //
     }
     else
     {
-	if(allocate)
-	{
-	    slot.context = new Context;
-	    slot.owner = _id;
-	}
-	//
-	// else keep null slot.context
-	//
+        if(allocate)
+        {
+            slot.context = new Context;
+            slot.owner = _id;
+        }
+        //
+        // else keep null slot.context
+        //
     }
     return slot.context;
 }
@@ -505,33 +505,33 @@ PerThreadImplicitContext::clearThreadContext() const
 #endif
     if(sv != 0 && _index < sv->size())
     {
-	delete (*sv)[_index].context;
-	(*sv)[_index].context = 0;
+        delete (*sv)[_index].context;
+        (*sv)[_index].context = 0;
 
-	int i = sv->size() - 1;
-	while(i >= 0 && (*sv)[i].context == 0) 
-	{
-	    i--;
-	}
-	if(i < 0)
-	{
-	    delete sv;
+        int i = sv->size() - 1;
+        while(i >= 0 && (*sv)[i].context == 0) 
+        {
+            i--;
+        }
+        if(i < 0)
+        {
+            delete sv;
 #ifdef _WIN32
-	    if(TlsSetValue(_key, 0) == 0)
-	    {
-		IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	    }
+            if(TlsSetValue(_key, 0) == 0)
+            {
+                IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+            }
 #else
-	    if(int err = pthread_setspecific(_key, 0))
-	    {
-		throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
-	    }
+            if(int err = pthread_setspecific(_key, 0))
+            {
+                throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+            }
 #endif
-	}
-	else
-	{
-	    sv->resize(i + 1);
-	}
+        }
+        else
+        {
+            sv->resize(i + 1);
+        }
     }
 }
 
@@ -542,11 +542,11 @@ PerThreadImplicitContext::getContext() const
     Context* ctx = getThreadContext(false);
     if(ctx == 0)
     {
-	return Context();
+        return Context();
     }
     else
     {
-	return *ctx;
+        return *ctx;
     }
 }
 
@@ -555,13 +555,13 @@ PerThreadImplicitContext::setContext(const Context& newContext)
 {
     if(newContext.size() == 0)
     {
-	clearThreadContext();
+        clearThreadContext();
     }
     else
     {
-	Context* ctx = getThreadContext(true);
-	assert(ctx != 0);
-	*ctx = newContext;
+        Context* ctx = getThreadContext(true);
+        assert(ctx != 0);
+        *ctx = newContext;
     }
 }
 
@@ -571,12 +571,12 @@ PerThreadImplicitContext::get(const string& k) const
     Context* ctx = getThreadContext(false);
     if(ctx == 0)
     {
-	throw NotSetException(__FILE__, __LINE__, k);
+        throw NotSetException(__FILE__, __LINE__, k);
     }
     Context::const_iterator p = ctx->find(k);
     if(p == ctx->end())
     {
-	throw NotSetException(__FILE__, __LINE__, k);
+        throw NotSetException(__FILE__, __LINE__, k);
     }
     return p->second;
 }
@@ -587,12 +587,12 @@ PerThreadImplicitContext::getWithDefault(const string& k, const string& d) const
     Context* ctx = getThreadContext(false);
     if(ctx == 0)
     {
-	return d;
+        return d;
     }
     Context::const_iterator p = ctx->find(k);
     if(p == ctx->end())
     {
-	return d;
+        return d;
     }
     return p->second;
 }
@@ -610,12 +610,12 @@ PerThreadImplicitContext::remove(const string& k)
      Context* ctx = getThreadContext(false);
      if(ctx == 0 || ctx->erase(k) == 0)
      {
-	 throw NotSetException(__FILE__, __LINE__, k);
+         throw NotSetException(__FILE__, __LINE__, k);
      }
      
      if(ctx->size() == 0)
      {
-	 clearThreadContext();
+         clearThreadContext();
      }
 }
 
@@ -626,17 +626,17 @@ PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStr
 
     if(threadCtx == 0 || threadCtx->size() == 0)
     {
-	__write(s, proxyCtx, __U__Context());
+        __write(s, proxyCtx, __U__Context());
     }
     else if(proxyCtx.size() == 0)
     {
-	__write(s, *threadCtx, __U__Context());
+        __write(s, *threadCtx, __U__Context());
     }
     else
     {
-	Context combined = proxyCtx;
-	combined.insert(threadCtx->begin(), threadCtx->end());
-	__write(s, combined, __U__Context());
+        Context combined = proxyCtx;
+        combined.insert(threadCtx->begin(), threadCtx->end());
+        __write(s, combined, __U__Context());
     }
 }
 
@@ -647,15 +647,15 @@ PerThreadImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 
     if(threadCtx == 0 || threadCtx->size() == 0)
     {
-	ctx = proxyCtx;
+        ctx = proxyCtx;
     }
     else if(proxyCtx.size() == 0)
     {
-	ctx = *threadCtx;
+        ctx = *threadCtx;
     }
     else
     {
-	ctx = proxyCtx;
-	ctx.insert(threadCtx->begin(), threadCtx->end());
+        ctx = proxyCtx;
+        ctx.insert(threadCtx->begin(), threadCtx->end());
     }
 }

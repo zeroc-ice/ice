@@ -62,13 +62,13 @@ DeptFactoryI::findAll(const Ice::Current& current)
 
     for(;;)
     {
-	EXEC SQL FETCH depCursor1 INTO :deptno;
+        EXEC SQL FETCH depCursor1 INTO :deptno;
 
-	Ice::Identity deptId;
-	deptId.category = _deptCategory;
-	deptId.name = encodeName(deptno);
+        Ice::Identity deptId;
+        deptId.category = _deptCategory;
+        deptId.name = encodeName(deptno);
 
-	result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
+        result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
     }
 
     EXEC SQL CLOSE depCursor1;
@@ -94,13 +94,13 @@ DeptFactoryI::findByName(const string& name, const Ice::Current& current)
 
     for(;;)
     {
-	EXEC SQL FETCH depCursor2 INTO :deptno;
+        EXEC SQL FETCH depCursor2 INTO :deptno;
 
-	Ice::Identity deptId;
-	deptId.category = _deptCategory;
-	deptId.name = encodeName(deptno);
+        Ice::Identity deptId;
+        deptId.category = _deptCategory;
+        deptId.name = encodeName(deptno);
 
-	result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
+        result.push_back(HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId)));
     }
 
     EXEC SQL CLOSE depCursor2;
@@ -121,11 +121,11 @@ DeptFactoryI::findDeptByNo(int deptno, const Ice::Current& current)
     //
     try
     {
-	prx->ice_ping();
+        prx->ice_ping();
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	return 0;
+        return 0;
     }
     
     return HR::DeptPrx::uncheckedCast(prx);
@@ -144,11 +144,11 @@ DeptFactoryI::findEmpByNo(int empno, const Ice::Current& current)
     //
     try
     {
-	prx->ice_ping();
+        prx->ice_ping();
     }
     catch(const Ice::ObjectNotExistException&)
     {
-	return 0;
+        return 0;
     }
     
     return HR::EmpPrx::uncheckedCast(prx);

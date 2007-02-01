@@ -45,7 +45,7 @@ TestI::SBSKnownDerivedAsSBase_async(const AMD_TestIntf_SBSKnownDerivedAsSBasePtr
 
 void
 TestI::SBSKnownDerivedAsSBSKnownDerived_async(const AMD_TestIntf_SBSKnownDerivedAsSBSKnownDerivedPtr& cb,
-	                                      const ::Ice::Current&)
+                                              const ::Ice::Current&)
 {
     SBSKnownDerivedPtr sbskd = new SBSKnownDerived;
     sbskd->sb = "SBSKnownDerived.sb";
@@ -254,7 +254,7 @@ TestI::returnTest3_async(const AMD_TestIntf_returnTest3Ptr& cb, const BPtr& p1, 
 
 void
 TestI::sequenceTest_async(const AMD_TestIntf_sequenceTestPtr& cb,
-	                  const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
+                          const SS1Ptr& p1, const SS2Ptr& p2, const ::Ice::Current&)
 {
     SS ss;
     ss.c1 = p1;
@@ -269,25 +269,25 @@ TestI::dictionaryTest_async(const AMD_TestIntf_dictionaryTestPtr& cb, const BDic
     int i;
     for(i = 0; i < 10; ++i)
     {
-	BPtr b = bin.find(i)->second;
-	D2Ptr d2 = new D2;
-	d2->sb = b->sb;
-	d2->pb = b->pb;
-	d2->sd2 = "D2";
-	d2->pd2 = d2;
-	bout[i * 10] = d2;
+        BPtr b = bin.find(i)->second;
+        D2Ptr d2 = new D2;
+        d2->sb = b->sb;
+        d2->pb = b->pb;
+        d2->sd2 = "D2";
+        d2->pd2 = d2;
+        bout[i * 10] = d2;
     }
     BDict r;
     for(i = 0; i < 10; ++i)
     {
-	std::ostringstream s;
-	s << "D1." << i * 20;
-	D1Ptr d1 = new D1;
-	d1->sb = s.str();
-	d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
-	d1->sd1 = s.str();
-	d1->pd1 = d1;
-	r[i * 20] = d1;
+        std::ostringstream s;
+        s << "D1." << i * 20;
+        D1Ptr d1 = new D1;
+        d1->sb = s.str();
+        d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
+        d1->sd1 = s.str();
+        d1->pd1 = d1;
+        r[i * 20] = d1;
     }
     cb->ice_response(r, bout);
 }

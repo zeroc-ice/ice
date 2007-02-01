@@ -43,15 +43,15 @@ PhoneBookClient::interruptCallback(int)
 {
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }

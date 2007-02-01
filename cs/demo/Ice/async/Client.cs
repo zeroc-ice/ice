@@ -15,20 +15,20 @@ public class Client : Ice.Application
     public class AMI_Hello_sayHelloI : AMI_Hello_sayHello
     {
         public override void ice_response()
-	{
-	}
+        {
+        }
 
-	public override void ice_exception(Ice.Exception ex)
-	{
-	    if(ex is RequestCanceledException)
-	    {
-	        Console.Error.WriteLine("Request canceled");
-	    }
-	    else
-	    {
-	        Console.Error.WriteLine(ex);
-	    }
-	}
+        public override void ice_exception(Ice.Exception ex)
+        {
+            if(ex is RequestCanceledException)
+            {
+                Console.Error.WriteLine("Request canceled");
+            }
+            else
+            {
+                Console.Error.WriteLine(ex);
+            }
+        }
     }
 
     private static void menu()
@@ -59,31 +59,31 @@ public class Client : Ice.Application
             try
             {
                 Console.Out.Write("==> ");
-		Console.Out.Flush();
-		line = Console.In.ReadLine();
+                Console.Out.Flush();
+                line = Console.In.ReadLine();
                 if(line == null)
                 {
                     break;
                 }
                 if(line.Equals("i"))
-		{
-		    hello.sayHello(0);
-		}
+                {
+                    hello.sayHello(0);
+                }
                 else if(line.Equals("d"))
                 {
                     hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000);
                 }
                 else if(line.Equals("s"))
-		{
-		    hello.shutdown();
-		}
+                {
+                    hello.shutdown();
+                }
                 else if(line.Equals("x"))
                 {
                     // Nothing to do
                 }
                 else if(line.Equals("?"))
                 {
-		    menu();
+                    menu();
                 }
                 else
                 {
@@ -93,7 +93,7 @@ public class Client : Ice.Application
             }
             catch(Ice.Exception ex)
             {
-	        Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
             }
         }
         while(!line.Equals("x"));
@@ -105,9 +105,9 @@ public class Client : Ice.Application
     {
         Client app = new Client();
         int status = app.main(args, "config.client");
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

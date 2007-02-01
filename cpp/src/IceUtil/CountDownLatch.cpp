@@ -15,26 +15,26 @@ IceUtil::CountDownLatch::CountDownLatch(int count) :
 {
     if(count < 0)
     {
-	throw Exception(__FILE__, __LINE__);
+        throw Exception(__FILE__, __LINE__);
     }
 
 #ifdef _WIN32
     _event = CreateEvent(0, TRUE, FALSE, 0);
     if(_event == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 #else
     int rc = pthread_mutex_init(&_mutex, 0);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
     
     rc = pthread_cond_init(&_cond, 0);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }   
 #endif
 }
@@ -58,24 +58,24 @@ IceUtil::CountDownLatch::await() const
 #ifdef _WIN32
     while(InterlockedExchangeAdd(&_count, 0) > 0)
     {
-	DWORD rc = WaitForSingleObject(_event, INFINITE);
-	assert(rc == WAIT_OBJECT_0 || rc == WAIT_FAILED);
-	
-	if(rc == WAIT_FAILED)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        DWORD rc = WaitForSingleObject(_event, INFINITE);
+        assert(rc == WAIT_OBJECT_0 || rc == WAIT_FAILED);
+        
+        if(rc == WAIT_FAILED)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
     }
 #else
     lock();
     while(_count > 0)
     {
-	int rc = pthread_cond_wait(&_cond, &_mutex);
-	if(rc != 0)
-	{
-	    pthread_mutex_unlock(&_mutex);
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        int rc = pthread_cond_wait(&_cond, &_mutex);
+        if(rc != 0)
+        {
+            pthread_mutex_unlock(&_mutex);
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
     unlock();
     
@@ -88,10 +88,10 @@ IceUtil::CountDownLatch::countDown()
 #ifdef _WIN32
     if(InterlockedDecrement(&_count) == 0)
     {
-	if(SetEvent(_event) == 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
+        if(SetEvent(_event) == 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
     }
 #else
     bool broadcast = false;
@@ -99,7 +99,7 @@ IceUtil::CountDownLatch::countDown()
     lock();
     if(_count > 0 && --_count == 0)
     {
-	broadcast = true;
+        broadcast = true;
     }
 #if defined(__APPLE__)
     //
@@ -108,12 +108,12 @@ IceUtil::CountDownLatch::countDown()
     //
     if(broadcast)
     {
-	int rc = pthread_cond_broadcast(&_cond);
-	if(rc != 0)
-	{
-	    pthread_mutex_unlock(&_mutex);
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        int rc = pthread_cond_broadcast(&_cond);
+        if(rc != 0)
+        {
+            pthread_mutex_unlock(&_mutex);
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
     unlock();
     
@@ -122,11 +122,11 @@ IceUtil::CountDownLatch::countDown()
     
     if(broadcast)
     {
-	int rc = pthread_cond_broadcast(&_cond);
-	if(rc != 0)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        int rc = pthread_cond_broadcast(&_cond);
+        if(rc != 0)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
 #endif
 
@@ -154,7 +154,7 @@ IceUtil::CountDownLatch::lock() const
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -164,7 +164,7 @@ IceUtil::CountDownLatch::unlock() const
     int rc = pthread_mutex_unlock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 

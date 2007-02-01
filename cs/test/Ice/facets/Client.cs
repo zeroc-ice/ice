@@ -42,14 +42,14 @@ public class Collocated
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.WriteLine(ex);
+                System.Console.WriteLine(ex);
                 status = 1;
             }
         }
         
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

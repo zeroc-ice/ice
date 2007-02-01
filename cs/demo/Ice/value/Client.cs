@@ -28,7 +28,7 @@ public class Client : Ice.Application
         Console.Out.WriteLine("operations, and print its contents. No factory is required");
         Console.Out.WriteLine("for this.");
         Console.Out.WriteLine("[press enter]");
-	Console.In.ReadLine();
+        Console.In.ReadLine();
         
         Simple simple = initial.getSimple();
         Console.Out.WriteLine("==> " + simple.message);
@@ -45,8 +45,8 @@ public class Client : Ice.Application
         try
         {
             initial.getPrinter(out printer, out printerProxy);
-	    Console.Error.WriteLine("Did not get the expected NoObjectFactoryException!");
-	    Environment.Exit(1);
+            Console.Error.WriteLine("Did not get the expected NoObjectFactoryException!");
+            Environment.Exit(1);
         }
         catch(Ice.NoObjectFactoryException ex)
         {
@@ -145,7 +145,7 @@ public class Client : Ice.Application
         Console.Out.WriteLine();
         Console.Out.WriteLine("That's it for this demo. Have fun with Ice!");
         
-	initial.shutdown();
+        initial.shutdown();
 
         return 0;
     }

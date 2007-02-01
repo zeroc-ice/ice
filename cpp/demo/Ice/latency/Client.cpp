@@ -34,8 +34,8 @@ LatencyClient::run(int argc, char* argv[])
     PingPrx ping = PingPrx::checkedCast(base);
     if(!ping)
     {
-	cerr << argv[0] << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     // Initial ping to setup the connection.
@@ -47,7 +47,7 @@ LatencyClient::run(int argc, char* argv[])
     cout << "pinging server " << repetitions << " times (this may take a while)" << endl;
     for(int i = 0; i < repetitions; ++i)
     {
-	ping->ice_ping();
+        ping->ice_ping();
     }
 
     tm = IceUtil::Time::now() - tm;

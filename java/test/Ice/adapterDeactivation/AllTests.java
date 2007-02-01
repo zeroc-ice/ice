@@ -37,27 +37,27 @@ public class AllTests
         test(obj.equals(base));
         System.out.println("ok");
 
-	{
+        {
             System.out.print("creating/destroying/recreating object adapter... ");
             System.out.flush();
-	    Ice.ObjectAdapter adapter = 
-	        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
-	    try
-	    {
-	        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
-		test(false);
-	    }
-	    catch(Ice.AlreadyRegisteredException ex)
-	    {
-	    }
-	    adapter.destroy();
-	    //
-	    // Use a different port than the first adapter to avoid an "address already in use" error.
-	    //
-	    adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
-	    adapter.destroy();
+            Ice.ObjectAdapter adapter = 
+                communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+            try
+            {
+                communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
+                test(false);
+            }
+            catch(Ice.AlreadyRegisteredException ex)
+            {
+            }
+            adapter.destroy();
+            //
+            // Use a different port than the first adapter to avoid an "address already in use" error.
+            //
+            adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
+            adapter.destroy();
             System.out.println("ok");
-	}
+        }
 
         System.out.print("creating/activating/deactivating object adapter in one operation... ");
         System.out.flush();

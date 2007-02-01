@@ -18,9 +18,9 @@ public sealed class RetryI : Test.RetryDisp_
     public override void op(bool kill, Ice.Current current)
     {
         if(kill)
-	{
-	    current.con.close(true);
-	}
+        {
+            current.con.close(true);
+        }
     }
 
     public override void shutdown(Ice.Current current)

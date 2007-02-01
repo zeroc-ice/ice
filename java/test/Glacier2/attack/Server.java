@@ -14,7 +14,7 @@ public class Server
     {
         BackendServer app = new BackendServer();
         int status = app.main("Server", args);
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

@@ -16,15 +16,15 @@ public class Subscriber : Ice.Application
     public class ClockI : ClockDisp_
     {
         public override void tick(string date, Ice.Current current)
-	{
-	    System.Console.Out.WriteLine(date);
-	}
+        {
+            System.Console.Out.WriteLine(date);
+        }
     }
 
     public override int run(string[] args)
     {
         IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-	    communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
+            communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
         if(manager == null)
         {
             Console.WriteLine("invalid proxy");
@@ -32,62 +32,62 @@ public class Subscriber : Ice.Application
         }
 
         string topicName = "time";
-	bool datagram = false;
-	bool twoway = false;
-	bool ordered = false;
-	bool batch = false;
-	int optsSet = 0;
-	for(int i = 0; i < args.Length; ++i)
-	{
-	    if(args[i].Equals("--datagram"))
-	    {
-		datagram = true;
-		++optsSet;
-	    }
-	    else if(args[i].Equals("--twoway"))
-	    {
-		twoway = true;
-		++optsSet;
-	    }
-	    else if(args[i].Equals("--ordered"))
-	    {
-		ordered = true;
-		++optsSet;
-	    }
-	    else if(args[i].Equals("--oneway"))
-	    {
-		++optsSet;
-	    }
-	    else if(args[i].Equals("--batch"))
-	    {
-		batch = true;
-	    }
-	    else if(args[i].StartsWith("--"))
-	    {
-		usage();
-		return 1;
-	    }
-	    else
-	    {
-		topicName = args[i];
-		break;
-	    }
-	}
+        bool datagram = false;
+        bool twoway = false;
+        bool ordered = false;
+        bool batch = false;
+        int optsSet = 0;
+        for(int i = 0; i < args.Length; ++i)
+        {
+            if(args[i].Equals("--datagram"))
+            {
+                datagram = true;
+                ++optsSet;
+            }
+            else if(args[i].Equals("--twoway"))
+            {
+                twoway = true;
+                ++optsSet;
+            }
+            else if(args[i].Equals("--ordered"))
+            {
+                ordered = true;
+                ++optsSet;
+            }
+            else if(args[i].Equals("--oneway"))
+            {
+                ++optsSet;
+            }
+            else if(args[i].Equals("--batch"))
+            {
+                batch = true;
+            }
+            else if(args[i].StartsWith("--"))
+            {
+                usage();
+                return 1;
+            }
+            else
+            {
+                topicName = args[i];
+                break;
+            }
+        }
 
-	if(batch)
-	{
-	    if(twoway || ordered)
-	    {
-		Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
-		return 1;
-	    }
-	}
+        if(batch)
+        {
+            if(twoway || ordered)
+            {
+                Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
+                return 1;
+            }
+        }
 
-	if(optsSet > 1)
-	{
-	    usage();
-	    return 1;
-	}
+        if(optsSet > 1)
+        {
+            usage();
+            return 1;
+        }
 
         //
         // Retrieve the topic.
@@ -117,40 +117,40 @@ public class Subscriber : Ice.Application
         //
         Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
 
-	IceStorm.QoS qos = new IceStorm.QoS();
+        IceStorm.QoS qos = new IceStorm.QoS();
 
-	//
-	// Set up the proxy.
-	//
-	if(datagram)
-	{
-	    subscriber = subscriber.ice_datagram();
-	}
-	else if(twoway)
-	{
-	    // Do nothing to the subscriber proxy. Its already twoway.
-	}
-	else if(ordered)
-	{
-	    // Do nothing to the subscriber proxy. Its already twoway.
-	    qos["reliability"] = "ordered";
-	}
-	else // if(oneway)
-	{
-	    subscriber = subscriber.ice_oneway();
-	}
-	if(batch)
-	{
-	    if(datagram)
-	    {
-		subscriber = subscriber.ice_batchDatagram();
-	    }
-	    else
-	    {
-		subscriber = subscriber.ice_batchOneway();
-	    }
-	}
-	
+        //
+        // Set up the proxy.
+        //
+        if(datagram)
+        {
+            subscriber = subscriber.ice_datagram();
+        }
+        else if(twoway)
+        {
+            // Do nothing to the subscriber proxy. Its already twoway.
+        }
+        else if(ordered)
+        {
+            // Do nothing to the subscriber proxy. Its already twoway.
+            qos["reliability"] = "ordered";
+        }
+        else // if(oneway)
+        {
+            subscriber = subscriber.ice_oneway();
+        }
+        if(batch)
+        {
+            if(datagram)
+            {
+                subscriber = subscriber.ice_batchDatagram();
+            }
+            else
+            {
+                subscriber = subscriber.ice_batchOneway();
+            }
+        }
+        
         topic.subscribeAndGetPublisher(qos, subscriber);
         adapter.activate();
 
@@ -168,7 +168,7 @@ public class Subscriber : Ice.Application
     public void
     usage()
     {
-	Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
+        Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
     }
 
 

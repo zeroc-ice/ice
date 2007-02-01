@@ -18,40 +18,40 @@ namespace Ice
         public Exception(string msg) : base(msg) {}
         public Exception(System.Exception ex) : base(_dflt, ex) {}
         public Exception(string msg, System.Exception ex) : base(msg, ex) {}
-	public override string ToString()
-	{
-	    //
-	    // This prints the exception Java style. That is outmost
-	    // exception, Caused by: to the innermost exception. The
-	    // stack trace is not nicely indented as with Java, but
-	    // without string parsing (perhaps tokenize on "\n") it
-	    // doesn't appear to be possible to reformat it.
-	    //
-	    System.IO.StringWriter sw = new System.IO.StringWriter();
-	    IceUtil.OutputBase op = new IceUtil.OutputBase(sw);
-	    op.setUseTab(false);
-	    op.print(GetType().FullName);
-	    op.print(": ");
-	    op.print(Message);
-	    op.inc();
-	    IceInternal.ValueWriter.write(this, op);
-	    sw.Write("\n");
-	    sw.Write(StackTrace);
+        public override string ToString()
+        {
+            //
+            // This prints the exception Java style. That is outmost
+            // exception, Caused by: to the innermost exception. The
+            // stack trace is not nicely indented as with Java, but
+            // without string parsing (perhaps tokenize on "\n") it
+            // doesn't appear to be possible to reformat it.
+            //
+            System.IO.StringWriter sw = new System.IO.StringWriter();
+            IceUtil.OutputBase op = new IceUtil.OutputBase(sw);
+            op.setUseTab(false);
+            op.print(GetType().FullName);
+            op.print(": ");
+            op.print(Message);
+            op.inc();
+            IceInternal.ValueWriter.write(this, op);
+            sw.Write("\n");
+            sw.Write(StackTrace);
 
-    	    System.Exception curr = InnerException;
-	    while(curr != null)
-	    {
-    	    	sw.Write("\nCaused by: ");
-		sw.Write(curr.GetType().FullName);
-		sw.Write(": ");
-		sw.Write(curr.Message);
-		sw.Write("\n");
-		sw.Write(curr.StackTrace);
-		curr = curr.InnerException;
-	    }
+            System.Exception curr = InnerException;
+            while(curr != null)
+            {
+                sw.Write("\nCaused by: ");
+                sw.Write(curr.GetType().FullName);
+                sw.Write(": ");
+                sw.Write(curr.Message);
+                sw.Write("\n");
+                sw.Write(curr.StackTrace);
+                curr = curr.InnerException;
+            }
 
-	    return sw.ToString();
-	}
+            return sw.ToString();
+        }
         private static readonly string _dflt = "Ice.Exception";
     }
 
@@ -74,20 +74,20 @@ namespace Ice
         public abstract void write__(IceInternal.BasicStream os__);
         public abstract void read__(IceInternal.BasicStream is__, bool rid__);
 
-	public virtual void write__(Ice.OutputStream outS__)
-	{
-	    Debug.Assert(false);
-	}
+        public virtual void write__(Ice.OutputStream outS__)
+        {
+            Debug.Assert(false);
+        }
 
-	public virtual void read__(Ice.InputStream inS__, bool rid__)
-	{
-	    Debug.Assert(false);
-	}
+        public virtual void read__(Ice.InputStream inS__, bool rid__)
+        {
+            Debug.Assert(false);
+        }
 
-	public virtual bool usesClasses__()
-	{
-	    return false;
-	}
+        public virtual bool usesClasses__()
+        {
+            return false;
+        }
     }
 
 }
@@ -100,19 +100,19 @@ namespace IceInternal
         public LocalExceptionWrapper(Ice.LocalException ex, bool retry)
         {
             _ex = ex;
-	    _retry = retry;
+            _retry = retry;
         }
 
-	public LocalExceptionWrapper(LocalExceptionWrapper ex)
-	{
-	    _ex = ex.get();
-	    _retry = ex._retry;
-	}
+        public LocalExceptionWrapper(LocalExceptionWrapper ex)
+        {
+            _ex = ex.get();
+            _retry = ex._retry;
+        }
 
-	public Ice.LocalException get()
-	{
-	    return _ex;
-	}
+        public Ice.LocalException get()
+        {
+            return _ex;
+        }
 
         //
         // If true, always repeat the request. Don't take retry settings
@@ -126,9 +126,9 @@ namespace IceInternal
         {
             return _retry;
         }
-	
+        
         private Ice.LocalException _ex;
-	private bool _retry;
+        private bool _retry;
     }
 
 }

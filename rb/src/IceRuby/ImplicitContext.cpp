@@ -32,8 +32,8 @@ IceRuby_ImplicitContext_getContext(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ImplicitContextPtr p = getImplicitContext(self);
-	return contextToHash(p->getContext());
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        return contextToHash(p->getContext());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -45,13 +45,13 @@ IceRuby_ImplicitContext_setContext(VALUE self, VALUE context)
 {
     ICE_RUBY_TRY
     {
-	Ice::Context ctx;
-	if(!hashToContext(context, ctx))
-	{
-	    throw RubyException(rb_eTypeError, "argument must be a hash");
-	}
-	Ice::ImplicitContextPtr p = getImplicitContext(self);
-	p->setContext(ctx);
+        Ice::Context ctx;
+        if(!hashToContext(context, ctx))
+        {
+            throw RubyException(rb_eTypeError, "argument must be a hash");
+        }
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        p->setContext(ctx);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -63,10 +63,10 @@ IceRuby_ImplicitContext_get(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
     {
-	Ice::ImplicitContextPtr p = getImplicitContext(self);
-	string k = getString(key);
-	string v = p->get(k);
-	return createString(v);
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        string k = getString(key);
+        string v = p->get(k);
+        return createString(v);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -79,11 +79,11 @@ IceRuby_ImplicitContext_getWithDefault(VALUE self, VALUE key, VALUE dflt)
 {
     ICE_RUBY_TRY
     {
-	Ice::ImplicitContextPtr p = getImplicitContext(self);
-	string k = getString(key);
-	string d = getString(dflt);
-	string v = p->getWithDefault(k, d);
-	return createString(v);
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        string k = getString(key);
+        string d = getString(dflt);
+        string v = p->getWithDefault(k, d);
+        return createString(v);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -96,10 +96,10 @@ IceRuby_ImplicitContext_set(VALUE self, VALUE key, VALUE value)
 {
     ICE_RUBY_TRY
     {
-	Ice::ImplicitContextPtr p = getImplicitContext(self);
-	string k = getString(key);
-	string v = getString(value);
-	p->set(k, v);
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        string k = getString(key);
+        string v = getString(value);
+        p->set(k, v);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -111,9 +111,9 @@ IceRuby_ImplicitContext_remove(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
     {
-	Ice::ImplicitContextPtr p = getImplicitContext(self);
-	string k = getString(key);
-	p->remove(k);
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        string k = getString(key);
+        p->remove(k);
     }
     ICE_RUBY_CATCH
     return Qnil;

@@ -30,37 +30,37 @@ OCCIServantLocator::locate(const Ice::Current& current, Ice::LocalObjectPtr& coo
 
     try
     {
-	//
-	// Extract SQL type from target object
-	//
-	string sqlType = Ref<PObject>(ref)->getSQLTypeName();
+        //
+        // Extract SQL type from target object
+        //
+        string sqlType = Ref<PObject>(ref)->getSQLTypeName();
 
-	//
-	// Create and return the servant, used only for this one operation
-	//
-	if(sqlType.find("EMP_T") != string::npos)
-	{
-	    return new EmpI(ref, con, _factory);
-	}
-	else if(sqlType.find("DEPT_T") != string::npos)
-	{
-	    return new DeptI(ref, con, _factory);
-	}
-	else
-	{
-	    return 0;
-	}
+        //
+        // Create and return the servant, used only for this one operation
+        //
+        if(sqlType.find("EMP_T") != string::npos)
+        {
+            return new EmpI(ref, con, _factory);
+        }
+        else if(sqlType.find("DEPT_T") != string::npos)
+        {
+            return new DeptI(ref, con, _factory);
+        }
+        else
+        {
+            return 0;
+        }
     }
     catch(const SQLException& sqle)
     {
-	if(sqle.getErrorCode() == 21700)
-	{
-	    return 0;
-	}
-	else
-	{
-	    throw;
-	}
+        if(sqle.getErrorCode() == 21700)
+        {
+            return 0;
+        }
+        else
+        {
+            throw;
+        }
     }
 }
 

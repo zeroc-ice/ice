@@ -21,7 +21,7 @@ public class Client
             return 1;
         }
 
-	hello.sayHello();
+        hello.sayHello();
 
         return 0;
     }
@@ -54,8 +54,8 @@ public class Client
                 ex.printStackTrace();
                 status = 1;
             }
-	}
-	
-	System.exit(status);
+        }
+        
+        System.exit(status);
     }
 }

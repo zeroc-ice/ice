@@ -15,7 +15,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     public
     ServantLocatorI(String category)
     {
-	_category = category;
+        _category = category;
         _deactivated = false;
     }
 
@@ -39,22 +39,22 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
         synchronized(this)
-	{
-	    test(!_deactivated);
-	}
+        {
+            test(!_deactivated);
+        }
 
-	test(current.id.category.equals(_category) || _category.length() == 0);
-	
-	if(current.id.name.equals("unknown"))
-	{
-	    return null;
-	}
+        test(current.id.category.equals(_category) || _category.length() == 0);
+        
+        if(current.id.name.equals("unknown"))
+        {
+            return null;
+        }
 
-	test(current.id.name.equals("locate") || current.id.name.equals("finished"));
-	if(current.id.name.equals("locate"))
-	{
-	    exception(current);
-	}
+        test(current.id.name.equals("locate") || current.id.name.equals("finished"));
+        if(current.id.name.equals("locate"))
+        {
+            exception(current);
+        }
 
         cookie.value = new CookieI();
 
@@ -64,19 +64,19 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     public void
     finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
     {
-	synchronized(this)
-	{
-	    test(!_deactivated);
-	}
+        synchronized(this)
+        {
+            test(!_deactivated);
+        }
 
-	test(current.id.category.equals(_category)  || _category.length() == 0);
-	test(current.id.name.equals("locate") || current.id.name.equals("finished"));
-	
-	if(current.id.name.equals("finished"))
-	{
-	    exception(current);
-	}
-	
+        test(current.id.category.equals(_category)  || _category.length() == 0);
+        test(current.id.name.equals("locate") || current.id.name.equals("finished"));
+        
+        if(current.id.name.equals("finished"))
+        {
+            exception(current);
+        }
+        
         Cookie co = (Cookie)cookie;
         test(co.message().equals("blahblah"));
     }
@@ -84,49 +84,49 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     public synchronized void
     deactivate(String category)
     {
-	synchronized(this)
-	{
-	    test(!_deactivated);
+        synchronized(this)
+        {
+            test(!_deactivated);
 
-	    _deactivated = true;
-	}
+            _deactivated = true;
+        }
     }
 
     private void
     exception(Ice.Current current)
     {
-	if(current.operation.equals("requestFailedException"))
-	{
-	    throw new ObjectNotExistException();
-	}
-	else if(current.operation.equals("unknownUserException"))
-	{
-	    throw new UnknownUserException("reason");
-	}
-	else if(current.operation.equals("unknownLocalException"))
-	{
-	    throw new UnknownLocalException("reason");
-	}
-	else if(current.operation.equals("unknownException"))
-	{
-	    throw new UnknownException("reason");
-	}
-	//
-	// User exceptions are checked exceptions in Java, so it's not
-	// possible to throw it from the servant locator.
-	// 
-//	else if(current.operation.equals("userException"))
-//	{
-//	    throw new TestIntfUserException();
-//	}
-	else if(current.operation.equals("localException"))
-	{
-	    throw new SocketException(0);
-	}
-	else if(current.operation.equals("javaException"))
-	{
-	    throw new java.lang.RuntimeException("message");
-	}
+        if(current.operation.equals("requestFailedException"))
+        {
+            throw new ObjectNotExistException();
+        }
+        else if(current.operation.equals("unknownUserException"))
+        {
+            throw new UnknownUserException("reason");
+        }
+        else if(current.operation.equals("unknownLocalException"))
+        {
+            throw new UnknownLocalException("reason");
+        }
+        else if(current.operation.equals("unknownException"))
+        {
+            throw new UnknownException("reason");
+        }
+        //
+        // User exceptions are checked exceptions in Java, so it's not
+        // possible to throw it from the servant locator.
+        // 
+//      else if(current.operation.equals("userException"))
+//      {
+//          throw new TestIntfUserException();
+//      }
+        else if(current.operation.equals("localException"))
+        {
+            throw new SocketException(0);
+        }
+        else if(current.operation.equals("javaException"))
+        {
+            throw new java.lang.RuntimeException("message");
+        }
     }
 
     private boolean _deactivated;

@@ -33,9 +33,9 @@ namespace Slice
 
 void
 generate(const UnitPtr& unit, const string& dir,
-	 const string& header, const string& footer,
-	 const string& indexHeader, const string& indexFooter,
-	 const string& imageDir, const string& logoURL, const string& searchAction, unsigned indexCount, unsigned warnSummary)
+         const string& header, const string& footer,
+         const string& indexHeader, const string& indexFooter,
+         const string& imageDir, const string& logoURL, const string& searchAction, unsigned indexCount, unsigned warnSummary)
 {
     unit->mergeModules();
 
@@ -110,8 +110,8 @@ Slice::GeneratorBase::setOutputDir(const string& dir)
 {
     if(!dir.empty())
     {
-	_dir = dir;
-	makeDir(_dir);
+        _dir = dir;
+        makeDir(_dir);
     }
 }
 
@@ -215,21 +215,21 @@ Slice::GeneratorBase::openDoc(const string& file, const string& title, const str
     string h2;
     if(header.empty())
     {
-	_out << _header1;
+        _out << _header1;
     }
     else
     {
-	getHeaders(header, h1, h2);
-	_out << h1;
+        getHeaders(header, h1, h2);
+        _out << h1;
     }
     _out << title;
     if(header.empty())
     {
-	_out << _header2;
+        _out << _header2;
     }
     else
     {
-	_out << h2;
+        _out << h2;
     }
     _indexFooter = getFooter(footer);
     _out.inc();
@@ -250,12 +250,12 @@ Slice::GeneratorBase::openDoc(const ContainedPtr& c)
     StringList::size_type num = 0;
     for(StringList::const_iterator i = components.begin(); i != components.end(); ++i)
     {
-	path += "/" + *i;
-	++num;
-	if(num < components.size())
-	{
-	    makeDir(path);
-	}
+        path += "/" + *i;
+        ++num;
+        if(num < components.size())
+        {
+            makeDir(path);
+        }
     }
     path += ".html";
 
@@ -286,7 +286,7 @@ Slice::GeneratorBase::start(const std::string& element, const std::string& class
     string s = element;
     if(!classes.empty())
     {
-	s += " class=\"" + classes + "\"";
+        s += " class=\"" + classes + "\"";
     }
     _out << se(s);
 }
@@ -299,7 +299,7 @@ Slice::GeneratorBase::end()
 
 void
 Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& container,
-	                           const string& deprecateReason, bool forIndex)
+                                   const string& deprecateReason, bool forIndex)
 {
 #ifndef NDEBUG
     int indent = _out.currIndent();
@@ -314,221 +314,221 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const ContainerPtr& co
     string::size_type pos = comment.find_last_not_of(" \t\r\n");
     if(pos != string::npos)
     {
-	comment.erase(pos + 1);
-	start("p");
-	_out.zeroIndent();
-	_out << nl << comment;
-	_out.restoreIndent();
-	end();
+        comment.erase(pos + 1);
+        start("p");
+        _out.zeroIndent();
+        _out << nl << comment;
+        _out.restoreIndent();
+        end();
     }
 
     if(!deprecateReason.empty())
     {
-	start("p", "Deprecated");
-	_out << nl << deprecateReason;
-	end();
+        start("p", "Deprecated");
+        _out << nl << deprecateReason;
+        end();
     }
 
     assert(_out.currIndent() == indent);
 
     if(!par.empty())
     {
-	start("h4");
-	_out << "Parameters";
-	end();
-	start("dl");
-	for(StringList::const_iterator q = par.begin(); q != par.end(); ++q)
-	{
-	    string term;
-	    pos = q->find_first_of(" \t\r\n");
-	    if(pos != string::npos)
-	    {
-		term = q->substr(0, pos);
-	    }
-	    string item;
-	    pos = q->find_first_not_of(" \t\r\n", pos);
-	    if(pos != string::npos)
-	    {
-		item = q->substr(pos);
-	    }
-	    
-	    start("dt", "Symbol");
-	    _out << term;
-	    end();
-	    start("dd");
-	    _out << nl << item;
-	    end();
-	}
-	end();
+        start("h4");
+        _out << "Parameters";
+        end();
+        start("dl");
+        for(StringList::const_iterator q = par.begin(); q != par.end(); ++q)
+        {
+            string term;
+            pos = q->find_first_of(" \t\r\n");
+            if(pos != string::npos)
+            {
+                term = q->substr(0, pos);
+            }
+            string item;
+            pos = q->find_first_not_of(" \t\r\n", pos);
+            if(pos != string::npos)
+            {
+                item = q->substr(pos);
+            }
+            
+            start("dt", "Symbol");
+            _out << term;
+            end();
+            start("dd");
+            _out << nl << item;
+            end();
+        }
+        end();
     }
 
     if(!ret.empty())
     {
-	start("h4");
-	_out << "Return Value";
-	end();
-	start("p");
-	_out << ret.front();
-	end();
+        start("h4");
+        _out << "Return Value";
+        end();
+        start("p");
+        _out << ret.front();
+        end();
     }
 
     if(!throws.empty())
     {
-	start("h4");
-	_out << "Exceptions";
-	end();
-	start("dl");
-	for(StringList::const_iterator q = throws.begin(); q != throws.end(); ++q)
-	{
-	    string term;
-	    pos = q->find_first_of(" \t\r\n");
-	    if(pos != string::npos)
-	    {
-		term = q->substr(0, pos);
-	    }
-	    string item;
-	    pos = q->find_first_not_of(" \t\r\n", pos);
-	    if(pos != string::npos)
-	    {
-		item = q->substr(pos);
-	    }
-	    
-	    start("dt", "Symbol");
-	    _out << toString(term, container, false, forIndex);
-	    end();
-	    start("dd");
-	    _out << nl << item;
-	    end();
-	}
-	end();
+        start("h4");
+        _out << "Exceptions";
+        end();
+        start("dl");
+        for(StringList::const_iterator q = throws.begin(); q != throws.end(); ++q)
+        {
+            string term;
+            pos = q->find_first_of(" \t\r\n");
+            if(pos != string::npos)
+            {
+                term = q->substr(0, pos);
+            }
+            string item;
+            pos = q->find_first_not_of(" \t\r\n", pos);
+            if(pos != string::npos)
+            {
+                item = q->substr(pos);
+            }
+            
+            start("dt", "Symbol");
+            _out << toString(term, container, false, forIndex);
+            end();
+            start("dd");
+            _out << nl << item;
+            end();
+        }
+        end();
     }
 
     ClassList derivedClasses;
     ClassDefPtr def = ClassDefPtr::dynamicCast(p);
     if(def)
     {
-	derivedClasses = p->unit()->findDerivedClasses(def);
+        derivedClasses = p->unit()->findDerivedClasses(def);
     }
     if(!derivedClasses.empty())
     {
-	start("h4");
-	_out << "Derived Classes and Interfaces";
-	end();
-	start("dl");
-	for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, container, false, forIndex);
-	    end();
-	}
-	end();
+        start("h4");
+        _out << "Derived Classes and Interfaces";
+        end();
+        start("dl");
+        for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, container, false, forIndex);
+            end();
+        }
+        end();
     }
 
     ExceptionList derivedExceptions;
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if(ex)
     {
-	derivedExceptions = p->unit()->findDerivedExceptions(ex);
-	if(!derivedExceptions.empty())
-	{
-	    start("h4");
-	    _out << "Derived Exceptions";
-	    end();
-	    start("dl");
-	    for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
-	    {
-		start("dt", "Symbol");
-		_out << toString(*q, container, false, forIndex);
-		end();
-	    }
-	    end();
-	}
+        derivedExceptions = p->unit()->findDerivedExceptions(ex);
+        if(!derivedExceptions.empty())
+        {
+            start("h4");
+            _out << "Derived Exceptions";
+            end();
+            start("dl");
+            for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
+            {
+                start("dt", "Symbol");
+                _out << toString(*q, container, false, forIndex);
+                end();
+            }
+            end();
+        }
 
-	ContainedList usedBy;
-	usedBy = p->unit()->findUsedBy(ex);
-	if(!usedBy.empty())
-	{
-	    start("h4");
-	    _out << "Used By";
-	    end();
-	    start("dl");
-	    //
-	    // We first extract the symbol names from the used-by list and sort
-	    // them, otherwise the symbols appear in random order.
-	    //
-	    StringList sl;
-	    for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
-	    {
-		sl.push_back(toString(*q, container, false, forIndex));
-	    }
-	    sl.sort();
-	    for(StringList::const_iterator r = sl.begin(); r != sl.end(); ++r)
-	    {
-		start("dt", "Symbol");
-		_out << *r;
-		end();
-	    }
-	    end();
-	}
+        ContainedList usedBy;
+        usedBy = p->unit()->findUsedBy(ex);
+        if(!usedBy.empty())
+        {
+            start("h4");
+            _out << "Used By";
+            end();
+            start("dl");
+            //
+            // We first extract the symbol names from the used-by list and sort
+            // them, otherwise the symbols appear in random order.
+            //
+            StringList sl;
+            for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+            {
+                sl.push_back(toString(*q, container, false, forIndex));
+            }
+            sl.sort();
+            for(StringList::const_iterator r = sl.begin(); r != sl.end(); ++r)
+            {
+                start("dt", "Symbol");
+                _out << *r;
+                end();
+            }
+            end();
+        }
     }
 
     ContainedList usedBy;
     ConstructedPtr constructed;
     if(def)
     {
-	constructed = def->declaration();
+        constructed = def->declaration();
     }
     else
     {
-	constructed = ConstructedPtr::dynamicCast(p);
+        constructed = ConstructedPtr::dynamicCast(p);
     }
     if(constructed)
     {
-	usedBy = p->unit()->findUsedBy(constructed);
+        usedBy = p->unit()->findUsedBy(constructed);
     }
     if(!usedBy.empty())
     {
-	//
-	// We first accumulate the strings in a list instead of printing
-	// each stringified entry in the usedBy list. This is necessary because
-	// the usedBy list can contain operations and parameters. But toString()
-	// on a parameter returns the string for the parameter's operation, so
-	// we can end up printing the same operation name more than once.
-	//
-	StringList strings;
-	for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
-	{
-	    strings.push_back(toString(*q, container, false, forIndex));
-	}
-	strings.sort();
-	strings.unique();
+        //
+        // We first accumulate the strings in a list instead of printing
+        // each stringified entry in the usedBy list. This is necessary because
+        // the usedBy list can contain operations and parameters. But toString()
+        // on a parameter returns the string for the parameter's operation, so
+        // we can end up printing the same operation name more than once.
+        //
+        StringList strings;
+        for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
+        {
+            strings.push_back(toString(*q, container, false, forIndex));
+        }
+        strings.sort();
+        strings.unique();
 
-	start("h4");
-	_out << "Used By";
-	end();
-	start("dl");
-	for(list<string>::const_iterator p = strings.begin(); p != strings.end(); ++p)
-	{
-	    start("dt", "Symbol");
-	    _out << *p;
-	    end();
-	}
-	end();
+        start("h4");
+        _out << "Used By";
+        end();
+        start("dl");
+        for(list<string>::const_iterator p = strings.begin(); p != strings.end(); ++p)
+        {
+            start("dt", "Symbol");
+            _out << *p;
+            end();
+        }
+        end();
     }
 
     if(!see.empty())
     {
-	start("h4");
-	_out << "See Also";
-	end();
-	start("dl");
-	for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, container, false, forIndex);
-	    end();
-	}
-	end();
+        start("h4");
+        _out << "See Also";
+        end();
+        start("dl");
+        for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, container, false, forIndex);
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -541,17 +541,17 @@ Slice::GeneratorBase::printMetaData(const ContainedPtr& p)
 
     if(!metaData.empty())
     {
-	_out << "[";
-	list<string>::const_iterator q = metaData.begin();
-	while(q != metaData.end())
-	{
-	    _out << " \"" << *q << "\"";
-	    if(++q != metaData.end())
-	    {
-		_out << ",";
-	    }
-	}
-	_out << " ]" << nl;
+        _out << "[";
+        list<string>::const_iterator q = metaData.begin();
+        while(q != metaData.end())
+        {
+            _out << " \"" << *q << "\"";
+            if(++q != metaData.end())
+            {
+                _out << ",";
+            }
+        }
+        _out << " ]" << nl;
     }
 }
 
@@ -561,12 +561,12 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
     {
-	container = p->container();
+        container = p->container();
     }
 
     if(module)
     {
-	container = module;
+        container = module;
     }
 
     string summary = getComment(p, container, true, module);
@@ -574,9 +574,9 @@ Slice::GeneratorBase::printSummary(const ContainedPtr& p, const ContainerPtr& mo
 
     if(deprecated)
     {
-	start("p", "Deprecated");
-	_out << nl << "Deprecated.";
-	end();
+        start("p", "Deprecated");
+        _out << nl << "Deprecated.";
+        end();
     }
 }
 
@@ -589,11 +589,11 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     ContainedList::const_iterator pos = _symbols.begin();
     while(pos != _symbols.end())
     {
-	if((*pos)->scoped() == scoped)
-	{
-	    break;
-	}
-	prev = pos++;
+        if((*pos)->scoped() == scoped)
+        {
+            break;
+        }
+        prev = pos++;
     }
     ContainedList::const_iterator next = pos == _symbols.end() ? _symbols.end() : ++pos;
 
@@ -607,49 +607,49 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     string prevClass;
     if(!isFirst)
     {
-	prevLink = getLinkPath(*prev, container, false, onEnumPage) + ".html";
-	prevClass = "Button";
+        prevLink = getLinkPath(*prev, container, false, onEnumPage) + ".html";
+        prevClass = "Button";
     }
     else
     {
-	prevClass = "ButtonGrey";
+        prevClass = "ButtonGrey";
     }
 
     string nextLink;
     string nextClass;
     if(!isLast)
     {
-	nextLink = getLinkPath(*next, container, false, onEnumPage) + ".html";
-	nextClass = "Button";
+        nextLink = getLinkPath(*next, container, false, onEnumPage) + ".html";
+        nextClass = "Button";
     }
     else
     {
-	nextClass = "ButtonGrey";
+        nextClass = "ButtonGrey";
     }
 
     string upLink;
     string upClass;
     if(hasParent)
     {
-	upLink = getLinkPath(c->container(), container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
-	upClass = "Button";
+        upLink = getLinkPath(c->container(), container, ModulePtr::dynamicCast(c), onEnumPage) + ".html";
+        upClass = "Button";
     }
     else
     {
-	upClass = "ButtonGrey";
+        upClass = "ButtonGrey";
     }
 
     string homeLink = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
     if(!homeLink.empty())
     {
-	homeLink += "/";
+        homeLink += "/";
     }
     homeLink += "index.html";
 
     string indexLink = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
     if(!indexLink.empty())
     {
-	indexLink += "/";
+        indexLink += "/";
     }
     indexLink += "_sindex.html";
 
@@ -664,18 +664,18 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     if(!imageDir.empty())
     {
-	string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
-	if(!path.empty())
-	{
-	    path += "/";
-	}
-	path += imageDir + "/";
+        string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), onEnumPage);
+        if(!path.empty())
+        {
+            path += "/";
+        }
+        path += imageDir + "/";
 
-	prevImage = "<img class=\"" + prevClass + "\" src=\"" + path + prevImage + "\" alt=\"Previous\"/>";
-	nextImage = "<img class=\"" + nextClass + "\" src=\"" + path + nextImage + "\" alt=\"Next\"/>";
-	upImage = "<img class=\"" + upClass + "\" src=\"" + path + upImage + "\" alt=\"Up\"/>";
-	homeImage = "<img class=\"Button\" src=\"" + path + homeImage + "\" alt=\"Home\"/>";
-	indexImage = "<img class=\"Button\" src=\"" + path + indexImage + "\" alt=\"Index\"/>";
+        prevImage = "<img class=\"" + prevClass + "\" src=\"" + path + prevImage + "\" alt=\"Previous\"/>";
+        nextImage = "<img class=\"" + nextClass + "\" src=\"" + path + nextImage + "\" alt=\"Next\"/>";
+        upImage = "<img class=\"" + upClass + "\" src=\"" + path + upImage + "\" alt=\"Up\"/>";
+        homeImage = "<img class=\"Button\" src=\"" + path + homeImage + "\" alt=\"Home\"/>";
+        indexImage = "<img class=\"Button\" src=\"" + path + indexImage + "\" alt=\"Index\"/>";
     }
 
     start("div", "HeaderFooter");
@@ -689,47 +689,47 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
 
     if(!imageDir.empty() || !isFirst)
     {
-	start("td");
-	if(!isFirst)
-	{
-	    _out << "<a href=\"" << prevLink << "\">";
-	}
-	_out << prevImage;
-	if(!isFirst)
-	{
-	    _out << "</a>";
-	}
-	end();
+        start("td");
+        if(!isFirst)
+        {
+            _out << "<a href=\"" << prevLink << "\">";
+        }
+        _out << prevImage;
+        if(!isFirst)
+        {
+            _out << "</a>";
+        }
+        end();
     }
 
     if(!imageDir.empty() || hasParent)
     {
-	start("td");
-	if(hasParent)
-	{
-	    _out << "<a href=\"" << upLink << "\">";
-	}
-	_out << upImage;
-	if(hasParent)
-	{
-	    _out << "</a>";
-	}
-	end();
+        start("td");
+        if(hasParent)
+        {
+            _out << "<a href=\"" << upLink << "\">";
+        }
+        _out << upImage;
+        if(hasParent)
+        {
+            _out << "</a>";
+        }
+        end();
     }
 
     if(!imageDir.empty() || !isLast)
     {
-	start("td");
-	if(!isLast)
-	{
-	    _out << "<a href=\"" << nextLink << "\">";
-	}
-	_out << nextImage;
-	if(!isLast)
-	{
-	    _out << "</a>";
-	}
-	end();
+        start("td");
+        if(!isLast)
+        {
+            _out << "<a href=\"" << nextLink << "\">";
+        }
+        _out << nextImage;
+        if(!isLast)
+        {
+            _out << "</a>";
+        }
+        end();
     }
 
     start("td");
@@ -779,33 +779,33 @@ Slice::GeneratorBase::printLogo(const ContainedPtr& c, const ContainerPtr& conta
     string imageDir = getImageDir();
     if(!imageDir.empty())
     {
-	string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), forEnum);
-	if(!path.empty())
-	{
-	    path += "/";
-	}
-	path += imageDir + "/logo.gif";
-	start("table", "LogoTable");
-	start("tr");
-	start("td");
-	if(!_logoURL.empty())
-	{
-	    _out << "<a href=\"" + _logoURL + "\">";
-	}
-	_out << "<img class=\"Logo\" src=\"" + path + "\" alt=\"Logo\"/>";
-	if(!_logoURL.empty())
-	{
-	    _out << "</a>";
-	}
-	end();
-	end();
-	end();
+        string path = getLinkPath(0, container, ModulePtr::dynamicCast(c), forEnum);
+        if(!path.empty())
+        {
+            path += "/";
+        }
+        path += imageDir + "/logo.gif";
+        start("table", "LogoTable");
+        start("tr");
+        start("td");
+        if(!_logoURL.empty())
+        {
+            _out << "<a href=\"" + _logoURL + "\">";
+        }
+        _out << "<img class=\"Logo\" src=\"" + path + "\" alt=\"Logo\"/>";
+        if(!_logoURL.empty())
+        {
+            _out << "</a>";
+        }
+        end();
+        end();
+        end();
     }
 }
 
 string
 Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool forIndex,
-	                       unsigned* summarySize, bool shortName)
+                               unsigned* summarySize, bool shortName)
 {
     string anchor;
     string linkpath;
@@ -813,149 +813,149 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 
     static const char* builtinTable[] =
     {
-	"byte",
-	"bool",
-	"short",
-	"int",
-	"long",
-	"float",
-	"double",
-	"string",
-	"Object",
-	"Object*",
-	"LocalObject"
+        "byte",
+        "bool",
+        "short",
+        "int",
+        "long",
+        "float",
+        "double",
+        "string",
+        "Object",
+        "Object*",
+        "LocalObject"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
-	s = builtinTable[builtin->kind()];
-	return s;
+        s = builtinTable[builtin->kind()];
+        return s;
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(p);
     if(proxy)
     {
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    linkpath = getLinkPath(proxy->_class()->definition(), container, forIndex);
-	}
-	s = getScopedMinimized(proxy->_class(), container, shortName);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            linkpath = getLinkPath(proxy->_class()->definition(), container, forIndex);
+        }
+        s = getScopedMinimized(proxy->_class(), container, shortName);
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
     if(cl)
     {
-	//
+        //
         // We must generate the id from the definition, not from the
         // declaration, provided that a definition is available.
-	//
-	ContainedPtr definition = cl->definition();
-	if(definition && _files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    linkpath = getLinkPath(definition, container, forIndex);
-	}
-	s = getScopedMinimized(cl, container, shortName);
+        //
+        ContainedPtr definition = cl->definition();
+        if(definition && _files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            linkpath = getLinkPath(definition, container, forIndex);
+        }
+        s = getScopedMinimized(cl, container, shortName);
     }
 
     ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
     if(ex)
     {
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    linkpath = getLinkPath(ex, container, forIndex);
-	}
-	s = getScopedMinimized(ex, container, shortName);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            linkpath = getLinkPath(ex, container, forIndex);
+        }
+        s = getScopedMinimized(ex, container, shortName);
     }
 
     StructPtr st = StructPtr::dynamicCast(p);
     if(st)
     {
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    linkpath = getLinkPath(st, container, forIndex);
-	}
-	s = getScopedMinimized(st, container, shortName);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            linkpath = getLinkPath(st, container, forIndex);
+        }
+        s = getScopedMinimized(st, container, shortName);
     }
 
     EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
     if(en)
     {
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    anchor = getAnchor(en);
-	    linkpath = getLinkPath(en, container, forIndex);
-	}
-	s = getScopedMinimized(en, container, shortName);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            anchor = getAnchor(en);
+            linkpath = getLinkPath(en, container, forIndex);
+        }
+        s = getScopedMinimized(en, container, shortName);
     }
 
     OperationPtr op = OperationPtr::dynamicCast(p);
     if(op)
     {
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    anchor = getAnchor(op);
-	    linkpath = getLinkPath(op, container, forIndex);
-	}
-	s = getScopedMinimized(op, container, shortName);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            anchor = getAnchor(op);
+            linkpath = getLinkPath(op, container, forIndex);
+        }
+        s = getScopedMinimized(op, container, shortName);
     }
 
     ParamDeclPtr pd = ParamDeclPtr::dynamicCast(p);
     if(pd)
     {
-	op = OperationPtr::dynamicCast(pd->container());
-	assert(op);
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    anchor = getAnchor(op);
-	    linkpath = getLinkPath(op, container, forIndex);
-	}
-	s = getScopedMinimized(op, container, shortName);
+        op = OperationPtr::dynamicCast(pd->container());
+        assert(op);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            anchor = getAnchor(op);
+            linkpath = getLinkPath(op, container, forIndex);
+        }
+        s = getScopedMinimized(op, container, shortName);
     }
 
     if(s.empty())
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(p);
-	assert(contained);
-	if(_files.find(p->definitionContext()->filename()) != _files.end())
-	{
-	    if(!(EnumPtr::dynamicCast(p) || ModulePtr::dynamicCast(p) || ClassDeclPtr::dynamicCast(p)))
-	    {
-		anchor = getAnchor(contained);
-	    }
+        ContainedPtr contained = ContainedPtr::dynamicCast(p);
+        assert(contained);
+        if(_files.find(p->definitionContext()->filename()) != _files.end())
+        {
+            if(!(EnumPtr::dynamicCast(p) || ModulePtr::dynamicCast(p) || ClassDeclPtr::dynamicCast(p)))
+            {
+                anchor = getAnchor(contained);
+            }
 
-	    //
-	    // Sequences and dictionaries are documented on the page for their
-	    // enclosing module.
-	    //
-	    if(SequencePtr::dynamicCast(p) || DictionaryPtr::dynamicCast(p))
-	    {
-		linkpath = getLinkPath(contained->container(), container, forIndex);
-	    }
-	    else
-	    {
-		linkpath = getLinkPath(contained, container, forIndex);
-	    }
-	}
-	s = getScopedMinimized(contained, container, shortName);
+            //
+            // Sequences and dictionaries are documented on the page for their
+            // enclosing module.
+            //
+            if(SequencePtr::dynamicCast(p) || DictionaryPtr::dynamicCast(p))
+            {
+                linkpath = getLinkPath(contained->container(), container, forIndex);
+            }
+            else
+            {
+                linkpath = getLinkPath(contained, container, forIndex);
+            }
+        }
+        s = getScopedMinimized(contained, container, shortName);
     }
 
     if(summarySize)
     {
-	*summarySize = s.size();
+        *summarySize = s.size();
     }
 
     if(linkpath.empty() && anchor.empty())
     {
-	if(ProxyPtr::dynamicCast(p))
-	{
-	    s += '*';
-	    if(summarySize)
-	    {
-		++(*summarySize);
-	    }
-	}
-	return s;
+        if(ProxyPtr::dynamicCast(p))
+        {
+            s += '*';
+            if(summarySize)
+            {
+                ++(*summarySize);
+            }
+        }
+        return s;
     }
 
     string ret = "<a class=\"Symbol\" ";
@@ -963,46 +963,46 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
     ret += "=\"";
     if(asTarget)
     {
-	ret += anchor;
+        ret += anchor;
     }
     else
     {
-	ret += linkpath;
-	if(!linkpath.empty())
-	{
-	    ret += ".html";
-	}
-	if(!anchor.empty())
-	{
-	    ret += "#" + anchor;
-	}
+        ret += linkpath;
+        if(!linkpath.empty())
+        {
+            ret += ".html";
+        }
+        if(!anchor.empty())
+        {
+            ret += "#" + anchor;
+        }
     }
     ret += "\">";
     ret += s;
     ret += "</a>";
     if(ProxyPtr::dynamicCast(p))
     {
-	ret += '*';
+        ret += '*';
     }
     return ret;
 }
 
 string
 Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool forIndex,
-	                       unsigned* summarySize)
+                               unsigned* summarySize)
 {
     string s = str;
 
     TypeList types = container->lookupType(s, false);
     if(!types.empty())
     {
-	return toString(types.front(), container, asTarget, forIndex, summarySize);
+        return toString(types.front(), container, asTarget, forIndex, summarySize);
     }
 
     ContainedList contList = container->lookupContained(s, false);
     if(!contList.empty())
     {
-	return toString(contList.front(), container, asTarget, forIndex, summarySize);
+        return toString(contList.front(), container, asTarget, forIndex, summarySize);
     }
 
     //
@@ -1014,52 +1014,52 @@ Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container,
 
 string
 Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerPtr& container,
-				 bool summary, bool forIndex)
+                                 bool summary, bool forIndex)
 {
     unsigned summarySize = 0;
     string s = contained->comment();
     string comment;
     for(unsigned int i = 0; i < s.size(); ++i)
     {
-	if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
-	{
-	    comment += '[';
-	    ++summarySize;
-	    ++i;
-	}
-	else if(s[i] == '[')
-	{
-	    string literal;
-	    for(++i; i < s.size(); ++i)
-	    {
-		if(s[i] == ']')
-		{
-		    break;
-		}
-		
-		literal += s[i];
-	    }
-	    unsigned sz = 0;
-	    comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
-	    summarySize += sz;
-	}
-	else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
-	{
-	    comment += '.';
-	    ++summarySize;
-	    break;
-	}
-	else
-	{
-	    comment += s[i];
-	    ++summarySize;
-	}
+        if(s[i] == '\\' && i + 1 < s.size() && s[i + 1] == '[')
+        {
+            comment += '[';
+            ++summarySize;
+            ++i;
+        }
+        else if(s[i] == '[')
+        {
+            string literal;
+            for(++i; i < s.size(); ++i)
+            {
+                if(s[i] == ']')
+                {
+                    break;
+                }
+                
+                literal += s[i];
+            }
+            unsigned sz = 0;
+            comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
+            summarySize += sz;
+        }
+        else if(summary && s[i] == '.' && (i + 1 >= s.size() || isspace(s[i + 1])))
+        {
+            comment += '.';
+            ++summarySize;
+            break;
+        }
+        else
+        {
+            comment += s[i];
+            ++summarySize;
+        }
     }
 
     if(summary && _warnSummary && summarySize > _warnSummary)
     {
-	cerr << contained->definitionContext()->filename() << ": summary size (" << summarySize << ") exceeds "
-	     << _warnSummary << " characters: `" << comment << "'" << endl;
+        cerr << contained->definitionContext()->filename() << ": summary size (" << summarySize << ") exceeds "
+             << _warnSummary << " characters: `" << comment << "'" << endl;
     }
 
     return comment;
@@ -1072,11 +1072,11 @@ Slice::GeneratorBase::getAnchor(const SyntaxTreeBasePtr& p)
     string anchor;
     for(StringList::const_iterator i = symbols.begin(); i != symbols.end(); ++i)
     {
-	if(i != symbols.begin())
-	{
-	    anchor += "::";
-	}
-	anchor += *i;
+        if(i != symbols.begin())
+        {
+            anchor += "::";
+        }
+        anchor += *i;
     }
     return anchor;
 }
@@ -1092,7 +1092,7 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     //
     if(forIndex && ContainedPtr::dynamicCast(container))
     {
-	c = ContainedPtr::dynamicCast(c)->container();
+        c = ContainedPtr::dynamicCast(c)->container();
     }
 
     //
@@ -1103,32 +1103,32 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(p);
     if(enumerator)
     {
-	target = toStringList(enumerator->type());
+        target = toStringList(enumerator->type());
     }
     else
     {
-	target = getContainer(p);
+        target = getContainer(p);
     }
     StringList from = getContainer(c);
 
     while(!target.empty() && !from.empty() && target.front() == from.front())
     {
-	target.pop_front();
-	from.pop_front();
-	commonEnclosingScope = true;
+        target.pop_front();
+        from.pop_front();
+        commonEnclosingScope = true;
     }
 
     if(commonEnclosingScope && target.empty())
     {
-	ModulePtr module = ModulePtr::dynamicCast(p);
-	if(module)
-	{
-	    target.push_front(module->name());
-	}
+        ModulePtr module = ModulePtr::dynamicCast(p);
+        if(module)
+        {
+            target.push_front(module->name());
+        }
     }
     else if(!from.empty())
     {
-	from.pop_front();
+        from.pop_front();
     }
 
     //
@@ -1137,12 +1137,12 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     string path;
     while(!from.empty())
     {
-	if(!path.empty())
-	{
-	    path += "/";
-	}
-	path += "..";
-	from.pop_front();
+        if(!path.empty())
+        {
+            path += "/";
+        }
+        path += "..";
+        from.pop_front();
     }
 
     //
@@ -1150,24 +1150,24 @@ Slice::GeneratorBase::getLinkPath(const SyntaxTreeBasePtr& p, const ContainerPtr
     //
     while(!target.empty())
     {
-	if(!path.empty())
-	{
-	    path += "/";
-	}
-	path += target.front() == "index" ? string("_index") : target.front();
-	target.pop_front();
+        if(!path.empty())
+        {
+            path += "/";
+        }
+        path += target.front() == "index" ? string("_index") : target.front();
+        target.pop_front();
     }
 
     if(forEnum)
     {
-	if(!path.empty())
-	{
-	    path = "../" + path;
-	}
-	else
-	{
-	    path = "..";
-	}
+        if(!path.empty())
+        {
+            path = "../" + path;
+        }
+        else
+        {
+            path = "..";
+        }
     }
     return path;
 }
@@ -1190,8 +1190,8 @@ Slice::GeneratorBase::openStream(const string& path)
     _out.open(path.c_str());
     if(!_out.isOpen())
     {
-	string err = "cannot open `" + path + "' for writing";
-	throw err;
+        string err = "cannot open `" + path + "' for writing";
+        throw err;
     }
 }
 
@@ -1203,7 +1203,7 @@ Slice::GeneratorBase::containedToId(const ContainedPtr& contained, bool asTarget
     string scoped = contained->scoped();
     if(scoped[0] == ':')
     {
-	scoped.erase(0, 2);
+        scoped.erase(0, 2);
     }
 
     string id;
@@ -1211,15 +1211,15 @@ Slice::GeneratorBase::containedToId(const ContainedPtr& contained, bool asTarget
 
     for(unsigned int i = 0; i < scoped.size(); ++i)
     {
-	if(scoped[i] == ':')
-	{
-	    id += '.';
-	    ++i;
-	}
-	else
-	{
-	    id += scoped[i];
-	}
+        if(scoped[i] == ':')
+        {
+            id += '.';
+            ++i;
+        }
+        else
+        {
+            id += scoped[i];
+        }
     }
 
     //
@@ -1227,7 +1227,7 @@ Slice::GeneratorBase::containedToId(const ContainedPtr& contained, bool asTarget
     //
     if(id[0] == '.')
     {
-	id.erase(0, 1);
+        id.erase(0, 1);
     }
 
     return '"' + id + '"';
@@ -1240,29 +1240,29 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
     string::size_type begin = 0;
     while(begin < comment.size())
     {
-	begin = comment.find("@" + tag, begin);
-	if(begin == string::npos)
-	{
-	    return result;
-	}
-	
-	string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
-	if(pos1 == string::npos)
-	{
-	    comment.erase(begin);
-	    return result;
-	}
-	
-	string::size_type pos2 = comment.find('@', pos1);
-	string line = comment.substr(pos1, pos2 - pos1);
-	comment.erase(begin, pos2 - 1 - begin);
+        begin = comment.find("@" + tag, begin);
+        if(begin == string::npos)
+        {
+            return result;
+        }
+        
+        string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
+        if(pos1 == string::npos)
+        {
+            comment.erase(begin);
+            return result;
+        }
+        
+        string::size_type pos2 = comment.find('@', pos1);
+        string line = comment.substr(pos1, pos2 - pos1);
+        comment.erase(begin, pos2 - 1 - begin);
 
-	string::size_type pos3 = line.find_last_not_of(" \t\r\n");
-	if(pos3 != string::npos)
-	{
-	    line.erase(pos3 + 1);
-	}
-	result.push_back(line);
+        string::size_type pos3 = line.find_last_not_of(" \t\r\n");
+        if(pos3 != string::npos)
+        {
+            line.erase(pos3 + 1);
+        }
+        result.push_back(line);
     }
 
     return result;
@@ -1273,7 +1273,7 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
 {
     if(shortName)
     {
-	return contained->name();
+        return contained->name();
     }
 
     string s = contained->scoped();
@@ -1282,21 +1282,21 @@ Slice::GeneratorBase::getScopedMinimized(const ContainedPtr& contained, const Co
 
     if(!q) // Container is the global module
     {
-	return s.substr(2);
+        return s.substr(2);
     }
     
     do
     {
-	string s2 = q->scoped();
-	s2 += "::";
+        string s2 = q->scoped();
+        s2 += "::";
 
-	if(s.find(s2) == 0)
-	{
-	    return s.substr(s2.size());
-	}
+        if(s.find(s2) == 0)
+        {
+            return s.substr(s2.size());
+        }
 
-	p = q->container();
-	q = ContainedPtr::dynamicCast(p);
+        p = q->container();
+        q = ContainedPtr::dynamicCast(p);
     }
     while(q);
 
@@ -1309,17 +1309,17 @@ Slice::GeneratorBase::getContained(const SyntaxTreeBasePtr& p)
     StringList result;
     if(!p)
     {
-	return result;
+        return result;
     }
 
     SyntaxTreeBasePtr c = p;
 
     do
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(c);
-	assert(contained);
-	result.push_front(contained->name());
-	c = contained->container();
+        ContainedPtr contained = ContainedPtr::dynamicCast(c);
+        assert(contained);
+        result.push_front(contained->name());
+        c = contained->container();
     }
     while(!ContainerPtr::dynamicCast(c));
     return result;
@@ -1332,24 +1332,24 @@ Slice::GeneratorBase::getContainer(const SyntaxTreeBasePtr& p)
 
     if(!p)
     {
-	return result;
+        return result;
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(p);
     while(contained &&
-	  !ModulePtr::dynamicCast(contained) &&
-	  !ExceptionPtr::dynamicCast(contained) &&
-	  !ClassDefPtr::dynamicCast(contained) &&
-	  !StructPtr::dynamicCast(contained) &&
-	  !EnumPtr::dynamicCast(contained))
+          !ModulePtr::dynamicCast(contained) &&
+          !ExceptionPtr::dynamicCast(contained) &&
+          !ClassDefPtr::dynamicCast(contained) &&
+          !StructPtr::dynamicCast(contained) &&
+          !EnumPtr::dynamicCast(contained))
     {
-	contained = ContainedPtr::dynamicCast(contained->container());
+        contained = ContainedPtr::dynamicCast(contained->container());
     }
 
     while(contained)
     {
-	result.push_front(contained->name());
-	contained = ContainedPtr::dynamicCast(contained->container());
+        result.push_front(contained->name());
+        contained = ContainedPtr::dynamicCast(contained->container());
     }
     return result;
 }
@@ -1367,13 +1367,13 @@ Slice::GeneratorBase::toStringList(const ContainedPtr& c)
     string::size_type endpos;
     while((endpos = scoped.find("::", next)) != string::npos)
     {
-	ids.push_back(scoped.substr(next, endpos - next));
-	next = endpos;
-	if(next != string::npos)
-	{
-	    ++next;
-	    ++next;
-	}
+        ids.push_back(scoped.substr(next, endpos - next));
+        next = endpos;
+        if(next != string::npos)
+        {
+            ++next;
+            ++next;
+        }
     }
     ids.push_back(scoped.substr(next));
 
@@ -1387,7 +1387,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
     int rc = stat(dir.c_str(), &st);
     if(rc == 0)
     {
-	return;
+        return;
     }
 #ifdef _WIN32
     rc = mkdir(dir.c_str());
@@ -1396,8 +1396,8 @@ Slice::GeneratorBase::makeDir(const string& dir)
 #endif
     if(rc != 0)
     {
-	string err = "cannot create directory `" + dir + "'";
-	throw err;
+        string err = "cannot create directory `" + dir + "'";
+        throw err;
     }
 }
 
@@ -1407,8 +1407,8 @@ Slice::GeneratorBase::readFile(const string& file)
     ifstream in(file.c_str());
     if(!in)
     {
-	string err = "cannot open `" + file + "' for reading";
-	throw err;
+        string err = "cannot open `" + file + "' for reading";
+        throw err;
     }
 
     ostringstream result;
@@ -1416,8 +1416,8 @@ Slice::GeneratorBase::readFile(const string& file)
     getline(in, line);
     while(!line.empty())
     {
-	result << line << '\n';
-	getline(in, line);
+        result << line << '\n';
+        getline(in, line);
     }
     
     return result.str();
@@ -1428,32 +1428,32 @@ Slice::GeneratorBase::getHeaders(const string& header, string& h1, string& h2)
 {
     if(header.empty())
     {
-	ostringstream hdr1;
-	XMLOutput O1(hdr1);
-	O1 << "<!-- Generated by Ice version " << ICE_STRING_VERSION << " -->";
-	O1 << sp;
-	O1 << nl << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">";
-	O1 << se("html");
-	O1 << se("head");
-	O1 << se("title") << nl;
-	h1 = hdr1.str();
+        ostringstream hdr1;
+        XMLOutput O1(hdr1);
+        O1 << "<!-- Generated by Ice version " << ICE_STRING_VERSION << " -->";
+        O1 << sp;
+        O1 << nl << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">";
+        O1 << se("html");
+        O1 << se("head");
+        O1 << se("title") << nl;
+        h1 = hdr1.str();
 
-	// _header1 and _header2 store the bit preceding and following the title.
-	// _header1, the title text, and _header2 are written by openDoc().
+        // _header1 and _header2 store the bit preceding and following the title.
+        // _header1, the title text, and _header2 are written by openDoc().
 
-	ostringstream hdr2;
-	XMLOutput O2(hdr2);
-	O2.inc();
-	O2.inc();
-	O2 << nl << "</title>";
-	O2.dec();
-	O2 << nl << "</head>";
-	O2 << nl << "<body>";
-	h2 = hdr2.str();
+        ostringstream hdr2;
+        XMLOutput O2(hdr2);
+        O2.inc();
+        O2.inc();
+        O2 << nl << "</title>";
+        O2.dec();
+        O2 << nl << "</head>";
+        O2 << nl << "<body>";
+        h2 = hdr2.str();
     }
     else
     {
-	readFile(header, h1, h2);
+        readFile(header, h1, h2);
     }
 }
 
@@ -1464,11 +1464,11 @@ Slice::GeneratorBase::getFooter(const string& footer)
     XMLOutput O(ftr);
     if(footer.empty())
     {
-	O << "    </body>";
+        O << "    </body>";
     }
     else
     {
-	O << readFile(footer);
+        O << readFile(footer);
     }
     O << nl << "</html>";
     return ftr.str();
@@ -1480,8 +1480,8 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     ifstream in(file.c_str());
     if(!in)
     {
-	string err = "cannot open `" + file + "' for reading";
-	throw err;
+        string err = "cannot open `" + file + "' for reading";
+        throw err;
     }
 
     string line;
@@ -1490,28 +1490,28 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     ostringstream p1;
     while(!foundTitle && getline(in, line))
     {
-	if(line == "TITLE")
-	{
-	    foundTitle = true;
-	}
-	else
-	{
-	    p1 << line << '\n';
-	}
+        if(line == "TITLE")
+        {
+            foundTitle = true;
+        }
+        else
+        {
+            p1 << line << '\n';
+        }
     }
     part1 = p1.str();
 
     if(!foundTitle)
     {
-	string err = "no TITLE marker in `" + file + "'";
-	throw err;
+        string err = "no TITLE marker in `" + file + "'";
+        throw err;
     }
 
     ostringstream p2;
     p2 << endl;
     while(getline(in, line))
     {
-	p2 << line << '\n';
+        p2 << line << '\n';
     }
     part2 = p2.str();
 }
@@ -1539,12 +1539,12 @@ Slice::StartPageGenerator::~StartPageGenerator()
     start("dl");
     for(ModuleDescriptions::const_iterator i = _modules.begin(); i != _modules.end(); ++i)
     {
-	start("dt", "Symbol");
-	_out << i->first;
-	end();
-	start("dd");
-	_out << i->second;
-	end();
+        start("dt", "Symbol");
+        _out << i->first;
+        end();
+        start("dd");
+        _out << i->second;
+        end();
     }
     end();
 
@@ -1573,12 +1573,12 @@ Slice::StartPageGenerator::printHeaderFooter()
     string imageDir = getImageDir();
     if(imageDir.empty())
     {
-	_out << "<a href=\"_sindex.html\">Index</a>";
+        _out << "<a href=\"_sindex.html\">Index</a>";
     }
     else
     {
-	string src = imageDir + "/index.gif";
-	_out << "<a href=\"_sindex.html\"><img class=\"Button\" src=\"" + src + "\" alt=\"Index Button\"/></a>";
+        string src = imageDir + "/index.gif";
+        _out << "<a href=\"_sindex.html\"><img class=\"Button\" src=\"" + src + "\" alt=\"Index Button\"/></a>";
     }
     end();
     end();
@@ -1588,22 +1588,22 @@ Slice::StartPageGenerator::printHeaderFooter()
 
     if(!imageDir.empty())
     {
-	start("table", "LogoTable");
-	start("tr");
-	start("td");
-	string logoURL = getLogoURL();
-	if(!logoURL.empty())
-	{
-	    _out << "<a href=\"" + logoURL + "\">";
-	}
-	_out << "<img class=\"Logo\" src=\"" + imageDir + "/logo.gif\" alt=\"Logo\"/>";
-	if(!logoURL.empty())
-	{
-	    _out << "</a>";
-	}
-	end();
-	end();
-	end();
+        start("table", "LogoTable");
+        start("tr");
+        start("td");
+        string logoURL = getLogoURL();
+        if(!logoURL.empty())
+        {
+            _out << "<a href=\"" + logoURL + "\">";
+        }
+        _out << "<img class=\"Logo\" src=\"" + imageDir + "/logo.gif\" alt=\"Logo\"/>";
+        if(!logoURL.empty())
+        {
+            _out << "</a>";
+        }
+        end();
+        end();
+        end();
     }
 
     end();
@@ -1731,7 +1731,7 @@ TOCGenerator::writeTOC()
     _out.inc();
     for(ModuleList::const_iterator i = _modules.begin(); i != _modules.end(); ++i)
     {
-	writeEntry(*i);
+        writeEntry(*i);
     }
     _out.dec();
     _out << nl << "</ul>";
@@ -1757,89 +1757,89 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     ModulePtr m = ModulePtr::dynamicCast(c);
     if(m)
     {
-	cl = m->contents();
+        cl = m->contents();
     }
 
     EnumPtr en = EnumPtr::dynamicCast(c);
     if(en)
     {
-	EnumeratorList enumerators = en->getEnumerators();
-	for(EnumeratorList::const_iterator i = enumerators.begin(); i != enumerators.end(); ++i)
-	{
-	    cl.push_back(*i);
-	}
+        EnumeratorList enumerators = en->getEnumerators();
+        for(EnumeratorList::const_iterator i = enumerators.begin(); i != enumerators.end(); ++i)
+        {
+            cl.push_back(*i);
+        }
     }
 
     StructPtr s = StructPtr::dynamicCast(c);
     if(s)
     {
-	DataMemberList dml = s->dataMembers();
-	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
-	{
-	    cl.push_back(*i);
-	}
+        DataMemberList dml = s->dataMembers();
+        for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+        {
+            cl.push_back(*i);
+        }
     }
 
     ExceptionPtr e = ExceptionPtr::dynamicCast(c);
     if(e)
     {
-	DataMemberList dml = e->dataMembers();
-	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
-	{
-	    cl.push_back(*i);
-	}
+        DataMemberList dml = e->dataMembers();
+        for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+        {
+            cl.push_back(*i);
+        }
     }
 
     ClassDefPtr cdef = ClassDefPtr::dynamicCast(c);
     if(!cdef)
     {
-	ClassDeclPtr cdec = ClassDeclPtr::dynamicCast(c);
-	if(cdec)
-	{
-	    cdef = cdec->definition();
-	}
+        ClassDeclPtr cdec = ClassDeclPtr::dynamicCast(c);
+        if(cdec)
+        {
+            cdef = cdec->definition();
+        }
     }
 
     if(cdef)
     {
-	DataMemberList dml = cdef->dataMembers();
-	for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
-	{
-	    cl.push_back(*i);
-	}
-	OperationList ol = cdef->operations();
-	for(OperationList::const_iterator j = ol.begin(); j != ol.end(); ++j)
-	{
-	    cl.push_back(*j);
-	}
+        DataMemberList dml = cdef->dataMembers();
+        for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+        {
+            cl.push_back(*i);
+        }
+        OperationList ol = cdef->operations();
+        for(OperationList::const_iterator j = ol.begin(); j != ol.end(); ++j)
+        {
+            cl.push_back(*j);
+        }
     }
 
     start("li");
     if(!cl.empty())
     {
-	cl.sort();
-	cl.unique();
+        cl.sort();
+        cl.unique();
 
-	_out << nl << toString(c, 0, false, true, 0, true);
-	start("ul");
-	for(ContainedList::const_iterator i = cl.begin(); i != cl.end(); ++i)
-	{
-	    writeEntry(*i);
-	}
-	end();
+        _out << nl << toString(c, 0, false, true, 0, true);
+        start("ul");
+        for(ContainedList::const_iterator i = cl.begin(); i != cl.end(); ++i)
+        {
+            writeEntry(*i);
+        }
+        end();
     }
     else
     {
-	_out << nl << toString(c, 0, false, true, 0, true);
+        _out << nl << toString(c, 0, false, true, 0, true);
     }
     if(ModulePtr::dynamicCast(c) || ExceptionPtr::dynamicCast(c) || ClassDefPtr::dynamicCast(c) ||
        StructPtr::dynamicCast(c) || EnumPtr::dynamicCast(c))
     {
-	_symbols.push_back(c);
+        _symbols.push_back(c);
     }
     else if(ClassDeclPtr::dynamicCast(c))
     {
-	_symbols.push_back(ClassDeclPtr::dynamicCast(c)->definition());
+        _symbols.push_back(ClassDeclPtr::dynamicCast(c)->definition());
     }
     end();
 }
@@ -1898,11 +1898,11 @@ Slice::ModuleGenerator::generate(const ModulePtr& m)
     string metadata, deprecateReason;
     if(m->findMetaData("deprecate", metadata))
     {
-	deprecateReason = "This module is deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This module is deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
     start("h2");
     _out << "Overview";
@@ -1935,21 +1935,21 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     if(!modules.empty())
     {
-	start("h2");
-	_out << "Module Index";
-	end();
-	start("dl");
-	for(ModuleList::const_iterator q = modules.begin(); q != modules.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Module Index";
+        end();
+        start("dl");
+        for(ModuleList::const_iterator q = modules.begin(); q != modules.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -1958,48 +1958,48 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
     ClassList classes;
     ClassList interfaces;
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
-		   ::IceUtil::constMemFun(&ClassDef::isInterface));
+                   ::IceUtil::constMemFun(&ClassDef::isInterface));
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
-		   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
+                   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
 
     if(!classes.empty())
     {
-	start("h2");
-	_out << "Class Index";
-	end();
-	start("dl");
-	for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Class Index";
+        end();
+        start("dl");
+        for(ClassList::const_iterator q = classes.begin(); q != classes.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
 
     if(!interfaces.empty())
     {
-	start("h2");
-	_out << "Interface Index";
-	end();
-	start("dl");
-	for(ClassList::const_iterator q = interfaces.begin(); q != interfaces.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Interface Index";
+        end();
+        start("dl");
+        for(ClassList::const_iterator q = interfaces.begin(); q != interfaces.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -2008,21 +2008,21 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     if(!exceptions.empty())
     {
-	start("h2");
-	_out << "Exception Index";
-	end();
-	start("dl");
-	for(ExceptionList::const_iterator q = exceptions.begin(); q != exceptions.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Exception Index";
+        end();
+        start("dl");
+        for(ExceptionList::const_iterator q = exceptions.begin(); q != exceptions.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -2031,21 +2031,21 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     if(!structs.empty())
     {
-	start("h2");
-	_out << "Structure Index";
-	end();
-	start("dl");
-	for(StructList::const_iterator q = structs.begin(); q != structs.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Structure Index";
+        end();
+        start("dl");
+        for(StructList::const_iterator q = structs.begin(); q != structs.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -2054,21 +2054,21 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     if(!sequences.empty())
     {
-	start("h2");
-	_out << "Sequence Index";
-	end();
-	start("dl");
-	for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Sequence Index";
+        end();
+        start("dl");
+        for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -2077,21 +2077,21 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     if(!dictionaries.empty())
     {
-	start("h2");
-	_out << "Dictionary Index";
-	end();
-	start("dl");
-	for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Dictionary Index";
+        end();
+        start("dl");
+        for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
@@ -2100,99 +2100,99 @@ Slice::ModuleGenerator::visitContainer(const ContainerPtr& p)
 
     if(!enums.empty())
     {
-	start("h2");
-	_out << "Enumeration Index";
-	end();
-	start("dl");
-	for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, p, false, true);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Enumeration Index";
+        end();
+        start("dl");
+        for(EnumList::const_iterator q = enums.begin(); q != enums.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, p, false, true);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, p, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     assert(_out.currIndent() == indent);
 
     if(!sequences.empty())
     {
-	start("h2");
-	_out << "Sequences";
-	end();
-	for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
-	{
-	    start("dl");
-	    start("dt");
-	    start("span", "Synopsis");
-	    printMetaData(*q);
-	    if((*q)->isLocal())
-	    {
-		_out << "local ";
-	    }
-	    TypePtr type = (*q)->type();
-	    _out << "sequence&lt;" << toString(type, p, false, true) << "&gt; " << toString(*q, p);
-	    end();
-	    end();
+        start("h2");
+        _out << "Sequences";
+        end();
+        for(SequenceList::const_iterator q = sequences.begin(); q != sequences.end(); ++q)
+        {
+            start("dl");
+            start("dt");
+            start("span", "Synopsis");
+            printMetaData(*q);
+            if((*q)->isLocal())
+            {
+                _out << "local ";
+            }
+            TypePtr type = (*q)->type();
+            _out << "sequence&lt;" << toString(type, p, false, true) << "&gt; " << toString(*q, p);
+            end();
+            end();
 
-	    start("dd");
-	    string metadata, deprecateReason;
-	    if((*q)->findMetaData("deprecate", metadata))
-	    {
-		deprecateReason = "This type is deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    deprecateReason = metadata.substr(10);
-		}
-	    }
+            start("dd");
+            string metadata, deprecateReason;
+            if((*q)->findMetaData("deprecate", metadata))
+            {
+                deprecateReason = "This type is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    deprecateReason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, p, deprecateReason, true);
-	    end();
-	    end();
-	}
+            printComment(*q, p, deprecateReason, true);
+            end();
+            end();
+        }
     }
 
     if(!dictionaries.empty())
     {
-	start("h2");
-	_out << "Dictionaries";
-	end();
-	for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
-	{
-	    start("dl");
-	    start("dt");
-	    start("span", "Synopsis");
-	    printMetaData(*q);
-	    if((*q)->isLocal())
-	    {
-		_out << "local ";
-	    }
-	    TypePtr keyType = (*q)->keyType();
-	    TypePtr valueType = (*q)->valueType();
-	    _out << "dictionary&lt;" << toString(keyType, p, false, true) << ", "
-		 << toString(valueType, p, false, true) << "&gt; " << toString(*q, p);
-	    end();
-	    end();
+        start("h2");
+        _out << "Dictionaries";
+        end();
+        for(DictionaryList::const_iterator q = dictionaries.begin(); q != dictionaries.end(); ++q)
+        {
+            start("dl");
+            start("dt");
+            start("span", "Synopsis");
+            printMetaData(*q);
+            if((*q)->isLocal())
+            {
+                _out << "local ";
+            }
+            TypePtr keyType = (*q)->keyType();
+            TypePtr valueType = (*q)->valueType();
+            _out << "dictionary&lt;" << toString(keyType, p, false, true) << ", "
+                 << toString(valueType, p, false, true) << "&gt; " << toString(*q, p);
+            end();
+            end();
 
-	    start("dd");
-	    string metadata, deprecateReason;
-	    if((*q)->findMetaData("deprecate", metadata))
-	    {
-		deprecateReason = "This type is deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    deprecateReason = metadata.substr(10);
-		}
-	    }
+            start("dd");
+            string metadata, deprecateReason;
+            if((*q)->findMetaData("deprecate", metadata))
+            {
+                deprecateReason = "This type is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    deprecateReason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, p, deprecateReason, true);
-	    end();
-	    end();
-	}
+            printComment(*q, p, deprecateReason, true);
+            end();
+            end();
+        }
     }
 }
 
@@ -2221,11 +2221,11 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     bool deprecatedException = e->findMetaData("deprecate", metadata);
     if(deprecatedException)
     {
-	deprecateReason = "This module is deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This module is deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     start("h2");
@@ -2236,18 +2236,18 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
     printMetaData(e);
     if(e->isLocal())
     {
-	_out << "local ";
+        _out << "local ";
     }
     _out << "exception " << e->name();
     ExceptionPtr base = e->base();
     if(base)
     {
-	_out.inc();
-	_out << nl << "extends ";
-	_out.inc();
-	_out << nl << toString(base, e);
-	_out.dec();
-	_out.dec();
+        _out.inc();
+        _out << nl << "extends ";
+        _out.inc();
+        _out << nl << toString(base, e);
+        _out.dec();
+        _out.dec();
     }
     end();
 
@@ -2257,55 +2257,55 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
 
     if(_indexCount > 0 && dataMembers.size() >= _indexCount)
     {
-	start("h2");
-	_out << "Data Member Index";
-	end();
-	start("dl");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, e, false);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, e, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Data Member Index";
+        end();
+        start("dl");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, e, false);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, e, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     if(!dataMembers.empty())
     {
-	start("h2");
-	_out << "Data Members";
-	end();
-	start("dl");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    printMetaData(*q);
-	    TypePtr type = (*q)->type();
-	    _out << toString(type, e) << " " << toString(*q, e) << ";";
-	    end();
+        start("h2");
+        _out << "Data Members";
+        end();
+        start("dl");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("dt", "Symbol");
+            printMetaData(*q);
+            TypePtr type = (*q)->type();
+            _out << toString(type, e) << " " << toString(*q, e) << ";";
+            end();
 
-	    start("dd");
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This member is deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            start("dd");
+            string reason;
+            metadata.clear();
+            if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This member is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, e, reason);
-	    end();
-	}
-	end();
+            printComment(*q, e, reason);
+            end();
+        }
+        end();
     }
-	
+        
     _out << nl << "<hr>";
     printHeaderFooter(e);
 
@@ -2339,13 +2339,13 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     bool deprecatedClass = c->findMetaData("deprecate", metadata);
     if(deprecatedClass)
     {
-	deprecateReason = "This ";
-	deprecateReason += c->isInterface() ? "interface" : "class";
-	deprecateReason += " is deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This ";
+        deprecateReason += c->isInterface() ? "interface" : "class";
+        deprecateReason += " is deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     start("h2");
@@ -2355,29 +2355,29 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
     printMetaData(c);
     if(c->isLocal())
     {
-	_out << "local ";
+        _out << "local ";
     }
     _out << (c->isInterface() ? "interface" : "class" )<< " " << c->name();
 
     ClassList bases = c->bases();
     if(!bases.empty() && !bases.front()->isInterface())
     {
-	_out << " extends " << toString(bases.front(), c);
-	bases.pop_front();
+        _out << " extends " << toString(bases.front(), c);
+        bases.pop_front();
     }
 
     if(!bases.empty())
     {
-	_out << (c->isInterface() ? " extends " : " implements ");
-	ClassList::const_iterator q = bases.begin();
-	while(q != bases.end())
-	{
-	    _out << toString(*q, c, false);
-	    if(++q != bases.end())
-	    {
-		_out << ", ";
-	    }
-	}
+        _out << (c->isInterface() ? " extends " : " implements ");
+        ClassList::const_iterator q = bases.begin();
+        while(q != bases.end())
+        {
+            _out << toString(*q, c, false);
+            if(++q != bases.end())
+            {
+                _out << ", ";
+            }
+        }
     }
     end();
 
@@ -2387,127 +2387,127 @@ Slice::ClassGenerator::generate(const ClassDefPtr& c)
 
     if(_indexCount > 0 && operations.size() >= _indexCount)
     {
-	start("h2");
-	_out << "Operation Index";
-	end();
-	start("dl");
-	for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, c, false);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Operation Index";
+        end();
+        start("dl");
+        for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, c, false);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     DataMemberList dataMembers = c->dataMembers();
 
     if(_indexCount > 0 && dataMembers.size() >= _indexCount)
     {
-	start("h2");
-	_out << "Data Member Index";
-	end();
-	start("dl");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, c, false);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Data Member Index";
+        end();
+        start("dl");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, c, false);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, c, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     if(!operations.empty())
     {
-	start("h2");
-	_out << "Operations";
-	end();
-	for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
-	{
-	    start("h3", "Synopsis");
-	    TypePtr returnType = (*q)->returnType();
-	    _out << (returnType ? toString(returnType, c, false) : string("void")) << " "
-		 << toString(*q, c) << "(";
-	    ParamDeclList params = (*q)->parameters();
-	    ParamDeclList::const_iterator r = params.begin();
-	    while(r != params.end())
-	    {
-		if((*r)->isOutParam())
-		{
-		    _out << "out ";
-		}
-		_out << toString((*r)->type(), ContainedPtr::dynamicCast(*q)->container(), false)
-		     << " " << (*r)->name();
-		if(++r != params.end())
-		{
-		    _out << ", ";
-		}
-	    }
-	    _out << ")";
-	    ExceptionList throws = (*q)->throws();
-	    if(!throws.empty())
-	    {
-		_out << " throws ";
-		ExceptionList::const_iterator t = throws.begin();
-		while(t != throws.end())
-		{
-		    _out << toString(*t, c, false);
-		    if(++t != throws.end())
-		    {
-			_out << ", ";
-		    }
-		}
-	    }
-	    end();
+        start("h2");
+        _out << "Operations";
+        end();
+        for(OperationList::const_iterator q = operations.begin(); q != operations.end(); ++q)
+        {
+            start("h3", "Synopsis");
+            TypePtr returnType = (*q)->returnType();
+            _out << (returnType ? toString(returnType, c, false) : string("void")) << " "
+                 << toString(*q, c) << "(";
+            ParamDeclList params = (*q)->parameters();
+            ParamDeclList::const_iterator r = params.begin();
+            while(r != params.end())
+            {
+                if((*r)->isOutParam())
+                {
+                    _out << "out ";
+                }
+                _out << toString((*r)->type(), ContainedPtr::dynamicCast(*q)->container(), false)
+                     << " " << (*r)->name();
+                if(++r != params.end())
+                {
+                    _out << ", ";
+                }
+            }
+            _out << ")";
+            ExceptionList throws = (*q)->throws();
+            if(!throws.empty())
+            {
+                _out << " throws ";
+                ExceptionList::const_iterator t = throws.begin();
+                while(t != throws.end())
+                {
+                    _out << toString(*t, c, false);
+                    if(++t != throws.end())
+                    {
+                        _out << ", ";
+                    }
+                }
+            }
+            end();
 
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This operation is deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
-	    printComment(*q, c, reason);
-	}
+            string reason;
+            metadata.clear();
+            if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This operation is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
+            printComment(*q, c, reason);
+        }
     }
 
     if(!dataMembers.empty())
     {
-	start("h2");
-	_out << "Data Members";
-	end();
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("h3", "Synopsis");
-	    printMetaData(*q);
-	    TypePtr type = (*q)->type();
-	    _out << toString(type, c, false) << " " << toString(*q, c) << ";";
-	    end();
+        start("h2");
+        _out << "Data Members";
+        end();
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("h3", "Synopsis");
+            printMetaData(*q);
+            TypePtr type = (*q)->type();
+            _out << toString(type, c, false) << " " << toString(*q, c) << ";";
+            end();
 
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This member is deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            string reason;
+            metadata.clear();
+            if(deprecatedClass || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This member is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, c, reason);
-	}
+            printComment(*q, c, reason);
+        }
     }
 
     _out << nl << "<hr>";
@@ -2543,11 +2543,11 @@ Slice::StructGenerator::generate(const StructPtr& s)
     bool deprecatedException = s->findMetaData("deprecate", metadata);
     if(deprecatedException)
     {
-	deprecateReason = "This module is deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This module is deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     start("h2");
@@ -2558,7 +2558,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
     printMetaData(s);
     if(s->isLocal())
     {
-	_out << "local ";
+        _out << "local ";
     }
     _out << "struct " << s->name();
     end();
@@ -2569,55 +2569,55 @@ Slice::StructGenerator::generate(const StructPtr& s)
 
     if(_indexCount > 0 && dataMembers.size() >= _indexCount)
     {
-	start("h2");
-	_out << "Data Member Index";
-	end();
-	start("dl");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << toString(*q, s, false);
-	    end();
-	    start("dd");
-	    string metadata;
-	    printSummary(*q, s, (*q)->findMetaData("deprecate", metadata));
-	    end();
-	}
-	end();
+        start("h2");
+        _out << "Data Member Index";
+        end();
+        start("dl");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << toString(*q, s, false);
+            end();
+            start("dd");
+            string metadata;
+            printSummary(*q, s, (*q)->findMetaData("deprecate", metadata));
+            end();
+        }
+        end();
     }
 
     if(!dataMembers.empty())
     {
-	start("h2");
-	_out << "Data Members";
-	end();
-	start("dl");
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    printMetaData(*q);
-	    TypePtr type = (*q)->type();
-	    _out << toString(type, s, false) << " " << toString(*q, s) << ";";
-	    end();
+        start("h2");
+        _out << "Data Members";
+        end();
+        start("dl");
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            start("dt", "Symbol");
+            printMetaData(*q);
+            TypePtr type = (*q)->type();
+            _out << toString(type, s, false) << " " << toString(*q, s) << ";";
+            end();
 
-	    start("dd");
-	    string reason;
-	    metadata.clear();
-	    if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
-	    {
-		reason = "This member is deprecated.";
-		if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-		{
-		    reason = metadata.substr(10);
-		}
-	    }
+            start("dd");
+            string reason;
+            metadata.clear();
+            if(deprecatedException || (*q)->findMetaData("deprecate", metadata))
+            {
+                reason = "This member is deprecated.";
+                if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+                {
+                    reason = metadata.substr(10);
+                }
+            }
 
-	    printComment(*q, s, reason);
-	    end();
-	}
-	end();
+            printComment(*q, s, reason);
+            end();
+        }
+        end();
     }
-	
+        
     _out << nl << "<hr>";
     printHeaderFooter(s);
 
@@ -2651,11 +2651,11 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     bool deprecatedException = e->findMetaData("deprecate", metadata);
     if(deprecatedException)
     {
-	deprecateReason = "This enumeration is deprecated.";
-	if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
-	{
-	    deprecateReason = metadata.substr(10);
-	}
+        deprecateReason = "This enumeration is deprecated.";
+        if(metadata.find("deprecate:") == 0 && metadata.size() > 10)
+        {
+            deprecateReason = metadata.substr(10);
+        }
     }
 
     start("h2");
@@ -2666,7 +2666,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     printMetaData(e);
     if(e->isLocal())
     {
-	_out << "local ";
+        _out << "local ";
     }
     _out << "enum " << e->name();
     end();
@@ -2676,27 +2676,27 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     EnumeratorList enumerators = e->getEnumerators();
     if(!enumerators.empty())
     {
-	start("h2");
-	_out << "Enumerators";
-	end();
-	start("dl");
-	for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
-	{
-	    start("dt", "Symbol");
-	    _out << (*q)->name();
-	    end();
+        start("h2");
+        _out << "Enumerators";
+        end();
+        start("dl");
+        for(EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+        {
+            start("dt", "Symbol");
+            _out << (*q)->name();
+            end();
 
-	    start("dd");
-	    string reason;
-	    //
-	    // Enumerators do not support metadata.
-	    //
-	    printComment(*q, e->container(), reason, false);
-	    end();
-	}
-	end();
+            start("dd");
+            string reason;
+            //
+            // Enumerators do not support metadata.
+            //
+            printComment(*q, e->container(), reason, false);
+            end();
+        }
+        end();
     }
-	
+        
     closeDoc();
 
     _out << nl << "<hr>";

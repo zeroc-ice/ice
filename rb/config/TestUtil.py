@@ -65,15 +65,15 @@ except getopt.GetoptError:
 
 for o, a in opts:
     if o == "--debug":
-    	debug = 1
+        debug = 1
     if o == "--protocol":
-	protocol = a
+        protocol = a
     if o == "--compress":
-	compress = 1
+        compress = 1
     if o == "--threadPerConnection":
-	threadPerConnection = 1
+        threadPerConnection = 1
     if o == "--host":
-	host = a
+        host = a
 
 #
 # Check for ICE_HOME.
@@ -141,13 +141,13 @@ def isDarwin():
 def closePipe(pipe):
 
     try:
-	status = pipe.close()
+        status = pipe.close()
     except IOError, ex:
-	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
-	if ex.errno == errno.ECHILD:
-	    status = 0
-	else:
-	    raise
+        # TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
+        if ex.errno == errno.ECHILD:
+            status = 0
+        else:
+            raise
 
     return status
 
@@ -158,22 +158,22 @@ class ReaderThread(Thread):
 
     def run(self):
 
-	#print "started: " + str(self) + ": " + str(thread.get_ident())
+        #print "started: " + str(self) + ": " + str(thread.get_ident())
         try:
             while 1:
                 line = self.pipe.readline()
                 if not line: break
-		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
-		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
-		    print "server: " + line,
+                # Suppress "adapter ready" messages. Under windows the eol isn't \n.
+                if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+                    print "server: " + line,
         except IOError:
             pass
 
-	self.status = closePipe(self.pipe)
-	#print "terminating: " + str(self)
+        self.status = closePipe(self.pipe)
+        #print "terminating: " + str(self)
 
     def getStatus(self):
-	return self.status
+        return self.status
 
 serverPids = []
 serverThreads = []
@@ -183,18 +183,18 @@ def joinServers():
     global serverThreads
     global allServerThreads
     for t in serverThreads:
-	t.join()
-	allServerThreads.append(t)
+        t.join()
+        allServerThreads.append(t)
     serverThreads = []
 
 def serverStatus():
     global allServerThreads
     joinServers()
     for t in allServerThreads:
-    	status = t.getStatus()
-    	if status:
-	    print "server " + str(t) + " status: " + str(status)
-    	    return status
+        status = t.getStatus()
+        if status:
+            print "server " + str(t) + " status: " + str(status)
+            return status
     return 0
 
 def killServers():
@@ -232,32 +232,32 @@ def getServerPid(pipe):
     global serverThreads
 
     while 1:
-	output = pipe.readline().strip()
-	if not output:
-	    print "failed!"
-	    killServers()
-	    sys.exit(1)
-    	if output.startswith("warning: "):
-    	    continue
-	break
+        output = pipe.readline().strip()
+        if not output:
+            print "failed!"
+            killServers()
+            sys.exit(1)
+        if output.startswith("warning: "):
+            continue
+        break
 
     try:
-	serverPids.append(int(output))
+        serverPids.append(int(output))
     except ValueError:
-	print "Output is not a PID: " + output
-	raise
+        print "Output is not a PID: " + output
+        raise
 
 def ignorePid(pipe):
 
     while 1:
-	output = pipe.readline().strip()
-	if not output:
-	    print "failed!"
-	    killServers()
-	    sys.exit(1)
-    	if output.startswith("warning: "):
-    	    continue
-	break
+        output = pipe.readline().strip()
+        if not output:
+            print "failed!"
+            killServers()
+            sys.exit(1)
+        if output.startswith("warning: "):
+            continue
+        break
 
 def getAdapterReady(pipe, createThread = True):
     global serverThreads
@@ -271,9 +271,9 @@ def getAdapterReady(pipe, createThread = True):
 
     # Start a thread for this server.
     if createThread:
-	serverThread = ReaderThread(pipe)
-	serverThread.start()
-	serverThreads.append(serverThread)
+        serverThread = ReaderThread(pipe)
+        serverThread.start()
+        serverThreads.append(serverThread)
 
 def waitServiceReady(pipe, token, createThread = True):
     global serverThreads
@@ -288,9 +288,9 @@ def waitServiceReady(pipe, token, createThread = True):
 
     # Start a thread for this server.
     if createThread:
-	serverThread = ReaderThread(pipe)
-	serverThread.start()
-	serverThreads.append(serverThread)
+        serverThread = ReaderThread(pipe)
+        serverThread.start()
+        serverThreads.append(serverThread)
 
 def printOutputFromPipe(pipe):
 
@@ -315,31 +315,31 @@ abstoplevel = os.path.abspath(toplevel)
 
 if isWin32():
     if isCygwin():
-	os.environ["PATH"] = os.path.join(abstoplevel, "bin") + ":" + os.path.join(ice_home, "bin") + ":" + \
-	    os.getenv("PATH", "")
+        os.environ["PATH"] = os.path.join(abstoplevel, "bin") + ":" + os.path.join(ice_home, "bin") + ":" + \
+            os.getenv("PATH", "")
     else:
-	os.environ["PATH"] = os.path.join(abstoplevel, "bin") + ";" + os.path.join(ice_home, "bin") + ";" + \
-	    os.getenv("PATH", "")
+        os.environ["PATH"] = os.path.join(abstoplevel, "bin") + ";" + os.path.join(ice_home, "bin") + ";" + \
+            os.getenv("PATH", "")
 else:
     os.environ["PATH"] = os.path.join(ice_home, "bin") + ":" + os.getenv("PATH", "")
     if isHpUx():
-	os.environ["SHLIB_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
-	    os.getenv("SHLIB_PATH", "")
+        os.environ["SHLIB_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+            os.getenv("SHLIB_PATH", "")
     elif isDarwin():
-	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
-	    os.getenv("DYLD_LIBRARY_PATH", "")
+        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+            os.getenv("DYLD_LIBRARY_PATH", "")
     elif isAIX():
-	os.environ["LIBPATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
-	    os.getenv("LIBPATH", "")
+        os.environ["LIBPATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+            os.getenv("LIBPATH", "")
     else:
-	os.environ["LD_LIBRARY_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
-	    os.getenv("LD_LIBRARY_PATH", "")
-	os.environ["LD_LIBRARY_PATH_64"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
-	    os.getenv("LD_LIBRARY_PATH_64", "")
+        os.environ["LD_LIBRARY_PATH"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+            os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["LD_LIBRARY_PATH_64"] = os.path.join(abstoplevel, "lib") + ":" + os.path.join(ice_home, "lib") + ":" + \
+            os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
-    certs		 = os.path.abspath(os.path.join(toplevel, "certs"))
-    plugin		 = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
+    certs                = os.path.abspath(os.path.join(toplevel, "certs"))
+    plugin               = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.DefaultDir=" + certs + \
                            " --IceSSL.CertFile=c_rsa1024_pub.pem" + \
@@ -379,7 +379,7 @@ commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullH
                       " --Ice.ThreadPool.Server.SizeWarn=0"
 
 commonCollocatedOptions = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-			  " --Ice.ThreadPool.Server.SizeWarn=0"
+                          " --Ice.ThreadPool.Server.SizeWarn=0"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions
@@ -399,7 +399,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     print "starting " + serverName + "...",
     serverCmd = server + serverOptions + additionalServerOptions
     if debug:
-	print "(" + serverCmd + ")",
+        print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
@@ -408,7 +408,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     print "starting " + clientName + "...",
     clientCmd = "ruby " + client + clientOptions + additionalClientOptions
     if debug:
-	print "(" + clientCmd + ")",
+        print "(" + clientCmd + ")",
     clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
@@ -416,10 +416,10 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
 
     clientStatus = closePipe(clientPipe)
     if clientStatus:
-	killServers()
+        killServers()
 
     if clientStatus or serverStatus():
-	sys.exit(1)
+        sys.exit(1)
 
     os.chdir(cwd)
 

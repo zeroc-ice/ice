@@ -47,24 +47,24 @@ public:
     bool
     match(const T& candidate) const
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	//
-	// Empty vectors mean no filtering, so all matches will succeed.
-	//
-	if(_items.size() == 0)
-	{
-	    return true;
-	}
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        //
+        // Empty vectors mean no filtering, so all matches will succeed.
+        //
+        if(_items.size() == 0)
+        {
+            return true;
+        }
 
-	return binary_search(_items.begin(), _items.end(), candidate);
+        return binary_search(_items.begin(), _items.end(), candidate);
     }
 
     bool 
     empty() const
     {
-	return _items.size() == 0;
+        return _items.size() == 0;
     }
-	
+        
 private:
     
     std::vector<T> _items;
@@ -128,36 +128,36 @@ FilterT<T, P>::remove(const std::vector<T>& deletions, const Ice::Current&)
 
     while(r != toRemove.end())
     {
-	iterator i = mark;
-	while(i != _items.end() && r != toRemove.end())
-	{
-	    if(*r == *i)
-	    {
-		//
-		// We want this list to be in LIFO order because we are
-		// going to erase things from the tail forward.
-		//
-		deleteList.push_front(i);
-		++i;
-		++r;
-		mark = i;
-	    }
-	    else
-	    {
-		++i;
-	    }
-	}
+        iterator i = mark;
+        while(i != _items.end() && r != toRemove.end())
+        {
+            if(*r == *i)
+            {
+                //
+                // We want this list to be in LIFO order because we are
+                // going to erase things from the tail forward.
+                //
+                deleteList.push_front(i);
+                ++i;
+                ++r;
+                mark = i;
+            }
+            else
+            {
+                ++i;
+            }
+        }
 
-	if(r == toRemove.end())
-	{
-	    break;
-	}
-	++r;
+        if(r == toRemove.end())
+        {
+            break;
+        }
+        ++r;
     }
 
     for(literator i = deleteList.begin(); i != deleteList.end(); ++i)
     {
-	_items.erase(*i);
+        _items.erase(*i);
     }
 }
 

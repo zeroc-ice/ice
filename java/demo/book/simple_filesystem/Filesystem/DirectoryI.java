@@ -16,23 +16,23 @@ public final class DirectoryI extends _DirectoryDisp
     public
     DirectoryI(String name, DirectoryI parent)
     {
-	_name = name;
-	_parent = parent;
+        _name = name;
+        _parent = parent;
 
-	// Create an identity. The parent has the fixed identity "/"
-	//
-	Ice.Identity myID = 
-	    _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+        // Create an identity. The parent has the fixed identity "/"
+        //
+        Ice.Identity myID = 
+            _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
 
-	// Add the identity to the object adapter
-	//
-	_adapter.add(this, myID);
+        // Add the identity to the object adapter
+        //
+        _adapter.add(this, myID);
 
-	// Create a proxy for the new node and add it as a child to the parent
-	//
-	NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
-	if (_parent != null)
-	    _parent.addChild(thisNode);
+        // Create a proxy for the new node and add it as a child to the parent
+        //
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
+        if (_parent != null)
+            _parent.addChild(thisNode);
     }
 
     // Slice Node::name() operation
@@ -40,7 +40,7 @@ public final class DirectoryI extends _DirectoryDisp
     public String
     name(Ice.Current current)
     {
-	return _name;
+        return _name;
     }
 
     // Slice Directory::list() operation
@@ -48,9 +48,9 @@ public final class DirectoryI extends _DirectoryDisp
     public NodePrx[]
     list(Ice.Current current)
     {
-	NodePrx[] result = new NodePrx[_contents.size()];
-	_contents.toArray(result);
-	return result;
+        NodePrx[] result = new NodePrx[_contents.size()];
+        _contents.toArray(result);
+        return result;
     }
 
     // addChild is called by the child in order to add
@@ -59,7 +59,7 @@ public final class DirectoryI extends _DirectoryDisp
     void
     addChild(NodePrx child)
     {
-	_contents.add(child);
+        _contents.add(child);
     }
 
     public static Ice.ObjectAdapter _adapter;

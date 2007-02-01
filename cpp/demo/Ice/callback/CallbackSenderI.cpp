@@ -20,11 +20,11 @@ CallbackSenderI::initiateCallback(const CallbackReceiverPrx& proxy, const Curren
     cout << "initiating callback" << endl;
     try
     {
-	proxy->callback(current.ctx);
+        proxy->callback(current.ctx);
     }
     catch(const Exception& ex)
     {
-	cout << ex << endl;
+        cout << ex << endl;
     }
 }
 
@@ -34,10 +34,10 @@ CallbackSenderI::shutdown(const Current& c)
     cout << "shutting down..." << endl;
     try
     {
-	c.adapter->getCommunicator()->shutdown();
+        c.adapter->getCommunicator()->shutdown();
     }
     catch(const Exception& ex)
     {
-	cout << ex << endl;
+        cout << ex << endl;
     }
 }

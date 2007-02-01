@@ -176,10 +176,10 @@ class ThreadNotification(object):
 #
 class InitializationData(object):
     def __init__(self):
-	self.properties = None
-	self.logger = None
-	#self.stats = None # Stats not currently supported in Python.
-	self.threadHook = None
+        self.properties = None
+        self.logger = None
+        #self.stats = None # Stats not currently supported in Python.
+        self.threadHook = None
 
 #
 # Communicator wrapper.
@@ -187,7 +187,7 @@ class InitializationData(object):
 class CommunicatorI(Communicator):
     def __init__(self, impl):
         self._impl = impl
-	impl._setWrapper(self)
+        impl._setWrapper(self)
 
     def destroy(self):
         self._impl.destroy()
@@ -255,10 +255,10 @@ class CommunicatorI(Communicator):
 
     def getLogger(self):
         logger = self._impl.getLogger()
-	if isinstance(logger, Logger):
-	    return logger
-	else:
-	    return LoggerI(logger)
+        if isinstance(logger, Logger):
+            return logger
+        else:
+            return LoggerI(logger)
 
     def getStats(self):
         raise RuntimeError("operation `getStats' not implemented")
@@ -311,7 +311,7 @@ def initializeWithLogger(args, logger):
 #
 def initializeWithPropertiesAndLogger(args, properties, logger):
     warnings.warn("initializeWithPropertiesAndLogger has been deprecated, use initialize instead",
-		  DeprecationWarning, 2)
+                  DeprecationWarning, 2)
     data = InitializationData()
     data.properties = properties
     data.logger = logger
@@ -546,82 +546,82 @@ class CtrlCHandler(threading.Thread):
     _self = None
 
     def __init__(self):
-	threading.Thread.__init__(self)
+        threading.Thread.__init__(self)
 
         if CtrlCHandler._self != None:
             raise RuntimeError("Only a single instance of a CtrlCHandler can be instantiated.")
-	CtrlCHandler._self = self
+        CtrlCHandler._self = self
 
-	# State variables. These are not class static variables.
-	self._condVar = threading.Condition()
-	self._queue = []
-	self._done = False
-	self._callback = None
+        # State variables. These are not class static variables.
+        self._condVar = threading.Condition()
+        self._queue = []
+        self._done = False
+        self._callback = None
 
-    	#
-	# Setup and install signal handlers
-	#
+        #
+        # Setup and install signal handlers
+        #
         if signal.__dict__.has_key('SIGHUP'):
             signal.signal(signal.SIGHUP, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGINT, CtrlCHandler.signalHandler)
         signal.signal(signal.SIGTERM, CtrlCHandler.signalHandler)
 
-	# Start the thread once everything else is done.
-	self.start()
+        # Start the thread once everything else is done.
+        self.start()
 
     # Dequeue and dispatch signals.
     def run(self):
-	while True:
-	    self._condVar.acquire()
-	    while len(self._queue) == 0 and not self._done:
-		self._condVar.wait()
-	    if self._done:
-		self._condVar.release()
-		break
-	    sig, callback = self._queue.pop()
-	    self._condVar.release()
-	    if callback:
-		callback(sig)
+        while True:
+            self._condVar.acquire()
+            while len(self._queue) == 0 and not self._done:
+                self._condVar.wait()
+            if self._done:
+                self._condVar.release()
+                break
+            sig, callback = self._queue.pop()
+            self._condVar.release()
+            if callback:
+                callback(sig)
 
     # Destroy the object. Wait for the thread to terminate and cleanup
     # the internal state.
     def destroy(self):
-	self._condVar.acquire()
-	self._done = True
-	self._condVar.notify()
-	self._condVar.release()
+        self._condVar.acquire()
+        self._done = True
+        self._condVar.notify()
+        self._condVar.release()
 
-	# Wait for the thread to terminate
-	self.join()
-	#
-	# Cleanup any state set by the CtrlCHandler.
-	#
+        # Wait for the thread to terminate
+        self.join()
+        #
+        # Cleanup any state set by the CtrlCHandler.
+        #
         if signal.__dict__.has_key('SIGHUP'):
             signal.signal(signal.SIGHUP, signal.SIG_DFL)
         signal.signal(signal.SIGINT, signal.SIG_DFL)
         signal.signal(signal.SIGTERM, signal.SIG_DFL)
-	self._self = None
+        self._self = None
 
     def setCallback(self, callback):
-	self._condVar.acquire()
-    	self._callback = callback
-	self._condVar.release()
+        self._condVar.acquire()
+        self._callback = callback
+        self._condVar.release()
 
     def getCallback(self):
-	self._condVar.acquire()
-    	callback = self._callback
-	self._condVar.release()
-    	return callback
+        self._condVar.acquire()
+        callback = self._callback
+        self._condVar.release()
+        return callback
 
     # Private. Only called by the signal handling mechanism.
     def signalHandler(self, sig, frame):
-	self._self._condVar.acquire()
-	#
-	# The signal AND the current callback are queued together.
-	#
-	self._self._queue.append([sig, self._self._callback])
-	self._self._condVar.notify()
-	self._self._condVar.release()
+        self._self._condVar.acquire()
+        #
+        # The signal AND the current callback are queued together.
+        #
+        self._self._queue.append([sig, self._self._callback])
+        self._self._condVar.notify()
+        self._self._condVar.release()
     signalHandler = classmethod(signalHandler)
 
 #
@@ -643,22 +643,22 @@ class Application(object):
         # Install our handler for the signals we are interested in. We assume main()
         # is called from the main thread.
         #
-	Application._ctrlCHandler = CtrlCHandler()
+        Application._ctrlCHandler = CtrlCHandler()
 
         try:
-	    status = 0
+            status = 0
 
-	    Application._interrupted = False
-	    Application._appName = args[0]
+            Application._interrupted = False
+            Application._appName = args[0]
 
-	    if not initData:
-	        initData = InitializationData()
+            if not initData:
+                initData = InitializationData()
             if configFile:
                 initData.properties = createProperties()
                 initData.properties.load(configFile)
-	    Application._application = self
-	    Application._communicator = initialize(args, initData)
-	    Application._destroyed = False
+            Application._application = self
+            Application._communicator = initialize(args, initData)
+            Application._destroyed = False
 
             #
             # Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
@@ -675,27 +675,27 @@ class Application(object):
             traceback.print_exc()
             status = 1
 
-	#
-	# Don't want any new interrupt and at this point (post-run),
-	# it would not make sense to release a held signal to run
-	# shutdown or destroy.
-	#
-	Application.ignoreInterrupt()
+        #
+        # Don't want any new interrupt and at this point (post-run),
+        # it would not make sense to release a held signal to run
+        # shutdown or destroy.
+        #
+        Application.ignoreInterrupt()
 
         Application._condVar.acquire()
-	while Application._callbackInProgress:
-	    Application._condVar.wait()
-	if Application._destroyed:
-	    Application._communicator = None
-	else:
-	    Application._destroyed = True
-	    #
-	    # And _communicator != 0, meaning will be destroyed
-	    # next, _destroyed = true also ensures that any
-	    # remaining callback won't do anything
-	    #
-	Application._application = None
-	Application._condVar.release()
+        while Application._callbackInProgress:
+            Application._condVar.wait()
+        if Application._destroyed:
+            Application._communicator = None
+        else:
+            Application._destroyed = True
+            #
+            # And _communicator != 0, meaning will be destroyed
+            # next, _destroyed = true also ensures that any
+            # remaining callback won't do anything
+            #
+        Application._application = None
+        Application._condVar.release()
 
         if Application._communicator:
             try:
@@ -706,12 +706,12 @@ class Application(object):
 
             Application._communicator = None
 
-	#
-	# Set _ctrlCHandler to 0 only once communicator.destroy() has
-	# completed.
-	# 
-	Application._ctrlCHandler.destroy()
-	Application._ctrlCHandler = None
+        #
+        # Set _ctrlCHandler to 0 only once communicator.destroy() has
+        # completed.
+        # 
+        Application._ctrlCHandler.destroy()
+        Application._ctrlCHandler = None
 
         return status
 
@@ -719,7 +719,7 @@ class Application(object):
         raise RuntimeError('run() not implemented')
 
     def interruptCallback(self, sig):
-    	pass
+        pass
 
     def appName(self):
         return self._appName
@@ -734,7 +734,7 @@ class Application(object):
         if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
             self._released = True
             self._condVar.notify()
-	self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
+        self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
         self._condVar.release()
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
@@ -743,7 +743,7 @@ class Application(object):
         if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
             self._released = True
             self._condVar.notify()
-	self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
+        self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
         self._condVar.release()
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
@@ -752,7 +752,7 @@ class Application(object):
         if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
             self._released = True
             self._condVar.notify()
-	self._ctrlCHandler.setCallback(None)
+        self._ctrlCHandler.setCallback(None)
         self._condVar.release()
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
@@ -761,7 +761,7 @@ class Application(object):
         if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
             self._released = True
             self._condVar.notify()
-	self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
+        self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
         self._condVar.release()
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
@@ -802,30 +802,30 @@ class Application(object):
         self._condVar.acquire()
         while not self._released:
             self._condVar.wait()
-    	if self._destroyed:
-	    #
-	    # Being destroyed by main thread
-	    #
-	    self._condVar.release()
-	    return
-    	callback = self._ctrlCHandler.getCallback()
+        if self._destroyed:
+            #
+            # Being destroyed by main thread
+            #
+            self._condVar.release()
+            return
+        callback = self._ctrlCHandler.getCallback()
         self._condVar.release()
-    	if callback:
-    	    callback(sig)
+        if callback:
+            callback(sig)
     holdInterruptCallback = classmethod(holdInterruptCallback)
 
     def destroyOnInterruptCallback(self, sig):
         self._condVar.acquire()
-    	if self._destroyed or self._nohup and sig == signal.SIGHUP:
-	    #
-	    # Being destroyed by main thread, or nohup.
-	    #
-	    self._condVar.release()
-	    return
+        if self._destroyed or self._nohup and sig == signal.SIGHUP:
+            #
+            # Being destroyed by main thread, or nohup.
+            #
+            self._condVar.release()
+            return
 
-	self._callbackInProcess = True
+        self._callbackInProcess = True
         self._interrupted = True
-	self._destroyed = True
+        self._destroyed = True
         self._condVar.release()
 
         try:
@@ -835,21 +835,21 @@ class Application(object):
             traceback.print_exc()
 
         self._condVar.acquire()
-	self._callbackInProcess = False
+        self._callbackInProcess = False
         self._condVar.notify()
         self._condVar.release()
     destroyOnInterruptCallback = classmethod(destroyOnInterruptCallback)
 
     def shutdownOnInterruptCallback(self, sig):
         self._condVar.acquire()
-    	if self._destroyed or self._nohup and sig == signal.SIGHUP:
-	    #
-	    # Being destroyed by main thread, or nohup.
-	    #
-	    self._condVar.release()
-	    return
+        if self._destroyed or self._nohup and sig == signal.SIGHUP:
+            #
+            # Being destroyed by main thread, or nohup.
+            #
+            self._condVar.release()
+            return
 
-	self._callbackInProcess = True
+        self._callbackInProcess = True
         self._interrupted = True
         self._condVar.release()
 
@@ -860,23 +860,23 @@ class Application(object):
             traceback.print_exc()
 
         self._condVar.acquire()
-	self._callbackInProcess = False
+        self._callbackInProcess = False
         self._condVar.notify()
         self._condVar.release()
     shutdownOnInterruptCallback = classmethod(shutdownOnInterruptCallback)
 
     def callbackOnInterruptCallback(self, sig):
         self._condVar.acquire()
-    	if self._destroyed:
-	    #
-	    # Being destroyed by main thread.
-	    #
-	    self._condVar.release()
-	    return
-	# For SIGHUP the user callback is always called. It can decide
-	# what to do.
+        if self._destroyed:
+            #
+            # Being destroyed by main thread.
+            #
+            self._condVar.release()
+            return
+        # For SIGHUP the user callback is always called. It can decide
+        # what to do.
 
-	self._callbackInProcess = True
+        self._callbackInProcess = True
         self._interrupted = True
         self._condVar.release()
 
@@ -887,7 +887,7 @@ class Application(object):
             traceback.print_exc()
 
         self._condVar.acquire()
-	self._callbackInProcess = False
+        self._callbackInProcess = False
         self._condVar.notify()
         self._condVar.release()
 

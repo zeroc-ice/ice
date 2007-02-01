@@ -32,7 +32,7 @@ public:
     virtual ~AdminSessionI();
 
     virtual Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&, 
-						      const RegistryIPtr&);
+                                                      const RegistryIPtr&);
     virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&, const RegistryIPtr&);
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
@@ -40,10 +40,10 @@ public:
     virtual AdminPrx getAdmin(const Ice::Current& = Ice::Current()) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
-			      const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
+                              const AdapterObserverPrx&, const ObjectObserverPrx&, const Ice::Current&);
 
     virtual void setObserversByIdentity(const Ice::Identity&, const Ice::Identity&, const Ice::Identity&,
-					const Ice::Identity&, const Ice::Identity&, const Ice::Current&);
+                                        const Ice::Identity&, const Ice::Identity&, const Ice::Current&);
 
     virtual int startUpdate(const Ice::Current&);
     virtual void finishUpdate(const Ice::Current&);
@@ -121,7 +121,7 @@ public:
 
     AdminSSLSessionManagerI(const AdminSessionFactoryPtr&);
     virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
-					const Ice::Current&);
+                                        const Ice::Current&);
 
 private:
     

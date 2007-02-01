@@ -22,15 +22,15 @@ public:
     virtual bool
     authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
     {
-	IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-	test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-	    "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,"
-	     "L=Palm Beach Gardens,ST=Florida,C=US"));
-	test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-	    "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
-	test(cert->checkValidity());
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+        test(cert->getIssuerDN() == IceSSL::DistinguishedName(
+            "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,"
+             "L=Palm Beach Gardens,ST=Florida,C=US"));
+        test(cert->getSubjectDN() == IceSSL::DistinguishedName(
+            "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
+        test(cert->checkValidity());
 
-	return true;
+        return true;
     }
 };
 
@@ -45,20 +45,20 @@ public:
     virtual void
     destroy(const Ice::Current& current)
     {
-    	//
-	// If SSL, test that Glacier2.AddSSLContext is working.
-	//
+        //
+        // If SSL, test that Glacier2.AddSSLContext is working.
+        //
         if(_ssl)
-	{
-	    Ice::Context::const_iterator p = current.ctx.find("SSL.Active");
-	    assert(p != current.ctx.end() && p->second == "1");
-	}
+        {
+            Ice::Context::const_iterator p = current.ctx.find("SSL.Active");
+            assert(p != current.ctx.end() && p->second == "1");
+        }
 
-	current.adapter->remove(current.id);
-	if(_shutdown)
-	{
-	    current.adapter->getCommunicator()->shutdown();
-	}
+        current.adapter->remove(current.id);
+        if(_shutdown)
+        {
+            current.adapter->getCommunicator()->shutdown();
+        }
     }
 private:
     const bool _shutdown;
@@ -72,8 +72,8 @@ public:
     virtual Glacier2::SessionPrx
     create(const string& userId, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-	Glacier2::SessionPtr session = new SessionI(false, false);
-	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+        Glacier2::SessionPtr session = new SessionI(false, false);
+        return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     }
 };
 
@@ -84,26 +84,26 @@ public:
     virtual Glacier2::SessionPrx
     create(const Glacier2::SSLInfo& info, const Glacier2::SessionControlPrx&, const Ice::Current& current)
     {
-	test(info.remoteHost == "127.0.0.1");
-	test(info.localHost == "127.0.0.1");
-	test(info.localPort == 12348);
-	try
-	{
-	    IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-	    test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-		"emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
-		"ST=Florida,C=US"));
-	    test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-		"CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
-	    test(cert->checkValidity());
-	}
-	catch(const IceSSL::CertificateReadException&)
-	{
-	    test(false);
-	}
+        test(info.remoteHost == "127.0.0.1");
+        test(info.localHost == "127.0.0.1");
+        test(info.localPort == 12348);
+        try
+        {
+            IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+            test(cert->getIssuerDN() == IceSSL::DistinguishedName(
+                "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
+                "ST=Florida,C=US"));
+            test(cert->getSubjectDN() == IceSSL::DistinguishedName(
+                "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
+            test(cert->checkValidity());
+        }
+        catch(const IceSSL::CertificateReadException&)
+        {
+            test(false);
+        }
 
-	Glacier2::SessionPtr session = new SessionI(true, true);
-	return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
+        Glacier2::SessionPtr session = new SessionI(true, true);
+        return Glacier2::SessionPrx::uncheckedCast(current.adapter->addWithUUID(session));
     }
 };
 
@@ -125,7 +125,7 @@ int
 SessionServer::run(int argc, char* argv[])
 {
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
-	"SessionServer", "tcp -h 127.0.0.1 -p 12350 -t 10000");
+        "SessionServer", "tcp -h 127.0.0.1 -p 12350 -t 10000");
     adapter->add(new SSLPermissionsVerifierI, communicator()->stringToIdentity("sslverifier"));
     adapter->add(new SessionManagerI, communicator()->stringToIdentity("sessionmanager"));
     adapter->add(new SSLSessionManagerI, communicator()->stringToIdentity("sslsessionmanager"));

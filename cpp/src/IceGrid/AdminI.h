@@ -39,9 +39,9 @@ public:
     virtual void updateApplication(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
     virtual void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, 
-				   const Ice::Current&);
+                                   const Ice::Current&);
     virtual void patchApplication_async(const AMD_Admin_patchApplicationPtr&, const std::string&, bool, 
-					const Ice::Current&);
+                                        const Ice::Current&);
     virtual ApplicationInfo getApplicationInfo(const ::std::string&, const Ice::Current&) const;
     virtual ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const;
     virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;

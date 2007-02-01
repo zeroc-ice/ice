@@ -178,14 +178,14 @@ main(int, char**)
     badQuoteCommands.push_back("-Dir=$'test");
     for(vector<string>::const_iterator p = badQuoteCommands.begin(); p != badQuoteCommands.end(); ++p)
     {
-	try
-	{
-	    IceUtil::Options::split(*p);
-	    test(false);
-	}
-	catch(const IceUtil::BadOptException&)
-	{
-	}
+        try
+        {
+            IceUtil::Options::split(*p);
+            test(false);
+        }
+        catch(const IceUtil::BadOptException&)
+        {
+        }
     }
     cout << "ok" << endl;
 

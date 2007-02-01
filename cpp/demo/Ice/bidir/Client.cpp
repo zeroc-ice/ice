@@ -21,7 +21,7 @@ public:
     virtual void
     callback(Ice::Int num, const Ice::Current&)
     {
-	cout << "received callback #" << num << endl;
+        cout << "received callback #" << num << endl;
     }
 };
 
@@ -46,8 +46,8 @@ CallbackClient::run(int argc, char* argv[])
         CallbackSenderPrx::checkedCast(communicator()->propertyToProxy("Callback.Client.CallbackServer"));
     if(!server)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("");

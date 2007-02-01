@@ -34,244 +34,244 @@ class ServerEditor extends CommunicatorEditor
 {
     public JToolBar getToolBar()
     {
-	if(_toolBar == null)
-	{
-	    _toolBar = new ToolBar();
-	}
-	return _toolBar;
+        if(_toolBar == null)
+        {
+            _toolBar = new ToolBar();
+        }
+        return _toolBar;
     }
 
 
     ServerEditor(Coordinator c)
     {
-	_coordinator = c;
-	_currentState.setEditable(false);
-	_currentPid.setEditable(false);
-	_enabled.setEnabled(false);
-	
-	_application.setEditable(false);
-	_iceVersion.setEditable(false);
-	_exe.setEditable(false);
-	_pwd.setEditable(false);
+        _coordinator = c;
+        _currentState.setEditable(false);
+        _currentPid.setEditable(false);
+        _enabled.setEnabled(false);
+        
+        _application.setEditable(false);
+        _iceVersion.setEditable(false);
+        _exe.setEditable(false);
+        _pwd.setEditable(false);
    
-	_activation.setEditable(false);
-	_activationTimeout.setEditable(false);
-	_deactivationTimeout.setEditable(false);
+        _activation.setEditable(false);
+        _activationTimeout.setEditable(false);
+        _deactivationTimeout.setEditable(false);
 
-	_options.setEditable(false);
-	_user.setEditable(false);
-	
-	_allocatable.setEnabled(false);
-	_applicationDistrib.setEnabled(false);
-	_icepatch.setEditable(false);
-	_directories.setEditable(false);
+        _options.setEditable(false);
+        _user.setEditable(false);
+        
+        _allocatable.setEnabled(false);
+        _applicationDistrib.setEnabled(false);
+        _icepatch.setEditable(false);
+        _directories.setEditable(false);
 
-	Action gotoApplication = new AbstractAction(
-	    "", Utils.getIcon("/icons/16x16/goto.png"))
-	    {
-		public void actionPerformed(ActionEvent e) 
-		{
-		    ApplicationPane app = _coordinator.openLiveApplication(_application.getText());
-		    if(app != null)
-		    {
-			app.getRoot().
-			    selectServer(((Node)_target.getParent()).getId(), _target.getId());
-		    }
-		}
-	    };
-	gotoApplication.putValue(Action.SHORT_DESCRIPTION, 
-			      "View/Edit this application");
-	_gotoApplication = new JButton(gotoApplication);
+        Action gotoApplication = new AbstractAction(
+            "", Utils.getIcon("/icons/16x16/goto.png"))
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    ApplicationPane app = _coordinator.openLiveApplication(_application.getText());
+                    if(app != null)
+                    {
+                        app.getRoot().
+                            selectServer(((Node)_target.getParent()).getId(), _target.getId());
+                    }
+                }
+            };
+        gotoApplication.putValue(Action.SHORT_DESCRIPTION, 
+                              "View/Edit this application");
+        _gotoApplication = new JButton(gotoApplication);
     }
 
 
     void show(Server server)
     {
-	_target = server;
+        _target = server;
 
-	ServerState state = server.getState();
-	if(state == null)
-	{
-	    _currentState.setText("Unknown");
-	    _currentPid.setText("");
-	    _enabled.setSelected(false);
-	}
-	else
-	{
-	    _currentState.setText(state.toString());
-	    int pid = server.getPid();
-	    if(pid == 0)
-	    {
-		_currentPid.setText("");
-	    }
-	    else
-	    {
-		_currentPid.setText(Integer.toString(pid));
-	    }
-	    _enabled.setSelected(server.isEnabled());
-	}
+        ServerState state = server.getState();
+        if(state == null)
+        {
+            _currentState.setText("Unknown");
+            _currentPid.setText("");
+            _enabled.setSelected(false);
+        }
+        else
+        {
+            _currentState.setText(state.toString());
+            int pid = server.getPid();
+            if(pid == 0)
+            {
+                _currentPid.setText("");
+            }
+            else
+            {
+                _currentPid.setText(Integer.toString(pid));
+            }
+            _enabled.setSelected(server.isEnabled());
+        }
 
-	ServerDescriptor descriptor = server.getServerDescriptor();
-	final Utils.Resolver resolver = server.getResolver();
+        ServerDescriptor descriptor = server.getServerDescriptor();
+        final Utils.Resolver resolver = server.getResolver();
 
-	_application.setText(resolver.find("application"));
-	_iceVersion.setText(resolver.substitute(descriptor.iceVersion));
+        _application.setText(resolver.find("application"));
+        _iceVersion.setText(resolver.substitute(descriptor.iceVersion));
 
-	super.show(descriptor, server.getProperties(), resolver);
-	
-	_exe.setText(resolver.substitute(descriptor.exe));
-	_pwd.setText(resolver.substitute(descriptor.pwd));
+        super.show(descriptor, server.getProperties(), resolver);
+        
+        _exe.setText(resolver.substitute(descriptor.exe));
+        _pwd.setText(resolver.substitute(descriptor.pwd));
 
-	Ice.StringHolder toolTipHolder = new Ice.StringHolder();
-	Utils.Stringifier stringifier =  new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return resolver.substitute((String)obj);
-		}
-	    };
-	
-	_options.setText(
-	    Utils.stringify(descriptor.options, stringifier, " ", toolTipHolder));
-	_options.setToolTipText(toolTipHolder.value);
+        Ice.StringHolder toolTipHolder = new Ice.StringHolder();
+        Utils.Stringifier stringifier =  new Utils.Stringifier()
+            {
+                public String toString(Object obj)
+                {
+                    return resolver.substitute((String)obj);
+                }
+            };
+        
+        _options.setText(
+            Utils.stringify(descriptor.options, stringifier, " ", toolTipHolder));
+        _options.setToolTipText(toolTipHolder.value);
 
-	_envs.setEnvs(descriptor.envs, resolver);
+        _envs.setEnvs(descriptor.envs, resolver);
 
-	_user.setText(resolver.substitute(descriptor.user));
+        _user.setText(resolver.substitute(descriptor.user));
 
-	_activation.setText(resolver.substitute(descriptor.activation));
-	_activationTimeout.setText(resolver.substitute(descriptor.activationTimeout));
-	_deactivationTimeout.setText(resolver.substitute(descriptor.deactivationTimeout));
-	
-	_allocatable.setSelected(descriptor.allocatable);
+        _activation.setText(resolver.substitute(descriptor.activation));
+        _activationTimeout.setText(resolver.substitute(descriptor.activationTimeout));
+        _deactivationTimeout.setText(resolver.substitute(descriptor.deactivationTimeout));
+        
+        _allocatable.setSelected(descriptor.allocatable);
 
-	_applicationDistrib.setSelected(descriptor.applicationDistrib);
-	_icepatch.setText(resolver.substitute(resolver.substitute(descriptor.distrib.icepatch)));
+        _applicationDistrib.setSelected(descriptor.applicationDistrib);
+        _icepatch.setText(resolver.substitute(resolver.substitute(descriptor.distrib.icepatch)));
 
-	toolTipHolder = new Ice.StringHolder();
-	
-	_directories.setText(
-	    Utils.stringify(descriptor.distrib.directories, stringifier, ", ", 
-			    toolTipHolder));
+        toolTipHolder = new Ice.StringHolder();
+        
+        _directories.setText(
+            Utils.stringify(descriptor.distrib.directories, stringifier, ", ", 
+                            toolTipHolder));
 
-	String toolTip = "<html>Include only these directories";
+        String toolTip = "<html>Include only these directories";
 
-	if(toolTipHolder.value != null)
-	{
-	    toolTip += ":<br>" + toolTipHolder.value;
-	}
-	toolTip += "</html>";
-	_directories.setToolTipText(toolTip);
+        if(toolTipHolder.value != null)
+        {
+            toolTip += ":<br>" + toolTipHolder.value;
+        }
+        toolTip += "</html>";
+        _directories.setToolTipText(toolTip);
     }
 
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
-	builder.appendSeparator("Runtime Status");
+        builder.appendSeparator("Runtime Status");
 
-	builder.append("State");
-	builder.append(_currentState, 3);
-	builder.nextLine();
+        builder.append("State");
+        builder.append(_currentState, 3);
+        builder.nextLine();
 
-	builder.append("Process ID");
-	builder.append(_currentPid, 3);
-	builder.nextLine();
-	
-	builder.append("", _enabled);
-	builder.nextLine();
-	
-	builder.appendSeparator("Configuration");
+        builder.append("Process ID");
+        builder.append(_currentPid, 3);
+        builder.nextLine();
+        
+        builder.append("", _enabled);
+        builder.nextLine();
+        
+        builder.appendSeparator("Configuration");
 
-	builder.append("Application");
-	builder.append(_application);
-	builder.append(_gotoApplication);
-	builder.nextLine();
-	builder.append("Ice Version");
-	builder.append(_iceVersion, 3);
-	builder.nextLine();
+        builder.append("Application");
+        builder.append(_application);
+        builder.append(_gotoApplication);
+        builder.nextLine();
+        builder.append("Ice Version");
+        builder.append(_iceVersion, 3);
+        builder.nextLine();
 
-	//
-	// Add Communicator fields
-	//
-	super.appendProperties(builder);
-	
-	builder.appendSeparator("Activation");
-	builder.append("Path to Executable");
-	builder.append(_exe, 3);
-	builder.nextLine();
-	builder.append("Working Directory");
-	builder.append(_pwd, 3);
-	builder.nextLine();
-	builder.append("Command Arguments");
-	builder.append(_options, 3);
-	builder.nextLine();
-	builder.append("Run as");
-	builder.append(_user, 3);
-	builder.nextLine();
-	builder.append("Environment Variables");
-	builder.nextLine();
-	builder.append("");
-	builder.nextLine();
-	builder.append("");
-	builder.nextLine();
-	builder.append("");
-	builder.nextRow(-6);
-	CellConstraints cc = new CellConstraints();
-	JScrollPane scrollPane = new JScrollPane(_envs);
-	builder.add(scrollPane, 
-		    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
-	builder.nextRow(6);
-	builder.nextLine();
+        //
+        // Add Communicator fields
+        //
+        super.appendProperties(builder);
+        
+        builder.appendSeparator("Activation");
+        builder.append("Path to Executable");
+        builder.append(_exe, 3);
+        builder.nextLine();
+        builder.append("Working Directory");
+        builder.append(_pwd, 3);
+        builder.nextLine();
+        builder.append("Command Arguments");
+        builder.append(_options, 3);
+        builder.nextLine();
+        builder.append("Run as");
+        builder.append(_user, 3);
+        builder.nextLine();
+        builder.append("Environment Variables");
+        builder.nextLine();
+        builder.append("");
+        builder.nextLine();
+        builder.append("");
+        builder.nextLine();
+        builder.append("");
+        builder.nextRow(-6);
+        CellConstraints cc = new CellConstraints();
+        JScrollPane scrollPane = new JScrollPane(_envs);
+        builder.add(scrollPane, 
+                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.nextRow(6);
+        builder.nextLine();
 
-	builder.append("Activation Mode");
-	builder.append(_activation, 3);
-	builder.nextLine();
-	builder.append("Activation Timeout");
-	builder.append(_activationTimeout, 3);
-	builder.nextLine();
-	builder.append("Deactivation Timeout");
-	builder.append(_deactivationTimeout, 3);
-	builder.nextLine();
-	builder.append("", _allocatable);
-	builder.nextLine();
+        builder.append("Activation Mode");
+        builder.append(_activation, 3);
+        builder.nextLine();
+        builder.append("Activation Timeout");
+        builder.append(_activationTimeout, 3);
+        builder.nextLine();
+        builder.append("Deactivation Timeout");
+        builder.append(_deactivationTimeout, 3);
+        builder.nextLine();
+        builder.append("", _allocatable);
+        builder.nextLine();
 
-	JComponent c = builder.appendSeparator("Distribution");
-	c.setToolTipText("Files specific to this server");
+        JComponent c = builder.appendSeparator("Distribution");
+        c.setToolTipText("Files specific to this server");
 
-	builder.append("", _applicationDistrib);
-	builder.nextLine();
-	builder.append("IcePatch2 Proxy");
-	builder.append(_icepatch, 3);
-	builder.nextLine();
-	builder.append("Directories");
-	builder.append(_directories, 3);
-	builder.nextLine();
+        builder.append("", _applicationDistrib);
+        builder.nextLine();
+        builder.append("IcePatch2 Proxy");
+        builder.append(_icepatch, 3);
+        builder.nextLine();
+        builder.append("Directories");
+        builder.append(_directories, 3);
+        builder.nextLine();
     }
 
     protected void buildPropertiesPanel()
     {
-	super.buildPropertiesPanel();
-	_propertiesPanel.setName("Server Properties");
+        super.buildPropertiesPanel();
+        _propertiesPanel.setName("Server Properties");
     }
 
 
     private class ToolBar extends JToolBar
     {
-	private ToolBar()
-	{
-	    putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
-	    putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
-	    setFloatable(false);
-	    putClientProperty("JToolBar.isRollover", Boolean.TRUE);
-	    
-	    LiveActions la = _coordinator.getLiveActionsForMenu();
+        private ToolBar()
+        {
+            putClientProperty(Options.HEADER_STYLE_KEY, HeaderStyle.SINGLE);
+            putClientProperty(PlasticLookAndFeel.BORDER_STYLE_KEY, BorderStyle.SEPARATOR);
+            setFloatable(false);
+            putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+            
+            LiveActions la = _coordinator.getLiveActionsForMenu();
 
-	    add(la.get(TreeNode.START));
-	    add(la.get(TreeNode.STOP));
-	    addSeparator();
-	    add(la.get(TreeNode.ENABLE));
-	    add(la.get(TreeNode.DISABLE));
-	}
+            add(la.get(TreeNode.START));
+            add(la.get(TreeNode.STOP));
+            addSeparator();
+            add(la.get(TreeNode.ENABLE));
+            add(la.get(TreeNode.DISABLE));
+        }
     }
 
 

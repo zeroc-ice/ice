@@ -24,13 +24,13 @@ Foundation,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 typedef struct stringdef STRINGDEF;
 struct stringdef
 {
-  U_CHAR *contents;		/* String to include */
-  int len;			/* Its length */
-  int writeflag;		/* Whether we write this */
-  int lineno;			/* Linenumber of source file */
-  U_CHAR *filename;		/* Name of source file */
-  STRINGDEF *chain;		/* Global list of strings in natural order */
-  int output_mark;		/* Where in the output this goes */
+  U_CHAR *contents;             /* String to include */
+  int len;                      /* Its length */
+  int writeflag;                /* Whether we write this */
+  int lineno;                   /* Linenumber of source file */
+  U_CHAR *filename;             /* Name of source file */
+  STRINGDEF *chain;             /* Global list of strings in natural order */
+  int output_mark;              /* Where in the output this goes */
 };
 
 typedef struct keydef KEYDEF;

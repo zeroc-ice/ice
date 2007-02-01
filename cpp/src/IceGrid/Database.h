@@ -51,7 +51,7 @@ class Database : public IceUtil::Shared, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     Database(const Ice::ObjectAdapterPtr&, const IceStorm::TopicManagerPrx&, const std::string&, const TraceLevelsPtr&,
-	     const RegistryInfo&);
+             const RegistryInfo&);
     virtual ~Database();
     
     std::string getInstanceName() const;
@@ -133,7 +133,7 @@ private:
     void unload(const ApplicationHelper&, ServerEntrySeq&);
     void reload(const ApplicationHelper&, const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void finishApplicationUpdate(ServerEntrySeq&, const ApplicationUpdateInfo&, const ApplicationInfo&, 
-				 const ApplicationDescriptor&, AdminSessionI*);
+                                 const ApplicationDescriptor&, AdminSessionI*);
 
     void checkSessionLock(AdminSessionI*);
 

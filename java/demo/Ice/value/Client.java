@@ -13,18 +13,18 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
-	public void
-	run()
-	{
-	    try
-	    {
-		communicator().destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
+        public void
+        run()
+        {
+            try
+            {
+                communicator().destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private static void
@@ -43,12 +43,12 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-	//
-	// Since this is an interactive demo we want to clear the
-	// Application installed interrupt callback and install our
-	// own shutdown hook.
-	//
-	setInterruptHook(new ShutdownHook());
+        //
+        // Since this is an interactive demo we want to clear the
+        // Application installed interrupt callback and install our
+        // own shutdown hook.
+        //
+        setInterruptHook(new ShutdownHook());
 
         Ice.ObjectPrx base = communicator().propertyToProxy("Value.Initial");
         InitialPrx initial = InitialPrxHelper.checkedCast(base);
@@ -79,12 +79,12 @@ public class Client extends Ice.Application
 
         PrinterHolder printer = new PrinterHolder();
         PrinterPrxHolder printerProxy = new PrinterPrxHolder();
-	boolean gotException = false;
+        boolean gotException = false;
         try
         {
             initial.getPrinter(printer, printerProxy);
-	    System.err.println("Did not get the expected NoObjectFactoryException!");
-	    System.exit(1);
+            System.err.println("Did not get the expected NoObjectFactoryException!");
+            System.exit(1);
         }
         catch(Ice.NoObjectFactoryException ex)
         {
@@ -130,13 +130,13 @@ public class Client extends Ice.Application
         readline(in);
 
         Printer derivedAsBase = initial.getDerivedPrinter();
-	System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
-	assert(derivedAsBase.ice_id().equals("::Demo::Printer"));
+        System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
+        assert(derivedAsBase.ice_id().equals("::Demo::Printer"));
 
         System.out.println();
         System.out.println("Now we install a factory for the derived class, and try again.");
         System.out.println("Because we receive the derived object as a base object,");
-	System.out.println("we need to do a class cast to get from the base to the derived object.");
+        System.out.println("we need to do a class cast to get from the base to the derived object.");
         System.out.println("[press enter]");
         readline(in);
 
@@ -146,7 +146,7 @@ public class Client extends Ice.Application
         DerivedPrinter derived = (Demo.DerivedPrinter)derivedAsBase;
 
         System.out.println("==> class cast to derived object succeded");
-	System.out.println("The type ID of the received object is \"" + derived.ice_id() + "\"");
+        System.out.println("The type ID of the received object is \"" + derived.ice_id() + "\"");
 
         System.out.println();
         System.out.println("Let's print the message contained in the derived object, and");
@@ -183,7 +183,7 @@ public class Client extends Ice.Application
         System.out.println();
         System.out.println("That's it for this demo. Have fun with Ice!");
 
-	initial.shutdown();
+        initial.shutdown();
 
         return 0;
     }

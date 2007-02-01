@@ -26,12 +26,12 @@ ServerI::noCert(const Ice::Current& c)
 {
     try
     {
-	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
-	test(info.certs.size() == 0);
+        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
+        test(info.certs.size() == 0);
     }
     catch(const IceSSL::ConnectionInvalidException&)
     {
-	test(false);
+        test(false);
     }
 }
 
@@ -40,14 +40,14 @@ ServerI::checkCert(const string& subjectDN, const string& issuerDN, const Ice::C
 {
     try
     {
-	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
-	test(info.certs.size() == 2 &&
-	     info.certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
-	     info.certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
+        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
+        test(info.certs.size() == 2 &&
+             info.certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
+             info.certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
     }
     catch(const IceSSL::ConnectionInvalidException&)
     {
-	test(false);
+        test(false);
     }
 }
 
@@ -56,12 +56,12 @@ ServerI::checkCipher(const string& cipher, const Ice::Current& c)
 {
     try
     {
-	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
-	test(info.cipher.compare(0, cipher.size(), cipher) == 0);
+        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(c.con);
+        test(info.cipher.compare(0, cipher.size(), cipher) == 0);
     }
     catch(const IceSSL::ConnectionInvalidException&)
     {
-	test(false);
+        test(false);
     }
 }
 
@@ -78,7 +78,7 @@ ServerFactoryI::createServer(const Test::Properties& props, const Current& curre
     initData.properties = createProperties();
     for(Test::Properties::const_iterator p = props.begin(); p != props.end(); ++p)
     {
-	initData.properties->setProperty(p->first, p->second);
+        initData.properties->setProperty(p->first, p->second);
     }
 
     CommunicatorPtr communicator = initialize(initData);
@@ -97,8 +97,8 @@ ServerFactoryI::destroyServer(const Test::ServerPrx& srv, const Ice::Current&)
     map<Identity, ServerIPtr>::iterator p = _servers.find(srv->ice_getIdentity());
     if(p != _servers.end())
     {
-	p->second->destroy();
-	_servers.erase(p);
+        p->second->destroy();
+        _servers.erase(p);
     }
 }
 

@@ -15,14 +15,14 @@ public class LocalExceptionWrapper extends Exception
     LocalExceptionWrapper(Ice.LocalException ex, boolean retry)
     {
         _ex = ex;
-	_retry = retry;
+        _retry = retry;
     }
 
     public
     LocalExceptionWrapper(IceInternal.LocalExceptionWrapper ex)
     {
         _ex = ex.get();
-	_retry = ex._retry;
+        _retry = ex._retry;
     }
 
     public Ice.LocalException

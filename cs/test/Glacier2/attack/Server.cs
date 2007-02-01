@@ -37,9 +37,9 @@ class Server : Ice.Application
 {
     public override int run(string[] args)
     {
-	communicator().getProperties().setProperty("Ice.OA.BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
+        communicator().getProperties().setProperty("Ice.OA.BackendAdapter.Endpoints", "tcp -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("BackendAdapter");
-	adapter.addServantLocator(new ServantLocatorI(), "");
+        adapter.addServantLocator(new ServantLocatorI(), "");
         adapter.activate();
         communicator().waitForShutdown();
         return 0;
@@ -48,10 +48,10 @@ class Server : Ice.Application
     public static void Main(string[] args)
     {
         Server app = new Server();
-	int status = app.main(args);
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        int status = app.main(args);
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

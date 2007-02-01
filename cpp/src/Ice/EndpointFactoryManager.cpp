@@ -75,8 +75,8 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
     if(beg == string::npos)
     {
         EndpointParseException ex(__FILE__, __LINE__);
-	ex.str = str;
-	throw ex;
+        ex.str = str;
+        throw ex;
     }
 
     string::size_type end = str.find_first_of(delim, beg);

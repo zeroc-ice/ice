@@ -71,7 +71,7 @@ public:
     bool 
     operator()(const Ice::ObjectPrx& p1, const string& id) const
     {
-	return p1->ice_getIdentity() == _communicator->stringToIdentity(id);
+        return p1->ice_getIdentity() == _communicator->stringToIdentity(id);
     }
 
 private:
@@ -84,7 +84,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 public:
 
     SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
-	_session(session),
+        _session(session),
         _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
     {
@@ -99,15 +99,15 @@ public:
             timedWait(_timeout);
             if(_destroy)
             {
-	        break;
-	    }
+                break;
+            }
             try
             {
                 _session->keepAlive();
             }
             catch(const Ice::Exception&)
             {
-		break;
+                break;
             }
         }
     }
@@ -180,37 +180,37 @@ allTests(const Ice::CommunicatorPtr& comm)
     test(find_if(objs.begin(), objs.end(), bind2nd(ProxyIdentityEqual(comm),"ReplicatedObject")) != objs.end());
 
     {
-	test(comm->identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
-	test(comm->identityToString(query->findObjectByType("::TestId2")->ice_getIdentity()) == "cat1/name1");
-	test(comm->identityToString(query->findObjectByType("::TestId3")->ice_getIdentity()) == "cat1/name1-bis");
-	test(comm->identityToString(query->findObjectByType("::TestId4")->ice_getIdentity()) == "c2\\/c2/n2\\/n2");
-	test(comm->identityToString(query->findObjectByType("::TestId5")->ice_getIdentity()) == "n2\\/n2");
+        test(comm->identityToString(query->findObjectByType("::TestId1")->ice_getIdentity()) == "cat/name1");
+        test(comm->identityToString(query->findObjectByType("::TestId2")->ice_getIdentity()) == "cat1/name1");
+        test(comm->identityToString(query->findObjectByType("::TestId3")->ice_getIdentity()) == "cat1/name1-bis");
+        test(comm->identityToString(query->findObjectByType("::TestId4")->ice_getIdentity()) == "c2\\/c2/n2\\/n2");
+        test(comm->identityToString(query->findObjectByType("::TestId5")->ice_getIdentity()) == "n2\\/n2");
     }
 
     {
-	Ice::ObjectPrx obj = query->findObjectByType("::Test");
-	string id = comm->identityToString(obj->ice_getIdentity());
-	test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
-	     id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
-	     id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
-	     id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
+        Ice::ObjectPrx obj = query->findObjectByType("::Test");
+        string id = comm->identityToString(obj->ice_getIdentity());
+        test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
+             id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
+             id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
+             id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
     }
 
     {
-	Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample5);
-	string id = comm->identityToString(obj->ice_getIdentity());
-	test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
-	     id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
-	     id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
-	     id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
+        Ice::ObjectPrx obj = query->findObjectByTypeOnLeastLoadedNode("::Test", LoadSample5);
+        string id = comm->identityToString(obj->ice_getIdentity());
+        test(id == "Server1" || id == "Server2" || id == "SimpleServer" ||
+             id == "IceBox1-Service1" || id == "IceBox1-Service2" ||
+             id == "IceBox2-Service1" || id == "IceBox2-Service2" ||
+             id == "SimpleIceBox-SimpleService" || "ReplicatedObject");
     }
 
     {
-	Ice::ObjectPrx obj = query->findObjectByType("::Foo");
-	test(!obj);
+        Ice::ObjectPrx obj = query->findObjectByType("::Foo");
+        test(!obj);
 
-	obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample15);
-	test(!obj);
+        obj = query->findObjectByTypeOnLeastLoadedNode("::Foo", LoadSample15);
+        test(!obj);
     }
 
     cout << "ok" << endl;
@@ -233,7 +233,7 @@ allTests(const Ice::CommunicatorPtr& comm)
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     obj = TestIntfPrx::checkedCast(
-	comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
+        comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
     cout << "ok" << endl;
 
     cout << "testing server configuration... " << flush;
@@ -280,21 +280,21 @@ allTests(const Ice::CommunicatorPtr& comm)
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("SimpleServer@SimpleServer.Server"));
     proxies.push_back(obj);
     obj = TestIntfPrx::checkedCast(
-	comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
+        comm->stringToProxy("SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService"));
     proxies.push_back(obj);
     
     for(vector<TestIntfPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-	test((*p)->getProperty("AppVarProp") == "AppVar");
-	test((*p)->getProperty("NodeVarProp") == "NodeVar");
-	test((*p)->getProperty("RecursiveAppVarProp") == "Test");
-	test((*p)->getProperty("AppVarOverridedProp") == "OverridedInNode");
-	test((*p)->getProperty("AppVarDefinedInNodeProp") == "localnode");
-	test((*p)->getProperty("EscapedAppVarProp") == "${escaped}");
-	test((*p)->getProperty("RecursiveEscapedAppVarProp") == "${escaped}");
-	test((*p)->getProperty("Recursive2EscapedAppVarProp") == "${escaped}");
-	test((*p)->getProperty("RecursiveNodeVarProp") == "localnode");
-	test((*p)->getProperty("TestDirProp") != "NotThisValue");
+        test((*p)->getProperty("AppVarProp") == "AppVar");
+        test((*p)->getProperty("NodeVarProp") == "NodeVar");
+        test((*p)->getProperty("RecursiveAppVarProp") == "Test");
+        test((*p)->getProperty("AppVarOverridedProp") == "OverridedInNode");
+        test((*p)->getProperty("AppVarDefinedInNodeProp") == "localnode");
+        test((*p)->getProperty("EscapedAppVarProp") == "${escaped}");
+        test((*p)->getProperty("RecursiveEscapedAppVarProp") == "${escaped}");
+        test((*p)->getProperty("Recursive2EscapedAppVarProp") == "${escaped}");
+        test((*p)->getProperty("RecursiveNodeVarProp") == "localnode");
+        test((*p)->getProperty("TestDirProp") != "NotThisValue");
     }
     cout << "ok" << endl;
 
@@ -416,17 +416,17 @@ allTests(const Ice::CommunicatorPtr& comm)
     desc.serverTemplates["ServerTemplate"] = templ;
     try
     {
-	admin->addApplication(desc);
-	test(false);
+        admin->addApplication(desc);
+        test(false);
     }
     catch(const DeploymentException& ex)
     {
- 	test(ex.reason.find("duplicate parameters") != string::npos);
+        test(ex.reason.find("duplicate parameters") != string::npos);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	test(false);
+        cerr << ex << endl;
+        test(false);
     }
     cout << "ok" << endl;
 
@@ -731,7 +731,7 @@ void
 allTestsWithTarget(const Ice::CommunicatorPtr& comm)
 {
     RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-	comm->stringToProxy("IceGrid/Registry"));
+        comm->stringToProxy("IceGrid/Registry"));
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 

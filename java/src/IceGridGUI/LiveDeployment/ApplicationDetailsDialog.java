@@ -38,59 +38,59 @@ class ApplicationDetailsDialog extends JDialog
 {
     ApplicationDetailsDialog(final Root root)
     {
-	super(root.getCoordinator().getMainFrame(), 
-	      "Application Details - IceGrid Admin", true);
-	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-	_mainFrame = root.getCoordinator().getMainFrame();
+        super(root.getCoordinator().getMainFrame(), 
+              "Application Details - IceGrid Admin", true);
+        setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        _mainFrame = root.getCoordinator().getMainFrame();
 
-	_name.setEditable(false);
-	_uuid.setEditable(false);
-	_createTime.setEditable(false);
-	_createUser.setEditable(false);
-	_updateTime.setEditable(false);
-	_updateUser.setEditable(false);
-	_revision.setEditable(false);
-	
-	FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
-	DefaultFormBuilder builder = new DefaultFormBuilder(layout);
-	builder.setDefaultDialogBorder();
-	builder.setRowGroupingEnabled(true);
-	builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
-	
-	builder.append("Name", _name);
-	builder.nextLine();
-	builder.append("UUID", _uuid);
-	builder.nextLine();
-	builder.append("Created", _createTime);
-	builder.nextLine();
-	builder.append("Created by", _createUser);
-	builder.nextLine();
-	builder.append("Last Update", _updateTime);
-	builder.nextLine();
-	builder.append("Updated by", _updateUser);
-	builder.nextLine();
-	builder.append("Revision", _revision);
-	builder.nextLine();
+        _name.setEditable(false);
+        _uuid.setEditable(false);
+        _createTime.setEditable(false);
+        _createUser.setEditable(false);
+        _updateTime.setEditable(false);
+        _updateUser.setEditable(false);
+        _revision.setEditable(false);
+        
+        FormLayout layout = new FormLayout("right:pref, 3dlu, pref", "");
+        DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+        builder.setDefaultDialogBorder();
+        builder.setRowGroupingEnabled(true);
+        builder.setLineGapSize(LayoutStyle.getCurrent().getLinePad());
+        
+        builder.append("Name", _name);
+        builder.nextLine();
+        builder.append("UUID", _uuid);
+        builder.nextLine();
+        builder.append("Created", _createTime);
+        builder.nextLine();
+        builder.append("Created by", _createUser);
+        builder.nextLine();
+        builder.append("Last Update", _updateTime);
+        builder.nextLine();
+        builder.append("Updated by", _updateUser);
+        builder.nextLine();
+        builder.append("Revision", _revision);
+        builder.nextLine();
 
-	Container contentPane = getContentPane();
-	contentPane.add(builder.getPanel());
-	
-	pack();
-	setResizable(false);
+        Container contentPane = getContentPane();
+        contentPane.add(builder.getPanel());
+        
+        pack();
+        setResizable(false);
     }
 
     void showDialog(ApplicationInfo info)
     {
-	_name.setText(info.descriptor.name);
-	_uuid.setText(info.uuid);
-	_createTime.setText(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(info.createTime)));
-	_createUser.setText(info.createUser);
-	_updateTime.setText(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(info.updateTime)));
-	_updateUser.setText(info.updateUser);
-	_revision.setText(Integer.toString(info.revision));
+        _name.setText(info.descriptor.name);
+        _uuid.setText(info.uuid);
+        _createTime.setText(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(info.createTime)));
+        _createUser.setText(info.createUser);
+        _updateTime.setText(java.text.DateFormat.getDateTimeInstance().format(new java.util.Date(info.updateTime)));
+        _updateUser.setText(info.updateUser);
+        _revision.setText(Integer.toString(info.revision));
 
-	setLocationRelativeTo(_mainFrame);
-	setVisible(true);
+        setLocationRelativeTo(_mainFrame);
+        setVisible(true);
     }
 
     private JTextField _name = new JTextField(30);

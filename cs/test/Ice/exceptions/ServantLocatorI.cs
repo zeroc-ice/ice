@@ -11,8 +11,8 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
 {
     public Ice.Object locate(Ice.Current curr, out Ice.LocalObject cookie)
     {
-	cookie = null;
-	return null;
+        cookie = null;
+        return null;
     }
     
     public void finished(Ice.Current curr, Ice.Object servant, Ice.LocalObject cookie)

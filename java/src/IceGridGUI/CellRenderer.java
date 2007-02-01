@@ -16,24 +16,24 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 class CellRenderer implements TreeCellRenderer
 {
     public Component getTreeCellRendererComponent(
-	JTree tree,
-	Object value,
-	boolean sel,
-	boolean expanded,
-	boolean leaf,
-	int row,
-	boolean hasFocus) 
+        JTree tree,
+        Object value,
+        boolean sel,
+        boolean expanded,
+        boolean leaf,
+        int row,
+        boolean hasFocus) 
     {
-	TreeCellRenderer node = (TreeCellRenderer)value;
-	Component result = node.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        TreeCellRenderer node = (TreeCellRenderer)value;
+        Component result = node.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
 
-	if(result == null)
-	{
-	    result = _defaultRenderer.getTreeCellRendererComponent(
-		tree, value, sel, expanded, leaf, row, hasFocus);
-	}
-	return result;
+        if(result == null)
+        {
+            result = _defaultRenderer.getTreeCellRendererComponent(
+                tree, value, sel, expanded, leaf, row, hasFocus);
+        }
+        return result;
     }
 
     private TreeCellRenderer _defaultRenderer = new DefaultTreeCellRenderer();

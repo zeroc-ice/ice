@@ -88,12 +88,12 @@ implicitContextGetContext(ImplicitContextObject* self)
     PyObjectHandle dict = PyDict_New();
     if(dict.get() == NULL)
     {
-	return NULL;
+        return NULL;
     }
 
     if(!contextToDictionary(ctx, dict.get()))
     {
-	return NULL;
+        return NULL;
     }
 
     return dict.release();
@@ -115,7 +115,7 @@ implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
     Ice::Context ctx;
     if(!dictionaryToContext(dict, ctx))
     {
-	return NULL;
+        return NULL;
     }
 
     (*self->implicitContext)->setContext(ctx);
@@ -139,11 +139,11 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
     string val;
     try
     {
-	val = (*self->implicitContext)->get(key);
+        val = (*self->implicitContext)->get(key);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
+        setPythonException(ex);
         return NULL;
     }
     return PyString_FromString(const_cast<char*>(val.c_str()));
@@ -200,11 +200,11 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
     
     try
     {
-	(*self->implicitContext)->remove(key);
+        (*self->implicitContext)->remove(key);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
+        setPythonException(ex);
         return NULL;
     }
 

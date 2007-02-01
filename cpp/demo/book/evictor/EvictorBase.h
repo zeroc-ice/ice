@@ -30,15 +30,15 @@ private:
 
     struct EvictorEntry : public Ice::LocalObject
     {
-	Ice::ObjectPtr servant;
-	Ice::LocalObjectPtr userCookie;
-	EvictorQueue::iterator pos;
-	int useCount;
+        Ice::ObjectPtr servant;
+        Ice::LocalObjectPtr userCookie;
+        EvictorQueue::iterator pos;
+        int useCount;
     };
 
     struct EvictorCookie : public Ice::LocalObject
     {
-	EvictorEntryPtr entry;
+        EvictorEntryPtr entry;
     };
     typedef IceUtil::Handle<EvictorCookie> EvictorCookiePtr;
 

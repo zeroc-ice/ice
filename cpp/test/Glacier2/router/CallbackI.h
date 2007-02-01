@@ -24,8 +24,8 @@ public:
     virtual void callback(const Ice::Current&);
     virtual void callbackEx(const Ice::Current&);
     virtual void concurrentCallback_async(const ::Test::AMD_CallbackReceiver_concurrentCallbackPtr&,
-				      Ice::Int,
-				      const ::Ice::Current&);
+                                      Ice::Int,
+                                      const ::Ice::Current&);
 
     virtual void waitCallback(const ::Ice::Current&);
     virtual void callbackWithPayload(const Ice::ByteSeq&, const ::Ice::Current&);
@@ -53,19 +53,19 @@ public:
     CallbackI();
 
     virtual void initiateCallback_async(const ::Test::AMD_Callback_initiateCallbackPtr&,
-					const ::Test::CallbackReceiverPrx&, const Ice::Current&);
+                                        const ::Test::CallbackReceiverPrx&, const Ice::Current&);
     virtual void initiateCallbackEx_async(const ::Test::AMD_Callback_initiateCallbackExPtr&,
-					  const ::Test::CallbackReceiverPrx&, const Ice::Current&);
+                                          const ::Test::CallbackReceiverPrx&, const Ice::Current&);
     virtual void initiateConcurrentCallback_async(const ::Test::AMD_Callback_initiateConcurrentCallbackPtr&,
-						  Ice::Int,
-						  const ::Test::CallbackReceiverPrx&,
-						  const ::Ice::Current&);
+                                                  Ice::Int,
+                                                  const ::Test::CallbackReceiverPrx&,
+                                                  const ::Ice::Current&);
     virtual void initiateWaitCallback_async(const ::Test::AMD_Callback_initiateWaitCallbackPtr&,
-					    const ::Test::CallbackReceiverPrx&,
-					    const ::Ice::Current&);
+                                            const ::Test::CallbackReceiverPrx&,
+                                            const ::Ice::Current&);
     virtual void initiateCallbackWithPayload_async(const ::Test::AMD_Callback_initiateCallbackWithPayloadPtr&,
-						   const ::Test::CallbackReceiverPrx&,
-						   const ::Ice::Current&);
+                                                   const ::Test::CallbackReceiverPrx&,
+                                                   const ::Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

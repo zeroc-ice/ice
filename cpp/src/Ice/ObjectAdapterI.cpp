@@ -74,84 +74,84 @@ Ice::ObjectAdapterI::activate()
     bool printAdapterReady = false;
 
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	
-	checkForDeactivation();
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        
+        checkForDeactivation();
 
-	//
-	// If the one off initializations of the adapter are already
-	// done, we just need to activate the incoming connection
-	// factories and we're done.
-	//
-	if(_activateOneOffDone)
-	{
-	    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-		     Ice::voidMemFun(&IncomingConnectionFactory::activate));
-	    return;
-	}
-	
-	//
-	// One off initializations of the adapter: update the locator
-	// registry and print the "adapter ready" message. We set the
-	// _waitForActivate flag to prevent deactivation from other
-	// threads while these one off initializations are done.
-	//
-	_waitForActivate = true;
+        //
+        // If the one off initializations of the adapter are already
+        // done, we just need to activate the incoming connection
+        // factories and we're done.
+        //
+        if(_activateOneOffDone)
+        {
+            for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+                     Ice::voidMemFun(&IncomingConnectionFactory::activate));
+            return;
+        }
+        
+        //
+        // One off initializations of the adapter: update the locator
+        // registry and print the "adapter ready" message. We set the
+        // _waitForActivate flag to prevent deactivation from other
+        // threads while these one off initializations are done.
+        //
+        _waitForActivate = true;
 
-	locatorInfo = _locatorInfo;
-	if(!_noConfig)
-	{
-	    PropertiesPtr properties = _instance->initializationData().properties;
-	    printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-	    //
-	    // DEPREACTED PROPERTY: Remove extra code in future release
-	    //
-	    registerProcess = properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".RegisterProcess",
-	    	properties->getPropertyAsInt(_name + ".RegisterProcess")) > 0;
-	}
+        locatorInfo = _locatorInfo;
+        if(!_noConfig)
+        {
+            PropertiesPtr properties = _instance->initializationData().properties;
+            printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+            //
+            // DEPREACTED PROPERTY: Remove extra code in future release
+            //
+            registerProcess = properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".RegisterProcess",
+                properties->getPropertyAsInt(_name + ".RegisterProcess")) > 0;
+        }
     }
 
     try
     {
-	Ice::Identity dummy;
-	dummy.name = "dummy";
-	updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+        Ice::Identity dummy;
+        dummy.name = "dummy";
+        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
     }
     catch(const Ice::LocalException&)
     {
-	//
-	// If we couldn't update the locator registry, we let the
-	// exception go through and don't activate the adapter to
-	// allow to user code to retry activating the adapter
-	// later.
-	//
-	{
-	    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	    _waitForActivate = false;
-	    notifyAll();
-	}
-	throw;
+        //
+        // If we couldn't update the locator registry, we let the
+        // exception go through and don't activate the adapter to
+        // allow to user code to retry activating the adapter
+        // later.
+        //
+        {
+            IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+            _waitForActivate = false;
+            notifyAll();
+        }
+        throw;
     }
 
     if(printAdapterReady)
     {
-	cout << _name << " ready" << endl;
+        cout << _name << " ready" << endl;
     }
 
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	assert(!_deactivated); // Not possible if _waitForActivate = true;
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        assert(!_deactivated); // Not possible if _waitForActivate = true;
 
-	//
-	// Signal threads waiting for the activation.
-	//
-	_waitForActivate = false;
-	notifyAll();
+        //
+        // Signal threads waiting for the activation.
+        //
+        _waitForActivate = false;
+        notifyAll();
 
-	_activateOneOffDone = true;
+        _activateOneOffDone = true;
 
-	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-		 Ice::voidMemFun(&IncomingConnectionFactory::activate));
+        for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+                 Ice::voidMemFun(&IncomingConnectionFactory::activate));
     }
 }
 
@@ -161,9 +161,9 @@ Ice::ObjectAdapterI::hold()
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     checkForDeactivation();
-	
+        
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::hold));
+             Ice::voidMemFun(&IncomingConnectionFactory::hold));
 }
     
 void
@@ -174,7 +174,7 @@ Ice::ObjectAdapterI::waitForHold()
     checkForDeactivation();
 
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
+             Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilHolding));
 }
 
 void
@@ -184,58 +184,58 @@ Ice::ObjectAdapterI::deactivate()
     OutgoingConnectionFactoryPtr outgoingConnectionFactory;
     LocatorInfoPtr locatorInfo;
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	
-	//
-	// Ignore deactivation requests if the object adapter has already
-	// been deactivated.
-	//
-	if(_deactivated)
-	{
-	    return;
-	}
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        
+        //
+        // Ignore deactivation requests if the object adapter has already
+        // been deactivated.
+        //
+        if(_deactivated)
+        {
+            return;
+        }
 
-	//
-	// Wait for activation to complete. This is necessary to not 
-	// get out of order locator updates.
-	//
-	while(_waitForActivate)
-	{
-	    wait();
-	}
+        //
+        // Wait for activation to complete. This is necessary to not 
+        // get out of order locator updates.
+        //
+        while(_waitForActivate)
+        {
+            wait();
+        }
 
-	if(_routerInfo)
-	{
-	    //
-	    // Remove entry from the router manager.
-	    //
-	    _instance->routerManager()->erase(_routerInfo->getRouter());
+        if(_routerInfo)
+        {
+            //
+            // Remove entry from the router manager.
+            //
+            _instance->routerManager()->erase(_routerInfo->getRouter());
 
-	    //
-	    //  Clear this object adapter with the router.
-	    //
-	    _routerInfo->setAdapter(0);
-	}
-	
+            //
+            //  Clear this object adapter with the router.
+            //
+            _routerInfo->setAdapter(0);
+        }
+        
         incomingConnectionFactories = _incomingConnectionFactories;
-	outgoingConnectionFactory = _instance->outgoingConnectionFactory();
-	locatorInfo = _locatorInfo;
+        outgoingConnectionFactory = _instance->outgoingConnectionFactory();
+        locatorInfo = _locatorInfo;
 
-	_deactivated = true;
+        _deactivated = true;
 
-	notifyAll();
+        notifyAll();
     }
 
     try
     {
-	updateLocatorRegistry(locatorInfo, 0, false);
+        updateLocatorRegistry(locatorInfo, 0, false);
     }
     catch(const Ice::LocalException&)
     {
-	//
-	// We can't throw exceptions in deactivate so we ignore
-	// failures to update the locator registry.
-	//
+        //
+        // We can't throw exceptions in deactivate so we ignore
+        // failures to update the locator registry.
+        //
     }
 
     //
@@ -244,7 +244,7 @@ Ice::ObjectAdapterI::deactivate()
     // message.
     //
     for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
+             Ice::voidMemFun(&IncomingConnectionFactory::destroy));
     
     //
     // Must be called outside the thread synchronization, because
@@ -260,23 +260,23 @@ Ice::ObjectAdapterI::waitForDeactivate()
     vector<IceInternal::IncomingConnectionFactoryPtr> incomingConnectionFactories;
 
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-	if(_destroyed)
-	{
-	    return;
-	}
+        if(_destroyed)
+        {
+            return;
+        }
 
-	//
-	// Wait for deactivation of the adapter itself, and for
-	// the return of all direct method calls using this adapter.
-	//
-	while(!_deactivated || _directCount > 0)
-	{
-	    wait();
-	}
+        //
+        // Wait for deactivation of the adapter itself, and for
+        // the return of all direct method calls using this adapter.
+        //
+        while(!_deactivated || _directCount > 0)
+        {
+            wait();
+        }
 
-	incomingConnectionFactories = _incomingConnectionFactories;
+        incomingConnectionFactories = _incomingConnectionFactories;
     }
 
     //
@@ -284,7 +284,7 @@ Ice::ObjectAdapterI::waitForDeactivate()
     // finished.
     //
     for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+             Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
 }
 
 bool
@@ -299,26 +299,26 @@ void
 Ice::ObjectAdapterI::destroy()
 {
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-	//
-	// Another thread is in the process of destroying the object
-	// adapter. Wait for it to finish.
-	//
-	while(_destroying)
-	{
-	    wait();
-	}
+        //
+        // Another thread is in the process of destroying the object
+        // adapter. Wait for it to finish.
+        //
+        while(_destroying)
+        {
+            wait();
+        }
 
-	//
-	// Object adpater is already destroyed.
-	//
-	if(_destroyed)
-	{
-	    return;
-	}
+        //
+        // Object adpater is already destroyed.
+        //
+        if(_destroyed)
+        {
+            return;
+        }
 
-	_destroying = true;
+        _destroying = true;
     }
 
     //
@@ -338,41 +338,41 @@ Ice::ObjectAdapterI::destroy()
     //
     if(_threadPool)
     {
-	_threadPool->destroy();
-	_threadPool->joinWithAllThreads();
+        _threadPool->destroy();
+        _threadPool->joinWithAllThreads();
     }
 
     ObjectAdapterFactoryPtr objectAdapterFactory;
 
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-	//
-	// Signal that destroy is complete.
-	//
-	_destroying = false;
-	_destroyed = true;
-	notifyAll();
+        //
+        // Signal that destroy is complete.
+        //
+        _destroying = false;
+        _destroyed = true;
+        notifyAll();
 
-	//
-	// We're done, now we can throw away all incoming connection
-	// factories.
-	//
-	_incomingConnectionFactories.clear();
+        //
+        // We're done, now we can throw away all incoming connection
+        // factories.
+        //
+        _incomingConnectionFactories.clear();
 
-	//
-	// Remove object references (some of them cyclic).
-	//
-	_instance = 0;
-	_threadPool = 0;
-	_communicator = 0;
-	_routerEndpoints.clear();
-	_routerInfo = 0;
-	_publishedEndpoints.clear();
-	_locatorInfo = 0;
+        //
+        // Remove object references (some of them cyclic).
+        //
+        _instance = 0;
+        _threadPool = 0;
+        _communicator = 0;
+        _routerEndpoints.clear();
+        _routerInfo = 0;
+        _publishedEndpoints.clear();
+        _locatorInfo = 0;
 
-	objectAdapterFactory = _objectAdapterFactory;
-	_objectAdapterFactory = 0;
+        objectAdapterFactory = _objectAdapterFactory;
+        _objectAdapterFactory = 0;
     }
 
     if(objectAdapterFactory)
@@ -549,8 +549,8 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
     vector<IncomingConnectionFactoryPtr>::const_iterator p;
     for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
     {
-	list<ConnectionIPtr> cons = (*p)->connections();
-	copy(cons.begin(), cons.end(), back_inserter(connections));
+        list<ConnectionIPtr> cons = (*p)->connections();
+        copy(cons.begin(), cons.end(), back_inserter(connections));
     }
 
     //
@@ -558,7 +558,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
     // reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, _instance->getDefaultContext(), 
-    							     "", Reference::ModeTwoway, connections);
+                                                             "", Reference::ModeTwoway, connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -582,32 +582,32 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
     if(ir)
     {
-	if(!ir->getAdapterId().empty())
-	{
-	    //
-	    // Proxy is local if the reference adapter id matches this
-	    // adapter id.
-	    //
-	    return ir->getAdapterId() == _id;
-	}
+        if(!ir->getAdapterId().empty())
+        {
+            //
+            // Proxy is local if the reference adapter id matches this
+            // adapter id.
+            //
+            return ir->getAdapterId() == _id;
+        }
 
-	//
-	// Get Locator endpoint information for indirect references.
-	//
-	LocatorInfoPtr info = ir->getLocatorInfo();
-	if(info)
-	{
-	    bool isCached;
-	    endpoints = info->getEndpoints(ir, ir->getLocatorCacheTimeout(), isCached);
-	}
-	else
-	{
-	    return false;
-	}
+        //
+        // Get Locator endpoint information for indirect references.
+        //
+        LocatorInfoPtr info = ir->getLocatorInfo();
+        if(info)
+        {
+            bool isCached;
+            endpoints = info->getEndpoints(ir, ir->getLocatorCacheTimeout(), isCached);
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
-	endpoints = ref->getEndpoints();
+        endpoints = ref->getEndpoints();
     }
 
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -620,14 +620,14 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     //
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-	vector<IncomingConnectionFactoryPtr>::const_iterator q;
-	for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
-	{
-	    if((*q)->equivalent(*p))
-	    {
-		return true;
-	    }
-	}
+        vector<IncomingConnectionFactoryPtr>::const_iterator q;
+        for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
+        {
+            if((*q)->equivalent(*p))
+            {
+                return true;
+            }
+        }
     }
 
     //
@@ -639,10 +639,10 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     {
         for(p = endpoints.begin(); p != endpoints.end(); ++p)
         {
-	    if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
-	    {
-	        return true;
-	    }
+            if(binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+            {
+                return true;
+            }
         }
     }
 
@@ -654,8 +654,8 @@ Ice::ObjectAdapterI::flushBatchRequests()
 {
     vector<IncomingConnectionFactoryPtr> f;
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	f = _incomingConnectionFactories;
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        f = _incomingConnectionFactories;
     }
     for_each(f.begin(), f.end(), Ice::voidMemFun(&IncomingConnectionFactory::flushBatchRequests));
 }
@@ -683,7 +683,7 @@ Ice::ObjectAdapterI::decDirectCount()
     assert(_directCount > 0);
     if(--_directCount == 0)
     {
-	notifyAll();
+        notifyAll();
     }    
 }
 
@@ -700,11 +700,11 @@ Ice::ObjectAdapterI::getThreadPool() const
 
     if(_threadPool)
     {
-	return _threadPool;
+        return _threadPool;
     }
     else
     {
-	return _instance->serverThreadPool();
+        return _instance->serverThreadPool();
     }
 }
 
@@ -736,8 +736,8 @@ Ice::ObjectAdapterI::getThreadPerConnectionStackSize() const
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
-				    const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
-				    const string& endpointInfo, const RouterPrx& router, bool noConfig) :
+                                    const ObjectAdapterFactoryPtr& objectAdapterFactory, const string& name,
+                                    const string& endpointInfo, const RouterPrx& router, bool noConfig) :
     _deactivated(false),
     _instance(instance),
     _communicator(communicator),
@@ -769,28 +769,28 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     {
         StringSeq props = filterProperties(_propertyPrefix + _name + ".");
         if(oldProps.size() == 0 && props.size() == 0)
-	{
+        {
             InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "object adapter \"" + _name + "\" requires configuration.";
-	    throw ex;
+            ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+            throw ex;
         }
     }
 
     if(oldProps.size() != 0)
     {
-	Warning out(_instance->initializationData().logger);
-	out << "The following properties have been deprecated, please prepend \"Ice.OA.\":";
-	for(unsigned int i = 0; i < oldProps.size(); ++i)
-	{
-	    out << "\n    " << oldProps[i];
-	}
+        Warning out(_instance->initializationData().logger);
+        out << "The following properties have been deprecated, please prepend \"Ice.OA.\":";
+        for(unsigned int i = 0; i < oldProps.size(); ++i)
+        {
+            out << "\n    " << oldProps[i];
+        }
     }
 
     const_cast<string&>(_id) = properties->getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
-    	properties->getProperty(_name + ".AdapterId"));
+        properties->getProperty(_name + ".AdapterId"));
     const_cast<string&>(_replicaGroupId) = 
-    	properties->getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
-	properties->getProperty(_name + ".ReplicaGroupId"));
+        properties->getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
+        properties->getProperty(_name + ".ReplicaGroupId"));
 
     __setNoDelete(true);
     try
@@ -811,7 +811,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
         {
             InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n"
+            ex.reason = "object adapter \"" + _name + "\" cannot be configured for both\n"
                 "thread pool and thread per connection";
             throw ex;
         }
@@ -832,138 +832,138 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
         // connection factory as the thread pool is needed during creation for the call to incFdsInUse.
         //
-	if(threadPoolSize > 0 || threadPoolSizeMax > 0)
-	{
-	    if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
-	       !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
-	    {
+        if(threadPoolSize > 0 || threadPoolSizeMax > 0)
+        {
+            if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
+               !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
+            {
                 _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
-	    }
-	    else
-	    {
+            }
+            else
+            {
                 _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
-	    }
-	}
+            }
+        }
 
-    	if(!router)
-	{
-	    const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
-	    	_instance->proxyFactory()->propertyToProxy(_propertyPrefix + _name + ".Router"));
-	    if(!router)
-	    {
-	        const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
-	    	    _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
-	    }
-	}
-	if(router)
-	{
+        if(!router)
+        {
+            const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
+                _instance->proxyFactory()->propertyToProxy(_propertyPrefix + _name + ".Router"));
+            if(!router)
+            {
+                const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
+                    _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
+            }
+        }
+        if(router)
+        {
             _routerInfo = _instance->routerManager()->get(router);
             if(_routerInfo)
             {
-	        //
-		// Make sure this router is not already registered with another adapter.
-		//
-	        if(_routerInfo->getAdapter())
-		{
-		    throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router", 
-		    				     _instance->identityToString(router->ice_getIdentity()));
-		}
+                //
+                // Make sure this router is not already registered with another adapter.
+                //
+                if(_routerInfo->getAdapter())
+                {
+                    throw AlreadyRegisteredException(__FILE__, __LINE__, "object adapter with router", 
+                                                     _instance->identityToString(router->ice_getIdentity()));
+                }
 
-	        //
-	        // Add the router's server proxy endpoints to this object
-	        // adapter.
-	        //
-	        vector<EndpointIPtr> endpoints = _routerInfo->getServerEndpoints();
-	        copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
-	        sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
-	        _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()),
-				       _routerEndpoints.end());
+                //
+                // Add the router's server proxy endpoints to this object
+                // adapter.
+                //
+                vector<EndpointIPtr> endpoints = _routerInfo->getServerEndpoints();
+                copy(endpoints.begin(), endpoints.end(), back_inserter(_routerEndpoints));
+                sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
+                _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()),
+                                       _routerEndpoints.end());
 
-	        //
-	        // Associate this object adapter with the router. This way,
-	        // new outgoing connections to the router's client proxy will
-	        // use this object adapter for callbacks.
-	        //
-	        _routerInfo->setAdapter(this);
+                //
+                // Associate this object adapter with the router. This way,
+                // new outgoing connections to the router's client proxy will
+                // use this object adapter for callbacks.
+                //
+                _routerInfo->setAdapter(this);
 
-	        //
-	        // Also modify all existing outgoing connections to the
-	        // router's client proxy to use this object adapter for
-	        // callbacks.
-	        //	
-	        _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
+                //
+                // Also modify all existing outgoing connections to the
+                // router's client proxy to use this object adapter for
+                // callbacks.
+                //      
+                _instance->outgoingConnectionFactory()->setRouterInfo(_routerInfo);
             }
-	}
-	else
-	{
-	    //
-	    // Parse the endpoints, but don't store them in the adapter.
-	    // The connection factory might change it, for example, to
-	    // fill in the real port number.
-	    //
-	    vector<EndpointIPtr> endpoints;
-	    if(endpointInfo.empty())
-	    {
-	        endpoints = parseEndpoints(properties->getPropertyWithDefault(_propertyPrefix + _name + ".Endpoints",
-			properties->getProperty(_name + ".Endpoints")));
-	    }
-	    else
-	    {
-	        endpoints = parseEndpoints(endpointInfo);
-	    }
-	    for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
-    	    {
-	        _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this, _name));
-	    }
-	    if(endpoints.empty())
-	    {
-		TraceLevelsPtr tl = _instance->traceLevels();
-		if(tl->network >= 2)
-		{
-		    Trace out(_instance->initializationData().logger, tl->networkCat);
-		    out << "created adapter `" << name << "' without endpoints";
-		}
-	    }
+        }
+        else
+        {
+            //
+            // Parse the endpoints, but don't store them in the adapter.
+            // The connection factory might change it, for example, to
+            // fill in the real port number.
+            //
+            vector<EndpointIPtr> endpoints;
+            if(endpointInfo.empty())
+            {
+                endpoints = parseEndpoints(properties->getPropertyWithDefault(_propertyPrefix + _name + ".Endpoints",
+                        properties->getProperty(_name + ".Endpoints")));
+            }
+            else
+            {
+                endpoints = parseEndpoints(endpointInfo);
+            }
+            for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            {
+                _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this, _name));
+            }
+            if(endpoints.empty())
+            {
+                TraceLevelsPtr tl = _instance->traceLevels();
+                if(tl->network >= 2)
+                {
+                    Trace out(_instance->initializationData().logger, tl->networkCat);
+                    out << "created adapter `" << name << "' without endpoints";
+                }
+            }
 
-	    //
-	    // Parse published endpoints. If set, these are used in proxies
-	    // instead of the connection factory endpoints. 
-	    //
-	    string endpts = properties->getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
-			properties->getProperty(_name + ".PublishedEndpoints"));
-	    _publishedEndpoints = parseEndpoints(endpts);
-	    if(_publishedEndpoints.empty())
-    	    {
-	        transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
-	    	          back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-	    }
+            //
+            // Parse published endpoints. If set, these are used in proxies
+            // instead of the connection factory endpoints. 
+            //
+            string endpts = properties->getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
+                        properties->getProperty(_name + ".PublishedEndpoints"));
+            _publishedEndpoints = parseEndpoints(endpts);
+            if(_publishedEndpoints.empty())
+            {
+                transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+                          back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+            }
 
-	    //
-	    // Filter out any endpoints that are not meant to be published.
-	    //
-	    _publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
-				      not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
-	}
+            //
+            // Filter out any endpoints that are not meant to be published.
+            //
+            _publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
+                                      not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
+        }
 
-	string locatorProperty = _propertyPrefix + _name + ".Locator";
-	if(!properties->getProperty(locatorProperty).empty())
-	{
-	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(locatorProperty)));
-	}
-	else if(!properties->getProperty(_name + ".Locator").empty())
-	{
-	    setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(_name + ".Locator")));
-	}
-	else
-	{
-	    setLocator(_instance->referenceFactory()->getDefaultLocator());
-	}
+        string locatorProperty = _propertyPrefix + _name + ".Locator";
+        if(!properties->getProperty(locatorProperty).empty())
+        {
+            setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(locatorProperty)));
+        }
+        else if(!properties->getProperty(_name + ".Locator").empty())
+        {
+            setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(_name + ".Locator")));
+        }
+        else
+        {
+            setLocator(_instance->referenceFactory()->getDefaultLocator());
+        }
     }
     catch(...)
     {
-	destroy();
-	__setNoDelete(false);
-	throw;
+        destroy();
+        __setNoDelete(false);
+        throw;
     }
     __setNoDelete(false);  
 }
@@ -972,22 +972,22 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
 {
     if(!_deactivated)
     {
-	Warning out(_instance->initializationData().logger);
-	out << "object adapter `" << getName() << "' has not been deactivated";
+        Warning out(_instance->initializationData().logger);
+        out << "object adapter `" << getName() << "' has not been deactivated";
     }
     else if(!_destroyed)
     {
-	Warning out(_instance->initializationData().logger);
-	out << "object adapter `" << getName() << "' has not been destroyed";
+        Warning out(_instance->initializationData().logger);
+        out << "object adapter `" << getName() << "' has not been destroyed";
     }
     else
     {
-	//assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
-	assert(!_threadPool);
-	assert(!_communicator);
-	assert(_incomingConnectionFactories.empty());
-	assert(_directCount == 0);
-	assert(!_waitForActivate);
+        //assert(!_servantManager); // We don't clear this reference, it needs to be immutable.
+        assert(!_threadPool);
+        assert(!_communicator);
+        assert(_incomingConnectionFactories.empty());
+        assert(_directCount == 0);
+        assert(!_waitForActivate);
     }
 }
 
@@ -996,15 +996,15 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident, const string& facet) const
 {
     if(_id.empty())
     {
-	return newDirectProxy(ident, facet);
+        return newDirectProxy(ident, facet);
     }
     else if(_replicaGroupId.empty())
     {
-	return newIndirectProxy(ident, facet, _id);
+        return newIndirectProxy(ident, facet, _id);
     }
     else
     {
-	return newIndirectProxy(ident, facet, _replicaGroupId);
+        return newIndirectProxy(ident, facet, _replicaGroupId);
     }
 }
 
@@ -1024,9 +1024,9 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident, const string& facet) 
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(
-	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false,
-	_instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, 0,
-	_instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
+        ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false,
+        _instance->defaultsAndOverrides()->defaultPreferSecure, endpoints, 0,
+        _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
         _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection());
     return _instance->proxyFactory()->referenceToProxy(ref);
 
@@ -1039,11 +1039,11 @@ Ice::ObjectAdapterI::newIndirectProxy(const Identity& ident, const string& facet
     // Create an indirect reference with the given adapter id.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(
-	ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, 
-	_instance->defaultsAndOverrides()->defaultPreferSecure, id, 0, 
-	_locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
+        ident, _instance->getDefaultContext(), facet, Reference::ModeTwoway, false, 
+        _instance->defaultsAndOverrides()->defaultPreferSecure, id, 0, 
+        _locatorInfo, _instance->defaultsAndOverrides()->defaultCollocationOptimization, true,
         _instance->defaultsAndOverrides()->defaultEndpointSelection, _instance->threadPerConnection(),
-	_instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
+        _instance->defaultsAndOverrides()->defaultLocatorCacheTimeout);
     
     //
     // Return a proxy for the reference. 
@@ -1056,9 +1056,9 @@ Ice::ObjectAdapterI::checkForDeactivation() const
 {
     if(_deactivated)
     {
-	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
-	ex.name = getName();
-	throw ex;
+        ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+        ex.name = getName();
+        throw ex;
     }
 }
 
@@ -1085,38 +1085,38 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
     vector<EndpointIPtr> endpoints;
     while(end < endpts.length())
     {
-	const string delim = " \t\n\r";
-	
-	beg = endpts.find_first_not_of(delim, end);
-	if(beg == string::npos)
-	{
-	    break;
-	}
+        const string delim = " \t\n\r";
+        
+        beg = endpts.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            break;
+        }
 
-	end = endpts.find(':', beg);
-	if(end == string::npos)
-	{
-	    end = endpts.length();
-	}
-	
-	if(end == beg)
-	{
-	    ++end;
-	    continue;
-	}
-	
-	string s = endpts.substr(beg, end - beg);
-	EndpointIPtr endp = _instance->endpointFactoryManager()->create(s);
-	if(endp == 0)
-	{
-	    EndpointParseException ex(__FILE__, __LINE__);
-	    ex.str = s;
-	    throw ex;
-	}
-	vector<EndpointIPtr> endps = endp->expand(true);
-	endpoints.insert(endpoints.end(), endps.begin(), endps.end());
+        end = endpts.find(':', beg);
+        if(end == string::npos)
+        {
+            end = endpts.length();
+        }
+        
+        if(end == beg)
+        {
+            ++end;
+            continue;
+        }
+        
+        string s = endpts.substr(beg, end - beg);
+        EndpointIPtr endp = _instance->endpointFactoryManager()->create(s);
+        if(endp == 0)
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = s;
+            throw ex;
+        }
+        vector<EndpointIPtr> endps = endp->expand(true);
+        endpoints.insert(endpoints.end(), endps.begin(), endps.end());
 
-	++end;
+        ++end;
     }
 
     return endpoints;
@@ -1124,12 +1124,12 @@ Ice::ObjectAdapterI::parseEndpoints(const string& str) const
 
 void
 ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locatorInfo,
-				      const Ice::ObjectPrx& proxy,
-				      bool registerProcess)
+                                      const Ice::ObjectPrx& proxy,
+                                      bool registerProcess)
 {
     if(!registerProcess && _id.empty())
     {
-	return; // Nothing to update.
+        return; // Nothing to update.
     }
 
     //
@@ -1147,76 +1147,76 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     string serverId;
     if(registerProcess)
     {
-	assert(_instance);
-	serverId = _instance->initializationData().properties->getProperty("Ice.ServerId");
+        assert(_instance);
+        serverId = _instance->initializationData().properties->getProperty("Ice.ServerId");
 
-	if(!locatorRegistry)
-	{
-	    Warning out(_instance->initializationData().logger);
-	    out << "object adapter `" << getName() << "' cannot register the process without a locator registry";
-	}
-	else if(serverId.empty())
-	{
-	    Warning out(_instance->initializationData().logger);
-	    out << "object adapter `" << getName() << "' cannot register the process without a value for Ice.ServerId";
-	}
+        if(!locatorRegistry)
+        {
+            Warning out(_instance->initializationData().logger);
+            out << "object adapter `" << getName() << "' cannot register the process without a locator registry";
+        }
+        else if(serverId.empty())
+        {
+            Warning out(_instance->initializationData().logger);
+            out << "object adapter `" << getName() << "' cannot register the process without a value for Ice.ServerId";
+        }
     }
 
     if(!locatorRegistry)
     {
-	return;
+        return;
     }
 
     if(!_id.empty())
     {
-	try
-	{
-	    if(_replicaGroupId.empty())
-	    {
-		locatorRegistry->setAdapterDirectProxy(_id, proxy);
-	    }
-	    else
-	    {
-		locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
-	    }
-	}
-	catch(const AdapterNotFoundException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "object adapter";
-	    ex.id = _id;
-	    throw ex;
-	}
-	catch(const InvalidReplicaGroupIdException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "replica group";
-	    ex.id = _replicaGroupId;
-	    throw ex;
-	}
-	catch(const AdapterAlreadyActiveException&)
-	{
-	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-	    ex.id = _id;
-	    throw ex;
-	}
-    }	    
+        try
+        {
+            if(_replicaGroupId.empty())
+            {
+                locatorRegistry->setAdapterDirectProxy(_id, proxy);
+            }
+            else
+            {
+                locatorRegistry->setReplicatedAdapterDirectProxy(_id, _replicaGroupId, proxy);
+            }
+        }
+        catch(const AdapterNotFoundException&)
+        {
+            NotRegisteredException ex(__FILE__, __LINE__);
+            ex.kindOfObject = "object adapter";
+            ex.id = _id;
+            throw ex;
+        }
+        catch(const InvalidReplicaGroupIdException&)
+        {
+            NotRegisteredException ex(__FILE__, __LINE__);
+            ex.kindOfObject = "replica group";
+            ex.id = _replicaGroupId;
+            throw ex;
+        }
+        catch(const AdapterAlreadyActiveException&)
+        {
+            ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+            ex.id = _id;
+            throw ex;
+        }
+    }       
 
     if(registerProcess && !serverId.empty())
     {
-	try
-	{
-	    ProcessPtr servant = new ProcessI(_communicator);
-	    Ice::ObjectPrx process = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
-	    locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(process));
-	}
-	catch(const ServerNotFoundException&)
-	{
-	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = "server";
-	    ex.id = serverId;
-	    throw ex;
-	}
+        try
+        {
+            ProcessPtr servant = new ProcessI(_communicator);
+            Ice::ObjectPrx process = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
+            locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(process));
+        }
+        catch(const ServerNotFoundException&)
+        {
+            NotRegisteredException ex(__FILE__, __LINE__);
+            ex.kindOfObject = "server";
+            ex.id = serverId;
+            throw ex;
+        }
     }
 }
 
@@ -1225,17 +1225,17 @@ Ice::ObjectAdapterI::filterProperties(const string& prefix)
 {
     static const string suffixes[] = 
     { 
-    	"AdapterId",
-	"Endpoints",
-	"Locator",
-	"PublishedEndpoints",
-	"RegisterProcess",
-	"ReplicaGroupId",
-    	"Router",
-	"ThreadPool.Size",
-	"ThreadPool.SizeMax",
-	"ThreadPool.SizeWarn",
-	"ThreadPool.StackSize"
+        "AdapterId",
+        "Endpoints",
+        "Locator",
+        "PublishedEndpoints",
+        "RegisterProcess",
+        "ReplicaGroupId",
+        "Router",
+        "ThreadPool.Size",
+        "ThreadPool.SizeMax",
+        "ThreadPool.SizeWarn",
+        "ThreadPool.StackSize"
     };
 
     StringSeq propertySet;
@@ -1243,9 +1243,9 @@ Ice::ObjectAdapterI::filterProperties(const string& prefix)
     for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
     {
         if(props.find(prefix + suffixes[i]) != props.end())
-	{
-	    propertySet.push_back(prefix + suffixes[i]);
-	}
+        {
+            propertySet.push_back(prefix + suffixes[i]);
+        }
     }
 
     return propertySet;
@@ -1267,15 +1267,15 @@ Ice::ObjectAdapterI::ProcessI::writeMessage(const string& message, Int fd, const
 {
     switch(fd)
     {
-	case 1:
-	{
-	    cout << message << endl;
-	    break;
-	}
-	case 2:
-	{
-	    cerr << message << endl;
-	    break;
-	}
+        case 1:
+        {
+            cout << message << endl;
+            break;
+        }
+        case 2:
+        {
+            cerr << message << endl;
+            break;
+        }
     }
 }

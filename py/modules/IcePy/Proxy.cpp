@@ -222,19 +222,19 @@ proxyIceIsA(ProxyObject* self, PyObject* args)
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-	if(ctx)
-	{
-	    Ice::Context context;
-	    if(!dictionaryToContext(ctx, context))
-	    {
-		return NULL;
-	    }
-	    b = (*self->proxy)->ice_isA(type, context);
-	}
-	else
-	{
-	    b = (*self->proxy)->ice_isA(type);
-	}
+        if(ctx)
+        {
+            Ice::Context context;
+            if(!dictionaryToContext(ctx, context))
+            {
+                return NULL;
+            }
+            b = (*self->proxy)->ice_isA(type, context);
+        }
+        else
+        {
+            b = (*self->proxy)->ice_isA(type);
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -264,19 +264,19 @@ proxyIcePing(ProxyObject* self, PyObject* args)
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-	if(ctx)
-	{
-	    Ice::Context context;
-	    if(!dictionaryToContext(ctx, context))
-	    {
-		return NULL;
-	    }
-	    (*self->proxy)->ice_ping(context);
-	}
-	else
-	{
-	    (*self->proxy)->ice_ping();
-	}
+        if(ctx)
+        {
+            Ice::Context context;
+            if(!dictionaryToContext(ctx, context))
+            {
+                return NULL;
+            }
+            (*self->proxy)->ice_ping(context);
+        }
+        else
+        {
+            (*self->proxy)->ice_ping();
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -306,19 +306,19 @@ proxyIceIds(ProxyObject* self, PyObject* args)
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-	if(ctx)
-	{
-	    Ice::Context context;
-	    if(!dictionaryToContext(ctx, context))
-	    {
-		return NULL;
-	    }
-	    ids = (*self->proxy)->ice_ids(context);
-	}
-	else
-	{
-	    ids = (*self->proxy)->ice_ids();
-	}
+        if(ctx)
+        {
+            Ice::Context context;
+            if(!dictionaryToContext(ctx, context))
+            {
+                return NULL;
+            }
+            ids = (*self->proxy)->ice_ids(context);
+        }
+        else
+        {
+            ids = (*self->proxy)->ice_ids();
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -353,19 +353,19 @@ proxyIceId(ProxyObject* self, PyObject* args)
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-	if(ctx)
-	{
-	    Ice::Context context;
-	    if(!dictionaryToContext(ctx, context))
-	    {
-		return NULL;
-	    }
-	    id = (*self->proxy)->ice_id(context);
-	}
-	else
-	{
-	    id = (*self->proxy)->ice_id();
-	}
+        if(ctx)
+        {
+            Ice::Context context;
+            if(!dictionaryToContext(ctx, context))
+            {
+                return NULL;
+            }
+            id = (*self->proxy)->ice_id(context);
+        }
+        else
+        {
+            id = (*self->proxy)->ice_id();
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -608,12 +608,12 @@ proxyIceGetAdapterId(ProxyObject* self)
     string id;
     try
     {
-	id = (*self->proxy)->ice_getAdapterId();
+        id = (*self->proxy)->ice_getAdapterId();
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     return PyString_FromString(const_cast<char*>(id.c_str()));
@@ -668,12 +668,12 @@ proxyIceGetEndpoints(ProxyObject* self)
     Ice::EndpointSeq endpoints;
     try
     {
-	endpoints = (*self->proxy)->ice_getEndpoints();
+        endpoints = (*self->proxy)->ice_getEndpoints();
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     int count = static_cast<int>(endpoints.size());
@@ -681,12 +681,12 @@ proxyIceGetEndpoints(ProxyObject* self)
     int i = 0;
     for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++i)
     {
-	PyObjectHandle endp = (PyObject*)allocateEndpoint(*p);
-	if(endp.get() == NULL)
-	{
-	    return NULL;
-	}
-	PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
+        PyObjectHandle endp = (PyObject*)allocateEndpoint(*p);
+        if(endp.get() == NULL)
+        {
+            return NULL;
+        }
+        PyTuple_SET_ITEM(result.get(), i, endp.release()); // PyTuple_SET_ITEM steals a reference.
     }
 
     return result.release();
@@ -706,8 +706,8 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
 
     if(!PyTuple_Check(endpoints) && !PyList_Check(endpoints))
     {
-	PyErr_Format(PyExc_ValueError, STRCAST("argument must be a tuple or list"));
-	return NULL;
+        PyErr_Format(PyExc_ValueError, STRCAST("argument must be a tuple or list"));
+        return NULL;
     }
 
     assert(self->proxy);
@@ -717,20 +717,20 @@ proxyIceEndpoints(ProxyObject* self, PyObject* args)
     for(Py_ssize_t i = 0; i < sz; ++i)
     {
         PyObject* p = PySequence_Fast_GET_ITEM(endpoints, i);
-	if(!PyObject_IsInstance(p, (PyObject*)&EndpointType))
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("expected element of type Ice.Endpoint"));
-	    return NULL;
-	}
-	EndpointObject* o = (EndpointObject*)p;
-	assert(*o->endpoint);
-	seq.push_back(*o->endpoint);
+        if(!PyObject_IsInstance(p, (PyObject*)&EndpointType))
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("expected element of type Ice.Endpoint"));
+            return NULL;
+        }
+        EndpointObject* o = (EndpointObject*)p;
+        assert(*o->endpoint);
+        seq.push_back(*o->endpoint);
     }
 
     Ice::ObjectPrx newProxy;
     try
     {
-	newProxy = (*self->proxy)->ice_endpoints(seq);
+        newProxy = (*self->proxy)->ice_endpoints(seq);
     }
     catch(const Ice::Exception& ex)
     {
@@ -761,13 +761,13 @@ proxyIceGetLocatorCacheTimeout(ProxyObject* self)
 
     try
     {
-	Ice::Int timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
-	return PyInt_FromLong(timeout);
+        Ice::Int timeout = (*self->proxy)->ice_getLocatorCacheTimeout();
+        return PyInt_FromLong(timeout);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 }
 
@@ -780,7 +780,7 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
     int timeout;
     if(!PyArg_ParseTuple(args, STRCAST("i"), &timeout))
     {
-	return NULL;
+        return NULL;
     }
 
     assert(self->proxy);
@@ -788,12 +788,12 @@ proxyIceLocatorCacheTimeout(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-	newProxy = (*self->proxy)->ice_locatorCacheTimeout(timeout);
+        newProxy = (*self->proxy)->ice_locatorCacheTimeout(timeout);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     return createProxy(newProxy, *self->communicator);
@@ -810,12 +810,12 @@ proxyIceIsConnectionCached(ProxyObject* self)
     PyObject* b;
     try
     {
-	b = (*self->proxy)->ice_isConnectionCached() ? Py_True : Py_False;
+        b = (*self->proxy)->ice_isConnectionCached() ? Py_True : Py_False;
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     Py_INCREF(b);
@@ -845,12 +845,12 @@ proxyIceConnectionCached(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-	newProxy = (*self->proxy)->ice_connectionCached(n == 1);
+        newProxy = (*self->proxy)->ice_connectionCached(n == 1);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     return createProxy(newProxy, *self->communicator);
@@ -875,20 +875,20 @@ proxyIceGetEndpointSelection(ProxyObject* self)
     PyObject* type;
     try
     {
-	Ice::EndpointSelectionType val = (*self->proxy)->ice_getEndpointSelection();
-	if(val == Ice::Random)
-	{
-	    type = rnd.get();
-	}
-	else
-	{
-	    type = ord.get();
-	}
+        Ice::EndpointSelectionType val = (*self->proxy)->ice_getEndpointSelection();
+        if(val == Ice::Random)
+        {
+            type = rnd.get();
+        }
+        else
+        {
+            type = ord.get();
+        }
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     Py_INCREF(type);
@@ -916,11 +916,11 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     assert(ord.get() != NULL);
     if(rnd.get() == type)
     {
-	val = Ice::Random;
+        val = Ice::Random;
     }
     else if(ord.get() == type)
     {
-	val = Ice::Ordered;
+        val = Ice::Ordered;
     }
     else
     {
@@ -933,12 +933,12 @@ proxyIceEndpointSelection(ProxyObject* self, PyObject* args)
     Ice::ObjectPrx newProxy;
     try
     {
-	newProxy = (*self->proxy)->ice_endpointSelection(val);
+        newProxy = (*self->proxy)->ice_endpointSelection(val);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     return createProxy(newProxy, *self->communicator);
@@ -1079,8 +1079,8 @@ proxyIceGetRouter(ProxyObject* self)
 
     if(!router)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     PyObject* routerProxyType = lookupType("Ice.RouterPrx");
@@ -1150,8 +1150,8 @@ proxyIceGetLocator(ProxyObject* self)
 
     if(!locator)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
@@ -1595,12 +1595,12 @@ proxyIceGetConnection(ProxyObject* self)
 
     if(con)
     {
-	return createConnection(con, *self->communicator);
+        return createConnection(con, *self->communicator);
     }
     else
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 }
 
@@ -1625,12 +1625,12 @@ proxyIceGetCachedConnection(ProxyObject* self)
 
     if(con)
     {
-	return createConnection(con, *self->communicator);
+        return createConnection(con, *self->communicator);
     }
     else
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 }
 
@@ -1747,42 +1747,42 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
 
     if(PyString_Check(facetOrCtx))
     {
-	facet = PyString_AS_STRING(facetOrCtx);
+        facet = PyString_AS_STRING(facetOrCtx);
     }
     else if(PyDict_Check(facetOrCtx))
     {
-	if(ctx != Py_None)
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
-	    return NULL;
-	}
-	ctx = facetOrCtx;
+        if(ctx != Py_None)
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
+            return NULL;
+        }
+        ctx = facetOrCtx;
     }
     else if(facetOrCtx != Py_None)
     {
-	PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
-	return NULL;
+        PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
+        return NULL;
     }
 
     if(ctx != Py_None && !PyDict_Check(ctx))
     {
-	PyErr_Format(PyExc_ValueError, STRCAST("context argument to checkedCast must be a dictionary"));
-	return NULL;
+        PyErr_Format(PyExc_ValueError, STRCAST("context argument to checkedCast must be a dictionary"));
+        return NULL;
     }
 
     if(ctx == Py_None)
     {
-	return checkedCastImpl((ProxyObject*)obj, id, facet, type);
+        return checkedCastImpl((ProxyObject*)obj, id, facet, type);
     }
     else
     {
-	Ice::Context c;
-	if(!dictionaryToContext(ctx, c))
-	{
-	    return NULL;
-	}
+        Ice::Context c;
+        if(!dictionaryToContext(ctx, c))
+        {
+            return NULL;
+        }
 
-	return checkedCastImpl((ProxyObject*)obj, id, facet, c, type);
+        return checkedCastImpl((ProxyObject*)obj, id, facet, c, type);
     }
 }
 
@@ -1854,63 +1854,63 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
 
     if(arg1 != 0 && arg2 != 0)
     {
-	if(arg1 == Py_None)
-	{
-	    arg1 = 0;
-	}
+        if(arg1 == Py_None)
+        {
+            arg1 = 0;
+        }
 
-	if(arg2 == Py_None)
-	{
-	    arg2 = 0;
-	}
+        if(arg2 == Py_None)
+        {
+            arg2 = 0;
+        }
 
-	if(arg1 != 0)
-	{
-	    if(!PyString_Check(arg1))
-	    {
-		PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
-		return NULL;
-	    }
-	    facet = PyString_AS_STRING(arg1);
-	}
+        if(arg1 != 0)
+        {
+            if(!PyString_Check(arg1))
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
+                return NULL;
+            }
+            facet = PyString_AS_STRING(arg1);
+        }
 
-	if(arg2 != 0 && !PyDict_Check(arg2))
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("context argument to checkedCast must be a dictionary"));
-	    return NULL;
-	}
-	ctx = arg2;
+        if(arg2 != 0 && !PyDict_Check(arg2))
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("context argument to checkedCast must be a dictionary"));
+            return NULL;
+        }
+        ctx = arg2;
     }
     else if(arg1 != 0 && arg1 != Py_None)
     {
-	if(PyString_Check(arg1))
-	{
-	    facet = PyString_AS_STRING(arg1);
-	}
-	else if(PyDict_Check(arg1))
-	{
-	    ctx = arg1;
-	}
-	else
-	{
-	    PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
-	    return NULL;
-	}
+        if(PyString_Check(arg1))
+        {
+            facet = PyString_AS_STRING(arg1);
+        }
+        else if(PyDict_Check(arg1))
+        {
+            ctx = arg1;
+        }
+        else
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("second argument to checkedCast must be a facet or context"));
+            return NULL;
+        }
     }
 
     if(ctx == 0)
     {
-	return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, NULL);
+        return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, NULL);
     }
     else
     {
-	Ice::Context c;
-	if(!dictionaryToContext(ctx, c))
-	{
-	    return NULL;
-	}
+        Ice::Context c;
+        if(!dictionaryToContext(ctx, c))
+        {
+            return NULL;
+        }
 
-	return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, c, NULL);
+        return checkedCastImpl((ProxyObject*)obj, "::Ice::Object", facet, c, NULL);
     }
 }
 

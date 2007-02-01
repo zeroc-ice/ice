@@ -41,7 +41,7 @@ public:
 
     
     virtual void slowGetValue_async(const AMD_Servant_slowGetValuePtr&,
-				    const Ice::Current& = Ice::Current()) const;
+                                    const Ice::Current& = Ice::Current()) const;
 
     virtual void setValue(::Ice::Int, const Ice::Current& = Ice::Current());
 

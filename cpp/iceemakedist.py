@@ -226,24 +226,24 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -l " + tag + " " +
-	  "ice " +
-	  "ice/bin " +
-	  "ice/config " +
-	  "ice/include " +
-	  "ice/include/IceUtil " +
-	  "ice/include/Slice " +
-	  "ice/install " +
-	  "ice/install/icee " +
-	  "ice/lib " +
-	  "ice/src " +
-	  "ice/src/icecpp " +
-	  "ice/src/IceUtil " +
-	  "ice/src/Slice " +
-	  "ice/src/Slice/dummyinclude " +
-	  "ice/src/slice2cppe " +
-	  "ice/src/slice2javae " +
-	  "icee/include/IceE/Config.h "
-	 )
+          "ice " +
+          "ice/bin " +
+          "ice/config " +
+          "ice/include " +
+          "ice/include/IceUtil " +
+          "ice/include/Slice " +
+          "ice/install " +
+          "ice/install/icee " +
+          "ice/lib " +
+          "ice/src " +
+          "ice/src/icecpp " +
+          "ice/src/IceUtil " +
+          "ice/src/Slice " +
+          "ice/src/Slice/dummyinclude " +
+          "ice/src/slice2cppe " +
+          "ice/src/slice2javae " +
+          "icee/include/IceE/Config.h "
+         )
 
 #
 # Copy Ice-E specific install files.
@@ -372,11 +372,11 @@ lines = makeRules.readlines()
 makeRules.close()
 for i in range(len(lines)):
     if lines[i].find("#STATICLIBS") == 0:
-	lines[i] = lines[i].replace("#STATICLIBS", "STATICLIBS")
+        lines[i] = lines[i].replace("#STATICLIBS", "STATICLIBS")
     if lines[i].find("#OPTIMIZE") == 0:
-	lines[i] = lines[i].replace("#OPTIMIZE", "OPTIMIZE")
+        lines[i] = lines[i].replace("#OPTIMIZE", "OPTIMIZE")
     if lines[i].find("prefix") == 0:
-	lines[i] = lines[i].replace("Ice-$(VERSION)", "IceE-" + version)
+        lines[i] = lines[i].replace("Ice-$(VERSION)", "IceE-" + version)
 makeRules = open(makeRulesName, "w")
 makeRules.writelines(lines)
 makeRules.close()
@@ -390,9 +390,9 @@ lines = makeFile.readlines()
 makeFile.close()
 for i in range(len(lines)):
     if lines[i].find("SUBDIRS") == 0:
-	lines[i] = "SUBDIRS = src\n"
+        lines[i] = "SUBDIRS = src\n"
     if lines[i].find("INSTALL_SUBDIRS") == 0:
-	lines[i] = "INSTALL_SUBDIRS = $(install_bindir) $(install_libdir)\n"
+        lines[i] = "INSTALL_SUBDIRS = $(install_bindir) $(install_libdir)\n"
 makeFile = open(makeFileName, "w")
 makeFile.writelines(lines)
 makeFile.close()
@@ -401,14 +401,14 @@ makeFile.close()
 # Disable install targets for libIceUtil, libSlice.
 #
 for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
-		     os.path.join("ice", "src", "Slice", "Makefile")]:
+                     os.path.join("ice", "src", "Slice", "Makefile")]:
     makeFile = open(makeFileName, "r")
     lines = makeFile.readlines()
     makeFile.close()
     for i in range(len(lines)):
-	if lines[i].find("install::") == 0:
-	    lines[i + 1] = "#" + lines[i + 1]
-	    break
+        if lines[i].find("install::") == 0:
+            lines[i + 1] = "#" + lines[i + 1]
+            break
     makeFile = open(makeFileName, "w")
     makeFile.writelines(lines)
     makeFile.close()

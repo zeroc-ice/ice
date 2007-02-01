@@ -78,39 +78,39 @@ private:
     {
     public:
 
-	Thread(NodeSessionManager& manager) : 
-	    NodeSessionKeepAliveThread(manager._master, manager._node, manager._queryObjects),
-	    _manager(manager)
+        Thread(NodeSessionManager& manager) : 
+            NodeSessionKeepAliveThread(manager._master, manager._node, manager._queryObjects),
+            _manager(manager)
         {
-	}
+        }
 
-	virtual NodeSessionPrx 
-	createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
+        virtual NodeSessionPrx 
+        createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
-	    NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
-	    _manager.createdSession(session);
-	    _manager.reapReplicas();
-	    return session;
-	}
+            NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
+            _manager.createdSession(session);
+            _manager.reapReplicas();
+            return session;
+        }
 
-	virtual void 
-	destroySession(const NodeSessionPrx& session)
+        virtual void 
+        destroySession(const NodeSessionPrx& session)
         {
-	    NodeSessionKeepAliveThread::destroySession(session);
-	    _manager.reapReplicas();
-	}
+            NodeSessionKeepAliveThread::destroySession(session);
+            _manager.reapReplicas();
+        }
 
-	virtual bool 
-	keepAlive(const NodeSessionPrx& session)
+        virtual bool 
+        keepAlive(const NodeSessionPrx& session)
         {
-	    bool alive = NodeSessionKeepAliveThread::keepAlive(session);
-	    _manager.reapReplicas();
-	    return alive;
-	}
+            bool alive = NodeSessionKeepAliveThread::keepAlive(session);
+            _manager.reapReplicas();
+            return alive;
+        }
 
     private:
-	
-	NodeSessionManager& _manager;
+        
+        NodeSessionManager& _manager;
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
     friend class Thread;

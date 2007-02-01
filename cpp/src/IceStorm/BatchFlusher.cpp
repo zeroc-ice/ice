@@ -24,8 +24,8 @@ using namespace std;
 BatchFlusher::BatchFlusher(const InstancePtr& instance) :
     _traceLevels(instance->traceLevels()),
     _flushTime(IceUtil::Time::milliSeconds(
-		   max(instance->properties()->getPropertyAsIntWithDefault(
-			   "IceStorm.Flush.Timeout", 1000), 100))), // Minimum of 100ms.
+                   max(instance->properties()->getPropertyAsIntWithDefault(
+                           "IceStorm.Flush.Timeout", 1000), 100))), // Minimum of 100ms.
     _destroy(false)
 {
     start();
@@ -45,7 +45,7 @@ BatchFlusher::add(const Ice::ObjectPrx& subscriber)
     //
     if(_subscribers.empty())
     {
-	notify();
+        notify();
     }
     _subscribers.push_back(subscriber);
 }
@@ -70,58 +70,58 @@ BatchFlusher::run()
 {
     for(;;)
     {
-	list<Ice::ObjectPrx> subscribers;
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    if(_destroy)
-	    {
-		return;
-	    }
-	    if(_subscribers.empty())
-	    {
-		wait();
-	    }
-	    else
-	    {
-		timedWait(_flushTime);
-	    }
-	    if(_destroy)
-	    {
-		return;
-	    }
-	    subscribers = _subscribers;
-	}
+        list<Ice::ObjectPrx> subscribers;
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+            if(_destroy)
+            {
+                return;
+            }
+            if(_subscribers.empty())
+            {
+                wait();
+            }
+            else
+            {
+                timedWait(_flushTime);
+            }
+            if(_destroy)
+            {
+                return;
+            }
+            subscribers = _subscribers;
+        }
 
-	set<Ice::ConnectionPtr> flushSet;
-	for(list<Ice::ObjectPrx>::const_iterator p = subscribers.begin(); p != subscribers.end(); ++p)
-	{
-	    Ice::ConnectionPtr connection = (*p)->ice_getCachedConnection();
-	    if(connection)
-	    {
-		flushSet.insert(connection);
-	    }
-	}
-	
-	for(set<Ice::ConnectionPtr>::const_iterator q = flushSet.begin(); q != flushSet.end(); ++q)
-	{
-	    try
-	    {
-		(*q)->flushBatchRequests();
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		// Ignore.
-	    }
-	}
-	
-	//
-	// Trace after the flush so that the correct number of objects
-	// are displayed
-	//
-	if(_traceLevels->flush > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->flushCat);
-	    out << "connections: " << flushSet.size() << " subscribers: " << subscribers.size();
-	}
+        set<Ice::ConnectionPtr> flushSet;
+        for(list<Ice::ObjectPrx>::const_iterator p = subscribers.begin(); p != subscribers.end(); ++p)
+        {
+            Ice::ConnectionPtr connection = (*p)->ice_getCachedConnection();
+            if(connection)
+            {
+                flushSet.insert(connection);
+            }
+        }
+        
+        for(set<Ice::ConnectionPtr>::const_iterator q = flushSet.begin(); q != flushSet.end(); ++q)
+        {
+            try
+            {
+                (*q)->flushBatchRequests();
+            }
+            catch(const Ice::LocalException&)
+            {
+                // Ignore.
+            }
+        }
+        
+        //
+        // Trace after the flush so that the correct number of objects
+        // are displayed
+        //
+        if(_traceLevels->flush > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->flushCat);
+            out << "connections: " << flushSet.size() << " subscribers: " << subscribers.size();
+        }
     }
 }

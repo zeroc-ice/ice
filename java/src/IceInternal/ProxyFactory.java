@@ -89,51 +89,51 @@ public final class ProxyFactory
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.initializationData().logger;
 
-	if(ex instanceof Ice.ObjectNotExistException)
-	{
-	    Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
+        if(ex instanceof Ice.ObjectNotExistException)
+        {
+            Ice.ObjectNotExistException one = (Ice.ObjectNotExistException)ex;
 
-	    LocatorInfo li = ref.getLocatorInfo();
-	    if(li != null)
-	    {
-	        //
-		// We retry ObjectNotExistException if the reference is
-		// indirect.
-		//
-	        li.clearObjectCache((IceInternal.IndirectReference)ref);
-	    }
-	    else if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
-	    {
-	        //
-		// If we have a router, an ObjectNotExistException with an
-		// operation name "ice_add_proxy" indicates to the client
-		// that the router isn't aware of the proxy (for example,
-		// because it was evicted by the router). In this case, we
-		// must *always* retry, so that the missing proxy is added
-		// to the router.
-		//
-		if(traceLevels.retry >= 1)
-		{
+            LocatorInfo li = ref.getLocatorInfo();
+            if(li != null)
+            {
+                //
+                // We retry ObjectNotExistException if the reference is
+                // indirect.
+                //
+                li.clearObjectCache((IceInternal.IndirectReference)ref);
+            }
+            else if(ref.getRouterInfo() != null && one.operation.equals("ice_add_proxy"))
+            {
+                //
+                // If we have a router, an ObjectNotExistException with an
+                // operation name "ice_add_proxy" indicates to the client
+                // that the router isn't aware of the proxy (for example,
+                // because it was evicted by the router). In this case, we
+                // must *always* retry, so that the missing proxy is added
+                // to the router.
+                //
+                if(traceLevels.retry >= 1)
+                {
                     String s = "retrying operation call to add proxy to router\n" + ex.toString();
                     logger.trace(traceLevels.retryCat, s);
-		}
-		return cnt; // We must always retry, so we don't look at the retry count.
-	    }
-	    else
-	    {
-	        //
-		// For all other cases, we don't retry ObjectNotExistException.
-		//
-		throw ex;
-	    }
-	}
-	else if(ex instanceof Ice.RequestFailedException)
-	{
+                }
+                return cnt; // We must always retry, so we don't look at the retry count.
+            }
+            else
+            {
+                //
+                // For all other cases, we don't retry ObjectNotExistException.
+                //
+                throw ex;
+            }
+        }
+        else if(ex instanceof Ice.RequestFailedException)
+        {
             //
             // For all other cases, we don't retry  ObjectNotExistException
             //
-	    throw ex;
-	}
+            throw ex;
+        }
 
         //
         // There is no point in retrying an operation that resulted in a
@@ -212,44 +212,44 @@ public final class ProxyFactory
     {
         _instance = instance;
 
-	String str = _instance.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
+        String str = _instance.initializationData().properties.getPropertyWithDefault("Ice.RetryIntervals", "0");
 
         String[] arr = str.trim().split("[ \t\n\r]+");
 
-	if(arr.length > 0)
-	{
-	    _retryIntervals = new int[arr.length];
+        if(arr.length > 0)
+        {
+            _retryIntervals = new int[arr.length];
 
-	    for(int i = 0; i < arr.length; i++)
-	    {
-		int v;
+            for(int i = 0; i < arr.length; i++)
+            {
+                int v;
 
-		try
-		{
-		    v = Integer.parseInt(arr[i]);
-		}
-		catch(NumberFormatException ex)
-		{
-		    v = 0;
-		}
+                try
+                {
+                    v = Integer.parseInt(arr[i]);
+                }
+                catch(NumberFormatException ex)
+                {
+                    v = 0;
+                }
 
-		//
-		// If -1 is the first value, no retry and wait intervals.
-		// 
-		if(i == 0 && v == -1)
-		{
-		    _retryIntervals = new int[0];
-		    break;
-		}
+                //
+                // If -1 is the first value, no retry and wait intervals.
+                // 
+                if(i == 0 && v == -1)
+                {
+                    _retryIntervals = new int[0];
+                    break;
+                }
 
-		_retryIntervals[i] = v > 0 ? v : 0;
-	    }
-	}
-	else
-	{
-	    _retryIntervals = new int[1];
-	    _retryIntervals[0] = 0;
-	}
+                _retryIntervals[i] = v > 0 ? v : 0;
+            }
+        }
+        else
+        {
+            _retryIntervals = new int[1];
+            _retryIntervals[0] = 0;
+        }
     }
 
     private Instance _instance;

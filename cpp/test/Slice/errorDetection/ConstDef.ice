@@ -72,57 +72,57 @@ const float nf9 = -1E+1;
 const float nf10 = -1E+1f;
 const float nf11 = -1E1F;
 
-const XXX ic1 = 1;		// no such type
-const long f11 = 1;		// redefinition
-const long F10 = 1;		// case-insensitive redefinition
+const XXX ic1 = 1;              // no such type
+const long f11 = 1;             // redefinition
+const long F10 = 1;             // case-insensitive redefinition
 
 sequence<long> LS;
-const LS ic2 = 1;		// illegal constant type
-const Object ic3 = 0;		// illegal constant type
+const LS ic2 = 1;               // illegal constant type
+const Object ic3 = 0;           // illegal constant type
 
-const bool ic4 = 0;		// type mismatch
-const byte ic5 = "hello";	// type mismatch
-const short ic6 = 1.1;		// type mismatch
-const int ic7 = blue;		// type mismatch
-const long ic8 = false;		// type mismatch
+const bool ic4 = 0;             // type mismatch
+const byte ic5 = "hello";       // type mismatch
+const short ic6 = 1.1;          // type mismatch
+const int ic7 = blue;           // type mismatch
+const long ic8 = false;         // type mismatch
 
-const long = 0;			// missing identifier
+const long = 0;                 // missing identifier
 
 enum digit { one, two };
-const color ic9 = two;		// wrong enumerator type
-const color ic10 = 0;		// wrong initializer type
+const color ic9 = two;          // wrong enumerator type
+const color ic10 = 0;           // wrong initializer type
 
 //
 // Range checks
 //
-const long r1 = 9223372036854775807;	// LLONG_MAX, OK
-const long r2 = -9223372036854775807;	// -LLONG_MAX, OK
+const long r1 = 9223372036854775807;    // LLONG_MAX, OK
+const long r2 = -9223372036854775807;   // -LLONG_MAX, OK
 
 //
 // TODO: This should work, but doesn't. STLport can't handle inserting
 // LLONG_MIN onto a stream and inserts garbage. We can periodically try
 // this again as new versions of STLport come out...
 //
-// const long r3 = -9223372036854775808;	// LLONG_MIN, OK
+// const long r3 = -9223372036854775808;        // LLONG_MIN, OK
 //
 
-const long r4 = -9223372036854775809;	// underflow
-const long r5 = +9223372036854775808;	// overflow
+const long r4 = -9223372036854775809;   // underflow
+const long r5 = +9223372036854775808;   // overflow
 
-const int i1 = -2147483648;		// INT_MIN, OK
-const int i2 = +2147483647;		// INT_MAX, OK
-const int i3 = -2147483649;		// underflow
-const int i4 = +2147483648;		// overflow
+const int i1 = -2147483648;             // INT_MIN, OK
+const int i2 = +2147483647;             // INT_MAX, OK
+const int i3 = -2147483649;             // underflow
+const int i4 = +2147483648;             // overflow
 
-const short s1 = -32768;		// SHORT_MIN, OK
-const short s2 = +32767;		// SHORT_MAX, OK
-const short s3 = -32769;		// underflow
-const short s4 = +32768;		// overflow
+const short s1 = -32768;                // SHORT_MIN, OK
+const short s2 = +32767;                // SHORT_MAX, OK
+const short s3 = -32769;                // underflow
+const short s4 = +32768;                // overflow
 
-const byte b1 = 0;			// OK
-const byte b2 = 255;			// OK
-const byte b3 = -1;			// underflow
-const byte b4 = 256;			// overflow
+const byte b1 = 0;                      // OK
+const byte b2 = 255;                    // OK
+const byte b3 = -1;                     // underflow
+const byte b4 = 256;                    // overflow
 
 const string nullstring1 = "a\000";
 const string nullstring2 = "a\x000";

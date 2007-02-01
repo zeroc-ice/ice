@@ -30,15 +30,15 @@ class TestServer(Ice.Application):
         self.communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0")
 
         adapter = self.communicator().createObjectAdapter("TestAdapter")
-	adapter.activate()
+        adapter.activate()
         adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
         adapter.addServantLocator(TestI.ServantLocatorI(""), "")
-	adapter.add(TestI.TestI(), self.communicator().stringToIdentity("asm"))
+        adapter.add(TestI.TestI(), self.communicator().stringToIdentity("asm"))
 
-	AllTests.allTests(self.communicator(), False)
+        AllTests.allTests(self.communicator(), False)
 
-	adapter.deactivate()
-	adapter.waitForDeactivate()
+        adapter.deactivate()
+        adapter.waitForDeactivate()
         return 0
 
 app = TestServer()

@@ -89,8 +89,8 @@ public:
 private:
 
     ObjectAdapterI(const IceInternal::InstancePtr&, const CommunicatorPtr&, 
-		   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, const std::string&,
-		   const RouterPrx&, bool);
+                   const IceInternal::ObjectAdapterFactoryPtr&, const std::string&, const std::string&,
+                   const RouterPrx&, bool);
     virtual ~ObjectAdapterI();
     friend class IceInternal::ObjectAdapterFactory;
     
@@ -135,7 +135,7 @@ private:
         ProcessI(const CommunicatorPtr&);
 
         virtual void shutdown(const Current&);
-	virtual void writeMessage(const std::string&, Int, const Current&);
+        virtual void writeMessage(const std::string&, Int, const Current&);
 
     private:
 

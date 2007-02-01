@@ -59,15 +59,15 @@ public class Client
             arr[i] = ((Integer)ports.get(i)).intValue();
         }
 
-	try
-	{
-	    AllTests.allTests(communicator, arr);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    ex.printStackTrace();
-	    AllTests.test(false);
-	}
+        try
+        {
+            AllTests.allTests(communicator, arr);
+        }
+        catch(Ice.LocalException ex)
+        {
+            ex.printStackTrace();
+            AllTests.test(false);
+        }
 
         return 0;
     }
@@ -80,16 +80,16 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(argsH);
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
 
-	    //
-	    // This test aborts servers, so we don't want warnings.
-	    //
-	   initData. properties.setProperty("Ice.Warn.Connections", "0");
+            //
+            // This test aborts servers, so we don't want warnings.
+            //
+           initData. properties.setProperty("Ice.Warn.Connections", "0");
 
-	   communicator = Ice.Util.initialize(argsH, initData);
+           communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator);
         }
         catch(Ice.LocalException ex)
@@ -111,7 +111,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

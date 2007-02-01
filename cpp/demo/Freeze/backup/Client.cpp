@@ -38,51 +38,51 @@ main(int argc, char* argv[])
     const int size = 10000;
 
     if(m.size() == 0)
-    {	
-	cout << "********* Creating new map ***********" << endl;
-	Freeze::TransactionHolder txHolder(connection);
+    {   
+        cout << "********* Creating new map ***********" << endl;
+        Freeze::TransactionHolder txHolder(connection);
 
-	IceUtil::Time time = IceUtil::Time::now();
-	IceUtil::Int64 ms = time.toMilliSeconds();
+        IceUtil::Time time = IceUtil::Time::now();
+        IceUtil::Int64 ms = time.toMilliSeconds();
 
-	for(int i = 0; i < size; ++i)
-	{
-	    m.insert(IntLongMap::value_type(i, ms));
-	}
-	txHolder.commit();
+        for(int i = 0; i < size; ++i)
+        {
+            m.insert(IntLongMap::value_type(i, ms));
+        }
+        txHolder.commit();
     }
    
     cout << "Updating map" << endl;
 
     for(;;)
     {
-	int count = 0;
+        int count = 0;
 
-	Freeze::TransactionHolder txHolder(connection);
-	IceUtil::Time time = IceUtil::Time::now();
-	IceUtil::Int64 ms = time.toMilliSeconds();
+        Freeze::TransactionHolder txHolder(connection);
+        IceUtil::Time time = IceUtil::Time::now();
+        IceUtil::Int64 ms = time.toMilliSeconds();
 
-	IntLongMap::iterator p = m.begin();
-	IceUtil::Int64 oldMs = p->second;
-	do
-	{
-	    if(p->second != oldMs)
-	    {
-		cerr << "old time (ms) == " << oldMs << endl;
-		cerr << "current current (ms) == " << p->second << endl;
-	    }
-	    
-	    test(p->second == oldMs);
-	    p.set(ms);
-	    count++;
-	} while(++p != m.end());
+        IntLongMap::iterator p = m.begin();
+        IceUtil::Int64 oldMs = p->second;
+        do
+        {
+            if(p->second != oldMs)
+            {
+                cerr << "old time (ms) == " << oldMs << endl;
+                cerr << "current current (ms) == " << p->second << endl;
+            }
+            
+            test(p->second == oldMs);
+            p.set(ms);
+            count++;
+        } while(++p != m.end());
 
-	cout << "Read " << IceUtil::Time::milliSeconds(oldMs).toDateTime() << " in all records;" 
-	     << " updating with " << time.toDateTime() << " ... " << flush;
-	  
-	txHolder.commit();
-	cout << "done" << endl;
-	test(count == size);
+        cout << "Read " << IceUtil::Time::milliSeconds(oldMs).toDateTime() << " in all records;" 
+             << " updating with " << time.toDateTime() << " ... " << flush;
+          
+        txHolder.commit();
+        cout << "done" << endl;
+        test(count == size);
     }
 
     connection->close();

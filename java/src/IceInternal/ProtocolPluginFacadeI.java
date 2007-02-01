@@ -14,8 +14,8 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     public
     ProtocolPluginFacadeI(Ice.Communicator communicator)
     {
-	_communicator = communicator;
-	_instance = Ice.Util.getInstance(communicator);
+        _communicator = communicator;
+        _instance = Ice.Util.getInstance(communicator);
     }
 
     //
@@ -25,7 +25,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     public Ice.Communicator
     getCommunicator()
     {
-	return _communicator;
+        return _communicator;
     }
 
     //
@@ -34,7 +34,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     public String
     getDefaultHost()
     {
-	return _instance.defaultsAndOverrides().defaultHost;
+        return _instance.defaultsAndOverrides().defaultHost;
     }
 
     //
@@ -43,13 +43,13 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     public int
     getNetworkTraceLevel()
     {
-	return _instance.traceLevels().network;
+        return _instance.traceLevels().network;
     }
 
     public String
     getNetworkTraceCategory()
     {
-	return _instance.traceLevels().networkCat;
+        return _instance.traceLevels().networkCat;
     }
 
     //
@@ -58,7 +58,7 @@ public class ProtocolPluginFacadeI implements ProtocolPluginFacade
     public void
     addEndpointFactory(EndpointFactory factory)
     {
-	_instance.endpointFactoryManager().add(factory);
+        _instance.endpointFactoryManager().add(factory);
     }
 
     private Instance _instance;

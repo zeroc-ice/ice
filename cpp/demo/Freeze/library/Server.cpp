@@ -18,7 +18,7 @@ class LibraryServer : public Ice::Application
 public:
     
     LibraryServer(const string& envName) :
-	_envName(envName)
+        _envName(envName)
     {
     }
 
@@ -53,7 +53,7 @@ LibraryServer::run(int argc, char* argv[])
     Ice::Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {
-	evictor->setSize(evictorSize);
+        evictor->setSize(evictorSize);
     }
     
     //

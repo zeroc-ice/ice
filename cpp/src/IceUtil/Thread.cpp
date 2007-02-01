@@ -44,13 +44,13 @@ IceUtil::ThreadControl::join()
 {
     if(_handle == 0)
     {
-	throw BadThreadControlException(__FILE__, __LINE__);
+        throw BadThreadControlException(__FILE__, __LINE__);
     }
 
     int rc = WaitForSingleObject(_handle, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
     
     detach();
@@ -61,12 +61,12 @@ IceUtil::ThreadControl::detach()
 {
     if(_handle == 0)
     {
-	throw BadThreadControlException(__FILE__, __LINE__);
+        throw BadThreadControlException(__FILE__, __LINE__);
     }
     
     if(CloseHandle(_handle) == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -115,13 +115,13 @@ WINAPI startHook(void* arg)
 
     try
     {
-	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
+        IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
 
-	//
-	// Ensure that the thread doesn't go away until run() has
-	// completed.
-	//
-	thread = rawThread;
+        //
+        // Ensure that the thread doesn't go away until run() has
+        // completed.
+        //
+        thread = rawThread;
 
 #ifdef _WIN32
         //
@@ -132,20 +132,20 @@ WINAPI startHook(void* arg)
         srand(seed ^ thread->getThreadControl().id());
 #endif
 
-	//
-	// See the comment in IceUtil::Thread::start() for details.
-	//
-	rawThread->__decRef();
-	thread->run();
+        //
+        // See the comment in IceUtil::Thread::start() for details.
+        //
+        rawThread->__decRef();
+        thread->run();
     }
     catch(const IceUtil::Exception& e)
     {
-	cerr << "IceUtil::Thread::run(): uncaught exception: ";
-	cerr << e << endl;
+        cerr << "IceUtil::Thread::run(): uncaught exception: ";
+        cerr << e << endl;
     } 
     catch(...)
     {
-	cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
+        cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
     }
     thread->_done();
    
@@ -166,7 +166,7 @@ IceUtil::Thread::start(size_t stackSize)
 
     if(_started)
     {
-	throw ThreadStartedException(__FILE__, __LINE__);
+        throw ThreadStartedException(__FILE__, __LINE__);
     }
 
     //
@@ -185,19 +185,19 @@ IceUtil::Thread::start(size_t stackSize)
     _handle = 
        reinterpret_cast<HANDLE>(
           _beginthreadex(0, 
-			 static_cast<unsigned int>(stackSize), 
-			 startHook, this, 0, &id));
+                         static_cast<unsigned int>(stackSize), 
+                         startHook, this, 0, &id));
     _id = id;
 
     if(_handle == 0)
     {
-	__decRef();
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        __decRef();
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 
     _started = true;
     _running = true;
-			
+                        
     return ThreadControl(_handle, _id);
 }
 
@@ -207,7 +207,7 @@ IceUtil::Thread::getThreadControl() const
     IceUtil::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
-	throw ThreadNotStartedException(__FILE__, __LINE__);
+        throw ThreadNotStartedException(__FILE__, __LINE__);
     }
     return ThreadControl(_handle, _id);
 }
@@ -275,14 +275,14 @@ IceUtil::ThreadControl::join()
 {
     if(!_detachable)
     {
-	throw BadThreadControlException(__FILE__, __LINE__);
+        throw BadThreadControlException(__FILE__, __LINE__);
     }
 
     void* ignore = 0;
     int rc = pthread_join(_thread, &ignore);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -291,13 +291,13 @@ IceUtil::ThreadControl::detach()
 {
     if(!_detachable)
     {
-	throw BadThreadControlException(__FILE__, __LINE__);
+        throw BadThreadControlException(__FILE__, __LINE__);
     }
 
     int rc = pthread_detach(_thread);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -346,24 +346,24 @@ startHook(void* arg)
 
     try
     {
-	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
+        IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
 
-	thread = rawThread;
+        thread = rawThread;
 
-	//
-	// See the comment in IceUtil::Thread::start() for details.
-	//
-	rawThread->__decRef();
-	thread->run();
+        //
+        // See the comment in IceUtil::Thread::start() for details.
+        //
+        rawThread->__decRef();
+        thread->run();
     }
     catch(const IceUtil::Exception& e)
     {
-	cerr << "IceUtil::Thread::run(): uncaught exception: ";
-	cerr << e << endl;
+        cerr << "IceUtil::Thread::run(): uncaught exception: ";
+        cerr << e << endl;
     }
     catch(...)
     {
-	cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
+        cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
     }
     thread->_done();
     
@@ -383,7 +383,7 @@ IceUtil::Thread::start(size_t stackSize)
 
     if(_started)
     {
-	throw ThreadStartedException(__FILE__, __LINE__);
+        throw ThreadStartedException(__FILE__, __LINE__);
     }
 
     //
@@ -399,34 +399,34 @@ IceUtil::Thread::start(size_t stackSize)
 
     if(stackSize > 0)
     {
-	pthread_attr_t attr;
-	int rc = pthread_attr_init(&attr);
-	if(rc != 0)
-	{
-	    __decRef();
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
-	rc = pthread_attr_setstacksize(&attr, stackSize);
-	if(rc != 0)
-	{
-	    __decRef();
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
-	rc = pthread_create(&_thread, &attr, startHook, this);
-	if(rc != 0)
-	{
-	    __decRef();
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        pthread_attr_t attr;
+        int rc = pthread_attr_init(&attr);
+        if(rc != 0)
+        {
+            __decRef();
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
+        rc = pthread_attr_setstacksize(&attr, stackSize);
+        if(rc != 0)
+        {
+            __decRef();
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
+        rc = pthread_create(&_thread, &attr, startHook, this);
+        if(rc != 0)
+        {
+            __decRef();
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
     else
     {
-	int rc = pthread_create(&_thread, 0, startHook, this);
-	if(rc != 0)
-	{
-	    __decRef();
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        int rc = pthread_create(&_thread, 0, startHook, this);
+        if(rc != 0)
+        {
+            __decRef();
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
 
     _started = true;
@@ -441,7 +441,7 @@ IceUtil::Thread::getThreadControl() const
     IceUtil::Mutex::Lock lock(_stateMutex);
     if(!_started)
     {
-	throw ThreadNotStartedException(__FILE__, __LINE__);
+        throw ThreadNotStartedException(__FILE__, __LINE__);
     }
     return ThreadControl(_thread);
 }

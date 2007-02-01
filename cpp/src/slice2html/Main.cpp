@@ -28,17 +28,17 @@ usage(const char* n)
         "-DNAME=DEF           Define NAME as DEF.\n"
         "-UNAME               Remove any definition for NAME.\n"
         "-IDIR                Put DIR in the include file search path.\n"
-	"-E                   Print preprocessor output on stdout.\n"
-	"--output-dir DIR     Create files in the directory DIR.\n"
+        "-E                   Print preprocessor output on stdout.\n"
+        "--output-dir DIR     Create files in the directory DIR.\n"
         "--hdr FILE           Use the contents of FILE as the header.\n"
-	"--ftr FILe           Use the contents of FILE as the footer.\n"
-	"--indexhdr FILE      Use the contents of FILE as the header of the index/toc page (default=--hdr).\n"
-	"--indexftr FILE      Use the contents of FILE as the footer of the index/toc page (default=--ftr).\n"
-	"--image-dir DIR      Directory containing images for style sheets.\n"
-	"--logo-url URL       Link to URL from logo image (requires --image-dir).\n"
+        "--ftr FILe           Use the contents of FILE as the footer.\n"
+        "--indexhdr FILE      Use the contents of FILE as the header of the index/toc page (default=--hdr).\n"
+        "--indexftr FILE      Use the contents of FILE as the footer of the index/toc page (default=--ftr).\n"
+        "--image-dir DIR      Directory containing images for style sheets.\n"
+        "--logo-url URL       Link to URL from logo image (requires --image-dir).\n"
         "--search ACTION      Generate search box with specified ACTION.\n"
-	"--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
-	"--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
+        "--index NUM          Generate subindex if it has at least NUM entries (0 for no index, default=1).\n"
+        "--summary NUM        Print a warning if a summary sentence exceeds NUM characters.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only).\n"
         ;
@@ -74,21 +74,21 @@ main(int argc, char* argv[])
     }
     catch(const IceUtil::BadOptException& e)
     {
-	cerr << argv[0] << ": " << e.reason << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": " << e.reason << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return EXIT_SUCCESS;
+        usage(argv[0]);
+        return EXIT_SUCCESS;
     }
 
     if(opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+        cout << ICE_STRING_VERSION << endl;
+        return EXIT_SUCCESS;
     }
 
     string cppArgs;
@@ -96,19 +96,19 @@ main(int argc, char* argv[])
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -D" + Preprocessor::addQuotes(*i);
+        cppArgs += " -D" + Preprocessor::addQuotes(*i);
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -U" + Preprocessor::addQuotes(*i);
+        cppArgs += " -U" + Preprocessor::addQuotes(*i);
     }
 
     optargs = opts.argVec("I");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -I" + Preprocessor::addQuotes(*i);
+        cppArgs += " -I" + Preprocessor::addQuotes(*i);
     }
 
     bool preprocess = opts.isSet("E");
@@ -127,14 +127,14 @@ main(int argc, char* argv[])
     unsigned indexCount;
     if(!ind.empty())
     {
-	istringstream s(ind);
-	s >>  indexCount;
-	if(!s)
-	{
-	    cerr << argv[0] << ": the --index operation requires a positive integer argument" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        istringstream s(ind);
+        s >>  indexCount;
+        if(!s)
+        {
+            cerr << argv[0] << ": the --index operation requires a positive integer argument" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
     }
 
     string imageDir = opts.optArg("image-dir");
@@ -147,14 +147,14 @@ main(int argc, char* argv[])
     unsigned summaryCount;
     if(!warnSummary.empty())
     {
-	istringstream s(warnSummary);
-	s >>  summaryCount;
-	if(!s)
-	{
-	    cerr << argv[0] << ": the --summary operation requires a positive integer argument" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+        istringstream s(warnSummary);
+        s >>  summaryCount;
+        if(!s)
+        {
+            cerr << argv[0] << ": the --summary operation requires a positive integer argument" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
     }
 
     bool debug = opts.isSet("debug");
@@ -163,9 +163,9 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-	cerr << argv[0] << ": no input file" << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": no input file" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     UnitPtr p = Unit::createUnit(true, false, ice, false);
@@ -174,55 +174,55 @@ main(int argc, char* argv[])
 
     for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
     {
-	Preprocessor icecpp(argv[0], args[idx], cppArgs);
-	FILE* cppHandle = icecpp.preprocess(true);
+        Preprocessor icecpp(argv[0], args[idx], cppArgs);
+        FILE* cppHandle = icecpp.preprocess(true);
 
-	if(cppHandle == 0)
-	{
-	    p->destroy();
-	    return EXIT_FAILURE;
-	}
-	if(preprocess)
-	{
-	    char buf[4096];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
-		if(fputs(buf, stdout) == EOF)
-		{
-		    p->destroy();
-		    return EXIT_FAILURE;
-		}
-	    }
-	}
-	else
-	{
-	    status = p->parse(cppHandle, debug);
-	}
+        if(cppHandle == 0)
+        {
+            p->destroy();
+            return EXIT_FAILURE;
+        }
+        if(preprocess)
+        {
+            char buf[4096];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
+                if(fputs(buf, stdout) == EOF)
+                {
+                    p->destroy();
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+        else
+        {
+            status = p->parse(cppHandle, debug);
+        }
 
-	if(!icecpp.close())
-	{
-	    p->destroy();
-	    return EXIT_FAILURE;
-	}
+        if(!icecpp.close())
+        {
+            p->destroy();
+            return EXIT_FAILURE;
+        }
     }
 
     if(status == EXIT_SUCCESS && !preprocess)
     {
-	try
-	{
-	    Slice::generate(p, output, header, footer, indexHeader, indexFooter, imageDir, logoURL,
+        try
+        {
+            Slice::generate(p, output, header, footer, indexHeader, indexFooter, imageDir, logoURL,
                             searchAction, indexCount, summaryCount);
-	}
-	catch(const string& err)
-	{
-	    cerr << argv[0] << ": " << err << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const char* err)
-	{
-	    cerr << argv[0] << ": " << err << endl;
-	    status = EXIT_FAILURE;
-	}
+        }
+        catch(const string& err)
+        {
+            cerr << argv[0] << ": " << err << endl;
+            status = EXIT_FAILURE;
+        }
+        catch(const char* err)
+        {
+            cerr << argv[0] << ": " << err << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     p->destroy();

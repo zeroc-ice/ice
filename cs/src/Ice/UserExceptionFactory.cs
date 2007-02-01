@@ -12,8 +12,8 @@ namespace IceInternal
 
     public interface UserExceptionFactory
     {
-	void createAndThrow();
-	void destroy();
+        void createAndThrow();
+        void destroy();
 }
 
 }

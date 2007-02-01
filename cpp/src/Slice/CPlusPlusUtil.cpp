@@ -18,11 +18,11 @@ Slice::ToIfdef::operator()(char c)
 {
     if(!isalnum(c))
     {
-	return '_';
+        return '_';
     }
     else
     {
-	return c;
+        return c;
     }
 }
 
@@ -56,21 +56,21 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
     string result = file;
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
-	string includePath = normalizePath(*p);
+        string includePath = normalizePath(*p);
 
-	if(file.compare(0, includePath.length(), includePath) == 0)
-	{
-	    string s = file.substr(includePath.length());
-	    if(s.size() < result.size())
-	    {
-		result = s;
-	    }
-	}
+        if(file.compare(0, includePath.length(), includePath) == 0)
+        {
+            string s = file.substr(includePath.length());
+            if(s.size() < result.size())
+            {
+                result = s;
+            }
+        }
     }
 
     if((pos = result.rfind('.')) != string::npos)
     {
-	result.erase(pos);
+        result.erase(pos);
     }
 
     return result;
@@ -101,29 +101,29 @@ Slice::printVersionCheck(Output& out)
     out << "\n#ifndef ICE_IGNORE_VERSION";
     if(ICE_INT_VERSION % 100 > 50)
     {
-	//
-	// Beta version: exact match required
-	//
-	out << "\n#   if ICE_INT_VERSION  != " << ICE_INT_VERSION;
-	out << "\n#       error Ice version mismatch: an exact match is required for beta generated code";
-	out << "\n#   endif";
+        //
+        // Beta version: exact match required
+        //
+        out << "\n#   if ICE_INT_VERSION  != " << ICE_INT_VERSION;
+        out << "\n#       error Ice version mismatch: an exact match is required for beta generated code";
+        out << "\n#   endif";
     }
     else
     {
-	out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
-	out << "\n#       error Ice version mismatch!";
-	out << "\n#   endif";
-	
-	//
-	// Generated code is release; reject beta header
-	//
-	out << "\n#   if ICE_INT_VERSION % 100 > 50";
-	out << "\n#       error Beta header file detected";
-	out << "\n#   endif";
-	
-	out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
-	out << "\n#       error Ice patch level mismatch!";
-	out << "\n#   endif";
+        out << "\n#   if ICE_INT_VERSION / 100 != " << ICE_INT_VERSION / 100;
+        out << "\n#       error Ice version mismatch!";
+        out << "\n#   endif";
+        
+        //
+        // Generated code is release; reject beta header
+        //
+        out << "\n#   if ICE_INT_VERSION % 100 > 50";
+        out << "\n#       error Beta header file detected";
+        out << "\n#   endif";
+        
+        out << "\n#   if ICE_INT_VERSION % 100 < " << ICE_INT_VERSION % 100;
+        out << "\n#       error Ice patch level mismatch!";
+        out << "\n#   endif";
     }
     out << "\n#endif";
 }
@@ -133,14 +133,14 @@ Slice::printDllExportStuff(Output& out, const string& dllExport)
 {
     if(dllExport.size())
     {
-	out << sp;
-	out << "\n#ifndef " << dllExport;
-	out << "\n#   ifdef " << dllExport << "_EXPORTS";
-	out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
-	out << "\n#   else";
-	out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
-	out << "\n#   endif";
-	out << "\n#endif";
+        out << sp;
+        out << "\n#ifndef " << dllExport;
+        out << "\n#   ifdef " << dllExport << "_EXPORTS";
+        out << "\n#       define " << dllExport << " ICE_DECLSPEC_EXPORT";
+        out << "\n#   else";
+        out << "\n#       define " << dllExport << " ICE_DECLSPEC_IMPORT";
+        out << "\n#   endif";
+        out << "\n#endif";
     }
 }
 
@@ -149,121 +149,121 @@ Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& meta
 {
     static const char* builtinTable[] =
     {
-	"::Ice::Byte",
-	"bool",
-	"::Ice::Short",
-	"::Ice::Int",
-	"::Ice::Long",
-	"::Ice::Float",
-	"::Ice::Double",
-	"::std::string",
-	"::Ice::ObjectPtr",
-	"::Ice::ObjectPrx",
-	"::Ice::LocalObjectPtr"
+        "::Ice::Byte",
+        "bool",
+        "::Ice::Short",
+        "::Ice::Int",
+        "::Ice::Long",
+        "::Ice::Float",
+        "::Ice::Double",
+        "::std::string",
+        "::Ice::ObjectPtr",
+        "::Ice::ObjectPrx",
+        "::Ice::LocalObjectPtr"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindString)
-	{
+        {
             string strType = findMetaData(metaData, true);
-	    if(strType != "string" && (useWstring || strType == "wstring"))
-	    {
-	        return "::std::wstring";
-	    }
-	}
-	return builtinTable[builtin->kind()];
+            if(strType != "string" && (useWstring || strType == "wstring"))
+            {
+                return "::std::wstring";
+            }
+        }
+        return builtinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return fixKwd(cl->scoped() + "Ptr");
+        return fixKwd(cl->scoped() + "Ptr");
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	if(findMetaData(st->getMetaData(), false) == "class")
-	{
-	    return fixKwd(st->scoped() + "Ptr");
-	}
-	return fixKwd(st->scoped());
+        if(findMetaData(st->getMetaData(), false) == "class")
+        {
+            return fixKwd(st->scoped() + "Ptr");
+        }
+        return fixKwd(st->scoped());
     }
-	    
+            
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return fixKwd(proxy->_class()->scoped() + "Prx");
+        return fixKwd(proxy->_class()->scoped() + "Prx");
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
         string seqType = findMetaData(metaData, true);
-	if(!seqType.empty())
-	{
-	    if(seqType == "array" || seqType == "range:array")
-	    {
-	        if(inParam)
-		{
-	            TypePtr elemType = seq->type();
-	            string s = typeToString(elemType, inWstringModule(seq), seq->typeMetaData());
-	            return "::std::pair<const " + s + "*, const " + s + "*>";
-		}
-		else
-		{
-		    return fixKwd(seq->scoped());
-		}
-	    }
-	    else if(seqType.find("range") == 0)
-	    {
-	        if(inParam)
-		{
-		    string s;
-	            if(seqType.find("range:") == 0)
-		    {
-		        s = seqType.substr(strlen("range:"));
-		    }
-		    else
-		    {
-	                s = fixKwd(seq->scoped());
-		    }
-		    if(s[0] == ':')
-		    {
-		        s = " " + s;
-		    }
-		    return "::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>";
-		}
-		else
-		{
-		    return fixKwd(seq->scoped());
-		}
-	    }
-	    else
-	    {
-	        return seqType;
-	    }
-	}
-	else
-	{
-	    return fixKwd(seq->scoped());
-	}
+        if(!seqType.empty())
+        {
+            if(seqType == "array" || seqType == "range:array")
+            {
+                if(inParam)
+                {
+                    TypePtr elemType = seq->type();
+                    string s = typeToString(elemType, inWstringModule(seq), seq->typeMetaData());
+                    return "::std::pair<const " + s + "*, const " + s + "*>";
+                }
+                else
+                {
+                    return fixKwd(seq->scoped());
+                }
+            }
+            else if(seqType.find("range") == 0)
+            {
+                if(inParam)
+                {
+                    string s;
+                    if(seqType.find("range:") == 0)
+                    {
+                        s = seqType.substr(strlen("range:"));
+                    }
+                    else
+                    {
+                        s = fixKwd(seq->scoped());
+                    }
+                    if(s[0] == ':')
+                    {
+                        s = " " + s;
+                    }
+                    return "::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>";
+                }
+                else
+                {
+                    return fixKwd(seq->scoped());
+                }
+            }
+            else
+            {
+                return seqType;
+            }
+        }
+        else
+        {
+            return fixKwd(seq->scoped());
+        }
     }
-	    
+            
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-	return fixKwd(contained->scoped());
+        return fixKwd(contained->scoped());
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-	return fixKwd(en->scoped());
+        return fixKwd(en->scoped());
     }
-	    
+            
     return "???";
 }
 
@@ -272,7 +272,7 @@ Slice::returnTypeToString(const TypePtr& type, bool useWstring, const StringList
 {
     if(!type)
     {
-	return "void";
+        return "void";
     }
 
     return typeToString(type, useWstring, metaData, false);
@@ -283,59 +283,59 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
 {
     static const char* inputBuiltinTable[] =
     {
-	"::Ice::Byte",
-	"bool",
-	"::Ice::Short",
-	"::Ice::Int",
-	"::Ice::Long",
-	"::Ice::Float",
-	"::Ice::Double",
-	"const ::std::string&",
-	"const ::Ice::ObjectPtr&",
-	"const ::Ice::ObjectPrx&",
-	"const ::Ice::LocalObjectPtr&"
+        "::Ice::Byte",
+        "bool",
+        "::Ice::Short",
+        "::Ice::Int",
+        "::Ice::Long",
+        "::Ice::Float",
+        "::Ice::Double",
+        "const ::std::string&",
+        "const ::Ice::ObjectPtr&",
+        "const ::Ice::ObjectPrx&",
+        "const ::Ice::LocalObjectPtr&"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindString)
-	{
+        {
             string strType = findMetaData(metaData, true);
-	    if(strType != "string" && (useWstring || strType == "wstring"))
-	    {
-	        return "const ::std::wstring&";
-	    }
-	}
-	return inputBuiltinTable[builtin->kind()];
+            if(strType != "string" && (useWstring || strType == "wstring"))
+            {
+                return "const ::std::wstring&";
+            }
+        }
+        return inputBuiltinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return "const " + fixKwd(cl->scoped()) + "Ptr&";
+        return "const " + fixKwd(cl->scoped()) + "Ptr&";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	if(findMetaData(st->getMetaData(), false) == "class")
-	{
-	    return "const " + fixKwd(st->scoped()) + "Ptr&";
-	}
-	return "const " + fixKwd(st->scoped()) + "&";
+        if(findMetaData(st->getMetaData(), false) == "class")
+        {
+            return "const " + fixKwd(st->scoped()) + "Ptr&";
+        }
+        return "const " + fixKwd(st->scoped()) + "&";
     }
-	    
+            
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return "const " + fixKwd(proxy->_class()->scoped()) + "Prx&";
+        return "const " + fixKwd(proxy->_class()->scoped()) + "Prx&";
     }
-	    
+            
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-	return fixKwd(en->scoped());
+        return fixKwd(en->scoped());
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -350,23 +350,23 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
                 string s = typeToString(elemType, inWstringModule(seq), seq->typeMetaData());
                 return "const ::std::pair<const " + s + "*, const " + s + "*>&";
             }
-	    else if(seqType.find("range") == 0)
-	    {
-	        string s;
-	        if(seqType.find("range:") == 0)
-		{
-		    s = seqType.substr(strlen("range:"));
-		}
-		else
-		{
-	            s = fixKwd(seq->scoped());
-		}
-		if(s[0] == ':')
-		{
-		    s = " " + s;
-		}
-		return "const ::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>&";
-	    }
+            else if(seqType.find("range") == 0)
+            {
+                string s;
+                if(seqType.find("range:") == 0)
+                {
+                    s = seqType.substr(strlen("range:"));
+                }
+                else
+                {
+                    s = fixKwd(seq->scoped());
+                }
+                if(s[0] == ':')
+                {
+                    s = " " + s;
+                }
+                return "const ::std::pair<" + s + "::const_iterator, " + s + "::const_iterator>&";
+            }
             else
             {
                 return "const " + seqType + "&";
@@ -377,11 +377,11 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
             return "const " + fixKwd(seq->scoped()) + "&";
         }
     }
-	    
+            
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-	return "const " + fixKwd(contained->scoped()) + "&";
+        return "const " + fixKwd(contained->scoped()) + "&";
     }
 
     return "???";
@@ -392,55 +392,55 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
 {
     static const char* outputBuiltinTable[] =
     {
-	"::Ice::Byte&",
-	"bool&",
-	"::Ice::Short&",
-	"::Ice::Int&",
-	"::Ice::Long&",
-	"::Ice::Float&",
-	"::Ice::Double&",
-	"::std::string&",
-	"::Ice::ObjectPtr&",
-	"::Ice::ObjectPrx&",
-	"::Ice::LocalObjectPtr&"
+        "::Ice::Byte&",
+        "bool&",
+        "::Ice::Short&",
+        "::Ice::Int&",
+        "::Ice::Long&",
+        "::Ice::Float&",
+        "::Ice::Double&",
+        "::std::string&",
+        "::Ice::ObjectPtr&",
+        "::Ice::ObjectPrx&",
+        "::Ice::LocalObjectPtr&"
     };
     
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
         if(builtin->kind() == Builtin::KindString)
-	{
+        {
             string strType = findMetaData(metaData, true);
-	    if(strType != "string" && (useWstring || strType == "wstring"))
-	    {
-	        return "::std::wstring&";
-	    }
-	}
-	return outputBuiltinTable[builtin->kind()];
+            if(strType != "string" && (useWstring || strType == "wstring"))
+            {
+                return "::std::wstring&";
+            }
+        }
+        return outputBuiltinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return fixKwd(cl->scoped()) + "Ptr&";
+        return fixKwd(cl->scoped()) + "Ptr&";
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	if(findMetaData(st->getMetaData(), false) == "class")
-	{
-	    return fixKwd(st->scoped()) + "Ptr&";
-	}
-	return fixKwd(st->scoped()) + "&";
+        if(findMetaData(st->getMetaData(), false) == "class")
+        {
+            return fixKwd(st->scoped()) + "Ptr&";
+        }
+        return fixKwd(st->scoped()) + "&";
     }
-	    
+            
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return fixKwd(proxy->_class()->scoped()) + "Prx&";
+        return fixKwd(proxy->_class()->scoped()) + "Prx&";
     }
-	    
+            
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
@@ -457,7 +457,7 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-	return fixKwd(contained->scoped()) + "&";
+        return fixKwd(contained->scoped()) + "&";
     }
 
     return "???";
@@ -468,25 +468,25 @@ Slice::operationModeToString(Operation::Mode mode)
 {
     switch(mode)
     {
-	case Operation::Normal:
-	{
-	    return "::Ice::Normal";
-	}
-	    
-	case Operation::Nonmutating:
-	{
-	    return "::Ice::Nonmutating";
-	}
+        case Operation::Normal:
+        {
+            return "::Ice::Normal";
+        }
+            
+        case Operation::Nonmutating:
+        {
+            return "::Ice::Nonmutating";
+        }
 
-	case Operation::Idempotent:
-	{
-	    return "::Ice::Idempotent";
-	}
+        case Operation::Idempotent:
+        {
+            return "::Ice::Idempotent";
+        }
 
-	default:
-	{
-	    assert(false);
-	}
+        default:
+        {
+            assert(false);
+        }
     }
     
     return "???"; 
@@ -505,18 +505,18 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] = 
     {       
-	"and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break", "case", "catch", "char",
-	"class", "compl", "const", "const_cast", "continue", "default", "delete", "do", "double",
-	"dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for",
-	"friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "not", "not_eq",
-	"operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast",
-	"return", "short", "signed", "sizeof", "static", "static_cast", "struct", "switch", "template",
-	"this", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
-	"virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
+        "and", "and_eq", "asm", "auto", "bit_and", "bit_or", "bool", "break", "case", "catch", "char",
+        "class", "compl", "const", "const_cast", "continue", "default", "delete", "do", "double",
+        "dynamic_cast", "else", "enum", "explicit", "export", "extern", "false", "float", "for",
+        "friend", "goto", "if", "inline", "int", "long", "mutable", "namespace", "new", "not", "not_eq",
+        "operator", "or", "or_eq", "private", "protected", "public", "register", "reinterpret_cast",
+        "return", "short", "signed", "sizeof", "static", "static_cast", "struct", "switch", "template",
+        "this", "throw", "true", "try", "typedef", "typeid", "typename", "union", "unsigned", "using",
+        "virtual", "void", "volatile", "wchar_t", "while", "xor", "xor_eq"
     };
     bool found =  binary_search(&keywordList[0],
-	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-				name);
+                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                                name);
     return found ? "_cpp_" + name : name;
 }
 
@@ -532,24 +532,24 @@ splitScopedName(const string& scoped)
     string::size_type pos;
     while((pos = scoped.find("::", next)) != string::npos)
     {
-	pos += 2;
-	if(pos != scoped.size())
-	{
-	    string::size_type endpos = scoped.find("::", pos);
-	    if(endpos != string::npos)
-	    {
-		ids.push_back(scoped.substr(pos, endpos - pos));
-	    }
-	}
-	next = pos;
+        pos += 2;
+        if(pos != scoped.size())
+        {
+            string::size_type endpos = scoped.find("::", pos);
+            if(endpos != string::npos)
+            {
+                ids.push_back(scoped.substr(pos, endpos - pos));
+            }
+        }
+        next = pos;
     }
     if(next != scoped.size())
     {
-	ids.push_back(scoped.substr(next));
+        ids.push_back(scoped.substr(next));
     }
     else
     {
-	ids.push_back("");
+        ids.push_back("");
     }
 
     return ids;
@@ -567,42 +567,42 @@ Slice::fixKwd(const string& name)
 {
     if(name[0] != ':')
     {
-	return lookupKwd(name);
+        return lookupKwd(name);
     }
     StringList ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
     stringstream result;
     for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
-	result << "::" + *i;
+        result << "::" + *i;
     }
     return result.str();
 }
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				 const string& str, bool pointer, const StringList& metaData, bool inParam)
+                                 const string& str, bool pointer, const StringList& metaData, bool inParam)
 {
     string fixedParam = fixKwd(param);
 
     string stream;
     if(str.empty())
     {
-	stream = marshal ? "__os" : "__is";
+        stream = marshal ? "__os" : "__is";
     }
     else
     {
-	stream = str;
+        stream = str;
     }
     
     string deref;
     if(pointer)
     {
-	deref = "->";
+        deref = "->";
     }
     else
     {
-	deref = '.';
+        deref = '.';
     }
     
     string func = marshal ? "write(" : "read(";
@@ -610,284 +610,284 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-	if(builtin->kind() == Builtin::KindObject)
-	{
-	    if(marshal)
-	    {
-		out << nl << stream << deref << func << fixedParam << ");";
-	    }
-	    else
-	    {
-		out << nl << stream << deref << func << "::Ice::__patch__ObjectPtr, &" << fixedParam << ");";
-	    }
-	    return;
-	}
-	else
-	{
-	    out << nl << stream << deref << func << fixedParam << ");";
-	    return;
-	}
+        if(builtin->kind() == Builtin::KindObject)
+        {
+            if(marshal)
+            {
+                out << nl << stream << deref << func << fixedParam << ");";
+            }
+            else
+            {
+                out << nl << stream << deref << func << "::Ice::__patch__ObjectPtr, &" << fixedParam << ");";
+            }
+            return;
+        }
+        else
+        {
+            out << nl << stream << deref << func << fixedParam << ");";
+            return;
+        }
     }
     
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	string scope = fixKwd(cl->scope());
-	if(marshal)
-	{
-	    out << nl << scope << "__write(" << (pointer ? "" : "&") << stream << ", " << fixedParam << ");";
-	}
-	else
-	{
-	    out << nl << stream << deref << "read("
-		<< scope << "__patch__" << cl->name() << "Ptr, &" << fixedParam << ");";
-	}
+        string scope = fixKwd(cl->scope());
+        if(marshal)
+        {
+            out << nl << scope << "__write(" << (pointer ? "" : "&") << stream << ", " << fixedParam << ");";
+        }
+        else
+        {
+            out << nl << stream << deref << "read("
+                << scope << "__patch__" << cl->name() << "Ptr, &" << fixedParam << ");";
+        }
 
-	return;
+        return;
     }
     
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	string deref;
-	if(findMetaData(st->getMetaData(), false) == "class")
-	{
-	    if(!marshal)
-	    {
-		out << nl << fixedParam << " = new " << fixKwd(st->scoped()) << ";";
-	    }
-	    out << nl << fixedParam << "->__" << func << (pointer ? "" : "&") << stream << ");";
-	}
-	else
-	{
-	    out << nl << fixedParam << ".__" << func << (pointer ? "" : "&") << stream << ");";
-	}
-	return;
+        string deref;
+        if(findMetaData(st->getMetaData(), false) == "class")
+        {
+            if(!marshal)
+            {
+                out << nl << fixedParam << " = new " << fixKwd(st->scoped()) << ";";
+            }
+            out << nl << fixedParam << "->__" << func << (pointer ? "" : "&") << stream << ");";
+        }
+        else
+        {
+            out << nl << fixedParam << ".__" << func << (pointer ? "" : "&") << stream << ");";
+        }
+        return;
     }
     
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
         string seqType = findMetaData(metaData, inParam);
-	builtin = BuiltinPtr::dynamicCast(seq->type());
+        builtin = BuiltinPtr::dynamicCast(seq->type());
         if(marshal)
-	{
-	    string scope = fixKwd(seq->scope());
-	    if(seqType == "array" || seqType == "range:array")
-	    {
-	    	//
-		// Use array (pair<const TYPE*, const TYPE*>). In parameters only.
-		//
-	    	if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
-		{
-		    //
-		    // Sequence type in not handled by BasicStream functions. If the sequence is the
-		    // default vector than we can use the sequences generated write function. Otherwise
-		    // we need to generate marshal code to write each element.
-		    //
+        {
+            string scope = fixKwd(seq->scope());
+            if(seqType == "array" || seqType == "range:array")
+            {
+                //
+                // Use array (pair<const TYPE*, const TYPE*>). In parameters only.
+                //
+                if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+                {
+                    //
+                    // Sequence type in not handled by BasicStream functions. If the sequence is the
+                    // default vector than we can use the sequences generated write function. Otherwise
+                    // we need to generate marshal code to write each element.
+                    //
                     StringList l = seq->getMetaData();
                     seqType = findMetaData(l, false);
-	            if(seqType.empty())
-		    {
-		        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-		            << fixedParam << ".first, " << fixedParam << ".second, " << scope
-			    << "__U__" << fixKwd(seq->name()) << "());";
-		    }
-		    else
-		    {
-		        out << nl << "::Ice::Int __sz_" << fixedParam << " = static_cast< ::Ice::Int>(" << fixedParam
-		            << ".second - " << fixedParam << ".first);";
-	                out << nl << stream << deref << "writeSize(__sz_" << fixedParam << ");";
-	                out << nl << "for(int __i_" << fixedParam << " = 0; __i_" << fixedParam << " < __sz_" 
-		            << fixedParam << "; ++__i_" << fixedParam << ")";
-		        out << sb;
-		        writeMarshalUnmarshalCode(out, seq->type(), fixedParam + ".first[__i_" + fixedParam + "]",
-						  true);
-		        out << eb;
-		    }
-		}
-		else
-		{
-		    //
-		    // Use BasicStream write functions.
-		    //
-		    out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
-		}
-	    }
-	    else if(seqType.find("range") == 0)
-	    {
-	        //
-		// Use range (pair<TYPE::const_iterator, TYPE::const_iterator). Only for in paramaters.
-		// Need to check if the range defines an iterator type other than the actual sequence
-		// type.
-		//
-	        StringList l;
-	        if(seqType.find("range:") == 0)
-		{
-		    seqType = seqType.substr(strlen("range:"));
-		    l.push_back("cpp:" + seqType);
-		}
-		else
-		{
-		    seqType = fixKwd(seq->scoped());
-		}
-	        out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(ice_distance(" 
-		    << fixedParam << ".first, " << fixedParam << ".second)));"; 
-	        out << nl << "for(" << seqType << "::const_iterator ___" << fixedParam << " = "
-		    << fixedParam << ".first; ___" << fixedParam << " != " << fixedParam << ".second; ++___"
-		    << fixedParam << ")";
-		out << sb;
-		writeMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true, "", true, l, false);
-		out << eb;
-	    }
-	    else if(!seqType.empty())
-	    {
+                    if(seqType.empty())
+                    {
+                        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+                            << fixedParam << ".first, " << fixedParam << ".second, " << scope
+                            << "__U__" << fixKwd(seq->name()) << "());";
+                    }
+                    else
+                    {
+                        out << nl << "::Ice::Int __sz_" << fixedParam << " = static_cast< ::Ice::Int>(" << fixedParam
+                            << ".second - " << fixedParam << ".first);";
+                        out << nl << stream << deref << "writeSize(__sz_" << fixedParam << ");";
+                        out << nl << "for(int __i_" << fixedParam << " = 0; __i_" << fixedParam << " < __sz_" 
+                            << fixedParam << "; ++__i_" << fixedParam << ")";
+                        out << sb;
+                        writeMarshalUnmarshalCode(out, seq->type(), fixedParam + ".first[__i_" + fixedParam + "]",
+                                                  true);
+                        out << eb;
+                    }
+                }
+                else
+                {
+                    //
+                    // Use BasicStream write functions.
+                    //
+                    out << nl << stream << deref << func << fixedParam << ".first, " << fixedParam << ".second);";
+                }
+            }
+            else if(seqType.find("range") == 0)
+            {
+                //
+                // Use range (pair<TYPE::const_iterator, TYPE::const_iterator). Only for in paramaters.
+                // Need to check if the range defines an iterator type other than the actual sequence
+                // type.
+                //
+                StringList l;
+                if(seqType.find("range:") == 0)
+                {
+                    seqType = seqType.substr(strlen("range:"));
+                    l.push_back("cpp:" + seqType);
+                }
+                else
+                {
+                    seqType = fixKwd(seq->scoped());
+                }
+                out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(ice_distance(" 
+                    << fixedParam << ".first, " << fixedParam << ".second)));"; 
+                out << nl << "for(" << seqType << "::const_iterator ___" << fixedParam << " = "
+                    << fixedParam << ".first; ___" << fixedParam << " != " << fixedParam << ".second; ++___"
+                    << fixedParam << ")";
+                out << sb;
+                writeMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true, "", true, l, false);
+                out << eb;
+            }
+            else if(!seqType.empty())
+            {
                 out << nl << stream << deref << "writeSize(static_cast< ::Ice::Int>(" << fixedParam << ".size()));";
-		out << nl << seqType << "::const_iterator __p_" << fixedParam << ";";
+                out << nl << seqType << "::const_iterator __p_" << fixedParam << ";";
                 out << nl << "for(__p_" << fixedParam << " = " << fixedParam << ".begin(); __p_" << fixedParam 
-		   << " != " << fixedParam << ".end(); ++__p_" << fixedParam << ")";
+                   << " != " << fixedParam << ".end(); ++__p_" << fixedParam << ")";
                 out << sb;
                 writeMarshalUnmarshalCode(out, seq->type(), "(*__p_" + fixedParam + ")", true);
                 out << eb;
-	    }
-	    else
-	    {
-	        //
-		// No modifying metadata specified. Use appropriate write methods for type.
-		//
+            }
+            else
+            {
+                //
+                // No modifying metadata specified. Use appropriate write methods for type.
+                //
                 StringList l = seq->getMetaData();
                 seqType = findMetaData(l, false);
-		if(!seqType.empty())
-		{
-		    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", " << fixedParam << ", "
-		        << scope << "__U__" << fixKwd(seq->name()) << "());";
-		}
-	        else if(!builtin || builtin->kind() == Builtin::KindObject ||
-			builtin->kind() == Builtin::KindObjectProxy)
-		{
-		    out << nl << "if(" << fixedParam << ".size() == 0)";
-		    out << sb;
-		    out << nl << stream << deref << "writeSize(0);";
-		    out << eb;
-		    out << nl << "else";
-		    out << sb;
-	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", &"
-		        << fixedParam << "[0], &" << fixedParam << "[0] + " << fixedParam << ".size(), " << scope
-		        << "__U__" << fixKwd(seq->name()) << "());";
-		    out << eb;
-		}
-		else if(builtin->kind() == Builtin::KindBool)
-		{
-		    out << nl << stream << deref << func << fixedParam << ");";
-		}
-		else
-		{
-		    out << nl << "if(" << fixedParam << ".size() == 0)";
-		    out << sb;
-		    out << nl << stream << deref << "writeSize(0);";
-		    out << eb;
-		    out << nl << "else";
-		    out << sb;
-	            out << nl << stream << deref << func << "&" << fixedParam << "[0], &" << fixedParam 
-		        << "[0] + " << fixedParam << ".size());";
-		    out << eb;
-		}
-	    }
-	}
-	else
-	{
-	    string scope = fixKwd(seq->scope());
-	    if(seqType == "array" || seqType == "range:array")
-	    {
-	    	//
-		// Use array (pair<const TYPE*, const TYPE*>). In paramters only.
-		//
-	        if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
-		{
+                if(!seqType.empty())
+                {
+                    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", " << fixedParam << ", "
+                        << scope << "__U__" << fixKwd(seq->name()) << "());";
+                }
+                else if(!builtin || builtin->kind() == Builtin::KindObject ||
+                        builtin->kind() == Builtin::KindObjectProxy)
+                {
+                    out << nl << "if(" << fixedParam << ".size() == 0)";
+                    out << sb;
+                    out << nl << stream << deref << "writeSize(0);";
+                    out << eb;
+                    out << nl << "else";
+                    out << sb;
+                    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", &"
+                        << fixedParam << "[0], &" << fixedParam << "[0] + " << fixedParam << ".size(), " << scope
+                        << "__U__" << fixKwd(seq->name()) << "());";
+                    out << eb;
+                }
+                else if(builtin->kind() == Builtin::KindBool)
+                {
+                    out << nl << stream << deref << func << fixedParam << ");";
+                }
+                else
+                {
+                    out << nl << "if(" << fixedParam << ".size() == 0)";
+                    out << sb;
+                    out << nl << stream << deref << "writeSize(0);";
+                    out << eb;
+                    out << nl << "else";
+                    out << sb;
+                    out << nl << stream << deref << func << "&" << fixedParam << "[0], &" << fixedParam 
+                        << "[0] + " << fixedParam << ".size());";
+                    out << eb;
+                }
+            }
+        }
+        else
+        {
+            string scope = fixKwd(seq->scope());
+            if(seqType == "array" || seqType == "range:array")
+            {
+                //
+                // Use array (pair<const TYPE*, const TYPE*>). In paramters only.
+                //
+                if(!builtin || builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindObjectProxy)
+                {
                     StringList l = seq->getMetaData();
                     seqType = findMetaData(l, false);
-	            if(seqType.empty())
-		    {
-	                out << nl << typeToString(type, false) << " ___" << fixedParam << ";";
-	                out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", ___"
-		            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
-		    }
-		    else
-		    {
-		        seqType = "::std::vector< " + typeToString(seq->type(), false) + ">";
-		        StringList l;
-			l.push_back("cpp:type:" + seqType);
-		        out << nl << seqType << " ___" << fixedParam << ";";
-			writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l, false);
-		    }
-		}
-		else if(builtin->kind() == Builtin::KindByte)
-		{
-		    out << nl << stream << deref << func << fixedParam << ");";
-		}
-		else if(builtin->kind() != Builtin::KindString && builtin->kind() != Builtin::KindObject &&
-		        builtin->kind() != Builtin::KindObjectProxy)
-		{
-		    string s = typeToString(builtin, false);
-		    if(s[0] == ':')
-		    {
-		       s = " " + s;
-		    }
-		    out << nl << "::IceUtil::ScopedArray<" << s << "> ___" << fixedParam << '('
-			<< stream << deref << func << fixedParam << "));";
-		}
-		else
-		{
-		    out << nl << "::std::vector< " 
-		        << typeToString(seq->type(), inWstringModule(seq), seq->typeMetaData()) << "> ___" 
-			<< fixedParam << ";";
-		    out << nl << stream << deref << func << "___" << fixedParam << ");";
-		}
+                    if(seqType.empty())
+                    {
+                        out << nl << typeToString(type, false) << " ___" << fixedParam << ";";
+                        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", ___"
+                            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+                    }
+                    else
+                    {
+                        seqType = "::std::vector< " + typeToString(seq->type(), false) + ">";
+                        StringList l;
+                        l.push_back("cpp:type:" + seqType);
+                        out << nl << seqType << " ___" << fixedParam << ";";
+                        writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, l, false);
+                    }
+                }
+                else if(builtin->kind() == Builtin::KindByte)
+                {
+                    out << nl << stream << deref << func << fixedParam << ");";
+                }
+                else if(builtin->kind() != Builtin::KindString && builtin->kind() != Builtin::KindObject &&
+                        builtin->kind() != Builtin::KindObjectProxy)
+                {
+                    string s = typeToString(builtin, false);
+                    if(s[0] == ':')
+                    {
+                       s = " " + s;
+                    }
+                    out << nl << "::IceUtil::ScopedArray<" << s << "> ___" << fixedParam << '('
+                        << stream << deref << func << fixedParam << "));";
+                }
+                else
+                {
+                    out << nl << "::std::vector< " 
+                        << typeToString(seq->type(), inWstringModule(seq), seq->typeMetaData()) << "> ___" 
+                        << fixedParam << ";";
+                    out << nl << stream << deref << func << "___" << fixedParam << ");";
+                }
 
-	        if(!builtin || builtin->kind() == Builtin::KindString || builtin->kind() == Builtin::KindObject ||
-		   builtin->kind() == Builtin::KindObjectProxy)
-	        {
-	            out << nl << fixedParam << ".first" << " = &___" << fixedParam << "[0];";
-	            out << nl << fixedParam << ".second" << " = " << fixedParam << ".first + " << "___" 
-		        << fixedParam << ".size();";
-	        }
-	    }
-	    else if(seqType.find("range") == 0)
-	    {
-	    	//
-		// Use range (pair<TYPE::const_iterator, TYPE::const_iterator>). In paramters only.
-		// Need to check if iterator type other than default is specified.
-		//
-	        StringList md;
-	        if(seqType.find("range:") == 0)
-		{
-		    md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
-		}
-		writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, md, false);
-		out << nl << fixedParam << ".first = ___" << fixedParam << ".begin();";
-		out << nl << fixedParam << ".second = ___" << fixedParam << ".end();";
-	    }
-	    else if(!seqType.empty())
-	    {
-	        //
-		// Using alternate sequence type. 
-		//
+                if(!builtin || builtin->kind() == Builtin::KindString || builtin->kind() == Builtin::KindObject ||
+                   builtin->kind() == Builtin::KindObjectProxy)
+                {
+                    out << nl << fixedParam << ".first" << " = &___" << fixedParam << "[0];";
+                    out << nl << fixedParam << ".second" << " = " << fixedParam << ".first + " << "___" 
+                        << fixedParam << ".size();";
+                }
+            }
+            else if(seqType.find("range") == 0)
+            {
+                //
+                // Use range (pair<TYPE::const_iterator, TYPE::const_iterator>). In paramters only.
+                // Need to check if iterator type other than default is specified.
+                //
+                StringList md;
+                if(seqType.find("range:") == 0)
+                {
+                    md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+                }
+                writeMarshalUnmarshalCode(out, seq, "___" + fixedParam, false, "", true, md, false);
+                out << nl << fixedParam << ".first = ___" << fixedParam << ".begin();";
+                out << nl << fixedParam << ".second = ___" << fixedParam << ".end();";
+            }
+            else if(!seqType.empty())
+            {
+                //
+                // Using alternate sequence type. 
+                //
                 out << nl << "::Ice::Int __sz_" << fixedParam << ";";
                 out << nl << stream << deref << "readSize(__sz_" << fixedParam << ");";
                 out << nl << seqType << "(__sz_" << fixedParam << ").swap(" << fixedParam << ");";
                 if(seq->type()->isVariableLength())
                 {
                     out << nl << stream << deref << "startSeq(__sz_" << fixedParam << ", " 
-		        << seq->type()->minWireSize() << ");";
+                        << seq->type()->minWireSize() << ");";
                 }
                 else
                 {
                     out << nl << stream << deref << "checkFixedSeq(__sz_" << fixedParam << ", " 
-		        << seq->type()->minWireSize() << ");";
+                        << seq->type()->minWireSize() << ");";
                 }
-		out << nl << seqType << "::iterator __p_" << fixedParam << ";";
+                out << nl << seqType << "::iterator __p_" << fixedParam << ";";
                 out << nl << "for(__p_" << fixedParam << " = " << fixedParam << ".begin(); __p_" << fixedParam 
-		   << " != " << fixedParam << ".end(); ++__p_" << fixedParam << ")";
+                   << " != " << fixedParam << ".end(); ++__p_" << fixedParam << ")";
                 out << sb;
                 writeMarshalUnmarshalCode(out, seq->type(), "(*__p_" + fixedParam + ")", false);
                 if(seq->type()->isVariableLength())
@@ -903,114 +903,114 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 {
                     out << nl << stream << deref << "endSeq(__sz_" << fixedParam << ");";
                 }
-	    }
-	    else
-	    {
-	        //
-		// No modifying metadata supplied. Just use appropriate read function.
-		//
+            }
+            else
+            {
+                //
+                // No modifying metadata supplied. Just use appropriate read function.
+                //
                 StringList l = seq->getMetaData();
                 seqType = findMetaData(l, false);
-	        if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
-		   builtin->kind() == Builtin::KindObjectProxy)
-		{
-	            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-		        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
-		}
-		else if(builtin->kind() == Builtin::KindByte)
-		{
-		    StringList md;
-		    md.push_back("cpp:array");
-		    string tmpParam = "___";
+                if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
+                   builtin->kind() == Builtin::KindObjectProxy)
+                {
+                    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+                        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+                }
+                else if(builtin->kind() == Builtin::KindByte)
+                {
+                    StringList md;
+                    md.push_back("cpp:array");
+                    string tmpParam = "___";
 
-		    //
-		    // Catch some case in which it is not possible to just prepend
-		    // underscores to param to use as temporary variable.
-		    //
-		    if(fixedParam.find("(*") == 0)
-		    {
-		        tmpParam += fixedParam.substr(2, fixedParam.length() - 3);
-		    }
-		    else if(fixedParam.find("[i]") != string::npos)
-		    {
-		        tmpParam += fixedParam.substr(0, fixedParam.length() - 3);
-		    }
-		    else if(fixedParam.find("->second") != string::npos)
-		    {
-		        tmpParam += fixedParam.substr(0, fixedParam.length() - 8);
-		    }
-		    else
-		    {
-		        tmpParam += fixedParam;
-		    }
-	            out << nl << typeToString(type, false, md) << " " << tmpParam << ";";
-	            out << nl << stream << deref << func << tmpParam << ");";
-		    out << nl << "::std::vector< ::Ice::Byte>(" << tmpParam << ".first, " << tmpParam 
-		        << ".second).swap(" << fixedParam << ");";
-		}
-		else
-		{
-	            out << nl << stream << deref << func << fixedParam << ");";
-		}
-	    }
-	}
-	return;
+                    //
+                    // Catch some case in which it is not possible to just prepend
+                    // underscores to param to use as temporary variable.
+                    //
+                    if(fixedParam.find("(*") == 0)
+                    {
+                        tmpParam += fixedParam.substr(2, fixedParam.length() - 3);
+                    }
+                    else if(fixedParam.find("[i]") != string::npos)
+                    {
+                        tmpParam += fixedParam.substr(0, fixedParam.length() - 3);
+                    }
+                    else if(fixedParam.find("->second") != string::npos)
+                    {
+                        tmpParam += fixedParam.substr(0, fixedParam.length() - 8);
+                    }
+                    else
+                    {
+                        tmpParam += fixedParam;
+                    }
+                    out << nl << typeToString(type, false, md) << " " << tmpParam << ";";
+                    out << nl << stream << deref << func << tmpParam << ");";
+                    out << nl << "::std::vector< ::Ice::Byte>(" << tmpParam << ".first, " << tmpParam 
+                        << ".second).swap(" << fixedParam << ");";
+                }
+                else
+                {
+                    out << nl << stream << deref << func << fixedParam << ");";
+                }
+            }
+        }
+        return;
     }
     
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-	string scope = fixKwd(dict->scope());
-	out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-	    << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
-	return;
+        string scope = fixKwd(dict->scope());
+        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+            << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
+        return;
     }
     
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     if(!constructed)
     {
-	ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-	assert(proxy);
-	constructed = proxy->_class();
+        ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+        assert(proxy);
+        constructed = proxy->_class();
     }
 
     out << nl << fixKwd(constructed->scope()) << "__" << func << (pointer ? "" : "&") << stream << ", "
-	<< fixedParam << ");";
+        << fixedParam << ");";
 }
 
 void
 Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			bool inParam)
+                        bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), true, "", true, (*p)->getMetaData(),
-				  inParam);
+        writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), true, "", true, (*p)->getMetaData(),
+                                  inParam);
     }
     if(ret)
     {
-	writeMarshalUnmarshalCode(out, ret, "__ret", true, "", true, metaData, false);
+        writeMarshalUnmarshalCode(out, ret, "__ret", true, "", true, metaData, false);
     }
 }
 
 void
 Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			  bool inParam)
+                          bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData(),
-				  inParam);
+        writeMarshalUnmarshalCode(out, (*p)->type(), fixKwd((*p)->name()), false, "", true, (*p)->getMetaData(),
+                                  inParam);
     }
     if(ret)
     {
-	writeMarshalUnmarshalCode(out, ret, "__ret", false, "", true, metaData, false);
+        writeMarshalUnmarshalCode(out, ret, "__ret", false, "", true, metaData, false);
     }
 }
 
 static void
 writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName, const StringList& metaData,
-			      bool inParam)
+                              bool inParam)
 {
     if(!inParam)
     {
@@ -1021,72 +1021,72 @@ writeRangeAllocateCode(Output& out, const TypePtr& type, const string& fixedName
     if(seq)
     {
         string seqType = findMetaData(metaData, true);
-	if(seqType.find("range") == 0 && seqType != "range:array")
-	{
-	    StringList md;
-	    if(seqType.find("range:") == 0)
-	    {
-	        md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
-	    }
+        if(seqType.find("range") == 0 && seqType != "range:array")
+        {
+            StringList md;
+            if(seqType.find("range:") == 0)
+            {
+                md.push_back("cpp:type:" + seqType.substr(strlen("range:")));
+            }
             out << nl << typeToString(seq, false, md, false) << " ___" << fixedName << ";";
-	}
+        }
     }
 }
 
 void
 Slice::writeAllocateCode(Output& out, const ParamDeclList& params, const TypePtr& ret, const StringList& metaData,
-			 bool useWstring, bool inParam)
+                         bool useWstring, bool inParam)
 {
     for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
-	out << nl << typeToString((*p)->type(), useWstring, (*p)->getMetaData(), inParam) << ' '
-	    << fixKwd((*p)->name());
-	StructPtr st = StructPtr::dynamicCast((*p)->type());
-	if(st && findMetaData(st->getMetaData(), false) == "class")
-	{
-	    out << " = new " << fixKwd(st->scoped());
-	}
-	out << ';';
+        out << nl << typeToString((*p)->type(), useWstring, (*p)->getMetaData(), inParam) << ' '
+            << fixKwd((*p)->name());
+        StructPtr st = StructPtr::dynamicCast((*p)->type());
+        if(st && findMetaData(st->getMetaData(), false) == "class")
+        {
+            out << " = new " << fixKwd(st->scoped());
+        }
+        out << ';';
 
-	//
-	// If using a range we need to allocate the range container as well now to ensure they
-	// are always in the same scope.
-	//
-	writeRangeAllocateCode(out, (*p)->type(), fixKwd((*p)->name()), (*p)->getMetaData(), inParam);
+        //
+        // If using a range we need to allocate the range container as well now to ensure they
+        // are always in the same scope.
+        //
+        writeRangeAllocateCode(out, (*p)->type(), fixKwd((*p)->name()), (*p)->getMetaData(), inParam);
     }
 
     if(ret)
     {
-	out << nl << typeToString(ret, useWstring, metaData, inParam) << " __ret";
-	StructPtr st = StructPtr::dynamicCast(ret);
-	if(st && findMetaData(st->getMetaData(), false) == "class")
-	{
-	    out << " = new " << fixKwd(st->scoped());
-	}
-	out << ";";
+        out << nl << typeToString(ret, useWstring, metaData, inParam) << " __ret";
+        StructPtr st = StructPtr::dynamicCast(ret);
+        if(st && findMetaData(st->getMetaData(), false) == "class")
+        {
+            out << " = new " << fixKwd(st->scoped());
+        }
+        out << ";";
 
-	//
-	// If using a range we need to allocate the range container as well now to ensure they
-	// are always in the same scope.
-	//
-	writeRangeAllocateCode(out, ret, "__ret", metaData, inParam);
+        //
+        // If using a range we need to allocate the range container as well now to ensure they
+        // are always in the same scope.
+        //
+        writeRangeAllocateCode(out, ret, "__ret", metaData, inParam);
     }
 }
 
 void
 Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
-				       const string& str, bool useWstring, const StringList& metaData)
+                                       const string& str, bool useWstring, const StringList& metaData)
 {
     string fixedParam = fixKwd(param);
 
     string stream;
     if(str.empty())
     {
-	stream = marshal ? "__outS" : "__inS";
+        stream = marshal ? "__outS" : "__inS";
     }
     else
     {
-	stream = str;
+        stream = str;
     }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -1181,8 +1181,8 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             case Builtin::KindString:
             {
                 string strType = findMetaData(metaData, true);
-	        if(strType != "string" && (useWstring || strType == "wstring"))
-		{
+                if(strType != "string" && (useWstring || strType == "wstring"))
+                {
                     if(marshal)
                     {
                         out << nl << stream << "->writeWstring(" << fixedParam << ");";
@@ -1191,9 +1191,9 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     {
                         out << nl << fixedParam << " = " << stream << "->readWstring();";
                     }
-		}
-		else
-		{
+                }
+                else
+                {
                     if(marshal)
                     {
                         out << nl << stream << "->writeString(" << fixedParam << ");";
@@ -1202,7 +1202,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     {
                         out << nl << fixedParam << " = " << stream << "->readString();";
                     }
-		}
+                }
                 break;
             }
             case Builtin::KindObject:
@@ -1243,73 +1243,73 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	string scope = fixKwd(cl->scope());
-	if(marshal)
-	{
+        string scope = fixKwd(cl->scope());
+        if(marshal)
+        {
             out << nl << scope << "ice_write" << cl->name() << "(" << stream << ", " << fixedParam << ");";
-	}
-	else
-	{
+        }
+        else
+        {
             out << nl << scope << "ice_read" << cl->name() << "(" << stream << ", " << fixedParam << ");";
-	}
+        }
 
-	return;
+        return;
     }
     
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	string scope = fixKwd(st->scope());
-	if(marshal)
-	{
+        string scope = fixKwd(st->scope());
+        if(marshal)
+        {
             out << nl << scope << "ice_write" << st->name() << "(" << stream << ", " << fixedParam << ");";
-	}
-	else
-	{
-	    if(findMetaData(st->getMetaData(), false) == "class")
-	    {
-		out << nl << fixedParam << " = new " << fixKwd(st->scoped()) << ";";
-	    }
+        }
+        else
+        {
+            if(findMetaData(st->getMetaData(), false) == "class")
+            {
+                out << nl << fixedParam << " = new " << fixKwd(st->scoped()) << ";";
+            }
             out << nl << scope << "ice_read" << st->name() << "(" << stream << ", " << fixedParam << ");";
-	}
+        }
 
-	return;
+        return;
     }
     
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-	string seqType = findMetaData(metaData, false);
-	if(!seqType.empty())
-	{
-	    if(marshal)
-	    {
-	        out << nl << stream << "->writeSize(static_cast< ::Ice::Int>(" << fixedParam << ".size()));";
-	        out << nl << seqType << "::const_iterator ___" << fixedParam << ";";
-		out << nl << "for(___" << fixedParam << " = " << fixedParam << ".begin(); ___" << fixedParam << " != "
-		    << fixedParam << ".end(); ++___" << fixedParam << ")";
-		out << sb;
-		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true);
-		out << eb;
-	    }
-	    else
-	    {
-	        out << nl << seqType << "(static_cast< ::Ice::Int>(" << stream << "->readSize())).swap("
-		    << fixedParam << ");";
-	        out << nl << seqType << "::iterator ___" << fixedParam << ";";
-		out << nl << "for(___" << fixedParam << " = " << fixedParam << ".begin(); ___" << fixedParam << " != "
-		    << fixedParam << ".end(); ++___" << fixedParam << ")";
-		out << sb;
-		writeStreamMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", false);
-		out << eb;
-	    }
-	}
-	else
-	{
-    	    seqType = findMetaData(seq->getMetaData(), false);
+        string seqType = findMetaData(metaData, false);
+        if(!seqType.empty())
+        {
+            if(marshal)
+            {
+                out << nl << stream << "->writeSize(static_cast< ::Ice::Int>(" << fixedParam << ".size()));";
+                out << nl << seqType << "::const_iterator ___" << fixedParam << ";";
+                out << nl << "for(___" << fixedParam << " = " << fixedParam << ".begin(); ___" << fixedParam << " != "
+                    << fixedParam << ".end(); ++___" << fixedParam << ")";
+                out << sb;
+                writeStreamMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", true);
+                out << eb;
+            }
+            else
+            {
+                out << nl << seqType << "(static_cast< ::Ice::Int>(" << stream << "->readSize())).swap("
+                    << fixedParam << ");";
+                out << nl << seqType << "::iterator ___" << fixedParam << ";";
+                out << nl << "for(___" << fixedParam << " = " << fixedParam << ".begin(); ___" << fixedParam << " != "
+                    << fixedParam << ".end(); ++___" << fixedParam << ")";
+                out << sb;
+                writeStreamMarshalUnmarshalCode(out, seq->type(), "(*___" + fixedParam + ")", false);
+                out << eb;
+            }
+        }
+        else
+        {
+            seqType = findMetaData(seq->getMetaData(), false);
             builtin = BuiltinPtr::dynamicCast(seq->type());
             if(!seqType.empty() || !builtin || (builtin->kind() == Builtin::KindObject || 
-	       builtin->kind() == Builtin::KindObjectProxy))
+               builtin->kind() == Builtin::KindObjectProxy))
             {
                 string scope = fixKwd(seq->scope());
                 if(marshal)
@@ -1412,8 +1412,8 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     case Builtin::KindString:
                     {
                         string strType = findMetaData(seq->typeMetaData(), true);
-	        	if(strType != "string" && (useWstring || strType == "wstring"))
-			{
+                        if(strType != "string" && (useWstring || strType == "wstring"))
+                        {
                             if(marshal)
                             {
                                 out << nl << stream << "->writeWstringSeq(" << fixedParam << ");";
@@ -1422,9 +1422,9 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                             {
                                 out << nl << fixedParam << " = " << stream << "->readWstringSeq();";
                             }
-			}
-			else
-			{
+                        }
+                        else
+                        {
                             if(marshal)
                             {
                                 out << nl << stream << "->writeStringSeq(" << fixedParam << ");";
@@ -1433,7 +1433,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                             {
                                 out << nl << fixedParam << " = " << stream << "->readStringSeq();";
                             }
-			}
+                        }
                         break;
                     }
                     case Builtin::KindObject:
@@ -1444,26 +1444,26 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                         break;
                     }
                 }
-	    }
+            }
         }
 
-	return;
+        return;
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
         string scope = fixKwd(dict->scope());
-	if(marshal)
-	{
+        if(marshal)
+        {
             out << nl << scope << "ice_write" << dict->name() << "(" << stream << ", " << fixedParam << ");";
-	}
-	else
-	{
+        }
+        else
+        {
             out << nl << scope << "ice_read" << dict->name() << "(" << stream << ", " << fixedParam << ");";
-	}
+        }
 
-	return;
+        return;
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -1479,7 +1479,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             out << nl << scope << "ice_read" << en->name() << "(" << stream << ", " << fixedParam << ");";
         }
 
-	return;
+        return;
     }
 
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
@@ -1496,7 +1496,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             out << nl << scope << "ice_read" << cls->name() << "Prx(" << stream << ", " << fixedParam << ");";
         }
 
-	return;
+        return;
     }
     
     assert(false);
@@ -1509,50 +1509,50 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); ++q)
     {
         string str = *q;
-	if(str.find(prefix) == 0)
-	{
-	    string::size_type pos = str.find(':', prefix.size());
-	    //
-	    // If the form is cpp:type:<...> the data after cpp:type:
-	    // is returned.  If the form is cpp:range:<...> (and this
-	    // is an inParam) the data after cpp: is returned.
-	    //
-	    if(pos != string::npos)
-	    {
-	        string ss = str.substr(prefix.size(), pos - prefix.size());
-	        if(ss == "type")
-		{
-		    return str.substr(pos + 1);
-		}
-		else if(inParam && ss == "range")
-		{
-		    return str.substr(prefix.size());
-		}
-	    }
-	    //
-	    // If the data is an inParam and the metadata is cpp:array
-	    // or cpp:range then array or range is returned.
-	    //
-	    else if(inParam)
-	    {
-	        string ss = str.substr(prefix.size());
-		if(ss == "array" || ss == "range")
-		{
-		    return ss;
-		}
-	    }
-	    //
-	    // Otherwise if the data is "class" it is returned.
-	    //
-	    else
-	    {
-	        string ss = str.substr(prefix.size());
-		if(ss == "class")
-		{
-		    return ss;
-		}
-	    }
-	}
+        if(str.find(prefix) == 0)
+        {
+            string::size_type pos = str.find(':', prefix.size());
+            //
+            // If the form is cpp:type:<...> the data after cpp:type:
+            // is returned.  If the form is cpp:range:<...> (and this
+            // is an inParam) the data after cpp: is returned.
+            //
+            if(pos != string::npos)
+            {
+                string ss = str.substr(prefix.size(), pos - prefix.size());
+                if(ss == "type")
+                {
+                    return str.substr(pos + 1);
+                }
+                else if(inParam && ss == "range")
+                {
+                    return str.substr(prefix.size());
+                }
+            }
+            //
+            // If the data is an inParam and the metadata is cpp:array
+            // or cpp:range then array or range is returned.
+            //
+            else if(inParam)
+            {
+                string ss = str.substr(prefix.size());
+                if(ss == "array" || ss == "range")
+                {
+                    return ss;
+                }
+            }
+            //
+            // Otherwise if the data is "class" it is returned.
+            //
+            else
+            {
+                string ss = str.substr(prefix.size());
+                if(ss == "class")
+                {
+                    return ss;
+                }
+            }
+        }
     }
 
     return "";
@@ -1565,20 +1565,20 @@ Slice::inWstringModule(const SequencePtr& seq)
     while(cont)
     {
         ModulePtr mod = ModulePtr::dynamicCast(cont);
-	if(!mod)
-	{
-	    break;
-	}
-	StringList metaData = mod->getMetaData();
-	if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
-	{
-	    return true;
-	}
-	else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
-	{
-	    return false;
-	}
-	cont = mod->container();
+        if(!mod)
+        {
+            break;
+        }
+        StringList metaData = mod->getMetaData();
+        if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
+        {
+            return true;
+        }
+        else if(find(metaData.begin(), metaData.end(), "cpp:type:string") != metaData.end())
+        {
+            return false;
+        }
+        cont = mod->container();
     }
     return false;
 }

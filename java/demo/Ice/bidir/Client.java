@@ -15,7 +15,7 @@ public class Client extends Ice.Application
     run(String[] args)
     {
         CallbackSenderPrx server = 
-	    CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
+            CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
         if(server == null)
         {
             System.err.println("invalid proxy");
@@ -23,14 +23,14 @@ public class Client extends Ice.Application
         }
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("");
-	Ice.Identity ident = new Ice.Identity();
-	ident.name = Ice.Util.generateUUID();
-	ident.category = "";
+        Ice.Identity ident = new Ice.Identity();
+        ident.name = Ice.Util.generateUUID();
+        ident.category = "";
         adapter.add(new CallbackReceiverI(), ident);
         adapter.activate();
-	server.ice_getConnection().setAdapter(adapter);
-	server.addClient(ident);
-	communicator().waitForShutdown();
+        server.ice_getConnection().setAdapter(adapter);
+        server.addClient(ident);
+        communicator().waitForShutdown();
 
         return 0;
     }

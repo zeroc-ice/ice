@@ -17,7 +17,7 @@ class RemoteCommunicatorI : public Test::RemoteCommunicator
 public:
 
     virtual Test::RemoteObjectAdapterPrx createObjectAdapter(const std::string&, const std::string&, 
-							     const Ice::Current&);
+                                                             const Ice::Current&);
     virtual void deactivateObjectAdapter(const Test::RemoteObjectAdapterPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 };

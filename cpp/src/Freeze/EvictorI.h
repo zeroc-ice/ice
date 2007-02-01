@@ -43,11 +43,11 @@ public:
     class Guard
     {
     public:
-	Guard(DeactivateController&);
-	~Guard();
+        Guard(DeactivateController&);
+        ~Guard();
 
     private:
-	DeactivateController& _controller;
+        DeactivateController& _controller;
     };
 
     DeactivateController(EvictorI*);    
@@ -112,7 +112,7 @@ class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, publi
 public:
 
     EvictorI(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&, 
-	     const ServantInitializerPtr&, const std::vector<IndexPtr>&, bool);
+             const ServantInitializerPtr&, const std::vector<IndexPtr>&, bool);
 
     virtual ~EvictorI();
 
@@ -165,10 +165,10 @@ public:
     
     struct StreamedObject
     {
-	Key key;
-	Value value;
-	Ice::Byte status;
-	ObjectStore* store;
+        Key key;
+        Value value;
+        Ice::Byte status;
+        ObjectStore* store;
     };
 
     

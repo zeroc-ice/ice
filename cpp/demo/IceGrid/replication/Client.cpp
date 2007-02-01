@@ -58,8 +58,8 @@ HelloClient::run(int argc, char* argv[])
     HelloPrx hello = HelloPrx::checkedCast(obj);
     if(!hello)
     {
-	cerr << argv[0] << ": couldn't find a `::Demo::Hello' object." << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": couldn't find a `::Demo::Hello' object." << endl;
+        return EXIT_FAILURE;
     }
 
     string s;
@@ -92,15 +92,15 @@ HelloClient::interruptCallback(int)
 {
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }

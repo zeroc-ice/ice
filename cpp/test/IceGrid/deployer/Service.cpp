@@ -28,8 +28,8 @@ public:
     virtual ~ServiceI();
 
     virtual void start(const string&,
-		       const CommunicatorPtr&,
-		       const StringSeq&);
+                       const CommunicatorPtr&,
+                       const StringSeq&);
 
     virtual void stop();
 };
@@ -58,17 +58,17 @@ ServiceI::~ServiceI()
 
 void
 ServiceI::start(const string& name,
-		const CommunicatorPtr& communicator,
-		const StringSeq& args)
+                const CommunicatorPtr& communicator,
+                const StringSeq& args)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
     if(properties->getPropertyAsInt(name + ".Freeze") > 0)
     {
-	//
-	// We do this to ensure the dbenv directory exists.
-	//
-	Freeze::createConnection(communicator, name);
+        //
+        // We do this to ensure the dbenv directory exists.
+        //
+        Freeze::createConnection(communicator, name);
     }
     Ice::ObjectPtr object = new TestI(adapter, properties);
     adapter->add(object, communicator->stringToIdentity(properties->getProperty(name + ".Identity")));

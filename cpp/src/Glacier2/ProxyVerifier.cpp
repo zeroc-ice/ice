@@ -43,67 +43,67 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
     istringstream istr(parameter);
     while(!istr.eof())
     {
-	ws(istr);
-	int value;
-	if(!(istr >> value))
-	{
-	    InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "expected number";
-	    throw ex;
-	}
-	ws(istr);
-	if(!istr.eof())
-	{
-	    char c;
-	    if(istr >> c)
-	    {
-		if(c == ',')
-		{
-		    validPorts.push_back(value);
-		}
-		else if(c == '-')
-		{
-		    Range r;
-		    r.start = value;
-		    ws(istr);
-		    if(istr.eof())
-		    {
-			InitializationException ex(__FILE__, __LINE__);
-			ex.reason = "Unterminated range";
-			throw ex;
-		    }
-		    if(!(istr >> value))
-		    {
-			InitializationException ex(__FILE__, __LINE__);
-			ex.reason = "expected number";
-			throw ex;
-		    }
-		    r.end = value;
-		    ws(istr);
-		    if(!istr.eof())
-		    {
-			istr >> c;
-			if(c != ',')
-			{
-			    InitializationException ex(__FILE__, __LINE__);
-			    ex.reason = "expected comma separator";
-			    throw ex;
-			}
-		    }
-		    ranges.push_back(r);
-		}
-		else if(!istr.eof())
-		{
-		    InitializationException ex(__FILE__, __LINE__);
-		    ex.reason = "unexpected trailing character";
-		    throw ex;
-		}
-	    }
-	}
-	else
-	{
-	    validPorts.push_back(value);
-	}
+        ws(istr);
+        int value;
+        if(!(istr >> value))
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "expected number";
+            throw ex;
+        }
+        ws(istr);
+        if(!istr.eof())
+        {
+            char c;
+            if(istr >> c)
+            {
+                if(c == ',')
+                {
+                    validPorts.push_back(value);
+                }
+                else if(c == '-')
+                {
+                    Range r;
+                    r.start = value;
+                    ws(istr);
+                    if(istr.eof())
+                    {
+                        InitializationException ex(__FILE__, __LINE__);
+                        ex.reason = "Unterminated range";
+                        throw ex;
+                    }
+                    if(!(istr >> value))
+                    {
+                        InitializationException ex(__FILE__, __LINE__);
+                        ex.reason = "expected number";
+                        throw ex;
+                    }
+                    r.end = value;
+                    ws(istr);
+                    if(!istr.eof())
+                    {
+                        istr >> c;
+                        if(c != ',')
+                        {
+                            InitializationException ex(__FILE__, __LINE__);
+                            ex.reason = "expected comma separator";
+                            throw ex;
+                        }
+                    }
+                    ranges.push_back(r);
+                }
+                else if(!istr.eof())
+                {
+                    InitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "unexpected trailing character";
+                    throw ex;
+                }
+            }
+        }
+        else
+        {
+            validPorts.push_back(value);
+        }
     }
 }
 
@@ -131,13 +131,13 @@ public:
     bool
     match(const string&, string::size_type&)
     {
-	return true;
+        return true;
     }
 
     const char*
     toString() const
     {
-	return "(ANY)";
+        return "(ANY)";
     }
 };
 
@@ -150,27 +150,27 @@ class StartsWithString : public AddressMatcher
 {
 public:
     StartsWithString(const string& criteria):
-	_criteria(criteria),
-	_description("starts with " + criteria)
+        _criteria(criteria),
+        _description("starts with " + criteria)
     {
     }
 
     bool 
     match(const string& space, string::size_type& pos)
     {
-	assert(pos == 0);
-	bool result = strncmp(space.c_str(), _criteria.c_str(), _criteria.size()) == 0;
-	if(result)
-	{
-	    pos += _criteria.size();
-	}
-	return result;
+        assert(pos == 0);
+        bool result = strncmp(space.c_str(), _criteria.c_str(), _criteria.size()) == 0;
+        if(result)
+        {
+            pos += _criteria.size();
+        }
+        return result;
     }
 
     const char*
     toString() const
     {
-	return _description.c_str();
+        return _description.c_str();
     }
 
 private:
@@ -186,35 +186,35 @@ class EndsWithString : public AddressMatcher
 {
 public:
     EndsWithString(const string& criteria):
-	_criteria(criteria),
-	_description("ends with " + criteria)
+        _criteria(criteria),
+        _description("ends with " + criteria)
     {
     }
 
     bool 
     match(const string& space, string::size_type& pos)
     {
-	if(space.size() - pos < _criteria.size())
-	{
-	    return false;
-	}
+        if(space.size() - pos < _criteria.size())
+        {
+            return false;
+        }
 
-	string::size_type spaceEnd = space.size();
-	for(string::size_type i = _criteria.size(); i > 0; --i)
-	{
-	    if(space[spaceEnd - 1] != _criteria[i-1])
-	    {
-		return false;
-	    }
-	    --spaceEnd;
-	}
-	return true;
+        string::size_type spaceEnd = space.size();
+        for(string::size_type i = _criteria.size(); i > 0; --i)
+        {
+            if(space[spaceEnd - 1] != _criteria[i-1])
+            {
+                return false;
+            }
+            --spaceEnd;
+        }
+        return true;
     }
 
     virtual const char*
     toString() const
     {
-	return _description.c_str();
+        return _description.c_str();
     }
 
 private:
@@ -226,26 +226,26 @@ class MatchesString : public AddressMatcher
 {
 public: 
     MatchesString(const string& criteria):
-	_criteria(criteria),
-	_description("matches " + criteria)
+        _criteria(criteria),
+        _description("matches " + criteria)
     {
     }
 
     bool
     match(const string& space, string::size_type& pos)
     {
-	if(strncmp(space.c_str(), _criteria.c_str(), _criteria.size()) == 0)
-	{
-	    pos += _criteria.size();
-	    return true;
-	}
-	return false;
+        if(strncmp(space.c_str(), _criteria.c_str(), _criteria.size()) == 0)
+        {
+            pos += _criteria.size();
+            return true;
+        }
+        return false;
     }
 
     virtual const char*
     toString() const
     {
-	return _description.c_str();
+        return _description.c_str();
     }
 
 private:
@@ -261,27 +261,27 @@ class ContainsString : public AddressMatcher
 {
 public:
     ContainsString(const string& criteria):
-	_criteria(criteria),
-	_description("contains " + criteria)
+        _criteria(criteria),
+        _description("contains " + criteria)
     {
     }
 
     bool
     match(const string& space, string::size_type& pos)
     {
-	string::size_type offset = space.find(_criteria, pos);
-	if(offset == string::npos)
-	{
-	    return false;
-	}
-	pos = offset + _criteria.size() +1;
-	return true;
+        string::size_type offset = space.find(_criteria, pos);
+        if(offset == string::npos)
+        {
+            return false;
+        }
+        pos = offset + _criteria.size() +1;
+        return true;
     }
 
     virtual const char*
     toString() const
     {
-	return _description.c_str();
+        return _description.c_str();
     }
 
 private:
@@ -298,90 +298,90 @@ class MatchesNumber : public AddressMatcher
 {
 public:
     MatchesNumber(const vector<int>& values, const vector<Range>& ranges, 
-		  const char* descriptionPrefix = "matches "):
-	_values(values),
-	_ranges(ranges)
+                  const char* descriptionPrefix = "matches "):
+        _values(values),
+        _ranges(ranges)
     {
-	ostringstream ostr;
-	ostr << descriptionPrefix;
-	{
-	    bool start = true;
-	    for(vector<int>::const_iterator i = values.begin(); i != values.end(); ++i)
-	    {
-		if(start)
-		{
-		    if(values.size() > 1)
-		    {
-			ostr << "one of ";
-		    }
-		    start = false;
-		}
-		else
-		{
-		    ostr << ", ";
-		}
+        ostringstream ostr;
+        ostr << descriptionPrefix;
+        {
+            bool start = true;
+            for(vector<int>::const_iterator i = values.begin(); i != values.end(); ++i)
+            {
+                if(start)
+                {
+                    if(values.size() > 1)
+                    {
+                        ostr << "one of ";
+                    }
+                    start = false;
+                }
+                else
+                {
+                    ostr << ", ";
+                }
 
-		ostr << *i;
-	    }
-	}
-	if(values.size() > 0 && ranges.size() > 0)
-	{
-	    ostr << " or ";
-	}
-	{
-	    bool start = true;
-	    for(vector<Range>::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
-	    {
-		if(start)
-		{
-		    start = false;
-		}
-		else
-		{
-		    ostr << ", or";
-		}
-		ostr << i->start << " up to " << i->end;
-	    }
-	}
-	ostr << ends;
-	_description = ostr.str();
+                ostr << *i;
+            }
+        }
+        if(values.size() > 0 && ranges.size() > 0)
+        {
+            ostr << " or ";
+        }
+        {
+            bool start = true;
+            for(vector<Range>::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
+            {
+                if(start)
+                {
+                    start = false;
+                }
+                else
+                {
+                    ostr << ", or";
+                }
+                ostr << i->start << " up to " << i->end;
+            }
+        }
+        ostr << ends;
+        _description = ostr.str();
     }
 
     bool
     match(const string & space, string::size_type& pos)
     {
-	istringstream istr(space.substr(pos));
-	int val;
-	if(!(istr >> val))
-	{
-	    return false;
-	}
-	pos += istr.tellg();
-	{
-	    for(vector<int>::const_iterator i = _values.begin(); i != _values.end(); ++i)
-	    {
-		if(val == *i)
-		{
-		    return true;
-		}
-	    }
-	}
-	{
-	    for(vector<Range>::const_iterator i = _ranges.begin(); i != _ranges.end(); ++i)
-	    {
-		if((val >= i->start) && (val <= i->end))
-		{
-		    return true;
-		}
-	    }
-	}
-	return false;
+        istringstream istr(space.substr(pos));
+        int val;
+        if(!(istr >> val))
+        {
+            return false;
+        }
+        pos += istr.tellg();
+        {
+            for(vector<int>::const_iterator i = _values.begin(); i != _values.end(); ++i)
+            {
+                if(val == *i)
+                {
+                    return true;
+                }
+            }
+        }
+        {
+            for(vector<Range>::const_iterator i = _ranges.begin(); i != _ranges.end(); ++i)
+            {
+                if((val >= i->start) && (val <= i->end))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     virtual const char*
     toString() const
     {
-	return _description.c_str();
+        return _description.c_str();
     }
 
 private:
@@ -397,27 +397,27 @@ class ContainsNumberMatch : public MatchesNumber
 {
 public:
     ContainsNumberMatch(const vector<int>& values, const vector<Range>& ranges):
-	MatchesNumber(values, ranges, "contains ")
+        MatchesNumber(values, ranges, "contains ")
     {
     }
 
     bool 
     match(const string& space, string::size_type& pos)
     {
-	while(true) 
-	{
-	    pos = space.find_first_of("0123456789", pos);
-	    if(pos == string::npos)
-	    {
-		return false;
-	    }
+        while(true) 
+        {
+            pos = space.find_first_of("0123456789", pos);
+            if(pos == string::npos)
+            {
+                return false;
+            }
 
-	    if(MatchesNumber::match(space, pos))
-	    {
-		return true;
-	    }
-	}
-	return false;
+            if(MatchesNumber::match(space, pos))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 };
 
@@ -425,20 +425,20 @@ class EndsWithNumber : public MatchesNumber
 {
 public:
     EndsWithNumber(const vector<int>& values, const vector<Range>& ranges):
-	MatchesNumber(values, ranges, "ends with ")
+        MatchesNumber(values, ranges, "ends with ")
     {
     }
 
     bool 
     match(const string& space, string::size_type& pos)
     {
-	pos = space.find_last_not_of("0123456789", pos);
-	if(pos == space.size()-1)
-	{
-	    return false;
-	}
+        pos = space.find_last_not_of("0123456789", pos);
+        if(pos == space.size()-1)
+        {
+            return false;
+        }
 
-	return MatchesNumber::match(space, pos);
+        return MatchesNumber::match(space, pos);
     }
 };
 
@@ -469,13 +469,13 @@ public:
     AddressMatcher* 
     create(const string& criteria)
     {
-	return new StartsWithString(criteria);
+        return new StartsWithString(criteria);
     }
 
     AddressMatcher* 
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
-	return new MatchesNumber(ports, ranges);
+        return new MatchesNumber(ports, ranges);
     }
 };
 
@@ -485,13 +485,13 @@ public:
     AddressMatcher* 
     create(const string& criteria)
     {
-	return new ContainsString(criteria);
+        return new ContainsString(criteria);
     }
 
     AddressMatcher* 
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
-	return new ContainsNumberMatch(ports, ranges);
+        return new ContainsNumberMatch(ports, ranges);
     }
 };
 
@@ -501,13 +501,13 @@ public:
     AddressMatcher* 
     create(const string& criteria)
     {
-	return new MatchesString(criteria);
+        return new MatchesString(criteria);
     }
 
     AddressMatcher* 
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
-	return new MatchesNumber(ports, ranges);
+        return new MatchesNumber(ports, ranges);
     }
 };
 
@@ -517,13 +517,13 @@ public:
     AddressMatcher*
     create(const string& criteria)
     {
-	return new EndsWithString(criteria);
+        return new EndsWithString(criteria);
     }
 
     AddressMatcher* 
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
-	return new EndsWithNumber(ports, ranges);
+        return new EndsWithNumber(ports, ranges);
     }
 };
 
@@ -534,84 +534,84 @@ class AddressRule : public Glacier2::ProxyRule
 {
 public:
     AddressRule(const CommunicatorPtr& communicator, const vector<AddressMatcher*>& address, MatchesNumber* port,
-		const int traceLevel) :
-	_communicator(communicator),
-	_addressRules(address),
-	_portMatcher(port),
-	_traceLevel(traceLevel)
+                const int traceLevel) :
+        _communicator(communicator),
+        _addressRules(address),
+        _portMatcher(port),
+        _traceLevel(traceLevel)
     {
     }
 
     ~AddressRule()
     {
-	for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
-	{
-	    delete *i;
-	}
-	delete _portMatcher;
+        for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+        {
+            delete *i;
+        }
+        delete _portMatcher;
     }
 
     virtual bool 
     check(const ObjectPrx& prx) const
     {
-	EndpointSeq endpoints = prx->ice_getEndpoints();
-	if(endpoints.size() == 0)
-	{
-	    return false;
-	}
+        EndpointSeq endpoints = prx->ice_getEndpoints();
+        if(endpoints.size() == 0)
+        {
+            return false;
+        }
 
-	for(EndpointSeq::const_iterator i = endpoints.begin(); i != endpoints.end(); ++i)
-	{
-	    string info = (*i)->toString();
-	    string host;
-	    if(!extractPart("-h ", info, host))
-	    {
-		return false;
-	    }
-	    string port;
-	    if(!extractPart("-p ", info, port))
-	    {
-		return false;
-	    }
-	    string::size_type pos = 0;
-	    if(!_portMatcher || _portMatcher->match(port, pos))
-	    {
-		pos = 0;
-		for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
-		{
-		    if(!(*i)->match(host, pos))
-		    {
-			if(_traceLevel >= 3)
-			{
-			    Trace out(_communicator->getLogger(), "Glacier2");
-			    out << (*i)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
-			}
-			return false;
-		    }
-		    if(_traceLevel >= 3)
-		    {
-			Trace out(_communicator->getLogger(), "Glacier2");
-			out << (*i)->toString() << " matched " << host << " at pos=" << pos << "\n";
-		    }
-		}
-	    }
-	}
-	return true;
+        for(EndpointSeq::const_iterator i = endpoints.begin(); i != endpoints.end(); ++i)
+        {
+            string info = (*i)->toString();
+            string host;
+            if(!extractPart("-h ", info, host))
+            {
+                return false;
+            }
+            string port;
+            if(!extractPart("-p ", info, port))
+            {
+                return false;
+            }
+            string::size_type pos = 0;
+            if(!_portMatcher || _portMatcher->match(port, pos))
+            {
+                pos = 0;
+                for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+                {
+                    if(!(*i)->match(host, pos))
+                    {
+                        if(_traceLevel >= 3)
+                        {
+                            Trace out(_communicator->getLogger(), "Glacier2");
+                            out << (*i)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
+                        }
+                        return false;
+                    }
+                    if(_traceLevel >= 3)
+                    {
+                        Trace out(_communicator->getLogger(), "Glacier2");
+                        out << (*i)->toString() << " matched " << host << " at pos=" << pos << "\n";
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     void 
     dump() const
     {
-	cerr << "address(";
-	for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
-	{
-	    cerr << (*i)->toString() << " ";
-	}
-	if(_portMatcher != 0)
-	{
-	    cerr << "):port(" << _portMatcher->toString() << " ";
-	}
-	cerr << ")" << endl;
+        cerr << "address(";
+        for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+        {
+            cerr << (*i)->toString() << " ";
+        }
+        if(_portMatcher != 0)
+        {
+            cerr << "):port(" << _portMatcher->toString() << " ";
+        }
+        cerr << ")" << endl;
     }
 
 private:
@@ -619,22 +619,22 @@ private:
     bool 
     extractPart(const char* opt, const string& source, string& result) const
     {
-	string::size_type start = source.find(opt);
-	if(start == string::npos)
-	{
-	    return false;
-	}
-	start += strlen(opt);
-	string::size_type end = source.find(' ', start);
-	if(end != string::npos)
-	{
-	    result = source.substr(start, end - start);
-	}
-	else
-	{
-	    result = source.substr(start);
-	}
-	return true;
+        string::size_type start = source.find(opt);
+        if(start == string::npos)
+        {
+            return false;
+        }
+        start += strlen(opt);
+        string::size_type end = source.find(' ', start);
+        if(end != string::npos)
+        {
+            result = source.substr(start, end - start);
+        }
+        else
+        {
+            result = source.substr(start);
+        }
+        return true;
     }
 
     CommunicatorPtr _communicator;
@@ -645,7 +645,7 @@ private:
 
 static void
 parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, vector<ProxyRule*>& rules, 
-	      const int traceLevel)
+              const int traceLevel)
 {
     StartFactory startsWithFactory;
     WildCardFactory wildCardFactory;
@@ -654,165 +654,165 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
     vector<ProxyRule*> allRules;
     try
     {
-	istringstream propertyInput(property);
+        istringstream propertyInput(property);
 
-	while(!propertyInput.eof() && propertyInput.good())
-	{
-	    MatchesNumber* portMatch = 0;
-	    vector<AddressMatcher*> currentRuleSet;
+        while(!propertyInput.eof() && propertyInput.good())
+        {
+            MatchesNumber* portMatch = 0;
+            vector<AddressMatcher*> currentRuleSet;
 
-	    string parameter;
-	    ws(propertyInput);
-	    propertyInput >> parameter;
+            string parameter;
+            ws(propertyInput);
+            propertyInput >> parameter;
 
-	    string portInfo;
-	    string::size_type portPortion = parameter.find(':');
+            string portInfo;
+            string::size_type portPortion = parameter.find(':');
 
-	    string addr;
-	    if(portPortion != string::npos)
-	    {
-		addr = parameter.substr(0, portPortion);
-		string port = parameter.substr(portPortion + 1);
-		string::size_type openBracket = port.find('[');
-		if(openBracket != string::npos)
-		{
-		    ++openBracket;
-		    string::size_type closeBracket = port.find(']', openBracket);
-		    if(closeBracket == string::npos)
-		    {
-			InitializationException ex(__FILE__, __LINE__);
-			ex.reason = "unclosed group";
-			throw ex;
-		    }
-		    port = port.substr(openBracket, closeBracket-openBracket);
-		}
-		vector<int> ports;
-		vector<Range> ranges;
-		parseGroup(port, ports, ranges);
-		portMatch = new MatchesNumber(ports, ranges);
-	    }
-	    else
-	    {
-		addr = parameter;
-	    }
+            string addr;
+            if(portPortion != string::npos)
+            {
+                addr = parameter.substr(0, portPortion);
+                string port = parameter.substr(portPortion + 1);
+                string::size_type openBracket = port.find('[');
+                if(openBracket != string::npos)
+                {
+                    ++openBracket;
+                    string::size_type closeBracket = port.find(']', openBracket);
+                    if(closeBracket == string::npos)
+                    {
+                        InitializationException ex(__FILE__, __LINE__);
+                        ex.reason = "unclosed group";
+                        throw ex;
+                    }
+                    port = port.substr(openBracket, closeBracket-openBracket);
+                }
+                vector<int> ports;
+                vector<Range> ranges;
+                parseGroup(port, ports, ranges);
+                portMatch = new MatchesNumber(ports, ranges);
+            }
+            else
+            {
+                addr = parameter;
+            }
 
-	    //
-	    // The addr portion can contain alphanumerics, * and
-	    // ranges.
-	    //
-	    string::size_type current = 0;
+            //
+            // The addr portion can contain alphanumerics, * and
+            // ranges.
+            //
+            string::size_type current = 0;
 
-	    if(current == addr.size())
-	    {
-		InitializationException ex(__FILE__, __LINE__);
-		ex.reason = "expected address information before ':'";
-		throw ex;
-	    }
+            if(current == addr.size())
+            {
+                InitializationException ex(__FILE__, __LINE__);
+                ex.reason = "expected address information before ':'";
+                throw ex;
+            }
 
-	    //
-	    // TODO: assuming that there is no leading or trailing whitespace. This
-	    // should probably be confirmed.
-	    //
-	    assert(!isspace(parameter[current]));
-	    assert(!isspace(addr[addr.size() -1]));
+            //
+            // TODO: assuming that there is no leading or trailing whitespace. This
+            // should probably be confirmed.
+            //
+            assert(!isspace(parameter[current]));
+            assert(!isspace(addr[addr.size() -1]));
 
-	    if(current != 0)
-	    {
-		addr = addr.substr(current);
-	    }
+            if(current != 0)
+            {
+                addr = addr.substr(current);
+            }
 
-	    string::size_type mark = 0;
-	    bool inGroup = false;
-	    AddressMatcherFactory* currentFactory = &startsWithFactory;
+            string::size_type mark = 0;
+            bool inGroup = false;
+            AddressMatcherFactory* currentFactory = &startsWithFactory;
 
-	    if(addr == "*")
-	    {
-		//
-		// Special case. Match everything.
-		//
-		currentRuleSet.push_back(new MatchesAny);
-	    }
-	    else
-	    {
-		for(current = 0; current < addr.size(); ++current)
-		{
-		    if(addr[current] == '*')
-		    {
-			if(inGroup)
-			{
-			    InitializationException ex(__FILE__, __LINE__);
-			    ex.reason = "wildcards not permitted in groups";
-			    throw ex;
-			}
-			//
-			// current == mark when the wildcard is at the head of a
-			// string or directly after a group.
-			//
-			if(current != mark)
-			{
-			    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
-			}
-			currentFactory = &wildCardFactory;
-			mark = current + 1;
-		    }
-		    else if(addr[current] == '[')
-		    {
-			// ??? what does it mean if current == mark?
-			if(current != mark)
-			{
-			    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
-			    currentFactory = &followingFactory;
-			}
-			inGroup = true;
-			mark = current + 1;
-		    }
-		    else if(addr[current] == ']')
-		    {
-			if(!inGroup)
-			{
-			    InitializationException ex(__FILE__, __LINE__);
-			    ex.reason = "group close without group start";
-			    throw ex;
-			}
-			inGroup = false;
-			if(mark == current)
-			{
-			    InitializationException ex(__FILE__, __LINE__);
-			    ex.reason = "empty group";
-			    throw ex;
-			}
-			string group = addr.substr(mark, current - mark);
-			vector<int> numbers;
-			vector<Range> ranges;
-			parseGroup(group, numbers, ranges);
-			currentRuleSet.push_back(currentFactory->create(numbers, ranges));
-			currentFactory = &followingFactory;
-			mark = current + 1;
-		    }
-		}
-		currentFactory = &endsWithFactory;
+            if(addr == "*")
+            {
+                //
+                // Special case. Match everything.
+                //
+                currentRuleSet.push_back(new MatchesAny);
+            }
+            else
+            {
+                for(current = 0; current < addr.size(); ++current)
+                {
+                    if(addr[current] == '*')
+                    {
+                        if(inGroup)
+                        {
+                            InitializationException ex(__FILE__, __LINE__);
+                            ex.reason = "wildcards not permitted in groups";
+                            throw ex;
+                        }
+                        //
+                        // current == mark when the wildcard is at the head of a
+                        // string or directly after a group.
+                        //
+                        if(current != mark)
+                        {
+                            currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
+                        }
+                        currentFactory = &wildCardFactory;
+                        mark = current + 1;
+                    }
+                    else if(addr[current] == '[')
+                    {
+                        // ??? what does it mean if current == mark?
+                        if(current != mark)
+                        {
+                            currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current-mark)));
+                            currentFactory = &followingFactory;
+                        }
+                        inGroup = true;
+                        mark = current + 1;
+                    }
+                    else if(addr[current] == ']')
+                    {
+                        if(!inGroup)
+                        {
+                            InitializationException ex(__FILE__, __LINE__);
+                            ex.reason = "group close without group start";
+                            throw ex;
+                        }
+                        inGroup = false;
+                        if(mark == current)
+                        {
+                            InitializationException ex(__FILE__, __LINE__);
+                            ex.reason = "empty group";
+                            throw ex;
+                        }
+                        string group = addr.substr(mark, current - mark);
+                        vector<int> numbers;
+                        vector<Range> ranges;
+                        parseGroup(group, numbers, ranges);
+                        currentRuleSet.push_back(currentFactory->create(numbers, ranges));
+                        currentFactory = &followingFactory;
+                        mark = current + 1;
+                    }
+                }
+                currentFactory = &endsWithFactory;
 
-		if(inGroup)
-		{
-		    InitializationException ex(__FILE__, __LINE__);
-		    ex.reason = "unclosed group";
-		    throw ex;
-		}
-		if(mark != current)
-		{
-		    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
-		}
-	    }
-	    allRules.push_back(new AddressRule(communicator, currentRuleSet, portMatch, traceLevel));
-	}
+                if(inGroup)
+                {
+                    InitializationException ex(__FILE__, __LINE__);
+                    ex.reason = "unclosed group";
+                    throw ex;
+                }
+                if(mark != current)
+                {
+                    currentRuleSet.push_back(currentFactory->create(addr.substr(mark, current - mark)));
+                }
+            }
+            allRules.push_back(new AddressRule(communicator, currentRuleSet, portMatch, traceLevel));
+        }
     }
     catch(...)
     {
-	for(vector<ProxyRule*>::const_iterator i = allRules.begin(); i != allRules.end(); ++i)
-	{
-	    delete *i;
-	}
-	throw;
+        for(vector<ProxyRule*>::const_iterator i = allRules.begin(); i != allRules.end(); ++i)
+        {
+            delete *i;
+        }
+        throw;
     }
     rules = allRules;
 }
@@ -825,10 +825,10 @@ match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
 {
     for(vector<ProxyRule*>::const_iterator i = rules.begin(); i != rules.end(); ++i)
     {
-	if((*i)->check(proxy))
-	{
-	    return true;
-	}
+        if((*i)->check(proxy))
+        {
+            return true;
+        }
     }
     return false;
 }
@@ -841,36 +841,36 @@ class ProxyLengthRule : public ProxyRule
 {
 public:
     ProxyLengthRule(const CommunicatorPtr communicator, const string& count, int traceLevel) :
-	_communicator(communicator),
-	_traceLevel(traceLevel)
+        _communicator(communicator),
+        _traceLevel(traceLevel)
     {
-	istringstream s(count);
-	if(!(s >> _count) || !s.eof())
-	{
-	    InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "Error parsing ProxySizeMax property";
-	    throw ex;
-	}
-	if(_count <= 0)
-	{
-	    InitializationException ex(__FILE__, __LINE__);
-	    ex.reason = "ProxySizeMax must be greater than 1";
-	    throw ex;
-	}
+        istringstream s(count);
+        if(!(s >> _count) || !s.eof())
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "Error parsing ProxySizeMax property";
+            throw ex;
+        }
+        if(_count <= 0)
+        {
+            InitializationException ex(__FILE__, __LINE__);
+            ex.reason = "ProxySizeMax must be greater than 1";
+            throw ex;
+        }
     }
 
     bool
     check(const ObjectPrx& p) const
     {
-	string s = p->ice_toString();
-	bool result = (s.size() > _count);
-	if(_traceLevel >= 1)
-	{
-	    Trace out(_communicator->getLogger(), "Glacier2");
-	    out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ") 
-		<< "proxy size restriction\n";
-	}
-	return result;
+        string s = p->ice_toString();
+        bool result = (s.size() > _count);
+        if(_traceLevel >= 1)
+        {
+            Trace out(_communicator->getLogger(), "Glacier2");
+            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ") 
+                << "proxy size restriction\n";
+        }
+        return result;
     }
 
 private:
@@ -892,19 +892,19 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator, cons
     string s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Accept");
     if(s != "")
     {
-	Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
+        Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
     }
 
     s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Reject");
     if(s != "")
     {
-	Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
+        Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
     }
 
     s = communicator->getProperties()->getProperty("Glacier2.Filter.ProxySizeMax");
     if(s != "")
     {
-	_rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
+        _rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
     }
 }
 
@@ -912,11 +912,11 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
 {
     for(vector<ProxyRule*>::const_iterator i = _acceptRules.begin(); i != _acceptRules.end(); ++i)
     {
-	delete (*i);
+        delete (*i);
     }
     for(vector<ProxyRule*>::const_iterator j = _rejectRules.begin(); j != _rejectRules.end(); ++j)
     {
-	delete (*j);
+        delete (*j);
    }
 }
 
@@ -928,31 +928,31 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
     //
     if(_acceptRules.size() == 0 && _rejectRules.size() == 0)
     {
-	return true;
+        return true;
     }
 
     bool result = false;
 
     if(_rejectRules.size() == 0)
     {
-	//
-	// If there are no reject rules, we assume "reject all".
-	//
-	result = match(_acceptRules, proxy);
+        //
+        // If there are no reject rules, we assume "reject all".
+        //
+        result = match(_acceptRules, proxy);
     }
     else if(_acceptRules.size() == 0)
     {
-	//
-	// If no accept rules are defined we assume accept all.
-	//
-	result = !match(_rejectRules, proxy);
+        //
+        // If no accept rules are defined we assume accept all.
+        //
+        result = !match(_rejectRules, proxy);
     }
     else
     {
-	if(match(_acceptRules, proxy))
-	{
-	    result = !match(_rejectRules, proxy);
-	}
+        if(match(_acceptRules, proxy))
+        {
+            result = !match(_rejectRules, proxy);
+        }
     }
 
     //
@@ -960,15 +960,15 @@ Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
     //
     if(_traceLevel > 0)
     {
-	Trace out(_communicator->getLogger(), "Glacier2");
-	if(result)
-	{
-	    out << "accepted proxy " << _communicator->proxyToString(proxy) << '\n';
-	}
-	else
-	{
-	    out << "rejected proxy " << _communicator->proxyToString(proxy) << '\n';
-	}
+        Trace out(_communicator->getLogger(), "Glacier2");
+        if(result)
+        {
+            out << "accepted proxy " << _communicator->proxyToString(proxy) << '\n';
+        }
+        else
+        {
+            out << "rejected proxy " << _communicator->proxyToString(proxy) << '\n';
+        }
     }
     return result;
 }

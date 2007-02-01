@@ -18,12 +18,12 @@ final class CallbackI extends _CallbackDisp
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
-	proxy.callback(current.ctx);
+        proxy.callback(current.ctx);
     }
 
     public void
     initiateCallbackEx(CallbackReceiverPrx proxy, Ice.Current current)
-	throws CallbackException
+        throws CallbackException
     {
         proxy.callbackEx(current.ctx);
     }

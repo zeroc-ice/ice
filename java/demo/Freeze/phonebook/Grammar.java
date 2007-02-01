@@ -11,173 +11,173 @@ class Grammar
 {
     Grammar(Parser p)
     {
-	_parser = p;
-	_scanner = new Scanner(_parser);
+        _parser = p;
+        _scanner = new Scanner(_parser);
     }
     
     void
     parse()
     {
-	while(true)
-	{
-	    try
-	    {
-		_token = _scanner.nextToken();
-		if(_token == null)
-		{
-		    return;
-		}
-		else if(_token.type == Token.TOK_SEMI)
-		{
-		    // Continue
-		}
-		else if(_token.type == Token.TOK_HELP)
-		{
-		    _token = _scanner.nextToken();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
+        while(true)
+        {
+            try
+            {
+                _token = _scanner.nextToken();
+                if(_token == null)
+                {
+                    return;
+                }
+                else if(_token.type == Token.TOK_SEMI)
+                {
+                    // Continue
+                }
+                else if(_token.type == Token.TOK_HELP)
+                {
+                    _token = _scanner.nextToken();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
 
-		    _parser.usage();
-		}
-		else if(_token.type == Token.TOK_EXIT)
-		{
-		    _token = _scanner.nextToken();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
+                    _parser.usage();
+                }
+                else if(_token.type == Token.TOK_EXIT)
+                {
+                    _token = _scanner.nextToken();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
 
-		    return;
-		}
-		else if(_token.type == Token.TOK_ADD_CONTACTS)
-		{
-		    java.util.List s = strings();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
-		    _parser.addContacts(s);
-		}
-		else if(_token.type == Token.TOK_FIND_CONTACTS)
-		{
-		    java.util.List s = strings();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
-		    _parser.findContacts(s);
-		}
-		else if(_token.type == Token.TOK_NEXT_FOUND_CONTACT)
-		{
-		    _token = _scanner.nextToken();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
+                    return;
+                }
+                else if(_token.type == Token.TOK_ADD_CONTACTS)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.addContacts(s);
+                }
+                else if(_token.type == Token.TOK_FIND_CONTACTS)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.findContacts(s);
+                }
+                else if(_token.type == Token.TOK_NEXT_FOUND_CONTACT)
+                {
+                    _token = _scanner.nextToken();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
 
-		    _parser.nextFoundContact();
-		}
-		else if(_token.type == Token.TOK_PRINT_CURRENT)
-		{
-		    _token = _scanner.nextToken();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
+                    _parser.nextFoundContact();
+                }
+                else if(_token.type == Token.TOK_PRINT_CURRENT)
+                {
+                    _token = _scanner.nextToken();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
 
-		    _parser.printCurrent();
-		}
-		else if(_token.type == Token.TOK_SET_CURRENT_NAME)
-		{
-		    java.util.List s = strings();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
-		    _parser.setCurrentName(s);
-		}
-		else if(_token.type == Token.TOK_SET_CURRENT_ADDRESS)
-		{
-		    java.util.List s = strings();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
-		    _parser.setCurrentAddress(s);
-		}
-		else if(_token.type == Token.TOK_SET_CURRENT_PHONE)
-		{
-		    java.util.List s = strings();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
-		    _parser.setCurrentPhone(s);
-		}
-		else if(_token.type == Token.TOK_REMOVE_CURRENT)
-		{
-		    _token = _scanner.nextToken();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
+                    _parser.printCurrent();
+                }
+                else if(_token.type == Token.TOK_SET_CURRENT_NAME)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.setCurrentName(s);
+                }
+                else if(_token.type == Token.TOK_SET_CURRENT_ADDRESS)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.setCurrentAddress(s);
+                }
+                else if(_token.type == Token.TOK_SET_CURRENT_PHONE)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.setCurrentPhone(s);
+                }
+                else if(_token.type == Token.TOK_REMOVE_CURRENT)
+                {
+                    _token = _scanner.nextToken();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
 
-		    _parser.removeCurrent();
-		}
-		else if(_token.type == Token.TOK_SET_EVICTOR_SIZE)
-		{
-		    java.util.List s = strings();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
-		    _parser.setEvictorSize(s);
-		}
-		else if(_token.type == Token.TOK_SHUTDOWN)
-		{
-		    _token = _scanner.nextToken();
-		    if(_token.type != Token.TOK_SEMI)
-		    {
-			throw new ParseError("Expected ';'");
-		    }
+                    _parser.removeCurrent();
+                }
+                else if(_token.type == Token.TOK_SET_EVICTOR_SIZE)
+                {
+                    java.util.List s = strings();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
+                    _parser.setEvictorSize(s);
+                }
+                else if(_token.type == Token.TOK_SHUTDOWN)
+                {
+                    _token = _scanner.nextToken();
+                    if(_token.type != Token.TOK_SEMI)
+                    {
+                        throw new ParseError("Expected ';'");
+                    }
 
-		    _parser.shutdown();
-		}
-		else
-		{
-		    _parser.error("parse error");
-		}
-	    }
-	    catch(ParseError e)
-	    {
-		_parser.error("Parse error: " + e.getMessage());
-	    }
-	}
+                    _parser.shutdown();
+                }
+                else
+                {
+                    _parser.error("parse error");
+                }
+            }
+            catch(ParseError e)
+            {
+                _parser.error("Parse error: " + e.getMessage());
+            }
+        }
     }
 
     private java.util.List
     strings()
     {
-	java.util.List l = new java.util.ArrayList();
-	while(true)
-	{
-	    _token = _scanner.nextToken();
-	    if(_token.type != Token.TOK_STRING)
-	    {
-		return l;
-	    }
-	    l.add(_token.value);
-	}
+        java.util.List l = new java.util.ArrayList();
+        while(true)
+        {
+            _token = _scanner.nextToken();
+            if(_token.type != Token.TOK_STRING)
+            {
+                return l;
+            }
+            l.add(_token.value);
+        }
     }
 
     static private class ParseError extends RuntimeException
     {
-	ParseError(String msg)
-	{
-	    super(msg);
-	}
+        ParseError(String msg)
+        {
+            super(msg);
+        }
     }
 
     private Parser _parser;

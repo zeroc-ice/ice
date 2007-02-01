@@ -61,11 +61,11 @@ handleDbException(const DbException&, const char*, int);
 
 void
 handleDbException(const DbException&, Key&, Dbt&, 
-		  const char*, int);
+                  const char*, int);
 
 void
 handleDbException(const DbException&, Key&, Dbt&, Value&, Dbt&, 
-		  const char*, int);
+                  const char*, int);
 
 }
 

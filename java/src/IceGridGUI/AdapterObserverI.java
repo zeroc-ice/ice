@@ -15,85 +15,85 @@ class AdapterObserverI extends _AdapterObserverDisp
 {
     AdapterObserverI(Coordinator coordinator)
     {
-	_coordinator = coordinator;
-	_trace = coordinator.traceObservers();
+        _coordinator = coordinator;
+        _trace = coordinator.traceObservers();
     }
 
     public synchronized void adapterInit(final AdapterInfo[] adapters, Ice.Current current)
     {
-	if(_trace)
-	{
-	    if(adapters.length == 0)
-	    {
-		_coordinator.traceObserver("adapterInit (no adapter)");
-	    }
-	    else
-	    {
-		String names = "";
-		for(int i = 0; i < adapters.length; ++i)
-		{
-		    names += " " + adapters[i].id;
-		}
-		
-		_coordinator.traceObserver("adapterInit for adapters" + names);
-	    }
-	}
+        if(_trace)
+        {
+            if(adapters.length == 0)
+            {
+                _coordinator.traceObserver("adapterInit (no adapter)");
+            }
+            else
+            {
+                String names = "";
+                for(int i = 0; i < adapters.length; ++i)
+                {
+                    names += " " + adapters[i].id;
+                }
+                
+                _coordinator.traceObserver("adapterInit for adapters" + names);
+            }
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.adapterInit(adapters);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.adapterInit(adapters);
+                }
+            });
     }
 
     public void adapterAdded(final AdapterInfo info, Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("adapterAdded for adapter " + info.id);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("adapterAdded for adapter " + info.id);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.adapterAdded(info);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.adapterAdded(info);
+                }
+            });
     }    
 
     public void adapterUpdated(final AdapterInfo info, Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.adapterUpdated(info);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.adapterUpdated(info);
+                }
+            });
     }    
 
     public void adapterRemoved(final String id, Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("adapterRemoved for adapter " + id);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("adapterRemoved for adapter " + id);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.adapterRemoved(id);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.adapterRemoved(id);
+                }
+            });
     }
 
     private final Coordinator _coordinator;

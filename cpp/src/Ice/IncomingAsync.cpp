@@ -41,34 +41,34 @@ IceInternal::IncomingAsync::__response(bool ok)
 {
     try
     {
-	if(!__servantLocatorFinished())
-	{
-	    return;
-	}
+        if(!__servantLocatorFinished())
+        {
+            return;
+        }
 
-	if(_response)
-	{
-	    _os.endWriteEncaps();
-	    
-	    if(ok)
-	    {
-		*(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchOK);
-	    }
-	    else
-	    {
-		*(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchUserException);
-	    }
+        if(_response)
+        {
+            _os.endWriteEncaps();
+            
+            if(ok)
+            {
+                *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchOK);
+            }
+            else
+            {
+                *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchUserException);
+            }
 
-	    _connection->sendResponse(&_os, _compress);
-	}
-	else
-	{
-	    _connection->sendNoResponse();
-	}
+            _connection->sendResponse(&_os, _compress);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }
     }
     catch(const LocalException& ex)
     {
-	_connection->invokeException(ex, 1); // Fatal invocation exception
+        _connection->invokeException(ex, 1); // Fatal invocation exception
     }
 }
 
@@ -77,16 +77,16 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 {
     try
     {
-	if(!__servantLocatorFinished())
-	{
-	    return;
-	}
+        if(!__servantLocatorFinished())
+        {
+            return;
+        }
 
-	__handleException(exc);
+        __handleException(exc);
     }
     catch(const LocalException& ex)
     {
-	_connection->invokeException(ex, 1);  // Fatal invocation exception
+        _connection->invokeException(ex, 1);  // Fatal invocation exception
     }
 }
 
@@ -95,16 +95,16 @@ IceInternal::IncomingAsync::__exception(const std::exception& exc)
 {
     try
     {
-	if(!__servantLocatorFinished())
-	{
-	    return;
-	}
+        if(!__servantLocatorFinished())
+        {
+            return;
+        }
 
-	__handleException(exc);
+        __handleException(exc);
     }
     catch(const LocalException& ex)
     {
-	_connection->invokeException(ex, 1);  // Fatal invocation exception
+        _connection->invokeException(ex, 1);  // Fatal invocation exception
     }
 }
 
@@ -113,16 +113,16 @@ IceInternal::IncomingAsync::__exception()
 {
     try
     {
-	if(!__servantLocatorFinished())
-	{
-	    return;
-	}
+        if(!__servantLocatorFinished())
+        {
+            return;
+        }
 
-	__handleException();
+        __handleException();
     }
     catch(const LocalException& ex)
     {
-	_connection->invokeException(ex, 1);  // Fatal invocation exception
+        _connection->invokeException(ex, 1);  // Fatal invocation exception
     }
 }
 
@@ -131,26 +131,26 @@ IceInternal::IncomingAsync::__servantLocatorFinished()
 {
     try
     {
-	if(_locator && _servant)
-	{
-	    _locator->finished(_current, _servant, _cookie);
-	}
-	return true;
+        if(_locator && _servant)
+        {
+            _locator->finished(_current, _servant, _cookie);
+        }
+        return true;
     }
     catch(const Exception& ex)
     {
-	__handleException(ex);
-	return false;
+        __handleException(ex);
+        return false;
     }
     catch(const std::exception& ex)
     {
-	__handleException(ex);
-	return false;
+        __handleException(ex);
+        return false;
     }
     catch(...)
     {
-	__handleException();
-	return false;
+        __handleException();
+        return false;
     }
 }
 
@@ -164,12 +164,12 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
 {
     try
     {
-	__os()->writeBlob(outParams);
+        __os()->writeBlob(outParams);
     }
     catch(const LocalException& ex)
     {
-	__exception(ex);
-	return;
+        __exception(ex);
+        return;
     }
     __response(ok);
 }
@@ -202,12 +202,12 @@ IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_response(bool ok, const pair<con
 {
     try
     {
-	__os()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
+        __os()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
     }
     catch(const LocalException& ex)
     {
-	__exception(ex);
-	return;
+        __exception(ex);
+        return;
     }
     __response(ok);
 }

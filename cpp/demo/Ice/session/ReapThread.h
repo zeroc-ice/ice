@@ -30,10 +30,10 @@ private:
     bool _terminated;
     struct SessionProxyPair
     {
-	SessionProxyPair(const Demo::SessionPrx& p, const SessionIPtr& s) :
-	    proxy(p), session(s) { }
-	const Demo::SessionPrx proxy;
-	const SessionIPtr session;
+        SessionProxyPair(const Demo::SessionPrx& p, const SessionIPtr& s) :
+            proxy(p), session(s) { }
+        const Demo::SessionPrx proxy;
+        const SessionIPtr session;
     };
     std::list<SessionProxyPair> _sessions;
 };

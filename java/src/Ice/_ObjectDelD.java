@@ -22,7 +22,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		return __direct.servant().ice_isA(__id, __current);
+                return __direct.servant().ice_isA(__id, __current);
             }
             finally
             {
@@ -42,8 +42,8 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		__direct.servant().ice_ping(__current);
-		return;
+                __direct.servant().ice_ping(__current);
+                return;
             }
             finally
             {
@@ -63,7 +63,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		return __direct.servant().ice_ids(__current);
+                return __direct.servant().ice_ids(__current);
             }
             finally
             {
@@ -83,7 +83,7 @@ public class _ObjectDelD implements _ObjectDel
             IceInternal.Direct __direct = new IceInternal.Direct(__current);
             try
             {
-		return __direct.servant().ice_id(__current);
+                return __direct.servant().ice_id(__current);
             }
             finally
             {
@@ -94,16 +94,16 @@ public class _ObjectDelD implements _ObjectDel
 
     public boolean
     ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-	       java.util.Map context)
+               java.util.Map context)
         throws IceInternal.LocalExceptionWrapper
     {
-	throw new CollocationOptimizationException();
+        throw new CollocationOptimizationException();
     }
 
     public ConnectionI
     __getConnection(BooleanHolder compress)
     {
-	throw new CollocationOptimizationException();
+        throw new CollocationOptimizationException();
     }
 
     //
@@ -122,8 +122,8 @@ public class _ObjectDelD implements _ObjectDel
         // upon initialization.
         //
 
-	assert(__reference == null);
-	assert(__adapter == null);
+        assert(__reference == null);
+        assert(__adapter == null);
 
         __reference = from.__reference;
         __adapter = from.__adapter;
@@ -141,30 +141,30 @@ public class _ObjectDelD implements _ObjectDel
         current.operation = op;
         current.mode = mode;
 
-	if(context != null)
-	{
-	    current.ctx = context;
-	}
-	else
-	{
-	    //
-	    // Implicit context
-	    //
-	    ImplicitContextI implicitContext =
-		__reference.getInstance().getImplicitContext();
-	    
-	    java.util.Map prxContext = __reference.getContext();
-	    
-	    if(implicitContext == null)
-	    {
-		current.ctx = new java.util.HashMap(prxContext);
-	    }
-	    else
-	    {
-		current.ctx = implicitContext.combine(prxContext);
-	    }
-	}
-	current.requestId = -1;
+        if(context != null)
+        {
+            current.ctx = context;
+        }
+        else
+        {
+            //
+            // Implicit context
+            //
+            ImplicitContextI implicitContext =
+                __reference.getInstance().getImplicitContext();
+            
+            java.util.Map prxContext = __reference.getContext();
+            
+            if(implicitContext == null)
+            {
+                current.ctx = new java.util.HashMap(prxContext);
+            }
+            else
+            {
+                current.ctx = implicitContext.combine(prxContext);
+            }
+        }
+        current.requestId = -1;
     }
 
     public void
@@ -175,8 +175,8 @@ public class _ObjectDelD implements _ObjectDel
         // upon initialization.
         //
 
-	assert(__reference == null);
-	assert(__adapter == null);
+        assert(__reference == null);
+        assert(__adapter == null);
 
         __reference = ref;
         __adapter = adapter;

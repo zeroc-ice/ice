@@ -64,13 +64,13 @@ public final class DispatchStatus
     public int
     value()
     {
-	return __value;
+        return __value;
     }
 
     private
     DispatchStatus(int val)
     {
-	__value = val;
-	__values[val] = this;
+        __value = val;
+        __values[val] = this;
     }
 }

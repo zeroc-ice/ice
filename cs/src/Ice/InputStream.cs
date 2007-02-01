@@ -11,53 +11,53 @@ namespace Ice
 {
     public interface InputStream
     {
-	Communicator communicator();
+        Communicator communicator();
 
-	void sliceObjects(bool slice);
+        void sliceObjects(bool slice);
 
-	bool readBool();
-	bool[] readBoolSeq();
+        bool readBool();
+        bool[] readBoolSeq();
 
-	byte readByte();
-	byte[] readByteSeq();
+        byte readByte();
+        byte[] readByteSeq();
 
-	short readShort();
-	short[] readShortSeq();
+        short readShort();
+        short[] readShortSeq();
 
-	int readInt();
-	int[] readIntSeq();
+        int readInt();
+        int[] readIntSeq();
 
-	long readLong();
-	long[] readLongSeq();
+        long readLong();
+        long[] readLongSeq();
 
-	float readFloat();
-	float[] readFloatSeq();
+        float readFloat();
+        float[] readFloatSeq();
 
-	double readDouble();
-	double[] readDoubleSeq();
+        double readDouble();
+        double[] readDoubleSeq();
 
-	string readString();
-	string[] readStringSeq();
+        string readString();
+        string[] readStringSeq();
 
-	int readSize();
+        int readSize();
 
-	ObjectPrx readProxy();
+        ObjectPrx readProxy();
 
-	void readObject(ReadObjectCallback cb);
+        void readObject(ReadObjectCallback cb);
 
-	string readTypeId();
+        string readTypeId();
 
-	void throwException();
+        void throwException();
 
-	void startSlice();
-	void endSlice();
-	void skipSlice();
+        void startSlice();
+        void endSlice();
+        void skipSlice();
 
-	void startEncapsulation();
-	void endEncapsulation();
+        void startEncapsulation();
+        void endEncapsulation();
 
-	void readPendingObjects();
+        void readPendingObjects();
 
-	void destroy();
+        void destroy();
     }
 }

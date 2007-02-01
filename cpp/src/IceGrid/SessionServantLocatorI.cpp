@@ -28,7 +28,7 @@ SessionServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr&
     map<Ice::Identity, SessionServant>::const_iterator p = _servants.find(current.id);
     if(p == _servants.end() || p->second.connection != current.con)
     {
-	return 0;
+        return 0;
     }
     return p->second.servant;
 }
@@ -54,7 +54,7 @@ SessionServantLocatorI::add(const Ice::ObjectPtr& servant, const Ice::Connection
     id.category = _instanceName;
     if(!_servants.insert(make_pair(id, SessionServant(servant, con))).second)
     {
-	throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "servant", id.name);
+        throw Ice::AlreadyRegisteredException(__FILE__, __LINE__, "servant", id.name);
     }
     return _adapter->createProxy(id);
 }

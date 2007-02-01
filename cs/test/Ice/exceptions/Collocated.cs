@@ -17,42 +17,42 @@ public class Collocated
         Ice.Object obj = new ThrowerI(adapter);
         adapter.add(obj, communicator.stringToIdentity("thrower"));
         AllTests.allTests(communicator, true);
-	return 0;
+        return 0;
     }
 
     public static void
     Main(string[] args)
     {
-	int status = 0;
-	Ice.Communicator communicator = null;
-	
-	try
-	{
-	    communicator = Ice.Util.initialize(ref args);
-	    status = run(args, communicator);
-	}
-	catch(System.Exception ex)
-	{
-	    System.Console.WriteLine(ex);
-	    status = 1;
-	}
-	
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		System.Console.WriteLine(ex);
-		status = 1;
-	    }
-	}
-	
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        int status = 0;
+        Ice.Communicator communicator = null;
+        
+        try
+        {
+            communicator = Ice.Util.initialize(ref args);
+            status = run(args, communicator);
+        }
+        catch(System.Exception ex)
+        {
+            System.Console.WriteLine(ex);
+            status = 1;
+        }
+        
+        if(communicator != null)
+        {
+            try
+            {
+                communicator.destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                System.Console.WriteLine(ex);
+                status = 1;
+            }
+        }
+        
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

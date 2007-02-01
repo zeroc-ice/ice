@@ -17,17 +17,17 @@ class PlainServerEditor extends AbstractServerEditor
 {
     protected void writeDescriptor()
     {
-	_subEditor.writeDescriptor();
-    }	    
+        _subEditor.writeDescriptor();
+    }       
     
     protected boolean isSimpleUpdate()
     {
-	return _subEditor.isSimpleUpdate(); 
+        return _subEditor.isSimpleUpdate(); 
     }
 
     PlainServerEditor()
     {
-	_subEditor = new ServerSubEditor(this);
+        _subEditor = new ServerSubEditor(this);
     }
  
     //
@@ -35,41 +35,41 @@ class PlainServerEditor extends AbstractServerEditor
     //
     Utils.Resolver getDetailResolver()
     {
-	if(_target.getCoordinator().substitute())
-	{
-	    return _target.getResolver();
-	}
-	else
-	{
-	    return null;
-	}
+        if(_target.getCoordinator().substitute())
+        {
+            return _target.getResolver();
+        }
+        else
+        {
+            return null;
+        }
     }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {    
-	_subEditor.appendProperties(builder);
+        _subEditor.appendProperties(builder);
     }
     
     Object getSubDescriptor()
     {
-	return _target.getDescriptor();
+        return _target.getDescriptor();
     }
 
     protected boolean validate()
     {
-	return _subEditor.validate();
+        return _subEditor.validate();
     }
 
     void show(PlainServer server)
     {
-	detectUpdates(false);
-	_target = server;
+        detectUpdates(false);
+        _target = server;
 
-	_subEditor.show(true);
+        _subEditor.show(true);
 
-	_applyButton.setEnabled(server.isEphemeral());
-	_discardButton.setEnabled(server.isEphemeral());	  
-	detectUpdates(true);
+        _applyButton.setEnabled(server.isEphemeral());
+        _discardButton.setEnabled(server.isEphemeral());          
+        detectUpdates(true);
     }
 
     private ServerSubEditor _subEditor;

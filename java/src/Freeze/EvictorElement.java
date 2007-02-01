@@ -40,8 +40,8 @@ class EvictorElement extends Ice.LocalObjectImpl
 
     EvictorElement(Ice.Identity identity, ObjectStore store)
     {
-	this.identity = identity;
-	this.store = store;
+        this.identity = identity;
+        this.store = store;
     }
     
     final ObjectStore store;

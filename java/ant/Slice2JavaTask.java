@@ -105,10 +105,10 @@ public class Slice2JavaTask extends SliceTask
             throw new BuildException("No fileset specified");
         }
 
-	//
-	// Read the set of dependencies for this task.
-	//
-	java.util.HashMap dependencies = readDependencies();
+        //
+        // Read the set of dependencies for this task.
+        //
+        java.util.HashMap dependencies = readDependencies();
 
         //
         // Compose a list of the files that need to be translated. A
@@ -130,15 +130,15 @@ public class Slice2JavaTask extends SliceTask
             {
                 File slice = new File(fileset.getDir(getProject()), files[i]);
 
-		SliceDependency depend = (SliceDependency)dependencies.get(getTargetKey(slice.toString()));
-		if(depend == null || !depend.isUpToDate())
-		{
+                SliceDependency depend = (SliceDependency)dependencies.get(getTargetKey(slice.toString()));
+                if(depend == null || !depend.isUpToDate())
+                {
                     buildList.addElement(slice);
                 }
-		else
-		{
+                else
+                {
                     log("skipping " + files[i]);
-		}
+                }
             }
         }
 
@@ -231,30 +231,30 @@ public class Slice2JavaTask extends SliceTask
                 cmd.append(" --checksum " + _checksum);
             }
 
-	    //
-	    // Add --stream
-	    //
+            //
+            // Add --stream
+            //
             if(_stream)
             {
                 cmd.append(" --stream");
             }
 
-	    //
-	    // Add --meta
-	    //
-	    if(!_meta.isEmpty())
-	    {
-		java.util.Iterator i = _meta.iterator();
-		while(i.hasNext())
-		{
-		    SliceMeta m = (SliceMeta)i.next();
-		    cmd.append(" --meta " + m.getValue());
-		}
-	    }
+            //
+            // Add --meta
+            //
+            if(!_meta.isEmpty())
+            {
+                java.util.Iterator i = _meta.iterator();
+                while(i.hasNext())
+                {
+                    SliceMeta m = (SliceMeta)i.next();
+                    cmd.append(" --meta " + m.getValue());
+                }
+            }
 
-	    //
-	    // Add --ice
-	    //
+            //
+            // Add --ice
+            //
             if(_ice)
             {
                 cmd.append(" --ice");
@@ -300,7 +300,7 @@ public class Slice2JavaTask extends SliceTask
             //
             // Update the dependencies.
             //
-	    cmd = new StringBuffer("--depend");
+            cmd = new StringBuffer("--depend");
 
             //
             // Add include directives
@@ -340,49 +340,49 @@ public class Slice2JavaTask extends SliceTask
                 }
             }
 
-	    //
-	    // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
-	    // unique property name here. Perhaps we should output the dependencies to a file instead.
-	    //
-	    final String outputProperty = "slice2java.depend." + System.currentTimeMillis();
+            //
+            // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
+            // unique property name here. Perhaps we should output the dependencies to a file instead.
+            //
+            final String outputProperty = "slice2java.depend." + System.currentTimeMillis();
 
-	    task = (ExecTask)getProject().createTask("exec");
+            task = (ExecTask)getProject().createTask("exec");
             task.setFailonerror(true);
-	    arg = task.createArg();
+            arg = task.createArg();
             arg.setLine(cmd.toString());
             task.setExecutable(translator);
-	    task.setOutputproperty(outputProperty);
+            task.setOutputproperty(outputProperty);
             task.execute();
 
-	    //
-	    // Update dependency file.
-	    //
-	    java.util.List newDependencies = parseDependencies(getProject().getProperty(outputProperty));
-	    p = newDependencies.iterator();
-	    while(p.hasNext())
-	    {
-		SliceDependency dep = (SliceDependency)p.next();
-		dependencies.put(getTargetKey(dep._dependencies[0]), dep);
-	    }
-		
-	    writeDependencies(dependencies);
+            //
+            // Update dependency file.
+            //
+            java.util.List newDependencies = parseDependencies(getProject().getProperty(outputProperty));
+            p = newDependencies.iterator();
+            while(p.hasNext())
+            {
+                SliceDependency dep = (SliceDependency)p.next();
+                dependencies.put(getTargetKey(dep._dependencies[0]), dep);
+            }
+                
+            writeDependencies(dependencies);
         }
     }
 
     private String
     getTargetKey(String slice)
     {
-	//
-	// Since the dependency file can be shared by several slice
-	// tasks we need to make sure that each dependency has a
-	// unique key. We use the name of the task, the output
-	// directory and the name of the slice file to be compiled. 
-	//
-	// If there's two slice2java tasks using the same dependency
-	// file, with the same output dir and which compiles the same
-	// slice file they'll use the same dependency.
-	//
-	return "slice2java " + _outputDir.toString() + " " + slice;
+        //
+        // Since the dependency file can be shared by several slice
+        // tasks we need to make sure that each dependency has a
+        // unique key. We use the name of the task, the output
+        // directory and the name of the slice file to be compiled. 
+        //
+        // If there's two slice2java tasks using the same dependency
+        // file, with the same output dir and which compiles the same
+        // slice file they'll use the same dependency.
+        //
+        return "slice2java " + _outputDir.toString() + " " + slice;
     }
 
     private File _translator;

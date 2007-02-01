@@ -347,7 +347,7 @@ fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint TSRMLS_DC)
         }
         ice_object* obj = static_cast<ice_object*>(p);
         assert(obj->ptr);
-	Ice::EndpointPtr* pe = static_cast<Ice::EndpointPtr*>(obj->ptr);
+        Ice::EndpointPtr* pe = static_cast<Ice::EndpointPtr*>(obj->ptr);
         endpoint = *pe;
     }
     return true;
@@ -387,8 +387,8 @@ ZEND_FUNCTION(Ice_ObjectPrx___tostring)
 
     try
     {
-	string str = _this->toString();
-	RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
+        string str = _this->toString();
+        RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -844,16 +844,16 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_adapterId)
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_adapterId(id);
-	if(!createProxy(return_value, prx TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::ObjectPrx prx = _this->getProxy()->ice_adapterId(id);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -861,7 +861,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -870,26 +870,26 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpoints)
 
     try
     {
-	Ice::EndpointSeq endpoints = _this->getProxy()->ice_getEndpoints();
+        Ice::EndpointSeq endpoints = _this->getProxy()->ice_getEndpoints();
 
-	array_init(return_value);
-	uint idx = 0;
-	for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++idx)
-	{
-	    zval* elem;
-	    MAKE_STD_ZVAL(elem);
-	    if(!createEndpoint(elem, *p TSRMLS_CC))
-	    {
-		zval_ptr_dtor(&elem);
-		RETURN_NULL();
-	    }
-	    add_index_zval(return_value, idx, elem);
-	}
+        array_init(return_value);
+        uint idx = 0;
+        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p, ++idx)
+        {
+            zval* elem;
+            MAKE_STD_ZVAL(elem);
+            if(!createEndpoint(elem, *p TSRMLS_CC))
+            {
+                zval_ptr_dtor(&elem);
+                RETURN_NULL();
+            }
+            add_index_zval(return_value, idx, elem);
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -897,7 +897,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -908,7 +908,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &zv) == FAILURE)
     {
-	RETURN_NULL();
+        RETURN_NULL();
     }
 
     Ice::EndpointSeq seq;
@@ -920,35 +920,35 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
     zend_hash_internal_pointer_reset_ex(arr, &pos);
     while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
     {
-	if(Z_TYPE_PP(val) != IS_OBJECT)
-	{
-	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an element of type Ice_Endpoint");
-	    RETURN_NULL();
-	}
+        if(Z_TYPE_PP(val) != IS_OBJECT)
+        {
+            php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an element of type Ice_Endpoint");
+            RETURN_NULL();
+        }
 
-	Ice::EndpointPtr endpoint;
-	if(!fetchEndpoint(*val, endpoint TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::EndpointPtr endpoint;
+        if(!fetchEndpoint(*val, endpoint TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
 
-	seq.push_back(endpoint);
+        seq.push_back(endpoint);
 
-	zend_hash_move_forward_ex(arr, &pos);
+        zend_hash_move_forward_ex(arr, &pos);
     }
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_endpoints(seq);
-	if(!createProxy(return_value, prx TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::ObjectPrx prx = _this->getProxy()->ice_endpoints(seq);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -956,7 +956,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocatorCacheTimeout)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -965,13 +965,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocatorCacheTimeout)
 
     try
     {
-	Ice::Int timeout = _this->getProxy()->ice_getLocatorCacheTimeout();
-	ZVAL_LONG(return_value, static_cast<long>(timeout));
+        Ice::Int timeout = _this->getProxy()->ice_getLocatorCacheTimeout();
+        ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -979,7 +979,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_locatorCacheTimeout)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -989,21 +989,21 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_locatorCacheTimeout)
     long l;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &l) != SUCCESS)
     {
-	RETURN_NULL();
+        RETURN_NULL();
     }
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_locatorCacheTimeout(l);
-	if(!createProxy(return_value, prx TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::ObjectPrx prx = _this->getProxy()->ice_locatorCacheTimeout(l);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1011,7 +1011,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isConnectionCached)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1020,13 +1020,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isConnectionCached)
 
     try
     {
-	bool b = _this->getProxy()->ice_isConnectionCached();
-	ZVAL_BOOL(return_value, b ? 1 : 0);
+        bool b = _this->getProxy()->ice_isConnectionCached();
+        ZVAL_BOOL(return_value, b ? 1 : 0);
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1034,7 +1034,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionCached)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1044,21 +1044,21 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionCached)
     zend_bool b;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b) != SUCCESS)
     {
-	RETURN_NULL();
+        RETURN_NULL();
     }
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_connectionCached(b ? true : false);
-	if(!createProxy(return_value, prx TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::ObjectPrx prx = _this->getProxy()->ice_connectionCached(b ? true : false);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1066,7 +1066,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpointSelection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1075,13 +1075,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getEndpointSelection)
 
     try
     {
-	Ice::EndpointSelectionType type = _this->getProxy()->ice_getEndpointSelection();
-	ZVAL_LONG(return_value, type == Ice::Random ? 0 : 1);
+        Ice::EndpointSelectionType type = _this->getProxy()->ice_getEndpointSelection();
+        ZVAL_LONG(return_value, type == Ice::Random ? 0 : 1);
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1089,7 +1089,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpointSelection)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1099,27 +1099,27 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpointSelection)
     long l;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &l) != SUCCESS)
     {
-	RETURN_NULL();
+        RETURN_NULL();
     }
 
     if(l < 0 || l > 1)
     {
-	php_error_docref(NULL TSRMLS_CC, E_ERROR, "expecting Random or Ordered");
-	RETURN_NULL();
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expecting Random or Ordered");
+        RETURN_NULL();
     }
 
     try
     {
-	Ice::ObjectPrx prx = _this->getProxy()->ice_endpointSelection(l == 0 ? Ice::Random : Ice::Ordered);
-	if(!createProxy(return_value, prx TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::ObjectPrx prx = _this->getProxy()->ice_endpointSelection(l == 0 ? Ice::Random : Ice::Ordered);
+        if(!createProxy(return_value, prx TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1127,7 +1127,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isSecure)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1182,7 +1182,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isPreferSecure)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1556,7 +1556,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId)
     try
     {
         char* id;
-	int idLen;
+        int idLen;
         if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &idLen) != SUCCESS)
         {
             RETURN_NULL();
@@ -1633,7 +1633,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1642,16 +1642,16 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getConnection)
 
     try
     {
-	Ice::ConnectionPtr con = _this->getProxy()->ice_getConnection();
-	if(!createConnection(return_value, con TSRMLS_CC))
-	{
-	    RETURN_NULL();
-	}
+        Ice::ConnectionPtr con = _this->getProxy()->ice_getConnection();
+        if(!createConnection(return_value, con TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1659,7 +1659,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1668,7 +1668,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
 
     try
     {
-	Ice::ConnectionPtr con = _this->getProxy()->ice_getCachedConnection();
+        Ice::ConnectionPtr con = _this->getProxy()->ice_getCachedConnection();
         if(!con || !createConnection(return_value, con TSRMLS_CC))
         {
             RETURN_NULL();
@@ -1676,8 +1676,8 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -1764,7 +1764,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         if(findClassScoped(scoped TSRMLS_CC) == 0)
         {
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "the Slice definition for type %s has not been compiled",
-			     scoped.c_str());
+                             scoped.c_str());
             RETURN_NULL();
         }
 
@@ -1826,8 +1826,8 @@ ZEND_FUNCTION(Ice_Endpoint___tostring)
 
     try
     {
-	string str = (*_this)->toString();
-	RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
+        string str = (*_this)->toString();
+        RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1859,8 +1859,8 @@ ZEND_FUNCTION(Ice_Connection___tostring)
 
     try
     {
-	string str = (*_this)->toString();
-	RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
+        string str = (*_this)->toString();
+        RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1873,7 +1873,7 @@ ZEND_FUNCTION(Ice_Connection_close)
 {
     if(ZEND_NUM_ARGS() != 1)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1883,12 +1883,12 @@ ZEND_FUNCTION(Ice_Connection_close)
     zend_bool b;
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
     {
-	RETURN_NULL();
+        RETURN_NULL();
     }
 
     try
     {
-	(*_this)->close(b ? true : false);
+        (*_this)->close(b ? true : false);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1901,7 +1901,7 @@ ZEND_FUNCTION(Ice_Connection_flushBatchRequests)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1910,7 +1910,7 @@ ZEND_FUNCTION(Ice_Connection_flushBatchRequests)
 
     try
     {
-	(*_this)->flushBatchRequests();
+        (*_this)->flushBatchRequests();
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1923,7 +1923,7 @@ ZEND_FUNCTION(Ice_Connection_type)
 {
     if(ZEND_NUM_ARGS() > 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1932,8 +1932,8 @@ ZEND_FUNCTION(Ice_Connection_type)
 
     try
     {
-	string str = (*_this)->type();
-	RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
+        string str = (*_this)->type();
+        RETURN_STRINGL(const_cast<char*>(str.c_str()), str.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1946,7 +1946,7 @@ ZEND_FUNCTION(Ice_Connection_timeout)
 {
     if(ZEND_NUM_ARGS() != 0)
     {
-	WRONG_PARAM_COUNT;
+        WRONG_PARAM_COUNT;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -1955,13 +1955,13 @@ ZEND_FUNCTION(Ice_Connection_timeout)
 
     try
     {
-	Ice::Int timeout = (*_this)->timeout();
-	ZVAL_LONG(return_value, static_cast<long>(timeout));
+        Ice::Int timeout = (*_this)->timeout();
+        ZVAL_LONG(return_value, static_cast<long>(timeout));
     }
     catch(const IceUtil::Exception& ex)
     {
-	throwException(ex TSRMLS_CC);
-	RETURN_NULL();
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
     }
 }
 
@@ -2001,7 +2001,7 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
     Slice::ParamDeclList::const_iterator p;
     for(p = params.begin(), i = 0; p != params.end(); ++p, ++i)
     {
-	Slice::TypePtr paramType = (*p)->type();
+        Slice::TypePtr paramType = (*p)->type();
         MarshalerPtr m = Marshaler::createMarshaler(paramType TSRMLS_CC);
         if(!m)
         {
@@ -2011,16 +2011,16 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
         argInfo[i].name = NULL;
         argInfo[i].class_name = NULL;
         argInfo[i].allow_null = 1;
-	Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(paramType);
-	if(cont)
-	{
-	    argInfo[i].array_type_hint = ((cont->containedType() == Slice::Contained::ContainedTypeSequence ||
-					   cont->containedType() == Slice::Contained::ContainedTypeDictionary) ? 1 : 0);
-	}
-	else
-	{
-	    argInfo[i].array_type_hint = 0;
-	}
+        Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(paramType);
+        if(cont)
+        {
+            argInfo[i].array_type_hint = ((cont->containedType() == Slice::Contained::ContainedTypeSequence ||
+                                           cont->containedType() == Slice::Contained::ContainedTypeDictionary) ? 1 : 0);
+        }
+        else
+        {
+            argInfo[i].array_type_hint = 0;
+        }
         argInfo[i].return_reference = 0;
         argInfo[i].required_num_args = static_cast<zend_uint>(params.size());
         if((*p)->isOutParam())
@@ -2100,7 +2100,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         if(!PZVAL_IS_REF(*args[i]))
         {
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "argument for out parameter %s must be passed by reference",
-			     _paramNames[i].c_str());
+                             _paramNames[i].c_str());
             return;
         }
     }
@@ -2368,7 +2368,7 @@ handleProxyAlloc(zend_class_entry* ce TSRMLS_DC)
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleProxyFreeStorage,
-					   NULL TSRMLS_CC);
+                                           NULL TSRMLS_CC);
     result.handlers = &_proxyHandlers;
 
     return result;
@@ -2450,7 +2450,7 @@ handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
         assert(obj->ptr);
         Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
-	Slice::ClassDefPtr def = _this->getClass();
+        Slice::ClassDefPtr def = _this->getClass();
         if(!def)
         {
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown method %s invoked on untyped proxy", method);
@@ -2460,9 +2460,9 @@ handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
         OperationPtr op = _this->getOperation(method);
         if(!op)
         {
-	    string scoped = def->scoped();
+            string scoped = def->scoped();
             php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown operation %s invoked on proxy of type %s", method,
-			     scoped.c_str());
+                             scoped.c_str());
             return NULL;
         }
 
@@ -2530,7 +2530,7 @@ handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleEndpointFreeStorage,
-					   NULL TSRMLS_CC);
+                                           NULL TSRMLS_CC);
     result.handlers = &_endpointHandlers;
 
     return result;
@@ -2562,7 +2562,7 @@ handleConnectionAlloc(zend_class_entry* ce TSRMLS_DC)
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleConnectionFreeStorage,
-					   NULL TSRMLS_CC);
+                                           NULL TSRMLS_CC);
     result.handlers = &_connectionHandlers;
 
     return result;
@@ -2604,14 +2604,14 @@ handleConnectionCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 
     if(con1 == con2)
     {
-	return 0;
+        return 0;
     }
     else if(con1 < con2)
     {
-	return -1;
+        return -1;
     }
     else
     {
-	return 1;
+        return 1;
     }
 }

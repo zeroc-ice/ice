@@ -99,7 +99,7 @@ public:
     virtual Ice::ObjectPtr
     create(const string& type)
     {
-	return _factory->create(type);
+        return _factory->create(type);
     }
 
     virtual void
@@ -110,7 +110,7 @@ public:
     void
     setFactory(const Ice::ObjectFactoryPtr& factory)
     {
-	_factory = factory;
+        _factory = factory;
     }
 
 private:

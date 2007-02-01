@@ -32,13 +32,13 @@ print >> out, "SLICEFILES =",
 first = True
 for root, dirs, files in os.walk(sys.argv[1]):
     for name in files:
-	if not name.startswith(".") and name.endswith(".ice"):
-	    if not first:
-		print >> out, "\\"
-		print >> out, "            ",
-	    else:
-		first = False
-	    print >> out, os.path.join(root, name),
+        if not name.startswith(".") and name.endswith(".ice"):
+            if not first:
+                print >> out, "\\"
+                print >> out, "            ",
+            else:
+                first = False
+            print >> out, os.path.join(root, name),
 print >> out, "\n"
 
 sys.exit(0)

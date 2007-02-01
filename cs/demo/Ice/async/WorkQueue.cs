@@ -17,7 +17,7 @@ public class WorkQueue
     private class CallbackEntry
     {
         public AMD_Hello_sayHello cb;
-	public int delay;
+        public int delay;
     }
 
     public void Join()
@@ -28,89 +28,89 @@ public class WorkQueue
     public void Start()
     {
         thread_ = new Thread(new ThreadStart(Run));
-	thread_.Start();
+        thread_.Start();
     }
 
     public void Run()
     {
         lock(this)
-	{
-	    while(!_done)
-	    {
-	        if(_callbacks.Count == 0)
-		{
-		    Monitor.Wait(this);
-		}
+        {
+            while(!_done)
+            {
+                if(_callbacks.Count == 0)
+                {
+                    Monitor.Wait(this);
+                }
 
-		if(_callbacks.Count != 0)
-		{
-		    //
-		    // Get next work item.
-		    //
-		    CallbackEntry entry = (CallbackEntry)_callbacks[0];
+                if(_callbacks.Count != 0)
+                {
+                    //
+                    // Get next work item.
+                    //
+                    CallbackEntry entry = (CallbackEntry)_callbacks[0];
 
-		    //
-		    // Wait for the amount of time indicated in delay to
-		    // emulate a process that takes a significant period of
-		    // time to complete.
-		    //
-		    Monitor.Wait(this, entry.delay);
+                    //
+                    // Wait for the amount of time indicated in delay to
+                    // emulate a process that takes a significant period of
+                    // time to complete.
+                    //
+                    Monitor.Wait(this, entry.delay);
 
-		    if(!_done)
-		    {
-		        //
-			// Print greeting and send response.
-			//
-			_callbacks.RemoveAt(0);
-			Console.Out.WriteLine("Belated Hello World!");
-			entry.cb.ice_response();
-		    }
-		}
-	    }
+                    if(!_done)
+                    {
+                        //
+                        // Print greeting and send response.
+                        //
+                        _callbacks.RemoveAt(0);
+                        Console.Out.WriteLine("Belated Hello World!");
+                        entry.cb.ice_response();
+                    }
+                }
+            }
 
-	    foreach(CallbackEntry e in _callbacks)
-	    {
-	        e.cb.ice_exception(new RequestCanceledException());
-	    }
-	}
+            foreach(CallbackEntry e in _callbacks)
+            {
+                e.cb.ice_exception(new RequestCanceledException());
+            }
+        }
     }
 
     public void Add(AMD_Hello_sayHello cb, int delay)
     {
         lock(this)
-	{
-	    if(!_done)
-	    {
-	        //
-		// Add the work item.
-		//
-		CallbackEntry entry = new CallbackEntry();
-		entry.cb = cb;
-		entry.delay = delay;
+        {
+            if(!_done)
+            {
+                //
+                // Add the work item.
+                //
+                CallbackEntry entry = new CallbackEntry();
+                entry.cb = cb;
+                entry.delay = delay;
 
-		if(_callbacks.Count == 0)
-		{
-		    Monitor.Pulse(this);
-		}
-		_callbacks.Add(entry);
-	    }
-	    else
-	    {
-	        //
-		// Destroyed, throw exception.
-		//
-		cb.ice_exception(new RequestCanceledException());
-	    }
-	}
+                if(_callbacks.Count == 0)
+                {
+                    Monitor.Pulse(this);
+                }
+                _callbacks.Add(entry);
+            }
+            else
+            {
+                //
+                // Destroyed, throw exception.
+                //
+                cb.ice_exception(new RequestCanceledException());
+            }
+        }
     }
 
     public void destroy()
     {
         lock(this)
-	{
-	    _done = true;
-	    Monitor.Pulse(this);
-	}
+        {
+            _done = true;
+            Monitor.Pulse(this);
+        }
     }
 
     private ArrayList _callbacks = new ArrayList();

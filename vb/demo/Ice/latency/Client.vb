@@ -22,18 +22,18 @@ Module LatencyC
                 Return 1
             End If
 
-	    '
+            '
             ' A method needs to be invoked thousands of times before the JIT compiler
-	    ' will convert it to native code. To ensure an accurate throughput measurement,
-	    ' we need to "warm up" the JIT compiler.
-	    '
-	    Dim repetitions As Integer = 20000
-	    Console.Out.Write("warming up the JIT compiler...")
-	    Console.Out.Flush()
-	    For i As Integer = 0 To repetitions - 1
-	        ping.ice_ping()
-	    Next
-	    Console.Out.WriteLine("ok")
+            ' will convert it to native code. To ensure an accurate throughput measurement,
+            ' we need to "warm up" the JIT compiler.
+            '
+            Dim repetitions As Integer = 20000
+            Console.Out.Write("warming up the JIT compiler...")
+            Console.Out.Flush()
+            For i As Integer = 0 To repetitions - 1
+                ping.ice_ping()
+            Next
+            Console.Out.WriteLine("ok")
             ping.ice_ping()
 
             Dim tv1 As Long = (System.DateTime.Now.Ticks - 621355968000000000) / 10000

@@ -36,7 +36,7 @@ main(int argc, char* argv[])
     // proxies, even with regular retries disabled.
     //
     initData.properties->setProperty("Ice.RetryIntervals", "-1");
-	
+        
     AttackClient app;
     return app.main(argc, argv, initData);
 }
@@ -65,48 +65,48 @@ AttackClient::run(int argc, char* argv[])
     string msg;
     for(int i = 1; i <= 10000; ++i)
     {
-	if(i % 100 == 0)
-	{
-	    if(!msg.empty())
-	    {
-		cout << string(msg.size(), '\b');
-	    }
-	    ostringstream s;
-	    s << i;
-	    msg = s.str();
-	    cout << msg << flush;
-	}
+        if(i % 100 == 0)
+        {
+            if(!msg.empty())
+            {
+                cout << string(msg.size(), '\b');
+            }
+            ostringstream s;
+            s << i;
+            msg = s.str();
+            cout << msg << flush;
+        }
 
-	Identity ident;
-	string::iterator p;
+        Identity ident;
+        string::iterator p;
 
-	ident.name.resize(1); // 1 + IceUtil::random() % 2);
-	for(p = ident.name.begin(); p != ident.name.end(); ++p)
-	{
-	    *p = static_cast<char>('A' + IceUtil::random() % 26);
-	}
+        ident.name.resize(1); // 1 + IceUtil::random() % 2);
+        for(p = ident.name.begin(); p != ident.name.end(); ++p)
+        {
+            *p = static_cast<char>('A' + IceUtil::random() % 26);
+        }
 
-	ident.category.resize(IceUtil::random() % 2);
-	for(p = ident.category.begin(); p != ident.category.end(); ++p)
-	{
-	    *p = static_cast<char>('a' + IceUtil::random() % 26);
-	}
+        ident.category.resize(IceUtil::random() % 2);
+        for(p = ident.category.begin(); p != ident.category.end(); ++p)
+        {
+            *p = static_cast<char>('a' + IceUtil::random() % 26);
+        }
 
-	BackendPrx newBackend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));
+        BackendPrx newBackend = BackendPrx::uncheckedCast(backendBase->ice_identity(ident));
 
-	set<BackendPrx>::const_iterator q = backends.find(newBackend);
+        set<BackendPrx>::const_iterator q = backends.find(newBackend);
 
-	if(q == backends.end())
-	{
-	    backends.insert(newBackend);
-	    backend = newBackend;
-	}
-	else
-	{
-	    backend = *q;
-	}
+        if(q == backends.end())
+        {
+            backends.insert(newBackend);
+            backend = newBackend;
+        }
+        else
+        {
+            backend = *q;
+        }
 
-	backend->ice_ping();
+        backend->ice_ping();
     }
     cout << string(msg.size(), '\b') << string(msg.size(), ' ') << string(msg.size(), '\b');
     cout << "ok" << endl;
@@ -120,12 +120,12 @@ AttackClient::run(int argc, char* argv[])
     admin->shutdown();
     try
     {
-	admin->ice_ping();
-	test(false);
+        admin->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 
     return EXIT_SUCCESS;

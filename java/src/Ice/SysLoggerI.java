@@ -19,77 +19,77 @@ public final class SysLoggerI extends LocalObjectImpl implements Logger
     public 
     SysLoggerI(String ident)
     {
-	_ident = ident;
+        _ident = ident;
 
-	//
-	// Open a datagram socket to communicate with the localhost
-	// syslog daemon.
-	// 
-	try
-	{
-	    _host = IceInternal.Network.getLocalAddress();
-	    _socket = new DatagramSocket();
-	    _socket.connect(_host, _port);
-	}
-	catch(java.io.IOException ex)
-	{
+        //
+        // Open a datagram socket to communicate with the localhost
+        // syslog daemon.
+        // 
+        try
+        {
+            _host = IceInternal.Network.getLocalAddress();
+            _socket = new DatagramSocket();
+            _socket.connect(_host, _port);
+        }
+        catch(java.io.IOException ex)
+        {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
             throw se;
-	}
+        }
     }
 
     public void
     print(String message)
     {
-	log(LOG_INFO, message);
+        log(LOG_INFO, message);
     }
 
     public void
     trace(String category, String message)
     {
-	log(LOG_INFO, category + ": " + message);
+        log(LOG_INFO, category + ": " + message);
     }
 
     public void
     warning(String message)
     {
-	log(LOG_WARNING, message);
+        log(LOG_WARNING, message);
     }
 
     public void
     error(String message)
     {
-	log(LOG_ERR, message);
+        log(LOG_ERR, message);
     }
 
     private void
     log(int severity, String message)
     {
-	try 
-	{
-	    //
-	    // Create a syslog message as defined by the RFC 3164:
-	    // <PRI>HEADER MSG. PRI is the priority and is calculated
-	    // from the facility and the severity. We don't specify
-	    // the HEADER. MSG contains the identifier followed by a
-	    // colon character and the message.
-	    //
+        try 
+        {
+            //
+            // Create a syslog message as defined by the RFC 3164:
+            // <PRI>HEADER MSG. PRI is the priority and is calculated
+            // from the facility and the severity. We don't specify
+            // the HEADER. MSG contains the identifier followed by a
+            // colon character and the message.
+            //
 
-	    int priority = (LOG_USER << 3) | severity;
+            int priority = (LOG_USER << 3) | severity;
 
-	    String msg = '<' + Integer.toString(priority) + '>' + _ident + ": " + message;
+            String msg = '<' + Integer.toString(priority) + '>' + _ident + ": " + message;
 
-	    byte buf[] = msg.getBytes();
-	    DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
-	    _socket.send(p);
-	} 
-	catch(java.io.IOException ex) 
-	{
+            byte buf[] = msg.getBytes();
+            DatagramPacket p = new DatagramPacket(buf, buf.length, _host, _port);
+            _socket.send(p);
+        } 
+        catch(java.io.IOException ex) 
+        {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
             throw se;
-	}
+        }
     }
 
     private String _ident;

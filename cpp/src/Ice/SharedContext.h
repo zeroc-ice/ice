@@ -32,13 +32,13 @@ public:
     }
     
     SharedContext(const Ice::Context& val) :
-	_val(val)
+        _val(val)
     {
     }
 
     inline const Ice::Context& getValue()
     {
-	return _val;
+        return _val;
     }
 
 private:

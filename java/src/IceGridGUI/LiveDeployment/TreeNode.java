@@ -20,13 +20,13 @@ public abstract class TreeNode extends TreeNodeBase
 
     TreeNode(TreeNode parent, String id)
     {
-	super(parent, id);
+        super(parent, id);
     }
 
     Root getRoot()
     {
-	assert _parent != null;
-	return ((TreeNode)_parent).getRoot();
+        assert _parent != null;
+        return ((TreeNode)_parent).getRoot();
     }
 
     //
@@ -62,57 +62,57 @@ public abstract class TreeNode extends TreeNodeBase
     
     public boolean[] getAvailableActions()
     {
-	return new boolean[ACTION_COUNT];
+        return new boolean[ACTION_COUNT];
     }
 
     public void start()
     {
-	assert false;
+        assert false;
     }
     public void stop()
     {
-	assert false;
+        assert false;
     }
     public void enable()
     {
-	assert false;
+        assert false;
     }
     public void disable()
     {
-	assert false;
+        assert false;
     }
     public void writeMessage()
     {
-	assert false;
+        assert false;
     }
     public void retrieveOutput(boolean stdout)
     {
-	assert false;
+        assert false;
     }
     public void retrieveLog()
     {
-	assert false;
+        assert false;
     }
     public void signal(String s)
     {
-	assert false;
+        assert false;
     }
 
     public void shutdownNode()
     {
-	assert false;
+        assert false;
     }
     public void shutdownRegistry()
     {
-	assert false;
+        assert false;
     }
     public void patchServer()
     {
-	assert false;
+        assert false;
     }
     public void addObject()
     {
-	assert false;
+        assert false;
     }
 
     //
@@ -120,99 +120,99 @@ public abstract class TreeNode extends TreeNodeBase
     //
     protected void amiSuccess(final String prefix)
     {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    getCoordinator().getStatusBar().setText(prefix + "done.");
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    getCoordinator().getStatusBar().setText(prefix + "done.");
+                }
+            });
     }
 
     protected void amiFailure(String prefix, String title, Ice.UserException e)
     {
-	if(e instanceof IceGrid.ServerNotExistException)
-	{
-	    IceGrid.ServerNotExistException sne =
-		(IceGrid.ServerNotExistException)e;
+        if(e instanceof IceGrid.ServerNotExistException)
+        {
+            IceGrid.ServerNotExistException sne =
+                (IceGrid.ServerNotExistException)e;
 
-	    amiFailure(prefix, title, 
-		       "Server '" + sne.id + 
-		       "' was not registered with the IceGrid Registry");
-	}
-	else if(e instanceof IceGrid.ServerStartException)
-	{
-	    IceGrid.ServerStartException ste = (IceGrid.ServerStartException)e;
-	    amiFailure(prefix, title, "Server '" +
-		       ste.id + "' did not start: " + ste.reason);
-	}
-	else if(e instanceof IceGrid.ApplicationNotExistException)
-	{
-	    amiFailure(prefix, title, 
-		       "This application was not registered with the IceGrid Registry");
-	}
-	else if(e instanceof IceGrid.PatchException)
-	{
-	    IceGrid.PatchException pe = (IceGrid.PatchException)e;
+            amiFailure(prefix, title, 
+                       "Server '" + sne.id + 
+                       "' was not registered with the IceGrid Registry");
+        }
+        else if(e instanceof IceGrid.ServerStartException)
+        {
+            IceGrid.ServerStartException ste = (IceGrid.ServerStartException)e;
+            amiFailure(prefix, title, "Server '" +
+                       ste.id + "' did not start: " + ste.reason);
+        }
+        else if(e instanceof IceGrid.ApplicationNotExistException)
+        {
+            amiFailure(prefix, title, 
+                       "This application was not registered with the IceGrid Registry");
+        }
+        else if(e instanceof IceGrid.PatchException)
+        {
+            IceGrid.PatchException pe = (IceGrid.PatchException)e;
 
-	    String message = "";
-	    for(int i = 0; i < pe.reasons.length; ++i)
-	    {
-		if(message.length() == 0)
-		{
-		    message += "\n";
-		    message += pe.reasons[i];
-		}
-	    }
-	    amiFailure(prefix, title, message);
-	}
-	else if(e instanceof IceGrid.NodeNotExistException)
-	{
-	    IceGrid.NodeNotExistException nnee = 
-		(IceGrid.NodeNotExistException)e;
+            String message = "";
+            for(int i = 0; i < pe.reasons.length; ++i)
+            {
+                if(message.length() == 0)
+                {
+                    message += "\n";
+                    message += pe.reasons[i];
+                }
+            }
+            amiFailure(prefix, title, message);
+        }
+        else if(e instanceof IceGrid.NodeNotExistException)
+        {
+            IceGrid.NodeNotExistException nnee = 
+                (IceGrid.NodeNotExistException)e;
 
-	    amiFailure(prefix, title, 
-		       "Node '" + nnee.name + 
-		       " 'was not registered with the IceGrid Registry.");
-	}
-	else if(e instanceof IceGrid.NodeUnreachableException)
-	{
-	    IceGrid.NodeUnreachableException nue =
-		(IceGrid.NodeUnreachableException)e;
-	    amiFailure(prefix, title, "Node '" +
-		       nue.name + "' is unreachable: " + nue.reason);
-	}
-	else if(e instanceof IceGrid.DeploymentException)
-	{
-	    IceGrid.DeploymentException de = (IceGrid.DeploymentException)e;
-	    amiFailure(prefix, title, "Deployment exception: " + de.reason);
-	}
-	else
-	{
-	    amiFailure(prefix, title, e.toString());
-	}
+            amiFailure(prefix, title, 
+                       "Node '" + nnee.name + 
+                       " 'was not registered with the IceGrid Registry.");
+        }
+        else if(e instanceof IceGrid.NodeUnreachableException)
+        {
+            IceGrid.NodeUnreachableException nue =
+                (IceGrid.NodeUnreachableException)e;
+            amiFailure(prefix, title, "Node '" +
+                       nue.name + "' is unreachable: " + nue.reason);
+        }
+        else if(e instanceof IceGrid.DeploymentException)
+        {
+            IceGrid.DeploymentException de = (IceGrid.DeploymentException)e;
+            amiFailure(prefix, title, "Deployment exception: " + de.reason);
+        }
+        else
+        {
+            amiFailure(prefix, title, e.toString());
+        }
     }
     
     protected void amiFailure(final String prefix, 
-			      final String title, final String message)
+                              final String title, final String message)
     {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {	
-		public void run() 
-		{
-		    failure(prefix, title, message);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {   
+                public void run() 
+                {
+                    failure(prefix, title, message);
+                }
+            });
     }
 
     protected void failure(String prefix, String title, String message)
     {
-	getCoordinator().getStatusBar().setText(prefix + "failed!");
+        getCoordinator().getStatusBar().setText(prefix + "failed!");
 
-	JOptionPane.showMessageDialog(
-	    getCoordinator().getMainFrame(),
-	    message,
-	    title,
-	    JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(
+            getCoordinator().getMainFrame(),
+            message,
+            title,
+            JOptionPane.ERROR_MESSAGE);
     }  
 }

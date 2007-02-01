@@ -78,36 +78,36 @@ public class Client
 
     private static class MyClassFactoryWrapper extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
-	MyClassFactoryWrapper()
-	{
-	    _factory = Test.MyClass.ice_factory();
-	}
+        MyClassFactoryWrapper()
+        {
+            _factory = Test.MyClass.ice_factory();
+        }
 
-	public Ice.Object
-	create(String type)
-	{
-	    return _factory.create(type);
-	}
+        public Ice.Object
+        create(String type)
+        {
+            return _factory.create(type);
+        }
 
-	public void
-	destroy()
-	{
-	}
+        public void
+        destroy()
+        {
+        }
 
-	void
-	setFactory(Ice.ObjectFactory factory)
-	{
-	    _factory = factory;
-	}
+        void
+        setFactory(Ice.ObjectFactory factory)
+        {
+            _factory = factory;
+        }
 
-	private Ice.ObjectFactory _factory;
+        private Ice.ObjectFactory _factory;
     }
 
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
-	communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
+        MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
+        communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
 
         Ice.InputStream in;
         Ice.OutputStream out;
@@ -506,7 +506,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

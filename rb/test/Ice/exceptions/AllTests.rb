@@ -10,13 +10,13 @@
 
 def test(b)
     if !b
-	raise RuntimeError, 'test assertion failed'
+        raise RuntimeError, 'test assertion failed'
     end
 end
 
 class ObjectFactoryI
     def create(id)
-	return nil
+        return nil
     end
 
     def destroy()
@@ -27,7 +27,7 @@ def allTests(communicator)
     platformInfo = RUBY_PLATFORM.split("-")
     isWin32 = false
     if platformInfo.length >= 2 && platformInfo[1] == "mswin32"
-	isWin32 = true
+        isWin32 = true
     end
 
     print "testing object factory registration exception... "
@@ -35,8 +35,8 @@ def allTests(communicator)
     of = ObjectFactoryI.new
     communicator.addObjectFactory(of, "x")
     begin
-	communicator.addObjectFactory(of, "x")
-	test(false)
+        communicator.addObjectFactory(of, "x")
+        test(false)
     rescue Ice::AlreadyRegisteredException
     end
     puts "ok"
@@ -59,77 +59,77 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower.throwAasA(1)
-	test(false)
+        thrower.throwAasA(1)
+        test(false)
     rescue Test::A => ex
-	test(ex.aMem == 1)
+        test(ex.aMem == 1)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwAorDasAorD(1)
-	test(false)
+        thrower.throwAorDasAorD(1)
+        test(false)
     rescue Test::A => ex
-	test(ex.aMem == 1)
+        test(ex.aMem == 1)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwAorDasAorD(-1)
-	test(false)
+        thrower.throwAorDasAorD(-1)
+        test(false)
     rescue Test::D => ex
-	test(ex.dMem == -1)
+        test(ex.dMem == -1)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwBasB(1, 2)
-	test(false)
+        thrower.throwBasB(1, 2)
+        test(false)
     rescue Test::B => ex
-	test(ex.aMem == 1)
-	test(ex.bMem == 2)
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwCasC(1, 2, 3)
-	test(false)
+        thrower.throwCasC(1, 2, 3)
+        test(false)
     rescue Test::C => ex
-	test(ex.aMem == 1)
-	test(ex.bMem == 2)
-	test(ex.cMem == 3)
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+        test(ex.cMem == 3)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     #
     # We cannot invoke throwModA if the server was built with VC6.
     #
     if !isWin32
-	begin
-	    thrower.throwModA(1, 2)
-	    test(false)
-	rescue Test::Mod::A => ex
-	    test(ex.aMem == 1)
-	    test(ex.a2Mem == 2)
-	rescue Ice::OperationNotExistException
-	    #
-	    # This operation is not supported in Java.
-	    #
-	rescue
-	    print $!
-	    print $!.backtrace.join("\n")
-	    test(false)
-	end
+        begin
+            thrower.throwModA(1, 2)
+            test(false)
+        rescue Test::Mod::A => ex
+            test(ex.aMem == 1)
+            test(ex.a2Mem == 2)
+        rescue Ice::OperationNotExistException
+            #
+            # This operation is not supported in Java.
+            #
+        rescue
+            print $!
+            print $!.backtrace.join("\n")
+            test(false)
+        end
     end
 
     puts "ok"
@@ -138,43 +138,43 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower.throwBasB(1, 2)
-	test(false)
+        thrower.throwBasB(1, 2)
+        test(false)
     rescue Test::A => ex
-	test(ex.aMem == 1)
+        test(ex.aMem == 1)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwCasC(1, 2, 3)
-	test(false)
+        thrower.throwCasC(1, 2, 3)
+        test(false)
     rescue Test::B => ex
-	test(ex.aMem == 1)
-	test(ex.bMem == 2)
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     #
     # We cannot invoke throwModA if the server was built with VC6.
     #
     if !isWin32
-	begin
-	    thrower.throwModA(1, 2)
-	    test(false)
-	rescue Test::A => ex
-	    test(ex.aMem == 1)
-	rescue Ice::OperationNotExistException
-	    #
-	    # This operation is not supported in Java.
-	    #
-	rescue
-	    print $!.backtrace.join("\n")
-	    test(false)
-	end
+        begin
+            thrower.throwModA(1, 2)
+            test(false)
+        rescue Test::A => ex
+            test(ex.aMem == 1)
+        rescue Ice::OperationNotExistException
+            #
+            # This operation is not supported in Java.
+            #
+        rescue
+            print $!.backtrace.join("\n")
+            test(false)
+        end
     end
 
     puts "ok"
@@ -183,86 +183,86 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower.throwBasA(1, 2)
-	test(false)
+        thrower.throwBasA(1, 2)
+        test(false)
     rescue Test::B => ex
-	test(ex.aMem == 1)
-	test(ex.bMem == 2)
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwCasA(1, 2, 3)
-	test(false)
+        thrower.throwCasA(1, 2, 3)
+        test(false)
     rescue Test::C => ex
-	test(ex.aMem == 1)
-	test(ex.bMem == 2)
-	test(ex.cMem == 3)
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+        test(ex.cMem == 3)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     begin
-	thrower.throwCasB(1, 2, 3)
-	test(false)
+        thrower.throwCasB(1, 2, 3)
+        test(false)
     rescue Test::C => ex
-	test(ex.aMem == 1)
-	test(ex.bMem == 2)
-	test(ex.cMem == 3)
+        test(ex.aMem == 1)
+        test(ex.bMem == 2)
+        test(ex.cMem == 3)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"
 
     if thrower.supportsUndeclaredExceptions():
-	print "catching unknown user exception... "
-	STDOUT.flush
+        print "catching unknown user exception... "
+        STDOUT.flush
 
-	begin
-	    thrower.throwUndeclaredA(1)
-	    test(false)
-	rescue Ice::UnknownUserException
-	    #
-	    # We get an unknown user exception without collocation
-	    # optimization.
-	    #
-	rescue
-	    print $!.backtrace.join("\n")
-	    test(false)
-	end
+        begin
+            thrower.throwUndeclaredA(1)
+            test(false)
+        rescue Ice::UnknownUserException
+            #
+            # We get an unknown user exception without collocation
+            # optimization.
+            #
+        rescue
+            print $!.backtrace.join("\n")
+            test(false)
+        end
 
-	begin
-	    thrower.throwUndeclaredB(1, 2)
-	    test(false)
-	rescue Ice::UnknownUserException
-	    #
-	    # We get an unknown user exception without collocation
-	    # optimization.
-	    #
-	rescue
-	    print $!.backtrace.join("\n")
-	    test(false)
-	end
+        begin
+            thrower.throwUndeclaredB(1, 2)
+            test(false)
+        rescue Ice::UnknownUserException
+            #
+            # We get an unknown user exception without collocation
+            # optimization.
+            #
+        rescue
+            print $!.backtrace.join("\n")
+            test(false)
+        end
 
-	begin
-	    thrower.throwUndeclaredC(1, 2, 3)
-	    test(false)
-	rescue Ice::UnknownUserException
-	    #
-	    # We get an unknown user exception without collocation
-	    # optimization.
-	    #
-	rescue
-	    print $!.backtrace.join("\n")
-	    test(false)
-	end
+        begin
+            thrower.throwUndeclaredC(1, 2, 3)
+            test(false)
+        rescue Ice::UnknownUserException
+            #
+            # We get an unknown user exception without collocation
+            # optimization.
+            #
+        rescue
+            print $!.backtrace.join("\n")
+            test(false)
+        end
 
-	puts "ok"
+        puts "ok"
     end
 
     print "catching object not exist exception... "
@@ -270,15 +270,15 @@ def allTests(communicator)
 
     id = communicator.stringToIdentity("does not exist")
     begin
-	thrower2 = Test::ThrowerPrx::uncheckedCast(thrower.ice_identity(id))
-	thrower2.throwAasA(1)
-#	thrower2.ice_ping()
-	test(false)
+        thrower2 = Test::ThrowerPrx::uncheckedCast(thrower.ice_identity(id))
+        thrower2.throwAasA(1)
+#       thrower2.ice_ping()
+        test(false)
     rescue Ice::ObjectNotExistException => ex
-	test(ex.id == id)
+        test(ex.id == id)
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"
@@ -287,16 +287,16 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower2 = Test::ThrowerPrx::uncheckedCast(thrower, "no such facet")
-	begin
-	    thrower2.ice_ping()
-	    test(false)
-	rescue Ice::FacetNotExistException => ex
-	    test(ex.facet == "no such facet")
-	end
+        thrower2 = Test::ThrowerPrx::uncheckedCast(thrower, "no such facet")
+        begin
+            thrower2.ice_ping()
+            test(false)
+        rescue Ice::FacetNotExistException => ex
+            test(ex.facet == "no such facet")
+        end
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"
@@ -305,14 +305,14 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower2 = Test::WrongOperationPrx::uncheckedCast(thrower)
-	thrower2.noSuchOperation()
-	test(false)
+        thrower2 = Test::WrongOperationPrx::uncheckedCast(thrower)
+        thrower2.noSuchOperation()
+        test(false)
     rescue Ice::OperationNotExistException => ex
-	test(ex.operation == "noSuchOperation")
+        test(ex.operation == "noSuchOperation")
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"
@@ -321,16 +321,16 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower.throwLocalException()
-	test(false)
+        thrower.throwLocalException()
+        test(false)
     rescue Ice::UnknownLocalException
-	#
-	# We get an unknown local exception without collocation
-	# optimization.
-	#
+        #
+        # We get an unknown local exception without collocation
+        # optimization.
+        #
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"
@@ -339,16 +339,16 @@ def allTests(communicator)
     STDOUT.flush
 
     begin
-	thrower.throwNonIceException()
-	test(false)
+        thrower.throwNonIceException()
+        test(false)
     rescue Ice::UnknownException
-	#
-	# We get an unknown exception without collocation
-	# optimization.
-	#
+        #
+        # We get an unknown exception without collocation
+        # optimization.
+        #
     rescue
-	print $!.backtrace.join("\n")
-	test(false)
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"

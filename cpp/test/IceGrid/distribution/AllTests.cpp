@@ -26,7 +26,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 public:
 
     SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
-	_session(session),
+        _session(session),
         _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
     {
@@ -41,15 +41,15 @@ public:
             timedWait(_timeout);
             if(_destroy)
             {
-	        break;
-	    }
+                break;
+            }
             try
             {
                 _session->keepAlive();
             }
             catch(const Ice::Exception&)
             {
-		break;
+                break;
             }
         }
     }
@@ -88,9 +88,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing distributions... " << flush;
     {
-	TestIntfPrx test;
-	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all"));
-	test(test->getServerFile("rootfile") == "");
+        TestIntfPrx test;
+        test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all"));
+        test(test->getServerFile("rootfile") == "");
 
         try
         {
@@ -102,15 +102,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
 
-	test(test->getServerFile("rootfile") == "rootfile");
-	test(test->getServerFile("dir1/file1") == "dummy-file1");
-	test(test->getServerFile("dir1/file2") == "dummy-file2");
-	test(test->getServerFile("dir2/file3") == "dummy-file3");
+        test(test->getServerFile("rootfile") == "rootfile");
+        test(test->getServerFile("dir1/file1") == "dummy-file1");
+        test(test->getServerFile("dir1/file2") == "dummy-file2");
+        test(test->getServerFile("dir2/file3") == "dummy-file3");
 
-	test(test->getApplicationFile("rootfile") == "");
-	test(test->getApplicationFile("dir1/file1") == "");
-	test(test->getApplicationFile("dir1/file2") == "");
-	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
+        test(test->getApplicationFile("rootfile") == "");
+        test(test->getApplicationFile("dir1/file1") == "");
+        test(test->getApplicationFile("dir1/file2") == "");
+        test(test->getApplicationFile("dir2/file3") == "dummy-file3");
 
         try
         {
@@ -121,17 +121,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
         }
-	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all-direct"));
+        test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all-direct"));
 
-	test(test->getServerFile("rootfile") == "rootfile");
-	test(test->getServerFile("dir1/file1") == "dummy-file1");
-	test(test->getServerFile("dir1/file2") == "dummy-file2");
-	test(test->getServerFile("dir2/file3") == "dummy-file3");
+        test(test->getServerFile("rootfile") == "rootfile");
+        test(test->getServerFile("dir1/file1") == "dummy-file1");
+        test(test->getServerFile("dir1/file2") == "dummy-file2");
+        test(test->getServerFile("dir2/file3") == "dummy-file3");
 
-	test(test->getApplicationFile("rootfile") == "");
-	test(test->getApplicationFile("dir1/file1") == "");
-	test(test->getApplicationFile("dir1/file2") == "");
-	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
+        test(test->getApplicationFile("rootfile") == "");
+        test(test->getApplicationFile("dir1/file1") == "");
+        test(test->getApplicationFile("dir1/file2") == "");
+        test(test->getApplicationFile("dir2/file3") == "dummy-file3");
 
         try
         {
@@ -142,17 +142,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
         }
-	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-dir1"));
+        test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-dir1"));
 
-	test(test->getServerFile("rootfile") == "");
-	test(test->getServerFile("dir1/file1") == "dummy-file1");
-	test(test->getServerFile("dir1/file2") == "dummy-file2");
-	test(test->getServerFile("dir2/file3") == "");
+        test(test->getServerFile("rootfile") == "");
+        test(test->getServerFile("dir1/file1") == "dummy-file1");
+        test(test->getServerFile("dir1/file2") == "dummy-file2");
+        test(test->getServerFile("dir2/file3") == "");
 
-	test(test->getApplicationFile("rootfile") == "");
-	test(test->getApplicationFile("dir1/file1") == "");
-	test(test->getApplicationFile("dir1/file2") == "");
-	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
+        test(test->getApplicationFile("rootfile") == "");
+        test(test->getApplicationFile("dir1/file1") == "");
+        test(test->getApplicationFile("dir1/file2") == "");
+        test(test->getApplicationFile("dir2/file3") == "dummy-file3");
     }
     cout << "ok" << endl;
 
@@ -169,9 +169,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing distributions after update... " << flush;
     {
-	TestIntfPrx test;
-	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all"));
-	test(test->getServerFile("rootfile") == "rootfile");
+        TestIntfPrx test;
+        test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all"));
+        test(test->getServerFile("rootfile") == "rootfile");
 
         try
         {
@@ -183,17 +183,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(false);
         }
  
-	test(test->getServerFile("rootfile") == "rootfile-updated!");
-	test(test->getServerFile("dir1/file1") == "");
-	test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
-	test(test->getServerFile("dir2/file3") == "dummy-file3");
-	test(test->getServerFile("dir2/file4") == "dummy-file4");
+        test(test->getServerFile("rootfile") == "rootfile-updated!");
+        test(test->getServerFile("dir1/file1") == "");
+        test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
+        test(test->getServerFile("dir2/file3") == "dummy-file3");
+        test(test->getServerFile("dir2/file4") == "dummy-file4");
 
-	test(test->getApplicationFile("rootfile") == "");
-	test(test->getApplicationFile("dir1/file1") == "");
-	test(test->getApplicationFile("dir1/file2") == "");
-	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
-	test(test->getApplicationFile("dir2/file4") == "dummy-file4");
+        test(test->getApplicationFile("rootfile") == "");
+        test(test->getApplicationFile("dir1/file1") == "");
+        test(test->getApplicationFile("dir1/file2") == "");
+        test(test->getApplicationFile("dir2/file3") == "dummy-file3");
+        test(test->getApplicationFile("dir2/file4") == "dummy-file4");
 
         try
         {
@@ -204,19 +204,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
         }
-	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all-direct"));
+        test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-all-direct"));
 
-	test(test->getServerFile("rootfile") == "rootfile-updated!");
-	test(test->getServerFile("dir1/file1") == "");
-	test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
-	test(test->getServerFile("dir2/file3") == "dummy-file3");
-	test(test->getServerFile("dir2/file4") == "dummy-file4");
+        test(test->getServerFile("rootfile") == "rootfile-updated!");
+        test(test->getServerFile("dir1/file1") == "");
+        test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
+        test(test->getServerFile("dir2/file3") == "dummy-file3");
+        test(test->getServerFile("dir2/file4") == "dummy-file4");
 
-	test(test->getApplicationFile("rootfile") == "");
-	test(test->getApplicationFile("dir1/file1") == "");
-	test(test->getApplicationFile("dir1/file2") == "");
-	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
-	test(test->getApplicationFile("dir2/file4") == "dummy-file4");
+        test(test->getApplicationFile("rootfile") == "");
+        test(test->getApplicationFile("dir1/file1") == "");
+        test(test->getApplicationFile("dir1/file2") == "");
+        test(test->getApplicationFile("dir2/file3") == "dummy-file3");
+        test(test->getApplicationFile("dir2/file4") == "dummy-file4");
 
         try
         {
@@ -227,19 +227,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
             copy(ex.reasons.begin(), ex.reasons.end(), ostream_iterator<string>(cerr, "\n"));
             test(false);
         }
-	test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-dir1"));
+        test = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server-dir1"));
 
-	test(test->getServerFile("rootfile") == "");
-	test(test->getServerFile("dir1/file1") == "");
-	test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
-	test(test->getServerFile("dir2/file3") == "");
-	test(test->getServerFile("dir2/file4") == "");
+        test(test->getServerFile("rootfile") == "");
+        test(test->getServerFile("dir1/file1") == "");
+        test(test->getServerFile("dir1/file2") == "dummy-file2-updated!");
+        test(test->getServerFile("dir2/file3") == "");
+        test(test->getServerFile("dir2/file4") == "");
 
-	test(test->getApplicationFile("rootfile") == "");
-	test(test->getApplicationFile("dir1/file1") == "");
-	test(test->getApplicationFile("dir1/file2") == "");
-	test(test->getApplicationFile("dir2/file3") == "dummy-file3");
-	test(test->getApplicationFile("dir2/file4") == "dummy-file4");
+        test(test->getApplicationFile("rootfile") == "");
+        test(test->getApplicationFile("dir1/file1") == "");
+        test(test->getApplicationFile("dir1/file2") == "");
+        test(test->getApplicationFile("dir2/file3") == "dummy-file3");
+        test(test->getApplicationFile("dir2/file4") == "dummy-file4");
     }
     cout << "ok" << endl;
 

@@ -15,21 +15,21 @@ public sealed class HoldI : HoldDisp_
     public override void
     putOnHold(int seconds, Ice.Current current)
     {
-	if(seconds <= 0)
-	{
-	    current.adapter.hold();
-	    current.adapter.activate();
-	}
-	else
-	{
+        if(seconds <= 0)
+        {
+            current.adapter.hold();
+            current.adapter.activate();
+        }
+        else
+        {
             Debug.Assert(false); // TODO
-	}
+        }
     }
 
     public override void
     shutdown(Ice.Current current)
     {
-	current.adapter.hold();
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.hold();
+        current.adapter.getCommunicator().shutdown();
     }
 }

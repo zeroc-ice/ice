@@ -41,13 +41,13 @@ public class Client : Ice.Application
             Console.Out.WriteLine("ok");
         }
 
-	{
-	    Console.Out.Write("getting the session timeout... ");
+        {
+            Console.Out.Write("getting the session timeout... ");
             Console.Out.Flush();
-	    long timeout = router.getSessionTimeout();
-	    test(timeout == 30);
+            long timeout = router.getSessionTimeout();
+            test(timeout == 30);
             Console.Out.WriteLine("ok");
-	}
+        }
 
         Ice.ObjectPrx @base;
 
@@ -72,7 +72,7 @@ public class Client : Ice.Application
             }
             catch(Ice.SocketException)
             {
-		test(false);
+                test(false);
             }
         }
 
@@ -166,8 +166,8 @@ public class Client : Ice.Application
 
         {
             Console.Out.Write("creating and activating callback receiver adapter... ");
-	    Console.Out.Flush();
-	    communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
+            Console.Out.Flush();
+            communicator().getProperties().setProperty("Ice.PrintAdapterReady", "0");
             adapter = communicator().createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
             adapter.activate();
             Console.Out.WriteLine("ok");
@@ -261,48 +261,48 @@ public class Client : Ice.Application
             }
         }
 
-	{
-	    Console.Out.Write("testing whether other allowed category is accepted... ");
+        {
+            Console.Out.Write("testing whether other allowed category is accepted... ");
             Console.Out.Flush();
             Ice.Context context = new Ice.Context();
             context["_fwd"] =  "t";
-	    CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-		twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
-	    otherCategoryTwoway.initiateCallback(twowayR, context);
-	    test(callbackReceiverImpl.callbackOK());
-	    Console.Out.WriteLine("ok");
-	}
-	
-	{
-	    Console.Out.Write("testing whether disallowed category gets rejected... ");
+            CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+                twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
+            otherCategoryTwoway.initiateCallback(twowayR, context);
+            test(callbackReceiverImpl.callbackOK());
+            Console.Out.WriteLine("ok");
+        }
+        
+        {
+            Console.Out.Write("testing whether disallowed category gets rejected... ");
             Console.Out.Flush();
             Ice.Context context = new Ice.Context();
             context["_fwd"] = "t";
-	    try
-	    {
-		CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-		    twoway.ice_identity(communicator().stringToIdentity("c3/callback")));
-		otherCategoryTwoway.initiateCallback(twowayR, context);
-		test(false);
-	    }
-	    catch(Ice.ObjectNotExistException)
-	    {
-		Console.Out.WriteLine("ok");
-	    }
-	}
-	
-	{
-	    Console.Out.Write("testing whether user-id as category is accepted... ");
+            try
+            {
+                CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+                    twoway.ice_identity(communicator().stringToIdentity("c3/callback")));
+                otherCategoryTwoway.initiateCallback(twowayR, context);
+                test(false);
+            }
+            catch(Ice.ObjectNotExistException)
+            {
+                Console.Out.WriteLine("ok");
+            }
+        }
+        
+        {
+            Console.Out.Write("testing whether user-id as category is accepted... ");
             Console.Out.Flush();
             Ice.Context context = new Ice.Context();
             context["_fwd"] = "t";
-	    CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
-		twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
-	    otherCategoryTwoway.initiateCallback(twowayR, context);
-	    test(callbackReceiverImpl.callbackOK());
-	    Console.Out.WriteLine("ok");
-	}
-	
+            CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
+                twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));
+            otherCategoryTwoway.initiateCallback(twowayR, context);
+            test(callbackReceiverImpl.callbackOK());
+            Console.Out.WriteLine("ok");
+        }
+        
         {
             Console.Out.Write("testing server shutdown... ");
             Console.Out.Flush();
@@ -331,14 +331,14 @@ public class Client : Ice.Application
             try
             {
                 router.destroySession();
-		test(false);
+                test(false);
             }
-	    catch(Ice.ConnectionLostException)
-	    {
-	    }
+            catch(Ice.ConnectionLostException)
+            {
+            }
             catch(Ice.LocalException)
             {
-		test(false);
+                test(false);
             }
 
             Console.Out.WriteLine("ok");
@@ -358,57 +358,57 @@ public class Client : Ice.Application
             }
             catch(Ice.SocketException)
             {
-		test(false);
+                test(false);
             }
         }
-	
-	if(args.Length >= 1 && args[0].Equals("--shutdown"))
-	{
-	    {
-		Console.Out.Write("uninstalling router with communicator... ");
-		Console.Out.Flush();
-		communicator().setDefaultRouter(null);
-		Console.Out.WriteLine("ok");
-	    }
-	    
-	    Ice.ObjectPrx adminBase;
-	    
-	    {
-		Console.Out.Write("testing stringToProxy for admin object... ");
-		adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
-		Console.Out.WriteLine("ok");
-	    }
-	    
+        
+        if(args.Length >= 1 && args[0].Equals("--shutdown"))
+        {
+            {
+                Console.Out.Write("uninstalling router with communicator... ");
+                Console.Out.Flush();
+                communicator().setDefaultRouter(null);
+                Console.Out.WriteLine("ok");
+            }
+            
+            Ice.ObjectPrx adminBase;
+            
+            {
+                Console.Out.Write("testing stringToProxy for admin object... ");
+                adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
+                Console.Out.WriteLine("ok");
+            }
+            
 /*
-	    {
-		Console.Out.Write("uninstalling router with admin object... ");
-		adminBase.ice_router(null);
-		Console.Out.WriteLine("ok");
-	    }
+            {
+                Console.Out.Write("uninstalling router with admin object... ");
+                adminBase.ice_router(null);
+                Console.Out.WriteLine("ok");
+            }
 */
-	    
-	    Glacier2.AdminPrx admin;
-	    
-	    {
-		Console.Out.Write("testing checked cast for admin object... ");
-		admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
-		test(admin != null);
-		Console.Out.WriteLine("ok");
-	    }
-	    
-	    Console.Out.Write("testing Glacier2 shutdown... ");
-	    admin.shutdown();
-	    try
-	    {
-		admin.ice_ping();
-		test(false);
-	    }
-	    catch(Ice.LocalException)
-	    {
-		Console.Out.WriteLine("ok");
-	    }
-	}
-	
+            
+            Glacier2.AdminPrx admin;
+            
+            {
+                Console.Out.Write("testing checked cast for admin object... ");
+                admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
+                test(admin != null);
+                Console.Out.WriteLine("ok");
+            }
+            
+            Console.Out.Write("testing Glacier2 shutdown... ");
+            admin.shutdown();
+            try
+            {
+                admin.ice_ping();
+                test(false);
+            }
+            catch(Ice.LocalException)
+            {
+                Console.Out.WriteLine("ok");
+            }
+        }
+        
         return 0;
     }
 
@@ -417,29 +417,29 @@ public class Client : Ice.Application
     {
         if(!b)
         {
-	    throw new Exception();
+            throw new Exception();
         }
     }
 
     public static void Main(string[] args)
     {
-	//
-	// We must disable connection warnings, because we attempt to
-	// ping the router before session establishment, as well as
-	// after session destruction. Both will cause a
-	// ConnectionLostException.
-	//
-	Ice.InitializationData initData = new Ice.InitializationData();
-	initData.properties = Ice.Util.createProperties(ref args);
-	
-	initData.properties.setProperty("Ice.Warn.Connections", "0");
+        //
+        // We must disable connection warnings, because we attempt to
+        // ping the router before session establishment, as well as
+        // after session destruction. Both will cause a
+        // ConnectionLostException.
+        //
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties(ref args);
+        
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
         Client app = new Client();
         int status = app.main(args, initData);
 
-	if(status != 0)
-	{
-	    Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            Environment.Exit(status);
+        }
     }
 }

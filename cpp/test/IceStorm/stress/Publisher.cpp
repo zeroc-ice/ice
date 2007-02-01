@@ -30,20 +30,20 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     catch(const IceUtil::BadOptException& e)
     {
-	cerr << argv[0] << ": " << e.reason << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": " << e.reason << endl;
+        return EXIT_FAILURE;
     }
 
     int events = 1000;
     string s = opts.optArg("events");
     if(!s.empty())
     {
-	events = atoi(s.c_str());
+        events = atoi(s.c_str());
     }
     if(events <= 0)
     {
-	cerr << argv[0] << ": events must be > 0." << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": events must be > 0." << endl;
+        return EXIT_FAILURE;
     }
 
     bool oneway = opts.isSet("oneway");
@@ -53,53 +53,53 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {
-	cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
+        return EXIT_FAILURE;
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
-	communicator->stringToProxy(managerProxy));
+        communicator->stringToProxy(managerProxy));
     if(!manager)
     {
-	cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
+        return EXIT_FAILURE;
     }
 
     TopicPrx topic;
     try
     {
-	topic = manager->retrieve("fed1");
+        topic = manager->retrieve("fed1");
     }
     catch(const NoSuchTopic& e)
     {
-	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-	return EXIT_FAILURE;
-	
+        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+        return EXIT_FAILURE;
+        
     }
 
     EventPrx twowayProxy = EventPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
     EventPrx proxy;
     if(oneway)
     {
-	proxy = EventPrx::uncheckedCast(twowayProxy->ice_oneway());
+        proxy = EventPrx::uncheckedCast(twowayProxy->ice_oneway());
     }
     else
     {
-	proxy = twowayProxy;
+        proxy = twowayProxy;
     }
 
     for(int i = 0; i < events; ++i)
     {
-	proxy->pub(i);
+        proxy->pub(i);
     }
 
     if(oneway)
     {
-	//
-	// Before we exit, we ping all proxies as twoway, to make sure
-	// that all oneways are delivered.
-	//
-	twowayProxy->ice_ping();
+        //
+        // Before we exit, we ping all proxies as twoway, to make sure
+        // that all oneways are delivered.
+        //
+        twowayProxy->ice_ping();
     }
 
     return EXIT_SUCCESS;
@@ -113,26 +113,26 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = initialize(argc, argv);
-	status = run(argc, argv, communicator);
+        communicator = initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

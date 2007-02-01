@@ -46,10 +46,10 @@ IceRuby_Connection_close(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-	Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
 
-	(*p)->close(RTEST(b));
+        (*p)->close(RTEST(b));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -61,10 +61,10 @@ IceRuby_Connection_flushBatchRequests(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
 
-	(*p)->flushBatchRequests();
+        (*p)->flushBatchRequests();
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -76,11 +76,11 @@ IceRuby_Connection_type(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string s = (*p)->type();
-	return createString(s);
+        string s = (*p)->type();
+        return createString(s);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -92,11 +92,11 @@ IceRuby_Connection_timeout(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
 
-	Ice::Int timeout = (*p)->timeout();
-	return INT2FIX(timeout);
+        Ice::Int timeout = (*p)->timeout();
+        return INT2FIX(timeout);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -108,11 +108,11 @@ IceRuby_Connection_toString(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::ConnectionPtr* p = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string s = (*p)->toString();
-	return createString(s);
+        string s = (*p)->toString();
+        return createString(s);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -142,11 +142,11 @@ IceRuby_Endpoint_toString(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
-	assert(p);
+        Ice::EndpointPtr* p = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(self));
+        assert(p);
 
-	string s = (*p)->toString();
-	return createString(s);
+        string s = (*p)->toString();
+        return createString(s);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -185,16 +185,16 @@ checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ct
 {
     if(argc < numArgs || argc > numArgs + 1)
     {
-	throw RubyException(rb_eArgError, "%s expects %d argument%s including an optional context hash", name,
-			    numArgs + 1, numArgs + 1 == 1 ? "" : "s");
+        throw RubyException(rb_eArgError, "%s expects %d argument%s including an optional context hash", name,
+                            numArgs + 1, numArgs + 1 == 1 ? "" : "s");
     }
     if(argc == numArgs + 1)
     {
-	if(!hashToContext(argv[numArgs], ctx))
-	{
-	    throw RubyException(rb_eArgError, "%s: invalid context hash", name);
-	}
-	return true;
+        if(!hashToContext(argv[numArgs], ctx))
+        {
+            throw RubyException(rb_eArgError, "%s: invalid context hash", name);
+        }
+        return true;
     }
     return false;
 }
@@ -205,8 +205,8 @@ IceRuby_ObjectPrx_ice_getHash(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return INT2FIX(p->ice_getHash());
+        Ice::ObjectPrx p = getProxy(self);
+        return INT2FIX(p->ice_getHash());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -218,9 +218,9 @@ IceRuby_ObjectPrx_ice_getCommunicator(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	Ice::CommunicatorPtr communicator = p->ice_getCommunicator();
-	return lookupCommunicator(communicator);
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::CommunicatorPtr communicator = p->ice_getCommunicator();
+        return lookupCommunicator(communicator);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -232,9 +232,9 @@ IceRuby_ObjectPrx_ice_toString(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	string s = p->ice_toString();
-	return createString(s);
+        Ice::ObjectPrx p = getProxy(self);
+        string s = p->ice_toString();
+        return createString(s);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -246,23 +246,23 @@ IceRuby_ObjectPrx_ice_isA(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::Context ctx;
-	bool haveContext = checkArgs("ice_isA", 1, argc, argv, ctx);
+        Ice::Context ctx;
+        bool haveContext = checkArgs("ice_isA", 1, argc, argv, ctx);
 
-	string id = getString(argv[0]);
+        string id = getString(argv[0]);
 
-	bool result;
-	if(haveContext)
-	{
-	    result = p->ice_isA(id, ctx);
-	}
-	else
-	{
-	    result = p->ice_isA(id);
-	}
-	return result ? Qtrue : Qfalse;
+        bool result;
+        if(haveContext)
+        {
+            result = p->ice_isA(id, ctx);
+        }
+        else
+        {
+            result = p->ice_isA(id);
+        }
+        return result ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -274,19 +274,19 @@ IceRuby_ObjectPrx_ice_ping(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::Context ctx;
-	bool haveContext = checkArgs("ice_ping", 0, argc, argv, ctx);
+        Ice::Context ctx;
+        bool haveContext = checkArgs("ice_ping", 0, argc, argv, ctx);
 
-	if(haveContext)
-	{
-	    p->ice_ping(ctx);
-	}
-	else
-	{
-	    p->ice_ping();
-	}
+        if(haveContext)
+        {
+            p->ice_ping(ctx);
+        }
+        else
+        {
+            p->ice_ping();
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -298,30 +298,30 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::Context ctx;
-	bool haveContext = checkArgs("ice_ids", 0, argc, argv, ctx);
+        Ice::Context ctx;
+        bool haveContext = checkArgs("ice_ids", 0, argc, argv, ctx);
 
-	vector<string> ids;
-	if(haveContext)
-	{
-	    ids = p->ice_ids(ctx);
-	}
-	else
-	{
-	    ids = p->ice_ids();
-	}
+        vector<string> ids;
+        if(haveContext)
+        {
+            ids = p->ice_ids(ctx);
+        }
+        else
+        {
+            ids = p->ice_ids();
+        }
 
-	volatile VALUE result = createArray(ids.size());
-	long i = 0;
-	for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
-	{
-	    RARRAY(result)->ptr[i] = createString(*q);
-	}
-	RARRAY(result)->len = static_cast<long>(ids.size());
+        volatile VALUE result = createArray(ids.size());
+        long i = 0;
+        for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
+        {
+            RARRAY(result)->ptr[i] = createString(*q);
+        }
+        RARRAY(result)->len = static_cast<long>(ids.size());
 
-	return result;
+        return result;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -333,22 +333,22 @@ IceRuby_ObjectPrx_ice_id(int argc, VALUE* argv, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::Context ctx;
-	bool haveContext = checkArgs("ice_id", 0, argc, argv, ctx);
+        Ice::Context ctx;
+        bool haveContext = checkArgs("ice_id", 0, argc, argv, ctx);
 
-	string id;
-	if(haveContext)
-	{
-	    id = p->ice_id(ctx);
-	}
-	else
-	{
-	    id = p->ice_id();
-	}
+        string id;
+        if(haveContext)
+        {
+            id = p->ice_id(ctx);
+        }
+        else
+        {
+            id = p->ice_id();
+        }
 
-	return createString(id);
+        return createString(id);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -360,8 +360,8 @@ IceRuby_ObjectPrx_ice_getIdentity(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createIdentity(p->ice_getIdentity());
+        Ice::ObjectPrx p = getProxy(self);
+        return createIdentity(p->ice_getIdentity());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -373,9 +373,9 @@ IceRuby_ObjectPrx_ice_identity(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	Ice::Identity ident = getIdentity(id);
-	return createProxy(p->ice_identity(ident));
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::Identity ident = getIdentity(id);
+        return createProxy(p->ice_identity(ident));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -387,8 +387,8 @@ IceRuby_ObjectPrx_ice_getContext(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return contextToHash(p->ice_getContext());
+        Ice::ObjectPrx p = getProxy(self);
+        return contextToHash(p->ice_getContext());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -400,14 +400,14 @@ IceRuby_ObjectPrx_ice_context(VALUE self, VALUE ctx)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::Context context;
-	if(!NIL_P(ctx) && !hashToContext(ctx, context))
-	{
-	    throw RubyException(rb_eTypeError, "argument is not a context hash");
-	}
-	return createProxy(p->ice_context(context));
+        Ice::Context context;
+        if(!NIL_P(ctx) && !hashToContext(ctx, context))
+        {
+            throw RubyException(rb_eTypeError, "argument is not a context hash");
+        }
+        return createProxy(p->ice_context(context));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -419,8 +419,8 @@ IceRuby_ObjectPrx_ice_defaultContext(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_defaultContext());
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_defaultContext());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -432,9 +432,9 @@ IceRuby_ObjectPrx_ice_getFacet(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	string facet = p->ice_getFacet();
-	return createString(facet);
+        Ice::ObjectPrx p = getProxy(self);
+        string facet = p->ice_getFacet();
+        return createString(facet);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -446,9 +446,9 @@ IceRuby_ObjectPrx_ice_facet(VALUE self, VALUE facet)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	string f = getString(facet);
-	return createProxy(p->ice_facet(f));
+        Ice::ObjectPrx p = getProxy(self);
+        string f = getString(facet);
+        return createProxy(p->ice_facet(f));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -460,9 +460,9 @@ IceRuby_ObjectPrx_ice_getAdapterId(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	string id = p->ice_getAdapterId();
-	return createString(id);
+        Ice::ObjectPrx p = getProxy(self);
+        string id = p->ice_getAdapterId();
+        return createString(id);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -474,9 +474,9 @@ IceRuby_ObjectPrx_ice_adapterId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	string idstr = getString(id);
-	return createProxy(p->ice_adapterId(idstr));
+        Ice::ObjectPrx p = getProxy(self);
+        string idstr = getString(id);
+        return createProxy(p->ice_adapterId(idstr));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -488,17 +488,17 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::EndpointSeq seq = p->ice_getEndpoints();
-	volatile VALUE result = createArray(seq.size());
-	Ice::EndpointSeq::size_type i = 0;
-	for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
-	{
-	    RARRAY(result)->ptr[i] = createEndpoint(seq[i]);
-	}
-	RARRAY(result)->len = static_cast<long>(seq.size());
-	return result;
+        Ice::EndpointSeq seq = p->ice_getEndpoints();
+        volatile VALUE result = createArray(seq.size());
+        Ice::EndpointSeq::size_type i = 0;
+        for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
+        {
+            RARRAY(result)->ptr[i] = createEndpoint(seq[i]);
+        }
+        RARRAY(result)->len = static_cast<long>(seq.size());
+        return result;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -510,33 +510,33 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	if(!NIL_P(seq) && !isArray(seq))
-	{
-	    throw RubyException(rb_eTypeError, "ice_endpoints requires an array of endpoints");
-	}
+        if(!NIL_P(seq) && !isArray(seq))
+        {
+            throw RubyException(rb_eTypeError, "ice_endpoints requires an array of endpoints");
+        }
 
-	Ice::EndpointSeq endpoints;
-	if(!NIL_P(seq))
-	{
-	    volatile VALUE arr = callRuby(rb_check_array_type, seq);
-	    if(NIL_P(seq))
-	    {
-		throw RubyException(rb_eTypeError, "unable to convert value to an array of endpoints");
-	    }
-	    for(long i = 0; i < RARRAY(arr)->len; ++i)
-	    {
-		if(callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse)
-		{
-		    throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
-		}
-		Ice::EndpointPtr* e = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(RARRAY(arr)->ptr[i]));
-		assert(e);
-		endpoints.push_back(*e);
-	    }
-	}
-	return createProxy(p->ice_endpoints(endpoints));
+        Ice::EndpointSeq endpoints;
+        if(!NIL_P(seq))
+        {
+            volatile VALUE arr = callRuby(rb_check_array_type, seq);
+            if(NIL_P(seq))
+            {
+                throw RubyException(rb_eTypeError, "unable to convert value to an array of endpoints");
+            }
+            for(long i = 0; i < RARRAY(arr)->len; ++i)
+            {
+                if(callRuby(rb_obj_is_instance_of, RARRAY(arr)->ptr[i], _endpointClass) == Qfalse)
+                {
+                    throw RubyException(rb_eTypeError, "array element is not an Ice::Endpoint");
+                }
+                Ice::EndpointPtr* e = reinterpret_cast<Ice::EndpointPtr*>(DATA_PTR(RARRAY(arr)->ptr[i]));
+                assert(e);
+                endpoints.push_back(*e);
+            }
+        }
+        return createProxy(p->ice_endpoints(endpoints));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -548,9 +548,9 @@ IceRuby_ObjectPrx_ice_getLocatorCacheTimeout(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	Ice::Int t = p->ice_getLocatorCacheTimeout();
-	return INT2FIX(t);
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::Int t = p->ice_getLocatorCacheTimeout();
+        return INT2FIX(t);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -562,9 +562,9 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	long t = getInteger(timeout);
-	return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)));
+        Ice::ObjectPrx p = getProxy(self);
+        long t = getInteger(timeout);
+        return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -576,8 +576,8 @@ IceRuby_ObjectPrx_ice_isConnectionCached(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isConnectionCached() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isConnectionCached() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -589,8 +589,8 @@ IceRuby_ObjectPrx_ice_connectionCached(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_connectionCached(RTEST(b)));
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_connectionCached(RTEST(b)));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -602,22 +602,22 @@ IceRuby_ObjectPrx_ice_getEndpointSelection(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::EndpointSelectionType type = p->ice_getEndpointSelection();
-	volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
-	assert(!NIL_P(cls));
-	ID name = 0;
-	switch(type)
-	{
-	case Ice::Random:
-	    name = rb_intern("Random");
-	    break;
-	case Ice::Ordered:
-	    name = rb_intern("Ordered");
-	    break;
-	}
-	return callRuby(rb_funcall, cls, name, 0);
+        Ice::EndpointSelectionType type = p->ice_getEndpointSelection();
+        volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
+        assert(!NIL_P(cls));
+        ID name = 0;
+        switch(type)
+        {
+        case Ice::Random:
+            name = rb_intern("Random");
+            break;
+        case Ice::Ordered:
+            name = rb_intern("Ordered");
+            break;
+        }
+        return callRuby(rb_funcall, cls, name, 0);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -629,18 +629,18 @@ IceRuby_ObjectPrx_ice_endpointSelection(VALUE self, VALUE type)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
-	assert(!NIL_P(cls));
-	if(callRuby(rb_obj_is_instance_of, type, cls) == Qfalse)
-	{
-	    throw RubyException(rb_eTypeError, "argument must be an Ice::EndpointSelectionType enumerator");
-	}
+        volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
+        assert(!NIL_P(cls));
+        if(callRuby(rb_obj_is_instance_of, type, cls) == Qfalse)
+        {
+            throw RubyException(rb_eTypeError, "argument must be an Ice::EndpointSelectionType enumerator");
+        }
 
-	volatile VALUE val = callRuby(rb_funcall, type, rb_intern("to_i"), 0);
-	Ice::EndpointSelectionType t = static_cast<Ice::EndpointSelectionType>(getInteger(val));
-	return createProxy(p->ice_endpointSelection(t));
+        volatile VALUE val = callRuby(rb_funcall, type, rb_intern("to_i"), 0);
+        Ice::EndpointSelectionType t = static_cast<Ice::EndpointSelectionType>(getInteger(val));
+        return createProxy(p->ice_endpointSelection(t));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -652,8 +652,8 @@ IceRuby_ObjectPrx_ice_isSecure(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isSecure() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isSecure() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -665,8 +665,8 @@ IceRuby_ObjectPrx_ice_secure(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_secure(RTEST(b)));
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_secure(RTEST(b)));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -704,15 +704,15 @@ IceRuby_ObjectPrx_ice_getRouter(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::RouterPrx router = p->ice_getRouter();
-	if(router)
-	{
-	    volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
-	    assert(!NIL_P(cls));
-	    return createProxy(router, cls);
-	}
+        Ice::RouterPrx router = p->ice_getRouter();
+        if(router)
+        {
+            volatile VALUE cls = callRuby(rb_path2class, "Ice::RouterPrx");
+            assert(!NIL_P(cls));
+            return createProxy(router, cls);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -724,18 +724,18 @@ IceRuby_ObjectPrx_ice_router(VALUE self, VALUE router)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::RouterPrx proxy;
-	if(!NIL_P(router))
-	{
-	    if(!checkProxy(router))
-	    {
-		throw RubyException(rb_eTypeError, "argument must be a proxy");
-	    }
-	    proxy = Ice::RouterPrx::uncheckedCast(getProxy(router));
-	}
-	return createProxy(p->ice_router(proxy));
+        Ice::RouterPrx proxy;
+        if(!NIL_P(router))
+        {
+            if(!checkProxy(router))
+            {
+                throw RubyException(rb_eTypeError, "argument must be a proxy");
+            }
+            proxy = Ice::RouterPrx::uncheckedCast(getProxy(router));
+        }
+        return createProxy(p->ice_router(proxy));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -747,15 +747,15 @@ IceRuby_ObjectPrx_ice_getLocator(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::LocatorPrx locator = p->ice_getLocator();
-	if(locator)
-	{
-	    volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
-	    assert(!NIL_P(cls));
-	    return createProxy(locator, cls);
-	}
+        Ice::LocatorPrx locator = p->ice_getLocator();
+        if(locator)
+        {
+            volatile VALUE cls = callRuby(rb_path2class, "Ice::LocatorPrx");
+            assert(!NIL_P(cls));
+            return createProxy(locator, cls);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -767,18 +767,18 @@ IceRuby_ObjectPrx_ice_locator(VALUE self, VALUE locator)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
+        Ice::ObjectPrx p = getProxy(self);
 
-	Ice::LocatorPrx proxy;
-	if(!NIL_P(locator))
-	{
-	    if(!checkProxy(locator))
-	    {
-		throw RubyException(rb_eTypeError, "argument must be a proxy");
-	    }
-	    proxy = Ice::LocatorPrx::uncheckedCast(getProxy(locator));
-	}
-	return createProxy(p->ice_locator(proxy));
+        Ice::LocatorPrx proxy;
+        if(!NIL_P(locator))
+        {
+            if(!checkProxy(locator))
+            {
+                throw RubyException(rb_eTypeError, "argument must be a proxy");
+            }
+            proxy = Ice::LocatorPrx::uncheckedCast(getProxy(locator));
+        }
+        return createProxy(p->ice_locator(proxy));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -790,8 +790,8 @@ IceRuby_ObjectPrx_ice_twoway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_twoway());
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_twoway());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -803,8 +803,8 @@ IceRuby_ObjectPrx_ice_isTwoway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isTwoway() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isTwoway() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -816,8 +816,8 @@ IceRuby_ObjectPrx_ice_oneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_oneway());
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_oneway());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -829,8 +829,8 @@ IceRuby_ObjectPrx_ice_isOneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isOneway() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isOneway() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -842,8 +842,8 @@ IceRuby_ObjectPrx_ice_batchOneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_batchOneway());
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_batchOneway());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -855,8 +855,8 @@ IceRuby_ObjectPrx_ice_isBatchOneway(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isBatchOneway() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isBatchOneway() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -868,8 +868,8 @@ IceRuby_ObjectPrx_ice_datagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_datagram());
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_datagram());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -881,8 +881,8 @@ IceRuby_ObjectPrx_ice_isDatagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isDatagram() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isDatagram() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -894,8 +894,8 @@ IceRuby_ObjectPrx_ice_batchDatagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_batchDatagram());
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_batchDatagram());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -907,8 +907,8 @@ IceRuby_ObjectPrx_ice_isBatchDatagram(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return p->ice_isBatchDatagram() ? Qtrue : Qfalse;
+        Ice::ObjectPrx p = getProxy(self);
+        return p->ice_isBatchDatagram() ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -920,8 +920,8 @@ IceRuby_ObjectPrx_ice_compress(VALUE self, VALUE b)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	return createProxy(p->ice_compress(RTEST(b)));
+        Ice::ObjectPrx p = getProxy(self);
+        return createProxy(p->ice_compress(RTEST(b)));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -933,9 +933,9 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
-	return createProxy(p->ice_timeout(timeout));
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
+        return createProxy(p->ice_timeout(timeout));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -947,9 +947,9 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	string idstr = getString(id);
-	return createProxy(p->ice_connectionId(idstr));
+        Ice::ObjectPrx p = getProxy(self);
+        string idstr = getString(id);
+        return createProxy(p->ice_connectionId(idstr));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -987,9 +987,9 @@ IceRuby_ObjectPrx_ice_getConnection(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	Ice::ConnectionPtr conn = p->ice_getConnection();
-	return createConnection(conn);
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::ConnectionPtr conn = p->ice_getConnection();
+        return createConnection(conn);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1001,12 +1001,12 @@ IceRuby_ObjectPrx_ice_getCachedConnection(VALUE self)
 {
     ICE_RUBY_TRY
     {
-	Ice::ObjectPrx p = getProxy(self);
-	Ice::ConnectionPtr conn = p->ice_getCachedConnection();
-	if(!conn)
-	{
-	    return createConnection(conn);
-	}
+        Ice::ObjectPrx p = getProxy(self);
+        Ice::ConnectionPtr conn = p->ice_getCachedConnection();
+        if(!conn)
+        {
+            return createConnection(conn);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1018,17 +1018,17 @@ IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
     {
-	if(NIL_P(other))
-	{
-	    return Qfalse;
-	}
-	if(!checkProxy(other))
-	{
-	    throw RubyException(rb_eTypeError, "argument must be a proxy");
-	}
-	Ice::ObjectPrx p1 = getProxy(self);
-	Ice::ObjectPrx p2 = getProxy(other);
-	return p1 == p2 ? Qtrue : Qfalse;
+        if(NIL_P(other))
+        {
+            return Qfalse;
+        }
+        if(!checkProxy(other))
+        {
+            throw RubyException(rb_eTypeError, "argument must be a proxy");
+        }
+        Ice::ObjectPrx p1 = getProxy(self);
+        Ice::ObjectPrx p2 = getProxy(other);
+        return p1 == p2 ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1056,9 +1056,9 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, const string& facet, 
 
     {
         if(target->ice_isA(id))
-	{
-	    return createProxy(target, type);
-	}
+        {
+            return createProxy(target, type);
+        }
     }
 
     return Qnil;
@@ -1079,9 +1079,9 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, const string& facet, 
 
     {
         if(target->ice_isA(id, ctx))
-	{
-	    return createProxy(target, type);
-	}
+        {
+            return createProxy(target, type);
+        }
     }
 
     return Qnil;
@@ -1097,71 +1097,71 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
     //
     ICE_RUBY_TRY
     {
-	if(argc < 1 || argc > 3)
-	{
-	    throw RubyException(rb_eArgError, "checkedCast requires a proxy argument and optional facet and context");
-	}
+        if(argc < 1 || argc > 3)
+        {
+            throw RubyException(rb_eArgError, "checkedCast requires a proxy argument and optional facet and context");
+        }
 
-	if(NIL_P(args[0]))
-	{
-	    return Qnil;
-	}
+        if(NIL_P(args[0]))
+        {
+            return Qnil;
+        }
 
-	if(!checkProxy(args[0]))
-	{
-	    throw RubyException(rb_eArgError, "checkedCast requires a proxy argument");
-	}
+        if(!checkProxy(args[0]))
+        {
+            throw RubyException(rb_eArgError, "checkedCast requires a proxy argument");
+        }
 
-	Ice::ObjectPrx p = getProxy(args[0]);
+        Ice::ObjectPrx p = getProxy(args[0]);
 
-	string facet;
-	volatile VALUE ctx = Qnil;
+        string facet;
+        volatile VALUE ctx = Qnil;
 
-	if(argc == 3)
-	{
-	    if(!NIL_P(args[1]) && !isString(args[1]))
-	    {
-		throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
-	    }
-	    facet = getString(args[1]);
+        if(argc == 3)
+        {
+            if(!NIL_P(args[1]) && !isString(args[1]))
+            {
+                throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
+            }
+            facet = getString(args[1]);
 
-	    if(!NIL_P(args[2]) && !isHash(args[2]))
-	    {
-		throw RubyException(rb_eArgError, "context argument to checkedCast must be a hash");
-	    }
-	    ctx = args[2];
-	}
-	else if(argc == 2)
-	{
-	    if(isString(args[1]))
-	    {
-		facet = getString(args[1]);
-	    }
-	    else if(isHash(args[1]))
-	    {
-		ctx = args[1];
-	    }
-	    else
-	    {
-		throw RubyException(rb_eArgError, "second argument to checkedCast must be a facet or context");
-	    }
-	}
+            if(!NIL_P(args[2]) && !isHash(args[2]))
+            {
+                throw RubyException(rb_eArgError, "context argument to checkedCast must be a hash");
+            }
+            ctx = args[2];
+        }
+        else if(argc == 2)
+        {
+            if(isString(args[1]))
+            {
+                facet = getString(args[1]);
+            }
+            else if(isHash(args[1]))
+            {
+                ctx = args[1];
+            }
+            else
+            {
+                throw RubyException(rb_eArgError, "second argument to checkedCast must be a facet or context");
+            }
+        }
 
-	if(NIL_P(ctx))
-	{
-	    return checkedCastImpl(p, "::Ice::Object", facet, Qnil);
-	}
-	else
-	{
-	    Ice::Context c;
+        if(NIL_P(ctx))
+        {
+            return checkedCastImpl(p, "::Ice::Object", facet, Qnil);
+        }
+        else
+        {
+            Ice::Context c;
 #ifndef NDEBUG
-	    bool b =
+            bool b =
 #endif
-	    hashToContext(ctx, c);
-	    assert(b);
+            hashToContext(ctx, c);
+            assert(b);
 
-	    return checkedCastImpl(p, "::Ice::Object", facet, c, Qnil);
-	}
+            return checkedCastImpl(p, "::Ice::Object", facet, c, Qnil);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1173,37 +1173,37 @@ IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	if(argc < 1 || argc > 2)
-	{
-	    throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument and an optional facet");
-	}
+        if(argc < 1 || argc > 2)
+        {
+            throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument and an optional facet");
+        }
 
-	if(NIL_P(args[0]))
-	{
-	    return Qnil;
-	}
+        if(NIL_P(args[0]))
+        {
+            return Qnil;
+        }
 
-	if(!checkProxy(args[0]))
-	{
-	    throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
-	}
+        if(!checkProxy(args[0]))
+        {
+            throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
+        }
 
-	string facet;
-	if(argc == 2)
-	{
-	    facet = getString(args[1]);
-	}
+        string facet;
+        if(argc == 2)
+        {
+            facet = getString(args[1]);
+        }
 
-	Ice::ObjectPrx p = getProxy(args[0]);
+        Ice::ObjectPrx p = getProxy(args[0]);
 
-	if(!facet.empty())
-	{
-	    return createProxy(p->ice_facet(facet));
-	}
-	else
-	{
-	    return createProxy(p);
-	}
+        if(!facet.empty())
+        {
+            return createProxy(p->ice_facet(facet));
+        }
+        else
+        {
+            return createProxy(p);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1219,58 +1219,58 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
     //
     ICE_RUBY_TRY
     {
-	if(NIL_P(obj))
-	{
-	    return Qnil;
-	}
+        if(NIL_P(obj))
+        {
+            return Qnil;
+        }
 
-	if(!checkProxy(obj))
-	{
-	    throw RubyException(rb_eArgError, "checkedCast requires a proxy argument");
-	}
+        if(!checkProxy(obj))
+        {
+            throw RubyException(rb_eArgError, "checkedCast requires a proxy argument");
+        }
 
-	Ice::ObjectPrx p = getProxy(obj);
+        Ice::ObjectPrx p = getProxy(obj);
 
-	string idstr = getString(id);
+        string idstr = getString(id);
 
-	string facet;
-	if(isString(facetOrCtx))
-	{
-	    facet = getString(facetOrCtx);
-	}
-	else if(isHash(facetOrCtx))
-	{
-	    if(!NIL_P(ctx))
-	    {
-		throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
-	    }
-	    ctx = facetOrCtx;
-	}
-	else if(!NIL_P(facetOrCtx))
-	{
-	    throw RubyException(rb_eArgError, "second argument to checkedCast must be a facet or context");
-	}
+        string facet;
+        if(isString(facetOrCtx))
+        {
+            facet = getString(facetOrCtx);
+        }
+        else if(isHash(facetOrCtx))
+        {
+            if(!NIL_P(ctx))
+            {
+                throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
+            }
+            ctx = facetOrCtx;
+        }
+        else if(!NIL_P(facetOrCtx))
+        {
+            throw RubyException(rb_eArgError, "second argument to checkedCast must be a facet or context");
+        }
 
-	if(!NIL_P(ctx) && !isHash(ctx))
-	{
-	    throw RubyException(rb_eArgError, "context argument to checkedCast must be a hash");
-	}
+        if(!NIL_P(ctx) && !isHash(ctx))
+        {
+            throw RubyException(rb_eArgError, "context argument to checkedCast must be a hash");
+        }
 
-	if(NIL_P(ctx))
-	{
-	    return checkedCastImpl(p, idstr, facet, self);
-	}
-	else
-	{
-	    Ice::Context c;
+        if(NIL_P(ctx))
+        {
+            return checkedCastImpl(p, idstr, facet, self);
+        }
+        else
+        {
+            Ice::Context c;
 #ifndef NDEBUG
-	    bool b =
+            bool b =
 #endif
-	    hashToContext(ctx, c);
-	    assert(b);
+            hashToContext(ctx, c);
+            assert(b);
 
-	    return checkedCastImpl(p, idstr, facet, c, self);
-	}
+            return checkedCastImpl(p, idstr, facet, c, self);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1282,28 +1282,28 @@ IceRuby_ObjectPrx_ice_uncheckedCast(VALUE self, VALUE obj, VALUE facet)
 {
     ICE_RUBY_TRY
     {
-	if(NIL_P(obj))
-	{
-	    return Qnil;
-	}
+        if(NIL_P(obj))
+        {
+            return Qnil;
+        }
 
-	if(!checkProxy(obj))
-	{
-	    throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
-	}
+        if(!checkProxy(obj))
+        {
+            throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
+        }
 
-	Ice::ObjectPrx p = getProxy(obj);
+        Ice::ObjectPrx p = getProxy(obj);
 
-	string f = getString(facet);
+        string f = getString(facet);
 
-	if(!f.empty())
-	{
-	    return createProxy(p->ice_facet(f), self);
-	}
-	else
-	{
-	    return createProxy(p, self);
-	}
+        if(!f.empty())
+        {
+            return createProxy(p->ice_facet(f), self);
+        }
+        else
+        {
+            return createProxy(p, self);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1315,7 +1315,7 @@ IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE self)
 {
     ICE_RUBY_TRY
     {
-	throw RubyException(rb_eRuntimeError, "a proxy cannot be created via new");
+        throw RubyException(rb_eRuntimeError, "a proxy cannot be created via new");
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1379,12 +1379,12 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_getEndpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpoints), 0);
     rb_define_method(_proxyClass, "ice_endpoints", CAST_METHOD(IceRuby_ObjectPrx_ice_endpoints), 1);
     rb_define_method(_proxyClass, "ice_getLocatorCacheTimeout",
-		     CAST_METHOD(IceRuby_ObjectPrx_ice_getLocatorCacheTimeout), 0);
+                     CAST_METHOD(IceRuby_ObjectPrx_ice_getLocatorCacheTimeout), 0);
     rb_define_method(_proxyClass, "ice_locatorCacheTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_locatorCacheTimeout), 1);
     rb_define_method(_proxyClass, "ice_isConnectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_isConnectionCached), 0);
     rb_define_method(_proxyClass, "ice_connectionCached", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionCached), 1);
     rb_define_method(_proxyClass, "ice_getEndpointSelection",
-		     CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpointSelection), 0);
+                     CAST_METHOD(IceRuby_ObjectPrx_ice_getEndpointSelection), 0);
     rb_define_method(_proxyClass, "ice_endpointSelection", CAST_METHOD(IceRuby_ObjectPrx_ice_endpointSelection), 1);
     rb_define_method(_proxyClass, "ice_isSecure", CAST_METHOD(IceRuby_ObjectPrx_ice_isSecure), 0);
     rb_define_method(_proxyClass, "ice_secure", CAST_METHOD(IceRuby_ObjectPrx_ice_secure), 1);
@@ -1438,11 +1438,11 @@ IceRuby::createProxy(const Ice::ObjectPrx& p, VALUE cls)
     //
     if(NIL_P(cls))
     {
-	return Data_Wrap_Struct(_proxyClass, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free, new Ice::ObjectPrx(p));
+        return Data_Wrap_Struct(_proxyClass, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free, new Ice::ObjectPrx(p));
     }
     else
     {
-	return Data_Wrap_Struct(cls, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free, new Ice::ObjectPrx(p));
+        return Data_Wrap_Struct(cls, IceRuby_ObjectPrx_mark, IceRuby_ObjectPrx_free, new Ice::ObjectPrx(p));
     }
 }
 

@@ -397,7 +397,7 @@ interface Admin
      *
      **/
     ["ami"] void addApplication(ApplicationDescriptor descriptor)
-	throws AccessDeniedException, DeploymentException;
+        throws AccessDeniedException, DeploymentException;
 
     /**
      *
@@ -419,7 +419,7 @@ interface Admin
      *
      **/
     ["ami"] void syncApplication(ApplicationDescriptor descriptor)
-	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
+        throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
@@ -440,7 +440,7 @@ interface Admin
      *
      **/
     ["ami"] void updateApplication(ApplicationUpdateDescriptor descriptor)
-	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
+        throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
@@ -457,7 +457,7 @@ interface Admin
      *
      **/
     ["ami"] void removeApplication(string name)
-	throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
+        throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
     /**
      *
@@ -483,7 +483,7 @@ interface Admin
      *
      **/
     void instantiateServer(string application, string node, ServerInstanceDescriptor desc)
-	throws AccessDeniedException, ApplicationNotExistException, DeploymentException;
+        throws AccessDeniedException, ApplicationNotExistException, DeploymentException;
 
     /**
      *
@@ -501,7 +501,7 @@ interface Admin
      *
      **/
     ["ami", "amd"] void patchApplication(string name, bool shutdown)
-	throws ApplicationNotExistException, PatchException;
+        throws ApplicationNotExistException, PatchException;
 
     /**
      *
@@ -516,7 +516,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent ApplicationInfo getApplicationInfo(string name)
-	throws ApplicationNotExistException;
+        throws ApplicationNotExistException;
 
     /**
      *
@@ -527,7 +527,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent ApplicationDescriptor getDefaultApplicationDescriptor()
-	throws DeploymentException;
+        throws DeploymentException;
 
     /**
      *
@@ -550,7 +550,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent ServerInfo getServerInfo(string id)
-	throws ServerNotExistException;
+        throws ServerNotExistException;
 
     /**
      *
@@ -570,7 +570,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent ServerState getServerState(string id)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
     
     /**
      *
@@ -591,7 +591,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getServerPid(string id)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -614,7 +614,7 @@ interface Admin
      *
      **/
     ["ami"] idempotent void enableServer(string id, bool enabled)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -633,7 +633,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent bool isServerEnabled(string id)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -658,7 +658,7 @@ interface Admin
      *
      **/
     ["ami"] void startServer(string id)
-	throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, ServerStartException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -680,7 +680,7 @@ interface Admin
      *
      **/
     ["ami"] void stopServer(string id)
-	throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, ServerStopException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -704,7 +704,7 @@ interface Admin
      *
      **/
     ["ami", "amd"] void patchServer(string id, bool shutdown)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException, PatchException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException, PatchException;
 
     /**
      *
@@ -728,7 +728,7 @@ interface Admin
      *
      **/
     ["ami"] void sendSignal(string id, string signal)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException, BadSignalException;
 
     /**
      *
@@ -751,7 +751,7 @@ interface Admin
      *
      **/
     ["ami"] void writeMessage(string id, string message, int fd)
-	throws ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -780,7 +780,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent AdapterInfoSeq getAdapterInfo(string id)
-	throws AdapterNotExistException;
+        throws AdapterNotExistException;
 
     /**
      *
@@ -791,7 +791,7 @@ interface Admin
      *
      **/
     ["ami"] void removeAdapter(string adapterId)
-	throws AdapterNotExistException, DeploymentException;
+        throws AdapterNotExistException, DeploymentException;
 
     /**
      *
@@ -819,7 +819,7 @@ interface Admin
      *
      **/
     ["ami"] void addObject(Object* obj)
-	throws ObjectExistsException, DeploymentException;
+        throws ObjectExistsException, DeploymentException;
 
     /**
      *
@@ -839,7 +839,7 @@ interface Admin
      *
      **/
     void updateObject(Object* obj)
-	throws ObjectNotRegisteredException, DeploymentException;
+        throws ObjectNotRegisteredException, DeploymentException;
 
     /**
      *
@@ -855,7 +855,7 @@ interface Admin
      *
      **/
     ["ami"] void addObjectWithType(Object* obj, string type)
-	throws ObjectExistsException, DeploymentException;
+        throws ObjectExistsException, DeploymentException;
 
     /**
      *
@@ -876,7 +876,7 @@ interface Admin
      *
      **/
     ["ami"] void removeObject(Ice::Identity id) 
-	throws ObjectNotRegisteredException, DeploymentException;
+        throws ObjectNotRegisteredException, DeploymentException;
 
     /**
      *
@@ -891,7 +891,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent ObjectInfo getObjectInfo(Ice::Identity id)
-	throws ObjectNotRegisteredException;
+        throws ObjectNotRegisteredException;
 
     /**
      *
@@ -932,7 +932,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent bool pingNode(string name)
-	throws NodeNotExistException;
+        throws NodeNotExistException;
 
     /**
      *
@@ -949,7 +949,7 @@ interface Admin
      *
      **/
     ["ami", "nonmutating", "cpp:const"] idempotent LoadInfo getNodeLoad(string name)
-	throws NodeNotExistException, NodeUnreachableException;
+        throws NodeNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -966,7 +966,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent NodeInfo getNodeInfo(string name)
-	throws NodeNotExistException, NodeUnreachableException;
+        throws NodeNotExistException, NodeUnreachableException;
     
     /**
      *
@@ -981,7 +981,7 @@ interface Admin
      *
      **/
     ["ami"] void shutdownNode(string name)
-	throws NodeNotExistException, NodeUnreachableException;
+        throws NodeNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -998,7 +998,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent string getNodeHostname(string name)
-	throws NodeNotExistException, NodeUnreachableException;
+        throws NodeNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -1021,7 +1021,7 @@ interface Admin
      *
      **/
     ["cpp:const"] idempotent bool pingRegistry(string name)
-	throws RegistryNotExistException;
+        throws RegistryNotExistException;
 
     /**
      *
@@ -1038,7 +1038,7 @@ interface Admin
      *
      **/
     ["cpp:const"] idempotent RegistryInfo getRegistryInfo(string name)
-	throws RegistryNotExistException, RegistryUnreachableException;
+        throws RegistryNotExistException, RegistryUnreachableException;
     
     /**
      *
@@ -1053,7 +1053,7 @@ interface Admin
      *
      **/
     ["ami"] idempotent void shutdownRegistry(string name)
-	throws RegistryNotExistException, RegistryUnreachableException;
+        throws RegistryNotExistException, RegistryUnreachableException;
 
     /**
      *
@@ -1109,7 +1109,7 @@ interface FileIterator
      *
      **/
     bool read(int size, out Ice::StringSeq lines)
-	throws FileNotAvailableException;
+        throws FileNotAvailableException;
 
     /**
      *
@@ -1179,8 +1179,8 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     idempotent void setObservers(RegistryObserver* registryObs, NodeObserver* nodeObs, ApplicationObserver* appObs,
-				 AdapterObserver* adptObs, ObjectObserver* objObs)
-	throws ObserverAlreadyRegisteredException;
+                                 AdapterObserver* adptObs, ObjectObserver* objObs)
+        throws ObserverAlreadyRegisteredException;
 
     /**
      *
@@ -1205,8 +1205,8 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     idempotent void setObserversByIdentity(Ice::Identity registryObs, Ice::Identity nodeObs, Ice::Identity appObs,
-					   Ice::Identity adptObs, Ice::Identity objObs)
-	throws ObserverAlreadyRegisteredException;
+                                           Ice::Identity adptObs, Ice::Identity objObs)
+        throws ObserverAlreadyRegisteredException;
 
     /**
      *
@@ -1220,7 +1220,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     int startUpdate()
-	throws AccessDeniedException;
+        throws AccessDeniedException;
     
     /**
      *
@@ -1231,7 +1231,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     void finishUpdate()
-	throws AccessDeniedException;
+        throws AccessDeniedException;
 
     /**
      *
@@ -1273,7 +1273,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator* openServerLog(string id, string path, int count)
-	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -1302,7 +1302,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator* openServerStdErr(string id, int count)
-	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -1331,7 +1331,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator* openServerStdOut(string id, int count)
-	throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
+        throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException;
 
     /**
      *
@@ -1356,7 +1356,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator* openNodeStdErr(string name, int count)
-	throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
+        throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -1381,7 +1381,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator* openNodeStdOut(string name, int count)
-	throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
+        throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -1407,7 +1407,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator* openRegistryStdErr(string name, int count)
-	throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
+        throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 
     /**
      *
@@ -1433,7 +1433,7 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     FileIterator * openRegistryStdOut(string name, int count)
-	throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
+        throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 };
 
 };

@@ -61,12 +61,12 @@ def isWin32():
 
 def usage():
     print "usage: " + sys.argv[0] + " -m|--mono --debug --protocol protocol --compress --host host "\
-	"--threadPerConnection"
+        "--threadPerConnection"
     sys.exit(2)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "m",\
-	 ["mono", "debug", "protocol=", "compress", "host=", "threadPerConnection"])
+         ["mono", "debug", "protocol=", "compress", "host=", "threadPerConnection"])
 except getopt.GetoptError:
     usage()
 
@@ -74,19 +74,19 @@ mono = 0
 
 for o, a in opts:
     if o in ( "-m", "--mono" ):
-	mono = 1
+        mono = 1
     if o == "--debug":
-	debug = 1
+        debug = 1
     if o == "--protocol":
-    	if a not in ( "tcp", "ssl"):
-    	    usage()
-	protocol = a
+        if a not in ( "tcp", "ssl"):
+            usage()
+        protocol = a
     if o == "--compress":
-	compress = 1
+        compress = 1
     if o == "--threadPerConnection":
-	threadPerConnection = 1
+        threadPerConnection = 1
     if o == "--host":
-	host = a
+        host = a
 
 if protocol == "ssl":
     threadPerConnection = 1
@@ -110,16 +110,16 @@ host = "127.0.0.1"
 def closePipe(pipe):
 
     try:
-	status = pipe.close()
+        status = pipe.close()
     except IOError, ex:
-	# TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
-	if ex.errno == errno.ECHILD:
-	    status = 0
-	# This happens with the C# fault tolerance test. Ignore this error.
-	elif ex.errno == 0:
-	    status = 0
-	else:
-	    raise
+        # TODO: There's a waitpid problem on CentOS, so we have to ignore ECHILD.
+        if ex.errno == errno.ECHILD:
+            status = 0
+        # This happens with the C# fault tolerance test. Ignore this error.
+        elif ex.errno == 0:
+            status = 0
+        else:
+            raise
 
     return status
      
@@ -134,17 +134,17 @@ class ReaderThread(Thread):
             while 1:
                 line = self.pipe.readline()
                 if not line: break
-		# Suppress "adapter ready" messages. Under windows the eol isn't \n.
-		if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
-		    print line,
+                # Suppress "adapter ready" messages. Under windows the eol isn't \n.
+                if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+                    print line,
         except IOError:
-	    print "IOError"
+            print "IOError"
             pass
 
-	self.status = closePipe(self.pipe)
+        self.status = closePipe(self.pipe)
 
     def getStatus(self):
-	return self.status
+        return self.status
 
 serverPids = []
 serverThreads = []
@@ -154,17 +154,17 @@ def joinServers():
     global serverThreads
     global allServerThreads
     for t in serverThreads:
-	t.join()
-	allServerThreads.append(t)
+        t.join()
+        allServerThreads.append(t)
     serverThreads = []
 
 def serverStatus():
     global allServerThreads
     joinServers()
     for t in allServerThreads:
-    	status = t.getStatus()
-    	if status:
-    	    return status
+        status = t.getStatus()
+        if status:
+            return status
     return 0
 
 def killServers():
@@ -202,32 +202,32 @@ def getServerPid(pipe):
     global serverThreads
 
     while 1:
-	output = pipe.readline().strip()
-	if not output:
-	    print "failed!"
-	    killServers()
-	    sys.exit(1)
-    	if output.startswith("warning: "):
-    	    continue
-	break
+        output = pipe.readline().strip()
+        if not output:
+            print "failed!"
+            killServers()
+            sys.exit(1)
+        if output.startswith("warning: "):
+            continue
+        break
 
     try:
-	serverPids.append(int(output))
+        serverPids.append(int(output))
     except ValueError:
-	print "Output is not a PID: " + output
-	raise
+        print "Output is not a PID: " + output
+        raise
 
 def ignorePid(pipe):
 
     while 1:
-	output = pipe.readline().strip()
-	if not output:
-	    print "failed!"
-	    killServers()
-	    sys.exit(1)
-    	if output.startswith("warning: "):
-    	    continue
-	break
+        output = pipe.readline().strip()
+        if not output:
+            print "failed!"
+            killServers()
+            sys.exit(1)
+        if output.startswith("warning: "):
+            continue
+        break
 
 def getAdapterReady(pipe, createThread = True, count = 1):
     global serverThreads
@@ -243,9 +243,9 @@ def getAdapterReady(pipe, createThread = True, count = 1):
 
     # Start a thread for this server.
     if createThread:
-	serverThread = ReaderThread(pipe)
-	serverThread.start()
-	serverThreads.append(serverThread)
+        serverThread = ReaderThread(pipe)
+        serverThread.start()
+        serverThreads.append(serverThread)
 
 def waitServiceReady(pipe, token, createThread = True):
     global serverThreads
@@ -260,9 +260,9 @@ def waitServiceReady(pipe, token, createThread = True):
 
     # Start a thread for this server.
     if createThread:
-	serverThread = ReaderThread(pipe)
-	serverThread.start()
-	serverThreads.append(serverThread)
+        serverThread = ReaderThread(pipe)
+        serverThread.start()
+        serverThreads.append(serverThread)
 
 def printOutputFromPipe(pipe):
 
@@ -281,29 +281,29 @@ else:
 
 if isWin32():
     if isCygwin():
-	os.environ["PATH"] = os.path.join(toplevel, "bin") + ":" + os.getenv("PATH", "")
+        os.environ["PATH"] = os.path.join(toplevel, "bin") + ":" + os.getenv("PATH", "")
     else:
-	os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
+        os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
 
 if protocol == "ssl":
-    plugin		 = " --Ice.Plugin.IceSSL=" + os.path.join(toplevel, "bin", "icesslcs.dll") + \
-			   ":IceSSL.PluginFactory"
+    plugin               = " --Ice.Plugin.IceSSL=" + os.path.join(toplevel, "bin", "icesslcs.dll") + \
+                           ":IceSSL.PluginFactory"
     clientProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
                            " --IceSSL.Password=password" + \
                            " --IceSSL.CheckCertName=0"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
-				os.path.join(toplevel, "certs", "cacert.pem") + \
+                                os.path.join(toplevel, "certs", "cacert.pem") + \
                            " --IceSSL.CertFile=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
                            " --IceSSL.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
                            " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
-				os.path.join(toplevel, "certs", "cacert.pem") + \
+                                os.path.join(toplevel, "certs", "cacert.pem") + \
                            " --IceSSL.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
                            " --IceSSL.Password=password" + \
                            " --IceSSL.CheckCertName=0"
-    cppPlugin		    = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
+    cppPlugin               = " --Ice.Plugin.IceSSL=IceSSL:createIceSSL"
     cppClientProtocol       = cppPlugin + " --Ice.Default.Protocol=ssl" + \
                               " --IceSSL.DefaultDir=" + os.path.join(toplevel, "certs") + \
                               " --IceSSL.CertAuthFile=cacert.pem" + \
@@ -365,7 +365,7 @@ collocatedOptions = clientServerProtocol + defaultHost
 def createMsg(name):
     msg = "starting "
     if mono:
-	msg += "mono "
+        msg += "mono "
     msg += name
     if mono:
         msg += ".exe"
@@ -390,7 +390,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     print createMsg(serverName),
     serverCmd = createCmd(server) + serverOptions + " " + additionalServerOptions
     if debug:
-	print "(" + serverCmd + ")",
+        print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
@@ -399,7 +399,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     print createMsg(clientName),
     clientCmd = createCmd(client) + clientOptions + " " + additionalClientOptions
     if debug:
-	print "(" + clientCmd + ")",
+        print "(" + clientCmd + ")",
     clientPipe = os.popen(clientCmd + " 2>&1")
     print "ok"
 
@@ -407,7 +407,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
 
     clientStatus = closePipe(clientPipe)
     if clientStatus:
-	killServers()
+        killServers()
 
     if clientStatus or serverStatus():
         sys.exit(1)
@@ -430,7 +430,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     print createMsg("server"),
     serverCmd = createCmd(server) + clientServerOptions + " " + additionalServerOptions
     if debug:
-	print "(" + serverCmd + ")",
+        print "(" + serverCmd + ")",
     serverPipe = os.popen(serverCmd + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
@@ -439,7 +439,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     print createMsg("client"),
     clientCmd = createCmd(client) + clientServerOptions + " " + additionalClientOptions
     if debug:
-	print "(" + clientCmd + ")",
+        print "(" + clientCmd + ")",
     clientPipe = os.popen(clientCmd + " 2>&1")
     ignorePid(clientPipe)
     getAdapterReady(clientPipe, False)
@@ -449,7 +449,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
 
     clientStatus = closePipe(clientPipe)
     if clientStatus:
-	killServers()
+        killServers()
 
     if clientStatus or serverStatus():
         sys.exit(1)
@@ -466,7 +466,7 @@ def collocatedTestWithOptions(name, additionalOptions):
     print createMsg("collocated"),
     command = createCmd(collocated) + collocatedOptions + " " + additionalOptions
     if debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     collocatedPipe = os.popen(command + " 2>&1")
     print "ok"
 
@@ -475,8 +475,8 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocatedStatus = closePipe(collocatedPipe)
 
     if collocatedStatus:
-	killServers()
-	sys.exit(1)
+        killServers()
+        sys.exit(1)
 
 def collocatedTest(name):
 
@@ -490,7 +490,7 @@ def clientTestWithOptions(name, additionalOptions):
     print createMsg("client"),
     command = createCmd(client) + clientOptions + " " + additionalOptions
     if debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     clientPipe = os.popen(command + " 2>&1")
     print "ok"
 
@@ -499,8 +499,8 @@ def clientTestWithOptions(name, additionalOptions):
     clientStatus = closePipe(clientPipe)
 
     if clientStatus:
-	killServers()
-	sys.exit(1)
+        killServers()
+        sys.exit(1)
 
 def clientTest(name):
 

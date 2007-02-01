@@ -130,10 +130,10 @@ extern char *getenv ();
 /* VMS-specific definitions */
 #ifdef VMS
 #include <descrip.h>
-#define open(fname,mode,prot)	VMS_open (fname,mode,prot)
-#define fopen(fname,mode)	VMS_fopen (fname,mode)
+#define open(fname,mode,prot)   VMS_open (fname,mode,prot)
+#define fopen(fname,mode)       VMS_fopen (fname,mode)
 #define freopen(fname,mode,ofile) VMS_freopen (fname,mode,ofile)
-#define fstat(fd,stbuf)		VMS_fstat (fd,stbuf)
+#define fstat(fd,stbuf)         VMS_fstat (fd,stbuf)
 static int VMS_fstat (), VMS_stat ();
 static int VMS_open ();
 static FILE *VMS_fopen ();
@@ -141,7 +141,7 @@ static FILE *VMS_freopen ();
 static void hack_vms_include_specification ();
 #define INO_T_EQ(a, b) (!bcmp((char *) &(a), (char *) &(b), sizeof (a)))
 #define INO_T_HASH(a) 0
-#define INCLUDE_LEN_FUDGE 12	/* leave room for VMS syntax conversion */
+#define INCLUDE_LEN_FUDGE 12    /* leave room for VMS syntax conversion */
 #endif /* VMS */
 
 /* Windows does not natively support inodes, and neither does MSDOS.  */
@@ -207,10 +207,10 @@ extern char *update_path PROTO((char *, char *));
 //#ifndef HAVE_STRERROR
 //extern int sys_nerr;
 //extern char *sys_errlist[];
-//#else	/* HAVE_STRERROR */
+//#else /* HAVE_STRERROR */
 //char *strerror ();
 //#endif
-//#else	/* VMS */
+//#else /* VMS */
 //char *strerror (int,...);
 //#endif
 HOST_WIDE_INT parse_escape PROTO((char **, HOST_WIDE_INT));
@@ -429,18 +429,18 @@ static struct file_buf {
   char system_header_p;
 } instack[INPUT_STACK_MAX];
 
-static int last_error_tick;	   /* Incremented each time we print it.  */
+static int last_error_tick;        /* Incremented each time we print it.  */
 static int input_file_stack_tick;  /* Incremented when the status changes.  */
 
 /* Current nesting level of input sources.
    `instack[indepth]' is the level currently being read.  */
 static int indepth = -1;
 #define CHECK_DEPTH(code) \
-  if (indepth >= (INPUT_STACK_MAX - 1))					\
-    {									\
-      error_with_line (line_for_error (instack[indepth].lineno),	\
-		       "macro or `#include' recursion too deep");	\
-      code;								\
+  if (indepth >= (INPUT_STACK_MAX - 1))                                 \
+    {                                                                   \
+      error_with_line (line_for_error (instack[indepth].lineno),        \
+                       "macro or `#include' recursion too deep");       \
+      code;                                                             \
     }
 
 /* Current depth in #include directives that use <...>.  */
@@ -452,7 +452,7 @@ typedef struct file_buf FILE_BUF;
    for the buffer, not the number of chars actually present.  To get
    that, subtract outbuf.buf from outbuf.bufp.  */
 
-#define OUTBUF_SIZE 10	/* initial size of output buffer */
+#define OUTBUF_SIZE 10  /* initial size of output buffer */
 static FILE_BUF outbuf;
 
 /* Grow output buffer OBUF points at
@@ -485,12 +485,12 @@ struct file_name_list
 /* -I directories are added to the end, then the defaults are added.  */
 /* The */
 static struct default_include {
-  char *fname;			/* The name of the directory.  */
-  char *component;		/* The component containing the directory */
-  int cplusplus;		/* Only look here if we're compiling C++.  */
-  int cxx_aware;		/* Includes in this directory don't need to
-				   be wrapped in extern "C" when compiling
-				   C++.  */
+  char *fname;                  /* The name of the directory.  */
+  char *component;              /* The component containing the directory */
+  int cplusplus;                /* Only look here if we're compiling C++.  */
+  int cxx_aware;                /* Includes in this directory don't need to
+                                   be wrapped in extern "C" when compiling
+                                   C++.  */
 } include_defaults_array[]
 #ifdef INCLUDE_DEFAULTS
   = INCLUDE_DEFAULTS;
@@ -542,23 +542,23 @@ static struct default_include {
    variable specifies other defaults.  */
 static struct default_include *include_defaults = include_defaults_array;
 
-static struct file_name_list *include = 0;	/* First dir to search */
-	/* First dir to search for <file> */
+static struct file_name_list *include = 0;      /* First dir to search */
+        /* First dir to search for <file> */
 /* This is the first element to use for #include <...>.
    If it is 0, use the entire chain for such includes.  */
 static struct file_name_list *first_bracket_include = 0;
 /* This is the first element in the chain that corresponds to
    a directory of system header files.  */
 static struct file_name_list *first_system_include = 0;
-static struct file_name_list *last_include = 0;	/* Last in chain */
+static struct file_name_list *last_include = 0; /* Last in chain */
 
 /* Chain of include directories to put at the end of the other chain.  */
 static struct file_name_list *after_include = 0;
-static struct file_name_list *last_after_include = 0;	/* Last in chain */
+static struct file_name_list *last_after_include = 0;   /* Last in chain */
 
 /* Chain to put at the start of the system include files.  */
 static struct file_name_list *before_system = 0;
-static struct file_name_list *last_before_system = 0;	/* Last in chain */
+static struct file_name_list *last_before_system = 0;   /* Last in chain */
 
 /* Directory prefix that should replace `/usr' in the standard
    include file directories.  */
@@ -606,18 +606,18 @@ struct macrodef
 };
 
 enum sharp_token_type {
-  NO_SHARP_TOKEN = 0,		/* token not present */
+  NO_SHARP_TOKEN = 0,           /* token not present */
 
-  SHARP_TOKEN = '#',		/* token spelled with # only */
-  WHITE_SHARP_TOKEN,		/* token spelled with # and white space */
+  SHARP_TOKEN = '#',            /* token spelled with # only */
+  WHITE_SHARP_TOKEN,            /* token spelled with # and white space */
 
-  PERCENT_COLON_TOKEN = '%',	/* token spelled with %: only */
-  WHITE_PERCENT_COLON_TOKEN	/* token spelled with %: and white space */
+  PERCENT_COLON_TOKEN = '%',    /* token spelled with %: only */
+  WHITE_PERCENT_COLON_TOKEN     /* token spelled with %: and white space */
 };
 
 /* Structure allocated for every #define.  For a simple replacement
    such as
-   	#define foo bar ,
+        #define foo bar ,
    nargs = -1, the `pattern' list is null, and the expansion is just
    the replacement text.  Nargs = 0 means a functionlike macro with no args,
    e.g.,
@@ -639,24 +639,24 @@ enum sharp_token_type {
 typedef struct definition DEFINITION;
 struct definition {
   int nargs;
-  int length;			/* length of expansion string */
-  int predefined;		/* True if the macro was builtin or */
-				/* came from the command line */
+  int length;                   /* length of expansion string */
+  int predefined;               /* True if the macro was builtin or */
+                                /* came from the command line */
   U_CHAR *expansion;
-  int line;			/* Line number of definition */
-  char *file;			/* File of definition */
-  char rest_args;		/* Nonzero if last arg. absorbs the rest */
+  int line;                     /* Line number of definition */
+  char *file;                   /* File of definition */
+  char rest_args;               /* Nonzero if last arg. absorbs the rest */
   struct reflist {
     struct reflist *next;
 
-    enum sharp_token_type stringify;	/* set if a # operator before arg */
-    enum sharp_token_type raw_before;	/* set if a ## operator before arg */
-    enum sharp_token_type raw_after;	/* set if a ## operator after arg */
+    enum sharp_token_type stringify;    /* set if a # operator before arg */
+    enum sharp_token_type raw_before;   /* set if a ## operator before arg */
+    enum sharp_token_type raw_after;    /* set if a ## operator after arg */
 
-    char rest_args;		/* Nonzero if this arg. absorbs the rest */
-    int nchars;			/* Number of literal chars to copy before
-				   this arg occurrence.  */
-    int argno;			/* Number of arg to substitute (origin-0) */
+    char rest_args;             /* Nonzero if this arg. absorbs the rest */
+    int nchars;                 /* Number of literal chars to copy before
+                                   this arg occurrence.  */
+    int argno;                  /* Number of arg to substitute (origin-0) */
   } *pattern;
   union {
     /* Names of macro args, concatenated in reverse order
@@ -678,17 +678,17 @@ union hashval {
 /*
  * special extension string that can be added to the last macro argument to 
  * allow it to absorb the "rest" of the arguments when expanded.  Ex:
- * 		#define wow(a, b...)		process (b, a, b)
- *		{ wow (1, 2, 3); }	->	{ process (2, 3, 1, 2, 3); }
- *		{ wow (one, two); }	->	{ process (two, one, two); }
+ *              #define wow(a, b...)            process (b, a, b)
+ *              { wow (1, 2, 3); }      ->      { process (2, 3, 1, 2, 3); }
+ *              { wow (one, two); }     ->      { process (two, one, two); }
  * if this "rest_arg" is used with the concat token '##' and if it is not
  * supplied then the token attached to with ## will not be outputted.  Ex:
- * 		#define wow (a, b...)		process (b ## , a, ## b)
- *		{ wow (1, 2); }		->	{ process (2, 1, 2); }
- *		{ wow (one); }		->	{ process (one); {
+ *              #define wow (a, b...)           process (b ## , a, ## b)
+ *              { wow (1, 2); }         ->      { process (2, 1, 2); }
+ *              { wow (one); }          ->      { process (one); {
  */
 static char rest_extension[] = "...";
-#define REST_EXTENSION_LENGTH	(sizeof (rest_extension) - 1)
+#define REST_EXTENSION_LENGTH   (sizeof (rest_extension) - 1)
 
 /* The structure of a node in the hash table.  The hash table
    has entries for all tokens defined by #define directives (type T_MACRO),
@@ -699,56 +699,56 @@ static char rest_extension[] = "...";
 
 /* different flavors of hash nodes --- also used in keyword table */
 enum node_type {
- T_DEFINE = 1,	/* the `#define' keyword */
- T_INCLUDE,	/* the `#include' keyword */
+ T_DEFINE = 1,  /* the `#define' keyword */
+ T_INCLUDE,     /* the `#include' keyword */
  T_INCLUDE_NEXT, /* the `#include_next' keyword */
  T_IMPORT,      /* the `#import' keyword */
- T_IFDEF,	/* the `#ifdef' keyword */
- T_IFNDEF,	/* the `#ifndef' keyword */
- T_IF,		/* the `#if' keyword */
- T_ELSE,	/* `#else' */
- T_PRAGMA,	/* `#pragma' */
- T_ELIF,	/* `#elif' */
- T_UNDEF,	/* `#undef' */
- T_LINE,	/* `#line' */
- T_ERROR,	/* `#error' */
- T_WARNING,	/* `#warning' */
- T_ENDIF,	/* `#endif' */
- T_SCCS,	/* `#sccs', used on system V.  */
- T_IDENT,	/* `#ident', used on system V.  */
- T_ASSERT,	/* `#assert', taken from system V.  */
- T_UNASSERT,	/* `#unassert', taken from system V.  */
- T_SPECLINE,	/* special symbol `__LINE__' */
- T_DATE,	/* `__DATE__' */
- T_FILE,	/* `__FILE__' */
- T_BASE_FILE,	/* `__BASE_FILE__' */
+ T_IFDEF,       /* the `#ifdef' keyword */
+ T_IFNDEF,      /* the `#ifndef' keyword */
+ T_IF,          /* the `#if' keyword */
+ T_ELSE,        /* `#else' */
+ T_PRAGMA,      /* `#pragma' */
+ T_ELIF,        /* `#elif' */
+ T_UNDEF,       /* `#undef' */
+ T_LINE,        /* `#line' */
+ T_ERROR,       /* `#error' */
+ T_WARNING,     /* `#warning' */
+ T_ENDIF,       /* `#endif' */
+ T_SCCS,        /* `#sccs', used on system V.  */
+ T_IDENT,       /* `#ident', used on system V.  */
+ T_ASSERT,      /* `#assert', taken from system V.  */
+ T_UNASSERT,    /* `#unassert', taken from system V.  */
+ T_SPECLINE,    /* special symbol `__LINE__' */
+ T_DATE,        /* `__DATE__' */
+ T_FILE,        /* `__FILE__' */
+ T_BASE_FILE,   /* `__BASE_FILE__' */
  T_INCLUDE_LEVEL, /* `__INCLUDE_LEVEL__' */
- T_VERSION,	/* `__VERSION__' */
+ T_VERSION,     /* `__VERSION__' */
  T_SIZE_TYPE,   /* `__SIZE_TYPE__' */
  T_PTRDIFF_TYPE,   /* `__PTRDIFF_TYPE__' */
  T_WCHAR_TYPE,   /* `__WCHAR_TYPE__' */
  T_USER_LABEL_PREFIX_TYPE, /* `__USER_LABEL_PREFIX__' */
  T_REGISTER_PREFIX_TYPE,   /* `__REGISTER_PREFIX__' */
  T_IMMEDIATE_PREFIX_TYPE,  /* `__IMMEDIATE_PREFIX__' */
- T_TIME,	/* `__TIME__' */
- T_CONST,	/* Constant value, used by `__STDC__' */
- T_MACRO,	/* macro defined by `#define' */
- T_DISABLED,	/* macro temporarily turned off for rescan */
+ T_TIME,        /* `__TIME__' */
+ T_CONST,       /* Constant value, used by `__STDC__' */
+ T_MACRO,       /* macro defined by `#define' */
+ T_DISABLED,    /* macro temporarily turned off for rescan */
  T_SPEC_DEFINED, /* special `defined' macro for use in #if statements */
- T_PCSTRING,	/* precompiled string (hashval is KEYDEF *) */
- T_UNUSED	/* Used for something not defined.  */
+ T_PCSTRING,    /* precompiled string (hashval is KEYDEF *) */
+ T_UNUSED       /* Used for something not defined.  */
  };
 
 struct hashnode {
-  struct hashnode *next;	/* double links for easy deletion */
+  struct hashnode *next;        /* double links for easy deletion */
   struct hashnode *prev;
-  struct hashnode **bucket_hdr;	/* also, a back pointer to this node's hash
-				   chain is kept, in case the node is the head
-				   of the chain and gets deleted.  */
-  enum node_type type;		/* type of special token */
-  int length;			/* length of token, for quick comparison */
-  U_CHAR *name;			/* the actual name */
-  union hashval value;		/* pointer to expansion, or whatever */
+  struct hashnode **bucket_hdr; /* also, a back pointer to this node's hash
+                                   chain is kept, in case the node is the head
+                                   of the chain and gets deleted.  */
+  enum node_type type;          /* type of special token */
+  int length;                   /* length of token, for quick comparison */
+  U_CHAR *name;                 /* the actual name */
+  union hashval value;          /* pointer to expansion, or whatever */
 };
 
 typedef struct hashnode HASHNODE;
@@ -828,14 +828,14 @@ struct tokenlist_list {
 };
 
 struct assertion_hashnode {
-  struct assertion_hashnode *next;	/* double links for easy deletion */
+  struct assertion_hashnode *next;      /* double links for easy deletion */
   struct assertion_hashnode *prev;
   /* also, a back pointer to this node's hash
      chain is kept, in case the node is the head
      of the chain and gets deleted.  */
   struct assertion_hashnode **bucket_hdr;
-  int length;			/* length of token, for quick comparison */
-  U_CHAR *name;			/* the actual name */
+  int length;                   /* length of token, for quick comparison */
+  U_CHAR *name;                 /* the actual name */
   /* List of token-sequences.  */
   struct tokenlist_list *value;
 };
@@ -861,10 +861,10 @@ static int assertions_flag;
 #define DO_PROTO PROTO((U_CHAR *, U_CHAR *, FILE_BUF *, struct directive *))
 
 struct directive {
-  int length;			/* Length of name */
-  int (*func) DO_PROTO;	/* Function to handle directive */
-  char *name;			/* Name of directive */
-  enum node_type type;		/* Code which describes which directive.  */
+  int length;                   /* Length of name */
+  int (*func) DO_PROTO; /* Function to handle directive */
+  char *name;                   /* Name of directive */
+  enum node_type type;          /* Code which describes which directive.  */
 };
 
 #define IS_INCLUDE_DIRECTIVE_TYPE(t) \
@@ -938,7 +938,7 @@ static char *char_name[256];
 #define SKIP_WHITE_SPACE(p) do { while (is_hor_space[*p]) p++; } while (0)
 #define SKIP_ALL_WHITE_SPACE(p) do { while (is_space[*p]) p++; } while (0)
   
-static int errors = 0;			/* Error counter for exit code */
+static int errors = 0;                  /* Error counter for exit code */
 
 /* Name of output file, for error messages.  */
 static char *out_fname;
@@ -948,14 +948,14 @@ static char *out_fname;
    (including both successful and failing conditionals).  */
 
 struct if_stack {
-  struct if_stack *next;	/* for chaining to the next stack frame */
-  char *fname;		/* copied from input when frame is made */
-  int lineno;			/* similarly */
-  int if_succeeded;		/* true if a leg of this if-group
-				    has been passed through rescan */
-  U_CHAR *control_macro;	/* For #ifndef at start of file,
-				   this is the macro name tested.  */
-  enum node_type type;		/* type of last directive seen in this group */
+  struct if_stack *next;        /* for chaining to the next stack frame */
+  char *fname;          /* copied from input when frame is made */
+  int lineno;                   /* similarly */
+  int if_succeeded;             /* true if a leg of this if-group
+                                    has been passed through rescan */
+  U_CHAR *control_macro;        /* For #ifndef at start of file,
+                                   this is the macro name tested.  */
+  enum node_type type;          /* type of last directive seen in this group */
 };
 typedef struct if_stack IF_STACK_FRAME;
 static IF_STACK_FRAME *if_stack = NULL;
@@ -1147,10 +1147,10 @@ safe_read (desc, ptr, len)
     if (nchars < 0)
       {
 #ifdef EINTR
-	if (errno == EINTR)
-	  continue;
+        if (errno == EINTR)
+          continue;
 #endif
-	return nchars;
+        return nchars;
       }
     if (nchars == 0)
       break;
@@ -1182,10 +1182,10 @@ safe_write (desc, ptr, len)
     if (written < 0)
       {
 #ifdef EINTR
-	if (errno == EINTR)
-	  continue;
+        if (errno == EINTR)
+          continue;
 #endif
-	pfatal_with_name (out_fname);
+        pfatal_with_name (out_fname);
       }
     ptr += written;
     len -= written;
@@ -1257,12 +1257,12 @@ main (argc, argv)
     char *p;
     char *s = progname = savestring (progname);
 
-    if ((p = rindex (s, ';')) != 0) *p = '\0';	/* strip version number */
-    if ((p = rindex (s, '.')) != 0		/* strip type iff ".exe" */
-	&& (p[1] == 'e' || p[1] == 'E')
-	&& (p[2] == 'x' || p[2] == 'X')
-	&& (p[3] == 'e' || p[3] == 'E')
-	&& !p[4])
+    if ((p = rindex (s, ';')) != 0) *p = '\0';  /* strip version number */
+    if ((p = rindex (s, '.')) != 0              /* strip type iff ".exe" */
+        && (p[1] == 'e' || p[1] == 'E')
+        && (p[2] == 'x' || p[2] == 'X')
+        && (p[3] == 'e' || p[3] == 'E')
+        && !p[4])
       *p = '\0';
   }
 #endif
@@ -1291,406 +1291,406 @@ main (argc, argv)
   for (i = 1; i < argc; i++) {
     if (argv[i][0] != '-') {
       if (out_fname != NULL)
-	fatal ("Usage: %s [switches] input output", argv[0]);
+        fatal ("Usage: %s [switches] input output", argv[0]);
       else if (in_fname != NULL)
-	out_fname = argv[i];
+        out_fname = argv[i];
       else
-	in_fname = argv[i];
+        in_fname = argv[i];
     } else {
       switch (argv[i][1]) {
 
       case 'i':
-	if (!strcmp (argv[i], "-include")) {
-	  if (i + 1 == argc)
-	    fatal ("Filename missing after `-include' option");
-	  else
-	    simplify_filename (pend_includes[i] = argv[++i]);
-	}
-	if (!strcmp (argv[i], "-imacros")) {
-	  if (i + 1 == argc)
-	    fatal ("Filename missing after `-imacros' option");
-	  else
-	    simplify_filename (pend_files[i] = argv[++i]);
-	}
-	if (!strcmp (argv[i], "-iprefix")) {
-	  if (i + 1 == argc)
-	    fatal ("Filename missing after `-iprefix' option");
-	  else
-	    include_prefix = argv[++i];
-	}
-	if (!strcmp (argv[i], "-ifoutput")) {
-	  output_conditionals = 1;
-	}
-	if (!strcmp (argv[i], "-isystem")) {
-	  struct file_name_list *dirtmp;
+        if (!strcmp (argv[i], "-include")) {
+          if (i + 1 == argc)
+            fatal ("Filename missing after `-include' option");
+          else
+            simplify_filename (pend_includes[i] = argv[++i]);
+        }
+        if (!strcmp (argv[i], "-imacros")) {
+          if (i + 1 == argc)
+            fatal ("Filename missing after `-imacros' option");
+          else
+            simplify_filename (pend_files[i] = argv[++i]);
+        }
+        if (!strcmp (argv[i], "-iprefix")) {
+          if (i + 1 == argc)
+            fatal ("Filename missing after `-iprefix' option");
+          else
+            include_prefix = argv[++i];
+        }
+        if (!strcmp (argv[i], "-ifoutput")) {
+          output_conditionals = 1;
+        }
+        if (!strcmp (argv[i], "-isystem")) {
+          struct file_name_list *dirtmp;
 
-	  if (! (dirtmp = new_include_prefix (NULL_PTR, NULL_PTR,
-					      "", argv[++i])))
-	    break;
-	  dirtmp->c_system_include_path = 1;
+          if (! (dirtmp = new_include_prefix (NULL_PTR, NULL_PTR,
+                                              "", argv[++i])))
+            break;
+          dirtmp->c_system_include_path = 1;
 
-	  if (before_system == 0)
-	    before_system = dirtmp;
-	  else
-	    last_before_system->next = dirtmp;
-	  last_before_system = dirtmp; /* Tail follows the last one */
-	}
-	/* Add directory to end of path for includes,
-	   with the default prefix at the front of its name.  */
-	if (!strcmp (argv[i], "-iwithprefix")) {
-	  struct file_name_list *dirtmp;
-	  char *prefix;
+          if (before_system == 0)
+            before_system = dirtmp;
+          else
+            last_before_system->next = dirtmp;
+          last_before_system = dirtmp; /* Tail follows the last one */
+        }
+        /* Add directory to end of path for includes,
+           with the default prefix at the front of its name.  */
+        if (!strcmp (argv[i], "-iwithprefix")) {
+          struct file_name_list *dirtmp;
+          char *prefix;
 
-	  if (include_prefix != 0)
-	    prefix = include_prefix;
-	  else {
-	    prefix = savestring (GCC_INCLUDE_DIR);
-	    /* Remove the `include' from /usr/local/lib/gcc.../include.  */
-	    if (!strcmp (prefix + strlen (prefix) - 8, "/include"))
-	      prefix[strlen (prefix) - 7] = 0;
-	  }
+          if (include_prefix != 0)
+            prefix = include_prefix;
+          else {
+            prefix = savestring (GCC_INCLUDE_DIR);
+            /* Remove the `include' from /usr/local/lib/gcc.../include.  */
+            if (!strcmp (prefix + strlen (prefix) - 8, "/include"))
+              prefix[strlen (prefix) - 7] = 0;
+          }
 
-	  if (! (dirtmp = new_include_prefix (NULL_PTR, NULL_PTR,
-					      prefix, argv[++i])))
-	    break;
+          if (! (dirtmp = new_include_prefix (NULL_PTR, NULL_PTR,
+                                              prefix, argv[++i])))
+            break;
 
-	  if (after_include == 0)
-	    after_include = dirtmp;
-	  else
-	    last_after_include->next = dirtmp;
-	  last_after_include = dirtmp; /* Tail follows the last one */
-	}
-	/* Add directory to main path for includes,
-	   with the default prefix at the front of its name.  */
-	if (!strcmp (argv[i], "-iwithprefixbefore")) {
-	  struct file_name_list *dirtmp;
-	  char *prefix;
+          if (after_include == 0)
+            after_include = dirtmp;
+          else
+            last_after_include->next = dirtmp;
+          last_after_include = dirtmp; /* Tail follows the last one */
+        }
+        /* Add directory to main path for includes,
+           with the default prefix at the front of its name.  */
+        if (!strcmp (argv[i], "-iwithprefixbefore")) {
+          struct file_name_list *dirtmp;
+          char *prefix;
 
-	  if (include_prefix != 0)
-	    prefix = include_prefix;
-	  else {
-	    prefix = savestring (GCC_INCLUDE_DIR);
-	    /* Remove the `include' from /usr/local/lib/gcc.../include.  */
-	    if (!strcmp (prefix + strlen (prefix) - 8, "/include"))
-	      prefix[strlen (prefix) - 7] = 0;
-	  }
+          if (include_prefix != 0)
+            prefix = include_prefix;
+          else {
+            prefix = savestring (GCC_INCLUDE_DIR);
+            /* Remove the `include' from /usr/local/lib/gcc.../include.  */
+            if (!strcmp (prefix + strlen (prefix) - 8, "/include"))
+              prefix[strlen (prefix) - 7] = 0;
+          }
 
-	  dirtmp = new_include_prefix (NULL_PTR, NULL_PTR, prefix, argv[++i]);
-	  append_include_chain (dirtmp, dirtmp);
-	}
-	/* Add directory to end of path for includes.  */
-	if (!strcmp (argv[i], "-idirafter")) {
-	  struct file_name_list *dirtmp;
+          dirtmp = new_include_prefix (NULL_PTR, NULL_PTR, prefix, argv[++i]);
+          append_include_chain (dirtmp, dirtmp);
+        }
+        /* Add directory to end of path for includes.  */
+        if (!strcmp (argv[i], "-idirafter")) {
+          struct file_name_list *dirtmp;
 
-	  if (! (dirtmp = new_include_prefix (NULL_PTR, NULL_PTR,
-					      "", argv[++i])))
-	    break;
+          if (! (dirtmp = new_include_prefix (NULL_PTR, NULL_PTR,
+                                              "", argv[++i])))
+            break;
 
-	  if (after_include == 0)
-	    after_include = dirtmp;
-	  else
-	    last_after_include->next = dirtmp;
-	  last_after_include = dirtmp; /* Tail follows the last one */
-	}
-	break;
+          if (after_include == 0)
+            after_include = dirtmp;
+          else
+            last_after_include->next = dirtmp;
+          last_after_include = dirtmp; /* Tail follows the last one */
+        }
+        break;
 
       case 'o':
-	if (out_fname != NULL)
-	  fatal ("Output filename specified twice");
-	if (i + 1 == argc)
-	  fatal ("Filename missing after -o option");
-	out_fname = argv[++i];
-	if (!strcmp (out_fname, "-"))
-	  out_fname = "";
-	break;
+        if (out_fname != NULL)
+          fatal ("Output filename specified twice");
+        if (i + 1 == argc)
+          fatal ("Filename missing after -o option");
+        out_fname = argv[++i];
+        if (!strcmp (out_fname, "-"))
+          out_fname = "";
+        break;
 
       case 'p':
-	if (!strcmp (argv[i], "-pedantic"))
-	  pedantic = 1;
-	else if (!strcmp (argv[i], "-pedantic-errors")) {
-	  pedantic = 1;
-	  pedantic_errors = 1;
-	} else if (!strcmp (argv[i], "-pcp")) {
-	  char *pcp_fname;
-	  if (i + 1 == argc)
-	    fatal ("Filename missing after -pcp option");
-	  pcp_fname = argv[++i];
-	  pcp_outfile
-	    = ((pcp_fname[0] != '-' || pcp_fname[1] != '\0')
-	       ? fopen (pcp_fname, "w")
-	       : stdout);
-	  if (pcp_outfile == 0)
-	    pfatal_with_name (pcp_fname);
-	  no_precomp = 1;
-	}
-	break;
+        if (!strcmp (argv[i], "-pedantic"))
+          pedantic = 1;
+        else if (!strcmp (argv[i], "-pedantic-errors")) {
+          pedantic = 1;
+          pedantic_errors = 1;
+        } else if (!strcmp (argv[i], "-pcp")) {
+          char *pcp_fname;
+          if (i + 1 == argc)
+            fatal ("Filename missing after -pcp option");
+          pcp_fname = argv[++i];
+          pcp_outfile
+            = ((pcp_fname[0] != '-' || pcp_fname[1] != '\0')
+               ? fopen (pcp_fname, "w")
+               : stdout);
+          if (pcp_outfile == 0)
+            pfatal_with_name (pcp_fname);
+          no_precomp = 1;
+        }
+        break;
 
       case 't':
-	if (!strcmp (argv[i], "-traditional")) {
-	  traditional = 1;
-	  cplusplus_comments = 0;
-	} else if (!strcmp (argv[i], "-trigraphs")) {
-	  no_trigraphs = 0;
-	}
-	break;
+        if (!strcmp (argv[i], "-traditional")) {
+          traditional = 1;
+          cplusplus_comments = 0;
+        } else if (!strcmp (argv[i], "-trigraphs")) {
+          no_trigraphs = 0;
+        }
+        break;
 
       case 'l':
-	if (! strcmp (argv[i], "-lang-c"))
-	  cplusplus = 0, cplusplus_comments = 1, c89 = 0, objc = 0;
-	if (! strcmp (argv[i], "-lang-c89"))
-	  cplusplus = 0, cplusplus_comments = 0, c89 = 1, objc = 0;
-	if (! strcmp (argv[i], "-lang-c++"))
-	  cplusplus = 1, cplusplus_comments = 1, c89 = 0, objc = 0;
-	if (! strcmp (argv[i], "-lang-objc"))
-	  cplusplus = 0, cplusplus_comments = 1, c89 = 0, objc = 1;
-	if (! strcmp (argv[i], "-lang-objc++"))
-	  cplusplus = 1, cplusplus_comments = 1, c89 = 0, objc = 1;
- 	if (! strcmp (argv[i], "-lang-asm"))
- 	  lang_asm = 1;
- 	if (! strcmp (argv[i], "-lint"))
- 	  for_lint = 1;
-	break;
+        if (! strcmp (argv[i], "-lang-c"))
+          cplusplus = 0, cplusplus_comments = 1, c89 = 0, objc = 0;
+        if (! strcmp (argv[i], "-lang-c89"))
+          cplusplus = 0, cplusplus_comments = 0, c89 = 1, objc = 0;
+        if (! strcmp (argv[i], "-lang-c++"))
+          cplusplus = 1, cplusplus_comments = 1, c89 = 0, objc = 0;
+        if (! strcmp (argv[i], "-lang-objc"))
+          cplusplus = 0, cplusplus_comments = 1, c89 = 0, objc = 1;
+        if (! strcmp (argv[i], "-lang-objc++"))
+          cplusplus = 1, cplusplus_comments = 1, c89 = 0, objc = 1;
+        if (! strcmp (argv[i], "-lang-asm"))
+          lang_asm = 1;
+        if (! strcmp (argv[i], "-lint"))
+          for_lint = 1;
+        break;
 
       case '+':
-	cplusplus = 1, cplusplus_comments = 1;
-	break;
+        cplusplus = 1, cplusplus_comments = 1;
+        break;
 
       case 'w':
-	inhibit_warnings = 1;
-	break;
+        inhibit_warnings = 1;
+        break;
 
       case 'W':
-	if (!strcmp (argv[i], "-Wtrigraphs"))
-	  warn_trigraphs = 1;
-	else if (!strcmp (argv[i], "-Wno-trigraphs"))
-	  warn_trigraphs = 0;
-	else if (!strcmp (argv[i], "-Wcomment"))
-	  warn_comments = 1;
-	else if (!strcmp (argv[i], "-Wno-comment"))
-	  warn_comments = 0;
-	else if (!strcmp (argv[i], "-Wcomments"))
-	  warn_comments = 1;
-	else if (!strcmp (argv[i], "-Wno-comments"))
-	  warn_comments = 0;
-	else if (!strcmp (argv[i], "-Wtraditional"))
-	  warn_stringify = 1;
-	else if (!strcmp (argv[i], "-Wno-traditional"))
-	  warn_stringify = 0;
-	else if (!strcmp (argv[i], "-Wundef"))
-	  warn_undef = 1;
-	else if (!strcmp (argv[i], "-Wno-undef"))
-	  warn_undef = 0;
-	else if (!strcmp (argv[i], "-Wimport"))
-	  warn_import = 1;
-	else if (!strcmp (argv[i], "-Wno-import"))
-	  warn_import = 0;
-	else if (!strcmp (argv[i], "-Werror"))
-	  warnings_are_errors = 1;
-	else if (!strcmp (argv[i], "-Wno-error"))
-	  warnings_are_errors = 0;
-	else if (!strcmp (argv[i], "-Wall"))
-	  {
-	    warn_trigraphs = 1;
-	    warn_comments = 1;
-	  }
-	break;
+        if (!strcmp (argv[i], "-Wtrigraphs"))
+          warn_trigraphs = 1;
+        else if (!strcmp (argv[i], "-Wno-trigraphs"))
+          warn_trigraphs = 0;
+        else if (!strcmp (argv[i], "-Wcomment"))
+          warn_comments = 1;
+        else if (!strcmp (argv[i], "-Wno-comment"))
+          warn_comments = 0;
+        else if (!strcmp (argv[i], "-Wcomments"))
+          warn_comments = 1;
+        else if (!strcmp (argv[i], "-Wno-comments"))
+          warn_comments = 0;
+        else if (!strcmp (argv[i], "-Wtraditional"))
+          warn_stringify = 1;
+        else if (!strcmp (argv[i], "-Wno-traditional"))
+          warn_stringify = 0;
+        else if (!strcmp (argv[i], "-Wundef"))
+          warn_undef = 1;
+        else if (!strcmp (argv[i], "-Wno-undef"))
+          warn_undef = 0;
+        else if (!strcmp (argv[i], "-Wimport"))
+          warn_import = 1;
+        else if (!strcmp (argv[i], "-Wno-import"))
+          warn_import = 0;
+        else if (!strcmp (argv[i], "-Werror"))
+          warnings_are_errors = 1;
+        else if (!strcmp (argv[i], "-Wno-error"))
+          warnings_are_errors = 0;
+        else if (!strcmp (argv[i], "-Wall"))
+          {
+            warn_trigraphs = 1;
+            warn_comments = 1;
+          }
+        break;
 
       case 'M':
-	/* The style of the choices here is a bit mixed.
-	   The chosen scheme is a hybrid of keeping all options in one string
-	   and specifying each option in a separate argument:
-	   -M|-MM|-MD file|-MMD file [-MG].  An alternative is:
-	   -M|-MM|-MD file|-MMD file|-MG|-MMG; or more concisely:
-	   -M[M][G][D file].  This is awkward to handle in specs, and is not
-	   as extensible.  */
-	/* ??? -MG must be specified in addition to one of -M or -MM.
-	   This can be relaxed in the future without breaking anything.
-	   The converse isn't true.  */
+        /* The style of the choices here is a bit mixed.
+           The chosen scheme is a hybrid of keeping all options in one string
+           and specifying each option in a separate argument:
+           -M|-MM|-MD file|-MMD file [-MG].  An alternative is:
+           -M|-MM|-MD file|-MMD file|-MG|-MMG; or more concisely:
+           -M[M][G][D file].  This is awkward to handle in specs, and is not
+           as extensible.  */
+        /* ??? -MG must be specified in addition to one of -M or -MM.
+           This can be relaxed in the future without breaking anything.
+           The converse isn't true.  */
 
-	/* -MG isn't valid with -MD or -MMD.  This is checked for later.  */
-	if (!strcmp (argv[i], "-MG"))
-	  {
-	    print_deps_missing_files = 1;
-	    break;
-	  }
-	if (!strcmp (argv[i], "-M"))
-	  print_deps = 2;
-	else if (!strcmp (argv[i], "-MM"))
-	  print_deps = 1;
-	else if (!strcmp (argv[i], "-MD"))
-	  print_deps = 2;
-	else if (!strcmp (argv[i], "-MMD"))
-	  print_deps = 1;
-	/* For -MD and -MMD options, write deps on file named by next arg.  */
-	if (!strcmp (argv[i], "-MD")
-	    || !strcmp (argv[i], "-MMD")) {
-	  if (i + 1 == argc)
-	    fatal ("Filename missing after %s option", argv[i]);
-	  i++;
-	  deps_file = argv[i];
-	  deps_mode = "w";
-	} else {
-	  /* For -M and -MM, write deps on standard output
-	     and suppress the usual output.  */
-	  deps_stream = stdout;
-	  inhibit_output = 1;
-	}	  
-	break;
+        /* -MG isn't valid with -MD or -MMD.  This is checked for later.  */
+        if (!strcmp (argv[i], "-MG"))
+          {
+            print_deps_missing_files = 1;
+            break;
+          }
+        if (!strcmp (argv[i], "-M"))
+          print_deps = 2;
+        else if (!strcmp (argv[i], "-MM"))
+          print_deps = 1;
+        else if (!strcmp (argv[i], "-MD"))
+          print_deps = 2;
+        else if (!strcmp (argv[i], "-MMD"))
+          print_deps = 1;
+        /* For -MD and -MMD options, write deps on file named by next arg.  */
+        if (!strcmp (argv[i], "-MD")
+            || !strcmp (argv[i], "-MMD")) {
+          if (i + 1 == argc)
+            fatal ("Filename missing after %s option", argv[i]);
+          i++;
+          deps_file = argv[i];
+          deps_mode = "w";
+        } else {
+          /* For -M and -MM, write deps on standard output
+             and suppress the usual output.  */
+          deps_stream = stdout;
+          inhibit_output = 1;
+        }         
+        break;
 
       case 'd':
-	{
-	  char *p = argv[i] + 2;
-	  char c;
-	  while ((c = *p++)) {
-	    /* Arg to -d specifies what parts of macros to dump */
-	    switch (c) {
-	    case 'M':
-	      dump_macros = dump_only;
-	      no_output = 1;
-	      break;
-	    case 'N':
-	      dump_macros = dump_names;
-	      break;
-	    case 'D':
-	      dump_macros = dump_definitions;
-	      break;
-	    case 'I':
-	      dump_includes = 1;
-	      break;
-	    }
-	  }
-	}
-	break;
+        {
+          char *p = argv[i] + 2;
+          char c;
+          while ((c = *p++)) {
+            /* Arg to -d specifies what parts of macros to dump */
+            switch (c) {
+            case 'M':
+              dump_macros = dump_only;
+              no_output = 1;
+              break;
+            case 'N':
+              dump_macros = dump_names;
+              break;
+            case 'D':
+              dump_macros = dump_definitions;
+              break;
+            case 'I':
+              dump_includes = 1;
+              break;
+            }
+          }
+        }
+        break;
 
       case 'g':
-	if (argv[i][2] == '3')
-	  debug_output = 1;
-	break;
+        if (argv[i][2] == '3')
+          debug_output = 1;
+        break;
 
       case 'v':
-	fprintf (stderr, "GNU CPP version %s", version_string);
+        fprintf (stderr, "GNU CPP version %s", version_string);
 #ifdef TARGET_VERSION
-	TARGET_VERSION;
+        TARGET_VERSION;
 #endif
-	fprintf (stderr, "\n");
-	verbose = 1;
-	break;
+        fprintf (stderr, "\n");
+        verbose = 1;
+        break;
 
       case 'H':
-	print_include_names = 1;
-	break;
+        print_include_names = 1;
+        break;
 
       case 'D':
-	if (argv[i][2] != 0)
-	  pend_defs[i] = argv[i] + 2;
-	else if (i + 1 == argc)
-	  fatal ("Macro name missing after -D option");
-	else
-	  i++, pend_defs[i] = argv[i];
-	break;
+        if (argv[i][2] != 0)
+          pend_defs[i] = argv[i] + 2;
+        else if (i + 1 == argc)
+          fatal ("Macro name missing after -D option");
+        else
+          i++, pend_defs[i] = argv[i];
+        break;
 
       case 'A':
-	{
-	  char *p;
+        {
+          char *p;
 
-	  if (argv[i][2] != 0)
-	    p = argv[i] + 2;
-	  else if (i + 1 == argc)
-	    fatal ("Assertion missing after -A option");
-	  else
-	    p = argv[++i];
+          if (argv[i][2] != 0)
+            p = argv[i] + 2;
+          else if (i + 1 == argc)
+            fatal ("Assertion missing after -A option");
+          else
+            p = argv[++i];
 
-	  if (!strcmp (p, "-")) {
-	    /* -A- eliminates all predefined macros and assertions.
-	       Let's include also any that were specified earlier
-	       on the command line.  That way we can get rid of any
-	       that were passed automatically in from GCC.  */
-	    int j;
-	    inhibit_predefs = 1;
-	    for (j = 0; j < i; j++)
-	      pend_defs[j] = pend_assertions[j] = 0;
-	  } else {
-	    pend_assertions[i] = p;
-	    pend_assertion_options[i] = "-A";
-	  }
-	}
-	break;
+          if (!strcmp (p, "-")) {
+            /* -A- eliminates all predefined macros and assertions.
+               Let's include also any that were specified earlier
+               on the command line.  That way we can get rid of any
+               that were passed automatically in from GCC.  */
+            int j;
+            inhibit_predefs = 1;
+            for (j = 0; j < i; j++)
+              pend_defs[j] = pend_assertions[j] = 0;
+          } else {
+            pend_assertions[i] = p;
+            pend_assertion_options[i] = "-A";
+          }
+        }
+        break;
 
-      case 'U':		/* JF #undef something */
-	if (argv[i][2] != 0)
-	  pend_undefs[i] = argv[i] + 2;
-	else if (i + 1 == argc)
-	  fatal ("Macro name missing after -U option");
-	else
-	  pend_undefs[i] = argv[i+1], i++;
-	break;
+      case 'U':         /* JF #undef something */
+        if (argv[i][2] != 0)
+          pend_undefs[i] = argv[i] + 2;
+        else if (i + 1 == argc)
+          fatal ("Macro name missing after -U option");
+        else
+          pend_undefs[i] = argv[i+1], i++;
+        break;
 
       case 'C':
-	put_out_comments = 1;
-	break;
+        put_out_comments = 1;
+        break;
 
-      case 'E':			/* -E comes from cc -E; ignore it.  */
-	break;
+      case 'E':                 /* -E comes from cc -E; ignore it.  */
+        break;
 
       case 'P':
-	no_line_directives = 1;
-	break;
+        no_line_directives = 1;
+        break;
 
-      case '$':			/* Don't include $ in identifiers.  */
-	is_idchar['$'] = is_idstart['$'] = 0;
-	break;
+      case '$':                 /* Don't include $ in identifiers.  */
+        is_idchar['$'] = is_idstart['$'] = 0;
+        break;
 
-      case 'I':			/* Add directory to path for includes.  */
-	{
-	  struct file_name_list *dirtmp;
+      case 'I':                 /* Add directory to path for includes.  */
+        {
+          struct file_name_list *dirtmp;
 
-	  if (! ignore_srcdir && !strcmp (argv[i] + 2, "-")) {
-	    ignore_srcdir = 1;
-	    /* Don't use any preceding -I directories for #include <...>.  */
-	    first_bracket_include = 0;
-	  }
-	  else {
-	    dirtmp = new_include_prefix (last_include, NULL_PTR, "",
-					 argv[i][2] ? argv[i] + 2 : argv[++i]);
-	    append_include_chain (dirtmp, dirtmp);
-	  }
-	}
-	break;
+          if (! ignore_srcdir && !strcmp (argv[i] + 2, "-")) {
+            ignore_srcdir = 1;
+            /* Don't use any preceding -I directories for #include <...>.  */
+            first_bracket_include = 0;
+          }
+          else {
+            dirtmp = new_include_prefix (last_include, NULL_PTR, "",
+                                         argv[i][2] ? argv[i] + 2 : argv[++i]);
+            append_include_chain (dirtmp, dirtmp);
+          }
+        }
+        break;
 
       case 'n':
-	if (!strcmp (argv[i], "-nostdinc"))
-	  /* -nostdinc causes no default include directories.
-	     You must specify all include-file directories with -I.  */
-	  no_standard_includes = 1;
-	else if (!strcmp (argv[i], "-nostdinc++"))
-	  /* -nostdinc++ causes no default C++-specific include directories. */
-	  no_standard_cplusplus_includes = 1;
-	else if (!strcmp (argv[i], "-noprecomp"))
-	  no_precomp = 1;
-	break;
+        if (!strcmp (argv[i], "-nostdinc"))
+          /* -nostdinc causes no default include directories.
+             You must specify all include-file directories with -I.  */
+          no_standard_includes = 1;
+        else if (!strcmp (argv[i], "-nostdinc++"))
+          /* -nostdinc++ causes no default C++-specific include directories. */
+          no_standard_cplusplus_includes = 1;
+        else if (!strcmp (argv[i], "-noprecomp"))
+          no_precomp = 1;
+        break;
 
       case 'r':
-	if (!strcmp (argv[i], "-remap"))
-	  remap = 1;
-	break;
+        if (!strcmp (argv[i], "-remap"))
+          remap = 1;
+        break;
 
       case 'u':
-	/* Sun compiler passes undocumented switch "-undef".
-	   Let's assume it means to inhibit the predefined symbols.  */
-	inhibit_predefs = 1;
-	break;
+        /* Sun compiler passes undocumented switch "-undef".
+           Let's assume it means to inhibit the predefined symbols.  */
+        inhibit_predefs = 1;
+        break;
 
       case '\0': /* JF handle '-' as file name meaning stdin or stdout */
-	if (in_fname == NULL) {
-	  in_fname = "";
-	  break;
-	} else if (out_fname == NULL) {
-	  out_fname = "";
-	  break;
-	}	/* else fall through into error */
+        if (in_fname == NULL) {
+          in_fname = "";
+          break;
+        } else if (out_fname == NULL) {
+          out_fname = "";
+          break;
+        }       /* else fall through into error */
 
       default:
-	fatal ("Invalid option `%s'", argv[i]);
+        fatal ("Invalid option `%s'", argv[i]);
       }
     }
   }
@@ -1738,65 +1738,65 @@ main (argc, argv)
     while (*p) {
       char *q;
       while (*p == ' ' || *p == '\t')
-	p++;
+        p++;
       /* Handle -D options.  */ 
       if (p[0] == '-' && p[1] == 'D') {
-	q = &p[2];
-	while (*p && *p != ' ' && *p != '\t')
-	  p++;
-	if (*p != 0)
-	  *p++= 0;
-	if (debug_output)
-	  output_line_directive (fp, &outbuf, 0, same_file);
-	make_definition (q, &outbuf);
-	while (*p == ' ' || *p == '\t')
-	  p++;
+        q = &p[2];
+        while (*p && *p != ' ' && *p != '\t')
+          p++;
+        if (*p != 0)
+          *p++= 0;
+        if (debug_output)
+          output_line_directive (fp, &outbuf, 0, same_file);
+        make_definition (q, &outbuf);
+        while (*p == ' ' || *p == '\t')
+          p++;
       } else if (p[0] == '-' && p[1] == 'A') {
-	/* Handle -A options (assertions).  */ 
-	char *assertion;
-	char *past_name;
-	char *value;
-	char *past_value;
-	char *termination;
-	int save_char;
+        /* Handle -A options (assertions).  */ 
+        char *assertion;
+        char *past_name;
+        char *value;
+        char *past_value;
+        char *termination;
+        int save_char;
 
-	assertion = &p[2];
-	past_name = assertion;
-	/* Locate end of name.  */
-	while (*past_name && *past_name != ' '
-	       && *past_name != '\t' && *past_name != '(')
-	  past_name++;
-	/* Locate `(' at start of value.  */
-	value = past_name;
-	while (*value && (*value == ' ' || *value == '\t'))
-	  value++;
-	if (*value++ != '(')
-	  abort ();
-	while (*value && (*value == ' ' || *value == '\t'))
-	  value++;
-	past_value = value;
-	/* Locate end of value.  */
-	while (*past_value && *past_value != ' '
-	       && *past_value != '\t' && *past_value != ')')
-	  past_value++;
-	termination = past_value;
-	while (*termination && (*termination == ' ' || *termination == '\t'))
-	  termination++;
-	if (*termination++ != ')')
-	  abort ();
-	if (*termination && *termination != ' ' && *termination != '\t')
-	  abort ();
-	/* Temporarily null-terminate the value.  */
-	save_char = *termination;
-	*termination = '\0';
-	/* Install the assertion.  */
-	make_assertion ("-A", assertion);
-	*termination = (char) save_char;
-	p = termination;
-	while (*p == ' ' || *p == '\t')
-	  p++;
+        assertion = &p[2];
+        past_name = assertion;
+        /* Locate end of name.  */
+        while (*past_name && *past_name != ' '
+               && *past_name != '\t' && *past_name != '(')
+          past_name++;
+        /* Locate `(' at start of value.  */
+        value = past_name;
+        while (*value && (*value == ' ' || *value == '\t'))
+          value++;
+        if (*value++ != '(')
+          abort ();
+        while (*value && (*value == ' ' || *value == '\t'))
+          value++;
+        past_value = value;
+        /* Locate end of value.  */
+        while (*past_value && *past_value != ' '
+               && *past_value != '\t' && *past_value != ')')
+          past_value++;
+        termination = past_value;
+        while (*termination && (*termination == ' ' || *termination == '\t'))
+          termination++;
+        if (*termination++ != ')')
+          abort ();
+        if (*termination && *termination != ' ' && *termination != '\t')
+          abort ();
+        /* Temporarily null-terminate the value.  */
+        save_char = *termination;
+        *termination = '\0';
+        /* Install the assertion.  */
+        make_assertion ("-A", assertion);
+        *termination = (char) save_char;
+        p = termination;
+        while (*p == ' ' || *p == '\t')
+          p++;
       } else {
-	abort ();
+        abort ();
       }
     }
   }
@@ -1827,17 +1827,17 @@ main (argc, argv)
     switch ((objc << 1) + cplusplus)
       {
       case 0:
-	epath = getenv ("C_INCLUDE_PATH");
-	break;
+        epath = getenv ("C_INCLUDE_PATH");
+        break;
       case 1:
-	epath = getenv ("CPLUS_INCLUDE_PATH");
-	break;
+        epath = getenv ("CPLUS_INCLUDE_PATH");
+        break;
       case 2:
-	epath = getenv ("OBJC_INCLUDE_PATH");
-	break;
+        epath = getenv ("OBJC_INCLUDE_PATH");
+        break;
       case 3:
-	epath = getenv ("OBJCPLUS_INCLUDE_PATH");
-	break;
+        epath = getenv ("OBJCPLUS_INCLUDE_PATH");
+        break;
       }
     /* If the environment var for this language is set,
        add to the default list of include directories.  */
@@ -1846,34 +1846,34 @@ main (argc, argv)
       char *startp, *endp;
 
       for (num_dirs = 1, startp = epath; *startp; startp++)
-	if (*startp == PATH_SEPARATOR)
-	  num_dirs++;
+        if (*startp == PATH_SEPARATOR)
+          num_dirs++;
       include_defaults
-	= (struct default_include *) xmalloc ((num_dirs
-					       * sizeof (struct default_include))
-					      + sizeof (include_defaults_array));
+        = (struct default_include *) xmalloc ((num_dirs
+                                               * sizeof (struct default_include))
+                                              + sizeof (include_defaults_array));
       startp = endp = epath;
       num_dirs = 0;
       while (1) {
-	char c = *endp++;
-	if (c == PATH_SEPARATOR || !c) {
-	  endp[-1] = 0;
-	  include_defaults[num_dirs].fname
-	    = startp == endp ? "." : savestring (startp);
-	  endp[-1] = c;
-	  include_defaults[num_dirs].component = 0;
-	  include_defaults[num_dirs].cplusplus = cplusplus;
-	  include_defaults[num_dirs].cxx_aware = 1;
-	  num_dirs++;
-	  if (!c)
-	    break;
-	  startp = endp;
-	}
+        char c = *endp++;
+        if (c == PATH_SEPARATOR || !c) {
+          endp[-1] = 0;
+          include_defaults[num_dirs].fname
+            = startp == endp ? "." : savestring (startp);
+          endp[-1] = c;
+          include_defaults[num_dirs].component = 0;
+          include_defaults[num_dirs].cplusplus = cplusplus;
+          include_defaults[num_dirs].cxx_aware = 1;
+          num_dirs++;
+          if (!c)
+            break;
+          startp = endp;
+        }
       }
       /* Put the usual defaults back in at the end.  */
       bcopy ((char *) include_defaults_array,
-	     (char *) &include_defaults[num_dirs],
-	     sizeof (include_defaults_array));
+             (char *) &include_defaults[num_dirs],
+             sizeof (include_defaults_array));
     }
   }
 
@@ -1896,35 +1896,35 @@ main (argc, argv)
        These have /usr/local/lib/gcc... replaced by specd_prefix.  */
     if (specd_prefix != 0 && default_len != 0)
       for (p = include_defaults; p->fname; p++) {
-	/* Some standard dirs are only for C++.  */
-	if (!p->cplusplus || (cplusplus && !no_standard_cplusplus_includes)) {
-	  /* Does this dir start with the prefix?  */
-	  if (!strncmp (p->fname, default_prefix, default_len)) {
-	    /* Yes; change prefix and add to search list.  */
-	    struct file_name_list *new
-	      = new_include_prefix (NULL_PTR, NULL_PTR, specd_prefix,
-				    p->fname + default_len);
-	    if (new) {
-	      new->c_system_include_path = !p->cxx_aware;
-	      append_include_chain (new, new);
-	      if (first_system_include == 0)
-		first_system_include = new;
-	    }
-	  }
-	}
+        /* Some standard dirs are only for C++.  */
+        if (!p->cplusplus || (cplusplus && !no_standard_cplusplus_includes)) {
+          /* Does this dir start with the prefix?  */
+          if (!strncmp (p->fname, default_prefix, default_len)) {
+            /* Yes; change prefix and add to search list.  */
+            struct file_name_list *new
+              = new_include_prefix (NULL_PTR, NULL_PTR, specd_prefix,
+                                    p->fname + default_len);
+            if (new) {
+              new->c_system_include_path = !p->cxx_aware;
+              append_include_chain (new, new);
+              if (first_system_include == 0)
+                first_system_include = new;
+            }
+          }
+        }
       }
     /* Search ordinary names for GNU include directories.  */
     for (p = include_defaults; p->fname; p++) {
       /* Some standard dirs are only for C++.  */
       if (!p->cplusplus || (cplusplus && !no_standard_cplusplus_includes)) {
-	struct file_name_list *new
-	  = new_include_prefix (NULL_PTR, p->component, "", p->fname);
-	if (new) {
-	  new->c_system_include_path = !p->cxx_aware;
-	  append_include_chain (new, new);
-	  if (first_system_include == 0)
-	    first_system_include = new;
-	}
+        struct file_name_list *new
+          = new_include_prefix (NULL_PTR, p->component, "", p->fname);
+        if (new) {
+          new->c_system_include_path = !p->cxx_aware;
+          append_include_chain (new, new);
+          if (first_system_include == 0)
+            first_system_include = new;
+        }
       }
     }
   }
@@ -1940,14 +1940,14 @@ main (argc, argv)
     fprintf (stderr, "#include \"...\" search starts here:\n");
     for (p = include; p; p = p->next) {
       if (p == first_bracket_include)
-	fprintf (stderr, "#include <...> search starts here:\n");
+        fprintf (stderr, "#include <...> search starts here:\n");
       if (!p->fname[0])
-	fprintf (stderr, " .\n");
+        fprintf (stderr, " .\n");
       else if (!strcmp (p->fname, "/") || !strcmp (p->fname, "//"))
-	fprintf (stderr, " %s\n", p->fname);
+        fprintf (stderr, " %s\n", p->fname);
       else
-	/* Omit trailing '/'.  */
-	fprintf (stderr, " %.*s\n", (int) strlen (p->fname) - 1, p->fname);
+        /* Omit trailing '/'.  */
+        fprintf (stderr, " %.*s\n", (int) strlen (p->fname) - 1, p->fname);
     }
     fprintf (stderr, "End of search list.\n");
   }
@@ -1965,7 +1965,7 @@ main (argc, argv)
 
   if (print_deps == 0
       && (getenv ("SUNPRO_DEPENDENCIES") != 0
-	  || getenv ("DEPENDENCIES_OUTPUT") != 0)) {
+          || getenv ("DEPENDENCIES_OUTPUT") != 0)) {
     char *spec = getenv ("DEPENDENCIES_OUTPUT");
     char *s;
     char *output_file;
@@ -2023,35 +2023,35 @@ main (argc, argv)
       len = strlen (p);
       q = p + len;
       if (len >= 2
-	  && p[len - 2] == '.'
-	  && index("cCsSm", p[len - 1]))
-	q = p + (len - 2);
+          && p[len - 2] == '.'
+          && index("cCsSm", p[len - 1]))
+        q = p + (len - 2);
       else if (len >= 3
-	       && p[len - 3] == '.'
-	       && p[len - 2] == 'c'
-	       && p[len - 1] == 'c')
-	q = p + (len - 3);
+               && p[len - 3] == '.'
+               && p[len - 2] == 'c'
+               && p[len - 1] == 'c')
+        q = p + (len - 3);
       else if (len >= 4
-	       && p[len - 4] == '.'
-	       && p[len - 3] == 'c'
-	       && p[len - 2] == 'x'
-	       && p[len - 1] == 'x')
-	q = p + (len - 4);
+               && p[len - 4] == '.'
+               && p[len - 3] == 'c'
+               && p[len - 2] == 'x'
+               && p[len - 1] == 'x')
+        q = p + (len - 4);
       else if (len >= 4
-	       && p[len - 4] == '.'
-	       && p[len - 3] == 'c'
-	       && p[len - 2] == 'p'
-	       && p[len - 1] == 'p')
-	q = p + (len - 4);
+               && p[len - 4] == '.'
+               && p[len - 3] == 'c'
+               && p[len - 2] == 'p'
+               && p[len - 1] == 'p')
+        q = p + (len - 4);
       /*
        * The slice suffix.
        */
       else if (len >= 4
-	       && p[len - 4] == '.'
-	       && p[len - 3] == 'i'
-	       && p[len - 2] == 'c'
-	       && p[len - 1] == 'e')
-	q = p + (len - 4);
+               && p[len - 4] == '.'
+               && p[len - 3] == 'i'
+               && p[len - 2] == 'c'
+               && p[len - 1] == 'e')
+        q = p + (len - 4);
 
       /* Supply our own suffix.  */
       strcpy (q, OBJECT_SUFFIX);
@@ -2071,8 +2071,8 @@ main (argc, argv)
       struct include_file *inc;
       int fd = open_include_file (pend_files[i], NULL_PTR, NULL_PTR, &inc);
       if (fd < 0) {
-	perror_with_name (pend_files[i]);
-	return FATAL_EXIT_CODE;
+        perror_with_name (pend_files[i]);
+        return FATAL_EXIT_CODE;
       }
       finclude (fd, inc, &outbuf, 0, NULL_PTR);
     }
@@ -2110,9 +2110,9 @@ main (argc, argv)
     fp->buf = (U_CHAR *) xmalloc (bsize + 2);
     for (;;) {
       cnt = safe_read (f, (char *) fp->buf + size, bsize - size);
-      if (cnt < 0) goto perror;	/* error! */
+      if (cnt < 0) goto perror; /* error! */
       size += cnt;
-      if (size != bsize) break;	/* End of file */
+      if (size != bsize) break; /* End of file */
       bsize *= 2;
       fp->buf = (U_CHAR *) xrealloc (fp->buf, bsize + 2);
     }
@@ -2162,8 +2162,8 @@ main (argc, argv)
       struct include_file *inc;
       int fd = open_include_file (pend_includes[i], NULL_PTR, NULL_PTR, &inc);
       if (fd < 0) {
-	perror_with_name (pend_includes[i]);
-	return FATAL_EXIT_CODE;
+        perror_with_name (pend_includes[i]);
+        return FATAL_EXIT_CODE;
       }
       finclude (fd, inc, &outbuf, 0, NULL_PTR);
     }
@@ -2192,12 +2192,12 @@ main (argc, argv)
     /* Don't actually write the deps file if compilation has failed.  */
     if (errors == 0) {
       if (deps_file && ! (deps_stream = fopen (deps_file, deps_mode)))
-	pfatal_with_name (deps_file);
+        pfatal_with_name (deps_file);
       fputs (deps_buffer, deps_stream);
       putc ('\n', deps_stream);
       if (deps_file) {
-	if (ferror (deps_stream) || fclose (deps_stream) != 0)
-	  fatal ("I/O error on output");
+        if (ferror (deps_stream) || fclose (deps_stream) != 0)
+          fatal ("I/O error on output");
       }
     }
   }
@@ -2237,18 +2237,18 @@ path_include (path)
 
       /* Find the end of this name.  */
       while ((c = *q++) != PATH_SEPARATOR && c)
-	continue;
+        continue;
 
       q[-1] = 0;
       dirtmp = new_include_prefix (last_include, NULL_PTR,
-				   "", p == q ? "." : p);
+                                   "", p == q ? "." : p);
       q[-1] = c;
       append_include_chain (dirtmp, dirtmp);
 
       /* Advance past this name.  */
       p = q;
       if (! c)
-	break;
+        break;
     }
 }
 
@@ -2272,7 +2272,7 @@ index0 (s, c, n)
     else {
       size_t l = strlen (p);
       if (l == n)
-	return 0;
+        return 0;
       l++;
       p += l;
       n -= l;
@@ -2353,7 +2353,7 @@ trigraph_pcp (buf)
   buf->buf[buf->length] = '\0';
   if (warn_trigraphs && fptr != bptr)
     warning_with_line (0, "%lu trigraph(s) encountered",
-		       (unsigned long) (fptr - bptr) / 2);
+                       (unsigned long) (fptr - bptr) / 2);
 }
 
 /* Move all backslash-newline pairs out of embarrassing places.
@@ -2439,11 +2439,11 @@ static char *
 get_lintcmd (ibp, limit, argstart, arglen, cmdlen)
      register U_CHAR *ibp;
      register U_CHAR *limit;
-     U_CHAR **argstart;		/* point to command arg */
-     int *arglen, *cmdlen;	/* how long they are */
+     U_CHAR **argstart;         /* point to command arg */
+     int *arglen, *cmdlen;      /* how long they are */
 {
   HOST_WIDE_INT linsize;
-  register U_CHAR *numptr;	/* temp for arg parsing */
+  register U_CHAR *numptr;      /* temp for arg parsing */
 
   *arglen = 0;
 
@@ -2473,7 +2473,7 @@ get_lintcmd (ibp, limit, argstart, arglen, cmdlen)
 
     /* OK, read a number */
     for (numptr = *argstart = ibp; (numptr < limit) && isdigit (*numptr);
-	 numptr++);
+         numptr++);
     *arglen = numptr - *argstart;
     return "VARARGS";
   }
@@ -2564,20 +2564,20 @@ rescan (op, output_marks)
 /* Pop the innermost input stack level, assuming it is a macro expansion.  */
 
 #define POPMACRO \
-do { ip->macro->type = T_MACRO;		\
-     if (ip->free_ptr) free (ip->free_ptr);	\
+do { ip->macro->type = T_MACRO;         \
+     if (ip->free_ptr) free (ip->free_ptr);     \
      --indepth; } while (0)
 
 /* Reload `rescan's local variables that describe the current
    level of the input stack.  */
 
 #define RECACHE  \
-do { ip = &instack[indepth];		\
-     ibp = ip->bufp;			\
-     limit = ip->buf + ip->length;	\
-     op->bufp = obp;			\
-     check_expand (op, limit - ibp);	\
-     beg_of_line = 0;			\
+do { ip = &instack[indepth];            \
+     ibp = ip->bufp;                    \
+     limit = ip->buf + ip->length;      \
+     op->bufp = obp;                    \
+     check_expand (op, limit - ibp);    \
+     beg_of_line = 0;                   \
      obp = op->bufp; } while (0)
 
   if (no_output && instack[indepth].fname != 0)
@@ -2600,176 +2600,176 @@ do { ip = &instack[indepth];		\
     switch (c) {
     case '\\':
       if (*ibp == '\n' && !ip->macro) {
-	/* At the top level, always merge lines ending with backslash-newline,
-	   even in middle of identifier.  But do not merge lines in a macro,
-	   since backslash might be followed by a newline-space marker.  */
-	++ibp;
-	++ip->lineno;
-	--obp;		/* remove backslash from obuf */
-	break;
+        /* At the top level, always merge lines ending with backslash-newline,
+           even in middle of identifier.  But do not merge lines in a macro,
+           since backslash might be followed by a newline-space marker.  */
+        ++ibp;
+        ++ip->lineno;
+        --obp;          /* remove backslash from obuf */
+        break;
       }
       /* If ANSI, backslash is just another character outside a string.  */
       if (!traditional)
-	goto randomchar;
+        goto randomchar;
       /* Otherwise, backslash suppresses specialness of following char,
-	 so copy it here to prevent the switch from seeing it.
-	 But first get any pending identifier processed.  */
+         so copy it here to prevent the switch from seeing it.
+         But first get any pending identifier processed.  */
       if (ident_length > 0)
-	goto specialchar;
+        goto specialchar;
       if (ibp < limit)
-	*obp++ = *ibp++;
+        *obp++ = *ibp++;
       break;
 
     case '%':
       if (ident_length || ip->macro || traditional)
-	goto randomchar;
+        goto randomchar;
       while (*ibp == '\\' && ibp[1] == '\n') {
-	ibp += 2;
-	++ip->lineno;
+        ibp += 2;
+        ++ip->lineno;
       }
       if (*ibp != ':')
-	break;
+        break;
       /* Treat this %: digraph as if it were #.  */
       /* Fall through.  */
 
     case '#':
       if (assertions_flag) {
-	if (ident_length)
-	  goto specialchar;
-	/* Copy #foo (bar lose) without macro expansion.  */
-	obp[-1] = '#';	/* In case it was '%'.  */
-	SKIP_WHITE_SPACE (ibp);
-	while (is_idchar[*ibp])
-	  *obp++ = *ibp++;
-	SKIP_WHITE_SPACE (ibp);
-	if (*ibp == '(') {
-	  ip->bufp = ibp;
-	  skip_paren_group (ip);
-	  bcopy ((char *) ibp, (char *) obp, ip->bufp - ibp);
-	  obp += ip->bufp - ibp;
-	  ibp = ip->bufp;
-	}
-	break;
+        if (ident_length)
+          goto specialchar;
+        /* Copy #foo (bar lose) without macro expansion.  */
+        obp[-1] = '#';  /* In case it was '%'.  */
+        SKIP_WHITE_SPACE (ibp);
+        while (is_idchar[*ibp])
+          *obp++ = *ibp++;
+        SKIP_WHITE_SPACE (ibp);
+        if (*ibp == '(') {
+          ip->bufp = ibp;
+          skip_paren_group (ip);
+          bcopy ((char *) ibp, (char *) obp, ip->bufp - ibp);
+          obp += ip->bufp - ibp;
+          ibp = ip->bufp;
+        }
+        break;
       }
 
       /* If this is expanding a macro definition, don't recognize
-	 preprocessing directives.  */
+         preprocessing directives.  */
       if (ip->macro != 0)
-	goto randomchar;
+        goto randomchar;
       /* If this is expand_into_temp_buffer,
-	 don't recognize them either.  Warn about them
-	 only after an actual newline at this level,
-	 not at the beginning of the input level.  */
+         don't recognize them either.  Warn about them
+         only after an actual newline at this level,
+         not at the beginning of the input level.  */
       if (! ip->fname) {
-	if (ip->buf != beg_of_line)
-	  warning ("preprocessing directive not recognized within macro arg");
-	goto randomchar;
+        if (ip->buf != beg_of_line)
+          warning ("preprocessing directive not recognized within macro arg");
+        goto randomchar;
       }
       if (ident_length)
-	goto specialchar;
+        goto specialchar;
 
       
       /* # keyword: a # must be first nonblank char on the line */
       if (beg_of_line == 0)
-	goto randomchar;
+        goto randomchar;
       {
-	U_CHAR *bp;
+        U_CHAR *bp;
 
-	/* Scan from start of line, skipping whitespace, comments
-	   and backslash-newlines, and see if we reach this #.
-	   If not, this # is not special.  */
-	bp = beg_of_line;
-	/* If -traditional, require # to be at beginning of line.  */
-	if (!traditional) {
-	  while (1) {
-	    if (is_hor_space[*bp])
-	      bp++;
-	    else if (*bp == '\\' && bp[1] == '\n')
-	      bp += 2;
-	    else if (*bp == '/' && bp[1] == '*') {
-	      bp += 2;
-	      while (!(*bp == '*' && bp[1] == '/'))
-		bp++;
-	      bp += 2;
-	    }
-	    /* There is no point in trying to deal with C++ // comments here,
-	       because if there is one, then this # must be part of the
-	       comment and we would never reach here.  */
-	    else break;
-	  }
-	  if (c == '%') {
-	    if (bp[0] != '%')
-	      break;
-	    while (bp[1] == '\\' && bp[2] == '\n')
-	      bp += 2;
-	    if (bp + 1 != ibp)
-	      break;
-	    /* %: appears at start of line; skip past the ':' too.  */
-	    bp++;
-	    ibp++;
-	  }
-	}
-	if (bp + 1 != ibp)
-	  goto randomchar;
+        /* Scan from start of line, skipping whitespace, comments
+           and backslash-newlines, and see if we reach this #.
+           If not, this # is not special.  */
+        bp = beg_of_line;
+        /* If -traditional, require # to be at beginning of line.  */
+        if (!traditional) {
+          while (1) {
+            if (is_hor_space[*bp])
+              bp++;
+            else if (*bp == '\\' && bp[1] == '\n')
+              bp += 2;
+            else if (*bp == '/' && bp[1] == '*') {
+              bp += 2;
+              while (!(*bp == '*' && bp[1] == '/'))
+                bp++;
+              bp += 2;
+            }
+            /* There is no point in trying to deal with C++ // comments here,
+               because if there is one, then this # must be part of the
+               comment and we would never reach here.  */
+            else break;
+          }
+          if (c == '%') {
+            if (bp[0] != '%')
+              break;
+            while (bp[1] == '\\' && bp[2] == '\n')
+              bp += 2;
+            if (bp + 1 != ibp)
+              break;
+            /* %: appears at start of line; skip past the ':' too.  */
+            bp++;
+            ibp++;
+          }
+        }
+        if (bp + 1 != ibp)
+          goto randomchar;
       }
 
       /* This # can start a directive.  */
 
-      --obp;		/* Don't copy the '#' */
+      --obp;            /* Don't copy the '#' */
 
       ip->bufp = ibp;
       op->bufp = obp;
       if (! handle_directive (ip, op)) {
 #ifdef USE_C_ALLOCA
-	alloca (0);
+        alloca (0);
 #endif
-	/* Not a known directive: treat it as ordinary text.
-	   IP, OP, IBP, etc. have not been changed.  */
-	if (no_output && instack[indepth].fname) {
-	  /* If not generating expanded output,
-	     what we do with ordinary text is skip it.
-	     Discard everything until next # directive.  */
-	  skip_if_group (&instack[indepth], 1, 0);
-	  RECACHE;
-	  beg_of_line = ibp;
-	  break;
-	}
-	*obp++ = '#';	/* Copy # (even if it was originally %:).  */
-	/* Don't expand an identifier that could be a macro directive.
-	   (Section 3.8.3 of the ANSI C standard)			*/
-	SKIP_WHITE_SPACE (ibp);
-	if (is_idstart[*ibp])
-	  {
-	    *obp++ = *ibp++;
-	    while (is_idchar[*ibp])
-	      *obp++ = *ibp++;
-	  }
-	goto randomchar;
+        /* Not a known directive: treat it as ordinary text.
+           IP, OP, IBP, etc. have not been changed.  */
+        if (no_output && instack[indepth].fname) {
+          /* If not generating expanded output,
+             what we do with ordinary text is skip it.
+             Discard everything until next # directive.  */
+          skip_if_group (&instack[indepth], 1, 0);
+          RECACHE;
+          beg_of_line = ibp;
+          break;
+        }
+        *obp++ = '#';   /* Copy # (even if it was originally %:).  */
+        /* Don't expand an identifier that could be a macro directive.
+           (Section 3.8.3 of the ANSI C standard)                       */
+        SKIP_WHITE_SPACE (ibp);
+        if (is_idstart[*ibp])
+          {
+            *obp++ = *ibp++;
+            while (is_idchar[*ibp])
+              *obp++ = *ibp++;
+          }
+        goto randomchar;
       }
 #ifdef USE_C_ALLOCA
       alloca (0);
 #endif
       /* A # directive has been successfully processed.  */
       /* If not generating expanded output, ignore everything until
-	 next # directive.  */
+         next # directive.  */
       if (no_output && instack[indepth].fname)
-	skip_if_group (&instack[indepth], 1, 0);
+        skip_if_group (&instack[indepth], 1, 0);
       obp = op->bufp;
       RECACHE;
       beg_of_line = ibp;
       break;
 
-    case '\"':			/* skip quoted string */
+    case '\"':                  /* skip quoted string */
     case '\'':
       /* A single quoted string is treated like a double -- some
-	 programs (e.g., troff) are perverse this way */
+         programs (e.g., troff) are perverse this way */
 
       /* Handle any pending identifier;
-	 but the L in L'...' or L"..." is not an identifier.  */
+         but the L in L'...' or L"..." is not an identifier.  */
       if (ident_length) {
-	if (! (ident_length == 1 && hash == HASHSTEP (0, 'L')))
-	  goto specialchar;
-	ident_length = hash = 0;
+        if (! (ident_length == 1 && hash == HASHSTEP (0, 'L')))
+          goto specialchar;
+        ident_length = hash = 0;
       }
 
       start_line = ip->lineno;
@@ -2777,274 +2777,274 @@ do { ip = &instack[indepth];		\
       /* Skip ahead to a matching quote.  */
 
       while (1) {
-	if (ibp >= limit) {
-	  if (ip->macro != 0) {
-	    /* try harder: this string crosses a macro expansion boundary.
-	       This can happen naturally if -traditional.
-	       Otherwise, only -D can make a macro with an unmatched quote.  */
-	    POPMACRO;
-	    RECACHE;
-	    continue;
-	  }
-	  if (!traditional) {
-	    error_with_line (line_for_error (start_line),
-			     "unterminated string or character constant");
-	    if (multiline_string_line) {
-	      error_with_line (multiline_string_line,
-			       "possible real start of unterminated constant");
-	      multiline_string_line = 0;
-	    }
-	  }
-	  break;
-	}
-	*obp++ = *ibp;
-	switch (*ibp++) {
-	case '\n':
-	  ++ip->lineno;
-	  ++op->lineno;
-	  /* Traditionally, end of line ends a string constant with no error.
-	     So exit the loop and record the new line.  */
-	  if (traditional) {
-	    beg_of_line = ibp;
-	    goto while2end;
-	  }
-	  if (c == '\'') {
-	    error_with_line (line_for_error (start_line),
-			     "unterminated character constant");
-	    goto while2end;
-	  }
-	  if (multiline_string_line == 0) {
-	    if (pedantic)
-	      pedwarn_with_line (line_for_error (start_line),
-				 "string constant runs past end of line");
-	    multiline_string_line = ip->lineno - 1;
-	  }
-	  break;
+        if (ibp >= limit) {
+          if (ip->macro != 0) {
+            /* try harder: this string crosses a macro expansion boundary.
+               This can happen naturally if -traditional.
+               Otherwise, only -D can make a macro with an unmatched quote.  */
+            POPMACRO;
+            RECACHE;
+            continue;
+          }
+          if (!traditional) {
+            error_with_line (line_for_error (start_line),
+                             "unterminated string or character constant");
+            if (multiline_string_line) {
+              error_with_line (multiline_string_line,
+                               "possible real start of unterminated constant");
+              multiline_string_line = 0;
+            }
+          }
+          break;
+        }
+        *obp++ = *ibp;
+        switch (*ibp++) {
+        case '\n':
+          ++ip->lineno;
+          ++op->lineno;
+          /* Traditionally, end of line ends a string constant with no error.
+             So exit the loop and record the new line.  */
+          if (traditional) {
+            beg_of_line = ibp;
+            goto while2end;
+          }
+          if (c == '\'') {
+            error_with_line (line_for_error (start_line),
+                             "unterminated character constant");
+            goto while2end;
+          }
+          if (multiline_string_line == 0) {
+            if (pedantic)
+              pedwarn_with_line (line_for_error (start_line),
+                                 "string constant runs past end of line");
+            multiline_string_line = ip->lineno - 1;
+          }
+          break;
 
-	case '\\':
-	  if (*ibp == '\n') {
-	    /* Backslash newline is replaced by nothing at all, but
-	       keep the line counts correct.  But if we are reading
-	       from a macro, keep the backslash newline, since backslash
-	       newlines have already been processed.  */
-	    if (ip->macro)
-	      *obp++ = '\n';
-	    else
-	      --obp;
-	    ++ibp;
-	    ++ip->lineno;
-	  } else {
-	    /* ANSI stupidly requires that in \\ the second \
-	       is *not* prevented from combining with a newline.  */
-	    if (!ip->macro) {
-	      while (*ibp == '\\' && ibp[1] == '\n') {
-		ibp += 2;
-		++ip->lineno;
-	      }
-	    }
-	    *obp++ = *ibp++;
-	  }
-	  break;
+        case '\\':
+          if (*ibp == '\n') {
+            /* Backslash newline is replaced by nothing at all, but
+               keep the line counts correct.  But if we are reading
+               from a macro, keep the backslash newline, since backslash
+               newlines have already been processed.  */
+            if (ip->macro)
+              *obp++ = '\n';
+            else
+              --obp;
+            ++ibp;
+            ++ip->lineno;
+          } else {
+            /* ANSI stupidly requires that in \\ the second \
+               is *not* prevented from combining with a newline.  */
+            if (!ip->macro) {
+              while (*ibp == '\\' && ibp[1] == '\n') {
+                ibp += 2;
+                ++ip->lineno;
+              }
+            }
+            *obp++ = *ibp++;
+          }
+          break;
 
-	case '\"':
-	case '\'':
-	  if (ibp[-1] == c)
-	    goto while2end;
-	  break;
-	}
+        case '\"':
+        case '\'':
+          if (ibp[-1] == c)
+            goto while2end;
+          break;
+        }
       }
     while2end:
       break;
 
     case '/':
       if (ip->macro != 0)
-	goto randomchar;
+        goto randomchar;
       if (*ibp == '\\' && ibp[1] == '\n')
-	newline_fix (ibp);
+        newline_fix (ibp);
       if (*ibp != '*'
-	  && !(cplusplus_comments && *ibp == '/'))
-	goto randomchar;
+          && !(cplusplus_comments && *ibp == '/'))
+        goto randomchar;
       if (ident_length)
-	goto specialchar;
+        goto specialchar;
 
       if (*ibp == '/') {
-	/* C++ style comment...  */
-	start_line = ip->lineno;
+        /* C++ style comment...  */
+        start_line = ip->lineno;
 
-	/* Comments are equivalent to spaces.  */
-	if (! put_out_comments)
-	  obp[-1] = ' ';
+        /* Comments are equivalent to spaces.  */
+        if (! put_out_comments)
+          obp[-1] = ' ';
 
-	{
-	  U_CHAR *before_bp = ibp;
+        {
+          U_CHAR *before_bp = ibp;
 
-	  while (++ibp < limit) {
-	    if (*ibp == '\n') {
-	      if (ibp[-1] != '\\') {
-		if (put_out_comments) {
-		  bcopy ((char *) before_bp, (char *) obp, ibp - before_bp);
-		  obp += ibp - before_bp;
-		}
-		break;
-	      }
-	      if (warn_comments)
-		warning ("multiline `//' comment");
-	      ++ip->lineno;
-	      /* Copy the newline into the output buffer, in order to
-		 avoid the pain of a #line every time a multiline comment
-		 is seen.  */
-	      if (!put_out_comments)
-		*obp++ = '\n';
-	      ++op->lineno;
-	    }
-	  }
-	  break;
-	}
+          while (++ibp < limit) {
+            if (*ibp == '\n') {
+              if (ibp[-1] != '\\') {
+                if (put_out_comments) {
+                  bcopy ((char *) before_bp, (char *) obp, ibp - before_bp);
+                  obp += ibp - before_bp;
+                }
+                break;
+              }
+              if (warn_comments)
+                warning ("multiline `//' comment");
+              ++ip->lineno;
+              /* Copy the newline into the output buffer, in order to
+                 avoid the pain of a #line every time a multiline comment
+                 is seen.  */
+              if (!put_out_comments)
+                *obp++ = '\n';
+              ++op->lineno;
+            }
+          }
+          break;
+        }
       }
 
       /* Ordinary C comment.  Skip it, optionally copying it to output.  */
 
       start_line = ip->lineno;
 
-      ++ibp;			/* Skip the star.  */
+      ++ibp;                    /* Skip the star.  */
 
       /* If this cpp is for lint, we peek inside the comments: */
       if (for_lint) {
-	U_CHAR *argbp;
-	int cmdlen, arglen;
-	char *lintcmd = get_lintcmd (ibp, limit, &argbp, &arglen, &cmdlen);
+        U_CHAR *argbp;
+        int cmdlen, arglen;
+        char *lintcmd = get_lintcmd (ibp, limit, &argbp, &arglen, &cmdlen);
 
-	if (lintcmd != NULL) {
-	  op->bufp = obp;
-	  check_expand (op, cmdlen + arglen + 14);
-	  obp = op->bufp;
-	  /* I believe it is always safe to emit this newline: */
-	  obp[-1] = '\n';
-	  bcopy ("#pragma lint ", (char *) obp, 13);
-	  obp += 13;
-	  bcopy (lintcmd, (char *) obp, cmdlen);
-	  obp += cmdlen;
+        if (lintcmd != NULL) {
+          op->bufp = obp;
+          check_expand (op, cmdlen + arglen + 14);
+          obp = op->bufp;
+          /* I believe it is always safe to emit this newline: */
+          obp[-1] = '\n';
+          bcopy ("#pragma lint ", (char *) obp, 13);
+          obp += 13;
+          bcopy (lintcmd, (char *) obp, cmdlen);
+          obp += cmdlen;
 
-	  if (arglen != 0) {
-	    *(obp++) = ' ';
-	    bcopy (argbp, (char *) obp, arglen);
-	    obp += arglen;
-	  }
+          if (arglen != 0) {
+            *(obp++) = ' ';
+            bcopy (argbp, (char *) obp, arglen);
+            obp += arglen;
+          }
 
-	  /* OK, now bring us back to the state we were in before we entered
-	     this branch.  We need #line because the #pragma's newline always
-	     messes up the line count.  */
-	  op->bufp = obp;
-	  output_line_directive (ip, op, 0, same_file);
-	  check_expand (op, limit - ibp + 2);
-	  obp = op->bufp;
-	  *(obp++) = '/';
-	}
+          /* OK, now bring us back to the state we were in before we entered
+             this branch.  We need #line because the #pragma's newline always
+             messes up the line count.  */
+          op->bufp = obp;
+          output_line_directive (ip, op, 0, same_file);
+          check_expand (op, limit - ibp + 2);
+          obp = op->bufp;
+          *(obp++) = '/';
+        }
       }
 
       /* Comments are equivalent to spaces.
-	 Note that we already output the slash; we might not want it.
-	 For -traditional, a comment is equivalent to nothing.  */
+         Note that we already output the slash; we might not want it.
+         For -traditional, a comment is equivalent to nothing.  */
       if (! put_out_comments) {
-	if (traditional)
-	  obp--;
-	else
-	  obp[-1] = ' ';
+        if (traditional)
+          obp--;
+        else
+          obp[-1] = ' ';
       }
       else
-	*obp++ = '*';
+        *obp++ = '*';
 
       {
-	U_CHAR *before_bp = ibp;
+        U_CHAR *before_bp = ibp;
 
-	for (;;) {
-	  switch (*ibp++) {
-	  case '*':
-	    if (ibp[-2] == '/' && warn_comments)
-	      warning ("`/*' within comment");
-	    if (*ibp == '\\' && ibp[1] == '\n')
-	      newline_fix (ibp);
-	    if (*ibp == '/')
-	      goto comment_end;
-	    break;
+        for (;;) {
+          switch (*ibp++) {
+          case '*':
+            if (ibp[-2] == '/' && warn_comments)
+              warning ("`/*' within comment");
+            if (*ibp == '\\' && ibp[1] == '\n')
+              newline_fix (ibp);
+            if (*ibp == '/')
+              goto comment_end;
+            break;
 
-	  case '\n':
-	    ++ip->lineno;
-	    /* Copy the newline into the output buffer, in order to
-	       avoid the pain of a #line every time a multiline comment
-	       is seen.  */
-	    if (!put_out_comments)
-	      *obp++ = '\n';
-	    ++op->lineno;
-	    break;
+          case '\n':
+            ++ip->lineno;
+            /* Copy the newline into the output buffer, in order to
+               avoid the pain of a #line every time a multiline comment
+               is seen.  */
+            if (!put_out_comments)
+              *obp++ = '\n';
+            ++op->lineno;
+            break;
 
-	  case 0:
-	    if (limit < ibp) {
-	      error_with_line (line_for_error (start_line),
-			       "unterminated comment");
-	      goto limit_reached;
-	    }
-	    break;
-	  }
-	}
+          case 0:
+            if (limit < ibp) {
+              error_with_line (line_for_error (start_line),
+                               "unterminated comment");
+              goto limit_reached;
+            }
+            break;
+          }
+        }
       comment_end:
 
-	ibp++;
-	if (put_out_comments) {
-	  bcopy ((char *) before_bp, (char *) obp, ibp - before_bp);
-	  obp += ibp - before_bp;
-	}
+        ibp++;
+        if (put_out_comments) {
+          bcopy ((char *) before_bp, (char *) obp, ibp - before_bp);
+          obp += ibp - before_bp;
+        }
       }
       break;
 
     case '$':
       if (! is_idchar['$'])
-	goto randomchar;
+        goto randomchar;
       if (pedantic)
-	pedwarn ("`$' in identifier");
+        pedwarn ("`$' in identifier");
       goto letter;
 
     case '0': case '1': case '2': case '3': case '4':
     case '5': case '6': case '7': case '8': case '9':
       /* If digit is not part of identifier, it starts a number,
-	 which means that following letters are not an identifier.
-	 "0x5" does not refer to an identifier "x5".
-	 So copy all alphanumerics that follow without accumulating
-	 as an identifier.  Periods also, for sake of "3.e7".  */
+         which means that following letters are not an identifier.
+         "0x5" does not refer to an identifier "x5".
+         So copy all alphanumerics that follow without accumulating
+         as an identifier.  Periods also, for sake of "3.e7".  */
 
       if (ident_length == 0) {
-	for (;;) {
-	  if (!ip->macro) {
-	    while (ibp[0] == '\\' && ibp[1] == '\n') {
-	      ++ip->lineno;
-	      ibp += 2;
-	    }
-	  }
-	  c = *ibp++;
-	  if (!is_idchar[c] && c != '.') {
-	    --ibp;
-	    break;
-	  }
-	  *obp++ = c;
-	  /* A sign can be part of a preprocessing number
-	     if it follows an `e' or `p'.  */
-	  if (c == 'e' || c == 'E' || c == 'p' || c == 'P') {
-	    if (!ip->macro) {
-	      while (ibp[0] == '\\' && ibp[1] == '\n') {
-		++ip->lineno;
-		ibp += 2;
-	      }
-	    }
-	    if (*ibp == '+' || *ibp == '-') {
-	      *obp++ = *ibp++;
-	      /* But traditional C does not let the token go past the sign,
-		 and C89 does not allow `p'.  */
-	      if (traditional || (c89 && (c == 'p' || c == 'P')))
-		break;
-	    }
-	  }
-	}
-	break;
+        for (;;) {
+          if (!ip->macro) {
+            while (ibp[0] == '\\' && ibp[1] == '\n') {
+              ++ip->lineno;
+              ibp += 2;
+            }
+          }
+          c = *ibp++;
+          if (!is_idchar[c] && c != '.') {
+            --ibp;
+            break;
+          }
+          *obp++ = c;
+          /* A sign can be part of a preprocessing number
+             if it follows an `e' or `p'.  */
+          if (c == 'e' || c == 'E' || c == 'p' || c == 'P') {
+            if (!ip->macro) {
+              while (ibp[0] == '\\' && ibp[1] == '\n') {
+                ++ip->lineno;
+                ibp += 2;
+              }
+            }
+            if (*ibp == '+' || *ibp == '-') {
+              *obp++ = *ibp++;
+              /* But traditional C does not let the token go past the sign,
+                 and C89 does not allow `p'.  */
+              if (traditional || (c89 && (c == 'p' || c == 'P')))
+                break;
+            }
+          }
+        }
+        break;
       }
       /* fall through */
 
@@ -3067,56 +3067,56 @@ do { ip = &instack[indepth];		\
 
     case '\n':
       if (ip->fname == 0 && *ibp == '-') {
-	/* Newline - inhibits expansion of preceding token.
-	   If expanding a macro arg, we keep the newline -.
-	   In final output, it is deleted.
-	   We recognize Newline - in macro bodies and macro args.  */
-	if (! concatenated) {
-	  ident_length = 0;
-	  hash = 0;
-	}
-	ibp++;
-	if (!output_marks) {
-	  obp--;
-	} else {
-	  /* If expanding a macro arg, keep the newline -.  */
-	  *obp++ = '-';
-	}
-	break;
+        /* Newline - inhibits expansion of preceding token.
+           If expanding a macro arg, we keep the newline -.
+           In final output, it is deleted.
+           We recognize Newline - in macro bodies and macro args.  */
+        if (! concatenated) {
+          ident_length = 0;
+          hash = 0;
+        }
+        ibp++;
+        if (!output_marks) {
+          obp--;
+        } else {
+          /* If expanding a macro arg, keep the newline -.  */
+          *obp++ = '-';
+        }
+        break;
       }
 
       /* If reprocessing a macro expansion, newline is a special marker.  */
       else if (ip->macro != 0) {
-	/* Newline White is a "funny space" to separate tokens that are
-	   supposed to be separate but without space between.
-	   Here White means any whitespace character.
-	   Newline - marks a recursive macro use that is not
-	   supposed to be expandable.  */
+        /* Newline White is a "funny space" to separate tokens that are
+           supposed to be separate but without space between.
+           Here White means any whitespace character.
+           Newline - marks a recursive macro use that is not
+           supposed to be expandable.  */
 
-	if (is_space[*ibp]) {
-	  /* Newline Space does not prevent expansion of preceding token
-	     so expand the preceding token and then come back.  */
-	  if (ident_length > 0)
-	    goto specialchar;
+        if (is_space[*ibp]) {
+          /* Newline Space does not prevent expansion of preceding token
+             so expand the preceding token and then come back.  */
+          if (ident_length > 0)
+            goto specialchar;
 
-	  /* If generating final output, newline space makes a space.  */
-	  if (!output_marks) {
-	    obp[-1] = *ibp++;
-	    /* And Newline Newline makes a newline, so count it.  */
-	    if (obp[-1] == '\n')
-	      op->lineno++;
-	  } else {
-	    /* If expanding a macro arg, keep the newline space.
-	       If the arg gets stringified, newline space makes nothing.  */
-	    *obp++ = *ibp++;
-	  }
-	} else abort ();	/* Newline followed by something random?  */
-	break;
+          /* If generating final output, newline space makes a space.  */
+          if (!output_marks) {
+            obp[-1] = *ibp++;
+            /* And Newline Newline makes a newline, so count it.  */
+            if (obp[-1] == '\n')
+              op->lineno++;
+          } else {
+            /* If expanding a macro arg, keep the newline space.
+               If the arg gets stringified, newline space makes nothing.  */
+            *obp++ = *ibp++;
+          }
+        } else abort ();        /* Newline followed by something random?  */
+        break;
       }
 
       /* If there is a pending identifier, handle it and come back here.  */
       if (ident_length > 0)
-	goto specialchar;
+        goto specialchar;
 
       beg_of_line = ibp;
 
@@ -3124,59 +3124,59 @@ do { ip = &instack[indepth];		\
       ++ip->lineno;
       ++op->lineno;
       if (ip->lineno != op->lineno) {
-	op->bufp = obp;
-	output_line_directive (ip, op, 1, same_file);
-	check_expand (op, limit - ibp);
-	obp = op->bufp;
+        op->bufp = obp;
+        output_line_directive (ip, op, 1, same_file);
+        check_expand (op, limit - ibp);
+        obp = op->bufp;
       }
       break;
 
       /* Come here either after (1) a null character that is part of the input
-	 or (2) at the end of the input, because there is a null there.  */
+         or (2) at the end of the input, because there is a null there.  */
     case 0:
       if (ibp <= limit)
-	/* Our input really contains a null character.  */
-	goto randomchar;
+        /* Our input really contains a null character.  */
+        goto randomchar;
 
     limit_reached:
       /* At end of a macro-expansion level, pop it and read next level.  */
       if (ip->macro != 0) {
-	obp--;
-	ibp--;
-	/* If traditional, and we have an identifier that ends here,
-	   process it now, so we get the right error for recursion.  */
-	if (traditional && ident_length
-	    && ! is_idchar[*instack[indepth - 1].bufp]) {
-	  redo_char = 1;
-	  goto randomchar;
-	}
-	POPMACRO;
-	RECACHE;
-	break;
+        obp--;
+        ibp--;
+        /* If traditional, and we have an identifier that ends here,
+           process it now, so we get the right error for recursion.  */
+        if (traditional && ident_length
+            && ! is_idchar[*instack[indepth - 1].bufp]) {
+          redo_char = 1;
+          goto randomchar;
+        }
+        POPMACRO;
+        RECACHE;
+        break;
       }
 
       /* If we don't have a pending identifier,
-	 return at end of input.  */
+         return at end of input.  */
       if (ident_length == 0) {
-	obp--;
-	ibp--;
-	op->bufp = obp;
-	ip->bufp = ibp;
-	goto ending;
+        obp--;
+        ibp--;
+        op->bufp = obp;
+        ip->bufp = ibp;
+        goto ending;
       }
 
       /* If we do have a pending identifier, just consider this null
-	 a special character and arrange to dispatch on it again.
-	 The second time, IDENT_LENGTH will be zero so we will return.  */
+         a special character and arrange to dispatch on it again.
+         The second time, IDENT_LENGTH will be zero so we will return.  */
 
       /* Fall through */
 
 specialchar:
 
       /* Handle the case of a character such as /, ', " or null
-	 seen following an identifier.  Back over it so that
-	 after the identifier is processed the special char
-	 will be dispatched on again.  */
+         seen following an identifier.  Back over it so that
+         after the identifier is processed the special char
+         will be dispatched on again.  */
 
       ibp--;
       obp--;
@@ -3187,258 +3187,258 @@ specialchar:
 randomchar:
 
       if (ident_length > 0) {
-	register HASHNODE *hp;
+        register HASHNODE *hp;
 
-	/* We have just seen an identifier end.  If it's a macro, expand it.
+        /* We have just seen an identifier end.  If it's a macro, expand it.
 
-	   IDENT_LENGTH is the length of the identifier
-	   and HASH is its hash code.
+           IDENT_LENGTH is the length of the identifier
+           and HASH is its hash code.
 
-	   The identifier has already been copied to the output,
-	   so if it is a macro we must remove it.
+           The identifier has already been copied to the output,
+           so if it is a macro we must remove it.
 
-	   If REDO_CHAR is 0, the char that terminated the identifier
-	   has been skipped in the output and the input.
-	   OBP-IDENT_LENGTH-1 points to the identifier.
-	   If the identifier is a macro, we must back over the terminator.
+           If REDO_CHAR is 0, the char that terminated the identifier
+           has been skipped in the output and the input.
+           OBP-IDENT_LENGTH-1 points to the identifier.
+           If the identifier is a macro, we must back over the terminator.
 
-	   If REDO_CHAR is 1, the terminating char has already been
-	   backed over.  OBP-IDENT_LENGTH points to the identifier.  */
+           If REDO_CHAR is 1, the terminating char has already been
+           backed over.  OBP-IDENT_LENGTH points to the identifier.  */
 
-	if (!pcp_outfile || pcp_inside_if) {
-	  for (hp = hashtab[MAKE_POS (hash) % HASHSIZE]; hp != NULL;
-	       hp = hp->next) {
-	    
-	    if (hp->length == ident_length) {
-	      int obufp_before_macroname;
-	      int op_lineno_before_macroname;
-	      register int i = ident_length;
-	      register U_CHAR *p = hp->name;
-	      register U_CHAR *q = obp - i;
-	      int disabled;
-	      
-	      if (! redo_char)
-		q--;
-	      
-	      do {		/* All this to avoid a strncmp () */
-		if (*p++ != *q++)
-		  goto hashcollision;
-	      } while (--i);
-	      
-	      /* We found a use of a macro name.
-		 see if the context shows it is a macro call.  */
-	      
-	      /* Back up over terminating character if not already done.  */
-	      if (! redo_char) {
-		ibp--;
-		obp--;
-	      }
-	      
-	      /* Save this as a displacement from the beginning of the output
-		 buffer.  We can not save this as a position in the output
-		 buffer, because it may get realloc'ed by RECACHE.  */
-	      obufp_before_macroname = (obp - op->buf) - ident_length;
-	      op_lineno_before_macroname = op->lineno;
-	      
-	      if (hp->type == T_PCSTRING) {
-		pcstring_used (hp); /* Mark the definition of this key
-				       as needed, ensuring that it
-				       will be output.  */
-		break;		/* Exit loop, since the key cannot have a
-				   definition any longer.  */
-	      }
+        if (!pcp_outfile || pcp_inside_if) {
+          for (hp = hashtab[MAKE_POS (hash) % HASHSIZE]; hp != NULL;
+               hp = hp->next) {
+            
+            if (hp->length == ident_length) {
+              int obufp_before_macroname;
+              int op_lineno_before_macroname;
+              register int i = ident_length;
+              register U_CHAR *p = hp->name;
+              register U_CHAR *q = obp - i;
+              int disabled;
+              
+              if (! redo_char)
+                q--;
+              
+              do {              /* All this to avoid a strncmp () */
+                if (*p++ != *q++)
+                  goto hashcollision;
+              } while (--i);
+              
+              /* We found a use of a macro name.
+                 see if the context shows it is a macro call.  */
+              
+              /* Back up over terminating character if not already done.  */
+              if (! redo_char) {
+                ibp--;
+                obp--;
+              }
+              
+              /* Save this as a displacement from the beginning of the output
+                 buffer.  We can not save this as a position in the output
+                 buffer, because it may get realloc'ed by RECACHE.  */
+              obufp_before_macroname = (obp - op->buf) - ident_length;
+              op_lineno_before_macroname = op->lineno;
+              
+              if (hp->type == T_PCSTRING) {
+                pcstring_used (hp); /* Mark the definition of this key
+                                       as needed, ensuring that it
+                                       will be output.  */
+                break;          /* Exit loop, since the key cannot have a
+                                   definition any longer.  */
+              }
 
-	      /* Record whether the macro is disabled.  */
-	      disabled = hp->type == T_DISABLED;
-	      
-	      /* This looks like a macro ref, but if the macro was disabled,
-		 just copy its name and put in a marker if requested.  */
-	      
-	      if (disabled) {
+              /* Record whether the macro is disabled.  */
+              disabled = hp->type == T_DISABLED;
+              
+              /* This looks like a macro ref, but if the macro was disabled,
+                 just copy its name and put in a marker if requested.  */
+              
+              if (disabled) {
 #if 0
-		/* This error check caught useful cases such as
-		   #define foo(x,y) bar (x (y,0), y)
-		   foo (foo, baz)  */
-		if (traditional)
-		  error ("recursive use of macro `%s'", hp->name);
+                /* This error check caught useful cases such as
+                   #define foo(x,y) bar (x (y,0), y)
+                   foo (foo, baz)  */
+                if (traditional)
+                  error ("recursive use of macro `%s'", hp->name);
 #endif
-		
-		if (output_marks) {
-		  check_expand (op, limit - ibp + 2);
-		  *obp++ = '\n';
-		  *obp++ = '-';
-		}
-		break;
-	      }
-	      
-	      /* If macro wants an arglist, verify that a '(' follows.
-		 first skip all whitespace, copying it to the output
-		 after the macro name.  Then, if there is no '(',
-		 decide this is not a macro call and leave things that way.  */
-	      if ((hp->type == T_MACRO || hp->type == T_DISABLED)
-		  && hp->value.defn->nargs >= 0)
-		{
-		  U_CHAR *old_ibp = ibp;
-		  U_CHAR *old_obp = obp;
-		  int old_iln = ip->lineno;
-		  int old_oln = op->lineno;
-		  
-		  while (1) {
-		    /* Scan forward over whitespace, copying it to the output.  */
-		    if (ibp == limit && ip->macro != 0) {
-		      POPMACRO;
-		      RECACHE;
-		      old_ibp = ibp;
-		      old_obp = obp;
-		      old_iln = ip->lineno;
-		      old_oln = op->lineno;
-		    }
-		    else if (is_space[*ibp]) {
-		      *obp++ = *ibp++;
-		      if (ibp[-1] == '\n') {
-			if (ip->macro == 0) {
-			  /* Newline in a file.  Count it.  */
-			  ++ip->lineno;
-			  ++op->lineno;
-			} else if (!output_marks) {
-			  /* A newline mark, and we don't want marks
-			     in the output.  If it is newline-hyphen,
-			     discard it entirely.  Otherwise, it is
-			     newline-whitechar, so keep the whitechar.  */
-			  obp--;
-			  if (*ibp == '-')
-			    ibp++;
-			  else {
-			    if (*ibp == '\n')
-			      ++op->lineno;
-			    *obp++ = *ibp++;
-			  }
-			} else {
-			  /* A newline mark; copy both chars to the output.  */
-			  *obp++ = *ibp++;
-			}
-		      }
-		    }
-		    else if (ip->macro)
-		      break;
-		    else if (*ibp == '/') {
-		      /* If a comment, copy it unchanged or discard it.  */
-		      if (ibp[1] == '\\' && ibp[2] == '\n')
-			newline_fix (ibp + 1);
-		      if (ibp[1] == '*') {
-			if (put_out_comments) {
-			  *obp++ = '/';
-			  *obp++ = '*';
-			} else if (! traditional) {
-			  *obp++ = ' ';
-			}
-			for (ibp += 2; ibp < limit; ibp++) {
-			  /* We need not worry about newline-marks,
-			     since they are never found in comments.  */
-			  if (ibp[0] == '*') {
-			    if (ibp[1] == '\\' && ibp[2] == '\n')
-			      newline_fix (ibp + 1);
-			    if (ibp[1] == '/') {
-			      ibp += 2;
-			      if (put_out_comments) {
-				*obp++ = '*';
-				*obp++ = '/';
-			      }
-			      break;
-			    }
-			  }
-			  if (*ibp == '\n') {
-			    /* Newline in a file.  Count it.  */
-			    ++ip->lineno;
-			    ++op->lineno;
-			  }
-			  if (put_out_comments)
-			    *obp++ = *ibp;
-			}
-		      } else if (ibp[1] == '/' && cplusplus_comments) {
-			if (put_out_comments) {
-			  *obp++ = '/';
-			  *obp++ = '/';
-			} else if (! traditional) {
-			  *obp++ = ' ';
-			}
-			for (ibp += 2; *ibp != '\n' || ibp[-1] == '\\'; ibp++)
-			  if (put_out_comments)
-			    *obp++ = *ibp;
-		      } else
-			break;
-		    }
-		    else if (ibp[0] == '\\' && ibp[1] == '\n') {
-		      ibp += 2;
-		      ++ip->lineno;
-		    }
-		    else break;
-		  }
-		  if (*ibp != '(') {
-		    /* It isn't a macro call.
-		       Put back the space that we just skipped.  */
-		    ibp = old_ibp;
-		    obp = old_obp;
-		    ip->lineno = old_iln;
-		    op->lineno = old_oln;
-		    /* Exit the for loop.  */
-		    break;
-		  }
-		}
-	      
-	      /* This is now known to be a macro call.
-		 Discard the macro name from the output,
-		 along with any following whitespace just copied,
-		 but preserve newlines if not outputting marks since this
-		 is more likely to do the right thing with line numbers.  */
-	      obp = op->buf + obufp_before_macroname;
-	      if (output_marks)
-		op->lineno = op_lineno_before_macroname;
-	      else {
-		int newlines = op->lineno - op_lineno_before_macroname;
-		while (0 < newlines--)
-		  *obp++ = '\n';
-	      }
+                
+                if (output_marks) {
+                  check_expand (op, limit - ibp + 2);
+                  *obp++ = '\n';
+                  *obp++ = '-';
+                }
+                break;
+              }
+              
+              /* If macro wants an arglist, verify that a '(' follows.
+                 first skip all whitespace, copying it to the output
+                 after the macro name.  Then, if there is no '(',
+                 decide this is not a macro call and leave things that way.  */
+              if ((hp->type == T_MACRO || hp->type == T_DISABLED)
+                  && hp->value.defn->nargs >= 0)
+                {
+                  U_CHAR *old_ibp = ibp;
+                  U_CHAR *old_obp = obp;
+                  int old_iln = ip->lineno;
+                  int old_oln = op->lineno;
+                  
+                  while (1) {
+                    /* Scan forward over whitespace, copying it to the output.  */
+                    if (ibp == limit && ip->macro != 0) {
+                      POPMACRO;
+                      RECACHE;
+                      old_ibp = ibp;
+                      old_obp = obp;
+                      old_iln = ip->lineno;
+                      old_oln = op->lineno;
+                    }
+                    else if (is_space[*ibp]) {
+                      *obp++ = *ibp++;
+                      if (ibp[-1] == '\n') {
+                        if (ip->macro == 0) {
+                          /* Newline in a file.  Count it.  */
+                          ++ip->lineno;
+                          ++op->lineno;
+                        } else if (!output_marks) {
+                          /* A newline mark, and we don't want marks
+                             in the output.  If it is newline-hyphen,
+                             discard it entirely.  Otherwise, it is
+                             newline-whitechar, so keep the whitechar.  */
+                          obp--;
+                          if (*ibp == '-')
+                            ibp++;
+                          else {
+                            if (*ibp == '\n')
+                              ++op->lineno;
+                            *obp++ = *ibp++;
+                          }
+                        } else {
+                          /* A newline mark; copy both chars to the output.  */
+                          *obp++ = *ibp++;
+                        }
+                      }
+                    }
+                    else if (ip->macro)
+                      break;
+                    else if (*ibp == '/') {
+                      /* If a comment, copy it unchanged or discard it.  */
+                      if (ibp[1] == '\\' && ibp[2] == '\n')
+                        newline_fix (ibp + 1);
+                      if (ibp[1] == '*') {
+                        if (put_out_comments) {
+                          *obp++ = '/';
+                          *obp++ = '*';
+                        } else if (! traditional) {
+                          *obp++ = ' ';
+                        }
+                        for (ibp += 2; ibp < limit; ibp++) {
+                          /* We need not worry about newline-marks,
+                             since they are never found in comments.  */
+                          if (ibp[0] == '*') {
+                            if (ibp[1] == '\\' && ibp[2] == '\n')
+                              newline_fix (ibp + 1);
+                            if (ibp[1] == '/') {
+                              ibp += 2;
+                              if (put_out_comments) {
+                                *obp++ = '*';
+                                *obp++ = '/';
+                              }
+                              break;
+                            }
+                          }
+                          if (*ibp == '\n') {
+                            /* Newline in a file.  Count it.  */
+                            ++ip->lineno;
+                            ++op->lineno;
+                          }
+                          if (put_out_comments)
+                            *obp++ = *ibp;
+                        }
+                      } else if (ibp[1] == '/' && cplusplus_comments) {
+                        if (put_out_comments) {
+                          *obp++ = '/';
+                          *obp++ = '/';
+                        } else if (! traditional) {
+                          *obp++ = ' ';
+                        }
+                        for (ibp += 2; *ibp != '\n' || ibp[-1] == '\\'; ibp++)
+                          if (put_out_comments)
+                            *obp++ = *ibp;
+                      } else
+                        break;
+                    }
+                    else if (ibp[0] == '\\' && ibp[1] == '\n') {
+                      ibp += 2;
+                      ++ip->lineno;
+                    }
+                    else break;
+                  }
+                  if (*ibp != '(') {
+                    /* It isn't a macro call.
+                       Put back the space that we just skipped.  */
+                    ibp = old_ibp;
+                    obp = old_obp;
+                    ip->lineno = old_iln;
+                    op->lineno = old_oln;
+                    /* Exit the for loop.  */
+                    break;
+                  }
+                }
+              
+              /* This is now known to be a macro call.
+                 Discard the macro name from the output,
+                 along with any following whitespace just copied,
+                 but preserve newlines if not outputting marks since this
+                 is more likely to do the right thing with line numbers.  */
+              obp = op->buf + obufp_before_macroname;
+              if (output_marks)
+                op->lineno = op_lineno_before_macroname;
+              else {
+                int newlines = op->lineno - op_lineno_before_macroname;
+                while (0 < newlines--)
+                  *obp++ = '\n';
+              }
 
-	      /* Prevent accidental token-pasting with a character
-		 before the macro call.  */
-	      if (!traditional && obp != op->buf) {
-		switch (obp[-1]) {
-		case '!':  case '%':  case '&':  case '*':
-		case '+':  case '-':  case '.':  case '/':
-		case ':':  case '<':  case '=':  case '>':
-		case '^':  case '|':
-		  /* If we are expanding a macro arg, make a newline marker
-		     to separate the tokens.  If we are making real output,
-		     a plain space will do.  */
-		  if (output_marks)
-		    *obp++ = '\n';
-		  *obp++ = ' ';
-		}
-	      }
+              /* Prevent accidental token-pasting with a character
+                 before the macro call.  */
+              if (!traditional && obp != op->buf) {
+                switch (obp[-1]) {
+                case '!':  case '%':  case '&':  case '*':
+                case '+':  case '-':  case '.':  case '/':
+                case ':':  case '<':  case '=':  case '>':
+                case '^':  case '|':
+                  /* If we are expanding a macro arg, make a newline marker
+                     to separate the tokens.  If we are making real output,
+                     a plain space will do.  */
+                  if (output_marks)
+                    *obp++ = '\n';
+                  *obp++ = ' ';
+                }
+              }
 
-	      /* Expand the macro, reading arguments as needed,
-		 and push the expansion on the input stack.  */
-	      ip->bufp = ibp;
-	      op->bufp = obp;
-	      macroexpand (hp, op);
-	      
-	      /* Reexamine input stack, since macroexpand has pushed
-		 a new level on it.  */
-	      obp = op->bufp;
-	      RECACHE;
-	      break;
-	    }
+              /* Expand the macro, reading arguments as needed,
+                 and push the expansion on the input stack.  */
+              ip->bufp = ibp;
+              op->bufp = obp;
+              macroexpand (hp, op);
+              
+              /* Reexamine input stack, since macroexpand has pushed
+                 a new level on it.  */
+              obp = op->bufp;
+              RECACHE;
+              break;
+            }
 hashcollision:
-	    ;
-	  }			/* End hash-table-search loop */
-	}
-	ident_length = hash = 0; /* Stop collecting identifier */
-	redo_char = 0;
-	concatenated = 0;
-      }				/* End if (ident_length > 0) */
-    }				/* End switch */
-  }				/* End per-char loop */
+            ;
+          }                     /* End hash-table-search loop */
+        }
+        ident_length = hash = 0; /* Stop collecting identifier */
+        redo_char = 0;
+        concatenated = 0;
+      }                         /* End if (ident_length > 0) */
+    }                           /* End switch */
+  }                             /* End per-char loop */
 
   /* Come here to return -- but first give an error message
      if there was an unterminated successful conditional.  */
@@ -3448,28 +3448,28 @@ hashcollision:
       char *str;
 
       switch (if_stack->type)
-	{
-	case T_IF:
-	  str = "if";
-	  break;
-	case T_IFDEF:
-	  str = "ifdef";
-	  break;
-	case T_IFNDEF:
-	  str = "ifndef";
-	  break;
-	case T_ELSE:
-	  str = "else";
-	  break;
-	case T_ELIF:
-	  str = "elif";
-	  break;
-	default:
-	  abort ();
-	}
+        {
+        case T_IF:
+          str = "if";
+          break;
+        case T_IFDEF:
+          str = "ifdef";
+          break;
+        case T_IFNDEF:
+          str = "ifndef";
+          break;
+        case T_ELSE:
+          str = "else";
+          break;
+        case T_ELIF:
+          str = "elif";
+          break;
+        default:
+          abort ();
+        }
 
       error_with_line (line_for_error (if_stack->lineno),
-		       "unterminated `#%s' conditional", str);
+                       "unterminated `#%s' conditional", str);
   }
   if_stack = ip->if_stack;
 }
@@ -3591,13 +3591,13 @@ handle_directive (ip, op)
   while (1) {
     if (is_hor_space[*bp]) {
       if (*bp != ' ' && *bp != '\t' && pedantic)
-	pedwarn ("%s in preprocessing directive", char_name[*bp]);
+        pedwarn ("%s in preprocessing directive", char_name[*bp]);
       bp++;
     } else if (*bp == '/') {
       if (bp[1] == '\\' && bp[2] == '\n')
-	newline_fix (bp + 1);
+        newline_fix (bp + 1);
       if (! (bp[1] == '*' || (cplusplus_comments && bp[1] == '/')))
-	break;
+        break;
       ip->bufp = bp + 2;
       skip_to_end_of_comment (ip, &ip->lineno, 0);
       bp = ip->bufp;
@@ -3616,9 +3616,9 @@ handle_directive (ip, op)
       cp++;
     else {
       if (*cp == '\\' && cp[1] == '\n')
-	name_newline_fix (cp);
+        name_newline_fix (cp);
       if (is_idchar[*cp])
-	cp++;
+        cp++;
       else break;
     }
   }
@@ -3637,16 +3637,16 @@ handle_directive (ip, op)
     U_CHAR *p = ident;
     while (is_idchar[*p]) {
       if (*p < '0' || *p > '9')
-	break;
+        break;
       p++;
     }
     /* Handle # followed by a line number.  */
     if (p != ident && !is_idchar[*p]) {
       static struct directive line_directive_table[] = {
-	{  4, do_line, "line", T_LINE},
+        {  4, do_line, "line", T_LINE},
       };
       if (pedantic)
-	pedwarn ("`#' followed by integer");
+        pedwarn ("`#' followed by integer");
       after_ident = ident;
       kt = line_directive_table;
       goto old_linenum;
@@ -3656,9 +3656,9 @@ handle_directive (ip, op)
     if (p == ident) {
       while (*p == '#' || is_hor_space[*p]) p++;
       if (*p == '\n') {
-	if (pedantic && !lang_asm)
-	  warning ("invalid preprocessing directive");
-	return 0;
+        if (pedantic && !lang_asm)
+          warning ("invalid preprocessing directive");
+        return 0;
       }
     }
 
@@ -3681,7 +3681,7 @@ handle_directive (ip, op)
       int *already_output;
 
       /* Nonzero means do not delete comments within the directive.
-	 #define needs this when -traditional.  */
+         #define needs this when -traditional.  */
       int keep_comments;
 
     old_linenum:
@@ -3692,286 +3692,286 @@ handle_directive (ip, op)
       keep_comments = traditional && kt->type == T_DEFINE;
       /* #import is defined only in Objective C, or when on the NeXT.  */
       if (kt->type == T_IMPORT
-	  && !(objc || lookup ((U_CHAR *) "__NeXT__", -1, -1)))
-	break;
+          && !(objc || lookup ((U_CHAR *) "__NeXT__", -1, -1)))
+        break;
 
       /* Find the end of this directive (first newline not backslashed
-	 and not in a string or comment).
-	 Set COPY_DIRECTIVE if the directive must be copied
-	 (it contains a backslash-newline or a comment).  */
+         and not in a string or comment).
+         Set COPY_DIRECTIVE if the directive must be copied
+         (it contains a backslash-newline or a comment).  */
 
       buf = bp = after_ident;
       while (bp < limit) {
-	register U_CHAR c = *bp++;
-	switch (c) {
-	case '\\':
-	  if (bp < limit) {
-	    if (*bp == '\n') {
-	      ip->lineno++;
-	      copy_directive = 1;
-	      bp++;
-	    } else if (traditional)
-	      bp++;
-	  }
-	  break;
+        register U_CHAR c = *bp++;
+        switch (c) {
+        case '\\':
+          if (bp < limit) {
+            if (*bp == '\n') {
+              ip->lineno++;
+              copy_directive = 1;
+              bp++;
+            } else if (traditional)
+              bp++;
+          }
+          break;
 
-	case '"':
-	  /* "..." is special for #include.  */
-	  if (IS_INCLUDE_DIRECTIVE_TYPE (kt->type)) {
-	    while (bp < limit && *bp != '\n') {
-	      if (*bp == '"') {
-		bp++;
-		break;
-	      }
-	      if (*bp == '\\' && bp[1] == '\n') {
-		ip->lineno++;
-		copy_directive = 1;
-		bp++;
-	      }
-	      bp++;
-	    }
-	    break;
-	  }
-	  /* Fall through.  */
-	case '\'':
-	  bp = skip_quoted_string (bp - 1, limit, ip->lineno, &ip->lineno, &copy_directive, &unterminated);
-	  /* Don't bother calling the directive if we already got an error
-	     message due to unterminated string.  Skip everything and pretend
-	     we called the directive.  */
-	  if (unterminated) {
-	    if (traditional) {
-	      /* Traditional preprocessing permits unterminated strings.  */
-	      ip->bufp = bp;
-	      goto endloop1;
-	    }
-	    ip->bufp = bp;
-	    return 1;
-	  }
-	  break;
+        case '"':
+          /* "..." is special for #include.  */
+          if (IS_INCLUDE_DIRECTIVE_TYPE (kt->type)) {
+            while (bp < limit && *bp != '\n') {
+              if (*bp == '"') {
+                bp++;
+                break;
+              }
+              if (*bp == '\\' && bp[1] == '\n') {
+                ip->lineno++;
+                copy_directive = 1;
+                bp++;
+              }
+              bp++;
+            }
+            break;
+          }
+          /* Fall through.  */
+        case '\'':
+          bp = skip_quoted_string (bp - 1, limit, ip->lineno, &ip->lineno, &copy_directive, &unterminated);
+          /* Don't bother calling the directive if we already got an error
+             message due to unterminated string.  Skip everything and pretend
+             we called the directive.  */
+          if (unterminated) {
+            if (traditional) {
+              /* Traditional preprocessing permits unterminated strings.  */
+              ip->bufp = bp;
+              goto endloop1;
+            }
+            ip->bufp = bp;
+            return 1;
+          }
+          break;
 
-	  /* <...> is special for #include.  */
-	case '<':
-	  if (! IS_INCLUDE_DIRECTIVE_TYPE (kt->type))
-	    break;
-	  while (bp < limit && *bp != '>' && *bp != '\n') {
-	    if (*bp == '\\' && bp[1] == '\n') {
-	      ip->lineno++;
-	      copy_directive = 1;
-	      bp++;
-	    }
-	    bp++;
-	  }
-	  break;
+          /* <...> is special for #include.  */
+        case '<':
+          if (! IS_INCLUDE_DIRECTIVE_TYPE (kt->type))
+            break;
+          while (bp < limit && *bp != '>' && *bp != '\n') {
+            if (*bp == '\\' && bp[1] == '\n') {
+              ip->lineno++;
+              copy_directive = 1;
+              bp++;
+            }
+            bp++;
+          }
+          break;
 
-	case '/':
-	  if (*bp == '\\' && bp[1] == '\n')
-	    newline_fix (bp);
-	  if (*bp == '*'
-	      || (cplusplus_comments && *bp == '/')) {
-	    U_CHAR *obp = bp - 1;
-	    ip->bufp = bp + 1;
-	    skip_to_end_of_comment (ip, &ip->lineno, 0);
-	    bp = ip->bufp;
-	    /* No need to copy the directive because of a comment at the end;
-	       just don't include the comment in the directive.  */
-	    if (!put_out_comments) {
-	      U_CHAR *p;
-	      for (p = bp;  *p == ' ' || *p == '\t';  p++)
-		continue;
-	      if (*p == '\n') {
-		bp = obp;
-		goto endloop1;
-	      }
-	    }
-	    /* Don't remove the comments if -traditional.  */
-	    if (! keep_comments)
-	      copy_directive++;
-	  }
-	  break;
+        case '/':
+          if (*bp == '\\' && bp[1] == '\n')
+            newline_fix (bp);
+          if (*bp == '*'
+              || (cplusplus_comments && *bp == '/')) {
+            U_CHAR *obp = bp - 1;
+            ip->bufp = bp + 1;
+            skip_to_end_of_comment (ip, &ip->lineno, 0);
+            bp = ip->bufp;
+            /* No need to copy the directive because of a comment at the end;
+               just don't include the comment in the directive.  */
+            if (!put_out_comments) {
+              U_CHAR *p;
+              for (p = bp;  *p == ' ' || *p == '\t';  p++)
+                continue;
+              if (*p == '\n') {
+                bp = obp;
+                goto endloop1;
+              }
+            }
+            /* Don't remove the comments if -traditional.  */
+            if (! keep_comments)
+              copy_directive++;
+          }
+          break;
 
-	case '\f':
-	case '\r':
-	case '\v':
-	  if (pedantic)
-	    pedwarn ("%s in preprocessing directive", char_name[c]);
-	  break;
+        case '\f':
+        case '\r':
+        case '\v':
+          if (pedantic)
+            pedwarn ("%s in preprocessing directive", char_name[c]);
+          break;
 
-	case '\n':
-	  --bp;		/* Point to the newline */
-	  ip->bufp = bp;
-	  goto endloop1;
-	}
+        case '\n':
+          --bp;         /* Point to the newline */
+          ip->bufp = bp;
+          goto endloop1;
+        }
       }
       ip->bufp = bp;
 
     endloop1:
       resume_p = ip->bufp;
       /* BP is the end of the directive.
-	 RESUME_P is the next interesting data after the directive.
-	 A comment may come between.  */
+         RESUME_P is the next interesting data after the directive.
+         A comment may come between.  */
 
       /* If a directive should be copied through, and -C was given,
-	 pass it through before removing comments.  */
+         pass it through before removing comments.  */
       if (!no_output && put_out_comments
-	  && (kt->type == T_DEFINE ? dump_macros == dump_definitions
-	      : IS_INCLUDE_DIRECTIVE_TYPE (kt->type) ? dump_includes
-	      : kt->type == T_PRAGMA)) {
+          && (kt->type == T_DEFINE ? dump_macros == dump_definitions
+              : IS_INCLUDE_DIRECTIVE_TYPE (kt->type) ? dump_includes
+              : kt->type == T_PRAGMA)) {
         int len;
 
-	/* Output directive name.  */
+        /* Output directive name.  */
         check_expand (op, kt->length + 2);
-	/* Make sure # is at the start of a line */
-	if (op->bufp > op->buf && op->bufp[-1] != '\n') {
-	  op->lineno++;
-	  *op->bufp++ = '\n';
-	}
+        /* Make sure # is at the start of a line */
+        if (op->bufp > op->buf && op->bufp[-1] != '\n') {
+          op->lineno++;
+          *op->bufp++ = '\n';
+        }
         *op->bufp++ = '#';
         bcopy (kt->name, op->bufp, kt->length);
         op->bufp += kt->length;
 
-	/* Output arguments.  */
-	len = (bp - buf);
-	check_expand (op, len);
-	bcopy (buf, (char *) op->bufp, len);
-	op->bufp += len;
-	/* Take account of any (escaped) newlines just output.  */
-	while (--len >= 0)
-	  if (buf[len] == '\n')
-	    op->lineno++;
+        /* Output arguments.  */
+        len = (bp - buf);
+        check_expand (op, len);
+        bcopy (buf, (char *) op->bufp, len);
+        op->bufp += len;
+        /* Take account of any (escaped) newlines just output.  */
+        while (--len >= 0)
+          if (buf[len] == '\n')
+            op->lineno++;
 
-	already_output = &junk;
-      }				/* Don't we need a newline or #line? */
+        already_output = &junk;
+      }                         /* Don't we need a newline or #line? */
 
       if (copy_directive) {
-	register U_CHAR *xp = buf;
-	/* Need to copy entire directive into temp buffer before dispatching */
+        register U_CHAR *xp = buf;
+        /* Need to copy entire directive into temp buffer before dispatching */
 
-	cp = (U_CHAR *) alloca (bp - buf + 5); /* room for directive plus
-						  some slop */
-	buf = cp;
+        cp = (U_CHAR *) alloca (bp - buf + 5); /* room for directive plus
+                                                  some slop */
+        buf = cp;
 
-	/* Copy to the new buffer, deleting comments
-	   and backslash-newlines (and whitespace surrounding the latter).  */
+        /* Copy to the new buffer, deleting comments
+           and backslash-newlines (and whitespace surrounding the latter).  */
 
-	while (xp < bp) {
-	  register U_CHAR c = *xp++;
-	  *cp++ = c;
+        while (xp < bp) {
+          register U_CHAR c = *xp++;
+          *cp++ = c;
 
-	  switch (c) {
-	  case '\n':
-	    abort ();  /* A bare newline should never part of the line.  */
-	    break;
+          switch (c) {
+          case '\n':
+            abort ();  /* A bare newline should never part of the line.  */
+            break;
 
-	    /* <...> is special for #include.  */
-	  case '<':
-	    if (! IS_INCLUDE_DIRECTIVE_TYPE (kt->type))
-	      break;
-	    while (xp < bp && c != '>') {
-	      c = *xp++;
-	      if (c == '\\' && xp < bp && *xp == '\n')
-		xp++;
-	      else
-		*cp++ = c;
-	    }
-	    break;
+            /* <...> is special for #include.  */
+          case '<':
+            if (! IS_INCLUDE_DIRECTIVE_TYPE (kt->type))
+              break;
+            while (xp < bp && c != '>') {
+              c = *xp++;
+              if (c == '\\' && xp < bp && *xp == '\n')
+                xp++;
+              else
+                *cp++ = c;
+            }
+            break;
 
-	  case '\\':
-	    if (*xp == '\n') {
-	      xp++;
-	      cp--;
-	      if (cp != buf && is_hor_space[cp[-1]]) {
-		while (cp - 1 != buf && is_hor_space[cp[-2]])
-		  cp--;
-		SKIP_WHITE_SPACE (xp);
-	      } else if (is_hor_space[*xp]) {
-		*cp++ = *xp++;
-		SKIP_WHITE_SPACE (xp);
-	      }
-	    } else if (traditional && xp < bp) {
-	      *cp++ = *xp++;
-	    }
-	    break;
+          case '\\':
+            if (*xp == '\n') {
+              xp++;
+              cp--;
+              if (cp != buf && is_hor_space[cp[-1]]) {
+                while (cp - 1 != buf && is_hor_space[cp[-2]])
+                  cp--;
+                SKIP_WHITE_SPACE (xp);
+              } else if (is_hor_space[*xp]) {
+                *cp++ = *xp++;
+                SKIP_WHITE_SPACE (xp);
+              }
+            } else if (traditional && xp < bp) {
+              *cp++ = *xp++;
+            }
+            break;
 
-	  case '\'':
-	  case '\"':
-	    {
-	      register U_CHAR *bp1
-		= skip_quoted_string (xp - 1, bp, ip->lineno,
-				      NULL_PTR, NULL_PTR, NULL_PTR);
-	      while (xp != bp1)
-		*cp++ = *xp++;
-	    }
-	    break;
+          case '\'':
+          case '\"':
+            {
+              register U_CHAR *bp1
+                = skip_quoted_string (xp - 1, bp, ip->lineno,
+                                      NULL_PTR, NULL_PTR, NULL_PTR);
+              while (xp != bp1)
+                *cp++ = *xp++;
+            }
+            break;
 
-	  case '/':
-	    if (*xp == '*'
-		|| (cplusplus_comments && *xp == '/')) {
-	      ip->bufp = xp + 1;
-	      /* If we already copied the directive through,
-		 already_output != 0 prevents outputting comment now.  */
-	      skip_to_end_of_comment (ip, already_output, 0);
-	      if (keep_comments)
-		while (xp != ip->bufp)
-		  *cp++ = *xp++;
-	      /* Delete or replace the slash.  */
-	      else if (traditional)
-		cp--;
-	      else
-		cp[-1] = ' ';
-	      xp = ip->bufp;
-	    }
-	  }
-	}
+          case '/':
+            if (*xp == '*'
+                || (cplusplus_comments && *xp == '/')) {
+              ip->bufp = xp + 1;
+              /* If we already copied the directive through,
+                 already_output != 0 prevents outputting comment now.  */
+              skip_to_end_of_comment (ip, already_output, 0);
+              if (keep_comments)
+                while (xp != ip->bufp)
+                  *cp++ = *xp++;
+              /* Delete or replace the slash.  */
+              else if (traditional)
+                cp--;
+              else
+                cp[-1] = ' ';
+              xp = ip->bufp;
+            }
+          }
+        }
 
-	/* Null-terminate the copy.  */
+        /* Null-terminate the copy.  */
 
-	*cp = 0;
+        *cp = 0;
       } else
-	cp = bp;
+        cp = bp;
 
       ip->bufp = resume_p;
 
       /* Some directives should be written out for cc1 to process,
-	 just as if they were not defined.  And sometimes we're copying
-	 directives through.  */
+         just as if they were not defined.  And sometimes we're copying
+         directives through.  */
 
       if (!no_output && already_output == 0
-	  && (kt->type == T_DEFINE ? (int) dump_names <= (int) dump_macros
-	      : IS_INCLUDE_DIRECTIVE_TYPE (kt->type) ? dump_includes
-	      : kt->type == T_PRAGMA)) {
+          && (kt->type == T_DEFINE ? (int) dump_names <= (int) dump_macros
+              : IS_INCLUDE_DIRECTIVE_TYPE (kt->type) ? dump_includes
+              : kt->type == T_PRAGMA)) {
         int len;
 
-	/* Output directive name.  */
+        /* Output directive name.  */
         check_expand (op, kt->length + 1);
         *op->bufp++ = '#';
         bcopy (kt->name, (char *) op->bufp, kt->length);
         op->bufp += kt->length;
 
-	if (kt->type == T_DEFINE && dump_macros == dump_names) {
-	  /* Output `#define name' only.  */
-	  U_CHAR *xp = buf;
-	  U_CHAR *yp;
-	  SKIP_WHITE_SPACE (xp);
-	  yp = xp;
-	  while (is_idchar[*xp]) xp++;
-	  len = (xp - yp);
-	  check_expand (op, len + 1);
-	  *op->bufp++ = ' ';
-	  bcopy (yp, (char *) op->bufp, len);
-	} else {
-	  /* Output entire directive.  */
-	  len = (cp - buf);
-	  check_expand (op, len);
-	  bcopy (buf, (char *) op->bufp, len);
-	}
-	op->bufp += len;
-      }				/* Don't we need a newline or #line? */
+        if (kt->type == T_DEFINE && dump_macros == dump_names) {
+          /* Output `#define name' only.  */
+          U_CHAR *xp = buf;
+          U_CHAR *yp;
+          SKIP_WHITE_SPACE (xp);
+          yp = xp;
+          while (is_idchar[*xp]) xp++;
+          len = (xp - yp);
+          check_expand (op, len + 1);
+          *op->bufp++ = ' ';
+          bcopy (yp, (char *) op->bufp, len);
+        } else {
+          /* Output entire directive.  */
+          len = (cp - buf);
+          check_expand (op, len);
+          bcopy (buf, (char *) op->bufp, len);
+        }
+        op->bufp += len;
+      }                         /* Don't we need a newline or #line? */
 
       /* Call the appropriate directive handler.  buf now points to
-	 either the appropriate place in the input buffer, or to
-	 the temp buffer if it was necessary to make one.  cp
-	 points to the first char after the contents of the (possibly
-	 copied) directive, in either case.  */
+         either the appropriate place in the input buffer, or to
+         the temp buffer if it was necessary to make one.  cp
+         points to the first char after the contents of the (possibly
+         copied) directive, in either case.  */
       (*kt->func) (buf, cp, op, kt);
       check_expand (op, ip->length - (ip->bufp - ip->buf));
 
@@ -3996,8 +3996,8 @@ timestamp ()
 }
 
 static char *monthnames[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-			     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-			    };
+                             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+                            };
 
 /*
  * expand things like __FILE__.  Place the expansion into the output
@@ -4015,12 +4015,12 @@ special_symbol (hp, op)
   FILE_BUF *ip = NULL;
   struct tm *timebuf;
 
-  int paren = 0;		/* For special `defined' keyword */
+  int paren = 0;                /* For special `defined' keyword */
 
   if (pcp_outfile && pcp_inside_if
       && hp->type != T_SPEC_DEFINED && hp->type != T_CONST)
     error ("Predefined macro `%s' used inside `#if' during precompilation",
-	   hp->name);
+           hp->name);
     
   for (i = indepth; i >= 0; i--)
     if (instack[i].fname != NULL) {
@@ -4029,7 +4029,7 @@ special_symbol (hp, op)
     }
   if (ip == NULL) {
     error ("cccp error: not in any file?!");
-    return;			/* the show must go on */
+    return;                     /* the show must go on */
   }
 
   switch (hp->type) {
@@ -4038,17 +4038,17 @@ special_symbol (hp, op)
     {
       char *string;
       if (hp->type == T_FILE)
-	string = ip->nominal_fname;
+        string = ip->nominal_fname;
       else
-	string = instack[0].nominal_fname;
+        string = instack[0].nominal_fname;
 
       if (string)
-	{
-	  buf = (char *) alloca (3 + 4 * strlen (string));
-	  quote_string (buf, string);
-	}
+        {
+          buf = (char *) alloca (3 + 4 * strlen (string));
+          quote_string (buf, string);
+        }
       else
-	buf = "\"\"";
+        buf = "\"\"";
 
       break;
     }
@@ -4059,7 +4059,7 @@ special_symbol (hp, op)
       if (instack[i].fname != NULL)
         true_indepth++;
 
-    buf = (char *) alloca (8);	/* Eight bytes ought to be more than enough */
+    buf = (char *) alloca (8);  /* Eight bytes ought to be more than enough */
     sprintf (buf, "%d", true_indepth - 1);
     break;
 
@@ -4100,8 +4100,8 @@ special_symbol (hp, op)
     buf = hp->value.cpval;
 #ifdef STDC_0_IN_SYSTEM_HEADERS
     if (ip->system_header_p
-	&& hp->length == 8 && bcmp (hp->name, "__STDC__", 8) == 0
-	&& !lookup ((U_CHAR *) "__STRICT_ANSI__", -1, -1))
+        && hp->length == 8 && bcmp (hp->name, "__STDC__", 8) == 0
+        && !lookup ((U_CHAR *) "__STRICT_ANSI__", -1, -1))
       buf = "0";
 #endif
     if (pcp_inside_if && pcp_outfile)
@@ -4120,19 +4120,19 @@ special_symbol (hp, op)
     timebuf = timestamp ();
     if (hp->type == T_DATE)
       sprintf (buf, "\"%s %2d %4d\"", monthnames[timebuf->tm_mon],
-	      timebuf->tm_mday, timebuf->tm_year + 1900);
+              timebuf->tm_mday, timebuf->tm_year + 1900);
     else
       sprintf (buf, "\"%02d:%02d:%02d\"", timebuf->tm_hour, timebuf->tm_min,
-	      timebuf->tm_sec);
+              timebuf->tm_sec);
     break;
 
   case T_SPEC_DEFINED:
-    buf = " 0 ";		/* Assume symbol is not defined */
+    buf = " 0 ";                /* Assume symbol is not defined */
     ip = &instack[indepth];
     SKIP_WHITE_SPACE (ip->bufp);
     if (*ip->bufp == '(') {
       paren++;
-      ip->bufp++;			/* Skip over the paren */
+      ip->bufp++;                       /* Skip over the paren */
       SKIP_WHITE_SPACE (ip->bufp);
     }
 
@@ -4142,27 +4142,27 @@ special_symbol (hp, op)
       goto oops;
     if ((hp = lookup (ip->bufp, -1, -1))) {
       if (pcp_outfile && pcp_inside_if
-	  && (hp->type == T_CONST
-	      || (hp->type == T_MACRO && hp->value.defn->predefined)))
-	/* Output a precondition for this macro use.  */
-	fprintf (pcp_outfile, "#define %s\n", hp->name);
+          && (hp->type == T_CONST
+              || (hp->type == T_MACRO && hp->value.defn->predefined)))
+        /* Output a precondition for this macro use.  */
+        fprintf (pcp_outfile, "#define %s\n", hp->name);
       buf = " 1 ";
     }
     else
-      if (pcp_outfile && pcp_inside_if)	{
-	/* Output a precondition for this macro use */
-	U_CHAR *cp = ip->bufp;
-	fprintf (pcp_outfile, "#undef ");
-	while (is_idchar[*cp]) /* Ick! */
-	  fputc (*cp++, pcp_outfile);
-	putc ('\n', pcp_outfile);
+      if (pcp_outfile && pcp_inside_if) {
+        /* Output a precondition for this macro use */
+        U_CHAR *cp = ip->bufp;
+        fprintf (pcp_outfile, "#undef ");
+        while (is_idchar[*cp]) /* Ick! */
+          fputc (*cp++, pcp_outfile);
+        putc ('\n', pcp_outfile);
       }
     while (is_idchar[*ip->bufp])
       ++ip->bufp;
     SKIP_WHITE_SPACE (ip->bufp);
     if (paren) {
       if (*ip->bufp != ')')
-	goto oops;
+        goto oops;
       ++ip->bufp;
     }
     break;
@@ -4199,25 +4199,25 @@ do_include (buf, limit, op, keyword)
   U_CHAR *importing = keyword->type == T_IMPORT ? (U_CHAR *) "" : (U_CHAR *) 0;
   int skip_dirs = (keyword->type == T_INCLUDE_NEXT);
   static int import_warning = 0;
-  char *fname;		/* Dynamically allocated fname buffer */
+  char *fname;          /* Dynamically allocated fname buffer */
   char *pcftry;
   char *pcfname;
-  char *fbeg, *fend;		/* Beginning and end of fname */
+  char *fbeg, *fend;            /* Beginning and end of fname */
   U_CHAR *fin;
 
   struct file_name_list *search_start = include; /* Chain of dirs to search */
-  struct file_name_list *dsp;	/* First in chain, if #include "..." */
+  struct file_name_list *dsp;   /* First in chain, if #include "..." */
   struct file_name_list *searchptr = 0;
   size_t flen;
 
-  int f = -3;			/* file number */
+  int f = -3;                   /* file number */
   struct include_file *inc = 0;
 
-  int retried = 0;		/* Have already tried macro
-				   expanding the include line*/
-  int angle_brackets = 0;	/* 0 for "...", 1 for <...> */
+  int retried = 0;              /* Have already tried macro
+                                   expanding the include line*/
+  int angle_brackets = 0;       /* 0 for "...", 1 for <...> */
 #ifdef VMS
-  int vaxc_include = 0;		/* 1 for token without punctuation */
+  int vaxc_include = 0;         /* 1 for token without punctuation */
 #endif
   int pcf = -1;
   char *pcfbuf;
@@ -4227,9 +4227,9 @@ do_include (buf, limit, op, keyword)
   if (pedantic && !instack[indepth].system_header_p)
     {
       if (importing)
-	pedwarn ("ANSI C does not allow `#import'");
+        pedwarn ("ANSI C does not allow `#import'");
       if (skip_dirs)
-	pedwarn ("ANSI C does not allow `#include_next'");
+        pedwarn ("ANSI C does not allow `#include_next'");
     }
 
   if (importing && warn_import && !inhibit_warnings
@@ -4263,60 +4263,60 @@ get_filename:
       FILE_BUF *fp;
       /* Copy the operand text, concatenating the strings.  */
       {
-	for (;;) {
-	  for (;;) {
-	    if (fin == limit)
-	      goto invalid_include_file_name;
-	    *fend = *fin++;
-	    if (*fend == '"')
-	      break;
-	    fend++;
-	  }
-	  if (fin == limit)
-	    break;
-	  /* If not at the end, there had better be another string.  */
-	  /* Skip just horiz space, and don't go past limit.  */
-	  while (fin != limit && is_hor_space[*fin]) fin++;
-	  if (fin != limit && *fin == '\"')
-	    fin++;
-	  else
-	    goto fail;
-	}
+        for (;;) {
+          for (;;) {
+            if (fin == limit)
+              goto invalid_include_file_name;
+            *fend = *fin++;
+            if (*fend == '"')
+              break;
+            fend++;
+          }
+          if (fin == limit)
+            break;
+          /* If not at the end, there had better be another string.  */
+          /* Skip just horiz space, and don't go past limit.  */
+          while (fin != limit && is_hor_space[*fin]) fin++;
+          if (fin != limit && *fin == '\"')
+            fin++;
+          else
+            goto fail;
+        }
       }
 
       /* We have "filename".  Figure out directory this source
-	 file is coming from and put it on the front of the list.  */
+         file is coming from and put it on the front of the list.  */
 
       /* If -I- was specified, don't search current dir, only spec'd ones.  */
       if (ignore_srcdir) break;
 
       for (fp = &instack[indepth]; fp >= instack; fp--)
-	{
-	  int n;
-	  char *nam;
+        {
+          int n;
+          char *nam;
 
-	  if ((nam = fp->nominal_fname) != NULL) {
-	    /* Found a named file.  Figure out dir of the file,
-	       and put it in front of the search list.  */
-	    dsp = ((struct file_name_list *)
-		   alloca (sizeof (struct file_name_list) + strlen (nam)));
-	    strcpy (dsp->fname, nam);
-	    simplify_filename (dsp->fname);
-	    nam = base_name (dsp->fname);
-	    *nam = 0;
-	    /* But for efficiency's sake, do not insert the dir
-	       if it matches the search list's first dir.  */
-	    dsp->next = search_start;
-	    if (!search_start || strcmp (dsp->fname, search_start->fname)) {
-	      search_start = dsp;
-	      n = nam - dsp->fname;
-	      if (n + INCLUDE_LEN_FUDGE > max_include_len)
-		max_include_len = n + INCLUDE_LEN_FUDGE;
-	    }
-	    dsp[0].got_name_map = 0;
-	    break;
-	  }
-	}
+          if ((nam = fp->nominal_fname) != NULL) {
+            /* Found a named file.  Figure out dir of the file,
+               and put it in front of the search list.  */
+            dsp = ((struct file_name_list *)
+                   alloca (sizeof (struct file_name_list) + strlen (nam)));
+            strcpy (dsp->fname, nam);
+            simplify_filename (dsp->fname);
+            nam = base_name (dsp->fname);
+            *nam = 0;
+            /* But for efficiency's sake, do not insert the dir
+               if it matches the search list's first dir.  */
+            dsp->next = search_start;
+            if (!search_start || strcmp (dsp->fname, search_start->fname)) {
+              search_start = dsp;
+              n = nam - dsp->fname;
+              if (n + INCLUDE_LEN_FUDGE > max_include_len)
+                max_include_len = n + INCLUDE_LEN_FUDGE;
+            }
+            dsp[0].got_name_map = 0;
+            break;
+          }
+        }
       break;
     }
 
@@ -4341,14 +4341,14 @@ get_filename:
      */
     if (retried && isalpha(*(U_CHAR *) (--fbeg))) {
       while (fin != limit && (!isspace(*fin)))
-	*fend++ = *fin++;
+        *fend++ = *fin++;
       warning ("VAX-C-style include specification found, use '#include <filename.h>' !");
       vaxc_include = 1;
       if (fin == limit) {
-	angle_brackets = 1;
-	/* If -I-, start with the first -I dir after the -I-.  */
-	search_start = first_bracket_include;
-	break;
+        angle_brackets = 1;
+        /* If -I-, start with the first -I dir after the -I-.  */
+        search_start = first_bracket_include;
+        break;
       }
     }
 #endif
@@ -4356,36 +4356,36 @@ get_filename:
   fail:
     if (! retried) {
       /* Expand buffer and then remove any newline markers.
-	 We can't just tell expand_to_temp_buffer to omit the markers,
-	 since it would put extra spaces in include file names.  */
+         We can't just tell expand_to_temp_buffer to omit the markers,
+         since it would put extra spaces in include file names.  */
       FILE_BUF trybuf;
       U_CHAR *src;
       int errors_before_expansion = errors;
       trybuf = expand_to_temp_buffer (buf, limit, 1, 0);
       if (errors != errors_before_expansion) {
-	free (trybuf.buf);
-	goto invalid_include_file_name;
+        free (trybuf.buf);
+        goto invalid_include_file_name;
       }
       src = trybuf.buf;
       buf = (U_CHAR *) alloca (trybuf.bufp - trybuf.buf + 1);
       limit = buf;
       while (src != trybuf.bufp) {
-	switch ((*limit++ = *src++)) {
-	  case '\n':
-	    limit--;
-	    src++;
-	    break;
+        switch ((*limit++ = *src++)) {
+          case '\n':
+            limit--;
+            src++;
+            break;
 
-	  case '\'':
-	  case '\"':
-	    {
-	      U_CHAR *src1 = skip_quoted_string (src - 1, trybuf.bufp, 0,
-						 NULL_PTR, NULL_PTR, NULL_PTR);
-	      while (src != src1)
-		*limit++ = *src++;
-	    }
-	    break;
-	}
+          case '\'':
+          case '\"':
+            {
+              U_CHAR *src1 = skip_quoted_string (src - 1, trybuf.bufp, 0,
+                                                 NULL_PTR, NULL_PTR, NULL_PTR);
+              while (src != src1)
+                *limit++ = *src++;
+            }
+            break;
+        }
       }
       *limit = 0;
       free (trybuf.buf);
@@ -4404,11 +4404,11 @@ get_filename:
     FILE_BUF *fp;
     for (fp = &instack[indepth]; fp >= instack; fp--)
       if (fp->fname != NULL) {
-	/* fp->dir is null if the containing file was specified
-	   with an absolute file name.  In that case, don't skip anything.  */
-	if (fp->dir)
-	  search_start = fp->dir->next;
-	break;
+        /* fp->dir is null if the containing file was specified
+           with an absolute file name.  In that case, don't skip anything.  */
+        if (fp->dir)
+          search_start = fp->dir->next;
+        break;
       }
   }
 
@@ -4447,17 +4447,17 @@ get_filename:
     for (searchptr = search_start; searchptr; searchptr = searchptr->next) {
 
       if (searchptr == first_bracket_include) {
-	/* Go to bypass directory if we know we've seen this file before.  */
-	static struct bypass_dir *bypass_hashtab[INCLUDE_HASHSIZE];
-	struct bypass_dir *p;
-	bypass_slot = &bypass_hashtab[hashf ((U_CHAR *) fbeg, flen,
-					     INCLUDE_HASHSIZE)];
-	for (p = *bypass_slot; p; p = p->next)
-	  if (!strcmp (fbeg, p->fname)) {
-	    searchptr = p->searchptr;
-	    bypass_slot = 0;
-	    break;
-	  }
+        /* Go to bypass directory if we know we've seen this file before.  */
+        static struct bypass_dir *bypass_hashtab[INCLUDE_HASHSIZE];
+        struct bypass_dir *p;
+        bypass_slot = &bypass_hashtab[hashf ((U_CHAR *) fbeg, flen,
+                                             INCLUDE_HASHSIZE)];
+        for (p = *bypass_slot; p; p = p->next)
+          if (!strcmp (fbeg, p->fname)) {
+            searchptr = p->searchptr;
+            bypass_slot = 0;
+            break;
+          }
       }
 
       strcpy (fname, searchptr->fname);
@@ -4466,40 +4466,40 @@ get_filename:
       /* Change this 1/2 Unix 1/2 VMS file specification into a
          full VMS file specification */
       if (searchptr->fname[0]) {
-	/* Fix up the filename */
-	hack_vms_include_specification (fname, vaxc_include);
+        /* Fix up the filename */
+        hack_vms_include_specification (fname, vaxc_include);
       } else {
-	/* This is a normal VMS filespec, so use it unchanged.  */
-	strcpy (fname, fbeg);
-	/* if it's '#include filename', add the missing .h */
-	if (vaxc_include && index(fname,'.')==NULL) {
-	  strcat (fname, ".h");
-	}
+        /* This is a normal VMS filespec, so use it unchanged.  */
+        strcpy (fname, fbeg);
+        /* if it's '#include filename', add the missing .h */
+        if (vaxc_include && index(fname,'.')==NULL) {
+          strcat (fname, ".h");
+        }
       }
 #endif /* VMS */
       f = open_include_file (fname, searchptr, importing, &inc);
       if (f != -1) {
-	if (bypass_slot && searchptr != first_bracket_include) {
-	  /* This is the first time we found this include file,
-	     and we found it after first_bracket_include.
-	     Record its location so that we can bypass to here next time.  */
-	  struct bypass_dir *p
-	    = (struct bypass_dir *) xmalloc (sizeof (struct bypass_dir));
-	  p->next = *bypass_slot;
-	  p->fname = fname + strlen (searchptr->fname);
-	  p->searchptr = searchptr;
-	  *bypass_slot = p;
-	}
-	break;
+        if (bypass_slot && searchptr != first_bracket_include) {
+          /* This is the first time we found this include file,
+             and we found it after first_bracket_include.
+             Record its location so that we can bypass to here next time.  */
+          struct bypass_dir *p
+            = (struct bypass_dir *) xmalloc (sizeof (struct bypass_dir));
+          p->next = *bypass_slot;
+          p->fname = fname + strlen (searchptr->fname);
+          p->searchptr = searchptr;
+          *bypass_slot = p;
+        }
+        break;
       }
 #ifdef VMS
       /* Our VMS hacks can produce invalid filespecs, so don't worry
-	 about errors other than EACCES.  */
+         about errors other than EACCES.  */
       if (errno == EACCES)
-	break;
+        break;
 #else
       if (errno != ENOENT && errno != ENOTDIR)
-	break;
+        break;
 #endif
     }
   }
@@ -4515,26 +4515,26 @@ get_filename:
        or other similar place; these missing files may be generated from
        other files and may not exist yet (eg: y.tab.h).  */
     } else if (print_deps_missing_files
-	       && (system_include_depth != 0) < print_deps)
+               && (system_include_depth != 0) < print_deps)
       {
-	/* If it was requested as a system header file,
-	   then assume it belongs in the first place to look for such.  */
-	if (angle_brackets)
-	  {
-	    if (search_start) {
-	      char *p = (char *) alloca (strlen (search_start->fname)
-					 + strlen (fbeg) + 1);
-	      strcpy (p, search_start->fname);
-	      strcat (p, fbeg);
-	      deps_output (p, ' ');
-	    }
-	  }
-	else
-	  {
-	    /* Otherwise, omit the directory, as if the file existed
-	       in the directory with the source.  */
-	    deps_output (fbeg, ' ');
-	  }
+        /* If it was requested as a system header file,
+           then assume it belongs in the first place to look for such.  */
+        if (angle_brackets)
+          {
+            if (search_start) {
+              char *p = (char *) alloca (strlen (search_start->fname)
+                                         + strlen (fbeg) + 1);
+              strcpy (p, search_start->fname);
+              strcat (p, fbeg);
+              deps_output (p, ' ');
+            }
+          }
+        else
+          {
+            /* Otherwise, omit the directory, as if the file existed
+               in the directory with the source.  */
+            deps_output (fbeg, ' ');
+          }
       }
     /* If -M was specified, and this header file won't be added to the
        dependency list, then don't count this as an error, because we can
@@ -4558,31 +4558,31 @@ get_filename:
 
     if (!no_precomp)
       {
-	do {
-	  sprintf (pcftry, "%s%d", fname, pcfnum++);
+        do {
+          sprintf (pcftry, "%s%d", fname, pcfnum++);
 
-	  pcf = open (pcftry, O_RDONLY, 0666);
-	  if (pcf != -1)
-	    {
-	      struct stat s;
+          pcf = open (pcftry, O_RDONLY, 0666);
+          if (pcf != -1)
+            {
+              struct stat s;
 
-	      if (fstat (pcf, &s) != 0)
-		pfatal_with_name (pcftry);
-	      if (! INO_T_EQ (inc->st.st_ino, s.st_ino)
-		  || inc->st.st_dev != s.st_dev)
-		{
-		  pcfbuf = check_precompiled (pcf, &s, fname, &pcfbuflimit);
-		  /* Don't need it any more.  */
-		  close (pcf);
-		}
-	      else
-		{
-		  /* Don't need it at all.  */
-		  close (pcf);
-		  break;
-		}
-	    }
-	} while (pcf != -1 && !pcfbuf);
+              if (fstat (pcf, &s) != 0)
+                pfatal_with_name (pcftry);
+              if (! INO_T_EQ (inc->st.st_ino, s.st_ino)
+                  || inc->st.st_dev != s.st_dev)
+                {
+                  pcfbuf = check_precompiled (pcf, &s, fname, &pcfbuflimit);
+                  /* Don't need it any more.  */
+                  close (pcf);
+                }
+              else
+                {
+                  /* Don't need it at all.  */
+                  close (pcf);
+                  break;
+                }
+            }
+        } while (pcf != -1 && !pcfbuf);
       }
     
     /* Actually process the file */
@@ -4590,7 +4590,7 @@ get_filename:
       pcfname = xmalloc (strlen (pcftry) + 1);
       strcpy (pcfname, pcftry);
       pcfinclude ((U_CHAR *) pcfbuf, (U_CHAR *) pcfbuflimit,
-		  (U_CHAR *) fname, op);
+                  (U_CHAR *) fname, op);
     }
     else
       finclude (f, inc, op, is_system_include (fname), searchptr);
@@ -4637,9 +4637,9 @@ base_name (fname)
   if (isalpha (s[0]) && s[1] == ':') s += 2;
 #endif
 #ifdef VMS
-  if ((p = rindex (s, ':'))) s = p + 1;	/* Skip device.  */
-  if ((p = rindex (s, ']'))) s = p + 1;	/* Skip directory.  */
-  if ((p = rindex (s, '>'))) s = p + 1;	/* Skip alternate (int'n'l) dir.  */
+  if ((p = rindex (s, ':'))) s = p + 1; /* Skip device.  */
+  if ((p = rindex (s, ']'))) s = p + 1; /* Skip directory.  */
+  if ((p = rindex (s, '>'))) s = p + 1; /* Skip alternate (int'n'l) dir.  */
   if (s != fname)
     return s;
 #endif
@@ -4691,21 +4691,21 @@ simplify_filename (filename)
     *to++ = '/';
     if (*++from == '/') {
       if (*++from == '/') {
-	/* 3 or more initial /s are equivalent to 1 /.  */
-	while (*++from == '/')
-	  continue;
+        /* 3 or more initial /s are equivalent to 1 /.  */
+        while (*++from == '/')
+          continue;
       } else {
-	/* On some hosts // differs from /; Posix allows this.  */
-	static int slashslash_vs_slash;
-	if (slashslash_vs_slash == 0) {
-	  struct stat s1, s2;
-	  slashslash_vs_slash = ((stat ("/", &s1) == 0 && stat ("//", &s2) == 0
-				  && INO_T_EQ (s1.st_ino, s2.st_ino)
-				  && s1.st_dev == s2.st_dev)
-				 ? 1 : -1);
-	}
-	if (slashslash_vs_slash < 0)
-	  *to++ = '/';
+        /* On some hosts // differs from /; Posix allows this.  */
+        static int slashslash_vs_slash;
+        if (slashslash_vs_slash == 0) {
+          struct stat s1, s2;
+          slashslash_vs_slash = ((stat ("/", &s1) == 0 && stat ("//", &s2) == 0
+                                  && INO_T_EQ (s1.st_ino, s2.st_ino)
+                                  && s1.st_dev == s2.st_dev)
+                                 ? 1 : -1);
+        }
+        if (slashslash_vs_slash < 0)
+          *to++ = '/';
       }
     }
   }
@@ -4717,17 +4717,17 @@ simplify_filename (filename)
     else {
       /* Copy this component and trailing /, if any.  */
       while ((*to++ = *from++) != '/') {
-	if (!to[-1]) {
-	  /* Trim . component at end of nonempty name.  */
-	  to -= filename <= to - 3 && to[-3] == '/' && to[-2] == '.';
+        if (!to[-1]) {
+          /* Trim . component at end of nonempty name.  */
+          to -= filename <= to - 3 && to[-3] == '/' && to[-2] == '.';
 
-	  /* Trim unnecessary trailing /s.  */
-	  while (to0 < --to && to[-1] == '/')
-	    continue;
+          /* Trim unnecessary trailing /s.  */
+          while (to0 < --to && to[-1] == '/')
+            continue;
 
-	  *to = 0;
-	  return to - filename;
-	}
+          *to = 0;
+          return to - filename;
+        }
       }
     }
 
@@ -4771,15 +4771,15 @@ read_filename_string (ch, f)
     {
       *set++ = ch;
       while ((ch = getc (f)) != EOF && ! is_space[ch])
-	{
-	  if (set - alloc == len)
-	    {
-	      len *= 2;
-	      alloc = xrealloc (alloc, len + 1);
-	      set = alloc + len / 2;
-	    }
-	  *set++ = ch;
-	}
+        {
+          if (set - alloc == len)
+            {
+              len *= 2;
+              alloc = xrealloc (alloc, len + 1);
+              set = alloc + len / 2;
+            }
+          *set++ = ch;
+        }
     }
   *set = '\0';
   ungetc (ch, f);
@@ -4814,7 +4814,7 @@ read_name_map (dirname)
       return map_list_ptr->map_list_map;
 
   map_list_ptr = ((struct file_name_map_list *)
-		  xmalloc (sizeof (struct file_name_map_list)));
+                  xmalloc (sizeof (struct file_name_map_list)));
   map_list_ptr->map_list_name = savestring (dirname);
   map_list_ptr->map_list_map = NULL;
 
@@ -4830,43 +4830,43 @@ read_name_map (dirname)
       int ch;
 
       while ((ch = getc (f)) != EOF)
-	{
-	  char *from, *to;
-	  struct file_name_map *ptr;
-	  size_t tolen;
+        {
+          char *from, *to;
+          struct file_name_map *ptr;
+          size_t tolen;
 
-	  if (is_space[ch])
-	    continue;
-	  from = read_filename_string (ch, f);
-	  while ((ch = getc (f)) != EOF && is_hor_space[ch])
-	    ;
-	  to = read_filename_string (ch, f);
+          if (is_space[ch])
+            continue;
+          from = read_filename_string (ch, f);
+          while ((ch = getc (f)) != EOF && is_hor_space[ch])
+            ;
+          to = read_filename_string (ch, f);
 
-	  simplify_filename (from);
-	  tolen = simplify_filename (to);
+          simplify_filename (from);
+          tolen = simplify_filename (to);
 
-	  ptr = ((struct file_name_map *)
-		 xmalloc (sizeof (struct file_name_map)));
-	  ptr->map_from = from;
+          ptr = ((struct file_name_map *)
+                 xmalloc (sizeof (struct file_name_map)));
+          ptr->map_from = from;
 
-	  /* Make the real filename absolute.  */
-	  if (absolute_filename (to))
-	    ptr->map_to = to;
-	  else
-	    {
-	      ptr->map_to = xmalloc (dirlen + tolen + 1);
-	      strcpy (ptr->map_to, dirname);
-	      strcat (ptr->map_to, to);
-	      free (to);
-	    }	      
+          /* Make the real filename absolute.  */
+          if (absolute_filename (to))
+            ptr->map_to = to;
+          else
+            {
+              ptr->map_to = xmalloc (dirlen + tolen + 1);
+              strcpy (ptr->map_to, dirname);
+              strcat (ptr->map_to, to);
+              free (to);
+            }         
 
-	  ptr->map_next = map_list_ptr->map_list_map;
-	  map_list_ptr->map_list_map = ptr;
+          ptr->map_next = map_list_ptr->map_list_map;
+          map_list_ptr->map_list_map = ptr;
 
-	  while ((ch = getc (f)) != '\n')
-	    if (ch == EOF)
-	      break;
-	}
+          while ((ch = getc (f)) != '\n')
+            if (ch == EOF)
+              break;
+        }
       fclose (f);
     }
   
@@ -4898,8 +4898,8 @@ open_include_file (filename, searchptr, importing, pinc)
 
   /* Look up FNAME in include_hashtab.  */
   struct include_file **phead = &include_hashtab[hashf ((U_CHAR *) fname,
-							strlen (fname),
-							INCLUDE_HASHSIZE)];
+                                                        strlen (fname),
+                                                        INCLUDE_HASHSIZE)];
   struct include_file *inc, *head = *phead;
   for (inc = head; inc; inc = inc->next)
     if (!strcmp (fname, inc->fname))
@@ -4922,15 +4922,15 @@ open_include_file (filename, searchptr, importing, pinc)
       inc->control_macro = 0;
       inc->deps_output = 0;
       if (fstat (fd, &inc->st) != 0)
-	pfatal_with_name (fname);
+        pfatal_with_name (fname);
       *phead = inc;
 
       /* Look for another file with the same inode and device.  */
       if (lookup_ino_include (inc)
-	  && inc->control_macro
-	  && (!inc->control_macro[0] || lookup (inc->control_macro, -1, -1))) {
-	close (fd);
-	fd = -2;
+          && inc->control_macro
+          && (!inc->control_macro[0] || lookup (inc->control_macro, -1, -1))) {
+        close (fd);
+        fd = -2;
       }
     }
 
@@ -4966,16 +4966,16 @@ remap_include_file (filename, searchptr)
   if (searchptr)
     {
       if (! searchptr->got_name_map)
-	{
-	  searchptr->name_map = read_name_map (searchptr->fname);
-	  searchptr->got_name_map = 1;
-	}
+        {
+          searchptr->name_map = read_name_map (searchptr->fname);
+          searchptr->got_name_map = 1;
+        }
 
       /* Check the mapping for the directory we are using.  */
       from = filename + strlen (searchptr->fname);
       for (map = searchptr->name_map; map; map = map->map_next)
-	if (! strcmp (map->map_from, from))
-	  return map->map_to;
+        if (! strcmp (map->map_from, from))
+          return map->map_to;
     }
 
   from = base_name (filename);
@@ -4983,17 +4983,17 @@ remap_include_file (filename, searchptr)
   if (from != filename || !searchptr)
     {
       /* Try to find a mapping file for the particular directory we are
-	 looking in.  Thus #include <sys/types.h> will look up sys/types.h
-	 in /usr/include/header.gcc and look up types.h in
-	 /usr/include/sys/header.gcc.  */
+         looking in.  Thus #include <sys/types.h> will look up sys/types.h
+         in /usr/include/header.gcc and look up types.h in
+         /usr/include/sys/header.gcc.  */
 
       char *dir = (char *) alloca (from - filename + 1);
       bcopy (filename, dir, from - filename);
       dir[from - filename] = '\0';
 
       for (map = read_name_map (dir); map; map = map->map_next)
-	if (! strcmp (map->map_from, from))
-	  return map->map_to;
+        if (! strcmp (map->map_from, from))
+          return map->map_to;
     }
 
   return filename;
@@ -5008,14 +5008,14 @@ lookup_ino_include (inc)
      struct include_file *inc;
 {
   int hash = ((unsigned) (inc->st.st_dev + INO_T_HASH (inc->st.st_ino))
-	      % INCLUDE_HASHSIZE);
+              % INCLUDE_HASHSIZE);
   struct include_file *i = include_ino_hashtab[hash];
   inc->next_ino = i;
   include_ino_hashtab[hash] = inc;
 
   for (; i; i = i->next_ino)
     if (INO_T_EQ (inc->st.st_ino, i->st.st_ino)
-	&& inc->st.st_dev == i->st.st_dev) {
+        && inc->st.st_dev == i->st.st_dev) {
       inc->control_macro = i->control_macro;
       return 1;
     }
@@ -5041,7 +5041,7 @@ finclude (f, inc, op, system_header_p, dirptr)
 {
   char *fname = inc->fname;
   int i;
-  FILE_BUF *fp;			/* For input stack frame */
+  FILE_BUF *fp;                 /* For input stack frame */
   int missing_newline = 0;
 
   CHECK_DEPTH (return;);
@@ -5085,10 +5085,10 @@ finclude (f, inc, op, system_header_p, dirptr)
     for (;;) {
       i = safe_read (f, (char *) fp->buf + st_size, bsize - st_size);
       if (i < 0)
-	goto nope;      /* error! */
+        goto nope;      /* error! */
       st_size += i;
       if (st_size != bsize)
-	break;	/* End of file */
+        break;  /* End of file */
       bsize *= 2;
       fp->buf = (U_CHAR *) xrealloc (fp->buf, bsize + 2);
     }
@@ -5182,11 +5182,11 @@ check_precompiled (pcf, st, fname, limit)
     {
       size_t s = (size_t) st->st_size;
       if (s != st->st_size || s + 2 < s)
-	memory_full ();
+        memory_full ();
       buf = xmalloc (s + 2);
       length = safe_read (pcf, buf, s);
       if (length < 0)
-	goto nope;
+        goto nope;
     }
   else
     abort ();
@@ -5241,30 +5241,30 @@ check_preconditions (prec)
       mdef = create_definition ((U_CHAR *) prec, (U_CHAR *) lineend, NULL_PTR);
 
       if (mdef.defn == 0)
-	abort ();
+        abort ();
       
       if ((hp = lookup (mdef.symnam, mdef.symlen, -1)) == NULL
-	  || (hp->type != T_MACRO && hp->type != T_CONST)
-	  || (hp->type == T_MACRO
-	      && !compare_defs (mdef.defn, hp->value.defn)
-	      && (mdef.defn->length != 2
-		  || mdef.defn->expansion[0] != '\n'
-		  || mdef.defn->expansion[1] != ' ')))
-	return 0;
+          || (hp->type != T_MACRO && hp->type != T_CONST)
+          || (hp->type == T_MACRO
+              && !compare_defs (mdef.defn, hp->value.defn)
+              && (mdef.defn->length != 2
+                  || mdef.defn->expansion[0] != '\n'
+                  || mdef.defn->expansion[1] != ' ')))
+        return 0;
     } else if (!strncmp (prec, "undef", 5)) {
       char *name;
       int len;
       
       prec += 5;
       while (is_hor_space[(U_CHAR) *prec])
-	prec++;
+        prec++;
       name = prec;
       while (is_idchar[(U_CHAR) *prec])
-	prec++;
+        prec++;
       len = prec - name;
       
       if (lookup ((U_CHAR *) name, len, -1))
-	return 0;
+        return 0;
     } else {
       error ("Bad format encountered while reading precompiled file");
       return 0;
@@ -5319,7 +5319,7 @@ pcfinclude (buf, limit, name, op)
     str = (STRINGDEF *) (GENERIC_PTR) cp;
     string_start = cp += sizeof (STRINGDEF);
     
-    for (; *cp; cp++)		/* skip the string */
+    for (; *cp; cp++)           /* skip the string */
       ;
     
     /* We need to macro expand the string here to ensure that the
@@ -5351,40 +5351,40 @@ pcfinclude (buf, limit, name, op)
     else
       /* Otherwise, for each key, */
       for (; nkeys--; free (tmpbuf.buf), cp = endofthiskey + 1) {
-	KEYDEF *kp = (KEYDEF *) (GENERIC_PTR) cp;
-	HASHNODE *hp;
-	
-	/* It starts with a KEYDEF structure */
-	cp += sizeof (KEYDEF);
-	
-	/* Find the end of the key.  At the end of this for loop we
-	   advance CP to the start of the next key using this variable.  */
-	endofthiskey = cp + strlen ((char *) cp);
-	kp->str = str;
-	
-	/* Expand the key, and enter it into the hash table.  */
-	tmpbuf = expand_to_temp_buffer (cp, endofthiskey, 0, 0);
-	tmpbuf.bufp = tmpbuf.buf;
-	
-	while (is_hor_space[*tmpbuf.bufp])
-	  tmpbuf.bufp++;
-	if (!is_idstart[*tmpbuf.bufp]
-	    || tmpbuf.bufp == tmpbuf.buf + tmpbuf.length) {
-	  str->writeflag = 1;
-	  continue;
-	}
-	    
-	hp = lookup (tmpbuf.bufp, -1, -1);
-	if (hp == NULL) {
-	  kp->chain = 0;
-	  install (tmpbuf.bufp, -1, T_PCSTRING, (char *) kp, -1);
-	}
-	else if (hp->type == T_PCSTRING) {
-	  kp->chain = hp->value.keydef;
-	  hp->value.keydef = kp;
-	}
-	else
-	  str->writeflag = 1;
+        KEYDEF *kp = (KEYDEF *) (GENERIC_PTR) cp;
+        HASHNODE *hp;
+        
+        /* It starts with a KEYDEF structure */
+        cp += sizeof (KEYDEF);
+        
+        /* Find the end of the key.  At the end of this for loop we
+           advance CP to the start of the next key using this variable.  */
+        endofthiskey = cp + strlen ((char *) cp);
+        kp->str = str;
+        
+        /* Expand the key, and enter it into the hash table.  */
+        tmpbuf = expand_to_temp_buffer (cp, endofthiskey, 0, 0);
+        tmpbuf.bufp = tmpbuf.buf;
+        
+        while (is_hor_space[*tmpbuf.bufp])
+          tmpbuf.bufp++;
+        if (!is_idstart[*tmpbuf.bufp]
+            || tmpbuf.bufp == tmpbuf.buf + tmpbuf.length) {
+          str->writeflag = 1;
+          continue;
+        }
+            
+        hp = lookup (tmpbuf.bufp, -1, -1);
+        if (hp == NULL) {
+          kp->chain = 0;
+          install (tmpbuf.bufp, -1, T_PCSTRING, (char *) kp, -1);
+        }
+        else if (hp->type == T_PCSTRING) {
+          kp->chain = hp->value.keydef;
+          hp->value.keydef = kp;
+        }
+        else
+          str->writeflag = 1;
       }
   }
   /* This output_line_directive serves to switch us back to the current
@@ -5428,27 +5428,27 @@ write_output ()
   
   while (cur_buf_loc < outbuf.bufp || next_string) {
     if (next_string
-	&& cur_buf_loc - outbuf.buf == next_string->output_mark) {
+        && cur_buf_loc - outbuf.buf == next_string->output_mark) {
       if (next_string->writeflag) {
-	len = 4 * strlen ((char *) next_string->filename) + 32;
-	while (len > line_directive_len)
-	  line_directive = xrealloc (line_directive, 
-				     line_directive_len *= 2);
-	sprintf (line_directive, "\n# %d ", next_string->lineno);
-	strcpy (quote_string (line_directive + strlen (line_directive),
-			      (char *) next_string->filename),
-		"\n");
-	safe_write (fileno (stdout), line_directive, strlen (line_directive));
-	safe_write (fileno (stdout),
-		    (char *) next_string->contents, next_string->len);
-      }	      
+        len = 4 * strlen ((char *) next_string->filename) + 32;
+        while (len > line_directive_len)
+          line_directive = xrealloc (line_directive, 
+                                     line_directive_len *= 2);
+        sprintf (line_directive, "\n# %d ", next_string->lineno);
+        strcpy (quote_string (line_directive + strlen (line_directive),
+                              (char *) next_string->filename),
+                "\n");
+        safe_write (fileno (stdout), line_directive, strlen (line_directive));
+        safe_write (fileno (stdout),
+                    (char *) next_string->contents, next_string->len);
+      }       
       next_string = next_string->chain;
     }
     else {
       len = (next_string
-	     ? (next_string->output_mark 
-		- (cur_buf_loc - outbuf.buf))
-	     : outbuf.bufp - cur_buf_loc);
+             ? (next_string->output_mark 
+                - (cur_buf_loc - outbuf.buf))
+             : outbuf.bufp - cur_buf_loc);
       
       safe_write (fileno (stdout), (char *) cur_buf_loc, len);
       cur_buf_loc += len;
@@ -5513,16 +5513,16 @@ create_definition (buf, limit, op)
      U_CHAR *buf, *limit;
      FILE_BUF *op;
 {
-  U_CHAR *bp;			/* temp ptr into input buffer */
-  U_CHAR *symname;		/* remember where symbol name starts */
-  int sym_length;		/* and how long it is */
+  U_CHAR *bp;                   /* temp ptr into input buffer */
+  U_CHAR *symname;              /* remember where symbol name starts */
+  int sym_length;               /* and how long it is */
   int line = instack[indepth].lineno;
   char *file = instack[indepth].nominal_fname;
   int rest_args = 0;
 
   DEFINITION *defn;
-  int arglengths = 0;		/* Accumulate lengths of arg names
-				   plus number of args.  */
+  int arglengths = 0;           /* Accumulate lengths of arg names
+                                   plus number of args.  */
   MACRODEF mdef;
 
   bp = buf;
@@ -5530,7 +5530,7 @@ create_definition (buf, limit, op)
   while (is_hor_space[*bp])
     bp++;
 
-  symname = bp;			/* remember where it starts */
+  symname = bp;                 /* remember where it starts */
   sym_length = check_macro_name (bp, "macro");
   bp += sym_length;
 
@@ -5542,7 +5542,7 @@ create_definition (buf, limit, op)
     struct arglist *arg_ptrs = NULL;
     int argno = 0;
 
-    bp++;			/* skip '(' */
+    bp++;                       /* skip '(' */
     SKIP_WHITE_SPACE (bp);
 
     /* Loop over macro argument names.  */
@@ -5557,59 +5557,59 @@ create_definition (buf, limit, op)
       arg_ptrs = temp;
 
       if (rest_args)
-	pedwarn ("another parameter follows `%s'",
-		 rest_extension);
+        pedwarn ("another parameter follows `%s'",
+                 rest_extension);
 
       if (!is_idstart[*bp])
-	pedwarn ("invalid character in macro parameter name");
+        pedwarn ("invalid character in macro parameter name");
       
       /* Find the end of the arg name.  */
       while (is_idchar[*bp]) {
-	bp++;
-	/* do we have a "special" rest-args extension here? */
-	if (limit - bp > REST_EXTENSION_LENGTH
-	    && bcmp (rest_extension, bp, REST_EXTENSION_LENGTH) == 0) {
-	  rest_args = 1;
-	  temp->rest_args = 1;
-	  break;
-	}
+        bp++;
+        /* do we have a "special" rest-args extension here? */
+        if (limit - bp > REST_EXTENSION_LENGTH
+            && bcmp (rest_extension, bp, REST_EXTENSION_LENGTH) == 0) {
+          rest_args = 1;
+          temp->rest_args = 1;
+          break;
+        }
       }
       temp->length = bp - temp->name;
       if (rest_args == 1)
-	bp += REST_EXTENSION_LENGTH;
+        bp += REST_EXTENSION_LENGTH;
       arglengths += temp->length + 2;
       SKIP_WHITE_SPACE (bp);
       if (temp->length == 0 || (*bp != ',' && *bp != ')')) {
-	error ("badly punctuated parameter list in `#define'");
-	goto nope;
+        error ("badly punctuated parameter list in `#define'");
+        goto nope;
       }
       if (*bp == ',') {
-	bp++;
-	SKIP_WHITE_SPACE (bp);
-	/* A comma at this point can only be followed by an identifier.  */
-	if (!is_idstart[*bp]) {
-	  error ("badly punctuated parameter list in `#define'");
-	  goto nope;
-	}
+        bp++;
+        SKIP_WHITE_SPACE (bp);
+        /* A comma at this point can only be followed by an identifier.  */
+        if (!is_idstart[*bp]) {
+          error ("badly punctuated parameter list in `#define'");
+          goto nope;
+        }
       }
       if (bp >= limit) {
-	error ("unterminated parameter list in `#define'");
-	goto nope;
+        error ("unterminated parameter list in `#define'");
+        goto nope;
       }
       {
-	struct arglist *otemp;
+        struct arglist *otemp;
 
-	for (otemp = temp->next; otemp != NULL; otemp = otemp->next)
-	  if (temp->length == otemp->length
-	      && bcmp (temp->name, otemp->name, temp->length) == 0) {
-	      error ("duplicate argument name `%.*s' in `#define'",
-		     temp->length, temp->name);
-	      goto nope;
-	  }
+        for (otemp = temp->next; otemp != NULL; otemp = otemp->next)
+          if (temp->length == otemp->length
+              && bcmp (temp->name, otemp->name, temp->length) == 0) {
+              error ("duplicate argument name `%.*s' in `#define'",
+                     temp->length, temp->name);
+              goto nope;
+          }
       }
     }
 
-    ++bp;			/* skip paren */
+    ++bp;                       /* skip paren */
     SKIP_WHITE_SPACE (bp);
     /* now everything from bp before limit is the definition.  */
     defn = collect_expansion (bp, limit, argno, arg_ptrs);
@@ -5623,12 +5623,12 @@ create_definition (buf, limit, op)
       struct arglist *temp;
       int i = 0;
       for (temp = arg_ptrs; temp; temp = temp->next) {
-	bcopy (temp->name, &defn->args.argnames[i], temp->length);
-	i += temp->length;
-	if (temp->next != 0) {
-	  defn->args.argnames[i++] = ',';
-	  defn->args.argnames[i++] = ' ';
-	}
+        bcopy (temp->name, &defn->args.argnames[i], temp->length);
+        i += temp->length;
+        if (temp->next != 0) {
+          defn->args.argnames[i++] = ',';
+          defn->args.argnames[i++] = ' ';
+        }
       }
       defn->args.argnames[i] = 0;
     }
@@ -5637,26 +5637,26 @@ create_definition (buf, limit, op)
 
     if (bp < limit)
       {
-	if (is_hor_space[*bp]) {
-	  bp++;
-	  SKIP_WHITE_SPACE (bp);
-	} else if (sym_length) {
-	  switch (*bp) {
-	    case '!':  case '"':  case '#':  case '%':  case '&':  case '\'':
-	    case ')':  case '*':  case '+':  case ',':  case '-':  case '.':
-	    case '/':  case ':':  case ';':  case '<':  case '=':  case '>':
-	    case '?':  case '[':  case '\\': case ']':  case '^':  case '{':
-	    case '|':  case '}':  case '~':
-	      warning ("missing white space after `#define %.*s'",
-		       sym_length, symname);
-	      break;
+        if (is_hor_space[*bp]) {
+          bp++;
+          SKIP_WHITE_SPACE (bp);
+        } else if (sym_length) {
+          switch (*bp) {
+            case '!':  case '"':  case '#':  case '%':  case '&':  case '\'':
+            case ')':  case '*':  case '+':  case ',':  case '-':  case '.':
+            case '/':  case ':':  case ';':  case '<':  case '=':  case '>':
+            case '?':  case '[':  case '\\': case ']':  case '^':  case '{':
+            case '|':  case '}':  case '~':
+              warning ("missing white space after `#define %.*s'",
+                       sym_length, symname);
+              break;
 
-	    default:
-	      pedwarn ("missing white space after `#define %.*s'",
-		       sym_length, symname);
-	      break;
-	  }
-	}
+            default:
+              pedwarn ("missing white space after `#define %.*s'",
+                       sym_length, symname);
+              break;
+          }
+        }
       }
     /* Now everything from bp before limit is the definition.  */
     defn = collect_expansion (bp, limit, -1, NULL_PTR);
@@ -5709,35 +5709,35 @@ do_define (buf, limit, op, keyword)
       int ok = 0;
       /* Redefining a precompiled key is ok.  */
       if (hp->type == T_PCSTRING)
-	ok = 1;
+        ok = 1;
       /* Redefining a macro is ok if the definitions are the same.  */
       else if (hp->type == T_MACRO)
-	ok = ! compare_defs (mdef.defn, hp->value.defn);
+        ok = ! compare_defs (mdef.defn, hp->value.defn);
       /* Redefining a constant is ok with -D.  */
       else if (hp->type == T_CONST)
         ok = ! done_initializing;
       /* Print the warning if it's not ok.  */
       if (!ok) {
         /* If we are passing through #define and #undef directives, do
-	   that for this re-definition now.  */
+           that for this re-definition now.  */
         if (debug_output && op)
-	  pass_thru_directive (buf, limit, op, keyword);
+          pass_thru_directive (buf, limit, op, keyword);
 
-	pedwarn ("`%.*s' redefined", mdef.symlen, mdef.symnam);
-	if (hp->type == T_MACRO)
-	  pedwarn_with_file_and_line (hp->value.defn->file, hp->value.defn->line,
-				      "this is the location of the previous definition");
+        pedwarn ("`%.*s' redefined", mdef.symlen, mdef.symnam);
+        if (hp->type == T_MACRO)
+          pedwarn_with_file_and_line (hp->value.defn->file, hp->value.defn->line,
+                                      "this is the location of the previous definition");
       }
       /* Replace the old definition.  */
       hp->type = T_MACRO;
       hp->value.defn = mdef.defn;
     } else {
       /* If we are passing through #define and #undef directives, do
-	 that for this new definition now.  */
+         that for this new definition now.  */
       if (debug_output && op)
-	pass_thru_directive (buf, limit, op, keyword);
+        pass_thru_directive (buf, limit, op, keyword);
       install (mdef.symnam, mdef.symlen, T_MACRO,
-	       (char *) mdef.defn, hashcode);
+               (char *) mdef.defn, hashcode);
     }
   }
 
@@ -5766,7 +5766,7 @@ check_macro_name (symname, usage)
       || (sym_length == 1 && *symname == 'L' && (*p == '\'' || *p == '"')))
     error ("invalid %s name", usage);
   else if (!is_idstart[*symname]
-	   || (sym_length == 7 && ! bcmp (symname, "defined", 7)))
+           || (sym_length == 7 && ! bcmp (symname, "defined", 7)))
     error ("invalid %s name `%.*s'", usage, sym_length, symname);
   return sym_length;
 }
@@ -5790,11 +5790,11 @@ compare_defs (d1, d2)
   for (a1 = d1->pattern, a2 = d2->pattern; a1 && a2;
        a1 = a1->next, a2 = a2->next) {
     if (!((a1->nchars == a2->nchars && ! bcmp (p1, p2, a1->nchars))
-	  || ! comp_def_part (first, p1, a1->nchars, p2, a2->nchars, 0))
-	|| a1->argno != a2->argno
-	|| a1->stringify != a2->stringify
-	|| a1->raw_before != a2->raw_before
-	|| a1->raw_after != a2->raw_after)
+          || ! comp_def_part (first, p1, a1->nchars, p2, a2->nchars, 0))
+        || a1->argno != a2->argno
+        || a1->stringify != a2->stringify
+        || a1->raw_before != a2->raw_before
+        || a1->raw_after != a2->raw_after)
       return 1;
     first = 0;
     p1 += a1->nchars;
@@ -5803,7 +5803,7 @@ compare_defs (d1, d2)
   if (a1 != a2)
     return 1;
   if (comp_def_part (first, p1, d1->length - (p1 - d1->expansion),
-		     p2, d2->length - (p2 - d2->expansion), 1))
+                     p2, d2->length - (p2 - d2->expansion), 1))
     return 1;
   return 0;
 }
@@ -5897,7 +5897,7 @@ collect_expansion (buf, end, nargs, arglist)
      so this is an upper bound.
      The extra 3 are for invented trailing newline-marker and final null.  */
   maxsize = (sizeof (DEFINITION)
-	     + (limit - p) + 3);
+             + (limit - p) + 3);
   defn = (DEFINITION *) xcalloc (1, maxsize);
 
   defn->nargs = nargs;
@@ -5927,121 +5927,121 @@ collect_expansion (buf, end, nargs, arglist)
             expected_delimiter = '\0';
         } else
           expected_delimiter = c;
-	break;
+        break;
 
       case '\\':
-	if (p < limit && expected_delimiter) {
-	  /* In a string, backslash goes through
-	     and makes next char ordinary.  */
-	  *exp_p++ = *p++;
-	}
-	break;
+        if (p < limit && expected_delimiter) {
+          /* In a string, backslash goes through
+             and makes next char ordinary.  */
+          *exp_p++ = *p++;
+        }
+        break;
 
       case '%':
-	if (!expected_delimiter && *p == ':') {
-	  /* %: is not a digraph if preceded by an odd number of '<'s.  */
-	  U_CHAR *p0 = p - 1;
-	  while (buf < p0 && p0[-1] == '<')
-	    p0--;
-	  if ((p - p0) & 1) {
-	    /* Treat %:%: as ## and %: as #.  */
-	    if (p[1] == '%' && p[2] == ':') {
-	      p += 2;
-	      goto sharp_sharp_token;
-	    }
-	    if (nargs >= 0) {
-	      p++;
-	      goto sharp_token;
-	    }
-	  }
-	}
-	break;
+        if (!expected_delimiter && *p == ':') {
+          /* %: is not a digraph if preceded by an odd number of '<'s.  */
+          U_CHAR *p0 = p - 1;
+          while (buf < p0 && p0[-1] == '<')
+            p0--;
+          if ((p - p0) & 1) {
+            /* Treat %:%: as ## and %: as #.  */
+            if (p[1] == '%' && p[2] == ':') {
+              p += 2;
+              goto sharp_sharp_token;
+            }
+            if (nargs >= 0) {
+              p++;
+              goto sharp_token;
+            }
+          }
+        }
+        break;
 
       case '#':
-	/* # is ordinary inside a string.  */
-	if (expected_delimiter)
-	  break;
-	if (*p == '#') {
-	sharp_sharp_token:
-	  /* ##: concatenate preceding and following tokens.  */
-	  /* Take out the first #, discard preceding whitespace.  */
-	  exp_p--;
-	  while (exp_p > lastp && is_hor_space[exp_p[-1]])
-	    --exp_p;
-	  /* Skip the second #.  */
-	  p++;
-	  concat_sharp_token_type = c;
-	  if (is_hor_space[*p]) {
-	    concat_sharp_token_type = c + 1;
-	    p++;
-	    SKIP_WHITE_SPACE (p);
-	  }
-	  concat = p;
-	  if (p == limit)
-	    error ("`##' at end of macro definition");
-	} else if (nargs >= 0) {
-	  /* Single #: stringify following argument ref.
-	     Don't leave the # in the expansion.  */
-	sharp_token:
-	  exp_p--;
-	  stringify_sharp_token_type = c;
-	  if (is_hor_space[*p]) {
-	    stringify_sharp_token_type = c + 1;
-	    p++;
-	    SKIP_WHITE_SPACE (p);
-	  }
-	  if (! is_idstart[*p] || nargs == 0
-	      || (*p == 'L' && (p[1] == '\'' || p[1] == '"')))
-	    error ("`#' operator is not followed by a macro argument name");
-	  else
-	    stringify = p;
-	}
-	break;
+        /* # is ordinary inside a string.  */
+        if (expected_delimiter)
+          break;
+        if (*p == '#') {
+        sharp_sharp_token:
+          /* ##: concatenate preceding and following tokens.  */
+          /* Take out the first #, discard preceding whitespace.  */
+          exp_p--;
+          while (exp_p > lastp && is_hor_space[exp_p[-1]])
+            --exp_p;
+          /* Skip the second #.  */
+          p++;
+          concat_sharp_token_type = c;
+          if (is_hor_space[*p]) {
+            concat_sharp_token_type = c + 1;
+            p++;
+            SKIP_WHITE_SPACE (p);
+          }
+          concat = p;
+          if (p == limit)
+            error ("`##' at end of macro definition");
+        } else if (nargs >= 0) {
+          /* Single #: stringify following argument ref.
+             Don't leave the # in the expansion.  */
+        sharp_token:
+          exp_p--;
+          stringify_sharp_token_type = c;
+          if (is_hor_space[*p]) {
+            stringify_sharp_token_type = c + 1;
+            p++;
+            SKIP_WHITE_SPACE (p);
+          }
+          if (! is_idstart[*p] || nargs == 0
+              || (*p == 'L' && (p[1] == '\'' || p[1] == '"')))
+            error ("`#' operator is not followed by a macro argument name");
+          else
+            stringify = p;
+        }
+        break;
       }
     } else {
       /* In -traditional mode, recognize arguments inside strings and
-	 and character constants, and ignore special properties of #.
-	 Arguments inside strings are considered "stringified", but no
-	 extra quote marks are supplied.  */
+         and character constants, and ignore special properties of #.
+         Arguments inside strings are considered "stringified", but no
+         extra quote marks are supplied.  */
       switch (c) {
       case '\'':
       case '\"':
-	if (expected_delimiter != '\0') {
-	  if (c == expected_delimiter)
-	    expected_delimiter = '\0';
-	} else
-	  expected_delimiter = c;
-	break;
+        if (expected_delimiter != '\0') {
+          if (c == expected_delimiter)
+            expected_delimiter = '\0';
+        } else
+          expected_delimiter = c;
+        break;
 
       case '\\':
-	/* Backslash quotes delimiters and itself, but not macro args.  */
-	if (expected_delimiter != 0 && p < limit
-	    && (*p == expected_delimiter || *p == '\\')) {
-	  *exp_p++ = *p++;
-	  continue;
-	}
-	break;
+        /* Backslash quotes delimiters and itself, but not macro args.  */
+        if (expected_delimiter != 0 && p < limit
+            && (*p == expected_delimiter || *p == '\\')) {
+          *exp_p++ = *p++;
+          continue;
+        }
+        break;
 
       case '/':
-	if (expected_delimiter != '\0') /* No comments inside strings.  */
-	  break;
-	if (*p == '*') {
-	  /* If we find a comment that wasn't removed by handle_directive,
-	     this must be -traditional.  So replace the comment with
-	     nothing at all.  */
-	  exp_p--;
-	  while (++p < limit) {
-	    if (p[0] == '*' && p[1] == '/') {
-	      p += 2;
-	      break;
-	    }
-	  }
+        if (expected_delimiter != '\0') /* No comments inside strings.  */
+          break;
+        if (*p == '*') {
+          /* If we find a comment that wasn't removed by handle_directive,
+             this must be -traditional.  So replace the comment with
+             nothing at all.  */
+          exp_p--;
+          while (++p < limit) {
+            if (p[0] == '*' && p[1] == '/') {
+              p += 2;
+              break;
+            }
+          }
 #if 0
-	  /* Mark this as a concatenation-point, as if it had been ##.  */
-	  concat = p;
+          /* Mark this as a concatenation-point, as if it had been ##.  */
+          concat = p;
 #endif
-	}
-	break;
+        }
+        break;
       }
     }
 
@@ -6055,76 +6055,76 @@ collect_expansion (buf, end, nargs, arglist)
       id_len = p - id_beg;
 
       if (is_idstart[c]
-	  && ! (id_len == 1 && c == 'L' && (*p == '\'' || *p == '"'))) {
-	register struct arglist *arg;
+          && ! (id_len == 1 && c == 'L' && (*p == '\'' || *p == '"'))) {
+        register struct arglist *arg;
 
-	for (arg = arglist; arg != NULL; arg = arg->next) {
-	  struct reflist *tpat;
+        for (arg = arglist; arg != NULL; arg = arg->next) {
+          struct reflist *tpat;
 
-	  if (arg->name[0] == c
-	      && arg->length == id_len
-	      && bcmp (arg->name, id_beg, id_len) == 0) {
-	    enum sharp_token_type tpat_stringify;
-	    if (expected_delimiter) {
-	      if (warn_stringify) {
-		if (traditional) {
-		  warning ("macro argument `%.*s' is stringified.",
-			   id_len, arg->name);
-		} else {
-		  warning ("macro arg `%.*s' would be stringified with -traditional.",
-			   id_len, arg->name);
-		}
-	      }
-	      /* If ANSI, don't actually substitute inside a string.  */
-	      if (!traditional)
-		break;
-	      tpat_stringify = SHARP_TOKEN;
-	    } else {
-	      tpat_stringify
-		= (stringify == id_beg
-		   ? stringify_sharp_token_type : NO_SHARP_TOKEN);
-	    }
-	    /* make a pat node for this arg and append it to the end of
-	       the pat list */
-	    tpat = (struct reflist *) xmalloc (sizeof (struct reflist));
-	    tpat->next = NULL;
-	    tpat->raw_before
-	      = concat == id_beg ? concat_sharp_token_type : NO_SHARP_TOKEN;
-	    tpat->raw_after = NO_SHARP_TOKEN;
-	    tpat->rest_args = arg->rest_args;
-	    tpat->stringify = tpat_stringify;
+          if (arg->name[0] == c
+              && arg->length == id_len
+              && bcmp (arg->name, id_beg, id_len) == 0) {
+            enum sharp_token_type tpat_stringify;
+            if (expected_delimiter) {
+              if (warn_stringify) {
+                if (traditional) {
+                  warning ("macro argument `%.*s' is stringified.",
+                           id_len, arg->name);
+                } else {
+                  warning ("macro arg `%.*s' would be stringified with -traditional.",
+                           id_len, arg->name);
+                }
+              }
+              /* If ANSI, don't actually substitute inside a string.  */
+              if (!traditional)
+                break;
+              tpat_stringify = SHARP_TOKEN;
+            } else {
+              tpat_stringify
+                = (stringify == id_beg
+                   ? stringify_sharp_token_type : NO_SHARP_TOKEN);
+            }
+            /* make a pat node for this arg and append it to the end of
+               the pat list */
+            tpat = (struct reflist *) xmalloc (sizeof (struct reflist));
+            tpat->next = NULL;
+            tpat->raw_before
+              = concat == id_beg ? concat_sharp_token_type : NO_SHARP_TOKEN;
+            tpat->raw_after = NO_SHARP_TOKEN;
+            tpat->rest_args = arg->rest_args;
+            tpat->stringify = tpat_stringify;
 
-	    if (endpat == NULL)
-	      defn->pattern = tpat;
-	    else
-	      endpat->next = tpat;
-	    endpat = tpat;
+            if (endpat == NULL)
+              defn->pattern = tpat;
+            else
+              endpat->next = tpat;
+            endpat = tpat;
 
-	    tpat->argno = arg->argno;
-	    tpat->nchars = exp_p - lastp;
-	    {
-	      register U_CHAR *p1 = p;
-	      SKIP_WHITE_SPACE (p1);
-	      if (p1[0]=='#'
-	          ? p1[1]=='#'
-		  : p1[0]=='%' && p1[1]==':' && p1[2]=='%' && p1[3]==':')
-		tpat->raw_after = p1[0] + (p != p1);
-	    }
-	    lastp = exp_p;	/* place to start copying from next time */
-	    skipped_arg = 1;
-	    break;
-	  }
-	}
+            tpat->argno = arg->argno;
+            tpat->nchars = exp_p - lastp;
+            {
+              register U_CHAR *p1 = p;
+              SKIP_WHITE_SPACE (p1);
+              if (p1[0]=='#'
+                  ? p1[1]=='#'
+                  : p1[0]=='%' && p1[1]==':' && p1[2]=='%' && p1[3]==':')
+                tpat->raw_after = p1[0] + (p != p1);
+            }
+            lastp = exp_p;      /* place to start copying from next time */
+            skipped_arg = 1;
+            break;
+          }
+        }
       }
 
       /* If this was not a macro arg, copy it into the expansion.  */
       if (! skipped_arg) {
-	register U_CHAR *lim1 = p;
-	p = id_beg;
-	while (p != lim1)
-	  *exp_p++ = *p++;
-	if (stringify == id_beg)
-	  error ("`#' operator should be followed by a macro argument name");
+        register U_CHAR *lim1 = p;
+        p = id_beg;
+        while (p != lim1)
+          *exp_p++ = *p++;
+        if (stringify == id_beg)
+          error ("`#' operator should be followed by a macro argument name");
       }
     }
   }
@@ -6160,9 +6160,9 @@ do_assert (buf, limit, op, keyword)
      FILE_BUF *op;
      struct directive *keyword;
 {
-  U_CHAR *bp;			/* temp ptr into input buffer */
-  U_CHAR *symname;		/* remember where symbol name starts */
-  int sym_length;		/* and how long it is */
+  U_CHAR *bp;                   /* temp ptr into input buffer */
+  U_CHAR *symname;              /* remember where symbol name starts */
+  int sym_length;               /* and how long it is */
   struct arglist *tokens = NULL;
 
   if (pedantic && done_initializing && !instack[indepth].system_header_p)
@@ -6173,7 +6173,7 @@ do_assert (buf, limit, op, keyword)
   while (is_hor_space[*bp])
     bp++;
 
-  symname = bp;			/* remember where it starts */
+  symname = bp;                 /* remember where it starts */
   sym_length = check_macro_name (bp, "assertion");
   bp += sym_length;
   /* #define doesn't do this, but we should.  */
@@ -6191,7 +6191,7 @@ do_assert (buf, limit, op, keyword)
   {
     int error_flag = 0;
 
-    bp++;			/* skip '(' */
+    bp++;                       /* skip '(' */
     SKIP_WHITE_SPACE (bp);
 
     tokens = read_token_list (&bp, limit, &error_flag);
@@ -6202,7 +6202,7 @@ do_assert (buf, limit, op, keyword)
       return 1;
     }
 
-    ++bp;			/* skip paren */
+    ++bp;                       /* skip paren */
     SKIP_WHITE_SPACE (bp);
   }
 
@@ -6218,7 +6218,7 @@ do_assert (buf, limit, op, keyword)
     hp = assertion_lookup (symname, sym_length, hashcode);
     if (hp == NULL) {
       if (sym_length == 7 && ! bcmp (symname, "defined", 7))
-	error ("`defined' redefined as assertion");
+        error ("`defined' redefined as assertion");
       hp = assertion_install (symname, sym_length, hashcode);
     }
 
@@ -6237,9 +6237,9 @@ do_unassert (buf, limit, op, keyword)
      FILE_BUF *op;
      struct directive *keyword;
 {
-  U_CHAR *bp;			/* temp ptr into input buffer */
-  U_CHAR *symname;		/* remember where symbol name starts */
-  int sym_length;		/* and how long it is */
+  U_CHAR *bp;                   /* temp ptr into input buffer */
+  U_CHAR *symname;              /* remember where symbol name starts */
+  int sym_length;               /* and how long it is */
 
   struct arglist *tokens = NULL;
   int tokens_specified = 0;
@@ -6252,7 +6252,7 @@ do_unassert (buf, limit, op, keyword)
   while (is_hor_space[*bp])
     bp++;
 
-  symname = bp;			/* remember where it starts */
+  symname = bp;                 /* remember where it starts */
   sym_length = check_macro_name (bp, "assertion");
   bp += sym_length;
   /* #define doesn't do this, but we should.  */
@@ -6265,7 +6265,7 @@ do_unassert (buf, limit, op, keyword)
   if (*bp == '(') {
     int error_flag = 0;
 
-    bp++;			/* skip '(' */
+    bp++;                       /* skip '(' */
     SKIP_WHITE_SPACE (bp);
 
     tokens = read_token_list (&bp, limit, &error_flag);
@@ -6278,7 +6278,7 @@ do_unassert (buf, limit, op, keyword)
 
     tokens_specified = 1;
 
-    ++bp;			/* skip paren */
+    ++bp;                       /* skip paren */
     SKIP_WHITE_SPACE (bp);
   }
 
@@ -6296,9 +6296,9 @@ do_unassert (buf, limit, op, keyword)
     if (! tokens_specified) {
       struct tokenlist_list *next;
       for (tail = hp->value; tail; tail = next) {
-	next = tail->next;
-	free_token_list (tail->tokens);
-	free (tail);
+        next = tail->next;
+        free_token_list (tail->tokens);
+        free (tail);
       }
       delete_assertion (hp);
     } else {
@@ -6307,18 +6307,18 @@ do_unassert (buf, limit, op, keyword)
       tail = hp->value;
       prev = 0;
       while (tail) {
-	struct tokenlist_list *next = tail->next;
-	if (compare_token_lists (tail->tokens, tokens)) {
-	  if (prev)
-	    prev->next = next;
-	  else
-	    hp->value = tail->next;
-	  free_token_list (tail->tokens);
-	  free (tail);
-	} else {
-	  prev = tail;
-	}
-	tail = next;
+        struct tokenlist_list *next = tail->next;
+        if (compare_token_lists (tail->tokens, tokens)) {
+          if (prev)
+            prev->next = next;
+          else
+            hp->value = tail->next;
+          free_token_list (tail->tokens);
+          free (tail);
+        } else {
+          prev = tail;
+        }
+        tail = next;
       }
     }
   }
@@ -6363,7 +6363,7 @@ check_assertion (name, sym_length, tokens_specified, tokens)
 
     while (tail) {
       if (compare_token_lists (tail->tokens, tokens))
-	return 1;
+        return 1;
       tail = tail->next;
     }
 
@@ -6422,14 +6422,14 @@ read_token_list (bpp, limit, error_flag)
     } else if (*bp == ')') {
       depth--;
       if (depth == 0)
-	break;
+        break;
       bp++;
     } else if (*bp == '"' || *bp == '\'')
       bp = skip_quoted_string (bp, limit, 0, NULL_PTR, NULL_PTR, &eofp);
     else
       while (! is_hor_space[*bp] && *bp != '(' && *bp != ')'
-	     && *bp != '"' && *bp != '\'' && bp != limit)
-	bp++;
+             && *bp != '"' && *bp != '\'' && bp != limit)
+        bp++;
 
     temp = (struct arglist *) xmalloc (sizeof (struct arglist));
     temp->name = (U_CHAR *) xmalloc (bp - beg + 1);
@@ -6622,24 +6622,24 @@ do_line (buf, limit, op, keyword)
     for (;;)
       switch ((*p++ = *bp++)) {
       case '\0':
-	error ("invalid format `#line' directive");
-	return 0;
+        error ("invalid format `#line' directive");
+        return 0;
 
       case '\\':
-	{
-	  char *bpc = (char *) bp;
-	  HOST_WIDE_INT c = parse_escape (&bpc, (HOST_WIDE_INT) (U_CHAR) (-1));
-	  bp = (U_CHAR *) bpc;
-	  if (c < 0)
-	    p--;
-	  else
-	    p[-1] = c;
-	}
-	break;
+        {
+          char *bpc = (char *) bp;
+          HOST_WIDE_INT c = parse_escape (&bpc, (HOST_WIDE_INT) (U_CHAR) (-1));
+          bp = (U_CHAR *) bpc;
+          if (c < 0)
+            p--;
+          else
+            p[-1] = c;
+        }
+        break;
 
       case '\"':
-	p[-1] = 0;
-	goto fname_done;
+        p[-1] = 0;
+        goto fname_done;
       }
   fname_done:
     fname_length = p - fname;
@@ -6647,44 +6647,44 @@ do_line (buf, limit, op, keyword)
     SKIP_WHITE_SPACE (bp);
     if (*bp) {
       if (pedantic)
-	pedwarn ("garbage at end of `#line' directive");
+        pedwarn ("garbage at end of `#line' directive");
       if (*bp == '1')
-	file_change = enter_file;
+        file_change = enter_file;
       else if (*bp == '2')
-	file_change = leave_file;
+        file_change = leave_file;
       else if (*bp == '3')
-	ip->system_header_p = 1;
+        ip->system_header_p = 1;
       else if (*bp == '4')
-	ip->system_header_p = 2;
+        ip->system_header_p = 2;
       else {
-	error ("invalid format `#line' directive");
-	return 0;
+        error ("invalid format `#line' directive");
+        return 0;
       }
 
       bp++;
       SKIP_WHITE_SPACE (bp);
       if (*bp == '3') {
-	ip->system_header_p = 1;
-	bp++;
-	SKIP_WHITE_SPACE (bp);
+        ip->system_header_p = 1;
+        bp++;
+        SKIP_WHITE_SPACE (bp);
       }
       if (*bp == '4') {
-	ip->system_header_p = 2;
-	bp++;
-	SKIP_WHITE_SPACE (bp);
+        ip->system_header_p = 2;
+        bp++;
+        SKIP_WHITE_SPACE (bp);
       }
       if (*bp) {
-	error ("invalid format `#line' directive");
-	return 0;
+        error ("invalid format `#line' directive");
+        return 0;
       }
     }
 
     hash_bucket = &fname_table[hashf (fname, fname_length, FNAME_HASHSIZE)];
     for (hp = *hash_bucket; hp != NULL; hp = hp->next)
       if (hp->length == fname_length &&
-	  bcmp (hp->value.cpval, fname, fname_length) == 0) {
-	ip->nominal_fname = hp->value.cpval;
-	break;
+          bcmp (hp->value.cpval, fname, fname_length) == 0) {
+        ip->nominal_fname = hp->value.cpval;
+        break;
       }
     if (hp == 0) {
       /* Didn't find it; cons up a new one.  */
@@ -6867,10 +6867,10 @@ do_pragma (buf, limit, op, keyword)
     for (h = 0; h < INCLUDE_HASHSIZE; h++) {
       struct include_file *inc;
       for (inc = include_hashtab[h]; inc; inc = inc->next) {
-	if (!strcmp (base_name (inc->fname), (char *) fname)) {
-	  warning ("`#pragma implementation' for \"%s\" appears after its #include",fname);
-	  return 0;
-	}
+        if (!strcmp (base_name (inc->fname), (char *) fname)) {
+          warning ("`#pragma implementation' for \"%s\" appears after its #include",fname);
+          return 0;
+        }
       }
     }
   }
@@ -6921,8 +6921,8 @@ do_sccs (buf, limit, op, keyword)
 
 /* Handle #if directive by
      1) inserting special `defined' keyword into the hash table
-  	that gets turned into 0 or 1 by special_symbol (thus,
-  	if the luser has a symbol called `defined' already, it won't
+        that gets turned into 0 or 1 by special_symbol (thus,
+        if the luser has a symbol called `defined' already, it won't
         work inside the #if directive)
      2) rescan the input into a temporary output buffer
      3) pass the output buffer to the yacc parser and collect a value
@@ -6964,8 +6964,8 @@ do_elif (buf, limit, op, keyword)
       error ("`#elif' after `#else'");
       fprintf (stderr, " (matches line %d", if_stack->lineno);
       if (if_stack->fname != NULL && ip->fname != NULL
-	  && strcmp (if_stack->fname, ip->nominal_fname) != 0)
-	fprintf (stderr, ", file %s", if_stack->fname);
+          && strcmp (if_stack->fname, ip->nominal_fname) != 0)
+        fprintf (stderr, ", file %s", if_stack->fname);
       fprintf (stderr, ")\n");
     }
     if_stack->type = T_ELIF;
@@ -6978,7 +6978,7 @@ do_elif (buf, limit, op, keyword)
     if (value == 0)
       skip_if_group (ip, 0, op);
     else {
-      ++if_stack->if_succeeded;	/* continue processing input */
+      ++if_stack->if_succeeded; /* continue processing input */
       output_line_directive (ip, op, 1, same_file);
     }
   }
@@ -6998,15 +6998,15 @@ eval_if_expression (buf, length)
   HOST_WIDE_INT value;
 
   save_defined = install ((U_CHAR *) "defined", -1, T_SPEC_DEFINED,
-			  NULL_PTR, -1);
+                          NULL_PTR, -1);
   pcp_inside_if = 1;
   temp_obuf = expand_to_temp_buffer (buf, buf + length, 0, 1);
   pcp_inside_if = 0;
-  delete_macro (save_defined);	/* clean up special symbol */
+  delete_macro (save_defined);  /* clean up special symbol */
 
   temp_obuf.buf[temp_obuf.length] = '\n';
   value = parse_c_expression ((char *) temp_obuf.buf,
-			      warn_undef && !instack[indepth].system_header_p);
+                              warn_undef && !instack[indepth].system_header_p);
 
   free (temp_obuf.buf);
 
@@ -7035,20 +7035,20 @@ do_xifdef (buf, limit, op, keyword)
     while (p != directive_start) {
       U_CHAR c = *p++;
       if (is_space[c])
-	;
+        ;
       /* Make no special provision for backslash-newline here; this is
-	 slower if backslash-newlines are present, but it's correct,
-	 and it's not worth it to tune for the rare backslash-newline.  */
+         slower if backslash-newlines are present, but it's correct,
+         and it's not worth it to tune for the rare backslash-newline.  */
       else if (c == '/'
-	       && (*p == '*' || (cplusplus_comments && *p == '/'))) {
-	/* Skip this comment.  */
-	int junk = 0;
-	U_CHAR *save_bufp = ip->bufp;
-	ip->bufp = p + 1;
-	p = skip_to_end_of_comment (ip, &junk, 1);
-	ip->bufp = save_bufp;
+               && (*p == '*' || (cplusplus_comments && *p == '/'))) {
+        /* Skip this comment.  */
+        int junk = 0;
+        U_CHAR *save_bufp = ip->bufp;
+        ip->bufp = p + 1;
+        p = skip_to_end_of_comment (ip, &junk, 1);
+        ip->bufp = save_bufp;
       } else {
-	goto fail;
+        goto fail;
       }
     }
     /* If we get here, this conditional is the beginning of the file.  */
@@ -7067,16 +7067,16 @@ do_xifdef (buf, limit, op, keyword)
     skip = (keyword->type == T_IFDEF);
     if (! traditional)
       pedwarn (end == limit ? "`#%s' with no argument"
-	       : "`#%s' argument starts with punctuation",
-	       keyword->name);
+               : "`#%s' argument starts with punctuation",
+               keyword->name);
   } else {
     HASHNODE *hp;
 
     if (! traditional) {
       if (isdigit (buf[0]))
-	pedwarn ("`#%s' argument starts with a digit", keyword->name);
+        pedwarn ("`#%s' argument starts with a digit", keyword->name);
       else if (end != limit)
-	pedwarn ("garbage at end of `#%s' argument", keyword->name);
+        pedwarn ("garbage at end of `#%s' argument", keyword->name);
     }
 
     hp = lookup (buf, end-buf, -1);
@@ -7084,15 +7084,15 @@ do_xifdef (buf, limit, op, keyword)
     if (pcp_outfile) {
       /* Output a precondition for this macro.  */
       if (hp
-	  && (hp->type == T_CONST
-	      || (hp->type == T_MACRO && hp->value.defn->predefined)))
-	fprintf (pcp_outfile, "#define %s\n", hp->name);
+          && (hp->type == T_CONST
+              || (hp->type == T_MACRO && hp->value.defn->predefined)))
+        fprintf (pcp_outfile, "#define %s\n", hp->name);
       else {
-	U_CHAR *cp = buf;
-	fprintf (pcp_outfile, "#undef ");
-	while (is_idchar[*cp]) /* Ick! */
-	  fputc (*cp++, pcp_outfile);
-	putc ('\n', pcp_outfile);
+        U_CHAR *cp = buf;
+        fprintf (pcp_outfile, "#undef ");
+        while (is_idchar[*cp]) /* Ick! */
+          fputc (*cp++, pcp_outfile);
+        putc ('\n', pcp_outfile);
       }
     }
 
@@ -7169,8 +7169,8 @@ skip_if_group (ip, any, op)
 
     if (op->bufp > op->buf && op->bufp[-1] != '\n')
       {
-	*op->bufp++ = '\n';
-	op->lineno++;
+        *op->bufp++ = '\n';
+        op->lineno++;
       }
     check_expand (op, len);
     bcopy (ptr, (char *) op->bufp, len);
@@ -7181,53 +7181,53 @@ skip_if_group (ip, any, op)
 
   while (bp < endb) {
     switch (*bp++) {
-    case '/':			/* possible comment */
+    case '/':                   /* possible comment */
       if (*bp == '\\' && bp[1] == '\n')
-	newline_fix (bp);
+        newline_fix (bp);
       if (*bp == '*'
-	  || (cplusplus_comments && *bp == '/')) {
-	ip->bufp = ++bp;
-	bp = skip_to_end_of_comment (ip, &ip->lineno, 0);
+          || (cplusplus_comments && *bp == '/')) {
+        ip->bufp = ++bp;
+        bp = skip_to_end_of_comment (ip, &ip->lineno, 0);
       }
       break;
     case '<':
       if (skipping_include_directive) {
-	while (bp < endb && *bp != '>' && *bp != '\n') {
-	  if (*bp == '\\' && bp[1] == '\n') {
-	    ip->lineno++;
-	    bp++;
-	  }
-	  bp++;
-	}
+        while (bp < endb && *bp != '>' && *bp != '\n') {
+          if (*bp == '\\' && bp[1] == '\n') {
+            ip->lineno++;
+            bp++;
+          }
+          bp++;
+        }
       }
       break;
     case '\"':
       if (skipping_include_directive) {
-	while (bp < endb && *bp != '\n') {
-	  if (*bp == '"') {
-	    bp++;
-	    break;
-	  }
-	  if (*bp == '\\' && bp[1] == '\n') {
-	    ip->lineno++;
-	    bp++;
-	  }
-	  bp++;
-	}
-	break;
+        while (bp < endb && *bp != '\n') {
+          if (*bp == '"') {
+            bp++;
+            break;
+          }
+          if (*bp == '\\' && bp[1] == '\n') {
+            ip->lineno++;
+            bp++;
+          }
+          bp++;
+        }
+        break;
       }
       /* Fall through.  */
     case '\'':
       bp = skip_quoted_string (bp - 1, endb, ip->lineno, &ip->lineno,
-			       NULL_PTR, NULL_PTR);
+                               NULL_PTR, NULL_PTR);
       break;
     case '\\':
       /* Char after backslash loses its special meaning in some cases.  */
       if (*bp == '\n') {
-	++ip->lineno;
-	bp++;
+        ++ip->lineno;
+        bp++;
       } else if (traditional && bp < endb)
-	bp++;
+        bp++;
       break;
     case '\n':
       ++ip->lineno;
@@ -7236,112 +7236,112 @@ skip_if_group (ip, any, op)
       break;
     case '%':
       if (beg_of_line == 0 || traditional)
-	break;
+        break;
       ip->bufp = bp - 1;
       while (bp[0] == '\\' && bp[1] == '\n')
-	bp += 2;
+        bp += 2;
       if (*bp == ':')
-	goto sharp_token;
+        goto sharp_token;
       break;
     case '#':
       /* # keyword: a # must be first nonblank char on the line */
       if (beg_of_line == 0)
-	break;
+        break;
       ip->bufp = bp - 1;
     sharp_token:
       /* Scan from start of line, skipping whitespace, comments
-	 and backslash-newlines, and see if we reach this #.
-	 If not, this # is not special.  */
+         and backslash-newlines, and see if we reach this #.
+         If not, this # is not special.  */
       bp = beg_of_line;
       /* If -traditional, require # to be at beginning of line.  */
       if (!traditional) {
-	while (1) {
-	  if (is_hor_space[*bp])
-	    bp++;
-	  else if (*bp == '\\' && bp[1] == '\n')
-	    bp += 2;
-	  else if (*bp == '/' && bp[1] == '*') {
-	    bp += 2;
-	    while (!(*bp == '*' && bp[1] == '/'))
-	      bp++;
-	    bp += 2;
-	  }
-	  /* There is no point in trying to deal with C++ // comments here,
-	     because if there is one, then this # must be part of the
-	     comment and we would never reach here.  */
-	  else break;
-	}
+        while (1) {
+          if (is_hor_space[*bp])
+            bp++;
+          else if (*bp == '\\' && bp[1] == '\n')
+            bp += 2;
+          else if (*bp == '/' && bp[1] == '*') {
+            bp += 2;
+            while (!(*bp == '*' && bp[1] == '/'))
+              bp++;
+            bp += 2;
+          }
+          /* There is no point in trying to deal with C++ // comments here,
+             because if there is one, then this # must be part of the
+             comment and we would never reach here.  */
+          else break;
+        }
       }
       if (bp != ip->bufp) {
-	bp = ip->bufp + 1;	/* Reset bp to after the #.  */
-	break;
+        bp = ip->bufp + 1;      /* Reset bp to after the #.  */
+        break;
       }
 
-      bp = ip->bufp + 1;	/* Point after the '#' */
+      bp = ip->bufp + 1;        /* Point after the '#' */
       if (ip->bufp[0] == '%') {
-	/* Skip past the ':' again.  */
-	while (*bp == '\\') {
-	  ip->lineno++;
-	  bp += 2;
-	}
-	bp++;
+        /* Skip past the ':' again.  */
+        while (*bp == '\\') {
+          ip->lineno++;
+          bp += 2;
+        }
+        bp++;
       }
 
       /* Skip whitespace and \-newline.  */
       while (1) {
-	if (is_hor_space[*bp])
-	  bp++;
-	else if (*bp == '\\' && bp[1] == '\n')
-	  bp += 2;
-	else if (*bp == '/') {
-	  if (bp[1] == '\\' && bp[2] == '\n')
-	    newline_fix (bp + 1);
-	  if (bp[1] == '*') {
-	    for (bp += 2; ; bp++) {
-	      if (*bp == '\n')
-		ip->lineno++;
-	      else if (*bp == '*') {
-		if (bp[-1] == '/' && warn_comments)
-		  warning ("`/*' within comment");
-		if (bp[1] == '\\' && bp[2] == '\n')
-		  newline_fix (bp + 1);
-		if (bp[1] == '/')
-		  break;
-	      }
-	    }
-	    bp += 2;
-	  } else if (bp[1] == '/' && cplusplus_comments) {
-	    for (bp += 2; ; bp++) {
-	      if (*bp == '\n') {
-		if (bp[-1] != '\\')
-		  break;
-		if (warn_comments)
-		  warning ("multiline `//' comment");
-		ip->lineno++;
-	      }
-	    }
-	  } else
-	    break;
+        if (is_hor_space[*bp])
+          bp++;
+        else if (*bp == '\\' && bp[1] == '\n')
+          bp += 2;
+        else if (*bp == '/') {
+          if (bp[1] == '\\' && bp[2] == '\n')
+            newline_fix (bp + 1);
+          if (bp[1] == '*') {
+            for (bp += 2; ; bp++) {
+              if (*bp == '\n')
+                ip->lineno++;
+              else if (*bp == '*') {
+                if (bp[-1] == '/' && warn_comments)
+                  warning ("`/*' within comment");
+                if (bp[1] == '\\' && bp[2] == '\n')
+                  newline_fix (bp + 1);
+                if (bp[1] == '/')
+                  break;
+              }
+            }
+            bp += 2;
+          } else if (bp[1] == '/' && cplusplus_comments) {
+            for (bp += 2; ; bp++) {
+              if (*bp == '\n') {
+                if (bp[-1] != '\\')
+                  break;
+                if (warn_comments)
+                  warning ("multiline `//' comment");
+                ip->lineno++;
+              }
+            }
+          } else
+            break;
         } else
-	  break;
+          break;
       }
 
       cp = bp;
 
       /* Now find end of directive name.
-	 If we encounter a backslash-newline, exchange it with any following
-	 symbol-constituents so that we end up with a contiguous name.  */
+         If we encounter a backslash-newline, exchange it with any following
+         symbol-constituents so that we end up with a contiguous name.  */
 
       while (1) {
-	if (is_idchar[*bp])
-	  bp++;
-	else {
-	  if (*bp == '\\' && bp[1] == '\n')
-	    name_newline_fix (bp);
-	  if (is_idchar[*bp])
-	    bp++;
-	  else break;
-	}
+        if (is_idchar[*bp])
+          bp++;
+        else {
+          if (*bp == '\\' && bp[1] == '\n')
+            name_newline_fix (bp);
+          if (is_idchar[*bp])
+            bp++;
+          else break;
+        }
       }
       ident_length = bp - cp;
       ident = cp;
@@ -7350,96 +7350,96 @@ skip_if_group (ip, any, op)
       /* A line of just `#' becomes blank.  */
 
       if (ident_length == 0 && *after_ident == '\n') {
-	continue;
+        continue;
       }
 
       if (ident_length == 0 || !is_idstart[*ident]) {
-	U_CHAR *p = ident;
-	while (is_idchar[*p]) {
-	  if (*p < '0' || *p > '9')
-	    break;
-	  p++;
-	}
-	/* Handle # followed by a line number.  */
-	if (p != ident && !is_idchar[*p]) {
-	  if (pedantic)
-	    pedwarn ("`#' followed by integer");
-	  continue;
-	}
+        U_CHAR *p = ident;
+        while (is_idchar[*p]) {
+          if (*p < '0' || *p > '9')
+            break;
+          p++;
+        }
+        /* Handle # followed by a line number.  */
+        if (p != ident && !is_idchar[*p]) {
+          if (pedantic)
+            pedwarn ("`#' followed by integer");
+          continue;
+        }
 
-	/* Avoid error for `###' and similar cases unless -pedantic.  */
-	if (p == ident) {
-	  while (*p == '#' || is_hor_space[*p]) p++;
-	  if (*p == '\n') {
-	    if (pedantic && !lang_asm)
-	      pedwarn ("invalid preprocessing directive");
-	    continue;
-	  }
-	}
+        /* Avoid error for `###' and similar cases unless -pedantic.  */
+        if (p == ident) {
+          while (*p == '#' || is_hor_space[*p]) p++;
+          if (*p == '\n') {
+            if (pedantic && !lang_asm)
+              pedwarn ("invalid preprocessing directive");
+            continue;
+          }
+        }
 
-	if (!lang_asm && pedantic)
-	  pedwarn ("invalid preprocessing directive name");
-	continue;
+        if (!lang_asm && pedantic)
+          pedwarn ("invalid preprocessing directive name");
+        continue;
       }
 
       for (kt = directive_table; kt->length >= 0; kt++) {
-	IF_STACK_FRAME *temp;
-	if (ident_length == kt->length
-	    && bcmp (cp, kt->name, kt->length) == 0) {
-	  /* If we are asked to return on next directive, do so now.  */
-	  if (any)
-	    goto done;
+        IF_STACK_FRAME *temp;
+        if (ident_length == kt->length
+            && bcmp (cp, kt->name, kt->length) == 0) {
+          /* If we are asked to return on next directive, do so now.  */
+          if (any)
+            goto done;
 
-	  switch (kt->type) {
-	  case T_IF:
-	  case T_IFDEF:
-	  case T_IFNDEF:
-	    temp = (IF_STACK_FRAME *) xcalloc (1, sizeof (IF_STACK_FRAME));
-	    temp->next = if_stack;
-	    if_stack = temp;
-	    temp->lineno = ip->lineno;
-	    temp->fname = ip->nominal_fname;
-	    temp->type = kt->type;
-	    break;
-	  case T_ELSE:
-	  case T_ENDIF:
-	    if (pedantic && if_stack != save_if_stack)
-	      validate_else (bp, endb);
-	  case T_ELIF:
-	    if (if_stack == instack[indepth].if_stack) {
-	      error ("`#%s' not within a conditional", kt->name);
-	      break;
-	    }
-	    else if (if_stack == save_if_stack)
-	      goto done;		/* found what we came for */
+          switch (kt->type) {
+          case T_IF:
+          case T_IFDEF:
+          case T_IFNDEF:
+            temp = (IF_STACK_FRAME *) xcalloc (1, sizeof (IF_STACK_FRAME));
+            temp->next = if_stack;
+            if_stack = temp;
+            temp->lineno = ip->lineno;
+            temp->fname = ip->nominal_fname;
+            temp->type = kt->type;
+            break;
+          case T_ELSE:
+          case T_ENDIF:
+            if (pedantic && if_stack != save_if_stack)
+              validate_else (bp, endb);
+          case T_ELIF:
+            if (if_stack == instack[indepth].if_stack) {
+              error ("`#%s' not within a conditional", kt->name);
+              break;
+            }
+            else if (if_stack == save_if_stack)
+              goto done;                /* found what we came for */
 
-	    if (kt->type != T_ENDIF) {
-	      if (if_stack->type == T_ELSE)
-		error ("`#else' or `#elif' after `#else'");
-	      if_stack->type = kt->type;
-	      break;
-	    }
+            if (kt->type != T_ENDIF) {
+              if (if_stack->type == T_ELSE)
+                error ("`#else' or `#elif' after `#else'");
+              if_stack->type = kt->type;
+              break;
+            }
 
-	    temp = if_stack;
-	    if_stack = if_stack->next;
-	    free (temp);
-	    break;
+            temp = if_stack;
+            if_stack = if_stack->next;
+            free (temp);
+            break;
 
-	  case T_INCLUDE:
-	  case T_INCLUDE_NEXT:
-	  case T_IMPORT:
-	    skipping_include_directive = 1;
-	    break;
+          case T_INCLUDE:
+          case T_INCLUDE_NEXT:
+          case T_IMPORT:
+            skipping_include_directive = 1;
+            break;
 
-	  default:
-	    break;
-	  }
-	  break;
-	}
+          default:
+            break;
+          }
+          break;
+        }
       }
       /* Don't let erroneous code go by.  */
       if (kt->length < 0 && !lang_asm && pedantic)
-	pedwarn ("invalid preprocessing directive name");
+        pedwarn ("invalid preprocessing directive name");
     }
   }
 
@@ -7455,12 +7455,12 @@ skip_if_group (ip, any, op)
 
     if (op->bufp > op->buf && op->bufp[-1] != '\n')
       {
-	*op->bufp++ = '\n';
-	op->lineno++;
+        *op->bufp++ = '\n';
+        op->lineno++;
       }
     check_expand (op, beg_of_line - beg_of_group);
     bcopy ((char *) beg_of_group, (char *) op->bufp,
-	   beg_of_line - beg_of_group);
+           beg_of_line - beg_of_group);
     op->bufp += beg_of_line - beg_of_group;
     op->lineno += ip->lineno - beg_lineno;
     check_expand (op, len);
@@ -7501,7 +7501,7 @@ do_else (buf, limit, op, keyword)
       error ("`#else' after `#else'");
       fprintf (stderr, " (matches line %d", if_stack->lineno);
       if (strcmp (if_stack->fname, ip->nominal_fname) != 0)
-	fprintf (stderr, ", file %s", if_stack->fname);
+        fprintf (stderr, ", file %s", if_stack->fname);
       fprintf (stderr, ")\n");
     }
     if_stack->type = T_ELSE;
@@ -7510,7 +7510,7 @@ do_else (buf, limit, op, keyword)
   if (if_stack->if_succeeded)
     skip_if_group (ip, 0, op);
   else {
-    ++if_stack->if_succeeded;	/* continue processing input */
+    ++if_stack->if_succeeded;   /* continue processing input */
     output_line_directive (ip, op, 1, same_file);
   }
   return 0;
@@ -7537,37 +7537,37 @@ do_endif (buf, limit, op, keyword)
     if_stack = if_stack->next;
     if (temp->control_macro != 0) {
       /* This #endif matched a #ifndef at the start of the file.
-	 See if it is at the end of the file.  */
+         See if it is at the end of the file.  */
       FILE_BUF *ip = &instack[indepth];
       U_CHAR *p = ip->bufp;
       U_CHAR *ep = ip->buf + ip->length;
 
       while (p != ep) {
-	U_CHAR c = *p++;
-	if (!is_space[c]) {
-	  if (c == '/'
-	      && (*p == '*' || (cplusplus_comments && *p == '/'))) {
-	    /* Skip this comment.  */
-	    int junk = 0;
-	    U_CHAR *save_bufp = ip->bufp;
-	    ip->bufp = p + 1;
-	    p = skip_to_end_of_comment (ip, &junk, 1);
-	    ip->bufp = save_bufp;
-	  } else
-	    goto fail;
-	}
+        U_CHAR c = *p++;
+        if (!is_space[c]) {
+          if (c == '/'
+              && (*p == '*' || (cplusplus_comments && *p == '/'))) {
+            /* Skip this comment.  */
+            int junk = 0;
+            U_CHAR *save_bufp = ip->bufp;
+            ip->bufp = p + 1;
+            p = skip_to_end_of_comment (ip, &junk, 1);
+            ip->bufp = save_bufp;
+          } else
+            goto fail;
+        }
       }
       /* If we get here, this #endif ends a #ifndef
-	 that contains all of the file (aside from whitespace).
-	 Arrange not to include the file again
-	 if the macro that was tested is defined.
+         that contains all of the file (aside from whitespace).
+         Arrange not to include the file again
+         if the macro that was tested is defined.
 
-	 Do not do this for the top-level file in a -include or any
-	 file in a -imacros.  */
+         Do not do this for the top-level file in a -include or any
+         file in a -imacros.  */
       if (indepth != 0
-	  && ! (indepth == 1 && no_record_file)
-	  && ! (no_record_file && no_output))
-	record_control_macro (ip->inc, temp->control_macro);
+          && ! (indepth == 1 && no_record_file)
+          && ! (no_record_file && no_output))
+        record_control_macro (ip->inc, temp->control_macro);
     fail: ;
     }
     free (temp);
@@ -7594,25 +7594,25 @@ validate_else (p, limit)
       p++;
     else if (*p == '/') {
       while (p[1] == '\\' && p[2] == '\n')
-	p += 2;
+        p += 2;
       if (p[1] == '*') {
-	/* Don't bother warning about unterminated comments
-	   since that will happen later.  Just be sure to exit.  */
-	for (p += 2; ; p++) {
-	  if (p == limit)
-	    return;
-	  if (*p == '*') {
-	    while (p[1] == '\\' && p[2] == '\n')
-	      p += 2;
-	    if (p[1] == '/') {
-	      p += 2;
-	      break;
-	    }
-	  }
-	}
+        /* Don't bother warning about unterminated comments
+           since that will happen later.  Just be sure to exit.  */
+        for (p += 2; ; p++) {
+          if (p == limit)
+            return;
+          if (*p == '*') {
+            while (p[1] == '\\' && p[2] == '\n')
+              p += 2;
+            if (p[1] == '/') {
+              p += 2;
+              break;
+            }
+          }
+        }
       }
       else if (cplusplus_comments && p[1] == '/')
-	return;
+        return;
       else break;
     } else break;
   }
@@ -7635,7 +7635,7 @@ validate_else (p, limit)
 static U_CHAR *
 skip_to_end_of_comment (ip, line_counter, nowarn)
      register FILE_BUF *ip;
-     int *line_counter;		/* place to remember newlines, or NULL */
+     int *line_counter;         /* place to remember newlines, or NULL */
      int nowarn;
 {
   register U_CHAR *limit = ip->buf + ip->length;
@@ -7643,9 +7643,9 @@ skip_to_end_of_comment (ip, line_counter, nowarn)
   FILE_BUF *op = put_out_comments && !line_counter ? &outbuf : (FILE_BUF *) 0;
   int start_line = line_counter ? *line_counter : 0;
 
-	/* JF this line_counter stuff is a crock to make sure the
-	   comment is only put out once, no matter how many times
-	   the comment is skipped.  It almost works */
+        /* JF this line_counter stuff is a crock to make sure the
+           comment is only put out once, no matter how many times
+           the comment is skipped.  It almost works */
   if (op) {
     *op->bufp++ = '/';
     *op->bufp++ = bp[-1];
@@ -7653,17 +7653,17 @@ skip_to_end_of_comment (ip, line_counter, nowarn)
   if (cplusplus_comments && bp[-1] == '/') {
     for (; bp < limit; bp++) {
       if (*bp == '\n') {
-	if (bp[-1] != '\\')
-	  break;
-	if (!nowarn && warn_comments)
-	  warning ("multiline `//' comment");
-	if (line_counter)
-	  ++*line_counter;
-	if (op)
-	  ++op->lineno;
+        if (bp[-1] != '\\')
+          break;
+        if (!nowarn && warn_comments)
+          warning ("multiline `//' comment");
+        if (line_counter)
+          ++*line_counter;
+        if (op)
+          ++op->lineno;
       }
       if (op)
-	*op->bufp++ = *bp;
+        *op->bufp++ = *bp;
     }
     ip->bufp = bp;
     return bp;
@@ -7674,29 +7674,29 @@ skip_to_end_of_comment (ip, line_counter, nowarn)
     switch (*bp++) {
     case '\n':
       /* If this is the end of the file, we have an unterminated comment.
-	 Don't swallow the newline.  We are guaranteed that there will be a
-	 trailing newline and various pieces assume it's there.  */
+         Don't swallow the newline.  We are guaranteed that there will be a
+         trailing newline and various pieces assume it's there.  */
       if (bp == limit)
-	{
-	  --bp;
-	  --limit;
-	  break;
-	}
+        {
+          --bp;
+          --limit;
+          break;
+        }
       if (line_counter != NULL)
-	++*line_counter;
+        ++*line_counter;
       if (op)
-	++op->lineno;
+        ++op->lineno;
       break;
     case '*':
       if (bp[-2] == '/' && !nowarn && warn_comments)
-	warning ("`/*' within comment");
+        warning ("`/*' within comment");
       if (*bp == '\\' && bp[1] == '\n')
-	newline_fix (bp);
+        newline_fix (bp);
       if (*bp == '/') {
         if (op)
-	  *op->bufp++ = '/';
-	ip->bufp = ++bp;
-	return bp;
+          *op->bufp++ = '/';
+        ip->bufp = ++bp;
+        return bp;
       }
       break;
     }
@@ -7738,54 +7738,54 @@ skip_quoted_string (bp, limit, start_line, count_newlines, backslash_newlines_p,
   while (1) {
     if (bp >= limit) {
       error_with_line (line_for_error (start_line),
-		       "unterminated string or character constant");
+                       "unterminated string or character constant");
       error_with_line (multiline_string_line,
-		       "possible real start of unterminated constant");
+                       "possible real start of unterminated constant");
       multiline_string_line = 0;
       if (eofp)
-	*eofp = 1;
+        *eofp = 1;
       break;
     }
     c = *bp++;
     if (c == '\\') {
       while (*bp == '\\' && bp[1] == '\n') {
-	if (backslash_newlines_p)
-	  *backslash_newlines_p = 1;
-	if (count_newlines)
-	  ++*count_newlines;
-	bp += 2;
+        if (backslash_newlines_p)
+          *backslash_newlines_p = 1;
+        if (count_newlines)
+          ++*count_newlines;
+        bp += 2;
       }
       if (*bp == '\n') {
-	if (backslash_newlines_p)
-	  *backslash_newlines_p = 1;
-	if (count_newlines)
-	  ++*count_newlines;
+        if (backslash_newlines_p)
+          *backslash_newlines_p = 1;
+        if (count_newlines)
+          ++*count_newlines;
       }
       bp++;
     } else if (c == '\n') {
       if (traditional) {
- 	/* Unterminated strings and character constants are 'valid'.  */
- 	bp--;	/* Don't consume the newline.  */
- 	if (eofp)
- 	  *eofp = 1;
- 	break;
+        /* Unterminated strings and character constants are 'valid'.  */
+        bp--;   /* Don't consume the newline.  */
+        if (eofp)
+          *eofp = 1;
+        break;
       }
       if (match == '\'') {
-	error_with_line (line_for_error (start_line),
-			 "unterminated string or character constant");
-	bp--;
-	if (eofp)
-	  *eofp = 1;
-	break;
+        error_with_line (line_for_error (start_line),
+                         "unterminated string or character constant");
+        bp--;
+        if (eofp)
+          *eofp = 1;
+        break;
       }
       /* If not traditional, then allow newlines inside strings.  */
       if (count_newlines)
-	++*count_newlines;
+        ++*count_newlines;
       if (multiline_string_line == 0) {
-	if (pedantic)
-	  pedwarn_with_line (line_for_error (start_line),
-			     "string constant runs past end of line");
-	multiline_string_line = start_line;
+        if (pedantic)
+          pedwarn_with_line (line_for_error (start_line),
+                             "string constant runs past end of line");
+        multiline_string_line = start_line;
       }
     } else if (c == match)
       break;
@@ -7808,24 +7808,24 @@ quote_string (dst, src)
       {
       default:
         if (isprint (c))
-	  *dst++ = c;
-	else
-	  {
-	    sprintf (dst, "\\%03o", c);
-	    dst += 4;
-	  }
-	break;
+          *dst++ = c;
+        else
+          {
+            sprintf (dst, "\\%03o", c);
+            dst += 4;
+          }
+        break;
 
       case '\"':
       case '\\':
-	*dst++ = '\\';
-	*dst++ = c;
-	break;
+        *dst++ = '\\';
+        *dst++ = c;
+        break;
       
       case '\0':
-	*dst++ = '\"';
-	*dst = '\0';
-	return dst;
+        *dst++ = '\"';
+        *dst = '\0';
+        return dst;
       }
 }
 
@@ -7854,23 +7854,23 @@ skip_paren_group (ip)
     case ')':
       depth--;
       if (depth == 0)
-	return ip->bufp = p;
+        return ip->bufp = p;
       break;
 
     case '/':
       if (*p == '*') {
-	ip->bufp = p;
-	p = skip_to_end_of_comment (ip, &lines_dummy, 0);
-	p = ip->bufp;
+        ip->bufp = p;
+        p = skip_to_end_of_comment (ip, &lines_dummy, 0);
+        p = ip->bufp;
       }
 
     case '"':
     case '\'':
       {
-	int eofp = 0;
-	p = skip_quoted_string (p - 1, limit, 0, NULL_PTR, NULL_PTR, &eofp);
-	if (eofp)
-	  return ip->bufp = p;
+        int eofp = 0;
+        p = skip_quoted_string (p - 1, limit, 0, NULL_PTR, NULL_PTR, &eofp);
+        if (eofp)
+          return ip->bufp = p;
       }
       break;
     }
@@ -7911,8 +7911,8 @@ output_line_directive (ip, op, conditional, file_change)
     if (ip->lineno > op->lineno && ip->lineno < op->lineno + 8) {
       check_expand (op, 10);
       while (ip->lineno > op->lineno) {
-	*op->bufp++ = '\n';
-	op->lineno++;
+        *op->bufp++ = '\n';
+        op->lineno++;
       }
       return;
     }
@@ -7920,7 +7920,7 @@ output_line_directive (ip, op, conditional, file_change)
 
   /* Output a positive line number if possible.  */
   while (ip->lineno <= 0 && ip->bufp - ip->buf < ip->length
-	 && *ip->bufp == '\n') {
+         && *ip->bufp == '\n') {
     ip->lineno++;
     ip->bufp++;
   }
@@ -7928,7 +7928,7 @@ output_line_directive (ip, op, conditional, file_change)
   line_directive_buf = (char *) alloca (4 * strlen (ip->nominal_fname) + 100);
   sprintf (line_directive_buf, "# %d ", ip->lineno);
   line_end = quote_string (line_directive_buf + strlen (line_directive_buf),
-			   ip->nominal_fname);
+                           ip->nominal_fname);
   if (file_change != same_file) {
     *line_end++ = ' ';
     *line_end++ = file_change == enter_file ? '1' : '2';
@@ -8022,7 +8022,7 @@ macroexpand (hp, op)
       args[i].raw = (U_CHAR *) "";
       args[i].expanded = 0;
       args[i].raw_length = args[i].expand_length
-	= args[i].stringified_length = 0;
+        = args[i].stringified_length = 0;
       args[i].free1 = args[i].free2 = 0;
       args[i].use_count = 0;
     }
@@ -8038,18 +8038,18 @@ macroexpand (hp, op)
       /* Discard the open-parenthesis or comma before the next arg.  */
       ++instack[indepth].bufp;
       if (rest_args)
-	continue;
+        continue;
       if (i < nargs || (nargs == 0 && i == 0)) {
-	/* If we are working on last arg which absorbs rest of args...  */
-	if (i == nargs - 1 && defn->rest_args)
-	  rest_args = 1;
-	parse_error = macarg (&args[i], rest_args);
+        /* If we are working on last arg which absorbs rest of args...  */
+        if (i == nargs - 1 && defn->rest_args)
+          rest_args = 1;
+        parse_error = macarg (&args[i], rest_args);
       }
       else
-	parse_error = macarg (NULL_PTR, 0);
+        parse_error = macarg (NULL_PTR, 0);
       if (parse_error) {
-	error_with_line (line_for_error (start_line), parse_error);
-	break;
+        error_with_line (line_for_error (start_line), parse_error);
+        break;
       }
       i++;
     } while (*instack[indepth].bufp != ')');
@@ -8059,11 +8059,11 @@ macroexpand (hp, op)
       register U_CHAR *bp = args[0].raw;
       register U_CHAR *lim = bp + args[0].raw_length;
       /* cpp.texi says for foo ( ) we provide one argument.
-	 However, if foo wants just 0 arguments, treat this as 0.  */
+         However, if foo wants just 0 arguments, treat this as 0.  */
       if (nargs == 0)
-	while (bp != lim && is_space[*bp]) bp++;
+        while (bp != lim && is_space[*bp]) bp++;
       if (bp == lim)
-	i = 0;
+        i = 0;
     }
 
     /* Don't output an error message if we have already output one for
@@ -8071,25 +8071,25 @@ macroexpand (hp, op)
     rest_zero = 0;
     if (nargs == 0 && i > 0) {
       if (! parse_error)
-	error ("arguments given to macro `%s'", hp->name);
+        error ("arguments given to macro `%s'", hp->name);
     } else if (i < nargs) {
       /* traditional C allows foo() if foo wants one argument.  */
       if (nargs == 1 && i == 0 && traditional)
-	;
+        ;
       /* the rest args token is allowed to absorb 0 tokens */
       else if (i == nargs - 1 && defn->rest_args)
-	rest_zero = 1;
+        rest_zero = 1;
       else if (parse_error)
-	;
+        ;
       else if (i == 0)
-	error ("macro `%s' used without args", hp->name);
+        error ("macro `%s' used without args", hp->name);
       else if (i == 1)
-	error ("macro `%s' used with just one arg", hp->name);
+        error ("macro `%s' used with just one arg", hp->name);
       else
-	error ("macro `%s' used with only %d args", hp->name, i);
+        error ("macro `%s' used with only %d args", hp->name, i);
     } else if (i > nargs) {
       if (! parse_error)
-	error ("macro `%s' used with too many (%d) args", hp->name, i);
+        error ("macro `%s' used with too many (%d) args", hp->name, i);
     }
 
     /* Swallow the closeparen.  */
@@ -8102,241 +8102,241 @@ macroexpand (hp, op)
       xbuf_len = defn->length;
     } else {
       register U_CHAR *exp = defn->expansion;
-      register int offset;	/* offset in expansion,
-				   copied a piece at a time */
-      register int totlen;	/* total amount of exp buffer filled so far */
+      register int offset;      /* offset in expansion,
+                                   copied a piece at a time */
+      register int totlen;      /* total amount of exp buffer filled so far */
 
       register struct reflist *ap, *last_ap;
 
       /* Macro really takes args.  Compute the expansion of this call.  */
 
       /* Compute length in characters of the macro's expansion.
-	 Also count number of times each arg is used.  */
+         Also count number of times each arg is used.  */
       xbuf_len = defn->length;
       for (ap = defn->pattern; ap != NULL; ap = ap->next) {
-	if (ap->stringify)
-	  xbuf_len += args[ap->argno].stringified_length;
-	else if (ap->raw_before != 0 || ap->raw_after != 0 || traditional)
-	  /* Add 4 for two newline-space markers to prevent
-	     token concatenation.  */
-	  xbuf_len += args[ap->argno].raw_length + 4;
-	else {
-	  /* We have an ordinary (expanded) occurrence of the arg.
-	     So compute its expansion, if we have not already.  */
-	  if (args[ap->argno].expanded == 0) {
-	    FILE_BUF obuf;
-	    obuf = expand_to_temp_buffer (args[ap->argno].raw,
-					  args[ap->argno].raw + args[ap->argno].raw_length,
-					  1, 0);
+        if (ap->stringify)
+          xbuf_len += args[ap->argno].stringified_length;
+        else if (ap->raw_before != 0 || ap->raw_after != 0 || traditional)
+          /* Add 4 for two newline-space markers to prevent
+             token concatenation.  */
+          xbuf_len += args[ap->argno].raw_length + 4;
+        else {
+          /* We have an ordinary (expanded) occurrence of the arg.
+             So compute its expansion, if we have not already.  */
+          if (args[ap->argno].expanded == 0) {
+            FILE_BUF obuf;
+            obuf = expand_to_temp_buffer (args[ap->argno].raw,
+                                          args[ap->argno].raw + args[ap->argno].raw_length,
+                                          1, 0);
 
-	    args[ap->argno].expanded = obuf.buf;
-	    args[ap->argno].expand_length = obuf.length;
-	    args[ap->argno].free2 = obuf.buf;
-	  }
+            args[ap->argno].expanded = obuf.buf;
+            args[ap->argno].expand_length = obuf.length;
+            args[ap->argno].free2 = obuf.buf;
+          }
 
-	  /* Add 4 for two newline-space markers to prevent
-	     token concatenation.  */
-	  xbuf_len += args[ap->argno].expand_length + 4;
-	}
-	if (args[ap->argno].use_count < 10)
-	  args[ap->argno].use_count++;
+          /* Add 4 for two newline-space markers to prevent
+             token concatenation.  */
+          xbuf_len += args[ap->argno].expand_length + 4;
+        }
+        if (args[ap->argno].use_count < 10)
+          args[ap->argno].use_count++;
       }
 
       xbuf = (U_CHAR *) xmalloc (xbuf_len + 1);
 
       /* Generate in XBUF the complete expansion
-	 with arguments substituted in.
-	 TOTLEN is the total size generated so far.
-	 OFFSET is the index in the definition
-	 of where we are copying from.  */
+         with arguments substituted in.
+         TOTLEN is the total size generated so far.
+         OFFSET is the index in the definition
+         of where we are copying from.  */
       offset = totlen = 0;
       for (last_ap = NULL, ap = defn->pattern; ap != NULL;
-	   last_ap = ap, ap = ap->next) {
-	register struct argdata *arg = &args[ap->argno];
-	int count_before = totlen;
+           last_ap = ap, ap = ap->next) {
+        register struct argdata *arg = &args[ap->argno];
+        int count_before = totlen;
 
-	/* Add chars to XBUF.  */
-	for (i = 0; i < ap->nchars; i++, offset++)
-	  xbuf[totlen++] = exp[offset];
+        /* Add chars to XBUF.  */
+        for (i = 0; i < ap->nchars; i++, offset++)
+          xbuf[totlen++] = exp[offset];
 
-	/* If followed by an empty rest arg with concatenation,
-	   delete the last run of nonwhite chars.  */
-	if (rest_zero && totlen > count_before
-	    && ((ap->rest_args && ap->raw_before != 0)
-		|| (last_ap != NULL && last_ap->rest_args
-		    && last_ap->raw_after != 0))) {
-	  /* Delete final whitespace.  */
-	  while (totlen > count_before && is_space[xbuf[totlen - 1]]) {
-	    totlen--;
-	  }
+        /* If followed by an empty rest arg with concatenation,
+           delete the last run of nonwhite chars.  */
+        if (rest_zero && totlen > count_before
+            && ((ap->rest_args && ap->raw_before != 0)
+                || (last_ap != NULL && last_ap->rest_args
+                    && last_ap->raw_after != 0))) {
+          /* Delete final whitespace.  */
+          while (totlen > count_before && is_space[xbuf[totlen - 1]]) {
+            totlen--;
+          }
 
-	  /* Delete the nonwhites before them.  */
-	  while (totlen > count_before && ! is_space[xbuf[totlen - 1]]) {
-	    totlen--;
-	  }
-	}
+          /* Delete the nonwhites before them.  */
+          while (totlen > count_before && ! is_space[xbuf[totlen - 1]]) {
+            totlen--;
+          }
+        }
 
-	if (ap->stringify != 0) {
-	  int arglen = arg->raw_length;
-	  int escaped = 0;
-	  int in_string = 0;
-	  int c;
-	  i = 0;
-	  while (i < arglen
-		 && (c = arg->raw[i], is_space[c]))
-	    i++;
-	  while (i < arglen
-		 && (c = arg->raw[arglen - 1], is_space[c]))
-	    arglen--;
-	  if (!traditional)
-	    xbuf[totlen++] = '\"'; /* insert beginning quote */
-	  for (; i < arglen; i++) {
-	    c = arg->raw[i];
+        if (ap->stringify != 0) {
+          int arglen = arg->raw_length;
+          int escaped = 0;
+          int in_string = 0;
+          int c;
+          i = 0;
+          while (i < arglen
+                 && (c = arg->raw[i], is_space[c]))
+            i++;
+          while (i < arglen
+                 && (c = arg->raw[arglen - 1], is_space[c]))
+            arglen--;
+          if (!traditional)
+            xbuf[totlen++] = '\"'; /* insert beginning quote */
+          for (; i < arglen; i++) {
+            c = arg->raw[i];
 
-	    if (! in_string) {
-	      /* Special markers Newline Space
-		 generate nothing for a stringified argument.  */
-	      if (c == '\n' && arg->raw[i+1] != '\n') {
-		i++;
-		continue;
-	      }
+            if (! in_string) {
+              /* Special markers Newline Space
+                 generate nothing for a stringified argument.  */
+              if (c == '\n' && arg->raw[i+1] != '\n') {
+                i++;
+                continue;
+              }
 
-	      /* Internal sequences of whitespace are replaced by one space
-		 except within an string or char token.  */
-	      if (c == '\n' ? arg->raw[i+1] == '\n' : is_space[c]) {
-		while (1) {
-		  /* Note that Newline Space does occur within whitespace
-		     sequences; consider it part of the sequence.  */
-		  if (c == '\n' && is_space[arg->raw[i+1]])
-		    i += 2;
-		  else if (c != '\n' && is_space[c])
-		    i++;
-		  else break;
-		  c = arg->raw[i];
-		}
-		i--;
-		c = ' ';
-	      }
-	    }
+              /* Internal sequences of whitespace are replaced by one space
+                 except within an string or char token.  */
+              if (c == '\n' ? arg->raw[i+1] == '\n' : is_space[c]) {
+                while (1) {
+                  /* Note that Newline Space does occur within whitespace
+                     sequences; consider it part of the sequence.  */
+                  if (c == '\n' && is_space[arg->raw[i+1]])
+                    i += 2;
+                  else if (c != '\n' && is_space[c])
+                    i++;
+                  else break;
+                  c = arg->raw[i];
+                }
+                i--;
+                c = ' ';
+              }
+            }
 
-	    if (escaped)
-	      escaped = 0;
-	    else {
-	      if (c == '\\')
-		escaped = 1;
-	      if (in_string) {
-		if (c == in_string)
-		  in_string = 0;
-	      } else if (c == '\"' || c == '\'')
-		in_string = c;
-	    }
+            if (escaped)
+              escaped = 0;
+            else {
+              if (c == '\\')
+                escaped = 1;
+              if (in_string) {
+                if (c == in_string)
+                  in_string = 0;
+              } else if (c == '\"' || c == '\'')
+                in_string = c;
+            }
 
-	    /* Escape these chars */
-	    if (c == '\"' || (in_string && c == '\\'))
-	      xbuf[totlen++] = '\\';
-	    /* We used to output e.g. \008 for control characters here,
-	       but this doesn't conform to the C Standard.
-	       Just output the characters as-is.  */
-	    xbuf[totlen++] = c;
-	  }
-	  if (!traditional)
-	    xbuf[totlen++] = '\"'; /* insert ending quote */
-	} else if (ap->raw_before != 0 || ap->raw_after != 0 || traditional) {
-	  U_CHAR *p1 = arg->raw;
-	  U_CHAR *l1 = p1 + arg->raw_length;
-	  if (ap->raw_before != 0) {
-	    while (p1 != l1 && is_space[*p1]) p1++;
-	    while (p1 != l1 && is_idchar[*p1])
-	      xbuf[totlen++] = *p1++;
-	    /* Delete any no-reexpansion marker that follows
-	       an identifier at the beginning of the argument
-	       if the argument is concatenated with what precedes it.  */
-	    if (p1[0] == '\n' && p1[1] == '-')
-	      p1 += 2;
-	  } else if (!traditional) {
-	  /* Ordinary expanded use of the argument.
-	     Put in newline-space markers to prevent token pasting.  */
-	    xbuf[totlen++] = '\n';
-	    xbuf[totlen++] = ' ';
-	  }
-	  if (ap->raw_after != 0) {
-	    /* Arg is concatenated after: delete trailing whitespace,
-	       whitespace markers, and no-reexpansion markers.  */
-	    while (p1 != l1) {
-	      if (is_space[l1[-1]]) l1--;
-	      else if (l1[-1] == '-') {
-		U_CHAR *p2 = l1 - 1;
-		/* If a `-' is preceded by an odd number of newlines then it
-		   and the last newline are a no-reexpansion marker.  */
-		while (p2 != p1 && p2[-1] == '\n') p2--;
-		if ((l1 - 1 - p2) & 1) {
-		  l1 -= 2;
-		}
-		else break;
-	      }
-	      else break;
-	    }
-	  }
+            /* Escape these chars */
+            if (c == '\"' || (in_string && c == '\\'))
+              xbuf[totlen++] = '\\';
+            /* We used to output e.g. \008 for control characters here,
+               but this doesn't conform to the C Standard.
+               Just output the characters as-is.  */
+            xbuf[totlen++] = c;
+          }
+          if (!traditional)
+            xbuf[totlen++] = '\"'; /* insert ending quote */
+        } else if (ap->raw_before != 0 || ap->raw_after != 0 || traditional) {
+          U_CHAR *p1 = arg->raw;
+          U_CHAR *l1 = p1 + arg->raw_length;
+          if (ap->raw_before != 0) {
+            while (p1 != l1 && is_space[*p1]) p1++;
+            while (p1 != l1 && is_idchar[*p1])
+              xbuf[totlen++] = *p1++;
+            /* Delete any no-reexpansion marker that follows
+               an identifier at the beginning of the argument
+               if the argument is concatenated with what precedes it.  */
+            if (p1[0] == '\n' && p1[1] == '-')
+              p1 += 2;
+          } else if (!traditional) {
+          /* Ordinary expanded use of the argument.
+             Put in newline-space markers to prevent token pasting.  */
+            xbuf[totlen++] = '\n';
+            xbuf[totlen++] = ' ';
+          }
+          if (ap->raw_after != 0) {
+            /* Arg is concatenated after: delete trailing whitespace,
+               whitespace markers, and no-reexpansion markers.  */
+            while (p1 != l1) {
+              if (is_space[l1[-1]]) l1--;
+              else if (l1[-1] == '-') {
+                U_CHAR *p2 = l1 - 1;
+                /* If a `-' is preceded by an odd number of newlines then it
+                   and the last newline are a no-reexpansion marker.  */
+                while (p2 != p1 && p2[-1] == '\n') p2--;
+                if ((l1 - 1 - p2) & 1) {
+                  l1 -= 2;
+                }
+                else break;
+              }
+              else break;
+            }
+          }
 
-	  bcopy ((char *) p1, (char *) (xbuf + totlen), l1 - p1);
-	  totlen += l1 - p1;
-	  if (!traditional && ap->raw_after == 0) {
-	    /* Ordinary expanded use of the argument.
-	       Put in newline-space markers to prevent token pasting.  */
-	    xbuf[totlen++] = '\n';
-	    xbuf[totlen++] = ' ';
-	  }
-	} else {
-	  /* Ordinary expanded use of the argument.
-	     Put in newline-space markers to prevent token pasting.  */
-	  if (!traditional) {
-	    xbuf[totlen++] = '\n';
-	    xbuf[totlen++] = ' ';
-	  }
-	  bcopy ((char *) arg->expanded, (char *) (xbuf + totlen),
-		 arg->expand_length);
-	  totlen += arg->expand_length;
-	  if (!traditional) {
-	    xbuf[totlen++] = '\n';
-	    xbuf[totlen++] = ' ';
-	  }
-	  /* If a macro argument with newlines is used multiple times,
-	     then only expand the newlines once.  This avoids creating output
-	     lines which don't correspond to any input line, which confuses
-	     gdb and gcov.  */
-	  if (arg->use_count > 1 && arg->newlines > 0) {
-	    /* Don't bother doing change_newlines for subsequent
-	       uses of arg.  */
-	    arg->use_count = 1;
-	    arg->expand_length
-	      = change_newlines (arg->expanded, arg->expand_length);
-	  }
-	}
+          bcopy ((char *) p1, (char *) (xbuf + totlen), l1 - p1);
+          totlen += l1 - p1;
+          if (!traditional && ap->raw_after == 0) {
+            /* Ordinary expanded use of the argument.
+               Put in newline-space markers to prevent token pasting.  */
+            xbuf[totlen++] = '\n';
+            xbuf[totlen++] = ' ';
+          }
+        } else {
+          /* Ordinary expanded use of the argument.
+             Put in newline-space markers to prevent token pasting.  */
+          if (!traditional) {
+            xbuf[totlen++] = '\n';
+            xbuf[totlen++] = ' ';
+          }
+          bcopy ((char *) arg->expanded, (char *) (xbuf + totlen),
+                 arg->expand_length);
+          totlen += arg->expand_length;
+          if (!traditional) {
+            xbuf[totlen++] = '\n';
+            xbuf[totlen++] = ' ';
+          }
+          /* If a macro argument with newlines is used multiple times,
+             then only expand the newlines once.  This avoids creating output
+             lines which don't correspond to any input line, which confuses
+             gdb and gcov.  */
+          if (arg->use_count > 1 && arg->newlines > 0) {
+            /* Don't bother doing change_newlines for subsequent
+               uses of arg.  */
+            arg->use_count = 1;
+            arg->expand_length
+              = change_newlines (arg->expanded, arg->expand_length);
+          }
+        }
 
-	if (totlen > xbuf_len)
-	  abort ();
+        if (totlen > xbuf_len)
+          abort ();
       }
 
       /* If there is anything left of the definition after handling
-	 the arg list, copy that in too.  */
+         the arg list, copy that in too.  */
 
       for (i = offset; i < defn->length; i++) {
-	/* if we've reached the end of the macro */
-	if (exp[i] == ')')
-	  rest_zero = 0;
-	if (! (rest_zero && last_ap != NULL && last_ap->rest_args
-	       && last_ap->raw_after != 0))
-	  xbuf[totlen++] = exp[i];
+        /* if we've reached the end of the macro */
+        if (exp[i] == ')')
+          rest_zero = 0;
+        if (! (rest_zero && last_ap != NULL && last_ap->rest_args
+               && last_ap->raw_after != 0))
+          xbuf[totlen++] = exp[i];
       }
 
       xbuf[totlen] = 0;
       xbuf_len = totlen;
 
       for (i = 0; i < nargs; i++) {
-	if (args[i].free1 != 0)
-	  free (args[i].free1);
-	if (args[i].free2 != 0)
-	  free (args[i].free2);
+        if (args[i].free1 != 0)
+          free (args[i].free1);
+        if (args[i].free2 != 0)
+          free (args[i].free2);
       }
     }
   } else {
@@ -8392,7 +8392,7 @@ macarg (argptr, rest_args)
   /* Try to parse as much of the argument as exists at this
      input stack level.  */
   U_CHAR *bp = macarg1 (ip->bufp, ip->buf + ip->length, ip->macro,
-			&paren, &newlines, &comments, rest_args);
+                        &paren, &newlines, &comments, rest_args);
 
   /* If we find the end of the argument at this level,
      set up *ARGPTR to point at it in the input stack.  */
@@ -8420,23 +8420,23 @@ macarg (argptr, rest_args)
 
     while (bp == ip->buf + ip->length) {
       if (instack[indepth].macro == 0) {
-	result = "unterminated macro call";
-	break;
+        result = "unterminated macro call";
+        break;
       }
       ip->macro->type = T_MACRO;
       if (ip->free_ptr)
-	free (ip->free_ptr);
+        free (ip->free_ptr);
       ip = &instack[--indepth];
       newlines = 0;
       comments = 0;
       bp = macarg1 (ip->bufp, ip->buf + ip->length, ip->macro, &paren,
-		    &newlines, &comments, rest_args);
+                    &newlines, &comments, rest_args);
       final_start = bufsize;
       bufsize += bp - ip->bufp;
       extra += newlines;
       buffer = (U_CHAR *) xrealloc (buffer, bufsize + extra + 1);
       bcopy ((char *) ip->bufp, (char *) (buffer + bufsize - (bp - ip->bufp)),
-	     bp - ip->bufp);
+             bp - ip->bufp);
       ip->bufp = bp;
       ip->lineno += newlines;
     }
@@ -8452,14 +8452,14 @@ macarg (argptr, rest_args)
       argptr->free1 = buffer;
       argptr->newlines = newlines;
       if ((newlines || comments) && ip->fname != 0)
-	argptr->raw_length
-	  = final_start +
-	    discard_comments (argptr->raw + final_start,
-			      argptr->raw_length - final_start,
-			      newlines);
+        argptr->raw_length
+          = final_start +
+            discard_comments (argptr->raw + final_start,
+                              argptr->raw_length - final_start,
+                              newlines);
       argptr->raw[argptr->raw_length] = 0;
       if (argptr->raw_length > bufsize + extra)
-	abort ();
+        abort ();
     }
   }
 
@@ -8478,20 +8478,20 @@ macarg (argptr, rest_args)
       buf++;
     while (buf != lim && is_space[lim[-1]])
       lim--;
-    totlen = traditional ? 0 : 2;	/* Count opening and closing quote.  */
+    totlen = traditional ? 0 : 2;       /* Count opening and closing quote.  */
     while (buf != lim) {
       register U_CHAR c = *buf++;
       totlen++;
       /* Internal sequences of whitespace are replaced by one space
-	 in most cases, but not always.  So count all the whitespace
-	 in case we need to keep it all.  */
+         in most cases, but not always.  So count all the whitespace
+         in case we need to keep it all.  */
 #if 0
       if (is_space[c])
-	SKIP_ALL_WHITE_SPACE (buf);
+        SKIP_ALL_WHITE_SPACE (buf);
       else
 #endif
       if (c == '\"' || c == '\\') /* escape these chars */
-	totlen++;
+        totlen++;
     }
     argptr->stringified_length = totlen;
   }
@@ -8529,77 +8529,77 @@ macarg1 (start, limit, macro, depthptr, newlines, comments, rest_args)
       break;
     case ')':
       if (--(*depthptr) < 0)
-	return bp;
+        return bp;
       break;
     case '\\':
       /* Traditionally, backslash makes following char not special.  */
       if (traditional && bp + 1 < limit && bp[1] != '\n')
-	bp++;
+        bp++;
       break;
     case '\n':
       ++*newlines;
       break;
     case '/':
       if (macro)
-	break;
+        break;
       if (bp[1] == '\\' && bp[2] == '\n')
-	newline_fix (bp + 1);
+        newline_fix (bp + 1);
       if (bp[1] == '*') {
-	*comments = 1;
-	for (bp += 2; bp < limit; bp++) {
-	  if (*bp == '\n')
-	    ++*newlines;
-	  else if (*bp == '*') {
-	    if (bp[-1] == '/' && warn_comments)
-	      warning ("`/*' within comment");
-	    if (bp[1] == '\\' && bp[2] == '\n')
-	      newline_fix (bp + 1);
-	    if (bp[1] == '/') {
-	      bp++;
-	      break;
-	    }
-	  }
-	}
+        *comments = 1;
+        for (bp += 2; bp < limit; bp++) {
+          if (*bp == '\n')
+            ++*newlines;
+          else if (*bp == '*') {
+            if (bp[-1] == '/' && warn_comments)
+              warning ("`/*' within comment");
+            if (bp[1] == '\\' && bp[2] == '\n')
+              newline_fix (bp + 1);
+            if (bp[1] == '/') {
+              bp++;
+              break;
+            }
+          }
+        }
       } else if (bp[1] == '/' && cplusplus_comments) {
-	*comments = 1;
-	for (bp += 2; bp < limit; bp++) {
-	  if (*bp == '\n') {
-	    ++*newlines;
-	    if (bp[-1] != '\\')
-	      break;
-	    if (warn_comments)
-	      warning ("multiline `//' comment");
-	  }
-	}
+        *comments = 1;
+        for (bp += 2; bp < limit; bp++) {
+          if (*bp == '\n') {
+            ++*newlines;
+            if (bp[-1] != '\\')
+              break;
+            if (warn_comments)
+              warning ("multiline `//' comment");
+          }
+        }
       }
       break;
     case '\'':
     case '\"':
       {
-	int quotec;
-	for (quotec = *bp++; bp + 1 < limit && *bp != quotec; bp++) {
-	  if (*bp == '\\') {
-	    bp++;
-	    if (*bp == '\n')
-	      ++*newlines;
-	    if (!macro) {
-	      while (*bp == '\\' && bp[1] == '\n') {
-		bp += 2;
-		++*newlines;
-	      }
-	    }
-	  } else if (*bp == '\n') {
-	    ++*newlines;
-	    if (quotec == '\'')
-	      break;
-	  }
-	}
+        int quotec;
+        for (quotec = *bp++; bp + 1 < limit && *bp != quotec; bp++) {
+          if (*bp == '\\') {
+            bp++;
+            if (*bp == '\n')
+              ++*newlines;
+            if (!macro) {
+              while (*bp == '\\' && bp[1] == '\n') {
+                bp += 2;
+                ++*newlines;
+              }
+            }
+          } else if (*bp == '\n') {
+            ++*newlines;
+            if (quotec == '\'')
+              break;
+          }
+        }
       }
       break;
     case ',':
       /* if we've returned to lowest level and we aren't absorbing all args */
       if ((*depthptr) == 0 && rest_args == 0)
-	return bp;
+        return bp;
       break;
     }
     bp++;
@@ -8657,68 +8657,68 @@ discard_comments (start, length, newlines)
 
     case '\\':
       if (*ibp == '\n') {
-	obp--;
-	ibp++;
+        obp--;
+        ibp++;
       }
       break;
 
     case '/':
       if (*ibp == '\\' && ibp[1] == '\n')
-	newline_fix (ibp);
+        newline_fix (ibp);
       /* Delete any comment.  */
       if (cplusplus_comments && ibp[0] == '/') {
-	/* Comments are equivalent to spaces.  */
-	obp[-1] = ' ';
-	ibp++;
-	while (ibp < limit && (*ibp != '\n' || ibp[-1] == '\\'))
-	  ibp++;
-	break;
+        /* Comments are equivalent to spaces.  */
+        obp[-1] = ' ';
+        ibp++;
+        while (ibp < limit && (*ibp != '\n' || ibp[-1] == '\\'))
+          ibp++;
+        break;
       }
       if (ibp[0] != '*' || ibp + 1 >= limit)
-	break;
+        break;
       /* Comments are equivalent to spaces.
-	 For -traditional, a comment is equivalent to nothing.  */
+         For -traditional, a comment is equivalent to nothing.  */
       if (traditional)
-	obp--;
+        obp--;
       else
-	obp[-1] = ' ';
+        obp[-1] = ' ';
       while (++ibp < limit) {
-	if (ibp[0] == '*') {
-	  if (ibp[1] == '\\' && ibp[2] == '\n')
-	    newline_fix (ibp + 1);
-	  if (ibp[1] == '/') {
-	    ibp += 2;
-	    break;
-	  }
-	}
+        if (ibp[0] == '*') {
+          if (ibp[1] == '\\' && ibp[2] == '\n')
+            newline_fix (ibp + 1);
+          if (ibp[1] == '/') {
+            ibp += 2;
+            break;
+          }
+        }
       }
       break;
 
     case '\'':
     case '\"':
       /* Notice and skip strings, so that we don't
-	 think that comments start inside them,
-	 and so we don't duplicate newlines in them.  */
+         think that comments start inside them,
+         and so we don't duplicate newlines in them.  */
       {
-	int quotec = c;
-	while (ibp < limit) {
-	  *obp++ = c = *ibp++;
-	  if (c == quotec)
-	    break;
-	  if (c == '\n' && quotec == '\'')
-	    break;
-	  if (c == '\\') {
-	    if (ibp < limit && *ibp == '\n') {
-	      ibp++;
-	      obp--;
-	    } else {
-	      while (*ibp == '\\' && ibp[1] == '\n')
-		ibp += 2;
-	      if (ibp < limit)
-		*obp++ = *ibp++;
-	    }
-	  }
-	}
+        int quotec = c;
+        while (ibp < limit) {
+          *obp++ = c = *ibp++;
+          if (c == quotec)
+            break;
+          if (c == '\n' && quotec == '\'')
+            break;
+          if (c == '\\') {
+            if (ibp < limit && *ibp == '\n') {
+              ibp++;
+              obp--;
+            } else {
+              while (*ibp == '\\' && ibp[1] == '\n')
+                ibp += 2;
+              if (ibp < limit)
+                *obp++ = *ibp++;
+            }
+          }
+        }
       }
       break;
     }
@@ -8750,28 +8750,28 @@ change_newlines (start, length)
     switch (c) {
     case '\n':
       /* If this is a NEWLINE NEWLINE, then this is a real newline in the
-	 string.  Skip past the newline and its duplicate.
-	 Put a space in the output.  */
+         string.  Skip past the newline and its duplicate.
+         Put a space in the output.  */
       if (*ibp == '\n')
-	{
-	  ibp++;
-	  obp--;
-	  *obp++ = ' ';
-	}
+        {
+          ibp++;
+          obp--;
+          *obp++ = ' ';
+        }
       break;
 
     case '\'':
     case '\"':
       /* Notice and skip strings, so that we don't delete newlines in them.  */
       {
-	int quotec = c;
-	while (ibp < limit) {
-	  *obp++ = c = *ibp++;
-	  if (c == quotec && ibp[-2] != '\\')
-	    break;
-	  if (c == '\n' && quotec == '\'')
-	    break;
-	}
+        int quotec = c;
+        while (ibp < limit) {
+          *obp++ = c = *ibp++;
+          if (c == quotec && ibp[-2] != '\\')
+            break;
+          if (c == '\n' && quotec == '\'')
+            break;
+        }
       }
       break;
     }
@@ -8795,7 +8795,7 @@ my_strerror (errnum)
 #else
   result = strerror (errnum);
 #endif
-#else	/* VMS */
+#else   /* VMS */
   /* VAXCRTL's strerror() takes an optional second argument, which only
      matters when the first argument is EVMSERR.  However, it's simplest
      just to pass it unconditionally.  `vaxc$errno' is declared in
@@ -9096,10 +9096,10 @@ print_containing_files ()
     if (instack[i].fname != NULL) {
       ip = &instack[i];
       if (first) {
-	first = 0;
-	fprintf (stderr, "In file included");
+        first = 0;
+        fprintf (stderr, "In file included");
       } else {
-	fprintf (stderr, ",\n                ");
+        fprintf (stderr, ",\n                ");
       }
 
       fprintf (stderr, " from %s:%d", ip->nominal_fname, ip->lineno);
@@ -9363,7 +9363,7 @@ dump_single_macro (hp, of)
     for (i = 0; i < defn->nargs; i++) {
       dump_arg_n (defn, i, of);
       if (i + 1 < defn->nargs)
-	fprintf (of, ", ");
+        fprintf (of, ", ");
     }
     fprintf (of, ")");
   }
@@ -9377,35 +9377,35 @@ dump_single_macro (hp, of)
     offset += ap->nchars;
     if (!traditional) {
       if (ap->nchars != 0)
-	concat = 0;
+        concat = 0;
       if (ap->stringify) {
-	switch (ap->stringify) {
-	 case SHARP_TOKEN: fprintf (of, "#"); break;
-	 case WHITE_SHARP_TOKEN: fprintf (of, "# "); break;
-	 case PERCENT_COLON_TOKEN: fprintf (of, "%%:"); break;
-	 case WHITE_PERCENT_COLON_TOKEN: fprintf (of, "%%: "); break;
-	 default: abort ();
-	}
+        switch (ap->stringify) {
+         case SHARP_TOKEN: fprintf (of, "#"); break;
+         case WHITE_SHARP_TOKEN: fprintf (of, "# "); break;
+         case PERCENT_COLON_TOKEN: fprintf (of, "%%:"); break;
+         case WHITE_PERCENT_COLON_TOKEN: fprintf (of, "%%: "); break;
+         default: abort ();
+        }
       }
       if (ap->raw_before != 0) {
-	if (concat) {
-	  switch (ap->raw_before) {
-	   case WHITE_SHARP_TOKEN:
-	   case WHITE_PERCENT_COLON_TOKEN:
-	    fprintf (of, " ");
-	    break;
-	   default:
-	    break;
-	  }
-	} else {
-	  switch (ap->raw_before) {
-	   case SHARP_TOKEN: fprintf (of, "##"); break;
-	   case WHITE_SHARP_TOKEN: fprintf (of, "## "); break;
-	   case PERCENT_COLON_TOKEN: fprintf (of, "%%:%%:"); break;
-	   case WHITE_PERCENT_COLON_TOKEN: fprintf (of, "%%:%%: "); break;
-	   default: abort ();
-	  }
-	}
+        if (concat) {
+          switch (ap->raw_before) {
+           case WHITE_SHARP_TOKEN:
+           case WHITE_PERCENT_COLON_TOKEN:
+            fprintf (of, " ");
+            break;
+           default:
+            break;
+          }
+        } else {
+          switch (ap->raw_before) {
+           case SHARP_TOKEN: fprintf (of, "##"); break;
+           case WHITE_SHARP_TOKEN: fprintf (of, "## "); break;
+           case PERCENT_COLON_TOKEN: fprintf (of, "%%:%%:"); break;
+           case WHITE_PERCENT_COLON_TOKEN: fprintf (of, "%%:%%: "); break;
+           default: abort ();
+          }
+        }
       }
       concat = 0;
     }
@@ -9437,7 +9437,7 @@ dump_all_macros ()
 
     for (hp = hashtab[bucket]; hp; hp= hp->next) {
       if (hp->type == T_MACRO)
-	dump_single_macro (hp, stdout);
+        dump_single_macro (hp, stdout);
     }
   }
 }
@@ -9463,14 +9463,14 @@ dump_defn_1 (base, start, length, of)
   else {
     while (p < limit) {
       if (*p == '\"' || *p =='\'') {
-	U_CHAR *p1 = skip_quoted_string (p, limit, 0, NULL_PTR,
-					 NULL_PTR, NULL_PTR);
-	fwrite (p, sizeof (*p), p1 - p, of);
-	p = p1;
+        U_CHAR *p1 = skip_quoted_string (p, limit, 0, NULL_PTR,
+                                         NULL_PTR, NULL_PTR);
+        fwrite (p, sizeof (*p), p1 - p, of);
+        p = p1;
       } else {
-	if (*p != '\n')
-	  putc (*p, of);
-	p++;
+        if (*p != '\n')
+          putc (*p, of);
+        p++;
       }
     }
   }
@@ -9565,11 +9565,11 @@ initialize_builtins (inp, outp)
 #endif
   install ((U_CHAR *) "__WCHAR_TYPE__", -1, T_WCHAR_TYPE, NULL_PTR, -1);
   install ((U_CHAR *) "__USER_LABEL_PREFIX__", -1, T_USER_LABEL_PREFIX_TYPE,
-	   NULL_PTR, -1);
+           NULL_PTR, -1);
   install ((U_CHAR *) "__REGISTER_PREFIX__", -1, T_REGISTER_PREFIX_TYPE,
-	   NULL_PTR, -1);
+           NULL_PTR, -1);
   install ((U_CHAR *) "__IMMEDIATE_PREFIX__", -1, T_IMMEDIATE_PREFIX_TYPE,
-	   NULL_PTR, -1);
+           NULL_PTR, -1);
   install ((U_CHAR *) "__TIME__", -1, T_TIME, NULL_PTR, -1);
   if (!traditional) {
     install ((U_CHAR *) "__STDC__", -1, T_CONST, "1", -1);
@@ -9590,62 +9590,62 @@ initialize_builtins (inp, outp)
       struct tm *timebuf = timestamp ();
 
       sprintf (directive, " __BASE_FILE__ \"%s\"\n",
-	       instack[0].nominal_fname);
+               instack[0].nominal_fname);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 
       sprintf (directive, " __VERSION__ \"%s\"\n", version_string);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 
 #ifndef NO_BUILTIN_SIZE_TYPE
       sprintf (directive, " __SIZE_TYPE__ %s\n", SIZE_TYPE);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 #endif
 
 #ifndef NO_BUILTIN_PTRDIFF_TYPE
       sprintf (directive, " __PTRDIFF_TYPE__ %s\n", PTRDIFF_TYPE);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 #endif
 
       sprintf (directive, " __WCHAR_TYPE__ %s\n", wchar_type);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 
       sprintf (directive, " __DATE__ \"%s %2d %4d\"\n",
-	       monthnames[timebuf->tm_mon],
-	       timebuf->tm_mday, timebuf->tm_year + 1900);
+               monthnames[timebuf->tm_mon],
+               timebuf->tm_mday, timebuf->tm_year + 1900);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 
       sprintf (directive, " __TIME__ \"%02d:%02d:%02d\"\n",
-	       timebuf->tm_hour, timebuf->tm_min, timebuf->tm_sec);
+               timebuf->tm_hour, timebuf->tm_min, timebuf->tm_sec);
       output_line_directive (inp, outp, 0, same_file);
       pass_thru_directive (udirective, &udirective[strlen (directive)],
-			   outp, dp);
+                           outp, dp);
 
       if (!traditional)
-	{
+        {
           sprintf (directive, " __STDC__ 1");
           output_line_directive (inp, outp, 0, same_file);
           pass_thru_directive (udirective, &udirective[strlen (directive)],
-			       outp, dp);
-	}
+                               outp, dp);
+        }
       if (objc)
-	{
+        {
           sprintf (directive, " __OBJC__ 1");
           output_line_directive (inp, outp, 0, same_file);
           pass_thru_directive (udirective, &udirective[strlen (directive)],
-			       outp, dp);
-	}
+                               outp, dp);
+        }
     }
 }
 
@@ -9676,7 +9676,7 @@ make_definition (str, op)
     while (is_idchar[*++p] || *p == ',' || is_hor_space[*p])
       ;
     if (*p++ != ')')
-      p = (U_CHAR *) str;			/* Error */
+      p = (U_CHAR *) str;                       /* Error */
   }
   if (*p == 0) {
     buf = (U_CHAR *) alloca (p - buf + 4);
@@ -9697,24 +9697,24 @@ make_definition (str, op)
     q = &buf[p - (U_CHAR *) str];
     while (*p) {
       if (*p == '\"' || *p == '\'') {
-	int unterminated = 0;
-	U_CHAR *p1 = skip_quoted_string (p, p + strlen ((char *) p), 0,
-					 NULL_PTR, NULL_PTR, &unterminated);
-	if (unterminated)
-	  return;
-	while (p != p1)
-	  *q++ = *p++;
+        int unterminated = 0;
+        U_CHAR *p1 = skip_quoted_string (p, p + strlen ((char *) p), 0,
+                                         NULL_PTR, NULL_PTR, &unterminated);
+        if (unterminated)
+          return;
+        while (p != p1)
+          *q++ = *p++;
       } else if (*p == '\\' && p[1] == '\n')
-	p += 2;
+        p += 2;
       /* Change newline chars into newline-markers.  */
       else if (*p == '\n')
-	{
-	  *q++ = '\n';
-	  *q++ = '\n';
-	  p++;
-	}
+        {
+          *q++ = '\n';
+          *q++ = '\n';
+          p++;
+        }
       else
-	*q++ = *p++;
+        *q++ = *p++;
     }
     *q = 0;
   }
@@ -9856,8 +9856,8 @@ new_include_prefix (prev_file_name, component, prefix, name)
   {
     struct file_name_list *dir
       = ((struct file_name_list *)
-	 xmalloc (sizeof (struct file_name_list)
-		  + strlen (prefix) + strlen (name) + 2));
+         xmalloc (sizeof (struct file_name_list)
+                  + strlen (prefix) + strlen (name) + 2));
     size_t len;
     strcpy (dir->fname, prefix);
     strcat (dir->fname, name);
@@ -9866,9 +9866,9 @@ new_include_prefix (prev_file_name, component, prefix, name)
     /* Convert directory name to a prefix.  */
     if (dir->fname[len - 1] != DIR_SEPARATOR) {
       if (len == 1 && dir->fname[len - 1] == '.')
-	len = 0;
+        len = 0;
       else
-	dir->fname[len++] = DIR_SEPARATOR;
+        dir->fname[len++] = DIR_SEPARATOR;
       dir->fname[len] = 0;
     }
 
@@ -9876,7 +9876,7 @@ new_include_prefix (prev_file_name, component, prefix, name)
     if (prev_file_name && !strcmp (prev_file_name->fname, dir->fname)) {
       /* But treat `-Idir -I- -Idir' as `-I- -Idir'.  */
       if (!first_bracket_include)
-	first_bracket_include = prev_file_name;
+        first_bracket_include = prev_file_name;
       free (dir);
       return 0;
     }
@@ -9888,14 +9888,14 @@ new_include_prefix (prev_file_name, component, prefix, name)
        of systems that can stat directories.  We remove it below.  */
     if (len != 0)
       {
-	dir->fname[len] = '.';
-	dir->fname[len + 1] = 0;
+        dir->fname[len] = '.';
+        dir->fname[len + 1] = 0;
       }
 
     /* Ignore a nonexistent directory.  */
     if (stat (len ? dir->fname : ".", &dir->st) != 0) {
       if (errno != ENOENT && errno != ENOTDIR)
-	error_from_errno (dir->fname);
+        error_from_errno (dir->fname);
       free (dir);
       return 0;
     }
@@ -9905,11 +9905,11 @@ new_include_prefix (prev_file_name, component, prefix, name)
 
     /* Ignore a directory whose identity matches the previous one.  */
     if (prev_file_name
-	&& INO_T_EQ (prev_file_name->st.st_ino, dir->st.st_ino)
-	&& prev_file_name->st.st_dev == dir->st.st_dev) {
+        && INO_T_EQ (prev_file_name->st.st_ino, dir->st.st_ino)
+        && prev_file_name->st.st_dev == dir->st.st_dev) {
       /* But treat `-Idir -I- -Idir' as `-I- -Idir'.  */
       if (!first_bracket_include)
-	first_bracket_include = prev_file_name;
+        first_bracket_include = prev_file_name;
       free (dir);
       return 0;
     }
@@ -9969,50 +9969,50 @@ quote_string_for_make (dst, src)
     {
       char c = *p++;
       switch (c)
-	{
-	case '\0':
-	case ' ':
-	case '\t':
-	  {
-	    /* GNU make uses a weird quoting scheme for white space.
-	       A space or tab preceded by 2N+1 backslashes represents
-	       N backslashes followed by space; a space or tab
-	       preceded by 2N backslashes represents N backslashes at
-	       the end of a file name; and backslashes in other
-	       contexts should not be doubled.  */
-	    char *q;
-	    for (q = p - 1; src < q && q[-1] == '\\';  q--)
-	      {
-		if (dst)
-		  dst[i] = '\\';
-		i++;
-	      }
-	  }
-	  if (!c)
-	    return i;
-	  if (dst)
-	    dst[i] = '\\';
-	  i++;
-	  goto ordinary_char;
-	  
-	case '$':
-	  if (dst)
-	    dst[i] = c;
-	  i++;
-	  /* Fall through.  This can mishandle things like "$(" but
-	     there's no easy fix.  */
-	default:
-	ordinary_char:
-	  /* This can mishandle characters in the string "\0\n%*?[\\~";
-	     exactly which chars are mishandled depends on the `make' version.
-	     We know of no portable solution for this;
-	     even GNU make 3.76.1 doesn't solve the problem entirely.
-	     (Also, '\0' is mishandled due to our calling conventions.)  */
-	  if (dst)
-	    dst[i] = c;
-	  i++;
-	  break;
-	}
+        {
+        case '\0':
+        case ' ':
+        case '\t':
+          {
+            /* GNU make uses a weird quoting scheme for white space.
+               A space or tab preceded by 2N+1 backslashes represents
+               N backslashes followed by space; a space or tab
+               preceded by 2N backslashes represents N backslashes at
+               the end of a file name; and backslashes in other
+               contexts should not be doubled.  */
+            char *q;
+            for (q = p - 1; src < q && q[-1] == '\\';  q--)
+              {
+                if (dst)
+                  dst[i] = '\\';
+                i++;
+              }
+          }
+          if (!c)
+            return i;
+          if (dst)
+            dst[i] = '\\';
+          i++;
+          goto ordinary_char;
+          
+        case '$':
+          if (dst)
+            dst[i] = c;
+          i++;
+          /* Fall through.  This can mishandle things like "$(" but
+             there's no easy fix.  */
+        default:
+        ordinary_char:
+          /* This can mishandle characters in the string "\0\n%*?[\\~";
+             exactly which chars are mishandled depends on the `make' version.
+             We know of no portable solution for this;
+             even GNU make 3.76.1 doesn't solve the problem entirely.
+             (Also, '\0' is mishandled due to our calling conventions.)  */
+          if (dst)
+            dst[i] = c;
+          i++;
+          break;
+        }
     }
 }
 
@@ -10190,7 +10190,7 @@ hack_vms_include_specification (fname, vaxc_include)
   if (vaxc_include && !index (cp,'.'))
     strcat (cp, ".h");
 
-  cp2 = Local;			/* initialize */
+  cp2 = Local;                  /* initialize */
 
   /* We are trying to do a number of things here.  First of all, we are
      trying to hammer the filenames into a standard format, such that later
@@ -10204,8 +10204,8 @@ hack_vms_include_specification (fname, vaxc_include)
      a device name (or a rooted logical).  */
 
   /* See if we found that 1st slash */
-  if (cp == 0) return;		/* Nothing to do!!! */
-  if (*cp != '/') return;	/* Nothing to do!!! */
+  if (cp == 0) return;          /* Nothing to do!!! */
+  if (*cp != '/') return;       /* Nothing to do!!! */
   /* Point to the UNIX filename part (which needs to be fixed!) */
   cp1 = cp+1;
   /* If the directory spec is not rooted, we can just copy
@@ -10218,8 +10218,8 @@ hack_vms_include_specification (fname, vaxc_include)
        * usual way.  Given the default locations for include files in cccp.c,
        * we will only use this code if the user specifies alternate locations
        * with the /include (-I) switch on the command line.  */
-      cp -= 1;			/* Strip "]" */
-      cp1--;			/* backspace */
+      cp -= 1;                  /* Strip "]" */
+      cp1--;                    /* backspace */
     } else {
       /*
        * The VMS part has a ".]" at the end, and this will not do.  Later
@@ -10229,8 +10229,8 @@ hack_vms_include_specification (fname, vaxc_include)
        * generation of the 000000 root directory spec (which does not belong here
        * in this case).
        */
-      cp -= 2;			/* Strip ".]" */
-      cp1--; };			/* backspace */
+      cp -= 2;                  /* Strip ".]" */
+      cp1--; };                 /* backspace */
   } else {
 
     /* We drop in here if there is no VMS style directory specification yet.
@@ -10242,7 +10242,7 @@ hack_vms_include_specification (fname, vaxc_include)
      * processing will fill this in, and close the bracket.
      */
     if (cp[-1] != ':') *cp2++ = ':'; /* dev not in spec.  take first dir */
-    *cp2++ = '[';		/* Open the directory specification */
+    *cp2++ = '[';               /* Open the directory specification */
   }
 
   /* at this point we assume that we have the device spec, and (at least
@@ -10262,25 +10262,25 @@ hack_vms_include_specification (fname, vaxc_include)
     while (index (cp1, '/') != 0) {
       /* If this token is "." we can ignore it */
       if ((cp1[0] == '.') && (cp1[1] == '/')) {
-	cp1 += 2;
-	continue;
+        cp1 += 2;
+        continue;
       }
       /* Add a subdirectory spec. Do not duplicate "." */
       if (cp2[-1] != '.' && cp2[-1] != '[' && cp2[-1] != '<')
-	*cp2++ = '.';
+        *cp2++ = '.';
       /* If this is ".." then the spec becomes "-" */
       if ((cp1[0] == '.') && (cp1[1] == '.') && (cp[2] == '/')) {
-	/* Add "-" and skip the ".." */
-	*cp2++ = '-';
-	cp1 += 3;
-	continue;
+        /* Add "-" and skip the ".." */
+        *cp2++ = '-';
+        cp1 += 3;
+        continue;
       }
       /* Copy the subdirectory */
       while (*cp1 != '/') *cp2++= *cp1++;
-      cp1++;			/* Skip the "/" */
+      cp1++;                    /* Skip the "/" */
     }
     /* Close the directory specification */
-    if (cp2[-1] == '.')		/* no trailing periods */
+    if (cp2[-1] == '.')         /* no trailing periods */
       cp2--;
     *cp2++ = ']';
   }
@@ -10306,13 +10306,13 @@ hack_vms_include_specification (fname, vaxc_include)
        and return it.  */
     cp = index (fname, '[');
     cp2 = index (fname, ']') + 1;
-    strcpy (cp, cp2);		/* this gets rid of it */
+    strcpy (cp, cp2);           /* this gets rid of it */
   }
   return;
 }
-#endif	/* VMS */
+#endif  /* VMS */
 
-#ifdef	VMS
+#ifdef  VMS
 
 /* The following wrapper functions supply additional arguments to the VMS
    I/O routines to optimize performance with file handling.  The arguments
@@ -10328,10 +10328,10 @@ VMS_freopen (fname, type, oldfile)
      char *type;
      FILE *oldfile;
 {
-#undef freopen	/* Get back the real freopen routine.  */
+#undef freopen  /* Get back the real freopen routine.  */
   if (strcmp (type, "w") == 0)
     return freopen (fname, type, oldfile,
-			 "mbc=16", "deq=64", "fop=tef", "shr=nil");
+                         "mbc=16", "deq=64", "fop=tef", "shr=nil");
   return freopen (fname, type, oldfile, "mbc=16");
 }
 
@@ -10340,7 +10340,7 @@ VMS_fopen (fname, type)
      char *fname;
      char *type;
 {
-#undef fopen	/* Get back the real fopen routine.  */
+#undef fopen    /* Get back the real fopen routine.  */
   /* The gcc-vms-1.42 distribution's header files prototype fopen with two
      fixed arguments, which matches ANSI's specification but not VAXCRTL's
      pre-ANSI implementation.  This hack circumvents the mismatch problem.  */
@@ -10348,7 +10348,7 @@ VMS_fopen (fname, type)
 
   if (*type == 'w')
     return (*vmslib_fopen) (fname, type, "mbc=32",
-			    "deq=64", "fop=tef", "shr=nil");
+                            "deq=64", "fop=tef", "shr=nil");
   else
     return (*vmslib_fopen) (fname, type, "mbc=32");
 }
@@ -10359,7 +10359,7 @@ VMS_open (fname, flags, prot)
      int flags;
      int prot;
 {
-#undef open	/* Get back the real open routine.  */
+#undef open     /* Get back the real open routine.  */
   return open (fname, flags, prot, "mbc=16", "deq=64", "fop=tef");
 }
 
@@ -10381,7 +10381,7 @@ extern unsigned long sys$parse(), sys$search();
    bad enough, but then compounding the problem by reporting the reason for
    failure as "normal successful completion."  */
 
-#undef fstat	/* Get back to the library version.  */
+#undef fstat    /* Get back to the library version.  */
 
 static int
 VMS_fstat (fd, statbuf)
@@ -10396,7 +10396,7 @@ VMS_fstat (fd, statbuf)
       char nambuf[NAM$C_MAXRSS+1];
 
       if ((fp = fdopen (fd, "r")) != 0 && fgetname (fp, nambuf) != 0)
-	result = VMS_stat (nambuf, statbuf);
+        result = VMS_stat (nambuf, statbuf);
       /* No fclose(fp) here; that would close(fd) as well.  */
     }
 
@@ -10415,7 +10415,7 @@ VMS_stat (name, statbuf)
       struct FAB fab;
       struct NAM nam;
       char exp_nam[NAM$C_MAXRSS+1],  /* expanded name buffer for sys$parse */
-	   res_nam[NAM$C_MAXRSS+1];  /* resultant name buffer for sys$search */
+           res_nam[NAM$C_MAXRSS+1];  /* resultant name buffer for sys$search */
 
       fab = cc$rms_fab;
       fab.fab$l_fna = (char *) name;
@@ -10426,17 +10426,17 @@ VMS_stat (name, statbuf)
       nam.nam$l_rsa = res_nam,  nam.nam$b_rss = sizeof res_nam - 1;
       nam.nam$b_nop = NAM$M_PWD | NAM$M_NOCONCEAL;
       if (sys$parse (&fab) & 1)
-	{
-	  if (sys$search (&fab) & 1)
-	    {
-	      res_nam[nam.nam$b_rsl] = '\0';
-	      result = stat (res_nam, statbuf);
-	    }
-	  /* Clean up searchlist context cached by the system.  */
-	  nam.nam$b_nop = NAM$M_SYNCHK;
-	  fab.fab$l_fna = 0,  fab.fab$b_fns = 0;
-	  (void) sys$parse (&fab);
-	}
+        {
+          if (sys$search (&fab) & 1)
+            {
+              res_nam[nam.nam$b_rsl] = '\0';
+              result = stat (res_nam, statbuf);
+            }
+          /* Clean up searchlist context cached by the system.  */
+          nam.nam$b_nop = NAM$M_SYNCHK;
+          fab.fab$l_fna = 0,  fab.fab$b_fns = 0;
+          (void) sys$parse (&fab);
+        }
     }
 
   return result;

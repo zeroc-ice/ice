@@ -40,33 +40,33 @@ Server::run(int argc, char* argv[])
     string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {
-	cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": property `" << proxyProperty << "' not set" << endl;
+        return EXIT_FAILURE;
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(communicator()->stringToProxy(proxy));
     if(!manager)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
 
     IceStorm::TopicPrx topic;
     try
     {
-	topic = manager->retrieve("counter");
+        topic = manager->retrieve("counter");
     }
     catch(const IceStorm::NoSuchTopic&)
     {
-	try
-	{
-	    topic = manager->create("counter");
-	}
-	catch(const IceStorm::TopicExists&)
-	{
-	    cerr << appName() << ": topic exists, please try again." << endl;
-	    return EXIT_FAILURE;
-	}
+        try
+        {
+            topic = manager->create("counter");
+        }
+        catch(const IceStorm::TopicExists&)
+        {
+            cerr << appName() << ": topic exists, please try again." << endl;
+            return EXIT_FAILURE;
+        }
     }
 
     //

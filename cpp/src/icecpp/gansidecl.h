@@ -22,8 +22,8 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
    in binutils and gdb releases.
    ??? Over time the two should be merged into one.  */
 
-#ifndef	ANSIDECL_H
-#define	ANSIDECL_H
+#ifndef ANSIDECL_H
+#define ANSIDECL_H
 
 /* Add prototype support.  */
 #ifndef PROTO
@@ -36,11 +36,11 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #ifndef VPROTO
 #ifdef __STDC__
-#define PVPROTO(ARGS)		ARGS
+#define PVPROTO(ARGS)           ARGS
 #define VPROTO(ARGS)            ARGS
 #define VA_START(va_list,var)  va_start(va_list,var)
 #else
-#define PVPROTO(ARGS)		()
+#define PVPROTO(ARGS)           ()
 #define VPROTO(ARGS)            (va_alist) va_dcl
 #define VA_START(va_list,var)  va_start(va_list)
 #endif
@@ -66,11 +66,11 @@ Foundation, 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 #ifdef __STDC__
 
-#define	PTR void *
+#define PTR void *
 
 #else
 
-#define	PTR char *
+#define PTR char *
 #ifndef const
 #define const
 #endif

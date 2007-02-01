@@ -15,14 +15,14 @@ public class Collocated
     {
         public override int run(string[] args)
         {
-	    communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
-	    Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-	    Ice.ServantLocator locator = new ServantLocatorI();
-	    adapter.addServantLocator(locator, "");
+            communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            Ice.ServantLocator locator = new ServantLocatorI();
+            adapter.addServantLocator(locator, "");
 
             AllTests.allTests(communicator());
             
-	    adapter.waitForDeactivate();
+            adapter.waitForDeactivate();
             return 0;
         }
     }
@@ -31,9 +31,9 @@ public class Collocated
     {
         TestClient app = new TestClient();
         int result = app.main(args);
-	if(result != 0)
-	{
-	    System.Environment.Exit(result);
-	}
+        if(result != 0)
+        {
+            System.Environment.Exit(result);
+        }
     }
 }

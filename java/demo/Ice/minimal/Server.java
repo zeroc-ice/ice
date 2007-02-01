@@ -49,8 +49,8 @@ public class Server
                 ex.printStackTrace();
                 status = 1;
             }
-	}
-	
-	System.exit(status);
+        }
+        
+        System.exit(status);
     }
 }

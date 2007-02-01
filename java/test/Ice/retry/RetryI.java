@@ -20,9 +20,9 @@ public final class RetryI extends _RetryDisp
     op(boolean kill, Ice.Current current)
     {
         if(kill)
-	{
-	    current.con.close(true);
-	}
+        {
+            current.con.close(true);
+        }
     }
 
     public void

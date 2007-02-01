@@ -20,25 +20,25 @@ namespace Ice
 
     public class ProxyIdentityKey : System.Collections.IEqualityComparer, System.Collections.IComparer
     {
-	public int GetHashCode(object obj)
-	{
+        public int GetHashCode(object obj)
+        {
             return ((Ice.ObjectPrx)obj).ice_getIdentity().GetHashCode();
-	}
+        }
 
-	public new bool Equals(object obj1, object obj2)
-	{
-	    try
-	    {
-		return Compare(obj1, obj2) == 0;
-	    }
-	    catch(System.Exception)
-	    {
-	        return false;
-	    }
-	}
+        public new bool Equals(object obj1, object obj2)
+        {
+            try
+            {
+                return Compare(obj1, obj2) == 0;
+            }
+            catch(System.Exception)
+            {
+                return false;
+            }
+        }
 
-	public int Compare(object obj1, object obj2)
-	{
+        public int Compare(object obj1, object obj2)
+        {
             if(obj1 == null)
             {
                 return obj2 == null ? 0 : -1;
@@ -57,39 +57,39 @@ namespace Ice
                 {
                     throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "o2");
                 }
-		Ice.Identity i1 = ((Ice.ObjectPrx)obj1).ice_getIdentity();
-		Ice.Identity i2 = ((Ice.ObjectPrx)obj2).ice_getIdentity();
-		int comp = string.Compare(i1.name, i2.name, false, CultureInfo.InvariantCulture);
-		if(comp != 0)
-		{
-		    return comp;
-		}
-		return string.Compare(i1.category, i2.category, false, CultureInfo.InvariantCulture);
+                Ice.Identity i1 = ((Ice.ObjectPrx)obj1).ice_getIdentity();
+                Ice.Identity i2 = ((Ice.ObjectPrx)obj2).ice_getIdentity();
+                int comp = string.Compare(i1.name, i2.name, false, CultureInfo.InvariantCulture);
+                if(comp != 0)
+                {
+                    return comp;
+                }
+                return string.Compare(i1.category, i2.category, false, CultureInfo.InvariantCulture);
             }
-	}
+        }
     }
 
     public class ProxyIdentityFacetKey : System.Collections.IEqualityComparer, System.Collections.IComparer
     {
-	public int GetHashCode(object obj)
-	{
-	    Ice.ObjectPrx o = (Ice.ObjectPrx)obj;
-	    Ice.Identity identity = o.ice_getIdentity();
-	    string facet = o.ice_getFacet();
-	    return 5 * identity.GetHashCode() + facet.GetHashCode();
-	}
+        public int GetHashCode(object obj)
+        {
+            Ice.ObjectPrx o = (Ice.ObjectPrx)obj;
+            Ice.Identity identity = o.ice_getIdentity();
+            string facet = o.ice_getFacet();
+            return 5 * identity.GetHashCode() + facet.GetHashCode();
+        }
 
-	public new bool Equals(object obj1, object obj2)
-	{
-	    try
-	    {
-		return Compare(obj1, obj2) == 0;
-	    }
-	    catch(System.Exception)
-	    {
-	        return false;
-	    }
-	}
+        public new bool Equals(object obj1, object obj2)
+        {
+            try
+            {
+                return Compare(obj1, obj2) == 0;
+            }
+            catch(System.Exception)
+            {
+                return false;
+            }
+        }
 
         public int Compare(object obj1, object obj2)
         {

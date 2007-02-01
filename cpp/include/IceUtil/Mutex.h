@@ -87,7 +87,7 @@ private:
 #else
     struct LockState
     {
-	pthread_mutex_t* mutex;
+        pthread_mutex_t* mutex;
     };
 #endif
 
@@ -140,12 +140,12 @@ Mutex::tryLock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
-	return false;
+        return false;
     }
     if(_mutex.RecursionCount > 1)
     {
-	LeaveCriticalSection(&_mutex);
-	throw ThreadLockedException(__FILE__, __LINE__);
+        LeaveCriticalSection(&_mutex);
+        throw ThreadLockedException(__FILE__, __LINE__);
     }
     return true;
 }
@@ -178,7 +178,7 @@ Mutex::Mutex() :
     _mutex = CreateMutex(0, false, 0);
     if(_mutex == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -188,7 +188,7 @@ Mutex::~Mutex()
     BOOL rc = CloseHandle(_mutex);
     if(rc == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -198,14 +198,14 @@ Mutex::lock() const
     DWORD rc = WaitForSingleObject(_mutex, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-	if(rc == WAIT_FAILED)
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-	}
-	else
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, 0);
-	}
+        if(rc == WAIT_FAILED)
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
+        else
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, 0);
+        }
     }
     _recursionCount++;
 }
@@ -216,18 +216,18 @@ Mutex::tryLock() const
     DWORD rc = WaitForSingleObject(_mutex, 0);
     if(rc != WAIT_OBJECT_0)
     {
-	return false;
+        return false;
     }
     else if(_recursionCount == 1)
     {
-	_recursionCount++;
-	unlock();
-	throw ThreadLockedException(__FILE__, __LINE__);
+        _recursionCount++;
+        unlock();
+        throw ThreadLockedException(__FILE__, __LINE__);
     }
     else
     {
-	_recursionCount++;
-	return true;
+        _recursionCount++;
+        return true;
     }
 }
 
@@ -238,7 +238,7 @@ Mutex::unlock() const
     BOOL rc = ReleaseMutex(_mutex);
     if(rc == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -287,7 +287,7 @@ Mutex::Mutex()
 
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -306,13 +306,13 @@ Mutex::lock() const
     if(rc != 0)
     {
         if(rc == EDEADLK)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	else
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        else
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
 }
 
@@ -323,13 +323,13 @@ Mutex::tryLock() const
     if(rc != 0 && rc != EBUSY)
     {
         if(rc == EDEADLK)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	else
-	{
-	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
-	}
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        else
+        {
+            throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        }
     }
     return (rc == 0);
 }
@@ -340,7 +340,7 @@ Mutex::unlock() const
     int rc = pthread_mutex_unlock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__, rc);
+        throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 

@@ -33,8 +33,8 @@ if ic
     begin
         ic.destroy()
     rescue
-	puts $!
-	puts $!.backtrace.join("\n")
+        puts $!
+        puts $!.backtrace.join("\n")
         status = 1
     end
 end

@@ -60,17 +60,17 @@ public:
     ~RandomCleanup()
     {
 #ifdef _WIN32
-	if(context != NULL)
-	{
-	    CryptReleaseContext(context, 0);
-	    context = NULL;
-	}
+        if(context != NULL)
+        {
+            CryptReleaseContext(context, 0);
+            context = NULL;
+        }
 #else
-	if(fd != -1)
-	{
-	    close(fd);
-	    fd = -1;
-	}
+        if(fd != -1)
+        {
+            close(fd);
+            fd = -1;
+        }
 #endif
     }
 };
@@ -89,30 +89,30 @@ IceUtil::RandomGeneratorException::ice_print(ostream& os) const
     Exception::ice_print(os);
     if(_error != 0)
     {
-	os << ":\nrandom generator exception: ";
+        os << ":\nrandom generator exception: ";
 #ifdef _WIN32
-	LPVOID lpMsgBuf = 0;
-	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				 FORMAT_MESSAGE_FROM_SYSTEM |
-				 FORMAT_MESSAGE_IGNORE_INSERTS,
-				 NULL,
-				 _error,
-				 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				 (LPTSTR)&lpMsgBuf,
-				 0,
-				 NULL);
-	
-	if(ok)
-	{
-	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-	    assert(msg && strlen((char*)msg) > 0);
-	    os << msg;
-	    LocalFree(lpMsgBuf);
-	}
-	else
-	{
-	    os << "unknown random generator error";
-	}
+        LPVOID lpMsgBuf = 0;
+        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                 FORMAT_MESSAGE_FROM_SYSTEM |
+                                 FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL,
+                                 _error,
+                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                                 (LPTSTR)&lpMsgBuf,
+                                 0,
+                                 NULL);
+        
+        if(ok)
+        {
+            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+            assert(msg && strlen((char*)msg) > 0);
+            os << msg;
+            LocalFree(lpMsgBuf);
+        }
+        else
+        {
+            os << "unknown random generator error";
+        }
 #else
         os << strerror(_error);
 #endif
@@ -145,15 +145,15 @@ IceUtil::generateRandom(char* buffer, int size)
     IceUtil::StaticMutex::Lock lock(staticMutex);
     if(context == NULL)
     {
-	if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
-	{
-	    throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
-	}
+        if(!CryptAcquireContext(&context, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT))
+        {
+            throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
+        }
     }
 
     if(!CryptGenRandom(context, size, reinterpret_cast<unsigned char*>(buffer)))
     {
- 	throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
+        throw RandomGeneratorException(__FILE__, __LINE__, GetLastError());
     }
 #else
 
@@ -163,12 +163,12 @@ IceUtil::generateRandom(char* buffer, int size)
     IceUtil::StaticMutex::Lock lock(staticMutex);
     if(fd == -1)
     {
-	fd = open("/dev/urandom", O_RDONLY);
-	if(fd == -1)
-	{
-	    assert(0);
-	    throw RandomGeneratorException(__FILE__, __LINE__);
-	}
+        fd = open("/dev/urandom", O_RDONLY);
+        if(fd == -1)
+        {
+            assert(0);
+            throw RandomGeneratorException(__FILE__, __LINE__);
+        }
     }
     
     //
@@ -179,26 +179,26 @@ IceUtil::generateRandom(char* buffer, int size)
     size_t index = 0;    
     while(reads <= 20 && index != static_cast<size_t>(size))
     {
-	ssize_t bytesRead = read(fd, buffer + index, static_cast<size_t>(size) - index);
-	
-	if(bytesRead == -1 && errno != EINTR)
-	{
-	    int err = errno;
-	    cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
-	    assert(0);
-	    throw RandomGeneratorException(__FILE__, __LINE__, errno);
-	}
-	else
-	{
-	    index += bytesRead;
-	    reads++;
-	}
+        ssize_t bytesRead = read(fd, buffer + index, static_cast<size_t>(size) - index);
+        
+        if(bytesRead == -1 && errno != EINTR)
+        {
+            int err = errno;
+            cerr << "Reading /dev/urandom returned " << strerror(err) << endl;
+            assert(0);
+            throw RandomGeneratorException(__FILE__, __LINE__, errno);
+        }
+        else
+        {
+            index += bytesRead;
+            reads++;
+        }
     }
-	
+        
     if(index != static_cast<size_t>(size))
     {
-	assert(0);
-	throw RandomGeneratorException(__FILE__, __LINE__);
+        assert(0);
+        throw RandomGeneratorException(__FILE__, __LINE__);
     }
 #endif
 }
@@ -210,11 +210,11 @@ IceUtil::random(int limit)
     generateRandom(reinterpret_cast<char*>(&r), static_cast<int>(sizeof(int)));
     if(limit > 0)
     {
-	r = r % limit;
+        r = r % limit;
     }
     if(r < 0)
     {
-	r = -r;
+        r = -r;
     }
     return r;
 }

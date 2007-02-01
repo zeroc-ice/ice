@@ -51,37 +51,37 @@ Parser::addBook(const list<string>& _args)
 {
     if(_args.size() != 3)
     {
-	error("`add' requires at exactly three arguments (type `help' for more info)");
-	return;
+        error("`add' requires at exactly three arguments (type `help' for more info)");
+        return;
     }
 
     try
     {
-	list<string> args = _args;
+        list<string> args = _args;
 
-	BookDescription desc;
-	desc.isbn = args.front();
-	args.pop_front();
-	desc.title = args.front();
-	args.pop_front();
-	desc.authors = args.front();
+        BookDescription desc;
+        desc.isbn = args.front();
+        args.pop_front();
+        desc.title = args.front();
+        args.pop_front();
+        desc.authors = args.front();
 
-	BookPrx book = _library->createBook(desc);
-	cout << "added new book with isbn " << desc.isbn << endl;
+        BookPrx book = _library->createBook(desc);
+        cout << "added new book with isbn " << desc.isbn << endl;
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const BookExistsException&)
     {
-	error("the book already exists.");
+        error("the book already exists.");
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -90,36 +90,36 @@ Parser::findIsbn(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`isbn' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`isbn' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	_foundBooks.clear();
-	_current = _foundBooks.begin();
+        _foundBooks.clear();
+        _current = _foundBooks.begin();
 
-	BookPrx book = _library->findByIsbn(args.front());
-	if(!book)
-	{
-	    cout << "no book with that ISBN number exists." << endl;
-	}
-	else
-	{
-	    _foundBooks.push_back(book);
-	    _current = _foundBooks.begin();
-	    printCurrent();
-	}
+        BookPrx book = _library->findByIsbn(args.front());
+        if(!book)
+        {
+            cout << "no book with that ISBN number exists." << endl;
+        }
+        else
+        {
+            _foundBooks.push_back(book);
+            _current = _foundBooks.begin();
+            printCurrent();
+        }
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -128,26 +128,26 @@ Parser::findAuthors(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`authors' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`authors' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	_foundBooks = _library->findByAuthors(args.front());
-	_current = _foundBooks.begin();
-	cout << "number of books found: " << _foundBooks.size() << endl;
-	printCurrent();
+        _foundBooks = _library->findByAuthors(args.front());
+        _current = _foundBooks.begin();
+        cout << "number of books found: " << _foundBooks.size() << endl;
+        printCurrent();
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -156,7 +156,7 @@ Parser::nextFoundBook()
 {
     if(_current != _foundBooks.end())
     {
-	++_current;
+        ++_current;
     }
     printCurrent();
 }
@@ -166,31 +166,31 @@ Parser::printCurrent()
 {
     try
     {
-	if(_current != _foundBooks.end())
-	{
-	    BookDescription desc = (*_current)->getBookDescription();
-	    string renter;
-	    try
-	    {
-		renter = (*_current)->getRenterName();
-	    }
-	    catch(const BookNotRentedException&)
-	    {
-	    }
+        if(_current != _foundBooks.end())
+        {
+            BookDescription desc = (*_current)->getBookDescription();
+            string renter;
+            try
+            {
+                renter = (*_current)->getRenterName();
+            }
+            catch(const BookNotRentedException&)
+            {
+            }
 
-	    cout << "current book is:" << endl;
-	    cout << "isbn: " << desc.isbn << endl;
-	    cout << "title: " << desc.title << endl;
-	    cout << "authors: " << desc.authors << endl;
-	    if(!renter.empty())
-	    {
-		cout << "rented: " << renter << endl;
-	    }
-	}
-	else
-	{
-	    cout << "no current book" << endl;
-	}
+            cout << "current book is:" << endl;
+            cout << "isbn: " << desc.isbn << endl;
+            cout << "title: " << desc.title << endl;
+            cout << "authors: " << desc.authors << endl;
+            if(!renter.empty())
+            {
+                cout << "rented: " << renter << endl;
+            }
+        }
+        else
+        {
+            cout << "no current book" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -198,9 +198,9 @@ Parser::printCurrent()
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -209,25 +209,25 @@ Parser::rentCurrent(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`rent' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`rent' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	if(_current != _foundBooks.end())
-	{
-	    (*_current)->rentBook(args.front());
-	    cout << "the book is now rented by `" << args.front() << "'" << endl;
-	}
-	else
-	{
-	    cout << "no current book" << endl;
-	}
+        if(_current != _foundBooks.end())
+        {
+            (*_current)->rentBook(args.front());
+            cout << "the book is now rented by `" << args.front() << "'" << endl;
+        }
+        else
+        {
+            cout << "no current book" << endl;
+        }
     }
     catch(const BookRentedException&)
     {
-	cout << "the book has already been rented." << endl;
+        cout << "the book has already been rented." << endl;
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -235,13 +235,13 @@ Parser::rentCurrent(const list<string>& args)
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -250,19 +250,19 @@ Parser::returnCurrent()
 {
     try
     {
-	if(_current != _foundBooks.end())
-	{
-	    (*_current)->returnBook();
-	    cout << "the book has been returned." << endl;
-	}
-	else
-	{
-	    cout << "no current book" << endl;
-	}
+        if(_current != _foundBooks.end())
+        {
+            (*_current)->returnBook();
+            cout << "the book has been returned." << endl;
+        }
+        else
+        {
+            cout << "no current book" << endl;
+        }
     }
     catch(const BookNotRentedException&)
     {
-	cout << "the book is not currently rented." << endl;
+        cout << "the book is not currently rented." << endl;
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -270,13 +270,13 @@ Parser::returnCurrent()
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -285,15 +285,15 @@ Parser::removeCurrent()
 {
     try
     {
-	if(_current != _foundBooks.end())
-	{
-	    (*_current)->destroy();
-	    cout << "removed current book" << endl;
-	}
-	else
-	{
-	    cout << "no current book" << endl;
-	}
+        if(_current != _foundBooks.end())
+        {
+            (*_current)->destroy();
+            cout << "removed current book" << endl;
+        }
+        else
+        {
+            cout << "no current book" << endl;
+        }
     }
     catch(const Ice::ObjectNotExistException&)
     {
@@ -301,13 +301,13 @@ Parser::removeCurrent()
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -316,23 +316,23 @@ Parser::setEvictorSize(const list<string>& args)
 {
     if(args.size() != 1)
     {
-	error("`size' requires exactly one argument (type `help' for more info)");
-	return;
+        error("`size' requires exactly one argument (type `help' for more info)");
+        return;
     }
 
     try
     {
-	_library->setEvictorSize(atoi(args.front().c_str()));
+        _library->setEvictorSize(atoi(args.front().c_str()));
     }
     catch(const DatabaseException& ex)
     {
-	error(ex.message);
+        error(ex.message);
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -341,13 +341,13 @@ Parser::shutdown()
 {
     try
     {
-	_library->shutdown();
+        _library->shutdown();
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream s;
-	s << ex;
-	error(s.str());
+        ostringstream s;
+        s << ex;
+        error(s.str());
     }
 }
 
@@ -356,105 +356,105 @@ Parser::getInput(char* buf, int& result, int maxSize)
 {
     if(!_commands.empty())
     {
-	if(_commands == ";")
-	{
-	    result = 0;
-	}
-	else
-	{
+        if(_commands == ";")
+        {
+            result = 0;
+        }
+        else
+        {
 #if defined(_MSC_VER) && !defined(_STLP_MSVC)
-	    // COMPILERBUG: Stupid Visual C++ defines min and max as macros
-	    result = _MIN(maxSize, static_cast<int>(_commands.length()));
+            // COMPILERBUG: Stupid Visual C++ defines min and max as macros
+            result = _MIN(maxSize, static_cast<int>(_commands.length()));
 #else
-	    result = min(maxSize, static_cast<int>(_commands.length()));
+            result = min(maxSize, static_cast<int>(_commands.length()));
 #endif
-	    strncpy(buf, _commands.c_str(), result);
-	    _commands.erase(0, result);
-	    if(_commands.empty())
-	    {
-		_commands = ";";
-	    }
-	}
+            strncpy(buf, _commands.c_str(), result);
+            _commands.erase(0, result);
+            if(_commands.empty())
+            {
+                _commands = ";";
+            }
+        }
     }
     else if(isatty(fileno(yyin)))
     {
 #ifdef HAVE_READLINE
 
         const char* prompt = parser->getPrompt();
-	char* line = readline(const_cast<char*>(prompt));
-	if(!line)
-	{
-	    result = 0;
-	}
-	else
-	{
-	    if(*line)
-	    {
-		add_history(line);
-	    }
+        char* line = readline(const_cast<char*>(prompt));
+        if(!line)
+        {
+            result = 0;
+        }
+        else
+        {
+            if(*line)
+            {
+                add_history(line);
+            }
 
-	    result = strlen(line) + 1;
-	    if(result > maxSize)
-	    {
-		free(line);
-		error("input line too long");
-		result = 0;
-	    }
-	    else
-	    {
-		strcpy(buf, line);
-		strcat(buf, "\n");
-		free(line);
-	    }
-	}
+            result = strlen(line) + 1;
+            if(result > maxSize)
+            {
+                free(line);
+                error("input line too long");
+                result = 0;
+            }
+            else
+            {
+                strcpy(buf, line);
+                strcat(buf, "\n");
+                free(line);
+            }
+        }
 
 #else
 
-	cout << parser->getPrompt() << flush;
+        cout << parser->getPrompt() << flush;
 
-	string line;
-	while(true)
-	{
-	    char c = static_cast<char>(getc(yyin));
-	    if(c == EOF)
-	    {
-		if(line.size())
-		{
-		    line += '\n';
-		}
-		break;
-	    }
+        string line;
+        while(true)
+        {
+            char c = static_cast<char>(getc(yyin));
+            if(c == EOF)
+            {
+                if(line.size())
+                {
+                    line += '\n';
+                }
+                break;
+            }
 
-	    line += c;
+            line += c;
 
-	    if(c == '\n')
-	    {
-		break;
-	    }
-	}
-	
-	result = static_cast<int>(line.length());
-	if(result > maxSize)
-	{
-	    error("input line too long");
-	    buf[0] = EOF;
-	    result = 1;
-	}
-	else
-	{
-	    strcpy(buf, line.c_str());
-	}
+            if(c == '\n')
+            {
+                break;
+            }
+        }
+        
+        result = static_cast<int>(line.length());
+        if(result > maxSize)
+        {
+            error("input line too long");
+            buf[0] = EOF;
+            result = 1;
+        }
+        else
+        {
+            strcpy(buf, line.c_str());
+        }
 
 #endif
     }
     else
     {
-	if(((result = static_cast<int>(fread(buf, 1, maxSize, yyin))) == 0) && ferror(yyin))
-	{
-	    error("input in flex scanner failed");
-	    buf[0] = EOF;
-	    result = 1;
-	}
+        if(((result = static_cast<int>(fread(buf, 1, maxSize, yyin))) == 0) && ferror(yyin))
+        {
+            error("input in flex scanner failed");
+            buf[0] = EOF;
+            result = 1;
+        }
     }
 }
 
@@ -477,12 +477,12 @@ Parser::getPrompt()
 
     if(_continue)
     {
-	_continue = false;
-	return "(cont) ";
+        _continue = false;
+        return "(cont) ";
     }
     else
     {
-	return ">>> ";
+        return ">>> ";
     }
 }
 
@@ -491,11 +491,11 @@ Parser::error(const char* s)
 {
     if(_commands.empty() && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
+        cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
     else
     {
-	cerr << "error: " << s << endl;
+        cerr << "error: " << s << endl;
     }
     _errors++;
 }
@@ -511,11 +511,11 @@ Parser::warning(const char* s)
 {
     if(_commands.empty() && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
+        cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
     else
     {
-	cerr << "warning: " << s << endl;
+        cerr << "warning: " << s << endl;
     }
 }
 
@@ -550,7 +550,7 @@ Parser::parse(FILE* file, bool debug)
     int status = yyparse();
     if(_errors)
     {
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     parser = 0;
@@ -582,7 +582,7 @@ Parser::parse(const string& commands, bool debug)
     int status = yyparse();
     if(_errors)
     {
-	status = EXIT_FAILURE;
+        status = EXIT_FAILURE;
     }
 
     parser = 0;

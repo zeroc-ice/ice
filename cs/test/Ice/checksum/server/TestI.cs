@@ -16,15 +16,15 @@ namespace Test
             _adapter = adapter;
         }
 
-	public override Ice.SliceChecksumDict getSliceChecksums(Ice.Current __current)
-	{
-	    return Ice.SliceChecksums.checksums;
-	}
+        public override Ice.SliceChecksumDict getSliceChecksums(Ice.Current __current)
+        {
+            return Ice.SliceChecksums.checksums;
+        }
 
-	public override void shutdown(Ice.Current __current)
-	{
+        public override void shutdown(Ice.Current __current)
+        {
             _adapter.getCommunicator().shutdown();
-	}
+        }
 
         private Ice.ObjectAdapter _adapter;
     }

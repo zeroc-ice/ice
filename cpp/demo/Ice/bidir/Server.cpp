@@ -38,12 +38,12 @@ CallbackServer::run(int argc, char* argv[])
     sender->start();
     try
     {
-	communicator()->waitForShutdown();
+        communicator()->waitForShutdown();
     }
     catch(...)
     {
-	sender->destroy();
-	throw;
+        sender->destroy();
+        throw;
     }
     sender->destroy();
 

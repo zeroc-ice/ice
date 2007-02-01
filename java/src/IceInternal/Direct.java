@@ -16,39 +16,39 @@ public final class Direct
     {
         _current = current;
 
-	Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
-	assert(adapter != null);
-	
-	//
-	// Must call incDirectCount() first, because it checks for
-	// adapter deactivation, and prevents deactivation completion
-	// until decDirectCount() is called. This is important,
-	// because getServantManager() may not be called afer
-	// deactivation completion.
-	//
-	adapter.incDirectCount();
+        Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
+        assert(adapter != null);
+        
+        //
+        // Must call incDirectCount() first, because it checks for
+        // adapter deactivation, and prevents deactivation completion
+        // until decDirectCount() is called. This is important,
+        // because getServantManager() may not be called afer
+        // deactivation completion.
+        //
+        adapter.incDirectCount();
 
-	ServantManager servantManager = adapter.getServantManager();
-	assert(servantManager != null);
+        ServantManager servantManager = adapter.getServantManager();
+        assert(servantManager != null);
 
         try
         {
-	    _servant = servantManager.findServant(_current.id, _current.facet);
-	    if(_servant == null)
-	    {
-		_locator = servantManager.findServantLocator(_current.id.category);
-		if(_locator == null && _current.id.category.length() > 0)
-		{
-		    _locator = servantManager.findServantLocator("");
-		}
-		if(_locator != null)
-		{
-		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
-		    _servant = _locator.locate(_current, _cookie);
-		}
-	    }
-	    if(_servant == null)
-	    {
+            _servant = servantManager.findServant(_current.id, _current.facet);
+            if(_servant == null)
+            {
+                _locator = servantManager.findServantLocator(_current.id.category);
+                if(_locator == null && _current.id.category.length() > 0)
+                {
+                    _locator = servantManager.findServantLocator("");
+                }
+                if(_locator != null)
+                {
+                    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
+                    _servant = _locator.locate(_current, _cookie);
+                }
+            }
+            if(_servant == null)
+            {
                 if(servantManager != null && servantManager.hasServant(_current.id))
                 {
                     Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
@@ -65,42 +65,42 @@ public final class Direct
                     ex.operation = _current.operation;
                     throw ex;
                 }
-	    }
+            }
         }
         catch(RuntimeException ex)
         {
-	    try
-	    {
-		if(_locator != null && _servant != null)
-		{
-		    _locator.finished(_current, _servant, _cookie.value);
-		}
-		throw ex;
-	    }
-	    finally
-	    {
-		adapter.decDirectCount();
-	    }
+            try
+            {
+                if(_locator != null && _servant != null)
+                {
+                    _locator.finished(_current, _servant, _cookie.value);
+                }
+                throw ex;
+            }
+            finally
+            {
+                adapter.decDirectCount();
+            }
         }
     }
 
     public void
     destroy()
     {
-	Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
-	assert(adapter != null);
-	
-	try
-	{
-	    if(_locator != null && _servant != null)
-	    {
-		_locator.finished(_current, _servant, _cookie.value);
-	    }
-	}
-	finally
-	{
-	    adapter.decDirectCount();
-	}
+        Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
+        assert(adapter != null);
+        
+        try
+        {
+            if(_locator != null && _servant != null)
+            {
+                _locator.finished(_current, _servant, _cookie.value);
+            }
+        }
+        finally
+        {
+            adapter.decDirectCount();
+        }
     }
 
     public Ice.Object

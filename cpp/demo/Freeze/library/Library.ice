@@ -92,7 +92,7 @@ class Book
      *
      **/
     ["freeze:write"] void destroy()
-	throws DatabaseException;
+        throws DatabaseException;
 
     /**
      *
@@ -105,7 +105,7 @@ class Book
      *
      **/
     ["freeze:write"] void rentBook(string name)
-	throws BookRentedException;
+        throws BookRentedException;
 
     /**
      *
@@ -118,7 +118,7 @@ class Book
      *
      **/
     ["cpp:const"] idempotent string getRenterName()
-	throws BookNotRentedException;
+        throws BookNotRentedException;
 
     /**
      *
@@ -129,7 +129,7 @@ class Book
      *
      **/
     ["freeze:write"] void returnBook()
-	throws BookNotRentedException;
+        throws BookNotRentedException;
 
     /**
      *
@@ -177,7 +177,7 @@ interface Library
      *
      **/
     Book* createBook(BookDescription description)
-	throws DatabaseException, BookExistsException;
+        throws DatabaseException, BookExistsException;
 
     /**
      *
@@ -192,7 +192,7 @@ interface Library
      *
      **/
     ["cpp:const"] idempotent Book* findByIsbn(string isbn)
-	throws DatabaseException;
+        throws DatabaseException;
 
     /**
      *
@@ -207,7 +207,7 @@ interface Library
      *
      **/
     ["cpp:const"] idempotent BookPrxSeq findByAuthors(string authors)
-	throws DatabaseException;
+        throws DatabaseException;
 
     /**
      *
@@ -220,7 +220,7 @@ interface Library
      *
      **/
     idempotent void setEvictorSize(int size)
-	throws DatabaseException;
+        throws DatabaseException;
 
     /**
      *

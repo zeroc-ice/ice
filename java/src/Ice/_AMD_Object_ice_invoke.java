@@ -14,27 +14,27 @@ final class _AMD_Object_ice_invoke extends IceInternal.IncomingAsync implements 
     public
     _AMD_Object_ice_invoke(IceInternal.Incoming in)
     {
-	super(in);
+        super(in);
     }
 
     public void
     ice_response(boolean ok, byte[] outParams)
     {
-	try
-	{
-	    __os().writeBlob(outParams);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    __exception(ex);
-	    return;
-	}
-	__response(ok);
+        try
+        {
+            __os().writeBlob(outParams);
+        }
+        catch(Ice.LocalException ex)
+        {
+            __exception(ex);
+            return;
+        }
+        __response(ok);
     }
 
     public void
     ice_exception(java.lang.Exception ex)
     {
-	__exception(ex);
+        __exception(ex);
     }
 }

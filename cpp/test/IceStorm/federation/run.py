@@ -53,7 +53,7 @@ def doTest(batch):
 
     command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     subscriberPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe)
@@ -64,7 +64,7 @@ def doTest(batch):
     #
     command = publisher + TestUtil.clientOptions + iceStormReference
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     publisherPipe = os.popen(command + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)

@@ -38,13 +38,13 @@ class InternalRegistryI : public InternalRegistry
 public:
 
     InternalRegistryI(const RegistryIPtr&, const DatabasePtr&, const ReapThreadPtr&, 
-		      const WellKnownObjectsManagerPtr&, ReplicaSessionManager&);
+                      const WellKnownObjectsManagerPtr&, ReplicaSessionManager&);
     virtual ~InternalRegistryI();
 
     virtual NodeSessionPrx registerNode(const InternalNodeInfoPtr&, const NodePrx&, const LoadInfo&, 
-					const Ice::Current&);
+                                        const Ice::Current&);
     virtual ReplicaSessionPrx registerReplica(const InternalReplicaInfoPtr&, const InternalRegistryPrx&, 
-					      const Ice::Current&);
+                                              const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
 

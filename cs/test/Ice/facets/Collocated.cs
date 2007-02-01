@@ -16,9 +16,9 @@ public class Collocated
         Ice.Object d = new DI();
         adapter.add(d, communicator.stringToIdentity("d"));
         adapter.addFacet(d, communicator.stringToIdentity("d"), "facetABCD");
-	Ice.Object f = new FI();
+        Ice.Object f = new FI();
         adapter.addFacet(f, communicator.stringToIdentity("d"), "facetEF");
-	Ice.Object h = new HI(communicator);
+        Ice.Object h = new HI(communicator);
         adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH");
  
         AllTests.allTests(communicator);
@@ -50,14 +50,14 @@ public class Collocated
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.WriteLine(ex);
+                System.Console.WriteLine(ex);
                 status = 1;
             }
         }
         
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

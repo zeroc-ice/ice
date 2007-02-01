@@ -19,24 +19,24 @@ public class Server extends Ice.Application
         adapter.add(sender, communicator().stringToIdentity("sender"));
         adapter.activate();
 
-	Thread t = new Thread(sender);
-	t.start();
+        Thread t = new Thread(sender);
+        t.start();
 
-	try
-	{
-	    communicator().waitForShutdown();
-	}
-	finally
-	{
-	    sender.destroy();
-	    try
-	    {
-		t.join();
-	    }
-	    catch(java.lang.InterruptedException ex)
-	    {
-	    }
-	}
+        try
+        {
+            communicator().waitForShutdown();
+        }
+        finally
+        {
+            sender.destroy();
+            try
+            {
+                t.join();
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+            }
+        }
 
         return 0;
     }

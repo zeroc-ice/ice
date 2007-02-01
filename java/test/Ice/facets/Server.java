@@ -17,9 +17,9 @@ public class Server
         Ice.Object d = new DI();
         adapter.add(d, communicator.stringToIdentity("d"));
         adapter.addFacet(d, communicator.stringToIdentity("d"), "facetABCD");
-	Ice.Object f = new FI();
+        Ice.Object f = new FI();
         adapter.addFacet(f, communicator.stringToIdentity("d"), "facetEF");
-	Ice.Object h = new HI(communicator);
+        Ice.Object h = new HI(communicator);
         adapter.addFacet(h, communicator.stringToIdentity("d"), "facetGH");
 
         adapter.activate();
@@ -58,7 +58,7 @@ public class Server
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

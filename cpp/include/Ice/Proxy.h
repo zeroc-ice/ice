@@ -93,82 +93,82 @@ public:
 
     bool ice_isA(const ::std::string& typeId)
     {
-	return ice_isA(typeId, 0);
+        return ice_isA(typeId, 0);
     }
     bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context)
     {
-	return ice_isA(typeId, &context);
+        return ice_isA(typeId, &context);
     }
     
     void ice_ping()
     {
-	ice_ping(0);
+        ice_ping(0);
     }
     void ice_ping(const ::Ice::Context& context)
     {
-	ice_ping(&context);
+        ice_ping(&context);
     }
     
     ::std::vector< ::std::string> ice_ids()
     {
-	return ice_ids(0);
+        return ice_ids(0);
     }
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context& context)
     {
-	return ice_ids(&context);
+        return ice_ids(&context);
     }
     
     ::std::string ice_id()
     {
-	return ice_id(0);
+        return ice_id(0);
     }
     ::std::string ice_id(const ::Ice::Context& context)
     {
-	return ice_id(&context);
+        return ice_id(&context);
     }
 
     // Returns true if ok, false if user exception.
     bool ice_invoke(const ::std::string& operation, 
-		    ::Ice::OperationMode mode, 
-		    const ::std::vector< ::Ice::Byte>& inParams,
-	            ::std::vector< ::Ice::Byte>& outParams)
+                    ::Ice::OperationMode mode, 
+                    const ::std::vector< ::Ice::Byte>& inParams,
+                    ::std::vector< ::Ice::Byte>& outParams)
     {
-	const ::Ice::Context* context = 0;
-	return ice_invoke(operation, mode, inParams, outParams, context);
+        const ::Ice::Context* context = 0;
+        return ice_invoke(operation, mode, inParams, outParams, context);
     }
     bool ice_invoke(const ::std::string& operation, 
-		    ::Ice::OperationMode mode, 
-		    const ::std::vector< ::Ice::Byte>& inParams,
-	            ::std::vector< ::Ice::Byte>& outParams,
-		    const ::Ice::Context& context)
+                    ::Ice::OperationMode mode, 
+                    const ::std::vector< ::Ice::Byte>& inParams,
+                    ::std::vector< ::Ice::Byte>& outParams,
+                    const ::Ice::Context& context)
     {
-	return ice_invoke(operation, mode, inParams, outParams, &context);
+        return ice_invoke(operation, mode, inParams, outParams, &context);
     }
     bool ice_invoke(const ::std::string& operation, 
-		    ::Ice::OperationMode mode, 
-    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams, 
-		    ::std::vector< ::Ice::Byte>& outParams)
+                    ::Ice::OperationMode mode, 
+                    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams, 
+                    ::std::vector< ::Ice::Byte>& outParams)
     {
-	const ::Ice::Context* context = 0;
-	return ice_invoke(operation, mode, inParams, outParams, context);
+        const ::Ice::Context* context = 0;
+        return ice_invoke(operation, mode, inParams, outParams, context);
     }
     bool ice_invoke(const ::std::string& operation, 
-		    ::Ice::OperationMode mode,
-    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
-		    ::std::vector< ::Ice::Byte>& outParams,
-		    const ::Ice::Context& context)
+                    ::Ice::OperationMode mode,
+                    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>& inParams,
+                    ::std::vector< ::Ice::Byte>& outParams,
+                    const ::Ice::Context& context)
     {
-	return ice_invoke(operation, mode, inParams, outParams, &context);
+        return ice_invoke(operation, mode, inParams, outParams, &context);
     }
 
     void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-    			  const ::std::vector< ::Ice::Byte>&);
+                          const ::std::vector< ::Ice::Byte>&);
     void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-    			  const ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
+                          const ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     void ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode,
-			  const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
+                          const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
     void ice_invoke_async(const ::Ice::AMI_Array_Object_ice_invokePtr&, const ::std::string&, ::Ice::OperationMode, 
-			  const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
+                          const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&, const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
@@ -241,11 +241,11 @@ public:
     ::IceInternal::ReferencePtr __reference() const;
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-			   const ::Ice::LocalException&, int&);
+                           const ::Ice::LocalException&, int&);
     void __handleExceptionWrapper(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&, 
-				  const ::IceInternal::LocalExceptionWrapper&);
+                                  const ::IceInternal::LocalExceptionWrapper&);
     void __handleExceptionWrapperRelaxed(const ::IceInternal::Handle< ::IceDelegate::Ice::Object>&,
-					 const ::IceInternal::LocalExceptionWrapper&, int&);
+                                         const ::IceInternal::LocalExceptionWrapper&, int&);
     void __checkTwowayOnly(const char*) const;
     void __checkTwowayOnly(const ::std::string&) const;
 
@@ -265,15 +265,15 @@ private:
 
    
     bool ice_invoke(const ::std::string&, 
-		    ::Ice::OperationMode, 
-		    const ::std::vector< ::Ice::Byte>&,
-	            ::std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context*);
+                    ::Ice::OperationMode, 
+                    const ::std::vector< ::Ice::Byte>&,
+                    ::std::vector< ::Ice::Byte>&,
+                    const ::Ice::Context*);
     bool ice_invoke(const ::std::string&, 
-		    ::Ice::OperationMode,
-    		    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-		    ::std::vector< ::Ice::Byte>&,
-		    const ::Ice::Context*);
+                    ::Ice::OperationMode,
+                    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
+                    ::std::vector< ::Ice::Byte>&,
+                    const ::Ice::Context*);
   
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
@@ -298,8 +298,8 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*) = 0;
     virtual ::std::string ice_id(const ::Ice::Context*) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
-    			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context*) = 0;
+                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
+                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*) = 0;
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const = 0;
 };
@@ -320,8 +320,8 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
     virtual ::std::string ice_id(const ::Ice::Context*);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, 
-    			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
+                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
+                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
 
@@ -353,8 +353,8 @@ public:
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
     virtual ::std::string ice_id(const ::Ice::Context*);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode,
-    			    const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
-			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
+                            const ::std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&,
+                            ::std::vector< ::Ice::Byte>&, const ::Ice::Context*);
 
     virtual ::Ice::ConnectionIPtr __getConnection(bool&) const;
 
@@ -388,7 +388,7 @@ struct ProxyIdentityLess : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityLess(lhs, rhs);
+        return proxyIdentityLess(lhs, rhs);
     }
 };
 
@@ -396,7 +396,7 @@ struct ProxyIdentityEqual : std::binary_function<bool, ObjectPrx&, ObjectPrx&>
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityEqual(lhs, rhs);
+        return proxyIdentityEqual(lhs, rhs);
     }
 };
 
@@ -404,7 +404,7 @@ struct ProxyIdentityAndFacetLess : std::binary_function<bool, ObjectPrx&, Object
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityAndFacetLess(lhs, rhs);
+        return proxyIdentityAndFacetLess(lhs, rhs);
     }
 };
 
@@ -412,7 +412,7 @@ struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, Objec
 {
     bool operator()(const ObjectPrx& lhs, const ObjectPrx& rhs) const
     {
-	return proxyIdentityAndFacetEqual(lhs, rhs);
+        return proxyIdentityAndFacetEqual(lhs, rhs);
     }
 };
 
@@ -430,16 +430,16 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const ::Ice::Context* context)
     P d = 0;
     if(b.get())
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	d = dynamic_cast<T*>(b.get());
-	if(!d && (context == 0 ? 
-		  b->ice_isA(T::ice_staticId()) :
-		  b->ice_isA(T::ice_staticId(), *context)))
-	{
-	    d = new T;
-	    d->__copyFrom(b);
-	}
+        d = dynamic_cast<T*>(b.get());
+        if(!d && (context == 0 ? 
+                  b->ice_isA(T::ice_staticId()) :
+                  b->ice_isA(T::ice_staticId(), *context)))
+        {
+            d = new T;
+            d->__copyFrom(b);
+        }
     }
     return d;
 }
@@ -450,14 +450,14 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
     P d = 0;
     if(b)
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	d = dynamic_cast<T*>(b.get());
-	if(!d)
-	{
-	    d = new T;
-	    d->__copyFrom(b);
-	}
+        d = dynamic_cast<T*>(b.get());
+        if(!d)
+        {
+            d = new T;
+            d->__copyFrom(b);
+        }
     }
     return d;
 }
@@ -489,7 +489,7 @@ uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::strin
     ::Ice::ObjectPrx d = 0;
     if(b)
     {
-	d = b->ice_facet(f);
+        d = b->ice_facet(f);
     }
     return d;
 }
@@ -504,8 +504,8 @@ checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f, const ::Ice::Co
 
     if(bb)
     {
-	d = new T;
-	d->__copyFrom(bb);
+        d = new T;
+        d->__copyFrom(bb);
     }
     return d;
 }
@@ -516,11 +516,11 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
     P d = 0;
     if(b)
     {
-	typedef typename P::element_type T;
+        typedef typename P::element_type T;
 
-	::Ice::ObjectPrx bb = b->ice_facet(f);
-	d = new T;
-	d->__copyFrom(bb);
+        ::Ice::ObjectPrx bb = b->ice_facet(f);
+        d = new T;
+        d->__copyFrom(bb);
     }
     return d;
 }

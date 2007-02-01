@@ -93,7 +93,7 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
 #define g2(p) (((p)[0]-'0')*10+(p)[1]-'0')
     tm.tm_year = g2(s->data);
     if(tm.tm_year < 50)
-	tm.tm_year += 100;
+        tm.tm_year += 100;
     tm.tm_mon = g2(s->data + 2) - 1;
     tm.tm_mday = g2(s->data + 4);
     tm.tm_hour = g2(s->data + 6);
@@ -101,15 +101,15 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     tm.tm_sec = g2(s->data + 10);
     if(s->data[12] == 'Z')
     {
-	offset = 0;
+        offset = 0;
     }
     else
     {
-	offset = g2(s->data + 13) * 60 + g2(s->data + 15);
-	if(s->data[12] == '-')
-	{
-	    offset = -offset;
-	}
+        offset = g2(s->data + 13) * 60 + g2(s->data + 15);
+        if(s->data[12] == '-')
+        {
+            offset = -offset;
+        }
     }
 #undef g2
 
@@ -121,10 +121,10 @@ ASMUtcTimeToIceUtilTime(const ASN1_UTCTIME* s)
     //
     time_t tzone;
     {
-	static IceUtil::StaticMutex mutex = ICE_STATIC_MUTEX_INITIALIZER;
-	IceUtil::StaticMutex::Lock sync(mutex);
-	time_t now = time(0);
-	tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
+        static IceUtil::StaticMutex mutex = ICE_STATIC_MUTEX_INITIALIZER;
+        IceUtil::StaticMutex::Lock sync(mutex);
+        time_t now = time(0);
+        tzone = mktime(localtime(&now)) - mktime(gmtime(&now));
     }
     return IceUtil::Time::seconds(mktime(&tm) - offset*60 + tzone);
 }
@@ -147,81 +147,81 @@ convertGeneralNames(GENERAL_NAMES* gens)
     vector<pair<int, string> > alt;
     if(gens == 0)
     {
-	return alt;
+        return alt;
     }
     for(int i = 0; i < sk_GENERAL_NAME_num(gens); ++i)
     {
-	GENERAL_NAME* gen = sk_GENERAL_NAME_value(gens, i);
-	pair<int, string> p;
-	p.first = gen->type;
-	switch(gen->type)
-	{
-	case GEN_EMAIL:
-	{
-	    ASN1_IA5STRING* str = gen->d.rfc822Name;
-	    if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
-	    {
-		p.second = reinterpret_cast<const char*>(str->data);
-	    }
-	    break;
-	}
-	case GEN_DNS:
-	{
-	    ASN1_IA5STRING* str = gen->d.dNSName;
-	    if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
-	    {
-		p.second = reinterpret_cast<const char*>(str->data);
-	    }
-	    break;
-	}
-	case GEN_DIRNAME:
-	{
-	    p.second = convertX509NameToString(gen->d.directoryName);
-	    break;
-	}
-	case GEN_URI:
-	{
-	    ASN1_IA5STRING* str = gen->d.uniformResourceIdentifier;
-	    if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
-	    {
-		p.second = reinterpret_cast<const char*>(str->data);
-	    }
-	    break;
-	}
-	case GEN_IPADD:
-	{
-	    ASN1_OCTET_STRING* addr = gen->d.iPAddress;
-	    // TODO: Support IPv6 someday.
-	    if(addr && addr->type == V_ASN1_OCTET_STRING && addr->data && addr->length == 4)
-	    {
-		ostringstream ostr;
-		for(int j = 0; j < 4; ++j)
-		{
-		    if(j > 0)
-		    {
-			ostr << '.';
-		    }
-		    ostr << static_cast<int>(addr->data[j]);
-		}
-		p.second = ostr.str();
-	    }
-	    break;
-	}
-	case GEN_OTHERNAME:
-	case GEN_EDIPARTY:
-	case GEN_X400:
-	case GEN_RID:
-	{
-	    //
-	    // TODO: These types are not supported. If the user wants
-	    // them, they have to get at the certificate data. Another
-	    // alternative is to DER encode the data (as the Java
-	    // certificate does).
-	    //
-	    break;
-	}
-	}
-	alt.push_back(p);
+        GENERAL_NAME* gen = sk_GENERAL_NAME_value(gens, i);
+        pair<int, string> p;
+        p.first = gen->type;
+        switch(gen->type)
+        {
+        case GEN_EMAIL:
+        {
+            ASN1_IA5STRING* str = gen->d.rfc822Name;
+            if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
+            {
+                p.second = reinterpret_cast<const char*>(str->data);
+            }
+            break;
+        }
+        case GEN_DNS:
+        {
+            ASN1_IA5STRING* str = gen->d.dNSName;
+            if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
+            {
+                p.second = reinterpret_cast<const char*>(str->data);
+            }
+            break;
+        }
+        case GEN_DIRNAME:
+        {
+            p.second = convertX509NameToString(gen->d.directoryName);
+            break;
+        }
+        case GEN_URI:
+        {
+            ASN1_IA5STRING* str = gen->d.uniformResourceIdentifier;
+            if(str && str->type == V_ASN1_IA5STRING && str->data && str->length > 0)
+            {
+                p.second = reinterpret_cast<const char*>(str->data);
+            }
+            break;
+        }
+        case GEN_IPADD:
+        {
+            ASN1_OCTET_STRING* addr = gen->d.iPAddress;
+            // TODO: Support IPv6 someday.
+            if(addr && addr->type == V_ASN1_OCTET_STRING && addr->data && addr->length == 4)
+            {
+                ostringstream ostr;
+                for(int j = 0; j < 4; ++j)
+                {
+                    if(j > 0)
+                    {
+                        ostr << '.';
+                    }
+                    ostr << static_cast<int>(addr->data[j]);
+                }
+                p.second = ostr.str();
+            }
+            break;
+        }
+        case GEN_OTHERNAME:
+        case GEN_EDIPARTY:
+        case GEN_X400:
+        case GEN_RID:
+        {
+            //
+            // TODO: These types are not supported. If the user wants
+            // them, they have to get at the certificate data. Another
+            // alternative is to DER encode the data (as the Java
+            // certificate does).
+            //
+            break;
+        }
+        }
+        alt.push_back(p);
     }
     sk_GENERAL_NAME_pop_free(gens, GENERAL_NAME_free);
     return alt;
@@ -298,22 +298,22 @@ DistinguishedName::match(const DistinguishedName& other) const
 {
     for(list< pair<string, string> >::const_iterator p = other._unescaped.begin(); p != other._unescaped.end(); ++p)
     {
-	bool found = false;
-	for(list< pair<string, string> >::const_iterator q = _unescaped.begin(); q != _unescaped.end(); ++q)
-	{
-	    if(p->first == q->first)
-	    {
-		found = true;
-		if(p->second != q->second)
-		{
-		    return false;
-		}
-	    }
-	}
-	if(!found)
-	{
-	    return false;
-	}
+        bool found = false;
+        for(list< pair<string, string> >::const_iterator q = _unescaped.begin(); q != _unescaped.end(); ++q)
+        {
+            if(p->first == q->first)
+            {
+                found = true;
+                if(p->second != q->second)
+                {
+                    return false;
+                }
+            }
+        }
+        if(!found)
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -328,12 +328,12 @@ DistinguishedName::operator string() const
     bool first = true;
     for(list< pair<string, string> >::const_iterator p = _rdns.begin(); p != _rdns.end(); ++p)
     {
-	if(!first)
-	{
-	    os << ",";
-	}
-	first = false;
-	os << p->first << "=" << p->second;
+        if(!first)
+        {
+            os << ",";
+        }
+        first = false;
+        os << p->first << "=" << p->second;
     }
     return os.str();
 }
@@ -343,9 +343,9 @@ DistinguishedName::unescape()
 {
     for(list< pair<string, string> >::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
     {
-	pair<string, string> rdn = *q;
-	rdn.second = RFC2253::unescape(rdn.second);
-	_unescaped.push_back(rdn);
+        pair<string, string> rdn = *q;
+        rdn.second = RFC2253::unescape(rdn.second);
+        _unescaped.push_back(rdn);
     }
 }
 
@@ -385,15 +385,15 @@ Certificate::load(const string& file)
     BIO *cert = BIO_new(BIO_s_file());
     if(BIO_read_filename(cert, file.c_str()) <= 0)
     {
-	BIO_free(cert);
-	throw CertificateReadException(__FILE__, __LINE__, "error opening file");
+        BIO_free(cert);
+        throw CertificateReadException(__FILE__, __LINE__, "error opening file");
     }
     
     X509* x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
     if(x == NULL)
     {
-	BIO_free(cert);
-	throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
+        BIO_free(cert);
+        throw CertificateReadException(__FILE__, __LINE__, "error reading file:\n" + getSslErrors(false));
     }
     BIO_free(cert);
     return new Certificate(x);
@@ -406,8 +406,8 @@ Certificate::decode(const string& encoding)
     X509* x = PEM_read_bio_X509_AUX(cert, NULL, NULL, NULL);
     if(x == NULL)
     {
-	BIO_free(cert);
-	throw CertificateReadException(__FILE__, __LINE__, "error decoding certificate:\n" + getSslErrors(false));
+        BIO_free(cert);
+        throw CertificateReadException(__FILE__, __LINE__, "error decoding certificate:\n" + getSslErrors(false));
     }
     BIO_free(cert);
     return new Certificate(x);
@@ -444,8 +444,8 @@ Certificate::encode() const
     int i = PEM_write_bio_X509_AUX(out, _cert);
     if(i <= 0)
     {
-	BIO_free(out);
-	throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
+        BIO_free(out);
+        throw CertificateEncodingException(__FILE__, __LINE__, getSslErrors(false));
     }
     BUF_MEM* p;
     BIO_get_mem_ptr(out, &p);
@@ -511,7 +511,7 @@ vector<pair<int, string> >
 Certificate::getIssuerAlternativeNames()
 {
     return convertGeneralNames(reinterpret_cast<GENERAL_NAMES*>(
-    	X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
+        X509_get_ext_d2i(_cert, NID_issuer_alt_name, 0, 0)));
 }
 
 DistinguishedName
@@ -524,7 +524,7 @@ vector<pair<int, string> >
 Certificate::getSubjectAlternativeNames()
 {
     return convertGeneralNames(
-    	reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_subject_alt_name, 0, 0)));
+        reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(_cert, NID_subject_alt_name, 0, 0)));
 }
 
 int

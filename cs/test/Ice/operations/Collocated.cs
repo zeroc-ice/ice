@@ -15,10 +15,10 @@ public class Collocated
     {
         communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 5000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-	Ice.Identity id = communicator.stringToIdentity("test");
-	adapter.add(new MyDerivedClassI(adapter, id), id);
-	adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
-	adapter.activate();
+        Ice.Identity id = communicator.stringToIdentity("test");
+        adapter.add(new MyDerivedClassI(adapter, id), id);
+        adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
+        adapter.activate();
 
         AllTests.allTests(communicator, true);
 
@@ -27,38 +27,38 @@ public class Collocated
     
     public static void Main(String[] args)
     {
-	int status = 0;
-	Ice.Communicator communicator = null;
-	
-	try
-	{
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(ref args);
-	    initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-	    initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-	    
-	    communicator = Ice.Util.initialize(ref args, initData);
-	    status = run(args, communicator);
-	}
-	catch(System.Exception ex)
-	{
-	    Console.Error.WriteLine(ex);
-	    status = 1;
-	}
-	
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-	
+        int status = 0;
+        Ice.Communicator communicator = null;
+        
+        try
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
+            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+            
+            communicator = Ice.Util.initialize(ref args, initData);
+            status = run(args, communicator);
+        }
+        catch(System.Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+            status = 1;
+        }
+        
+        if(communicator != null)
+        {
+            try
+            {
+                communicator.destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                Console.Error.WriteLine(ex);
+                status = 1;
+            }
+        }
+        
         if(status != 0)
         {
             System.Environment.Exit(status);

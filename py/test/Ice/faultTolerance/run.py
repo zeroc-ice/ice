@@ -37,7 +37,7 @@ for i in range(0, num):
     sys.stdout.flush()
     command = "python " + server + TestUtil.serverOptions + " %d" % (base + i)
     if TestUtil.debug:
-	print "(" + command + ")",
+        print "(" + command + ")",
     serverPipe = os.popen(command + " 2>&1")
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)

@@ -32,8 +32,8 @@ def allTests(communicator):
     sys.stdout.flush()
     adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999")
     try:
-	communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998")
-	test(False)
+        communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998")
+        test(False)
     except Ice.LocalException:
         pass
     adapter.destroy()
@@ -55,9 +55,9 @@ def allTests(communicator):
     print "testing whether server is gone... ",
     sys.stdout.flush()
     try:
-	obj.ice_ping()
-	test(False)
+        obj.ice_ping()
+        test(False)
     except Ice.LocalException:
-	print "ok"
+        print "ok"
 
     return obj

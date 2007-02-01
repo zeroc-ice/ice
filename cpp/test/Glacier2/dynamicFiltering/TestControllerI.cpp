@@ -57,101 +57,101 @@ TestControllerI::TestControllerI()
 
 void
 TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToken& currentState, TestToken& newState,
-		      const Ice::Current& current)
+                      const Ice::Current& current)
 {
     switch(currentState.code)
     {
-	case Test::Finished:
-	{
-	    assert("TestController::step() shouldn't have been called with a state of Finished" == 0);
-	    break;
-	}
-	    
-	case Test::Running:
-	{
-	    TestConfiguration& config = _configurations[currentState.config];
-	    assert(!config.description.empty());
+        case Test::Finished:
+        {
+            assert("TestController::step() shouldn't have been called with a state of Finished" == 0);
+            break;
+        }
+            
+        case Test::Running:
+        {
+            TestConfiguration& config = _configurations[currentState.config];
+            assert(!config.description.empty());
 
-	    
-	    bool found = false;
-	    SessionTuple session;
-	    for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)
-	    {
-		if(i->session == currentSession)
-		{
-		    session = *i;
-		    found = true;
-		}
-	    }
+            
+            bool found = false;
+            SessionTuple session;
+            for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)
+            {
+                if(i->session == currentSession)
+                {
+                    session = *i;
+                    found = true;
+                }
+            }
 
-	    assert(found);
+            assert(found);
 
-	    //
-	    // New sessions force configuration step.
-	    //
-	    bool reconfigure = !session.configured;
+            //
+            // New sessions force configuration step.
+            //
+            bool reconfigure = !session.configured;
 
-	    //
-	    // We start with the previous known state.
-	    //
-	    newState = currentState;
-		    
-	    ++newState.caseIndex;
-	    if(!(newState.caseIndex < (long)config.cases.size()))
-	    {
-		//
-		// We are out of test cases for this configuration. Move to
-		// the next configuration.
-		//
-		++newState.config;
-		if(!(newState.config < (long)_configurations.size()))
-		{
-		    newState.code = Test::Finished;
-		    newState.expectedResult = false;
-		    newState.description = "No more tests";
-		    newState.testReference = "";
-		    newState.config = -1;
-		    newState.caseIndex = -1;
-		    return;
-		}
+            //
+            // We start with the previous known state.
+            //
+            newState = currentState;
+                    
+            ++newState.caseIndex;
+            if(!(newState.caseIndex < (long)config.cases.size()))
+            {
+                //
+                // We are out of test cases for this configuration. Move to
+                // the next configuration.
+                //
+                ++newState.config;
+                if(!(newState.config < (long)_configurations.size()))
+                {
+                    newState.code = Test::Finished;
+                    newState.expectedResult = false;
+                    newState.description = "No more tests";
+                    newState.testReference = "";
+                    newState.config = -1;
+                    newState.caseIndex = -1;
+                    return;
+                }
 
-		//
-		// New test configuration!
-		//
-		config = _configurations[newState.config];
+                //
+                // New test configuration!
+                //
+                config = _configurations[newState.config];
 
-		newState.description = config.description;
-		newState.caseIndex = 0;
-		reconfigure = true;
-	    }
-	    newState.expectedResult = config.cases[newState.caseIndex].expectedResult;
-	    newState.testReference = config.cases[newState.caseIndex].proxy;
+                newState.description = config.description;
+                newState.caseIndex = 0;
+                reconfigure = true;
+            }
+            newState.expectedResult = config.cases[newState.caseIndex].expectedResult;
+            newState.testReference = config.cases[newState.caseIndex].proxy;
 
-	    if(reconfigure)
-	    {
-		Glacier2::StringSetPrx categories = session.sessionControl->categories();
-		categories->add(config.categoryFiltersAccept);
+            if(reconfigure)
+            {
+                Glacier2::StringSetPrx categories = session.sessionControl->categories();
+                categories->add(config.categoryFiltersAccept);
 
-		Glacier2::StringSetPrx adapterIds = session.sessionControl->adapterIds();
-		adapterIds->add(config.adapterIdFiltersAccept);
-			
-		Glacier2::IdentitySetPrx ids = session.sessionControl->identities();
-		ids->add(config.objectIdFiltersAccept);
-		session.configured = true;
-	    }
-	    break;
-	}
-	    
-	default:
-	{
-	    newState.code = Running;
-	    newState.config = 0;
-	    newState.caseIndex = 0;
-	    newState.testReference = "";
-	    newState.description = "Initial running state";
-	    newState.expectedResult = false;
-	    break;
-	}
+                Glacier2::StringSetPrx adapterIds = session.sessionControl->adapterIds();
+                adapterIds->add(config.adapterIdFiltersAccept);
+                        
+                Glacier2::IdentitySetPrx ids = session.sessionControl->identities();
+                ids->add(config.objectIdFiltersAccept);
+                session.configured = true;
+            }
+            break;
+        }
+            
+        default:
+        {
+            newState.code = Running;
+            newState.config = 0;
+            newState.caseIndex = 0;
+            newState.testReference = "";
+            newState.description = "Initial running state";
+            newState.expectedResult = false;
+            break;
+        }
     }
 }
 
@@ -172,10 +172,10 @@ TestControllerI::notifyDestroy(const Glacier2::SessionControlPrx& control)
 {
     for(vector<SessionTuple>::iterator i = _sessions.begin(); i != _sessions.end(); ++i)
     {
-	if(i->sessionControl == control)
-	{
-	    _sessions.erase(i);
-	    break;
-	}
+        if(i->sessionControl == control)
+        {
+            _sessions.erase(i);
+            break;
+        }
     }
 }

@@ -10,57 +10,57 @@
 
 class BI < Test::B
     def initialize
-	@preMarshalInvoked = false
-	@_postUnmarshalInvoked = false
+        @preMarshalInvoked = false
+        @_postUnmarshalInvoked = false
     end
 
     def postUnmarshalInvoked(current=nil)
-	return @_postUnmarshalInvoked
+        return @_postUnmarshalInvoked
     end
 
     def ice_preMarshal
-	@preMarshalInvoked = true
+        @preMarshalInvoked = true
     end
 
     def ice_postUnmarshal
-	@_postUnmarshalInvoked = true
+        @_postUnmarshalInvoked = true
     end
 end
 
 class CI < Test::C
     def initialize
-	@preMarshalInvoked = false
-	@_postUnmarshalInvoked = false
+        @preMarshalInvoked = false
+        @_postUnmarshalInvoked = false
     end
 
     def postUnmarshalInvoked(current=nil)
-	return @_postUnmarshalInvoked
+        return @_postUnmarshalInvoked
     end
 
     def ice_preMarshal
-	@preMarshalInvoked = true
+        @preMarshalInvoked = true
     end
 
     def ice_postUnmarshal
-	@_postUnmarshalInvoked = true
+        @_postUnmarshalInvoked = true
     end
 end
 
 class DI < Test::D
     def initialize
-	@preMarshalInvoked = false
-	@_postUnmarshalInvoked = false
+        @preMarshalInvoked = false
+        @_postUnmarshalInvoked = false
     end
 
     def postUnmarshalInvoked(current=nil)
-	return @_postUnmarshalInvoked
+        return @_postUnmarshalInvoked
     end
 
     def ice_preMarshal
-	@preMarshalInvoked = true
+        @preMarshalInvoked = true
     end
 
     def ice_postUnmarshal
-	@_postUnmarshalInvoked = true
+        @_postUnmarshalInvoked = true
     end
 end

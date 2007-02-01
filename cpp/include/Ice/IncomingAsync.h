@@ -99,7 +99,7 @@ public:
 };
 
 class ICE_API AMD_Array_Object_ice_invoke : public ::Ice::AMD_Array_Object_ice_invoke, 
-					    public IceInternal::IncomingAsync
+                                            public IceInternal::IncomingAsync
 {
 public:
     

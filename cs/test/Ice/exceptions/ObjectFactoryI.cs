@@ -11,7 +11,7 @@ public sealed class ObjectFactoryI : Ice.LocalObjectImpl, Ice.ObjectFactory
 {
     public Ice.Object create(string s)
     {
-	return null;
+        return null;
     }
     
     public void destroy()

@@ -43,7 +43,7 @@ module Mod
 {
     exception A extends ::Test::A
     {
-	int a2Mem;
+        int a2Mem;
     };
 };
 

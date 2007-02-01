@@ -21,26 +21,26 @@ public abstract class RoutableReference extends Reference
     getRoutedEndpoints()
     {
         if(_routerInfo != null)
-	{
-	    //
-	    // If we route, we send everything to the router's client
-	    // proxy endpoints.
-	    //
-	    return _routerInfo.getClientEndpoints();
-	}
-	return new EndpointI[0];
+        {
+            //
+            // If we route, we send everything to the router's client
+            // proxy endpoints.
+            //
+            return _routerInfo.getClientEndpoints();
+        }
+        return new EndpointI[0];
     }
 
     public final boolean
     getSecure()
     {
-	return _secure;
+        return _secure;
     }
 
     public final boolean
     getPreferSecure()
     {
-	return _preferSecure;
+        return _preferSecure;
     }
 
     public final boolean
@@ -52,13 +52,13 @@ public abstract class RoutableReference extends Reference
     public final boolean
     getCacheConnection()
     {
-	return _cacheConnection;
+        return _cacheConnection;
     }
 
     public final Ice.EndpointSelectionType
     getEndpointSelection()
     {
-	return _endpointSelection;
+        return _endpointSelection;
     }
 
     public final boolean
@@ -70,112 +70,112 @@ public abstract class RoutableReference extends Reference
     public Reference
     changeSecure(boolean newSecure)
     {
-	if(newSecure == _secure)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._secure = newSecure;
-	return r;
+        if(newSecure == _secure)
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._secure = newSecure;
+        return r;
     }
 
     public Reference
     changePreferSecure(boolean newPreferSecure)
     {
-	if(newPreferSecure == _preferSecure)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._preferSecure = newPreferSecure;
-	return r;
+        if(newPreferSecure == _preferSecure)
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._preferSecure = newPreferSecure;
+        return r;
     }
 
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
         RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-	if(newRouterInfo != null && _routerInfo != null && newRouterInfo.equals(_routerInfo))
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._routerInfo = newRouterInfo;
-	return r;
+        if(newRouterInfo != null && _routerInfo != null && newRouterInfo.equals(_routerInfo))
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._routerInfo = newRouterInfo;
+        return r;
     }
 
     public Reference
     changeCollocationOptimization(boolean newCollocationOptimization)
     {
         if(newCollocationOptimization == _collocationOptimization)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._collocationOptimization = newCollocationOptimization;
-	return r;
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._collocationOptimization = newCollocationOptimization;
+        return r;
     }
 
     public Reference
     changeCompress(boolean newCompress)
     {
-	if(_overrideCompress && _compress == newCompress)
-	{
-	    return this;
-	}
+        if(_overrideCompress && _compress == newCompress)
+        {
+            return this;
+        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._compress = newCompress;
-	r._overrideCompress = true;
-	return r;	
+        r._compress = newCompress;
+        r._overrideCompress = true;
+        return r;       
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-	if(_overrideTimeout && _timeout == newTimeout)
-	{
-	    return this;
-	}
+        if(_overrideTimeout && _timeout == newTimeout)
+        {
+            return this;
+        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._timeout = newTimeout;
-	r._overrideTimeout = true;
-	return r;	
+        r._timeout = newTimeout;
+        r._overrideTimeout = true;
+        return r;       
     }
 
     public Reference
     changeConnectionId(String id)
     {
-	if(_connectionId.equals(id))
-	{
-	    return this;
-	}
+        if(_connectionId.equals(id))
+        {
+            return this;
+        }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._connectionId = id;
-	return r;	
+        r._connectionId = id;
+        return r;       
     }
 
     public final Reference
     changeCacheConnection(boolean newCache)
     {
         if(newCache == _cacheConnection)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._cacheConnection = newCache;
-	return r;
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._cacheConnection = newCache;
+        return r;
     }
 
     public final Reference
     changeEndpointSelection(Ice.EndpointSelectionType newType)
     {
         if(newType == _endpointSelection)
-	{
-	    return this;
-	}
-	RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	r._endpointSelection = newType;
-	return r;
+        {
+            return this;
+        }
+        RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+        r._endpointSelection = newType;
+        return r;
     }
 
     public Reference
@@ -187,7 +187,7 @@ public abstract class RoutableReference extends Reference
         }
         RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
         r._threadPerConnection = newTpc;
-        return r;	
+        return r;       
     }
 
     public synchronized int
@@ -199,109 +199,109 @@ public abstract class RoutableReference extends Reference
     public boolean
     equals(java.lang.Object obj)
     {
-	//
-	// Note: if(this == obj) and type test are performed by each non-abstract derived class.
-	//
+        //
+        // Note: if(this == obj) and type test are performed by each non-abstract derived class.
+        //
 
         if(!super.equals(obj))
         {
             return false;
         }
         RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
-	if(_secure != rhs._secure)
-	{
-	    return false;
-	}
-	if(_preferSecure != rhs._preferSecure)
-	{
-	    return false;
-	}
-	if(_collocationOptimization != rhs._collocationOptimization)
-	{
-	    return false;
-	}
-	if(_cacheConnection != rhs._cacheConnection)
-	{
-	    return false;
-	}
-	if(_endpointSelection != rhs._endpointSelection)
-	{
-	    return false;
-	}
-	if(!_connectionId.equals(rhs._connectionId))
-	{
-	   return false;
-	}
-	if(_overrideCompress != rhs._overrideCompress)
-	{
-	   return false;
-	}
-	if(_overrideCompress && _compress != rhs._compress)
-	{
-	    return false;
-	}
-	if(_overrideTimeout != rhs._overrideTimeout)
-	{
-	   return false;
-	}
-	if(_overrideTimeout && _timeout != rhs._timeout)
-	{
-	    return false;
-	}
-	if(_threadPerConnection != rhs._threadPerConnection)
-	{
-	    return false;
-	}
-	return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
+        if(_secure != rhs._secure)
+        {
+            return false;
+        }
+        if(_preferSecure != rhs._preferSecure)
+        {
+            return false;
+        }
+        if(_collocationOptimization != rhs._collocationOptimization)
+        {
+            return false;
+        }
+        if(_cacheConnection != rhs._cacheConnection)
+        {
+            return false;
+        }
+        if(_endpointSelection != rhs._endpointSelection)
+        {
+            return false;
+        }
+        if(!_connectionId.equals(rhs._connectionId))
+        {
+           return false;
+        }
+        if(_overrideCompress != rhs._overrideCompress)
+        {
+           return false;
+        }
+        if(_overrideCompress && _compress != rhs._compress)
+        {
+            return false;
+        }
+        if(_overrideTimeout != rhs._overrideTimeout)
+        {
+           return false;
+        }
+        if(_overrideTimeout && _timeout != rhs._timeout)
+        {
+            return false;
+        }
+        if(_threadPerConnection != rhs._threadPerConnection)
+        {
+            return false;
+        }
+        return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.equals(rhs._routerInfo);
     }
 
     protected
     RoutableReference(Instance inst,
-		      Ice.Communicator com,
-		      Ice.Identity ident,
-		      java.util.Map ctx,
-		      String fac,
-		      int md,
-		      boolean sec,
-		      boolean prefSec,
-		      RouterInfo rtrInfo,
-		      boolean collocationOpt,
+                      Ice.Communicator com,
+                      Ice.Identity ident,
+                      java.util.Map ctx,
+                      String fac,
+                      int md,
+                      boolean sec,
+                      boolean prefSec,
+                      RouterInfo rtrInfo,
+                      boolean collocationOpt,
                       boolean cacheConnection,
                       Ice.EndpointSelectionType endpointSelection,
                       boolean threadPerConnection)
     {
         super(inst, com, ident, ctx, fac, md);
-	_secure = sec;
-	_preferSecure = prefSec;
-	_routerInfo = rtrInfo;
-	_collocationOptimization = collocationOpt;
-	_cacheConnection = cacheConnection;
-	_endpointSelection = endpointSelection;
-	_overrideCompress = false;
-	_compress = false;
-	_overrideTimeout = false;
-	_timeout = -1;
+        _secure = sec;
+        _preferSecure = prefSec;
+        _routerInfo = rtrInfo;
+        _collocationOptimization = collocationOpt;
+        _cacheConnection = cacheConnection;
+        _endpointSelection = endpointSelection;
+        _overrideCompress = false;
+        _compress = false;
+        _overrideTimeout = false;
+        _timeout = -1;
         _threadPerConnection = threadPerConnection;
     }
 
     protected void
     applyOverrides(EndpointI[] endpts)
     {
-	//
-	// Apply the endpoint overrides to each endpoint.
-	//
-	for(int i = 0; i < endpts.length; ++i)
-	{
-	    endpts[i] = endpts[i].connectionId(_connectionId);
-	    if(_overrideCompress)
-	    {
-		endpts[i] = endpts[i].compress(_compress);		    
-	    }
-	    if(_overrideTimeout)
-	    {
-		endpts[i] = endpts[i].timeout(_timeout);
-	    }
-	}
+        //
+        // Apply the endpoint overrides to each endpoint.
+        //
+        for(int i = 0; i < endpts.length; ++i)
+        {
+            endpts[i] = endpts[i].connectionId(_connectionId);
+            if(_overrideCompress)
+            {
+                endpts[i] = endpts[i].compress(_compress);                  
+            }
+            if(_overrideTimeout)
+            {
+                endpts[i] = endpts[i].timeout(_timeout);
+            }
+        }
     }
 
     protected Ice.ConnectionI
@@ -319,10 +319,10 @@ public abstract class RoutableReference extends Reference
                 endpoints.add(allEndpoints[i]);
             }
         }
-	
-	//
-	// Filter out endpoints according to the mode of the reference.
-	//
+        
+        //
+        // Filter out endpoints according to the mode of the reference.
+        //
         switch(getMode())
         {
             case Reference.ModeTwoway:
@@ -363,36 +363,36 @@ public abstract class RoutableReference extends Reference
             }
         }
 
-	//
-	// Sort the endpoints according to the endpoint selection type.
-	//
-	switch(getEndpointSelection().value())
-	{
-	    case Ice.EndpointSelectionType._Random:
-	    {
-	        java.util.Collections.shuffle(endpoints);
-	        break;
-	    }
-	    case Ice.EndpointSelectionType._Ordered:
-	    {
-	        // Nothing to do.
-	        break;
-	    }
-	    default:
-	    {
-	        assert(false);
-	        break;
-	    }
-	}
+        //
+        // Sort the endpoints according to the endpoint selection type.
+        //
+        switch(getEndpointSelection().value())
+        {
+            case Ice.EndpointSelectionType._Random:
+            {
+                java.util.Collections.shuffle(endpoints);
+                break;
+            }
+            case Ice.EndpointSelectionType._Ordered:
+            {
+                // Nothing to do.
+                break;
+            }
+            default:
+            {
+                assert(false);
+                break;
+            }
+        }
 
         //
         // If a secure connection is requested or secure overrides is
         // set, remove all non-secure endpoints. Otherwise if preferSecure is set
-	// make secure endpoints prefered. By default make non-secure
-	// endpoints preferred over secure endpoints.
+        // make secure endpoints prefered. By default make non-secure
+        // endpoints preferred over secure endpoints.
         //
-	DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
-	if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
+        DefaultsAndOverrides overrides = getInstance().defaultsAndOverrides();
+        if(overrides.overrideSecure ? overrides.overrideSecureValue : getSecure())
         {
             java.util.Iterator i = endpoints.iterator();
             while(i.hasNext())
@@ -404,110 +404,110 @@ public abstract class RoutableReference extends Reference
                 }
             }
         }
-	else if(getPreferSecure())
-	{
+        else if(getPreferSecure())
+        {
             java.util.Collections.sort(endpoints, _preferSecureEndpointComparator);
-	}
+        }
         else
         {
             java.util.Collections.sort(endpoints, _preferNonSecureEndpointComparator);
         }
 
-	if(endpoints.size() == 0)
-	{
-	    Ice.NoEndpointException ex = new Ice.NoEndpointException();
-	    ex.proxy = toString();
-	    throw ex;
-	}
-	
-	//
-	// Finally, create the connection.
-	//
-	OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
-	if(getCacheConnection() || endpoints.size() == 1)
-	{
-	    //
-	    // Get an existing connection or create one if there's no
-	    // existing connection to one of the given endpoints.
-	    //
-	    return factory.create((EndpointI[])endpoints.toArray(
+        if(endpoints.size() == 0)
+        {
+            Ice.NoEndpointException ex = new Ice.NoEndpointException();
+            ex.proxy = toString();
+            throw ex;
+        }
+        
+        //
+        // Finally, create the connection.
+        //
+        OutgoingConnectionFactory factory = getInstance().outgoingConnectionFactory();
+        if(getCacheConnection() || endpoints.size() == 1)
+        {
+            //
+            // Get an existing connection or create one if there's no
+            // existing connection to one of the given endpoints.
+            //
+            return factory.create((EndpointI[])endpoints.toArray(
                 new EndpointI[endpoints.size()]), false, _threadPerConnection, compress);
-	}
-	else
-	{
-	    //
-	    // Go through the list of endpoints and try to create the
-	    // connection until it succeeds. This is different from just
-	    // calling create() with the given endpoints since this might
-	    // create a new connection even if there's an existing
-	    // connection for one of the endpoints.
-	    //
-	    
-	    Ice.LocalException exception = null;
-	    EndpointI[] endpoint = new EndpointI[1];
-	    
+        }
+        else
+        {
+            //
+            // Go through the list of endpoints and try to create the
+            // connection until it succeeds. This is different from just
+            // calling create() with the given endpoints since this might
+            // create a new connection even if there's an existing
+            // connection for one of the endpoints.
+            //
+            
+            Ice.LocalException exception = null;
+            EndpointI[] endpoint = new EndpointI[1];
+            
             java.util.Iterator i = endpoints.iterator();
             while(i.hasNext())
             {
-		try
-		{
-		    endpoint[0] = (EndpointI)i.next();
-		    return factory.create(endpoint, i.hasNext(), _threadPerConnection, compress);
-		}
-		catch(Ice.LocalException ex)
-		{
-		    exception = ex;
-		}
-	    }
+                try
+                {
+                    endpoint[0] = (EndpointI)i.next();
+                    return factory.create(endpoint, i.hasNext(), _threadPerConnection, compress);
+                }
+                catch(Ice.LocalException ex)
+                {
+                    exception = ex;
+                }
+            }
 
-	    assert(exception != null);
-	    throw exception;
-	}
+            assert(exception != null);
+            throw exception;
+        }
     }
 
     static class EndpointComparator implements java.util.Comparator
     {
         EndpointComparator(boolean preferSecure)
-	{
-	    _preferSecure = preferSecure;
-	}
+        {
+            _preferSecure = preferSecure;
+        }
         
-	public int
-	compare(java.lang.Object l, java.lang.Object r)
-	{
-	    IceInternal.EndpointI le = (IceInternal.EndpointI)l;
-	    IceInternal.EndpointI re = (IceInternal.EndpointI)r;
-	    boolean ls = le.secure();
-	    boolean rs = re.secure();
-	    if((ls && rs) || (!ls && !rs))
-	    {
-		return 0;
-	    }
-	    else if(!ls && rs)
-	    {
-	        if(_preferSecure)
-		{
-		    return 1;
-		}
-		else
-		{
-		    return -1;
-		}
-	    }
-	    else
-	    {
-	        if(_preferSecure)
-		{
-		    return -1;
-		}
-		else
-		{
-		    return 1;
-		}
-	    }
-	}
+        public int
+        compare(java.lang.Object l, java.lang.Object r)
+        {
+            IceInternal.EndpointI le = (IceInternal.EndpointI)l;
+            IceInternal.EndpointI re = (IceInternal.EndpointI)r;
+            boolean ls = le.secure();
+            boolean rs = re.secure();
+            if((ls && rs) || (!ls && !rs))
+            {
+                return 0;
+            }
+            else if(!ls && rs)
+            {
+                if(_preferSecure)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            else
+            {
+                if(_preferSecure)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return 1;
+                }
+            }
+        }
 
-	private boolean _preferSecure;
+        private boolean _preferSecure;
     }
     
     private static EndpointComparator _preferNonSecureEndpointComparator = new EndpointComparator(false);

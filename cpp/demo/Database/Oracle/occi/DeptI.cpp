@@ -34,36 +34,36 @@ DeptI::createEmp(int empno, const HR::EmpDesc& desc, const Ice::Current& current
     // Inserted into the OCCI cache
     //
     EMP_T* emp = new(_conh->connection(), "EMP_VIEW")EMP_T;
-	
+        
     emp->setEmpno(empno);
     emp->setEname(desc.ename);
     emp->setJob(desc.job);
     if(desc.mgr != 0)
     {
-	Ref<EMP_T> mgrRef = decodeRef(desc.mgr->ice_getIdentity().name, env, _conh->connection());
-	
-	emp->setMgrref(mgrRef);
+        Ref<EMP_T> mgrRef = decodeRef(desc.mgr->ice_getIdentity().name, env, _conh->connection());
+        
+        emp->setMgrref(mgrRef);
     }
     
     if(desc.hiredate != "")
     {
-	Date hiredate(env);
-	hiredate.fromText(desc.hiredate);
-	emp->setHiredate(hiredate);
+        Date hiredate(env);
+        hiredate.fromText(desc.hiredate);
+        emp->setHiredate(hiredate);
     }
     
     if(desc.sal != "")
     {
-	Number sal(0);
-	sal.fromText(env, desc.sal, "99999.99");
-	emp->setSal(sal);
+        Number sal(0);
+        sal.fromText(env, desc.sal, "99999.99");
+        emp->setSal(sal);
     }
     
     if(desc.comm != "")
     {
-	Number comm(0);
-	comm.fromText(env, desc.comm, "0.999");
-	emp->setComm(comm);
+        Number comm(0);
+        comm.fromText(env, desc.comm, "0.999");
+        emp->setComm(comm);
     }
     
     emp->setDeptref(_ref);
@@ -93,18 +93,18 @@ void
 DeptI::updateField(const string& field, const string& newValue, const Ice::Current& current)
 {
     Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
-	    
+            
     if(field == "dname")
     {
-	deptRef->setDname(newValue);
+        deptRef->setDname(newValue);
     }
     else if(field == "loc")
     {
-	deptRef->setLoc(newValue);
+        deptRef->setLoc(newValue);
     }
     else
     {
-	throw HR::SqlException("There is no field " + field + " in object DEPT_T");
+        throw HR::SqlException("There is no field " + field + " in object DEPT_T");
     }
     deptRef->markModified();
     _conh->commit();
@@ -123,21 +123,21 @@ DeptI::findAll(const Ice::Current& current)
 {
     HR::EmpPrxSeq result;
     {
-	Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
+        Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());
 
-	StatementHolder stmth(_conh);
-	stmth.statement()->setSQL("SELECT REF(e) FROM EMP_VIEW e WHERE DEPTREF = :1");
-	stmth.statement()->setRef(1, deptRef);
-	auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
-	
-	while(rs->next() != ResultSet::END_OF_FETCH)
-	{
-	    Ice::Identity empId;
-	    empId.category = _factory->getCategory();
-	    empId.name = encodeRef(rs->getRef(1), _factory->getEnv());
-	    
-	    result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
-	}
+        StatementHolder stmth(_conh);
+        stmth.statement()->setSQL("SELECT REF(e) FROM EMP_VIEW e WHERE DEPTREF = :1");
+        stmth.statement()->setRef(1, deptRef);
+        auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
+        
+        while(rs->next() != ResultSet::END_OF_FETCH)
+        {
+            Ice::Identity empId;
+            empId.category = _factory->getCategory();
+            empId.name = encodeRef(rs->getRef(1), _factory->getEnv());
+            
+            result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
+        }
     }
     _conh->commit();
     return result;
@@ -148,22 +148,22 @@ DeptI::findByName(const string& name, const Ice::Current& current)
 {
     HR::EmpPrxSeq result;
     {
-	Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());	
+        Ref<DEPT_T> deptRef = decodeRef(current.id.name, _factory->getEnv(), _conh->connection());      
 
-	StatementHolder stmth(_conh);
-	stmth.statement()->setSQL("SELECT REF(e) FROM EMP_VIEW e WHERE DEPTREF = :1 AND ENAME = :2");
-	stmth.statement()->setRef(1, deptRef);
-	stmth.statement()->setString(2, name);
-	auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
-	
-	while(rs->next() != ResultSet::END_OF_FETCH)
-	{
-	    Ice::Identity empId;
-	    empId.category = _factory->getCategory();
-	    empId.name = encodeRef(rs->getRef(1), _factory->getEnv());
-	    
-	    result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
-	}
+        StatementHolder stmth(_conh);
+        stmth.statement()->setSQL("SELECT REF(e) FROM EMP_VIEW e WHERE DEPTREF = :1 AND ENAME = :2");
+        stmth.statement()->setRef(1, deptRef);
+        stmth.statement()->setString(2, name);
+        auto_ptr<ResultSet> rs(stmth.statement()->executeQuery());
+        
+        while(rs->next() != ResultSet::END_OF_FETCH)
+        {
+            Ice::Identity empId;
+            empId.category = _factory->getCategory();
+            empId.name = encodeRef(rs->getRef(1), _factory->getEnv());
+            
+            result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
+        }
     }
     _conh->commit();
     return result;

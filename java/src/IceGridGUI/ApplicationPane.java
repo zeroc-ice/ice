@@ -40,174 +40,174 @@ public class ApplicationPane extends JSplitPane implements Tab
 {
     public void updateUI()
     {
-	super.updateUI();
-	setEmptyDividerBorder();
+        super.updateUI();
+        setEmptyDividerBorder();
     }
     
     public void selected()
     {
-	Coordinator c = _root.getCoordinator();
+        Coordinator c = _root.getCoordinator();
 
-	c.getCloseApplicationAction().setEnabled(true);
+        c.getCloseApplicationAction().setEnabled(true);
 
-	c.getSaveAction().setEnabled(_root.needsSaving() && (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
-	c.getDiscardUpdatesAction().setEnabled(_root.needsSaving() && (_root.isLive() || _root.hasFile()));
+        c.getSaveAction().setEnabled(_root.needsSaving() && (_root.isLive() && c.connectedToMaster() || _root.hasFile()));
+        c.getDiscardUpdatesAction().setEnabled(_root.needsSaving() && (_root.isLive() || _root.hasFile()));
 
-	if(_root.isLive())
-	{
-	    c.getSaveToRegistryAction().setEnabled(_root.needsSaving() && c.connectedToMaster());
-	}
-	else
-	{
-	    c.getSaveToRegistryAction().setEnabled(c.connectedToMaster());
-	}
-	c.getSaveToFileAction().setEnabled(true);
+        if(_root.isLive())
+        {
+            c.getSaveToRegistryAction().setEnabled(_root.needsSaving() && c.connectedToMaster());
+        }
+        else
+        {
+            c.getSaveToRegistryAction().setEnabled(c.connectedToMaster());
+        }
+        c.getSaveToFileAction().setEnabled(true);
 
-	
-	c.getBackAction().setEnabled(_previousNodes.size() > 0);
-	c.getForwardAction().setEnabled(_nextNodes.size() > 0);
-	c.showActions(_currentNode);
+        
+        c.getBackAction().setEnabled(_previousNodes.size() > 0);
+        c.getForwardAction().setEnabled(_nextNodes.size() > 0);
+        c.showActions(_currentNode);
     }
 
     public void refresh()
     {
-	if(_currentNode != null)
-	{
-	    _currentEditor = _currentNode.getEditor();
-	    if(_root.getCoordinator().getCurrentTab() == this)
-	    {
-		//
-		// Refresh actions as well
-		//
-		_root.getCoordinator().showActions(_currentNode);
-	    }
-	}
+        if(_currentNode != null)
+        {
+            _currentEditor = _currentNode.getEditor();
+            if(_root.getCoordinator().getCurrentTab() == this)
+            {
+                //
+                // Refresh actions as well
+                //
+                _root.getCoordinator().showActions(_currentNode);
+            }
+        }
     }
 
     public void showNode(TreeNodeBase node)
     {
-	TreeNode newNode = (TreeNode)node;
-	
-	if(newNode != _currentNode)
-	{
-	    if(_currentNode != null 
-	       && _currentNode.isEphemeral() && _root.hasNode(_currentNode))
-	    {
-		_currentNode.destroy();
-		_currentNode = null;
-	    }
+        TreeNode newNode = (TreeNode)node;
+        
+        if(newNode != _currentNode)
+        {
+            if(_currentNode != null 
+               && _currentNode.isEphemeral() && _root.hasNode(_currentNode))
+            {
+                _currentNode.destroy();
+                _currentNode = null;
+            }
 
-	    if(newNode == null)
-	    {
-		_currentNode = null;
-		showCurrentNode();
-	    }
-	    else
-	    {
-		if(_currentNode != null && _root.hasNode(_currentNode))
-		{
-		    _previousNodes.add(_currentNode);
-		    while(_previousNodes.size() >= HISTORY_MAX_SIZE)
-		    {
-			_previousNodes.removeFirst();
-		    }
-		    _root.getCoordinator().getBackAction().setEnabled(true);
-		}   
-		_nextNodes.clear();
-		_root.getCoordinator().getForwardAction().setEnabled(false);
-		_currentNode = newNode;
-		showCurrentNode();
-	    }
-	}
-	else
-	{
-	    _currentEditor = _currentNode.getEditor();
-	    if(_root.getCoordinator().getCurrentTab() == this)
-	    {
-		//
-		// Refresh actions as well
-		//
-		_root.getCoordinator().showActions(_currentNode);
-	    }
-	}
+            if(newNode == null)
+            {
+                _currentNode = null;
+                showCurrentNode();
+            }
+            else
+            {
+                if(_currentNode != null && _root.hasNode(_currentNode))
+                {
+                    _previousNodes.add(_currentNode);
+                    while(_previousNodes.size() >= HISTORY_MAX_SIZE)
+                    {
+                        _previousNodes.removeFirst();
+                    }
+                    _root.getCoordinator().getBackAction().setEnabled(true);
+                }   
+                _nextNodes.clear();
+                _root.getCoordinator().getForwardAction().setEnabled(false);
+                _currentNode = newNode;
+                showCurrentNode();
+            }
+        }
+        else
+        {
+            _currentEditor = _currentNode.getEditor();
+            if(_root.getCoordinator().getCurrentTab() == this)
+            {
+                //
+                // Refresh actions as well
+                //
+                _root.getCoordinator().showActions(_currentNode);
+            }
+        }
     }
 
     public void back()
     {
-	//
-	// Auto-apply changes
-	//
-	if(_currentEditor != null && !_currentEditor.save(false))
-	{
-	    return;
-	}
+        //
+        // Auto-apply changes
+        //
+        if(_currentEditor != null && !_currentEditor.save(false))
+        {
+            return;
+        }
 
-	TreeNode previousNode = null;
-	do
-	{
-	    previousNode = (TreeNode)_previousNodes.removeLast();
-	} while(_previousNodes.size() > 0 
-		&& (previousNode == _currentNode || !_root.hasNode(previousNode)));
-		
-	if(_previousNodes.size() == 0)
-	{
-	    _root.getCoordinator().getBackAction().setEnabled(false);
-	}
+        TreeNode previousNode = null;
+        do
+        {
+            previousNode = (TreeNode)_previousNodes.removeLast();
+        } while(_previousNodes.size() > 0 
+                && (previousNode == _currentNode || !_root.hasNode(previousNode)));
+                
+        if(_previousNodes.size() == 0)
+        {
+            _root.getCoordinator().getBackAction().setEnabled(false);
+        }
 
-	if(previousNode != _currentNode)
-	{
-	    if(_currentNode != null)
-	    {
-		_nextNodes.addFirst(_currentNode);
-		_root.getCoordinator().getForwardAction().setEnabled(true);
-	    }
-	    
-	    _currentNode = previousNode;
-	    _root.disableSelectionListener();
-	    _root.setSelectedNode(_currentNode);
-	    _root.enableSelectionListener();
-	    showCurrentNode();
-	}
+        if(previousNode != _currentNode)
+        {
+            if(_currentNode != null)
+            {
+                _nextNodes.addFirst(_currentNode);
+                _root.getCoordinator().getForwardAction().setEnabled(true);
+            }
+            
+            _currentNode = previousNode;
+            _root.disableSelectionListener();
+            _root.setSelectedNode(_currentNode);
+            _root.enableSelectionListener();
+            showCurrentNode();
+        }
     }
 
     public void forward()
     {
-	if(_currentEditor != null && !_currentEditor.save(false))
-	{
-	    return;
-	}
+        if(_currentEditor != null && !_currentEditor.save(false))
+        {
+            return;
+        }
 
-	TreeNode nextNode = null;
-	do
-	{
-	    nextNode = (TreeNode)_nextNodes.removeFirst();
-	} while(_nextNodes.size() > 0 
-		&& (nextNode == _currentNode || !_root.hasNode(nextNode)));
-	
-	if(_nextNodes.size() == 0)
-	{
-	    _root.getCoordinator().getForwardAction().setEnabled(false);
-	}
+        TreeNode nextNode = null;
+        do
+        {
+            nextNode = (TreeNode)_nextNodes.removeFirst();
+        } while(_nextNodes.size() > 0 
+                && (nextNode == _currentNode || !_root.hasNode(nextNode)));
+        
+        if(_nextNodes.size() == 0)
+        {
+            _root.getCoordinator().getForwardAction().setEnabled(false);
+        }
 
-	if(nextNode != _currentNode)
-	{
-	    if(_currentNode != null)
-	    {
-		_previousNodes.add(_currentNode);
-		_root.getCoordinator().getBackAction().setEnabled(true);
-	    }
-	    
-	    _currentNode = nextNode;
-	    _root.disableSelectionListener();
-	    _root.setSelectedNode(_currentNode);
-	    _root.enableSelectionListener();
-	    showCurrentNode();
-	}
+        if(nextNode != _currentNode)
+        {
+            if(_currentNode != null)
+            {
+                _previousNodes.add(_currentNode);
+                _root.getCoordinator().getBackAction().setEnabled(true);
+            }
+            
+            _currentNode = nextNode;
+            _root.disableSelectionListener();
+            _root.setSelectedNode(_currentNode);
+            _root.enableSelectionListener();
+            showCurrentNode();
+        }
     }
 
     public Root getRoot()
     {
-	return _root;
+        return _root;
     }
 
     //
@@ -215,259 +215,259 @@ public class ApplicationPane extends JSplitPane implements Tab
     //
     public void setRoot(Root newRoot)
     {
-	boolean reset = (_root != null);
+        boolean reset = (_root != null);
 
-	if(reset)
-	{
-	    ToolTipManager.sharedInstance().unregisterComponent(_root.getTree());
-	    _currentNode = null;
-	    _previousNodes.clear();
-	    _nextNodes.clear();
-	}
+        if(reset)
+        {
+            ToolTipManager.sharedInstance().unregisterComponent(_root.getTree());
+            _currentNode = null;
+            _previousNodes.clear();
+            _nextNodes.clear();
+        }
 
-	_root = newRoot;
-	_root.setPane(this);
-	
-	//
-	// Tree display
-	//
-	TreeCellRenderer renderer = new CellRenderer();
-	PopupListener popupListener = new PopupListener();
+        _root = newRoot;
+        _root.setPane(this);
+        
+        //
+        // Tree display
+        //
+        TreeCellRenderer renderer = new CellRenderer();
+        PopupListener popupListener = new PopupListener();
 
-	JTree tree = _root.getTree();
+        JTree tree = _root.getTree();
 
-	tree.setBorder(new EmptyBorder(5, 5, 5, 5));
-	tree.setCellRenderer(renderer);
-	ToolTipManager.sharedInstance().registerComponent(tree);
-	tree.addMouseListener(popupListener);
+        tree.setBorder(new EmptyBorder(5, 5, 5, 5));
+        tree.setCellRenderer(renderer);
+        ToolTipManager.sharedInstance().registerComponent(tree);
+        tree.addMouseListener(popupListener);
 
-	tree.getSelectionModel().setSelectionMode
-	    (TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode
+            (TreeSelectionModel.SINGLE_TREE_SELECTION);
 
-	tree.addTreeSelectionListener(new SelectionListener());
+        tree.addTreeSelectionListener(new SelectionListener());
 
-	tree.setRootVisible(true);
+        tree.setRootVisible(true);
 
-	JScrollPane leftScroll = 
-	    new JScrollPane(tree,
-			    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-			    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	leftScroll.setBorder(Borders.EMPTY_BORDER);
+        JScrollPane leftScroll = 
+            new JScrollPane(tree,
+                            JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                            JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        leftScroll.setBorder(Borders.EMPTY_BORDER);
 
-	_leftPane.setContent(leftScroll);
+        _leftPane.setContent(leftScroll);
 
-	if(reset)
-	{
-	    _root.getCoordinator().getMainPane().resetIcon(_root);
-	    _leftPane.validate();
-	    _leftPane.repaint();
-	}
+        if(reset)
+        {
+            _root.getCoordinator().getMainPane().resetIcon(_root);
+            _leftPane.validate();
+            _leftPane.repaint();
+        }
     }
 
     public void save()
     {
-	if(_currentEditor == null || _currentEditor.save(true))
-	{
-	    _root.save();
-	}
+        if(_currentEditor == null || _currentEditor.save(true))
+        {
+            _root.save();
+        }
     }
     public void saveToRegistry()
     {
-	if(_currentEditor == null || _currentEditor.save(true))
-	{
-	    _root.saveToRegistry();
-	}
+        if(_currentEditor == null || _currentEditor.save(true))
+        {
+            _root.saveToRegistry();
+        }
     }
     public void saveToFile()
     {
-	if(_currentEditor == null || _currentEditor.save(true))
-	{
-	    _root.saveToFile();
-	}
+        if(_currentEditor == null || _currentEditor.save(true))
+        {
+            _root.saveToFile();
+        }
     }
     public void discardUpdates()
     {
-	_root.discardUpdates();
+        _root.discardUpdates();
     }
     public boolean close()
     {
-	_root.getCoordinator().getMainPane().remove(this);
-	return true;
+        _root.getCoordinator().getMainPane().remove(this);
+        return true;
     }
 
     public boolean applyUpdates(boolean refresh)
     {
-	if(_currentEditor == null)
-	{
-	    return true;
-	}
-	else
-	{
-	    return _currentEditor.save(refresh);
-	}
+        if(_currentEditor == null)
+        {
+            return true;
+        }
+        else
+        {
+            return _currentEditor.save(refresh);
+        }
     }
 
     private void registerAction(Coordinator c, int index)
     {
-	Action action = c.getActionsForMenu().get(index);
+        Action action = c.getActionsForMenu().get(index);
 
-	javax.swing.ActionMap am = _leftPane.getActionMap();
-	javax.swing.InputMap im = _leftPane.getInputMap();
+        javax.swing.ActionMap am = _leftPane.getActionMap();
+        javax.swing.InputMap im = _leftPane.getInputMap();
 
-	im.put((KeyStroke)action.getValue(Action.ACCELERATOR_KEY), (String)action.getValue(Action.NAME));
-	am.put((String)action.getValue(Action.NAME), action);
+        im.put((KeyStroke)action.getValue(Action.ACCELERATOR_KEY), (String)action.getValue(Action.NAME));
+        am.put((String)action.getValue(Action.NAME), action);
     }
 
 
     ApplicationPane(Root root)
     {
-	super(JSplitPane.HORIZONTAL_SPLIT, true);
-	setBorder(new EmptyBorder(10, 10, 10, 10));
-	
-	_leftPane = new SimpleInternalFrame("Descriptors");
-	_leftPane.setPreferredSize(new Dimension(280, 350));
-	Coordinator c = root.getCoordinator();
-	registerAction(c, TreeNode.COPY);
-	registerAction(c, TreeNode.PASTE);
-	registerAction(c, TreeNode.DELETE);
-	
-	//
-	// Right pane
-	//
-	_propertiesFrame = new SimpleInternalFrame("Properties");
+        super(JSplitPane.HORIZONTAL_SPLIT, true);
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+        
+        _leftPane = new SimpleInternalFrame("Descriptors");
+        _leftPane.setPreferredSize(new Dimension(280, 350));
+        Coordinator c = root.getCoordinator();
+        registerAction(c, TreeNode.COPY);
+        registerAction(c, TreeNode.PASTE);
+        registerAction(c, TreeNode.DELETE);
+        
+        //
+        // Right pane
+        //
+        _propertiesFrame = new SimpleInternalFrame("Properties");
 
-	setLeftComponent(_leftPane);
-	setRightComponent(_propertiesFrame);
+        setLeftComponent(_leftPane);
+        setRightComponent(_propertiesFrame);
 
-	setRoot(root);
+        setRoot(root);
     }   
 
     private void showCurrentNode()
     {
-	_root.getCoordinator().showActions(_currentNode);
+        _root.getCoordinator().showActions(_currentNode);
 
-	if(_currentNode == null)
-	{
-	    Component oldContent = _propertiesFrame.getContent();
-	    if(oldContent != null)
-	    {
-		_propertiesFrame.remove(oldContent);
-	    }
-	    _propertiesFrame.setTitle("Properties");
-	    _propertiesFrame.setToolBar(null);
-	    _currentEditor = null;
-	}
-	else
-	{
-	    _currentEditor = _currentNode.getEditor();
-	    Component currentProperties = _currentEditor.getProperties();
-	    _propertiesFrame.setContent(currentProperties);
-	    _propertiesFrame.setTitle(currentProperties.getName());
-	    _propertiesFrame.setToolBar(_currentEditor.getToolBar());
-	}
-	_propertiesFrame.validate();
-	_propertiesFrame.repaint();
+        if(_currentNode == null)
+        {
+            Component oldContent = _propertiesFrame.getContent();
+            if(oldContent != null)
+            {
+                _propertiesFrame.remove(oldContent);
+            }
+            _propertiesFrame.setTitle("Properties");
+            _propertiesFrame.setToolBar(null);
+            _currentEditor = null;
+        }
+        else
+        {
+            _currentEditor = _currentNode.getEditor();
+            Component currentProperties = _currentEditor.getProperties();
+            _propertiesFrame.setContent(currentProperties);
+            _propertiesFrame.setTitle(currentProperties.getName());
+            _propertiesFrame.setToolBar(_currentEditor.getToolBar());
+        }
+        _propertiesFrame.validate();
+        _propertiesFrame.repaint();
     }
 
 
     private void setEmptyDividerBorder()
     {
-	SplitPaneUI splitPaneUI = getUI();
-	if(splitPaneUI instanceof BasicSplitPaneUI) 
-	{
-	    BasicSplitPaneUI basicUI = (BasicSplitPaneUI)splitPaneUI;
-	    basicUI.getDivider().setBorder(BorderFactory.createEmptyBorder());
-	}
+        SplitPaneUI splitPaneUI = getUI();
+        if(splitPaneUI instanceof BasicSplitPaneUI) 
+        {
+            BasicSplitPaneUI basicUI = (BasicSplitPaneUI)splitPaneUI;
+            basicUI.getDivider().setBorder(BorderFactory.createEmptyBorder());
+        }
     }
 
     private class PopupListener extends MouseAdapter
     {
-	public void mousePressed(MouseEvent e) 
-	{
-	    maybeShowPopup(e);
-	}
+        public void mousePressed(MouseEvent e) 
+        {
+            maybeShowPopup(e);
+        }
 
-	public void mouseReleased(MouseEvent e) 
-	{
-	    maybeShowPopup(e);
-	}
+        public void mouseReleased(MouseEvent e) 
+        {
+            maybeShowPopup(e);
+        }
 
-	private void maybeShowPopup(MouseEvent e) 
-	{
-	    if (e.isPopupTrigger()) 
-	    {
-		JTree tree = (JTree)e.getComponent();
+        private void maybeShowPopup(MouseEvent e) 
+        {
+            if (e.isPopupTrigger()) 
+            {
+                JTree tree = (JTree)e.getComponent();
 
-		TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-		
-		if(path != null)
-		{
-		    TreeNode node = (TreeNode)path.getLastPathComponent();
-		    JPopupMenu popup = node.getPopupMenu();
-		    if(popup != null)
-		    {
-			popup.show(tree, e.getX(), e.getY());
-		    }
-		}
-	    }
-	}
+                TreePath path = tree.getPathForLocation(e.getX(), e.getY());
+                
+                if(path != null)
+                {
+                    TreeNode node = (TreeNode)path.getLastPathComponent();
+                    JPopupMenu popup = node.getPopupMenu();
+                    if(popup != null)
+                    {
+                        popup.show(tree, e.getX(), e.getY());
+                    }
+                }
+            }
+        }
     }
 
     
     private class SelectionListener implements TreeSelectionListener
     {
-	public void valueChanged(TreeSelectionEvent e)
-	{
-	    if(_root.isSelectionListenerEnabled())
-	    {
-		//
-		// Auto-apply changes
-		//
-		if(_currentEditor != null && !_currentEditor.save(false))
-		{
-		    //
-		    // Go back to this path
-		    //
-		    _root.disableSelectionListener();
-		    _root.setSelectedNode(_currentEditor.getTarget());
-		    _root.enableSelectionListener();
-		}
-		else
-		{
-		    if(e.isAddedPath())
-		    {
-			TreePath path = e.getPath();
-			
-			if(path == null)
-			{
-			    showNode(null);
-			}
-			else
-			{
-			    TreeNode node = (TreeNode)path.getLastPathComponent();
-			    Root root = node.getRoot();
-			    if(root.hasNode(node))
-			    {
-				showNode(node);
-			    }
-			    else
-			    {
-				node = root.findNodeLike(path, false);
-				if(node == null)
-				{
-				    node = root;
-				}
-				root.setSelectedNode(node);
-			    }
-			}
-		    }
-		    else
-		    {
-			showNode(null);
-		    }
-		}
-	    }
-	}
+        public void valueChanged(TreeSelectionEvent e)
+        {
+            if(_root.isSelectionListenerEnabled())
+            {
+                //
+                // Auto-apply changes
+                //
+                if(_currentEditor != null && !_currentEditor.save(false))
+                {
+                    //
+                    // Go back to this path
+                    //
+                    _root.disableSelectionListener();
+                    _root.setSelectedNode(_currentEditor.getTarget());
+                    _root.enableSelectionListener();
+                }
+                else
+                {
+                    if(e.isAddedPath())
+                    {
+                        TreePath path = e.getPath();
+                        
+                        if(path == null)
+                        {
+                            showNode(null);
+                        }
+                        else
+                        {
+                            TreeNode node = (TreeNode)path.getLastPathComponent();
+                            Root root = node.getRoot();
+                            if(root.hasNode(node))
+                            {
+                                showNode(node);
+                            }
+                            else
+                            {
+                                node = root.findNodeLike(path, false);
+                                if(node == null)
+                                {
+                                    node = root;
+                                }
+                                root.setSelectedNode(node);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        showNode(null);
+                    }
+                }
+            }
+        }
     }
 
     private Root _root;

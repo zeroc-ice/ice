@@ -38,22 +38,22 @@ def allTests(communicator):
     test(isinstance(r, tuple))
     test(isinstance(b2, list))
     for i in range(0, len(byteList)):
-	test(r[i] == byteList[i])
-	test(b2[i] == byteList[i])
+        test(r[i] == byteList[i])
+        test(b2[i] == byteList[i])
 
     (r, b2) = custom.opByteList1(byteList)
     test(isinstance(r, list))
     test(isinstance(b2, list))
     for i in range(0, len(byteList)):
-	test(r[i] == byteList[i])
-	test(b2[i] == byteList[i])
+        test(r[i] == byteList[i])
+        test(b2[i] == byteList[i])
 
     (r, b2) = custom.opByteList2(byteList)
     test(isinstance(r, str))
     test(isinstance(b2, tuple))
     test(r == byteString)
     for i in range(0, len(byteList)):
-	test(b2[i] == byteList[i])
+        test(b2[i] == byteList[i])
 
     (r, b2) = custom.opStringList1(stringList)
     test(isinstance(r, list))
@@ -65,15 +65,15 @@ def allTests(communicator):
     test(isinstance(r, tuple))
     test(isinstance(b2, tuple))
     for i in range(0, len(stringList)):
-	test(r[i] == stringList[i])
-	test(b2[i] == stringList[i])
+        test(r[i] == stringList[i])
+        test(b2[i] == stringList[i])
 
     (r, b2) = custom.opStringTuple1(stringList)
     test(isinstance(r, tuple))
     test(isinstance(b2, tuple))
     for i in range(0, len(stringList)):
-	test(r[i] == stringList[i])
-	test(b2[i] == stringList[i])
+        test(r[i] == stringList[i])
+        test(b2[i] == stringList[i])
 
     (r, b2) = custom.opStringTuple2(stringList)
     test(isinstance(r, list))

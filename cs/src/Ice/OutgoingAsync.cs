@@ -18,19 +18,19 @@ namespace IceInternal
     public abstract class OutgoingAsync
     {
         public abstract void ice_exception(Ice.Exception ex);
-	
+        
         public void finished__(BasicStream istr)
         {
             lock(_monitor)
             {
                 DispatchStatus status;
-		
+                
                 try
                 {
                     is__.swap(istr);
-		    
+                    
                     status = (DispatchStatus)is__.readByte();
-		    
+                    
                     switch(status)
                     {
                         case DispatchStatus.DispatchOK:
@@ -39,7 +39,7 @@ namespace IceInternal
                             is__.startReadEncaps();
                             break;
                         }
-			
+                        
                         case DispatchStatus.DispatchObjectNotExist:
                         case DispatchStatus.DispatchFacetNotExist:
                         case DispatchStatus.DispatchOperationNotExist:
@@ -75,13 +75,13 @@ namespace IceInternal
                                     ex = new Ice.ObjectNotExistException();
                                     break;
                                 }
-				
+                                
                                 case DispatchStatus.DispatchFacetNotExist:
                                 {
                                     ex = new Ice.FacetNotExistException();
                                     break;
                                 }
-				
+                                
                                 case DispatchStatus.DispatchOperationNotExist:
                                 {
                                     ex = new Ice.OperationNotExistException();
@@ -100,7 +100,7 @@ namespace IceInternal
                             ex.operation = operation;
                             throw ex;
                         }
-			
+                        
                         case DispatchStatus.DispatchUnknownException:
                         case DispatchStatus.DispatchUnknownLocalException:
                         case DispatchStatus.DispatchUnknownUserException:
@@ -146,9 +146,9 @@ namespace IceInternal
                     finished__(ex);
                     return;
                 }
-		    
+                    
                 Debug.Assert(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
-		
+                
                 try
                 {
                     response__(status == DispatchStatus.DispatchOK);
@@ -163,7 +163,7 @@ namespace IceInternal
                 }
             }
         }
-	
+        
         public void finished__(Ice.LocalException exc)
         {
             lock(_monitor)
@@ -180,24 +180,24 @@ namespace IceInternal
                     // be repeated. Otherwise, we can also retry if the
                     // operation mode is Nonmutating or Idempotent.
                     //
-		    // An ObjectNotExistException can always be retried as
-		    // well without violating "at-most-once".
-		    //	
+                    // An ObjectNotExistException can always be retried as
+                    // well without violating "at-most-once".
+                    //  
                     if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
                         exc is Ice.CloseConnectionException || exc is Ice.ObjectNotExistException)
                     {
                         try
                         {
-			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(_delegate, exc, _cnt);
-			    send__();
-			    return;
+                            _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(_delegate, exc, _cnt);
+                            send__();
+                            return;
                         }
                         catch(Ice.LocalException)
                         {
                         }
                     }
                 }
-		
+                
                 try
                 {
                     ice_exception(exc);
@@ -212,15 +212,15 @@ namespace IceInternal
                 }
             }
         }
-	
+        
         public bool timedOut__()
         {
-	    long absoluteTimeoutMillis;
+            long absoluteTimeoutMillis;
 
             lock(_timeoutMutex) // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
-	    {
-		absoluteTimeoutMillis = _absoluteTimeoutMillis;
-	    }
+            {
+                absoluteTimeoutMillis = _absoluteTimeoutMillis;
+            }
 
             if(absoluteTimeoutMillis > 0)
             {
@@ -247,24 +247,24 @@ namespace IceInternal
                         Monitor.Wait(_monitor);
                     }
 
-		    //
-		    // Can't call sync via a oneway proxy.
-		    //
-		    ((Ice.ObjectPrxHelperBase)prx).checkTwowayOnly__(operation);
+                    //
+                    // Can't call sync via a oneway proxy.
+                    //
+                    ((Ice.ObjectPrxHelperBase)prx).checkTwowayOnly__(operation);
 
-		    _proxy = prx;
+                    _proxy = prx;
                     _delegate = null;
                     _cnt = 0;
                     _mode = mode;
 
-		    Reference rf = ((Ice.ObjectPrxHelperBase)prx).reference__();
+                    Reference rf = ((Ice.ObjectPrxHelperBase)prx).reference__();
                     Debug.Assert(is__ == null);
                     is__ = new BasicStream(rf.getInstance());
                     Debug.Assert(os__ == null);
                     os__ = new BasicStream(rf.getInstance());
 
-		    os__.writeBlob(IceInternal.Protocol.requestHdr);
-		    
+                    os__.writeBlob(IceInternal.Protocol.requestHdr);
+                    
                     rf.getIdentity().write__(os__);
 
                     //
@@ -286,32 +286,32 @@ namespace IceInternal
                     os__.writeByte((byte)mode);
 
                     if(context != null)
-		    {
-			//
-			// Explicit context
-			//
-			Ice.ContextHelper.write(os__, context);
-		    }
-		    else
-		    {
-			//
-			// Implicit context
-			//
-			Ice.ImplicitContextI implicitContext = 
-			    rf.getInstance().getImplicitContext();
-			
-			Ice.Context prxContext = rf.getContext();
-			
-			if(implicitContext == null)
-			{
-			    Ice.ContextHelper.write(os__, prxContext);
-			}
-			else
-			{
-			    implicitContext.write(prxContext, os__);
-			}
-		    }
-		    
+                    {
+                        //
+                        // Explicit context
+                        //
+                        Ice.ContextHelper.write(os__, context);
+                    }
+                    else
+                    {
+                        //
+                        // Implicit context
+                        //
+                        Ice.ImplicitContextI implicitContext = 
+                            rf.getInstance().getImplicitContext();
+                        
+                        Ice.Context prxContext = rf.getContext();
+                        
+                        if(implicitContext == null)
+                        {
+                            Ice.ContextHelper.write(os__, prxContext);
+                        }
+                        else
+                        {
+                            implicitContext.write(prxContext, os__);
+                        }
+                    }
+                    
                     os__.startWriteEncaps();
                 }
                 catch(Ice.LocalException)
@@ -321,7 +321,7 @@ namespace IceInternal
                 }
             }
         }
-	
+        
         protected void send__()
         {
             lock(_monitor)
@@ -330,27 +330,27 @@ namespace IceInternal
                 {
                     while(true)
                     {
-			bool comp;
+                        bool comp;
                         _delegate = ((Ice.ObjectPrxHelperBase)_proxy).getDelegate__();
-			Ice.ConnectionI con = _delegate.getConnection__(out comp);
+                        Ice.ConnectionI con = _delegate.getConnection__(out comp);
 
                         // MONO bug: Should be WaitOne(), but that's broken under Mono 1.0 for Linux.
-			lock(_timeoutMutex)
-			{
-			    if(con.timeout() >= 0)
-			    {
-				_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + con.timeout();
-			    }
-			    else
-			    {
-				_absoluteTimeoutMillis = 0;
-			    }
-			}
-			
+                        lock(_timeoutMutex)
+                        {
+                            if(con.timeout() >= 0)
+                            {
+                                _absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + con.timeout();
+                            }
+                            else
+                            {
+                                _absoluteTimeoutMillis = 0;
+                            }
+                        }
+                        
                         try
                         {
                             con.sendAsyncRequest(os__, this, comp);
-			    
+                            
                             //
                             // Don't do anything after sendAsyncRequest() returned
                             // without an exception.  I such case, there will be
@@ -360,13 +360,13 @@ namespace IceInternal
                             //
                             return;
                         }
-			catch(LocalExceptionWrapper ex)
-			{
-			    ((Ice.ObjectPrxHelperBase)_proxy).handleExceptionWrapper__(_delegate, ex);
-			}
+                        catch(LocalExceptionWrapper ex)
+                        {
+                            ((Ice.ObjectPrxHelperBase)_proxy).handleExceptionWrapper__(_delegate, ex);
+                        }
                         catch(Ice.LocalException ex)
                         {
-			    _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(_delegate, ex, _cnt);
+                            _cnt = ((Ice.ObjectPrxHelperBase)_proxy).handleException__(_delegate, ex, _cnt);
                         }
                     }
                 }
@@ -381,25 +381,25 @@ namespace IceInternal
 
         private void warning(System.Exception ex)
         {
-	    if(os__ != null) // Don't print anything if cleanup() was already called.
-	    {
-		Reference rf = ((Ice.ObjectPrxHelperBase)_proxy).reference__();
-		if(rf.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
-										"Ice.Warn.AMICallback", 1) > 0)
-		{
-		    rf.getInstance().initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
-		}
-	    }
+            if(os__ != null) // Don't print anything if cleanup() was already called.
+            {
+                Reference rf = ((Ice.ObjectPrxHelperBase)_proxy).reference__();
+                if(rf.getInstance().initializationData().properties.getPropertyAsIntWithDefault(
+                                                                                "Ice.Warn.AMICallback", 1) > 0)
+                {
+                    rf.getInstance().initializationData().logger.warning("exception raised by AMI callback:\n" + ex);
+                }
+            }
         }
 
         private void cleanup()
         {
-	    is__ = null;
-	    os__ = null;
+            is__ = null;
+            os__ = null;
 
             Monitor.Pulse(_monitor);
         }
-	
+        
         protected BasicStream is__;
         protected BasicStream os__;
 
@@ -451,8 +451,8 @@ namespace Ice
             }
             catch(LocalException ex)
             {
-	        finished__(ex);
-		return;
+                finished__(ex);
+                return;
             }
             ice_response(ok, outParams);
         }

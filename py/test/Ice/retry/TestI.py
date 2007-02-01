@@ -13,8 +13,8 @@ import Ice, Test
 class RetryI(Test.Retry):
 
     def op(self, kill, current=None):
-    	if kill:
-	    current.con.close(True)
+        if kill:
+            current.con.close(True)
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

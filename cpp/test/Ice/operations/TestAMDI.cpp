@@ -20,13 +20,13 @@ class Thread_opVoid : public IceUtil::Thread
 public:
 
     Thread_opVoid(const Test::AMD_MyClass_opVoidPtr& cb) :
-	_cb(cb)
+        _cb(cb)
     {
     }
 
     virtual void run()
     {
-	_cb->ice_response();
+        _cb->ice_response();
     }
 
 private:
@@ -45,8 +45,8 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
 {
     if(_opVoidThread)
     {
-	_opVoidThread->getThreadControl().join();
-	_opVoidThread = 0;
+        _opVoidThread->getThreadControl().join();
+        _opVoidThread = 0;
     }
 
     _adapter->getCommunicator()->shutdown();
@@ -58,8 +58,8 @@ MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::
 {
     if(_opVoidThread)
     {
-	_opVoidThread->getThreadControl().join();
-	_opVoidThread = 0;
+        _opVoidThread->getThreadControl().join();
+        _opVoidThread = 0;
     }
 
     _opVoidThread = new Thread_opVoid(cb);
@@ -68,8 +68,8 @@ MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::
 
 void
 MyDerivedClassI::opSleep_async(const Test::AMD_MyClass_opSleepPtr& cb, 
-			       int duration, 
-			       const Ice::Current&)
+                               int duration, 
+                               const Ice::Current&)
 {
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
     cb->ice_response();
@@ -77,74 +77,74 @@ MyDerivedClassI::opSleep_async(const Test::AMD_MyClass_opSleepPtr& cb,
 
 void
 MyDerivedClassI::opByte_async(const Test::AMD_MyClass_opBytePtr& cb,
-			      Ice::Byte p1,
-			      Ice::Byte p2,
-			      const Ice::Current&)
+                              Ice::Byte p1,
+                              Ice::Byte p2,
+                              const Ice::Current&)
 {
     cb->ice_response(p1, p1 ^ p2);
 }
 
 void
 MyDerivedClassI::opBool_async(const Test::AMD_MyClass_opBoolPtr& cb,
-			      bool p1,
-			      bool p2,
-			      const Ice::Current&)
+                              bool p1,
+                              bool p2,
+                              const Ice::Current&)
 {
     cb->ice_response(p2, p1);
 }
 
 void
 MyDerivedClassI::opShortIntLong_async(const Test::AMD_MyClass_opShortIntLongPtr& cb,
-				      Ice::Short p1,
-				      Ice::Int p2,
-				      Ice::Long p3,
-				      const Ice::Current&)
+                                      Ice::Short p1,
+                                      Ice::Int p2,
+                                      Ice::Long p3,
+                                      const Ice::Current&)
 {
     cb->ice_response(p3, p1, p2, p3);
 }
 
 void
 MyDerivedClassI::opFloatDouble_async(const Test::AMD_MyClass_opFloatDoublePtr& cb,
-				     Ice::Float p1,
-				     Ice::Double p2,
-				     const Ice::Current&)
+                                     Ice::Float p1,
+                                     Ice::Double p2,
+                                     const Ice::Current&)
 {
     cb->ice_response(p2, p1, p2);
 }
 
 void
 MyDerivedClassI::opString_async(const Test::AMD_MyClass_opStringPtr& cb,
-				const std::string& p1,
-				const std::string& p2,
-				const Ice::Current&)
+                                const std::string& p1,
+                                const std::string& p2,
+                                const Ice::Current&)
 {
     cb->ice_response(p1 + " " + p2, p2 + " " + p1);
 }
 
 void
 MyDerivedClassI::opMyEnum_async(const Test::AMD_MyClass_opMyEnumPtr& cb,
-				Test::MyEnum p1,
-				const Ice::Current&)
+                                Test::MyEnum p1,
+                                const Ice::Current&)
 {
     cb->ice_response(Test::enum3, p1);
 }
 
 void
 MyDerivedClassI::opMyClass_async(const Test::AMD_MyClass_opMyClassPtr& cb,
-				 const Test::MyClassPrx& p1,
-				 const Ice::Current&)
+                                 const Test::MyClassPrx& p1,
+                                 const Ice::Current&)
 {
     Test::MyClassPrx p2 = p1;
     Test::MyClassPrx p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(
-    					_adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+                                        _adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
     cb->ice_response(Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity)), p2, p3);
 }
 
 void
 MyDerivedClassI::opStruct_async(const Test::AMD_MyClass_opStructPtr& cb,
-				const Test::Structure& p1,
-				const Test::Structure& p2,
-				const Ice::Current&)
+                                const Test::Structure& p1,
+                                const Test::Structure& p2,
+                                const Ice::Current&)
 {
     Test::Structure p3 = p1;
     p3.s.s = "a new string";
@@ -153,9 +153,9 @@ MyDerivedClassI::opStruct_async(const Test::AMD_MyClass_opStructPtr& cb,
 
 void
 MyDerivedClassI::opByteS_async(const Test::AMD_MyClass_opByteSPtr& cb,
-			       const Test::ByteS& p1,
-			       const Test::ByteS& p2,
-			       const Ice::Current&)
+                               const Test::ByteS& p1,
+                               const Test::ByteS& p2,
+                               const Ice::Current&)
 {
     Test::ByteS p3;
     p3.resize(p1.size());
@@ -167,9 +167,9 @@ MyDerivedClassI::opByteS_async(const Test::AMD_MyClass_opByteSPtr& cb,
 
 void
 MyDerivedClassI::opBoolS_async(const Test::AMD_MyClass_opBoolSPtr& cb,
-			       const Test::BoolS& p1,
-			       const Test::BoolS& p2,
-			       const Ice::Current&)
+                               const Test::BoolS& p1,
+                               const Test::BoolS& p2,
+                               const Ice::Current&)
 {
     Test::BoolS p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -181,10 +181,10 @@ MyDerivedClassI::opBoolS_async(const Test::AMD_MyClass_opBoolSPtr& cb,
 
 void
 MyDerivedClassI::opShortIntLongS_async(const Test::AMD_MyClass_opShortIntLongSPtr& cb,
-				       const Test::ShortS& p1,
-				       const Test::IntS& p2,
-				       const Test::LongS& p3,
-				       const Ice::Current&)
+                                       const Test::ShortS& p1,
+                                       const Test::IntS& p2,
+                                       const Test::LongS& p3,
+                                       const Ice::Current&)
 {
     Test::ShortS p4 = p1;
     Test::IntS p5;
@@ -197,9 +197,9 @@ MyDerivedClassI::opShortIntLongS_async(const Test::AMD_MyClass_opShortIntLongSPt
 
 void
 MyDerivedClassI::opFloatDoubleS_async(const Test::AMD_MyClass_opFloatDoubleSPtr& cb,
-				      const Test::FloatS& p1,
-				      const Test::DoubleS& p2,
-				      const Ice::Current&)
+                                      const Test::FloatS& p1,
+                                      const Test::DoubleS& p2,
+                                      const Ice::Current&)
 {
     Test::FloatS p3 = p1;
     Test::DoubleS p4;
@@ -212,9 +212,9 @@ MyDerivedClassI::opFloatDoubleS_async(const Test::AMD_MyClass_opFloatDoubleSPtr&
 
 void
 MyDerivedClassI::opStringS_async(const Test::AMD_MyClass_opStringSPtr& cb,
-				 const Test::StringS& p1,
-				 const Test::StringS& p2,
-				 const Ice::Current&)
+                                 const Test::StringS& p1,
+                                 const Test::StringS& p2,
+                                 const Ice::Current&)
 {
     Test::StringS p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -226,9 +226,9 @@ MyDerivedClassI::opStringS_async(const Test::AMD_MyClass_opStringSPtr& cb,
 
 void
 MyDerivedClassI::opByteSS_async(const Test::AMD_MyClass_opByteSSPtr& cb,
-				const Test::ByteSS& p1,
-				const Test::ByteSS& p2,
-				const Ice::Current&)
+                                const Test::ByteSS& p1,
+                                const Test::ByteSS& p2,
+                                const Ice::Current&)
 {
     Test::ByteSS p3;
     p3.resize(p1.size());
@@ -240,9 +240,9 @@ MyDerivedClassI::opByteSS_async(const Test::AMD_MyClass_opByteSSPtr& cb,
 
 void
 MyDerivedClassI::opBoolSS_async(const Test::AMD_MyClass_opBoolSSPtr& cb,
-				const Test::BoolSS& p1,
-				const Test::BoolSS& p2,
-				const Ice::Current&)
+                                const Test::BoolSS& p1,
+                                const Test::BoolSS& p2,
+                                const Ice::Current&)
 {
     Test::BoolSS p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -254,10 +254,10 @@ MyDerivedClassI::opBoolSS_async(const Test::AMD_MyClass_opBoolSSPtr& cb,
 
 void
 MyDerivedClassI::opShortIntLongSS_async(const Test::AMD_MyClass_opShortIntLongSSPtr& cb,
-					const Test::ShortSS& p1,
-					const Test::IntSS& p2,
-					const Test::LongSS& p3,
-					const Ice::Current&)
+                                        const Test::ShortSS& p1,
+                                        const Test::IntSS& p2,
+                                        const Test::LongSS& p3,
+                                        const Ice::Current&)
 {
     Test::ShortSS p4 = p1;
     Test::IntSS p5;
@@ -270,9 +270,9 @@ MyDerivedClassI::opShortIntLongSS_async(const Test::AMD_MyClass_opShortIntLongSS
 
 void
 MyDerivedClassI::opFloatDoubleSS_async(const Test::AMD_MyClass_opFloatDoubleSSPtr& cb,
-				       const Test::FloatSS& p1,
-				       const Test::DoubleSS& p2,
-				       const Ice::Current&)
+                                       const Test::FloatSS& p1,
+                                       const Test::DoubleSS& p2,
+                                       const Ice::Current&)
 {
     Test::FloatSS p3 = p1;
     Test::DoubleSS p4;
@@ -285,9 +285,9 @@ MyDerivedClassI::opFloatDoubleSS_async(const Test::AMD_MyClass_opFloatDoubleSSPt
 
 void
 MyDerivedClassI::opStringSS_async(const Test::AMD_MyClass_opStringSSPtr& cb,
-				  const Test::StringSS& p1,
-				  const Test::StringSS& p2,
-				  const Ice::Current&)
+                                  const Test::StringSS& p1,
+                                  const Test::StringSS& p2,
+                                  const Ice::Current&)
 {
     Test::StringSS p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -299,9 +299,9 @@ MyDerivedClassI::opStringSS_async(const Test::AMD_MyClass_opStringSSPtr& cb,
 
 void
 MyDerivedClassI::opStringSSS_async(const Test::AMD_MyClass_opStringSSSPtr& cb,
-				  const Test::StringSSS& p1,
-				  const Test::StringSSS& p2,
-				  const Ice::Current&)
+                                  const Test::StringSSS& p1,
+                                  const Test::StringSSS& p2,
+                                  const Ice::Current&)
 {
     Test::StringSSS p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
@@ -313,9 +313,9 @@ MyDerivedClassI::opStringSSS_async(const Test::AMD_MyClass_opStringSSSPtr& cb,
 
 void
 MyDerivedClassI::opByteBoolD_async(const Test::AMD_MyClass_opByteBoolDPtr& cb,
-				   const Test::ByteBoolD& p1,
-				   const Test::ByteBoolD& p2,
-				   const Ice::Current&)
+                                   const Test::ByteBoolD& p1,
+                                   const Test::ByteBoolD& p2,
+                                   const Ice::Current&)
 {
     Test::ByteBoolD p3 = p1;
     Test::ByteBoolD r = p1;
@@ -325,9 +325,9 @@ MyDerivedClassI::opByteBoolD_async(const Test::AMD_MyClass_opByteBoolDPtr& cb,
 
 void
 MyDerivedClassI::opShortIntD_async(const Test::AMD_MyClass_opShortIntDPtr& cb,
-				   const Test::ShortIntD& p1,
-				   const Test::ShortIntD& p2,
-				   const Ice::Current&)
+                                   const Test::ShortIntD& p1,
+                                   const Test::ShortIntD& p2,
+                                   const Ice::Current&)
 {
     Test::ShortIntD p3 = p1;
     Test::ShortIntD r = p1;
@@ -337,9 +337,9 @@ MyDerivedClassI::opShortIntD_async(const Test::AMD_MyClass_opShortIntDPtr& cb,
 
 void
 MyDerivedClassI::opLongFloatD_async(const Test::AMD_MyClass_opLongFloatDPtr& cb,
-				    const Test::LongFloatD& p1,
-				    const Test::LongFloatD& p2,
-				    const Ice::Current&)
+                                    const Test::LongFloatD& p1,
+                                    const Test::LongFloatD& p2,
+                                    const Ice::Current&)
 {
     Test::LongFloatD p3 = p1;
     Test::LongFloatD r = p1;
@@ -349,9 +349,9 @@ MyDerivedClassI::opLongFloatD_async(const Test::AMD_MyClass_opLongFloatDPtr& cb,
 
 void
 MyDerivedClassI::opStringStringD_async(const Test::AMD_MyClass_opStringStringDPtr& cb,
-				       const Test::StringStringD& p1,
-				       const Test::StringStringD& p2,
-				       const Ice::Current&)
+                                       const Test::StringStringD& p1,
+                                       const Test::StringStringD& p2,
+                                       const Ice::Current&)
 {
     Test::StringStringD p3 = p1;
     Test::StringStringD r = p1;
@@ -361,9 +361,9 @@ MyDerivedClassI::opStringStringD_async(const Test::AMD_MyClass_opStringStringDPt
 
 void
 MyDerivedClassI::opStringMyEnumD_async(const Test::AMD_MyClass_opStringMyEnumDPtr& cb,
-				       const Test::StringMyEnumD& p1,
-				       const Test::StringMyEnumD& p2,
-				       const Ice::Current&)
+                                       const Test::StringMyEnumD& p1,
+                                       const Test::StringMyEnumD& p2,
+                                       const Ice::Current&)
 {
     Test::StringMyEnumD p3 = p1;
     Test::StringMyEnumD r = p1;
@@ -381,7 +381,7 @@ MyDerivedClassI::opIntS_async(const Test::AMD_MyClass_opIntSPtr& cb, const Test:
 
 void
 MyDerivedClassI::opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr& cb, const Test::ByteS& s,
-				     const Ice::Current&)
+                                     const Ice::Current&)
 {
     cb->ice_response();
 }
@@ -395,7 +395,7 @@ MyDerivedClassI::opContext_async(const Test::AMD_MyClass_opContextPtr& cb, const
 
 void 
 MyDerivedClassI::opDoubleMarshaling_async(const Test::AMD_MyClass_opDoubleMarshalingPtr& cb,
-					  Ice::Double p1, const Test::DoubleS& p2, const Ice::Current&)
+                                          Ice::Double p1, const Test::DoubleS& p2, const Ice::Current&)
 {
     Ice::Double d = 1278312346.0 / 13.0;
     test(p1 == d);

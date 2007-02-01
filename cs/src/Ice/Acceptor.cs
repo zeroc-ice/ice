@@ -14,12 +14,12 @@ namespace IceInternal
 
     public interface Acceptor
     {
-	Socket fd();
-	void close();
-	void listen();
-	Transceiver accept(int timeout);
-	void connectToSelf();
-	string ToString();
+        Socket fd();
+        void close();
+        void listen();
+        Transceiver accept(int timeout);
+        void connectToSelf();
+        string ToString();
     }
 
 }

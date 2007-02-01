@@ -13,67 +13,67 @@ public class Util
 {
     public static Evictor
     createEvictor(Ice.ObjectAdapter adapter, String envName, String filename, ServantInitializer initializer,
-		  Index[] indices, boolean createDb)
+                  Index[] indices, boolean createDb)
     {
-	return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
+        return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
     } 
 
     public static Evictor
     createEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
-		  ServantInitializer initializer, Index[] indices, boolean createDb)
+                  ServantInitializer initializer, Index[] indices, boolean createDb)
     {
-	return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
+        return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
     } 
 
     public static Connection
     createConnection(Ice.Communicator communicator, String envName)
     {
-	return new ConnectionI(communicator, envName, null);
+        return new ConnectionI(communicator, envName, null);
     } 
 
     public static Connection
     createConnection(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
     {
-	return new ConnectionI(communicator, envName, dbEnv);
+        return new ConnectionI(communicator, envName, dbEnv);
     }
 
     public static String catalogName()
     {
-	return _catalogName;
+        return _catalogName;
     }
 
     public static com.sleepycat.db.Transaction
     getTxn(Transaction tx)
     {
-	try
-	{
-	    return ((TransactionI)tx).dbTxn();
-	}
-	catch(ClassCastException e)
-	{
-	    return null;
-	}
+        try
+        {
+            return ((TransactionI)tx).dbTxn();
+        }
+        catch(ClassCastException e)
+        {
+            return null;
+        }
     }
 
     public static synchronized FatalErrorCallback
     registerFatalErrorCallback(FatalErrorCallback cb)
     {
-	FatalErrorCallback result = _fatalErrorCallback;
-	_fatalErrorCallback = cb;
-	return result;
+        FatalErrorCallback result = _fatalErrorCallback;
+        _fatalErrorCallback = cb;
+        return result;
     }
     
     static synchronized void handleFatalError(Evictor evictor, Ice.Communicator communicator, RuntimeException ex)
     {
-	if(_fatalErrorCallback != null)
-	{
-	    _fatalErrorCallback.handleError(evictor, communicator, ex);
-	}
-	else
-	{
-	    communicator.getLogger().error("*** Halting JVM ***");
-	    Runtime.getRuntime().halt(1);
-	}
+        if(_fatalErrorCallback != null)
+        {
+            _fatalErrorCallback.handleError(evictor, communicator, ex);
+        }
+        else
+        {
+            communicator.getLogger().error("*** Halting JVM ***");
+            Runtime.getRuntime().halt(1);
+        }
     }
 
     private static String _catalogName = "__catalog";

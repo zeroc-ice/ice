@@ -12,15 +12,15 @@ namespace IceInternal
 
     public interface Transceiver
     {
-	System.Net.Sockets.Socket fd();
-	void close();
-	void shutdownWrite();
-	void shutdownReadWrite();
-	void write(BasicStream stream, int timeout);
-	void read(BasicStream stream, int timeout);
-	string type();
+        System.Net.Sockets.Socket fd();
+        void close();
+        void shutdownWrite();
+        void shutdownReadWrite();
+        void write(BasicStream stream, int timeout);
+        void read(BasicStream stream, int timeout);
+        string type();
         void initialize(int timeout);
-	void checkSendSize(BasicStream stream, int messageSizeMax);
+        void checkSendSize(BasicStream stream, int messageSizeMax);
     }
 
 }

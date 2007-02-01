@@ -19,13 +19,13 @@ class HelloI(Demo.Hello):
         self._id = id
 
     def sayHello(self, c):
-	print "Hello object #" + str(self._id) + " for session `" + self._name + "' says:\n" + \
+        print "Hello object #" + str(self._id) + " for session `" + self._name + "' says:\n" + \
               "Hello " + self._name + "!"
 
 class SessionI(Demo.Session):
     def __init__(self, name):
-	self._timestamp = time.time()
-	self._name = name
+        self._timestamp = time.time()
+        self._name = name
         self._lock = threading.Lock()
         self._destroy = False # true if destroy() was called, false otherwise.
         self._nextId = 0 # The id of the next hello object. This is used for tracing purposes.
@@ -44,7 +44,7 @@ class SessionI(Demo.Session):
             self._objs.append(hello)
             return hello
         finally:
-	    self._lock.release()
+            self._lock.release()
 
     def refresh(self, c):
         self._lock.acquire()
@@ -53,7 +53,7 @@ class SessionI(Demo.Session):
                 raise Ice.ObjectNotExistException()
             self._timestamp = time.time()
         finally:
-	    self._lock.release()
+            self._lock.release()
 
     def getName(self, c):
         self._lock.acquire()
@@ -62,7 +62,7 @@ class SessionI(Demo.Session):
                 raise Ice.ObjectNotExistException()
             return self._name
         finally:
-	    self._lock.release()
+            self._lock.release()
     
     def destroy(self, c):
         self._lock.acquire()
@@ -81,7 +81,7 @@ class SessionI(Demo.Session):
                 pass
             self._objs = []
         finally:
-	    self._lock.release()
+            self._lock.release()
 
     def timestamp(self):
         self._lock.acquire()
@@ -90,7 +90,7 @@ class SessionI(Demo.Session):
                 raise Ice.ObjectNotExistException()
             return self._timestamp
         finally:
-	    self._lock.release()
+            self._lock.release()
         
 class SessionProxyPair:
     def __init__(self, p, s):
@@ -126,28 +126,28 @@ class ReapThread(threading.Thread):
                         except Ice.ObjectNotExistException:
                             self._sessions.remove(p)
         finally:
-	    self._cond.release()
+            self._cond.release()
 
     def terminate(self):
-	self._cond.acquire()
-	try:
+        self._cond.acquire()
+        try:
             self._terminated = True
-	    self._cond.notify()
+            self._cond.notify()
 
             self._sessions = []
         finally:
-	    self._cond.release()
+            self._cond.release()
 
     def add(self, proxy, session):
-	self._cond.acquire()
-	try:
+        self._cond.acquire()
+        try:
             self._sessions.append(SessionProxyPair(proxy, session))
         finally:
-	    self._cond.release()
+            self._cond.release()
 
 class SessionFactoryI(Demo.SessionFactory):
     def __init__(self, reaper):
-	self._reaper = reaper
+        self._reaper = reaper
         self._lock = threading.Lock()
 
     def create(self, name, c):
@@ -161,8 +161,8 @@ class SessionFactoryI(Demo.SessionFactory):
             self._lock.release()
 
     def shutdown(self, c):
-	print "Shutting down..."
-	c.adapter.getCommunicator().shutdown()
+        print "Shutting down..."
+        c.adapter.getCommunicator().shutdown()
 
 class Server(Ice.Application):
     def run(self, args):

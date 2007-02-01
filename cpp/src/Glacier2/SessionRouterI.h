@@ -48,8 +48,8 @@ class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
 public:
 
     SessionRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&,
-		   const PermissionsVerifierPrx&, const SessionManagerPrx&,
-		   const SSLPermissionsVerifierPrx&, const SSLSessionManagerPrx&);
+                   const PermissionsVerifierPrx&, const SessionManagerPrx&,
+                   const SSLPermissionsVerifierPrx&, const SSLSessionManagerPrx&);
     virtual ~SessionRouterI();
     void destroy();
 
@@ -73,7 +73,7 @@ public:
 private:
 
     SessionPrx createSessionInternal(const std::string&, bool, const AuthorizerPtr&, const SessionFactoryPtr&,
-				     const Ice::Context&, const Ice::Current&);
+                                     const Ice::Context&, const Ice::Current&);
 
     const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
@@ -91,16 +91,16 @@ private:
     {
     public:
 
-	SessionThread(const SessionRouterIPtr&, const IceUtil::Time&);
-	virtual ~SessionThread();
-	void destroy();
+        SessionThread(const SessionRouterIPtr&, const IceUtil::Time&);
+        virtual ~SessionThread();
+        void destroy();
 
-	virtual void run();
+        virtual void run();
 
     private:
 
-	SessionRouterIPtr _sessionRouter;
-	const IceUtil::Time _sessionTimeout;
+        SessionRouterIPtr _sessionRouter;
+        const IceUtil::Time _sessionTimeout;
     };
     typedef IceUtil::Handle<SessionThread> SessionThreadPtr;
     SessionThreadPtr _sessionThread;

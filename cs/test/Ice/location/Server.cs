@@ -18,7 +18,7 @@ public class Server
         // communicator and object adapter).
         //
         Ice.Properties properties = communicator.getProperties();
-	properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         properties.setProperty("Ice.OA.ServerManagerAdapter.Endpoints", "default -p 12010 -t 30000:udp");
         
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
@@ -33,7 +33,7 @@ public class Server
         adapter.add(@object, communicator.stringToIdentity("ServerManager"));
         registry.addObject(adapter.createProxy(communicator.stringToIdentity("ServerManager")));
         Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(
-						adapter.add(registry, communicator.stringToIdentity("registry")));
+                                                adapter.add(registry, communicator.stringToIdentity("registry")));
         
         ServerLocator locator = new ServerLocator(registry, registryPrx);
         adapter.add(locator, communicator.stringToIdentity("locator"));

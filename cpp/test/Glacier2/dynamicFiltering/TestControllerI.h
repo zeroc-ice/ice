@@ -25,22 +25,22 @@ struct SessionTuple
 
     SessionTuple() {}
     SessionTuple(Glacier2::SessionPrx s, Glacier2::SessionControlPrx control):
-	session(s),
-	sessionControl(control),
-	configured(false)
+        session(s),
+        sessionControl(control),
+        configured(false)
     {}
 
     SessionTuple&
     operator=(const SessionTuple& rhs)
     {
-	if(this == &rhs)
-	{
-	    return *this;
-	}
+        if(this == &rhs)
+        {
+            return *this;
+        }
 
-	session = rhs.session;
-	sessionControl = rhs.sessionControl;
-	return *this;
+        session = rhs.session;
+        sessionControl = rhs.sessionControl;
+        return *this;
     }
 };
 
@@ -78,7 +78,7 @@ public:
     // Slice to C++ mapping.
     //
     void step(const Glacier2::SessionPrx& currentSession, const Test::TestToken& currentState,
-	      Test::TestToken& newState, const Ice::Current&);
+              Test::TestToken& newState, const Ice::Current&);
 
     void shutdown(const Ice::Current&);
 

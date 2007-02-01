@@ -16,29 +16,29 @@ public class DirectoryI : DirectoryDisp_
 
     public DirectoryI(string name, DirectoryI parent)
     {
-	_name = name;
-	_parent = parent;
+        _name = name;
+        _parent = parent;
 
-	// Create an identity. The parent has the fixed identity "/"
-	//
-	Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
+        // Create an identity. The parent has the fixed identity "/"
+        //
+        Ice.Identity myID = _adapter.getCommunicator().stringToIdentity(_parent != null ? Ice.Util.generateUUID() : "RootDir");
 
-	// Add the identity to the object adapter
-	//
-	_adapter.add(this, myID);
+        // Add the identity to the object adapter
+        //
+        _adapter.add(this, myID);
 
-	// Create a proxy for the new node and add it as a child to the parent
-	//
-	NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
-	if (_parent != null)
-	    _parent.addChild(thisNode);
+        // Create a proxy for the new node and add it as a child to the parent
+        //
+        NodePrx thisNode = NodePrxHelper.uncheckedCast(_adapter.createProxy(myID));
+        if (_parent != null)
+            _parent.addChild(thisNode);
     }
 
     // Slice Node::name() operation
 
     public override string name(Ice.Current current)
     {
-	return _name;
+        return _name;
     }
 
     // Slice Directory::list() operation
@@ -53,7 +53,7 @@ public class DirectoryI : DirectoryDisp_
 
     public void addChild(NodePrx child)
     {
-	_contents.Add(child);
+        _contents.Add(child);
     }
 
     public static Ice.ObjectAdapter _adapter;

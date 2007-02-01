@@ -18,14 +18,14 @@ CallbackReceiverI::callback(const Ice::Current&)
 {
 #ifdef __xlC__
 
-	//
-	// The xlC compiler synchronizes cin and cout; to see the messages
-	// while accepting input through cin, we have to print the messages
-	// with printf
-	//
+        //
+        // The xlC compiler synchronizes cin and cout; to see the messages
+        // while accepting input through cin, we have to print the messages
+        // with printf
+        //
 
-	printf("received callback\n");
-	fflush(0);
+        printf("received callback\n");
+        fflush(0);
 #else
     cout << "received callback" << endl;
 #endif
@@ -37,11 +37,11 @@ CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current
     cout << "initiating callback to: " << current.adapter->getCommunicator()->proxyToString(proxy) << endl;
     try
     {
-	proxy->callback(current.ctx);
+        proxy->callback(current.ctx);
     }
     catch(const Ice::Exception& ex)
     {
-	cout << ex << endl;
+        cout << ex << endl;
     }
 }
 
@@ -51,10 +51,10 @@ CallbackI::shutdown(const Ice::Current& c)
     cout << "shutting down..." << endl;
     try
     {
-	c.adapter->getCommunicator()->shutdown();
+        c.adapter->getCommunicator()->shutdown();
     }
     catch(const Ice::Exception& ex)
     {
-	cout << ex << endl;
+        cout << ex << endl;
     }
 }

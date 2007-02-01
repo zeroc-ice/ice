@@ -19,15 +19,15 @@ class ActivateAdapterThread : public IceUtil::Thread
 public:
 
     ActivateAdapterThread(const ObjectAdapterPtr& adapter, int timeout) :
-	_adapter(adapter), _timeout(timeout)
+        _adapter(adapter), _timeout(timeout)
     {
     }
 
     virtual void
     run()
     {
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_timeout));
-	_adapter->activate();
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_timeout));
+        _adapter->activate();
     }
 
 private:

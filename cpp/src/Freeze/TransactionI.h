@@ -36,7 +36,7 @@ public:
     DbTxn*
     dbTxn() const
     {
-	return _txn;
+        return _txn;
     }
 
 private:

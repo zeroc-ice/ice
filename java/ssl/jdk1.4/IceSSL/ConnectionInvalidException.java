@@ -17,13 +17,13 @@ public final class ConnectionInvalidException extends Ice.LocalException
 
     public ConnectionInvalidException(String reason)
     {
-	this.reason = reason;
+        this.reason = reason;
     }
 
     public String
     ice_name()
     {
-	return "Ice::ConnectionInvalidException";
+        return "Ice::ConnectionInvalidException";
     }
 
     public String reason;

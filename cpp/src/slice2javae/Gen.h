@@ -99,7 +99,7 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
 
     private:
-	void writeOperations(const ClassDefPtr&, bool);
+        void writeOperations(const ClassDefPtr&, bool);
     };
 
     class TieVisitor : public JavaVisitor

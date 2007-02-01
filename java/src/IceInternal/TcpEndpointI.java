@@ -21,8 +21,8 @@ final class TcpEndpointI extends EndpointI
         _port = po;
         _timeout = ti;
         _connectionId = conId;
-	_compress = co;
-	_publish = pub;
+        _compress = co;
+        _publish = pub;
         calcHashValue();
     }
 
@@ -33,8 +33,8 @@ final class TcpEndpointI extends EndpointI
         _host = null;
         _port = 0;
         _timeout = -1;
-	_compress = false;
-	_publish = true;
+        _compress = false;
+        _publish = true;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -50,7 +50,7 @@ final class TcpEndpointI extends EndpointI
             String option = arr[i++];
             if(option.length() != 2 || option.charAt(0) != '-')
             {
-		throw new Ice.EndpointParseException("tcp " + str);
+                throw new Ice.EndpointParseException("tcp " + str);
             }
 
             String argument = null;
@@ -65,7 +65,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-			throw new Ice.EndpointParseException("tcp " + str);
+                        throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     _host = argument;
@@ -76,7 +76,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-			throw new Ice.EndpointParseException("tcp " + str);
+                        throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     try
@@ -85,13 +85,13 @@ final class TcpEndpointI extends EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-			throw new Ice.EndpointParseException("tcp " + str);
+                        throw new Ice.EndpointParseException("tcp " + str);
                     }
 
-		    if(_port < 0 || _port > 65535)
-		    {
-			throw new Ice.EndpointParseException("tcp " + str);
-		    }
+                    if(_port < 0 || _port > 65535)
+                    {
+                        throw new Ice.EndpointParseException("tcp " + str);
+                    }
 
                     break;
                 }
@@ -100,7 +100,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument == null)
                     {
-			throw new Ice.EndpointParseException("tcp " + str);
+                        throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     try
@@ -109,7 +109,7 @@ final class TcpEndpointI extends EndpointI
                     }
                     catch(NumberFormatException ex)
                     {
-			throw new Ice.EndpointParseException("tcp " + str);
+                        throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     break;
@@ -119,7 +119,7 @@ final class TcpEndpointI extends EndpointI
                 {
                     if(argument != null)
                     {
-			throw new Ice.EndpointParseException("tcp " + str);
+                        throw new Ice.EndpointParseException("tcp " + str);
                     }
 
                     _compress = true;
@@ -128,7 +128,7 @@ final class TcpEndpointI extends EndpointI
 
                 default:
                 {
-		    throw new Ice.EndpointParseException("tcp " + str);
+                    throw new Ice.EndpointParseException("tcp " + str);
                 }
             }
         }
@@ -142,9 +142,9 @@ final class TcpEndpointI extends EndpointI
         _host = s.readString();
         _port = s.readInt();
         _timeout = s.readInt();
-	_compress = s.readBool();
+        _compress = s.readBool();
         s.endReadEncaps();
-	_publish = true;
+        _publish = true;
         calcHashValue();
     }
 
@@ -159,7 +159,7 @@ final class TcpEndpointI extends EndpointI
         s.writeString(_host);
         s.writeInt(_port);
         s.writeInt(_timeout);
-	s.writeBool(_compress);
+        s.writeBool(_compress);
         s.endWriteEncaps();
     }
 
@@ -169,22 +169,22 @@ final class TcpEndpointI extends EndpointI
     public String
     _toString()
     {
-	//
-	// WARNING: Certain features, such as proxy validation in Glacier2,
-	// depend on the format of proxy strings. Changes to toString() and
-	// methods called to generate parts of the reference string could break
-	// these features. Please review for all features that depend on the
-	// format of proxyToString() before changing this and related code.
-	//
+        //
+        // WARNING: Certain features, such as proxy validation in Glacier2,
+        // depend on the format of proxy strings. Changes to toString() and
+        // methods called to generate parts of the reference string could break
+        // these features. Please review for all features that depend on the
+        // format of proxyToString() before changing this and related code.
+        //
         String s = "tcp -h " + _host + " -p " + _port;
         if(_timeout != -1)
         {
             s += " -t " + _timeout;
         }
-	if(_compress)
-	{
-	    s += " -z";
-	}
+        if(_compress)
+        {
+            s += " -z";
+        }
         return s;
     }
 
@@ -342,7 +342,7 @@ final class TcpEndpointI extends EndpointI
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
         endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId,
-					  _compress, _publish);
+                                          _compress, _publish);
         return p;
     }
 
@@ -357,41 +357,41 @@ final class TcpEndpointI extends EndpointI
         if(_host == null)
         {
             _host = _instance.defaultsAndOverrides().defaultHost;
-	    if(_host == null)
-	    {
-	        if(server)
-		{
-		    _host = "0.0.0.0";
-		}
-		else
-		{
-		    _host = "127.0.0.1";
-		}
-	    }
+            if(_host == null)
+            {
+                if(server)
+                {
+                    _host = "0.0.0.0";
+                }
+                else
+                {
+                    _host = "127.0.0.1";
+                }
+            }
         }
-	else if(_host.equals("*"))
-	{
-	    _host = "0.0.0.0";
-	}
+        else if(_host.equals("*"))
+        {
+            _host = "0.0.0.0";
+        }
 
         java.util.ArrayList endps = new java.util.ArrayList();
-	if(_host.equals("0.0.0.0"))
-	{
-	    java.util.ArrayList hosts = Network.getLocalHosts();
-	    java.util.Iterator iter = hosts.iterator();
-	    while(iter.hasNext())
-	    {
-	        String host = (String)iter.next();
-		endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
-					   hosts.size() == 1 || !host.equals("127.0.0.1")));
-	    }
-	}
-	else
-	{
+        if(_host.equals("0.0.0.0"))
+        {
+            java.util.ArrayList hosts = Network.getLocalHosts();
+            java.util.Iterator iter = hosts.iterator();
+            while(iter.hasNext())
+            {
+                String host = (String)iter.next();
+                endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
+                                           hosts.size() == 1 || !host.equals("127.0.0.1")));
+            }
+        }
+        else
+        {
             calcHashValue();
-	    endps.add(this);
-	}
-	return endps;
+            endps.add(this);
+        }
+        return endps;
     }
 
     //
@@ -481,10 +481,10 @@ final class TcpEndpointI extends EndpointI
             return 1;
         }
 
-    	if(!_connectionId.equals(p._connectionId))
-	{
-	    return _connectionId.compareTo(p._connectionId);
-	}
+        if(!_connectionId.equals(p._connectionId))
+        {
+            return _connectionId.compareTo(p._connectionId);
+        }
 
         if(!_compress && p._compress)
         {
@@ -501,48 +501,48 @@ final class TcpEndpointI extends EndpointI
             // We do the most time-consuming part of the comparison last.
             //
             java.net.InetSocketAddress laddr = null;
-	    try
-	    {
-		laddr = Network.getAddress(_host, _port);
-	    }
-	    catch(Ice.DNSException ex)
-	    {
-	    }
+            try
+            {
+                laddr = Network.getAddress(_host, _port);
+            }
+            catch(Ice.DNSException ex)
+            {
+            }
 
             java.net.InetSocketAddress raddr = null;
-	    try
-	    {
-		raddr = Network.getAddress(p._host, p._port);
-	    }
-	    catch(Ice.DNSException ex)
-	    {
-	    }
+            try
+            {
+                raddr = Network.getAddress(p._host, p._port);
+            }
+            catch(Ice.DNSException ex)
+            {
+            }
 
-	    if(laddr == null && raddr != null)
-	    {
-		return -1;
-	    }
-	    else if(raddr == null && laddr != null)
-	    {
-		return 1;
-	    }
-	    else if(laddr != null && raddr != null)
-	    {
-		byte[] larr = laddr.getAddress().getAddress();
-		byte[] rarr = raddr.getAddress().getAddress();
-		assert(larr.length == rarr.length);
-		for(int i = 0; i < larr.length; i++)
-		{
-		    if(larr[i] < rarr[i])
-		    {
-			return -1;
-		    }
-		    else if(rarr[i] < larr[i])
-		    {
-			return 1;
-		    }
-		}
-	    }
+            if(laddr == null && raddr != null)
+            {
+                return -1;
+            }
+            else if(raddr == null && laddr != null)
+            {
+                return 1;
+            }
+            else if(laddr != null && raddr != null)
+            {
+                byte[] larr = laddr.getAddress().getAddress();
+                byte[] rarr = raddr.getAddress().getAddress();
+                assert(larr.length == rarr.length);
+                for(int i = 0; i < larr.length; i++)
+                {
+                    if(larr[i] < rarr[i])
+                    {
+                        return -1;
+                    }
+                    else if(rarr[i] < larr[i])
+                    {
+                        return 1;
+                    }
+                }
+            }
         }
 
         return 0;

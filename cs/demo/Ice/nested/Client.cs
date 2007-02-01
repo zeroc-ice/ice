@@ -23,7 +23,7 @@ public class Client : Ice.Application
         
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Nested.Client");
         NestedPrx self = 
-	    NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")));
+            NestedPrxHelper.uncheckedCast(adapter.createProxy(communicator().stringToIdentity("nestedClient")));
         adapter.add(new NestedI(self), communicator().stringToIdentity("nestedClient"));
         adapter.activate();
         

@@ -24,10 +24,10 @@ using namespace std;
 using namespace IceGrid;
 
 InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
-				     const DatabasePtr& database, 
-				     const ReapThreadPtr& reaper,
-				     const WellKnownObjectsManagerPtr& wellKnownObjects,
-				     ReplicaSessionManager& session) : 
+                                     const DatabasePtr& database, 
+                                     const ReapThreadPtr& reaper,
+                                     const WellKnownObjectsManagerPtr& wellKnownObjects,
+                                     ReplicaSessionManager& session) : 
     _registry(registry),
     _database(database),
     _reaper(reaper),
@@ -46,38 +46,38 @@ InternalRegistryI::~InternalRegistryI()
 
 NodeSessionPrx
 InternalRegistryI::registerNode(const InternalNodeInfoPtr& info, 
-				const NodePrx& node, 
-				const LoadInfo& load, 
-				const Ice::Current& current)
+                                const NodePrx& node, 
+                                const LoadInfo& load, 
+                                const Ice::Current& current)
 {
     const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
     try
     {
-	NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout, load);
-	_reaper->add(new SessionReapable<NodeSessionI>(logger, session), _nodeSessionTimeout);
-	return session->getProxy();
+        NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout, load);
+        _reaper->add(new SessionReapable<NodeSessionI>(logger, session), _nodeSessionTimeout);
+        return session->getProxy();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 }
 
 ReplicaSessionPrx
 InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
-				   const InternalRegistryPrx& prx,
-				   const Ice::Current& current)
+                                   const InternalRegistryPrx& prx,
+                                   const Ice::Current& current)
 {
     const Ice::LoggerPtr logger = _database->getTraceLevels()->logger;
     try
     {
-	ReplicaSessionIPtr s = new ReplicaSessionI(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
-	_reaper->add(new SessionReapable<ReplicaSessionI>(logger, s), _replicaSessionTimeout);
-	return s->getProxy();
+        ReplicaSessionIPtr s = new ReplicaSessionI(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
+        _reaper->add(new SessionReapable<ReplicaSessionI>(logger, s), _replicaSessionTimeout);
+        return s->getProxy();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }
 }
 
@@ -94,7 +94,7 @@ InternalRegistryI::getNodes(const Ice::Current&) const
     Ice::ObjectProxySeq proxies = _database->getInternalObjectsByType(Node::ice_staticId());
     for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-	nodes.push_back(NodePrx::uncheckedCast(*p));
+        nodes.push_back(NodePrx::uncheckedCast(*p));
     }
     return nodes;
 }
@@ -106,7 +106,7 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
     Ice::ObjectProxySeq proxies = _database->getObjectsByType(InternalRegistry::ice_staticId());
     for(Ice::ObjectProxySeq::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
     {
-	replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
+        replicas.push_back(InternalRegistryPrx::uncheckedCast(*p));
     }
     return replicas;
 }
@@ -125,7 +125,7 @@ InternalRegistryI::getOffsetFromEnd(const string& filename, int count, const Ice
 
 bool
 InternalRegistryI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines, 
-			const Ice::Current&) const
+                        const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }
@@ -136,23 +136,23 @@ InternalRegistryI::getFilePath(const string& filename) const
     string file;
     if(filename == "stderr")
     {
-	file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdErr");
-	if(file.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
-	}
+        file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdErr");
+        if(file.empty())
+        {
+            throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+        }
     }
     else if(filename == "stdout")
     {
-	file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdOut");
-	if(file.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
-	}
+        file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdOut");
+        if(file.empty())
+        {
+            throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+        }
     }
     else
     {
-	throw FileNotAvailableException("unknown file");
+        throw FileNotAvailableException("unknown file");
     }
     return file;
 }

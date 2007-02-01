@@ -28,19 +28,19 @@ def main():
     sourceLocation = None
 
     try:
-	optionList, args = getopt.getopt(sys.argv[1:], "hs:t:", ["sources=", "target-host=", "help"])
+        optionList, args = getopt.getopt(sys.argv[1:], "hs:t:", ["sources=", "target-host=", "help"])
 
     except getopt.GetoptError:
-	usage()
-	sys.exit(2)
+        usage()
+        sys.exit(2)
 
     for o, a in optionList:
-	if o in ["-h", "--help"]:
-	    pass
-	if o in ["-s", "--sources"]:
-	    pass
-	if o in ["-t", "--target-host"]:
-	    pass
+        if o in ["-h", "--help"]:
+            pass
+        if o in ["-s", "--sources"]:
+            pass
+        if o in ["-t", "--target-host"]:
+            pass
 
     f = open("./test.spec", "w+b")
     RPMTools.createFullSpecFile(f, "", "3.2.0", 32, "suse")

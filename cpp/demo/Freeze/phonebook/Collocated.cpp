@@ -19,7 +19,7 @@ class PhoneBookCollocated : public Ice::Application
 public:
     
     PhoneBookCollocated(const string& envName) :
-	_envName(envName)
+        _envName(envName)
     {
     }
 
@@ -82,7 +82,7 @@ PhoneBookCollocated::run(int argc, char* argv[])
     Ice::Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
-	evictor->setSize(evictorSize);
+        evictor->setSize(evictorSize);
     }
 
     //
@@ -113,15 +113,15 @@ PhoneBookCollocated::interruptCallback(int)
 {
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }

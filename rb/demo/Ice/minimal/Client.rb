@@ -18,10 +18,10 @@ begin
     communicator = Ice::initialize(ARGV)
     hello = Demo::HelloPrx::checkedCast(communicator.stringToProxy("hello:tcp -p 10000"))
     if not hello
-	puts $0 + ": invalid proxy"
-	status = 1
+        puts $0 + ": invalid proxy"
+        status = 1
     else
-	hello.sayHello()
+        hello.sayHello()
     end
 rescue => ex
     puts $!
@@ -31,11 +31,11 @@ end
 
 if communicator
     begin
-	communicator.destroy()
+        communicator.destroy()
     rescue => ex
-	puts $!
-	puts ex.backtrace.join("\n")
-	status = 1
+        puts $!
+        puts ex.backtrace.join("\n")
+        status = 1
     end
 end
 

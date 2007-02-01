@@ -13,23 +13,23 @@ class SessionFactoryI extends _SessionFactoryDisp
 {
     SessionFactoryI(ReapThread reaper)
     {
-	_reaper = reaper;
+        _reaper = reaper;
     }
 
     public synchronized SessionPrx
     create(String name, Ice.Current c)
     {
-	SessionI session = new SessionI(name);
-	SessionPrx proxy = SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(session));
-	_reaper.add(proxy, session);
-	return proxy;
+        SessionI session = new SessionI(name);
+        SessionPrx proxy = SessionPrxHelper.uncheckedCast(c.adapter.addWithUUID(session));
+        _reaper.add(proxy, session);
+        return proxy;
     }
 
     public void
     shutdown(Ice.Current c)
     {
-	System.out.println("Shutting down...");
-	c.adapter.getCommunicator().shutdown();
+        System.out.println("Shutting down...");
+        c.adapter.getCommunicator().shutdown();
     }
 
     private ReapThread _reaper;

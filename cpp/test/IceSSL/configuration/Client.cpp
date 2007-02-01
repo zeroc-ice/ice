@@ -16,8 +16,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     if(argc < 2)
     {
-	cerr << "Usage: " << argv[0] << " testdir" << endl;
-	return 1;
+        cerr << "Usage: " << argv[0] << " testdir" << endl;
+        return 1;
     }
 
     void allTests(const Ice::CommunicatorPtr&, const string&);
@@ -35,26 +35,26 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
+        communicator = Ice::initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

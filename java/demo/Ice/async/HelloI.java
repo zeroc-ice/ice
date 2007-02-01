@@ -21,14 +21,14 @@ public class HelloI extends _HelloDisp
     sayHello_async(AMD_Hello_sayHello cb, int delay, Ice.Current current)
     {
         if(delay == 0)
-	{
-	    System.out.println("Hello World!");
-	    cb.ice_response();
-	}
-	else
-	{
-	    _workQueue.add(cb, delay);
-	}
+        {
+            System.out.println("Hello World!");
+            cb.ice_response();
+        }
+        else
+        {
+            _workQueue.add(cb, delay);
+        }
     }
 
     public void
@@ -36,16 +36,16 @@ public class HelloI extends _HelloDisp
     {
         System.out.println("Shutting down...");
 
-	_workQueue.destroy();
-	try
-	{
-	    _workQueue.join();
-	}
-	catch(java.lang.InterruptedException ex)
-	{
-	}
+        _workQueue.destroy();
+        try
+        {
+            _workQueue.join();
+        }
+        catch(java.lang.InterruptedException ex)
+        {
+        }
 
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     private WorkQueue _workQueue;

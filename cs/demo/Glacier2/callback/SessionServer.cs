@@ -13,27 +13,27 @@ public class SessionServer : Ice.Application
 {
     sealed class DummyPermissionVerifierI : Glacier2.PermissionsVerifierDisp_
     {
-	public override bool checkPermissions(String userId, String password, out string reason, Ice.Current current)
-	{
+        public override bool checkPermissions(String userId, String password, out string reason, Ice.Current current)
+        {
             reason = null;
-	    Console.WriteLine("verified user `" + userId + "' with password `" + password + "'");
-	    return true;
-	}
+            Console.WriteLine("verified user `" + userId + "' with password `" + password + "'");
+            return true;
+        }
     };
 
     public override int run(string[] args)
     {
-	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
-	adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
-	adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));
-	adapter.activate();
-	communicator().waitForShutdown();
-	return 0;
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
+        adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
+        adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));
+        adapter.activate();
+        communicator().waitForShutdown();
+        return 0;
     }
 
     public static void Main(string[] args)
     {
-	SessionServer app = new SessionServer();
+        SessionServer app = new SessionServer();
         int status = app.main(args, "config.sessionserver");
         if(status != 0)
         {

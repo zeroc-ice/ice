@@ -14,21 +14,21 @@ public final class HoldI extends _HoldDisp
     public void
     putOnHold(int seconds, Ice.Current current)
     {
-	if(seconds <= 0)
-	{
-	    current.adapter.hold();
-	    current.adapter.activate();
-	}
-	else
-	{
-	    assert(false); // TODO
-	}
+        if(seconds <= 0)
+        {
+            current.adapter.hold();
+            current.adapter.activate();
+        }
+        else
+        {
+            assert(false); // TODO
+        }
     }
 
     public void
     shutdown(Ice.Current current)
     {
-	current.adapter.hold();
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.hold();
+        current.adapter.getCommunicator().shutdown();
     }
 }

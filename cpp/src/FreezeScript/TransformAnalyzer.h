@@ -24,11 +24,11 @@ class TransformAnalyzer
 public:
 
     TransformAnalyzer(const Slice::UnitPtr&, const Slice::UnitPtr&, bool, std::ostream&, std::vector<std::string>&,
-		      std::vector<std::string>&);
+                      std::vector<std::string>&);
     ~TransformAnalyzer();
 
     void addDatabase(const std::string&, const Slice::TypePtr&, const Slice::TypePtr&, const Slice::TypePtr&,
-		     const Slice::TypePtr&);
+                     const Slice::TypePtr&);
     void finish();
 
 private:

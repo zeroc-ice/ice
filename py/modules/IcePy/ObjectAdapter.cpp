@@ -175,7 +175,7 @@ IcePy::ServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
             }
         }
 
-	__checkMode(op->mode(), current.mode);
+        __checkMode(op->mode(), current.mode);
 
         op->dispatch(_servant, cb, inParams, current);
     }
@@ -281,7 +281,7 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
     PyObjectHandle servantObj = wrapper->getObject();
 
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("finished"), STRCAST("OOO"), c->current,
-					     servantObj.get(), c->cookie);
+                                             servantObj.get(), c->cookie);
     if(PyErr_Occurred())
     {
         throwPythonException();
@@ -594,21 +594,21 @@ adapterWaitForDeactivate(ObjectAdapterObject* self, PyObject* args)
                 self->deactivateThread = new AdapterInvokeThreadPtr(t);
                 t->start();
             }
-	    
-	    while(!self->deactivated)
-	    {
-		bool done;
-		{
-		    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-		    done = (*self->deactivateMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
-		}
-		
-		if(!done)
-		{
-		    Py_INCREF(Py_False);
-		    return Py_False;
-		}
-	    }
+            
+            while(!self->deactivated)
+            {
+                bool done;
+                {
+                    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                    done = (*self->deactivateMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+                }
+                
+                if(!done)
+                {
+                    Py_INCREF(Py_False);
+                    return Py_False;
+                }
+            }
         }
 
         assert(self->deactivated);
@@ -868,8 +868,8 @@ adapterRemove(ObjectAdapterObject* self, PyObject* args)
 
     if(!obj)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -911,8 +911,8 @@ adapterRemoveFacet(ObjectAdapterObject* self, PyObject* args)
 
     if(!obj)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -1004,8 +1004,8 @@ adapterFind(ObjectAdapterObject* self, PyObject* args)
 
     if(!obj)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -1047,8 +1047,8 @@ adapterFindFacet(ObjectAdapterObject* self, PyObject* args)
 
     if(!obj)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -1136,8 +1136,8 @@ adapterFindByProxy(ObjectAdapterObject* self, PyObject* args)
 
     if(!obj)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(obj);
@@ -1202,8 +1202,8 @@ adapterFindServantLocator(ObjectAdapterObject* self, PyObject* args)
 
     if(!locator)
     {
-	Py_INCREF(Py_None);
-	return Py_None;
+        Py_INCREF(Py_None);
+        return Py_None;
     }
 
     ServantLocatorWrapperPtr wrapper = ServantLocatorWrapperPtr::dynamicCast(locator);
@@ -1541,14 +1541,14 @@ IcePy::wrapObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
     PyObjectHandle adapterI = createObjectAdapter(adapter);
     if(adapterI.get() == NULL)
     {
-	return NULL;
+        return NULL;
     }
     PyObject* wrapperType = lookupType("Ice.ObjectAdapterI");
     assert(wrapperType != NULL);
     PyObjectHandle args = PyTuple_New(1);
     if(args.get() == NULL)
     {
-	return NULL;
+        return NULL;
     }
     PyTuple_SET_ITEM(args.get(), 0, adapterI.release());
     return PyObject_Call(wrapperType, args.get(), NULL);

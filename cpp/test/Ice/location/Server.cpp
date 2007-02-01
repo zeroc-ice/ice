@@ -39,7 +39,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
     adapter->add(object, communicator->stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrx registryPrx = 
-	Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator->stringToIdentity("registry")));
+        Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, communicator->stringToIdentity("registry")));
 
     Ice::LocatorPtr locator = new ServerLocator(registry, registryPrx);
     adapter->add(locator, communicator->stringToIdentity("locator"));
@@ -58,30 +58,30 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties(argc, argv);
-	communicator = Ice::initialize(argc, argv, initData);
-	assert(initData.properties != communicator->getProperties());
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
+        assert(initData.properties != communicator->getProperties());
 
-	status = run(argc, argv, communicator, initData);
+        status = run(argc, argv, communicator, initData);
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

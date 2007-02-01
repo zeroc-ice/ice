@@ -37,42 +37,42 @@ public:
     {
     public:
 
-	Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master) : 
-	    SessionKeepAliveThread<ReplicaSessionPrx>(master),
-	    _manager(manager)
+        Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master) : 
+            SessionKeepAliveThread<ReplicaSessionPrx>(master),
+            _manager(manager)
         {
-	}
+        }
 
-	virtual ReplicaSessionPrx 
-	createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
+        virtual ReplicaSessionPrx 
+        createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
-	    return _manager.createSession(master, timeout);
-	}
+            return _manager.createSession(master, timeout);
+        }
 
-	virtual void 
-	destroySession(const ReplicaSessionPrx& session)
+        virtual void 
+        destroySession(const ReplicaSessionPrx& session)
         {
-	    _manager.destroySession(session);
-	}
+            _manager.destroySession(session);
+        }
 
-	virtual bool 
-	keepAlive(const ReplicaSessionPrx& session)
+        virtual bool 
+        keepAlive(const ReplicaSessionPrx& session)
         {
-	    return _manager.keepAlive(session);
-	}
+            return _manager.keepAlive(session);
+        }
 
-	void registerAllWellKnownObjects();
+        void registerAllWellKnownObjects();
 
     private:
-	
-	ReplicaSessionManager& _manager;
+        
+        ReplicaSessionManager& _manager;
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
 
     ReplicaSessionManager();
     
     void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&, 
-		const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
+                const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);
     NodePrxSeq getNodes(const NodePrxSeq&) const;
     void destroy();

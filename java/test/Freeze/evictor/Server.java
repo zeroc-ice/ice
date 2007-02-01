@@ -15,9 +15,9 @@ public class Server
         create(String type)
         {
             assert(type.equals("::Test::Servant"));
-	    Test._ServantTie tie = new Test._ServantTie();
-	    tie.ice_delegate(new ServantI(tie));
-	    return tie;
+            Test._ServantTie tie = new Test._ServantTie();
+            tie.ice_delegate(new ServantI(tie));
+            return tie;
         }
 
         public void
@@ -32,9 +32,9 @@ public class Server
         create(String type)
         {
             assert(type.equals("::Test::Facet"));
-	    Test._FacetTie tie = new Test._FacetTie();
-	    tie.ice_delegate(new FacetI(tie));
-	    return tie;
+            Test._FacetTie tie = new Test._FacetTie();
+            tie.ice_delegate(new FacetI(tie));
+            return tie;
         }
 
         public void
@@ -55,7 +55,7 @@ public class Server
         Ice.ObjectFactory servantFactory = new ServantFactory();
         communicator.addObjectFactory(servantFactory, "::Test::Servant");
 
-	Ice.ObjectFactory facetFactory = new FacetFactory();
+        Ice.ObjectFactory facetFactory = new FacetFactory();
         communicator.addObjectFactory(facetFactory, "::Test::Facet");
     
         adapter.activate();
@@ -99,7 +99,7 @@ public class Server
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

@@ -32,31 +32,31 @@ EmpI::getDesc(const Ice::Current& current)
     Ref<EMP_T> mgrRef = empRef->getMgrref();
     if(!mgrRef.isNull())
     {
-	Ice::Identity mgrId;
-	mgrId.name = encodeRef(mgrRef, env);
-	mgrId.category = _factory->getCategory();
-	result.mgr = HR::EmpPrx::uncheckedCast(current.adapter->createProxy(mgrId));
+        Ice::Identity mgrId;
+        mgrId.name = encodeRef(mgrRef, env);
+        mgrId.category = _factory->getCategory();
+        result.mgr = HR::EmpPrx::uncheckedCast(current.adapter->createProxy(mgrId));
     }
     
     result.hiredate = empRef->getHiredate().toText();
     
     if(!empRef->getSal().isNull())
     {
-	result.sal = empRef->getSal().toText(env, "99999.99");
+        result.sal = empRef->getSal().toText(env, "99999.99");
     }
     
     if(!empRef->getComm().isNull())
     {
-	result.comm = empRef->getComm().toText(env, "0.999");
+        result.comm = empRef->getComm().toText(env, "0.999");
     }
     
     Ref<DEPT_T> deptRef = empRef->getDeptref();
     if(!deptRef.isNull())
     {
-	Ice::Identity deptId;
-	deptId.name = encodeRef(deptRef, env);
-	deptId.category = _factory->getCategory();
-	result.edept = HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
+        Ice::Identity deptId;
+        deptId.name = encodeRef(deptRef, env);
+        deptId.category = _factory->getCategory();
+        result.edept = HR::DeptPrx::uncheckedCast(current.adapter->createProxy(deptId));
     }
     _conh->commit();
     return result;
@@ -69,55 +69,55 @@ EmpI::updateField(const string& field, const string& newValue, const Ice::Curren
     
     if(field == "ename")
     {
-	empRef->setEname(newValue);
+        empRef->setEname(newValue);
     }
     else if(field == "job")
     {
-	empRef->setJob(newValue);
+        empRef->setJob(newValue);
     }
     else if(field == "hiredate")
     {
-	if(newValue == "")
-	{
-	    empRef->setHiredate(Date());
-	}
-	else
-	{
-	    Date hiredate(_factory->getEnv());
-	    hiredate.fromText(newValue);
-	    empRef->setHiredate(hiredate);
-	}
+        if(newValue == "")
+        {
+            empRef->setHiredate(Date());
+        }
+        else
+        {
+            Date hiredate(_factory->getEnv());
+            hiredate.fromText(newValue);
+            empRef->setHiredate(hiredate);
+        }
     }
     else if(field == "sal")
     {
-	if(newValue == "")
-	{
-	    empRef->setSal(Number());
-	}
-	else
-	{
-	    Number sal(0);
-	    sal.fromText(_factory->getEnv(), newValue, "99999.99");
-	    empRef->setSal(sal);
-	}
+        if(newValue == "")
+        {
+            empRef->setSal(Number());
+        }
+        else
+        {
+            Number sal(0);
+            sal.fromText(_factory->getEnv(), newValue, "99999.99");
+            empRef->setSal(sal);
+        }
     }
     else if(field == "comm")
     {
-	if(newValue == "")
-	{
-	    empRef->setComm(Number());	
-	}
-	else
-	{
-	    Number comm(0);
-	    comm.fromText(_factory->getEnv(), newValue, "0.999");
-	    empRef->setComm(comm);
-	}
+        if(newValue == "")
+        {
+            empRef->setComm(Number());  
+        }
+        else
+        {
+            Number comm(0);
+            comm.fromText(_factory->getEnv(), newValue, "0.999");
+            empRef->setComm(comm);
+        }
     }
     else
     {
-	throw HR::SqlException("There is no field " + field + " in type EMP_T");
-    }	
+        throw HR::SqlException("There is no field " + field + " in type EMP_T");
+    }   
     empRef->markModified();
     _conh->commit();
 }
@@ -129,17 +129,17 @@ EmpI::updateMgr(int newMgr, const Ice::Current& current)
     
     if(newMgr == 0)
     {
-	empRef->setMgrref(Ref<EMP_T>());
+        empRef->setMgrref(Ref<EMP_T>());
     }
     else
     {
-	Ref<EMP_T> mgrRef = _factory->findEmpRefByNo(newMgr, _conh->connection());
-	
-	if(mgrRef.isNull())
-	{
-	    throw HR::SqlException("There is no employee with this empno");
-	}
-	empRef->setMgrref(mgrRef);
+        Ref<EMP_T> mgrRef = _factory->findEmpRefByNo(newMgr, _conh->connection());
+        
+        if(mgrRef.isNull())
+        {
+            throw HR::SqlException("There is no employee with this empno");
+        }
+        empRef->setMgrref(mgrRef);
     }
     empRef->markModified();
     _conh->commit();
@@ -152,17 +152,17 @@ EmpI::updateDept(int newDept, const Ice::Current& current)
     
     if(newDept == 0)
     {
-	empRef->setDeptref(Ref<DEPT_T>());
+        empRef->setDeptref(Ref<DEPT_T>());
     }
     else
     {
-	Ref<DEPT_T> deptRef = _factory->findDeptRefByNo(newDept, _conh->connection());
-	
-	if(deptRef.isNull())
-	{
-	    throw HR::SqlException("There is no department with this deptno");
-	}
-	empRef->setDeptref(deptRef);
+        Ref<DEPT_T> deptRef = _factory->findDeptRefByNo(newDept, _conh->connection());
+        
+        if(deptRef.isNull())
+        {
+            throw HR::SqlException("There is no department with this deptno");
+        }
+        empRef->setDeptref(deptRef);
     }
     empRef->markModified();
     _conh->commit();

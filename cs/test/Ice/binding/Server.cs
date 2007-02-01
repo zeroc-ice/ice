@@ -11,14 +11,14 @@ public class Server
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-	communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000:udp");
-	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-	Ice.Identity id = communicator.stringToIdentity("communicator");
-	adapter.add(new RemoteCommunicatorI(), id);
-	adapter.activate();
+        communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000:udp");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.Identity id = communicator.stringToIdentity("communicator");
+        adapter.add(new RemoteCommunicatorI(), id);
+        adapter.activate();
 
-	communicator.waitForShutdown();
-	return 0;
+        communicator.waitForShutdown();
+        return 0;
     }
     
     public static void Main(string[] args)
@@ -28,7 +28,7 @@ public class Server
         
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
             initData.properties.setProperty("Ice.ServerIdleTime", "30");
             communicator = Ice.Util.initialize(ref args, initData);
@@ -53,9 +53,9 @@ public class Server
             }
         }
         
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

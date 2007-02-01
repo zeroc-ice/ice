@@ -14,7 +14,7 @@ using namespace std;
 
 bool
 DummyPermissionsVerifierI::checkPermissions(const string& userId, const string& password, string&,
-					    const Ice::Current&) const
+                                            const Ice::Current&) const
 {
     cout << "verified user `" << userId << "' with password `" << password << "'" << endl;
     return true;

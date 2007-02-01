@@ -81,7 +81,7 @@ public:
     
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {
-	return _implicitContext;
+        return _implicitContext;
     }
 
 private:
@@ -94,9 +94,9 @@ private:
 
     enum State
     {
-	StateActive,
-	StateDestroyInProgress,
-	StateDestroyed
+        StateActive,
+        StateDestroyInProgress,
+        StateDestroyed
     };
     State _state;
     Ice::InitializationData _initData;

@@ -14,12 +14,12 @@ public class Server
         public override int run(string[] args)
         {
             communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000");
-	    communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
+            communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
 
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             adapter.addServantLocator(new ServantLocatorI("category"), "category");
             adapter.addServantLocator(new ServantLocatorI(""), "");
-	    adapter.add(new TestI(), communicator().stringToIdentity("asm"));
+            adapter.add(new TestI(), communicator().stringToIdentity("asm"));
 
             adapter.activate();
             adapter.waitForDeactivate();
@@ -31,9 +31,9 @@ public class Server
     {
         TestServer app = new TestServer();
         int result = app.main(args);
-	if(result != 0)
-	{
-	    System.Environment.Exit(result);
-	}
+        if(result != 0)
+        {
+            System.Environment.Exit(result);
+        }
     }
 }

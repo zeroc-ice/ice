@@ -25,7 +25,7 @@ public:
   
     oracle::occi::Connection* connection() const
     {
-	return _con;
+        return _con;
     }
 
     void commit();
@@ -55,7 +55,7 @@ public:
 
     oracle::occi::Statement* statement() const
     {
-	return _stmt;
+        return _stmt;
     }
     
 private:

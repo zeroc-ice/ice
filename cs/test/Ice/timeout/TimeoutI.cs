@@ -14,15 +14,15 @@ internal class ActivateAdapterThread
 {
     internal ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)
     {
-	_adapter = adapter;
-	_timeout = timeout;
+        _adapter = adapter;
+        _timeout = timeout;
     }
 
     internal void run()
     {
-	_adapter.waitForHold();
-	Thread.Sleep(_timeout);
-	_adapter.activate();
+        _adapter.waitForHold();
+        Thread.Sleep(_timeout);
+        _adapter.activate();
     }
 
     private Ice.ObjectAdapter _adapter;
@@ -41,19 +41,19 @@ internal class TimeoutI : Test.TimeoutDisp_
 
     public override void sleep(int to, Ice.Current current)
     {
-	Thread.Sleep(to);
+        Thread.Sleep(to);
     }
 
     public override void holdAdapter(int to, Ice.Current current)
     {
-	current.adapter.hold();
-	ActivateAdapterThread act = new ActivateAdapterThread(current.adapter, to);
-	Thread thread = new Thread(new ThreadStart(act.run));
-	thread.Start();
+        current.adapter.hold();
+        ActivateAdapterThread act = new ActivateAdapterThread(current.adapter, to);
+        Thread thread = new Thread(new ThreadStart(act.run));
+        thread.Start();
     }
 
     public override void shutdown(Ice.Current current)
     {
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 }

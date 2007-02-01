@@ -31,30 +31,30 @@ IceUtil::ThreadSyscallException::ice_print(ostream& os) const
     Exception::ice_print(os);
     if(_error != 0)
     {
-	os << ":\nthread syscall exception: ";
+        os << ":\nthread syscall exception: ";
 #ifdef _WIN32
-	LPVOID lpMsgBuf = 0;
-	DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
-				 FORMAT_MESSAGE_FROM_SYSTEM |
-				 FORMAT_MESSAGE_IGNORE_INSERTS,
-				 NULL,
-				 _error,
-				 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-				 (LPTSTR)&lpMsgBuf,
-				 0,
-				 NULL);
-	
-	if(ok)
-	{
-	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-	    assert(msg && strlen((char*)msg) > 0);
-	    os << msg;
-	    LocalFree(lpMsgBuf);
-	}
-	else
-	{
-	    os << "unknown thread error";
-	}
+        LPVOID lpMsgBuf = 0;
+        DWORD ok = FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER |
+                                 FORMAT_MESSAGE_FROM_SYSTEM |
+                                 FORMAT_MESSAGE_IGNORE_INSERTS,
+                                 NULL,
+                                 _error,
+                                 MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+                                 (LPTSTR)&lpMsgBuf,
+                                 0,
+                                 NULL);
+        
+        if(ok)
+        {
+            LPCTSTR msg = (LPCTSTR)lpMsgBuf;
+            assert(msg && strlen((char*)msg) > 0);
+            os << msg;
+            LocalFree(lpMsgBuf);
+        }
+        else
+        {
+            os << "unknown thread error";
+        }
 #else
         os << strerror(_error);
 #endif

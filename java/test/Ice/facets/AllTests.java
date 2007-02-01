@@ -24,56 +24,56 @@ public class AllTests
     allTests(Ice.Communicator communicator)
     {
         System.out.print("testing facet registration exceptions... ");
-	communicator.getProperties().setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default");
-	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
-	Ice.Object obj = new EmptyI();
+        communicator.getProperties().setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
+        Ice.Object obj = new EmptyI();
         adapter.add(obj, communicator.stringToIdentity("d"));
-	adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD");
-	try
-	{
+        adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD");
+        try
+        {
             adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD");
-	    test(false);
-	}
-	catch(Ice.AlreadyRegisteredException ex)
-	{
-	}
-	adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD");
-	try
-	{
+            test(false);
+        }
+        catch(Ice.AlreadyRegisteredException ex)
+        {
+        }
+        adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD");
+        try
+        {
             adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD");
-	    test(false);
-	}
-	catch(Ice.NotRegisteredException ex)
-	{
-	}
+            test(false);
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
+        }
         System.out.println("ok");
 
         System.out.print("testing removeAllFacets... ");
-	Ice.Object obj1 = new EmptyI();
-	Ice.Object obj2 = new EmptyI();
-	adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
-	adapter.addFacet(obj2, communicator.stringToIdentity("id1"), "f2");
-	Ice.Object obj3 = new EmptyI();
-	adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
-	adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
-	adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
-	java.util.Map fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
-	test(fm.size() == 2);
-	test(fm.get("f1") == obj1);
-	test(fm.get("f2") == obj2);
-	try
-	{
+        Ice.Object obj1 = new EmptyI();
+        Ice.Object obj2 = new EmptyI();
+        adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
+        adapter.addFacet(obj2, communicator.stringToIdentity("id1"), "f2");
+        Ice.Object obj3 = new EmptyI();
+        adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
+        adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
+        adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
+        java.util.Map fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
+        test(fm.size() == 2);
+        test(fm.get("f1") == obj1);
+        test(fm.get("f2") == obj2);
+        try
+        {
             adapter.removeAllFacets(communicator.stringToIdentity("id1"));
-	    test(false);
-	}
-	catch(Ice.NotRegisteredException ex)
-	{
-	}
-	fm = adapter.removeAllFacets(communicator.stringToIdentity("id2"));
-	test(fm.size() == 3);
-	test(fm.get("f1") == obj1);
-	test(fm.get("f2") == obj2);
-	test(fm.get("") == obj3);
+            test(false);
+        }
+        catch(Ice.NotRegisteredException ex)
+        {
+        }
+        fm = adapter.removeAllFacets(communicator.stringToIdentity("id2"));
+        test(fm.size() == 3);
+        test(fm.get("f1") == obj1);
+        test(fm.get("f2") == obj2);
+        test(fm.get("") == obj3);
         System.out.println("ok");
 
         adapter.deactivate();

@@ -13,7 +13,7 @@ public class Server
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.Properties properties = communicator.getProperties();
-	// We don't need to disable warnings, because we have a dummy logger.
+        // We don't need to disable warnings, because we have a dummy logger.
         //properties.setProperty("Ice.Warn.Dispatch", "0");
         properties.setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
@@ -32,12 +32,12 @@ public class Server
 
         try
         {
-	    //
-	    // For this test, we need a dummy logger, otherwise the
-	    // assertion test will print an error message.
-	    //
+            //
+            // For this test, we need a dummy logger, otherwise the
+            // assertion test will print an error message.
+            //
             Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.logger = new DummyLogger();
+            initData.logger = new DummyLogger();
 
             communicator = Ice.Util.initialize(args, initData);
             status = run(args, communicator);

@@ -25,6 +25,6 @@ NestedI::nestedCall(Int level, const NestedPrx& proxy, const Ice::Current& curre
     cout << level << endl;
     if(--level > 0)
     {
-	proxy->nestedCall(level, _self, current.ctx);
+        proxy->nestedCall(level, _self, current.ctx);
     }
 }

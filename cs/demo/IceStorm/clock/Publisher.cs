@@ -17,7 +17,7 @@ public class Publisher : Ice.Application
     public override int run(string[] args)
     {
         IceStorm.TopicManagerPrx manager = IceStorm.TopicManagerPrxHelper.checkedCast(
-	    communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
+            communicator().propertyToProxy("IceStorm.TopicManager.Proxy"));
         if(manager == null)
         {
             Console.WriteLine("invalid proxy");
@@ -25,42 +25,42 @@ public class Publisher : Ice.Application
         }
 
         string topicName = "time";
-	bool datagram = false;
-	bool twoway = false;
-	int optsSet = 0;
-	for(int i = 0; i < args.Length; ++i)
-	{
-	    if(args[i].Equals("--datagram"))
-	    {
-		datagram = true;
-		++optsSet;
-	    }
-	    else if(args[i].Equals("--twoway"))
-	    {
-		twoway = true;
-		++optsSet;
-	    }
-	    else if(args[i].Equals("--oneway"))
-	    {
-		++optsSet;
-	    }
-	    else if(args[i].StartsWith("--"))
-	    {
-		usage();
-		return 1;
-	    }
-	    else
-	    {
-		topicName = args[i];
-		break;
-	    }
-	}
+        bool datagram = false;
+        bool twoway = false;
+        int optsSet = 0;
+        for(int i = 0; i < args.Length; ++i)
+        {
+            if(args[i].Equals("--datagram"))
+            {
+                datagram = true;
+                ++optsSet;
+            }
+            else if(args[i].Equals("--twoway"))
+            {
+                twoway = true;
+                ++optsSet;
+            }
+            else if(args[i].Equals("--oneway"))
+            {
+                ++optsSet;
+            }
+            else if(args[i].StartsWith("--"))
+            {
+                usage();
+                return 1;
+            }
+            else
+            {
+                topicName = args[i];
+                break;
+            }
+        }
 
-	if(optsSet > 1)
-	{
-	    usage();
-	    return 1;
-	}
+        if(optsSet > 1)
+        {
+            usage();
+            return 1;
+        }
 
         //
         // Retrieve the topic.
@@ -72,57 +72,57 @@ public class Publisher : Ice.Application
         }
         catch(IceStorm.NoSuchTopic)
         {
-	    try
-	    {
+            try
+            {
                 topic = manager.create(topicName);
-	    }
-	    catch(IceStorm.TopicExists)
-	    {
+            }
+            catch(IceStorm.TopicExists)
+            {
                 Console.WriteLine("temporary error. try again.");
                 return 1;
-	    }
+            }
         }
 
-	//
-	// Get the topic's publisher object, and create a Clock proxy with
-	// the mode specified as an argument of this application.
-	//
-	Ice.ObjectPrx publisher = topic.getPublisher();
-	if(datagram)
-	{
-	    publisher = publisher.ice_datagram();
-	}
-	else if(twoway)
-	{
-	    // Do nothing.
-	}
-	else //if(oneway)
-	{
-	    publisher = publisher.ice_oneway();
-	}
-	ClockPrx clock = ClockPrxHelper.uncheckedCast(publisher);
+        //
+        // Get the topic's publisher object, and create a Clock proxy with
+        // the mode specified as an argument of this application.
+        //
+        Ice.ObjectPrx publisher = topic.getPublisher();
+        if(datagram)
+        {
+            publisher = publisher.ice_datagram();
+        }
+        else if(twoway)
+        {
+            // Do nothing.
+        }
+        else //if(oneway)
+        {
+            publisher = publisher.ice_oneway();
+        }
+        ClockPrx clock = ClockPrxHelper.uncheckedCast(publisher);
 
         Console.WriteLine("publishing tick events. Press ^C to terminate the application.");
-	try
-	{
+        try
+        {
             while(true)
             {
                 clock.tick(System.DateTime.Now.ToString("G", DateTimeFormatInfo.InvariantInfo));
 
-		System.Threading.Thread.Sleep(1000);
+                System.Threading.Thread.Sleep(1000);
             }
-	}
-	catch(Ice.CommunicatorDestroyedException)
-	{
-	    // Ignore
-	}
+        }
+        catch(Ice.CommunicatorDestroyedException)
+        {
+            // Ignore
+        }
 
         return 0;
     }
 
     public void usage()
     {
-	Console.WriteLine("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]");
+        Console.WriteLine("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]");
     }
 
 

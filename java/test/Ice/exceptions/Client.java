@@ -27,10 +27,10 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(argsH);
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(argsH);
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(args, communicator);
@@ -54,7 +54,7 @@ public class Client
             }
         }
 
-	System.gc();
+        System.gc();
         System.exit(status);
     }
 }

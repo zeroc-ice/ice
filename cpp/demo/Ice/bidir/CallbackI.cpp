@@ -28,15 +28,15 @@ CallbackSenderI::destroy()
     IceUtil::ThreadPtr callbackSenderThread;
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	
-	cout << "destroying callback sender" << endl;
-	_destroy = true;
-	
-	notify();
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        
+        cout << "destroying callback sender" << endl;
+        _destroy = true;
+        
+        notify();
 
-	callbackSenderThread = _callbackSenderThread;
-	_callbackSenderThread = 0; // Resolve cyclic dependency.
+        callbackSenderThread = _callbackSenderThread;
+        _callbackSenderThread = 0; // Resolve cyclic dependency.
     }
 
     callbackSenderThread->getThreadControl().join();
@@ -66,27 +66,27 @@ CallbackSenderI::run()
 
     while(!_destroy)
     {
-	timedWait(IceUtil::Time::seconds(2));
+        timedWait(IceUtil::Time::seconds(2));
 
-	if(!_destroy && !_clients.empty())
-	{
-	    ++_num;
-	    
-	    set<CallbackReceiverPrx>::iterator p = _clients.begin();
-	    while(p != _clients.end())
-	    {
-		try
-		{
-		    (*p)->callback(_num);
-		    ++p;
-		}
-		catch(const Exception& ex)
-		{
-		    cerr << "removing client `" << _communicator->identityToString((*p)->ice_getIdentity()) << "':\n"
-			 << ex << endl;
-		    _clients.erase(p++);
-		}
-	    }
-	}
+        if(!_destroy && !_clients.empty())
+        {
+            ++_num;
+            
+            set<CallbackReceiverPrx>::iterator p = _clients.begin();
+            while(p != _clients.end())
+            {
+                try
+                {
+                    (*p)->callback(_num);
+                    ++p;
+                }
+                catch(const Exception& ex)
+                {
+                    cerr << "removing client `" << _communicator->identityToString((*p)->ice_getIdentity()) << "':\n"
+                         << ex << endl;
+                    _clients.erase(p++);
+                }
+            }
+        }
     }
 }

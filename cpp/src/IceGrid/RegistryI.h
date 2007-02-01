@@ -74,20 +74,20 @@ private:
 
     Ice::LocatorRegistryPrx setupLocatorRegistry(const Ice::ObjectAdapterPtr&); 
     LocatorPrx setupLocator(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::LocatorRegistryPrx&,
-			    const RegistryPrx&, const QueryPrx&); 
+                            const RegistryPrx&, const QueryPrx&); 
     QueryPrx setupQuery(const Ice::ObjectAdapterPtr&);
     RegistryPrx setupRegistry(const Ice::ObjectAdapterPtr&);
     InternalRegistryPrx setupInternalRegistry(const Ice::ObjectAdapterPtr&);
     void setupNullPermissionsVerifier(const Ice::ObjectAdapterPtr&);
     bool setupUserAccountMapper(const Ice::ObjectAdapterPtr&);
     void setupClientSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-				   bool);
+                                   bool);
     void setupAdminSessionFactory(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-				  bool);
+                                  bool);
 
     void setupThreadPool(const Ice::PropertiesPtr&, const std::string&, int, int = 0);
     Glacier2::PermissionsVerifierPrx getPermissionsVerifier(const Ice::ObjectAdapterPtr&, const LocatorPrx&,
-							    const std::string&, const std::string&, bool);
+                                                            const std::string&, const std::string&, bool);
 
     Glacier2::SSLPermissionsVerifierPrx getSSLPermissionsVerifier(const LocatorPrx&, const std::string&, bool);
     Glacier2::SSLInfo getSSLInfo(const Ice::ConnectionPtr&, std::string&);

@@ -14,6 +14,6 @@ public class PluginFactory implements Ice.PluginFactory
     public Ice.Plugin
     create(Ice.Communicator communicator, String name, String[] args)
     {
-	return new PluginI(communicator);
+        return new PluginI(communicator);
     }
 }

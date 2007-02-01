@@ -13,45 +13,45 @@ public class Server
 {
     private static int run(string[] args, Ice.Communicator communicator)
     {
-	communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "tcp -p 12010");
-	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-	Ice.Identity id = communicator.stringToIdentity("factory");
-	adapter.add(new ServerFactoryI(), id);
-	adapter.activate();
+        communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "tcp -p 12010");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.Identity id = communicator.stringToIdentity("factory");
+        adapter.add(new ServerFactoryI(), id);
+        adapter.activate();
 
-	communicator.waitForShutdown();
-	return 0;
+        communicator.waitForShutdown();
+        return 0;
     }
     
     public static void Main(string[] args)
     {
-	int status = 0;
-	Ice.Communicator communicator = null;
-	
-	try
-	{
-	    communicator = Ice.Util.initialize(ref args);
-	    status = run(args, communicator);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    Console.Error.WriteLine(ex);
-	    status = 1;
-	}
-	
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
-	
+        int status = 0;
+        Ice.Communicator communicator = null;
+        
+        try
+        {
+            communicator = Ice.Util.initialize(ref args);
+            status = run(args, communicator);
+        }
+        catch(Ice.LocalException ex)
+        {
+            Console.Error.WriteLine(ex);
+            status = 1;
+        }
+        
+        if(communicator != null)
+        {
+            try
+            {
+                communicator.destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                Console.Error.WriteLine(ex);
+                status = 1;
+            }
+        }
+        
         if(status != 0)
         {
             System.Environment.Exit(status);

@@ -15,12 +15,12 @@ public class Collocated
         run(String[] args)
         {
             communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
-	    communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
+            communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
 
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
             adapter.addServantLocator(new ServantLocatorI("category"), "category");
             adapter.addServantLocator(new ServantLocatorI(""), "");
-	    adapter.add(new TestI(), communicator().stringToIdentity("asm"));
+            adapter.add(new TestI(), communicator().stringToIdentity("asm"));
 
             AllTests.allTests(communicator(), true);
 

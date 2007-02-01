@@ -20,13 +20,13 @@ public:
     virtual bool
     checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& c) const
     {
-	if(userId == "shutdown")
-	{
-	    c.adapter->getCommunicator()->shutdown();
-	    return true;
-	}
-	return userId == "admin1" && passwd == "test1" || userId == "admin2" && passwd == "test2" ||
-		userId == "admin3" && passwd == "test3";
+        if(userId == "shutdown")
+        {
+            c.adapter->getCommunicator()->shutdown();
+            return true;
+        }
+        return userId == "admin1" && passwd == "test1" || userId == "admin2" && passwd == "test2" ||
+                userId == "admin3" && passwd == "test3";
     }
 };
 
@@ -36,12 +36,12 @@ public:
 
     virtual int run(int, char*[])
     {
-	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
-	    "PermissionsVerifier", "tcp -p 12002");
-	adapter->add(new AdminPermissionsVerifierI, communicator()->stringToIdentity("AdminPermissionsVerifier"));
-	adapter->activate();
-	communicator()->waitForShutdown();
-	return EXIT_SUCCESS;
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints(
+            "PermissionsVerifier", "tcp -p 12002");
+        adapter->add(new AdminPermissionsVerifierI, communicator()->stringToIdentity("AdminPermissionsVerifier"));
+        adapter->activate();
+        communicator()->waitForShutdown();
+        return EXIT_SUCCESS;
     }
 };
 

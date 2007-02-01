@@ -30,7 +30,7 @@ public class Server
     {
         TestServer app = new TestServer();
         int result = app.main("Server", args);
-	System.gc();
+        System.gc();
         System.exit(result);
     }
 }

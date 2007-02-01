@@ -16,10 +16,10 @@ import Demo
 class CallbackI(Demo.Callback):
     def initiateCallback(self, proxy, current=None):
         print "initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy)
-	try:
-	    proxy.callback(current.ctx)
-	except:
-	    traceback.print_exc()
+        try:
+            proxy.callback(current.ctx)
+        except:
+            traceback.print_exc()
 
     def shutdown(self, current=None):
         print "shutting down..."
@@ -27,11 +27,11 @@ class CallbackI(Demo.Callback):
 
 class Server(Ice.Application):
     def run(self, args):
-	adapter = self.communicator().createObjectAdapter("Callback.Server")
-	adapter.add(CallbackI(), self.communicator().stringToIdentity("callback"))
-	adapter.activate()
-	self.communicator().waitForShutdown()
-	return True
+        adapter = self.communicator().createObjectAdapter("Callback.Server")
+        adapter.add(CallbackI(), self.communicator().stringToIdentity("callback"))
+        adapter.activate()
+        self.communicator().waitForShutdown()
+        return True
 
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

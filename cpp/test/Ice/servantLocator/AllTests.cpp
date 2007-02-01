@@ -21,121 +21,121 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
 {
     try
     {
-	obj->requestFailedException();
-	test(false);
+        obj->requestFailedException();
+        test(false);
     }
     catch(const ObjectNotExistException& ex)
     {
-	if(!collocated)
-	{
-	    test(ex.id == obj->ice_getIdentity());
-	    test(ex.facet == obj->ice_getFacet());
-	    test(ex.operation == "requestFailedException");
-	}
+        if(!collocated)
+        {
+            test(ex.id == obj->ice_getIdentity());
+            test(ex.facet == obj->ice_getFacet());
+            test(ex.operation == "requestFailedException");
+        }
     }
 
     try
     {
-	obj->unknownUserException();
-	test(false);
+        obj->unknownUserException();
+        test(false);
     }
     catch(const UnknownUserException& ex)
     {
-	test(ex.unknown == "reason");
+        test(ex.unknown == "reason");
     }
 
     try
     {
-	obj->unknownLocalException();
-	test(false);
+        obj->unknownLocalException();
+        test(false);
     }
     catch(const UnknownLocalException& ex)
     {
-	test(ex.unknown == "reason");
+        test(ex.unknown == "reason");
     }
 
     try
     {
-	obj->unknownException();
-	test(false);
+        obj->unknownException();
+        test(false);
     }
     catch(const UnknownException& ex)
     {
-	test(ex.unknown == "reason");
+        test(ex.unknown == "reason");
     }
 
     try
     {
-	obj->userException();
-	test(false);
+        obj->userException();
+        test(false);
     }
     catch(const UnknownUserException& ex)
     {
-	//cerr << ex.unknown << endl;
-	test(!collocated);
-	test(ex.unknown == "Test::TestIntfUserException");
+        //cerr << ex.unknown << endl;
+        test(!collocated);
+        test(ex.unknown == "Test::TestIntfUserException");
     }
     catch(const TestIntfUserException&)
     {
-	test(collocated);
+        test(collocated);
     }
 
     try
     {
-	obj->localException();
-	test(false);
+        obj->localException();
+        test(false);
     }
     catch(const UnknownLocalException& ex)
     {
-	//cerr << ex.unknown << endl;
-	test(!collocated);
-	test(ex.unknown.find("Ice::SocketException:\nsocket exception: unknown error") != string::npos);
+        //cerr << ex.unknown << endl;
+        test(!collocated);
+        test(ex.unknown.find("Ice::SocketException:\nsocket exception: unknown error") != string::npos);
     }
     catch(const SocketException&)
     {
-	test(collocated);
+        test(collocated);
     }
 
     try
     {
-	obj->stdException();
-	test(false);
+        obj->stdException();
+        test(false);
     }
     catch(const UnknownException& ex)
     {
-	//cerr << ex.unknown << endl;
-	test(!collocated);
-	test(ex.unknown == "std::exception: Hello");
+        //cerr << ex.unknown << endl;
+        test(!collocated);
+        test(ex.unknown == "std::exception: Hello");
     }
     catch(const std::runtime_error&)
     {
-	test(collocated);
+        test(collocated);
     }
 
     try
     {
-	obj->cppException();
-	test(false);
+        obj->cppException();
+        test(false);
     }
     catch(const UnknownException& ex)
     {
-	//cerr << ex.unknown << endl;
-	test(!collocated);
-	test(ex.unknown == "unknown c++ exception");
+        //cerr << ex.unknown << endl;
+        test(!collocated);
+        test(ex.unknown == "unknown c++ exception");
     }
     catch(const int&)
     {
-	test(collocated);
+        test(collocated);
     }
     
     try
     {
-	obj->unknownExceptionWithServantException();
-	test(false);
+        obj->unknownExceptionWithServantException();
+        test(false);
     }
     catch(const UnknownException& ex)
     {
-	test(ex.unknown == "reason");
+        test(ex.unknown == "reason");
     }
 }
 
@@ -158,7 +158,7 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     obj = TestIntfPrx::checkedCast(base);
     try
     {
-	TestIntfPrx::checkedCast(communicator->stringToProxy("category/unknown:default -p 12010 -t 10000"));
+        TestIntfPrx::checkedCast(communicator->stringToProxy("category/unknown:default -p 12010 -t 10000"));
     }
     catch(const ObjectNotExistException&)
     {
@@ -172,14 +172,14 @@ allTests(const CommunicatorPtr& communicator, bool collocated)
     obj = TestIntfPrx::checkedCast(base);
     try
     {
-	TestIntfPrx::checkedCast(communicator->stringToProxy("anothercategory/unknown:default -p 12010 -t 10000"));
+        TestIntfPrx::checkedCast(communicator->stringToProxy("anothercategory/unknown:default -p 12010 -t 10000"));
     }
     catch(const ObjectNotExistException&)
     {
     }
     try
     {
-	TestIntfPrx::checkedCast(communicator->stringToProxy("unknown:default -p 12010 -t 10000"));
+        TestIntfPrx::checkedCast(communicator->stringToProxy("unknown:default -p 12010 -t 10000"));
     }
     catch(const Ice::ObjectNotExistException&)
     {

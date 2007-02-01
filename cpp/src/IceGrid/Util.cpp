@@ -24,12 +24,12 @@ IceGrid::toString(const vector<string>& v, const string& sep)
     Ice::StringSeq::const_iterator p = v.begin();
     while(p != v.end())
     {
-	os << *p;
-	++p;
-	if(p != v.end())
-	{
-	    os << sep;
-	}
+        os << *p;
+        ++p;
+        if(p != v.end())
+        {
+            os << sep;
+        }
     }
     return os.str();
 }
@@ -40,22 +40,22 @@ IceGrid::toString(const Ice::Exception& exception)
     std::ostringstream os;
     try
     {
-	exception.ice_throw();
+        exception.ice_throw();
     }
     catch(const NodeUnreachableException& ex)
     {
-	os << ex << ":";
-	os << "\nnode: " << ex.name;
-	os << "\nreason: " << ex.reason;
+        os << ex << ":";
+        os << "\nnode: " << ex.name;
+        os << "\nreason: " << ex.reason;
     }
     catch(const DeploymentException& ex)
     {
-	os << ex << ":";
-	os << "\nreason: " << ex.reason;
+        os << ex << ":";
+        os << "\nreason: " << ex.reason;
     }
     catch(const Ice::Exception& ex)
     {
-	os << ex;
+        os << ex;
     }
     return os.str();
 }
@@ -65,10 +65,10 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
 {    
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
-	if(q->name == name)
-	{
-	    return q->value;
-	}
+        if(q->name == name)
+        {
+            return q->value;
+        }
     }
     return def;
 }
@@ -97,23 +97,23 @@ IceGrid::getMMVersion(const string& o)
 
     if(minorPos != 1 && minorPos != 2)
     {
-	return -1;
+        return -1;
     }
 
     if(patchPos != string::npos)
     { 
-	if((minorPos == 1 && patchPos != 3 && patchPos != 4) || (minorPos == 2 && patchPos != 4 && patchPos != 5))
-	{
-	    return -1;
-	}
-	else if((version.size() - patchPos - 1) > 2)
-	{
-	    return -1;
-	}
+        if((minorPos == 1 && patchPos != 3 && patchPos != 4) || (minorPos == 2 && patchPos != 4 && patchPos != 5))
+        {
+            return -1;
+        }
+        else if((version.size() - patchPos - 1) > 2)
+        {
+            return -1;
+        }
     }
     else if((version.size() - minorPos - 1) > 2)
     {
-	return -1;
+        return -1;
     }
 
     int v, ver;
@@ -122,7 +122,7 @@ IceGrid::getMMVersion(const string& o)
     major >> v;
     if(major.fail() || v > 99 || v < 1)
     {
-	return -1;
+        return -1;
     }
     ver = v;
     ver *= 100;
@@ -131,7 +131,7 @@ IceGrid::getMMVersion(const string& o)
     minor >> v;
     if(minor.fail() || v > 99 || v < 0)
     {
-	return -1;
+        return -1;
     }
     ver += v;
     ver *= 100;
@@ -142,13 +142,13 @@ IceGrid::getMMVersion(const string& o)
     //
 //     if(patchPos != string::npos)
 //     {
-// 	istringstream patch(version.substr(patchPos + 1));
-// 	patch >> v;
-// 	if(patch.fail() || v > 99 || v < 0)
-// 	{
-// 	    return -1;
-// 	}
-// 	ver += v;
+//      istringstream patch(version.substr(patchPos + 1));
+//      patch >> v;
+//      if(patch.fail() || v > 99 || v < 0)
+//      {
+//          return -1;
+//      }
+//      ver += v;
 //     }
 
     return ver;

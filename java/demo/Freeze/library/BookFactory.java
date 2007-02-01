@@ -12,8 +12,8 @@ class BookFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     public Ice.Object
     create(String type)
     {
-	assert(type.equals("::Demo::Book"));
-	return new BookI(_library);
+        assert(type.equals("::Demo::Book"));
+        return new BookI(_library);
     }
 
     public void
@@ -23,7 +23,7 @@ class BookFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
 
     BookFactory(LibraryI library)
     {
-	_library = library;
+        _library = library;
     }
 
     private LibraryI _library;

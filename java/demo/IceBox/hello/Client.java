@@ -13,18 +13,18 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
-	public void
-	run()
-	{
-	    try
-	    {
-		communicator().destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
+        public void
+        run()
+        {
+            try
+            {
+                communicator().destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private void
@@ -45,15 +45,15 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-	//
-	// Since this is an interactive demo we want to clear the
-	// Application installed interrupt callback and install our
-	// own shutdown hook.
-	//
-	setInterruptHook(new ShutdownHook());
+        //
+        // Since this is an interactive demo we want to clear the
+        // Application installed interrupt callback and install our
+        // own shutdown hook.
+        //
+        setInterruptHook(new ShutdownHook());
 
         HelloPrx twoway = HelloPrxHelper.checkedCast(
-	    communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
+            communicator().propertyToProxy("Hello.Proxy").ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             System.err.println("invalid object reference");
@@ -102,7 +102,7 @@ public class Client extends Ice.Application
                 }
                 else if(line.equals("f"))
                 {
-		    communicator().flushBatchRequests();
+                    communicator().flushBatchRequests();
                 }
                 else if(line.equals("x"))
                 {
@@ -135,8 +135,8 @@ public class Client extends Ice.Application
     public static void
     main(String[] args)
     {
-	Client app = new Client();
-	int status = app.main("Client", args, "config.client");
-	System.exit(status);
+        Client app = new Client();
+        int status = app.main("Client", args, "config.client");
+        System.exit(status);
     }
 }

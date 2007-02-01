@@ -32,7 +32,7 @@ CounterI::subscribe(const CounterObserverPrx& observer, const Ice::Current&)
     // the given subscriber.
     //
     CounterObserverPrx o = CounterObserverPrx::uncheckedCast(
-	_topic->subscribeAndGetPublisher(IceStorm::QoS(), observer));
+        _topic->subscribeAndGetPublisher(IceStorm::QoS(), observer));
     o->init(_value);
 }
 

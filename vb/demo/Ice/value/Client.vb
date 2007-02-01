@@ -138,7 +138,7 @@ Module ValueC
             Console.Out.WriteLine()
             Console.Out.WriteLine("That's it for this demo. Have fun with Ice!")
 
-	    initial.shutdown()
+            initial.shutdown()
 
             Return 0
         End Function

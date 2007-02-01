@@ -13,57 +13,57 @@ public class Client
 {
     public static int run(string[] args, Ice.Communicator communicator)
     {
-	Test.TimeoutPrx timeout = AllTests.allTests(communicator);
-	timeout.shutdown();
-	return 0;
+        Test.TimeoutPrx timeout = AllTests.allTests(communicator);
+        timeout.shutdown();
+        return 0;
     }
 
     public static void Main(string[] args)
     {
-	int status = 0;
-	Ice.Communicator communicator = null;
+        int status = 0;
+        Ice.Communicator communicator = null;
 
-	try
-	{
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(ref args);
+        try
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
 
-	    //
-	    // For this test, we want to disable retries.
-	    //
-	    initData.properties.setProperty("Ice.RetryIntervals", "-1");
+            //
+            // For this test, we want to disable retries.
+            //
+            initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-	    //
-	    // This test kills connections, so we don't want warnings.
-	    //
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+            //
+            // This test kills connections, so we don't want warnings.
+            //
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-	    //
-	    // Check for AMI timeouts every second.
-	    //
-	    initData.properties.setProperty("Ice.MonitorConnections", "1");
+            //
+            // Check for AMI timeouts every second.
+            //
+            initData.properties.setProperty("Ice.MonitorConnections", "1");
 
-	    communicator = Ice.Util.initialize(ref args, initData);
-	    status = run(args, communicator);
-	}
-	catch(Ice.LocalException ex)
-	{
-	    Console.Error.WriteLine(ex);
-	    status = 1;
-	}
+            communicator = Ice.Util.initialize(ref args, initData);
+            status = run(args, communicator);
+        }
+        catch(Ice.LocalException ex)
+        {
+            Console.Error.WriteLine(ex);
+            status = 1;
+        }
 
-	if(communicator != null)
-	{
-	    try
-	    {
-		communicator.destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		Console.Error.WriteLine(ex);
-		status = 1;
-	    }
-	}
+        if(communicator != null)
+        {
+            try
+            {
+                communicator.destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                Console.Error.WriteLine(ex);
+                status = 1;
+            }
+        }
 
         if(status != 0)
         {

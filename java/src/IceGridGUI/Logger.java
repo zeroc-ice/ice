@@ -18,65 +18,65 @@ public class Logger extends Ice.LocalObjectImpl implements Ice.Logger
     public 
     Logger(JFrame mainFrame)
     {
-	_mainFrame = mainFrame;
+        _mainFrame = mainFrame;
     }
 
     public void
     print(String message)
     {
-	System.err.println(message);
+        System.err.println(message);
     }
 
     public void
     trace(String category, String message)
     {
-	StringBuffer s = new StringBuffer("[ ");
-	s.append(_date.format(new java.util.Date()));
-	s.append(' ');
-	s.append(_prefix);
-	s.append(category);
-	s.append(": ");
-	s.append(message);
-	s.append(" ]");
-	int idx = 0;
-	while((idx = s.indexOf("\n", idx)) != -1)
-	{
-	    s.insert(idx + 1, "  ");
-	    ++idx;
-	}
-	System.err.println(s.toString());
+        StringBuffer s = new StringBuffer("[ ");
+        s.append(_date.format(new java.util.Date()));
+        s.append(' ');
+        s.append(_prefix);
+        s.append(category);
+        s.append(": ");
+        s.append(message);
+        s.append(" ]");
+        int idx = 0;
+        while((idx = s.indexOf("\n", idx)) != -1)
+        {
+            s.insert(idx + 1, "  ");
+            ++idx;
+        }
+        System.err.println(s.toString());
     }
 
     public void
     warning(final String message)
     {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run()
-		{
-		    JOptionPane.showMessageDialog(
-			_mainFrame,
-			message,
-			"Warning - IceGrid Admin Logger",
-			JOptionPane.WARNING_MESSAGE);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run()
+                {
+                    JOptionPane.showMessageDialog(
+                        _mainFrame,
+                        message,
+                        "Warning - IceGrid Admin Logger",
+                        JOptionPane.WARNING_MESSAGE);
+                }
+            });
     }
 
     public void
     error(final String message)
     {
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run()
-		{
-		    JOptionPane.showMessageDialog(
-			_mainFrame,
-			message,
-			"Error - IceGrid Admin Logger",
-			JOptionPane.ERROR_MESSAGE);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run()
+                {
+                    JOptionPane.showMessageDialog(
+                        _mainFrame,
+                        message,
+                        "Error - IceGrid Admin Logger",
+                        JOptionPane.ERROR_MESSAGE);
+                }
+            });
     }
 
     private final String _prefix = "IceGrid Admin: ";

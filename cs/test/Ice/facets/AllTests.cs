@@ -23,7 +23,7 @@ public class AllTests
     public static GPrx allTests(Ice.Communicator communicator)
     {
         Console.Write("testing facet registration exceptions... ");
-	communicator.getProperties().setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default");
+        communicator.getProperties().setProperty("Ice.OA.FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Ice.Object obj = new EmptyI();
         adapter.add(obj, communicator.stringToIdentity("d"));
@@ -31,7 +31,7 @@ public class AllTests
         try
         {
             adapter.addFacet(obj, communicator.stringToIdentity("d"), "facetABCD");
-	    test(false);
+            test(false);
         }
         catch(Ice.AlreadyRegisteredException)
         {
@@ -40,7 +40,7 @@ public class AllTests
         try
         {
             adapter.removeFacet(communicator.stringToIdentity("d"), "facetABCD");
-	    test(false);
+            test(false);
         }
         catch(Ice.NotRegisteredException)
         {
@@ -48,31 +48,31 @@ public class AllTests
         Console.WriteLine("ok");
 
         Console.Write("testing removeAllFacets... ");
-	Ice.Object obj1 = new EmptyI();
-	Ice.Object obj2 = new EmptyI();
-	adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
-	adapter.addFacet(obj2, communicator.stringToIdentity("id1"), "f2");
-	Ice.Object obj3 = new EmptyI();
-	adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
-	adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
-	adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
-	Ice.FacetMap fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
-	test(fm.Count == 2);
-	test(fm["f1"] == obj1);
-	test(fm["f2"] == obj2);
-	try
-	{
+        Ice.Object obj1 = new EmptyI();
+        Ice.Object obj2 = new EmptyI();
+        adapter.addFacet(obj1, communicator.stringToIdentity("id1"), "f1");
+        adapter.addFacet(obj2, communicator.stringToIdentity("id1"), "f2");
+        Ice.Object obj3 = new EmptyI();
+        adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
+        adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
+        adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
+        Ice.FacetMap fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
+        test(fm.Count == 2);
+        test(fm["f1"] == obj1);
+        test(fm["f2"] == obj2);
+        try
+        {
             adapter.removeAllFacets(communicator.stringToIdentity("id1"));
-	    test(false);
-	}
-	catch(Ice.NotRegisteredException)
-	{
-	}
-	fm = adapter.removeAllFacets(communicator.stringToIdentity("id2"));
-	test(fm.Count == 3);
-	test(fm["f1"] == obj1);
-	test(fm["f2"] == obj2);
-	test(fm[""] == obj3);
+            test(false);
+        }
+        catch(Ice.NotRegisteredException)
+        {
+        }
+        fm = adapter.removeAllFacets(communicator.stringToIdentity("id2"));
+        test(fm.Count == 3);
+        test(fm["f1"] == obj1);
+        test(fm["f2"] == obj2);
+        test(fm[""] == obj3);
         Console.WriteLine("ok");
 
         adapter.deactivate();

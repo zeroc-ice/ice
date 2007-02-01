@@ -21,7 +21,7 @@ Ice::LoggerI::LoggerI(const string& prefix)
 {
     if(!prefix.empty())
     {
-	_prefix = prefix + ": ";
+        _prefix = prefix + ": ";
     }
 }
 
@@ -46,8 +46,8 @@ Ice::LoggerI::trace(const string& category, const string& message)
     string::size_type idx = 0;
     while((idx = s.find("\n", idx)) != string::npos)
     {
-	s.insert(idx + 1, "  ");
-	++idx;
+        s.insert(idx + 1, "  ");
+        ++idx;
     }
 
     IceUtil::StaticMutex::Lock sync(outputMutex);

@@ -35,13 +35,13 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
 
     if(current.id.name == "unknown")
     {
-	return 0;
+        return 0;
     }
 
     test(current.id.name == "locate" || current.id.name == "finished");
     if(current.id.name == "locate")
     {
-	exception(current);
+        exception(current);
     }
 
     return newServantAndCookie(cookie);
@@ -49,7 +49,7 @@ ServantLocatorI::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie
 
 void
 ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr& servant,
-			  const Ice::LocalObjectPtr& cookie)
+                          const Ice::LocalObjectPtr& cookie)
 {
     test(!_deactivated);
     test(current.id.category == _category  || _category.empty());
@@ -57,7 +57,7 @@ ServantLocatorI::finished(const Ice::Current& current, const Ice::ObjectPtr& ser
 
     if(current.id.name == "finished")
     {
-	exception(current);
+        exception(current);
     }
 
     checkCookie(cookie);
@@ -76,38 +76,38 @@ ServantLocatorI::exception(const Ice::Current& current)
 {
     if(current.operation == "requestFailedException")
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
     else if(current.operation == "unknownUserException")
     {
-	throw UnknownUserException(__FILE__, __LINE__, "reason");
+        throw UnknownUserException(__FILE__, __LINE__, "reason");
     }
     else if(current.operation == "unknownLocalException")
     {
-	throw UnknownLocalException(__FILE__, __LINE__, "reason");
+        throw UnknownLocalException(__FILE__, __LINE__, "reason");
     }
     else if(current.operation == "unknownException")
     {
-	throw UnknownException(__FILE__, __LINE__, "reason");
+        throw UnknownException(__FILE__, __LINE__, "reason");
     }
     else if(current.operation == "userException")
     {
-	throwTestIntfUserException();
+        throwTestIntfUserException();
     }
     else if(current.operation == "localException")
     {
-	throw Ice::SocketException(__FILE__, __LINE__, 0);
+        throw Ice::SocketException(__FILE__, __LINE__, 0);
     }
     else if(current.operation == "stdException")
     {
-	throw std::runtime_error("Hello");
+        throw std::runtime_error("Hello");
     }
     else if(current.operation == "cppException")
     {
-	throw 5;
+        throw 5;
     }
     else if(current.operation == "unknownExceptionWithServantException")
     {
-	throw UnknownException(__FILE__, __LINE__, "reason");
+        throw UnknownException(__FILE__, __LINE__, "reason");
     }
 }

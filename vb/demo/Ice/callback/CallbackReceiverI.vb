@@ -13,7 +13,7 @@ Public NotInheritable Class CallbackReceiverI
     Inherits CallbackReceiverDisp_
 
     Public Overloads Overrides Sub callback(ByVal current As Ice.Current)
-	System.Console.Out.WriteLine("received callback")
+        System.Console.Out.WriteLine("received callback")
     End Sub
 
 End Class

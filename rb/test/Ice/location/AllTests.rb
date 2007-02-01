@@ -10,7 +10,7 @@
 
 def test(b)
     if !b
-	raise RuntimeError, 'test assertion failed'
+        raise RuntimeError, 'test assertion failed'
     end
 end
 
@@ -42,7 +42,7 @@ def allTests(communicator, ref)
     communicator.setDefaultLocator(locator)
     base = communicator.stringToProxy("test @ TestAdapter")
     test(Ice::proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())); 
-	
+        
     #
     # We also test ice_router/ice_getRouter (perhaps we should add a
     # test/Ice/router test?)
@@ -87,10 +87,10 @@ def allTests(communicator, ref)
     obj.shutdown()
     manager.startServer()
     begin
-	obj2 = Test::TestIntfPrx::checkedCast(base2)
-	obj2.ice_ping()
+        obj2 = Test::TestIntfPrx::checkedCast(base2)
+        obj2.ice_ping()
     rescue Ice::LocalException
-	test(false)
+        test(false)
     end
     puts "ok"
 
@@ -99,88 +99,88 @@ def allTests(communicator, ref)
     obj.shutdown()
     manager.startServer()
     begin
-	obj3 = Test::TestIntfPrx::checkedCast(base3)
-	obj3.ice_ping()
+        obj3 = Test::TestIntfPrx::checkedCast(base3)
+        obj3.ice_ping()
     rescue Ice::LocalException
-	test(false)
+        test(false)
     end
     begin
-	obj2 = Test::TestIntfPrx::checkedCast(base2)
-	obj2.ice_ping()
+        obj2 = Test::TestIntfPrx::checkedCast(base2)
+        obj2.ice_ping()
     rescue Ice::LocalException
-	test(false)
-    end
-    obj.shutdown()
-    manager.startServer()
-    begin
-	obj2 = Test::TestIntfPrx::checkedCast(base2)
-	obj2.ice_ping()
-    rescue Ice::LocalException
-	test(false)
-    end
-    begin
-	obj3 = Test::TestIntfPrx::checkedCast(base3)
-	obj3.ice_ping()
-    rescue Ice::LocalException
-	test(false)
-    end
-    obj.shutdown()
-    manager.startServer()
-
-    begin
-	obj2 = Test::TestIntfPrx::checkedCast(base2)
-	obj2.ice_ping()
-    rescue Ice::LocalException
-	test(false)
+        test(false)
     end
     obj.shutdown()
     manager.startServer()
     begin
-	obj3 = Test::TestIntfPrx::checkedCast(base3)
-	obj3.ice_ping()
+        obj2 = Test::TestIntfPrx::checkedCast(base2)
+        obj2.ice_ping()
     rescue Ice::LocalException
-	test(false)
+        test(false)
     end
-    obj.shutdown()
-    manager.startServer()
     begin
-	obj2 = Test::TestIntfPrx::checkedCast(base2)
-	obj2.ice_ping()
+        obj3 = Test::TestIntfPrx::checkedCast(base3)
+        obj3.ice_ping()
     rescue Ice::LocalException
-	test(false)
+        test(false)
     end
     obj.shutdown()
     manager.startServer()
 
     begin
-	obj5 = Test::TestIntfPrx::checkedCast(base5)
-	obj5.ice_ping()
+        obj2 = Test::TestIntfPrx::checkedCast(base2)
+        obj2.ice_ping()
     rescue Ice::LocalException
-	test(false)
+        test(false)
+    end
+    obj.shutdown()
+    manager.startServer()
+    begin
+        obj3 = Test::TestIntfPrx::checkedCast(base3)
+        obj3.ice_ping()
+    rescue Ice::LocalException
+        test(false)
+    end
+    obj.shutdown()
+    manager.startServer()
+    begin
+        obj2 = Test::TestIntfPrx::checkedCast(base2)
+        obj2.ice_ping()
+    rescue Ice::LocalException
+        test(false)
+    end
+    obj.shutdown()
+    manager.startServer()
+
+    begin
+        obj5 = Test::TestIntfPrx::checkedCast(base5)
+        obj5.ice_ping()
+    rescue Ice::LocalException
+        test(false)
     end
     puts "ok"
 
     print "testing reference with unknown identity... "
     STDOUT.flush
     begin
-	base = communicator.stringToProxy("unknown/unknown")
-	base.ice_ping()
-	test(false)
+        base = communicator.stringToProxy("unknown/unknown")
+        base.ice_ping()
+        test(false)
     rescue Ice::NotRegisteredException => ex
-	test(ex.kindOfObject == "object")
-	test(ex.id == "unknown/unknown")
+        test(ex.kindOfObject == "object")
+        test(ex.id == "unknown/unknown")
     end
     puts "ok"
 
     print "testing reference with unknown adapter... "
     STDOUT.flush
     begin
-	base = communicator.stringToProxy("test @ TestAdapterUnknown")
-	base.ice_ping()
-	test(false)
+        base = communicator.stringToProxy("test @ TestAdapterUnknown")
+        base.ice_ping()
+        test(false)
     rescue Ice::NotRegisteredException => ex
-	test(ex.kindOfObject == "object adapter")
-	test(ex.id == "TestAdapterUnknown")
+        test(ex.kindOfObject == "object adapter")
+        test(ex.id == "TestAdapterUnknown")
     end
     puts "ok"
 
@@ -216,18 +216,18 @@ def allTests(communicator, ref)
     print "testing whether server is gone... "
     STDOUT.flush
     begin
-	obj2.ice_ping()
-	test(false)
+        obj2.ice_ping()
+        test(false)
     rescue Ice::LocalException
     end
     begin
-	obj3.ice_ping()
-	test(false)
+        obj3.ice_ping()
+        test(false)
     rescue Ice::LocalException
     end
     begin
-	obj5.ice_ping()
-	test(false)
+        obj5.ice_ping()
+        test(false)
     rescue Ice::LocalException
     end
     puts "ok"

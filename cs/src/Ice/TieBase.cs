@@ -12,8 +12,8 @@ namespace Ice
 
     public interface TieBase
     {
-	object ice_delegate();
-	void ice_delegate(object o);
+        object ice_delegate();
+        void ice_delegate(object o);
     }
 
 }

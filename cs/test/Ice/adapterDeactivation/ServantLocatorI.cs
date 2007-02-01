@@ -20,9 +20,9 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
     ~ServantLocatorI()
     {
         lock(this)
-	{
-	    test(_deactivated);
-	}
+        {
+            test(_deactivated);
+        }
     }
     
     private static void test(bool b)
@@ -35,10 +35,10 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
     
     public Ice.Object locate(Ice.Current current, out Ice.LocalObject cookie)
     {
-	lock(this)
-	{
-	    test(!_deactivated);
-	}
+        lock(this)
+        {
+            test(!_deactivated);
+        }
         
         test(current.id.category.Length == 0);
         test(current.id.name.Equals("test"));
@@ -50,10 +50,10 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
     
     public void finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
     {
-	lock(this)
-	{
-	    test(!_deactivated);
-	}
+        lock(this)
+        {
+            test(!_deactivated);
+        }
         
         Cookie co = (Cookie) cookie;
         test(co.message().Equals("blahblah"));
@@ -61,12 +61,12 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
     
     public void deactivate(string category)
     {
-	lock(this)
-	{
-	    test(!_deactivated);
+        lock(this)
+        {
+            test(!_deactivated);
         
-	    _deactivated = true;
-	}
+            _deactivated = true;
+        }
     }
     
     private bool _deactivated;

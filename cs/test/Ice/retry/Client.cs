@@ -25,19 +25,19 @@ public class Client
 
         try
         {
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(ref args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
 
-	    //
-	    // For this test, we want to disable retries.
-	    //
-	    initData.properties.setProperty("Ice.RetryIntervals", "-1");
+            //
+            // For this test, we want to disable retries.
+            //
+            initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-	    //
-	    // This test kills connections, so we don't want warnings.
-	    //
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
-	    
+            //
+            // This test kills connections, so we don't want warnings.
+            //
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
@@ -55,7 +55,7 @@ public class Client
             }
             catch(Ice.LocalException ex)
             {
-	        Console.Error.WriteLine(ex);
+                Console.Error.WriteLine(ex);
                 status = 1;
             }
         }

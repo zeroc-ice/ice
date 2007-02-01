@@ -11,14 +11,14 @@ public final class SessionI extends Glacier2._SessionDisp
 {
     SessionI(String userId)
     {
-	_userId = userId;
+        _userId = userId;
     }
 
     public void
     destroy(Ice.Current current)
     {
-	System.out.println("destroying session for user `" + _userId + "'");
-	current.adapter.remove(current.id);
+        System.out.println("destroying session for user `" + _userId + "'");
+        current.adapter.remove(current.id);
     }
 
     final private String _userId;

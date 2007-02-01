@@ -29,13 +29,13 @@ class Token
     
     Token(int t)
     {
-	type = t;
-	value = null;
+        type = t;
+        value = null;
     }
     
     Token(int t, String v)
     {
-	type = t;
-	value = v;
+        type = t;
+        value = v;
     }
 }

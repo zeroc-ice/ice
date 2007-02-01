@@ -12,7 +12,7 @@
 
 using namespace std;
 
-Ice::ObjectAdapterPtr Filesystem::NodeI::_adapter;	// static member
+Ice::ObjectAdapterPtr Filesystem::NodeI::_adapter;      // static member
 
 // Slice Node::name() operation
 
@@ -39,15 +39,15 @@ Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr & ic, const string & name, c
     //
     Ice::Identity myID;
     if (parent)
-	myID = ic->stringToIdentity(IceUtil::generateUUID());
+        myID = ic->stringToIdentity(IceUtil::generateUUID());
     else
-	myID = ic->stringToIdentity("RootDir");
+        myID = ic->stringToIdentity("RootDir");
 
     // Create a proxy for the new node and add it as a child to the parent
     //
     NodePrx thisNode = NodePrx::uncheckedCast(_adapter->createProxy(myID));
     if (parent)
-	parent->addChild(thisNode);
+        parent->addChild(thisNode);
 
     // Activate the servant
     //
@@ -66,7 +66,7 @@ Filesystem::FileI::read(const Ice::Current &) const
 
 void
 Filesystem::FileI::write(const Filesystem::Lines & text,
-			 const Ice::Current &)
+                         const Ice::Current &)
 {
     _lines = text;
 }

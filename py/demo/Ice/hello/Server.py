@@ -16,7 +16,7 @@ import Demo
 class HelloI(Demo.Hello):
     def sayHello(self, delay, current=None):
         if delay != 0:
-	    time.sleep(delay / 1000.0)
+            time.sleep(delay / 1000.0)
         print "Hello World!"
 
     def shutdown(self, current=None):
@@ -24,11 +24,11 @@ class HelloI(Demo.Hello):
 
 class Server(Ice.Application):
     def run(self, args):
-	adapter = self.communicator().createObjectAdapter("Hello")
-	adapter.add(HelloI(), self.communicator().stringToIdentity("hello"))
-	adapter.activate()
-	self.communicator().waitForShutdown()
-	return True
+        adapter = self.communicator().createObjectAdapter("Hello")
+        adapter.add(HelloI(), self.communicator().stringToIdentity("hello"))
+        adapter.activate()
+        self.communicator().waitForShutdown()
+        return True
 
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

@@ -38,7 +38,7 @@ DeptI::ice_ping(const Ice::Current& current) const
 
     if(count == 0)
     {
-	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
@@ -64,19 +64,19 @@ DeptI::createEmp(int key, const HR::EmpDesc& desc, const Ice::Current& current)
     
     if(desc.mgr == 0)
     {
-	//
-	// mgr is NULL
-	//
-	mgrInd = -1;
+        //
+        // mgr is NULL
+        //
+        mgrInd = -1;
     }
     else
     {
-	mgr = decodeName(desc.mgr->ice_getIdentity().name);
+        mgr = decodeName(desc.mgr->ice_getIdentity().name);
     }
     
     EXEC SQL CONTEXT USE :ctx;
     EXEC SQL INSERT INTO EMP(empno, ename, job, mgr, hiredate, sal, comm, deptno)
-	     VALUES(:empno, :ename, :job, :mgr:mgrInd, :hiredate, :sal, :comm, :deptno); 
+             VALUES(:empno, :ename, :job, :mgr:mgrInd, :hiredate, :sal, :comm, :deptno); 
     EXEC SQL COMMIT;
 
     Ice::Identity empId;
@@ -107,10 +107,10 @@ DeptI::getDesc(const Ice::Current& current)
 
     if(dnameInd >= 0)
     {
-	//
-	// Should log a warning if > 0!
-	//
-	result.dname = dname;
+        //
+        // Should log a warning if > 0!
+        //
+        result.dname = dname;
     }
     //
     // else null
@@ -118,10 +118,10 @@ DeptI::getDesc(const Ice::Current& current)
 
     if(locInd >= 0)
     {
-	//
-	// Should log a warning if > 0!
-	//
-	result.loc = loc;
+        //
+        // Should log a warning if > 0!
+        //
+        result.loc = loc;
     }
     //
     // else null
@@ -134,7 +134,7 @@ void
 DeptI::updateField(const string& field, const string& newValue, const Ice::Current& current)
 {
     const string updateDeptStr =
-	"UPDATE DEPT SET " + field + " = '" + newValue + "' WHERE DEPTNO = " + current.id.name;
+        "UPDATE DEPT SET " + field + " = '" + newValue + "' WHERE DEPTNO = " + current.id.name;
     
     sqlca sqlca;
     EXEC SQL BEGIN DECLARE SECTION;
@@ -185,13 +185,13 @@ DeptI::findAll(const Ice::Current& current)
 
     for(;;)
     {
-	EXEC SQL FETCH empCursor1 INTO :empno;
+        EXEC SQL FETCH empCursor1 INTO :empno;
 
-	Ice::Identity empId;
-	empId.category = _empCategory;
-	empId.name = encodeName(empno);
+        Ice::Identity empId;
+        empId.category = _empCategory;
+        empId.name = encodeName(empno);
 
-	result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
+        result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
     }
 
     EXEC SQL CLOSE empCursor1;
@@ -218,13 +218,13 @@ DeptI::findByName(const string& name, const Ice::Current& current)
 
     for(;;)
     {
-	EXEC SQL FETCH empCursor2 INTO :empno;
+        EXEC SQL FETCH empCursor2 INTO :empno;
 
-	Ice::Identity empId;
-	empId.category = _empCategory;
-	empId.name = encodeName(empno);
+        Ice::Identity empId;
+        empId.category = _empCategory;
+        empId.name = encodeName(empno);
 
-	result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
+        result.push_back(HR::EmpPrx::uncheckedCast(current.adapter->createProxy(empId)));
     }
 
     EXEC SQL CLOSE empCursor2;

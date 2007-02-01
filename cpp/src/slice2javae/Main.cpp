@@ -26,12 +26,12 @@ usage(const char* n)
         "-DNAME=DEF              Define NAME as DEF.\n"
         "-UNAME                  Remove any definition for NAME.\n"
         "-IDIR                   Put DIR in the include file search path.\n"
-	"-E                      Print preprocessor output on stdout.\n"
+        "-E                      Print preprocessor output on stdout.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
-	"--depend                Generate Makefile dependencies.\n"
+        "--depend                Generate Makefile dependencies.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -65,20 +65,20 @@ main(int argc, char* argv[])
     catch(const IceUtil::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return EXIT_SUCCESS;
+        usage(argv[0]);
+        return EXIT_SUCCESS;
     }
 
     if(opts.isSet("version"))
     {
-	cout << ICEE_STRING_VERSION << endl;
-	return EXIT_SUCCESS;
+        cout << ICEE_STRING_VERSION << endl;
+        return EXIT_SUCCESS;
     }
 
     string cppArgs;
@@ -86,19 +86,19 @@ main(int argc, char* argv[])
     vector<string>::const_iterator i;
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -D" + Preprocessor::addQuotes(*i);
+        cppArgs += " -D" + Preprocessor::addQuotes(*i);
     }
 
     optargs = opts.argVec("U");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-	cppArgs += " -U" + Preprocessor::addQuotes(*i);
+        cppArgs += " -U" + Preprocessor::addQuotes(*i);
     }
 
     vector<string> includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-	cppArgs += " -I" + Preprocessor::addQuotes(*i);
+        cppArgs += " -I" + Preprocessor::addQuotes(*i);
     }
 
     bool preprocess = opts.isSet("E");
@@ -137,76 +137,76 @@ main(int argc, char* argv[])
 
     for(i = args.begin(); i != args.end(); ++i)
     {
-	if(depend)
-	{
-	    Preprocessor icecpp(argv[0], *i, cppArgs);
-	    icecpp.printMakefileDependencies(Preprocessor::Java);
-	}
-	else
-	{
-	    Preprocessor icecpp(argv[0], *i, cppArgs);
-	    FILE* cppHandle = icecpp.preprocess(false);
+        if(depend)
+        {
+            Preprocessor icecpp(argv[0], *i, cppArgs);
+            icecpp.printMakefileDependencies(Preprocessor::Java);
+        }
+        else
+        {
+            Preprocessor icecpp(argv[0], *i, cppArgs);
+            FILE* cppHandle = icecpp.preprocess(false);
 
-	    if(cppHandle == 0)
-	    {
-		return EXIT_FAILURE;
-	    }
+            if(cppHandle == 0)
+            {
+                return EXIT_FAILURE;
+            }
 
-	    if(preprocess)
-	    {
-	        char buf[4096];
-		while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-		{
-		    if(fputs(buf, stdout) == EOF)
-		    {
-		        return EXIT_FAILURE;
-		    }
-		}
-		if(!icecpp.close())
-		{
-		    return EXIT_FAILURE;
-		}	    
-	    }
-	    else
-	    {
-		UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
-		int parseStatus = p->parse(cppHandle, debug, Slice::IceE);
+            if(preprocess)
+            {
+                char buf[4096];
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+                {
+                    if(fputs(buf, stdout) == EOF)
+                    {
+                        return EXIT_FAILURE;
+                    }
+                }
+                if(!icecpp.close())
+                {
+                    return EXIT_FAILURE;
+                }           
+            }
+            else
+            {
+                UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
+                int parseStatus = p->parse(cppHandle, debug, Slice::IceE);
 
-		if(!icecpp.close())
-		{
-		    p->destroy();
-		    return EXIT_FAILURE;
-		}	    
-		
-		if(parseStatus == EXIT_FAILURE)
-		{
-		    status = EXIT_FAILURE;
-		}
-		else
-		{
-		    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
-		    if(!gen)
-		    {
-			p->destroy();
-			return EXIT_FAILURE;
-		    }
-		    gen.generate(p);
-		    if(tie)
-		    {
-			gen.generateTie(p);
-		    }
-		    if(impl)
-		    {
-			gen.generateImpl(p);
-		    }
-		    if(implTie)
-		    {
-			gen.generateImplTie(p);
-		    }
-		}
-		p->destroy();
-	    }
-	}
+                if(!icecpp.close())
+                {
+                    p->destroy();
+                    return EXIT_FAILURE;
+                }           
+                
+                if(parseStatus == EXIT_FAILURE)
+                {
+                    status = EXIT_FAILURE;
+                }
+                else
+                {
+                    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output);
+                    if(!gen)
+                    {
+                        p->destroy();
+                        return EXIT_FAILURE;
+                    }
+                    gen.generate(p);
+                    if(tie)
+                    {
+                        gen.generateTie(p);
+                    }
+                    if(impl)
+                    {
+                        gen.generateImpl(p);
+                    }
+                    if(implTie)
+                    {
+                        gen.generateImplTie(p);
+                    }
+                }
+                p->destroy();
+            }
+        }
     }
 
     return status;

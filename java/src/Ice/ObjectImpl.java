@@ -20,15 +20,15 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     clone()
     {
         java.lang.Object o = null;
-	try
-	{
-	    o = super.clone();
-	}
-	catch(java.lang.CloneNotSupportedException ex)
-	{
-	    assert false; // Impossible
-	}
-	return o;
+        try
+        {
+            o = super.clone();
+        }
+        catch(java.lang.CloneNotSupportedException ex)
+        {
+            assert false; // Impossible
+        }
+        return o;
     }
 
     public int
@@ -134,7 +134,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
 
     public int ice_operationAttributes(String operation)
     {
-	return 0;
+        return 0;
     }
 
     public void
@@ -249,44 +249,44 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     private static String
     operationModeToString(OperationMode mode)
     {
-	if(mode == Ice.OperationMode.Normal)
-	{
-	    return "::Ice::Normal";
-	}
-	if(mode == Ice.OperationMode.Nonmutating)
-	{
-	    return "::Ice::Nonmutating";
-	}
+        if(mode == Ice.OperationMode.Normal)
+        {
+            return "::Ice::Normal";
+        }
+        if(mode == Ice.OperationMode.Nonmutating)
+        {
+            return "::Ice::Nonmutating";
+        }
 
-	if(mode == Ice.OperationMode.Idempotent)
-	{
-	    return "::Ice::Idempotent";
-	}
+        if(mode == Ice.OperationMode.Idempotent)
+        {
+            return "::Ice::Idempotent";
+        }
 
-	return "???";
+        return "???";
     }
 
     protected static void
     __checkMode(OperationMode expected, OperationMode received)
     {
-	if(expected != received)
-	{
-	    if(expected == Ice.OperationMode.Idempotent 
-	       && received == Ice.OperationMode.Nonmutating)
-	    {
-		//
-		// Fine: typically an old client still using the 
+        if(expected != received)
+        {
+            if(expected == Ice.OperationMode.Idempotent 
+               && received == Ice.OperationMode.Nonmutating)
+            {
+                //
+                // Fine: typically an old client still using the 
                 // deprecated nonmutating keyword
-		//
-	    }
-	    else
-	    {
-		Ice.MarshalException ex = new Ice.MarshalException();
-		ex.reason = "unexpected operation mode. expected = "
-		    + operationModeToString(expected) + " received = "
-		    + operationModeToString(received);
-		throw ex;
-	    }
-	}
+                //
+            }
+            else
+            {
+                Ice.MarshalException ex = new Ice.MarshalException();
+                ex.reason = "unexpected operation mode. expected = "
+                    + operationModeToString(expected) + " received = "
+                    + operationModeToString(received);
+                throw ex;
+            }
+        }
     }
 }

@@ -37,83 +37,83 @@ class RLockT
 public:
 
     RLockT(const T& mutex) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_mutex.readLock();
-	_acquired = true;
+        _mutex.readLock();
+        _acquired = true;
     }
 
     ~RLockT()
     {
-	if (_acquired)
-	{
-	    _mutex.unlock();
-	}
+        if (_acquired)
+        {
+            _mutex.unlock();
+        }
     }
 
     void acquire() const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_mutex.readLock();
-	_acquired = true;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _mutex.readLock();
+        _acquired = true;
     }
 
     bool tryAcquire() const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_acquired = _mutex.tryReadLock();
-	return _acquired;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _acquired = _mutex.tryReadLock();
+        return _acquired;
     }
 
     bool timedAcquire(const Time& timeout) const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_acquired = _mutex.timedReadLock(timeout);
-	return _acquired;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _acquired = _mutex.timedReadLock(timeout);
+        return _acquired;
     }
 
     
 
     void release() const
     {
-	if (!_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_mutex.unlock();
-	_acquired = false;
+        if (!_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _mutex.unlock();
+        _acquired = false;
     }
 
     bool acquired() const
     {
-	return _acquired;
+        return _acquired;
     }
 
     void
     upgrade() const
     {
-	_mutex.upgrade();
+        _mutex.upgrade();
     }
 
     bool
     timedUpgrade(const Time& timeout) const
     {
-	return _mutex.timedUpgrade(timeout);
+        return _mutex.timedUpgrade(timeout);
     }
 
     void
     downgrade() const
     {
-	_mutex.downgrade();
+        _mutex.downgrade();
     }
 
 protected:
@@ -121,16 +121,16 @@ protected:
     // TryRLockT's constructors
 
     RLockT(const T& mutex, bool) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_acquired = _mutex.tryReadLock();
+        _acquired = _mutex.tryReadLock();
     }
 
 
     RLockT(const T& mutex, const Time& timeout) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_acquired = _mutex.timedReadLock(timeout);
+        _acquired = _mutex.timedReadLock(timeout);
     }
 
 
@@ -151,12 +151,12 @@ class TryRLockT : public RLockT<T>
 public:
 
     TryRLockT(const T& mutex) :
-	RLockT<T>(mutex, true)
+        RLockT<T>(mutex, true)
     {
     }
 
     TryRLockT(const T& mutex, const Time& timeout) :
-	RLockT<T>(mutex, timeout)
+        RLockT<T>(mutex, timeout)
     {
     }
 };
@@ -167,63 +167,63 @@ class WLockT
 public:
 
     WLockT(const T& mutex) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_mutex.writeLock();
-	_acquired = true;
+        _mutex.writeLock();
+        _acquired = true;
     }
 
     ~WLockT()
     {
-	if (_acquired)
-	{
-	    _mutex.unlock();
-	}
+        if (_acquired)
+        {
+            _mutex.unlock();
+        }
     }
 
     void acquire() const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_mutex.writeLock();
-	_acquired = true;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _mutex.writeLock();
+        _acquired = true;
     }
 
     bool tryAcquire() const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_acquired = _mutex.tryWriteLock();
-	return _acquired;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _acquired = _mutex.tryWriteLock();
+        return _acquired;
     }
 
     bool timedAcquire(const Time& timeout) const
     {
-	if (_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_acquired = _mutex.timedWriteLock(timeout);
-	return _acquired;
+        if (_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _acquired = _mutex.timedWriteLock(timeout);
+        return _acquired;
     }
 
     void release() const
     {
-	if (!_acquired)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	_mutex.unlock();
-	_acquired = false;
+        if (!_acquired)
+        {
+            throw ThreadLockedException(__FILE__, __LINE__);
+        }
+        _mutex.unlock();
+        _acquired = false;
     }
 
     bool acquired() const
     {
-	return _acquired;
+        return _acquired;
     }
 
 protected:
@@ -231,15 +231,15 @@ protected:
     // TryWLockT's constructor
 
     WLockT(const T& mutex, bool) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_acquired = _mutex.tryWriteLock();
+        _acquired = _mutex.tryWriteLock();
     }
 
     WLockT(const T& mutex, const Time& timeout) :
-	_mutex(mutex)
+        _mutex(mutex)
     {
-	_acquired = _mutex.timedWriteLock(timeout);
+        _acquired = _mutex.timedWriteLock(timeout);
     }
 
 private:
@@ -259,12 +259,12 @@ class TryWLockT : public WLockT<T>
 public:
 
     TryWLockT(const T& mutex) :
-	WLockT<T>(mutex, true)
+        WLockT<T>(mutex, true)
     {
     }
 
     TryWLockT(const T& mutex, const Time& timeout) :
-	WLockT<T>(mutex, timeout)
+        WLockT<T>(mutex, timeout)
     {
     }
 };

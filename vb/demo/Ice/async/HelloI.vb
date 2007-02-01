@@ -19,18 +19,18 @@ Public Class HelloI
 
     Public Overloads Overrides Sub sayHello_async(ByVal cb As AMD_Hello_sayHello, ByVal delay As Integer, ByVal current As Ice.Current)
         If delay = 0 Then
-	    Console.WriteLine("Hello World!")
-	    cb.ice_response()
-	Else
-	    _workQueue.Add(cb, delay)
-	End If
+            Console.WriteLine("Hello World!")
+            cb.ice_response()
+        Else
+            _workQueue.Add(cb, delay)
+        End If
     End Sub
 
     Public Overloads Overrides Sub shutdown(ByVal current As Ice.Current)
         _workQueue.destroy()
-	_workQueue.Join()
+        _workQueue.Join()
 
-	current.adapter.getCommunicator().shutdown()
+        current.adapter.getCommunicator().shutdown()
     End Sub
     
     Private _workQueue As WorkQueue

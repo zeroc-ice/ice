@@ -25,22 +25,22 @@ def runTests(args, tests, num = 0):
     #
     for i in tests:
 
-	i = os.path.normpath(i)
-	dir = os.path.join(toplevel, "test", i)
+        i = os.path.normpath(i)
+        dir = os.path.join(toplevel, "test", i)
 
-	print
-	if(num > 0):
-	    print "[" + str(num) + "]",
-	print "*** running tests in " + dir,
-	print
+        print
+        if(num > 0):
+            print "[" + str(num) + "]",
+        print "*** running tests in " + dir,
+        print
 
         status = os.system(os.path.join(dir, "run.py " + args))
 
-	if status and not (sys.platform.startswith("aix") and status == 256):
-	    if(num > 0):
-		print "[" + str(num) + "]",
-	    print "test in " + dir + " failed with exit status", status,
-	    sys.exit(status)
+        if status and not (sys.platform.startswith("aix") and status == 256):
+            if(num > 0):
+                print "[" + str(num) + "]",
+            print "test in " + dir + " failed with exit status", status,
+            sys.exit(status)
 
 #
 # List of all basic tests.
@@ -69,7 +69,7 @@ def usage():
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "lr:R:", \
-    	["debug", "protocol=", "compress", "host=", "threadPerConnection"])
+        ["debug", "protocol=", "compress", "host=", "threadPerConnection"])
 except getopt.GetoptError:
     usage()
 
@@ -82,27 +82,27 @@ for o, a in opts:
     if o == "-l":
         loop = 1
     if o == "-r" or o == '-R':
-	import re
-	regexp = re.compile(a)
-	if o == '-r':
-	    def rematch(x): return regexp.search(x)
-	else:
-	    def rematch(x): return not regexp.search(x)
-	tests = filter(rematch, tests)
+        import re
+        regexp = re.compile(a)
+        if o == '-r':
+            def rematch(x): return regexp.search(x)
+        else:
+            def rematch(x): return not regexp.search(x)
+        tests = filter(rematch, tests)
     if o == "--protocol":
-    	if a not in ( "ssl", "tcp"):
-    	    usage()
-	args += " " + o + " " + a
+        if a not in ( "ssl", "tcp"):
+            usage()
+        args += " " + o + " " + a
     if o == "--host" :
-	args += " " + o + " " + a
+        args += " " + o + " " + a
     if o in ( "--debug", "--compress", "--threadPerConnection" ):
-	args += " " + o 
+        args += " " + o 
     
 
 if loop:
     num = 1
     while 1:
-	runTests(args, tests, num)
-	num += 1
+        runTests(args, tests, num)
+        num += 1
 else:
     runTests(args, tests)

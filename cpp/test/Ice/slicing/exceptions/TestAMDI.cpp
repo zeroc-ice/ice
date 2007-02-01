@@ -82,7 +82,7 @@ TestI::knownMostDerivedAsBase_async(const AMD_TestIntf_knownMostDerivedAsBasePtr
 
 void
 TestI::knownIntermediateAsKnownIntermediate_async(const AMD_TestIntf_knownIntermediateAsKnownIntermediatePtr& cb,
-	                                          const ::Ice::Current&)
+                                                  const ::Ice::Current&)
 {
     KnownIntermediate ki;
     ki.b = "KnownIntermediate.b";
@@ -92,7 +92,7 @@ TestI::knownIntermediateAsKnownIntermediate_async(const AMD_TestIntf_knownInterm
 
 void
 TestI::knownMostDerivedAsKnownIntermediate_async(const AMD_TestIntf_knownMostDerivedAsKnownIntermediatePtr& cb,
-	                                         const ::Ice::Current&)
+                                                 const ::Ice::Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -104,7 +104,7 @@ TestI::knownMostDerivedAsKnownIntermediate_async(const AMD_TestIntf_knownMostDer
 void
 TestI::
 knownMostDerivedAsKnownMostDerived_async(const AMD_TestIntf_knownMostDerivedAsKnownMostDerivedPtr& cb,
-	                                 const ::Ice::Current&)
+                                         const ::Ice::Current&)
 {
     KnownMostDerived kmd;
     kmd.b = "KnownMostDerived.b";
@@ -125,7 +125,7 @@ TestI::unknownMostDerived1AsBase_async(const AMD_TestIntf_unknownMostDerived1AsB
 
 void
 TestI::unknownMostDerived1AsKnownIntermediate_async(const AMD_TestIntf_unknownMostDerived1AsKnownIntermediatePtr& cb,
-	                                            const ::Ice::Current&)
+                                                    const ::Ice::Current&)
 {
     UnknownMostDerived1 umd1;
     umd1.b = "UnknownMostDerived1.b";

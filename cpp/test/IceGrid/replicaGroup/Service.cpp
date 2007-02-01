@@ -27,8 +27,8 @@ public:
     virtual ~ServiceI();
 
     virtual void start(const string&,
-		       const CommunicatorPtr&,
-		       const StringSeq&);
+                       const CommunicatorPtr&,
+                       const StringSeq&);
 
     virtual void stop();
 };
@@ -57,8 +57,8 @@ ServiceI::~ServiceI()
 
 void
 ServiceI::start(const string& name,
-		const CommunicatorPtr& communicator,
-		const StringSeq& args)
+                const CommunicatorPtr& communicator,
+                const StringSeq& args)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);
     Ice::ObjectPtr object = new TestI(adapter, communicator->getProperties());

@@ -39,7 +39,7 @@ else:
 nodeOverrideOptions = "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"" + \
                       ' --NodePropertiesOverride="' + \
                       TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
+                      ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
 
 IceGridAdmin.iceGridTest(name, "", nodeOverrideOptions)
 sys.exit(0)

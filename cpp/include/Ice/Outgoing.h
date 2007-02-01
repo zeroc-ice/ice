@@ -85,11 +85,11 @@ private:
 
     enum
     {
-	StateUnsent,
-	StateInProgress,
-	StateOK,
-	StateUserException,
-	StateLocalException
+        StateUnsent,
+        StateInProgress,
+        StateOK,
+        StateUserException,
+        StateLocalException
     } _state;
 
     BasicStream _is;

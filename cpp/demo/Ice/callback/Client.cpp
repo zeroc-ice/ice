@@ -20,15 +20,15 @@ public:
     virtual void callback(const Ice::Current&)
     {
 #ifdef __xlC__
-	//
-	// The xlC compiler synchronizes cin and cout; to see the messages
-	// while accepting input through cin, we have to print the messages
-	// with printf
-	//
-	printf("received callback\n");
-	fflush(0);
+        //
+        // The xlC compiler synchronizes cin and cout; to see the messages
+        // while accepting input through cin, we have to print the messages
+        // with printf
+        //
+        printf("received callback\n");
+        fflush(0);
 #else
-	cout << "received callback" << endl;
+        cout << "received callback" << endl;
 #endif
     }
 };
@@ -62,12 +62,12 @@ CallbackClient::run(int argc, char* argv[])
     callbackOnInterrupt();
 
     CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(
-	communicator()->propertyToProxy("Callback.Client.CallbackServer")->
-	    ice_twoway()->ice_timeout(-1)->ice_secure(false));
+        communicator()->propertyToProxy("Callback.Client.CallbackServer")->
+            ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
+        cerr << appName() << ": invalid proxy" << endl;
+        return EXIT_FAILURE;
     }
     CallbackSenderPrx oneway = CallbackSenderPrx::uncheckedCast(twoway->ice_oneway());
     CallbackSenderPrx batchOneway = CallbackSenderPrx::uncheckedCast(twoway->ice_batchOneway());
@@ -79,7 +79,7 @@ CallbackClient::run(int argc, char* argv[])
     adapter->activate();
 
     CallbackReceiverPrx twowayR = CallbackReceiverPrx::uncheckedCast(
-	adapter->createProxy(communicator()->stringToIdentity("callbackReceiver")));
+        adapter->createProxy(communicator()->stringToIdentity("callbackReceiver")));
     CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
     CallbackReceiverPrx datagramR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_datagram());
 
@@ -91,24 +91,24 @@ CallbackClient::run(int argc, char* argv[])
     char c;
     do
     {
-	try
-	{
-	    cout << "==> ";
-	    cin >> c;
-	    if(c == 't')
-	    {
-		twoway->initiateCallback(twowayR);
-	    }
-	    else if(c == 'o')
-	    {
-		oneway->initiateCallback(onewayR);
-	    }
-	    else if(c == 'O')
-	    {
-		batchOneway->initiateCallback(onewayR);
-	    }
-	    else if(c == 'd')
-	    {
+        try
+        {
+            cout << "==> ";
+            cin >> c;
+            if(c == 't')
+            {
+                twoway->initiateCallback(twowayR);
+            }
+            else if(c == 'o')
+            {
+                oneway->initiateCallback(onewayR);
+            }
+            else if(c == 'O')
+            {
+                batchOneway->initiateCallback(onewayR);
+            }
+            else if(c == 'd')
+            {
                 if(secure)
                 {
                     cout << "secure datagrams are not supported" << endl;
@@ -117,9 +117,9 @@ CallbackClient::run(int argc, char* argv[])
                 {
                     datagram->initiateCallback(datagramR);
                 }
-	    }
-	    else if(c == 'D')
-	    {
+            }
+            else if(c == 'D')
+            {
                 if(secure)
                 {
                     cout << "secure datagrams are not supported" << endl;
@@ -128,57 +128,57 @@ CallbackClient::run(int argc, char* argv[])
                 {
                     batchDatagram->initiateCallback(datagramR);
                 }
-	    }
-	    else if(c == 'f')
-	    {
-		communicator()->flushBatchRequests();
-	    }
-	    else if(c == 'S')
-	    {
-		secure = !secure;
-		secureStr = secure ? "s" : "";
-		
-		twoway = CallbackSenderPrx::uncheckedCast(twoway->ice_secure(secure));
-		oneway = CallbackSenderPrx::uncheckedCast(oneway->ice_secure(secure));
-		batchOneway = CallbackSenderPrx::uncheckedCast(batchOneway->ice_secure(secure));
-		datagram = CallbackSenderPrx::uncheckedCast(datagram->ice_secure(secure));
-		batchDatagram = CallbackSenderPrx::uncheckedCast(batchDatagram->ice_secure(secure));
+            }
+            else if(c == 'f')
+            {
+                communicator()->flushBatchRequests();
+            }
+            else if(c == 'S')
+            {
+                secure = !secure;
+                secureStr = secure ? "s" : "";
+                
+                twoway = CallbackSenderPrx::uncheckedCast(twoway->ice_secure(secure));
+                oneway = CallbackSenderPrx::uncheckedCast(oneway->ice_secure(secure));
+                batchOneway = CallbackSenderPrx::uncheckedCast(batchOneway->ice_secure(secure));
+                datagram = CallbackSenderPrx::uncheckedCast(datagram->ice_secure(secure));
+                batchDatagram = CallbackSenderPrx::uncheckedCast(batchDatagram->ice_secure(secure));
 
-		twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_secure(secure));
-		onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_secure(secure));
-		datagramR = CallbackReceiverPrx::uncheckedCast(datagramR->ice_secure(secure));
-		
-		if(secure)
-		{
-		    cout << "secure mode is now on" << endl;
-		}
-		else
-		{
-		    cout << "secure mode is now off" << endl;
-		}
-	    }
-	    else if(c == 's')
-	    {
-		twoway->shutdown();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		cout << "unknown command `" << c << "'" << endl;
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	}
+                twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_secure(secure));
+                onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_secure(secure));
+                datagramR = CallbackReceiverPrx::uncheckedCast(datagramR->ice_secure(secure));
+                
+                if(secure)
+                {
+                    cout << "secure mode is now on" << endl;
+                }
+                else
+                {
+                    cout << "secure mode is now off" << endl;
+                }
+            }
+            else if(c == 's')
+            {
+                twoway->shutdown();
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu();
+            }
+            else
+            {
+                cout << "unknown command `" << c << "'" << endl;
+                menu();
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+        }
     }
     while(cin.good() && c != 'x');
 
@@ -190,15 +190,15 @@ CallbackClient::interruptCallback(int)
 {
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }
@@ -207,15 +207,15 @@ void
 CallbackClient::menu()
 {
     cout <<
-	"usage:\n"
-	"t: send callback as twoway\n"
-	"o: send callback as oneway\n"
-	"O: send callback as batch oneway\n"
-	"d: send callback as datagram\n"
-	"D: send callback as batch datagram\n"
-	"f: flush all batch requests\n"
-	"S: switch secure mode on/off\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+        "usage:\n"
+        "t: send callback as twoway\n"
+        "o: send callback as oneway\n"
+        "O: send callback as batch oneway\n"
+        "d: send callback as datagram\n"
+        "D: send callback as batch datagram\n"
+        "f: flush all batch requests\n"
+        "S: switch secure mode on/off\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: help\n";
 }

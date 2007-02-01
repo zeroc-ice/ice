@@ -41,10 +41,10 @@ public class Client
 
     private static int run(string[] args, Ice.Communicator communicator)
     {
-	Ice.ObjectFactory factory = new MyObjectFactory();
-	communicator.addObjectFactory(factory, "::Test::B");
-	communicator.addObjectFactory(factory, "::Test::C");
-	communicator.addObjectFactory(factory, "::Test::D");
+        Ice.ObjectFactory factory = new MyObjectFactory();
+        communicator.addObjectFactory(factory, "::Test::B");
+        communicator.addObjectFactory(factory, "::Test::C");
+        communicator.addObjectFactory(factory, "::Test::D");
 
         InitialPrx initial = AllTests.allTests(communicator, false);
         initial.shutdown();

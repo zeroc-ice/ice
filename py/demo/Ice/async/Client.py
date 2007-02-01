@@ -32,38 +32,38 @@ x: exit
 
 class Client(Ice.Application):
     def run(self, args):
-	hello = Demo.HelloPrx.checkedCast(self.communicator().propertyToProxy('Hello.Proxy'))
-	if not hello:
-	    print args[0] + ": invalid proxy"
-	    return False
+        hello = Demo.HelloPrx.checkedCast(self.communicator().propertyToProxy('Hello.Proxy'))
+        if not hello:
+            print args[0] + ": invalid proxy"
+            return False
 
-	menu()
+        menu()
 
-	c = None
-	while c != 'x':
-	    try:
-		c = raw_input("==> ")
-		if c == 'i':
-		    hello.sayHello(0)
-		elif c == 'd':
-		    hello.sayHello_async(AMI_Hello_sayHelloI(), 5000)
-		elif c == 's':
-		    hello.shutdown()
-		elif c == 'x':
-		    pass # Nothing to do
-		elif c == '?':
-		    menu()
-		else:
-		    print "unknown command `" + c + "'"
-		    menu()
-	    except EOFError:
-	        break
-	    except KeyboardInterrupt:
-		break
-	    except Ice.Exception, ex:
-	        print ex
+        c = None
+        while c != 'x':
+            try:
+                c = raw_input("==> ")
+                if c == 'i':
+                    hello.sayHello(0)
+                elif c == 'd':
+                    hello.sayHello_async(AMI_Hello_sayHelloI(), 5000)
+                elif c == 's':
+                    hello.shutdown()
+                elif c == 'x':
+                    pass # Nothing to do
+                elif c == '?':
+                    menu()
+                else:
+                    print "unknown command `" + c + "'"
+                    menu()
+            except EOFError:
+                break
+            except KeyboardInterrupt:
+                break
+            except Ice.Exception, ex:
+                print ex
 
-	return True
+        return True
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

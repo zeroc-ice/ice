@@ -37,11 +37,11 @@ void
 HelloClient::menu()
 {
     cout <<
-	"usage:\n"
-	"t: send greeting\n"
-	"s: shutdown server\n"
-	"x: exit\n"
-	"?: help\n";
+        "usage:\n"
+        "t: send greeting\n"
+        "s: shutdown server\n"
+        "x: exit\n"
+        "?: help\n";
 }
 
 int
@@ -61,17 +61,17 @@ HelloClient::run(int argc, char* argv[])
     HelloPrx hello;
     try
     {
-	hello = HelloPrx::checkedCast(communicator()->stringToProxy("hello"));
+        hello = HelloPrx::checkedCast(communicator()->stringToProxy("hello"));
     }
     catch(const Ice::NotRegisteredException&)
     {
-	IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
-	hello = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
+        IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
+        hello = HelloPrx::checkedCast(query->findObjectByType("::Demo::Hello"));
     }
     if(!hello)
     {
-	cerr << argv[0] << ": couldn't find a `::Demo::Hello' object." << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": couldn't find a `::Demo::Hello' object." << endl;
+        return EXIT_FAILURE;
     }
     
     menu();
@@ -79,36 +79,36 @@ HelloClient::run(int argc, char* argv[])
     char c;
     do
     {
-	try
-	{
-	    cout << "==> ";
-	    cin >> c;
-	    if(c == 't')
-	    {
-		hello->sayHello();
-	    }
-	    else if(c == 's')
-	    {
-		hello->shutdown();
-	    }
-	    else if(c == 'x')
-	    {
-		// Nothing to do
-	    }
-	    else if(c == '?')
-	    {
-		menu();
-	    }
-	    else
-	    {
-		cout << "unknown command `" << c << "'" << endl;
-		menu();
-	    }
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	}
+        try
+        {
+            cout << "==> ";
+            cin >> c;
+            if(c == 't')
+            {
+                hello->sayHello();
+            }
+            else if(c == 's')
+            {
+                hello->shutdown();
+            }
+            else if(c == 'x')
+            {
+                // Nothing to do
+            }
+            else if(c == '?')
+            {
+                menu();
+            }
+            else
+            {
+                cout << "unknown command `" << c << "'" << endl;
+                menu();
+            }
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+        }
     }
     while(cin.good() && c != 'x');
 
@@ -120,15 +120,15 @@ HelloClient::interruptCallback(int)
 {
     try
     {
-	communicator()->destroy();
+        communicator()->destroy();
     }
     catch(const IceUtil::Exception& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+        cerr << appName() << ": " << ex << endl;
     }
     catch(...)
     {
-	cerr << appName() << ": unknown exception" << endl;
+        cerr << appName() << ": unknown exception" << endl;
     }
     exit(EXIT_SUCCESS);
 }

@@ -22,34 +22,34 @@ class RecMutexTestThread : public Thread
 public:
     
     RecMutexTestThread(RecMutex& m) :
-	_mutex(m),
-	_tryLock(false)
+        _mutex(m),
+        _tryLock(false)
     {
     }
 
     virtual void run()
     {
-	
-	RecMutex::TryLock tlock(_mutex);
-	test(!tlock.acquired());
-	
-	{
-	    Mutex::Lock lock(_tryLockMutex);
-	    _tryLock = true;
-	}
-	_tryLockCond.signal();
+        
+        RecMutex::TryLock tlock(_mutex);
+        test(!tlock.acquired());
+        
+        {
+            Mutex::Lock lock(_tryLockMutex);
+            _tryLock = true;
+        }
+        _tryLockCond.signal();
 
-	RecMutex::Lock lock(_mutex);
+        RecMutex::Lock lock(_mutex);
     }
 
     void
     waitTryLock()
     {
-	Mutex::Lock lock(_tryLockMutex);
-	while(!_tryLock)
-	{
-	    _tryLockCond.wait(lock);
-	}
+        Mutex::Lock lock(_tryLockMutex);
+        while(!_tryLock)
+        {
+            _tryLockCond.wait(lock);
+        }
     }
 
 private:
@@ -78,22 +78,22 @@ RecMutexTest::run()
     ThreadControl control;
 
     {
-	RecMutex::Lock lock(mutex);
-	
-	// TEST: lock twice
-	RecMutex::Lock lock2(mutex);
+        RecMutex::Lock lock(mutex);
+        
+        // TEST: lock twice
+        RecMutex::Lock lock2(mutex);
 
-	// TEST: TryLock
-	RecMutex::TryLock lock3(mutex);
-	test(lock3.acquired());
-	
-	// TEST: Start thread, try to acquire the mutex.
-	t = new RecMutexTestThread(mutex);
-	control = t->start();
-	
-	// TEST: Wait until the tryLock has been tested.
-	t->waitTryLock();
-	
+        // TEST: TryLock
+        RecMutex::TryLock lock3(mutex);
+        test(lock3.acquired());
+        
+        // TEST: Start thread, try to acquire the mutex.
+        t = new RecMutexTestThread(mutex);
+        control = t->start();
+        
+        // TEST: Wait until the tryLock has been tested.
+        t->waitTryLock();
+        
     }
 
     //

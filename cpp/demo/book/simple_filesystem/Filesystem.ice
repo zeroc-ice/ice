@@ -9,23 +9,23 @@
 
 module Filesystem {
     exception GenericError {
-    	string reason;
+        string reason;
     };
 
     interface Node {
-    	["cpp:const"] idempotent string name();
+        ["cpp:const"] idempotent string name();
     };
 
     sequence<string> Lines;
 
     interface File extends Node {
-    	["cpp:const"] idempotent Lines read();
-	idempotent void write(Lines text) throws GenericError;
+        ["cpp:const"] idempotent Lines read();
+        idempotent void write(Lines text) throws GenericError;
     };
 
     sequence<Node*> NodeSeq;
 
     interface Directory extends Node {
-    	["cpp:const"] idempotent NodeSeq list();
+        ["cpp:const"] idempotent NodeSeq list();
     };
 };

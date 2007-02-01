@@ -33,10 +33,10 @@ private:
 
     struct SessionServant
     {
-	SessionServant(const Ice::ObjectPtr& s, const Ice::ConnectionPtr& con) : servant(s), connection(con) { }
+        SessionServant(const Ice::ObjectPtr& s, const Ice::ConnectionPtr& con) : servant(s), connection(con) { }
 
-	const Ice::ObjectPtr servant;
-	const Ice::ConnectionPtr connection;
+        const Ice::ObjectPtr servant;
+        const Ice::ConnectionPtr connection;
     };
 
     const Ice::ObjectAdapterPtr _adapter;

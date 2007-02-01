@@ -34,7 +34,7 @@ Server::run(int argc, char* argv[])
     shutdownOnInterrupt();
     try
     {
-	adapter->activate();
+        adapter->activate();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {

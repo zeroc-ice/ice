@@ -607,7 +607,7 @@ def twoways(communicator, p):
         ic = Ice.initialize(data=initData)
         
         ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
-	
+        
         p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
         
         ic.getImplicitContext().setContext(ctx)

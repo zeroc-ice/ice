@@ -153,12 +153,12 @@ IceInternal::UnknownEndpointI::operator==(const EndpointI& r) const
     const UnknownEndpointI* p = dynamic_cast<const UnknownEndpointI*>(&r);
     if(!p)
     {
-	return false;
+        return false;
     }
 
     if(this == p)
     {
-	return true;
+        return true;
     }
 
     if(_type != p->_type)
@@ -168,7 +168,7 @@ IceInternal::UnknownEndpointI::operator==(const EndpointI& r) const
 
     if(_rawBytes != p->_rawBytes)
     {
-	return false;
+        return false;
     }
 
     return true;
@@ -191,25 +191,25 @@ IceInternal::UnknownEndpointI::operator<(const EndpointI& r) const
 
     if(this == p)
     {
-	return false;
+        return false;
     }
 
     if(_type < p->_type)
     {
-	return true;
+        return true;
     }
     else if(p->_type < _type)
     {
-	return false;
+        return false;
     }
 
     if(_rawBytes < p->_rawBytes)
     {
-	return true;
+        return true;
     }
     else if(p->_rawBytes < _rawBytes)
     {
-	return false;
+        return false;
     }
 
     return false;

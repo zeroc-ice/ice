@@ -26,7 +26,7 @@ import Test, AllTests
 
 class TestClient(Ice.Application):
     def run(self, args):
-	AllTests.allTests(self.communicator())
+        AllTests.allTests(self.communicator())
         return 0
 
 app = TestClient()

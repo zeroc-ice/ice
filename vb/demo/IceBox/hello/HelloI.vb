@@ -13,6 +13,6 @@ Public Class HelloI
     Inherits HelloDisp_
 
     Public Overloads Overrides Sub sayHello(ByVal current As Ice.Current)
-	System.Console.Out.WriteLine("Hello World!")
+        System.Console.Out.WriteLine("Hello World!")
     End Sub
 End Class

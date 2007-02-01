@@ -30,11 +30,11 @@ QueryI::findObjectById(const Ice::Identity& id, const Ice::Current&) const
 {
     try
     {
-	return _database->getObjectProxy(id);
+        return _database->getObjectProxy(id);
     }
     catch(const ObjectNotRegisteredException&)
     {
-	return 0;
+        return 0;
     }
 }
 
@@ -62,28 +62,28 @@ QueryI::findAllReplicas(const Ice::ObjectPrx& proxy, const Ice::Current&) const
 {
     try
     {
-	if(!proxy)
-	{
-	    return Ice::ObjectProxySeq();
-	}
+        if(!proxy)
+        {
+            return Ice::ObjectProxySeq();
+        }
 
-	AdapterInfoSeq infos = _database->getAdapterInfo(proxy->ice_getAdapterId());
-	assert(!infos.empty());
-	if(infos[0].replicaGroupId != proxy->ice_getAdapterId()) // The adapter id doesn't refer to a replica group.
-	{
-	    return Ice::ObjectProxySeq();
-	}
+        AdapterInfoSeq infos = _database->getAdapterInfo(proxy->ice_getAdapterId());
+        assert(!infos.empty());
+        if(infos[0].replicaGroupId != proxy->ice_getAdapterId()) // The adapter id doesn't refer to a replica group.
+        {
+            return Ice::ObjectProxySeq();
+        }
 
-	Ice::ObjectProxySeq proxies;
-	for(AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
-	{
-	    assert(!p->id.empty());
-	    proxies.push_back(proxy->ice_adapterId(p->id));
-	}
-	return proxies;
+        Ice::ObjectProxySeq proxies;
+        for(AdapterInfoSeq::const_iterator p = infos.begin(); p != infos.end(); ++p)
+        {
+            assert(!p->id.empty());
+            proxies.push_back(proxy->ice_adapterId(p->id));
+        }
+        return proxies;
     }
     catch(const AdapterNotExistException&)
     {
-	return Ice::ObjectProxySeq();
+        return Ice::ObjectProxySeq();
     }
 }

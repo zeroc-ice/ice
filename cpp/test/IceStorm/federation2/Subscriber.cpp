@@ -32,19 +32,19 @@ class EventI : public Event
 public:
 
     EventI(const CommunicatorPtr& communicator) :
-	_communicator(communicator)
+        _communicator(communicator)
     {
     }
 
     virtual void
     pub(const string& data, const Ice::Current&)
     {
-	IceUtil::StaticMutex::Lock sync(_countMutex);
+        IceUtil::StaticMutex::Lock sync(_countMutex);
 
-	if(++_count == 10)
-	{
-	    _communicator->shutdown();
-	}
+        if(++_count == 10)
+        {
+            _communicator->shutdown();
+        }
     }
 
 private:
@@ -64,11 +64,11 @@ void
 usage(const char* appName)
 {
     cerr << "Usage: " << appName << " [options]\n";
-    cerr <<	
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-b                   Use batch reliability.\n"
-	;
+    cerr <<     
+        "Options:\n"
+        "-h, --help           Show this message.\n"
+        "-b                   Use batch reliability.\n"
+        ;
 }
 
 int
@@ -79,27 +79,27 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     int idx = 1;
     while(idx < argc)
     {
-	if(strcmp(argv[idx], "-b") == 0)
-	{
+        if(strcmp(argv[idx], "-b") == 0)
+        {
             batch = true;
 
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_SUCCESS;
-	}
-	else if(argv[idx][0] == '-')
-	{
-	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+        {
+            usage(argv[0]);
+            return EXIT_SUCCESS;
+        }
+        else if(argv[idx][0] == '-')
+        {
+            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
+            usage(argv[0]);
+            return EXIT_FAILURE;
+        }
     }
 
     PropertiesPtr properties = communicator->getProperties();
@@ -107,16 +107,16 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {
-	cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
+        return EXIT_FAILURE;
     }
 
     ObjectPrx base = communicator->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-	cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
+        return EXIT_FAILURE;
     }
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
@@ -132,11 +132,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     IceStorm::QoS qos;
     if(batch)
     {
-	obj = obj->ice_batchOneway();
+        obj = obj->ice_batchOneway();
     }
     else
     {
-	obj = obj->ice_oneway();
+        obj = obj->ice_oneway();
     }
 
     TopicPrx fed1;
@@ -147,8 +147,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     catch(const IceStorm::NoSuchTopic& e)
     {
-	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-	return EXIT_FAILURE;
+        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+        return EXIT_FAILURE;
     }
 
     fed1->subscribeAndGetPublisher(qos, obj);
@@ -168,26 +168,26 @@ main(int argc, char* argv[])
 
     try
     {
-	communicator = initialize(argc, argv);
-	status = run(argc, argv, communicator);
+        communicator = initialize(argc, argv);
+        status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)
     {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
+        cerr << ex << endl;
+        status = EXIT_FAILURE;
     }
 
     if(communicator)
     {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
+        try
+        {
+            communicator->destroy();
+        }
+        catch(const Exception& ex)
+        {
+            cerr << ex << endl;
+            status = EXIT_FAILURE;
+        }
     }
 
     return status;

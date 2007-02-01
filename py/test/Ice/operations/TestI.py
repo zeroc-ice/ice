@@ -48,7 +48,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return (p2, p1)
 
     def opByteS(self, p1, p2, current=None):
-	# By default sequence<byte> maps to a string.
+        # By default sequence<byte> maps to a string.
         p3 = map(ord, p1)
         p3.reverse()
         r = map(ord, p1)
@@ -170,11 +170,11 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
 class TestCheckedCastI(Test.TestCheckedCast):
     def __init__(self):
-	self.ctx = None
+        self.ctx = None
 
     def getContext(self, current):
-	return self.ctx;
+        return self.ctx;
 
     def ice_isA(self, s, current):
-	self.ctx = current.ctx
-	return Test.TestCheckedCast.ice_isA(self, s, current)
+        self.ctx = current.ctx
+        return Test.TestCheckedCast.ice_isA(self, s, current)

@@ -37,7 +37,7 @@ identityToTopicName(const Ice::Identity& id)
     //
     if(id.category.empty())
     {
-	return id.name;
+        return id.name;
     }
 
     assert(id.name.length() > 6 && id.name.compare(0, 6, "topic.") == 0);
@@ -63,7 +63,7 @@ TopicManagerI::TopicManagerI(
     //
     for(PersistentTopicMap::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
     {
-	installTopic(identityToTopicName(p->first), p->first, p->second, false);
+        installTopic(identityToTopicName(p->first), p->first, p->second, false);
     }
 }
 
@@ -80,7 +80,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     if(_topicIMap.find(name) != _topicIMap.end())
     {
         TopicExists ex;
-	ex.name = name;
+        ex.name = name;
         throw ex;
     }
 
@@ -105,9 +105,9 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&) const
     TopicIMap::const_iterator p = _topicIMap.find(name);
     if(p == _topicIMap.end())
     {
-	NoSuchTopic ex;
-	ex.name = name;
-	throw ex;
+        NoSuchTopic ex;
+        ex.name = name;
+        throw ex;
     }
 
     // Here we cannot just reconstruct the identity since the
@@ -127,13 +127,13 @@ TopicManagerI::retrieveAll(const Ice::Current&) const
     TopicDict all;
     for(TopicIMap::const_iterator p = _topicIMap.begin(); p != _topicIMap.end(); ++p)
     {
-	//
-	// Here we cannot just reconstruct the identity since the
-	// identity could be either "<instanceName>/topic.<topicname>"
-	// name, or if created with pre-3.2 IceStorm "/<topicname>".
-	//
+        //
+        // Here we cannot just reconstruct the identity since the
+        // identity could be either "<instanceName>/topic.<topicname>"
+        // name, or if created with pre-3.2 IceStorm "/<topicname>".
+        //
         all.insert(TopicDict::value_type(
-		       p->first, TopicPrx::uncheckedCast(_topicAdapter->createProxy(p->second->id()))));
+                       p->first, TopicPrx::uncheckedCast(_topicAdapter->createProxy(p->second->id()))));
     }
 
     return all;
@@ -158,8 +158,8 @@ TopicManagerI::reap()
     {
         if(i->second->destroyed())
         {
-	    Ice::Identity id = i->second->id();
-	    TraceLevelsPtr traceLevels = _instance->traceLevels();
+            Ice::Identity id = i->second->id();
+            TraceLevelsPtr traceLevels = _instance->traceLevels();
             if(traceLevels->topicMgr > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
@@ -195,7 +195,7 @@ TopicManagerI::shutdown()
 
     for(TopicIMap::const_iterator p = _topicIMap.begin(); p != _topicIMap.end(); ++p)
     {
-	p->second->reap();
+        p->second->reap();
     }
 }
 
@@ -208,17 +208,17 @@ TopicManagerI::installTopic(const string& name, const Ice::Identity& id, const L
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topicMgr > 0)
     {
-	Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
-	if(create)
-	{
-	    out << "creating new topic \"" << name << "\". id: "
-		<< _instance->communicator()->identityToString(id);
-	}
-	else
-	{
-	    out << "loading topic \"" << name << "\" from database. id: "
-		<< _instance->communicator()->identityToString(id);
-	}
+        Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
+        if(create)
+        {
+            out << "creating new topic \"" << name << "\". id: "
+                << _instance->communicator()->identityToString(id);
+        }
+        else
+        {
+            out << "loading topic \"" << name << "\" from database. id: "
+                << _instance->communicator()->identityToString(id);
+        }
     }
 
     //

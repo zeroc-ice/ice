@@ -29,22 +29,22 @@ protected:
     virtual Ice::ObjectPtr
     newServantAndCookie(Ice::LocalObjectPtr& cookie) const
     {
-	cookie = new CookieI();
-	return new TestI();
+        cookie = new CookieI();
+        return new TestI();
     }
     
     virtual void
     checkCookie(const Ice::LocalObjectPtr& cookie) const
     {
-	Test::CookiePtr co = Test::CookiePtr::dynamicCast(cookie);
-	test(co);
-	test(co->message() == "blahblah");
+        Test::CookiePtr co = Test::CookiePtr::dynamicCast(cookie);
+        test(co);
+        test(co->message() == "blahblah");
     }
 
     virtual void
     throwTestIntfUserException() const
     {
-	throw Test::TestIntfUserException();
+        throw Test::TestIntfUserException();
     }
 };
 

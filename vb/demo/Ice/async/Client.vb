@@ -15,20 +15,20 @@ Module AsyncC
     Class Client
         Inherits Ice.Application
 
-	Class AMI_Hello_sayHelloI
-	    Inherits AMI_Hello_sayHello
+        Class AMI_Hello_sayHelloI
+            Inherits AMI_Hello_sayHello
 
-	    Public Overloads Overrides Sub ice_response()
-	    End Sub
+            Public Overloads Overrides Sub ice_response()
+            End Sub
 
-	    Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
-		If TypeOf ex Is RequestCanceledException Then
-	            Console.Error.WriteLine("Request canceled")
-		Else
-	            Console.Error.WriteLine(ex)
-		End If
-	    End Sub
-	End Class
+            Public Overloads Overrides Sub ice_exception(ByVal ex As Ice.Exception)
+                If TypeOf ex Is RequestCanceledException Then
+                    Console.Error.WriteLine("Request canceled")
+                Else
+                    Console.Error.WriteLine(ex)
+                End If
+            End Sub
+        End Class
 
         Private Sub menu()
             Console.WriteLine("usage:")
@@ -58,7 +58,7 @@ Module AsyncC
                         Exit Try
                     End If
                     If line.Equals("i") Then
-		        hello.sayHello(0)
+                        hello.sayHello(0)
                     ElseIf line.Equals("d") Then
                         hello.sayHello_async(new AMI_Hello_sayHelloI(), 5000)
                     ElseIf line.Equals("s") Then

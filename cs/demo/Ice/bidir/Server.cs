@@ -19,18 +19,18 @@ public class Server : Ice.Application
         adapter.add(sender, communicator().stringToIdentity("sender"));
         adapter.activate();
 
-	Thread t = new Thread(new ThreadStart(sender.Run));
-	t.Start();
+        Thread t = new Thread(new ThreadStart(sender.Run));
+        t.Start();
 
-	try
-	{
-	    communicator().waitForShutdown();
-	}
-	finally
-	{
-	    sender.destroy();
-	    t.Join();
-	}
+        try
+        {
+            communicator().waitForShutdown();
+        }
+        finally
+        {
+            sender.destroy();
+            t.Join();
+        }
 
         return 0;
     }

@@ -19,7 +19,7 @@ public:
     virtual bool
     checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current& c) const
     {
-	return true;
+        return true;
     }
 };
 
@@ -29,11 +29,11 @@ public:
 
     virtual int run(int, char*[])
     {
-	Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
-	adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("PermissionsVerifier"));
-	adapter->activate();
-	communicator()->waitForShutdown();
-	return EXIT_SUCCESS;
+        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
+        adapter->add(new PermissionsVerifierI, communicator()->stringToIdentity("PermissionsVerifier"));
+        adapter->activate();
+        communicator()->waitForShutdown();
+        return EXIT_SUCCESS;
     }
 };
 

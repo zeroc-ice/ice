@@ -456,9 +456,9 @@ def allTests(communicator):
 
     print "unknown with Object as Object (AMI)... ",
     try:
-	cb = AMI_Test_SUnknownAsObjectI()
-	t.SUnknownAsObject_async(cb)
-	test(cb.check())
+        cb = AMI_Test_SUnknownAsObjectI()
+        t.SUnknownAsObject_async(cb)
+        test(cb.check())
     except Ice.NoObjectFactoryException:
         pass
     except Ice.Exception:

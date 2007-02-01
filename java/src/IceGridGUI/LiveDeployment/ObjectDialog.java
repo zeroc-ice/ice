@@ -38,12 +38,12 @@ class ObjectDialog extends JDialog
 {
     ObjectDialog(final Root root, boolean readOnly)
     {
-	super(root.getCoordinator().getMainFrame(),
+        super(root.getCoordinator().getMainFrame(),
               (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid Admin", true);
  
-	setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
-	_mainFrame = root.getCoordinator().getMainFrame();
-	
+        setDefaultCloseOperation(JDialog.HIDE_ON_CLOSE);
+        _mainFrame = root.getCoordinator().getMainFrame();
+        
         _proxy.setLineWrap(true);
 
         if(readOnly)
@@ -73,7 +73,7 @@ class ObjectDialog extends JDialog
                     cc.xywh(builder.getColumn(), builder.getRow(), 1, 3));
         builder.nextRow(2);
         builder.nextLine();
-	
+        
         if(readOnly)
         {
             builder.append("Type", _type);
@@ -94,9 +94,9 @@ class ObjectDialog extends JDialog
         {
             JButton okButton = new JButton("OK");
             ActionListener okListener = new ActionListener()
-	    {
-		public void actionPerformed(ActionEvent e)
-		{
+            {
+                public void actionPerformed(ActionEvent e)
+                {
                     if(_proxy.isEditable())
                     {
                         String type = null;
@@ -114,11 +114,11 @@ class ObjectDialog extends JDialog
                     {
                         setVisible(false);
                     }
-		}
-	    };
+                }
+            };
             okButton.addActionListener(okListener);
             getRootPane().setDefaultButton(okButton);
-	
+        
             JButton cancelButton = new JButton("Cancel");
             ActionListener cancelListener = new ActionListener()
                 {
@@ -132,11 +132,11 @@ class ObjectDialog extends JDialog
             
             JComponent buttonBar = 
                 ButtonBarFactory.buildOKCancelBar(okButton, cancelButton);
-	    buttonBar.setBorder(Borders.DIALOG_BORDER);
+            buttonBar.setBorder(Borders.DIALOG_BORDER);
             
-	    contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
-	    contentPane.add(builder.getPanel());
-	    contentPane.add(buttonBar);
+            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+            contentPane.add(builder.getPanel());
+            contentPane.add(buttonBar);
         }
 
         pack();
@@ -147,10 +147,10 @@ class ObjectDialog extends JDialog
     {
         assert _proxy.isEditable();
 
-	_proxy.setText("");
+        _proxy.setText("");
         _typeCombo.setSelectedItem(QUERY_OBJECT);
-	setLocationRelativeTo(_mainFrame);
-	setVisible(true);
+        setLocationRelativeTo(_mainFrame);
+        setVisible(true);
     }
 
     void showDialog(String proxy, String type)
@@ -161,7 +161,7 @@ class ObjectDialog extends JDialog
         _type.setText(type);
 
         setLocationRelativeTo(_mainFrame);
-	setVisible(true);
+        setVisible(true);
     }
 
     private JTextArea _proxy = new JTextArea(3, 40);
@@ -170,10 +170,10 @@ class ObjectDialog extends JDialog
     private JFrame _mainFrame;
 
     static private final Object QUERY_OBJECT = new Object()
-	{
-	    public String toString()
-	    {
-		return "Query object to retrieve type";
-	    }
-	};
+        {
+            public String toString()
+            {
+                return "Query object to retrieve type";
+            }
+        };
 }

@@ -13,38 +13,38 @@ public class Client : Ice.Application
 {
     public override void interruptCallback(int sig)
     {
-    	Console.WriteLine("handling signal " + sig);
+        Console.WriteLine("handling signal " + sig);
     }
 
     public override int run(string[] args)
     {
-    	ignoreInterrupt();
-	Console.WriteLine("Ignore CTRL+C and the like for 5 seconds (try it!)");
-	System.Threading.Thread.Sleep(5 * 1000);
+        ignoreInterrupt();
+        Console.WriteLine("Ignore CTRL+C and the like for 5 seconds (try it!)");
+        System.Threading.Thread.Sleep(5 * 1000);
 
-    	callbackOnInterrupt();
+        callbackOnInterrupt();
 
-    	holdInterrupt();
-	Console.WriteLine("Hold CTRL+C and the like for 5 seconds (try it!)");
-	System.Threading.Thread.Sleep(5 * 1000);
+        holdInterrupt();
+        Console.WriteLine("Hold CTRL+C and the like for 5 seconds (try it!)");
+        System.Threading.Thread.Sleep(5 * 1000);
 
-	releaseInterrupt();
-	Console.WriteLine("Release CTRL+C (any held signals should be released)");
-	System.Threading.Thread.Sleep(5 * 1000);
+        releaseInterrupt();
+        Console.WriteLine("Release CTRL+C (any held signals should be released)");
+        System.Threading.Thread.Sleep(5 * 1000);
 
-    	holdInterrupt();
-	Console.WriteLine("Hold CTRL+C and the like for 5 seconds (try it!)");
-	System.Threading.Thread.Sleep(5 * 1000);
+        holdInterrupt();
+        Console.WriteLine("Hold CTRL+C and the like for 5 seconds (try it!)");
+        System.Threading.Thread.Sleep(5 * 1000);
 
-	callbackOnInterrupt();
-	Console.WriteLine("Release CTRL+C (any held signals should be released)");
-	System.Threading.Thread.Sleep(5 * 1000);
+        callbackOnInterrupt();
+        Console.WriteLine("Release CTRL+C (any held signals should be released)");
+        System.Threading.Thread.Sleep(5 * 1000);
 
-	shutdownOnInterrupt();
-	Console.WriteLine("Test shutdown on destroy. Press CTRL+C to shutdown & terminate");
-	communicator().waitForShutdown();
+        shutdownOnInterrupt();
+        Console.WriteLine("Test shutdown on destroy. Press CTRL+C to shutdown & terminate");
+        communicator().waitForShutdown();
 
-	Console.WriteLine("ok");
+        Console.WriteLine("ok");
         return 0;
     }
 
@@ -52,9 +52,9 @@ public class Client : Ice.Application
     {
         Client app = new Client();
         int status = app.main(args);
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

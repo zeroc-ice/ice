@@ -21,8 +21,8 @@ class LibraryI : public Demo::Library, public IceUtil::Mutex
 public:
 
     LibraryI(const Ice::CommunicatorPtr& communicator,
-	     const std::string& envName, const std::string& dbName,
-	     const Freeze::EvictorPtr& evictor);
+             const std::string& envName, const std::string& dbName,
+             const Freeze::EvictorPtr& evictor);
 
     virtual Demo::BookPrx createBook(const Demo::BookDescription&, const Ice::Current&);
     virtual Demo::BookPrx findByIsbn(const std::string&, const Ice::Current&) const;

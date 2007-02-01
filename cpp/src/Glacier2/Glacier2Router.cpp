@@ -29,14 +29,14 @@ class AdminI : public Admin
 public:
     
     AdminI(const CommunicatorPtr& communicator) :
-	_communicator(communicator)
+        _communicator(communicator)
     {
     }
 
     virtual void
     shutdown(const Current&)
     {
-	_communicator->shutdown();
+        _communicator->shutdown();
     }
 
 private:
@@ -100,30 +100,30 @@ Glacier2::RouterService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
         error(e.reason);
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
     if(opts.isSet("version"))
     {
-	print(ICE_STRING_VERSION);
-	return false;
+        print(ICE_STRING_VERSION);
+        return false;
     }
 
     if(!args.empty())
     {
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
 
     PropertiesPtr properties = communicator()->getProperties();
@@ -137,8 +137,8 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(properties->getProperty(clientEndpointsProperty).empty() && 
        properties->getProperty("Glacier2.Client.Endpoints").empty())
     {
-	error("property `" + clientEndpointsProperty + "' is not set");
-	return false;
+        error("property `" + clientEndpointsProperty + "' is not set");
+        return false;
     }
     ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier2.Client");
 
@@ -153,7 +153,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(!properties->getProperty(serverEndpointsProperty).empty() ||
        !properties->getProperty("Glacier2.Server.Endpoints").empty())
     {
-	serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");
+        serverAdapter = communicator()->createObjectAdapter("Glacier2.Server");
     }
 
     //
@@ -167,7 +167,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(!properties->getProperty(adminEndpointsProperty).empty() ||
        !properties->getProperty("Glacier2.Admin.Endpoints").empty())
     {
-	adminAdapter = communicator()->createObjectAdapter("Glacier2.Admin");
+        adminAdapter = communicator()->createObjectAdapter("Glacier2.Admin");
     }
 
     string instanceName = properties->getPropertyWithDefault("Glacier2.InstanceName", "Glacier2");
@@ -193,67 +193,67 @@ Glacier2::RouterService::start(int argc, char* argv[])
         nullPermVerifId.name = "NullPermissionsVerifier";
 
         ObjectPrx obj = communicator()->propertyToProxy(verifierProperty);
-	if(obj->ice_getIdentity() == nullPermVerifId)
-	{
-    	    verifier = PermissionsVerifierPrx::uncheckedCast(
-        	verifierAdapter->add(new NullPermissionsVerifierI(), nullPermVerifId)->ice_collocationOptimized(true));
-	}
-	else
-	{
-    	    try
-	    {
-	        verifier = PermissionsVerifierPrx::checkedCast(obj);
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-	        ostringstream ostr;
-	        ostr << ex;
-	        error("unable to contact permissions verifier `" + verifierPropertyValue + "'\n" + ostr.str());
-	        return false;
-	    }
-	    if(!verifier)
-	    {
-	        error("permissions verifier `" + verifierPropertyValue + "' is invalid");
-	        return false;
-	    }
-	}
+        if(obj->ice_getIdentity() == nullPermVerifId)
+        {
+            verifier = PermissionsVerifierPrx::uncheckedCast(
+                verifierAdapter->add(new NullPermissionsVerifierI(), nullPermVerifId)->ice_collocationOptimized(true));
+        }
+        else
+        {
+            try
+            {
+                verifier = PermissionsVerifierPrx::checkedCast(obj);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                ostringstream ostr;
+                ostr << ex;
+                error("unable to contact permissions verifier `" + verifierPropertyValue + "'\n" + ostr.str());
+                return false;
+            }
+            if(!verifier)
+            {
+                error("permissions verifier `" + verifierPropertyValue + "' is invalid");
+                return false;
+            }
+        }
     }
     else if(!passwordsProperty.empty())
     {
-	ifstream passwordFile(passwordsProperty.c_str());
-	if(!passwordFile)
-	{
+        ifstream passwordFile(passwordsProperty.c_str());
+        if(!passwordFile)
+        {
             string err = strerror(errno);
-	    error("cannot open `" + passwordsProperty + "' for reading: " + err);
-	    return false;
-	}
+            error("cannot open `" + passwordsProperty + "' for reading: " + err);
+            return false;
+        }
 
-	map<string, string> passwords;
+        map<string, string> passwords;
 
-	while(true)
-	{
-	    string userId;
-	    passwordFile >> userId;
-	    if(!passwordFile)
-	    {
-		break;
-	    }
+        while(true)
+        {
+            string userId;
+            passwordFile >> userId;
+            if(!passwordFile)
+            {
+                break;
+            }
 
-	    string password;
-	    passwordFile >> password;
-	    if(!passwordFile)
-	    {
-		break;
-	    }
+            string password;
+            passwordFile >> password;
+            if(!passwordFile)
+            {
+                break;
+            }
 
-	    assert(!userId.empty());
-	    assert(!password.empty());
-	    passwords.insert(make_pair(userId, password));
-	}
+            assert(!userId.empty());
+            assert(!password.empty());
+            passwords.insert(make_pair(userId, password));
+        }
 
-	PermissionsVerifierPtr verifierImpl = new CryptPermissionsVerifierI(passwords);
+        PermissionsVerifierPtr verifierImpl = new CryptPermissionsVerifierI(passwords);
 
-	verifier = PermissionsVerifierPrx::uncheckedCast(verifierAdapter->addWithUUID(verifierImpl));
+        verifier = PermissionsVerifierPrx::uncheckedCast(verifierAdapter->addWithUUID(verifierImpl));
     }
 
     //
@@ -265,24 +265,24 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(!sessionManagerPropertyValue.empty())
     {
         try
-	{
-	    sessionManager = SessionManagerPrx::checkedCast(communicator()->propertyToProxy(sessionManagerProperty));
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    ostringstream ostr;
-	    ostr << ex;
-	    error("unable to contact session manager `" + sessionManagerPropertyValue + "'\n" + ostr.str());
-	    return false;
-	}
-	if(!sessionManager)
-	{
-	    error("session manager `" + sessionManagerPropertyValue + "' is invalid");
-	    return false;
-	}
-	sessionManager = 
-	    SessionManagerPrx::uncheckedCast(sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-	        properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
+        {
+            sessionManager = SessionManagerPrx::checkedCast(communicator()->propertyToProxy(sessionManagerProperty));
+        }
+        catch(const Ice::Exception& ex)
+        {
+            ostringstream ostr;
+            ostr << ex;
+            error("unable to contact session manager `" + sessionManagerPropertyValue + "'\n" + ostr.str());
+            return false;
+        }
+        if(!sessionManager)
+        {
+            error("session manager `" + sessionManagerPropertyValue + "' is invalid");
+            return false;
+        }
+        sessionManager = 
+            SessionManagerPrx::uncheckedCast(sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+                properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
     }
 
     //
@@ -297,33 +297,33 @@ Glacier2::RouterService::start(int argc, char* argv[])
         nullSSLPermVerifId.category = instanceName;
         nullSSLPermVerifId.name = "NullSSLPermissionsVerifier";
 
-	ObjectPrx obj = communicator()->propertyToProxy(sslVerifierProperty);
-	if(obj->ice_getIdentity() == nullSSLPermVerifId)
-	{
+        ObjectPrx obj = communicator()->propertyToProxy(sslVerifierProperty);
+        if(obj->ice_getIdentity() == nullSSLPermVerifId)
+        {
 
             sslVerifier = SSLPermissionsVerifierPrx::uncheckedCast(
                 verifierAdapter->add(new NullSSLPermissionsVerifierI(), nullSSLPermVerifId)->
-			ice_collocationOptimized(true));
-	}
-	else
-	{
+                        ice_collocationOptimized(true));
+        }
+        else
+        {
             try
-	    {
-	        sslVerifier = SSLPermissionsVerifierPrx::checkedCast(obj);
-	    }
-	    catch(const Ice::Exception& ex)
-	    {
-	        ostringstream ostr;
-	        ostr << ex;
-	        error("unable to contact ssl permissions verifier `" + sslVerifierPropertyValue + "'\n" + ostr.str());
-	        return false;
-	    }
-	    if(!sslVerifier)
-	    {
-	        error("ssl permissions verifier `" + sslVerifierPropertyValue + "' is invalid");
-	        return false;
-	    }
-	}
+            {
+                sslVerifier = SSLPermissionsVerifierPrx::checkedCast(obj);
+            }
+            catch(const Ice::Exception& ex)
+            {
+                ostringstream ostr;
+                ostr << ex;
+                error("unable to contact ssl permissions verifier `" + sslVerifierPropertyValue + "'\n" + ostr.str());
+                return false;
+            }
+            if(!sslVerifier)
+            {
+                error("ssl permissions verifier `" + sslVerifierPropertyValue + "' is invalid");
+                return false;
+            }
+        }
     }
 
     //
@@ -335,31 +335,31 @@ Glacier2::RouterService::start(int argc, char* argv[])
     if(!sslSessionManagerPropertyValue.empty())
     {
         try
-	{
-	    sslSessionManager = 
-	        SSLSessionManagerPrx::checkedCast(communicator()->propertyToProxy(sslSessionManagerProperty));
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    ostringstream ostr;
-	    ostr << ex;
-	    error("unable to ssl session manager `" + sslSessionManagerPropertyValue + "'\n" + ostr.str());
-	    return false;
-	}
-	if(!sslSessionManager)
-	{
-	    error("ssl session manager `" + sslSessionManagerPropertyValue + "' is invalid");
-	    return false;
-	}
-	sslSessionManager = 
-	    SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
-	        properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
+        {
+            sslSessionManager = 
+                SSLSessionManagerPrx::checkedCast(communicator()->propertyToProxy(sslSessionManagerProperty));
+        }
+        catch(const Ice::Exception& ex)
+        {
+            ostringstream ostr;
+            ostr << ex;
+            error("unable to ssl session manager `" + sslSessionManagerPropertyValue + "'\n" + ostr.str());
+            return false;
+        }
+        if(!sslSessionManager)
+        {
+            error("ssl session manager `" + sslSessionManagerPropertyValue + "' is invalid");
+            return false;
+        }
+        sslSessionManager = 
+            SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+                properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
     }
 
     if(!verifier && !sslVerifier)
     {
-	error("Glacier2 requires a permissions verifier or password file");
-	return false;
+        error("Glacier2 requires a permissions verifier or password file");
+        return false;
     }
 
     //
@@ -368,17 +368,17 @@ Glacier2::RouterService::start(int argc, char* argv[])
     // done here.
     //
     _sessionRouter = new SessionRouterI(clientAdapter, serverAdapter, verifier, sessionManager, sslVerifier,
-    					sslSessionManager);
+                                        sslSessionManager);
 
     //
     // If we have an admin adapter, we add an admin object.
     //
     if(adminAdapter)
     {
-	Identity adminId;
-	adminId.category = instanceName;
-	adminId.name = "admin";
-	adminAdapter->add(new AdminI(communicator()), adminId);
+        Identity adminId;
+        adminId.category = instanceName;
+        adminId.name = "admin";
+        adminAdapter->add(new AdminI(communicator()), adminId);
     }
 
     //
@@ -389,20 +389,20 @@ Glacier2::RouterService::start(int argc, char* argv[])
         clientAdapter->activate();
         if(serverAdapter)
         {
-	    serverAdapter->activate();
+            serverAdapter->activate();
         }
         if(adminAdapter)
         {
-	    adminAdapter->activate();
+            adminAdapter->activate();
         }
     }
     catch(const Ice::Exception& ex)
     {
-	ostringstream ostr;
-	ostr << ex;
-	error("caught exception activating object adapters\n" + ostr.str());
+        ostringstream ostr;
+        ostr << ex;
+        error("caught exception activating object adapters\n" + ostr.str());
 
-    	stop();
+        stop();
         return false;
     }
 
@@ -414,15 +414,15 @@ Glacier2::RouterService::stop()
 {
     if(_sessionRouter)
     {
-	_sessionRouter->destroy();
-	_sessionRouter = 0;
+        _sessionRouter->destroy();
+        _sessionRouter = 0;
     }
     return true;
 }
 
 CommunicatorPtr
 Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[], 
-						const InitializationData& initializationData)
+                                                const InitializationData& initializationData)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initializationData.properties);
@@ -452,7 +452,7 @@ Glacier2::RouterService::initializeCommunicator(int& argc, char* argv[],
     //
     if(initData.properties->getProperty("Ice.MonitorConnections").empty())
     {
-	initData.properties->setProperty("Ice.MonitorConnections", "60");
+        initData.properties->setProperty("Ice.MonitorConnections", "60");
     }
 
     //
@@ -470,30 +470,30 @@ void
 Glacier2::RouterService::usage(const string& appName)
 {
     string options =
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.";
+        "Options:\n"
+        "-h, --help           Show this message.\n"
+        "-v, --version        Display the Ice version.";
 #ifdef _WIN32
     if(checkSystem())
     {
         options.append(
-	"\n"
-	"\n"
-	"--service NAME       Run as the Windows service NAME.\n"
-	"\n"
-	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
-	"                     Install as Windows service NAME. If DISP is\n"
-	"                     provided, use it as the display name,\n"
-	"                     otherwise NAME is used. If EXEC is provided,\n"
-	"                     use it as the service executable, otherwise\n"
-	"                     this executable is used. Any additional\n"
-	"                     arguments are passed unchanged to the\n"
-	"                     service at startup.\n"
-	"--uninstall NAME     Uninstall Windows service NAME.\n"
-	"--start NAME [args]  Start Windows service NAME. Any additional\n"
-	"                     arguments are passed unchanged to the\n"
-	"                     service.\n"
-	"--stop NAME          Stop Windows service NAME."
+        "\n"
+        "\n"
+        "--service NAME       Run as the Windows service NAME.\n"
+        "\n"
+        "--install NAME [--display DISP] [--executable EXEC] [args]\n"
+        "                     Install as Windows service NAME. If DISP is\n"
+        "                     provided, use it as the display name,\n"
+        "                     otherwise NAME is used. If EXEC is provided,\n"
+        "                     use it as the service executable, otherwise\n"
+        "                     this executable is used. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service at startup.\n"
+        "--uninstall NAME     Uninstall Windows service NAME.\n"
+        "--start NAME [args]  Start Windows service NAME. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service.\n"
+        "--stop NAME          Stop Windows service NAME."
         );
     }
 #else
@@ -502,8 +502,8 @@ Glacier2::RouterService::usage(const string& appName)
         "\n"
         "--daemon             Run as a daemon.\n"
         "--noclose            Do not close open file descriptors.\n"
-	"--nochdir            Do not change the current working directory.\n"
-	"--pidfile <file>     Write process ID to <file>."
+        "--nochdir            Do not change the current working directory.\n"
+        "--pidfile <file>     Write process ID to <file>."
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);

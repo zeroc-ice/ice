@@ -21,34 +21,34 @@ class PlainService extends Communicator implements Service, Cloneable
     static public ServiceDescriptor
     copyDescriptor(ServiceDescriptor sd)
     {
-	ServiceDescriptor copy = (ServiceDescriptor)sd.clone();
-	copy.adapters = Adapter.copyDescriptors(copy.adapters);
-	copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
-	copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
-	return copy;
+        ServiceDescriptor copy = (ServiceDescriptor)sd.clone();
+        copy.adapters = Adapter.copyDescriptors(copy.adapters);
+        copy.dbEnvs = DbEnv.copyDescriptors(copy.dbEnvs);
+        copy.propertySet = PropertySet.copyDescriptor(copy.propertySet);
+        return copy;
     }
     
     public Component getTreeCellRendererComponent(
-	    JTree tree,
-	    Object value,
-	    boolean sel,
-	    boolean expanded,
-	    boolean leaf,
-	    int row,
-	    boolean hasFocus) 
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) 
     {
-	if(_cellRenderer == null)
-	{
-	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _cellRenderer.setOpenIcon(
-		Utils.getIcon("/icons/16x16/service.png"));
+        if(_cellRenderer == null)
+        {
+            _cellRenderer = new DefaultTreeCellRenderer();
+            _cellRenderer.setOpenIcon(
+                Utils.getIcon("/icons/16x16/service.png"));
 
-	    _cellRenderer.setClosedIcon(
-		Utils.getIcon("/icons/16x16/service.png"));
-	}
+            _cellRenderer.setClosedIcon(
+                Utils.getIcon("/icons/16x16/service.png"));
+        }
 
-	return _cellRenderer.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        return _cellRenderer.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
     //
@@ -56,183 +56,183 @@ class PlainService extends Communicator implements Service, Cloneable
     //
     public boolean[] getAvailableActions()
     {
-	boolean[] actions = new boolean[ACTION_COUNT];
-	actions[COPY] = !_ephemeral;
-	
-	Object clipboard = getCoordinator().getClipboard();
-	if(clipboard != null && 
-	   (clipboard instanceof ServiceInstanceDescriptor 
-	    || clipboard instanceof AdapterDescriptor
-	    || clipboard instanceof DbEnvDescriptor))
-	{
-	    actions[PASTE] = true;
-	}
+        boolean[] actions = new boolean[ACTION_COUNT];
+        actions[COPY] = !_ephemeral;
+        
+        Object clipboard = getCoordinator().getClipboard();
+        if(clipboard != null && 
+           (clipboard instanceof ServiceInstanceDescriptor 
+            || clipboard instanceof AdapterDescriptor
+            || clipboard instanceof DbEnvDescriptor))
+        {
+            actions[PASTE] = true;
+        }
 
-	actions[DELETE] = true;
-	actions[NEW_ADAPTER] = !_ephemeral;
-	actions[NEW_DBENV] = !_ephemeral;
-	
-	if(_parent instanceof Server && !_ephemeral)
-	{
-	    actions[SHOW_VARS] = true;
-	    actions[SUBSTITUTE_VARS] = true;
-	}
-	
-	actions[MOVE_UP] = canMove(true);
-	actions[MOVE_DOWN] = canMove(false);
-	return actions;
+        actions[DELETE] = true;
+        actions[NEW_ADAPTER] = !_ephemeral;
+        actions[NEW_DBENV] = !_ephemeral;
+        
+        if(_parent instanceof Server && !_ephemeral)
+        {
+            actions[SHOW_VARS] = true;
+            actions[SUBSTITUTE_VARS] = true;
+        }
+        
+        actions[MOVE_UP] = canMove(true);
+        actions[MOVE_DOWN] = canMove(false);
+        return actions;
     }
     public JPopupMenu getPopupMenu()
     {
-	ApplicationActions actions = getCoordinator().getActionsForPopup();
-	if(_popup == null)
-	{
-	    _popup = new JPopupMenu();
-	    _popup.add(actions.get(NEW_ADAPTER));
-	    _popup.add(actions.get(NEW_DBENV));
-	    _popup.addSeparator();
-	    _popup.add(actions.get(MOVE_UP));
-	    _popup.add(actions.get(MOVE_DOWN));
-	}
-	actions.setTarget(this);
-	return _popup;
+        ApplicationActions actions = getCoordinator().getActionsForPopup();
+        if(_popup == null)
+        {
+            _popup = new JPopupMenu();
+            _popup.add(actions.get(NEW_ADAPTER));
+            _popup.add(actions.get(NEW_DBENV));
+            _popup.addSeparator();
+            _popup.add(actions.get(MOVE_UP));
+            _popup.add(actions.get(MOVE_DOWN));
+        }
+        actions.setTarget(this);
+        return _popup;
     }
     public void copy()
     {
-	getCoordinator().setClipboard(ServiceInstance.copyDescriptor(_descriptor));
-	getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
+        getCoordinator().setClipboard(ServiceInstance.copyDescriptor(_descriptor));
+        getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
     
     public void moveUp()
     {
-	move(true);
+        move(true);
     }
     public void moveDown()
     {
-	move(false);
+        move(false);
     }
    
     public Object getDescriptor()
     {
-	return _descriptor;
+        return _descriptor;
     }
 
     public Object saveDescriptor()
     {
-	return _descriptor.clone();
+        return _descriptor.clone();
     }
 
     public void restoreDescriptor(Object savedDescriptor)
     {
-	ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)savedDescriptor;
+        ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)savedDescriptor;
 
-	_descriptor.descriptor.propertySet = sid.descriptor.propertySet;
-	_descriptor.descriptor.description = sid.descriptor.description;
-	_descriptor.descriptor.name = sid.descriptor.name;
-	_descriptor.descriptor.entry = sid.descriptor.entry;
+        _descriptor.descriptor.propertySet = sid.descriptor.propertySet;
+        _descriptor.descriptor.description = sid.descriptor.description;
+        _descriptor.descriptor.name = sid.descriptor.name;
+        _descriptor.descriptor.entry = sid.descriptor.entry;
     }
 
     public void destroy()
     {
-	((Communicator)_parent).getServices().destroyChild(this);
+        ((Communicator)_parent).getServices().destroyChild(this);
     }
 
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = (PlainServiceEditor)getRoot().getEditor(PlainServiceEditor.class, this);
-	}
-	_editor.show(this);
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = (PlainServiceEditor)getRoot().getEditor(PlainServiceEditor.class, this);
+        }
+        _editor.show(this);
+        return _editor;
     }
 
     protected Editor createEditor()
     {
-	return new PlainServiceEditor();
+        return new PlainServiceEditor();
     }
     
     Editable getEnclosingEditable()
     {
-	return ((Communicator)_parent).getEnclosingEditable();
+        return ((Communicator)_parent).getEnclosingEditable();
     }
 
     private boolean canMove(boolean up)
     {
-	if(_ephemeral)
-	{
-	    return false;
-	}
-	else
-	{
-	    return ((Communicator)_parent).getServices().canMove(this, up);
-	}
+        if(_ephemeral)
+        {
+            return false;
+        }
+        else
+        {
+            return ((Communicator)_parent).getServices().canMove(this, up);
+        }
     }
 
     private void move(boolean up)
     {
-	assert canMove(up);
-	((Communicator)_parent).getServices().move(this, up);
+        assert canMove(up);
+        ((Communicator)_parent).getServices().move(this, up);
     }
     
     public Object rebuild(java.util.List editables) 
-	throws UpdateFailedException
+        throws UpdateFailedException
     {
-	Communicator communicator = (Communicator)_parent;
-	Services services = communicator.getServices();
-	PlainService newService = null;
+        Communicator communicator = (Communicator)_parent;
+        Services services = communicator.getServices();
+        PlainService newService = null;
 
-	newService = (PlainService)services.createChild(_descriptor);
-	
-	Object backup = null;
+        newService = (PlainService)services.createChild(_descriptor);
+        
+        Object backup = null;
 
-	try
-	{
-	    backup = (PlainService)clone();
-	}
-	catch(CloneNotSupportedException e)
-	{
-	    assert false;
-	}
+        try
+        {
+            backup = (PlainService)clone();
+        }
+        catch(CloneNotSupportedException e)
+        {
+            assert false;
+        }
 
-	reset(newService);
-	getRoot().getTreeModel().nodeChanged(this);
-	return backup;
+        reset(newService);
+        getRoot().getTreeModel().nodeChanged(this);
+        return backup;
     }
 
     public void restore(Object backupObj)
     {
-	reset((PlainService)backupObj);
-	getRoot().getTreeModel().nodeChanged(this);
+        reset((PlainService)backupObj);
+        getRoot().getTreeModel().nodeChanged(this);
     }
 
     private void reset(PlainService from)
     {
-	_id = from._id;
-	assert _parent == from._parent;
+        _id = from._id;
+        assert _parent == from._parent;
 
-	_adapters = from._adapters;
-	_dbEnvs = from._dbEnvs;
-	_services = from._services;
-	_childListArray = from._childListArray;
-	
-	_descriptor = from._descriptor;
-	_resolver = from._resolver;
+        _adapters = from._adapters;
+        _dbEnvs = from._dbEnvs;
+        _services = from._services;
+        _childListArray = from._childListArray;
+        
+        _descriptor = from._descriptor;
+        _resolver = from._resolver;
     }
 
     PlainService(Communicator parent,
-		 String name,
-		 ServiceInstanceDescriptor descriptor,
-		 Utils.Resolver resolver)
-	throws UpdateFailedException
+                 String name,
+                 ServiceInstanceDescriptor descriptor,
+                 Utils.Resolver resolver)
+        throws UpdateFailedException
     {
-	super(parent, name);
-	_descriptor = descriptor;
-	_ephemeral = false;
-	_resolver = resolver;
+        super(parent, name);
+        _descriptor = descriptor;
+        _ephemeral = false;
+        _resolver = resolver;
 
-	_adapters.init(_descriptor.descriptor.adapters);
-	_dbEnvs.init(_descriptor.descriptor.dbEnvs);
+        _adapters.init(_descriptor.descriptor.adapters);
+        _dbEnvs.init(_descriptor.descriptor.dbEnvs);
     }
 
     //
@@ -240,53 +240,53 @@ class PlainService extends Communicator implements Service, Cloneable
     //
     PlainService(Communicator parent, ServiceInstanceDescriptor descriptor)
     {
-	super(parent, descriptor.descriptor.name);
-	_descriptor = descriptor;
-	_ephemeral = true;
+        super(parent, descriptor.descriptor.name);
+        _descriptor = descriptor;
+        _ephemeral = true;
     }
 
     static java.util.List createAttributes(ServiceDescriptor descriptor)
     {
-	java.util.List attributes = new java.util.LinkedList();
-	attributes.add(createAttribute("name", descriptor.name));
-	attributes.add(createAttribute("entry", descriptor.entry));
-	return attributes;
+        java.util.List attributes = new java.util.LinkedList();
+        attributes.add(createAttribute("name", descriptor.name));
+        attributes.add(createAttribute("entry", descriptor.entry));
+        return attributes;
     }
 
     void write(XMLWriter writer) throws java.io.IOException
     {
-	if(!_ephemeral)
-	{
-	    writer.writeStartTag("service", createAttributes(_descriptor.descriptor));
-	    
-	    if(_descriptor.descriptor.description.length() > 0)
-	    {
-		writer.writeElement("description", _descriptor.descriptor.description);
-	    }
-	    
-	    writePropertySet(writer,  _descriptor.descriptor.propertySet,
-			     _descriptor.descriptor.adapters, _descriptor.descriptor.logs);
-	    writeLogs(writer, _descriptor.descriptor.logs, _descriptor.descriptor.propertySet.properties);
+        if(!_ephemeral)
+        {
+            writer.writeStartTag("service", createAttributes(_descriptor.descriptor));
+            
+            if(_descriptor.descriptor.description.length() > 0)
+            {
+                writer.writeElement("description", _descriptor.descriptor.description);
+            }
+            
+            writePropertySet(writer,  _descriptor.descriptor.propertySet,
+                             _descriptor.descriptor.adapters, _descriptor.descriptor.logs);
+            writeLogs(writer, _descriptor.descriptor.logs, _descriptor.descriptor.propertySet.properties);
 
-	    _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
-	    _dbEnvs.write(writer);
-	    writer.writeEndTag("service");
-	}
+            _adapters.write(writer, _descriptor.descriptor.propertySet.properties);
+            _dbEnvs.write(writer);
+            writer.writeEndTag("service");
+        }
     }
     
     CommunicatorDescriptor getCommunicatorDescriptor()
     {
-	return _descriptor.descriptor;
+        return _descriptor.descriptor;
     }
 
     Utils.Resolver getResolver()
     {
-	return _resolver;
+        return _resolver;
     }
 
     public boolean isEphemeral()
     {
-	return _ephemeral;
+        return _ephemeral;
     }
 
     private ServiceInstanceDescriptor _descriptor;

@@ -21,7 +21,7 @@ public:
     virtual bool
     checkPermissions(const string& userId, const string& passwd, string&, const Ice::Current&) const
     {
-	return userId == "client1" && passwd == "test1" || userId == "client2" && passwd == "test2";
+        return userId == "client1" && passwd == "test1" || userId == "client2" && passwd == "test2";
     }
 };
 
@@ -32,15 +32,15 @@ public:
     virtual bool
     authorize(const Glacier2::SSLInfo& info, string&, const Ice::Current& current) const
     {
-	IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
-	test(cert->getIssuerDN() == IceSSL::DistinguishedName(
-	    "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
-	    "ST=Florida,C=US"));
-	test(cert->getSubjectDN() == IceSSL::DistinguishedName(
-	    "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
-	test(cert->checkValidity());
+        IceSSL::CertificatePtr cert = IceSSL::Certificate::decode(info.certs[0]);
+        test(cert->getIssuerDN() == IceSSL::DistinguishedName(
+            "emailAddress=info@zeroc.com,CN=ZeroC Test CA,OU=Ice,O=ZeroC\\, Inc.,L=Palm Beach Gardens,"
+            "ST=Florida,C=US"));
+        test(cert->getSubjectDN() == IceSSL::DistinguishedName(
+            "CN=Client,emailAddress=info@zeroc.com,OU=Ice,O=ZeroC\\, Inc.,ST=Florida,C=US"));
+        test(cert->checkValidity());
 
-	return true;
+        return true;
     }
 };
 
@@ -57,8 +57,8 @@ Server::run(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
     if(communicator()->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
-	adapter->add(new ClientPermissionsVerifierI(), communicator()->stringToIdentity("ClientPermissionsVerifier"));
-	adapter->add(new SSLPermissionsVerifierI(), communicator()->stringToIdentity("SSLPermissionsVerifier"));
+        adapter->add(new ClientPermissionsVerifierI(), communicator()->stringToIdentity("ClientPermissionsVerifier"));
+        adapter->add(new SSLPermissionsVerifierI(), communicator()->stringToIdentity("SSLPermissionsVerifier"));
     }
     adapter->activate();
 

@@ -16,40 +16,40 @@ Ice::loadSlice('Session.ice')
 
 class SessionRefreshThread
     def initialize(logger, timeout, session)
-	@_logger = logger
-	@_session = session
-	@_timeout = timeout
-	@_terminated = false
-	@_cond = ConditionVariable.new
-	@_mutex = Mutex.new
+        @_logger = logger
+        @_session = session
+        @_timeout = timeout
+        @_terminated = false
+        @_cond = ConditionVariable.new
+        @_mutex = Mutex.new
     end
 
     def run
-	@_mutex.synchronize {
-	    while not @_terminated
-		begin
-		    Timeout::timeout(@_timeout) do
-			@_cond.wait(@_mutex)
-		    end
-		rescue Timeout::Error
-		end
-		if not @_terminated
-		    begin
-			@_session.refresh()
-		    rescue Ice::LocalException => ex
-			@_logger.warning("SessionRefreshThread: " + ex)
-			@_terminated = true
-		    end
-		end
-	    end
-	}
+        @_mutex.synchronize {
+            while not @_terminated
+                begin
+                    Timeout::timeout(@_timeout) do
+                        @_cond.wait(@_mutex)
+                    end
+                rescue Timeout::Error
+                end
+                if not @_terminated
+                    begin
+                        @_session.refresh()
+                    rescue Ice::LocalException => ex
+                        @_logger.warning("SessionRefreshThread: " + ex)
+                        @_terminated = true
+                    end
+                end
+            end
+        }
     end
 
     def terminate
-	@_mutex.synchronize {
-	    @_terminated = true
-	    @_cond.signal
-	}
+        @_mutex.synchronize {
+            @_terminated = true
+            @_cond.signal
+        }
     end
 end
 
@@ -79,91 +79,91 @@ class Client < Ice::Application
         #
         Ice::Application::callbackOnInterrupt
 
-	while true
-	    print "Please enter your name ==> "
-	    STDOUT.flush
-	    name = STDIN.readline.chomp
-	    if name.length > 0
-		break
-	    end
-	end
+        while true
+            print "Please enter your name ==> "
+            STDOUT.flush
+            name = STDIN.readline.chomp
+            if name.length > 0
+                break
+            end
+        end
 
-	base = Ice::Application::communicator().propertyToProxy('SessionFactory.Proxy')
-	factory = Demo::SessionFactoryPrx::checkedCast(base)
-	if not factory
-	    puts $0 + ": invalid proxy"
-	    return false
-	end
+        base = Ice::Application::communicator().propertyToProxy('SessionFactory.Proxy')
+        factory = Demo::SessionFactoryPrx::checkedCast(base)
+        if not factory
+            puts $0 + ": invalid proxy"
+            return false
+        end
 
         @mutex.synchronize {
             @session = factory.create(name)
-	    @refresh = SessionRefreshThread.new(Ice::Application::communicator().getLogger(), 5, @session)
-	    @refreshThread = Thread.new { @refresh.run }
+            @refresh = SessionRefreshThread.new(Ice::Application::communicator().getLogger(), 5, @session)
+            @refreshThread = Thread.new { @refresh.run }
         }
 
-	begin
+        begin
 
-	    hellos = []
+            hellos = []
 
-	    menu()
+            menu()
 
-	    destroy = true
-	    shutdown = false
-	    while true
-		begin
-		    print "==> "
-		    STDOUT.flush
-		    c = STDIN.readline.chomp
-		    if c =~ /^[0-9]+$/
-			index = c.to_i
-			if index < hellos.length
-			    hello = hellos[index]
-			    hello.sayHello()
-			else
-			    puts "Index is too high. " + hellos.length.to_s + " hello objects exist so far.\n" +\
-				 "Use `c' to create a new hello object."
-			end
-		    elsif c == 'c'
-			hellos.push(@session.createHello())
-			puts "Created hello object " + (hellos.length - 1).to_s
-		    elsif c == 's'
-			destroy = false
-			shutdown = true
-			break
-		    elsif c == 'x'
-			break
-		    elsif c == 't'
-			destroy = false
-			break
-		    elsif c == '?'
-			menu()
-		    else
-			puts "unknown command `" + c + "'"
-			menu()
-		    end
-		rescue EOFError
-		    break
-		end
-	    end
-	    #
-	    # The refresher thread must be terminated before destroy is
-	    # called, otherwise it might get ObjectNotExistException. refresh
-	    # is set to 0 so that if session->destroy() raises an exception
-	    # the thread will not be re-terminated and re-joined.
-	    #
+            destroy = true
+            shutdown = false
+            while true
+                begin
+                    print "==> "
+                    STDOUT.flush
+                    c = STDIN.readline.chomp
+                    if c =~ /^[0-9]+$/
+                        index = c.to_i
+                        if index < hellos.length
+                            hello = hellos[index]
+                            hello.sayHello()
+                        else
+                            puts "Index is too high. " + hellos.length.to_s + " hello objects exist so far.\n" +\
+                                 "Use `c' to create a new hello object."
+                        end
+                    elsif c == 'c'
+                        hellos.push(@session.createHello())
+                        puts "Created hello object " + (hellos.length - 1).to_s
+                    elsif c == 's'
+                        destroy = false
+                        shutdown = true
+                        break
+                    elsif c == 'x'
+                        break
+                    elsif c == 't'
+                        destroy = false
+                        break
+                    elsif c == '?'
+                        menu()
+                    else
+                        puts "unknown command `" + c + "'"
+                        menu()
+                    end
+                rescue EOFError
+                    break
+                end
+            end
+            #
+            # The refresher thread must be terminated before destroy is
+            # called, otherwise it might get ObjectNotExistException. refresh
+            # is set to 0 so that if session->destroy() raises an exception
+            # the thread will not be re-terminated and re-joined.
+            #
             cleanup(destroy)
-	    if shutdown
-		factory.shutdown()
-	    end
-	ensure
-	    #
-	    # The refresher thread must be terminated in the event of a
-	    # failure.
-	    #
+            if shutdown
+                factory.shutdown()
+            end
+        ensure
+            #
+            # The refresher thread must be terminated in the event of a
+            # failure.
+            #
             cleanup(true)
-	end
+        end
 
-	return true
+        return true
     end
 
     def cleanup(destroy)
@@ -182,7 +182,7 @@ class Client < Ice::Application
     end
 
     def menu
-	print <<MENU
+        print <<MENU
 usage:
 c:     create a new per-client hello object
 0-9:   send a greeting to a hello object

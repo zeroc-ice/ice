@@ -26,15 +26,15 @@ module MetadataTest
         ["java:type:java.util.ArrayList"] ObjectSeq modifiedObjectSeqMember;
         ["java:type:Test.CustomList"] ObjectList modifiedObjectListMember;
 
-	StringDict stringDictMember;
-	StringMap stringMapMember;
-	["java:type:java.util.TreeMap"] StringDict modifiedStringDictMember;
-	["java:type:java.util.IdentityHashMap"] StringMap modifiedStringMapMember;
+        StringDict stringDictMember;
+        StringMap stringMapMember;
+        ["java:type:java.util.TreeMap"] StringDict modifiedStringDictMember;
+        ["java:type:java.util.IdentityHashMap"] StringMap modifiedStringMapMember;
 
-	ObjectDict objectDictMember;
-	ObjectMap objectMapMember;
-	["java:type:java.util.TreeMap"] ObjectDict modifiedObjectDictMember;
-	["java:type:java.util.IdentityHashMap"] ObjectMap modifiedObjectMapMember;
+        ObjectDict objectDictMember;
+        ObjectMap objectMapMember;
+        ["java:type:java.util.TreeMap"] ObjectDict modifiedObjectDictMember;
+        ["java:type:java.util.IdentityHashMap"] ObjectMap modifiedObjectMapMember;
 
         IntSeq opIntSeq(IntSeq inArg, out IntSeq outArg);
         IntList opIntList(IntList inArg, out IntList outArg);
@@ -79,9 +79,9 @@ module MetadataTest
         opObjectList2(["java:type:java.util.ArrayList"] ObjectList inArg,
                       out ["java:type:Test.CustomList"] ObjectList outArg);
 
-	["java:type:java.util.IdentityHashMap"] StringMap
-	opStringMap2(["java:type:java.util.IdentityHashMap"] StringMap inArg,
-		     out ["java:type:java.util.IdentityHashMap"] StringMap outArg);
+        ["java:type:java.util.IdentityHashMap"] StringMap
+        opStringMap2(["java:type:java.util.IdentityHashMap"] StringMap inArg,
+                     out ["java:type:java.util.IdentityHashMap"] StringMap outArg);
 
         ["ami", "java:type:java.util.LinkedList"] IntSeq
         opIntSeq2AMI(["java:type:java.util.ArrayList"] IntSeq inArg,

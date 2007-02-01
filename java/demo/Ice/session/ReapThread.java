@@ -13,72 +13,72 @@ class ReapThread extends Thread
 { 
     static class SessionProxyPair
     {
-	SessionProxyPair(Demo.SessionPrx p, SessionI s)
-	{
-	    proxy = p;
-	    session = s;
-	}
+        SessionProxyPair(Demo.SessionPrx p, SessionI s)
+        {
+            proxy = p;
+            session = s;
+        }
 
-	Demo.SessionPrx proxy;
-	SessionI session;
+        Demo.SessionPrx proxy;
+        SessionI session;
     };
 
     synchronized public void
     run()
     {
-	while(!_terminated)
-	{
-	    try
-	    {
-		wait(_timeout);
-	    }
-	    catch(InterruptedException e)
-	    {
-	    }
-	    
-	    if(!_terminated)
-	    {
-		java.util.Iterator p = _sessions.iterator();
-		while(p.hasNext())
-		{
-		    SessionProxyPair s = (SessionProxyPair)p.next();
-		    try
-		    {
-			//
-			// Session destruction may take time in a
-			// real-world example. Therefore the current time
-			// is computed for each iteration.
-			//
-			if((System.currentTimeMillis() - s.session.timestamp()) > _timeout)
-			{
-			    String name = s.proxy.getName();
-			    s.proxy.destroy();
-			    System.out.println("The session " + name + " has timed out.");
-			    p.remove();
-			}
-		    }
-		    catch(Ice.ObjectNotExistException e)
-		    {
-			p.remove();
-		    }
-		}
-	    }
-	}
+        while(!_terminated)
+        {
+            try
+            {
+                wait(_timeout);
+            }
+            catch(InterruptedException e)
+            {
+            }
+            
+            if(!_terminated)
+            {
+                java.util.Iterator p = _sessions.iterator();
+                while(p.hasNext())
+                {
+                    SessionProxyPair s = (SessionProxyPair)p.next();
+                    try
+                    {
+                        //
+                        // Session destruction may take time in a
+                        // real-world example. Therefore the current time
+                        // is computed for each iteration.
+                        //
+                        if((System.currentTimeMillis() - s.session.timestamp()) > _timeout)
+                        {
+                            String name = s.proxy.getName();
+                            s.proxy.destroy();
+                            System.out.println("The session " + name + " has timed out.");
+                            p.remove();
+                        }
+                    }
+                    catch(Ice.ObjectNotExistException e)
+                    {
+                        p.remove();
+                    }
+                }
+            }
+        }
     }
 
     synchronized public void
     terminate()
     {
-	_terminated = true;
-	notify();
-	
-	_sessions.clear();
+        _terminated = true;
+        notify();
+        
+        _sessions.clear();
     }
 
     synchronized public void
     add(SessionPrx proxy, SessionI session)
     {
-	_sessions.add(new SessionProxyPair(proxy, session));
+        _sessions.add(new SessionProxyPair(proxy, session));
     }
 
     private final long _timeout = 10 * 1000; // 10 seconds.

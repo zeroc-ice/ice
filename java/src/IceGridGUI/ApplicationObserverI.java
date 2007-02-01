@@ -16,9 +16,9 @@ class ApplicationObserverI extends _ApplicationObserverDisp
 
     ApplicationObserverI(String instanceName, Coordinator coordinator)
     {
-	_instanceName = instanceName;
-	_coordinator = coordinator;
-	_trace = coordinator.traceObservers();
+        _instanceName = instanceName;
+        _coordinator = coordinator;
+        _trace = coordinator.traceObservers();
     }
 
     //
@@ -26,120 +26,120 @@ class ApplicationObserverI extends _ApplicationObserverDisp
     //
     synchronized void waitForInit()
     {
-	//
-	// TODO: configurable timeout
-	//
-	long timeout = 10000;
+        //
+        // TODO: configurable timeout
+        //
+        long timeout = 10000;
 
-	if(!_initialized)
-	{
-	    try
-	    {
-		wait(timeout);
-	    }
-	    catch(InterruptedException e)
-	    {
-	    }   
-	}
+        if(!_initialized)
+        {
+            try
+            {
+                wait(timeout);
+            }
+            catch(InterruptedException e)
+            {
+            }   
+        }
 
-	if(_initialized)
-	{
-	    _coordinator.applicationInit(_instanceName, _serial, _applications);
-	}
-	else
-	{
-	    throw new Ice.TimeoutException();
-	}
+        if(_initialized)
+        {
+            _coordinator.applicationInit(_instanceName, _serial, _applications);
+        }
+        else
+        {
+            throw new Ice.TimeoutException();
+        }
     }
 
     public synchronized void applicationInit(int serial, java.util.List applications, Ice.Current current)
     {
-	if(_trace)
-	{
-	    if(applications.size() == 0)
-	    {
-		_coordinator.traceObserver("applicationInit (no application);"
-					  + "serial is " + serial);
-	    }
-	    else
-	    {
-		String names = "";
-		java.util.Iterator p = applications.iterator();
-		while(p.hasNext())
-		{
-		    names += " " + ((ApplicationInfo)p.next()).descriptor.name;
-		}
-		
-		_coordinator.traceObserver("applicationInit for application"
-					   + (applications.size() == 1 ? "" : "s")
-					   + names
-					   + "; serial is " + serial);
-	    }
-	}
+        if(_trace)
+        {
+            if(applications.size() == 0)
+            {
+                _coordinator.traceObserver("applicationInit (no application);"
+                                          + "serial is " + serial);
+            }
+            else
+            {
+                String names = "";
+                java.util.Iterator p = applications.iterator();
+                while(p.hasNext())
+                {
+                    names += " " + ((ApplicationInfo)p.next()).descriptor.name;
+                }
+                
+                _coordinator.traceObserver("applicationInit for application"
+                                           + (applications.size() == 1 ? "" : "s")
+                                           + names
+                                           + "; serial is " + serial);
+            }
+        }
 
-	_initialized = true;
-	_serial = serial;
+        _initialized = true;
+        _serial = serial;
 
-	_applications = applications;
+        _applications = applications;
 
-	notify();
+        notify();
     }
 
     public void applicationAdded(final int serial, final ApplicationInfo info, 
-				 Ice.Current current)
+                                 Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("applicationAdded for application "
-				       + info.descriptor.name
-				       + "; serial is " + serial);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("applicationAdded for application "
+                                       + info.descriptor.name
+                                       + "; serial is " + serial);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.applicationAdded(serial, info);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.applicationAdded(serial, info);
+                }
+            });
     }
 
     public void applicationRemoved(final int serial, final String name, 
-				   final Ice.Current current)
+                                   final Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("applicationRemoved for application "
-				       + name
-				       + "; serial is " + serial);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("applicationRemoved for application "
+                                       + name
+                                       + "; serial is " + serial);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.applicationRemoved(serial, name);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.applicationRemoved(serial, name);
+                }
+            });
     }
 
     public void applicationUpdated(final int serial, final ApplicationUpdateInfo info, 
-				   Ice.Current current)
+                                   Ice.Current current)
     {
-	if(_trace)
-	{
-	    _coordinator.traceObserver("applicationUpdated for application "
-				       + info.descriptor.name
-				       + "; serial is " + serial);
-	}
+        if(_trace)
+        {
+            _coordinator.traceObserver("applicationUpdated for application "
+                                       + info.descriptor.name
+                                       + "; serial is " + serial);
+        }
 
-	SwingUtilities.invokeLater(new Runnable() 
-	    {
-		public void run() 
-		{
-		    _coordinator.applicationUpdated(serial, info);
-		}
-	    });
+        SwingUtilities.invokeLater(new Runnable() 
+            {
+                public void run() 
+                {
+                    _coordinator.applicationUpdated(serial, info);
+                }
+            });
     }
 
     private final Coordinator _coordinator;

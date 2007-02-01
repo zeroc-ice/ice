@@ -50,12 +50,12 @@ public class Client
         
         try
         {
-	    //
-	    // This test aborts servers, so we don't want warnings.
-	    //
-	    Ice.InitializationData initData = new Ice.InitializationData();
-	    initData.properties = Ice.Util.createProperties(ref args);
-	    initData.properties.setProperty("Ice.Warn.Connections", "0");
+            //
+            // This test aborts servers, so we don't want warnings.
+            //
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
@@ -74,14 +74,14 @@ public class Client
             }
             catch(Ice.LocalException ex)
             {
-		System.Console.Error.WriteLine(ex);
+                System.Console.Error.WriteLine(ex);
                 status = 1;
             }
         }
         
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

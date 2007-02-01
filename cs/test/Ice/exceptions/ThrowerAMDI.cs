@@ -20,7 +20,7 @@ public class ThrowerI : ThrowerDisp_
     public override void shutdown_async(AMD_Thrower_shutdown cb, Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
-	cb.ice_response();
+        cb.ice_response();
     }
 
     public override void supportsUndeclaredExceptions_async(AMD_Thrower_supportsUndeclaredExceptions cb, Ice.Current current)
@@ -46,23 +46,23 @@ public class ThrowerI : ThrowerDisp_
         {
             A ex = new A();
             ex.aMem = a;
-	    cb.ice_exception(ex);
+            cb.ice_exception(ex);
         }
         else
         {
             D ex = new D();
             ex.dMem = a;
-	    cb.ice_exception(ex);
+            cb.ice_exception(ex);
         }
     }
 
     public override void throwBasA_async(AMD_Thrower_throwBasA cb, int a, int b, Ice.Current current)
     {
-	B ex = new B();
-	ex.aMem = a;
-	ex.bMem = b;
-	throw ex;
-	//cb.ice_exception(ex);
+        B ex = new B();
+        ex.aMem = a;
+        ex.bMem = b;
+        throw ex;
+        //cb.ice_exception(ex);
     }
 
     public override void throwBasB_async(AMD_Thrower_throwBasB cb, int a, int b, Ice.Current current)
@@ -71,25 +71,25 @@ public class ThrowerI : ThrowerDisp_
         ex.aMem = a;
         ex.bMem = b;
         throw ex;
-	//cb.ice_exception(ex);
+        //cb.ice_exception(ex);
     }
 
     public override void throwCasA_async(AMD_Thrower_throwCasA cb, int a, int b, int c, Ice.Current current)
     {
-	C ex = new C();
-	ex.aMem = a;
-	ex.bMem = b;
-	ex.cMem = c;
-	cb.ice_exception(ex);
+        C ex = new C();
+        ex.aMem = a;
+        ex.bMem = b;
+        ex.cMem = c;
+        cb.ice_exception(ex);
     }
 
     public override void throwCasB_async(AMD_Thrower_throwCasB cb, int a, int b, int c, Ice.Current current)
     {
-	C ex = new C();
-	ex.aMem = a;
-	ex.bMem = b;
-	ex.cMem = c;
-	cb.ice_exception(ex);
+        C ex = new C();
+        ex.aMem = a;
+        ex.bMem = b;
+        ex.cMem = c;
+        cb.ice_exception(ex);
     }
 
     public override void throwCasC_async(AMD_Thrower_throwCasC cb, int a, int b, int c, Ice.Current current)
@@ -98,7 +98,7 @@ public class ThrowerI : ThrowerDisp_
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-	cb.ice_exception(ex);
+        cb.ice_exception(ex);
     }
 
     public override void throwUndeclaredA_async(AMD_Thrower_throwUndeclaredA cb, int a, Ice.Current current)
@@ -110,10 +110,10 @@ public class ThrowerI : ThrowerDisp_
 
     public override void throwUndeclaredB_async(AMD_Thrower_throwUndeclaredB cb, int a, int b, Ice.Current current)
     {
-	B ex = new B();
-	ex.aMem = a;
-	ex.bMem = b;
-	cb.ice_exception(ex);
+        B ex = new B();
+        ex.aMem = a;
+        ex.bMem = b;
+        cb.ice_exception(ex);
     }
 
     public override void throwUndeclaredC_async(AMD_Thrower_throwUndeclaredC cb, int a, int b, int c, Ice.Current current)

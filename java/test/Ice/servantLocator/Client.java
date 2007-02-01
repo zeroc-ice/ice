@@ -17,7 +17,7 @@ public class Client
         run(String[] args)
         {
             TestIntfPrx obj = AllTests.allTests(communicator(), false);
-	    obj.shutdown();
+            obj.shutdown();
             return 0;
         }
     }

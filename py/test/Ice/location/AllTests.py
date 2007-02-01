@@ -40,7 +40,7 @@ def allTests(communicator, ref):
     communicator.setDefaultLocator(locator);
     base = communicator.stringToProxy("test @ TestAdapter");
     test(Ice.proxyIdentityEqual(base.ice_getLocator(), communicator.getDefaultLocator())); 
-	
+        
     #
     # We also test ice_router/ice_getRouter (perhaps we should add a
     # test/Ice/router test?)
@@ -82,87 +82,87 @@ def allTests(communicator, ref):
     obj.shutdown()
     manager.startServer()
     try:
-	obj2 = Test.TestIntfPrx.checkedCast(base2)
-	obj2.ice_ping()
+        obj2 = Test.TestIntfPrx.checkedCast(base2)
+        obj2.ice_ping()
     except Ice.LocalException:
-	test(False)
+        test(False)
     print "ok"
 
     print "testing identity indirect proxy...",
     obj.shutdown()
     manager.startServer()
     try:
-	obj3 = Test.TestIntfPrx.checkedCast(base3)
-	obj3.ice_ping()
+        obj3 = Test.TestIntfPrx.checkedCast(base3)
+        obj3.ice_ping()
     except Ice.LocalException:
-	test(False)
+        test(False)
     try:
-	obj2 = Test.TestIntfPrx.checkedCast(base2)
-	obj2.ice_ping()
+        obj2 = Test.TestIntfPrx.checkedCast(base2)
+        obj2.ice_ping()
     except Ice.LocalException:
-	test(False)
+        test(False)
     obj.shutdown()
     manager.startServer()
     try:
-	obj2 = Test.TestIntfPrx.checkedCast(base2)
-	obj2.ice_ping()
+        obj2 = Test.TestIntfPrx.checkedCast(base2)
+        obj2.ice_ping()
     except Ice.LocalException:
-	test(False)
+        test(False)
     try:
-	obj3 = Test.TestIntfPrx.checkedCast(base3)
-	obj3.ice_ping()
+        obj3 = Test.TestIntfPrx.checkedCast(base3)
+        obj3.ice_ping()
     except Ice.LocalException:
-	test(False)
-    obj.shutdown()
-    manager.startServer()
-
-    try:
-	obj2 = Test.TestIntfPrx.checkedCast(base2)
-	obj2.ice_ping()
-    except Ice.LocalException:
-	test(False)
-    obj.shutdown()
-    manager.startServer()
-    try:
-	obj3 = Test.TestIntfPrx.checkedCast(base3)
-	obj3.ice_ping()
-    except Ice.LocalException:
-	test(False)
-    obj.shutdown()
-    manager.startServer()
-    try:
-	obj2 = Test.TestIntfPrx.checkedCast(base2)
-	obj2.ice_ping()
-    except Ice.LocalException:
-	test(False)
+        test(False)
     obj.shutdown()
     manager.startServer()
 
     try:
-	obj5 = Test.TestIntfPrx.checkedCast(base5)
-	obj5.ice_ping()
+        obj2 = Test.TestIntfPrx.checkedCast(base2)
+        obj2.ice_ping()
     except Ice.LocalException:
-	test(False)
+        test(False)
+    obj.shutdown()
+    manager.startServer()
+    try:
+        obj3 = Test.TestIntfPrx.checkedCast(base3)
+        obj3.ice_ping()
+    except Ice.LocalException:
+        test(False)
+    obj.shutdown()
+    manager.startServer()
+    try:
+        obj2 = Test.TestIntfPrx.checkedCast(base2)
+        obj2.ice_ping()
+    except Ice.LocalException:
+        test(False)
+    obj.shutdown()
+    manager.startServer()
+
+    try:
+        obj5 = Test.TestIntfPrx.checkedCast(base5)
+        obj5.ice_ping()
+    except Ice.LocalException:
+        test(False)
     print "ok"
 
     print "testing reference with unknown identity...",
     try:
-	base = communicator.stringToProxy("unknown/unknown")
-	base.ice_ping()
-	test(False)
+        base = communicator.stringToProxy("unknown/unknown")
+        base.ice_ping()
+        test(False)
     except Ice.NotRegisteredException, ex:
-	test(ex.kindOfObject == "object")
-	test(ex.id == "unknown/unknown")
+        test(ex.kindOfObject == "object")
+        test(ex.id == "unknown/unknown")
     print "ok"
 
     print "testing reference with unknown adapter...",
     try:
-	base = communicator.stringToProxy("test @ TestAdapterUnknown")
-	base.ice_ping()
-	test(False)
+        base = communicator.stringToProxy("test @ TestAdapterUnknown")
+        base.ice_ping()
+        test(False)
     except Ice.NotRegisteredException, ex:
-	test(ex.kindOfObject == "object adapter")
-	test(ex.id == "TestAdapterUnknown")
+        test(ex.kindOfObject == "object adapter")
+        test(ex.id == "TestAdapterUnknown")
     print "ok"
 
     print "testing object reference from server...",
@@ -192,20 +192,20 @@ def allTests(communicator, ref):
 
     print "testing whether server is gone...",
     try:
-	obj2.ice_ping()
-	test(False)
+        obj2.ice_ping()
+        test(False)
     except Ice.LocalException:
-	pass
+        pass
     try:
-	obj3.ice_ping()
-	test(False)
+        obj3.ice_ping()
+        test(False)
     except Ice.LocalException:
-	pass
+        pass
     try:
-	obj5.ice_ping()
-	test(False)
+        obj5.ice_ping()
+        test(False)
     except Ice.LocalException:
-	pass
+        pass
     print "ok"
 
     #

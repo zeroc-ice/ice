@@ -48,7 +48,7 @@ WellKnownObjectsManager::registerAll(const ReplicaSessionPrx& session)
 {
     if(!initialized())
     {
-	return;
+        return;
     }
 
     assert(session);
@@ -65,7 +65,7 @@ WellKnownObjectsManager::registerAll()
 {
     if(!initialized())
     {
-	return;
+        return;
     }
 
     //
@@ -80,7 +80,7 @@ WellKnownObjectsManager::updateReplicatedWellKnownObjects()
 {
     if(!initialized())
     {
-	return;
+        return;
     }
 
     //

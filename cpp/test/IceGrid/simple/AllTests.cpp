@@ -22,7 +22,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 public:
 
     SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
-	_session(session),
+        _session(session),
         _timeout(IceUtil::Time::seconds(timeout)),
         _destroy(false)
     {
@@ -37,15 +37,15 @@ public:
             timedWait(_timeout);
             if(_destroy)
             {
-	        break;
-	    }
+                break;
+            }
             try
             {
                 _session->keepAlive();
             }
             catch(const Ice::Exception&)
             {
-		break;
+                break;
             }
         }
     }
@@ -116,31 +116,31 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     cout << "testing reference with unknown identity... " << flush;
     try
     {
-	communicator->stringToProxy("unknown/unknown")->ice_ping();
-	test(false);
+        communicator->stringToProxy("unknown/unknown")->ice_ping();
+        test(false);
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-	test(ex.kindOfObject == "object");
-	test(ex.id == "unknown/unknown");
+        test(ex.kindOfObject == "object");
+        test(ex.id == "unknown/unknown");
     }
     cout << "ok" << endl;
 
     cout << "testing reference with unknown adapter... " << flush;
     try
     {
-	communicator->stringToProxy("test @ TestAdapterUnknown")->ice_ping();
-	test(false);
+        communicator->stringToProxy("test @ TestAdapterUnknown")->ice_ping();
+        test(false);
     }
     catch (const Ice::NotRegisteredException& ex)
     {
-	test(ex.kindOfObject == "object adapter");
-	test(ex.id == "TestAdapterUnknown");
+        test(ex.kindOfObject == "object adapter");
+        test(ex.id == "TestAdapterUnknown");
     }
     cout << "ok" << endl;
 
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
-	communicator->stringToProxy("IceGrid/Registry"));
+        communicator->stringToProxy("IceGrid/Registry"));
     test(registry);
     IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
@@ -156,16 +156,16 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     cout << "testing whether server is still reachable... " << flush;
     try
     {
-	obj = TestIntfPrx::checkedCast(base);
-	test(false);
+        obj = TestIntfPrx::checkedCast(base);
+        test(false);
     }
     catch(const Ice::NoEndpointException&)
     {
     }
     try
     {
-	obj2 = TestIntfPrx::checkedCast(base2);
-	test(false);
+        obj2 = TestIntfPrx::checkedCast(base2);
+        test(false);
     }
     catch(const Ice::NoEndpointException&)
     {
@@ -175,19 +175,19 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-	obj = TestIntfPrx::checkedCast(base);
+        obj = TestIntfPrx::checkedCast(base);
     }
     catch(const Ice::NoEndpointException&)
     {
-	test(false);
+        test(false);
     }
     try
     {
-	obj2 = TestIntfPrx::checkedCast(base2);
+        obj2 = TestIntfPrx::checkedCast(base2);
     }
     catch(const Ice::NoEndpointException&)
     {
-	test(false);
+        test(false);
     }
     cout << "ok" << endl;
 

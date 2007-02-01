@@ -34,41 +34,41 @@ class LocatorI : public Locator, public IceUtil::Mutex
     {
     public:
 
-	Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool,
-		const LocatorAdapterInfoSeq&, int, const TraceLevelsPtr&);
+        Request(const Ice::AMD_Locator_findAdapterByIdPtr&, const LocatorIPtr&, const std::string&, bool,
+                const LocatorAdapterInfoSeq&, int, const TraceLevelsPtr&);
 
-	void execute();
-	void response(const Ice::ObjectPrx&);
-	void exception(const Ice::Exception&); 
+        void execute();
+        void response(const Ice::ObjectPrx&);
+        void exception(const Ice::Exception&); 
 
     private:
 
-	void requestAdapter(const LocatorAdapterInfo&);
-	void sendResponse();
+        void requestAdapter(const LocatorAdapterInfo&);
+        void sendResponse();
 
-	const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
-	const LocatorIPtr _locator;
-	const std::string _id;
-	const bool _replicaGroup;
-	LocatorAdapterInfoSeq _adapters;
-	const TraceLevelsPtr _traceLevels;
-	unsigned int _count;
-	LocatorAdapterInfoSeq::const_iterator _lastAdapter;
-	std::vector<Ice::ObjectPrx> _proxies;
-	std::auto_ptr<Ice::Exception> _exception;
+        const Ice::AMD_Locator_findAdapterByIdPtr _amdCB;
+        const LocatorIPtr _locator;
+        const std::string _id;
+        const bool _replicaGroup;
+        LocatorAdapterInfoSeq _adapters;
+        const TraceLevelsPtr _traceLevels;
+        unsigned int _count;
+        LocatorAdapterInfoSeq::const_iterator _lastAdapter;
+        std::vector<Ice::ObjectPrx> _proxies;
+        std::auto_ptr<Ice::Exception> _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
 public:
 
     LocatorI(const Ice::CommunicatorPtr&, const DatabasePtr&, const Ice::LocatorRegistryPrx&, const RegistryPrx&,
-	     const QueryPrx&);
+             const QueryPrx&);
 
     virtual void findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&, 
-				      const Ice::Current&) const;
+                                      const Ice::Current&) const;
 
     virtual void findAdapterById_async(const Ice::AMD_Locator_findAdapterByIdPtr&, const ::std::string&, 
-				       const Ice::Current&) const;
+                                       const Ice::Current&) const;
 
     virtual Ice::LocatorRegistryPrx getRegistry(const Ice::Current&) const;
     virtual RegistryPrx getLocalRegistry(const Ice::Current&) const;

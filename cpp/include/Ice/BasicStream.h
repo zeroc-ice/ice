@@ -38,14 +38,14 @@ public:
     public:
 
         StreamUTF8BufferI(BasicStream& stream) : 
-	    _stream(stream)
-	{
-	}
+            _stream(stream)
+        {
+        }
 
         Ice::Byte*
         getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
         {
-	    assert(howMany > 0);
+            assert(howMany > 0);
 
             if(firstUnused != 0)
             {
@@ -71,7 +71,7 @@ public:
 
     private:
 
-	BasicStream& _stream;
+        BasicStream& _stream;
     };
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
@@ -102,14 +102,14 @@ public:
     void resize(Container::size_type sz)
     {
         //
-	// Check memory limit if stream is not unlimited.
-	//
-	if(!_unlimited && sz > _messageSizeMax)
-	{
-	    throwMemoryLimitException(__FILE__, __LINE__);
-	}
-	
-	b.resize(sz);
+        // Check memory limit if stream is not unlimited.
+        //
+        if(!_unlimited && sz > _messageSizeMax)
+        {
+            throwMemoryLimitException(__FILE__, __LINE__);
+        }
+        
+        b.resize(sz);
     }
 
     void startSeq(int, int);
@@ -142,8 +142,8 @@ public:
     void checkFixedSeq(int, int); // For sequences of fixed-size types.
     void endElement()
     {
-	assert(_seqDataStack);
-	--_seqDataStack->numElements;
+        assert(_seqDataStack);
+        --_seqDataStack->numElements;
     }
     void endSeq(int);
 
@@ -364,32 +364,32 @@ public:
 
     void write(Ice::Byte v)
     {
-	b.push_back(v);
+        b.push_back(v);
     }
     void write(const Ice::Byte*, const Ice::Byte*);
     void read(Ice::Byte& v)
     {
-	if(i >= b.end())
-	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	v = *i++;
+        if(i >= b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        v = *i++;
     }
     void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
     void write(bool v)
     {
-	b.push_back(static_cast<Ice::Byte>(v));
+        b.push_back(static_cast<Ice::Byte>(v));
     }
     void write(const std::vector<bool>&);
     void write(const bool*, const bool*);
     void read(bool& v)
     {
-	if(i >= b.end())
-	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	v = *i++;
+        if(i >= b.end())
+        {
+            throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+        }
+        v = *i++;
     }
     void read(std::vector<bool>&);
     bool* read(std::pair<const bool*, const bool*>&);
@@ -479,11 +479,11 @@ public:
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
         if(convert && sz > 0 && _stringConverter != 0)
-	{
-	    writeConverted(v);
-	}
-	else
-	{
+        {
+            writeConverted(v);
+        }
+        else
+        {
             writeSize(sz);
             if(sz > 0)
             {
@@ -491,7 +491,7 @@ public:
                 resize(pos + sz);
                 memcpy(&b[pos], v.data(), sz);
             }
-	}
+        }
     }
     void write(const std::string*, const std::string*, bool = true);
     void read(std::string& v, bool convert = true)
@@ -505,14 +505,14 @@ public:
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-	    if(convert && _stringConverter != 0)
-	    {
-		_stringConverter->fromUTF8(i, i + sz, v);
-	    }
-	    else
-	    {
+            if(convert && _stringConverter != 0)
+            {
+                _stringConverter->fromUTF8(i, i + sz, v);
+            }
+            else
+            {
                 std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
-	    }
+            }
             i += sz;
         }
         else
@@ -535,7 +535,7 @@ public:
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
 
-	    _wstringConverter->fromUTF8(i, i + sz, v);
+            _wstringConverter->fromUTF8(i, i + sz, v);
             i += sz;
         }
         else
@@ -561,8 +561,8 @@ public:
 
     struct PatchEntry 
     {
-	PatchFunc patchFunc;
-	void* patchAddr;
+        PatchFunc patchFunc;
+        void* patchAddr;
     };
 
     typedef std::vector<PatchEntry> PatchList;
@@ -598,20 +598,20 @@ private:
     {
     public:
 
-	ReadEncaps() : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
-	{
-	    // Inlined for performance reasons.
-	}
-	~ReadEncaps()
-	{
-	    // Inlined for performance reasons.
+        ReadEncaps() : patchMap(0), unmarshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
+        {
+            // Inlined for performance reasons.
+        }
+        ~ReadEncaps()
+        {
+            // Inlined for performance reasons.
             delete patchMap;
             delete unmarshaledMap;
             delete typeIdMap;
-	}
-	void reset()
+        }
+        void reset()
         {
-	    // Inlined for performance reasons.
+            // Inlined for performance reasons.
             delete patchMap;
             delete unmarshaledMap;
             delete typeIdMap;
@@ -622,40 +622,40 @@ private:
             typeIdIndex = 0;
             previous = 0;
         }
-	void swap(ReadEncaps&);
+        void swap(ReadEncaps&);
 
-	Container::size_type start;
-	Ice::Int sz;
+        Container::size_type start;
+        Ice::Int sz;
 
-	Ice::Byte encodingMajor;
-	Ice::Byte encodingMinor;
+        Ice::Byte encodingMajor;
+        Ice::Byte encodingMinor;
 
-	PatchMap* patchMap;
-	IndexToPtrMap* unmarshaledMap;
-	TypeIdReadMap* typeIdMap;
-	Ice::Int typeIdIndex;
+        PatchMap* patchMap;
+        IndexToPtrMap* unmarshaledMap;
+        TypeIdReadMap* typeIdMap;
+        Ice::Int typeIdIndex;
 
-	ReadEncaps* previous;
+        ReadEncaps* previous;
     };
 
     class ICE_API WriteEncaps : private ::IceUtil::noncopyable
     {
     public:
 
-	WriteEncaps() : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
- 	{
-	    // Inlined for performance reasons.
-	}
-	~WriteEncaps()
+        WriteEncaps() : writeIndex(0), toBeMarshaledMap(0), marshaledMap(0), typeIdMap(0), typeIdIndex(0), previous(0)
         {
-	    // Inlined for performance reasons.
+            // Inlined for performance reasons.
+        }
+        ~WriteEncaps()
+        {
+            // Inlined for performance reasons.
             delete toBeMarshaledMap;
             delete marshaledMap;
             delete typeIdMap;
         }
-	void reset()
+        void reset()
         {
-	    // Inlined for performance reasons.
+            // Inlined for performance reasons.
             delete toBeMarshaledMap;
             delete marshaledMap;
             delete typeIdMap;
@@ -667,17 +667,17 @@ private:
             typeIdIndex = 0;
             previous = 0;
         }
-	void swap(WriteEncaps&);
+        void swap(WriteEncaps&);
 
-	Container::size_type start;
+        Container::size_type start;
 
-	Ice::Int writeIndex;
-	PtrToIndexMap* toBeMarshaledMap;
-	PtrToIndexMap* marshaledMap;
-	TypeIdWriteMap* typeIdMap;
-	Ice::Int typeIdIndex;
+        Ice::Int writeIndex;
+        PtrToIndexMap* toBeMarshaledMap;
+        PtrToIndexMap* marshaledMap;
+        TypeIdWriteMap* typeIdMap;
+        Ice::Int typeIdIndex;
 
-	WriteEncaps* previous;
+        WriteEncaps* previous;
     };
 
     ReadEncaps* _currentReadEncaps;
@@ -705,10 +705,10 @@ private:
 
     struct SeqData
     {
-	SeqData(int, int);
-	int numElements;
-	int minSize;
-	SeqData* previous;
+        SeqData(int, int);
+        int numElements;
+        int minSize;
+        SeqData* previous;
     };
     SeqData* _seqDataStack;
 

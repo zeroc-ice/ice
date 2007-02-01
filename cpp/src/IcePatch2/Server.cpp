@@ -25,14 +25,14 @@ class AdminI : public Admin
 public:
     
     AdminI(const CommunicatorPtr& communicator) :
-	_communicator(communicator)
+        _communicator(communicator)
     {
     }
 
     virtual void
     shutdown(const Current&)
     {
-	_communicator->shutdown();
+        _communicator->shutdown();
     }
 
 private:
@@ -74,61 +74,61 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     vector<string> args;
     try
     {
-    	args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argc, (const char**)argv);
     }
     catch(const IceUtil::BadOptException& e)
     {
         error(e.reason);
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
 
     if(opts.isSet("help"))
     {
-	usage(argv[0]);
-	return false;
+        usage(argv[0]);
+        return false;
     }
     if(opts.isSet("version"))
     {
-	print(ICE_STRING_VERSION);
-	return false;
+        print(ICE_STRING_VERSION);
+        return false;
     }
 
     if(args.size() > 1)
     {
-	error("too many arguments");
-	usage(argv[0]);
-	return false;
+        error("too many arguments");
+        usage(argv[0]);
+        return false;
     }
     if(args.size() == 1)
     {
-	properties->setProperty("IcePatch2.Directory", simplify(args[0]));
+        properties->setProperty("IcePatch2.Directory", simplify(args[0]));
     }
 
     string dataDir = properties->getPropertyWithDefault("IcePatch2.Directory", ".");
     if(dataDir.empty())
     {
-	error("no data directory specified");
-	usage(argv[0]);
-	return false;
+        error("no data directory specified");
+        usage(argv[0]);
+        return false;
     }
 
     FileInfoSeq infoSeq;
 
     try
     {
-	if(!isAbsolute(dataDir))
-	{
-	    string cwd;
-	    if(OS::getcwd(cwd) != 0)
-	    {
-		throw "cannot get the current directory:\n" + lastError();
-	    }
-	    
-	    dataDir = cwd + '/' + dataDir;
-	}
+        if(!isAbsolute(dataDir))
+        {
+            string cwd;
+            if(OS::getcwd(cwd) != 0)
+            {
+                throw "cannot get the current directory:\n" + lastError();
+            }
+            
+            dataDir = cwd + '/' + dataDir;
+        }
 
-	loadFileInfoSeq(dataDir, infoSeq);
+        loadFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)
     {
@@ -146,7 +146,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     //
     const string endpointsProperty = "Ice.OA.IcePatch2.Endpoints";
     string endpoints = properties->getPropertyWithDefault(endpointsProperty,
-    							  properties->getProperty("IcePatch2.Endpoints"));
+                                                          properties->getProperty("IcePatch2.Endpoints"));
     if(endpoints.empty())
     {
         error("property `" + endpointsProperty + "' is not set");
@@ -161,7 +161,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     if(!properties->getProperty("Ice.OA.IcePatch2.Admin.Endpoints").empty() ||
        !properties->getProperty("IcePatch2.Admin.Endpoints").empty())
     {
-	adminAdapter = communicator()->createObjectAdapter("IcePatch2.Admin");
+        adminAdapter = communicator()->createObjectAdapter("IcePatch2.Admin");
     }
 
     const string instanceNameProperty = "IcePatch2.InstanceName";
@@ -174,16 +174,16 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     if(adminAdapter)
     {
-	Identity adminId;
-	adminId.category = instanceName;
-	adminId.name = "admin";
-	adminAdapter->add(new AdminI(communicator()), adminId);
+        Identity adminId;
+        adminId.category = instanceName;
+        adminId.name = "admin";
+        adminAdapter->add(new AdminI(communicator()), adminId);
     }
 
     adapter->activate();
     if(adminAdapter)
     {
-	adminAdapter->activate();
+        adminAdapter->activate();
     }
 
     return true;
@@ -199,30 +199,30 @@ void
 IcePatch2::PatcherService::usage(const string& appName)
 {
     string options =
-	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.";
+        "Options:\n"
+        "-h, --help           Show this message.\n"
+        "-v, --version        Display the Ice version.";
 #ifdef _WIN32
     if(checkSystem())
     {
         options.append(
-	"\n"
-	"\n"
-	"--service NAME       Run as the Windows service NAME.\n"
-	"\n"
-	"--install NAME [--display DISP] [--executable EXEC] [args]\n"
-	"                     Install as Windows service NAME. If DISP is\n"
-	"                     provided, use it as the display name,\n"
-	"                     otherwise NAME is used. If EXEC is provided,\n"
-	"                     use it as the service executable, otherwise\n"
-	"                     this executable is used. Any additional\n"
-	"                     arguments are passed unchanged to the\n"
-	"                     service at startup.\n"
-	"--uninstall NAME     Uninstall Windows service NAME.\n"
-	"--start NAME [args]  Start Windows service NAME. Any additional\n"
-	"                     arguments are passed unchanged to the\n"
-	"                     service.\n"
-	"--stop NAME          Stop Windows service NAME."
+        "\n"
+        "\n"
+        "--service NAME       Run as the Windows service NAME.\n"
+        "\n"
+        "--install NAME [--display DISP] [--executable EXEC] [args]\n"
+        "                     Install as Windows service NAME. If DISP is\n"
+        "                     provided, use it as the display name,\n"
+        "                     otherwise NAME is used. If EXEC is provided,\n"
+        "                     use it as the service executable, otherwise\n"
+        "                     this executable is used. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service at startup.\n"
+        "--uninstall NAME     Uninstall Windows service NAME.\n"
+        "--start NAME [args]  Start Windows service NAME. Any additional\n"
+        "                     arguments are passed unchanged to the\n"
+        "                     service.\n"
+        "--stop NAME          Stop Windows service NAME."
         );
     }
 #else
@@ -232,7 +232,7 @@ IcePatch2::PatcherService::usage(const string& appName)
         "--daemon             Run as a daemon.\n"
         "--noclose            Do not close open file descriptors."
 
-	// --nochdir is intentionally not shown here. (See the comment in main().)
+        // --nochdir is intentionally not shown here. (See the comment in main().)
     );
 #endif
     print("Usage: " + appName + " [options] [DIR]\n" + options);
@@ -269,13 +269,13 @@ main(int argc, char* argv[])
     {
         v[i + 1] = new char[strlen(argv[i]) + 1];
         strcpy(v[i + 1], argv[i]);
-	vsave[i + 1] = v[i + 1];
+        vsave[i + 1] = v[i + 1];
     }
     v[argc + 1] = 0;
 
     try
     {
-	int ac = argc + 1;
+        int ac = argc + 1;
         status = svc.main(ac, v);
     }
     catch(...)

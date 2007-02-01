@@ -53,10 +53,10 @@ Module Generate
         Dim sp As StringBuilder = New StringBuilder
         sp.Length = 1024    ' TODO: This should be replaced with MAX_PATH for Win32
         Dim result As Long = GetShortPathName(longPath, sp, sp.Capacity)
-	If result = 0 Or result > sp.capacity Then
-	    ' Can occur if short pathnames are not supported on the specified filesystem
+        If result = 0 Or result > sp.capacity Then
+            ' Can occur if short pathnames are not supported on the specified filesystem
             Return longPath
-	End If
+        End If
         Return sp.ToString
     End Function
 
@@ -64,7 +64,7 @@ Module Generate
         If Not longPath.EndsWith(".exe") Then
             longPath = longPath + ".exe"
         End If
-	return ShortPath(longPath)
+        return ShortPath(longPath)
     End Function
 #End If
 
@@ -169,7 +169,7 @@ Module Generate
             Const slicePat As String = "*.ice"
             Dim sliceFiles() As String = Directory.GetFiles(currentDir, slicePat)
             For Each sliceFile As String In sliceFiles
-	        If sliceFile.EndsWith(".ice") Then
+                If sliceFile.EndsWith(".ice") Then
                     Dim vbFile As String = Path.GetFileName(Path.ChangeExtension(sliceFile, ".vb"))
                     vbFile = Path.Combine(outputDir, vbFile)
                     Select Case _action
@@ -198,7 +198,7 @@ Module Generate
                                 Console.WriteLine(vbFile & ": deleted")
                             End If
                     End Select
-		End If
+                End If
             Next
 
             '

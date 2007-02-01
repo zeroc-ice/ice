@@ -74,7 +74,7 @@ run(const Ice::CommunicatorPtr& communicator, const string& envName, const strin
 
     for(int i = 0; i < 10; ++i)
     {
-	string facetName = "theFacet";
+        string facetName = "theFacet";
 
         Ice::Identity id;
         ostringstream ostr;

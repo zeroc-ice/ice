@@ -65,7 +65,7 @@ class ServerAdapterEntry : public AdapterEntry
 public:
 
     ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
-		       const ServerEntryPtr&);
+                       const ServerEntryPtr&);
 
     virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&);
     virtual float getLeastLoadedNodeLoad(LoadSample) const;

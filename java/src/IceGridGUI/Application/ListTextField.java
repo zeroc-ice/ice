@@ -22,58 +22,58 @@ public class ListTextField extends JTextField
 {
     public ListTextField(int columns)
     {
-	super(columns);
+        super(columns);
     }
 
     public void setList(java.util.List list, final Utils.Resolver resolver)
     {
-	Utils.Stringifier stringifier =  new Utils.Stringifier()
-	    {
-		public String toString(Object obj)
-		{
-		    return Utils.substitute((String)obj, resolver);
-		}
-	    };
-	
-	setText(Utils.stringify(list, stringifier, " ", null));
+        Utils.Stringifier stringifier =  new Utils.Stringifier()
+            {
+                public String toString(Object obj)
+                {
+                    return Utils.substitute((String)obj, resolver);
+                }
+            };
+        
+        setText(Utils.stringify(list, stringifier, " ", null));
     }
 
     public java.util.LinkedList getList()
     {
-	String text = getText().trim();
-	java.util.LinkedList result = new java.util.LinkedList();
+        String text = getText().trim();
+        java.util.LinkedList result = new java.util.LinkedList();
 
-	while(text.length() > 0)
-	{
-	    if(text.startsWith("\""))
-	    {
-		int last = text.indexOf("\"", 1);
-		if(last == -1)
-		{
-		    result.add(text.substring(1));
-		    text = "";
-		}
-		else
-		{
-		    result.add(text.substring(1, last));
-		    text = text.substring(last + 1).trim();
-		}
-	    }
-	    else
-	    {
-		String[] strings = text.split("\\s", 2);
-		if(strings.length == 1)
-		{
-		    result.add(strings[0]);
-		    text = "";
-		}
-		else
-		{
-		    result.add(strings[0]);
-		    text = strings[1].trim();
-		}
-	    }
-	}
-	return result;
+        while(text.length() > 0)
+        {
+            if(text.startsWith("\""))
+            {
+                int last = text.indexOf("\"", 1);
+                if(last == -1)
+                {
+                    result.add(text.substring(1));
+                    text = "";
+                }
+                else
+                {
+                    result.add(text.substring(1, last));
+                    text = text.substring(last + 1).trim();
+                }
+            }
+            else
+            {
+                String[] strings = text.split("\\s", 2);
+                if(strings.length == 1)
+                {
+                    result.add(strings[0]);
+                    text = "";
+                }
+                else
+                {
+                    result.add(strings[0]);
+                    text = strings[1].trim();
+                }
+            }
+        }
+        return result;
     }
 }

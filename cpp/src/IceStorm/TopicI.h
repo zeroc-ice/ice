@@ -29,7 +29,7 @@ class TopicI : public TopicInternal
 public:
 
     TopicI(const InstancePtr&, const std::string&, const Ice::Identity&, const LinkRecordSeq&, const std::string&,
-	   const std::string&);
+           const std::string&);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;

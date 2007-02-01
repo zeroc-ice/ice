@@ -14,13 +14,13 @@ class PluginI extends Ice.LocalObjectImpl implements Plugin
     public
     PluginI(Ice.Communicator communicator)
     {
-	_instance = new Instance(communicator);
+        _instance = new Instance(communicator);
     }
 
     public void
     initialize()
     {
-	_instance.initialize();
+        _instance.initialize();
     }
 
     public void
@@ -31,19 +31,19 @@ class PluginI extends Ice.LocalObjectImpl implements Plugin
     public void
     setContext(javax.net.ssl.SSLContext context)
     {
-	_instance.context(context);
+        _instance.context(context);
     }
 
     public javax.net.ssl.SSLContext
     getContext()
     {
-	return _instance.context();
+        return _instance.context();
     }
 
     public void
     setCertificateVerifier(CertificateVerifier verifier)
     {
-	_instance.setCertificateVerifier(verifier);
+        _instance.setCertificateVerifier(verifier);
     }
 
     private Instance _instance;

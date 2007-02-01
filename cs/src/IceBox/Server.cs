@@ -22,29 +22,29 @@ public class Server : Ice.Application
 
     public override int run(string[] args)
     {
-	for(int i = 0; i < args.Length; ++i)
-	{
-	    if(args[i].Equals("-h") || args[i].Equals("--help"))
-	    {
-		usage();
-		return 0;
-	    }
-	    else if(!args[i].StartsWith("--"))
-	    {
-		Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
-		usage();
-		return 1;
-	    }
-	}
+        for(int i = 0; i < args.Length; ++i)
+        {
+            if(args[i].Equals("-h") || args[i].Equals("--help"))
+            {
+                usage();
+                return 0;
+            }
+            else if(!args[i].StartsWith("--"))
+            {
+                Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
+                usage();
+                return 1;
+            }
+        }
 
-	ServiceManagerI serviceManagerImpl = new ServiceManagerI(args);
-	return serviceManagerImpl.run();
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(args);
+        return serviceManagerImpl.run();
     }
 
     public static void Main(string[] args)
     {
-	Server server = new Server();
-	int status = server.main(args);
+        Server server = new Server();
+        int status = server.main(args);
         if(status != 0)
         {
             System.Environment.Exit(status);

@@ -10,7 +10,7 @@
 
 def test(b)
     if !b
-	raise RuntimeError, 'test assertion failed'
+        raise RuntimeError, 'test assertion failed'
     end
 end
 
@@ -42,10 +42,10 @@ def allTests(communicator)
     print "calling operation to kill connection with second proxy... "
     STDOUT.flush
     begin
-	retry2.op(true)
-	test(false)
+        retry2.op(true)
+        test(false)
     rescue Ice::ConnectionLostException
-	puts "ok"
+        puts "ok"
     end
 
     print "calling regular operation with first proxy again... "

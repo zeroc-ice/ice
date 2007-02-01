@@ -98,7 +98,7 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
 
     private:
-	void writeOperations(const ClassDefPtr&, bool);
+        void writeOperations(const ClassDefPtr&, bool);
     };
 
     class TieVisitor : public JavaVisitor
@@ -137,11 +137,11 @@ private:
 
     private:
 
-	//
-	// Verifies that a getter/setter method does not conflict with an operation.
-	//
-	bool validateGetterSetter(const OperationList&, const std::string&, int, const std::string&,
-				  const std::string&);
+        //
+        // Verifies that a getter/setter method does not conflict with an operation.
+        //
+        bool validateGetterSetter(const OperationList&, const std::string&, int, const std::string&,
+                                  const std::string&);
 
         bool _stream;
     };

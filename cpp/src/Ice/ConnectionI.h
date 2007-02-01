@@ -40,15 +40,15 @@ namespace Ice
 class LocalException;
 
 class ICE_API ConnectionI : public Connection, public IceInternal::EventHandler,
-			    public IceUtil::Monitor<IceUtil::Mutex>
+                            public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
     void validate();
     enum DestructionReason
     {
-	ObjectAdapterDeactivated,
-	CommunicatorDestroyed
+        ObjectAdapterDeactivated,
+        CommunicatorDestroyed
     };
     void activate();
     void hold();
@@ -103,18 +103,18 @@ public:
 private:
 
     ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
-		const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&, bool, size_t);
+                const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&, bool, size_t);
     virtual ~ConnectionI();
     friend class IceInternal::IncomingConnectionFactory;
     friend class IceInternal::OutgoingConnectionFactory;
 
     enum State
     {
-	StateNotValidated,
-	StateActive,
-	StateHolding,
-	StateClosing,
-	StateClosed
+        StateNotValidated,
+        StateActive,
+        StateHolding,
+        StateClosing,
+        StateClosed
     };
 
     void resetBatch(bool);
@@ -132,22 +132,22 @@ private:
     void doUncompress(IceInternal::BasicStream&, IceInternal::BasicStream&);
 
     void parseMessage(IceInternal::BasicStream&, Int&, Int&, Byte&,
-		      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
+                      IceInternal::ServantManagerPtr&, ObjectAdapterPtr&, IceInternal::OutgoingAsyncPtr&);
     void invokeAll(IceInternal::BasicStream&, Int, Int, Byte,
-		   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
+                   const IceInternal::ServantManagerPtr&, const ObjectAdapterPtr&);
 
     void run(); // For thread per connection.
 
     class ThreadPerConnection : public IceUtil::Thread
     {
     public:
-	
-	ThreadPerConnection(const ConnectionIPtr&);
-	virtual void run();
+        
+        ThreadPerConnection(const ConnectionIPtr&);
+        virtual void run();
 
     private:
-	
-	ConnectionIPtr _connection;
+        
+        ConnectionIPtr _connection;
     };
     friend class ThreadPerConnection;
     // Defined as mutable because "isFinished() const" sets this to 0.
@@ -183,8 +183,8 @@ private:
 
     struct AsyncRequest
     {
-	IceInternal::OutgoingAsyncPtr p;
-	IceUtil::Time t;
+        IceInternal::OutgoingAsyncPtr p;
+        IceUtil::Time t;
     };
     std::map<Int, AsyncRequest> _asyncRequests;
     std::map<Int, AsyncRequest>::iterator _asyncRequestsHint;

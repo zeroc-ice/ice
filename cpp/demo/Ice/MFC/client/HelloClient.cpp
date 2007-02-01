@@ -48,9 +48,9 @@ CHelloClientApp::InitInstance()
     try
     {
         int argc = 0;
-	Ice::InitializationData initData;
-	initData.properties = Ice::createProperties();
-	initData.properties->load("config");
+        Ice::InitializationData initData;
+        initData.properties = Ice::createProperties();
+        initData.properties->load("config");
         communicator = Ice::initialize(argc, 0, initData);
     }
     catch(const IceUtil::Exception& ex)

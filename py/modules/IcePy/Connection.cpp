@@ -152,7 +152,7 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
     PyObject* adapter;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), adapterType, &adapter))
     {
-	return NULL;
+        return NULL;
     }
 
     Ice::ObjectAdapterPtr oa = unwrapObjectAdapter(adapter);
@@ -162,12 +162,12 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
     assert(self->communicator);
     try
     {
-	(*self->connection)->setAdapter(oa);
+        (*self->connection)->setAdapter(oa);
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     Py_INCREF(Py_None);
@@ -186,12 +186,12 @@ connectionGetAdapter(ConnectionObject* self)
     assert(self->communicator);
     try
     {
-	adapter = (*self->connection)->getAdapter();
+        adapter = (*self->connection)->getAdapter();
     }
     catch(const Ice::Exception& ex)
     {
-	setPythonException(ex);
-	return NULL;
+        setPythonException(ex);
+        return NULL;
     }
 
     return wrapObjectAdapter(adapter);

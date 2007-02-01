@@ -17,31 +17,31 @@ public class Client
         int status = 0;
         Ice.Communicator ic = null;
         try {
-	    ic = Ice.Util.initialize(ref args);
-	    Ice.ObjectPrx obj = ic.stringToProxy(
-		    "SimplePrinter:default -p 10000");
-	    PrinterPrx printer = PrinterPrxHelper.checkedCast(obj);
-	    if (printer == null)
-	        throw new ApplicationException("Invalid proxy");
+            ic = Ice.Util.initialize(ref args);
+            Ice.ObjectPrx obj = ic.stringToProxy(
+                    "SimplePrinter:default -p 10000");
+            PrinterPrx printer = PrinterPrxHelper.checkedCast(obj);
+            if (printer == null)
+                throw new ApplicationException("Invalid proxy");
 
-	    printer.printString("Hello World!");
+            printer.printString("Hello World!");
         } catch (Exception e) {
-	    Console.Error.WriteLine(e);
-	    status = 1;
-	}
-	if (ic != null) {
-	    // Clean up
-	    //
-	    try {
-		ic.destroy();
-	    } catch (Exception e) {
-		Console.Error.WriteLine(e);
-		status = 1;
-	    }
-	}
-	if(status != 0)
-	{
-	    System.Environment.Exit(status);
-	}
+            Console.Error.WriteLine(e);
+            status = 1;
+        }
+        if (ic != null) {
+            // Clean up
+            //
+            try {
+                ic.destroy();
+            } catch (Exception e) {
+                Console.Error.WriteLine(e);
+                status = 1;
+            }
+        }
+        if(status != 0)
+        {
+            System.Environment.Exit(status);
+        }
     }
 }

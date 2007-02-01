@@ -16,19 +16,19 @@ class StopWatch
     public void
     start()
     {
-	_stopped = false;
-	_start = System.currentTimeMillis();
+        _stopped = false;
+        _start = System.currentTimeMillis();
     }
 
     public long
     stop()
     {
-	if(!_stopped)
-	{
-	    _stop = System.currentTimeMillis();
-	    _stopped = true;
-	}
-	return _stop - _start;
+        if(!_stopped)
+        {
+            _stop = System.currentTimeMillis();
+            _stopped = true;
+        }
+        return _stop - _start;
     }
 
     private boolean _stopped;

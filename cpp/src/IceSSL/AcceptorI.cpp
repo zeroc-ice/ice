@@ -33,8 +33,8 @@ IceSSL::AcceptorI::close()
 {
     if(_instance->networkTraceLevel() >= 1)
     {
-	Trace out(_logger, _instance->networkTraceCategory());
-	out << "stopping to accept ssl connections at " << toString();
+        Trace out(_logger, _instance->networkTraceCategory());
+        out << "stopping to accept ssl connections at " << toString();
     }
 
     SOCKET fd = _fd;
@@ -47,18 +47,18 @@ IceSSL::AcceptorI::listen()
 {
     try
     {
-	IceInternal::doListen(_fd, _backlog);
+        IceInternal::doListen(_fd, _backlog);
     }
     catch(...)
     {
-	_fd = INVALID_SOCKET;
-	throw;
+        _fd = INVALID_SOCKET;
+        throw;
     }
 
     if(_instance->networkTraceLevel() >= 1)
     {
-	Trace out(_logger, _instance->networkTraceCategory());
-	out << "accepting ssl connections at " << toString();
+        Trace out(_logger, _instance->networkTraceCategory());
+        out << "accepting ssl connections at " << toString();
     }
 }
 
@@ -70,9 +70,9 @@ IceSSL::AcceptorI::accept(int timeout)
     //
     if(!_instance->context())
     {
-	PluginInitializationException ex(__FILE__, __LINE__);
-	ex.reason = "IceSSL: plugin is not initialized";
-	throw ex;
+        PluginInitializationException ex(__FILE__, __LINE__);
+        ex.reason = "IceSSL: plugin is not initialized";
+        throw ex;
     }
 
     SOCKET fd = IceInternal::doAccept(_fd, timeout);
@@ -81,19 +81,19 @@ IceSSL::AcceptorI::accept(int timeout)
     BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
     if(!bio)
     {
-	IceInternal::closeSocketNoThrow(fd);
-	SecurityException ex(__FILE__, __LINE__);
-	ex.reason = "openssl failure";
-	throw ex;
+        IceInternal::closeSocketNoThrow(fd);
+        SecurityException ex(__FILE__, __LINE__);
+        ex.reason = "openssl failure";
+        throw ex;
     }
 
     SSL* ssl = SSL_new(_instance->context());
     if(!ssl)
     {
-	BIO_free(bio); // Also closes the socket.
-	SecurityException ex(__FILE__, __LINE__);
-	ex.reason = "openssl failure";
-	throw ex;
+        BIO_free(bio); // Also closes the socket.
+        SecurityException ex(__FILE__, __LINE__);
+        ex.reason = "openssl failure";
+        throw ex;
     }
     SSL_set_bio(ssl, bio, bio);
 
@@ -152,20 +152,20 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
 
     try
     {
-	_fd = IceInternal::createSocket(false);
-	IceInternal::setBlock(_fd, false);
-	IceInternal::getAddress(host, port, _addr);
-	if(_instance->networkTraceLevel() >= 2)
-	{
-	    Trace out(_logger, _instance->networkTraceCategory());
-	    out << "attempting to bind to ssl socket " << toString();
-	}
-	IceInternal::doBind(_fd, _addr);
+        _fd = IceInternal::createSocket(false);
+        IceInternal::setBlock(_fd, false);
+        IceInternal::getAddress(host, port, _addr);
+        if(_instance->networkTraceLevel() >= 2)
+        {
+            Trace out(_logger, _instance->networkTraceCategory());
+            out << "attempting to bind to ssl socket " << toString();
+        }
+        IceInternal::doBind(_fd, _addr);
     }
     catch(...)
     {
-	_fd = INVALID_SOCKET;
-	throw;
+        _fd = INVALID_SOCKET;
+        throw;
     }
 }
 

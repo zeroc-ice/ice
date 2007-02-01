@@ -86,9 +86,9 @@ public:
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
     virtual void allocateObjectById_async(const AMD_Session_allocateObjectByIdPtr&, const Ice::Identity&,
-					  const Ice::Current&);
+                                          const Ice::Current&);
     virtual void allocateObjectByType_async(const AMD_Session_allocateObjectByTypePtr&, const std::string&,
-					    const Ice::Current&);
+                                            const Ice::Current&);
     virtual void releaseObject(const Ice::Identity&, const Ice::Current&);
     virtual void setAllocationTimeout(int, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
@@ -154,7 +154,7 @@ public:
     ClientSSLSessionManagerI(const  ClientSessionFactoryPtr&);
     
     virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
-					const Ice::Current&);
+                                        const Ice::Current&);
 
 private:
 

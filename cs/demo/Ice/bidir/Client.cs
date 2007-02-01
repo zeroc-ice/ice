@@ -14,7 +14,7 @@ public class Client : Ice.Application
     public override int run(string[] args)
     {
         CallbackSenderPrx server = 
-	    CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
+            CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
         if(server == null)
         {
             System.Console.Error.WriteLine("invalid proxy");
@@ -22,14 +22,14 @@ public class Client : Ice.Application
         }
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("");
-	Ice.Identity ident = new Ice.Identity();
-	ident.name = Ice.Util.generateUUID();
-	ident.category = "";
+        Ice.Identity ident = new Ice.Identity();
+        ident.name = Ice.Util.generateUUID();
+        ident.category = "";
         adapter.add(new CallbackReceiverI(), ident);
         adapter.activate();
-	server.ice_getConnection().setAdapter(adapter);
-	server.addClient(ident);
-	communicator().waitForShutdown();
+        server.ice_getConnection().setAdapter(adapter);
+        server.addClient(ident);
+        communicator().waitForShutdown();
 
         return 0;
     }

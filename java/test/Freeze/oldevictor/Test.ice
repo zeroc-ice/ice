@@ -61,7 +61,7 @@ interface RemoteEvictor
     void setSize(int size);
 
     Servant* createServant(string id, int value) 
-	throws AlreadyRegisteredException, EvictorDeactivatedException;
+        throws AlreadyRegisteredException, EvictorDeactivatedException;
 
     Servant* getServant(string id);
 

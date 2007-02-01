@@ -42,14 +42,14 @@ class ServerLocatorRegistry(Ice.LocatorRegistry):
 
     def setAdapterDirectProxy_async(self, cb, adapter, obj, current=None):
         self._adapters[adapter] = obj
-	cb.ice_response()
+        cb.ice_response()
 
     def setReplicatedAdapterDirectProxy_async(self, cb, adapter, replica, obj, current=None):
         self._adapters[adapter] = obj
-	cb.ice_response()
+        cb.ice_response()
 
     def setServerProcessProxy_async(self, id, proxy, current=None):
-	cb.ice_response()
+        cb.ice_response()
 
     def addObject(self, obj, current=None):
         self._objects[obj.ice_getIdentity()] = obj
@@ -82,7 +82,7 @@ class ServerLocator(Ice.Locator):
 class ServerManagerI(Test.ServerManager):
     def __init__(self, adapter, registry, initData):
         self._adapter = adapter
-	self._registry = registry
+        self._registry = registry
         self._communicators = []
         self._initData = initData
         self._initData.properties.setProperty("Ice.OA.TestAdapter.Endpoints", "default")
@@ -111,8 +111,8 @@ class ServerManagerI(Test.ServerManager):
         adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
         object = TestI(adapter, adapter2, self._registry)
-	self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test")))
-	self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test2")))
+        self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test")))
+        self._registry.addObject(adapter.add(object, communicator.stringToIdentity("test2")))
 
         adapter.activate()
         adapter2.activate()
@@ -140,11 +140,11 @@ class TestI(Test.TestIntf):
         return Test.HelloPrx.uncheckedCast(self._adapter1.createProxy(communicator.stringToIdentity("hello")))
 
     def migrateHello(self, current=None):
-	id = communicator.stringToIdentity("hello")
-	try:
-	    self._registry.addObject(self._adapter2.add(self._adapter1.remove(id), id))
-	except Ice.NotRegisteredException:
-	    self._registry.addObject(self._adapter1.add(self._adapter2.remove(id), id))
+        id = communicator.stringToIdentity("hello")
+        try:
+            self._registry.addObject(self._adapter2.add(self._adapter1.remove(id), id))
+        except Ice.NotRegisteredException:
+            self._registry.addObject(self._adapter1.add(self._adapter2.remove(id), id))
 
 def run(args, communicator, initData):
     #

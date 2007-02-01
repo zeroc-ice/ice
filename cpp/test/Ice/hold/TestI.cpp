@@ -15,12 +15,12 @@ HoldI::putOnHold(Ice::Int seconds, const Ice::Current& current)
 {
     if(seconds <= 0)
     {
-	current.adapter->hold();
-	current.adapter->activate();
+        current.adapter->hold();
+        current.adapter->activate();
     }
     else
     {
-	assert(false); // TODO
+        assert(false); // TODO
     }
 }
 

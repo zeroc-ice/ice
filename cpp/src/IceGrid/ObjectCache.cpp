@@ -30,7 +30,7 @@ struct ObjectEntryCI : binary_function<ObjectEntryPtr&, ObjectEntryPtr&, bool>
     bool
     operator()(const ObjectEntryPtr& lhs, const ObjectEntryPtr& rhs)
     {
-	return ::Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
+        return ::Ice::proxyIdentityLess(lhs->getProxy(), rhs->getProxy());
     }
 };
 
@@ -38,7 +38,7 @@ struct ObjectLoadCI : binary_function<pair<Ice::ObjectPrx, float>&, pair<Ice::Ob
 {
     bool operator()(const pair<Ice::ObjectPrx, float>& lhs, const pair<Ice::ObjectPrx, float>& rhs)
     {
-	return lhs.second < rhs.second;
+        return lhs.second < rhs.second;
     }
 };
 
@@ -87,14 +87,14 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     if(p == _types.end())
     {
-	p = _types.insert(p, map<string, TypeEntry>::value_type(entry->getType(), TypeEntry()));
+        p = _types.insert(p, map<string, TypeEntry>::value_type(entry->getType(), TypeEntry()));
     }
     p->second.add(entry);
 
     if(_traceLevels && _traceLevels->object > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "added object `" << _communicator->identityToString(id) << "'";	
+        Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+        out << "added object `" << _communicator->identityToString(id) << "'";  
     }    
 }
 
@@ -105,7 +105,7 @@ ObjectCache::get(const Ice::Identity& id) const
     ObjectEntryPtr entry = getImpl(id);
     if(!entry)
     {
-	throw ObjectNotRegisteredException(id);
+        throw ObjectNotRegisteredException(id);
     }
     return entry;
 }
@@ -121,14 +121,14 @@ ObjectCache::remove(const Ice::Identity& id)
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
     assert(p != _types.end());
     if(p->second.remove(entry))
-    {	
-	_types.erase(p);
+    {   
+        _types.erase(p);
     }
 
     if(_traceLevels && _traceLevels->object > 0)
     {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-	out << "removed object `" << _communicator->identityToString(id) << "'";	
+        Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
+        out << "removed object `" << _communicator->identityToString(id) << "'";        
     }    
 
     return entry;
@@ -142,12 +142,12 @@ ObjectCache::getObjectsByType(const string& type)
     map<string, TypeEntry>::const_iterator p = _types.find(type);
     if(p == _types.end())
     {
-	return proxies;
+        return proxies;
     }
     const vector<ObjectEntryPtr>& objects = p->second.getObjects();
     for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
-	proxies.push_back((*q)->getProxy());
+        proxies.push_back((*q)->getProxy());
     }
     return proxies;
 }
@@ -159,10 +159,10 @@ ObjectCache::getAll(const string& expression)
     ObjectInfoSeq infos;
     for(map<Ice::Identity, ObjectEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-	if(expression.empty() || IceUtil::match(_communicator->identityToString(p->first), expression, true))
-	{
-	    infos.push_back(p->second->getObjectInfo());
-	}
+        if(expression.empty() || IceUtil::match(_communicator->identityToString(p->first), expression, true))
+        {
+            infos.push_back(p->second->getObjectInfo());
+        }
     }
     return infos;
 }
@@ -175,13 +175,13 @@ ObjectCache::getAllByType(const string& type)
     map<string, TypeEntry>::const_iterator p = _types.find(type);
     if(p == _types.end())
     {
-	return infos;
+        return infos;
     }
 
     const vector<ObjectEntryPtr>& objects = p->second.getObjects();
     for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
     {
-	infos.push_back((*q)->getObjectInfo());
+        infos.push_back((*q)->getObjectInfo());
     }
     return infos;
 }

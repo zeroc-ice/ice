@@ -37,7 +37,7 @@ IceUtil::Time::now()
     ftime(&tb);
 #  endif
     return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + 
-		tb.millitm * 1000);
+                tb.millitm * 1000);
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);

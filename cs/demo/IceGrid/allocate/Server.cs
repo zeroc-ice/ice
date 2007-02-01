@@ -12,8 +12,8 @@ public class Server : Ice.Application
     public override int run(string[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");
-	Ice.Properties properties = communicator().getProperties();
-	Ice.Identity id = communicator().stringToIdentity(properties.getProperty("Identity"));
+        Ice.Properties properties = communicator().getProperties();
+        Ice.Identity id = communicator().stringToIdentity(properties.getProperty("Identity"));
         adapter.add(new HelloI(properties.getProperty("Ice.ServerId")), id);
         adapter.activate();
         communicator().waitForShutdown();
@@ -22,8 +22,8 @@ public class Server : Ice.Application
 
     static public void Main(string[] args)
     {
-	Server app = new Server();
-	int status = app.main(args);
+        Server app = new Server();
+        int status = app.main(args);
         if(status != 0)
         {
             System.Environment.Exit(status);

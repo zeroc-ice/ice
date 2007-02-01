@@ -184,7 +184,7 @@ IceSSL::DHParams::~DHParams()
     ParamList::iterator p;
     for(p = _params.begin(); p != _params.end(); ++p)
     {
-	DH_free(p->second);
+        DH_free(p->second);
     }
     DH_free(_dh512);
     DH_free(_dh1024);
@@ -198,19 +198,19 @@ IceSSL::DHParams::add(int keyLength, const string& file)
     BIO* bio = BIO_new(BIO_s_file());
     if(BIO_read_filename(bio, file.c_str()) <= 0)
     {
-	BIO_free(bio);
-	return false;
+        BIO_free(bio);
+        return false;
     }
     DH* dh = PEM_read_bio_DHparams(bio, 0, 0, 0);
     BIO_free(bio);
     if(!dh)
     {
-	return false;
+        return false;
     }
     ParamList::iterator p = _params.begin();
     while(p != _params.end() && keyLength > p->first)
     {
-	++p;
+        ++p;
     }
     _params.insert(p, KeyParamPair(keyLength, dh));
     return true;
@@ -226,10 +226,10 @@ IceSSL::DHParams::get(int keyLength)
     ParamList::iterator p;
     for(p = _params.begin(); p != _params.end(); ++p)
     {
-	if(p->first >= keyLength)
-	{
-	    return p->second;
-	}
+        if(p->first >= keyLength)
+        {
+            return p->second;
+        }
     }
 
     //
@@ -239,35 +239,35 @@ IceSSL::DHParams::get(int keyLength)
 
     if(keyLength >= 4096)
     {
-	if(!_dh4096)
-	{
-	    _dh4096 = convertDH(dh4096_p, (int) sizeof(dh4096_p), dh4096_g, (int) sizeof(dh4096_g));
-	}
-	return _dh4096;
+        if(!_dh4096)
+        {
+            _dh4096 = convertDH(dh4096_p, (int) sizeof(dh4096_p), dh4096_g, (int) sizeof(dh4096_g));
+        }
+        return _dh4096;
     }
     else if(keyLength >= 2048)
     {
-	if(!_dh2048)
-	{
-	    _dh2048 = convertDH(dh2048_p, (int) sizeof(dh2048_p), dh2048_g, (int) sizeof(dh2048_g));
-	}
-	return _dh2048;
+        if(!_dh2048)
+        {
+            _dh2048 = convertDH(dh2048_p, (int) sizeof(dh2048_p), dh2048_g, (int) sizeof(dh2048_g));
+        }
+        return _dh2048;
     }
     else if(keyLength >= 1024)
     {
-	if(!_dh1024)
-	{
-	    _dh1024 = convertDH(dh1024_p, (int) sizeof(dh1024_p), dh1024_g, (int) sizeof(dh1024_g));
-	}
-	return _dh1024;
+        if(!_dh1024)
+        {
+            _dh1024 = convertDH(dh1024_p, (int) sizeof(dh1024_p), dh1024_g, (int) sizeof(dh1024_g));
+        }
+        return _dh1024;
     }
     else
     {
-	if(!_dh512)
-	{
-	    _dh512 = convertDH(dh512_p, (int) sizeof(dh512_p), dh512_g, (int) sizeof(dh512_g));
-	}
-	return _dh512;
+        if(!_dh512)
+        {
+            _dh512 = convertDH(dh512_p, (int) sizeof(dh512_p), dh512_g, (int) sizeof(dh512_g));
+        }
+        return _dh512;
     }
 }
 
@@ -282,11 +282,11 @@ selectReadWrite(SOCKET fd, bool read, int timeout)
     FD_ZERO(&wFdSet);
     if(read)
     {
-	FD_SET(fd, &rFdSet);
+        FD_SET(fd, &rFdSet);
     }
     else
     {
-	FD_SET(fd, &wFdSet);
+        FD_SET(fd, &wFdSet);
     }
 #else
     struct pollfd pollfd[1];
@@ -299,14 +299,14 @@ repeatSelect:
 #ifdef _WIN32
     if(timeout >= 0)
     {
-	struct timeval tv;
-	tv.tv_sec = timeout / 1000;
-	tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-	ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, &tv);
+        struct timeval tv;
+        tv.tv_sec = timeout / 1000;
+        tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
+        ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, &tv);
     }
     else
     {
-	ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, 0);
+        ret = ::select(static_cast<int>(fd) + 1, &rFdSet, &wFdSet, 0, 0);
     }
 #else
     ret = ::poll(pollfd, 1, timeout); 
@@ -314,18 +314,18 @@ repeatSelect:
 
     if(ret == 0)
     {
-	return false; // Timeout.
+        return false; // Timeout.
     }
     else if(ret == SOCKET_ERROR)
     {
-	if(IceInternal::interrupted())
-	{
-	    goto repeatSelect;
-	}
-	
-	SocketException ex(__FILE__, __LINE__);
-	ex.error = IceInternal::getSocketErrno();
-	throw ex;
+        if(IceInternal::interrupted())
+        {
+            goto repeatSelect;
+        }
+        
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = IceInternal::getSocketErrno();
+        throw ex;
     }
 
     return true;
@@ -349,56 +349,56 @@ IceSSL::splitString(const string& str, const string& delim, bool handleQuotes, v
     string::size_type pos = str.find_first_not_of(delim + " \t");
     if(pos == string::npos)
     {
-	return true;
+        return true;
     }
 
     string::value_type quoteChar = 0;
     while(pos != string::npos)
     {
-	if(handleQuotes && (str[pos] == '"' || str[pos] == '\''))
-	{
-	    quoteChar = str[pos];
-	    ++pos;
-	}
+        if(handleQuotes && (str[pos] == '"' || str[pos] == '\''))
+        {
+            quoteChar = str[pos];
+            ++pos;
+        }
 
-	string val;
-	while(pos < str.size())
-	{
-	    if((!handleQuotes || !quoteChar) && delim.find(str[pos]) != string::npos)
-	    {
-		break;
-	    }
-	    if(handleQuotes)
-	    {
-		if(str[pos] == '\\')
-		{
-		    if(pos + 1 < str.size() && str[pos + 1] == quoteChar)
-		    {
-			++pos;
-		    }
-		}
-		else if(str[pos] == quoteChar)
-		{
-		    quoteChar = 0;
-		    ++pos;
-		    continue;
-		}
-	    }
-	    val.push_back(str[pos]);
-	    ++pos;
-	}
+        string val;
+        while(pos < str.size())
+        {
+            if((!handleQuotes || !quoteChar) && delim.find(str[pos]) != string::npos)
+            {
+                break;
+            }
+            if(handleQuotes)
+            {
+                if(str[pos] == '\\')
+                {
+                    if(pos + 1 < str.size() && str[pos + 1] == quoteChar)
+                    {
+                        ++pos;
+                    }
+                }
+                else if(str[pos] == quoteChar)
+                {
+                    quoteChar = 0;
+                    ++pos;
+                    continue;
+                }
+            }
+            val.push_back(str[pos]);
+            ++pos;
+        }
 
-	if(!val.empty())
-	{
-	    result.push_back(val);
-	}
+        if(!val.empty())
+        {
+            result.push_back(val);
+        }
 
-	pos = str.find_first_not_of(delim, pos);
+        pos = str.find_first_not_of(delim, pos);
     }
 
     if(quoteChar) // Mismatched quote.
     {
-	return false;
+        return false;
     }
 
     return true;
@@ -422,23 +422,23 @@ IceSSL::checkPath(string& path, const string& defaultDir, bool dir)
 #endif
     if(err == 0)
     {
-	return dir ? S_ISDIR(st.st_mode) != 0 : S_ISREG(st.st_mode) != 0;
+        return dir ? S_ISDIR(st.st_mode) != 0 : S_ISREG(st.st_mode) != 0;
     }
 
     if(!defaultDir.empty())
     {
 #ifdef _WIN32
-	string s = defaultDir + "\\" + path;
-	err = ::_stat(s.c_str(), &st);
+        string s = defaultDir + "\\" + path;
+        err = ::_stat(s.c_str(), &st);
 #else
-	string s = defaultDir + "/" + path;
-	err = ::stat(s.c_str(), &st);
+        string s = defaultDir + "/" + path;
+        err = ::stat(s.c_str(), &st);
 #endif
-	if(err == 0 && ((!dir && S_ISREG(st.st_mode)) || (dir && S_ISDIR(st.st_mode))))
-	{
-	    path = s;
-	    return true;
-	}
+        if(err == 0 && ((!dir && S_ISREG(st.st_mode)) || (dir && S_ISDIR(st.st_mode))))
+        {
+            path = s;
+            return true;
+        }
     }
 
     return false;
@@ -465,23 +465,23 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, b
     STACK_OF(X509)* chain = SSL_get_peer_cert_chain(ssl);
     if(cert != 0 && (chain == 0 || sk_X509_num(chain) == 0 || cert != sk_X509_value(chain, 0)))
     {
-	info.certs.push_back(new Certificate(cert));
+        info.certs.push_back(new Certificate(cert));
     }
     else
     {
-	X509_free(cert);
+        X509_free(cert);
     }
 
     if(chain != 0)
     {
-	for(int i = 0; i < sk_X509_num(chain); ++i)
-	{
-	    X509* cert = sk_X509_value(chain, i);
-	    //
-	    // Duplicate the certificate since the stack comes straight from the SSL connection.
-	    //
-	    info.certs.push_back(new Certificate(X509_dup(cert)));
-	}
+        for(int i = 0; i < sk_X509_num(chain); ++i)
+        {
+            X509* cert = sk_X509_value(chain, i);
+            //
+            // Duplicate the certificate since the stack comes straight from the SSL connection.
+            //
+            info.certs.push_back(new Certificate(X509_dup(cert)));
+        }
     }
 
     info.cipher = SSL_get_cipher_name(ssl); // Nothing needs to be free'd.
@@ -490,9 +490,9 @@ IceSSL::populateConnectionInfo(SSL* ssl, SOCKET fd, const string& adapterName, b
 
     if(!IceInternal::fdToRemoteAddress(fd, info.remoteAddr))
     {
-	SocketException ex(__FILE__, __LINE__);
-	ex.error = IceInternal::getSocketErrno();
-	throw ex;	
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = IceInternal::getSocketErrno();
+        throw ex;       
     }
 
     return info;
@@ -511,41 +511,41 @@ IceSSL::getSslErrors(bool verbose)
     int count = 0;
     while((err = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
     {
-	if(count > 0)
-	{
-	    ostr << endl;
-	}
+        if(count > 0)
+        {
+            ostr << endl;
+        }
 
-	if(verbose)
-	{
-	    if(count > 0)
-	    {
-		ostr << endl;
-	    }
+        if(verbose)
+        {
+            if(count > 0)
+            {
+                ostr << endl;
+            }
 
-	    char buf[200];
-	    ERR_error_string_n(err, buf, sizeof(buf));
+            char buf[200];
+            ERR_error_string_n(err, buf, sizeof(buf));
 
-	    ostr << "error # = " << err << endl;
-	    ostr << "message = " << buf << endl;
-	    ostr << "location = " << file << ", " << line;
-	    if(flags & ERR_TXT_STRING)
-	    {
-		ostr << endl;
-		ostr << "data = " << data;
-	    }
-	}
-	else
-	{
-	    const char* reason = ERR_reason_error_string(err);
-	    ostr << (reason == NULL ? "unknown reason" : reason);
-	    if(flags & ERR_TXT_STRING)
-	    {
-		ostr << ": " << data;
-	    }
-	}
+            ostr << "error # = " << err << endl;
+            ostr << "message = " << buf << endl;
+            ostr << "location = " << file << ", " << line;
+            if(flags & ERR_TXT_STRING)
+            {
+                ostr << endl;
+                ostr << "data = " << data;
+            }
+        }
+        else
+        {
+            const char* reason = ERR_reason_error_string(err);
+            ostr << (reason == NULL ? "unknown reason" : reason);
+            if(flags & ERR_TXT_STRING)
+            {
+                ostr << ": " << data;
+            }
+        }
 
-	++count;
+        ++count;
     }
 
     ERR_clear_error();

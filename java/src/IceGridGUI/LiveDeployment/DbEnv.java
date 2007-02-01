@@ -21,50 +21,50 @@ import IceGridGUI.*;
 class DbEnv extends TreeNode
 {
     public Component getTreeCellRendererComponent(
-	    JTree tree,
-	    Object value,
-	    boolean sel,
-	    boolean expanded,
-	    boolean leaf,
-	    int row,
-	    boolean hasFocus) 
+            JTree tree,
+            Object value,
+            boolean sel,
+            boolean expanded,
+            boolean leaf,
+            int row,
+            boolean hasFocus) 
     {
-	if(_cellRenderer == null)
-	{
-	    _cellRenderer = new DefaultTreeCellRenderer();
-	    _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/database.png"));
-	}
-	return _cellRenderer.getTreeCellRendererComponent(
-	    tree, value, sel, expanded, leaf, row, hasFocus);
+        if(_cellRenderer == null)
+        {
+            _cellRenderer = new DefaultTreeCellRenderer();
+            _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/database.png"));
+        }
+        return _cellRenderer.getTreeCellRendererComponent(
+            tree, value, sel, expanded, leaf, row, hasFocus);
     }
     
     public Editor getEditor()
     {
-	if(_editor == null)
-	{
-	    _editor = new DbEnvEditor();
-	}
-	_editor.show(this);
-	return _editor;
+        if(_editor == null)
+        {
+            _editor = new DbEnvEditor();
+        }
+        _editor.show(this);
+        return _editor;
     }
 
     DbEnv(TreeNode parent, String dbEnvName, Utils.Resolver resolver,
-	  DbEnvDescriptor descriptor)
+          DbEnvDescriptor descriptor)
     {
-	super(parent, dbEnvName);
-	_resolver = resolver;
-	_descriptor = descriptor;
+        super(parent, dbEnvName);
+        _resolver = resolver;
+        _descriptor = descriptor;
 
     }
 
     Utils.Resolver getResolver()
     {
-	return _resolver;
+        return _resolver;
     }
 
     DbEnvDescriptor getDescriptor()
     {
-	return _descriptor;
+        return _descriptor;
     }
 
     private Utils.Resolver _resolver;

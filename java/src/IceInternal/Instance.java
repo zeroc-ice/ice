@@ -14,36 +14,36 @@ public final class Instance
     public Ice.InitializationData
     initializationData()
     {
-	//
-	// No check for destruction. It must be possible to access the
-	// initialization data after destruction.
-	//
-	// No mutex lock, immutable.
-	//
+        //
+        // No check for destruction. It must be possible to access the
+        // initialization data after destruction.
+        //
+        // No mutex lock, immutable.
+        //
         return _initData;
     }
 
     public TraceLevels
     traceLevels()
     {
-	// No mutex lock, immutable.
+        // No mutex lock, immutable.
         return _traceLevels;
     }
 
     public DefaultsAndOverrides
     defaultsAndOverrides()
     {
-	// No mutex lock, immutable.
+        // No mutex lock, immutable.
         return _defaultsAndOverrides;
     }
 
     public synchronized RouterManager
     routerManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _routerManager;
     }
@@ -51,10 +51,10 @@ public final class Instance
     public synchronized LocatorManager
     locatorManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _locatorManager;
     }
@@ -62,10 +62,10 @@ public final class Instance
     public synchronized ReferenceFactory
     referenceFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _referenceFactory;
     }
@@ -73,10 +73,10 @@ public final class Instance
     public synchronized ProxyFactory
     proxyFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _proxyFactory;
     }
@@ -84,10 +84,10 @@ public final class Instance
     public synchronized OutgoingConnectionFactory
     outgoingConnectionFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _outgoingConnectionFactory;
     }
@@ -95,10 +95,10 @@ public final class Instance
     public synchronized ConnectionMonitor
     connectionMonitor()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _connectionMonitor;
     }
@@ -106,10 +106,10 @@ public final class Instance
     public synchronized ObjectFactoryManager
     servantFactoryManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _servantFactoryManager;
     }
@@ -117,10 +117,10 @@ public final class Instance
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _objectAdapterFactory;
     }
@@ -128,14 +128,14 @@ public final class Instance
     public synchronized ThreadPool
     clientThreadPool()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-	
-	if(_clientThreadPool == null) // Lazy initialization.
-	{
-	    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+        
+        if(_clientThreadPool == null) // Lazy initialization.
+        {
+            _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
         }
 
         return _clientThreadPool;
@@ -144,16 +144,16 @@ public final class Instance
     public synchronized ThreadPool
     serverThreadPool()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
-	
-	if(_serverThreadPool == null) // Lazy initialization.
-	{
-	    int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
-	    _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+        
+        if(_serverThreadPool == null) // Lazy initialization.
+        {
+            int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
+            _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
+        }
 
         return _serverThreadPool;
     }
@@ -161,22 +161,22 @@ public final class Instance
     public boolean
     threadPerConnection()
     {
-	return _threadPerConnection;
+        return _threadPerConnection;
     }
 
     public int
     threadPerConnectionStackSize()
     {
-	return _threadPerConnectionStackSize;
+        return _threadPerConnectionStackSize;
     }
 
     public synchronized EndpointFactoryManager
     endpointFactoryManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _endpointFactoryManager;
     }
@@ -184,10 +184,10 @@ public final class Instance
     public synchronized Ice.PluginManager
     pluginManager()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return _pluginManager;
     }
@@ -196,48 +196,48 @@ public final class Instance
     messageSizeMax()
     {
         // No mutex lock, immutable.
-	return _messageSizeMax;
+        return _messageSizeMax;
     }
 
     public int
     clientACM()
     {
-	// No mutex lock, immutable.
-	return _clientACM;
+        // No mutex lock, immutable.
+        return _clientACM;
     }
 
     public int
     serverACM()
     {
-	// No mutex lock, immutable.
-	return _serverACM;
+        // No mutex lock, immutable.
+        return _serverACM;
     }
 
     public synchronized void
     setDefaultContext(java.util.Map ctx)
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
-	if(ctx == null || ctx.isEmpty())
-	{
-	    _defaultContext = _emptyContext;
-	}
-	else
-	{
-	    _defaultContext = new java.util.HashMap(ctx);
-	}
+        if(ctx == null || ctx.isEmpty())
+        {
+            _defaultContext = _emptyContext;
+        }
+        else
+        {
+            _defaultContext = new java.util.HashMap(ctx);
+        }
     }
 
     public synchronized java.util.Map
     getDefaultContext()
     {
-	if(_state == StateDestroyed)
-	{
-	    throw new Ice.CommunicatorDestroyedException();
-	}
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
 
         return new java.util.HashMap(_defaultContext);
     }
@@ -245,29 +245,29 @@ public final class Instance
     public Ice.ImplicitContextI
     getImplicitContext()
     {
-	return _implicitContext;
+        return _implicitContext;
     }
 
 
     public void
     flushBatchRequests()
     {
-	OutgoingConnectionFactory connectionFactory;
-	ObjectAdapterFactory adapterFactory;
+        OutgoingConnectionFactory connectionFactory;
+        ObjectAdapterFactory adapterFactory;
 
-	synchronized(this)
-	{
-	    if(_state == StateDestroyed)
-	    {
-		throw new Ice.CommunicatorDestroyedException();
-	    }
-	    
-	    connectionFactory = _outgoingConnectionFactory;
-	    adapterFactory = _objectAdapterFactory;
-	}
+        synchronized(this)
+        {
+            if(_state == StateDestroyed)
+            {
+                throw new Ice.CommunicatorDestroyedException();
+            }
+            
+            connectionFactory = _outgoingConnectionFactory;
+            adapterFactory = _objectAdapterFactory;
+        }
 
-	connectionFactory.flushBatchRequests();
-	adapterFactory.flushBatchRequests();
+        connectionFactory.flushBatchRequests();
+        adapterFactory.flushBatchRequests();
     }
 
     public Ice.Identity
@@ -289,88 +289,88 @@ public final class Instance
     Instance(Ice.Communicator communicator, Ice.InitializationData initData)
     {
         _state = StateActive;
-	_initData = initData;
+        _initData = initData;
 
         try
         {
-	    if(_initData.properties == null)
-	    {
-		_initData.properties = Ice.Util.createProperties();
-	    }
+            if(_initData.properties == null)
+            {
+                _initData.properties = Ice.Util.createProperties();
+            }
 
-	    synchronized(Instance.class)
-	    {
-		if(!_oneOffDone)
-		{
-		    String stdOut = _initData.properties.getProperty("Ice.StdOut");
-		    String stdErr = _initData.properties.getProperty("Ice.StdErr");
-		    
-		    java.io.PrintStream outStream = null;
-		    
-		    if(stdOut.length() > 0)
-		    {
-			//
-			// We need to close the existing stdout for JVM thread dump to go
-			// to the new file
-			//
-			System.out.close();
-			
-			try
-			{
-			    outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
-			}
-			catch(java.io.FileNotFoundException ex)
-			{
-			    Ice.FileException fe = new Ice.FileException();
-			    fe.path = stdOut;
-			    fe.initCause(ex);
-			    throw fe;
-			}
+            synchronized(Instance.class)
+            {
+                if(!_oneOffDone)
+                {
+                    String stdOut = _initData.properties.getProperty("Ice.StdOut");
+                    String stdErr = _initData.properties.getProperty("Ice.StdErr");
+                    
+                    java.io.PrintStream outStream = null;
+                    
+                    if(stdOut.length() > 0)
+                    {
+                        //
+                        // We need to close the existing stdout for JVM thread dump to go
+                        // to the new file
+                        //
+                        System.out.close();
+                        
+                        try
+                        {
+                            outStream = new java.io.PrintStream(new java.io.FileOutputStream(stdOut, true));
+                        }
+                        catch(java.io.FileNotFoundException ex)
+                        {
+                            Ice.FileException fe = new Ice.FileException();
+                            fe.path = stdOut;
+                            fe.initCause(ex);
+                            throw fe;
+                        }
 
-			System.setOut(outStream);
-		    }
-		    if(stdErr.length() > 0)
-		    {
-			//
-			// close for consistency with stdout
-			//
-			System.err.close();
-			
-			if(stdErr.equals(stdOut))
-			{
-			    System.setErr(outStream); 
-			}
-			else
-			{
-			    try
-			    {
-				System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
-			    }
-			    catch(java.io.FileNotFoundException ex)
-			    {
-				Ice.FileException fe = new Ice.FileException();
-				fe.path = stdErr;
-				fe.initCause(ex);
-				throw fe;
-			    }
+                        System.setOut(outStream);
+                    }
+                    if(stdErr.length() > 0)
+                    {
+                        //
+                        // close for consistency with stdout
+                        //
+                        System.err.close();
+                        
+                        if(stdErr.equals(stdOut))
+                        {
+                            System.setErr(outStream); 
+                        }
+                        else
+                        {
+                            try
+                            {
+                                System.setErr(new java.io.PrintStream(new java.io.FileOutputStream(stdErr, true)));
+                            }
+                            catch(java.io.FileNotFoundException ex)
+                            {
+                                Ice.FileException fe = new Ice.FileException();
+                                fe.path = stdErr;
+                                fe.initCause(ex);
+                                throw fe;
+                            }
 
-			}
-		    }
-		    _oneOffDone = true;
-		}
-	    }
+                        }
+                    }
+                    _oneOffDone = true;
+                }
+            }
 
-    	    if(_initData.logger == null)
-	    {
-		if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
-		{
-		    _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
-		}
-		else
-		{
-		    _initData.logger = Ice.Util.getProcessLogger();
-		}
-	    }
+            if(_initData.logger == null)
+            {
+                if(_initData.properties.getPropertyAsInt("Ice.UseSyslog") > 0)
+                {
+                    _initData.logger = new Ice.SysLoggerI(_initData.properties.getProperty("Ice.ProgramName"));
+                }
+                else
+                {
+                    _initData.logger = Ice.Util.getProcessLogger();
+                }
+            }
 
             validatePackages();
 
@@ -378,43 +378,43 @@ public final class Instance
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_initData.properties);
 
-	    {
-		final int defaultMessageSizeMax = 1024;
-		int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-		if(num < 1)
-		{
-		    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
-		}
-		else if(num > 0x7fffffff / 1024)
-		{
-		    _messageSizeMax = 0x7fffffff;
-		}
-		else
-		{
-		    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-		}
-	    }
+            {
+                final int defaultMessageSizeMax = 1024;
+                int num = _initData.properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+                if(num < 1)
+                {
+                    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
+                }
+                else if(num > 0x7fffffff / 1024)
+                {
+                    _messageSizeMax = 0x7fffffff;
+                }
+                else
+                {
+                    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+                }
+            }
 
-	    //
-	    // Client ACM enabled by default. Server ACM disabled by default.
-	    //
-	    _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
-	    _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
+            //
+            // Client ACM enabled by default. Server ACM disabled by default.
+            //
+            _clientACM = _initData.properties.getPropertyAsIntWithDefault("Ice.ACM.Client", 60);
+            _serverACM = _initData.properties.getPropertyAsInt("Ice.ACM.Server");
 
-	    _implicitContext = Ice.ImplicitContextI.create(
-		_initData.properties.getProperty("Ice.ImplicitContext"));
-	    
+            _implicitContext = Ice.ImplicitContextI.create(
+                _initData.properties.getProperty("Ice.ImplicitContext"));
+            
 
-	    _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
+            _threadPerConnection = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection") > 0;
 
-	    {
-		int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
-		if(stackSize < 0)
-		{
-		    stackSize = 0;
-		}
-		_threadPerConnectionStackSize = stackSize;
-	    }
+            {
+                int stackSize = _initData.properties.getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
+                if(stackSize < 0)
+                {
+                    stackSize = 0;
+                }
+                _threadPerConnectionStackSize = stackSize;
+            }
 
             _routerManager = new RouterManager();
 
@@ -431,9 +431,9 @@ public final class Instance
             _endpointFactoryManager.add(udpEndpointFactory);
 
             _pluginManager = new Ice.PluginManagerI(communicator);
-	   
-	    _defaultContext = _emptyContext;
-	  
+           
+            _defaultContext = _emptyContext;
+          
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
             _servantFactoryManager = new ObjectFactoryManager();
@@ -451,19 +451,19 @@ public final class Instance
     finalize()
         throws Throwable
     {
-	IceUtil.Assert.FinalizerAssert(_state == StateDestroyed);
-	IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
-	IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
-	IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
-	IceUtil.Assert.FinalizerAssert(_connectionMonitor == null);
-	IceUtil.Assert.FinalizerAssert(_servantFactoryManager == null);
-	IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
-	IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
-	IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
-	IceUtil.Assert.FinalizerAssert(_routerManager == null);
-	IceUtil.Assert.FinalizerAssert(_locatorManager == null);
-	IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
-	IceUtil.Assert.FinalizerAssert(_pluginManager == null);
+        IceUtil.Assert.FinalizerAssert(_state == StateDestroyed);
+        IceUtil.Assert.FinalizerAssert(_referenceFactory == null);
+        IceUtil.Assert.FinalizerAssert(_proxyFactory == null);
+        IceUtil.Assert.FinalizerAssert(_outgoingConnectionFactory == null);
+        IceUtil.Assert.FinalizerAssert(_connectionMonitor == null);
+        IceUtil.Assert.FinalizerAssert(_servantFactoryManager == null);
+        IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
+        IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
+        IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
+        IceUtil.Assert.FinalizerAssert(_routerManager == null);
+        IceUtil.Assert.FinalizerAssert(_locatorManager == null);
+        IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
+        IceUtil.Assert.FinalizerAssert(_pluginManager == null);
 
         super.finalize();
     }
@@ -474,53 +474,53 @@ public final class Instance
         //
         // Load plug-ins.
         //
-	Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+        Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
         pluginManagerImpl.loadPlugins(args);
-	Ice.Logger logger = pluginManagerImpl.getLogger();
-	if(logger != null)
-	{
-	    _initData.logger = logger;
-	}
+        Ice.Logger logger = pluginManagerImpl.getLogger();
+        if(logger != null)
+        {
+            _initData.logger = logger;
+        }
 
-	//
-	// Get default router and locator proxies. Don't move this
-	// initialization before the plug-in initialization!!! The proxies
-	// might depend on endpoint factories to be installed by plug-ins.
-	//
-	_referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-	    _proxyFactory.propertyToProxy("Ice.Default.Router")));
+        //
+        // Get default router and locator proxies. Don't move this
+        // initialization before the plug-in initialization!!! The proxies
+        // might depend on endpoint factories to be installed by plug-ins.
+        //
+        _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
+            _proxyFactory.propertyToProxy("Ice.Default.Router")));
 
-	_referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
-	    _proxyFactory.propertyToProxy("Ice.Default.Locator")));
-	
-	//
-	// Start connection monitor if necessary.
-	//
-	int interval = 0;
-	if(_clientACM > 0 && _serverACM > 0)
-	{
-	    if(_clientACM < _serverACM)
-	    {
-		interval = _clientACM;
-	    }
-	    else
-	    {
-		interval = _serverACM;
-	    }
-	}
-	else if(_clientACM > 0)
-	{
-	    interval = _clientACM;
-	}
-	else if(_serverACM > 0)
-	{
-	    interval = _serverACM;
-	}
-	interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
-	if(interval > 0)
-	{
-	    _connectionMonitor = new ConnectionMonitor(this, interval);
-	}
+        _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
+            _proxyFactory.propertyToProxy("Ice.Default.Locator")));
+        
+        //
+        // Start connection monitor if necessary.
+        //
+        int interval = 0;
+        if(_clientACM > 0 && _serverACM > 0)
+        {
+            if(_clientACM < _serverACM)
+            {
+                interval = _clientACM;
+            }
+            else
+            {
+                interval = _serverACM;
+            }
+        }
+        else if(_clientACM > 0)
+        {
+            interval = _clientACM;
+        }
+        else if(_serverACM > 0)
+        {
+            interval = _serverACM;
+        }
+        interval = _initData.properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", interval);
+        if(interval > 0)
+        {
+            _connectionMonitor = new ConnectionMonitor(this, interval);
+        }
 
         //
         // Thread pool initialization is now lazy initialization in
@@ -534,25 +534,25 @@ public final class Instance
     public void
     destroy()
     {
-	synchronized(this)
-	{
-	    //
-	    // If the _state is not StateActive then the instance is
-	    // either being destroyed, or has already been destroyed.
-	    //
-	    if(_state != StateActive)
-	    {
-		return;
-	    }
-	    
-	    //
-	    // We cannot set state to StateDestroyed otherwise instance
-	    // methods called during the destroy process (such as
-	    // outgoingConnectionFactory() from
-	    // ObjectAdapterI::deactivate() will cause an exception.
-	    //
-	    _state = StateDestroyInProgress;
-	}
+        synchronized(this)
+        {
+            //
+            // If the _state is not StateActive then the instance is
+            // either being destroyed, or has already been destroyed.
+            //
+            if(_state != StateActive)
+            {
+                return;
+            }
+            
+            //
+            // We cannot set state to StateDestroyed otherwise instance
+            // methods called during the destroy process (such as
+            // outgoingConnectionFactory() from
+            // ObjectAdapterI::deactivate() will cause an exception.
+            //
+            _state = StateDestroyInProgress;
+        }
 
         if(_objectAdapterFactory != null)
         {
@@ -568,40 +568,40 @@ public final class Instance
         {
             _objectAdapterFactory.destroy();
         }
-	
+        
         if(_outgoingConnectionFactory != null)
         {
             _outgoingConnectionFactory.waitUntilFinished();
         }
-	
-	ThreadPool serverThreadPool = null;
-	ThreadPool clientThreadPool = null;
+        
+        ThreadPool serverThreadPool = null;
+        ThreadPool clientThreadPool = null;
 
-	synchronized(this)
-	{
-	    _objectAdapterFactory = null;
+        synchronized(this)
+        {
+            _objectAdapterFactory = null;
 
-	    _outgoingConnectionFactory = null;
+            _outgoingConnectionFactory = null;
 
-	    if(_connectionMonitor != null)
-	    {
-		_connectionMonitor._destroy();
-		_connectionMonitor = null;
-	    }
+            if(_connectionMonitor != null)
+            {
+                _connectionMonitor._destroy();
+                _connectionMonitor = null;
+            }
 
-	    if(_serverThreadPool != null)
-	    {
-		_serverThreadPool.destroy();
-		serverThreadPool = _serverThreadPool;
-		_serverThreadPool = null;	
-	    }
+            if(_serverThreadPool != null)
+            {
+                _serverThreadPool.destroy();
+                serverThreadPool = _serverThreadPool;
+                _serverThreadPool = null;       
+            }
 
-	    if(_clientThreadPool != null)
-	    {
-		_clientThreadPool.destroy();
-		clientThreadPool = _clientThreadPool;
-		_clientThreadPool = null;
-	    }
+            if(_clientThreadPool != null)
+            {
+                _clientThreadPool.destroy();
+                clientThreadPool = _clientThreadPool;
+                _clientThreadPool = null;
+            }
 
             if(_servantFactoryManager != null)
             {
@@ -614,10 +614,10 @@ public final class Instance
                 _referenceFactory.destroy();
                 _referenceFactory = null;
             }
-	    
-	    // No destroy function defined.
-	    // _proxyFactory.destroy();
-	    _proxyFactory = null;
+            
+            // No destroy function defined.
+            // _proxyFactory.destroy();
+            _proxyFactory = null;
 
             if(_routerManager != null)
             {
@@ -642,22 +642,22 @@ public final class Instance
                 _pluginManager.destroy();
                 _pluginManager = null;
             }
-	    
-	    _state = StateDestroyed;
-	}
+            
+            _state = StateDestroyed;
+        }
 
-	//
-	// Join with the thread pool threads outside the
-	// synchronization.
-	//
-	if(clientThreadPool != null)
-	{
-	    clientThreadPool.joinWithAllThreads();
-	}
-	if(serverThreadPool != null)
-	{
-	    serverThreadPool.joinWithAllThreads();
-	}
+        //
+        // Join with the thread pool threads outside the
+        // synchronization.
+        //
+        if(clientThreadPool != null)
+        {
+            clientThreadPool.joinWithAllThreads();
+        }
+        if(serverThreadPool != null)
+        {
+            serverThreadPool.joinWithAllThreads();
+        }
     }
 
     private void

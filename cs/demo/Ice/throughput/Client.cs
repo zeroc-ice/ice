@@ -26,12 +26,12 @@ public class Client : Ice.Application
                            + "t: Send sequence as twoway\n"
                            + "o: Send sequence as oneway\n" 
                            + "r: Receive sequence\n"
-			   + "e: Echo (send and receive) sequence\n"
+                           + "e: Echo (send and receive) sequence\n"
                            + "\n"
                            + "other commands\n"
                            + "s: shutdown server\n"
-			   + "x: exit\n"
-			   + "?: help\n");
+                           + "x: exit\n"
+                           + "?: help\n");
     }
     
     public override int
@@ -49,26 +49,26 @@ public class Client : Ice.Application
         byte[] byteSeq = new byte[ByteSeqSize.value];
 
         string[] stringSeq = new string[StringSeqSize.value];
-	for(int i = 0; i < StringSeqSize.value; ++i)
-	{
-	    stringSeq[i] = "hello";
-	}
+        for(int i = 0; i < StringSeqSize.value; ++i)
+        {
+            stringSeq[i] = "hello";
+        }
 
         StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value];
         for(int i = 0; i < StringDoubleSeqSize.value; ++i)
         {
-	    structSeq[i] = new StringDouble();
+            structSeq[i] = new StringDouble();
             structSeq[i].s = "hello";
             structSeq[i].d = 3.14;
         }
 
-	Fixed[] fixedSeq = new Fixed[FixedSeqSize.value];
-	for(int i = 0; i < FixedSeqSize.value; ++i)
-	{
-	    fixedSeq[i].i = 0;
-	    fixedSeq[i].j = 0;
-	    fixedSeq[i].d = 0;
-	}
+        Fixed[] fixedSeq = new Fixed[FixedSeqSize.value];
+        for(int i = 0; i < FixedSeqSize.value; ++i)
+        {
+            fixedSeq[i].i = 0;
+            fixedSeq[i].j = 0;
+            fixedSeq[i].d = 0;
+        }
 
         //
         // A method needs to be invoked thousands of times before the JIT compiler
@@ -76,11 +76,11 @@ public class Client : Ice.Application
         // we need to "warm up" the JIT compiler.
         //
         {
-	    byte[] emptyBytes = new byte[1];
-	    string[] emptyStrings = new string[1];
-	    StringDouble[] emptyStructs = new StringDouble[1];
-	    emptyStructs[0] = new StringDouble();
-	    Fixed[] emptyFixed = new Fixed[1];
+            byte[] emptyBytes = new byte[1];
+            string[] emptyStrings = new string[1];
+            StringDouble[] emptyStructs = new StringDouble[1];
+            emptyStructs[0] = new StringDouble();
+            Fixed[] emptyFixed = new Fixed[1];
 
             int reps = 10000;
             Console.Error.Write("warming up the JIT compiler...");
@@ -122,10 +122,10 @@ public class Client : Ice.Application
                 Console.Write("==> ");
                 Console.Out.Flush();
                 line = Console.In.ReadLine();
-		if(line == null)
-		{
-		    break;
-		}
+                if(line == null)
+                {
+                    break;
+                }
 
                 long tmsec = System.DateTime.Now.Ticks / 10000;
                 const int repetitions = 100;
@@ -379,31 +379,31 @@ public class Client : Ice.Application
                             break;
                         }
                     }
-		    double mbit = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0;
-		    if(c == 'e')
-		    {
-			mbit *= 2;
-		    }
-		    Console.WriteLine("throughput: " + mbit.ToString("#.##") + "Mbps");
-		}
-		else if(line.Equals("s"))
-		{
-		    throughput.shutdown();
-		}
-		else if(line.Equals("x"))
-		{
-		    // Nothing to do
-		}
-		else if(line.Equals("?"))
-		{
-		    menu();
-		}
-		else
-		{
-		    Console.WriteLine("unknown command `" + line + "'");
-		    menu();
-		}
-	    }
+                    double mbit = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0;
+                    if(c == 'e')
+                    {
+                        mbit *= 2;
+                    }
+                    Console.WriteLine("throughput: " + mbit.ToString("#.##") + "Mbps");
+                }
+                else if(line.Equals("s"))
+                {
+                    throughput.shutdown();
+                }
+                else if(line.Equals("x"))
+                {
+                    // Nothing to do
+                }
+                else if(line.Equals("?"))
+                {
+                    menu();
+                }
+                else
+                {
+                    Console.WriteLine("unknown command `" + line + "'");
+                    menu();
+                }
+            }
             catch(System.Exception ex)
             {
                 Console.Error.WriteLine(ex);

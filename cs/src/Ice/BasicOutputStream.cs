@@ -12,12 +12,12 @@ namespace IceInternal
 
     public class BasicOutputStream : BasicStream
     {
-	public BasicOutputStream(Instance instance, Ice.OutputStream outStream)
+        public BasicOutputStream(Instance instance, Ice.OutputStream outStream)
             : base(instance)
-	{
-	    out_ = outStream;
-	}
+        {
+            out_ = outStream;
+        }
 
-	public Ice.OutputStream out_;
+        public Ice.OutputStream out_;
     }
 }

@@ -159,7 +159,7 @@ interface Adapter
      *
      **/
     ["ami", "nonmutating", "cpp:const"] idempotent Object* getDirectProxy()
-	throws AdapterNotActiveException;
+        throws AdapterNotActiveException;
 
     /**
      *
@@ -175,7 +175,7 @@ interface Adapter
      *
      **/
     ["ami"] void setDirectProxy(Object* proxy)
-	throws AdapterActiveException;
+        throws AdapterActiveException;
 };
 
 /**
@@ -200,7 +200,7 @@ interface FileReader
      *
      **/
     ["cpp:const"] idempotent long getOffsetFromEnd(string filename, int lines)
-	throws FileNotAvailableException;
+        throws FileNotAvailableException;
 
     /**
      *
@@ -208,7 +208,7 @@ interface FileReader
      * 
      **/
     ["cpp:const"] idempotent bool read(string filename, long pos, int size, out long newPos, out Ice::StringSeq lines)
-	throws FileNotAvailableException;
+        throws FileNotAvailableException;
 };
 
 interface Server extends FileReader
@@ -222,7 +222,7 @@ interface Server extends FileReader
      *
      **/
     ["amd"] void start()
-	throws ServerStartException;
+        throws ServerStartException;
 
     /**
      *
@@ -232,7 +232,7 @@ interface Server extends FileReader
      *
      **/
     ["amd"] void stop()
-	throws ServerStopException;
+        throws ServerStopException;
     
     /**
      *
@@ -254,7 +254,7 @@ interface Server extends FileReader
      *
      **/
     void sendSignal(string signal) 
-	throws BadSignalException;
+        throws BadSignalException;
     
     /**
      *
@@ -348,11 +348,11 @@ interface Node extends FileReader, ReplicaObserver
      *
      **/
     ["amd", "ami"] idempotent Server* loadServer(InternalServerDescriptor svr,
-						 string replicaName,
-						 out AdapterPrxDict adapters, 
-						 out int actTimeout, 
-						 out int deactTimeout)
-	throws DeploymentException;
+                                                 string replicaName,
+                                                 out AdapterPrxDict adapters, 
+                                                 out int actTimeout, 
+                                                 out int deactTimeout)
+        throws DeploymentException;
 
     /**
      *
@@ -360,7 +360,7 @@ interface Node extends FileReader, ReplicaObserver
      *
      **/
     ["amd", "ami"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
-	throws DeploymentException;
+        throws DeploymentException;
 
     /**
      *
@@ -371,10 +371,10 @@ interface Node extends FileReader, ReplicaObserver
      * 
      **/
     ["amd"] idempotent void patch(PatcherFeedback* feedback, 
-				  string application, 
-				  string server, 
-				  InternalDistributionDescriptor appDistrib, 
-				  bool shutdown);
+                                  string application, 
+                                  string server, 
+                                  InternalDistributionDescriptor appDistrib, 
+                                  bool shutdown);
 
     /**
      *
@@ -562,7 +562,7 @@ interface ReplicaSession
      *
      **/
     ["ami"] idempotent void setAdapterDirectProxy(string adapterId, string replicaGroupId, Object* proxy)
-	throws AdapterNotExistException, AdapterExistsException;
+        throws AdapterNotExistException, AdapterExistsException;
 
     /**
      *
@@ -690,7 +690,7 @@ interface InternalRegistry extends FileReader
      *
      **/
     NodeSession* registerNode(InternalNodeInfo info, Node* prx, LoadInfo loadInf)
-	throws NodeActiveException;
+        throws NodeActiveException;
 
     /**
      *
@@ -709,7 +709,7 @@ interface InternalRegistry extends FileReader
      *
      **/
     ReplicaSession* registerReplica(InternalReplicaInfo info, InternalRegistry* prx)
-	throws ReplicaActiveException;
+        throws ReplicaActiveException;
 
     /**
      *

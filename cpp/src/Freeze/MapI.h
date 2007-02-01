@@ -24,7 +24,7 @@ class IteratorHelperI : public IteratorHelper
 public:
 
     IteratorHelperI(const MapHelperI& m, bool readOnly, 
-		    const MapIndexBasePtr& index, bool onlyDups);
+                    const MapIndexBasePtr& index, bool onlyDups);
     IteratorHelperI(const IteratorHelperI&);
 
     virtual 
@@ -66,20 +66,20 @@ public:
     {
     public:
 
-	Tx(const MapHelperI&);
-	~Tx();
+        Tx(const MapHelperI&);
+        ~Tx();
 
-	void dead();
+        void dead();
 
-	DbTxn* getTxn()
-	{
-	    return _txn;
-	}
+        DbTxn* getTxn()
+        {
+            return _txn;
+        }
 
     private:
-	const MapHelperI& _map;
-	DbTxn* _txn;
-	bool _dead;
+        const MapHelperI& _map;
+        DbTxn* _txn;
+        bool _dead;
     };
 
     typedef IceUtil::Handle<Tx> TxPtr;
@@ -108,9 +108,9 @@ class MapHelperI : public MapHelper
 public:
    
     MapHelperI(const ConnectionIPtr&, const std::string&, 
-	       const std::string&, const std::string&,
-	       const KeyCompareBasePtr&,
-	       const std::vector<MapIndexBasePtr>&, bool);
+               const std::string&, const std::string&,
+               const KeyCompareBasePtr&,
+               const std::vector<MapIndexBasePtr>&, bool);
 
     virtual ~MapHelperI();
 
@@ -152,7 +152,7 @@ public:
 
     const ConnectionIPtr& connection() const
     {
-	return _connection;
+        return _connection;
     }
 
 

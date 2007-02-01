@@ -31,151 +31,151 @@ class LogPatcherFeedback : public IcePatch2::PatcherFeedback
 public:
 
     LogPatcherFeedback(const TraceLevelsPtr& traceLevels, const string& dest) : 
-	_traceLevels(traceLevels),
-	_startedPatch(false),
-	_lastProgress(0),
-	_dest(dest)
+        _traceLevels(traceLevels),
+        _startedPatch(false),
+        _lastProgress(0),
+        _dest(dest)
     {
     }
 
     void 
     setPatchingPath(const string& path)
     {
-	_path = path;
-	_startedPatch = false;
-	_lastProgress = 0;
+        _path = path;
+        _startedPatch = false;
+        _lastProgress = 0;
     }
 
     virtual bool
     noFileSummary(const string& reason)
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": can't load summary file (will perform a thorough patch):\n" << reason;
-	}
-	return true;
+        if(_traceLevels->patch > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": can't load summary file (will perform a thorough patch):\n" << reason;
+        }
+        return true;
     }
 
     virtual bool
     checksumStart()
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": started checksum calculation";
-	}
-	return true;
+        if(_traceLevels->patch > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": started checksum calculation";
+        }
+        return true;
     }
 
     virtual bool
     checksumProgress(const string& path)
     {
-	if(_traceLevels->patch > 2)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": calculating checksum for " << getBasename(path);
-	}
-	return true;
+        if(_traceLevels->patch > 2)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": calculating checksum for " << getBasename(path);
+        }
+        return true;
     }
 
     virtual bool
     checksumEnd()
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": finished checksum calculation";
-	}
-	return true;
+        if(_traceLevels->patch > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": finished checksum calculation";
+        }
+        return true;
     }
 
     virtual bool
     fileListStart()
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": getting list of file to patch";
-	}
-	return true;
+        if(_traceLevels->patch > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": getting list of file to patch";
+        }
+        return true;
     }
 
     virtual bool
     fileListProgress(Ice::Int percent)
     {
-	return true;
+        return true;
     }
 
     virtual bool
     fileListEnd()
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": getting list of file to patch completed";
-	}
-	return true;
+        if(_traceLevels->patch > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": getting list of file to patch completed";
+        }
+        return true;
     }
 
     virtual bool
     patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
     {
-	if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
-	{
-	    int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
-	    progress /= 5;
-	    progress *= 5;
-	    if(progress != _lastProgress)
-	    {
-		_lastProgress = progress;
-		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-		out << _dest << ": downloaded " << progress << "% (" << totalProgress << '/' << totalSize << ')';
-		if(!_path.empty())
-		{
-		    out << " of " << _path;
-		}
-	    }
-	}
-	else if(_traceLevels->patch > 0)
-	{
-	    if(!_startedPatch)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-		int roundedSize = static_cast<int>(static_cast<double>(totalSize) / 1024);
-		if(roundedSize == 0 && totalSize > 0)
-		{
-		    roundedSize = 1;
-		}
-		out << _dest << ": downloading " << (_path.empty() ? string("") : (_path + " ")) << roundedSize 
-		    << "KB ";
-		_startedPatch = true;
-	    }
-	}
-	
-	return true;
+        if(_traceLevels->patch > 1 && totalSize > (1024 * 1024))
+        {
+            int progress = static_cast<int>(static_cast<double>(totalProgress) / totalSize * 100.0);
+            progress /= 5;
+            progress *= 5;
+            if(progress != _lastProgress)
+            {
+                _lastProgress = progress;
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                out << _dest << ": downloaded " << progress << "% (" << totalProgress << '/' << totalSize << ')';
+                if(!_path.empty())
+                {
+                    out << " of " << _path;
+                }
+            }
+        }
+        else if(_traceLevels->patch > 0)
+        {
+            if(!_startedPatch)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+                int roundedSize = static_cast<int>(static_cast<double>(totalSize) / 1024);
+                if(roundedSize == 0 && totalSize > 0)
+                {
+                    roundedSize = 1;
+                }
+                out << _dest << ": downloading " << (_path.empty() ? string("") : (_path + " ")) << roundedSize 
+                    << "KB ";
+                _startedPatch = true;
+            }
+        }
+        
+        return true;
     }
 
     virtual bool
     patchProgress(Ice::Long progress, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
     {
-	return true;
+        return true;
     }
 
     virtual bool
     patchEnd()
-    {	
-	return true;
+    {   
+        return true;
     }
 
     void
     finishPatch()
     {
-	if(_traceLevels->patch > 0)
-	{
-	    Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
-	    out << _dest << ": downloading completed";
-	}
+        if(_traceLevels->patch > 0)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
+            out << _dest << ": downloading completed";
+        }
     }
 
 private:
@@ -190,13 +190,13 @@ private:
 }
 
 NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
-	     NodeSessionManager& sessions,
-	     const ActivatorPtr& activator, 
-	     const WaitQueuePtr& waitQueue,
-	     const TraceLevelsPtr& traceLevels,
-	     const NodePrx& proxy,
-	     const string& name,
-	     const UserAccountMapperPrx& mapper) :
+             NodeSessionManager& sessions,
+             const ActivatorPtr& activator, 
+             const WaitQueuePtr& waitQueue,
+             const TraceLevelsPtr& traceLevels,
+             const NodePrx& proxy,
+             const string& name,
+             const UserAccountMapperPrx& mapper) :
     _communicator(adapter->getCommunicator()),
     _adapter(adapter),
     _sessions(sessions),
@@ -229,32 +229,32 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     Ice::StringSeq propsAsArgs;
     if(!props.empty())
     {
-	string::size_type end = 0;
-	while(end != string::npos)
-	{
-	    const string delim = " \t\r\n";
-		
-	    string::size_type beg = props.find_first_not_of(delim, end);
-	    if(beg == string::npos)
-	    {
-		break;
-	    }
-		
-	    end = props.find_first_of(delim, beg);
-	    string arg;
-	    if(end == string::npos)
-	    {
-		arg = props.substr(beg);
-	    }
-	    else
-	    {
-		arg = props.substr(beg, end - beg);
-	    }
+        string::size_type end = 0;
+        while(end != string::npos)
+        {
+            const string delim = " \t\r\n";
+                
+            string::size_type beg = props.find_first_not_of(delim, end);
+            if(beg == string::npos)
+            {
+                break;
+            }
+                
+            end = props.find_first_of(delim, beg);
+            string arg;
+            if(end == string::npos)
+            {
+                arg = props.substr(beg);
+            }
+            else
+            {
+                arg = props.substr(beg, end - beg);
+            }
 
-	    if(arg.find("--") == 0)
-	    {
-		arg = arg.substr(2);
-	    }
+            if(arg.find("--") == 0)
+            {
+                arg = arg.substr(2);
+            }
 
             //
             // Extract the key/value
@@ -283,7 +283,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
             }
 
             _propertiesOverride.push_back(createProperty(key, value));
-	}
+        }
     }
 }
 
@@ -293,274 +293,274 @@ NodeI::~NodeI()
 
 void
 NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
-			const InternalServerDescriptorPtr& descriptor,
-			const string& replicaName,
-			const Ice::Current& current)
+                        const InternalServerDescriptorPtr& descriptor,
+                        const string& replicaName,
+                        const Ice::Current& current)
 {
     ServerCommandPtr command;
     {
-	Lock sync(*this);
-	++_serial;
-	
-	Ice::Identity id = createServerIdentity(descriptor->id);
-	
-	//
-	// Check if we already have a servant for this server. If that's
-	// the case, the server is already loaded and we just need to
-	// update it.
-	//
-	while(true)
-	{
-	    bool added = false;
-	    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
-	    if(!server)
-	    {
-		ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-		server = new ServerI(this, proxy, _serversDir, descriptor->id, _waitTime);
-		_adapter->add(server, id);
-		added = true;
-	    }
-	    
-	    try
-	    {
-		command = server->load(amdCB, descriptor, replicaName);
-	    }
-	    catch(const Ice::ObjectNotExistException&)
-	    {
-		assert(!added);
-		continue;
-	    }
-	    catch(const Ice::Exception&)
-	    {
-		if(added)
-		{
-		    _adapter->remove(id);
-		}
-		throw;
-	    }
-	    break;
-	}
+        Lock sync(*this);
+        ++_serial;
+        
+        Ice::Identity id = createServerIdentity(descriptor->id);
+        
+        //
+        // Check if we already have a servant for this server. If that's
+        // the case, the server is already loaded and we just need to
+        // update it.
+        //
+        while(true)
+        {
+            bool added = false;
+            ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
+            if(!server)
+            {
+                ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+                server = new ServerI(this, proxy, _serversDir, descriptor->id, _waitTime);
+                _adapter->add(server, id);
+                added = true;
+            }
+            
+            try
+            {
+                command = server->load(amdCB, descriptor, replicaName);
+            }
+            catch(const Ice::ObjectNotExistException&)
+            {
+                assert(!added);
+                continue;
+            }
+            catch(const Ice::Exception&)
+            {
+                if(added)
+                {
+                    _adapter->remove(id);
+                }
+                throw;
+            }
+            break;
+        }
     }
     if(command)
     {
-	command->execute();
+        command->execute();
     }
 }
 
 void
 NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB, 
-			   const string& serverId, 
-			   const string& uuid, 
-			   int revision,
-			   const string& replicaName,
-			   const Ice::Current& current)
+                           const string& serverId, 
+                           const string& uuid, 
+                           int revision,
+                           const string& replicaName,
+                           const Ice::Current& current)
 {
     ServerCommandPtr command;
     {
-	Lock sync(*this);
-	++_serial;
-	
-	ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
-	if(!server)
-	{
-	    server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
-	}
-	
-	//
-	// Destroy the server object if it's loaded.
-	//
-	try
-	{
-	    command = server->destroy(amdCB, uuid, revision, replicaName);
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
+        Lock sync(*this);
+        ++_serial;
+        
+        ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
+        if(!server)
+        {
+            server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
+        }
+        
+        //
+        // Destroy the server object if it's loaded.
+        //
+        try
+        {
+            command = server->destroy(amdCB, uuid, revision, replicaName);
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+        }
     }
     if(command)
     {
-	command->execute();
+        command->execute();
     }
 }
 
 void
 NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
-		   const PatcherFeedbackPrx& feedback,
-		   const string& application, 
-		   const string& server,
-		   const InternalDistributionDescriptorPtr& appDistrib,
-		   bool shutdown, 
-		   const Ice::Current&)
+                   const PatcherFeedbackPrx& feedback,
+                   const string& application, 
+                   const string& server,
+                   const InternalDistributionDescriptorPtr& appDistrib,
+                   bool shutdown, 
+                   const Ice::Current&)
 {
     amdCB->ice_response();
 
     {
-	Lock sync(*this);
-	while(_patchInProgress.find(application) != _patchInProgress.end())
-	{
-	    wait();
-	}
-	_patchInProgress.insert(application);
+        Lock sync(*this);
+        while(_patchInProgress.find(application) != _patchInProgress.end())
+        {
+            wait();
+        }
+        _patchInProgress.insert(application);
     }
  
     set<ServerIPtr> servers;
     if(!appDistrib->icepatch.empty())
     {
-	//
-	// Get all the application servers (even the ones which
-	// don't have a distribution since they depend on the
-	// application distribution).
-	//
-	servers = getApplicationServers(application);
+        //
+        // Get all the application servers (even the ones which
+        // don't have a distribution since they depend on the
+        // application distribution).
+        //
+        servers = getApplicationServers(application);
     }
     else if(server.empty())
     {
-	//
-	// Get all the application servers which have a distribution.
-	//
-	servers = getApplicationServers(application);
-	set<ServerIPtr>::iterator s = servers.begin();
-	while(s != servers.end())
-	{
-	    if((*s)->getDistribution())
-	    {
-		++s;
-	    }
-	    else
-	    {
-		servers.erase(s++);
-	    }
-	}
+        //
+        // Get all the application servers which have a distribution.
+        //
+        servers = getApplicationServers(application);
+        set<ServerIPtr>::iterator s = servers.begin();
+        while(s != servers.end())
+        {
+            if((*s)->getDistribution())
+            {
+                ++s;
+            }
+            else
+            {
+                servers.erase(s++);
+            }
+        }
     }
     else
     {
-	//
-	// Get the given server.
-	//
-	Ice::Identity id = createServerIdentity(server);
-	ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
-	if(svr)
-	{
-	    servers.insert(svr);
-	}
+        //
+        // Get the given server.
+        //
+        Ice::Identity id = createServerIdentity(server);
+        ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
+        if(svr)
+        {
+            servers.insert(svr);
+        }
     }
 
     string failure;
     try
     {
-	set<ServerIPtr>::iterator s = servers.begin(); 
-	vector<string> running;
-	while(s != servers.end())
-	{
-	    try
-	    {
-		if(!(*s)->startPatch(shutdown))
-		{
-		    running.push_back((*s)->getId());
-		    servers.erase(s++);
-		}
-		else
-		{
-		    ++s;
-		}
-	    }
-	    catch(const Ice::ObjectNotExistException&)
-	    {
-		servers.erase(s++);
-	    }
-	}
+        set<ServerIPtr>::iterator s = servers.begin(); 
+        vector<string> running;
+        while(s != servers.end())
+        {
+            try
+            {
+                if(!(*s)->startPatch(shutdown))
+                {
+                    running.push_back((*s)->getId());
+                    servers.erase(s++);
+                }
+                else
+                {
+                    ++s;
+                }
+            }
+            catch(const Ice::ObjectNotExistException&)
+            {
+                servers.erase(s++);
+            }
+        }
 
-	if((servers.empty() || !appDistrib->icepatch.empty()) && !running.empty())
-	{
-	    if(running.size() == 1)
-	    {
-		throw "server `" + toString(running) + "' is active";
-	    }
-	    else
-	    {
-		throw "servers `" + toString(running, ", ") + "' are active";
-	    }
-	}
+        if((servers.empty() || !appDistrib->icepatch.empty()) && !running.empty())
+        {
+            if(running.size() == 1)
+            {
+                throw "server `" + toString(running) + "' is active";
+            }
+            else
+            {
+                throw "servers `" + toString(running, ", ") + "' are active";
+            }
+        }
 
-	for(s = servers.begin(); s != servers.end(); ++s)
-	{
-	    (*s)->waitForPatch();
-	}
+        for(s = servers.begin(); s != servers.end(); ++s)
+        {
+            (*s)->waitForPatch();
+        }
 
-	// 
-	// Patch the application.
-	//
-	FileServerPrx icepatch;
-	if(!appDistrib->icepatch.empty())
-	{
-	    icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
-	    if(!icepatch)
-	    {
-		throw "proxy `" + appDistrib->icepatch + "' is not a file server.";
-	    }
-	    patch(icepatch, "distrib/" + application, appDistrib->directories);
-	}
-	
-	//
-	// Patch the server(s).
-	//
-	for(s = servers.begin(); s != servers.end(); ++s)
-	{
-	    InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
-	    if(!dist || (!server.empty() && (*s)->getId() != server))
-	    {
-		continue;
-	    }
-	    
-	    icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
-	    if(!icepatch)
-	    {
-		throw "proxy `" + dist->icepatch + "' is not a file server.";
-	    }
-	    patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
-	    
-	    if(!server.empty())
-	    {
-		break;
-	    }
-	}
+        // 
+        // Patch the application.
+        //
+        FileServerPrx icepatch;
+        if(!appDistrib->icepatch.empty())
+        {
+            icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
+            if(!icepatch)
+            {
+                throw "proxy `" + appDistrib->icepatch + "' is not a file server.";
+            }
+            patch(icepatch, "distrib/" + application, appDistrib->directories);
+        }
+        
+        //
+        // Patch the server(s).
+        //
+        for(s = servers.begin(); s != servers.end(); ++s)
+        {
+            InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
+            if(!dist || (!server.empty() && (*s)->getId() != server))
+            {
+                continue;
+            }
+            
+            icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
+            if(!icepatch)
+            {
+                throw "proxy `" + dist->icepatch + "' is not a file server.";
+            }
+            patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
+            
+            if(!server.empty())
+            {
+                break;
+            }
+        }
     }
     catch(const Ice::LocalException& e)
     {
-	ostringstream os;
-	os << e;
-	failure = os.str();
+        ostringstream os;
+        os << e;
+        failure = os.str();
     }
     catch(const string& e)
     {
-	failure = e;
+        failure = e;
     }
     catch(const char* e)
     {
-	failure = e;
+        failure = e;
     }
 
     for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
     {
-	(*s)->finishPatch();
+        (*s)->finishPatch();
     }
 
     {
-	Lock sync(*this);
-	_patchInProgress.erase(application);
-	notifyAll();
+        Lock sync(*this);
+        _patchInProgress.erase(application);
+        notifyAll();
     }
  
     try
     {
-	if(failure.empty())
-	{
-	    feedback->finished();
-	}
-	else
-	{
-	    feedback->failed(failure);
-	}
+        if(failure.empty())
+        {
+            feedback->finished();
+        }
+        else
+        {
+            feedback->failed(failure);
+        }
     }
     catch(const Ice::LocalException&)
     {
@@ -623,7 +623,7 @@ NodeI::getOffsetFromEnd(const string& filename, int count, const Ice::Current&) 
 
 bool
 NodeI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines,
-	    const Ice::Current&) const
+            const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);
 }
@@ -731,26 +731,26 @@ NodeI::checkConsistency(const NodeSessionPrx& session)
     vector<ServerCommandPtr> commands;
     while(true)
     {
-	{
-	    Lock sync(*this);
-	    if(serial == _serial)
-	    {
-		_serial = 1; // We can reset the serial number.
-		commands = checkConsistencyNoSync(servers);
-		break;
-	    }
-	    serial = _serial;
-	}
-	assert(session);
-	try
-	{
-	    servers = session->getServers();
-	}
-	catch(const Ice::LocalException&)
-	{
-	    return; // The connection with the session was lost.
-	}
-	sort(servers.begin(), servers.end());
+        {
+            Lock sync(*this);
+            if(serial == _serial)
+            {
+                _serial = 1; // We can reset the serial number.
+                commands = checkConsistencyNoSync(servers);
+                break;
+            }
+            serial = _serial;
+        }
+        assert(session);
+        try
+        {
+            servers = session->getServers();
+        }
+        catch(const Ice::LocalException&)
+        {
+            return; // The connection with the session was lost.
+        }
+        sort(servers.begin(), servers.end());
     }
     
     for_each(commands.begin(), commands.end(), IceUtil::voidMemFun(&ServerCommand::execute));
@@ -766,31 +766,31 @@ NodeI::addObserver(const NodeSessionPrx& session, const NodeObserverPrx& observe
     ServerDynamicInfoSeq serverInfos;
     AdapterDynamicInfoSeq adapterInfos;
     for(map<string, ServerDynamicInfo>::const_iterator p = _serversDynamicInfo.begin(); 
-	p != _serversDynamicInfo.end(); ++p)
+        p != _serversDynamicInfo.end(); ++p)
     {
-	assert(p->second.state != Destroyed && (p->second.state != Inactive || !p->second.enabled));
-	serverInfos.push_back(p->second);
+        assert(p->second.state != Destroyed && (p->second.state != Inactive || !p->second.enabled));
+        serverInfos.push_back(p->second);
     }
 
     for(map<string, AdapterDynamicInfo>::const_iterator q = _adaptersDynamicInfo.begin(); 
-	q != _adaptersDynamicInfo.end(); ++q)
+        q != _adaptersDynamicInfo.end(); ++q)
     {
-	assert(q->second.proxy);
-	adapterInfos.push_back(q->second);
+        assert(q->second.proxy);
+        adapterInfos.push_back(q->second);
     }
 
     try
     {
-	NodeDynamicInfo info;
-	info.info = _platform.getNodeInfo();
-	info.servers = serverInfos;
-	info.adapters = adapterInfos;
-	observer->nodeUp(info);
+        NodeDynamicInfo info;
+        info.info = _platform.getNodeInfo();
+        info.servers = serverInfos;
+        info.adapters = adapterInfos;
+        observer->nodeUp(info);
     }
     catch(const Ice::LocalException& ex)
     {
-	Ice::Warning out(_traceLevels->logger);
-	out << "unexpected observer exception:\n" << ex;
+        Ice::Warning out(_traceLevels->logger);
+        out << "unexpected observer exception:\n" << ex;
     }
 }
 
@@ -808,11 +808,11 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
 
     if(info.state == Destroyed || info.state == Inactive && info.enabled)
     {
-	_serversDynamicInfo.erase(info.id);
+        _serversDynamicInfo.erase(info.id);
     }
     else
     {
-	_serversDynamicInfo[info.id] = info;
+        _serversDynamicInfo[info.id] = info;
     }
 
     //
@@ -824,18 +824,18 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
     set<NodeObserverPrx> sent;
     for(map<NodeSessionPrx, NodeObserverPrx>::const_iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-	if(sent.find(p->second) == sent.end())
-	{
-	    try
-	    {
-		p->second->updateServer(_name, info);
-		sent.insert(p->second);
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		// IGNORE
-	    }
-	}
+        if(sent.find(p->second) == sent.end())
+        {
+            try
+            {
+                p->second->updateServer(_name, info);
+                sent.insert(p->second);
+            }
+            catch(const Ice::LocalException&)
+            {
+                // IGNORE
+            }
+        }
     }
 }
 
@@ -846,11 +846,11 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
 
     if(info.proxy)
     {
-	_adaptersDynamicInfo[info.id] = info;
+        _adaptersDynamicInfo[info.id] = info;
     }
     else
     {
-	_adaptersDynamicInfo.erase(info.id);
+        _adaptersDynamicInfo.erase(info.id);
     }
 
     //
@@ -862,17 +862,17 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
     set<NodeObserverPrx> sent;
     for(map<NodeSessionPrx, NodeObserverPrx>::const_iterator p = _observers.begin(); p != _observers.end(); ++p)
     {
-	if(sent.find(p->second) == sent.end())
-	{
-	    try
-	    {
-		p->second->updateAdapter(_name, info);
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		// IGNORE
-	    }
-	}
+        if(sent.find(p->second) == sent.end())
+        {
+            try
+            {
+                p->second->updateAdapter(_name, info);
+            }
+            catch(const Ice::LocalException&)
+            {
+                // IGNORE
+            }
+        }
     }
 }
 
@@ -883,13 +883,13 @@ NodeI::addServer(const ServerIPtr& server, const string& application, bool depen
 
     if(dependsOnApplicationDistrib)
     {
-	map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
-	if(p == _serversByApplication.end())
-	{
-	    map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
-	    p = _serversByApplication.insert(p, v);
-	}
-	p->second.insert(server);
+        map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+        if(p == _serversByApplication.end())
+        {
+            map<string, set<ServerIPtr> >::value_type v(application, set<ServerIPtr>());
+            p = _serversByApplication.insert(p, v);
+        }
+        p->second.insert(server);
     }
 }
 
@@ -900,15 +900,15 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application, bo
     
     if(dependsOnApplicationDistrib)
     {
-	map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
-	if(p != _serversByApplication.end())
-	{
-	    p->second.erase(server);
-	    if(p->second.empty())
-	    {
-		_serversByApplication.erase(p);
-	    }
-	}
+        map<string, set<ServerIPtr> >::iterator p = _serversByApplication.find(application);
+        if(p != _serversByApplication.end())
+        {
+            p->second.erase(server);
+            if(p->second.empty())
+            {
+                _serversByApplication.erase(p);
+            }
+        }
     }
 }
 
@@ -924,78 +924,78 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     Ice::StringSeq contents;
     try
     {
-	contents = readDirectory(_serversDir);
+        contents = readDirectory(_serversDir);
     }
     catch(const string& msg)
     {
-	Ice::Error out(_traceLevels->logger);
-	out << "couldn't read directory `" << _serversDir << "':" << msg;
-	return commands;
+        Ice::Error out(_traceLevels->logger);
+        out << "couldn't read directory `" << _serversDir << "':" << msg;
+        return commands;
     }
 
     vector<string> remove;
     set_difference(contents.begin(), contents.end(), servers.begin(), servers.end(), back_inserter(remove));
-		
+                
     //
     // Remove the extra servers if possible.
     //
     {
-	vector<string>::iterator p = remove.begin();
-	while(p != remove.end())
-	{
-	    ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(*p)));
-	    if(server)
-	    {
-		//
-		// If the server is loaded, we invoke on it to destroy it.
-		//
-		try
-		{
-		    ServerCommandPtr command = server->destroy(0, "", 0, "Master");
-		    if(command)
-		    {
-			commands.push_back(command);
-		    }
-		    p = remove.erase(p);
-		    continue;
-		}
-		catch(const Ice::LocalException& ex)
-		{
-		    Ice::Error out(_traceLevels->logger);
-		    out << "server `" << *p << "' destroy failed:" << ex;
-		}
-		catch(const string&)
-		{
-		    assert(false);
-		}
-	    }
-	    
-	    try
-	    {
-		if(canRemoveServerDirectory(*p))
-		{
-		    //
-		    // If the server directory can be removed and we
-		    // either remove it or back it up before to remove it.
-		    //
-		    removeRecursive(_serversDir + "/" + *p);
-		    p = remove.erase(p);
-		    continue;
-		}
-	    }
-	    catch(const string& msg)
-	    {
-		Ice::Warning out(_traceLevels->logger);
-		out << "removing server directory `" << _serversDir << "/" << *p << "' failed:" << msg;
-	    }
+        vector<string>::iterator p = remove.begin();
+        while(p != remove.end())
+        {
+            ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(*p)));
+            if(server)
+            {
+                //
+                // If the server is loaded, we invoke on it to destroy it.
+                //
+                try
+                {
+                    ServerCommandPtr command = server->destroy(0, "", 0, "Master");
+                    if(command)
+                    {
+                        commands.push_back(command);
+                    }
+                    p = remove.erase(p);
+                    continue;
+                }
+                catch(const Ice::LocalException& ex)
+                {
+                    Ice::Error out(_traceLevels->logger);
+                    out << "server `" << *p << "' destroy failed:" << ex;
+                }
+                catch(const string&)
+                {
+                    assert(false);
+                }
+            }
+            
+            try
+            {
+                if(canRemoveServerDirectory(*p))
+                {
+                    //
+                    // If the server directory can be removed and we
+                    // either remove it or back it up before to remove it.
+                    //
+                    removeRecursive(_serversDir + "/" + *p);
+                    p = remove.erase(p);
+                    continue;
+                }
+            }
+            catch(const string& msg)
+            {
+                Ice::Warning out(_traceLevels->logger);
+                out << "removing server directory `" << _serversDir << "/" << *p << "' failed:" << msg;
+            }
 
-	    ++p;
-	}
+            ++p;
+        }
     }
-	
+        
     if(remove.empty())
     {
-	return commands;
+        return commands;
     }
 
     //
@@ -1005,54 +1005,54 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     //
     try
     {
-	contents.clear();
-	contents = readDirectory(_tmpDir);
+        contents.clear();
+        contents = readDirectory(_tmpDir);
     }
     catch(const string& msg)
     {
-	Ice::Error out(_traceLevels->logger);
-	out << "couldn't read directory `" << _tmpDir << "':" << msg;
-	return commands;
+        Ice::Error out(_traceLevels->logger);
+        out << "couldn't read directory `" << _tmpDir << "':" << msg;
+        return commands;
     }
 
     if(contents.size() < 10)
     {
-	ostringstream os;
-	os << "servers-" << contents.size();
-	contents.push_back(os.str());
-	sort(contents.begin(), contents.end(), greater<string>());
+        ostringstream os;
+        os << "servers-" << contents.size();
+        contents.push_back(os.str());
+        sort(contents.begin(), contents.end(), greater<string>());
     }
     else if(contents.size() == 10)
     {
-	sort(contents.begin(), contents.end(), greater<string>());
-	try
-	{
-	    removeRecursive(_tmpDir + "/" + *contents.begin());
-	}
-	catch(const string& msg)
-	{
-	    Ice::Warning out(_traceLevels->logger);
-	    out << msg;
-	}
+        sort(contents.begin(), contents.end(), greater<string>());
+        try
+        {
+            removeRecursive(_tmpDir + "/" + *contents.begin());
+        }
+        catch(const string& msg)
+        {
+            Ice::Warning out(_traceLevels->logger);
+            out << msg;
+        }
     }
 
     try
     {
-	Ice::StringSeq::const_iterator p;
-	for(p = contents.begin(); p != (contents.end() - 1); ++p)
-	{
-	    rename(_tmpDir + "/" + *(p + 1), _tmpDir + "/" + *p);
-	}
-	createDirectoryRecursive(_tmpDir + "/servers-0");
-	for(p = remove.begin(); p != remove.end(); ++p)
-	{
-	    rename(_serversDir + "/" + *p, _tmpDir + "/servers-0/" + *p);
-	}
+        Ice::StringSeq::const_iterator p;
+        for(p = contents.begin(); p != (contents.end() - 1); ++p)
+        {
+            rename(_tmpDir + "/" + *(p + 1), _tmpDir + "/" + *p);
+        }
+        createDirectoryRecursive(_tmpDir + "/servers-0");
+        for(p = remove.begin(); p != remove.end(); ++p)
+        {
+            rename(_serversDir + "/" + *p, _tmpDir + "/servers-0/" + *p);
+        }
     }
     catch(const string& msg)
     {
-	Ice::Warning out(_traceLevels->logger);
-	out << "rotation failed: " << msg;
+        Ice::Warning out(_traceLevels->logger);
+        out << "rotation failed: " << msg;
     }
 
     return commands;
@@ -1076,7 +1076,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     remove(contents.begin(), contents.end(), "distrib");
     if(!contents.empty())
     {
-	return false;
+        return false;
     }
     
     contents = readDirectory(_serversDir + "/" + name + "/config");
@@ -1084,21 +1084,21 @@ NodeI::canRemoveServerDirectory(const string& name)
     Ice::StringSeq::const_iterator p;
     for(p = contents.begin() ; p != contents.end(); ++p)
     {
-	if(p->find("config") != 0)
-	{
-	    return false;
-	}
+        if(p->find("config") != 0)
+        {
+            return false;
+        }
     }
     
     contents = readDirectory(_serversDir + "/" + name + "/dbs");
     for(p = contents.begin() ; p != contents.end(); ++p)
     {
-	Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
-	remove(files.begin(), files.end(), "DB_CONFIG");
-	if(!files.empty())
-	{
-	    return false;
-	}
+        Ice::StringSeq files = readDirectory(_serversDir + "/" + name + "/dbs/" + *p);
+        remove(files.begin(), files.end(), "DB_CONFIG");
+        if(!files.empty())
+        {
+            return false;
+        }
     }
 
     return true;
@@ -1113,28 +1113,28 @@ NodeI::patch(const FileServerPrx& icepatch, const string& dest, const vector<str
     bool aborted = !patcher->prepare();
     if(!aborted)
     {
-	if(directories.empty())
-	{
-	    aborted = !patcher->patch("");
-	    dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
-	}
-	else
-	{
-	    for(vector<string>::const_iterator p = directories.begin(); p != directories.end(); ++p)
-	    {
-		dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
-		if(!patcher->patch(*p))
-		{
-		    aborted = true;
-		    break;
-		}
-		dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
-	    }
-	}
+        if(directories.empty())
+        {
+            aborted = !patcher->patch("");
+            dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
+        }
+        else
+        {
+            for(vector<string>::const_iterator p = directories.begin(); p != directories.end(); ++p)
+            {
+                dynamic_cast<LogPatcherFeedback*>(feedback.get())->setPatchingPath(*p);
+                if(!patcher->patch(*p))
+                {
+                    aborted = true;
+                    break;
+                }
+                dynamic_cast<LogPatcherFeedback*>(feedback.get())->finishPatch();
+            }
+        }
     }
     if(!aborted)
     {
-	patcher->finish();
+        patcher->finish();
     }
 
     //
@@ -1150,7 +1150,7 @@ NodeI::getApplicationServers(const string& application) const
     map<string, set<ServerIPtr> >::const_iterator p = _serversByApplication.find(application);
     if(p != _serversByApplication.end())
     {
-	servers = p->second;
+        servers = p->second;
     }
     return servers;
 }
@@ -1170,23 +1170,23 @@ NodeI::getFilePath(const string& filename) const
     string file;
     if(filename == "stderr")
     {
-	file = _communicator->getProperties()->getProperty("Ice.StdErr");
-	if(file.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdErr configuration property is not set");
-	}
+        file = _communicator->getProperties()->getProperty("Ice.StdErr");
+        if(file.empty())
+        {
+            throw FileNotAvailableException("Ice.StdErr configuration property is not set");
+        }
     }
     else if(filename == "stdout")
     {
-	file = _communicator->getProperties()->getProperty("Ice.StdOut");
-	if(file.empty())
-	{
-	    throw FileNotAvailableException("Ice.StdOut configuration property is not set");
-	}
+        file = _communicator->getProperties()->getProperty("Ice.StdOut");
+        if(file.empty())
+        {
+            throw FileNotAvailableException("Ice.StdOut configuration property is not set");
+        }
     }
     else
     {
-	throw FileNotAvailableException("unknown file");
+        throw FileNotAvailableException("unknown file");
     }
     return file;
 }

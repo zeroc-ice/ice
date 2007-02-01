@@ -52,7 +52,7 @@ interface FileParser
      **/
 
     idempotent ApplicationDescriptor parse(string xmlFile, Admin* adminProxy)
-	throws ParseException;
+        throws ParseException;
 };
 
 };

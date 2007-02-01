@@ -22,7 +22,7 @@ public class HelloI : HelloDisp_
        if(delay == 0)
        {
            Console.Out.WriteLine("Hello World!");
-	   cb.ice_response();
+           cb.ice_response();
        }
        else
        {
@@ -33,9 +33,9 @@ public class HelloI : HelloDisp_
     public override void shutdown(Ice.Current current)
     {
         _workQueue.destroy();
-	_workQueue.Join();
+        _workQueue.Join();
 
-	current.adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     private WorkQueue _workQueue;

@@ -16,24 +16,24 @@ sequence<long> ls;
 
 struct s00
 {
-    ls ls;	// Changed meaning
+    ls ls;      // Changed meaning
 };
 
 struct s0
 {
-    Test::ls ls;	// OK
+    Test::ls ls;        // OK
 };
 
 struct s1
 {
     ls mem;
-    long ls;	// Changed meaning
+    long ls;    // Changed meaning
 };
 
 struct s2
 {
     Test::ls mem;
-    long ls;	// OK
+    long ls;    // OK
 };
 
 module M
@@ -46,21 +46,21 @@ sequence<long> ls;
 interface i1
 {
     M::ls op();
-    void M();	// Changed meaning
+    void M();   // Changed meaning
 };
 
 interface i2
 {
     M::ls op();
-    long M();	// Changed meaning
+    long M();   // Changed meaning
 };
 
 module N
 {
 
     interface n1 extends i1 {};
-    interface i1 {};		// Changed meaning
-    interface i2 extends i2 {};	// Changed meaning
+    interface i1 {};            // Changed meaning
+    interface i2 extends i2 {}; // Changed meaning
 
 };
 
@@ -68,8 +68,8 @@ module O
 {
 
     interface n1 extends ::Test::i1 {};
-    interface i1 {};			// OK
-    interface i2 extends ::Test::i2 {};	// OK
+    interface i1 {};                    // OK
+    interface i2 extends ::Test::i2 {}; // OK
 
 };
 
@@ -81,8 +81,8 @@ module E
 {
 
     exception ee1 extends e1 {};
-    exception e1 {};		// Changed meaning
-    exception e2 extends e2 {};	// Changed meaning
+    exception e1 {};            // Changed meaning
+    exception e2 extends e2 {}; // Changed meaning
 
 };
 
@@ -94,8 +94,8 @@ module C
 {
 
     class cc1 implements c1 {};
-    class c1 {};		// Changed meaning
-    class c2 extends c2 {};	// Changed meaning
+    class c1 {};                // Changed meaning
+    class c2 extends c2 {};     // Changed meaning
 
 };
 
@@ -106,7 +106,7 @@ module B
 
     const color fc = blue;
 
-    interface blue {};		// Changed meaning
+    interface blue {};          // Changed meaning
 
 };
 
@@ -123,40 +123,40 @@ interface ParamTest
 {
     void op(long param);
     void op2(counter param);
-    void param(counter counter);	// Changed meaning
-    void op3(long counter, counter x);	// Second "counter" is not a type
+    void param(counter counter);        // Changed meaning
+    void op3(long counter, counter x);  // Second "counter" is not a type
     void op4(long param, long param);
 };
 
 sequence<int> IS;
 struct x
 {
-    IS is;				// Changed meaning (case-insensitive)
+    IS is;                              // Changed meaning (case-insensitive)
 };
 
 struct y
 {
-    ::Test::IS is;			// OK, nothing introduced
+    ::Test::IS is;                      // OK, nothing introduced
 };
 
 interface Blah
 {
-    void op1() throws ::Test::E::ee1;	// Nothing introduced
-    void E();				// OK
-    void op2() throws E;		// Changed meaning
+    void op1() throws ::Test::E::ee1;   // Nothing introduced
+    void E();                           // OK
+    void op2() throws E;                // Changed meaning
 };
 
 interface Blah2
 {
-    void op3() throws ::Test::E::ee1;	// Nothing introduced
-    void E();				// OK
-    void op4() throws E::ee1;		// Changed meaning
+    void op3() throws ::Test::E::ee1;   // Nothing introduced
+    void E();                           // OK
+    void op4() throws E::ee1;           // Changed meaning
 };
 
 interface Blah3
 {
-    void op5() throws E::ee1;		// Introduces E
-    void E();				// Changed meaning
+    void op5() throws E::ee1;           // Introduces E
+    void E();                           // Changed meaning
 };
 
 module M1
@@ -165,7 +165,7 @@ module M1
 
     struct smnpStruct
     {
-	smnpEnum e;
+        smnpEnum e;
     };
 
     exception smnpException

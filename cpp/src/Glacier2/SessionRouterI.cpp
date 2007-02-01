@@ -29,43 +29,43 @@ class SessionControlI : public SessionControl
 public:
 
     SessionControlI(const SessionRouterIPtr& sessionRouter, const ConnectionPtr& connection,
-		    const FilterManagerPtr& filterManager, IceUtil::Time timeout) :
+                    const FilterManagerPtr& filterManager, IceUtil::Time timeout) :
         _sessionRouter(sessionRouter),
-	_connection(connection),
-	_filters(filterManager),
-	_timeout(static_cast<int>(timeout.toSeconds()))
+        _connection(connection),
+        _filters(filterManager),
+        _timeout(static_cast<int>(timeout.toSeconds()))
     {
     }
 
     virtual StringSetPrx
     categories(const Current&)
     {
-	return _filters->categoriesPrx();
+        return _filters->categoriesPrx();
     }
 
     virtual StringSetPrx
     adapterIds(const Current&)
     {
-	return _filters->adapterIdsPrx();
+        return _filters->adapterIdsPrx();
     }
 
     virtual IdentitySetPrx
     identities(const Current&)
     {
-	return _filters->identitiesPrx(); 
+        return _filters->identitiesPrx(); 
     }
 
     virtual int
     getSessionTimeout(const Current&)
     {
-	return _timeout;
+        return _timeout;
     }
     
     virtual void
     destroy(const Current&)
     {
         _sessionRouter->destroySession(_connection);
-	_filters->destroy();
+        _filters->destroy();
     }
 
 private:
@@ -81,14 +81,14 @@ class ClientLocator : public ServantLocator
 public:
 
     ClientLocator(const SessionRouterIPtr& sessionRouter) :
-	_sessionRouter(sessionRouter)
+        _sessionRouter(sessionRouter)
     {
     }
     
     virtual ObjectPtr
     locate(const Current& current, LocalObjectPtr&)
     {
-	return _sessionRouter->getRouter(current.con, current.id)->getClientBlobject();
+        return _sessionRouter->getRouter(current.con, current.id)->getClientBlobject();
     }
 
     virtual void
@@ -111,14 +111,14 @@ class ServerLocator : public ServantLocator
 public:
 
     ServerLocator(const SessionRouterIPtr& sessionRouter) :
-	_sessionRouter(sessionRouter)
+        _sessionRouter(sessionRouter)
     {
     }
     
     virtual ObjectPtr
     locate(const Current& current, LocalObjectPtr&)
     {
-	return _sessionRouter->getRouter(current.id.category)->getServerBlobject();
+        return _sessionRouter->getRouter(current.id.category)->getServerBlobject();
     }
 
     virtual void
@@ -141,19 +141,19 @@ class UserPasswordAuthorizer : public Authorizer
 public:
 
     UserPasswordAuthorizer(const PermissionsVerifierPrx& verifier, const string& user, const string& password) :
-	_verifier(verifier), _user(user), _password(password)
+        _verifier(verifier), _user(user), _password(password)
     {
     }
 
     virtual bool
     authorize(string& reason, const Ice::Context& ctx)
     {
-	if(_verifier)
-	{
-	    return _verifier->checkPermissions(_user, _password, reason, ctx);
-	}
-	reason = "No PermissionsVerifier is available";
-	return false;
+        if(_verifier)
+        {
+            return _verifier->checkPermissions(_user, _password, reason, ctx);
+        }
+        reason = "No PermissionsVerifier is available";
+        return false;
     }
 
 private:
@@ -168,20 +168,20 @@ class SSLPasswordAuthorizer : public Authorizer
 public:
 
     SSLPasswordAuthorizer(const SSLPermissionsVerifierPrx& verifier, const SSLInfo& info) :
-	_verifier(verifier), _info(info)
+        _verifier(verifier), _info(info)
     {
     }
 
     virtual bool
     authorize(string& reason, const Ice::Context& ctx)
     {
-	if(_verifier)
-	{
-	    return _verifier->authorize(_info, reason, ctx);
-	}
+        if(_verifier)
+        {
+            return _verifier->authorize(_info, reason, ctx);
+        }
 
-	reason = "No SSLPermissionsVerifier is available";
-	return false;
+        reason = "No SSLPermissionsVerifier is available";
+        return false;
     }
 
 private:
@@ -195,14 +195,14 @@ class UserSessionFactory : public SessionFactory
 public:
 
     UserSessionFactory(const SessionManagerPrx& manager, const string& user) :
-	_manager(manager), _user(user)
+        _manager(manager), _user(user)
     {
     }
 
     virtual SessionPrx
     create(const SessionControlPrx& control, const Ice::Context& ctx)
     {
-	return _manager->create(_user, control, ctx);
+        return _manager->create(_user, control, ctx);
     }
 
 private:
@@ -216,14 +216,14 @@ class SSLSessionFactory : public SessionFactory
 public:
 
     SSLSessionFactory(const SSLSessionManagerPrx& manager, const SSLInfo& info) :
-	_manager(manager), _info(info)
+        _manager(manager), _info(info)
     {
     }
 
     virtual SessionPrx
     create(const SessionControlPrx& control, const Ice::Context& ctx)
     {
-	return _manager->create(_info, control, ctx);
+        return _manager->create(_info, control, ctx);
     }
 
 private:
@@ -237,11 +237,11 @@ private:
 using namespace Glacier2;
 
 Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
-					 const ObjectAdapterPtr& serverAdapter,
-					 const PermissionsVerifierPrx& verifier,
-					 const SessionManagerPrx& sessionManager,
-					 const SSLPermissionsVerifierPrx& sslVerifier,
-					 const SSLSessionManagerPrx& sslSessionManager) :
+                                         const ObjectAdapterPtr& serverAdapter,
+                                         const PermissionsVerifierPrx& verifier,
+                                         const SessionManagerPrx& sessionManager,
+                                         const SSLPermissionsVerifierPrx& sslVerifier,
+                                         const SSLSessionManagerPrx& sslSessionManager) :
     _properties(clientAdapter->getCommunicator()->getProperties()),
     _logger(clientAdapter->getCommunicator()->getLogger()),
     _sessionTraceLevel(_properties->getPropertyAsInt("Glacier2.Trace.Session")),
@@ -280,12 +280,12 @@ Glacier2::SessionRouterI::SessionRouterI(const ObjectAdapterPtr& clientAdapter,
     //
     if(_serverAdapter)
     {
-	_serverAdapter->addServantLocator(new ServerLocator(this), "");
+        _serverAdapter->addServantLocator(new ServerLocator(this), "");
     }
 
     if(_sessionThread)
     {
-	_sessionThread->start();
+        _sessionThread->start();
     }
 }
 
@@ -307,20 +307,20 @@ Glacier2::SessionRouterI::destroy()
     SessionThreadPtr sessionThread;
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	
-	assert(!_destroy);
-	_destroy = true;
-	notify();
-	
-	_routersByConnection.swap(routers);
-	_routersByConnectionHint = _routersByConnection.end();
-	
-	_routersByCategory.clear();
-	_routersByCategoryHint = _routersByCategory.end();
-	
-	sessionThread = _sessionThread;
-	_sessionThread = 0;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        
+        assert(!_destroy);
+        _destroy = true;
+        notify();
+        
+        _routersByConnection.swap(routers);
+        _routersByConnectionHint = _routersByConnection.end();
+        
+        _routersByCategory.clear();
+        _routersByCategoryHint = _routersByCategory.end();
+        
+        sessionThread = _sessionThread;
+        _sessionThread = 0;
     }
 
     //
@@ -329,26 +329,26 @@ Glacier2::SessionRouterI::destroy()
     //
     for(map<ConnectionPtr, RouterIPtr>::iterator p = routers.begin(); p != routers.end(); ++p)
     {
-	RouterIPtr router = p->second;
-	
-	try
-	{
-	    router->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    if(_sessionTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "exception while destroying session\n" << ex;
-	    }
-	}
+        RouterIPtr router = p->second;
+        
+        try
+        {
+            router->destroy();
+        }
+        catch(const Exception& ex)
+        {
+            if(_sessionTraceLevel >= 1)
+            {
+                Trace out(_logger, "Glacier2");
+                out << "exception while destroying session\n" << ex;
+            }
+        }
     }
 
     if(sessionThread)
     {
-	sessionThread->destroy();
-	sessionThread->getThreadControl().join();
+        sessionThread->destroy();
+        sessionThread->getThreadControl().join();
     }
 }
 
@@ -394,10 +394,10 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     SessionFactoryPtr factory;
     if(_sessionManager)
     {
-	factory = new UserSessionFactory(_sessionManager, userId);
+        factory = new UserSessionFactory(_sessionManager, userId);
     }
     return createSessionInternal(userId, true, new UserPasswordAuthorizer(_verifier, userId, password), factory,
-				 Ice::Context(), current);
+                                 Ice::Context(), current);
 }
 
 SessionPrx
@@ -405,9 +405,9 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection(const Current& curre
 {
     if(!_sslVerifier)
     {
-	PermissionDeniedException exc;
-	exc.reason = "no configured ssl permissions verifier";
-	throw exc;
+        PermissionDeniedException exc;
+        exc.reason = "no configured ssl permissions verifier";
+        throw exc;
     }
 
     string userDN;
@@ -419,62 +419,62 @@ Glacier2::SessionRouterI::createSessionFromSecureConnection(const Current& curre
     //
     try
     {
-	IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(current.con);
-	sslinfo.remotePort = ntohs(info.remoteAddr.sin_port);
-	sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr.sin_addr);
-	sslinfo.localPort = ntohs(info.localAddr.sin_port);
-	sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr.sin_addr);
+        IceSSL::ConnectionInfo info = IceSSL::getConnectionInfo(current.con);
+        sslinfo.remotePort = ntohs(info.remoteAddr.sin_port);
+        sslinfo.remoteHost = IceInternal::inetAddrToString(info.remoteAddr.sin_addr);
+        sslinfo.localPort = ntohs(info.localAddr.sin_port);
+        sslinfo.localHost = IceInternal::inetAddrToString(info.localAddr.sin_addr);
 
-	sslinfo.cipher = info.cipher;
+        sslinfo.cipher = info.cipher;
 
-	if(info.certs.size() > 0)
-	{
-	    sslinfo.certs.resize(info.certs.size());
-	    for(unsigned int i = 0; i < info.certs.size(); ++i)
-	    {
-		sslinfo.certs[i] = info.certs[i]->encode();
-	    }
-	    userDN = info.certs[0]->getSubjectDN();
-	}
+        if(info.certs.size() > 0)
+        {
+            sslinfo.certs.resize(info.certs.size());
+            for(unsigned int i = 0; i < info.certs.size(); ++i)
+            {
+                sslinfo.certs[i] = info.certs[i]->encode();
+            }
+            userDN = info.certs[0]->getSubjectDN();
+        }
 
-	if(_properties->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
-	{
-	    sslCtx["SSL.Active"] = "1";
-	    sslCtx["SSL.Cipher"] = sslinfo.cipher;
-	    ostringstream os;
-	    os << sslinfo.remotePort;
-	    sslCtx["SSL.Remote.Port"] = os.str();
-	    sslCtx["SSL.Remote.Host"] = sslinfo.remoteHost;
-	    os.str("");
-	    os << ntohs(info.localAddr.sin_port);
-	    sslCtx["SSL.Local.Port"] = os.str();
-	    sslCtx["SSL.Local.Host"] = sslinfo.localHost;
-	    if(info.certs.size() > 0)
-	    {
-	        sslCtx["SSL.PeerCert"] = info.certs[0]->encode();
-	    }
-	}
+        if(_properties->getPropertyAsInt("Glacier2.AddSSLContext") > 0)
+        {
+            sslCtx["SSL.Active"] = "1";
+            sslCtx["SSL.Cipher"] = sslinfo.cipher;
+            ostringstream os;
+            os << sslinfo.remotePort;
+            sslCtx["SSL.Remote.Port"] = os.str();
+            sslCtx["SSL.Remote.Host"] = sslinfo.remoteHost;
+            os.str("");
+            os << ntohs(info.localAddr.sin_port);
+            sslCtx["SSL.Local.Port"] = os.str();
+            sslCtx["SSL.Local.Host"] = sslinfo.localHost;
+            if(info.certs.size() > 0)
+            {
+                sslCtx["SSL.PeerCert"] = info.certs[0]->encode();
+            }
+        }
     }
     catch(const IceSSL::ConnectionInvalidException&)
     {
-	PermissionDeniedException exc;
-	exc.reason = "not ssl connection";
-	throw exc;
+        PermissionDeniedException exc;
+        exc.reason = "not ssl connection";
+        throw exc;
     }
     catch(const IceSSL::CertificateEncodingException&)
     {
-	PermissionDeniedException exc;
-	exc.reason = "certificate encoding exception";
-	throw exc;
+        PermissionDeniedException exc;
+        exc.reason = "certificate encoding exception";
+        throw exc;
     }
 
     SessionFactoryPtr factory;
     if(_sslSessionManager)
     {
-	factory = new SSLSessionFactory(_sslSessionManager, sslinfo);
+        factory = new SSLSessionFactory(_sslSessionManager, sslinfo);
     }
     return createSessionInternal(userDN, false, new SSLPasswordAuthorizer(_sslVerifier, sslinfo), factory, sslCtx, 
-    				 current);
+                                 current);
 }
 
 void
@@ -489,43 +489,43 @@ Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
     RouterIPtr router;
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	
-	if(_destroy)
-	{
-	    connection->close(true);
-	    throw ObjectNotExistException(__FILE__, __LINE__);
-	}
-	
-	map<ConnectionPtr, RouterIPtr>::iterator p;    
-	
-	if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == connection)
-	{
-	    p = _routersByConnectionHint;
-	}
-	else
-	{
-	    p = _routersByConnection.find(connection);
-	}
-	
-	if(p == _routersByConnection.end())
-	{
-	    SessionNotExistException exc;
-	    throw exc;
-	}
-	
-	router = p->second;
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        
+        if(_destroy)
+        {
+            connection->close(true);
+            throw ObjectNotExistException(__FILE__, __LINE__);
+        }
+        
+        map<ConnectionPtr, RouterIPtr>::iterator p;    
+        
+        if(_routersByConnectionHint != _routersByConnection.end() && _routersByConnectionHint->first == connection)
+        {
+            p = _routersByConnectionHint;
+        }
+        else
+        {
+            p = _routersByConnection.find(connection);
+        }
+        
+        if(p == _routersByConnection.end())
+        {
+            SessionNotExistException exc;
+            throw exc;
+        }
+        
+        router = p->second;
 
-	_routersByConnection.erase(p++);
-	_routersByConnectionHint = p;
-	
-	if(_serverAdapter)
-	{
-	    string category = router->getServerProxy(Current())->ice_getIdentity().category;
-	    assert(!category.empty());
-	    _routersByCategory.erase(category);
-	    _routersByCategoryHint = _routersByCategory.end();
-	}
+        _routersByConnection.erase(p++);
+        _routersByConnectionHint = p;
+        
+        if(_serverAdapter)
+        {
+            string category = router->getServerProxy(Current())->ice_getIdentity().category;
+            assert(!category.empty());
+            _routersByCategory.erase(category);
+            _routersByCategoryHint = _routersByCategory.end();
+        }
     }
 
     //
@@ -534,22 +534,22 @@ Glacier2::SessionRouterI::destroySession(const ConnectionPtr& connection)
     //
     try
     {
-	if(_sessionTraceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier2");
-	    out << "destroying session\n";
-	    out << router->toString();
-	}
+        if(_sessionTraceLevel >= 1)
+        {
+            Trace out(_logger, "Glacier2");
+            out << "destroying session\n";
+            out << router->toString();
+        }
 
-	router->destroy();
+        router->destroy();
     }
     catch(const Exception& ex)
     {
-	if(_sessionTraceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier2");
-	    out << "exception while destroying session\n" << ex;
-	}
+        if(_sessionTraceLevel >= 1)
+        {
+            Trace out(_logger, "Glacier2");
+            out << "exception while destroying session\n" << ex;
+        }
     }
 }
 
@@ -566,34 +566,34 @@ Glacier2::SessionRouterI::getRouter(const ConnectionPtr& connection, const Ice::
 
     if(_destroy)
     {
-	connection->close(true);
-	throw ObjectNotExistException(__FILE__, __LINE__);
+        connection->close(true);
+        throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
     map<ConnectionPtr, RouterIPtr>& routers = const_cast<map<ConnectionPtr, RouterIPtr>&>(_routersByConnection);
 
     if(_routersByConnectionHint != routers.end() && _routersByConnectionHint->first == connection)
     {
-	return _routersByConnectionHint->second;
+        return _routersByConnectionHint->second;
     }
     
     map<ConnectionPtr, RouterIPtr>::iterator p = routers.find(connection);
 
     if(p != routers.end())
     {
-	_routersByConnectionHint = p;
-	return p->second;
+        _routersByConnectionHint = p;
+        return p->second;
     }
     else
     {
-	if(_rejectTraceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier2");
-	    out << "rejecting request. no session is associated with the connection.\n";
-	    out << "identity: " << _clientAdapter->getCommunicator()->identityToString(id);
-	}
-	connection->close(true);
-	throw ObjectNotExistException(__FILE__, __LINE__);
+        if(_rejectTraceLevel >= 1)
+        {
+            Trace out(_logger, "Glacier2");
+            out << "rejecting request. no session is associated with the connection.\n";
+            out << "identity: " << _clientAdapter->getCommunicator()->identityToString(id);
+        }
+        connection->close(true);
+        throw ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
@@ -604,26 +604,26 @@ Glacier2::SessionRouterI::getRouter(const string& category) const
 
     if(_destroy)
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
     map<string, RouterIPtr>& routers = const_cast<map<string, RouterIPtr>&>(_routersByCategory);
 
     if(_routersByCategoryHint != routers.end() && _routersByCategoryHint->first == category)
     {
-	return _routersByCategoryHint->second;
+        return _routersByCategoryHint->second;
     }
     
     map<string, RouterIPtr>::iterator p = routers.find(category);
 
     if(p != routers.end())
     {
-	_routersByCategoryHint = p;
-	return p->second;
+        _routersByCategoryHint = p;
+        return p->second;
     }
     else
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+        throw ObjectNotExistException(__FILE__, __LINE__);
     }
 }
 
@@ -633,41 +633,41 @@ Glacier2::SessionRouterI::expireSessions()
     vector<RouterIPtr> routers;
     
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	
-	if(_destroy)
-	{
-	    return;
-	}
-	
-	assert(_sessionTimeout > IceUtil::Time());
-	IceUtil::Time minTimestamp = IceUtil::Time::now() - _sessionTimeout;
-	
-	map<ConnectionPtr, RouterIPtr>::iterator p = _routersByConnection.begin();
-	
-	while(p != _routersByConnection.end())
-	{
-	    if(p->second->getTimestamp() < minTimestamp)
-	    {
-		RouterIPtr router = p->second;
-		routers.push_back(router);
-		
-		_routersByConnection.erase(p++);
-		_routersByConnectionHint = p;
-		
-		if(_serverAdapter)
-		{
-		    string category = router->getServerProxy(Current())->ice_getIdentity().category;
-		    assert(!category.empty());
-		    _routersByCategory.erase(category);
-		    _routersByCategoryHint = _routersByCategory.end();
-		}
-	    }
-	    else
-	    {
-		++p;
-	    }
-	}
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        
+        if(_destroy)
+        {
+            return;
+        }
+        
+        assert(_sessionTimeout > IceUtil::Time());
+        IceUtil::Time minTimestamp = IceUtil::Time::now() - _sessionTimeout;
+        
+        map<ConnectionPtr, RouterIPtr>::iterator p = _routersByConnection.begin();
+        
+        while(p != _routersByConnection.end())
+        {
+            if(p->second->getTimestamp() < minTimestamp)
+            {
+                RouterIPtr router = p->second;
+                routers.push_back(router);
+                
+                _routersByConnection.erase(p++);
+                _routersByConnectionHint = p;
+                
+                if(_serverAdapter)
+                {
+                    string category = router->getServerProxy(Current())->ice_getIdentity().category;
+                    assert(!category.empty());
+                    _routersByCategory.erase(category);
+                    _routersByCategoryHint = _routersByCategory.end();
+                }
+            }
+            else
+            {
+                ++p;
+            }
+        }
     }
     
     //
@@ -676,169 +676,169 @@ Glacier2::SessionRouterI::expireSessions()
     //
     for(vector<RouterIPtr>::iterator p = routers.begin(); p != routers.end(); ++p)
     {
-	RouterIPtr router = *p;
-	
-	try
-	{
-	    if(_sessionTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "expiring session\n";
-		out << router->toString();
-	    }
-	    
-	    router->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    if(_sessionTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "exception while expiring session\n" << ex;
-	    }
-	}
+        RouterIPtr router = *p;
+        
+        try
+        {
+            if(_sessionTraceLevel >= 1)
+            {
+                Trace out(_logger, "Glacier2");
+                out << "expiring session\n";
+                out << router->toString();
+            }
+            
+            router->destroy();
+        }
+        catch(const Exception& ex)
+        {
+            if(_sessionTraceLevel >= 1)
+            {
+                Trace out(_logger, "Glacier2");
+                out << "exception while expiring session\n" << ex;
+            }
+        }
     }
 }
 
 SessionPrx
 Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allowAddUserMode,
-						const AuthorizerPtr& authorizer, const SessionFactoryPtr& factory,
-						const Ice::Context& sslContext, const Current& current)
+                                                const AuthorizerPtr& authorizer, const SessionFactoryPtr& factory,
+                                                const Ice::Context& sslContext, const Current& current)
 {
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-	
-	if(_destroy)
-	{
-	    current.con->close(true);
-	    throw ObjectNotExistException(__FILE__, __LINE__);
-	}
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        
+        if(_destroy)
+        {
+            current.con->close(true);
+            throw ObjectNotExistException(__FILE__, __LINE__);
+        }
 
-	//
-	// Check whether a session already exists for the connection.
-	//
-	{
-	    map<ConnectionPtr, RouterIPtr>::iterator p;    
-	    if(_routersByConnectionHint != _routersByConnection.end() &&
-	       _routersByConnectionHint->first == current.con)
-	    {
-		p = _routersByConnectionHint;
-	    }
-	    else
-	    {
-		p = _routersByConnection.find(current.con);
-	    }
-	    
-	    if(p != _routersByConnection.end())
-	    {
-		CannotCreateSessionException exc;
-		exc.reason = "session exists";
-		throw exc;
-	    }
-	}
-	
-	//
-	// If some other thread is currently trying to create a
-	// session, we wait until this thread is finished.
-	//
-	bool searchAgain = false;
-	while(_pending.find(current.con) != _pending.end())
-	{
-	    wait();
-	    
-	    if(_destroy)
-	    {
-		current.con->close(true);
-		throw ObjectNotExistException(__FILE__, __LINE__);
-	    }
+        //
+        // Check whether a session already exists for the connection.
+        //
+        {
+            map<ConnectionPtr, RouterIPtr>::iterator p;    
+            if(_routersByConnectionHint != _routersByConnection.end() &&
+               _routersByConnectionHint->first == current.con)
+            {
+                p = _routersByConnectionHint;
+            }
+            else
+            {
+                p = _routersByConnection.find(current.con);
+            }
+            
+            if(p != _routersByConnection.end())
+            {
+                CannotCreateSessionException exc;
+                exc.reason = "session exists";
+                throw exc;
+            }
+        }
+        
+        //
+        // If some other thread is currently trying to create a
+        // session, we wait until this thread is finished.
+        //
+        bool searchAgain = false;
+        while(_pending.find(current.con) != _pending.end())
+        {
+            wait();
+            
+            if(_destroy)
+            {
+                current.con->close(true);
+                throw ObjectNotExistException(__FILE__, __LINE__);
+            }
 
-	    searchAgain = true;
-	}
+            searchAgain = true;
+        }
 
-	//
-	// Check for existing sessions again if we waited above, as
-	// new sessions have been added in the meantime.
-	//
-	if(searchAgain)
-	{
-	    map<ConnectionPtr, RouterIPtr>::iterator p;    
-	    if(_routersByConnectionHint != _routersByConnection.end() &&
-	       _routersByConnectionHint->first == current.con)
-	    {
-		p = _routersByConnectionHint;
-	    }
-	    else
-	    {
-		p = _routersByConnection.find(current.con);
-	    }
-	    
-	    if(p != _routersByConnection.end())
-	    {
-		CannotCreateSessionException exc;
-		exc.reason = "session exists";
-		throw exc;
-	    }
-	}
+        //
+        // Check for existing sessions again if we waited above, as
+        // new sessions have been added in the meantime.
+        //
+        if(searchAgain)
+        {
+            map<ConnectionPtr, RouterIPtr>::iterator p;    
+            if(_routersByConnectionHint != _routersByConnection.end() &&
+               _routersByConnectionHint->first == current.con)
+            {
+                p = _routersByConnectionHint;
+            }
+            else
+            {
+                p = _routersByConnection.find(current.con);
+            }
+            
+            if(p != _routersByConnection.end())
+            {
+                CannotCreateSessionException exc;
+                exc.reason = "session exists";
+                throw exc;
+            }
+        }
 
-	//
-	// No session exists yet, so we will try to create one. To
-	// avoid that other threads try to create sessions for the
-	// same connection, we add our endpoints to _pending.
-	//
-	_pending.insert(current.con);
+        //
+        // No session exists yet, so we will try to create one. To
+        // avoid that other threads try to create sessions for the
+        // same connection, we add our endpoints to _pending.
+        //
+        _pending.insert(current.con);
     }
 
     try
     {
-	//
-	// Authorize.
-	//
-	string reason;
-	bool ok;
+        //
+        // Authorize.
+        //
+        string reason;
+        bool ok;
 
-	try
-	{
-	    ok = authorizer->authorize(reason, current.ctx);
-	}
-	catch(const Exception& ex)
-	{
-	    if(_sessionTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "exception while verifying password:\n" << ex;
-	    }
-	    
-	    PermissionDeniedException exc;
-	    exc.reason = "internal server error";
-	    throw exc;
-	}
-	
-	if(!ok)
-	{
-	    PermissionDeniedException exc;
-	    if(reason.empty())
-	    {
-		exc.reason = "permission denied";
-	    }
-	    else
-	    {
-		exc.reason = reason;
-	    }
-	    throw exc;
-	}
+        try
+        {
+            ok = authorizer->authorize(reason, current.ctx);
+        }
+        catch(const Exception& ex)
+        {
+            if(_sessionTraceLevel >= 1)
+            {
+                Trace out(_logger, "Glacier2");
+                out << "exception while verifying password:\n" << ex;
+            }
+            
+            PermissionDeniedException exc;
+            exc.reason = "internal server error";
+            throw exc;
+        }
+        
+        if(!ok)
+        {
+            PermissionDeniedException exc;
+            if(reason.empty())
+            {
+                exc.reason = "permission denied";
+            }
+            else
+            {
+                exc.reason = reason;
+            }
+            throw exc;
+        }
     }
     catch(const Exception& ex)
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-	//
-	// Signal other threads that we are done with trying to
-	// establish a session for our connection;
-	//
-	_pending.erase(current.con);
-	notify();
+        //
+        // Signal other threads that we are done with trying to
+        // establish a session for our connection;
+        //
+        _pending.erase(current.con);
+        notify();
 
-	ex.ice_throw();
+        ex.ice_throw();
     }
 
 
@@ -848,151 +848,151 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
 
     try
     {
-	//
-	// The client blobject requires direct access to the full filter
-	// servant, but proliferating the implementation of the servant
-	// throughout the router code is undesirable. To avoid lots of
-	// physical interdependencies, we create the filters and
-	// clientblobject together and pass the clientblobject to the
-	// router. We create the clientblobject here since it is
-	// responsible for creating the filters and we want them to be
-	// accessible during session creation.
-	//
-	FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _serverAdapter, 
-							       userId, allowAddUserMode);
+        //
+        // The client blobject requires direct access to the full filter
+        // servant, but proliferating the implementation of the servant
+        // throughout the router code is undesirable. To avoid lots of
+        // physical interdependencies, we create the filters and
+        // clientblobject together and pass the clientblobject to the
+        // router. We create the clientblobject here since it is
+        // responsible for creating the filters and we want them to be
+        // accessible during session creation.
+        //
+        FilterManagerPtr filterManager = FilterManager::create(_clientAdapter->getCommunicator(), _serverAdapter, 
+                                                               userId, allowAddUserMode);
 
         //
-	// If we have a session manager configured, we create a
-	// client-visible session object.
-	//
-	if(factory)
-	{
-	    SessionControlPrx control;
-	    if(_serverAdapter)
-	    {
-	        control = SessionControlPrx::uncheckedCast(
-		    _serverAdapter->addWithUUID(
-			new SessionControlI(this, current.con, filterManager, _sessionTimeout)));
-		controlId = control->ice_getIdentity();
-	    }
-	    session = factory->create(control, current.ctx);
-	}
+        // If we have a session manager configured, we create a
+        // client-visible session object.
+        //
+        if(factory)
+        {
+            SessionControlPrx control;
+            if(_serverAdapter)
+            {
+                control = SessionControlPrx::uncheckedCast(
+                    _serverAdapter->addWithUUID(
+                        new SessionControlI(this, current.con, filterManager, _sessionTimeout)));
+                controlId = control->ice_getIdentity();
+            }
+            session = factory->create(control, current.ctx);
+        }
     
-	//
-	// Add a new per-client router.
-	//
-	router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, 
-			     session, controlId, filterManager, sslContext);
+        //
+        // Add a new per-client router.
+        //
+        router = new RouterI(_clientAdapter, _serverAdapter, current.con, userId, 
+                             session, controlId, filterManager, sslContext);
     }
     catch(const Exception& ex)
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-	//
-	// Signal other threads that we are done with trying to
-	// establish a session for our connection;
-	//
-	_pending.erase(current.con);
-	notify();
-	
-	assert(!router);
-	
-	if(session)
-	{
-	    if(_serverAdapter)
-	    {
-	        try
-		{
-	            _serverAdapter->remove(controlId);
-		}
-		catch(const Exception&)
-		{
-		    // Ignore all exceptions here.
-		}
-	    }
-	    try
-	    {
-		session->destroy();
-	    }
-	    catch(const Exception&)
-	    {
-		// Ignore all exceptions here.
-	    }
-	}
-	
-	try
-	{
-	    ex.ice_throw();
-	}
-	catch(const Glacier2::CannotCreateSessionException&)
-	{
-	    throw;
-	}
-	catch(const Exception&)
-	{
-	    if(_sessionTraceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier2");
-		out << "exception while creating session with session manager:\n" << ex;
-	    }
-	    
-	    CannotCreateSessionException exc;
-	    exc.reason = "internal server error";
-	    throw exc;
-	}
+        //
+        // Signal other threads that we are done with trying to
+        // establish a session for our connection;
+        //
+        _pending.erase(current.con);
+        notify();
+        
+        assert(!router);
+        
+        if(session)
+        {
+            if(_serverAdapter)
+            {
+                try
+                {
+                    _serverAdapter->remove(controlId);
+                }
+                catch(const Exception&)
+                {
+                    // Ignore all exceptions here.
+                }
+            }
+            try
+            {
+                session->destroy();
+            }
+            catch(const Exception&)
+            {
+                // Ignore all exceptions here.
+            }
+        }
+        
+        try
+        {
+            ex.ice_throw();
+        }
+        catch(const Glacier2::CannotCreateSessionException&)
+        {
+            throw;
+        }
+        catch(const Exception&)
+        {
+            if(_sessionTraceLevel >= 1)
+            {
+                Trace out(_logger, "Glacier2");
+                out << "exception while creating session with session manager:\n" << ex;
+            }
+            
+            CannotCreateSessionException exc;
+            exc.reason = "internal server error";
+            throw exc;
+        }
     }
 
     {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-	//
-	// Signal other threads that we are done with trying to
-	// establish a session for our connection;
-	//
-	_pending.erase(current.con);
-	notify();
-	
-	if(_destroy)
-	{
-	    try
-	    {
-		router->destroy();
-	    }
-	    catch(const Exception&)
-	    {
-		// Ignore all exceptions here.
-	    }
-	    
-	    current.con->close(true);
-	    throw ObjectNotExistException(__FILE__, __LINE__);
-	}
-	
-	_routersByConnectionHint = _routersByConnection.insert(
-	    _routersByConnectionHint, pair<const ConnectionPtr, RouterIPtr>(current.con, router));
-	
-	if(_serverAdapter)
-	{
-	    string category = router->getServerProxy(current)->ice_getIdentity().category;
-	    assert(!category.empty());
-	    pair<map<string, RouterIPtr>::iterator, bool> rc = 
-		_routersByCategory.insert(pair<const string, RouterIPtr>(category, router));
-	    assert(rc.second);
-	    _routersByCategoryHint = rc.first;
-	}
-	
-	if(_sessionTraceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier2");
-	    out << "created session\n";
-	    out << router->toString();
-	}
+        //
+        // Signal other threads that we are done with trying to
+        // establish a session for our connection;
+        //
+        _pending.erase(current.con);
+        notify();
+        
+        if(_destroy)
+        {
+            try
+            {
+                router->destroy();
+            }
+            catch(const Exception&)
+            {
+                // Ignore all exceptions here.
+            }
+            
+            current.con->close(true);
+            throw ObjectNotExistException(__FILE__, __LINE__);
+        }
+        
+        _routersByConnectionHint = _routersByConnection.insert(
+            _routersByConnectionHint, pair<const ConnectionPtr, RouterIPtr>(current.con, router));
+        
+        if(_serverAdapter)
+        {
+            string category = router->getServerProxy(current)->ice_getIdentity().category;
+            assert(!category.empty());
+            pair<map<string, RouterIPtr>::iterator, bool> rc = 
+                _routersByCategory.insert(pair<const string, RouterIPtr>(category, router));
+            assert(rc.second);
+            _routersByCategoryHint = rc.first;
+        }
+        
+        if(_sessionTraceLevel >= 1)
+        {
+            Trace out(_logger, "Glacier2");
+            out << "created session\n";
+            out << router->toString();
+        }
     }
-	    
+            
     return session;
 }
 
 Glacier2::SessionRouterI::SessionThread::SessionThread(const SessionRouterIPtr& sessionRouter,
-						       const IceUtil::Time& sessionTimeout) :
+                                                       const IceUtil::Time& sessionTimeout) :
     _sessionRouter(sessionRouter),
     _sessionTimeout(sessionTimeout)
 {
@@ -1016,27 +1016,27 @@ Glacier2::SessionRouterI::SessionThread::run()
 {
     while(true)
     {
-	SessionRouterIPtr sessionRouter;
+        SessionRouterIPtr sessionRouter;
 
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
-	    if(!_sessionRouter)
-	    {
-		return;
-	    }
-	    
-	    assert(_sessionTimeout > IceUtil::Time());
-	    timedWait(_sessionTimeout / 4);
+            if(!_sessionRouter)
+            {
+                return;
+            }
+            
+            assert(_sessionTimeout > IceUtil::Time());
+            timedWait(_sessionTimeout / 4);
 
-	    if(!_sessionRouter)
-	    {
-		return;
-	    }
+            if(!_sessionRouter)
+            {
+                return;
+            }
 
-	    sessionRouter = _sessionRouter;
-	}
+            sessionRouter = _sessionRouter;
+        }
 
-	sessionRouter->expireSessions();
+        sessionRouter->expireSessions();
     }
 }

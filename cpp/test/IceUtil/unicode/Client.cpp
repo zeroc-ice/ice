@@ -25,12 +25,12 @@ main(int argc, char** argv)
 
     if(argc > 1)
     {
-	dir = argv[1];
+        dir = argv[1];
 #ifdef _WIN32
-	dir += "\\";
+        dir += "\\";
 #else
-	dir += "/";
-#endif	
+        dir += "/";
+#endif  
     }
 
 
@@ -45,119 +45,119 @@ main(int argc, char** argv)
     string wcoeurFile = string("coeur.") + wstringEncoding;
  
     {
-	cout << "testing UTF-8 to wstring (" << wstringEncoding << ") conversion...";
-	
-	ifstream is((dir + "coeur.utf8").c_str());
-	test(is.good());
-	ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
-	test(bis.good());
-	
-	int lineNumber = 0;
-	
-	do
-	{
-	    string line;
-	    getline(is, line, '\n');
-	    test(isLegalUTF8Sequence(reinterpret_cast<const Byte*>(line.data()), 
-	    			     reinterpret_cast<const Byte*>(line.data() + line.size())));
-	    lineNumber++;
-	    wstring wline = stringToWstring(line);
-	    
-	    for(size_t i = 0; i < wline.length(); ++i)
-	    {
-		wchar_t wc = wline[i];
-		const char* buffer = reinterpret_cast<char*>(&wc);
-		for(size_t j = 0; j < sizeof(wchar_t); ++j)
-		{
-		    test(bis.good());
-		    char c;
-		    bis.get(c);
-		    if(buffer[j] != c)
-		    {
-			cerr << "Error at line " << lineNumber << " column " << i << endl;
-			cerr << "buffer[j] == " << hex << (int)static_cast<unsigned char>(buffer[j]) << endl;
-			cerr << "c == " << hex << (int)static_cast<unsigned char>(c) << endl;
-		    }
-		    test(buffer[j] == c);
-		}
-	    }
-	    //
-	    // Skip newline character (Unix-style newline)
-	    //
-	    if(is.good())
-	    {
-		for(size_t j = 0; j < sizeof(wchar_t); ++j)
-		{
-		    test(bis.good());
-		    char c;
-		    bis.get(c);
-		}
-	    }
-	    else
-	    {
-		char c;
-		bis.get(c);
-		test(bis.eof());
-	    }
-	} while(is.good());
+        cout << "testing UTF-8 to wstring (" << wstringEncoding << ") conversion...";
+        
+        ifstream is((dir + "coeur.utf8").c_str());
+        test(is.good());
+        ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
+        test(bis.good());
+        
+        int lineNumber = 0;
+        
+        do
+        {
+            string line;
+            getline(is, line, '\n');
+            test(isLegalUTF8Sequence(reinterpret_cast<const Byte*>(line.data()), 
+                                     reinterpret_cast<const Byte*>(line.data() + line.size())));
+            lineNumber++;
+            wstring wline = stringToWstring(line);
+            
+            for(size_t i = 0; i < wline.length(); ++i)
+            {
+                wchar_t wc = wline[i];
+                const char* buffer = reinterpret_cast<char*>(&wc);
+                for(size_t j = 0; j < sizeof(wchar_t); ++j)
+                {
+                    test(bis.good());
+                    char c;
+                    bis.get(c);
+                    if(buffer[j] != c)
+                    {
+                        cerr << "Error at line " << lineNumber << " column " << i << endl;
+                        cerr << "buffer[j] == " << hex << (int)static_cast<unsigned char>(buffer[j]) << endl;
+                        cerr << "c == " << hex << (int)static_cast<unsigned char>(c) << endl;
+                    }
+                    test(buffer[j] == c);
+                }
+            }
+            //
+            // Skip newline character (Unix-style newline)
+            //
+            if(is.good())
+            {
+                for(size_t j = 0; j < sizeof(wchar_t); ++j)
+                {
+                    test(bis.good());
+                    char c;
+                    bis.get(c);
+                }
+            }
+            else
+            {
+                char c;
+                bis.get(c);
+                test(bis.eof());
+            }
+        } while(is.good());
     
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 
     {
-	cout << "wstring (" << wstringEncoding << ") to UTF-8 conversion...";
+        cout << "wstring (" << wstringEncoding << ") to UTF-8 conversion...";
 
-	ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
-	test(bis.good());
+        ifstream bis((dir + wcoeurFile).c_str(), ios_base::binary);
+        test(bis.good());
 
-	wstring ws;
-	char c;
+        wstring ws;
+        char c;
 
-	do
-	{
-	    wchar_t wc;
-	    char* buffer = reinterpret_cast<char*>(&wc);
-	    
-	    for(size_t j = 0; j < sizeof(wchar_t); ++j)
-	    {
-		if(!bis.good())
-		{
-		    break;
-		}
-		bis.get(c);
-		buffer[j] = c;
-	    }
+        do
+        {
+            wchar_t wc;
+            char* buffer = reinterpret_cast<char*>(&wc);
+            
+            for(size_t j = 0; j < sizeof(wchar_t); ++j)
+            {
+                if(!bis.good())
+                {
+                    break;
+                }
+                bis.get(c);
+                buffer[j] = c;
+            }
 
-	    if(bis.good())
-	    {
-		ws.push_back(wc);
-	    }
-	} while(bis.good());
-	
-	string s = wstringToString(ws);
-	
-	ifstream nbis((dir + "coeur.utf8").c_str(), ios_base::binary);
-	test(nbis.good());
-	
-	for(size_t i = 0; i < s.size(); ++i)
-	{
-	    test(nbis.good());
-	    nbis.get(c);	    
-	    char ci = s[i];
+            if(bis.good())
+            {
+                ws.push_back(wc);
+            }
+        } while(bis.good());
+        
+        string s = wstringToString(ws);
+        
+        ifstream nbis((dir + "coeur.utf8").c_str(), ios_base::binary);
+        test(nbis.good());
+        
+        for(size_t i = 0; i < s.size(); ++i)
+        {
+            test(nbis.good());
+            nbis.get(c);            
+            char ci = s[i];
 
-	    if(c != ci)
-	    {
-		cerr << "i == " << i << endl;
-		cerr << "ci == " << hex << (int)static_cast<unsigned char>(ci) << endl;
-		cerr << "c == " << hex << (int)static_cast<unsigned char>(c) << endl;
-	    }
-	    test(c == s[i]);
-	}
-	test(!nbis.eof());
-	nbis.get(c);
-	test(nbis.eof());
+            if(c != ci)
+            {
+                cerr << "i == " << i << endl;
+                cerr << "ci == " << hex << (int)static_cast<unsigned char>(ci) << endl;
+                cerr << "c == " << hex << (int)static_cast<unsigned char>(c) << endl;
+            }
+            test(c == s[i]);
+        }
+        test(!nbis.eof());
+        nbis.get(c);
+        test(nbis.eof());
 
-	cout << "ok" << endl;
+        cout << "ok" << endl;
     }
 
     return EXIT_SUCCESS;

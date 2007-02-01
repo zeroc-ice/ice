@@ -13,18 +13,18 @@ public class Client extends Ice.Application
 {
     class ShutdownHook extends Thread
     {
-	public void
-	run()
-	{
-	    try
-	    {
-		communicator().destroy();
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		ex.printStackTrace();
-	    }
-	}
+        public void
+        run()
+        {
+            try
+            {
+                communicator().destroy();
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+            }
+        }
     }
 
     private static void
@@ -38,7 +38,7 @@ public class Client extends Ice.Application
             "d: send callback as datagram\n" +
             "D: send callback as batch datagram\n" +
             "f: flush all batch requests\n" +
-	    "S: switch secure mode on/off\n" +
+            "S: switch secure mode on/off\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -47,16 +47,16 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
-	//
-	// Since this is an interactive demo we want to clear the
-	// Application installed interrupt callback and install our
-	// own shutdown hook.
-	//
-	setInterruptHook(new ShutdownHook());
+        //
+        // Since this is an interactive demo we want to clear the
+        // Application installed interrupt callback and install our
+        // own shutdown hook.
+        //
+        setInterruptHook(new ShutdownHook());
 
         CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
-	    communicator().propertyToProxy("Callback.Client.CallbackServer").
-	        ice_twoway().ice_timeout(-1).ice_secure(false));
+            communicator().propertyToProxy("Callback.Client.CallbackServer").
+                ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {
             System.err.println("invalid proxy");
@@ -72,13 +72,13 @@ public class Client extends Ice.Application
         adapter.activate();
 
         CallbackReceiverPrx twowayR = 
-	    CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
+            CallbackReceiverPrxHelper.uncheckedCast(adapter.createProxy(
                 communicator().stringToIdentity("callbackReceiver")));
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
         CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
 
-	boolean secure = false;
-	String secureStr = "";
+        boolean secure = false;
+        String secureStr = "";
 
         menu();
 
@@ -110,53 +110,53 @@ public class Client extends Ice.Application
                 }
                 else if(line.equals("d"))
                 {
-		    if(secure)
-		    {
-			System.out.println("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			datagram.initiateCallback(datagramR);
-		    }
+                    if(secure)
+                    {
+                        System.out.println("secure datagrams are not supported");
+                    }
+                    else
+                    {
+                        datagram.initiateCallback(datagramR);
+                    }
                 }
                 else if(line.equals("D"))
                 {
-		    if(secure)
-		    {
-			System.out.println("secure datagrams are not supported");
-		    }
-		    else
-		    {
-			batchDatagram.initiateCallback(datagramR);
-		    }
+                    if(secure)
+                    {
+                        System.out.println("secure datagrams are not supported");
+                    }
+                    else
+                    {
+                        batchDatagram.initiateCallback(datagramR);
+                    }
                 }
-		else if(line.equals("S"))
-		{
-		    secure = !secure;
-		    secureStr = secure ? "s" : "";
+                else if(line.equals("S"))
+                {
+                    secure = !secure;
+                    secureStr = secure ? "s" : "";
 
-		    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-		    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-		    batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-		    datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-		    batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+                    twoway = CallbackSenderPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+                    oneway = CallbackSenderPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+                    batchOneway = CallbackSenderPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+                    datagram = CallbackSenderPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+                    batchDatagram = CallbackSenderPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 
-		    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
-		    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
-		    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
+                    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
+                    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
+                    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
 
-		    if(secure)
-		    {
-			System.out.println("secure mode is now on");
-		    }
-		    else
-		    {
-			System.out.println("secure mode is now off");
-		    }
-		}
+                    if(secure)
+                    {
+                        System.out.println("secure mode is now on");
+                    }
+                    else
+                    {
+                        System.out.println("secure mode is now off");
+                    }
+                }
                 else if(line.equals("f"))
                 {
-		    communicator().flushBatchRequests();
+                    communicator().flushBatchRequests();
                 }
                 else if(line.equals("s"))
                 {

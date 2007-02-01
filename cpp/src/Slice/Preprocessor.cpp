@@ -34,7 +34,7 @@ Slice::Preprocessor::~Preprocessor()
 {
     if(_cppHandle)
     {
-	close();
+        close();
     }
 }
 
@@ -46,7 +46,7 @@ Slice::Preprocessor::getBaseName()
     string::size_type pos = base.rfind('.');
     if(pos != string::npos)
     {
-	base.erase(pos);
+        base.erase(pos);
     }
     return base;
 }
@@ -68,19 +68,19 @@ Slice::Preprocessor::preprocess(bool keepComments)
 {
     if(!checkInputFile())
     {
-	return 0;
+        return 0;
     }
 
     string cmd = searchIceCpp();
 
     if(cmd.empty())
     {
-	return 0;
+        return 0;
     }
 
     if(keepComments)
     {
-	cmd += " -C";
+        cmd += " -C";
     }
     
     cmd += " " + _args + " \"" + _fileName + "\"";
@@ -101,14 +101,14 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 {
     if(!checkInputFile())
     {
-	return;
+        return;
     }
 
     string cmd = searchIceCpp();
     
     if(cmd.empty())
     {
-	return;
+        return;
     }
     
     cmd += " -M " + _args + " \"" + _fileName + "\"";
@@ -126,17 +126,17 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
      * x.cpp: /path/x.ice /path/y.ice
      *
      * x.cpp: /path/x.ice \ 
-     *	/path/y.ice
+     *  /path/y.ice
      *
      * x.cpp: /path/x.ice /path/y.ice \ 
-     *	/path/z.ice
+     *  /path/z.ice
      *
      * x.cpp: \ 
-     *	/path/x.ice
+     *  /path/x.ice
      *
      * x.cpp: \ 
-     *	/path/x.ice \ 
-     *	/path/y.ice
+     *  /path/x.ice \ 
+     *  /path/y.ice
      *
      * Spaces embedded within filenames are escaped with a backslash. Note that
      * Windows filenames may contain colons.
@@ -145,16 +145,16 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
     switch(lang)
     {
         case CPlusPlus:
-	{
-	    char buf[1024];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
-	        fputs(buf, stdout);
-	    }
-	    break;
-	}
-	case Java:
-	{
+        {
+            char buf[1024];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
+                fputs(buf, stdout);
+            }
+            break;
+        }
+        case Java:
+        {
             //
             // We want to shift the files left one position, so that
             // "x.cpp: x.ice y.ice" becomes "x.ice: y.ice".
@@ -163,9 +163,9 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
             // all of the output into one string before manipulating it.
             //
             string deps;
-	    char buf[1024];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
+            char buf[1024];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
                 deps.append(buf, strlen(buf));
             }
 
@@ -209,75 +209,75 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
             }
 
             fputs(deps.c_str(), stdout);
-	    break;
-	}
-	case CSharp:
-	{
-	    //
-	    // Change .cpp suffix to .cs suffix.
-	    //
-	    char buf[1024];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
-		char* dot;
-		char* colon = strchr(buf, ':');
-		if(colon != NULL)
-		{
-		    *colon = '\0';
-		    dot = strrchr(buf, '.');
-		    *colon = ':';
-		    if(dot != NULL)
-		    {
-			if(strncmp(dot, ".cpp:", 5) == 0)
-			{
-			    *dot = '\0';
-			    fputs(buf, stdout);
-			    fputs(".cs", stdout);
-			    fputs(colon, stdout);
-			    continue;
-			}
-		    }
-		}
-		fputs(buf, stdout);
-	    }
-	    break;
-	}
-	case VisualBasic:
-	{
-	    //
-	    // Change .cpp suffix to .vb suffix.
-	    //
-	    char buf[1024];
-	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
-	    {
-		char* dot;
-		char* colon = strchr(buf, ':');
-		if(colon != NULL)
-		{
-		    *colon = '\0';
-		    dot = strrchr(buf, '.');
-		    *colon = ':';
-		    if(dot != NULL)
-		    {
-			if(strncmp(dot, ".cpp:", 5) == 0)
-			{
-			    *dot = '\0';
-			    fputs(buf, stdout);
-			    fputs(".vb", stdout);
-			    fputs(colon, stdout);
-			    continue;
-			}
-		    }
-		}
-		fputs(buf, stdout);
-	    }
-	    break;
-	}
-	default:
-	{
-	    abort();
-	    break;
-	}
+            break;
+        }
+        case CSharp:
+        {
+            //
+            // Change .cpp suffix to .cs suffix.
+            //
+            char buf[1024];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
+                char* dot;
+                char* colon = strchr(buf, ':');
+                if(colon != NULL)
+                {
+                    *colon = '\0';
+                    dot = strrchr(buf, '.');
+                    *colon = ':';
+                    if(dot != NULL)
+                    {
+                        if(strncmp(dot, ".cpp:", 5) == 0)
+                        {
+                            *dot = '\0';
+                            fputs(buf, stdout);
+                            fputs(".cs", stdout);
+                            fputs(colon, stdout);
+                            continue;
+                        }
+                    }
+                }
+                fputs(buf, stdout);
+            }
+            break;
+        }
+        case VisualBasic:
+        {
+            //
+            // Change .cpp suffix to .vb suffix.
+            //
+            char buf[1024];
+            while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+            {
+                char* dot;
+                char* colon = strchr(buf, ':');
+                if(colon != NULL)
+                {
+                    *colon = '\0';
+                    dot = strrchr(buf, '.');
+                    *colon = ':';
+                    if(dot != NULL)
+                    {
+                        if(strncmp(dot, ".cpp:", 5) == 0)
+                        {
+                            *dot = '\0';
+                            fputs(buf, stdout);
+                            fputs(".vb", stdout);
+                            fputs(colon, stdout);
+                            continue;
+                        }
+                    }
+                }
+                fputs(buf, stdout);
+            }
+            break;
+        }
+        default:
+        {
+            abort();
+            break;
+        }
     }
 }
 
@@ -292,7 +292,7 @@ Slice::Preprocessor::close()
 
     if(WIFEXITED(status) && WEXITSTATUS(status) != 0)
     {
-	return false;
+        return false;
     }
 #else
     int status = _pclose(_cppHandle);
@@ -300,7 +300,7 @@ Slice::Preprocessor::close()
 
     if(status != 0)
     {
-	return false;
+        return false;
     }
 #endif
     
@@ -315,20 +315,20 @@ Slice::Preprocessor::checkInputFile()
     string::size_type pos = base.rfind('.');
     if(pos != string::npos)
     {
-	suffix = base.substr(pos);
-	transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
+        suffix = base.substr(pos);
+        transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
     }
     if(suffix != ".ice")
     {
-	cerr << _path << ": input files must end with `.ice'" << endl;
-	return false;
+        cerr << _path << ": input files must end with `.ice'" << endl;
+        return false;
     }
     
     ifstream test(_fileName.c_str());
     if(!test)
     {
-	cerr << _path << ": can't open `" << _fileName << "' for reading" << endl;
-	return false;
+        cerr << _path << ": can't open `" << _fileName << "' for reading" << endl;
+        return false;
     }
     test.close();
 
@@ -347,21 +347,21 @@ Slice::Preprocessor::searchIceCpp()
     string::size_type pos = _path.find_last_of("/\\");
     if(pos != string::npos)
     {
-	string path = _path.substr(0, pos + 1);
-	path += icecpp;
+        string path = _path.substr(0, pos + 1);
+        path += icecpp;
 
-	struct stat st;
-	if(stat(path.c_str(), &st) == 0)
-	{
+        struct stat st;
+        if(stat(path.c_str(), &st) == 0)
+        {
 #ifndef _WIN32
-	    if(st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+            if(st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
 #else
-	    if(st.st_mode & (S_IEXEC))
+            if(st.st_mode & (S_IEXEC))
 #endif
-	    {
-		return path;
-	    }
-	}
+            {
+                return path;
+            }
+        }
     }
 
     return icecpp;

@@ -35,7 +35,7 @@ public class AllTests
             {
                 while(!_called)
                 {
-		    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
+                    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
                     
                     if(!_called)
                     {
@@ -524,7 +524,7 @@ public class AllTests
             try
             {
                 testPrx.baseAsBase();
-		test(false);
+                test(false);
             }
             catch(Base b)
             {
@@ -553,7 +553,7 @@ public class AllTests
             try
             {
                 testPrx.unknownDerivedAsBase();
-		test(false);
+                test(false);
             }
             catch(Base b)
             {
@@ -582,7 +582,7 @@ public class AllTests
             try
             {
                 testPrx.knownDerivedAsBase();
-		test(false);
+                test(false);
             }
             catch(KnownDerived k)
             {
@@ -612,7 +612,7 @@ public class AllTests
             try
             {
                 testPrx.knownDerivedAsKnownDerived();
-		test(false);
+                test(false);
             }
             catch(KnownDerived k)
             {
@@ -642,7 +642,7 @@ public class AllTests
             try
             {
                 testPrx.unknownIntermediateAsBase();
-		test(false);
+                test(false);
             }
             catch(Base b)
             {
@@ -671,7 +671,7 @@ public class AllTests
             try
             {
                 testPrx.knownIntermediateAsBase();
-		test(false);
+                test(false);
             }
             catch(KnownIntermediate ki)
             {
@@ -701,7 +701,7 @@ public class AllTests
             try
             {
                 testPrx.knownMostDerivedAsBase();
-		test(false);
+                test(false);
             }
             catch(KnownMostDerived kmd)
             {
@@ -732,7 +732,7 @@ public class AllTests
             try
             {
                 testPrx.knownIntermediateAsKnownIntermediate();
-		test(false);
+                test(false);
             }
             catch(KnownIntermediate ki)
             {
@@ -762,7 +762,7 @@ public class AllTests
             try
             {
                 testPrx.knownMostDerivedAsKnownIntermediate();
-		test(false);
+                test(false);
             }
             catch(KnownMostDerived kmd)
             {
@@ -793,7 +793,7 @@ public class AllTests
             try
             {
                 testPrx.knownMostDerivedAsKnownMostDerived();
-		test(false);
+                test(false);
             }
             catch(KnownMostDerived kmd)
             {
@@ -824,7 +824,7 @@ public class AllTests
             try
             {
                 testPrx.unknownMostDerived1AsBase();
-		test(false);
+                test(false);
             }
             catch(KnownIntermediate ki)
             {
@@ -854,7 +854,7 @@ public class AllTests
             try
             {
                 testPrx.unknownMostDerived1AsKnownIntermediate();
-		test(false);
+                test(false);
             }
             catch(KnownIntermediate ki)
             {
@@ -884,7 +884,7 @@ public class AllTests
             try
             {
                 testPrx.unknownMostDerived2AsBase();
-		test(false);
+                test(false);
             }
             catch(Base b)
             {

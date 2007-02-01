@@ -58,7 +58,7 @@ IceUtil::RWRecMutex::readLock() const
     //
     while(_count < 0 || _waitingWriters != 0)
     {
-	_readers.wait(lock);
+        _readers.wait(lock);
     }
     ++_count;
 }
@@ -74,7 +74,7 @@ IceUtil::RWRecMutex::tryReadLock() const
     //
     if(_count < 0 || _waitingWriters != 0)
     {
-	return false;
+        return false;
     }
     ++_count;
     return true;
@@ -92,18 +92,18 @@ IceUtil::RWRecMutex::timedReadLock(const Time& timeout) const
     Time end = Time::now() + timeout;
     while(_count < 0 || _waitingWriters != 0)
     {
-	Time remainder = end - Time::now();
-	if(remainder > Time())
-	{
-	    if(_readers.timedWait(lock, remainder) == false)
-	    {
-		return false;
-	    }
-	}
-	else
-	{
-	    return false;
-	}
+        Time remainder = end - Time::now();
+        if(remainder > Time())
+        {
+            if(_readers.timedWait(lock, remainder) == false)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 
     ++_count;
@@ -121,8 +121,8 @@ IceUtil::RWRecMutex::writeLock() const
     //
     if(_count < 0 && _writerId == ThreadControl())
     {
-	--_count;
-	return;
+        --_count;
+        return;
     }
 
     //
@@ -131,17 +131,17 @@ IceUtil::RWRecMutex::writeLock() const
     //
     while(_count != 0)
     {
-	++_waitingWriters;
-	try
-	{
-	    _writers.wait(lock);
-	}
-	catch(...)
-	{
-	    --_waitingWriters;
-	    throw;
-	}
-	--_waitingWriters;
+        ++_waitingWriters;
+        try
+        {
+            _writers.wait(lock);
+        }
+        catch(...)
+        {
+            --_waitingWriters;
+            throw;
+        }
+        --_waitingWriters;
     }
 
     //
@@ -162,8 +162,8 @@ IceUtil::RWRecMutex::tryWriteLock() const
     //
     if(_count < 0 && _writerId == ThreadControl())
     {
-	--_count;
-	return true;
+        --_count;
+        return true;
     }
 
     //
@@ -171,7 +171,7 @@ IceUtil::RWRecMutex::tryWriteLock() const
     //
     if(_count != 0)
     {
-	return false;
+        return false;
     }
 
     //
@@ -192,8 +192,8 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
     // decrement _count, and return.
     if(_count < 0 && _writerId == ThreadControl())
     {
-	--_count;
-	return true;
+        --_count;
+        return true;
     }
 
     //
@@ -203,29 +203,29 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
     Time end = Time::now() + timeout;
     while(_count != 0)
     {
-	Time remainder = end - Time::now();
-	if(remainder > Time())
-	{
-	    ++_waitingWriters;
-	    try
-	    {
-		bool result = _writers.timedWait(lock, remainder);
-		--_waitingWriters;
-		if(result == false)
-		{
-		    return false;
-		}
-	    }
-	    catch(...)
-	    {
-		--_waitingWriters;
-		throw;
-	    }
-	}
-	else
-	{
-	    return false;
-	}
+        Time remainder = end - Time::now();
+        if(remainder > Time())
+        {
+            ++_waitingWriters;
+            try
+            {
+                bool result = _writers.timedWait(lock, remainder);
+                --_waitingWriters;
+                if(result == false)
+                {
+                    return false;
+                }
+            }
+            catch(...)
+            {
+                --_waitingWriters;
+                throw;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 
     //
@@ -242,46 +242,46 @@ IceUtil::RWRecMutex::unlock() const
     bool ww = false;
     bool wr = false;
     {
-	Mutex::Lock lock(_mutex);
+        Mutex::Lock lock(_mutex);
 
-	assert(_count != 0);
+        assert(_count != 0);
 
-	//
-	// If _count < 0, the calling thread is a writer that holds the
-	// lock, so release the lock.  Otherwise, _count is guaranteed to
-	// be > 0, so the calling thread is a reader releasing the lock.
-	//
-	if(_count < 0)
-	{
-	    //
-	    // Writer called unlock
-	    //
-	    ++_count;
+        //
+        // If _count < 0, the calling thread is a writer that holds the
+        // lock, so release the lock.  Otherwise, _count is guaranteed to
+        // be > 0, so the calling thread is a reader releasing the lock.
+        //
+        if(_count < 0)
+        {
+            //
+            // Writer called unlock
+            //
+            ++_count;
 
-	    //
-	    // If the write lock wasn't totally released we're done.
-	    //
-	    if(_count != 0)
-	    {
-		return;
-	    }
-	}
-	else
-	{
-	    //
-	    // Reader called unlock
-	    //
-	    --_count;
-	}
+            //
+            // If the write lock wasn't totally released we're done.
+            //
+            if(_count != 0)
+            {
+                return;
+            }
+        }
+        else
+        {
+            //
+            // Reader called unlock
+            //
+            --_count;
+        }
 
-	//
-	// Writers are waiting (ww) if _waitingWriters > 0.  In that
-	// case, it's OK to let another writer into the region once there
-	// are no more readers (_count == 0).  Otherwise, no writers are
-	// waiting but readers may be waiting (wr).
-	//
-	ww = (_waitingWriters != 0 && _count == 0);
-	wr = (_waitingWriters == 0);
+        //
+        // Writers are waiting (ww) if _waitingWriters > 0.  In that
+        // case, it's OK to let another writer into the region once there
+        // are no more readers (_count == 0).  Otherwise, no writers are
+        // waiting but readers may be waiting (wr).
+        //
+        ww = (_waitingWriters != 0 && _count == 0);
+        wr = (_waitingWriters == 0);
     } // Unlock mutex.
 
     //
@@ -290,27 +290,27 @@ IceUtil::RWRecMutex::unlock() const
     //
     if(ww)
     {
-	if(_upgrading)
-	{
-	    //
-	    // If there is an untimed upgrader, it runs.
-	    //
-	    _upgrader.signal();
-	}
-	else
-	{
-	    //
-	    // Wake a normal writer.
-	    //
-	    _writers.signal();
-	}
+        if(_upgrading)
+        {
+            //
+            // If there is an untimed upgrader, it runs.
+            //
+            _upgrader.signal();
+        }
+        else
+        {
+            //
+            // Wake a normal writer.
+            //
+            _writers.signal();
+        }
     }
     else if(wr)
     {
-	//
-	// Wake readers
-	//
-	_readers.broadcast();
+        //
+        // Wake readers
+        //
+        _readers.broadcast();
     }
 }
 
@@ -336,19 +336,19 @@ IceUtil::RWRecMutex::upgrade() const
     _upgrading = true;
     while(_count != 0)
     {
-	++_waitingWriters;
-	try
-	{
-	    _upgrader.wait(lock);
-	}
-	catch(...)
-	{
-	    _upgrading = false;
-	    --_waitingWriters;
-	    ++_count;
-	    throw;
-	}
-	--_waitingWriters;	
+        ++_waitingWriters;
+        try
+        {
+            _upgrader.wait(lock);
+        }
+        catch(...)
+        {
+            _upgrading = false;
+            --_waitingWriters;
+            ++_count;
+            throw;
+        }
+        --_waitingWriters;      
     }
 
     //
@@ -385,38 +385,38 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     Time end = Time::now() + timeout;
     while(_count != 0)
     {
-	Time remainder = end - Time::now();
-	if(remainder > Time())
-	{
-	    ++_waitingWriters;
-	    try
-	    {
-		bool result = _upgrader.timedWait(lock, remainder);
-		--_waitingWriters;
-		if(!result)
-		{
-		    _upgrading = false;
-		    ++_count;
-		    return false;
-		}
-	    }
-	    catch(...)
-	    {
-		_upgrading = false;
-		--_waitingWriters;
-		++_count;
-		throw;
-	    }
-	}
-	else
-	{
-	    //
-	    // The lock isn't acquired if a timeout occurred.
-	    //
-	    ++_count;
-	    _upgrading = false;
-	    return false;
-	}
+        Time remainder = end - Time::now();
+        if(remainder > Time())
+        {
+            ++_waitingWriters;
+            try
+            {
+                bool result = _upgrader.timedWait(lock, remainder);
+                --_waitingWriters;
+                if(!result)
+                {
+                    _upgrading = false;
+                    ++_count;
+                    return false;
+                }
+            }
+            catch(...)
+            {
+                _upgrading = false;
+                --_waitingWriters;
+                ++_count;
+                throw;
+            }
+        }
+        else
+        {
+            //
+            // The lock isn't acquired if a timeout occurred.
+            //
+            ++_count;
+            _upgrading = false;
+            return false;
+        }
     }
 
     //
@@ -435,6 +435,6 @@ IceUtil::RWRecMutex::downgrade() const
 
     if(++_count == 0)
     {
-	_count = 1;
+        _count = 1;
     }
 }

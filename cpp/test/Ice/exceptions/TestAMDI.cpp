@@ -19,7 +19,7 @@ ThrowerI::ThrowerI(const Ice::ObjectAdapterPtr& adapter) :
 
 void
 ThrowerI::shutdown_async(const AMD_Thrower_shutdownPtr& cb,
-			 const Ice::Current&)
+                         const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
     cb->ice_response();
@@ -27,21 +27,21 @@ ThrowerI::shutdown_async(const AMD_Thrower_shutdownPtr& cb,
 
 void
 ThrowerI::supportsUndeclaredExceptions_async(const AMD_Thrower_supportsUndeclaredExceptionsPtr& cb,
-					     const Ice::Current&)
+                                             const Ice::Current&)
 {
     cb->ice_response(true);
 }
 
 void
 ThrowerI::supportsAssertException_async(const AMD_Thrower_supportsAssertExceptionPtr& cb,
-					const Ice::Current&)
+                                        const Ice::Current&)
 {
     cb->ice_response(false);
 }
 
 void
 ThrowerI::throwAasA_async(const AMD_Thrower_throwAasAPtr& cb,
-			  Ice::Int a, const Ice::Current&)
+                          Ice::Int a, const Ice::Current&)
 {
     A ex;
     ex.aMem = a;
@@ -50,25 +50,25 @@ ThrowerI::throwAasA_async(const AMD_Thrower_throwAasAPtr& cb,
 
 void
 ThrowerI::throwAorDasAorD_async(const AMD_Thrower_throwAorDasAorDPtr& cb,
-				Ice::Int a, const Ice::Current&)
+                                Ice::Int a, const Ice::Current&)
 {
     if(a > 0)
     {
-	A ex;
-	ex.aMem = a;
-	cb->ice_exception(ex);
+        A ex;
+        ex.aMem = a;
+        cb->ice_exception(ex);
     }
     else
     {
-	D ex;
-	ex.dMem = a;
-	cb->ice_exception(ex);
+        D ex;
+        ex.dMem = a;
+        cb->ice_exception(ex);
     }
 }
 
 void
 ThrowerI::throwBasA_async(const AMD_Thrower_throwBasAPtr& cb,
-			  Ice::Int a, Ice::Int b, const Ice::Current& current)
+                          Ice::Int a, Ice::Int b, const Ice::Current& current)
 {
     B ex;
     ex.aMem = a;
@@ -79,7 +79,7 @@ ThrowerI::throwBasA_async(const AMD_Thrower_throwBasAPtr& cb,
 
 void
 ThrowerI::throwCasA_async(const AMD_Thrower_throwCasAPtr& cb,
-			  Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
+                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
 {
     C ex;
     ex.aMem = a;
@@ -90,7 +90,7 @@ ThrowerI::throwCasA_async(const AMD_Thrower_throwCasAPtr& cb,
 
 void
 ThrowerI::throwBasB_async(const AMD_Thrower_throwBasBPtr& cb,
-			  Ice::Int a, Ice::Int b, const Ice::Current&)
+                          Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
@@ -101,7 +101,7 @@ ThrowerI::throwBasB_async(const AMD_Thrower_throwBasBPtr& cb,
 
 void
 ThrowerI::throwCasB_async(const AMD_Thrower_throwCasBPtr& cb,
-			  Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
+                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
 {
     C ex;
     ex.aMem = a;
@@ -112,7 +112,7 @@ ThrowerI::throwCasB_async(const AMD_Thrower_throwCasBPtr& cb,
 
 void
 ThrowerI::throwCasC_async(const AMD_Thrower_throwCasCPtr& cb,
-			  Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
+                          Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.aMem = a;
@@ -123,7 +123,7 @@ ThrowerI::throwCasC_async(const AMD_Thrower_throwCasCPtr& cb,
 
 void
 ThrowerI::throwModA_async(const AMD_Thrower_throwModAPtr& cb,
-			  Ice::Int a, Ice::Int a2, const Ice::Current&)
+                          Ice::Int a, Ice::Int a2, const Ice::Current&)
 {
     Mod::A ex;
     ex.aMem = a;
@@ -134,7 +134,7 @@ ThrowerI::throwModA_async(const AMD_Thrower_throwModAPtr& cb,
 
 void
 ThrowerI::throwUndeclaredA_async(const AMD_Thrower_throwUndeclaredAPtr& cb,
-				 Ice::Int a, const Ice::Current&)
+                                 Ice::Int a, const Ice::Current&)
 {
     A ex;
     ex.aMem = a;
@@ -143,7 +143,7 @@ ThrowerI::throwUndeclaredA_async(const AMD_Thrower_throwUndeclaredAPtr& cb,
 
 void
 ThrowerI::throwUndeclaredB_async(const AMD_Thrower_throwUndeclaredBPtr& cb,
-				 Ice::Int a, Ice::Int b, const Ice::Current&)
+                                 Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.aMem = a;
@@ -154,7 +154,7 @@ ThrowerI::throwUndeclaredB_async(const AMD_Thrower_throwUndeclaredBPtr& cb,
 
 void
 ThrowerI::throwUndeclaredC_async(const AMD_Thrower_throwUndeclaredCPtr& cb,
-				 Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
+                                 Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.aMem = a;
@@ -165,21 +165,21 @@ ThrowerI::throwUndeclaredC_async(const AMD_Thrower_throwUndeclaredCPtr& cb,
 
 void
 ThrowerI::throwLocalException_async(const AMD_Thrower_throwLocalExceptionPtr& cb,
-				    const Ice::Current&)
+                                    const Ice::Current&)
 {
     cb->ice_exception(Ice::TimeoutException(__FILE__, __LINE__));
 }
 
 void
 ThrowerI::throwNonIceException_async(const AMD_Thrower_throwNonIceExceptionPtr&,
-				     const Ice::Current&)
+                                     const Ice::Current&)
 {
     throw int(12345);
 }
 
 void
 ThrowerI::throwAssertException_async(const AMD_Thrower_throwAssertExceptionPtr&,
-				     const Ice::Current&)
+                                     const Ice::Current&)
 {
     assert(false); // Not supported in C++.
 }

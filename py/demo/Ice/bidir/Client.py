@@ -34,14 +34,14 @@ class Client(Ice.Application):
             return 1
 
         adapter = self.communicator().createObjectAdapter("")
-	ident = Ice.Identity()
-	ident.name = Ice.generateUUID()
-	ident.category = ""
+        ident = Ice.Identity()
+        ident.name = Ice.generateUUID()
+        ident.category = ""
         adapter.add(CallbackReceiverI(), ident)
         adapter.activate()
-	server.ice_getConnection().setAdapter(adapter)
-	server.addClient(ident)
-	self.communicator().waitForShutdown()
+        server.ice_getConnection().setAdapter(adapter)
+        server.addClient(ident)
+        self.communicator().waitForShutdown()
 
         return 0
 

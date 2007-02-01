@@ -15,13 +15,13 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     public
     EvictorBase()
     {
-	_size = 1000;
+        _size = 1000;
     }
 
     public
     EvictorBase(int size)
     {
-	_size = size < 0 ? 1000 : size;
+        _size = size < 0 ? 1000 : size;
     }
 
     public abstract Ice.Object
@@ -33,107 +33,107 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     synchronized public final Ice.Object
     locate(Ice.Current c, Ice.LocalObjectHolder cookie)
     {
-	//
-	// Create a cookie.
-	//
-	EvictorCookie ec = new EvictorCookie();
-	cookie.value = ec;
+        //
+        // Create a cookie.
+        //
+        EvictorCookie ec = new EvictorCookie();
+        cookie.value = ec;
 
-	//
-	// Check if we a servant in the map already.
-	//
-	ec.entry = (EvictorEntry)_map.get(c.id);
-	boolean newEntry = ec.entry == null;
-	if(!newEntry)
-	{
-	    //
-	    // Got an entry already, dequeue the entry from
-	    // its current position.
-	    //
-	    ec.entry.pos.remove();
-	}
-	else
-	{
-	    //
-	    // We do not have entry. Ask the derived class to
-	    // instantiate a servant and add a new entry to the map.
-	    //
-	    ec.entry = new EvictorEntry();
-	    Ice.LocalObjectHolder cookieHolder = new Ice.LocalObjectHolder();
-	    ec.entry.servant = add(c, cookieHolder); // Down-call
-	    if(ec.entry.servant == null)
-	    {
-		return null;
-	    }
-	    ec.entry.userCookie = cookieHolder.value;
-	    ec.entry.useCount = 0;
-	    _map.put(c.id, ec.entry);
-	}
+        //
+        // Check if we a servant in the map already.
+        //
+        ec.entry = (EvictorEntry)_map.get(c.id);
+        boolean newEntry = ec.entry == null;
+        if(!newEntry)
+        {
+            //
+            // Got an entry already, dequeue the entry from
+            // its current position.
+            //
+            ec.entry.pos.remove();
+        }
+        else
+        {
+            //
+            // We do not have entry. Ask the derived class to
+            // instantiate a servant and add a new entry to the map.
+            //
+            ec.entry = new EvictorEntry();
+            Ice.LocalObjectHolder cookieHolder = new Ice.LocalObjectHolder();
+            ec.entry.servant = add(c, cookieHolder); // Down-call
+            if(ec.entry.servant == null)
+            {
+                return null;
+            }
+            ec.entry.userCookie = cookieHolder.value;
+            ec.entry.useCount = 0;
+            _map.put(c.id, ec.entry);
+        }
 
-	//
-	// Increment the use count of the servant and enqueue
-	// the entry at the front, so we get LRU order.
-	//
-	++(ec.entry.useCount);
-	_queue.addFirst(c.id);
-	ec.entry.pos = _queue.iterator();
-	ec.entry.pos.next(); // Position the iterator on the element.
+        //
+        // Increment the use count of the servant and enqueue
+        // the entry at the front, so we get LRU order.
+        //
+        ++(ec.entry.useCount);
+        _queue.addFirst(c.id);
+        ec.entry.pos = _queue.iterator();
+        ec.entry.pos.next(); // Position the iterator on the element.
 
-	return ec.entry.servant;
+        return ec.entry.servant;
     }
 
     synchronized public final void
     finished(Ice.Current c, Ice.Object o, Ice.LocalObject cookie)
     {
-	EvictorCookie ec = (EvictorCookie)cookie;
+        EvictorCookie ec = (EvictorCookie)cookie;
 
-	//
-	// Decrement use count and check if
-	// there is something to evict.
-	//
-	--(ec.entry.useCount);
-	evictServants();
+        //
+        // Decrement use count and check if
+        // there is something to evict.
+        //
+        --(ec.entry.useCount);
+        evictServants();
     }
 
     synchronized public final void
     deactivate(String category)
     {
-	_size = 0;
-	evictServants();
+        _size = 0;
+        evictServants();
     }
 
     private class EvictorEntry
     {
-	Ice.Object servant;
-	Ice.LocalObject userCookie;
-	java.util.Iterator pos;
+        Ice.Object servant;
+        Ice.LocalObject userCookie;
+        java.util.Iterator pos;
         int useCount;
     }
 
     private class EvictorCookie extends Ice.LocalObjectImpl
     {
-	public EvictorEntry entry;
+        public EvictorEntry entry;
     }
 
     private void evictServants()
     {
-	//
-	// If the evictor queue has grown larger than the limit,
-	// look at the excess elements to see whether any of them
-	// can be evicted.
-	//
-	for(int i = _map.size() - _size; i > 0; --i)
-	{
-	    java.util.Iterator p = _queue.riterator();
-	    Ice.Identity id = (Ice.Identity)p.next();
-	    EvictorEntry e = (EvictorEntry)_map.get(id);
-	    if(e.useCount == 0)
-	    {
-		evict(e.servant, e.userCookie); // Down-call
-		p.remove();
-		_map.remove(id);
-	    }
-	}
+        //
+        // If the evictor queue has grown larger than the limit,
+        // look at the excess elements to see whether any of them
+        // can be evicted.
+        //
+        for(int i = _map.size() - _size; i > 0; --i)
+        {
+            java.util.Iterator p = _queue.riterator();
+            Ice.Identity id = (Ice.Identity)p.next();
+            EvictorEntry e = (EvictorEntry)_map.get(id);
+            if(e.useCount == 0)
+            {
+                evict(e.servant, e.userCookie); // Down-call
+                p.remove();
+                _map.remove(id);
+            }
+        }
     }
 
     private java.util.Map _map = new java.util.HashMap();

@@ -27,22 +27,22 @@ class SessionRefreshThread(threading.Thread):
         try:
             while not self._terminated:
                 self._cond.wait(self._timeout)
-		if not self._terminated:
+                if not self._terminated:
                     try:
                         self._session.refresh()
                     except Ice.LocalException, ex:
                         self._logger.warning("SessionRefreshThread: " + str(ex))
                         self._terminated = True
-	finally:
-	    self._cond.release()
+        finally:
+            self._cond.release()
 
     def terminate(self):
-	self._cond.acquire()
-	try:
+        self._cond.acquire()
+        try:
             self._terminated = True
-	    self._cond.notify()
-	finally:
-	    self._cond.release()
+            self._cond.notify()
+        finally:
+            self._cond.release()
 
 class Client(Ice.Application):
     def run(self, args):
@@ -82,10 +82,10 @@ class Client(Ice.Application):
                                   "Use `c' to create a new hello object."
                     elif c == 'c':
                         hellos.append(session.createHello())
-			print "Created hello object",len(hellos) - 1
+                        print "Created hello object",len(hellos) - 1
                     elif c == 's':
-			destroy = False
-			shutdown = True
+                        destroy = False
+                        shutdown = True
                         break
                     elif c == 'x':
                         break
@@ -99,8 +99,8 @@ class Client(Ice.Application):
                         self.menu()
                 except EOFError:
                     break
-		except KeyboardInterrupt:
-		    break
+                except KeyboardInterrupt:
+                    break
             #
             # The refresher thread must be terminated before destroy is
             # called, otherwise it might get ObjectNotExistException. refresh

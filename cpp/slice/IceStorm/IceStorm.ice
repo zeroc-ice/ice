@@ -207,7 +207,7 @@ interface Topic
      *
      **/
     Object* subscribeAndGetPublisher(QoS theQoS, Object* subscriber)
-	throws AlreadySubscribed, BadQoS;
+        throws AlreadySubscribed, BadQoS;
 
     /**
      *

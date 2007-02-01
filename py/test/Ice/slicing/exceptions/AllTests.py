@@ -242,7 +242,7 @@ def allTests(communicator):
     print "base... ",
     try:
         t.baseAsBase()
-	test(false)
+        test(false)
     except Test.Base, b:
         test(b.b == "Base.b")
         test(b.ice_name() == "Test::Base")
@@ -259,7 +259,7 @@ def allTests(communicator):
     print "slicing of unknown derived... ",
     try:
         t.unknownDerivedAsBase()
-	test(false)
+        test(false)
     except Test.Base, b:
         test(b.b == "UnknownDerived.b")
         test(b.ice_name() == "Test::Base")
@@ -276,7 +276,7 @@ def allTests(communicator):
     print "non-slicing of known derived as base... ",
     try:
         t.knownDerivedAsBase()
-	test(false)
+        test(false)
     except Test.KnownDerived, k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
@@ -294,7 +294,7 @@ def allTests(communicator):
     print "non-slicing of known derived as derived... ",
     try:
         t.knownDerivedAsKnownDerived()
-	test(false)
+        test(false)
     except Test.KnownDerived, k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
@@ -312,7 +312,7 @@ def allTests(communicator):
     print "slicing of unknown intermediate as base... ",
     try:
         t.unknownIntermediateAsBase()
-	test(false)
+        test(false)
     except Test.Base, b:
         test(b.b == "UnknownIntermediate.b")
         test(b.ice_name() == "Test::Base")
@@ -329,7 +329,7 @@ def allTests(communicator):
     print "slicing of known intermediate as base... ",
     try:
         t.knownIntermediateAsBase()
-	test(false)
+        test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
@@ -347,7 +347,7 @@ def allTests(communicator):
     print "slicing of known most derived as base... ",
     try:
         t.knownMostDerivedAsBase()
-	test(false)
+        test(false)
     except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
@@ -366,7 +366,7 @@ def allTests(communicator):
     print "non-slicing of known intermediate as intermediate... ",
     try:
         t.knownIntermediateAsKnownIntermediate()
-	test(false)
+        test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
@@ -384,7 +384,7 @@ def allTests(communicator):
     print "non-slicing of known most derived exception as intermediate... ",
     try:
         t.knownMostDerivedAsKnownIntermediate()
-	test(false)
+        test(false)
     except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
@@ -403,7 +403,7 @@ def allTests(communicator):
     print "non-slicing of known most derived as most derived... ",
     try:
         t.knownMostDerivedAsKnownMostDerived()
-	test(false)
+        test(false)
     except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
@@ -422,7 +422,7 @@ def allTests(communicator):
     print "slicing of unknown most derived, known intermediate as base... ",
     try:
         t.unknownMostDerived1AsBase()
-	test(false)
+        test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
@@ -440,7 +440,7 @@ def allTests(communicator):
     print "slicing of unknown most derived, known intermediate as intermediate... ",
     try:
         t.unknownMostDerived1AsKnownIntermediate()
-	test(false)
+        test(false)
     except Test.KnownIntermediate, ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
@@ -458,7 +458,7 @@ def allTests(communicator):
     print "slicing of unknown most derived, unknown intermediate as base... ",
     try:
         t.unknownMostDerived2AsBase()
-	test(false)
+        test(false)
     except Test.Base, b:
         test(b.b == "UnknownMostDerived2.b")
         test(b.ice_name() == "Test::Base")

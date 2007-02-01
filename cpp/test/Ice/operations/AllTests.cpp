@@ -202,17 +202,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     if(!collocated)
     {
-	cout << "testing timeout... " << flush;
-	Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
-	try
-	{
-	    clTimeout->opSleep(2000);
-	    test(false);
-	}
-	catch(const Ice::TimeoutException&)
-	{
-	}
-	cout << "ok" << endl;
+        cout << "testing timeout... " << flush;
+        Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
+        try
+        {
+            clTimeout->opSleep(2000);
+            test(false);
+        }
+        catch(const Ice::TimeoutException&)
+        {
+        }
+        cout << "ok" << endl;
     }
 
     cout << "testing twoway operations... " << flush;
@@ -224,17 +224,17 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     if(!collocated)
     {
-	cout << "testing twoway operations with AMI... " << flush;
-	void twowaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
-	twowaysAMI(communicator, cl);
-	twowaysAMI(communicator, derived);
-	cout << "ok" << endl;
+        cout << "testing twoway operations with AMI... " << flush;
+        void twowaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx&);
+        twowaysAMI(communicator, cl);
+        twowaysAMI(communicator, derived);
+        cout << "ok" << endl;
 
-	cout << "testing batch oneway operations... " << flush;
-	void batchOneways(const Test::MyClassPrx&);
-	batchOneways(cl);
-	batchOneways(derived);
-	cout << "ok" << endl;
+        cout << "testing batch oneway operations... " << flush;
+        void batchOneways(const Test::MyClassPrx&);
+        batchOneways(cl);
+        batchOneways(derived);
+        cout << "ok" << endl;
     }
 
     return cl;

@@ -98,15 +98,15 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(0)
     elif x == "-d":
-	print "skipping docs"
+        print "skipping docs"
         skipDocs = True
     elif x == "-t":
-	print "skipping translators"
+        print "skipping translators"
         skipTranslators = True
     elif x == "-v":
         verbose = True 
     elif x == "-f":
-	keepGoing = True
+        keepGoing = True
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -154,9 +154,9 @@ for p in buildProperties:
     checkFilename = None
     d = p.split("=")
     if d[0].strip() in ["jgoodies.looks", "jgoodies.forms", "berkeleydb.jar"]:
-	if not os.path.exists(d[1].strip()):
-	    print "ERROR: %s is not in configured location. IceGridGUI.jar will not build correctly!" % d[1].strip()
-	    errorOut = True
+        if not os.path.exists(d[1].strip()):
+            print "ERROR: %s is not in configured location. IceGridGUI.jar will not build correctly!" % d[1].strip()
+            errorOut = True
 
 if not os.environ.has_key("CLASSPATH"):
     print "ERROR: No CLASSPATH, unable to find ProGuard jar file."
@@ -165,18 +165,18 @@ else:
     classpath = os.environ["CLASSPATH"]
     found = False
     for e in classpath.split(os.pathsep):
-	if e.find("proguard.jar") != -1:
-	    if os.path.exists(e):
-		found = True
-		break
+        if e.find("proguard.jar") != -1:
+            if os.path.exists(e):
+                found = True
+                break
     if not found:
-	print "ERROR: Unable to find ProGuard in CLASSPATH"
-	errorOut = True
+        print "ERROR: Unable to find ProGuard in CLASSPATH"
+        errorOut = True
 
 if errorOut:
     print "Failed precondition checks! See above messages."
     if not keepGoing:
-	sys.exit(1)
+        sys.exit(1)
 
 #
 # Copy Slice directories.
@@ -220,16 +220,16 @@ if not skipTranslators:
     os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
 
     if isHpUx():
-	os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
+        os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
     elif isDarwin():
-	os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRARY_PATH", "")
+        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRARY_PATH", "")
     elif isAIX():
-	os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
+        os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
     else:
-	os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+        os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
 
     if os.environ.has_key("ICE_HOME"):
-	del os.environ["ICE_HOME"]
+        del os.environ["ICE_HOME"]
 
 #
 # Generate HTML documentation. We need to build icecpp

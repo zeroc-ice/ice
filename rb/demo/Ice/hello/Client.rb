@@ -47,112 +47,112 @@ class Client < Ice::Application
         #
         Ice::Application::callbackOnInterrupt
 
-	twoway = Demo::HelloPrx::checkedCast(
-	    Ice::Application::communicator().propertyToProxy('Hello.Proxy').
-	        ice_twoway().ice_timeout(-1).ice_secure(false))
-	if not twoway
-	    puts $0 + ": invalid proxy"
-	    return false
-	end
+        twoway = Demo::HelloPrx::checkedCast(
+            Ice::Application::communicator().propertyToProxy('Hello.Proxy').
+                ice_twoway().ice_timeout(-1).ice_secure(false))
+        if not twoway
+            puts $0 + ": invalid proxy"
+            return false
+        end
 
-	oneway = Demo::HelloPrx::uncheckedCast(twoway.ice_oneway())
-	batchOneway = Demo::HelloPrx::uncheckedCast(twoway.ice_batchOneway())
-	datagram = Demo::HelloPrx::uncheckedCast(twoway.ice_datagram())
-	batchDatagram = Demo::HelloPrx::uncheckedCast(twoway.ice_batchDatagram())
+        oneway = Demo::HelloPrx::uncheckedCast(twoway.ice_oneway())
+        batchOneway = Demo::HelloPrx::uncheckedCast(twoway.ice_batchOneway())
+        datagram = Demo::HelloPrx::uncheckedCast(twoway.ice_datagram())
+        batchDatagram = Demo::HelloPrx::uncheckedCast(twoway.ice_batchDatagram())
 
-	secure = false
-	timeout = -1
-	delay = 0
+        secure = false
+        timeout = -1
+        delay = 0
 
-	menu()
+        menu()
 
-	c = nil
-	while c != 'x'
-	    begin
-		print "==> "
-		STDOUT.flush
-		line = STDIN.readline
-		c = line[0..0]
-		if c == 't'
-		    twoway.sayHello(delay)
-		elsif c == 'o'
-		    oneway.sayHello(delay)
-		elsif c == 'O'
-		    batchOneway.sayHello(delay)
-		elsif c == 'd'
-		    if secure
-			puts "secure datagrams are not supported"
-		    else
-			datagram.sayHello(delay)
-		    end
-		elsif c == 'D'
-		    if secure
-			puts "secure datagrams are not supported"
-		    else
-			batchDatagram.sayHello(delay)
-		    end
-		elsif c == 'f'
-		    Ice::Application::communicator().flushBatchRequests()
-		elsif c == 'T'
-		    if timeout == -1
-			timeout = 2000
-		    else
-			timeout = -1
-		    end
+        c = nil
+        while c != 'x'
+            begin
+                print "==> "
+                STDOUT.flush
+                line = STDIN.readline
+                c = line[0..0]
+                if c == 't'
+                    twoway.sayHello(delay)
+                elsif c == 'o'
+                    oneway.sayHello(delay)
+                elsif c == 'O'
+                    batchOneway.sayHello(delay)
+                elsif c == 'd'
+                    if secure
+                        puts "secure datagrams are not supported"
+                    else
+                        datagram.sayHello(delay)
+                    end
+                elsif c == 'D'
+                    if secure
+                        puts "secure datagrams are not supported"
+                    else
+                        batchDatagram.sayHello(delay)
+                    end
+                elsif c == 'f'
+                    Ice::Application::communicator().flushBatchRequests()
+                elsif c == 'T'
+                    if timeout == -1
+                        timeout = 2000
+                    else
+                        timeout = -1
+                    end
 
-		    twoway = Demo::HelloPrx::uncheckedCast(twoway.ice_timeout(timeout))
-		    oneway = Demo::HelloPrx::uncheckedCast(oneway.ice_timeout(timeout))
-		    batchOneway = Demo::HelloPrx::uncheckedCast(batchOneway.ice_timeout(timeout))
+                    twoway = Demo::HelloPrx::uncheckedCast(twoway.ice_timeout(timeout))
+                    oneway = Demo::HelloPrx::uncheckedCast(oneway.ice_timeout(timeout))
+                    batchOneway = Demo::HelloPrx::uncheckedCast(batchOneway.ice_timeout(timeout))
 
-		    if timeout == -1
-			puts "timeout is now switched off"
-		    else
-			puts "timeout is now set to 2000ms"
-		    end
-		elsif c == 'P'
-		    if delay == 0
-			delay = 2500
-		    else
-			delay = 0
-		    end
+                    if timeout == -1
+                        puts "timeout is now switched off"
+                    else
+                        puts "timeout is now set to 2000ms"
+                    end
+                elsif c == 'P'
+                    if delay == 0
+                        delay = 2500
+                    else
+                        delay = 0
+                    end
 
-		    if delay == 0
-			puts "server delay is now deactivated"
-		    else
-			puts "server delay is now set to 2500ms"
-		    end
-		elsif c == 'S'
-		    secure = !secure
+                    if delay == 0
+                        puts "server delay is now deactivated"
+                    else
+                        puts "server delay is now set to 2500ms"
+                    end
+                elsif c == 'S'
+                    secure = !secure
 
-		    twoway = Demo::HelloPrx::uncheckedCast(twoway.ice_secure(secure))
-		    oneway = Demo::HelloPrx::uncheckedCast(oneway.ice_secure(secure))
-		    batchOneway = Demo::HelloPrx::uncheckedCast(batchOneway.ice_secure(secure))
-		    datagram = Demo::HelloPrx::uncheckedCast(datagram.ice_secure(secure))
-		    batchDatagram = Demo::HelloPrx::uncheckedCast(batchDatagram.ice_secure(secure))
+                    twoway = Demo::HelloPrx::uncheckedCast(twoway.ice_secure(secure))
+                    oneway = Demo::HelloPrx::uncheckedCast(oneway.ice_secure(secure))
+                    batchOneway = Demo::HelloPrx::uncheckedCast(batchOneway.ice_secure(secure))
+                    datagram = Demo::HelloPrx::uncheckedCast(datagram.ice_secure(secure))
+                    batchDatagram = Demo::HelloPrx::uncheckedCast(batchDatagram.ice_secure(secure))
 
-		    if secure
-			puts "secure mode is now on"
-		    else
-			puts "secure mode is now off"
-		    end
-		elsif c == 's'
-		    twoway.shutdown()
-		elsif c == 'x'
-		    # Nothing to do
-		elsif c == '?'
-		    menu()
-		else
-		    puts "unknown command `" + c + "'"
-		    menu()
-		end
-	    rescue Ice::Exception => ex
-		puts ex
-	    rescue EOFError
-		break
-	    end
-	end
+                    if secure
+                        puts "secure mode is now on"
+                    else
+                        puts "secure mode is now off"
+                    end
+                elsif c == 's'
+                    twoway.shutdown()
+                elsif c == 'x'
+                    # Nothing to do
+                elsif c == '?'
+                    menu()
+                else
+                    puts "unknown command `" + c + "'"
+                    menu()
+                end
+            rescue Ice::Exception => ex
+                puts ex
+            rescue EOFError
+                break
+            end
+        end
 
-	return true
+        return true
     end
 end
 

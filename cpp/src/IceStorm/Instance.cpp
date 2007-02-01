@@ -28,23 +28,23 @@ Instance::Instance(
     _adapter(adapter),
     _traceLevels(new TraceLevels(name, communicator->getProperties(), communicator->getLogger())),
     _discardInterval(IceUtil::Time::seconds(communicator->getProperties()->getPropertyAsIntWithDefault(
-						"IceStorm.Discard.Interval", 60))), // default one minute.
+                                                "IceStorm.Discard.Interval", 60))), // default one minute.
     // default one minute.
     _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault("IceStorm.Send.Timeout", 60 * 1000))
 {
     try
     {
-	__setNoDelete(true);
+        __setNoDelete(true);
 
-	_batchFlusher = new BatchFlusher(this);
-	_subscriberPool = new SubscriberPool(this);
+        _batchFlusher = new BatchFlusher(this);
+        _subscriberPool = new SubscriberPool(this);
     }
     catch(...)
     {
-	shutdown();
-	__setNoDelete(false);
+        shutdown();
+        __setNoDelete(false);
 
-	throw;
+        throw;
     }
     __setNoDelete(false);
 }
@@ -112,12 +112,12 @@ Instance::shutdown()
 {
     if(_batchFlusher)
     {
-	_batchFlusher->destroy();
-	_batchFlusher->getThreadControl().join();
+        _batchFlusher->destroy();
+        _batchFlusher->getThreadControl().join();
     }
 
     if(_subscriberPool)
     {
-	_subscriberPool->destroy();
+        _subscriberPool->destroy();
     }
 }

@@ -14,8 +14,8 @@ rubyDir = nil
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]
     path = Pathname.new(toplevel).join("ruby", "Ice.rb")
     if path.file?
-	rubyDir = Pathname.new(toplevel).join("ruby")
-	break
+        rubyDir = Pathname.new(toplevel).join("ruby")
+        break
     end
 end
 if not rubyDir
@@ -44,11 +44,11 @@ end
 
 if communicator
     begin
-	communicator.destroy()
+        communicator.destroy()
     rescue => ex
-	puts $!
-	print ex.backtrace.join("\n")
-	status = false
+        puts $!
+        print ex.backtrace.join("\n")
+        status = false
     end
 end
 

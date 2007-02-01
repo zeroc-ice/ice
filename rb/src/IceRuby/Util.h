@@ -300,7 +300,7 @@ VALUE convertLocalException(const Ice::LocalException&);
     goto __ice_start; \
     \
     __ice_handle_exception: \
-	rb_exc_raise(__ice_ex); \
+        rb_exc_raise(__ice_ex); \
     \
     __ice_start: \
     try
@@ -312,28 +312,28 @@ VALUE convertLocalException(const Ice::LocalException&);
 #define ICE_RUBY_CATCH \
     catch(const ::IceRuby::RubyException& ex) \
     { \
-	ICE_RUBY_RETHROW(ex.ex); \
+        ICE_RUBY_RETHROW(ex.ex); \
     } \
     catch(const ::Ice::LocalException& ex) \
     { \
-	ICE_RUBY_RETHROW(convertLocalException(ex)); \
+        ICE_RUBY_RETHROW(convertLocalException(ex)); \
     } \
     catch(const ::Ice::Exception& ex) \
     { \
-	string __ice_msg = "unknown Ice exception: " + ex.ice_name(); \
-	ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, __ice_msg.c_str())); \
+        string __ice_msg = "unknown Ice exception: " + ex.ice_name(); \
+        ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, __ice_msg.c_str())); \
     } \
     catch(const std::bad_alloc& ex) \
     { \
-	ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); \
+        ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); \
     } \
     catch(const std::exception& ex) \
     { \
-	ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, ex.what())); \
+        ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, ex.what())); \
     } \
     catch(...) \
     { \
-	ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, "caught unknown C++ exception")); \
+        ICE_RUBY_RETHROW(rb_exc_new2(rb_eRuntimeError, "caught unknown C++ exception")); \
     }
 
 #endif
