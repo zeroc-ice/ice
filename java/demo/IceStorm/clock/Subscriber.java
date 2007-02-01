@@ -91,7 +91,7 @@ public class Subscriber extends Ice.Application
 	    }
 	}
 
-	if(optsSet != 1)
+	if(optsSet > 1)
 	{
 	    usage();
 	    return 1;

@@ -32,10 +32,62 @@ public class Subscriber : Ice.Application
         }
 
         string topicName = "time";
-        if(args.Length != 0)
-        {
-            topicName = args[0];
-        }
+	bool datagram = false;
+	bool twoway = false;
+	bool ordered = false;
+	bool batch = false;
+	int optsSet = 0;
+	for(int i = 0; i < args.Length; ++i)
+	{
+	    if(args[i].Equals("--datagram"))
+	    {
+		datagram = true;
+		++optsSet;
+	    }
+	    else if(args[i].Equals("--twoway"))
+	    {
+		twoway = true;
+		++optsSet;
+	    }
+	    else if(args[i].Equals("--ordered"))
+	    {
+		ordered = true;
+		++optsSet;
+	    }
+	    else if(args[i].Equals("--oneway"))
+	    {
+		++optsSet;
+	    }
+	    else if(args[i].Equals("--batch"))
+	    {
+		batch = true;
+	    }
+	    else if(args[i].StartsWith("--"))
+	    {
+		usage();
+		return 1;
+	    }
+	    else
+	    {
+		topicName = args[i];
+		break;
+	    }
+	}
+
+	if(batch)
+	{
+	    if(twoway || ordered)
+	    {
+		Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
+		return 1;
+	    }
+	}
+
+	if(optsSet > 1)
+	{
+	    usage();
+	    return 1;
+	}
 
         //
         // Retrieve the topic.
@@ -65,13 +117,41 @@ public class Subscriber : Ice.Application
         //
         Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
 
-        //
-	// This demo requires no quality of service, so it will use
-	// the defaults.
-        //
 	IceStorm.QoS qos = new IceStorm.QoS();
 
-        topic.subscribe(qos, subscriber);
+	//
+	// Set up the proxy.
+	//
+	if(datagram)
+	{
+	    subscriber = subscriber.ice_datagram();
+	}
+	else if(twoway)
+	{
+	    // Do nothing to the subscriber proxy. Its already twoway.
+	}
+	else if(ordered)
+	{
+	    // Do nothing to the subscriber proxy. Its already twoway.
+	    qos["reliability"] = "ordered";
+	}
+	else // if(oneway)
+	{
+	    subscriber = subscriber.ice_oneway();
+	}
+	if(batch)
+	{
+	    if(datagram)
+	    {
+		subscriber = subscriber.ice_batchDatagram();
+	    }
+	    else
+	    {
+		subscriber = subscriber.ice_batchOneway();
+	    }
+	}
+	
+        topic.subscribeAndGetPublisher(qos, subscriber);
         adapter.activate();
 
         shutdownOnInterrupt();
@@ -84,6 +164,13 @@ public class Subscriber : Ice.Application
 
         return 0;
     }
+
+    public void
+    usage()
+    {
+	Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
+    }
+
 
     public static void Main(string[] args)
     {

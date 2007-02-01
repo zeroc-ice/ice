@@ -62,6 +62,12 @@ public class Publisher extends Ice.Application
 	    }
 	}
 
+	if(optsSet > 1)
+	{
+	    usage();
+	    return 1;
+	}
+
 	//
 	// Retrieve the topic.
 	//

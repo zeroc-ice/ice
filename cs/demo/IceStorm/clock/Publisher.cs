@@ -24,10 +24,42 @@ public class Publisher : Ice.Application
             return 1;
         }
 
-	string topicName = "time";
-	if(args.Length != 0)
+        string topicName = "time";
+	bool datagram = false;
+	bool twoway = false;
+	int optsSet = 0;
+	for(int i = 0; i < args.Length; ++i)
 	{
-	    topicName = args[0];
+	    if(args[i].Equals("--datagram"))
+	    {
+		datagram = true;
+		++optsSet;
+	    }
+	    else if(args[i].Equals("--twoway"))
+	    {
+		twoway = true;
+		++optsSet;
+	    }
+	    else if(args[i].Equals("--oneway"))
+	    {
+		++optsSet;
+	    }
+	    else if(args[i].StartsWith("--"))
+	    {
+		usage();
+		return 1;
+	    }
+	    else
+	    {
+		topicName = args[i];
+		break;
+	    }
+	}
+
+	if(optsSet > 1)
+	{
+	    usage();
+	    return 1;
 	}
 
         //
@@ -51,11 +83,24 @@ public class Publisher : Ice.Application
 	    }
         }
 
-        //
-        // Get the topic's publisher object, the Clock type, and create a 
-	// oneway Clock proxy (for efficiency reasons).
-        //
-	ClockPrx clock = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway());
+	//
+	// Get the topic's publisher object, and create a Clock proxy with
+	// the mode specified as an argument of this application.
+	//
+	Ice.ObjectPrx publisher = topic.getPublisher();
+	if(datagram)
+	{
+	    publisher = publisher.ice_datagram();
+	}
+	else if(twoway)
+	{
+	    // Do nothing.
+	}
+	else //if(oneway)
+	{
+	    publisher = publisher.ice_oneway();
+	}
+	ClockPrx clock = ClockPrxHelper.uncheckedCast(publisher);
 
         Console.WriteLine("publishing tick events. Press ^C to terminate the application.");
 	try
@@ -74,6 +119,12 @@ public class Publisher : Ice.Application
 
         return 0;
     }
+
+    public void usage()
+    {
+	Console.WriteLine("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]");
+    }
+
 
     public static void Main(string[] args)
     {

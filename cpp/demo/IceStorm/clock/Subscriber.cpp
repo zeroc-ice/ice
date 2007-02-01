@@ -46,7 +46,7 @@ main(int argc, char* argv[])
 void
 usage(const string& n)
 {
-    cerr << "Usage: " << n << " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]\n" << endl;
+    cerr << "Usage: " << n << " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]" << endl;
 }
 
 int
@@ -113,23 +113,35 @@ Subscriber::run(int argc, char* argv[])
     //
     // Set up the proxy.
     //
+    int optsSet = 0;
     if(opts.isSet("datagram"))
     {
 	subscriber = subscriber->ice_datagram();
+	++optsSet;
     }
-    else if(opts.isSet("twoway"))
+    if(opts.isSet("twoway"))
     {
-	// Do nothing.
+	// Do nothing to the subscriber proxy. Its already twoway.
+	++optsSet;
     }
-    else if(opts.isSet("ordered"))
+    if(opts.isSet("ordered"))
     {
 	qos["reliability"] = "ordered";
-	subscriber = subscriber->ice_datagram();
+	// Do nothing to the subscriber proxy. Its already twoway.
+	++optsSet;
     }
-    else // default.
+    if(opts.isSet("oneway") || optsSet == 0)
     {
 	subscriber = subscriber->ice_oneway();
+	++optsSet;
     }
+
+    if(optsSet != 1)
+    {
+	usage(appName());
+	return EXIT_FAILURE;
+    }
+
     if(opts.isSet("batch"))
     {
 	if(opts.isSet("twoway") || opts.isSet("ordered"))
@@ -153,9 +165,6 @@ Subscriber::run(int argc, char* argv[])
     shutdownOnInterrupt();
     communicator()->waitForShutdown();
 
-    //
-    // Unsubscribe all subscribed objects.
-    //
     topic->unsubscribe(subscriber);
 
     return EXIT_SUCCESS;

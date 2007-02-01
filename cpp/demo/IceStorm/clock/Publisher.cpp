@@ -96,17 +96,26 @@ Publisher::run(int argc, char* argv[])
     // the mode specified as an argument of this application.
     //
     Ice::ObjectPrx publisher = topic->getPublisher();
+    int optsSet = 0;
     if(opts.isSet("datagram"))
     {
 	publisher = publisher->ice_datagram();
+	++optsSet;
     }
     else if(opts.isSet("twoway"))
     {
 	// Do nothing.
+	++optsSet;
     }
-    else
+    else if(opts.isSet("oneway") || optsSet == 0)
     {
 	publisher = publisher->ice_oneway();
+	++optsSet;
+    }
+    if(optsSet != 1)
+    {
+	usage(appName());
+	return EXIT_FAILURE;
     }
     ClockPrx clock = ClockPrx::uncheckedCast(publisher);
 
