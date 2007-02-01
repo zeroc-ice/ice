@@ -32,24 +32,44 @@ C++ compiler
 The following C++ compilers are supported:
 
 - Microsoft Visual C++ 2005 (both Professional and Express editions)
+ 
+  Visual C++ 2005 Express is available for download from:
+  http://msdn.microsoft.com/vstudio/express/visualc/
 
 - Microsoft Visual C++ .NET 2003 (aka VC++ 7.1)
 
 - Microsoft Visual C++ 6.0 SP5 with STLport 4.5 (or later)
 
+  The Standard Template Library included with Visual C++ 6.0 is not 
+  supported. STLPort is included in the Ice third-party package
+  for Visual C++ 6.0.
+
+  In order to build the MFC demos, you need to install the MFC
+  "Shared Libraries for Unicode".
+
 - Borland C++Builder 2006 Update 2
 
-The Standard Template Library included with Visual C++ 6.0 is not 
-supported. You must use STLport 4.5 (or later) with Visual C++ 6.0.
 
-Visual C++ 2005 Express is available for download from:
+Visual C++ 2005 Express Setup
+-----------------------------
 
-   http://msdn.microsoft.com/vstudio/express/visualc/
+Users of Visual C++ 2005 Express need to install the Microsoft Platform
+SDK:
+  http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
-Users of Visual C++ 2005 Express must also install the Microsoft
-Platform SDK and follow the instructions at the link below:
+and follow the instructions at the link below:
 
    http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+
+You also need to add Platform SDK directories to the INCLUDE, LIB and
+PATH variables set by 
+C:\Program Files\Microsoft Visual Studio 8\Common7\Tools\vsvars32.bat.
+
+For example:
+@SET PDK_HOME=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
+@SET PATH=%PDK_HOME%\bin;%PATH%
+@SET INCLUDE=%PDK_HOME%\include;%INCLUDE%
+@SET LIB=%PDK_HOME%\lib;%LIB%
 
 
 NMAKE
@@ -173,6 +193,7 @@ case of a failure, the tests abort with "failed".
 If you want to try out any of the demos, make sure to update your PATH
 environment variable to add the "bin" directory, which contains the
 Ice DLLs and executables.
+
 
 ======================================================================
 x64 Platform
