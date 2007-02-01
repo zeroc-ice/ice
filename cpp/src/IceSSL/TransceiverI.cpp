@@ -395,12 +395,6 @@ IceSSL::TransceiverI::initialize(int timeout)
 {
     if(_incoming)
     {
-        if(_instance->networkTraceLevel() >= 2)
-        {
-            Trace out(_logger, _instance->networkTraceCategory());
-            out << "trying to validate incoming ssl connection\n" << IceInternal::fdToString(_fd);
-        }
-
         // TODO: The timeout is 0 when called by the thread pool.
         // Make this configurable?
         if(timeout == 0)
