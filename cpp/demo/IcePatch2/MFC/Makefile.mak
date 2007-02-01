@@ -31,6 +31,8 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 $(CLIENT): $(OBJS) $(COBJS) PatchClient.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /entry:wWinMainCRTStartup /subsystem:windows $(OBJS) $(COBJS) \
 	  PatchClient.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	-if exist $(CLIENT).manifest \
+            mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
 
 PatchClient.res: PatchClient.rc
 	rc.exe PatchClient.rc

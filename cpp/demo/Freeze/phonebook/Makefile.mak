@@ -54,12 +54,18 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(CLIENT).manifest \
+	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	-if exist $(SERVER).manifest \
+	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(OBJS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
+	-if exist $(COLLOCATED).manifest \
+	    mt -nologo -manifest $(COLLOCATED).manifest -outputresource:$(COLLOCATED);#1 & del /q $(COLLOCATED).manifest
 
 NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	del /q NameIndex.h NameIndex.cpp

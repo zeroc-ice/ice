@@ -37,9 +37,13 @@ SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(PUBLISHER).manifest \
+	    mt -nologo -manifest $(PUBLISHER).manifest -outputresource:$(PUBLISHER);#1 & del /q $(PUBLISHER).manifest
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(SUBSCRIBER).manifest \
+	    mt -nologo -manifest $(SUBSCRIBER).manifest -outputresource:$(SUBSCRIBER);#1 & del /q $(SUBSCRIBER).manifest
 
 clean::
 	del /q Single.cpp Single.h

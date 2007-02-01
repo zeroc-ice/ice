@@ -44,12 +44,18 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 
 $(CLIENT): $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(CLIENT).manifest \
+	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(SERVER).manifest \
+	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
 
 $(COLLOCATED): $(COLOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(COLLOCATED).manifest \
+	    mt -nologo -manifest $(COLLOCATED).manifest -outputresource:$(COLLOCATED);#1 & del /q $(COLLOCATED).manifest
 
 clean::
 	del /q Test.cpp Test.h

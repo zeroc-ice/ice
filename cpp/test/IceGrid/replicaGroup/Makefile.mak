@@ -49,13 +49,19 @@ $(LIBNAME) : $(DLLNAME)
 $(DLLNAME): $(OBJS) $(SERVICE_OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SERVICE_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) \
 	  freeze$(LIBSUFFIX).lib
+	-if exist $(DLLNAME).manifest \
+	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
+	-if exist $(CLIENT).manifest \
+	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(SERVER).manifest \
+	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
 
 clean::
 	del /q Test.cpp Test.h

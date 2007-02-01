@@ -28,6 +28,8 @@ PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 
 $(NAME): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
+	-if exist $(NAME).manifest \
+	    mt -nologo -manifest $(NAME).manifest -outputresource:$(NAME);#1 & del /q $(NAME).manifest
 
 clean::
 	del /q $(NAME:.exe=.*)

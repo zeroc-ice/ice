@@ -37,9 +37,13 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) \
 	  icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
+	-if exist $(CLIENT).manifest \
+	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
+	-if exist $(SERVER).manifest \
+	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
 
 clean::
 	del /q Hello.cpp Hello.h
