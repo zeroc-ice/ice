@@ -19,7 +19,6 @@ public final class Network
         // cases of connection loss. Unfortunately, our only choice is
         // to search the exception message for distinguishing phrases.
         //
-        ex.printStackTrace();
         String msg = ex.getMessage().toLowerCase();
 
         if(msg != null)
