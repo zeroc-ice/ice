@@ -9,4 +9,4 @@ $ client.exe
 
 To shut down IceBox, use iceboxadmin:
 
-$ iceboxadminnet --Ice.Config=config.icebox shutdown
+$ iceboxadmin --Ice.Config=config.admin shutdown
