@@ -318,8 +318,8 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
         {
             RARRAY(result)->ptr[i] = createString(*q);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = static_cast<long>(ids.size());
 
         return result;
     }
@@ -496,8 +496,8 @@ IceRuby_ObjectPrx_ice_getEndpoints(VALUE self)
         for(Ice::EndpointSeq::iterator q = seq.begin(); q != seq.end(); ++q, ++i)
         {
             RARRAY(result)->ptr[i] = createEndpoint(seq[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = static_cast<long>(seq.size());
         return result;
     }
     ICE_RUBY_CATCH

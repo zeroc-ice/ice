@@ -682,8 +682,8 @@ IceRuby::SequenceInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalC
     {
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, this, arr, cl);
+        RARRAY(arr)->len++; // Increment len for each new element to prevent premature GC.
     }
-    RARRAY(arr)->len = sz;
 
     cb->unmarshaled(arr, target, closure);
 }
@@ -925,8 +925,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = p.first[i] ? Qtrue : Qfalse;
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     case PrimitiveInfo::KindByte:
@@ -946,8 +946,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = INT2FIX(p.first[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     case PrimitiveInfo::KindInt:
@@ -960,8 +960,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = INT2FIX(p.first[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     case PrimitiveInfo::KindLong:
@@ -974,8 +974,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = callRuby(rb_ll2inum, p.first[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -988,8 +988,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = callRuby(rb_float_new, p.first[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     case PrimitiveInfo::KindDouble:
@@ -1002,8 +1002,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = callRuby(rb_float_new, p.first[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     case PrimitiveInfo::KindString:
@@ -1015,8 +1015,8 @@ IceRuby::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, co
         for(long i = 0; i < sz; ++i)
         {
             RARRAY(result)->ptr[i] = createString(seq[i]);
+            RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
         }
-        RARRAY(result)->len = sz;
         break;
     }
     }

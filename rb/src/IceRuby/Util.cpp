@@ -172,8 +172,8 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
     for(vector<string>::const_iterator p = seq.begin(); p != seq.end(); ++p, ++i)
     {
         RARRAY(result)->ptr[i] = createString(*p);
+        RARRAY(result)->len++; // Increment len for each new element to prevent premature GC.
     }
-    RARRAY(result)->len = static_cast<long>(seq.size());
     return result;
 }
 

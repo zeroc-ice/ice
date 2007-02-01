@@ -383,11 +383,13 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
     {
         void* closure = reinterpret_cast<void*>(i);
         (*p)->type->unmarshal(is, *p, results, closure);
+        RARRAY(results)->len++; // Increment len for each new element to prevent premature GC.
     }
 
     if(_returnType)
     {
         _returnType->type->unmarshal(is, _returnType, results, 0);
+        RARRAY(results)->len++; // Increment len for each new element to prevent premature GC.
     }
 
     if(_returnsClasses)
@@ -395,7 +397,6 @@ IceRuby::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice:
         is->readPendingObjects();
     }
 
-    RARRAY(results)->len = numResults;
     return results;
 }
 
