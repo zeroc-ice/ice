@@ -22,7 +22,7 @@ GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-MCSFLAGS	= $(MCSFLAGS) -target:exe
+MCSFLAGS	= $(MCSFLAGS) -target:exe -warnaserror-
 
 SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
