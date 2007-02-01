@@ -19,6 +19,12 @@ public class Subscriber extends Ice.Application
 	    System.out.println(date);
 	}
     }
+    
+    public void
+    usage()
+    {
+	System.out.println("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
+    }
 
     public int
     run(String[] args)
@@ -32,14 +38,65 @@ public class Subscriber extends Ice.Application
         }
 
         String topicName = "time";
-        if(args.length != 0)
-        {
-            topicName = args[0];
-        }
+	boolean datagram = false;
+	boolean twoway = false;
+	boolean ordered = false;
+	boolean oneway = false;
+	boolean batch = false;
+	int optsSet = 0;
+	for(int i = 0; i < args.length; ++i)
+	{
+	    if(args[i].equals("--datagram"))
+	    {
+		datagram = true;
+		++optsSet;
+	    }
+	    else if(args[i].equals("--twoway"))
+	    {
+		twoway = true;
+		++optsSet;
+	    }
+	    else if(args[i].equals("--ordered"))
+	    {
+		ordered = true;
+		++optsSet;
+	    }
+	    else if(args[i].equals("--oneway"))
+	    {
+		oneway = true;
+		++optsSet;
+	    }
+	    else if(args[i].equals("--batch"))
+	    {
+		batch = true;
+	    }
+	    else if(args[i].startsWith("--"))
+	    {
+		usage();
+		return 1;
+	    }
+	    else
+	    {
+		topicName = args[i];
+		break;
+	    }
+	}
 
-        //
-        // Retrieve the topic named "time".
-        //
+	if(batch)
+	{
+	    if(twoway || ordered)
+	    {
+		System.err.println(appName() + ": batch can only be set with oneway or datagram");
+		return 1;
+	    }
+	}
+
+	if(optsSet != 1)
+	{
+	    usage();
+	    return 1;
+	}
+
         IceStorm.TopicPrx topic;
         try
         {
@@ -53,7 +110,7 @@ public class Subscriber extends Ice.Application
             }
             catch(IceStorm.TopicExists ex)
             {
-                System.err.println("temporary failure, try again.");
+                System.err.println(appName() + ": temporary failure, try again.");
                 return 1;
             }
         }
@@ -63,23 +120,59 @@ public class Subscriber extends Ice.Application
         //
         // Add a Servant for the Ice Object.
         //
-	Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
-
-        //
-	// This demo requires no quality of service, so it will use
-	// the defaults.
-        //
 	java.util.Map qos = new java.util.HashMap();
-
-        topic.subscribe(qos, subscriber);
+	Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
+	//
+	// Set up the proxy.
+	//
+	if(datagram)
+	{
+	    subscriber = subscriber.ice_datagram();
+	}
+	else if(twoway)
+	{
+	    // Do nothing to the subscriber proxy. Its already twoway.
+	}
+	else if(ordered)
+	{
+	    // Do nothing to the subscriber proxy. Its already twoway.
+	    qos.put("reliability", "ordered");
+	}
+	else // if(oneway)
+	{
+	    subscriber = subscriber.ice_oneway();
+	}
+	if(batch)
+	{
+	    if(datagram)
+	    {
+		subscriber = subscriber.ice_batchDatagram();
+	    }
+	    else
+	    {
+		subscriber = subscriber.ice_batchOneway();
+	    }
+	}
+	
+	try
+	{
+	    topic.subscribeAndGetPublisher(qos, subscriber);
+	}
+	catch(IceStorm.AlreadySubscribed e)
+	{
+    	    e.printStackTrace();
+	    return 1;
+	}
+	catch(IceStorm.BadQoS e)
+	{
+    	    e.printStackTrace();
+	    return 1;
+	}
         adapter.activate();
 
         shutdownOnInterrupt();
         communicator().waitForShutdown();
 
-        //
-        // Unsubscribe all subscribed objects.
-        //
         topic.unsubscribe(subscriber);
 
         return 0;

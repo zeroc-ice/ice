@@ -11,6 +11,12 @@ import Demo.*;
 
 public class Publisher extends Ice.Application
 {
+    public void
+    usage()
+    {
+	System.out.println("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]");
+    }
+
     public int
     run(String[] args)
     {
@@ -22,14 +28,42 @@ public class Publisher extends Ice.Application
             return 1;
         }
 
-	String topicName = "time";
-	if(args.length != 0)
+        String topicName = "time";
+	boolean datagram = false;
+	boolean twoway = false;
+	boolean oneway = false;
+	int optsSet = 0;
+	for(int i = 0; i < args.length; ++i)
 	{
-	    topicName = args[0];
+	    if(args[i].equals("--datagram"))
+	    {
+		datagram = true;
+		++optsSet;
+	    }
+	    else if(args[i].equals("--twoway"))
+	    {
+		twoway = true;
+		++optsSet;
+	    }
+	    else if(args[i].equals("--oneway"))
+	    {
+		oneway = true;
+		++optsSet;
+	    }
+	    else if(args[i].startsWith("--"))
+	    {
+		usage();
+		return 1;
+	    }
+	    else
+	    {
+		topicName = args[i];
+		break;
+	    }
 	}
 
 	//
-	// Retrieve the topic named "time".
+	// Retrieve the topic.
 	//
 	IceStorm.TopicPrx topic;
 	try
@@ -44,16 +78,29 @@ public class Publisher extends Ice.Application
 	    }
 	    catch(IceStorm.TopicExists ex)
 	    {
-	        System.err.println("temporary failure, try again.");
+	        System.err.println(appName() + ": temporary failure, try again.");
 	        return 1;
 	    }
 	}
 
 	//
-	// Get the topic's publisher object, the Clock type, and create a
-	// oneway Clock proxy (for efficiency reasons).
+	// Get the topic's publisher object, and create a Clock proxy with
+	// the mode specified as an argument of this application.
 	//
-	ClockPrx clock = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway());
+	Ice.ObjectPrx publisher = topic.getPublisher();
+	if(datagram)
+	{
+	    publisher = publisher.ice_datagram();
+	}
+	else if(twoway)
+	{
+	    // Do nothing.
+	}
+	else // if(oneway)
+	{
+	    publisher = publisher.ice_oneway();
+	}
+	ClockPrx clock = ClockPrxHelper.uncheckedCast(publisher);
 
         System.out.println("publishing tick events. Press ^C to terminate the application.");
 	try
