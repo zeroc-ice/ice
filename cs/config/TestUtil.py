@@ -28,8 +28,8 @@ compress = 0
 # thread per connection mode.
 #
 
-#threadPerConnection = 0
-threadPerConnection = 1
+threadPerConnection = 0
+#threadPerConnection = 1
 
 #
 # To print the commands that are being run.
