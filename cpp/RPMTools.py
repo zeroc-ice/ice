@@ -101,15 +101,15 @@ class Package:
 
         ofile.write('\n%endif\n')
 
-        buildRequiresList = ['python >= 2.3.4', 'python-devel >= 2.3.4', 
-                  'expat >= 0.5.0', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
-                  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4']
+	buildRequiresList = ['python >= 2.3.4', 'python-devel >= 2.3.4', 
+		  'expat >= 1.95.8', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
+		  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4']
 
-        if targetHost == "suse":
-            buildRequiresList.extend(['bzip >= 1.0.2', 'php5 >= 5.1.2', 'php5-devel >= 5.1.2'])
-        else:
-            buildRequiresList.extend(['bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 'db45 >= 4.5.20', 
-                'expat-devel >= 0.5.0', 'php >= 5.1.4', 'php-devel >= 5.1.4'])
+	if targetHost == "suse":
+	    buildRequiresList.extend(['bzip >= 1.0.2', 'php5 >= 5.1.2', 'php5-devel >= 5.1.2'])
+	else:
+	    buildRequiresList.extend(['bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 'db45 >= 4.5.20', 
+		'expat-devel >= 0.5.0', 'php >= 5.1.4', 'php-devel >= 5.1.4'])
 
         for f in buildRequiresList:
             ofile.write('BuildRequires: ' + f  + '\n')
