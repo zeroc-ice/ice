@@ -31,6 +31,11 @@
 	<isset property="java2"/>
     </condition>
 
+    <!-- SSL source directory  -->
+    <condition property="ssl.src" value="ssl/jdk1.4" else="ssl/jdk1.5">
+	<isset property="java2"/>
+    </condition>
+
     <!-- Use -Xlint:unchecked when using JDK 1.5 -->
     <condition property="javac.lint" value="-Xlint:unchecked" else="">
 	<and>
