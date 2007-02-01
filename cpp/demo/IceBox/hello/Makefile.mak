@@ -45,11 +45,13 @@ $(DLLNAME): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	-if exist $(DLLNAME).manifest \
 	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(CLIENT).manifest \
 	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
+	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
 
 clean::
 	del /q Hello.cpp Hello.h

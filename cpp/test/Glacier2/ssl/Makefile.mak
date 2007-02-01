@@ -34,11 +34,13 @@ $(CLIENT): $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
 	-if exist $(CLIENT).manifest \
 	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
+	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib \
 	  $(OPENSSL_LIBS) icessl$(LIBSUFFIX).lib
 	-if exist $(SERVER).manifest \
 	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
+	-if exist $(SERVER:.exe=.exp) del /q $(SERVER:.exe=.exp)
 
 !include .depend

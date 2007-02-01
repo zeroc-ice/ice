@@ -33,6 +33,7 @@ $(CLIENT): $(OBJS) $(COBJS) PatchClient.res
 	  PatchClient.res $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	-if exist $(CLIENT).manifest \
             mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
+	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
 
 PatchClient.res: PatchClient.rc
 	rc.exe PatchClient.rc

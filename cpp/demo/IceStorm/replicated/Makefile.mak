@@ -39,11 +39,13 @@ $(PUBLISHER): $(OBJS) $(POBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(PUBLISHER).manifest \
 	    mt -nologo -manifest $(PUBLISHER).manifest -outputresource:$(PUBLISHER);#1 & del /q $(PUBLISHER).manifest
+	-if exist $(PUBLISHER:.exe=.exp) del /q $(PUBLISHER:.exe=.exp)
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(SUBSCRIBER).manifest \
 	    mt -nologo -manifest $(SUBSCRIBER).manifest -outputresource:$(SUBSCRIBER);#1 & del /q $(SUBSCRIBER).manifest
+	-if exist $(SUBSCRIBER:.exe=.exp) del /q $(SUBSCRIBER:.exe=.exp)
 
 clean::
 	del /q Clock.cpp Clock.h

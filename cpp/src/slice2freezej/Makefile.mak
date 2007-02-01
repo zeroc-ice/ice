@@ -29,6 +29,7 @@ $(NAME): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
 	-if exist $(NAME).manifest \
 	    mt -nologo -manifest $(NAME).manifest -outputresource:$(NAME);#1 & del /q $(NAME).manifest
+	-if exist $(NAME:.exe=.exp) del /q $(NAME:.exe=.exp)
 
 clean::
 	del /q $(NAME:.exe=.*)

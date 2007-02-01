@@ -44,16 +44,19 @@ $(CLIENT): $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	-if exist $(CLIENT).manifest \
 	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
+	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(SERVER).manifest \
 	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
+	-if exist $(SERVER:.exe=.exp) del /q $(SERVER:.exe=.exp)
 
 $(VERIFIER): $(VOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(VPDBFLAGS) $(VOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	-if exist $(VERIFIER).manifest \
 	    mt -nologo -manifest $(VERIFIER).manifest -outputresource:$(VERIFIER);#1 & del /q $(VERIFIER).manifest
+	-if exist $(VERIFIER:.exe=.exp) del /q $(VERIFIER:.exe=.exp)
 
 clean::
 	del /q Test.cpp Test.h

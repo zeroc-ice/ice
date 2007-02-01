@@ -29,5 +29,6 @@ $(CLIENT): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
 	-if exist $(CLIENT).manifest \
 	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
+	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
 
 !include .depend

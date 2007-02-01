@@ -49,6 +49,7 @@ $(DLLNAME): $(OBJS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $(DLLNAME).manifest \
 	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
 	del /q $(DLLNAME:.dll=.*)

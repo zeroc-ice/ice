@@ -35,6 +35,7 @@ $(SERVER): $(OBJS) $(COBJS) HelloServer.res
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(SERVER).manifest \
 	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
+	-if exist $(SERVER:.exe=.exp) del /q $(SERVER:.exe=.exp)
 
 HelloServer.res: HelloServer.rc
 	rc.exe HelloServer.rc

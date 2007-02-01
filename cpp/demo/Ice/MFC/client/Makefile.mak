@@ -33,6 +33,7 @@ $(CLIENT): $(OBJS) $(COBJS) HelloClient.res
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(CLIENT).manifest \
 	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
+	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
 
 HelloClient.res: HelloClient.rc
 	rc.exe HelloClient.rc

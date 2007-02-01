@@ -157,23 +157,27 @@ $(DLLNAME): $(LIB_OBJS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $(DLLNAME).manifest \
 	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(ADMIN): $(ADMIN_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(ADMIN_OBJS) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 	-if exist $(ADMIN).manifest \
 	    mt -nologo -manifest $(ADMIN).manifest -outputresource:$(ADMIN);#1 & del /q $(ADMIN).manifest
+	-if exist $(ADMIN:.exe=.exp) del /q $(ADMIN:.exe=.exp)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
 	-if exist $(REGISTRY_SERVER).manifest \
 	    mt -nologo -manifest $(REGISTRY_SERVER).manifest -outputresource:$(REGISTRY_SERVER);#1 & \
 	    del /q $(REGISTRY_SERVER).manifest
+	-if exist $(REGISTRY_SERVER:.exe=.exp) del /q $(REGISTRY_SERVER:.exe=.exp)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
 	-if exist $(NODE_SERVER).manifest \
 	    mt -nologo -manifest $(NODE_SERVER).manifest -outputresource:$(NODE_SERVER);#1 & \
 	    del /q $(NODE_SERVER).manifest
+	-if exist $(NODE_SERVER:.exe=.exp) del /q $(NODE_SERVER:.exe=.exp)
 
 StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp

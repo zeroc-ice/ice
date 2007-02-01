@@ -78,11 +78,13 @@ $(DLLNAME): $(OBJS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $(DLLNAME).manifest \
 	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(ROUTER): $(ROBJS)
 	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	-if exist $(ROUTER).manifest \
 	    mt -nologo -manifest $(ROUTER).manifest -outputresource:$(ROUTER);#1 & del /q $(ROUTER).manifest
+	-if exist $(ROUTER:.exe=.exp) del /q $(ROUTER:.exe=.exp)
 
 !ifdef BUILD_UTILS
 

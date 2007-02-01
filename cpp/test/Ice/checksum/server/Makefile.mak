@@ -33,6 +33,7 @@ $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	-if exist $(SERVER).manifest \
 	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
+	-if exist $(SERVER:.exe=.exp) del /q $(SERVER:.exe=.exp)
 
 clean::
 	del /q Test.cpp Test.h
