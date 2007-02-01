@@ -1520,7 +1520,7 @@ public class Coordinator
 	    if(getCurrentTab() instanceof ApplicationPane)
 	    {
 		ApplicationPane app = (ApplicationPane)getCurrentTab();
-		if(!app.applyUpdates(false))
+		if(!app.applyUpdates(true))
 		{
 		    _substitute = !_substitute;
 		    refresh = false;

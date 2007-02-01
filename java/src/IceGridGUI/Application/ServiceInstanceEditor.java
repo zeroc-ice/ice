@@ -166,7 +166,7 @@ class ServiceInstanceEditor extends CommunicatorChildEditor
 	ServiceInstanceDescriptor descriptor = 
 	    (ServiceInstanceDescriptor)service.getDescriptor();
 	Coordinator coordinator = service.getCoordinator();
-	boolean isEditable = !coordinator.substitute();
+	boolean isEditable = service.isEphemeral() || !coordinator.substitute();
 
 	Utils.Resolver resolver = isEditable ? null :
 	    ((TreeNode)service.getParent()).getResolver();

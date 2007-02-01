@@ -39,7 +39,7 @@ abstract class AbstractServerEditor extends Editor
 
     protected boolean applyUpdate(boolean refresh)
     {
-	Root root = _target.getRoot();
+  	Root root = _target.getRoot();
 	Server server = (Server)_target;
 
 	root.disableSelectionListener();

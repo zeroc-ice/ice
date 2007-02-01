@@ -156,7 +156,7 @@ class ServerInstanceEditor extends AbstractServerEditor
 
 	ServerInstanceDescriptor descriptor = getDescriptor();
 	Root root = server.getRoot();
-	boolean isEditable = !root.getCoordinator().substitute();
+	boolean isEditable = server.isEphemeral() || !root.getCoordinator().substitute();
 
 	Utils.Resolver resolver = isEditable ? null :
 	    ((Node)_target.getParent()).getResolver();
