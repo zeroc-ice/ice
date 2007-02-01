@@ -185,6 +185,7 @@ namespace Ice
 	    catch(System.Exception)
 	    {
 		instance_.destroy();
+                destroyed_ = true;
 		throw;
 	    }
 	}
