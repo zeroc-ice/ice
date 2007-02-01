@@ -18,7 +18,7 @@ public class Server
 	//
 	communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
 	
-	communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000:udp");
+	communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 5000:udp");
 	Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 	Ice.Identity id = communicator.stringToIdentity("test");
 	adapter.add(new MyDerivedClassI(adapter, id), id);

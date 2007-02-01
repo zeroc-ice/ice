@@ -13,7 +13,7 @@ public class Collocated
 {
     private static int run(String[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000");
+        communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 5000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 	Ice.Identity id = communicator.stringToIdentity("test");
 	adapter.add(new MyDerivedClassI(adapter, id), id);
