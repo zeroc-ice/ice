@@ -59,7 +59,8 @@ Follow these steps to build the Ice extension for Python:
 
    > set ICE_HOME=C:\Ice-@ver@
 
-4) Edit config\Make.rules.mak and review the settings.
+4) Edit config\Make.rules.mak and review the settings. In particular you
+   must set CPP_COMPILER to the appropriate compiler.
 
 5) Run nmake:
 
