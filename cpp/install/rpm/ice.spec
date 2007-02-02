@@ -11,7 +11,7 @@
 Summary: The Ice base runtime and services
 Name: ice
 Version: 3.2b
-Release: 1
+Release: 1.%{_vendor}
 License: GPL
 Group:System Environment/Libraries
 Vendor: ZeroC, Inc
@@ -68,7 +68,8 @@ BuildRequires: php5 >= 5.1.2
 BuildRequires: php5-devel >= 5.1.2
 %endif
 
-Provides: ice-%{_arch}
+Provides: ice-%{_target_cpu}
+
 %description
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -216,6 +217,8 @@ done
 %if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+%else
+rm -f  $RPM_BUILD_ROOT/bin/slice2rb
 %endif
 
 
@@ -332,7 +335,7 @@ mv $RPM_BUILD_ROOT/bin $RPM_BUILD_ROOT/usr/bin
 Summary: Tools for developing Ice applications in C++
 Group: Development/Tools
 Requires: ice = %{version}
-Requires: ice-%{_arch}
+Requires: ice-%{_target_cpu}
 %description c++-devel
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -352,7 +355,7 @@ solution, and much more.
 Summary: Tools for developing Ice applications in C#
 Group: Development/Tools
 Requires: ice-dotnet = %{version}
-Requires: ice-%{_arch}
+Requires: ice-%{_target_cpu}
 %description csharp-devel
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -372,7 +375,7 @@ solution, and much more.
 Summary: Tools for developing Ice applications in Java
 Group: Development/Tools
 Requires: ice-java = %{version}
-Requires: ice-%{_arch}
+Requires: ice-%{_target_cpu}
 %description java-devel
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -391,8 +394,9 @@ solution, and much more.
 %package python
 Summary: The Ice runtime for Python applications
 Group: System Environment/Libraries
+Provides: ice-python-%{_target_cpu}
 Requires: ice = %{version}, python >= 2.3.4
-Requires: ice-%{_arch}
+Requires: ice-%{_target_cpu}
 %description python
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -405,14 +409,12 @@ solution, and much more.
 %endif
 
 
-
-
 %ifarch %{core_arches}
 %package python-devel
 Summary: Tools for developing Ice applications in Python
 Group: Development/Tools
 Requires: ice-python = %{version}
-Requires: ice-%{_arch}
+Requires: ice-python-%{_target_cpu}
 %description python-devel
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -431,8 +433,9 @@ solution, and much more.
 %package ruby
 Summary: The Ice runtime for Ruby applications
 Group: System Environment/Libraries
+Provides: ice-ruby-%{_target_cpu}
 Requires: ice = %{version}, ruby >= 1.8.1
-Requires: ice-%{_arch}
+Requires: ice-%{_target_cpu}
 %description ruby
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -452,7 +455,7 @@ solution, and much more.
 Summary: Tools for developing Ice applications in Python
 Group: Development/Tools
 Requires: ice-ruby = %{version}
-Requires: ice-%{_arch}
+Requires: ice-ruby-%{_target_cpu}
 %description ruby-devel
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -471,8 +474,12 @@ solution, and much more.
 %package php
 Summary: The Ice runtime for PHP applications
 Group: System Environment/Libraries
-Requires: ice = %{version}, php >= 5.1.2
-Requires: ice-%{_arch}
+%if "%{_vendor}" == "redhat"
+Requires: ice = %{version}, php >= 5.1.4
+%endif
+%if "%{_vendor}" == "suse"
+Requires: ice-%{_target_cpu}, php5 >= 5.1.2
+%endif
 %description php
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
@@ -491,7 +498,12 @@ solution, and much more.
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
+%if "%{_vendor}" == "redhat"
 Requires: ice = %{version}, db45-java >= 4.5.20
+%endif
+%if "%{_vendor}" == "suse"
+Requires: ice = %{version}, db-java >= 4.3.29
+%endif
 %description java
 Ice is a modern alternative to object middleware
 such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
