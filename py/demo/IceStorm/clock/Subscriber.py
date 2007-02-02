@@ -23,7 +23,7 @@ class Subscriber(Ice.Application):
 
     def run(self, args):
         try:
-            opts, args = getopt.getopt(args, '', ['datagram', 'twoway', 'oneway'])
+            opts, args = getopt.getopt(args[1:], '', ['datagram', 'twoway', 'oneway', 'ordered', 'batch'])
         except getopt.GetoptError:
             self.usage()
             return False
@@ -33,7 +33,7 @@ class Subscriber(Ice.Application):
         twoway = False
         ordered = False
         batch = False
-        optsSet = 0;
+        optsSet = 0
         for o, a in opts:
             if o == "--datagram":
                 datagram = True
@@ -57,8 +57,8 @@ class Subscriber(Ice.Application):
             self.usage()
             sys.exit(1)
 
-        if len(args) > 1:
-            topicName = args[1]
+        if len(args) > 0:
+            topicName = args[0]
 
         manager = IceStorm.TopicManagerPrx.checkedCast(\
             self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
@@ -84,13 +84,13 @@ class Subscriber(Ice.Application):
         # Add a Servant for the Ice Object.
         #
         qos = {}
-        subscriber = adapter.addWithUUID(ClockI());
+        subscriber = adapter.addWithUUID(ClockI())
 
         #
         # Set up the proxy.
         #
         if datagram:
-            subscriber = subscriber.ice_datagram();
+            subscriber = subscriber.ice_datagram()
         elif twoway:
              pass
             # Do nothing to the subscriber proxy. Its already twoway.
@@ -98,12 +98,12 @@ class Subscriber(Ice.Application):
             # Do nothing to the subscriber proxy. Its already twoway.
             qos["reliability"] = "ordered"
         else: # if(oneway)
-            subscriber = subscriber.ice_oneway();
+            subscriber = subscriber.ice_oneway()
         if batch:
             if datagram:
-                subscriber = subscriber.ice_batchDatagram();
+                subscriber = subscriber.ice_batchDatagram()
             else:
-                subscriber = subscriber.ice_batchOneway();
+                subscriber = subscriber.ice_batchOneway()
 
         topic.subscribeAndGetPublisher(qos, subscriber)
         adapter.activate()

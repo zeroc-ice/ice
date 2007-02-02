@@ -19,7 +19,7 @@ class Publisher(Ice.Application):
 
     def run(self, args):
         try:
-            opts, args = getopt.getopt(args, '', ['datagram', 'twoway', 'oneway'])
+            opts, args = getopt.getopt(args[1:], '', ['datagram', 'twoway', 'oneway'])
         except getopt.GetoptError:
             self.usage()
             return False
@@ -42,8 +42,8 @@ class Publisher(Ice.Application):
             self.usage()
             return False
 
-        if len(args) > 1:
-            topicName = args[1]
+        if len(args) > 0:
+            topicName = args[0]
 
         manager = IceStorm.TopicManagerPrx.checkedCast(\
             self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
