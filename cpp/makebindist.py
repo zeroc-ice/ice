@@ -71,20 +71,19 @@ def copyfiles(srcDir, destDir):
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
     config = open(file, 'r')
-    return  re.search('ICE_STRING_VERSION \"([0-9\.]*)\"', config.read()).group(1)
+    return  re.search('ICE_STRING_VERSION \"([0-9\.b]*)\"', config.read()).group(1)
 
 def getIceMMVersion(file):
     """Extract the ICE major.minor version string from a file."""
     config = open(file, 'r')
-    return  re.search('ICE_STRING_VERSION \"([0-9]*\.[0-9]*)\.[0-9]*\"', config.read()).group(1)
+    return re.search('ICE_STRING_VERSION \"([0-9]+\.[0-9]+)[\.b0-9]*\"', config.read()).group(1)
 
 def getIceSoVersion(file):
     """Extract the ICE version ordinal from a file."""
     config = open(file, 'r')
-    intVersion = int(re.search('ICE_INT_VERSION ([0-9]*)', config.read()).group(1))
-    majorVersion = intVersion / 10000
-    minorVersion = intVersion / 100 - 100 * majorVersion
-    return '%d' % (majorVersion * 10 + minorVersion)
+    mm = re.search('ICE_STRING_VERSION \"([0-9]*\.[0-9b]*)[\.0-9]*\"', config.read()).group(1)
+    verComponents = mm.split(".")
+    return verComponents[0] + verComponents[1]
 
 def getPlatform():
     """Determine the platform we are building and targetting for"""
@@ -354,9 +353,9 @@ prefix = $(ICE_DIR)
     # Dependency files are all going to be bogus since they contain relative
     # paths to Ice headers. We need to adjust this.
     #
-    # XXX: The following will not work for demos not in demo/A/B type dir
-    #
     os.chdir("..")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     makefile.close()
@@ -422,11 +421,11 @@ prefix = $(ICE_DIR)
                 state = 'done'
     #
     # Dependency files are all going to be bogus since they contain relative
-    # paths to Ice headers. We need to adjust this.
-    #
-    # XXX: The following will not work for demos not in demo/A/B type dir
+    # paths to Ice headers. We need to adjust this
     #
     os.chdir("..")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
+    runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     makefile.close()
