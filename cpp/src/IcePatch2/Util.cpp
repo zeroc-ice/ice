@@ -1111,6 +1111,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
                         rename(pathBZ2Temp, pathBZ2);
 
+                        info.size = compressedLen;
                     }
 #endif
 
