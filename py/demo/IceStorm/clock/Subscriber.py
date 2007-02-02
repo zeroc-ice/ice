@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import sys, traceback, Ice, IceStorm
+import sys, traceback, Ice, IceStorm, getopt
 
 Ice.loadSlice('Clock.ice')
 import Demo
@@ -18,18 +18,53 @@ class ClockI(Demo.Clock):
         print date
 
 class Subscriber(Ice.Application):
+    def usage(self):
+        print "Usage: " + self.appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]"
+
     def run(self, args):
-        properties = self.communicator().getProperties()
+        try:
+            opts, args = getopt.getopt(args, '', ['datagram', 'twoway', 'oneway'])
+        except getopt.GetoptError:
+            self.usage()
+            return False
+
+        topicName = "time"
+        datagram = False
+        twoway = False
+        ordered = False
+        batch = False
+        optsSet = 0;
+        for o, a in opts:
+            if o == "--datagram":
+                datagram = True
+                optsSet = optsSet + 1
+            elif o =="--twoway":
+                twoway = True
+                optsSet = optsSet + 1
+            elif o =="--ordered":
+                ordered = True
+                optsSet = optsSet + 1
+            elif o =="--oneway":
+                optsSet = optsSet + 1
+            elif o =="--batch":
+                batch = True
+
+        if batch and (twoway or ordered):
+            print self.appName() + ": batch can only be set with oneway or datagram"
+            return False
+
+        if optsSet > 1:
+            self.usage()
+            sys.exit(1)
+
+        if len(args) > 1:
+            topicName = args[1]
 
         manager = IceStorm.TopicManagerPrx.checkedCast(\
             self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
         if not manager:
             print args[0] + ": invalid proxy"
             return False
-
-        topicName = "time"
-        if len(args) != 1:
-            topicName = args[1]
 
         #
         # Retrieve the topic.
@@ -40,7 +75,7 @@ class Subscriber(Ice.Application):
             try:
                 topic = manager.create(topicName)
             except IceStorm.TopicExists, ex:
-                print self.appName() + ": temporay error. try again"
+                print self.appName() + ": temporary error. try again"
                 return False
 
         adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
@@ -48,15 +83,29 @@ class Subscriber(Ice.Application):
         #
         # Add a Servant for the Ice Object.
         #
+        qos = {}
         subscriber = adapter.addWithUUID(ClockI());
 
         #
-        # This demo requires no quality of service, so it will use
-        # the defaults.
+        # Set up the proxy.
         #
-        qos = {}
+        if datagram:
+            subscriber = subscriber.ice_datagram();
+        elif twoway:
+             pass
+            # Do nothing to the subscriber proxy. Its already twoway.
+        elif ordered:
+            # Do nothing to the subscriber proxy. Its already twoway.
+            qos["reliability"] = "ordered"
+        else: # if(oneway)
+            subscriber = subscriber.ice_oneway();
+        if batch:
+            if datagram:
+                subscriber = subscriber.ice_batchDatagram();
+            else:
+                subscriber = subscriber.ice_batchOneway();
 
-        topic.subscribe(qos, subscriber)
+        topic.subscribeAndGetPublisher(qos, subscriber)
         adapter.activate()
 
         self.shutdownOnInterrupt()
