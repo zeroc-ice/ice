@@ -1,5 +1,5 @@
 version = 3.2b
-mono_root = /opt/mono
+mono_root = /usr
 
 name = icecs
 
