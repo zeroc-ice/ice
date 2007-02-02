@@ -334,8 +334,14 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
             {
                 p->obj = p->obj->ice_oneway();
             }
-            p->adapter->activate();
             topic->subscribeAndGetPublisher(qos, p->obj);
+        }
+    }
+
+    {
+        for(vector<Subscription>::iterator p = subs.begin(); p != subs.end(); ++p)
+        {
+            p->adapter->activate();
         }
     }
 

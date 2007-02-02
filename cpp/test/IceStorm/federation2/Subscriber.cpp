@@ -127,8 +127,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     //
     ObjectPrx obj = adapter->addWithUUID(eventFed1);
 
-    adapter->activate();
-
     IceStorm::QoS qos;
     if(batch)
     {
@@ -152,6 +150,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     fed1->subscribeAndGetPublisher(qos, obj);
+
+    adapter->activate();
 
     communicator->waitForShutdown();
 
