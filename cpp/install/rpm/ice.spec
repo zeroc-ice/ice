@@ -1,5 +1,12 @@
 %define _unpackaged_files_terminate_build 0
 
+%if "${_arch}" != "noarch" && "%{_vendor}" == "redhat"
+%define ruby_included 1
+%else
+%define ruby_included 0
+%endif
+
+
 %define core_arches %{ix86} x86_64
 Summary: The Ice base runtime and services
 Name: ice
@@ -16,7 +23,9 @@ Source3: IceCS-%{version}.tar.gz
 Source4: IceJ-%{version}-java5.tar.gz
 Source5: IcePHP-%{version}.tar.gz
 Source6: Ice-rpmbuild-%{version}.tar.gz
+%if %{ruby_included}
 Source7:IceRuby-%{version}.tar.gz
+%endif
 
 BuildRoot: /var/tmp/Ice-%{version}-1-buildroot
 
@@ -40,13 +49,24 @@ BuildRequires: sed
 BuildRequires: binutils >= 2.15
 BuildRequires: openssl >= 0.9.7a
 BuildRequires: openssl-devel >= 0.9.7a
+BuildRequires: bzip2 >= 1.0.2
+BuildRequires: expat >= 1.95.7
+%if "%{_vendor}" == "redhat"
 BuildRequires: bzip2-devel >= 1.0.2
-BuildRequires: bzip2-libs >= 1.0.2
+BuildRequires: expat-devel >= 1.95.7
 BuildRequires: db45 >= 4.5.20
 BuildRequires: db45-devel >= 4.5.20
-BuildRequires: expat-devel >= 1.95.7
+BuildRequires: ruby >= 1.8.1
+BuildRequires: ruby-devel >= 1.8.1
 BuildRequires: php >= 5.1.4
 BuildRequires: php-devel >= 5.1.4
+%endif
+%if "%{_vendor}" == "suse"
+BuildRequires: db >= 4.3.29
+BuildRequires: db-devel >= 4.3.29
+BuildRequires: php5 >= 5.1.2
+BuildRequires: php5-devel >= 5.1.2
+%endif
 
 Provides: ice-%{_arch}
 %description
@@ -94,10 +114,12 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{ve
 %setup -q -n IcePHP-%{version} -T -D -b 5 
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePHP-%{version}/config/Make.rules
 
+%setup -c -q -n Ice-rpmbuild-%{version} -T -D -b 6
+%endif
+
+%if %{ruby_included}
 %setup -q -n IceRuby-%{version} -T -D -b 7
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceRuby-%{version}/config/Make.rules
-
-%setup -c -q -n Ice-rpmbuild-%{version} -T -D -b 6
 %endif
 
 %ifarch noarch
@@ -121,7 +143,9 @@ gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_B
 
 cd $RPM_BUILD_DIR/IcePHP-%{version}
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+%endif
 
+%if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 %endif
@@ -159,9 +183,6 @@ gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT inst
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
 
-cd $RPM_BUILD_DIR/IceRuby-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
-
 #
 # .NET spec files (for csharp-devel)
 #
@@ -188,9 +209,15 @@ cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/*.conf $RPM_BUILD_ROOT/etc
 mkdir -p $RPM_BUILD_ROOT/etc/init.d
 for i in icegridregistry icegridnode glacier2router
 do
-    cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.redhat $RPM_BUILD_ROOT/etc/init.d/$i
+    cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/$i.%{_vendor} $RPM_BUILD_ROOT/etc/init.d/$i
 done
 %endif
+
+%if %{ruby_included}
+cd $RPM_BUILD_DIR/IceRuby-%{version}
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+%endif
+
 
 %ifarch noarch
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java5/lib/Ice.jar $RPM_BUILD_ROOT/lib/Ice.jar
@@ -241,9 +268,6 @@ mv $RPM_BUILD_ROOT/include $RPM_BUILD_ROOT/usr/include
 mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/python $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/python
 
-mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/ruby $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/ruby
-
 mkdir -p $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}
 mv $RPM_BUILD_ROOT/doc $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/doc
 mv $RPM_BUILD_ROOT/README $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/README
@@ -255,6 +279,11 @@ mv $RPM_BUILD_ROOT/SOURCES $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/SOURCES
 mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/ant
 mv $RPM_BUILD_ROOT/usr/lib/IceGridGUI.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/IceGridGUI.jar
+%endif
+
+%if %{ruby_included}
+mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/ruby $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/ruby
 %endif
 
 %ifarch noarch
@@ -398,7 +427,7 @@ solution, and much more.
 
 
 
-%ifarch %{core_arches}
+%if %{ruby_included}
 %package ruby
 Summary: The Ice runtime for Ruby applications
 Group: System Environment/Libraries
@@ -683,7 +712,7 @@ done
 %endif
 
 
-%ifarch %{core_arches}
+%if %{ruby_included}
 %files ruby
 %defattr(644, root, root, 755)
 
@@ -697,7 +726,7 @@ done
 %endif
 
 
-%ifarch %{core_arches}
+%if %{ruby_included}
 %files ruby-devel
 %defattr(644, root, root, 755)
 
