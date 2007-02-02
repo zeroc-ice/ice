@@ -33,10 +33,44 @@ Module ClockS
                 Return 1
             End If
 
-            Dim topicName As String = "time"
-            If not args.Length = 0 Then:
-                topicName = args(0)
-            End If
+	    Dim topicName as String = "time"
+	    Dim datagram as Boolean = false
+	    Dim twoway as Boolean = false
+	    Dim ordered as Boolean = false
+	    Dim batch as Boolean = false
+	    Dim optsSet as Integer = 0
+	    For i As Integer = 0 To args.Length -1
+		If args(i).Equals("--datagram") Then
+		    datagram = true
+		    optsSet = optsSet + 1
+		Elseif args(i).Equals("--twoway") Then
+		    twoway = true
+		    optsSet = optsSet + 1
+		Elseif args(i).Equals("--ordered") Then
+		    ordered = true
+		    optsSet = optsSet + 1
+		Elseif args(i).Equals("--oneway") Then
+		    optsSet = optsSet + 1
+		Elseif args(i).Equals("--batch") Then
+		    batch = true
+		Elseif args(i).StartsWith("--") Then
+		    usage()
+		    Return 1
+		Else
+		    topicName = args(i)
+		    Exit For
+		End if
+    	    Next
+
+	    If batch and (twoway or ordered) Then
+		Console.WriteLine(appName() + ": batch can only be set with oneway or datagram")
+		Return 1
+	    End if
+
+	    If optsSet > 1 Then
+		usage()
+		Return 1
+	    End If
 
             Dim topic As IceStorm.TopicPrx 
             Try
@@ -56,7 +90,28 @@ Module ClockS
 
             Dim qos As IceStorm.Qos = New IceStorm.Qos
 
-            topic.subscribe(qos, subscriber)
+	    '
+	    ' Set up the proxy.
+	    '
+	    If datagram Then
+		subscriber = subscriber.ice_datagram()
+	    Elseif twoway Then
+		' Do nothing to the subscriber proxy. Its already twoway.
+	    Elseif ordered Then
+		' Do nothing to the subscriber proxy. Its already twoway.
+		qos.Add("reliability", "ordered")
+	    Else ' if oneway
+		subscriber = subscriber.ice_oneway()
+    	    End If
+	    If batch Then
+		if datagram Then
+		    subscriber = subscriber.ice_batchDatagram()
+		Else
+		    subscriber = subscriber.ice_batchOneway()
+    	    	End If
+    	    End If
+
+	    topic.subscribeAndGetPublisher(qos, subscriber)
             adapter.activate()
 
             shutdownOnInterrupt()
@@ -66,6 +121,11 @@ Module ClockS
 
             Return 0
         End Function
+
+	Public Sub usage
+	    Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]")
+	End Sub
+
     End Class
 
     Public Sub Main(ByVal args() As String)

@@ -74,14 +74,11 @@ public class Subscriber : Ice.Application
             }
         }
 
-        if(batch)
-        {
-            if(twoway || ordered)
-            {
-                Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
-                return 1;
-            }
-        }
+        if(batch && (twoway || ordered))
+	{
+	    Console.WriteLine(appName() + ": batch can only be set with oneway or datagram");
+	    return 1;
+	}
 
         if(optsSet > 1)
         {
@@ -170,7 +167,6 @@ public class Subscriber : Ice.Application
     {
         Console.WriteLine("Usage: " + appName() + " [--batch] [--datagram|--twoway|--ordered|--oneway] [topic]");
     }
-
 
     public static void Main(string[] args)
     {

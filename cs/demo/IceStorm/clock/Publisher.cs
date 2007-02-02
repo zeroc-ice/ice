@@ -125,7 +125,6 @@ public class Publisher : Ice.Application
         Console.WriteLine("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]");
     }
 
-
     public static void Main(string[] args)
     {
         Publisher app = new Publisher();

@@ -41,7 +41,6 @@ public class Subscriber extends Ice.Application
         boolean datagram = false;
         boolean twoway = false;
         boolean ordered = false;
-        boolean oneway = false;
         boolean batch = false;
         int optsSet = 0;
         for(int i = 0; i < args.length; ++i)
@@ -63,7 +62,6 @@ public class Subscriber extends Ice.Application
             }
             else if(args[i].equals("--oneway"))
             {
-                oneway = true;
                 ++optsSet;
             }
             else if(args[i].equals("--batch"))
@@ -81,14 +79,10 @@ public class Subscriber extends Ice.Application
                 break;
             }
         }
-
-        if(batch)
+        if(batch && (twoway || ordered))
         {
-            if(twoway || ordered)
-            {
-                System.err.println(appName() + ": batch can only be set with oneway or datagram");
-                return 1;
-            }
+            System.err.println(appName() + ": batch can only be set with oneway or datagram");
+            return 1;
         }
 
         if(optsSet > 1)

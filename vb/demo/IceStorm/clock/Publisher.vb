@@ -32,12 +32,36 @@ Module ClockC
                 Return 1
             End If
 
+	    Dim topicName as String = "time"
+	    Dim datagram as Boolean = false
+	    Dim twoway as Boolean = false
+	    Dim optsSet as Integer = 0
+	    For i As Integer = 0 To args.Length -1
+		If args(i).Equals("--datagram") Then
+		    datagram = true
+		    optsSet = optsSet + 1
+		Elseif args(i).Equals("--twoway") Then
+		    twoway = true
+		    optsSet = optsSet + 1
+		Elseif args(i).Equals("--oneway") Then
+		    optsSet = optsSet + 1
+		Elseif args(i).StartsWith("--") Then
+		    usage()
+		    Return 1
+		Else
+		    topicName = args(i)
+		    Exit For
+		End if
+    	    Next
 
-            Dim topicName As String = "time"
-            If not args.Length = 0 Then:
-                topicName = args(0)
-            End If
+	    If optsSet > 1 Then
+		usage()
+		Return 1
+	    End If
 
+	    '
+	    ' Retrieve the topic.
+	    '
             Dim topic As IceStorm.TopicPrx
             Try
                 topic = manager.retrieve(topicName)
@@ -50,7 +74,19 @@ Module ClockC
                 End Try
             End Try
 
-            Dim clock As ClockPrx = ClockPrxHelper.uncheckedCast(topic.getPublisher().ice_oneway())
+	    '
+	    ' Get the topic's publisher object, and create a Clock proxy with
+	    ' the mode specified as an argument of this application.
+	    '
+	    Dim publisher as Ice.ObjectPrx = topic.getPublisher()
+	    If datagram Then
+		publisher = publisher.ice_datagram()
+	    Elseif twoway Then
+		' Do nothing.
+	    Else  ' if oneway
+		publisher = publisher.ice_oneway()
+	    End If
+            Dim clock As ClockPrx = ClockPrxHelper.uncheckedCast(publisher)
 
             Console.Out.WriteLine("publishing tick events. Press ^C to terminate the application.")
             Try
@@ -64,6 +100,10 @@ Module ClockC
 
             Return 0
         End Function
+
+	Public Sub usage
+	    Console.WriteLine("Usage: " + appName() + " [--datagram|--twoway|--oneway] [topic]")
+	End Sub
     End Class
 
     Public Sub Main(ByVal args() As String)
