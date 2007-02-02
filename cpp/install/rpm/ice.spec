@@ -271,8 +271,8 @@ mv $RPM_BUILD_ROOT/include $RPM_BUILD_ROOT/usr/include
 mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/python $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/python
 
-mkdir -p $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}
-mv $RPM_BUILD_ROOT/doc $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/doc
+mkdir -p $RPM_BUILD_ROOT/usr/share/doc
+mv $RPM_BUILD_ROOT/doc $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}
 mv $RPM_BUILD_ROOT/README $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/README
 mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/ICE_LICENSE
 mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/LICENSE
@@ -542,11 +542,12 @@ solution, and much more.
 %defattr(644, root, root, 755)
 
 %dir /usr/share/doc/Ice-%{version}
-/usr/share/doc/Ice-%{version}/ICE_LICENSE
-/usr/share/doc/Ice-%{version}/LICENSE
-/usr/share/doc/Ice-%{version}/README
-/usr/share/doc/Ice-%{version}/SOURCES
-/usr/share/doc/Ice-%{version}/THIRD_PARTY_LICENSE
+/usr/share/doc/Ice-%{version}
+#/usr/share/doc/Ice-%{version}/ICE_LICENSE
+#/usr/share/doc/Ice-%{version}/LICENSE
+#/usr/share/doc/Ice-%{version}/README
+#/usr/share/doc/Ice-%{version}/SOURCES
+#/usr/share/doc/Ice-%{version}/THIRD_PARTY_LICENSE
 %attr(755, root, root) /usr/bin/dumpdb
 %attr(755, root, root) /usr/bin/transformdb
 %attr(755, root, root) /usr/bin/glacier2router
@@ -591,7 +592,7 @@ solution, and much more.
 %dir /usr/lib/Ice-%{version}
 /usr/lib/Ice-%{version}/IceGridGUI.jar
 /usr/share/slice
-/usr/share/doc/Ice-%{version}/doc
+#/usr/share/doc/Ice-%{version}/doc
 %dir /usr/share/Ice-%{version}
 /usr/share/Ice-%{version}/templates.xml
 %attr(755, root, root) /usr/share/Ice-%{version}/convertssl.py
