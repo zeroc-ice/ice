@@ -955,15 +955,16 @@ def main():
         #
         sourceTarBalls = [ ('ice', 'Ice-%s' % version, ''),
                            ('icephp','IcePHP-%s' % version, 'php'),
-                           ('icej','IceJ-%s-java2' % version, 'j'),
-                           ('icerb', 'IceRuby-%s' % version, 'rb')]
+                           ('icej','IceJ-%s-java2' % version, 'j')]
 
         if not getPlatform() in ['aix', 'solaris', 'hpux']:
             sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
 
         if getPlatform().startswith("linux"):
             sourceTarBalls.append(('icecs','IceCS-' + version, 'cs'))
-
+            if os.system('which ruby 2>/dev/null') == 0:
+                sourceTarBalls.append(('icerb', 'IceRuby-%s' % version, 'rb'))
+        
         os.environ['ICE_HOME'] = installDir + '/Ice-' + version
         currentLibraryPath = None
         try:
