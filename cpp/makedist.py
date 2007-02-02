@@ -235,6 +235,30 @@ else:
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice")
 
 #
+# Get Ice version.
+#
+config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
+version = re.search("ICE_STRING_VERSION \"([0-9\.b]*)\"", config.read()).group(1)
+mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
+
+print "Fixing version in various files..."
+fixVersion(find("ice", "README*"), version, mmversion)
+fixVersion(find("ice", "INSTALL*"), version, mmversion)
+fixVersion(find("ice/install/rpm", "*.conf"), version, mmversion)
+
+print "Creating Ice-rpmbuild..."
+rpmbuildver = "Ice-rpmbuild-" + version
+if verbose:
+    quiet = "v"
+else:
+    quiet = ""
+os.system("tar c" + quiet + "f " + rpmbuildver + ".tar " +
+          "-C ice/install -C rpm {icegridregistry,icegridnode,glacier2router}.{conf,suse,redhat} " +
+          "-C ../unix THIRD_PARTY_LICENSE.Linux README.Linux-RPM SOURCES.Linux " +
+          "-C ../thirdparty/php ice.ini")
+os.system("gzip -9 " + rpmbuildver + ".tar")
+
+#
 # Remove files.
 #
 print "Removing unnecessary files..."
@@ -364,16 +388,6 @@ if not skipDocs:
     os.system("gmake clean")
     os.chdir(cwd)
 
-#
-# Get Ice version.
-#
-config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
-version = re.search("ICE_STRING_VERSION \"([0-9\.b]*)\"", config.read()).group(1)
-mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
-
-print "Fixing version in README and INSTALL files..."
-fixVersion(find("ice", "README*"), version, mmversion)
-fixVersion(find("ice", "INSTALL*"), version, mmversion)
 
 #
 # Create archives.
@@ -401,7 +415,7 @@ else:
 os.system("zip -9r" + quiet + " " + icever + ".zip " + icever)
 
 #
-# Copy files (README, etc.).
+# Copy CHANGES
 #
 shutil.copyfile(os.path.join(icever, "CHANGES"), "Ice-" + version + "-CHANGES")
 
