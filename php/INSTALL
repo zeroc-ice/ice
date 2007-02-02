@@ -2,7 +2,7 @@
 Requirements
 =========================================================================
 
-- PHP 5.2.0 (http://www.php.net/downloads.php)
+- PHP 5.1.6 or 5.2.0 (http://www.php.net/downloads.php)
 - Ice for C++ @ver@ Development Kit
 
 

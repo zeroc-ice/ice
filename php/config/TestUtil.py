@@ -310,42 +310,72 @@ clientOptions = clientProtocol + defaultHost
 serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 
+php = "php"
 if isWin32():
-    php = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "bin")) + "\" -d extension=php_ice.dll"
+    extensionDir = os.path.abspath(os.path.join(toplevel, "bin"))
+    extensionFile = "php_ice.dll"
+    #
+    # TODO: When we no longer support PHP 5.1.x, we can do the following:
+    #
+    #php = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "bin")) + "\" -d extension=php_ice.dll"
 else:
-    php = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "lib")) + "\" -d extension=IcePHP.so"
+    extensionDir = os.path.abspath(os.path.join(toplevel, "lib"))
+    extensionFile = "IcePHP.so"
+    #
+    # TODO: When we no longer support PHP 5.1.x, we can do the following:
+    #
+    #php = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "lib")) + "\" -d extension=IcePHP.so"
 
 def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
 
+    #
+    # Write temporary INI file that contains the extension directives.
+    # This is a workaround for a limitation in PHP 5.1.x that prevents
+    # us from specifying the directives on PHP's command line.
+    #
+    # TODO: Remove this when we no longer support PHP 5.1.x.
+    #
+    tmpIniFile = "tmp.ini"
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(ice_home, "test", name, serverName)
-    client = php + " -c . -f " + clientName
+    client = php + " -c " + tmpIniFile + " -f " + clientName
+    #client = php + " -c . -f " + clientName
 
     cwd = os.getcwd()
     os.chdir(testdir)
 
-    print "starting " + serverName + "...",
-    serverCmd = server + serverOptions + additionalServerOptions
-    if debug:
-        print "(" + serverCmd + ")",
-    serverPipe = os.popen(serverCmd + " 2>&1")
-    getServerPid(serverPipe)
-    getAdapterReady(serverPipe)
-    print "ok"
-    
-    print "starting " + clientName + "...",
-    clientCmd = client + " -- " + clientOptions + additionalClientOptions
-    if debug:
-        print "(" + clientCmd + ")",
-    clientPipe = os.popen(clientCmd + " 2>&1")
-    print "ok"
+    iniLines = open("php.ini", "r").readlines()
+    iniFile = open(tmpIniFile, "w")
+    iniFile.writelines(iniLines)
+    iniFile.write("extension_dir=" + extensionDir + "\n")
+    iniFile.write("extension=" + extensionFile + "\n")
+    iniFile.close()
 
-    printOutputFromPipe(clientPipe)
+    try:
+        print "starting " + serverName + "...",
+        serverCmd = server + serverOptions + additionalServerOptions
+        if debug:
+            print "(" + serverCmd + ")",
+        serverPipe = os.popen(serverCmd + " 2>&1")
+        getServerPid(serverPipe)
+        getAdapterReady(serverPipe)
+        print "ok"
+        
+        print "starting " + clientName + "...",
+        clientCmd = client + " -- " + clientOptions + additionalClientOptions
+        if debug:
+            print "(" + clientCmd + ")",
+        clientPipe = os.popen(clientCmd + " 2>&1")
+        print "ok"
 
-    clientStatus = closePipe(clientPipe)
-    if clientStatus:
-        killServers()
+        printOutputFromPipe(clientPipe)
+
+        clientStatus = closePipe(clientPipe)
+        if clientStatus:
+            killServers()
+    finally:
+        os.remove(tmpIniFile)
 
     if clientStatus or serverStatus():
         sys.exit(1)
