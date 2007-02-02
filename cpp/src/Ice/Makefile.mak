@@ -112,17 +112,20 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DWIN32_LEAN_AND
 SLICE2CPPFLAGS	= --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 LINKWITH        = $(BASELIBS) $(BZIP2_LIBS) $(ICE_OS_LIBS) ws2_32.lib
 
-!if "$(CPP_COMPILER)" != "BCC2006"
+!if "$(CPP_COMPILER)" == "BCC2006"
+RES_FILE	= ,, EventLoggerMsg.res
+!else
 !if "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 LD_DLLFLAGS	= $(LD_DLLFLAGS) /entry:"ice_DLL_Main"
+RES_FILE	= EventLoggerMsg.res
 !endif
 
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) EventLoggerMsg.res $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH) $(RES_FILE)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $(DLLNAME).manifest \
 	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
