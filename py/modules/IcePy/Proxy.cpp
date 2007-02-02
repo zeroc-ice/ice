@@ -180,7 +180,7 @@ extern "C"
 static PyObject*
 proxyRepr(ProxyObject* self)
 {
-    string str = (*self->communicator)->proxyToString(*self->proxy);
+    string str = (*self->proxy)->ice_toString();
     return PyString_FromString(const_cast<char*>(str.c_str()));
 }
 
