@@ -1,6 +1,6 @@
 %define _unpackaged_files_terminate_build 0
 
-%if "${_arch}" != "noarch" && "%{_vendor}" == "redhat"
+%if "%{_target_cpu}" != "noarch" && "%{_vendor}" == "redhat"
 %define ruby_included 1
 %else
 %define ruby_included 0
@@ -447,7 +447,7 @@ solution, and much more.
 
 
 
-%ifarch %{core_arches}
+%if %{ruby_included}
 %package ruby-devel
 Summary: Tools for developing Ice applications in Python
 Group: Development/Tools
