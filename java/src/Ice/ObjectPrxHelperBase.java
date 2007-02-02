@@ -122,7 +122,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
             _ObjectDel __del = null;
             try
             {
-                __checkTwowayOnly("ice_ping");
                 __del = __getDelegate();
                 __del.ice_ping(__context);
                 return;

@@ -221,7 +221,6 @@ namespace Ice
                 ObjectDel_ del__ = null;
                 try
                 {
-                    checkTwowayOnly__("ice_ping");
                     del__ = getDelegate__();
                     del__.ice_ping(context__);
                     return;

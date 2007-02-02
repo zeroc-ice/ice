@@ -138,7 +138,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
             Connection __connection = null;
             try
             {
-	        __checkTwowayOnly("ice_ping");
 		__connection = ice_getConnection();
                 IceInternal.Outgoing __og = __connection.getOutgoing(_reference, "ice_ping", OperationMode.Nonmutating,
                                                                     __context);
