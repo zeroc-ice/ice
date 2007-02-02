@@ -58,7 +58,7 @@ def main():
     libVersion = verComponents[0] + verComponents[1]
 
     f = open("./ice-%s-%s.spec" % (iceVersion, targetSystem), "w+b")
-    RPMTools.createFullSpecFile(f, "", iceVersion, int(libVersion), targetSystem)
+    RPMTools.createFullSpecFile(f, "", iceVersion, libVersion, targetSystem)
     f.close()
 
 if __name__ == "__main__":

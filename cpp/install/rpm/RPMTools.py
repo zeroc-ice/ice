@@ -13,9 +13,6 @@ import os, sys, shutil, string, logging, compileall
 # TODO: Setup a table for the dependencies so you don't have to 'flit'
 # through the package descriptions to set the dependencies.
 #
-# TODO: BuildRequires needs to include our db45 package for building
-# on RHEL or CentOS. It really shouldn't need it for other RPM based
-# distributions
 #
 
 iceDescription = '''Ice is a modern alternative to object middleware
@@ -94,22 +91,19 @@ class Package:
 %else
 %define icelibdir lib
 %endif
-
-%ifarch noarch
 ''')
         ofile.write('BuildRequires: mono-core >= 1.2.2\n')
 
-        ofile.write('\n%endif\n')
-
 	buildRequiresList = ['python >= 2.3.4', 'python-devel >= 2.3.4', 
-		  'expat >= 1.95.8', 'libstdc++ >= 3.2', 'gcc >= 3.2', 'gcc-c++ >= 3.2', 'tar', 
-		  'binutils >= 2.10', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a',  'ncurses >= 5.4']
+		  'expat >= 1.95.7', 'libstdc++ >= 3.4.6', 'gcc >= 3.4.6', 'gcc-c++ >= 3.4.6', 'tar', 
+		  'binutils >= 2.15', 'openssl >= 0.9.7a', 'openssl-devel >= 0.9.7a']
 
 	if targetHost == "suse":
-	    buildRequiresList.extend(['bzip >= 1.0.2', 'php5 >= 5.1.2', 'php5-devel >= 5.1.2'])
+	    buildRequiresList.extend(['bzip >= 1.0.2', 'php5 >= 5.1.2', 'php5-devel >= 5.1.2',
+                                      'db >= 4.3.29', 'db-devel >= 4.3.29'])
 	else:
 	    buildRequiresList.extend(['bzip2-devel >= 1.0.2', 'bzip2-libs >= 1.0.2', 'db45 >= 4.5.20', 
-		'expat-devel >= 0.5.0', 'php >= 5.1.4', 'php-devel >= 5.1.4'])
+		'db45-devel >= 4.5.20', 'expat-devel >= 1.95.7', 'php >= 5.1.4', 'php-devel >= 5.1.4'])
 
         for f in buildRequiresList:
             ofile.write('BuildRequires: ' + f  + '\n')
@@ -476,8 +470,7 @@ fileLists = [
                      ('dll', 'lib/mono/gac/icegridcs/%version%.0__1f998c50fec78381/icegridcs.dll'),
                      ('dll', 'lib/mono/gac/icepatch2cs/%version%.0__1f998c50fec78381/icepatch2cs.dll'),
                      ('dll', 'lib/mono/gac/icestormcs/%version%.0__1f998c50fec78381/icestormcs.dll'),
-                     ('exe', 'bin/iceboxnet.exe'),
-                     ('exe', 'bin/iceboxadminnet.exe')])
+                     ('exe', 'bin/iceboxnet.exe')])
     ]
 
 ############################################################################
@@ -589,23 +582,6 @@ cp $RPM_SOURCE_DIR/ice.ini $RPM_BUILD_DIR/IcePHP-%{version}
 %setup -q -n IceRuby-%{version} -T -D -b 10
 sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceRuby-%{version}/config/Make.rules
 
-#
-# Create links to the Berkeley DB that we want. This should allow us to bypass
-# the older installed links.
-#
-if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/db.h; then
-    ln -s /usr/include/db45/db.h $RPM_BUILD_DIR/Ice-%{version}/include/db.h
-fi
-if ! test -h $RPM_BUILD_DIR/Ice-%{version}/include/db_cxx.h; then
-    ln -s /usr/include/db45/db_cxx.h $RPM_BUILD_DIR/Ice-%{version}/include/db_cxx.h
-fi
-if ! test -h $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so; then
-    ln -s /lib/libdb-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb.so
-fi
-if ! test -h $RPM_BUILD_DIR/Ice-%{version}/lib/libdb_cxx.so; then
-    ln -s /usr/lib/libdb_cxx-4.5.so $RPM_BUILD_DIR/Ice-%{version}/lib/libdb_cxx.so
-fi
-
 """)
 
 def writeBuildCommands(ofile, version, targetHost):
@@ -614,7 +590,7 @@ cd $RPM_BUILD_DIR/Ice-%{version}/src
 gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 cd $RPM_BUILD_DIR/IcePy-%{version}
 gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
-cd $RPM_BUILD_DIR/IceCS-%{version}
+cd $RPM_BUILD_DIR/IceCS-%{version}/src
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
 gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
