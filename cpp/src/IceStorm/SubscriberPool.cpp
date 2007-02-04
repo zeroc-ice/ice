@@ -52,9 +52,9 @@ public:
             }
 
             //
-            // If SubscriberPool returns true then the subscriber
-            // needs to be SubscriberPooled again, so therefore we
-            // will re-enqueue the subscriber in the call to dequeue.
+            // If flush returns true then the subscriber needs to be
+            // flushed again, so therefore we will re-enqueue the
+            // subscriber in the call to dequeue.
             //
             if(computeInterval)
             {

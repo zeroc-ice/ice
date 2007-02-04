@@ -813,7 +813,12 @@ Subscriber::flushTime(const IceUtil::Time& interval)
 {
     if(_resetMax || interval > _maxSend)
     {
-        assert(interval != IceUtil::Time());
+        //
+        // If is possible for the flush interval to be zero if the
+        // timer resolution is sufficiently big. See
+        // http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1739
+        //
+        //assert(interval != IceUtil::Time());
         _resetMax = false;
         _maxSend = interval;
     }
