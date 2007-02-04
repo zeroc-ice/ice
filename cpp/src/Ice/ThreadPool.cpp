@@ -616,7 +616,7 @@ IceInternal::ThreadPool::run()
                         if(epoll_ctl(_epollFd, EPOLL_CTL_DEL, change.first, &event) != 0)
                         {
                             Error out(_instance->initializationData().logger);
-                            out << "error while adding filedescriptor to epoll set:\n";
+                            out << "error while adding filedescriptor from epoll set:\n";
                             out << errorToString(getSocketErrno());
                             continue;
                         }
@@ -627,7 +627,7 @@ IceInternal::ThreadPool::run()
                         if(kevent(_kqueueFd, &event, 1, 0, 0, 0) < 0)
                         {
 			    Error out(_instance->initializationData().logger);
-			    out << "error while removing filedescriptor to kqueue:\n";
+			    out << "error while removing filedescriptor from kqueue:\n";
 			    out << errorToString(getSocketErrno());
 			    continue;
                         }
@@ -697,7 +697,9 @@ IceInternal::ThreadPool::run()
                         
                         smallestFd = min(smallestFd, fd);
                     }
-                    
+#ifdef never // To match __linux __APPLE
+                    }}}
+#endif
                     if(largerFd <= _maxFd)
                     {
                         assert(largerFd >= _minFd);
@@ -725,7 +727,6 @@ IceInternal::ThreadPool::run()
         //
         // Now we are outside the thread synchronization.
         //
-
         if(shutdown)
         {
             //
