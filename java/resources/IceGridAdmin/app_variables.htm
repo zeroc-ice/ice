@@ -1,0 +1,234 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- saved from url=(0029)http://www.helpandmanual.com/ -->
+<head><script type="text/javascript" src="helpman_topicinit.js"></script>
+<!-- Redirect browser to frame page if page is not in the content frame. -->
+<script type="text/javascript">
+<!--
+if(top.frames.length==0) { top.location.href="index.html?app_variables.htm"; }
+else { parent.lazysync('app_variables.htm'); }
+//-->
+</script>
+<script type="text/javascript" src="highlight.js"></script>
+   <title>Variables</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="Pre-Defined Variables,application,application.distrib,node,node.os,node.hostname,node.release,node.version,node.machine,node.datadir,server,server.distrib,service,session.id">
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <link type="text/css" href="styles.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style TYPE="text/css" media="screen"> 
+   <!-- 
+   body {    
+      margin:0; 
+      padding:0; 
+      overflow: auto; 
+      background: #FFFFFF; 
+   } 
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   -->
+   </style>
+   
+<style TYPE="text/css" MEDIA="print">
+<!--
+/* Hide navigation links and add space between header
+     and text in the printed version. Not valid for eBooks. */
+#idnav { display:none;	 }
+.topichead { padding: 5px 5px 20px 5px; }
+-->
+</style>   
+</head>
+<body onload="highlight();">
+<div id="hmpopupDiv" style="visibility:hidden; position:absolute; z-index:1000;"></div>
+<!--ZOOMSTOP-->
+
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; color: #6F6F6F; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="application.htm">Application</a>&nbsp;&gt;</p>
+   <p class="p_Heading1"><span class="f_Heading1">Variables</span></p>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    <a href="javascript: print();"
+    		onmouseover="document.images.prntr.src='print1.gif'" 
+        onmouseout="document.images.prntr.src='print2.gif'"
+        ><img name="prntr" border="0" alt="Print this Topic" title="Print this Topic" src="print2.gif"
+        ></a>
+     <a href="app_navigation.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="application.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="app_descriptors.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>Variables allow you to define commonly-used information once and refer to them symbolically throughout your application descriptors.</p>
+<p class="p_Heading2"><span class="f_Heading2">Syntax</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">Substitution for a variable or parameter </span><span class="f_T_Code">VP</span><span class="f_IndentList2"> is attempted whenever the symbol </span><span class="f_T_Code">${VP}</span><span class="f_IndentList2"> is encountered, subject to the limitations and rules described below. Substitution is case-sensitive, and a fatal error occurs if </span><span class="f_T_Code">VP</span><span class="f_IndentList2"> is not defined when the application is saved to an IceGrid registry.</span></p>
+<p class="p_Heading2Sub"><span class="f_Heading2Sub">Where are Variables Allowed?</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">Substitution is performed in all string fields except the following:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">server and service template IDs (when defining a template or when referring to a template)</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">variable names</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">template parameter names</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">node names</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">application names</span></td></tr></table></div><p class="p_Heading2Sub"><span class="f_Heading2Sub">Escaping a Variable</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">You can prevent substitution by escaping a variable reference with an additional leading $ character. For example, in order to assign the literal string </span><span class="f_T_Code">${abc} </span><span class="f_IndentList2">to a variable, you would use</span><span class="f_T_Code"> $${abc} </span>as this variable's value.</p>
+<p class="p_IndentList2">The extra $ symbol is only meaningful when immediately preceding a variable reference, therefore text such as <span class="f_T_Code">US$$55</span> is not modified. Each occurrence of the characters $$ preceding a variable reference is replaced with a single $ character, and that character does not initiate a variable reference.</p>
+<p class="p_Heading2"><span class="f_Heading2">Pre-Defined Variables</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">IceGrid defines a set of read-only variables to hold information that may be of use to descriptors. The names of these variables are reserved and cannot be used as variable or parameter names. The table below describes the purpose of each variable and defines the context in which it is valid.</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">&nbsp;</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table cellspacing="0" cellpadding="0" border="1" style="border: solid 2px #808080; border-spacing:0px; border-collapse: collapse;">
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_NormalHead"><span class="f_NormalHead">Name</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_NormalHead"><span class="f_NormalHead">Description</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">application</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The name of the enclosing application.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">application.distrib</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The pathname of the enclosing application&#8217;s distribution directory, and an alias for </span><span class="f_T_Code">${node.datadir}/distrib/${application}</span><span class="f_TableText">.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The name of the enclosing node.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node.os</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The name of the enclosing node&#8217;s operating system. On Unix, this is value is provided by uname. On Windows, the value is Windows.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node.hostname</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The host name of the enclosing node.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node.release</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The operation system release of the enclosing node. On Unix, this value is provided by uname. On Windows, the value is obtained from the </span><span class="f_T_Code">OSVERSIONINFO</span><span class="f_TableText"> data structure.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node.version</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The operation system version of the enclosing node. On Unix, this value is provided by uname. On Windows, the value represents the current service pack level.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node.machine</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The machine hardware name of the enclosing node. On Unix, this value is provided by uname. On Windows, the value is x86 or x64.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">node.datadir</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The absolute pathname of the enclosing node&#8217;s data directory.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">server</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The ID of the enclosing server.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">server.distrib</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The pathname of the enclosing server&#8217;s distribution directory, and an alias for </span><span class="f_T_Code">${node.datadir}/servers/${server}/distrib</span><span class="f_TableText">.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">service</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The name of the enclosing service.</span></p>
+</td>
+</tr>
+<tr style="text-align:left;vertical-align:top;">
+<td valign="top" width="166" style="width:166px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">session.id</span></p>
+</td>
+<td valign="top" width="683" style="width:683px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The client session identifier. For sessions created with a user name and password, the value is the user ID; for sessions created from a secure connection, the value is the distinguished name associated with the connection.</span></p>
+</td>
+</tr>
+</table>
+</div>
+<p>&nbsp;</p>
+<p class="p_IndentList2"><span class="f_IndentList2">The availability of a variable is easily determined in some cases, but may not be readily apparent in others. For example, you can use the ${node} variable in a property value within a server template definition, because variables in the body of a server template are only evaluated when the server template is instantiated on a specific node.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Variable Substitution in IceGrid Admin Forms</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">In a number of forms, you can substitute variables and template parameters by their respecitive value. Use </span><span class="f_T_Menu">View &gt; Show Variables</span><span class="f_IndentList2"> and </span><span class="f_T_Menu">View &gt; Substitute Variables </span><span class="f_IndentList2">or the corresponding toolbar toggle buttons:</span></p>
+<p class="p_IndentList3"><img src="variables.png" width="97" height="58" border="0" alt=""></p>
+<p class="p_IndentList2"><span class="f_IndentList2">When variable-substitution is enabled, the descriptors are displayed read-only.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Scoping Rules</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">Descriptors may only define variables at the application and node levels. Each node introduces a new scope, such that defining a variable at the node level overrides (but does not modify) the value of an application variable with the same name. Similarly, a template parameter overrides the value of a variable with the same name in an enclosing scope. A descriptor may refer to a variable defined in any enclosing scope, but its value is determined by the nearest scope. The diagram below illustrates these concepts:</span></p>
+<p class="p_IndentList3"><img src="variable-scopes.png" width="717" height="717" border="0" alt=""></p>
+<p class="p_IndentList3"><span class="f_IndentList3">&nbsp;</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">In this diagram, the variable x is defined at the application level with the value 1. In nodeA, x is overridden with the value 2, whereas x remains unchanged in nodeB. Within the context of nodeA, x continues to have the value 2 in a server instance definition. However, when x is used as the name of a template parameter, the node&#8217;s definition of x is overridden and x has the value 3 in the template&#8217;s scope.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Resolving a Reference</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">To resolve a variable reference </span><span class="f_T_Code">${var}</span><span class="f_IndentList2">, IceGrid searches for a definition of var using the following order of precedence:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Pre-defined variables</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Template parameters, if applicable</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Node variables, if applicable</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Application variables</span></td></tr></table></div><p class="p_IndentList2"><span class="f_IndentList2">After the initial substitution, any remaining references are resolved recursively using the following order of precedence:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Pre-defined variables</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Node variables, if applicable</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Application variables</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">Template Parameters</span></td></tr></table></div><p class="p_IndentList2"><span class="f_IndentList2">Template parameters are not visible in nested template instances. This situation can only occur when an IceBox server template instantiates a service template. </span></p>
+<p class="p_Heading2"><span class="f_Heading2">Modifying a Variable</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">A variable definition can be overridden in an inner scope, but the inner definition does not modify the outer variable.</span></p>
+
+<!--ZOOMSTOP-->
+<p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
+<a href="http://www.zeroc.com/doc/Ice-3.2.0/IceGridAdmin/index.html?app_variables.htm" target="_top">http://www.zeroc.com/doc/Ice-3.2.0/IceGridAdmin/index.html?app_variables.htm</a>
+</p>
+</div></div>
+<script type="text/javascript"> 
+<!-- 
+var lastSlashPos = document.URL.lastIndexOf("/") >
+document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") :
+document.URL.lastIndexOf("\\");
+if( document.URL.substring( lastSlashPos + 1, lastSlashPos + 4
+).toLowerCase() != "~hh" )
+{
+    nsrInit();
+}
+--> 
+</script> 
+</body>
+</html>

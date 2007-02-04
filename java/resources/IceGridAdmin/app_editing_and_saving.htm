@@ -1,0 +1,139 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- saved from url=(0029)http://www.helpandmanual.com/ -->
+<head><script type="text/javascript" src="helpman_topicinit.js"></script>
+<!-- Redirect browser to frame page if page is not in the content frame. -->
+<script type="text/javascript">
+<!--
+if(top.frames.length==0) { top.location.href="index.html?app_editing_and_saving.htm"; }
+else { parent.lazysync('app_editing_and_saving.htm'); }
+//-->
+</script>
+<script type="text/javascript" src="highlight.js"></script>
+   <title>Editing &amp; Saving</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="">
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <link type="text/css" href="styles.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style TYPE="text/css" media="screen"> 
+   <!-- 
+   body {    
+      margin:0; 
+      padding:0; 
+      overflow: auto; 
+      background: #FFFFFF; 
+   } 
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   -->
+   </style>
+   
+<style TYPE="text/css" MEDIA="print">
+<!--
+/* Hide navigation links and add space between header
+     and text in the printed version. Not valid for eBooks. */
+#idnav { display:none;	 }
+.topichead { padding: 5px 5px 20px 5px; }
+-->
+</style>   
+</head>
+<body onload="highlight();">
+<div id="hmpopupDiv" style="visibility:hidden; position:absolute; z-index:1000;"></div>
+<!--ZOOMSTOP-->
+
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; color: #6F6F6F; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="application.htm">Application</a>&nbsp;&gt;</p>
+   <p class="p_Heading1"><span class="f_Heading1">Editing &amp; Saving</span></p>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    <a href="javascript: print();"
+    		onmouseover="document.images.prntr.src='print1.gif'" 
+        onmouseout="document.images.prntr.src='print2.gif'"
+        ><img name="prntr" border="0" alt="Print this Topic" title="Print this Topic" src="print2.gif"
+        ></a>
+     <a href="application.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="application.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="app_copy__paste.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p class="p_Heading2"><span class="f_Heading2">Editing</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">As soon as you make any update in a form, IceGrid Admin enables two buttons at the bottom of this form: Apply and Discard.</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">If you navigate to another node without pressing Apply or Discard, the default is Apply: your changes are applied to the in-memory representation of the application definition. However these changes are not stored to the IceGrid registry or XML file until you save the application definition (see below).</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">Editing a live application (</span><img src="registry_bound_application.png" width="16" height="16" border="0" alt=""><span class="f_IndentList2">) also disconnects this application from the IceGrid registry: updates made by other users are no longer propagated to the Application tab.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Error Checking</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">IceGrid Admin performs very little error checking while you are working on an application definition. For example, you may temporarily keep several servers with the same ID, leave some parameters of a template instance unset, or use an undefined variable. All such errors are only detected when you save your application to an IceGrid registry.</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">There are nonetheless two types of constraints enforced by IceGrid Admin at all times:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">two descriptor nodes in an application pane display cannot have the same name</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 30px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList2">some fields (such as </span><span class="f_T_Entry">Path to Executable</span><span class="f_IndentList2"> for a server) cannot be empty.</span></td></tr></table></div><p class="p_IndentList2"><span class="f_IndentList2">If you violate such a constraint, IceGrid Admin prevents you from applying your change. </span></p>
+<p class="p_Heading2"><span class="f_Heading2">Saving</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">You save an application definition to an IceGrid registry or an XML file with the menu item </span><span class="f_T_Menu">File &gt; Save</span><span class="f_IndentList2">, </span><span class="f_T_Menu">File &gt; Save to File</span><span class="f_IndentList2"> or </span><span class="f_T_Menu">File &gt; Save to Registry</span><span class="f_IndentList2">, or with the corresponding toolbar button.</span></p>
+<p class="p_IndentList2"><span class="f_T_Entry">Save</span><span class="f_IndentList2"> saves a live application to the IceGrid registry, and a file-bound application to its associated XML file.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Discarding Updates</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">You may discard all your updates by selecting </span><span class="f_T_Menu">File &gt; Discard Updates</span><span class="f_IndentList2"> or pressing the corresponding toolbar button. </span><span class="f_IndentList2" style="font-style: italic;">Discard Updates</span><span class="f_IndentList2"> simply reloads the application from the IceGrid registry or its associated XML file.</span></p>
+<p class="p_Heading2"><span class="f_Heading2">Concurrent Updates to the same IceGrid Registry</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">If several administrators update the same application definition concurrently, the last save will silently overwrite previous (concurrent) updates. </span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">To avoid this situation, you can acquire an exclusive write access to the IceGrid registry with</span><span class="f_T_Menu"> File &gt; Acquire Exclusive Write Access</span><span class="f_IndentList2">. After this exclusive write access is granted, any attempt by another session to save to the IceGrid registry will result in an error:</span></p>
+<p class="p_IndentList3"><img src="exclusive-write.png" width="479" height="134" border="0" alt=""></p>
+<p class="p_IndentList2"><span class="f_IndentList2">&nbsp;</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">&nbsp;</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">&nbsp;</span></p>
+
+<!--ZOOMSTOP-->
+<p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
+<a href="http://www.zeroc.com/doc/Ice-3.2.0/IceGridAdmin/index.html?app_editing_and_saving.htm" target="_top">http://www.zeroc.com/doc/Ice-3.2.0/IceGridAdmin/index.html?app_editing_and_saving.htm</a>
+</p>
+</div></div>
+<script type="text/javascript"> 
+<!-- 
+var lastSlashPos = document.URL.lastIndexOf("/") >
+document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") :
+document.URL.lastIndexOf("\\");
+if( document.URL.substring( lastSlashPos + 1, lastSlashPos + 4
+).toLowerCase() != "~hh" )
+{
+    nsrInit();
+}
+--> 
+</script> 
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<!-- saved from url=(0029)http://www.helpandmanual.com/ -->
+<head><script type="text/javascript" src="helpman_topicinit.js"></script>
+<!-- Redirect browser to frame page if page is not in the content frame. -->
+<script type="text/javascript">
+<!--
+if(top.frames.length==0) { top.location.href="index.html?app_replica__group.htm"; }
+else { parent.lazysync('app_replica__group.htm'); }
+//-->
+</script>
+<script type="text/javascript" src="highlight.js"></script>
+   <title>Replica Group</title>
+   <meta name="generator" content="Help & Manual">
+   <meta name="keywords" content="Load Balancing,Load Sample">
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <link type="text/css" href="styles.css" rel="stylesheet">
+   <link type="text/css" href="custom.css" rel="stylesheet">
+   <script type="text/javascript" src="nsh.js"></script>
+   
+<!-- non-scrolling headers for CHM and browser-based help, local styles-->
+<style TYPE="text/css" media="screen"> 
+   <!-- 
+   body {    
+      margin:0; 
+      padding:0; 
+      overflow: auto; 
+      background: #FFFFFF; 
+   } 
+   #idheader { 
+      width:100%; 
+      height:auto; 
+      padding: 0; 
+      margin: 0; 
+} 
+    #idheaderbg  {
+    background: #6F6F6F; 
+}
+   -->
+   </style>
+   
+<style TYPE="text/css" MEDIA="print">
+<!--
+/* Hide navigation links and add space between header
+     and text in the printed version. Not valid for eBooks. */
+#idnav { display:none;	 }
+.topichead { padding: 5px 5px 20px 5px; }
+-->
+</style>   
+</head>
+<body onload="highlight();">
+<div id="hmpopupDiv" style="visibility:hidden; position:absolute; z-index:1000;"></div>
+<!--ZOOMSTOP-->
+
+<div id="idheader">
+<div id="idheaderbg">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" 
+       style="margin: 0px; color: #6F6F6F; background: url(header_bg.jpg);">
+
+  <tr valign="bottom">
+    <td align="left" valign="bottom" class="topichead">
+   <p class="crumbs" id="idnav"><b>Navigation:</b>&nbsp;
+   
+   <a href="application.htm">Application</a> &gt; <a href="app_descriptors.htm">Descriptors</a>&nbsp;&gt;</p>
+   <p class="p_Heading1"><span class="f_Heading1">Replica Group</span></p>
+
+    </td>
+    <td align="right" width="120" valign="middle" class="topichead" id="idnav">
+    <a href="javascript: print();"
+    		onmouseover="document.images.prntr.src='print1.gif'" 
+        onmouseout="document.images.prntr.src='print2.gif'"
+        ><img name="prntr" border="0" alt="Print this Topic" title="Print this Topic" src="print2.gif"
+        ></a>
+     <a href="app_property_set.htm"
+        onmouseover="document.images.prev.src='btn_prev_h.gif'" 
+        onmouseout="document.images.prev.src='btn_prev_n.gif'"
+        ><img name=prev src="btn_prev_n.gif" border=0 alt="Previous page"
+        ></a><a href="app_descriptors.htm"
+        onmouseover="document.images.main.src='btn_home_h.gif'" 
+        onmouseout="document.images.main.src='btn_home_n.gif'"><img name=main src="btn_home_n.gif" border=0 alt="Return to chapter overview"
+        ></a><a href="app_server_template.htm"
+        onmouseover="document.images.next.src='btn_next_h.gif'" 
+        onmouseout="document.images.next.src='btn_next_n.gif'"><img name=next src="btn_next_n.gif" border=0 alt="Next page"
+        ></a>
+    </td>
+  </tr>
+  <tr><td colspan="2" style="height: 3px; background: url(header_bg_shadow.gif)"></td></tr>
+</table>
+</div>
+
+<!-- The following code displays Expand All/Collapse All links  below the header in topics containing toggles -->
+  
+
+</div>  
+
+
+
+<div id="idcontent"><div id="innerdiv"> 
+<!--ZOOMRESTART-->
+<p>A replica group represents an abstract grouping of identical, or very similar, object adapters. An object adapter joins this group by setting this replica group ID in its <span class="f_T_Entry">Replica Group</span> field.</p>
+<p class="p_Heading2"><span class="f_Heading2">Properties</span></p>
+<p class="p_IndentList2"><span class="f_IndentList2">The Replica Properties panel offers the following fields:</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Replica Group ID</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The ID of this replica group. Must be unique within an IceGrid deployment.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Description</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A free-text description of this replica group.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Well-known Objects</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">A table of well-known objects defined by this replica group.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Load Balancing Policy</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">The load-balancing policy used by IceGrid when resolving the</span><span class="f_T_Entry"> Replica Group ID</span><span class="f_IndentList3"> in proxies. Must be one of:</span></p>
+<div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 60px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList3">Adaptive: return the endpoints of the object adapters whose nodes report the lowest load-average (on Linux/Unix) or CPU utilization (on Windows). The actual load-average or CPU utilization value of each node is multiplied by the node's load-factor for this comparison. See Load Sample below, and <a href="app_node.htm">Node</a>.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 60px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList3">Ordered: return the endpoints of the object adapters with the highest priority. See <a href="app_adapter.htm">Adapter</a>.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 60px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList3">Random: returns the endpoints of object adapters selected at random. This is the default policy.</span></td></tr></table></div><div style="text-align: left; text-indent: 0px; padding: 0px 0px 0px 0px; margin: 0px 0px 10px 60px;"><table border="0" cellpadding="0" cellspacing="0" style="line-height: normal;"><tr style="vertical-align:baseline" valign="baseline"><td width="13"><span style="font-size: 11pt; font-family: 'Arial Unicode MS', 'Lucida Sans Unicode', 'Arial'; color: #000000;">&#8226;</span></td><td><span class="f_IndentList3">Round-robin: IceGrid puts all the object adapters in a list, and for each new resolution, it returns the endpoints from the next </span><span class="f_T_Entry">How many Adapters</span><span class="f_IndentList3"> items on this list.</span></td></tr></table></div><p class="p_Heading2Sub2"><span class="f_Heading2Sub2">How many Adapters</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Specify the number of object adapters selected by IceGrid for each resolution. 1 is a common value.</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">When set to 0 (the default), IceGrid returns the endpoints of all object adapters in this replica group.</span></p>
+<p class="p_Heading2Sub2"><span class="f_Heading2Sub2">Load Sample</span></p>
+<p class="p_IndentList3"><span class="f_IndentList3">Available only with the Adaptive load-balancing policy. Specify the load-average or CPU utilization sample &nbsp;to use when comparing nodes: it can be 1 (default), 5 or 15 minutes.</span></p>
+
+<!--ZOOMSTOP-->
+<p>&nbsp;</p><hr size="1"><p class="fsmall">Page url: 
+<a href="http://www.zeroc.com/doc/Ice-3.2.0/IceGridAdmin/index.html?app_replica__group.htm" target="_top">http://www.zeroc.com/doc/Ice-3.2.0/IceGridAdmin/index.html?app_replica__group.htm</a>
+</p>
+</div></div>
+<script type="text/javascript"> 
+<!-- 
+var lastSlashPos = document.URL.lastIndexOf("/") >
+document.URL.lastIndexOf("\\") ? document.URL.lastIndexOf("/") :
+document.URL.lastIndexOf("\\");
+if( document.URL.substring( lastSlashPos + 1, lastSlashPos + 4
+).toLowerCase() != "~hh" )
+{
+    nsrInit();
+}
+--> 
+</script> 
+</body>
+</html>

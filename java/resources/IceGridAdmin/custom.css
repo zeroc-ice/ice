@@ -1,0 +1,70 @@
+  a { color: #0000FF; text-decoration: none }
+  a:visited {color: #0000FF }
+  a:hover {color: #E4641C; text-decoration: underline }
+  a.weblink {color: #0000FF; text-decoration: underline }
+  a.weblink:visited {color: #0000FF}
+  a.weblink:hover {color: #E4641C }
+  a.popuplink {color: #FF0000; text-decoration: none}
+  a.popuplink:visited {color: #FF0000}
+  a.popuplink:hover {color: #FF0000; text-decoration: underline}
+  a.filelink {color: #04BC14; text-decoration: none}
+  a.filelink:visited {color: #04BC14}
+  a.filelink:hover {color: #04BC14; text-decoration: underline}
+  a.inline-toggle {color: Green; text-decoration: none;  font-weight: bold;  font-family: "Times New Roman", serif;     }
+  a.inline-toggle:visited {color: Green; }
+  a.inline-toggle:hover {text-decoration: underline}
+  .fsmall {
+  font-size: 10px;
+	font-family: Verdana, Helvetica, sans-serif;
+	text-align: center;
+	margin: 10px 0px 0px 0px;
+	}
+  .crumbs {font-size: 8pt; margin-bottom: 3px; margin-top: 0px; color: #FFFFFF}
+  .crumbs a {text-decoration: underline; color: #FFFFFF}
+  .crumbs a:visited {text-decoration: underline; color: #FFFFFF}
+  .crumbs a:hover {color: #F4BC5C}
+  .expander {text-align: right; padding: 0; width: 100%; font-family: Verdana, Helvetica, sans-serif; font-size:9; font-weight: bold; border-bottom: 2px; border-bottom-style: solid; border-bottom-color: grey;
+  margin-bottom: 1px;}
+ 
+@media screen{
+  #idcontent {    
+      width: 100%; 
+      padding: 0px !important; 
+      padding: 10px 15px 5px 10px; 
+   } 
+  #innerdiv {    
+      padding: 10px 5px 5px 10px !important;  
+      padding: 0px; 
+   } 
+   
+    .topichead {
+       padding: 5px;
+    }
+    
+    .navlinks {
+      font-size: 10pt;
+    }
+    .navlinks a {
+      text-decoration: none;
+      color: blue;
+    }
+    .navlinks a:visited {
+      text-decoration: none;
+      color: blue;
+    }
+    .navlinks a:hover {
+      text-decoration: underline;
+      color: blue;
+    }
+    
+   html.nonscroll { 
+      overflow:hidden; 
+   } 
+   body.nonscroll {    
+      overflow:hidden; 
+      height:100%; 
+   } 
+   div.nonscroll { 
+      overflow:auto; 
+   } 
+}
