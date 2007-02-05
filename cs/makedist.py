@@ -151,7 +151,7 @@ if not skipDocs:
     os.chdir(cwd)
     os.mkdir(os.path.join("icecs", "doc"))
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icecs", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icecs", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "index.html"), os.path.join("icecs", "doc", "index.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icecs", "doc", "images"))
 shutil.rmtree("ice")
 
@@ -177,6 +177,7 @@ version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icecs", "README*"), version)
 fixVersion(find("icecs", "INSTALL*"), version)
+fixVersion(find("icecs/doc", "index.html"), version)
 
 #
 # Create source archives.

@@ -170,7 +170,7 @@ if not skipDocs:
     os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
     os.mkdir(os.path.join("icerb", "doc"))
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icerb", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icerb", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "index.html"), os.path.join("icerb", "doc", "index.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icerb", "doc", "images"))
 
 #
@@ -230,6 +230,7 @@ version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icerb", "README*"), version)
 fixVersion(find("icerb", "INSTALL*"), version)
+fixVersion(find("icerb/doc", "index.html"), version)
 
 #
 # Create source archives.

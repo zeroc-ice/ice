@@ -160,7 +160,7 @@ if not skipDocs:
     os.chdir(cwd)
     os.mkdir(os.path.join("icepy", "doc"))
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icepy", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icepy", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "index.html"), os.path.join("icepy", "doc", "index.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icepy", "doc", "images"))
 
 #
@@ -257,6 +257,7 @@ config.close()
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icepy", "README*"), version)
 fixVersion(find("icepy", "INSTALL*"), version)
+fixVersion(find("icepy/doc", "index.html"), version)
 
 #
 # Create source archives.
