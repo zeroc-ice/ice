@@ -43,6 +43,7 @@ public:
     std::string getBaseName();
 
     static std::string addQuotes(const std::string&);
+    static std::string normalizeIncludePath(const std::string&);
 
 private:
     

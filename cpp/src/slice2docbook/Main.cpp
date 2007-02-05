@@ -98,7 +98,7 @@ main(int argc, char* argv[])
     optargs = opts.argVec("I");
     for(i = optargs.begin(); i != optargs.end(); ++i)
     {
-        cppArgs += " -I" + Preprocessor::addQuotes(*i);
+	cppArgs += " -I" + Preprocessor::normalizeIncludePath(*i);
     }
 
     bool preprocess = opts.isSet("E");

@@ -56,11 +56,37 @@ Slice::Preprocessor::addQuotes(const string& arg)
 {
     //
     // Add quotes around the given argument to ensure that arguments
-    // with spaces (such as PATHs) will be preserved as a single
-    // argument. We also escape the "\" character to ensure that we
-    // don't end up with a \" at the end of the string.
+    // with spaces will be preserved as a single argument. We also
+    // escape the "\" character to ensure that we don't end up with a
+    // \" at the end of the string.
     //
     return "\"" + IceUtil::escapeString(arg, "\\") + "\"";
+}
+
+string
+Slice::Preprocessor::normalizeIncludePath(const string& path)
+{
+    string result = path;
+
+    replace(result.begin(), result.end(), '\\', '/');
+
+    string::size_type pos;
+    while((pos = result.find("//")) != string::npos)
+    {
+        result.replace(pos, 2, "/");
+    }
+
+    if(result == "/" || result.size() == 3 && isalpha(result[0]) && result[1] == ':' && result[2] == '/')
+    {
+	return result;
+    }
+    
+    if(result.size() > 1 && result[result.size() - 1] == '/')
+    {
+	result.erase(result.size() - 1);
+    }
+
+    return "\"" + result + "\"";
 }
 
 FILE*

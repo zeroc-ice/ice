@@ -108,7 +108,7 @@ main(int argc, char* argv[])
     vector<string> includePaths = opts.argVec("I");
     for(i = includePaths.begin(); i != includePaths.end(); ++i)
     {
-        cppArgs += " -I" + Preprocessor::addQuotes(*i);
+	cppArgs += " -I" + Preprocessor::normalizeIncludePath(*i);
     }
 
     bool preprocess = opts.isSet("E");
