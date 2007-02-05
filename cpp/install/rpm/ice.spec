@@ -183,6 +183,7 @@ gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT inst
 
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
+cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/resources/IceGridAdmin $RPM_BUILD_ROOT/doc
 
 #
 # .NET spec files (for csharp-devel)
