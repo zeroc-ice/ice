@@ -12,10 +12,10 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X, AIX
-and Windows 2000/XP, but due to the portability of Java, it is very
-likely that it will also work on other platforms for which a suitable
-Java implementation is available.
+Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X, and
+Windows XP/Server 2003/Vista, but due to the portability of Java, it is
+very likely that it will also work on other platforms for which a
+suitable Java implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
 below). ZeroC provides translator binaries for supported platforms.
@@ -59,13 +59,6 @@ command line option shown below:
 
 java -Djava.security.egd=file:/dev/urandom MyClass ...
 
-On AIX, IceSSL requires that you use IBMJSSE2 as your security
-provider for Java 2. (Java 5 uses IBMJSSE2 by default.) You must edit
-the java.security file shown above and modify the value of the
-security.provider.1 property as follows:
-
-security.provider.1=com.ibm.jsse2.IBMJSSEProvider2
-
 
 Slice to Java translator
 ------------------------
@@ -83,7 +76,7 @@ Berkeley DB
 -----------
 
 Freeze for Java uses Berkeley DB as its underlying database. It
-requires Berkeley DB 4.3.
+requires Berkeley DB 4.5.
 
 Even though Berkeley DB is included with many Linux distributions, the
 Java files for Berkeley DB are usually not available, which requires
@@ -91,14 +84,12 @@ you to build Berkeley DB manually.
 
 You can download the Berkeley DB source distribution from:
 
-http://www.sleepycat.com/download
+http://www.oracle.com/technology/software/products/berkeley-db/index.html
 
 When you build Berkeley DB, make sure to configure Berkeley DB with
 Java support. For Linux, this is done by specifying --enable-java with
-"configure". For Windows 2000/XP, you must select the "db_java --
-Win32 Release" project. For details, please see:
-
-http://www.sleepycat.com/docs/index.html
+"configure". For Windows you must select the "db_java -- Win32 Release"
+project.
 
 On Fedora Core 4, it is necessary to change the compiler's default
 optimization level when building Berkeley DB in order to avoid a bug
@@ -115,7 +106,7 @@ LD_LIBRARY_PATH, for example:
 $ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 
 Note that the Ice for Java distribution is compiled against Berkeley
-DB 4.3.29.
+DB 4.5.20.
 
 
 bzip2
