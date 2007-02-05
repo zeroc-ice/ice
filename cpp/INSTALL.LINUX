@@ -22,8 +22,8 @@ C++ compiler
 Ice is expected to build properly with GCC 3.3 or later.  However,
 only the following compilers are officially supported:
 
- - GCC 4.1.x on SLES 10
  - GCC 3.4.6 on RHEL 4.4
+ - GCC 4.1.x on SLES 10
 
 Third-party libraries
 ---------------------

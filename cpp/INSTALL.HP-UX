@@ -31,11 +31,11 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.3.29 with C++ support enabled, and built with a C++
+- Berkeley DB 4.5.20 with C++ support enabled, and built with a C++
   compiler compatible with the one you are using.
 
   You can download the Berkeley DB source distribution from
-  http://www.sleepycat.com/download
+  http://www.oracle.com/technology/software/products/berkeley-db/index.html
 
   We recommend that you configure and build Berkeley DB with:
 
@@ -72,7 +72,7 @@ Ice has dependencies on a number of third-party libraries:
   ./Configure hpux64-parisc2-cc shared
   (and --prefix=<dir> if you like)
 
-- expat 1.9x, which can be downloaded from
+- expat 2.0, which can be downloaded from
   http://sourceforge.net/projects/expat
 
   For 32 bit builds, you can also use the binary distribution from the

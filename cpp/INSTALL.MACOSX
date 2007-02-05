@@ -22,15 +22,15 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.3.29 configured with --enable-cxx.
+- Berkeley DB 4.5.20 configured with --enable-cxx.
 
   If you intend to use Ice for Java with Berkeley DB, you must also
   include the option --enable-java.
 
   You can download the Berkeley DB source distribution from
-  http://www.sleepycat.com/download
+  http://www.oracle.com/technology/software/products/berkeley-db/index.html
 
-- expat 1.9x. You can download expat from
+- expat 2.0. You can download expat from
   http://sourceforge.net/projects/expat/
 
 
