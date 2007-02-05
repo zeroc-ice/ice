@@ -182,6 +182,12 @@ for x in filesToRemove:
 #
 config = open(os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs"), "r")
 version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
+checkBeta = version.split('.')
+if int(checkBeta[2]) > 50:
+    version = "%s.%sb" % (checkBeta[0], checkBeta[1])
+    beta = int(checkBeta[2]) - 50
+    if beta > 1:
+        version = version + str(beta)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icevb", "README*"), version)
