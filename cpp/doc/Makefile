@@ -47,13 +47,19 @@ install::
 		$(call mkdir,$(install_docdir)/reference) ; \
 	    fi ; \
 	    echo "Installing HTML..." ; \
-	    $(call installdata,README.html,$(install_docdir)) ; \
-	    $(call installdata,reference/*.html,$(install_docdir)/reference) ; \
-	    if test ! -d $(install_docdir)/reference/$(IMAGES) ; \
-	    then \
-		echo "Creating $(install_docdir)/reference/$(IMAGES)..." ; \
-		$(call mkdir,$(install_docdir)/reference/$(IMAGES)) ; \
-	    fi ; \
-	    echo "Installing images..." ; \
-	    $(call installdata,$(IMAGES)/*.gif,$(install_docdir)/reference/$(IMAGES)) ; \
-	fi
+	    $(call installdata,index.html,$(install_docdir)) ; \
+	    $(call installdata,reference/*.*,$(install_docdir)/reference) ; \
+            for i in reference/*; \
+            do if test -d $$i ; \
+               then \
+                  if test ! -d $(install_docdir)/$$i ; \
+	          then \
+		     echo "Creating $(install_docdir)/$$i..." ; \
+		     $(call mkdir,$(install_docdir)/$$i) ; \
+	          fi ; \
+	          echo "Installing files in $$i..." ; \
+	          $(call installdata,$$i/*.*,$(install_docdir)/$$i) ; \
+	       fi; \
+            done ; \
+        fi
+
