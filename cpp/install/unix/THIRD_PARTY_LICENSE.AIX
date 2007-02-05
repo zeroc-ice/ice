@@ -2,19 +2,18 @@ License Agreement for Berkeley DB:
 ---------------------------------
 
 /*-
- * Id: LICENSE,v 11.12 2004/03/30 20:49:44 bostic Exp $
+ * $Id$
  */
 
 The following is the license that applies to this copy of the Berkeley DB
 software.  For a license to use the Berkeley DB software under conditions
 other than those described here, or to purchase support for this software,
-please contact Sleepycat Software by email at info@sleepycat.com, or on
-the Web at http://www.sleepycat.com.
+please contact Oracle Corporation at berkeleydb-info_us@oracle.com.
 
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 /*
- * Copyright (c) 1990-2004
- *	Sleepycat Software.  All rights reserved.
+ * Copyright (c) 1990-2006
+ *	Oracle Corporation.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -35,10 +34,10 @@ the Web at http://www.sleepycat.com.
  *    files that typically accompany the major components of the operating
  *    system on which the executable file runs.
  *
- * THIS SOFTWARE IS PROVIDED BY SLEEPYCAT SOFTWARE ``AS IS'' AND ANY EXPRESS
+ * THIS SOFTWARE IS PROVIDED BY ORACLE CORPORATION ``AS IS'' AND ANY EXPRESS
  * OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  * WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT, ARE DISCLAIMED.  IN NO EVENT SHALL SLEEPYCAT SOFTWARE
+ * NON-INFRINGEMENT, ARE DISCLAIMED.  IN NO EVENT SHALL ORACLE CORPORATION
  * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
  * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
  * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS

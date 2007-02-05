@@ -15,8 +15,8 @@ Summary: The Berkeley DB database library (version 4.5) for C/C++
 Name: db45
 Version: 4.5.20
 Release: 9%{?dist}
-Source0: http://www.sleepycat.com/update/%{version}/db-%{version}.NC.tar.gz
-URL: http://www.sleepycat.com/
+Source0: http://download.oracle.com/berkeley-db/db-%{version}.NC.tar.gz
+URL: http://www.oracle.com/database/berkeley-db/index.html
 License: GPL
 Group: System Environment/Libraries
 BuildRequires: perl, libtool, ed, 
