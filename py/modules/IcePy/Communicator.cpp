@@ -83,16 +83,49 @@ extern "C"
 static int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    PyObject* arglist = NULL;
-    PyObject* initDataType = lookupType("Ice.InitializationData");
+    PyObject* argList = NULL;
     PyObject* initData = NULL;
-    if(!PyArg_ParseTuple(args, STRCAST("|O!O!"), &PyList_Type, &arglist, initDataType, &initData))
+    if(!PyArg_ParseTuple(args, STRCAST("|OO"), &argList, &initData))
     {
         return -1;
     }
 
+    if(argList == Py_None)
+    {
+        argList = NULL;
+    }
+
+    if(initData == Py_None)
+    {
+        initData = NULL;
+    }
+
+    PyObject* initDataType = lookupType("Ice.InitializationData");
+
+    if(argList != NULL && initData == NULL)
+    {
+        if(PyObject_IsInstance(argList, initDataType))
+        {
+            initData = argList;
+            argList = NULL;
+        }
+        else if(!PyList_Check(argList))
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("initialize expects an argument list or Ice.InitializationData"));
+            return -1;
+        }
+    }
+    else if(argList != NULL && initData != NULL)
+    {
+        if(!PyList_Check(argList) || !PyObject_IsInstance(initData, initDataType))
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("initialize expects an argument list and Ice.InitializationData"));
+            return -1;
+        }
+    }
+
     Ice::StringSeq seq;
-    if(arglist && !listToStringSeq(arglist, seq))
+    if(argList && !listToStringSeq(argList, seq))
     {
         return -1;
     }
@@ -180,14 +213,14 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     //
     // Replace the contents of the given argument list with the filtered arguments.
     //
-    if(arglist)
+    if(argList)
     {
-        PyList_SetSlice(arglist, 0, PyList_Size(arglist), NULL); // Clear the list.
+        PyList_SetSlice(argList, 0, PyList_Size(argList), NULL); // Clear the list.
 
         for(i = 0; i < argc; ++i)
         {
             PyObjectHandle str = Py_BuildValue(STRCAST("s"), argv[i]);
-            PyList_Append(arglist, str.get());
+            PyList_Append(argList, str.get());
         }
     }
 
@@ -217,13 +250,16 @@ extern "C"
 static void
 communicatorDealloc(CommunicatorObject* self)
 {
-    CommunicatorMap::iterator p = _communicatorMap.find(*self->communicator);
-    //
-    // find() can fail if an error occurred during communicator initialization.
-    //
-    if(p != _communicatorMap.end())
+    if(self->communicator)
     {
-        _communicatorMap.erase(p);
+        CommunicatorMap::iterator p = _communicatorMap.find(*self->communicator);
+        //
+        // find() can fail if an error occurred during communicator initialization.
+        //
+        if(p != _communicatorMap.end())
+        {
+            _communicatorMap.erase(p);
+        }
     }
 
     if(self->shutdownThread)

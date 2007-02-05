@@ -284,7 +284,7 @@ class CommunicatorI(Communicator):
 #
 # Ice.initialize()
 #
-def initialize(args=[], data=InitializationData()):
+def initialize(args=None, data=None):
     communicator = IcePy.Communicator(args, data)
     return CommunicatorI(communicator)
 

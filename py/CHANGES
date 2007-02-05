@@ -1,6 +1,9 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Fixed a bug that prevented an application from calling
+  Ice.initialize() with only an InitializationData argument.
+
 - Fixed a bug that would cause a crash if you attempted to obtain
   the string representation of a proxy after the communicator was
   destroyed.

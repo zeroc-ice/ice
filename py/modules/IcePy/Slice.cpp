@@ -56,7 +56,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 
     if(list != NULL)
     {
-        listToStringSeq(list, argSeq);
+        if(!listToStringSeq(list, argSeq))
+        {
+            return NULL;
+        }
     }
 
     IceUtil::Options opts;

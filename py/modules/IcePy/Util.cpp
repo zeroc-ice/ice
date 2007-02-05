@@ -321,6 +321,7 @@ IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
         }
         if(!PyString_Check(item))
         {
+            PyErr_Format(PyExc_ValueError, STRCAST("list element must be a string"));
             return false;
         }
         seq.push_back(string(PyString_AS_STRING(item), PyString_GET_SIZE(item)));
@@ -369,6 +370,7 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
         }
         if(!PyString_Check(item))
         {
+            PyErr_Format(PyExc_ValueError, STRCAST("tuple element must be a string"));
             return false;
         }
         seq.push_back(string(PyString_AS_STRING(item), PyString_GET_SIZE(item)));
