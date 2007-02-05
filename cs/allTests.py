@@ -79,7 +79,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
-    # "IceSSL/configuration", \ # IceSSL is added further down for Mono only
+    # "IceSSL/configuration", \ # IceSSL is added further down for Windows only
     "Ice/threads", \
     "Glacier2/router", \
     "Glacier2/attack", \
