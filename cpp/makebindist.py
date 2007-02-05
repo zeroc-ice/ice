@@ -1002,7 +1002,7 @@ def main():
         toCollect = list(sourceTarBalls)
         for cvs, tarball, demoDir in toCollect:
             extractDemos(sources, buildDir, version, tarball, demoDir)
-            shutil.copy("%s/unix/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
+            shutil.copy("%s/common/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
         archiveDemoTree(buildDir, version, installFiles)
         shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
         shutil.move("%s/Ice-%s-demos.zip" % (buildDir, version), "%s/Ice-%s-demos.zip" % (installDir, version))

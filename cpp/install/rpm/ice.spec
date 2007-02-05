@@ -41,9 +41,9 @@ BuildRequires: mono-core >= 1.2.2
 BuildRequires: python >= 2.3.4
 BuildRequires: python-devel >= 2.3.4
 BuildRequires: expat >= 1.95.7
-BuildRequires: libstdc++ >= 3.4.6
-BuildRequires: gcc >= 3.4.6
-BuildRequires: gcc-c++ >= 3.4.6
+BuildRequires: libstdc++ >= 3.4.4
+BuildRequires: gcc >= 3.4.4
+BuildRequires: gcc-c++ >= 3.4.4
 BuildRequires: tar
 BuildRequires: sed
 BuildRequires: binutils >= 2.15
