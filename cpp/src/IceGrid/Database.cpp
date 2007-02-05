@@ -730,7 +730,7 @@ Database::getAdapterDirectProxy(const string& id)
 void
 Database::removeAdapter(const string& adapterId)
 {
-    int serial;
+    int serial = 0; // Initialize to prevent warning.
     {
         Lock sync(*this);
         if(_adapterCache.has(adapterId))
