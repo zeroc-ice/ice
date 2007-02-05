@@ -114,12 +114,12 @@ EVERYTHING		= all clean install
 
 
 {$(SDIR)\}.ice{$(HDIR)}.h:
-	del /q $(HDIR)\$(*F).h $(*F).cpp
+	-del /q $(HDIR)\$(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
 	move $(*F).h $(HDIR)
 
 .ice.cpp:
-	del /q $(*F).h $(*F).cpp
+	-del /q $(*F).h $(*F).cpp
 	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice
 
 all:: $(SRCS) $(TARGETS)

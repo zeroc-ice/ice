@@ -2,7 +2,7 @@
 # Defines Ice components
 #
 
-import ConfigParser, sys, os, logging, fnmatch, os.path, shutil, re
+import ConfigParser, sys, os, logging, fnmatch, os.path, shutil, re, pprint
 
 def listFileLists():
     """Information routine for getting lists of file lists from a components file"""
@@ -54,7 +54,8 @@ def recursiveListing(path):
     return result
 
 class FileSpecWorker:
-    def __init__(self, source, dest):
+    def __init__(self, id, source, dest):
+        self.id = id
         self.source = source
         self.dest = dest
         self.include = []
@@ -173,7 +174,7 @@ class FileSpecWorker:
 
 
         #
-        # Using sets is the "easiest" way to do this. If Python"s set
+        # Using sets is the "easiest" way to do this. If Python's set
         # implementation is/gets buggy then this needs to be written
         # "longhand".
         #
@@ -196,6 +197,66 @@ class FileSpecWorker:
             logging.debug("Files to be copied:")
             for f in result:
                 logging.debug(f)
+
+        #
+        # Detect changes in file list and confirm that changes are okay.
+        #
+        cachedResults = None
+        cacheFilename = os.path.join(os.path.dirname(__file__), "%s.cache" % self.id)
+        if os.path.exists(cacheFilename):
+            cacheFile = open(cacheFilename, "r+b")
+            cachedResults = cacheFile.readlines()
+            cacheFile.close()
+
+        for i in range(0, len(cachedResults)):
+            cachedResults[i] = cachedResults[i].rstrip()
+
+        if cachedResults != None:
+            previous = set(cachedResults)
+            current = set(result)
+            added = current - previous
+            removed = previous - current
+            if len(added) > 0:
+                print "Additions detected:"
+                pprint.pprint(list(added))
+                print "Accept (y/n):",
+                while True:
+                    answer = sys.stdin.read(1)
+                    if answer in ["Y", "y"]:
+                        break
+                    elif answer in ["N", "n"]:
+                        print "\nAborting..."
+                        rejects = open("%s.rejects" % self.id, "w")
+                        rejects.write("Added:\n")
+                        rejects.writelines(pprint.pprint(list(added)))
+                        rejects.write("Deleted:\n")
+                        rejects.writelines(pprint.pprint(list(removed)))
+                        rejects.close()
+                        sys.exit(1)
+                
+            if len(removed) > 0:
+                print "Deletions detected:"
+                pprint.pprint(list(removed))
+                print "Accept (y/n):",
+                while True:
+                    answer = sys.stdin.read(1)
+                    if answer in ["Y", "y"]:
+                        break
+                    elif answer in ["N", "n"]:
+                        print "\nAborting..."
+                        rejects = open("%s.rejects" % self.id, "w")
+                        rejects.write("Added:\n")
+                        rejects.writelines(pprint.pprint(list(added)))
+                        rejects.write("Deleted:\n")
+                        rejects.writelines(pprint.pprint(list(removed)))
+                        rejects.close()
+                        sys.exit(1)
+
+        cacheFile = open(cacheFilename, "w+b")
+        for f in result:
+            cacheFile.write(f)
+            cacheFile.write("\n")
+        cacheFile.close()
 
         #
         # Scan filename to see if matches one of our designated
@@ -310,7 +371,7 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
 
                     componentFile = file(filename, "r")
                     try:
-                        worker = FileSpecWorker(source, os.path.join(currentBase, dest))
+                        worker = FileSpecWorker(filename, source, os.path.join(currentBase, dest))
                         for line in componentFile:
                             current = line.strip()
                             if line.startswith('#'):

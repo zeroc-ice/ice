@@ -689,7 +689,7 @@
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
 		<row><td>ID_STRING1</td><td>1033</td><td>BerkeleyDB Dev Kit for Visual Studio 6.0</td><td>0</td><td/><td>429507296</td></row>
-		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-2129048628</td></row>
+		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC, Inc</td><td>0</td><td/><td>689696139</td></row>
 	</table>
 
 	<table name="Icon">
