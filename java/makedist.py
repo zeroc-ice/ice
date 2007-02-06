@@ -18,7 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h       Show this message."
-    print "-d       Skip SGML documentation conversion."
+    print "-d       Skip documentation conversion."
     print "-t       Skip building translators and use the ones in PATH."
     print "-f       Keep going if precondition checks fail."
     print "-v       Be verbose."
@@ -329,7 +329,8 @@ version = re.search("ICE_STRING_VERSION = \"([0-9\.b]*)\"", config.read()).group
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icej", "README*"), version)
 fixVersion(find("icej", "INSTALL*"), version)
-fixVersion(find("icej/doc", "index.html"), version)
+if not skipDocs:
+    fixVersion(find("icej/doc", "index.html"), version)
 
 #
 # Create source archives.

@@ -18,7 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
+    print "-d    Skip documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -192,7 +192,8 @@ if int(checkBeta[2]) > 50:
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icevb", "README*"), version)
 fixVersion(find("icevb", "INSTALL*"), version)
-fixVersion(find("icevb/doc", "index.html"), version)
+if not skipDocs:
+    fixVersion(find("icevb/doc", "index.html"), version)
 
 #
 # Fix source dist demo project files.

@@ -18,7 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
+    print "-d    Skip documentation conversion."
     print "-t    Skip building translator and use the one in PATH."
     print "-v    Be verbose."
     print
@@ -230,7 +230,8 @@ version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icerb", "README*"), version)
 fixVersion(find("icerb", "INSTALL*"), version)
-fixVersion(find("icerb/doc", "index.html"), version)
+if not skipDocs:
+    fixVersion(find("icerb/doc", "index.html"), version)
 
 #
 # Create source archives.

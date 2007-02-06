@@ -18,7 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
+    print "-d    Skip documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -177,7 +177,8 @@ version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icecs", "README*"), version)
 fixVersion(find("icecs", "INSTALL*"), version)
-fixVersion(find("icecs/doc", "index.html"), version)
+if not skipDocs:
+    fixVersion(find("icecs/doc", "index.html"), version)
 
 #
 # Create source archives.

@@ -257,7 +257,8 @@ config.close()
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icepy", "README*"), version)
 fixVersion(find("icepy", "INSTALL*"), version)
-fixVersion(find("icepy/doc", "index.html"), version)
+if not skipDocs:
+    fixVersion(find("icepy/doc", "index.html"), version)
 
 #
 # Create source archives.
