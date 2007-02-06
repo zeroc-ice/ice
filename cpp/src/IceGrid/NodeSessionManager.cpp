@@ -205,37 +205,40 @@ NodeSessionManager::NodeSessionManager() :
 void
 NodeSessionManager::create(const NodeIPtr& node)
 {
-    assert(!_node);
-
-    const_cast<NodeIPtr&>(_node) = node;
-
-    Ice::CommunicatorPtr communicator = _node->getCommunicator();
-    assert(communicator->getDefaultLocator());
-    Ice::Identity id = communicator->getDefaultLocator()->ice_getIdentity();
-
-    //
-    // Initialize the IceGrid::Query objects. The IceGrid::Query
-    // interface is used to lookup the registry proxy in case it
-    // becomes unavailable. Since replicas might not always have
-    // an up to date registry proxy, we need to query all the
-    // replicas.
-    //
-    Ice::EndpointSeq endpoints = communicator->getDefaultLocator()->ice_getEndpoints();
-    id.name = "Query";
-    QueryPrx query = QueryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
-    for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-        Ice::EndpointSeq singleEndpoint;
-        singleEndpoint.push_back(*p);
-        _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
+        Lock sync(*this);
+        assert(!_node);
+
+        const_cast<NodeIPtr&>(_node) = node;
+
+        Ice::CommunicatorPtr communicator = _node->getCommunicator();
+        assert(communicator->getDefaultLocator());
+        Ice::Identity id = communicator->getDefaultLocator()->ice_getIdentity();
+
+        //
+        // Initialize the IceGrid::Query objects. The IceGrid::Query
+        // interface is used to lookup the registry proxy in case it
+        // becomes unavailable. Since replicas might not always have
+        // an up to date registry proxy, we need to query all the
+        // replicas.
+        //
+        Ice::EndpointSeq endpoints = communicator->getDefaultLocator()->ice_getEndpoints();
+        id.name = "Query";
+        QueryPrx query = QueryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
+        for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        {
+            Ice::EndpointSeq singleEndpoint;
+            singleEndpoint.push_back(*p);
+            _queryObjects.push_back(QueryPrx::uncheckedCast(query->ice_endpoints(singleEndpoint)));
+        }
+
+        id.name = "InternalRegistry-Master";
+        _master = InternalRegistryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
+
+        _thread = new Thread(*this);
+        _thread->start();
     }
 
-    id.name = "InternalRegistry-Master";
-    _master = InternalRegistryPrx::uncheckedCast(communicator->stringToProxy(communicator->identityToString(id)));
-
-    _thread = new Thread(*this);
-    _thread->start();
-    
     //
     // Try to create the session. It's important that we wait for the
     // creation of the session as this will also try to create sessions
