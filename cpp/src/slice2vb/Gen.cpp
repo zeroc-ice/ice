@@ -2195,11 +2195,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
 
         _out << sp << nl << "Public Sub New" << spar << allParamDecl << epar;
+        _out.inc();
         if(p->base() && allDataMembers.size() != dataMembers.size())
         {
-            _out << " : base" << spar << baseParamNames << epar;
+            _out << nl << "MyBase.New" << spar << baseParamNames << epar;
         }
-        _out.inc();
         if(!dataMembers.empty())
         {
             _out << nl << "initDM__" << spar << paramNames << epar;
