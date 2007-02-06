@@ -360,7 +360,7 @@ IcePy::tupleToStringSeq(PyObject* t, Ice::StringSeq& seq)
 {
     assert(PyTuple_Check(t));
 
-    int sz = PyTuple_GET_SIZE(t);
+    int sz = static_cast<int>(PyTuple_GET_SIZE(t));
     for(int i = 0; i < sz; ++i)
     {
         PyObject* item = PyTuple_GET_ITEM(t, i);

@@ -41,10 +41,12 @@ LINKWITH        = $(ICE_LIBS) $(PYTHON_LIBS) $(CXXLIBS)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) /export:initIcePy $(OBJS) \
+	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) \
 		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.pyd=.lib) $(LIBNAME)
-	-if exist $(DLLNAME).manifest mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2
+	-if exist $(DLLNAME).manifest \
+	   mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	-if exist $(DLLNAME:.pyd=.exp) del /q $(DLLNAME:.pyd=.exp)
 
 install:: all
 	copy $(DLLNAME) $(install_libdir)

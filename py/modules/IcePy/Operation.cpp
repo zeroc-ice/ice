@@ -1195,7 +1195,7 @@ void
 IcePy::OperationI::convertParams(PyObject* p, ParamInfoList& params, bool& usesClasses)
 {
     usesClasses = false;
-    int sz = PyTuple_GET_SIZE(p);
+    int sz = static_cast<int>(PyTuple_GET_SIZE(p));
     for(int i = 0; i < sz; ++i)
     {
         PyObject* item = PyTuple_GET_ITEM(p, i);

@@ -878,7 +878,7 @@ IcePy::SequenceInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Object
     }
 
     Py_ssize_t sz = PySequence_Fast_GET_SIZE(fastSeq.get());
-    os->writeSize(sz);
+    os->writeSize(static_cast<int>(sz));
     for(Py_ssize_t i = 0; i < sz; ++i)
     {
         PyObject* item = PySequence_Fast_GET_ITEM(fastSeq.get(), i);
@@ -1671,7 +1671,7 @@ IcePy::DictionaryInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
     }
 
     Py_ssize_t sz = PyDict_Size(p);
-    os->writeSize(sz);
+    os->writeSize(static_cast<int>(sz));
 
     Py_ssize_t pos = 0;
     PyObject* key;
