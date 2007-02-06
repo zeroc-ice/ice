@@ -71,7 +71,7 @@ CAPDBFLAGS      = /pdb:$(CALC:.exe=.pdb)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS) $(BZIP2_LIBS) $(OPENSSL_LIBS)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) $(BZIP2_LIBS) $(OPENSSL_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#2 & del /q $@.manifest

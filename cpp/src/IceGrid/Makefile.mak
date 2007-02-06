@@ -153,7 +153,7 @@ NPDBFLAGS       = /pdb:$(NODE_SERVER:.exe=.pdb)
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(LIB_OBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(LIB_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest

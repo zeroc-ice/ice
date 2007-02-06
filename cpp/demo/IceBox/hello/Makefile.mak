@@ -42,7 +42,7 @@ CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 $(LIBNAME) : $(DLLNAME)
 
 $(DLLNAME): $(OBJS) $(SOBJS)
-	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	-if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
 	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
