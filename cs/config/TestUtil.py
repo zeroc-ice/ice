@@ -293,12 +293,12 @@ if protocol == "ssl":
                            " --IceSSL.Password=password" + \
                            " --IceSSL.CheckCertName=0"
     serverProtocol       = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
+                           " --IceSSL.ImportCert.CurrentUser.Root=" + \
                                 os.path.join(toplevel, "certs", "cacert.pem") + \
                            " --IceSSL.CertFile=" + os.path.join(toplevel, "certs", "s_rsa1024.pfx") + \
                            " --IceSSL.Password=password"
     clientServerProtocol = plugin + " --Ice.Default.Protocol=ssl" + \
-                           " --IceSSL.ImportCert.LocalMachine.AuthRoot=" + \
+                           " --IceSSL.ImportCert.CurrentUser.Root=" + \
                                 os.path.join(toplevel, "certs", "cacert.pem") + \
                            " --IceSSL.CertFile=" + os.path.join(toplevel, "certs", "c_rsa1024.pfx") + \
                            " --IceSSL.Password=password" + \

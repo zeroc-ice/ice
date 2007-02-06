@@ -12,6 +12,7 @@
 //
 
 using System;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 internal class CertificateVerifierI : IceSSL.CertificateVerifier
@@ -125,7 +126,16 @@ public class AllTests
         X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
         X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
-        store.Open(OpenFlags.ReadWrite);
+        try
+        {
+            store.Open(OpenFlags.ReadWrite);
+        }
+        catch(CryptographicException)
+        {
+            Console.Out.WriteLine("This test requires administrator privileges.");
+            factory.shutdown();
+            return;
+        }
 
         try
         {

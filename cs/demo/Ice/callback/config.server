@@ -39,7 +39,7 @@ Ice.Warn.Connections=1
 #
 Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs
-IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
+IceSSL.ImportCert.CurrentUser.Root=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
 IceSSL.Password=password
 Ice.ThreadPerConnection=1

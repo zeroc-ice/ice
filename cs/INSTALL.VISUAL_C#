@@ -1,7 +1,7 @@
 Build instructions
 ------------------
 
-The code has been built and tested with:
+Ice for C# has been built and tested with:
 
 - Visual C# Express Version 8.0.50727.42 and .NET Framework Version
   2.0.50727.
@@ -9,29 +9,72 @@ The code has been built and tested with:
 - Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
   Version 2.0.50727.
 
-Unpack the archive. The sources will be contained in the 
-IceCS-@ver@ subdirectory.
+Unpack the archive. The sources will be contained in the IceCS-@ver@
+subdirectory.
 
 You will need the Slice to C# translator and supporting executables
-and libraries. You can download a binary distribution from the ZeroC
-web site, or you can build Ice for C++ yourself.
+and libraries from the Ice for C++ distribution. You can download a
+binary distribution from the ZeroC web site, or you can build Ice for
+C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 Make sure that the directory containing slice2cs is in your PATH. Note
 that icecpp.exe must be in your path as well, as must be the Ice for
 C++ run-time libraries iceutil and slice.
 
-To build the source:
+Follow these steps to build the source:
 
-- nmake /f Makefile.mak (Visual Studio and Visual Express)
+1) Set ICE_HOME to the directory of your Ice for C++ installation.
+   For example:
 
-- make (Mono)
+   > set ICE_HOME=C:\Ice-@ver@
 
-The demos can be built using the Visual Studio solution in
-the demo directory, or with make/nmake.
+2) Change to the top-level directory of the Ice for C# source
+   distribution.
+
+3) Open config\Make.rules.mak and review the comments that describe
+   the settings you can modify. For example, you may wish to enable
+   optimization.
+
+4) Run nmake or make:
+
+   > nmake /f Makefile.mak (Visual Studio and Visual C# Express)
+
+   > make (Mono)
+
+The tests and sample programs are built automatically. If you modify
+the source code of a sample program, you can rebuild it using nmake
+or make, or you can open the Visual Studio solution located in
+demo\demo.sln.
+
+
+SSL Notes
+---------
+
+The IceSSL plug-in is supported for Visual Studio and Visual C#
+Express.
+
+In order to use SSL with the tests and sample programs, an SSL
+certificate must be installed on your system. The configuration files
+handle this for you, but you will be presented with a confirmation
+dialog the first time you run a test or sample program.
+
+Once you are finished with the tests and sample programs, follow these
+steps to remove the certificate:
+
+1) Start Internet Explorer.
+
+2) Select Internet Options from the Tools menu.
+
+3) Select the Content tab and click the "Certificates" button.
+
+4) Select the Trusted Root Certification Authorities tab.
+
+5) Select the entry for "ZeroC Test CA", click the Remove button, and
+   confirm that you want to remove this certificate.
 
 
 Running the tests
@@ -39,7 +82,7 @@ Running the tests
 
 To run the tests, you will need Python:
 
-http://www.python.org/download
+  http://www.python.org/download
 
 Run "python allTests.py" from the top-level directory to run all of
 the tests, or "python allTests.py -l" to run the tests in an endless
