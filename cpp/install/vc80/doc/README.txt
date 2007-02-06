@@ -123,6 +123,29 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
+SSL Notes for the C# demos
+--------------------------
+
+In order to use SSL with the sample programs, an SSL certificate must
+be installed on your system. The configuration files handle this for
+you, but you will be presented with a confirmation dialog the first
+time you run a sample program.
+
+Once you are finished with the sample programs, follow these steps to
+remove the certificate:
+
+1) Start Internet Explorer.
+
+2) Select Internet Options from the Tools menu.
+
+3) Select the Content tab and click the "Certificates" button.
+
+4) Select the Trusted Root Certification Authorities tab.
+
+5) Select the entry for "ZeroC Test CA", click the Remove button, and
+   confirm that you want to remove this certificate.
+
+
 Building and running the Visual Basic demos
 -------------------------------------------
 
