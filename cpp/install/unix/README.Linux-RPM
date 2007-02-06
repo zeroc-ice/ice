@@ -21,19 +21,18 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is an RPM release of the Ice @ver@ runtime for
+This distribution is an RPM release of the Ice @ver@ run time for
 Linux and includes executables for the Ice services, HTML
 documentation, Slice files, and the C++ runtime libraries.
 
 Additional Ice components are provided in separate RPM packages:
 
-- Run time libraries for Java, Python, PHP, and C# (Mono). These
+- Run time libraries for Java, Python, PHP, Ruby and C# (Mono). These
   libraries enable you to execute Ice applications.
 
-- Development kits for C++, Java, Python, PHP, and C# (Mono). A
+- Development kits for C++, Java, Python, Ruby, and C# (Mono). A
   development kit is required for building Ice applications using a
-  supported language mapping. The development kits include examples
-  that demonstrate various Ice features.
+  supported language mapping.
 
 These RPMs are available for download at the ZeroC web site at
 
@@ -120,6 +119,18 @@ mono. For example,
 
 $ mono server.exe
 
+Ruby
+----
+
+To use Ice for Ruby, the RUBYLIB environment variable must be
+updated so that the interpreter can locate the Ruby extension.
+
+$ export RUBYLIB=/usr/lib/Ice-@ver@/ruby:$RUBYLIB
+
+On a x86_64 system, the Ruby Ice extension is installed in
+/usr/lib64/Ice-@ver@/ruby, so use instead:
+
+$ export RUBYLIB=/usr/lib64/Ice-@ver@/ruby:$RUBYLIB
 
 PHP
 ---
@@ -139,7 +150,7 @@ You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
-SELinux Notes:
+SELinux Notes (for Red Hat Enterprise Linux users):
 
 SELinux augments the traditional Unix permissions with a number of
 new features. In particular, SELinux can prevent the httpd daemon from

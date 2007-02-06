@@ -1,32 +1,56 @@
 Creating RPM packages for Ice
 =============================
 
-As well as being able to download prebuilt RPM packages, Ice now
-includes a sample RPM specification file that can be used to create
-your own RPMs. Using this specification file and the Ice source and
-demo distributions, you can create specialized RPMs with different
-compiler settings, custom component configurations or even a
-reorganized installation directory structure to suit your needs. You
-can also use the specification file to create your own source RPM
-package.
+Source RPM
+---------
 
-The sample specification file is for a complete set of Ice RPMs. In
-order to properly build all of these packages, you need the full set
-of system requirements for all of the packages. See each Ice
-distribution for specific package and version requirements for this
-version of Ice. In general you need:
+To create the Ice source RPM on Red Hat Linux, copy all the Ice 
+source distributions (.tar.gz files) to /usr/src/redhat/SOURCES,
+including Ice-rpmbuild-@ver@.tar.gz, and then run:
 
- * bzip2
- * openssl
- * expat
- * Berkeley DB
- * Berkeley DB Java
- * Mono
- * Python
- * Java Development Kit
+$ rmpbuild -bs ice.spec
 
-In order to build the RPMs, you need to download each source
-distribution and copy or move them to your system's RPM sources
-directory. For example, /usr/src/redhat/SOURCES.
+This will create the source Ice RPM in /usr/src/redhat/SRPMS.
 
-This RPM specification file was tested with RPM version 4.3.2.
+You can remove the ".redhat" from its name since the Ice source
+RPM is identical on Red Hat Linux and SuSE Linux.
+
+Binary packages on Red Hat Enterprise Linux
+-------------------------------------------
+
+First, install the source RPM:
+ 
+# rpm -i ice-@ver@-1.src.rpm 
+
+Then review the build requirements at the top of the ice.spec
+file.
+
+Finally, build the RPMs as a non-root user:
+
+$ cd /usr/src/redhat/SPECS
+$ rpmbuild -bb --target i386,noarch ice.spec
+
+On a x86_64 system, remove the --target option to build only x86_64
+RPMs.
+
+This creates binary RPMs in /usr/src/redhat/RPMS.
+
+Binary packages on SuSE Linux
+-----------------------------
+
+First, install the source RPM:
+ 
+# rpm -i ice-@ver@-1.src.rpm 
+
+Then review the build requirements at the top of the ice.spec
+file.
+
+Finally, build the RPMs as a non-root user:
+
+$ cd /usr/src/packages/SPECS
+$ rpmbuild -bb --target i586,noarch ice.spec
+
+On a x86_64 system, remove the --target option to build only x86_64
+RPMs.
+
+This creates binary RPMs in /usr/src/packages/RPMS.
