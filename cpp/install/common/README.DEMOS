@@ -206,6 +206,24 @@ desired demo directory, and run:
    $ python Client.py
 
 
+Running the Ruby demos
+======================
+
+Ice provides only client demos in Ruby since Ice for Ruby does not
+support server-side activities. In order to run a sample client, you
+must first start its corresponding server from another Ice language
+mapping, such as C++:
+
+   # for example in the /tmp/Ice-@ver@/demo/Ice/hello directory
+   $ server
+
+To run the client, open another terminal window, change to the
+corresponding demo directory, and run:
+
+   # for example in the /tmp/Ice-@ver@/demorb/Ice/hello directory
+   $ ruby Client.rb
+
+
 Running the PHP demos
 =====================
 
