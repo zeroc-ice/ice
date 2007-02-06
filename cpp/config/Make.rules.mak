@@ -11,7 +11,7 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			= C:\Ice-$(VERSION)
+prefix			= e:\Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with
@@ -49,7 +49,7 @@ TPH_EXT		= $(CPP_COMPILER)
 !endif
 
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
+THIRDPARTY_HOME		= E:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
 !endif
 
 # ----------------------------------------------------------------------

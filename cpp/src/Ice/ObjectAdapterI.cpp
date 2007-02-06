@@ -823,9 +823,14 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 
         if(_threadPerConnection)
         {
-            _threadPerConnectionStackSize =
+            int stackSize = 
                 properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".ThreadPerConnection.StackSize",
-                                                        _instance->threadPerConnectionStackSize());
+                                                        static_cast<Int>(_instance->threadPerConnectionStackSize()));
+            if(stackSize < 0)
+            {
+                stackSize = 0;
+            }
+            _threadPerConnectionStackSize = stackSize;
         }
 
         //

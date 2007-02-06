@@ -57,8 +57,8 @@ protected:
     void printLogo(const ContainedPtr&, const ContainerPtr&, bool);
 
     ::std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&, bool = true, bool = false,
-                           unsigned* = 0, bool = false);
-    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false, unsigned* = 0);
+                           size_t* = 0, bool = false);
+    ::std::string toString(const ::std::string&, const ContainerPtr&, bool = true, bool = false, size_t* = 0);
     ::std::string getComment(const ContainedPtr&, const ContainerPtr&, bool, bool = false);
 
     static ::std::string getAnchor(const SyntaxTreeBasePtr&);
@@ -70,8 +70,8 @@ protected:
 
     ::IceUtil::XMLOutput& _out;
 
-    static unsigned _indexCount;
-    static unsigned _warnSummary;
+    static size_t _indexCount;
+    static size_t _warnSummary;
 
 private:
 

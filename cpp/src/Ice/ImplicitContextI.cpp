@@ -508,12 +508,26 @@ PerThreadImplicitContext::clearThreadContext() const
         delete (*sv)[_index].context;
         (*sv)[_index].context = 0;
 
-        int i = sv->size() - 1;
-        while(i >= 0 && (*sv)[i].context == 0) 
+        //
+        // Trim tailing empty contexts.
+        //
+        size_t i = sv->size();
+
+        bool clear = true;
+        while(i != 0) 
         {
             i--;
+            if((*sv)[i].context != 0)
+            {
+                clear = false;
+                break;
+            }
         }
-        if(i < 0)
+
+        //
+        // If we did not find any contexts, delete the SlotVector.
+        //
+        if(clear)
         {
             delete sv;
 #ifdef _WIN32

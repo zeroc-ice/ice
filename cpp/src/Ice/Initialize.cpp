@@ -176,7 +176,7 @@ Ice::initialize(StringSeq& args, const InitializationData& initializationData, I
         // Make a dummy argc/argv.
         // (We can't use argsToStringSeq() because that requires an already initialized argv.)
         //
-        int argc = args.size();
+        int argc = static_cast<int>(args.size());
         origArgc = argc;
         argv = new char*[args.size() + 1];
         int i;

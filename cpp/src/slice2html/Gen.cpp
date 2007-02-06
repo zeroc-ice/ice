@@ -97,8 +97,8 @@ string Slice::GeneratorBase::_footer;
 string Slice::GeneratorBase::_imageDir;
 string Slice::GeneratorBase::_logoURL;
 string Slice::GeneratorBase::_searchAction;
-unsigned Slice::GeneratorBase::_indexCount = 0;
-unsigned Slice::GeneratorBase::_warnSummary = 0;
+size_t Slice::GeneratorBase::_indexCount = 0;
+size_t Slice::GeneratorBase::_warnSummary = 0;
 ContainedList Slice::GeneratorBase::_symbols;
 
 //
@@ -805,7 +805,7 @@ Slice::GeneratorBase::printLogo(const ContainedPtr& c, const ContainerPtr& conta
 
 string
 Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, bool asTarget, bool forIndex,
-                               unsigned* summarySize, bool shortName)
+                               size_t* summarySize, bool shortName)
 {
     string anchor;
     string linkpath;
@@ -989,7 +989,7 @@ Slice::GeneratorBase::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& c
 
 string
 Slice::GeneratorBase::toString(const string& str, const ContainerPtr& container, bool asTarget, bool forIndex,
-                               unsigned* summarySize)
+                               size_t* summarySize)
 {
     string s = str;
 
@@ -1016,7 +1016,7 @@ string
 Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerPtr& container,
                                  bool summary, bool forIndex)
 {
-    unsigned summarySize = 0;
+    size_t summarySize = 0;
     string s = contained->comment();
     string comment;
     for(unsigned int i = 0; i < s.size(); ++i)
@@ -1036,10 +1036,10 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
                 {
                     break;
                 }
-                
+
                 literal += s[i];
             }
-            unsigned sz = 0;
+            size_t sz = 0;
             comment += toString(literal, container, false, forIndex, summary ? &sz : 0);
             summarySize += sz;
         }
@@ -1059,7 +1059,7 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const ContainerP
     if(summary && _warnSummary && summarySize > _warnSummary)
     {
         cerr << contained->definitionContext()->filename() << ": summary size (" << summarySize << ") exceeds "
-             << _warnSummary << " characters: `" << comment << "'" << endl;
+            << _warnSummary << " characters: `" << comment << "'" << endl;
     }
 
     return comment;
