@@ -2119,8 +2119,43 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixId(p->name());
 
+    DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
+
+    vector<string> allParamDecl;
+    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+        string memberType = typeToString((*q)->type());
+        allParamDecl.push_back("ByVal " + memberName + " As " + memberType);
+    }
+
+    vector<string> paramNames;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        paramNames.push_back(fixId((*q)->name()));
+    }
+
+    vector<string> paramDecl;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+        string memberType = typeToString((*q)->type());
+        paramDecl.push_back("ByVal " + memberName + " As " + memberType);
+    }
+
+    vector<string> baseParamNames;
+    DataMemberList baseDataMembers;
+
+    if(p->base())
+    {
+        baseDataMembers = p->base()->allDataMembers();
+        for(q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        {
+            baseParamNames.push_back(fixId((*q)->name()));
+        }
+    }
 
     if(!dataMembers.empty())
     {
@@ -2133,32 +2168,64 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sp << nl << "#Region \"Constructors\"";
     _out.restoreIndent();
 
-    _out << sp << nl << "Private Shared ReadOnly _dflt As String = \"" << p->name() << "\"";
-
     _out << sp << nl << "Public Sub New()";
     _out.inc();
     _out << nl << "MyBase.New()";
     _out.dec();
     _out << nl << "End Sub";
 
-    _out << sp << nl << "Public Sub New(ByVal m__ As String)";
-    _out.inc();
-    _out << nl << "MyBase.New(m__)";
-    _out.dec();
-    _out << nl << "End Sub";
-
     _out << sp << nl << "Public Sub New(ByVal ex__ As _System.Exception)";
     _out.inc();
-    _out << nl << "MyBase.New(_dflt, ex__)";
+    _out << nl << "MyBase.New(ex__)";
     _out.dec();
     _out << nl << "End Sub";
 
-    _out << sp << nl << "Public Sub New(ByVal m__ As String, ByVal ex__ As _System.Exception)";
-    _out.inc();
-    _out << nl << "MyBase.New(m__, ex__)";
-    _out.dec();
-    _out << nl << "End Sub";
+    if(!allDataMembers.empty())
+    {
+        if(!dataMembers.empty())
+        {
+            _out << sp << nl << "Private Sub initDM__" << spar << paramDecl << epar;
+            _out.inc();
+            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                _out << nl << "Me." << fixId((*q)->name()) << " = " << fixId((*q)->name());
+            }
+            _out.dec();
+            _out << nl << "End Sub";
+        }
 
+        _out << sp << nl << "Public Sub New" << spar << allParamDecl << epar;
+        if(p->base() && allDataMembers.size() != dataMembers.size())
+        {
+            _out << " : base" << spar << baseParamNames << epar;
+        }
+        _out.inc();
+        if(!dataMembers.empty())
+        {
+            _out << nl << "initDM__" << spar << paramNames << epar;
+        }
+        _out.dec();
+        _out << nl << "End Sub";
+
+        vector<string> exceptionParam;
+        exceptionParam.push_back("ex__");
+        vector<string> exceptionDecl;
+        exceptionDecl.push_back("ByVal ex__ As _System.Exception");
+        _out << sp << nl << "Public Sub New" << spar << allParamDecl << exceptionDecl << epar;
+        _out.inc();
+        _out << nl << "MyBase.New" << spar;
+        if(p->base() && allDataMembers.size() != dataMembers.size())
+        {
+            _out << baseParamNames;
+        }
+        _out << exceptionParam << epar;
+        if(!dataMembers.empty())
+        {
+            _out << nl << "initDM__" << spar << paramNames << epar;
+        }
+        _out.dec();
+        _out << nl << "End Sub";
+    }
     _out.zeroIndent();
     _out << sp << nl << "#End Region"; // Constructors
 
