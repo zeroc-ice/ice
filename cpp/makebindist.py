@@ -998,6 +998,7 @@ def main():
         # Package up demo distribution.
         #
         toCollect = list(sourceTarBalls)
+        toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
         for cvs, tarball, demoDir in toCollect:
             extractDemos(sources, buildDir, version, tarball, demoDir)
             shutil.copy("%s/common/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
