@@ -50,6 +50,11 @@ TPH_EXT		= $(CPP_COMPILER)
 
 !if "$(THIRDPARTY_HOME)" == ""
 THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
+
+!if "$(AS)" == "ml64"
+THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
+!endif
+
 !endif
 
 #
