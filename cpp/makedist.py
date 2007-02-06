@@ -254,7 +254,7 @@ if verbose:
 else:
     quiet = ""
 os.system("tar c" + quiet + "f " + rpmbuildver + ".tar " +
-          "-C ice/install -C rpm {icegridregistry,icegridnode,glacier2router}.{conf,suse,redhat} " +
+          "-C ice/install -C rpm {icegridregistry,icegridnode,glacier2router}.{conf,suse,redhat} README.RPM " +
           "-C ../unix THIRD_PARTY_LICENSE.Linux README.Linux-RPM SOURCES.Linux " +
           "-C ../thirdparty/php ice.ini")
 os.system("gzip -9 " + rpmbuildver + ".tar")
