@@ -113,7 +113,7 @@ namespace Ice
                             }
                             catch(TimeoutException)
                             {
-                                throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+                                throw new ConnectTimeoutException();
                             }
                         }
                     }
@@ -129,7 +129,7 @@ namespace Ice
                         }
                         catch(TimeoutException)
                         {
-                            throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+                            throw new ConnectTimeoutException();
                         }
                         Debug.Assert(ins.pos() == IceInternal.Protocol.headerSize);
                         ins.pos(0);

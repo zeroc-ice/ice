@@ -54,9 +54,8 @@ namespace IceInternal
             {
                 Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException(
                         "unexpected class instance of type `" + v.ice_id()
-                        + "'; expected instance of type '" + _expectedSliceType + "'");
-                ex.type = v.ice_id();
-                ex.expectedType = _expectedSliceType;
+                            + "'; expected instance of type '" + _expectedSliceType + "'",
+                        v.ice_id(), _expectedSliceType);
             }
             value = v;
         }

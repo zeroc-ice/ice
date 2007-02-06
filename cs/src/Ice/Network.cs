@@ -149,7 +149,7 @@ namespace IceInternal
             }
             catch(SocketException ex)
             {
-                throw new Ice.SocketException("Cannot create socket", ex);
+                throw new Ice.SocketException(ex);
             }
 
             if(!udp)
@@ -162,7 +162,7 @@ namespace IceInternal
                 catch(SocketException ex)
                 {
                     closeSocketNoThrow(socket);
-                    throw new Ice.SocketException("Cannot set socket options", ex);
+                    throw new Ice.SocketException(ex);
                 }
             }
             return socket;
@@ -196,7 +196,7 @@ namespace IceInternal
             }
             catch(SocketException ex)
             {
-                throw new Ice.SocketException("Cannot close socket", ex);
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -222,7 +222,7 @@ namespace IceInternal
             catch(System.Exception ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot set NoDelay option", ex);
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -235,7 +235,7 @@ namespace IceInternal
             catch(System.Exception ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot set KeepAlive option", ex);
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -248,7 +248,7 @@ namespace IceInternal
             catch(SocketException ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot set send buffer size", ex);
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -262,7 +262,7 @@ namespace IceInternal
             catch(SocketException ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot read send buffer size", ex);
+                throw new Ice.SocketException(ex);
             }
             return sz;
         }
@@ -276,7 +276,7 @@ namespace IceInternal
             catch(SocketException ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot set receive buffer size", ex);
+                throw new Ice.SocketException(ex);
             }
         }
 
@@ -290,7 +290,7 @@ namespace IceInternal
             catch(SocketException ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot read receive buffer size", ex);
+                throw new Ice.SocketException(ex);
             }
             return sz;
         }
@@ -309,7 +309,7 @@ namespace IceInternal
             catch(SocketException ex)
             {
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot bind", ex);
+                throw new Ice.SocketException(ex);
             }
         }
         
@@ -329,7 +329,7 @@ namespace IceInternal
                 }
 
                 closeSocketNoThrow(socket);
-                throw new Ice.SocketException("Cannot listen", ex);
+                throw new Ice.SocketException(ex);
             }
         }
         
@@ -385,11 +385,11 @@ namespace IceInternal
                     //
                     if(connectionRefused(ex))
                     {
-                        throw new Ice.ConnectionRefusedException("Connect refused", ex);
+                        throw new Ice.ConnectionRefusedException(ex);
                     }
                     else if(connectFailed(ex))
                     {
-                        throw new Ice.ConnectFailedException("Connection failed", ex);
+                        throw new Ice.ConnectFailedException(ex);
                     }
                     else
                     {
@@ -427,11 +427,11 @@ namespace IceInternal
                         Win32Exception sockEx = new Win32Exception(val);
                         if(connectionRefused(sockEx))
                         {
-                            throw new Ice.ConnectionRefusedException("Connect refused", sockEx);
+                            throw new Ice.ConnectionRefusedException(sockEx);
                         }
                         else if(connectFailed(sockEx))
                         {
-                            throw new Ice.ConnectFailedException("Connect failed", sockEx);
+                            throw new Ice.ConnectFailedException(sockEx);
                         }
                         else
                         {
@@ -462,11 +462,11 @@ namespace IceInternal
                     //
                     if(error)
                     {
-                        throw new Ice.ConnectFailedException("Connect failed");
+                        throw new Ice.ConnectFailedException();
                     }
                     else
                     {
-                        throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+                        throw new Ice.ConnectTimeoutException();
                     }
                 }
             }
@@ -529,7 +529,7 @@ namespace IceInternal
                     {
                         if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
                         {
-                            throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+                            throw new Ice.ConnectTimeoutException();
                         }
                     }
                     if(info.ex != null)
@@ -553,11 +553,11 @@ namespace IceInternal
                 //
                 if(connectionRefused(ex))
                 {
-                    throw new Ice.ConnectionRefusedException("Connect refused", ex);
+                    throw new Ice.ConnectionRefusedException(ex);
                 }
                 else if(connectFailed(ex))
                 {
-                    throw new Ice.ConnectFailedException("Connection failed", ex);
+                    throw new Ice.ConnectFailedException(ex);
                 }
                 else
                 {
@@ -596,11 +596,11 @@ namespace IceInternal
                         {
                             goto repeatSelect;
                         }
-                        throw new Ice.SocketException("select failed", we);
+                        throw new Ice.SocketException(we);
                     }
                     catch(System.Exception se)
                     {
-                        throw new Ice.SocketException("select failed", se);
+                        throw new Ice.SocketException(se);
                     }
 
                     if(readList.Count == 0)
@@ -761,13 +761,13 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
+                Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = host;
                 throw e;
             }
             catch(System.Exception ex)
             {
-                Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
+                Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = host;
                 throw e;
             }
@@ -775,7 +775,7 @@ namespace IceInternal
             //
             // No InterNetworkV4 address available.
             //
-            Ice.DNSException dns = new Ice.DNSException("no IPv4 addresses found ");
+            Ice.DNSException dns = new Ice.DNSException();
             dns.host = host;
             throw dns;
         }
@@ -802,13 +802,13 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
+                Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = hostname;
                 throw e;
             }
             catch(System.Exception ex)
             {
-                Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
+                Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = hostname;
                 throw e;
             }
@@ -816,7 +816,7 @@ namespace IceInternal
             //
             // No InterNetworkV4 address available.
             //
-            Ice.DNSException dns = new Ice.DNSException("no IPv4 addresses found");
+            Ice.DNSException dns = new Ice.DNSException();
             dns.host = hostname;
             throw dns;
         }
@@ -847,13 +847,13 @@ namespace IceInternal
                 {
                     goto repeatGetHostByName;
                 }
-                Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
+                Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = "0.0.0.0";
                 throw e;
             }
             catch(System.Exception ex)
             {
-                Ice.DNSException e = new Ice.DNSException("address lookup failed", ex);
+                Ice.DNSException e = new Ice.DNSException(ex);
                 e.host = "0.0.0.0";
                 throw e;
             }
@@ -959,7 +959,7 @@ namespace IceInternal
 
                 if(getsockname(socket.Handle, ref addr, ref addrLen) != 0)
                 {
-                    throw new Ice.SyscallException("getsockname call failed");
+                    throw new Ice.SyscallException();
                 }
                 string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
                 int port = ntohs(addr.sin_port);

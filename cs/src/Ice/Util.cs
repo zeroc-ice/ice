@@ -251,7 +251,7 @@ namespace Ice
                 rc = UuidCreate(ref uuid);
                 if(rc != RPC_S_OK && rc != RPC_S_UUID_LOCAL_ONLY)
                 {
-                    Ice.SyscallException ex = new Ice.SyscallException("UuidCreate() failed");
+                    Ice.SyscallException ex = new Ice.SyscallException();
                     ex.error = rc;
                     throw ex;
                 }
@@ -269,7 +269,7 @@ namespace Ice
                     }
                     default:
                     {
-                        Ice.SyscallException ex = new Ice.SyscallException("UuidToString() failed");
+                        Ice.SyscallException ex = new Ice.SyscallException();
                         ex.error = rc;
                         throw ex;
                     }
@@ -285,7 +285,7 @@ namespace Ice
                 }
                 if((rc = RpcStringFree(ref str)) != RPC_S_OK)
                 {
-                    Ice.SyscallException ex = new Ice.SyscallException("Cannot deallocate UUID");
+                    Ice.SyscallException ex = new Ice.SyscallException();
                     ex.error = rc;
                     throw ex;
                 }

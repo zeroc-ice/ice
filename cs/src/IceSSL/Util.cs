@@ -65,21 +65,11 @@ namespace IceSSL
 
         #region Constructors
 
-        private static readonly string _dflt = "ConnectionInvalidException";
-
-        public ConnectionInvalidException() : base(_dflt)
+        public ConnectionInvalidException()
         {
         }
 
-        public ConnectionInvalidException(string m__) : base(m__)
-        {
-        }
-
-        public ConnectionInvalidException(System.Exception ex__) : base(_dflt, ex__)
-        {
-        }
-
-        public ConnectionInvalidException(string m__, System.Exception ex__) : base(m__, ex__)
+        public ConnectionInvalidException(System.Exception ex__) : base(ex__)
         {
         }
 

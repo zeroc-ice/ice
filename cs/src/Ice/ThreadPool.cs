@@ -285,7 +285,7 @@ namespace IceInternal
                 {
                     goto repeat;
                 }
-                throw new Ice.SocketException("Could not read from interrupt socket", ex);
+                throw new Ice.SocketException(ex);
             }
         }
         
@@ -319,7 +319,7 @@ namespace IceInternal
                 {
                     goto repeat;
                 }
-                throw new Ice.SocketException("Could not write to interrupt socket", ex);
+                throw new Ice.SocketException(ex);
             }
         }
 

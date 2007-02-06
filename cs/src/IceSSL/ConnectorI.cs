@@ -68,8 +68,7 @@ namespace IceSSL
                     {
                         if(!Monitor.Wait(info, timeout == -1 ? Timeout.Infinite : timeout))
                         {
-                            throw new Ice.ConnectTimeoutException("SSL authentication timed out after " + timeout +
-                                                                  " msec");
+                            throw new Ice.ConnectTimeoutException();
                         }
                     }
                     if(info.ex != null)

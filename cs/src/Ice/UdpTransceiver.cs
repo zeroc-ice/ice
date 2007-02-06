@@ -271,11 +271,11 @@ namespace IceInternal
                             {
                                 goto repeatPoll;
                             }
-                            throw new Ice.SocketException("poll failed", we);
+                            throw new Ice.SocketException(we);
                         }
                         catch(System.Exception se)
                         {
-                            throw new Ice.SyscallException("poll failed", se);
+                            throw new Ice.SyscallException(se);
                         }
 
                         goto repeat;

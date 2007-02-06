@@ -15,9 +15,7 @@ namespace Ice
     public abstract class Exception : System.ApplicationException
     {
         public Exception() {}
-        public Exception(string msg) : base(msg) {}
-        public Exception(System.Exception ex) : base(_dflt, ex) {}
-        public Exception(string msg, System.Exception ex) : base(msg, ex) {}
+        public Exception(System.Exception ex) : base("", ex) {}
         public override string ToString()
         {
             //
@@ -52,25 +50,18 @@ namespace Ice
 
             return sw.ToString();
         }
-        private static readonly string _dflt = "Ice.Exception";
     }
 
     public abstract class LocalException : Exception
     {
         public LocalException() {}
-        public LocalException(string msg) : base(msg) {}
-        public LocalException(System.Exception ex) : base(_dflt, ex) {}
-        public LocalException(string msg, System.Exception ex) : base(msg, ex) {}
-        private static readonly string _dflt = "Ice.LocalException";
+        public LocalException(System.Exception ex) : base(ex) {}
     }
 
     public abstract class UserException : Exception
     {
         public UserException() {}
-        public UserException(string msg) : base(msg) {}
-        public UserException(System.Exception ex) : base(_dflt, ex) {}
-        public UserException(string msg, System.Exception ex) : base(msg, ex) {}
-        private static readonly string _dflt = "Ice.UserException";
+        public UserException(System.Exception ex) : base(ex) {}
         public abstract void write__(IceInternal.BasicStream os__);
         public abstract void read__(IceInternal.BasicStream is__, bool rid__);
 

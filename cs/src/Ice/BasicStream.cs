@@ -1215,7 +1215,7 @@ namespace IceInternal
                 if(id == Ice.ObjectImpl.ice_staticId())
                 {
                     Ice.NoObjectFactoryException ex
-                        = new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract");
+                        = new Ice.NoObjectFactoryException();
                     ex.type = mostDerivedId;
                     throw ex;
                 }
