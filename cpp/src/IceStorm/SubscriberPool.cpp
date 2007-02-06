@@ -167,7 +167,8 @@ SubscriberPool::SubscriberPool(const InstancePtr& instance) :
     // 10 * the stall timeout.
     _stallCheck(_timeout * 10),
     _destroyed(false),
-    _reap(0)
+    _reap(0),
+    _inUse(0)
 {
     try
     {

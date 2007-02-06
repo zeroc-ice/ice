@@ -832,6 +832,10 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             }
             _threadPerConnectionStackSize = stackSize;
         }
+        else
+        {
+            _threadPerConnectionStackSize = 0;
+        }
 
         //
         // Create the per-adapter thread pool, if necessary. This is done before the creation of the incoming
