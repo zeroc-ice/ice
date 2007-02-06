@@ -83,7 +83,7 @@ $(DLLNAME): $(OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
 	-if exist $(DLLNAME).manifest \
-	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
 	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SVCLIBNAME): $(SVCDLLNAME)
@@ -92,14 +92,13 @@ $(SVCDLLNAME): $(SERVICE_OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(SPDBFLAGS) $(SERVICE_OBJS) $(PREOUT)$(SVCDLLNAME) $(PRELIBS)$(LINKWITH)
 	move $(SVCDLLNAME:.dll=.lib) $(SVCLIBNAME)
 	-if exist $(SVCDLLNAME).manifest \
-	    mt -nologo -manifest $(SVCDLLNAME).manifest -outputresource:$(SVCDLLNAME);#2 & del /q $(SVCDLLNAME).manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
 	-if exist $(SVCDLLNAME:.dll=.exp) del /q $(SVCDLLNAME:.dll=.exp)
 
 $(ADMIN): $(AOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 	-if exist $(ADMIN).manifest \
-	    mt -nologo -manifest $(ADMIN).manifest -outputresource:$(ADMIN);#1 & del /q $(ADMIN).manifest
-	-if exist $(ADMIN:.exe=.exp) del /q $(ADMIN:.exe=.exp)
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 ..\IceStorm\PersistentTopicMap.h PersistentTopicMap.cpp: ..\IceStorm\LinkRecord.ice $(slicedir)\Ice\Identity.ice $(SLICE2FREEZE)
 	del /q PersistentTopicMap.h PersistentTopicMap.cpp

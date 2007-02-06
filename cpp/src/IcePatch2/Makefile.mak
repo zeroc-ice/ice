@@ -73,27 +73,24 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$(DLLNAME) $(PRELIBS)$(LIBS) $(BZIP2_LIBS) $(OPENSSL_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	-if exist $(DLLNAME).manifest \
-	    mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#2 & del /q $@.manifest
 	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
-	-if exist $(SERVER).manifest \
-	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
-	-if exist $(SERVER:.exe=.exp) del /q $(SERVER:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(CLIENT): $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
-	-if exist $(CLIENT).manifest \
-	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
-	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(CALC): $(CALCOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CAPDBFLAGS) $(CALCOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icepatch2$(LIBSUFFIX).lib
-	-if exist $(CALC).manifest \
-	    mt -nologo -manifest $(CALC).manifest -outputresource:$(CALC);#1 & del /q $(CALC).manifest
-	-if exist $(CALC:.exe=.exp) del /q $(CALC:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest security.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 !ifdef BUILD_UTILS
 

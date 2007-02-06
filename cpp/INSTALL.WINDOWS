@@ -71,6 +71,9 @@ For example:
 @SET INCLUDE=%PDK_HOME%\include;%INCLUDE%
 @SET LIB=%PDK_HOME%\lib;%LIB%
 
+It is required to set the PDK_HOME environment variable correctly in
+order to build Ice from source. Note that the PDK_HOME environment
+variable must not have a trailing \.
 
 NMAKE
 -----

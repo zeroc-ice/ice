@@ -42,22 +42,19 @@ SSPDBFLAGS       = /pdb:$(SESSION_SERVER:.exe=.pdb)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
-	-if exist $(CLIENT).manifest \
-	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
-	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $(SERVER).manifest \
-	    mt -nologo -manifest $(SERVER).manifest -outputresource:$(SERVER);#1 & del /q $(SERVER).manifest
-	-if exist $(SERVER:.exe=.exp) del /q $(SERVER:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(SESSION_SERVER): $(SSOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SSPDBFLAGS) $(SSOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) glacier2$(LIBSUFFIX).lib
-	-if exist $(SESSION_SERVER).manifest \
-	    mt -nologo -manifest $(SESSION_SERVER).manifest -outputresource:$(SESSION_SERVER);#1 & \
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 	    del /q $(SESSION_SERVER).manifest
-	-if exist $(SESSION_SERVER:.exe=.exp) del /q $(SESSION_SERVER:.exe=.exp)
 
 clean::
 	del /q Callback.cpp Callback.h

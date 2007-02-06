@@ -37,9 +37,8 @@ prefix.obj: prefix.c
 
 $(NAME): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
-	-if exist $(NAME).manifest \
-	    mt -nologo -manifest $(NAME).manifest -outputresource:$(NAME);#1 & del /q $(NAME).manifest
-	-if exist $(NAME:.exe=.exp) del /q $(NAME:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 install:: all
 	copy $(NAME) $(install_bindir)

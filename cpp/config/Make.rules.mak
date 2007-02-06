@@ -49,7 +49,25 @@ TPH_EXT		= $(CPP_COMPILER)
 !endif
 
 !if "$(THIRDPARTY_HOME)" == ""
-THIRDPARTY_HOME		= E:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
+THIRDPARTY_HOME		= C:\Ice-$(VERSION)-ThirdParty-$(TPH_EXT)
+!endif
+
+#
+# For VC80 and VC8 express its necessary to set the location of the
+# manifest tool. This must be the 6.x version of MT, not the 5.x
+# version!
+#
+# For VC80 this is in the Common7/Tools directory. This location is
+# set through the standard VC8 environment variable VC80COMNTOOLS.
+#
+# For VC8 express this means using the version in the platform SDK. It
+# is necessary to set the location of the platform sdk through the
+# PDK_HOME variable (see INSTALL.WINDOWS for details).
+#
+!if "$(CPP_COMPILER)" == "VC80"
+MT = "$(VS80COMNTOOLS)bin\mt.exe"
+!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
+MT = "$(PDK_HOME)\bin\mt.exe"
 !endif
 
 # ----------------------------------------------------------------------

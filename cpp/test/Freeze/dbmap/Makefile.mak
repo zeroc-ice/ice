@@ -32,9 +32,8 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 
 $(CLIENT): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
-	-if exist $(CLIENT).manifest \
-	    mt -nologo -manifest $(CLIENT).manifest -outputresource:$(CLIENT);#1 & del /q $(CLIENT).manifest
-	-if exist $(CLIENT:.exe=.exp) del /q $(CLIENT:.exe=.exp)
+	-if exist $@.manifest \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
 	del /q ByteIntMap.h ByteIntMap.cpp
