@@ -593,6 +593,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
         #
         runprog('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
         runprog('find ' + installDir + '/ant  -name "*.java" | xargs rm')
+        runprog('cp -pR ' + buildDir + '/' + distro + '/resources/IceGridAdmin ' + installDir + '/doc')
         destDir = os.path.join(installDir, 'config')
         if not os.path.exists(destDir):
             os.mkdir(destDir)
@@ -965,18 +966,15 @@ def main():
             if os.system('which ruby 2>/dev/null') == 0:
                 sourceTarBalls.append(('icerb', 'IceRuby-%s' % version, 'rb'))
         
-        os.environ['ICE_HOME'] = installDir + '/Ice-' + version
+        os.environ['ICE_HOME'] = buildDir + '/Ice-' + version
         currentLibraryPath = None
         try:
             currentLibraryPath = os.environ[dylibEnvironmentVar] 
         except KeyError:
             currentLibraryPath = ''
 
-        #
-        # TODO: Would be better to add lib64 only for 64-bit builds
-        #
-        os.environ[dylibEnvironmentVar] = installDir + '/Ice-' + version + '/lib64:' + installDir + '/Ice-' + version + '/lib:' + currentLibraryPath
-        os.environ['PATH'] = installDir + '/Ice-' + version + '/bin:' + os.environ['PATH']
+        os.environ[dylibEnvironmentVar] = buildDir + '/Ice-' + version + '/lib:' + currentLibraryPath
+        os.environ['PATH'] = buildDir + '/Ice-' + version + '/bin:' + os.environ['PATH']
 
         #
         # Collect all of the distributions first. This prevents having
@@ -1014,12 +1012,12 @@ def main():
             makeInstall(sources, buildDir, "%s/Ice-%s" % (installDir, version), tarball, clean, version, mmVersion)         
 
         #
-        # XXX- put java5 Ice.jar in place!
+        # Put the Java2 jar in its directory
         #
         prevDir = os.getcwd()
         os.chdir("%s/Ice-%s/lib" % (installDir, version))
-        os.mkdir("java5")       
-        os.chdir("java5")
+        os.mkdir("java2")
+        shutil.move("Ice.jar", "java2/Ice.jar")
         os.system("gzip -dc %s/IceJ-%s-java5.tar.gz | tar xf - IceJ-%s-java5/lib/Ice.jar" % (sources, version, version))
         shutil.move("IceJ-%s-java5/lib/Ice.jar" % version, "Ice.jar")
         shutil.rmtree("IceJ-%s-java5" % version)
@@ -1054,6 +1052,7 @@ def main():
                 shutil.copy('lib/Ice.jar', installDir +'/Ice-' + version + '/lib')
                 shutil.copy('lib/IceGridGUI.jar', installDir +'/Ice-' + version + '/lib')
                 runprog('cp -pR ant ' + installDir + '/Ice-' + version)
+                runprog('cp -pR resources/IceGridAdmin ' + installDir + '/Ice-' + version + 'doc')
                 runprog('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
             else:
                 runprog('gmake prefix=' + installDir + '/Ice-' + version + ' install')
