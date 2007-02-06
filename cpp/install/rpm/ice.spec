@@ -1,5 +1,3 @@
-%define _unpackaged_files_terminate_build 0
-
 %if "%{_target_cpu}" != "noarch" && "%{_vendor}" == "redhat"
 %define ruby_included 1
 %else
@@ -81,27 +79,18 @@ plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
 solution, and much more.
 %prep
 
-#
-# The Ice make system does not allow the prefix directory to be specified
-# through an environment variable or a command line option.  So we edit some
-# files in place with sed.
-#
 
 #
 # C++, Java2 and C# are needed for any arch
 #
 %setup -n Ice-%{version} -q -T -D -b 0
-sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/Ice-%{version}/config/Make.rules
-
 %setup -q -n IceJ-%{version}-java2 -T -D -b 1
-
 %setup -q -n IceCS-%{version} -T -D -b 3
 
 %ifarch noarch
 #
 # We only build C# for noarch
 #
-sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
 %endif
 
@@ -110,17 +99,12 @@ sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/conf
 # There is no noarch python, php or ruby RPM
 #
 %setup -q -n IcePy-%{version} -T -D -b 2
-sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePy-%{version}/config/Make.rules
-
 %setup -q -n IcePHP-%{version} -T -D -b 5 
-sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IcePHP-%{version}/config/Make.rules
-
 %setup -c -q -n Ice-rpmbuild-%{version} -T -D -b 6
 %endif
 
 %if %{ruby_included}
 %setup -q -n IceRuby-%{version} -T -D -b 7
-sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceRuby-%{version}/config/Make.rules
 %endif
 
 %ifarch noarch
@@ -136,19 +120,19 @@ sed -i -e 's/^prefix.*$/prefix = $\(RPM_BUILD_ROOT\)/' $RPM_BUILD_DIR/IceRuby-%{
 # We need the slice2xxx translators all the time
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/src
-gmake OPTIMIZE=yes RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+gmake OPTIMIZE=yes prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 
 cd $RPM_BUILD_DIR/IcePHP-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 %endif
 
 %if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
 %endif
 
 %ifarch noarch
@@ -172,14 +156,14 @@ fi
 
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+gmake prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 rm $RPM_BUILD_ROOT/bin/slice2vb
 
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
 cd $RPM_BUILD_DIR/IcePHP-%{version}
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
+gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
 
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
@@ -217,7 +201,7 @@ done
 
 %if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 %else
 rm -f  $RPM_BUILD_ROOT/bin/slice2rb
 %endif
@@ -231,7 +215,7 @@ cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/java2
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT install
+gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
 
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
 do 
@@ -662,11 +646,6 @@ pklibdir="lib"
 %ifarch x86_64
 pklibdir="lib64"
 %endif
-
-for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs;
-do
-    sed -i.bak -e "s/^mono_root.*$/mono_root = \/usr/" /usr/$pklibdir/pkgconfig/$f.pc ; 
-done
         
 %endif
 %postun csharp-devel
@@ -696,6 +675,7 @@ done
 %files python
 %defattr(644, root, root, 755)
 
+%dir /usr/%{icelibdir}/Ice-%{version}
 /usr/%{icelibdir}/Ice-%{version}/python
 
 
@@ -724,6 +704,7 @@ done
 %files ruby
 %defattr(644, root, root, 755)
 
+%dir /usr/%{icelibdir}/Ice-%{version}
 /usr/%{icelibdir}/Ice-%{version}/ruby
 
 
