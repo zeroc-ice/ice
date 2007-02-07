@@ -8,7 +8,10 @@ To create the Ice source RPM on Red Hat Linux, copy all the Ice
 source distributions (.tar.gz files) to /usr/src/redhat/SOURCES,
 including Ice-rpmbuild-@ver@.tar.gz, and then run:
 
-$ rmpbuild -bs ice.spec
+$ rmpbuild -bs --sign ice.spec
+
+Remove the --sign option if you do not want to sign the RPMs,
+or you do not have a GNU PG key setup.
 
 This will create the source Ice RPM in /usr/src/redhat/SRPMS.
 
@@ -20,7 +23,7 @@ Binary packages on Red Hat Enterprise Linux
 
 First, install the source RPM:
  
-# rpm -i ice-@ver@-1.src.rpm 
+$ rpm -i ice-@ver@-1.src.rpm 
 
 Then review the build requirements at the top of the ice.spec
 file.
@@ -28,7 +31,10 @@ file.
 Finally, build the RPMs as a non-root user:
 
 $ cd /usr/src/redhat/SPECS
-$ rpmbuild -bb --target i386,noarch ice.spec
+$ rpmbuild -bb --sign --target i386,noarch ice.spec
+
+Remove the --sign option if you do not want to sign the RPMs,
+or you do not have a GNU PG key setup.
 
 On a x86_64 system, remove the --target option to build only x86_64
 RPMs.
@@ -48,9 +54,15 @@ file.
 Finally, build the RPMs as a non-root user:
 
 $ cd /usr/src/packages/SPECS
-$ rpmbuild -bb --target i586,noarch ice.spec
+$ rpmbuild -bb --sign --target i586,noarch ice.spec
+
+Remove the --sign option if you do not want to sign the RPMs,
+or you do not have a GNU PG key setup.
 
 On a x86_64 system, remove the --target option to build only x86_64
 RPMs.
 
 This creates binary RPMs in /usr/src/packages/RPMS.
+
+
+
