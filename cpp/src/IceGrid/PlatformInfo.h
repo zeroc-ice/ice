@@ -23,7 +23,6 @@ namespace IceGrid
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-
 NodeInfo toNodeInfo(const InternalNodeInfoPtr&);
 RegistryInfo toRegistryInfo(const InternalReplicaInfoPtr&);
 
@@ -64,6 +63,7 @@ private:
     std::string _endpoints;
 
 #if defined(_WIN32)
+    bool _initQuery;
     HQUERY _query;
     HCOUNTER _counter;
     std::deque<int> _usages1;

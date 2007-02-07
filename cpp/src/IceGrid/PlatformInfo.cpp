@@ -38,34 +38,38 @@
 using namespace std;
 using namespace IceGrid;
 
-
-namespace IceGrid
+namespace
 {
 
 #ifdef _WIN32
 static string
-getLocalizedPerfName(const map<string, string>& perfNames, const string& name)
+getLocalizedPerfName(const Ice::LoggerPtr& logger, int idx)
 {
-    unsigned long idx;
-    map<string, string>::const_iterator p = perfNames.find(name);
-    if(p == perfNames.end())
-    {
-        return "";
-    }
-    istringstream is(p->second);
-    is >> idx;
-    
     vector<char> localized;
     unsigned long size = 256;
     localized.resize(size);
-    while(PdhLookupPerfNameByIndex(0, idx, &localized[0], &size) == PDH_MORE_DATA)
+    PDH_STATUS err;
+    while((err = PdhLookupPerfNameByIndex(0, idx, &localized[0], &size)) == PDH_MORE_DATA)
     {
         size += 256;
         localized.resize(size);
     }
+    if(err != ERROR_SUCCESS)
+    {
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+        Ice::Warning out(logger);
+        out << "pdhLookupPerfNameByIndex: " << ex;
+        return "";
+    }
     return string(&localized[0]);
 }
 #endif
+
+}
+
+namespace IceGrid
+{
 
 RegistryInfo
 toRegistryInfo(const InternalReplicaInfoPtr& replica)
@@ -111,6 +115,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     // the "WMI Windows Adapter" service (which can't be started
     // because the SCM is locked...).
     //
+    _initQuery = false;
     _query = NULL;
     _counter = NULL;
     _usages1.insert(_usages1.end(), 1 * 60 / 5, 0); // 1 sample every 5 seconds during 1 minutes.
@@ -342,16 +347,28 @@ PlatformInfo::getLoadInfo()
 
 #if defined(_WIN32)
     int usage = 100;
-    if(_query == NULL)
+    // If we haven't yet initialized the query system do so.
+    if(!_initQuery)
     {
         initQuery();
     }
-    if(_query != NULL && _counter != NULL && PdhCollectQueryData(_query) == ERROR_SUCCESS)
+    if(_query != NULL && _counter != NULL)
     {
-        DWORD type;
-        PDH_FMT_COUNTERVALUE value;
-        PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
-        usage = static_cast<int>(value.longValue);
+        PDH_STATUS err = PdhCollectQueryData(_query);
+        if(err == ERROR_SUCCESS)
+        {
+            DWORD type;
+            PDH_FMT_COUNTERVALUE value;
+            PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
+            usage = static_cast<int>(value.longValue);
+        }
+        else
+        {
+            Ice::SyscallException ex(__FILE__, __LINE__);
+            ex.error = err;
+            Ice::Warning out(_traceLevels->logger);
+            out << "PdhCollectQueryData failed: " << ex;
+        }
     }
 
     _last1Total += usage - _usages1.back();
@@ -432,8 +449,11 @@ PlatformInfo::getCwd() const
 void
 PlatformInfo::initQuery()
 {
+    // We only want to try to initialize the query subsystem once.
+    _initQuery = true;
+
     //
-    // Open the query
+    // Open the query.
     //
     PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
     if(err != ERROR_SUCCESS)
@@ -446,50 +466,34 @@ PlatformInfo::initQuery()
     }
 
     //
-    // Load the english perf name table.
+    // Add the counter for \\Processor(_Total)\\"%Processor Time".
     //
-    vector<unsigned char> buffer;
-    unsigned long size = 32768; 
-    buffer.resize(size);
-    while(RegQueryValueEx(HKEY_PERFORMANCE_DATA, "Counter 09", 0, 0, &buffer[0], &size) == ERROR_MORE_DATA)
+    // We have to look up the localized names for these.  "Processor"
+    // is index 238 and "%Processor Time" is index 6.
+    //
+    // If either lookup fails, close the query system, and we're done.
+    //
+    string processor = getLocalizedPerfName(_traceLevels->logger, 238);
+    string percentProcessorTime = getLocalizedPerfName(_traceLevels->logger, 6);
+    if(processor.empty() || percentProcessorTime.empty())
     {
-        size += 8192;
-        buffer.resize(size);
+        PdhCloseQuery(_query);
+        _query = NULL;
+        return;
     }
 
-    map<string, string> perfNames;
-    const char* buf = reinterpret_cast<const char*>(&buffer[0]);
-    unsigned int i = 0;
-    while(i < buffer.size() && buf[i])
-    {
-        string index(&buf[i]);
-        i += static_cast<int>(index.size()) + 1;
-        if(i >= buffer.size())
-        {
-            break;
-        }
-        string name(&buf[i]);
-        i += static_cast<int>(name.size()) + 1;
-        perfNames.insert(make_pair(name, index));
-    }
-
-    //
-    // Get the localized version of "Processor" and "%Processor Time"
-    //
-    string proc = getLocalizedPerfName(perfNames, "Processor");
-    string proctime = getLocalizedPerfName(perfNames, "% Processor Time");
-
-    //
-    // Add the counter
-    //
-    const string name = "\\" + proc + "(_Total)\\" + proctime;
+    const string name = "\\" + processor + "(_Total)\\" + percentProcessorTime;
     err = PdhAddCounter(_query, name.c_str(), 0, &_counter);
     if(err != ERROR_SUCCESS)
     {
         Ice::SyscallException ex(__FILE__, __LINE__);
         ex.error = err;
+
         Ice::Warning out(_traceLevels->logger);
         out << "can't add performance counter `" << name << "':\n" << ex;
+        PdhCloseQuery(_query);
+        _query = NULL;
+        return;
     }
 }
 #endif
