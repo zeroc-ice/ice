@@ -39,11 +39,9 @@ Follow these steps to build the source:
    the settings you can modify. For example, you may wish to enable
    optimization.
 
-4) Run nmake or make:
+4) Run nmake:
 
    > nmake /f Makefile.mak (Visual Studio and Visual C# Express)
-
-   > make (Mono)
 
 The tests and sample programs are built automatically. If you modify
 the source code of a sample program, you can rebuild it using nmake
@@ -91,19 +89,12 @@ loop.
 You can also run individual tests in the various test directories with
 "python run.py".
 
-If you have the Mono run time installed under Windows (see
-INSTALL.MONO), you can also execute the tests using the Mono run time
-(instead of the .NET run time). To do this, add the -m option to
-allTests.py or run.py.
-
-
 Running the demos
 -----------------
 
 To run the demos, you need to have the Ice bin directory in your PATH.
 See the README file in each demo directory for a description of the
 demo.
-
 
 Installation
 ------------
