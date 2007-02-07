@@ -469,6 +469,11 @@ NodeService::start(int argc, char* argv[])
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
+    // Start the platform info thread if needed.
+    //
+    _node->getPlatformInfo().start();
+
+    //
     // Create the node sessions with the registries.
     //
     _sessions.create(_node);
@@ -687,6 +692,11 @@ NodeService::stop()
     // Terminate the node sessions with the registries.
     //
     _sessions.destroy();
+
+    //
+    // Stop the platform info thread.
+    //
+    _node->getPlatformInfo().stop();
 
     //
     // Break cylic reference counts.

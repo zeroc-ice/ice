@@ -10,12 +10,15 @@
 #ifndef ICE_GRID_PLATFORM_INFO_H
 #define ICE_GRID_PLATFORM_INFO_H
 
+#include <IceUtil/Thread.h>
 #include <IceGrid/Internal.h>
 
 #ifdef _WIN32
 #   include <pdh.h> // Performance data helper API
 #   include <deque>
 #endif
+
+
 
 namespace IceGrid
 {
@@ -33,6 +36,9 @@ public:
     PlatformInfo(const std::string&, const Ice::CommunicatorPtr&, const TraceLevelsPtr&);
     ~PlatformInfo();
 
+    void start();
+    void stop();
+
     InternalNodeInfoPtr getInternalNodeInfo() const;
     InternalReplicaInfoPtr getInternalReplicaInfo() const;
 
@@ -44,11 +50,11 @@ public:
     std::string getDataDir() const;
     std::string getCwd() const;
 
-private:
-
 #if defined(_WIN32)
-    void initQuery();
-#endif    
+    void runUpdateLoadInfo();
+#endif
+
+private:
 
     const TraceLevelsPtr _traceLevels;
     std::string _name;
@@ -63,9 +69,9 @@ private:
     std::string _endpoints;
 
 #if defined(_WIN32)
-    bool _initQuery;
-    HQUERY _query;
-    HCOUNTER _counter;
+    IceUtil::ThreadPtr _updateUtilizationThread;
+    IceUtil::Monitor<IceUtil::Mutex> _utilizationMonitor;
+    bool _terminated;
     std::deque<int> _usages1;
     std::deque<int> _usages5;
     std::deque<int> _usages15;

@@ -64,6 +64,25 @@ getLocalizedPerfName(const Ice::LoggerPtr& logger, int idx)
     }
     return string(&localized[0]);
 }
+
+class UpdateUtilizationAverageThread : public IceUtil::Thread
+{
+public:
+
+    UpdateUtilizationAverageThread(PlatformInfo& platform) : _platform(platform)
+    { 
+    }
+
+    virtual void
+    run()
+    {
+	_platform.runUpdateLoadInfo();
+    }
+
+private:
+    
+    PlatformInfo& _platform;
+};
 #endif
 
 }
@@ -106,18 +125,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     // Initialization of the necessary data structures to get the load average.
     //
 #if defined(_WIN32)
-    //
-    // The performance counter query is lazy initialized. We can't
-    // initialize it in the constructor because it might be called
-    // when IceGrid is started on boot as a Windows service with the
-    // Windows service control manager (SCM) locked. The query
-    // initialization would fail (hang) because it requires to start
-    // the "WMI Windows Adapter" service (which can't be started
-    // because the SCM is locked...).
-    //
-    _initQuery = false;
-    _query = NULL;
-    _counter = NULL;
+    _terminated = false;
     _usages1.insert(_usages1.end(), 1 * 60 / 5, 0); // 1 sample every 5 seconds during 1 minutes.
     _usages5.insert(_usages5.end(), 5 * 60 / 5, 0); // 1 sample every 5 seconds during 5 minutes.
     _usages15.insert(_usages15.end(), 15 * 60 / 5, 0); // 1 sample every 5 seconds during 15 minutes.
@@ -288,16 +296,36 @@ PlatformInfo::PlatformInfo(const string& prefix,
 
 PlatformInfo::~PlatformInfo()
 {
-#ifdef _WIN32
-    if(_query != NULL)
-    {
-        PdhCloseQuery(_query);
-    }
-#elif defined(_AIX)
+#if defined(_AIX)
     if(_kmem > 0)
     {
         close(_kmem);
     }
+#endif
+}
+
+void
+PlatformInfo::start()
+{
+#if defined(_WIN32)
+    _updateUtilizationThread = new UpdateUtilizationAverageThread(*this);
+    _updateUtilizationThread->start();
+#endif
+}
+
+void
+PlatformInfo::stop()
+{
+#if defined(_WIN32)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
+	_terminated = true;
+	_utilizationMonitor.notify();
+    }
+
+    assert(_updateUtilizationThread);
+    _updateUtilizationThread->getThreadControl().join();
+    _updateUtilizationThread = 0;
 #endif
 }
 
@@ -346,42 +374,7 @@ PlatformInfo::getLoadInfo()
     info.avg15 = -1.0f;
 
 #if defined(_WIN32)
-    int usage = 100;
-    // If we haven't yet initialized the query system do so.
-    if(!_initQuery)
-    {
-        initQuery();
-    }
-    if(_query != NULL && _counter != NULL)
-    {
-        PDH_STATUS err = PdhCollectQueryData(_query);
-        if(err == ERROR_SUCCESS)
-        {
-            DWORD type;
-            PDH_FMT_COUNTERVALUE value;
-            PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
-            usage = static_cast<int>(value.longValue);
-        }
-        else
-        {
-            Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = err;
-            Ice::Warning out(_traceLevels->logger);
-            out << "PdhCollectQueryData failed: " << ex;
-        }
-    }
-
-    _last1Total += usage - _usages1.back();
-    _last5Total += usage - _usages5.back();
-    _last15Total += usage - _usages15.back();
-
-    _usages1.pop_back();
-    _usages5.pop_back();
-    _usages15.pop_back();
-    _usages1.push_front(usage);
-    _usages5.push_front(usage);
-    _usages15.push_front(usage);
-
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
     info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
@@ -447,15 +440,23 @@ PlatformInfo::getCwd() const
 
 #ifdef _WIN32
 void
-PlatformInfo::initQuery()
+PlatformInfo::runUpdateLoadInfo()
 {
-    // We only want to try to initialize the query subsystem once.
-    _initQuery = true;
+    //
+    // NOTE: We shouldn't initialize the performance counter from the
+    // PlatformInfo constructor because it might be called when
+    // IceGrid is started on boot as a Windows service with the
+    // Windows service control manager (SCM) locked. The query
+    // initialization would fail (hang) because it requires to start
+    // the "WMI Windows Adapter" service (which can't be started
+    // because the SCM is locked...).
+    //
 
     //
     // Open the query.
     //
-    PDH_STATUS err = PdhOpenQuery(0, 0, &_query);
+    HQUERY query;
+    PDH_STATUS err = PdhOpenQuery(0, 0, &query);
     if(err != ERROR_SUCCESS)
     {
         Ice::SyscallException ex(__FILE__, __LINE__);
@@ -477,13 +478,13 @@ PlatformInfo::initQuery()
     string percentProcessorTime = getLocalizedPerfName(_traceLevels->logger, 6);
     if(processor.empty() || percentProcessorTime.empty())
     {
-        PdhCloseQuery(_query);
-        _query = NULL;
+        PdhCloseQuery(query);
         return;
     }
 
     const string name = "\\" + processor + "(_Total)\\" + percentProcessorTime;
-    err = PdhAddCounter(_query, name.c_str(), 0, &_counter);
+    HCOUNTER _counter;
+    err = PdhAddCounter(query, name.c_str(), 0, &_counter);
     if(err != ERROR_SUCCESS)
     {
         Ice::SyscallException ex(__FILE__, __LINE__);
@@ -491,9 +492,48 @@ PlatformInfo::initQuery()
 
         Ice::Warning out(_traceLevels->logger);
         out << "can't add performance counter `" << name << "':\n" << ex;
-        PdhCloseQuery(_query);
-        _query = NULL;
+        PdhCloseQuery(query);
         return;
     }
+
+    while(true)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_utilizationMonitor);
+	_utilizationMonitor.timedWait(IceUtil::Time::seconds(5)); // 5 seconds.
+	if(_terminated)
+	{
+	    break;
+	}
+
+	int usage = 100;
+        PDH_STATUS err = PdhCollectQueryData(query);
+        if(err == ERROR_SUCCESS)
+        {
+            DWORD type;
+            PDH_FMT_COUNTERVALUE value;
+            PdhGetFormattedCounterValue(_counter, PDH_FMT_LONG, &type, &value);
+            usage = static_cast<int>(value.longValue);
+        }
+        else
+        {
+            Ice::SyscallException ex(__FILE__, __LINE__);
+            ex.error = err;
+            Ice::Warning out(_traceLevels->logger);
+            out << "PdhCollectQueryData failed: " << ex;
+        }
+	
+	_last1Total += usage - _usages1.back();
+	_last5Total += usage - _usages5.back();
+	_last15Total += usage - _usages15.back();
+	
+	_usages1.pop_back();
+	_usages5.pop_back();
+	_usages15.pop_back();
+	_usages1.push_front(usage);
+	_usages5.push_front(usage);
+	_usages15.push_front(usage);
+    }
+
+    PdhCloseQuery(query);
 }
 #endif
