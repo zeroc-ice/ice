@@ -486,7 +486,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     srcConfigDir = '%s/%s/config' % (os.getcwd(), distro)
     destConfigDir = '%s/Ice-%s-demos/config' % (buildDir, version)
 
-    if not demoDir in ['py', 'vb'] and os.path.exists(srcConfigDir):
+    if not demoDir in ['py', 'rb', 'vb'] and os.path.exists(srcConfigDir):
         for f in os.listdir(srcConfigDir):
             src = os.path.join(srcConfigDir, f)
             dest = os.path.join(destConfigDir, f)
