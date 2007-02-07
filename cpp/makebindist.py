@@ -997,14 +997,15 @@ def main():
         #
         # Package up demo distribution.
         #
-        toCollect = list(sourceTarBalls)
-        toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
-        for cvs, tarball, demoDir in toCollect:
-            extractDemos(sources, buildDir, version, tarball, demoDir)
-            shutil.copy("%s/common/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
-        archiveDemoTree(buildDir, version, installFiles)
-        shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
-        shutil.move("%s/Ice-%s-demos.zip" % (buildDir, version), "%s/Ice-%s-demos.zip" % (installDir, version))
+        if getPlatform() != 'hpux' and getPlatform() != 'sun':
+            toCollect = list(sourceTarBalls)
+            toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
+            for cvs, tarball, demoDir in toCollect:
+                extractDemos(sources, buildDir, version, tarball, demoDir)
+                shutil.copy("%s/common/README.DEMOS" % installFiles, "%s/Ice-%s-demos/README.DEMOS" % (buildDir, version)) 
+            archiveDemoTree(buildDir, version, installFiles)
+            shutil.move("%s/Ice-%s-demos.tar.gz" % (buildDir, version), "%s/Ice-%s-demos.tar.gz" % (installDir, version))
+            shutil.move("%s/Ice-%s-demos.zip" % (buildDir, version), "%s/Ice-%s-demos.zip" % (installDir, version))
 
         #
         # Everything should be set for building stuff up now.
@@ -1101,8 +1102,8 @@ def main():
     # 
     # Remove build files from binary distribution. 
     #
-    runprog("rm Ice-%s/config/build.properties" % (version))
-    runprog("rm Ice-%s/config/Make.rules*" % (version))
+    runprog("rm -f Ice-%s/config/build.properties" % (version))
+    runprog("rm -f Ice-%s/config/Make.rules*" % (version))
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
