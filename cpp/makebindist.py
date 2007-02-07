@@ -955,8 +955,10 @@ def main():
         # Ice must be first or building the other source distributions will fail.
         #
         sourceTarBalls = [ ('ice', 'Ice-%s' % version, ''),
-                           ('icephp','IcePHP-%s' % version, 'php'),
                            ('icej','IceJ-%s-java2' % version, 'j')]
+
+        if not getPlatform() in ['aix', 'solaris', 'hpux']:
+            sourceTarBalls.append(('icephp','IcePHP-' + version, 'php'))
 
         if not getPlatform() in ['aix', 'solaris', 'hpux']:
             sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
@@ -997,7 +999,7 @@ def main():
         #
         # Package up demo distribution.
         #
-        if getPlatform() != 'hpux' and getPlatform() != 'sun':
+        if getPlatform() != 'hpux' and getPlatform() != 'solaris':
             toCollect = list(sourceTarBalls)
             toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
             for cvs, tarball, demoDir in toCollect:
