@@ -178,7 +178,7 @@ config = open(os.path.join("icecs", "config", "Make.rules.cs"), "r")
 version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
 pcfg = open(os.path.join("icecs", "lib", "pkgconfig", "icecs.pc"), "r")
-dotnetversion = re.search("version[= \t]*([0-9\.]+)", config.read()).group(1)
+dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icecs", "README*"), version, dotnetversion)
