@@ -346,6 +346,15 @@ SubscriberTwoway::flush()
     //
     {
         IceUtil::Mutex::Lock sync(_mutex);
+
+        //
+        // If the subscriber errored out then we're done.
+        //
+        if(_state == SubscriberStateError)
+        {
+            return false;
+        }
+
         //
         // If there have been more events queued in the meantime then
         // we have a pending flush.
