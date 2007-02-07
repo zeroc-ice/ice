@@ -40,14 +40,17 @@ def find(path, patt):
 #
 # Fix version in README, INSTALL files
 #
-def fixVersion(files, version):
+def fixVersion(files, version, dotnetversion):
 
     for file in files:
         origfile = file + ".orig"
         os.rename(file, origfile)
         oldFile = open(origfile, "r")
         newFile = open(file, "w")
-        newFile.write(re.sub("@ver@", version, oldFile.read()))
+        line = oldFile.read();
+        line = re.sub("@ver@", version, line)
+        line = re.sub("@dotnetver@", dotnetversion, line)
+        newFile.write(line)
         newFile.close()
         oldFile.close()
         os.remove(origfile)
@@ -174,11 +177,14 @@ for x in filesToRemove:
 config = open(os.path.join("icecs", "config", "Make.rules.cs"), "r")
 version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
+pcfg = open(os.path.join("icecs", "lib", "pkgconfig", "icecs.pc"), "r")
+dotnetversion = re.search("version[= \t]*([0-9\.]+)", config.read()).group(1)
+
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("icecs", "README*"), version)
-fixVersion(find("icecs", "INSTALL*"), version)
+fixVersion(find("icecs", "README*"), version, dotnetversion)
+fixVersion(find("icecs", "INSTALL*"), version, dotnetversion)
 if not skipDocs:
-    fixVersion(find("icecs/doc", "index.html"), version)
+    fixVersion(find("icecs/doc", "index.html"), version, dotnetversion)
 
 #
 # Create source archives.

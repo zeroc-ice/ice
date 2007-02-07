@@ -96,14 +96,21 @@ To run the demos, you need to have the Ice bin directory in your PATH.
 See the README file in each demo directory for a description of the
 demo.
 
+
 Installation
 ------------
 
-You can copy the assembly files where you want them and then reference
-them in your application code.
+Simply un "nmake /f Makefile.mak install". This will install Ice for 
+C# in the directory specified by the "prefix" variable in
+config/Make.rules.mak. After installation, make sure that the
+<prefix>/bin directory is in your PATH.
 
-Alternatively, you can add the assemblies to the Global Assembly
-Cache (GAC). To do this, open Explorer and navigate to the directory
+
+GAC Installation
+-----------------
+
+You can add the assemblies to the Global Assembly Cache (GAC). 
+To do this, open Explorer and navigate to the directory
 C:\WINDOWS\assembly. Next, drag and drop (or copy and paste) the
 assemblies from IceCS-@ver@\bin into the right-hand pane to
 install them in the cache.
@@ -130,9 +137,9 @@ PDB (.pdb) files in the GAC. Unfortunately, you cannot do this using
 Explorer, so you have to do it from the command line. Open a command
 shell window and navigate to C:\WINDOWS\assembly\GAC\icecs. (Assuming
 C:\WINDOWS is your system root.) Doing a directory listing there, you
-will find a directory named @ver@__<UUID>, for example:
+will find a directory named @dotnetver@__<UUID>, for example:
 
-    @ver@__1f998c50fec78381
+    @dotnetver@__1f998c50fec78381
 
 Change to that directory (making sure that you use the correct version
 number for this release of Ice). In this directory, you will see a
