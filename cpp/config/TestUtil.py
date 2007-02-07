@@ -48,7 +48,7 @@ debug = 0
 #
 # Don't change anything below this line!
 #
-import sys, os, re, errno, getopt
+import sys, os, re, errno, getopt, time
 from threading import Thread
 
 def usage():
@@ -218,7 +218,20 @@ def specificServerStatus(pipe, timeout = None):
     for t in serverThreads:
         if t.getPipe() == pipe:
             serverThreads.remove(t)
-            t.join(timeout)
+	    if isWin32() and timeout != None:
+ 		#
+	        # BUGFIX: On Windows x64 with python 2.5 join with
+	        # a timeout doesn't work (it hangs for the duration
+		# of the timeout if the thread is alive at the time
+		# of the join call).
+		#
+	        while timeout >= 0 and t.isAlive():
+		    time.sleep(1)
+   	   	    timeout -= 1
+		if not t.isAlive():
+		    t.join()
+            else:
+	        t.join(timeout)
             if t.isAlive():
                 raise "server with pipe " + str(pipe) + " did not exit within the timeout period."
             status = t.getStatus()
