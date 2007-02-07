@@ -8,467 +8,470 @@
 # If you want to use wild card searches instead of explicitly listing
 # files, you can delete the filenames and uncomment the following lines:
 #
-# README
-# include=**/*.*
-# exclude=**/*.dsp
-# exclude=**/*.dsw
-# exclude=**/*.ncb
-# exclude=**/*.suo
-# exclude=**/*.exe
-# exclude=**/*.ilk
-# exclude=**/*.pdb
-# exclude=**/*.plg
-# exclude=**/.depend
-# exclude=**/.dummy
-# exclude=**/Makefile
-# exclude=**/Debug/**
-# exclude=**/Release/**
-# exclude=Freeze/backup/**
+include=**/*.*
+exclude=**/*.dsp
+exclude=**/*.dsw
+exclude=**/*.ncb
+exclude=**/*.suo
+exclude=**/*.exe
+exclude=**/*.ilk
+exclude=**/*.pdb
+exclude=**/*.idb
+exclude=**/*.plg
+exclude=**/*.depend
+exclude=**/*.dummy
+exclude=**/*Makefile*
+exclude=**/Debug/**
+exclude=**/Release/**
+exclude=Freeze/backup/**
+exclude=**/*.dll
+exclude=**/*.obj
+exclude=**/*.vcproj.*
+
 #
 # Stop uncommenting here!
 # Delete from here to EOF
 
-book/evictor/EvictorBase.cpp
-book/evictor/EvictorBase.h
-book/evictor/README
-book/Makefile.mak
-book/printer/Client.cpp
-book/printer/Makefile.mak
-book/printer/Printer.ice
-book/printer/printerC.vcproj
-book/printer/printerS.vcproj
-book/printer/README
-book/printer/Server.cpp
-book/README
-book/simple_filesystem/Client.cpp
-book/simple_filesystem/Filesystem.ice
-book/simple_filesystem/FilesystemI.cpp
-book/simple_filesystem/FilesystemI.h
-book/simple_filesystem/Makefile.mak
-book/simple_filesystem/README
-book/simple_filesystem/Server.cpp
-book/simple_filesystem/simplefsC.vcproj
-book/simple_filesystem/simplefsS.vcproj
-Database/Oracle/occi/Client.cpp
-Database/Oracle/occi/config.client
-Database/Oracle/occi/config.server
-Database/Oracle/occi/createTypes.sql
-Database/Oracle/occi/DbTypes.typ
-Database/Oracle/occi/DeptFactoryI.cpp
-Database/Oracle/occi/DeptFactoryI.h
-Database/Oracle/occi/DeptI.cpp
-Database/Oracle/occi/DeptI.h
-Database/Oracle/occi/EmpI.cpp
-Database/Oracle/occi/EmpI.h
-Database/Oracle/occi/HR.ice
-Database/Oracle/occi/Makefile.mak
-Database/Oracle/occi/README
-Database/Oracle/occi/Server.cpp
-Database/Oracle/occi/Util.cpp
-Database/Oracle/occi/Util.h
-Database/Oracle/proc/Client.cpp
-Database/Oracle/proc/config.client
-Database/Oracle/proc/config.server
-Database/Oracle/proc/CurrentSqlContext.h
-Database/Oracle/proc/CurrentSqlContext.pc
-Database/Oracle/proc/DeptFactoryI.h
-Database/Oracle/proc/DeptFactoryI.pc
-Database/Oracle/proc/DeptI.h
-Database/Oracle/proc/DeptI.pc
-Database/Oracle/proc/EmpI.h
-Database/Oracle/proc/EmpI.pc
-Database/Oracle/proc/HR.ice
-Database/Oracle/proc/Makefile.mak
-Database/Oracle/proc/README
-Database/Oracle/proc/Server.pc
-Database/Oracle/proc/Util.h
-Database/Oracle/proc/Util.pc
-demo.sln
-demo.vcproj
-Freeze/bench/bench.vcproj
-Freeze/bench/Client.cpp
-Freeze/bench/Makefile.mak
-Freeze/bench/README
-Freeze/bench/Test.ice
-Freeze/library/BookFactory.cpp
-Freeze/library/BookFactory.h
-Freeze/library/books
-Freeze/library/Client.cpp
-Freeze/library/Collocated.cpp
-Freeze/library/config.client
-Freeze/library/config.collocated
-Freeze/library/config.server
-Freeze/library/dummyinclude/unistd.h
-Freeze/library/Grammar.cpp
-Freeze/library/Grammar.h
-Freeze/library/Grammar.y
-Freeze/library/Library.ice
-Freeze/library/libraryC.vcproj
-Freeze/library/libraryCOL.vcproj
-Freeze/library/LibraryI.cpp
-Freeze/library/LibraryI.h
-Freeze/library/libraryS.vcproj
-Freeze/library/Makefile.mak
-Freeze/library/Parser.cpp
-Freeze/library/Parser.h
-Freeze/library/README
-Freeze/library/RunParser.cpp
-Freeze/library/Scanner.cpp
-Freeze/library/Scanner.l
-Freeze/library/Server.cpp
-Freeze/Makefile.mak
-Freeze/phonebook/Client.cpp
-Freeze/phonebook/Collocated.cpp
-Freeze/phonebook/config.client
-Freeze/phonebook/config.collocated
-Freeze/phonebook/config.server
-Freeze/phonebook/ContactFactory.cpp
-Freeze/phonebook/ContactFactory.h
-Freeze/phonebook/contacts
-Freeze/phonebook/dummyinclude/unistd.h
-Freeze/phonebook/Grammar.cpp
-Freeze/phonebook/Grammar.h
-Freeze/phonebook/Grammar.y
-Freeze/phonebook/Makefile.mak
-Freeze/phonebook/Parser.cpp
-Freeze/phonebook/Parser.h
-Freeze/phonebook/PhoneBook.ice
-Freeze/phonebook/phonebookC.vcproj
-Freeze/phonebook/phonebookCOL.vcproj
-Freeze/phonebook/PhoneBookI.cpp
-Freeze/phonebook/PhoneBookI.h
-Freeze/phonebook/phonebookS.vcproj
-Freeze/phonebook/README
-Freeze/phonebook/RunParser.cpp
-Freeze/phonebook/Scanner.cpp
-Freeze/phonebook/Scanner.l
-Freeze/phonebook/Server.cpp
-Freeze/README
-Glacier2/callback/Callback.ice
-Glacier2/callback/CallbackI.cpp
-Glacier2/callback/CallbackI.h
-Glacier2/callback/Client.cpp
-Glacier2/callback/config.client
-Glacier2/callback/config.glacier2
-Glacier2/callback/config.server
-Glacier2/callback/config.sessionserver
-Glacier2/callback/glacier2callbackC.vcproj
-Glacier2/callback/glacier2callbackS.vcproj
-Glacier2/callback/glacier2callbackSS.vcproj
-Glacier2/callback/Makefile.mak
-Glacier2/callback/README
-Glacier2/callback/Server.cpp
-Glacier2/callback/SessionI.cpp
-Glacier2/callback/SessionI.h
-Glacier2/callback/SessionServer.cpp
-Glacier2/chat/Chat.ice
-Glacier2/chat/chatC.vcproj
-Glacier2/chat/chatS.vcproj
-Glacier2/chat/ChatSessionI.cpp
-Glacier2/chat/ChatSessionI.h
-Glacier2/chat/Client.cpp
-Glacier2/chat/config.client
-Glacier2/chat/config.glacier2
-Glacier2/chat/config.server
-Glacier2/chat/Makefile.mak
-Glacier2/chat/README
-Glacier2/chat/Server.cpp
-Glacier2/Makefile.mak
-Glacier2/README
-Ice/async/asyncC.vcproj
-Ice/async/asyncP.vcproj
-Ice/async/asyncS.vcproj
-Ice/async/config.client
-Ice/async/config.server
-Ice/async/Consumer.cpp
-Ice/async/Makefile.mak
-Ice/async/Publisher.cpp
-Ice/async/Queue.ice
-Ice/async/QueueI.cpp
-Ice/async/QueueI.h
-Ice/async/README
-Ice/async/Server.cpp
-Ice/bidir/bidirC.vcproj
-Ice/bidir/bidirS.vcproj
-Ice/bidir/Callback.ice
-Ice/bidir/CallbackI.cpp
-Ice/bidir/CallbackI.h
-Ice/bidir/Client.cpp
-Ice/bidir/config.client
-Ice/bidir/config.server
-Ice/bidir/Makefile.mak
-Ice/bidir/README
-Ice/bidir/Server.cpp
-Ice/callback/Callback.ice
-Ice/callback/callbackC.vcproj
-Ice/callback/callbackS.vcproj
-Ice/callback/CallbackSenderI.cpp
-Ice/callback/CallbackSenderI.h
-Ice/callback/Client.cpp
-Ice/callback/config.client
-Ice/callback/config.server
-Ice/callback/Makefile.mak
-Ice/callback/README
-Ice/callback/Server.cpp
-Ice/converter/Client.cpp
-Ice/converter/config.client
-Ice/converter/config.server
-Ice/converter/converterC.vcproj
-Ice/converter/converterS.vcproj
-Ice/converter/Echo.ice
-Ice/converter/EchoI.cpp
-Ice/converter/EchoI.h
-Ice/converter/Makefile.mak
-Ice/converter/README
-Ice/converter/Server.cpp
-Ice/converter/StringConverterI.cpp
-Ice/converter/StringConverterI.h
-Ice/hello/Client.cpp
-Ice/hello/config.client
-Ice/hello/config.server
-Ice/hello/Hello.ice
-Ice/hello/helloC.vcproj
-Ice/hello/HelloI.cpp
-Ice/hello/HelloI.h
-Ice/hello/helloS.vcproj
-Ice/hello/Makefile.mak
-Ice/hello/README
-Ice/hello/Server.cpp
-Ice/invoke/Client.cpp
-Ice/invoke/config.client
-Ice/invoke/config.server
-Ice/invoke/invokeC.vcproj
-Ice/invoke/invokeS.vcproj
-Ice/invoke/Makefile.mak
-Ice/invoke/Printer.ice
-Ice/invoke/PrinterI.cpp
-Ice/invoke/PrinterI.h
-Ice/invoke/README
-Ice/invoke/Server.cpp
-Ice/latency/Client.cpp
-Ice/latency/config.client
-Ice/latency/config.server
-Ice/latency/Latency.ice
-Ice/latency/latencyC.vcproj
-Ice/latency/latencyS.vcproj
-Ice/latency/Makefile.mak
-Ice/latency/README
-Ice/latency/Server.cpp
-Ice/Makefile.mak
-Ice/MFC/client/config
-Ice/MFC/client/Hello.ice
-Ice/MFC/client/HelloClient.cpp
-Ice/MFC/client/HelloClient.h
-Ice/MFC/client/HelloClient.rc
-Ice/MFC/client/HelloClientDlg.cpp
-Ice/MFC/client/HelloClientDlg.h
-Ice/MFC/client/Makefile.mak
-Ice/MFC/client/mfchelloC.vcproj
-Ice/MFC/client/README
-Ice/MFC/client/res/HelloClient.ico
-Ice/MFC/client/res/HelloClient.rc2
-Ice/MFC/client/Resource.h
-Ice/MFC/client/stdafx.cpp
-Ice/MFC/client/stdafx.h
-Ice/MFC/Makefile.mak
-Ice/MFC/server/config
-Ice/MFC/server/Hello.ice
-Ice/MFC/server/HelloI.cpp
-Ice/MFC/server/HelloI.h
-Ice/MFC/server/HelloServer.cpp
-Ice/MFC/server/HelloServer.h
-Ice/MFC/server/HelloServer.rc
-Ice/MFC/server/HelloServerDlg.cpp
-Ice/MFC/server/HelloServerDlg.h
-Ice/MFC/server/LogI.cpp
-Ice/MFC/server/LogI.h
-Ice/MFC/server/Makefile.mak
-Ice/MFC/server/mfchelloS.vcproj
-Ice/MFC/server/README
-Ice/MFC/server/res/HelloServer.ico
-Ice/MFC/server/res/HelloServer.rc2
-Ice/MFC/server/Resource.h
-Ice/MFC/server/stdafx.cpp
-Ice/MFC/server/stdafx.h
-Ice/minimal/Client.cpp
-Ice/minimal/Hello.ice
-Ice/minimal/HelloI.cpp
-Ice/minimal/HelloI.h
-Ice/minimal/Makefile.mak
-Ice/minimal/minimalC.vcproj
-Ice/minimal/minimalS.vcproj
-Ice/minimal/README
-Ice/minimal/Server.cpp
-Ice/nested/Client.cpp
-Ice/nested/config.client
-Ice/nested/config.server
-Ice/nested/Makefile.mak
-Ice/nested/Nested.ice
-Ice/nested/nestedC.vcproj
-Ice/nested/NestedI.cpp
-Ice/nested/NestedI.h
-Ice/nested/nestedS.vcproj
-Ice/nested/README
-Ice/nested/Server.cpp
-Ice/README
-Ice/session/Client.cpp
-Ice/session/config.client
-Ice/session/config.server
-Ice/session/Makefile.mak
-Ice/session/README
-Ice/session/ReapThread.cpp
-Ice/session/ReapThread.h
-Ice/session/Server.cpp
-Ice/session/Session.ice
-Ice/session/sessionC.vcproj
-Ice/session/SessionFactoryI.cpp
-Ice/session/SessionFactoryI.h
-Ice/session/SessionI.cpp
-Ice/session/SessionI.h
-Ice/session/sessionS.vcproj
-Ice/throughput/Client.cpp
-Ice/throughput/config.client
-Ice/throughput/config.server
-Ice/throughput/Makefile.mak
-Ice/throughput/README
-Ice/throughput/Server.cpp
-Ice/throughput/Throughput.ice
-Ice/throughput/throughputC.vcproj
-Ice/throughput/ThroughputI.cpp
-Ice/throughput/ThroughputI.h
-Ice/throughput/throughputS.vcproj
-Ice/value/Client.cpp
-Ice/value/config.client
-Ice/value/config.server
-Ice/value/Makefile.mak
-Ice/value/ObjectFactory.cpp
-Ice/value/ObjectFactory.h
-Ice/value/README
-Ice/value/Server.cpp
-Ice/value/Value.ice
-Ice/value/valueC.vcproj
-Ice/value/ValueI.cpp
-Ice/value/ValueI.h
-Ice/value/valueS.vcproj
-IceBox/hello/Client.cpp
-IceBox/hello/config.client
-IceBox/hello/config.icebox
-IceBox/hello/Hello.ice
-IceBox/hello/HelloI.cpp
-IceBox/hello/HelloI.h
-IceBox/hello/helloiceboxC.vcproj
-IceBox/hello/helloiceboxS.vcproj
-IceBox/hello/HelloServiceI.cpp
-IceBox/hello/HelloServiceI.h
-IceBox/hello/Makefile.mak
-IceBox/hello/README
-IceBox/Makefile.mak
-IceBox/README
-IceGrid/allocate/allocateC.vcproj
-IceGrid/allocate/allocateS.vcproj
-IceGrid/allocate/application-multiple.xml
-IceGrid/allocate/application-single.xml
-IceGrid/allocate/Client.cpp
-IceGrid/allocate/config.client
-IceGrid/allocate/config.grid
-IceGrid/allocate/Hello.ice
-IceGrid/allocate/HelloI.cpp
-IceGrid/allocate/HelloI.h
-IceGrid/allocate/Makefile.mak
-IceGrid/allocate/README
-IceGrid/allocate/Server.cpp
-IceGrid/Makefile.mak
-IceGrid/README
-IceGrid/sessionActivation/application.xml
-IceGrid/sessionActivation/Client.cpp
-IceGrid/sessionActivation/config.client
-IceGrid/sessionActivation/config.grid
-IceGrid/sessionActivation/Hello.ice
-IceGrid/sessionActivation/HelloI.cpp
-IceGrid/sessionActivation/HelloI.h
-IceGrid/sessionActivation/Makefile.mak
-IceGrid/sessionActivation/README
-IceGrid/sessionActivation/Server.cpp
-IceGrid/sessionActivation/sessionActivationC.vcproj
-IceGrid/sessionActivation/sessionActivationS.vcproj
-IceGrid/simple/application.xml
-IceGrid/simple/application_with_replication.xml
-IceGrid/simple/application_with_template.xml
-IceGrid/simple/Client.cpp
-IceGrid/simple/config.client
-IceGrid/simple/config.grid
-IceGrid/simple/config.master
-IceGrid/simple/config.node1
-IceGrid/simple/config.replica1
-IceGrid/simple/config.replica2
-IceGrid/simple/Hello.ice
-IceGrid/simple/HelloI.cpp
-IceGrid/simple/HelloI.h
-IceGrid/simple/Makefile.mak
-IceGrid/simple/README
-IceGrid/simple/Server.cpp
-IceGrid/simple/simpleC.vcproj
-IceGrid/simple/simpleS.vcproj
-IcePatch2/Makefile.mak
-IcePatch2/MFC/Makefile.mak
-IcePatch2/MFC/mfcpatchC.vcproj
-IcePatch2/MFC/PatchClient.cpp
-IcePatch2/MFC/PatchClient.h
-IcePatch2/MFC/PatchClient.ico
-IcePatch2/MFC/PatchClient.rc
-IcePatch2/MFC/PatchClientDlg.cpp
-IcePatch2/MFC/PatchClientDlg.h
-IcePatch2/MFC/README
-IcePatch2/MFC/resource.h
-IcePatch2/MFC/stdafx.cpp
-IcePatch2/MFC/stdafx.h
-IcePatch2/README
-IceStorm/clock/Clock.ice
-IceStorm/clock/clockC.vcproj
-IceStorm/clock/clockS.vcproj
-IceStorm/clock/config.icebox
-IceStorm/clock/config.pub
-IceStorm/clock/config.service
-IceStorm/clock/config.sub
-IceStorm/clock/Makefile.mak
-IceStorm/clock/Publisher.cpp
-IceStorm/clock/README
-IceStorm/clock/Subscriber.cpp
-IceStorm/counter/Client.cpp
-IceStorm/counter/config.client
-IceStorm/counter/config.icebox
-IceStorm/counter/config.server
-IceStorm/counter/config.service
-IceStorm/counter/Counter.ice
-IceStorm/counter/counterC.vcproj
-IceStorm/counter/CounterI.cpp
-IceStorm/counter/CounterI.h
-IceStorm/counter/CounterObserverI.cpp
-IceStorm/counter/CounterObserverI.h
-IceStorm/counter/counterS.vcproj
-IceStorm/counter/Makefile.mak
-IceStorm/counter/README
-IceStorm/counter/Server.cpp
-IceStorm/Makefile.mak
-IceStorm/README
-IceUtil/Makefile.mak
-IceUtil/README
-IceUtil/workqueue/Makefile.mak
-IceUtil/workqueue/README
-IceUtil/workqueue/WorkQueue.cpp
-IceUtil/workqueue/workqueue.vcproj
-Makefile.mak
-README
-Freeze/bench/db
-Freeze/library/db
-Freeze/phonebook/db
-IceGrid/allocate/db
-IceGrid/allocate/db/node
-IceGrid/allocate/db/registry
-IceGrid/sessionActivation/db
-IceGrid/sessionActivation/db/node
-IceGrid/sessionActivation/db/registry
-IceGrid/simple/db
-IceGrid/simple/db/node
-IceGrid/simple/db/registry
-IceStorm/clock/db
+# book/evictor/EvictorBase.cpp
+# book/evictor/EvictorBase.h
+# book/evictor/README
+# book/Makefile.mak
+# book/printer/Client.cpp
+# book/printer/Makefile.mak
+# book/printer/Printer.ice
+# book/printer/printerC.vcproj
+# book/printer/printerS.vcproj
+# book/printer/README
+# book/printer/Server.cpp
+# book/README
+# book/simple_filesystem/Client.cpp
+# book/simple_filesystem/Filesystem.ice
+# book/simple_filesystem/FilesystemI.cpp
+# book/simple_filesystem/FilesystemI.h
+# book/simple_filesystem/Makefile.mak
+# book/simple_filesystem/README
+# book/simple_filesystem/Server.cpp
+# book/simple_filesystem/simplefsC.vcproj
+# book/simple_filesystem/simplefsS.vcproj
+# Database/Oracle/occi/Client.cpp
+# Database/Oracle/occi/config.client
+# Database/Oracle/occi/config.server
+# Database/Oracle/occi/createTypes.sql
+# Database/Oracle/occi/DbTypes.typ
+# Database/Oracle/occi/DeptFactoryI.cpp
+# Database/Oracle/occi/DeptFactoryI.h
+# Database/Oracle/occi/DeptI.cpp
+# Database/Oracle/occi/DeptI.h
+# Database/Oracle/occi/EmpI.cpp
+# Database/Oracle/occi/EmpI.h
+# Database/Oracle/occi/HR.ice
+# Database/Oracle/occi/Makefile.mak
+# Database/Oracle/occi/README
+# Database/Oracle/occi/Server.cpp
+# Database/Oracle/occi/Util.cpp
+# Database/Oracle/occi/Util.h
+# Database/Oracle/proc/Client.cpp
+# Database/Oracle/proc/config.client
+# Database/Oracle/proc/config.server
+# Database/Oracle/proc/CurrentSqlContext.h
+# Database/Oracle/proc/CurrentSqlContext.pc
+# Database/Oracle/proc/DeptFactoryI.h
+# Database/Oracle/proc/DeptFactoryI.pc
+# Database/Oracle/proc/DeptI.h
+# Database/Oracle/proc/DeptI.pc
+# Database/Oracle/proc/EmpI.h
+# Database/Oracle/proc/EmpI.pc
+# Database/Oracle/proc/HR.ice
+# Database/Oracle/proc/Makefile.mak
+# Database/Oracle/proc/README
+# Database/Oracle/proc/Server.pc
+# Database/Oracle/proc/Util.h
+# Database/Oracle/proc/Util.pc
+# demo.sln
+# demo.vcproj
+# Freeze/bench/bench.vcproj
+# Freeze/bench/Client.cpp
+# Freeze/bench/Makefile.mak
+# Freeze/bench/README
+# Freeze/bench/Test.ice
+# Freeze/library/BookFactory.cpp
+# Freeze/library/BookFactory.h
+# Freeze/library/books
+# Freeze/library/Client.cpp
+# Freeze/library/Collocated.cpp
+# Freeze/library/config.client
+# Freeze/library/config.collocated
+# Freeze/library/config.server
+# Freeze/library/dummyinclude/unistd.h
+# Freeze/library/Grammar.cpp
+# Freeze/library/Grammar.h
+# Freeze/library/Grammar.y
+# Freeze/library/Library.ice
+# Freeze/library/libraryC.vcproj
+# Freeze/library/libraryCOL.vcproj
+# Freeze/library/LibraryI.cpp
+# Freeze/library/LibraryI.h
+# Freeze/library/libraryS.vcproj
+# Freeze/library/Makefile.mak
+# Freeze/library/Parser.cpp
+# Freeze/library/Parser.h
+# Freeze/library/README
+# Freeze/library/RunParser.cpp
+# Freeze/library/Scanner.cpp
+# Freeze/library/Scanner.l
+# Freeze/library/Server.cpp
+# Freeze/Makefile.mak
+# Freeze/phonebook/Client.cpp
+# Freeze/phonebook/Collocated.cpp
+# Freeze/phonebook/config.client
+# Freeze/phonebook/config.collocated
+# Freeze/phonebook/config.server
+# Freeze/phonebook/ContactFactory.cpp
+# Freeze/phonebook/ContactFactory.h
+# Freeze/phonebook/contacts
+# Freeze/phonebook/dummyinclude/unistd.h
+# Freeze/phonebook/Grammar.cpp
+# Freeze/phonebook/Grammar.h
+# Freeze/phonebook/Grammar.y
+# Freeze/phonebook/Makefile.mak
+# Freeze/phonebook/Parser.cpp
+# Freeze/phonebook/Parser.h
+# Freeze/phonebook/PhoneBook.ice
+# Freeze/phonebook/phonebookC.vcproj
+# Freeze/phonebook/phonebookCOL.vcproj
+# Freeze/phonebook/PhoneBookI.cpp
+# Freeze/phonebook/PhoneBookI.h
+# Freeze/phonebook/phonebookS.vcproj
+# Freeze/phonebook/README
+# Freeze/phonebook/RunParser.cpp
+# Freeze/phonebook/Scanner.cpp
+# Freeze/phonebook/Scanner.l
+# Freeze/phonebook/Server.cpp
+# Freeze/README
+# Glacier2/callback/Callback.ice
+# Glacier2/callback/CallbackI.cpp
+# Glacier2/callback/CallbackI.h
+# Glacier2/callback/Client.cpp
+# Glacier2/callback/config.client
+# Glacier2/callback/config.glacier2
+# Glacier2/callback/config.server
+# Glacier2/callback/config.sessionserver
+# Glacier2/callback/glacier2callbackC.vcproj
+# Glacier2/callback/glacier2callbackS.vcproj
+# Glacier2/callback/glacier2callbackSS.vcproj
+# Glacier2/callback/Makefile.mak
+# Glacier2/callback/README
+# Glacier2/callback/Server.cpp
+# Glacier2/callback/SessionI.cpp
+# Glacier2/callback/SessionI.h
+# Glacier2/callback/SessionServer.cpp
+# Glacier2/chat/Chat.ice
+# Glacier2/chat/chatC.vcproj
+# Glacier2/chat/chatS.vcproj
+# Glacier2/chat/ChatSessionI.cpp
+# Glacier2/chat/ChatSessionI.h
+# Glacier2/chat/Client.cpp
+# Glacier2/chat/config.client
+# Glacier2/chat/config.glacier2
+# Glacier2/chat/config.server
+# Glacier2/chat/Makefile.mak
+# Glacier2/chat/README
+# Glacier2/chat/Server.cpp
+# Glacier2/Makefile.mak
+# Glacier2/README
+# Ice/async/asyncC.vcproj
+# Ice/async/asyncS.vcproj
+# Ice/async/config.client
+# Ice/async/config.server
+# Ice/async/Consumer.cpp
+# Ice/async/Makefile.mak
+# Ice/async/Publisher.cpp
+# Ice/async/Queue.ice
+# Ice/async/QueueI.cpp
+# Ice/async/QueueI.h
+# Ice/async/README
+# Ice/async/Server.cpp
+# Ice/bidir/bidirC.vcproj
+# Ice/bidir/bidirS.vcproj
+# Ice/bidir/Callback.ice
+# Ice/bidir/CallbackI.cpp
+# Ice/bidir/CallbackI.h
+# Ice/bidir/Client.cpp
+# Ice/bidir/config.client
+# Ice/bidir/config.server
+# Ice/bidir/Makefile.mak
+# Ice/bidir/README
+# Ice/bidir/Server.cpp
+# Ice/callback/Callback.ice
+# Ice/callback/callbackC.vcproj
+# Ice/callback/callbackS.vcproj
+# Ice/callback/CallbackSenderI.cpp
+# Ice/callback/CallbackSenderI.h
+# Ice/callback/Client.cpp
+# Ice/callback/config.client
+# Ice/callback/config.server
+# Ice/callback/Makefile.mak
+# Ice/callback/README
+# Ice/callback/Server.cpp
+# Ice/converter/Client.cpp
+# Ice/converter/config.client
+# Ice/converter/config.server
+# Ice/converter/converterC.vcproj
+# Ice/converter/converterS.vcproj
+# Ice/converter/Echo.ice
+# Ice/converter/EchoI.cpp
+# Ice/converter/EchoI.h
+# Ice/converter/Makefile.mak
+# Ice/converter/README
+# Ice/converter/Server.cpp
+# Ice/converter/StringConverterI.cpp
+# Ice/converter/StringConverterI.h
+# Ice/hello/Client.cpp
+# Ice/hello/config.client
+# Ice/hello/config.server
+# Ice/hello/Hello.ice
+# Ice/hello/helloC.vcproj
+# Ice/hello/HelloI.cpp
+# Ice/hello/HelloI.h
+# Ice/hello/helloS.vcproj
+# Ice/hello/Makefile.mak
+# Ice/hello/README
+# Ice/hello/Server.cpp
+# Ice/invoke/Client.cpp
+# Ice/invoke/config.client
+# Ice/invoke/config.server
+# Ice/invoke/invokeC.vcproj
+# Ice/invoke/invokeS.vcproj
+# Ice/invoke/Makefile.mak
+# Ice/invoke/Printer.ice
+# Ice/invoke/PrinterI.cpp
+# Ice/invoke/PrinterI.h
+# Ice/invoke/README
+# Ice/invoke/Server.cpp
+# Ice/latency/Client.cpp
+# Ice/latency/config.client
+# Ice/latency/config.server
+# Ice/latency/Latency.ice
+# Ice/latency/latencyC.vcproj
+# Ice/latency/latencyS.vcproj
+# Ice/latency/Makefile.mak
+# Ice/latency/README
+# Ice/latency/Server.cpp
+# Ice/Makefile.mak
+# Ice/MFC/client/config
+# Ice/MFC/client/Hello.ice
+# Ice/MFC/client/HelloClient.cpp
+# Ice/MFC/client/HelloClient.h
+# Ice/MFC/client/HelloClient.rc
+# Ice/MFC/client/HelloClientDlg.cpp
+# Ice/MFC/client/HelloClientDlg.h
+# Ice/MFC/client/Makefile.mak
+# Ice/MFC/client/mfchelloC.vcproj
+# Ice/MFC/client/README
+# Ice/MFC/client/res/HelloClient.ico
+# Ice/MFC/client/res/HelloClient.rc2
+# Ice/MFC/client/Resource.h
+# Ice/MFC/client/stdafx.cpp
+# Ice/MFC/client/stdafx.h
+# Ice/MFC/Makefile.mak
+# Ice/MFC/server/config
+# Ice/MFC/server/Hello.ice
+# Ice/MFC/server/HelloI.cpp
+# Ice/MFC/server/HelloI.h
+# Ice/MFC/server/HelloServer.cpp
+# Ice/MFC/server/HelloServer.h
+# Ice/MFC/server/HelloServer.rc
+# Ice/MFC/server/HelloServerDlg.cpp
+# Ice/MFC/server/HelloServerDlg.h
+# Ice/MFC/server/LogI.cpp
+# Ice/MFC/server/LogI.h
+# Ice/MFC/server/Makefile.mak
+# Ice/MFC/server/mfchelloS.vcproj
+# Ice/MFC/server/README
+# Ice/MFC/server/res/HelloServer.ico
+# Ice/MFC/server/res/HelloServer.rc2
+# Ice/MFC/server/Resource.h
+# Ice/MFC/server/stdafx.cpp
+# Ice/MFC/server/stdafx.h
+# Ice/minimal/Client.cpp
+# Ice/minimal/Hello.ice
+# Ice/minimal/HelloI.cpp
+# Ice/minimal/HelloI.h
+# Ice/minimal/Makefile.mak
+# Ice/minimal/minimalC.vcproj
+# Ice/minimal/minimalS.vcproj
+# Ice/minimal/README
+# Ice/minimal/Server.cpp
+# Ice/nested/Client.cpp
+# Ice/nested/config.client
+# Ice/nested/config.server
+# Ice/nested/Makefile.mak
+# Ice/nested/Nested.ice
+# Ice/nested/nestedC.vcproj
+# Ice/nested/NestedI.cpp
+# Ice/nested/NestedI.h
+# Ice/nested/nestedS.vcproj
+# Ice/nested/README
+# Ice/nested/Server.cpp
+# Ice/README
+# Ice/session/Client.cpp
+# Ice/session/config.client
+# Ice/session/config.server
+# Ice/session/Makefile.mak
+# Ice/session/README
+# Ice/session/ReapThread.cpp
+# Ice/session/ReapThread.h
+# Ice/session/Server.cpp
+# Ice/session/Session.ice
+# Ice/session/sessionC.vcproj
+# Ice/session/SessionFactoryI.cpp
+# Ice/session/SessionFactoryI.h
+# Ice/session/SessionI.cpp
+# Ice/session/SessionI.h
+# Ice/session/sessionS.vcproj
+# Ice/throughput/Client.cpp
+# Ice/throughput/config.client
+# Ice/throughput/config.server
+# Ice/throughput/Makefile.mak
+# Ice/throughput/README
+# Ice/throughput/Server.cpp
+# Ice/throughput/Throughput.ice
+# Ice/throughput/throughputC.vcproj
+# Ice/throughput/ThroughputI.cpp
+# Ice/throughput/ThroughputI.h
+# Ice/throughput/throughputS.vcproj
+# Ice/value/Client.cpp
+# Ice/value/config.client
+# Ice/value/config.server
+# Ice/value/Makefile.mak
+# Ice/value/ObjectFactory.cpp
+# Ice/value/ObjectFactory.h
+# Ice/value/README
+# Ice/value/Server.cpp
+# Ice/value/Value.ice
+# Ice/value/valueC.vcproj
+# Ice/value/ValueI.cpp
+# Ice/value/ValueI.h
+# Ice/value/valueS.vcproj
+# IceBox/hello/Client.cpp
+# IceBox/hello/config.client
+# IceBox/hello/config.icebox
+# IceBox/hello/Hello.ice
+# IceBox/hello/HelloI.cpp
+# IceBox/hello/HelloI.h
+# IceBox/hello/helloiceboxC.vcproj
+# IceBox/hello/helloiceboxS.vcproj
+# IceBox/hello/HelloServiceI.cpp
+# IceBox/hello/HelloServiceI.h
+# IceBox/hello/Makefile.mak
+# IceBox/hello/README
+# IceBox/Makefile.mak
+# IceBox/README
+# IceGrid/allocate/allocateC.vcproj
+# IceGrid/allocate/allocateS.vcproj
+# IceGrid/allocate/application-multiple.xml
+# IceGrid/allocate/application-single.xml
+# IceGrid/allocate/Client.cpp
+# IceGrid/allocate/config.client
+# IceGrid/allocate/config.grid
+# IceGrid/allocate/Hello.ice
+# IceGrid/allocate/HelloI.cpp
+# IceGrid/allocate/HelloI.h
+# IceGrid/allocate/Makefile.mak
+# IceGrid/allocate/README
+# IceGrid/allocate/Server.cpp
+# IceGrid/Makefile.mak
+# IceGrid/README
+# IceGrid/sessionActivation/application.xml
+# IceGrid/sessionActivation/Client.cpp
+# IceGrid/sessionActivation/config.client
+# IceGrid/sessionActivation/config.grid
+# IceGrid/sessionActivation/Hello.ice
+# IceGrid/sessionActivation/HelloI.cpp
+# IceGrid/sessionActivation/HelloI.h
+# IceGrid/sessionActivation/Makefile.mak
+# IceGrid/sessionActivation/README
+# IceGrid/sessionActivation/Server.cpp
+# IceGrid/sessionActivation/sessionActivationC.vcproj
+# IceGrid/sessionActivation/sessionActivationS.vcproj
+# IceGrid/simple/application.xml
+# IceGrid/simple/application_with_replication.xml
+# IceGrid/simple/application_with_template.xml
+# IceGrid/simple/Client.cpp
+# IceGrid/simple/config.client
+# IceGrid/simple/config.grid
+# IceGrid/simple/config.master
+# IceGrid/simple/config.node1
+# IceGrid/simple/config.replica1
+# IceGrid/simple/config.replica2
+# IceGrid/simple/Hello.ice
+# IceGrid/simple/HelloI.cpp
+# IceGrid/simple/HelloI.h
+# IceGrid/simple/Makefile.mak
+# IceGrid/simple/README
+# IceGrid/simple/Server.cpp
+# IceGrid/simple/simpleC.vcproj
+# IceGrid/simple/simpleS.vcproj
+# IcePatch2/Makefile.mak
+# IcePatch2/MFC/Makefile.mak
+# IcePatch2/MFC/mfcpatchC.vcproj
+# IcePatch2/MFC/PatchClient.cpp
+# IcePatch2/MFC/PatchClient.h
+# IcePatch2/MFC/PatchClient.ico
+# IcePatch2/MFC/PatchClient.rc
+# IcePatch2/MFC/PatchClientDlg.cpp
+# IcePatch2/MFC/PatchClientDlg.h
+# IcePatch2/MFC/README
+# IcePatch2/MFC/resource.h
+# IcePatch2/MFC/stdafx.cpp
+# IcePatch2/MFC/stdafx.h
+# IcePatch2/README
+# IceStorm/clock/Clock.ice
+# IceStorm/clock/clockC.vcproj
+# IceStorm/clock/clockS.vcproj
+# IceStorm/clock/config.icebox
+# IceStorm/clock/config.pub
+# IceStorm/clock/config.service
+# IceStorm/clock/config.sub
+# IceStorm/clock/Makefile.mak
+# IceStorm/clock/Publisher.cpp
+# IceStorm/clock/README
+# IceStorm/clock/Subscriber.cpp
+# IceStorm/counter/Client.cpp
+# IceStorm/counter/config.client
+# IceStorm/counter/config.icebox
+# IceStorm/counter/config.server
+# IceStorm/counter/config.service
+# IceStorm/counter/Counter.ice
+# IceStorm/counter/counterC.vcproj
+# IceStorm/counter/CounterI.cpp
+# IceStorm/counter/CounterI.h
+# IceStorm/counter/CounterObserverI.cpp
+# IceStorm/counter/CounterObserverI.h
+# IceStorm/counter/counterS.vcproj
+# IceStorm/counter/Makefile.mak
+# IceStorm/counter/README
+# IceStorm/counter/Server.cpp
+# IceStorm/Makefile.mak
+# IceStorm/README
+# IceUtil/Makefile.mak
+# IceUtil/README
+# IceUtil/workqueue/Makefile.mak
+# IceUtil/workqueue/README
+# IceUtil/workqueue/WorkQueue.cpp
+# IceUtil/workqueue/workqueue.vcproj
+# Makefile.mak
+# README
+# Freeze/bench/db
+# Freeze/library/db
+# Freeze/phonebook/db
+# IceGrid/allocate/db
+# IceGrid/allocate/db/node
+# IceGrid/allocate/db/registry
+# IceGrid/sessionActivation/db
+# IceGrid/sessionActivation/db/node
+# IceGrid/sessionActivation/db/registry
+# IceGrid/simple/db
+# IceGrid/simple/db/node
+# IceGrid/simple/db/registry
+# IceStorm/clock/db

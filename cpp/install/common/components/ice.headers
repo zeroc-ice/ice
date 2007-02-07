@@ -1,5 +1,4 @@
 Ice/Properties
-Ice/GC
 Ice/GCCountMap
 Ice/ObjectAdapter
 Ice/UndefSysMacros
@@ -7,7 +6,6 @@ Ice/Incoming
 Ice/PropertiesF
 Ice/ReferenceF
 Ice/GCShared
-Ice/GCRecMutex
 Ice/Ice
 Ice/Handle
 Ice/ObjectAdapterF
