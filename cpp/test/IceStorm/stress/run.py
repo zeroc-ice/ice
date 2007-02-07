@@ -66,7 +66,8 @@ def doTest(subOpts, pubOpts):
     if type(subOpts) != type([]):
         subOpts = [ subOpts ]
     for opts in subOpts:
-        command = subscriber + TestUtil.clientServerOptions + r' ' + opts
+        # We don't want the subscribers to time out.
+        command = subscriber + TestUtil.clientServerOptions + r' --Ice.ServerIdleTime=0 ' + opts
         if TestUtil.debug:
             print "(" + command + ")",
             sys.stdout.flush()
@@ -90,7 +91,7 @@ def doTest(subOpts, pubOpts):
     for p in subscriberPipes:
         try:
             sys.stdout.flush()
-            subscriberStatus = TestUtil.specificServerStatus(p, 30)
+            subscriberStatus = TestUtil.specificServerStatus(p)
         except:
             print "(subscriber failed)",
             return 1
@@ -262,17 +263,26 @@ stopServers(server1, server2)
 server1, server2 = startServers()
 
 print "Sending 20000 unordered events with erratic subscriber... ",
-status = doTest(['--erratic 10 --events 20000' + iceStormReference, '--events 20000 ' + iceStormReference], '--events 20000 --oneway')
+status = doTest(\
+    [ '--erratic 5 --events 20000' + iceStormReference, \
+      '--erratic 5 --qos "reliability,ordered" --events 20000' + iceStormReference, \
+      '--events 20000' + iceStormReference], \
+      '--events 20000 --oneway')
 if status:
     print "failed!"
     TestUtil.killServers()
     sys.exit(1)
 print "ok"
 
-print "Sending 20000 unordered events with erratic subscriber across a link... ",
-status = doTest(['--erratic 10 --events 20000' + iceStormReference, '--events 20000 ' + iceStormReference, \
-                 '--erratic 10 --events 20000' + iceStormReference2, '--events 20000 ' + iceStormReference2], \
-                '--events 20000 --oneway')
+print "Sending 5000 unordered events with erratic subscriber across a link... ",
+status = doTest( \
+     [ '--events 5000' + iceStormReference, \
+       '--erratic 3 --qos "reliability,ordered" --events 5000 ' + iceStormReference, \
+       '--erratic 3 --events 5000 ' + iceStormReference, \
+       '--erratic 3 --events 5000 ' + iceStormReference2, \
+       '--erratic 3 --qos "reliability,ordered" --events 5000 ' + iceStormReference2, \
+       '--events 5000' + iceStormReference2 ], \
+       '--events 5000 --oneway ')
 if status:
     print "failed!"
     TestUtil.killServers()

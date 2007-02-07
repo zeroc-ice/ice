@@ -173,6 +173,7 @@ class ReaderThread(Thread):
                 if not line: break
                 # Suppress "adapter ready" messages. Under windows the eol isn't \n.
                 if not line.endswith(" ready\n") and not line.endswith(" ready\r\n"):
+                    sys.stdout.flush()
                     print line,
         except IOError:
             pass

@@ -205,7 +205,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    IceStorm::QoS qos;
+    IceStorm::QoS cmdLineQos;
 
     vector<string> sqos = opts.argVec("qos");
     for(vector<string>::const_iterator q = sqos.begin(); q != sqos.end(); ++q)
@@ -216,7 +216,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
             cerr << argv[0] << ": parse error: no , in QoS" << endl;
             return EXIT_FAILURE;
         }
-        qos[q->substr(0, off)] = q->substr(off+1);
+        cmdLineQos[q->substr(0, off)] = q->substr(off+1);
     }
 
     bool slow = opts.isSet("slow");
@@ -253,13 +253,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     vector<Subscription> subs;
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
-
-    string reliability = "";
-    EventIPtr servant;
     if(erratic)
     {
-        for(int i = 0 ; i< erraticNum; ++i)
+        for(int i = 0 ; i < erraticNum; ++i)
         {
             ostringstream os;
             os << "SubscriberAdapter" << i;
@@ -272,38 +268,26 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     else if(slow)
     {
-        servant = new SlowEventI(communicator, events);
+        Subscription item;
+        item.adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
+        item.servant = new SlowEventI(communicator, events);
+        item.qos = cmdLineQos;
+        subs.push_back(item);
     }
     else
     {
-        map<string, string>::iterator p = qos.find("reliability");
-        if(p != qos.end())
+        Subscription item;
+        item.adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
+        item.qos = cmdLineQos;
+        map<string, string>::const_iterator p = item.qos.find("reliability");
+        if(p != item.qos.end() && p->second == "ordered")
         {
-            reliability = p->second;
-            if(reliability != "ordered")
-            {
-                qos.erase(p);
-            }
-        }
-        if(reliability == "ordered")
-        {
-            servant = new OrderEventI(communicator, events);
+            item.servant = new OrderEventI(communicator, events);
         }
         else
         {
-            servant = new CountEventI(communicator, events);
+            item.servant = new CountEventI(communicator, events);
         }
-    }
-
-    //
-    // Activate the servants.
-    //
-    if(subs.empty())
-    {
-        Subscription item;
-        item.adapter = adapter;
-        item.servant = servant;
-        item.qos = qos;
         subs.push_back(item);
     }
 
@@ -322,9 +306,21 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         for(vector<Subscription>::iterator p = subs.begin(); p != subs.end(); ++p)
         {
             p->obj = p->adapter->addWithUUID(p->servant);
-            if(reliability == "twoway" || reliability == "ordered")
+
+            IceStorm::QoS qos;
+            string reliability = "";
+            IceStorm::QoS::const_iterator q = p->qos.find("reliability");
+            if(q != p->qos.end())
+            {
+                reliability = q->second;
+            }
+            if(reliability == "twoway")
             {
                 // Do nothing.
+            }
+            else if(reliability == "ordered")
+            {
+                qos["reliability"] = "ordered";
             }
             else if(reliability == "batch")
             {
