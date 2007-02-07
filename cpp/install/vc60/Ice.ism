@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>##ID_STRING23##</subject>
+		<subject>Ice 3.2b for Visual Studio 6.0</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING18##</comments>
@@ -1039,10 +1039,7 @@
 		<row><td>FavoritesFolder</td><td>TARGETDIR</td><td>.:FAVORI~1|Favorites</td><td/><td>0</td><td/></row>
 		<row><td>FontsFolder</td><td>TARGETDIR</td><td>.:Fonts</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
-		<row><td>ICE</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-VC60</td><td/><td>0</td><td/></row>
-		<row><td>ICE_2.1.0_THIRD_PARTY_PACKAGES</td><td>WindowsVolume</td><td>ICE-2_~1|Ice-2.1.0-ThirdParty</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.0.1_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC60</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.2.0_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-VC60</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.2.0_VC60</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2b-VC60</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.2.0_VC60</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1518,7 +1515,7 @@
 		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice\common\html</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePHPDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\php\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePHPExtension</td><td>&lt;ISProjectFolder&gt;\install\ice\php\extension</td><td>4</td><td/><td/><td>2</td></row>
-		<row><td>IceRubyDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\demo\demorb</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceRubyDemo</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceRubyDev</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceRubyRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\ruby\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
@@ -1732,7 +1729,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2.0-VC60</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2b-VC60</td></row>
 		<row><td>ZEROC</td><td>PackageCode</td><td>{32A696E2-84B4-4E0F-8535-0F48B0BB36A8}</td></row>
 		<row><td>ZEROC</td><td>ProductCode</td><td>{10F97715-FD99-4440-BB77-8EA3DE1CB1A5}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
@@ -2385,9 +2382,9 @@
 		<row><td>ID_STRING20</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234775635</td></row>
 		<row><td>ID_STRING21</td><td>1033</td><td>Ice for PHP</td><td>0</td><td/><td>1402617014</td></row>
 		<row><td>ID_STRING22</td><td>1033</td><td>PHP Development</td><td>0</td><td/><td>1402633398</td></row>
-		<row><td>ID_STRING23</td><td>1033</td><td>Ice 3.2.0 for Visual Studio 6.0</td><td>0</td><td/><td>1713008397</td></row>
-		<row><td>ID_STRING24</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>1620829040</td></row>
-		<row><td>ID_STRING25</td><td>1033</td><td>NewFeature1</td><td>0</td><td/><td>1620788112</td></row>
+		<row><td>ID_STRING23</td><td>1033</td><td>Ice 3.2b for Visual Studio 6.0</td><td>0</td><td/><td>1713008397</td></row>
+		<row><td>ID_STRING24</td><td>1033</td><td>Ice for Ruby</td><td>0</td><td/><td>958085676</td></row>
+		<row><td>ID_STRING25</td><td>1033</td><td>Ruby development</td><td>0</td><td/><td>958095916</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
@@ -2792,8 +2789,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ProductCode</td><td>{c1e6ab0c-8577-4df5-b83e-2a3361d9e4ad}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.2.0 for Visual Studio 6.0</td><td/></row>
-		<row><td>ProductVersion</td><td>3.2.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.2b for Visual Studio 6.0</td><td/></row>
+		<row><td>ProductVersion</td><td>3.2.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

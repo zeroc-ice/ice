@@ -48,6 +48,7 @@ def recursiveListing(path):
     for x in files:
         fullpath = os.path.join(path, x);
         if os.path.isdir(fullpath) and not os.path.islink(fullpath):
+            result.append(fullpath)
             result.extend(recursiveListing(fullpath))
         else:
             result.append(fullpath)
@@ -97,7 +98,7 @@ class FileSpecWorker:
                 if f.endswith("/**"):
                     midmatchIncludes.append(".*%s.*" %f[3:len(f) -3].replace('/', '.'))
                 else:
-                    recursiveIncludes.append(f[3:])
+                    recursiveIncludes.append("*%s" % f[3:])
             else:
                 if f.endswith("/**"):
                     midmatchIncludes.append("%s.*" %f[0:len(f) -3].replace('/', '.'))
@@ -109,7 +110,7 @@ class FileSpecWorker:
                 if f.endswith("/**"):
                     midmatchExcludes.append(".*%s.*" % f[3:len(f) -3].replace('/', '.'))
                 else:
-                    recursiveExcludes.append(f[3:])
+                    recursiveExcludes.append("*%s" % f[3:])
             else:
                 if f.endswith("/**"):
                     midmatchExcludes.append("%s.*" %f[0:len(f) -3].replace('/', '.'))
@@ -208,10 +209,9 @@ class FileSpecWorker:
             cachedResults = cacheFile.readlines()
             cacheFile.close()
 
-        for i in range(0, len(cachedResults)):
-            cachedResults[i] = cachedResults[i].rstrip()
-
         if cachedResults != None:
+            for i in range(0, len(cachedResults)):
+                cachedResults[i] = cachedResults[i].rstrip()
             previous = set(cachedResults)
             current = set(result)
             added = current - previous
@@ -371,7 +371,7 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
 
                     componentFile = file(filename, "r")
                     try:
-                        worker = FileSpecWorker(filename, source, os.path.join(currentBase, dest))
+                        worker = FileSpecWorker("%s.%s.%d" % (filename, section.replace(" ", "_"), i), source, os.path.join(currentBase, dest))
                         for line in componentFile:
                             current = line.strip()
                             if line.startswith('#'):

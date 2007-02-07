@@ -143,7 +143,7 @@ def checkSources(sourceDir):
         raise DistEnvironmentError(msg)
 
     keyVersion = '0.0.0'
-    exp = re.compile("Ice-([0-9.]*).*.zip")
+    exp = re.compile("Ice-([0-9.b]*).*.zip")
     current = None
     for d in icezip:
         m = exp.match(os.path.split(d)[1])
@@ -556,7 +556,7 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installe
     #
     os.chdir(startDir)
     for project, release in installers:
-        runprog(os.environ['INSTALLSHIELD_HOME'] + "\ISCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
+        runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
         msi = project + "-" + sourcesVersion + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
         shutil.copy(msiPath, stageDir)
@@ -706,6 +706,8 @@ def main():
         defaults['dbver'] = '45'
         defaults['version'] = sourcesVersion
         defaults['dllversion'] = sourcesVersion.replace('.', '')[:2]
+        if sourcesVersion.find('b') != -1:
+            defaults['dllversion'] = defaults['dllversion'] + 'b'
         
         if target == "vc80_x64":
             defaults['OutDir'] = "x64/"
