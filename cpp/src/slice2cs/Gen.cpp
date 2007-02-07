@@ -1989,6 +1989,40 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 
+    vector<string> allParamDecl;
+    for(q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+        string memberType = typeToString((*q)->type());
+        allParamDecl.push_back(memberType + " " + memberName);
+    }
+
+    vector<string> paramNames;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        paramNames.push_back(fixId((*q)->name()));
+    }
+
+    vector<string> paramDecl;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+        string memberType = typeToString((*q)->type());
+        paramDecl.push_back(memberType + " " + memberName);
+    }
+
+    vector<string> baseParamNames;
+    DataMemberList baseDataMembers;
+
+    if(p->base())
+    {
+        baseDataMembers = p->base()->allDataMembers();
+        for(q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+        {
+            baseParamNames.push_back(fixId((*q)->name()));
+        }
+    }
+
     if(!dataMembers.empty())
     {
         _out << sp << nl << "#endregion"; // Slice data members
@@ -1996,23 +2030,56 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
     _out << sp << nl << "#region Constructors";
 
-    _out << sp << nl << "private static readonly string _dflt = \"" << name << "\";";
-
-    _out << sp << nl << "public " << name << "() : base(_dflt)";
+    _out << sp << nl << "public " << name << "()";
     _out << sb;
     _out << eb;
 
-    _out << sp << nl << "public " << name << "(string m__) : base(m__)";
+    _out << sp << nl << "public " << name << "(_System.Exception ex__) : base(ex__)";
     _out << sb;
     _out << eb;
 
-    _out << sp << nl << "public " << name << "(_System.Exception ex__) : base(_dflt, ex__)";
-    _out << sb;
-    _out << eb;
+    if(!allDataMembers.empty())
+    {
+        if(!dataMembers.empty())
+        {
+            _out << sp << nl << "private void initDM__" << spar << paramDecl << epar;
+            _out << sb;
+            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                _out << nl << "this." << fixId((*q)->name()) << " = " << fixId((*q)->name()) << ';';
+            }
+            _out << eb;
+        }
 
-    _out << sp << nl << "public " << name << "(string m__, _System.Exception ex__) : base(m__, ex__)";
-    _out << sb;
-    _out << eb;
+        _out << sp << nl << "public " << name << spar << allParamDecl << epar;
+        if(p->base() && allDataMembers.size() != dataMembers.size())
+        {
+            _out << " : base" << spar << baseParamNames << epar;
+        }
+        _out << sb;
+        if(!dataMembers.empty())
+        {
+            _out << nl << "initDM__" << spar << paramNames << epar << ';';
+        }
+        _out << eb;
+
+        vector<string> exceptionParam;
+        exceptionParam.push_back("ex__");
+        vector<string> exceptionDecl;
+        exceptionDecl.push_back("_System.Exception ex__");
+        _out << sp << nl << "public " << name << spar << allParamDecl << exceptionDecl << epar << " : base" << spar;
+        if(p->base() && allDataMembers.size() != dataMembers.size())
+        {
+            _out << baseParamNames;
+        }
+        _out << exceptionParam << epar;
+        _out << sb;
+        if(!dataMembers.empty())
+        {
+            _out << nl << "initDM__" << spar << paramNames << epar << ';';
+        }
+        _out << eb;
+    }
 
     _out << sp << nl << "#endregion"; // Constructors
 
