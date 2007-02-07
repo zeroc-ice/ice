@@ -1490,16 +1490,16 @@ namespace Ice
                 _servantManager = adapterImpl.getServantManager();
             }
 
-            try
+            if(!threadPerConnection)
             {
-                if(!threadPerConnection)
+                //
+                // Only set _threadPool if we really need it, i.e., if we are
+                // not in thread per connection mode. Thread pools have lazy
+                // initialization in Instance, and we don't want them to be
+                // created if they are not needed.
+                //
+                try
                 {
-                    //
-                    // Only set _threadPool if we really need it, i.e., if we are
-                    // not in thread per connection mode. Thread pools have lazy
-                    // initialization in Instance, and we don't want them to be
-                    // created if they are not needed.
-                    //
                     if(adapterImpl != null)
                     {
                         _threadPool = adapterImpl.getThreadPool();
@@ -1509,38 +1509,61 @@ namespace Ice
                         _threadPool = instance.clientThreadPool();
                     }
                 }
-                else
+                catch(System.Exception ex)
                 {
-                    //
-                    // If we are in thread per connection mode, create the thread
-                    // for this connection.
-                    //
-                    _thread = new Thread(new ThreadStart(RunThreadPerConnection));
-                    _thread.IsBackground = true;
-                    _thread.Start();
-                }
-            }
-            catch(System.Exception ex)
-            {
-                if(threadPerConnection)
-                {
-                    _logger.error("cannot create thread for connection:\n" + ex);
-                }
+                    try
+                    {
+                        _transceiver.close();
+                    }
+                    catch(LocalException)
+                    {
+                        // Here we ignore any exceptions in close().
+                    }
 
-                try
-                {
-                    _transceiver.close();
+                    throw new Ice.SyscallException(ex);
                 }
-                catch(LocalException)
-                {
-                    // Here we ignore any exceptions in close().
-                }
-
-                throw new Ice.SyscallException(ex);
             }
 
             _overrideCompress = instance_.defaultsAndOverrides().overrideCompress;
             _overrideCompressValue = instance_.defaultsAndOverrides().overrideCompressValue;
+        }
+
+        public void start()
+        {
+            //
+            // If we are in thread per connection mode, create the thread for this connection.
+            //
+            if(_threadPerConnection)
+            {
+                try
+                {
+                    _thread = new Thread(new ThreadStart(RunThreadPerConnection));
+                    _thread.IsBackground = true;
+                    _thread.Start();
+                }
+                catch(System.Exception ex)
+                {
+                    _logger.error("cannot create thread for connection:\n" + ex);
+
+                    try
+                    {
+                        _transceiver.close();
+                    }
+                    catch(LocalException)
+                    {
+                        // Here we ignore any exceptions in close().
+                    }
+
+                    //
+                    // Clean up.
+                    //
+                    _transceiver = null;
+                    _thread = null;
+                    _state = StateClosed;
+
+                    throw new Ice.SyscallException(ex);
+                }
+            }
         }
 
         private const int StateNotValidated = 0;

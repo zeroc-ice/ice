@@ -305,6 +305,7 @@ namespace IceInternal
                         Debug.Assert(transceiver != null);
                     }
                     connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null, threadPerConnection);
+                    connection.start();
                     connection.validate();
 
                     if(defaultsAndOverrides.overrideCompress)
@@ -779,8 +780,9 @@ namespace IceInternal
 
                     try
                     {
-                        connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter,
-                                                         _threadPerConnection);
+                        Debug.Assert(!_threadPerConnection);
+                        connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter, false);
+                        connection.start();
                     }
                     catch(Ice.LocalException)
                     {
@@ -910,6 +912,7 @@ namespace IceInternal
                     {
                         connection = new Ice.ConnectionI(instance_, _transceiver, _endpoint, _adapter,
                                                          _threadPerConnection);
+                        connection.start();
                         connection.validate();
                     }
                     catch(Ice.LocalException)
@@ -1224,6 +1227,7 @@ namespace IceInternal
                         {
                             connection = new Ice.ConnectionI(instance_, transceiver, _endpoint, _adapter,
                                                              _threadPerConnection);
+                            connection.start();
                         }
                         catch(Ice.LocalException)
                         {
