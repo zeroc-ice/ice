@@ -1,11 +1,16 @@
 This is a PHP version of the Ice "value" demo client.
 
-First, review the comments in the php.ini file to determine whether
-any changes are needed for your environment.
+First, start the value demo server, using any of the supported language
+mappings, on this host.
 
-Next, start the value demo server, using any of the supported language
-mappings, on this host. Finally, run the PHP client with the following
-command:
+Then, if you are using a RPM installation of ice-php, run the Ice PHP
+client:
+
+$ php -f Client.php
+
+Otherwise, review the comments in the php.ini file to determine whether
+any changes are needed for your environment, and then run the Ice PHP
+client:
 
 $ php -c php.ini -f Client.php
 
