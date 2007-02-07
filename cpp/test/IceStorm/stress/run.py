@@ -249,46 +249,47 @@ if status:
     sys.exit(1)
 print "ok"
 
-if False:
-    #
-    # The erratic tests emit lots of connection warnings so they are
-    # disabled here. The IceStorm servers are stopped and restarted so the
-    # settings will take effect.
-    #
-    TestUtil.clientOptions = TestUtil.clientOptions + ' --Ice.Warn.Connections=0'
-    TestUtil.serverOptions = TestUtil.serverOptions + ' --Ice.Warn.Connections=0'
-    TestUtil.clientServerOptions = TestUtil.clientServerOptions + ' --Ice.Warn.Connections=0'
-    TestUtil.collocatedOptions = TestUtil.collocatedOptions + ' --Ice.Warn.Connections=0'
+#
+# The erratic tests emit lots of connection warnings so they are
+# disabled here. The IceStorm servers are stopped and restarted so the
+# settings will take effect.
+#
+TestUtil.clientOptions = TestUtil.clientOptions + ' --Ice.Warn.Connections=0'
+TestUtil.serverOptions = TestUtil.serverOptions + ' --Ice.Warn.Connections=0'
+TestUtil.clientServerOptions = TestUtil.clientServerOptions + ' --Ice.Warn.Connections=0'
+TestUtil.collocatedOptions = TestUtil.collocatedOptions + ' --Ice.Warn.Connections=0'
 
-    stopServers(server1, server2)
-    server1, server2 = startServers()
+stopServers(server1, server2)
+server1, server2 = startServers()
 
-    print "Sending 2000 unordered events with erratic subscriber... ",
-    status = doTest(\
-        [ '--erratic 5 --qos "reliability,ordered" --events 2000' + iceStormReference, \
-          '--erratic 5 --events 2000' + iceStormReference, \
-          '--events 2000' + iceStormReference], \
-          '--events 2000 --oneway')
-    if status:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
-    print "ok"
+print "Sending 20000 unordered events with erratic subscriber... ",
+sys.stdout.flush()
+status = doTest(\
+    [ '--erratic 5 --qos "reliability,ordered" --events 20000' + iceStormReference, \
+      '--erratic 5 --events 20000' + iceStormReference, \
+      '--events 20000' + iceStormReference], \
+      '--events 20000 --oneway')
+if status:
+    print "failed!"
+    TestUtil.killServers()
+    sys.exit(1)
+print "ok"
 
-    print "Sending 2000 unordered events with erratic subscriber across a link... ",
-    status = doTest( \
-         [ '--events 2000' + iceStormReference, \
-           '--erratic 5 --qos "reliability,ordered" --events 2000 ' + iceStormReference, \
-           '--erratic 5 --events 2000 ' + iceStormReference, \
-           '--events 2000' + iceStormReference2, \
-           '--erratic 5 --qos "reliability,ordered" --events 2000 ' + iceStormReference2, \
-           '--erratic 5 --events 2000 ' + iceStormReference2], \
-           '--events 2000 --oneway ')
-    if status:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
-    print "ok"
+print "Sending 20000 unordered events with erratic subscriber across a link... ",
+sys.stdout.flush()
+status = doTest( \
+     [ '--events 20000' + iceStormReference, \
+       '--erratic 5 --qos "reliability,ordered" --events 20000 ' + iceStormReference, \
+       '--erratic 5 --events 20000 ' + iceStormReference, \
+       '--events 20000' + iceStormReference2, \
+       '--erratic 5 --qos "reliability,ordered" --events 20000 ' + iceStormReference2, \
+       '--erratic 5 --events 20000 ' + iceStormReference2], \
+       '--events 20000 --oneway ')
+if status:
+    print "failed!"
+    TestUtil.killServers()
+    sys.exit(1)
+print "ok"
 
 #
 # Shutdown icestorm.
