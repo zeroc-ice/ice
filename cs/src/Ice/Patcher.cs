@@ -52,7 +52,7 @@ namespace IceInternal
             Debug.Assert(type_ != null);
             if(v != null && !type_.IsInstanceOfType(v))
             {
-                Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException(
+                throw new Ice.UnexpectedObjectException(
                         "unexpected class instance of type `" + v.ice_id()
                             + "'; expected instance of type '" + _expectedSliceType + "'",
                         v.ice_id(), _expectedSliceType);
