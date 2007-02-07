@@ -324,6 +324,7 @@ public final class OutgoingConnectionFactory
                     assert(transceiver != null);
                 }
                 connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null, threadPerConnection);
+                connection.start();
                 connection.validate();
 
                 if(defaultsAndOverrides.overrideCompress)

@@ -1567,16 +1567,16 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
             _servantManager = null;
         }
 
-        try
+        if(!threadPerConnection)
         {
-            if(!threadPerConnection)
+            //
+            // Only set _threadPool if we really need it, i.e., if we are
+            // not in thread per connection mode. Thread pools have lazy
+            // initialization in Instance, and we don't want them to be
+            // created if they are not needed.
+            //
+            try
             {
-                //
-                // Only set _threadPool if we really need it, i.e., if we are
-                // not in thread per connection mode. Thread pools have lazy
-                // initialization in Instance, and we don't want them to be
-                // created if they are not needed.
-                //
                 if(_adapter != null)
                 {
                     _threadPool = ((ObjectAdapterI)_adapter).getThreadPool();
@@ -1586,41 +1586,25 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     _threadPool = _instance.clientThreadPool();
                 }
             }
-            else
+            catch(java.lang.Exception ex)
             {
-                _threadPool = null;
+                try
+                {
+                    _transceiver.close();
+                }
+                catch(LocalException e)
+                {
+                    // Here we ignore any exceptions in close().
+                }
                 
-                //
-                // If we are in thread per connection mode, create the thread
-                // for this connection.
-                //
-                _thread = new ThreadPerConnection();
-                _thread.start();
+                Ice.SyscallException e = new Ice.SyscallException();
+                e.initCause(ex);
+                throw e;
             }
         }
-        catch(java.lang.Exception ex)
+        else
         {
-            if(threadPerConnection)
-            {
-                java.io.StringWriter sw = new java.io.StringWriter();
-                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                ex.printStackTrace(pw);
-                pw.flush();
-                _logger.error("cannot create thread for connection:\n" + sw.toString());
-            }
-            
-            try
-            {
-                _transceiver.close();
-            }
-            catch(LocalException e)
-            {
-                // Here we ignore any exceptions in close().
-            }
-            
-            Ice.SyscallException e = new Ice.SyscallException();
-            e.initCause(ex);
-            throw e;
+            _threadPool = null; // To satisfy the compiler.
         }
 
         _overrideCompress = _instance.defaultsAndOverrides().overrideCompress;
@@ -1637,6 +1621,50 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         IceUtil.Assert.FinalizerAssert(_thread == null);
 
         super.finalize();
+    }
+
+    public void
+    start()
+    {
+        //
+        // If we are in thread per connection mode, create the thread for this connection.
+        //
+        if(_threadPerConnection)
+        {
+            try
+            {
+                _thread = new ThreadPerConnection();
+                _thread.start();
+            }
+            catch(java.lang.Exception ex)
+            {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _logger.error("cannot create thread for connection:\n" + sw.toString());
+
+                try
+                {
+                    _transceiver.close();
+                }
+                catch(LocalException e)
+                {
+                    // Here we ignore any exceptions in close().
+                }
+
+                //
+                // Clean up.
+                //
+                _transceiver = null;
+                _thread = null;
+                _state = StateClosed;
+
+                Ice.SyscallException e = new Ice.SyscallException();
+                e.initCause(ex);
+                throw e;
+            }
+        }
     }
 
     private static final int StateNotValidated = 0;

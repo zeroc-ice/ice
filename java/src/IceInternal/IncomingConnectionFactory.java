@@ -280,7 +280,9 @@ public final class IncomingConnectionFactory extends EventHandler
 
                 try
                 {
-                    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter, _threadPerConnection);
+                    assert(!_threadPerConnection);
+                    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter, false);
+                    connection.start();
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -301,7 +303,7 @@ public final class IncomingConnectionFactory extends EventHandler
         }
 
         assert(connection != null);
-        
+
         //
         // We validate and activate outside the thread
         // synchronization, to not block the factory.
@@ -401,6 +403,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter,
                                                      _threadPerConnection);
+                    connection.start();
                     connection.validate();
                 }
                 catch(Ice.LocalException ex)
@@ -736,6 +739,7 @@ public final class IncomingConnectionFactory extends EventHandler
                     {
                         connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter,
                                                          _threadPerConnection);
+                        connection.start();
                     }
                     catch(Ice.LocalException ex)
                     {
