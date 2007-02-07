@@ -105,9 +105,9 @@
 	</and>
     </condition>
 
-    <condition property="ice.dir" value="/opt/Ice-${ice.version.major}.${ice.version.minor}">
+    <condition property="ice.dir" value="/opt/Ice-${ice.version}">
 	<and>
-	    <available file="/opt/Ice-${ice.version.major}.${ice.version.minor}/slice" />
+	    <available file="/opt/Ice-${ice.version}/slice" />
 	    <not>
 		<isset property="ice.dir"/>
 	    </not>
@@ -149,7 +149,7 @@
     <!-- RPM -->
     <condition property="icej.dir" value="/usr">
 	<and>
-	    <available file="/usr/lib/Ice-${ice.version.major}.${ice.version.minor}.${ice.version.patch}/Ice.jar"/>
+	    <available file="/usr/lib/Ice-${ice.version}/Ice.jar"/>
 	    <not>
 		<isset property="icej.dir"/>
 	    </not>
@@ -198,9 +198,9 @@
     <target name="config-init">
 
 	<!-- In C++, RPM installs have precedence over installs in the default Ice location 
-	     (i.e. /opt/Ice-${ice.version.major}.${ice.version.minor}) so the same will be done here. -->
+	     (i.e. /opt/Ice-${ice.version}) so the same will be done here. -->
 	<condition property="lib.dir" 
-	    value="/usr/lib/Ice-${ice.version.major}.${ice.version.minor}.${ice.version.patch}"
+	    value="/usr/lib/Ice-${ice.version}"
 	    else="${icej.dir}/lib">
 	    <isset property="with-rpm"/>
 	</condition>
