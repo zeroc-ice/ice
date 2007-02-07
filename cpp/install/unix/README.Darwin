@@ -37,15 +37,18 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Mac OS X 10.4.7 using the
-default C++ compiler, GCC 4.0.1.
+This binary distribution was compiled on Mac OS X 10.4.8 using the
+default C++ compiler, GCC 4.0.1. 
+
+This distribution only includes Intel binaries. If you need PowerPC
+binaries, you can download the Ice for C++ source code from the ZeroC
+web site at http://www.zeroc.com/download.html.
 
 
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2, which is included with Mac OS X
-10.3.4 and later, or J2SE 1.5.0.
+Ice for Java requires J2SE 1.4.2 or J2SE 1.5.0.
 
 
 Python
@@ -62,7 +65,7 @@ Berkeley DB and Expat
 ======================================================================
 
 This distribution includes the C++ and Java runtime for Berkeley DB
-4.3.29 and the Expat 1.95.8 library. The Berkeley DB C++ runtime was
+4.5.20 and the Expat 2.0.0 library. The Berkeley DB C++ runtime was
 built using GCC 4.0.1. The Berkeley DB and Expat licenses are provided
 in the file THIRD_PARTY_LICENSE.
 
@@ -120,10 +123,10 @@ CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
-To use the Java5 version of Ice instead, modify your CLASSPATH as
+To use the Java2 version of Ice instead, modify your CLASSPATH as
 follows:
 
-$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/java2/Ice.jar:$CLASSPATH
 
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:
