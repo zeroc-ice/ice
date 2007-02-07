@@ -58,16 +58,13 @@ THIRDPARTY_HOME		= $(THIRDPARTY_HOME)-x64
 !endif
 
 #
-# For VC80 and VC8 express its necessary to set the location of the
-# manifest tool. This must be the 6.x version of MT, not the 5.x
+# For VC80 and VC80 Express it is necessary to set the location of the
+# manifest tool. This must be the 6.x version of mt.exe, not the 5.x
 # version!
 #
-# For VC80 this is in the Common7/Tools directory. This location is
-# set through the standard VC8 environment variable VC80COMNTOOLS.
-#
-# For VC8 express this means using the version in the platform SDK. It
-# is necessary to set the location of the platform sdk through the
-# PDK_HOME variable (see INSTALL.WINDOWS for details).
+# For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK. 
+# It is necessary to set the location of the Platform SDK through the
+# PDK_HOME environment variable (see INSTALL.WINDOWS for details).
 #
 !if "$(CPP_COMPILER)" == "VC80"
 MT = "$(VS80COMNTOOLS)bin\mt.exe"
