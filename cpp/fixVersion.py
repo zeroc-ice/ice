@@ -285,7 +285,9 @@ if not patchIceE:
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
         for f in find(icecs_home, "*.pc"):
-            fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]*" + vpatMatch, version)])
+            print "matching " + f
+            fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + vpatMatch,
+                                     majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
 
     #
     # Fix version in IceVB sources
