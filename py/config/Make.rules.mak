@@ -54,7 +54,7 @@ STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 #
 # For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK. 
 # It is necessary to set the location of the Platform SDK through the
-# PDK_HOME environment variable (see INSTALL.WINDOWS for details).
+# PDK_HOME environment variable (see INSTALL for details).
 #
 !if "$(CPP_COMPILER)" == "VC80"
 MT = "$(VS80COMNTOOLS)bin\mt.exe"
