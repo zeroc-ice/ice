@@ -42,11 +42,11 @@ $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
 	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) \
-		$(PREOUT)$(DLLNAME) $(PRELIBS)$(LINKWITH)
-	move $(DLLNAME:.pyd=.lib) $(LIBNAME)
-	-if exist $(DLLNAME).manifest \
-	   mt -nologo -manifest $(DLLNAME).manifest -outputresource:$(DLLNAME);#2 & del /q $(DLLNAME).manifest
-	-if exist $(DLLNAME:.pyd=.exp) del /q $(DLLNAME:.pyd=.exp)
+		$(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	move $(@:.pyd=.lib) $(LIBNAME)
+	-if exist $@.manifest \
+	   $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
+	-if exist $(@:.pyd=.exp) del /q $(@:.pyd=.exp)
 
 install:: all
 	copy $(DLLNAME) $(install_libdir)
