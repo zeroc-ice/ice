@@ -1572,6 +1572,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
                               size_t threadPerConnectionStackSize) :
     EventHandler(instance),
     _threadPerConnection(threadPerConnection),
+    _threadPerConnectionStackSize(threadPerConnectionStackSize),
     _transceiver(transceiver),
     _desc(transceiver->toString()),
     _type(transceiver->type()),
@@ -1633,17 +1634,17 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
         _servantManager = adapterImpl->getServantManager();
     }
 
-    __setNoDelete(true);
-    try
+    if(!threadPerConnection)
     {
-        if(!threadPerConnection)
+        //
+        // Only set _threadPool if we really need it, i.e., if we are
+        // not in thread per connection mode. Thread pools have lazy
+        // initialization in Instance, and we don't want them to be
+        // created if they are not needed.
+        //
+        __setNoDelete(true);
+        try
         {
-            //
-            // Only set _threadPool if we really need it, i.e., if we are
-            // not in thread per connection mode. Thread pools have lazy
-            // initialization in Instance, and we don't want them to be
-            // created if they are not needed.
-            //
             if(adapterImpl)
             {
                 const_cast<ThreadPoolPtr&>(_threadPool) = adapterImpl->getThreadPool();
@@ -1654,41 +1655,22 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
             }
             _threadPool->incFdsInUse();
         }
-        else
+        catch(const IceUtil::Exception& ex)
         {
-            //
-            // If we are in thread per connection mode, create the
-            // thread for this connection.
-            //
-            _thread = new ThreadPerConnection(this);
-            _thread->start(threadPerConnectionStackSize);
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        {
-            Error out(_logger);
-            if(threadPerConnection)
+            try
             {
-                out << "cannot create thread for connection:\n" << ex;
+                _transceiver->close();
             }
-            // Otherwise with thread pool the thread pool itself
-            // prints a warning if the threads cannot be created.
+            catch(const LocalException&)
+            {
+                // Here we ignore any exceptions in close().
+            }
+
+            __setNoDelete(false);
+            ex.ice_throw();
         }
-        
-        try
-        {
-            _transceiver->close();
-        }
-        catch(const LocalException&)
-        {
-            // Here we ignore any exceptions in close().
-        }
-        
         __setNoDelete(false);
-        ex.ice_throw();
     }
-    __setNoDelete(false);
 }
 
 Ice::ConnectionI::~ConnectionI()
@@ -1697,6 +1679,49 @@ Ice::ConnectionI::~ConnectionI()
     assert(!_transceiver);
     assert(_dispatchCount == 0);
     assert(!_thread);
+}
+
+void
+Ice::ConnectionI::start()
+{
+    //
+    // If we are in thread per connection mode, create the thread for this connection.
+    // We can't start the thread in the constructor because it can cause a race condition
+    // (see bug 1718).
+    //
+    if(_threadPerConnection)
+    {
+        try
+        {
+            _thread = new ThreadPerConnection(this);
+            _thread->start(_threadPerConnectionStackSize);
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            {
+                Error out(_logger);
+                out << "cannot create thread for connection:\n" << ex;
+            }
+
+            try
+            {
+                _transceiver->close();
+            }
+            catch(const LocalException&)
+            {
+                // Here we ignore any exceptions in close().
+            }
+
+            //
+            // Clean up.
+            //
+            _transceiver = 0;
+            _thread = 0;
+            _state = StateClosed;
+
+            ex.ice_throw();
+        }
+    }
 }
 
 void

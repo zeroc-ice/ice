@@ -294,6 +294,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
             }       
             connection = new ConnectionI(_instance, transceiver, endpoint, 0, threadPerConnection,
                                          _instance->threadPerConnectionStackSize());
+            connection->start();
             connection->validate();
 
             if(_instance->defaultsAndOverrides()->overrideCompress)
@@ -762,8 +763,9 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 
         try
         {
-            connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter, _threadPerConnection,
-                                         _threadPerConnectionStackSize);
+            assert(!_threadPerConnection);
+            connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter, false, 0);
+            connection->start();
         }
         catch(const LocalException&)
         {
@@ -872,6 +874,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
         {
             connection = new ConnectionI(_instance, _transceiver, _endpoint, _adapter, _threadPerConnection,
                                          _threadPerConnectionStackSize);
+            connection->start();
             connection->validate();
         }
         catch(const LocalException&)
@@ -1144,6 +1147,7 @@ IceInternal::IncomingConnectionFactory::run()
                 {
                     connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter, _threadPerConnection,
                                                  _threadPerConnectionStackSize);
+                    connection->start();
                 }
                 catch(const LocalException&)
                 {

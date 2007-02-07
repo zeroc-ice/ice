@@ -105,6 +105,7 @@ private:
     ConnectionI(const IceInternal::InstancePtr&, const IceInternal::TransceiverPtr&, 
                 const IceInternal::EndpointIPtr&, const ObjectAdapterPtr&, bool, size_t);
     virtual ~ConnectionI();
+    void start();
     friend class IceInternal::IncomingConnectionFactory;
     friend class IceInternal::OutgoingConnectionFactory;
 
@@ -153,6 +154,7 @@ private:
     // Defined as mutable because "isFinished() const" sets this to 0.
     mutable IceUtil::ThreadPtr _thread;
     const bool _threadPerConnection;
+    const size_t _threadPerConnectionStackSize;
 
     IceInternal::TransceiverPtr _transceiver;
     const std::string _desc;
