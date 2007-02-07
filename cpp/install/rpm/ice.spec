@@ -280,22 +280,22 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 mv $RPM_BUILD_ROOT/usr/lib/Ice.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/Ice.jar
 mv $RPM_BUILD_ROOT/usr/lib/java2 $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/java2
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icecs/%{version}.0__1f998c50fec78381
+mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381
 mv $RPM_BUILD_ROOT/bin/icecs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381/icecs.dll
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/glacier2cs/%{version}.0__1f998c50fec78381
+mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381
 mv $RPM_BUILD_ROOT/bin/glacier2cs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381/glacier2cs.dll
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/iceboxcs/%{version}.0__1f998c50fec78381
+mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381
 mv $RPM_BUILD_ROOT/bin/iceboxcs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381/iceboxcs.dll
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icegridcs/%{version}.0__1f998c50fec78381
+mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381
 mv $RPM_BUILD_ROOT/bin/icegridcs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381/icegridcs.dll
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icepatch2cs/%{version}.0__1f998c50fec78381
+mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381
 mv $RPM_BUILD_ROOT/bin/icepatch2cs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381/icepatch2cs.dll
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icestormcs/%{version}.0__1f998c50fec78381
+mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381
 mv $RPM_BUILD_ROOT/bin/icestormcs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381/icestormcs.dll
 
 #
@@ -629,7 +629,7 @@ solution, and much more.
 %defattr(644, root, root, 755)
 
 %attr(755, root, root) /usr/bin/slice2cs
-%dir /usr/share/doc/Ice-%{version}
+%dir /usr/%{icelibdir}/pkgconfig
 /usr/%{icelibdir}/pkgconfig/icecs.pc
 /usr/%{icelibdir}/pkgconfig/glacier2cs.pc
 /usr/%{icelibdir}/pkgconfig/iceboxcs.pc
@@ -766,14 +766,25 @@ pklibdir="lib64"
 %files dotnet
 %defattr(644, root, root, 755)
 
-/usr/lib/mono/gac/glacier2cs/%{version}.0__1f998c50fec78381/glacier2cs.dll
-/usr/lib/mono/gac/icecs/%{version}.0__1f998c50fec78381/icecs.dll
-/usr/lib/mono/gac/iceboxcs/%{version}.0__1f998c50fec78381/iceboxcs.dll
-/usr/lib/mono/gac/icegridcs/%{version}.0__1f998c50fec78381/icegridcs.dll
-/usr/lib/mono/gac/icepatch2cs/%{version}.0__1f998c50fec78381/icepatch2cs.dll
-/usr/lib/mono/gac/icestormcs/%{version}.0__1f998c50fec78381/icestormcs.dll
+%dir /usr/lib/mono/gac/glacier2cs
+%dir /usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381
+/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381/glacier2cs.dll
+%dir /usr/lib/mono/gac/icecs
+%dir /usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381
+/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381/icecs.dll
+%dir /usr/lib/mono/gac/iceboxcs
+%dir /usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381
+/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381/iceboxcs.dll
+%dir /usr/lib/mono/gac/icegridcs
+%dir /usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381
+/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381/icegridcs.dll
+%dir /usr/lib/mono/gac/icepatch2cs
+%dir /usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381
+/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381/icepatch2cs.dll
+%dir /usr/lib/mono/gac/icestormcs
+%dir /usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381
+/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381/icestormcs.dll
 %attr(755, root, root) /usr/bin/iceboxnet.exe
-
 
 
 %post dotnet
