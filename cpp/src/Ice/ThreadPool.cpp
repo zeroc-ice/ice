@@ -57,7 +57,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     _fdsInUse = 1; // _fdIntrRead is always in use.
     FD_ZERO(&_fdSet);
     FD_SET(_fdIntrRead, &_fdSet);
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
     _epollFd = epoll_create(1);
     if(_epollFd < 0)
     {
@@ -197,7 +197,7 @@ IceInternal::ThreadPool::~ThreadPool()
         out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
     }
 
-#if defined(__linux)
+#if defined(ICE_USE_EPOLL)
     try
     {
         closeSocket(_epollFd);
@@ -458,7 +458,7 @@ IceInternal::ThreadPool::run()
         {
             ret = ::select(static_cast<int>(_maxFd + 1), &fdSet, 0, 0, 0);
         }
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
         ret = epoll_wait(_epollFd, &_events[0], _events.size(), _timeout > 0 ? _timeout * 1000 : -1);
 #elif defined(__APPLE__)
         if(_timeout > 0)
@@ -509,7 +509,7 @@ IceInternal::ThreadPool::run()
                 bool interrupted = false;
 #if defined(_WIN32)
                 interrupted = FD_ISSET(_fdIntrRead, &fdSet);
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
                 for(int i = 0; i < ret; ++i)
                 {
                     if(_events[i].data.fd == _fdIntrRead)
@@ -568,7 +568,7 @@ IceInternal::ThreadPool::run()
                         _handlerMap.insert(change);
 #if defined(_WIN32)
                         FD_SET(change.first, &_fdSet);
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
                         epoll_event event;
                         event.events = EPOLLIN;
                         event.data.fd = change.first;
@@ -610,7 +610,7 @@ IceInternal::ThreadPool::run()
                         _handlerMap.erase(p);
 #if defined(_WIN32)
                         FD_CLR(change.first, &_fdSet);
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
                         epoll_event event;
                         event.events = 0;
                         if(epoll_ctl(_epollFd, EPOLL_CTL_DEL, change.first, &event) != 0)
@@ -672,7 +672,7 @@ IceInternal::ThreadPool::run()
                     for(u_short i = 0; i < fdSet.fd_count; ++i)
                     {
                         SOCKET fd = fdSet.fd_array[i];
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
                     for(int i = 0; i < ret; ++i)
                     {
                         SOCKET fd = _events[i].data.fd;
@@ -697,7 +697,7 @@ IceInternal::ThreadPool::run()
                         
                         smallestFd = min(smallestFd, fd);
                     }
-#ifdef never // To match __linux __APPLE
+#ifdef never // To match ICE_USE_EPOLL __APPLE
                     }}}
 #endif
                     if(largerFd <= _maxFd)

@@ -22,11 +22,15 @@
 #include <Ice/EventHandlerF.h>
 #include <list>
 
+#if defined(__linux) && !defined(ICE_NO_EPOLL)
+#   define ICE_USE_EPOLL 1
+#endif
+
 #if defined(_WIN32)
 #   include <winsock2.h>
 #else
 #   define SOCKET int
-#   if defined(__linux)
+#   if defined(ICE_USE_EPOLL)
 #       include <sys/epoll.h>
 #   elif defined(__APPLE__)
 #       include <sys/event.h>
@@ -80,7 +84,7 @@ private:
 #if defined(_WIN32)
     fd_set _fdSet;
     int _fdsInUse;
-#elif defined(__linux)
+#elif defined(ICE_USE_EPOLL)
     int _epollFd;
     std::vector<struct epoll_event> _events;
 #elif defined(__APPLE__)
