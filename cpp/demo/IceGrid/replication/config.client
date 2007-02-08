@@ -8,7 +8,7 @@ Ice.Override.Timeout=10000
 #
 # Trace properties.
 #
-Ice.Trace.Network=1
+#Ice.Trace.Network=1
 #Ice.Trace.Location=1
 
 #
