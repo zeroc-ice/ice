@@ -21,7 +21,8 @@
     defined(__MIPSEL__)
 #   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc) || defined(__sparc__) || defined(__hppa)      || \
-      defined(__ppc__) || defined(_ARCH_COM) || defined(__MIPSEB__)
+      defined(__ppc__) || defined(__powerpc) || defined(_ARCH_COM) || \
+      defined(__MIPSEB__)
 #   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"
