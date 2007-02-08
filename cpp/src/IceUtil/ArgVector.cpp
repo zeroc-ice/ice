@@ -97,7 +97,7 @@ IceUtil::ArgVector::copyVec(int argc, int origArgc, char** argv)
 void
 IceUtil::ArgVector::copyVec(const ::std::vector< ::std::string>& vec)
 {
-    argc = _origArgc = vec.size();
+    argc = _origArgc = static_cast<int>(vec.size());
     if((argv = new char*[argc + 1]) == 0)
     {
         throw ::std::bad_alloc();
