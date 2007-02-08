@@ -271,7 +271,12 @@ IceInternal::shutdownSocketWrite(SOCKET fd)
         //
 #if defined(_WIN32)
         int error = WSAGetLastError();
-        if(error == WSAENOTCONN)
+	//
+	// Under Vista its possible to get a WSAECONNRESET. See
+	// http://bugzilla.zeroc.com/bugzilla/show_bug.cgi?id=1739 for
+	// some details.
+	//
+        if(error == WSAENOTCONN || error == WSAECONNRESET)
         {
             return;
         }
