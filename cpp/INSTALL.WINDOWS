@@ -166,6 +166,9 @@ downloaded from:
 Compilation and Testing
 ======================================================================
 
+Building Ice
+-----------
+
 Using your favorite Zip tool, unzip the Ice source archive anywhere 
 you like.
 
@@ -183,6 +186,19 @@ must set CPP_COMPILER to the appropriate compiler.
 Now you're ready to build Ice:
 
 > nmake /f Makefile.mak
+
+Visual C++ 2005 Note: the build of the src\IcePatch2 directory generates
+a number of the following warnings:
+ 
+security.manifest:manifest authoring warning 81010002:Unrecognized Element
+"trustInfo" in namespace "urn:schemas-microsoft-com:asm.v3".
+
+This warning is harmless and is due to a known problem in mt.exe. See
+https://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=237720
+for details.
+
+Running the Test Suite
+----------------------
 
 You can now run the test suite, provided that you have installed 
 Python. Open a command prompt and change to the top- level Ice 
