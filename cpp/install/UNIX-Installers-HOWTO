@@ -27,11 +27,7 @@ straightforward. The key stages are:
        * copies third party libraries that need to accompany the
          distribution
        * creates gzipped tarballs for distribution
-
-     On Linux, makebindist.py also:
        * creates the demo sources tarball
-       * creates RPMs from the staged install directory
-       * creates an SRPM
 
 On Linux, you more or less just need to run makebindist.py with the
 appropriate flags and walk away. On other UNIX platforms, you will need
