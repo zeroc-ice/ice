@@ -18,7 +18,6 @@
 	<adapter name="Hello" endpoints="tcp" register-process="true">
 	  <object identity="hello" type="::Demo::Hello" property="Identity"/>
 	</adapter>
-        <dbenv name="Test"/>
       </server>
     </node>
 
