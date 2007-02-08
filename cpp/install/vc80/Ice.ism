@@ -350,6 +350,7 @@
 		<row><td>GAC_icecs</td><td>{FB8FD85C-EC0E-4A07-BC20-A96EF1F44909}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt; "2.0"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icegridcs</td><td>{56E42CD0-C070-48BE-A5F5-5698330D04D7}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icegridcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icepatch2cs</td><td>{7F6E4D01-1F91-4D8B-BA25-8A494FEE18C6}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icesslcs</td><td>{723AA376-D482-4400-A776-8B97C0DF2F69}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td/><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_icestormcs</td><td>{E0F3C7F7-AFDD-41CA-B306-EA539739A9CB}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>GAC_registry</td><td>{B945C231-EF78-4737-8C8B-97DB5C086FFD}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "2.0"</td><td/><td>1</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>ISRegistryComponent</td><td>{44AF097C-4731-4562-B23D-D00E062D674D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -1315,7 +1316,6 @@
 		<col def="S255">ISComments</col>
 		<col def="S255">ISFeatureCabName</col>
 		<col def="S255">ISProFeatureName</col>
-		<row><td>ISRegistryFeature1</td><td/><td>ISRegistryFeature1</td><td/><td>30</td><td>1</td><td>INSTALLDIR</td><td>0</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_cpp</td><td>ice_runtime_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_csharp</td><td>ice_runtime_dotnet</td><td>##ID_STRING17##</td><td>##ID_STRING22##</td><td>2</td><td>200</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_java</td><td>ice_runtime_java</td><td>##ID_STRING12##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
@@ -1335,19 +1335,11 @@
 	<table name="FeatureComponents">
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
-		<row><td>ISRegistryFeature1</td><td>ISRegistryComponent</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppRuntime</td></row>
-		<row><td>ice_dev_csharp</td><td>GAC_glacier2cs</td></row>
-		<row><td>ice_dev_csharp</td><td>GAC_icecs</td></row>
-		<row><td>ice_dev_csharp</td><td>GAC_icegridcs</td></row>
-		<row><td>ice_dev_csharp</td><td>GAC_icepatch2cs</td></row>
-		<row><td>ice_dev_csharp</td><td>GAC_icestormcs</td></row>
-		<row><td>ice_dev_csharp</td><td>GAC_registry</td></row>
 		<row><td>ice_dev_csharp</td><td>IceCSharpDemo</td></row>
 		<row><td>ice_dev_csharp</td><td>IceCSharpDev</td></row>
-		<row><td>ice_dev_csharp</td><td>IceCSharpRuntime</td></row>
 		<row><td>ice_dev_csharp</td><td>IceDotnetPDBs</td></row>
 		<row><td>ice_dev_csharp</td><td>IceDotnetSSLPDB</td></row>
 		<row><td>ice_dev_java</td><td>IceJavaDemo</td></row>
@@ -1356,13 +1348,6 @@
 		<row><td>ice_dev_python</td><td>IcePythonDemo</td></row>
 		<row><td>ice_dev_python</td><td>IcePythonDev</td></row>
 		<row><td>ice_dev_python</td><td>IcePythonRuntime</td></row>
-		<row><td>ice_dev_vbasic</td><td>GAC_glacier2cs</td></row>
-		<row><td>ice_dev_vbasic</td><td>GAC_icecs</td></row>
-		<row><td>ice_dev_vbasic</td><td>GAC_icegridcs</td></row>
-		<row><td>ice_dev_vbasic</td><td>GAC_icepatch2cs</td></row>
-		<row><td>ice_dev_vbasic</td><td>GAC_icestormcs</td></row>
-		<row><td>ice_dev_vbasic</td><td>GAC_registry</td></row>
-		<row><td>ice_dev_vbasic</td><td>IceCSharpRuntime</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceDotnetPDBs</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceDotnetSSLPDB</td></row>
 		<row><td>ice_dev_vbasic</td><td>IceVBasicDemo</td></row>
@@ -1376,6 +1361,7 @@
 		<row><td>ice_runtime_dotnet</td><td>GAC_icecs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icegridcs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icepatch2cs</td></row>
+		<row><td>ice_runtime_dotnet</td><td>GAC_icesslcs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icestormcs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_registry</td></row>
 		<row><td>ice_runtime_dotnet</td><td>IceCSharpRuntime</td></row>
@@ -1404,6 +1390,7 @@
 		<row><td>icecs.dll</td><td>GAC_icecs</td><td>icecs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icecs.dll</td><td>1</td><td/></row>
 		<row><td>icegridcs.dll</td><td>GAC_icegridcs</td><td>ICEGRI~1.DLL|icegridcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icegridcs.dll</td><td>1</td><td/></row>
 		<row><td>icepatch2cs.dll</td><td>GAC_icepatch2cs</td><td>ICEPAT~1.DLL|icepatch2cs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icepatch2cs.dll</td><td>1</td><td/></row>
+		<row><td>icesslcs.dll</td><td>GAC_icesslcs</td><td>icesslcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\dotnet\ssl\runtime\bin\icesslcs.dll</td><td>1</td><td/></row>
 		<row><td>icestormcs.dll</td><td>GAC_icestormcs</td><td>ICESTO~1.DLL|icestormcs.dll</td><td>0</td><td/><td/><td/><td>1</td><td>&lt;ISProjectFolder&gt;\install\ice\csharp\runtime\bin\icestormcs.dll</td><td>1</td><td/></row>
 	</table>
 
@@ -1565,6 +1552,7 @@
 		<row><td>GAC_icecs</td><td/><td/><td>_600A5FAE_4674_435B_8700_897F353856EE_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icegridcs</td><td/><td/><td>_C97E7F94_F395_4FC5_B575_F7AF91780FBB_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icepatch2cs</td><td/><td/><td>_4148F83B_B26E_4415_A51D_5580DE431AFC_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_icesslcs</td><td/><td/><td>_CA59BF71_6AD0_410E_84B9_908398C1170C_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icestormcs</td><td/><td/><td>_74B66A95_80BE_43A1_9A2E_508B6CBB795E_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_registry</td><td/><td/><td>_BD3CFD91_5B86_4986_8C18_2B0C4639FCA8_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>ISRegistryComponent</td><td/><td/><td>_BDAB47CC_F4BC_41E8_8C2D_408CACB43B8B_FILTER</td><td/><td/><td/><td/></row>
