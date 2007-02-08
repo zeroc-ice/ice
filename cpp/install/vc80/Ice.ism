@@ -1337,7 +1337,6 @@
 		<col key="yes" def="s72">Component_</col>
 		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
-		<row><td>ice_dev_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_dev_csharp</td><td>IceCSharpDemo</td></row>
 		<row><td>ice_dev_csharp</td><td>IceCSharpDev</td></row>
 		<row><td>ice_dev_csharp</td><td>IceDotnetPDBs</td></row>
@@ -1356,6 +1355,7 @@
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
+		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_glacier2cs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_iceboxcs</td></row>
 		<row><td>ice_runtime_dotnet</td><td>GAC_icecs</td></row>

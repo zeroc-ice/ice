@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>##ID_STRING35##</subject>
+		<subject>Ice 3.2b for Visual Studio 2005 (x64)</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING32##</comments>
@@ -1052,8 +1052,7 @@
 		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.1.0_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.1.0_VC80_X64</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80_x64</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.1.0_VC80_X641</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80-x64</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.1.0_VC80_X641</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2b-VC80-x64</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.1.0_VC80_X641</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1298,11 +1297,11 @@
 		<col key="yes" def="s72">Component_</col>
 		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
-		<row><td>ice_dev_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_doc</td><td>IceManual</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
+		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>packages</td><td>VisualStudioRuntime</td></row>
 	</table>
 
@@ -1722,7 +1721,7 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.1.0-VC80-x64</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2b-VC80-x64</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
 	</table>
 
@@ -2384,9 +2383,9 @@
 		<row><td>ID_STRING30</td><td>1033</td><td>NOTE: You must be an Admin user and have the .NET 1.1 Framework installed in order to correctly install Ice for .NET.</td><td>0</td><td/><td>1234811028</td></row>
 		<row><td>ID_STRING31</td><td>1033</td><td>InstallShield has detected that you are not an Admin user. You will not be able to install Ice for .NET as a result.</td><td>0</td><td/><td>1234768052</td></row>
 		<row><td>ID_STRING32</td><td>1033</td><td>The Internet Communications Engine (Ice) runtimes, tools, files and libraries for developing Ice applications.</td><td>0</td><td/><td>1234812724</td></row>
-		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.1.0 for Visual Studio 2005 (x64)</td><td>0</td><td/><td>1218100811</td></row>
+		<row><td>ID_STRING33</td><td>1033</td><td>Ice 3.2b for Visual Studio 2005 (x64)</td><td>0</td><td/><td>1218100811</td></row>
 		<row><td>ID_STRING34</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>1234802195</td></row>
-		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.1.0 for Visual Studio 2005 (x64)</td><td>0</td><td/><td>-1424320151</td></row>
+		<row><td>ID_STRING35</td><td>1033</td><td>Ice 3.2b for Visual Studio 2005 (x64)</td><td>0</td><td/><td>-1424320151</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
 		<row><td>ID_STRING6</td><td>1033</td><td>Ice for Java</td><td>0</td><td/><td>1234824659</td></row>
@@ -2801,8 +2800,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ProductCode</td><td>{0E895E26-9005-4EA6-8995-A61C8A4F958A}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.1.0 for Visual Studio 2005 (x64)</td><td/></row>
-		<row><td>ProductVersion</td><td>3.1.0</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.2b for Visual Studio 2005 (x64)</td><td/></row>
+		<row><td>ProductVersion</td><td>3.2.51</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>

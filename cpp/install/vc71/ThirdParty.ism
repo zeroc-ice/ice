@@ -2934,18 +2934,18 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<col def="L64">Text</col>
 		<col def="L50">Help</col>
 		<col def="I4">ISControlId</col>
-		<row><td>AgreeToLicense</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_0##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_1##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense1</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING3##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense1</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING4##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense11</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING7##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense11</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING8##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense111</td><td>1</td><td>No</td><td>0</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING11##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense111</td><td>2</td><td>Yes</td><td>0</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING12##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense1111</td><td>1</td><td>No</td><td>0</td><td>18</td><td>295</td><td>15</td><td>##NEW_STRING16##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense1111</td><td>2</td><td>Yes</td><td>0</td><td>3</td><td>295</td><td>15</td><td>##NEW_STRING17##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense1112</td><td>1</td><td>No</td><td>0</td><td>16</td><td>295</td><td>15</td><td>##NEW_STRING21##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense1112</td><td>2</td><td>Yes</td><td>0</td><td>1</td><td>295</td><td>15</td><td>##NEW_STRING22##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_0##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense</td><td>2</td><td>Yes</td><td>1</td><td>0</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_1##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING3##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1</td><td>2</td><td>Yes</td><td>1</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING4##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense11</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING7##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense11</td><td>2</td><td>Yes</td><td>1</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING8##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense111</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING11##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense111</td><td>2</td><td>Yes</td><td>1</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING12##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1111</td><td>1</td><td>No</td><td>1</td><td>18</td><td>295</td><td>15</td><td>##NEW_STRING16##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1111</td><td>2</td><td>Yes</td><td>1</td><td>3</td><td>295</td><td>15</td><td>##NEW_STRING17##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1112</td><td>1</td><td>No</td><td>1</td><td>16</td><td>295</td><td>15</td><td>##NEW_STRING21##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense1112</td><td>2</td><td>Yes</td><td>1</td><td>1</td><td>295</td><td>15</td><td>##NEW_STRING22##</td><td/><td>0</td></row>
 		<row><td>ApplicationUsers</td><td>1</td><td>AllUsers</td><td>1</td><td>7</td><td>290</td><td>14</td><td>##IDS__IsRegisterUserDlg_Anyone##</td><td/><td/></row>
 		<row><td>ApplicationUsers</td><td>2</td><td>OnlyCurrentUser</td><td>1</td><td>23</td><td>290</td><td>14</td><td>##IDS__IsRegisterUserDlg_OnlyMe##</td><td/><td/></row>
 		<row><td>_IsMaintenance</td><td>1</td><td>Change</td><td>0</td><td>0</td><td>290</td><td>14</td><td>##IDS__IsMaintenanceDlg_Modify##</td><td/><td/></row>

@@ -2988,8 +2988,8 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<col def="L64">Text</col>
 		<col def="L50">Help</col>
 		<col def="I4">ISControlId</col>
-		<row><td>AgreeToLicense</td><td>1</td><td>No</td><td>0</td><td>16</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_0##</td><td/><td>0</td></row>
-		<row><td>AgreeToLicense</td><td>2</td><td>Yes</td><td>0</td><td>1</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_1##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense</td><td>1</td><td>No</td><td>1</td><td>16</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_0##</td><td/><td>0</td></row>
+		<row><td>AgreeToLicense</td><td>2</td><td>Yes</td><td>1</td><td>1</td><td>295</td><td>15</td><td>##IDS__AgreeToLicense_1##</td><td/><td>0</td></row>
 		<row><td>AgreeToLicense1</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING3##</td><td/><td>0</td></row>
 		<row><td>AgreeToLicense1</td><td>2</td><td>Yes</td><td>1</td><td>0</td><td>295</td><td>15</td><td>##NEW_STRING4##</td><td/><td>0</td></row>
 		<row><td>AgreeToLicense11</td><td>1</td><td>No</td><td>1</td><td>15</td><td>295</td><td>15</td><td>##NEW_STRING7##</td><td/><td>0</td></row>

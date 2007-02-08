@@ -1286,7 +1286,6 @@
 		<col key="yes" def="s72">Component_</col>
 		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
-		<row><td>ice_dev_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_dev_php</td><td>IcePHPDemo</td></row>
 		<row><td>ice_dev_ruby</td><td>IceRubyDemo</td></row>
 		<row><td>ice_dev_ruby</td><td>IceRubyDev</td></row>
@@ -1294,6 +1293,7 @@
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
+		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime_php</td><td>IcePHPExtension</td></row>
 		<row><td>ice_runtime_ruby</td><td>IceRubyRuntime</td></row>
 		<row><td>packages</td><td>VisualStudioRuntime</td></row>
