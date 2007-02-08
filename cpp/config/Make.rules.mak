@@ -11,7 +11,7 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			= e:\Ice-$(VERSION)
+prefix			= C:\Ice-$(VERSION)
 
 #
 # Define OPTIMIZE as yes if you want to build with
