@@ -79,7 +79,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
-    # "IceSSL/configuration", \ # IceSSL is added further down for Windows only
+    "IceSSL/configuration", \
     "Ice/threads", \
     "Glacier2/router", \
     "Glacier2/attack", \
@@ -128,10 +128,11 @@ for o, a in opts:
 if not isWin32():
     mono = 1
 
-if not mono:
-    tests.extend([\
-        "IceSSL/configuration", \
-    ])
+if mono:
+    try:
+	tests.remove("IceSSL/configuration")
+    except ValueError:
+	pass
 
 if loop:
     num = 1
