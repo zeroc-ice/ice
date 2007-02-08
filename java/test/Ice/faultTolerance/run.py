@@ -24,8 +24,8 @@ name = os.path.join("Ice", "faultTolerance")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
-server = "java -ea Server"
-client = "java -ea Client"
+server = TestUtil.javaCmd + " -ea Server"
+client = TestUtil.javaCmd + " -ea Client"
 
 num = 12
 base = 12340

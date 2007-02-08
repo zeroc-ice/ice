@@ -30,7 +30,7 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-client = "java -ea Client"
+client = TestUtil.javaCmd + " -ea Client"
 
 print "starting populate...",
 populatePipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " populate" + " 2>&1")

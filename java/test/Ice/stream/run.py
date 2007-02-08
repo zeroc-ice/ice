@@ -24,7 +24,7 @@ name = os.path.join("Ice", "stream")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
-client = "java -ea Client --Ice.ProgramName=Client "
+client = TestUtil.javaCmd + " -ea Client --Ice.ProgramName=Client "
 
 print "starting test...",
 clientPipe = os.popen(client + TestUtil.clientOptions + " 2>&1")

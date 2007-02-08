@@ -25,7 +25,7 @@ testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
 print "starting client...",
-clientPipe = os.popen("java -ea Client 2>&1")
+clientPipe = os.popen(TestUtil.javaCmd + " -ea Client 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
