@@ -14,7 +14,8 @@ DLLNAME         = $(top_srcdir)\bin\iceutil$(SOVERSION)$(LIBSUFFIX).dll
 
 TARGETS		= $(LIBNAME) $(DLLNAME)
 
-OBJS		= Base64.obj \
+OBJS		= ArgVector.obj \
+                  Base64.obj \
 		  Cond.obj \
                   ConvertUTF.obj \
 		  CountDownLatch.obj \

@@ -60,6 +60,7 @@ public:
     // EXIT_SUCCESS.
     //
     int main(int&, char*[], const InitializationData& = InitializationData());
+    int main(StringSeq&, const InitializationData& = InitializationData());
 
     //
     // Returns the communicator created by the service.

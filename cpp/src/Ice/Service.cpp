@@ -12,6 +12,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/ArgVector.h>
 #include <Ice/Service.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
@@ -484,6 +485,15 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
     return run(argc, argv, initData);
 }
 
+int
+Ice::Service::main(StringSeq& args, const InitializationData& initData)
+{
+    IceUtil::ArgVector av(args);
+    int rc = main(av.argc, av.argv);
+    argsToStringSeq(av.argc, av.argv);
+    return rc;
+}
+
 Ice::CommunicatorPtr
 Ice::Service::communicator() const
 {
@@ -613,15 +623,12 @@ Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
         error("service caught unhandled C++ exception");
     }
 
-    if(_communicator)
+    try
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(...)
-        {
-        }
+        _communicator->destroy();
+    }
+    catch(...)
+    {
     }
 
     return status;
@@ -1843,15 +1850,12 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         close(fds[1]);
     }
 
-    if(_communicator)
+    try
     {
-        try
-        {
-            _communicator->destroy();
-        }
-        catch(...)
-        {
-        }
+        _communicator->destroy();
+    }
+    catch(...)
+    {
     }
 
     return status;

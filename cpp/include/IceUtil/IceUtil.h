@@ -14,6 +14,7 @@
 // This file must include *all* other headers of IceUtil.
 //
 
+#include <IceUtil/ArgVector.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Unicode.h>

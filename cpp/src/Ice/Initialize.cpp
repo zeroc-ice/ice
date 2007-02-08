@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/ArgVector.h>
 #include <Ice/GC.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/PropertiesI.h>
@@ -166,50 +167,10 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
 CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
-    int origArgc;
-    char** argv = 0;
-
     CommunicatorPtr communicator;
-    try
-    {
-        //
-        // Make a dummy argc/argv.
-        // (We can't use argsToStringSeq() because that requires an already initialized argv.)
-        //
-        int argc = static_cast<int>(args.size());
-        origArgc = argc;
-        argv = new char*[args.size() + 1];
-        int i;
-        for(i = 0; i != argc; ++i)
-        {
-            argv[i] = new char[args[i].size() + 1];
-#if defined(_MSC_VER) && (_MSC_VER >= 1400)
-            strcpy_s(argv[i], args[i].size() + 1, args[i].c_str());
-#else
-            strcpy(argv[i], args[i].c_str());
-#endif
-        }
-        argv[argc] = 0;
-
-        communicator = initialize(argc, argv, initializationData, version);
-
-        args = argsToStringSeq(argc, argv);
-        
-        for(i = 0; i < origArgc; ++i)
-        {
-            delete[] argv[i];
-        }
-        delete[] argv;
-    }
-    catch(...)
-    {
-        for(int i = 0; i < origArgc; ++i)
-        {
-            delete[] argv[i];
-        }
-        delete[] argv;
-        throw;
-    }
+    IceUtil::ArgVector av(args);
+    communicator = initialize(av.argc, av.argv, initializationData, version);
+    args = argsToStringSeq(av.argc, av.argv);
     return communicator;
 }
 

@@ -15,9 +15,10 @@ LIBNAME		= $(call mklibname,IceUtil)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Base64.o \
+OBJS		= ArgVector.o \
+		  Base64.o \
 		  Cond.o \
-                  ConvertUTF.o \
+		  ConvertUTF.o \
 		  CountDownLatch.o \
 		  CtrlCHandler.o \
 		  Exception.o \

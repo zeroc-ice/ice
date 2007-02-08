@@ -34,6 +34,9 @@ public:
     int main(int, char*[], const char*);
     int main(int, char*[], const Ice::InitializationData&);
     ICE_DEPRECATED_API int main(int, char*[], const char*, const Ice::LoggerPtr&);
+    int main(const StringSeq&);
+    int main(const StringSeq&, const char*);
+    int main(const StringSeq&, const Ice::InitializationData&);
 
     virtual int run(int, char*[]) = 0;
 

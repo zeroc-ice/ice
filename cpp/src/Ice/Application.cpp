@@ -11,6 +11,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Cond.h>
+#include <IceUtil/ArgVector.h>
 #include <Ice/GC.h>
 #include <memory>
 
@@ -321,37 +322,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
 
 int
-Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice::LoggerPtr& logger)
-{
-    InitializationData initData;
-    if(configFile)
-    {
-        try
-        {
-            initData.properties = createProperties();
-            initData.properties->load(configFile);
-        }
-        catch(const IceUtil::Exception& ex)
-        {
-            cerr << argv[0] << ": " << ex << endl;
-            return EXIT_FAILURE;
-        }
-        catch(const std::exception& ex)
-        {
-            cerr << argv[0] << ": std::exception: " << ex.what() << endl;
-            return EXIT_FAILURE;
-        }
-        catch(...)
-        {
-            cerr << argv[0] << ": unknown exception" << endl;
-            return EXIT_FAILURE;
-        }
-    }
-    initData.logger = logger;
-    return main(argc, argv, initData);
-}
-
-int
 Ice::Application::main(int argc, char* argv[], const InitializationData& initData)
 {
     if(_communicator != 0)
@@ -486,6 +456,58 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
     }
    
     return status;
+}
+
+int
+Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice::LoggerPtr& logger)
+{
+    InitializationData initData;
+    if(configFile)
+    {
+        try
+        {
+            initData.properties = createProperties();
+            initData.properties->load(configFile);
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            cerr << argv[0] << ": " << ex << endl;
+            return EXIT_FAILURE;
+        }
+        catch(const std::exception& ex)
+        {
+            cerr << argv[0] << ": std::exception: " << ex.what() << endl;
+            return EXIT_FAILURE;
+        }
+        catch(...)
+        {
+            cerr << argv[0] << ": unknown exception" << endl;
+            return EXIT_FAILURE;
+        }
+    }
+    initData.logger = logger;
+    return main(argc, argv, initData);
+}
+
+int
+Ice::Application::main(const StringSeq& args)
+{
+    ArgVector av(args);
+    return main(av.argc, av.argv);
+}
+
+int
+Ice::Application::main(const StringSeq& args, const char* configFile)
+{
+    ArgVector av(args);
+    return main(av.argc, av.argv, configFile);
+}
+
+int
+Ice::Application::main(const StringSeq& args, const InitializationData& initData)
+{
+    ArgVector av(args);
+    return main(av.argc, av.argv, initData);
 }
 
 void

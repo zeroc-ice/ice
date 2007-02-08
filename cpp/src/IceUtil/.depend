@@ -1,3 +1,4 @@
+ArgVector$(OBJEXT): ArgVector.cpp ../../include/IceUtil/ArgVector.h ../../include/IceUtil/Config.h ../../include/IceUtil/DisableWarnings.h
 Base64$(OBJEXT): Base64.cpp ../../include/IceUtil/Base64.h ../../include/IceUtil/Config.h
 Cond$(OBJEXT): Cond.cpp ../../include/IceUtil/Cond.h ../../include/IceUtil/Config.h ../../include/IceUtil/Time.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 ConvertUTF$(OBJEXT): ConvertUTF.cpp ../IceUtil/ConvertUTF.h ../../include/IceUtil/Unicode.h ../../include/IceUtil/Config.h ../../include/IceUtil/Exception.h

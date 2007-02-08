@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
+#include <IceUtil/ArgVector.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
 #include <IceGrid/Admin.h>
@@ -599,25 +600,9 @@ Activator::activate(const string& name,
     //
     // Convert to standard argc/argv.
     //
-    int argc = static_cast<int>(args.size());
-    char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
-    int i = 0;
-    for(StringSeq::const_iterator p = args.begin(); p != args.end(); ++p, ++i)
-    {
-        assert(i < argc);
-        argv[i] = strdup(p->c_str());
-    }
-    assert(i == argc);
-    argv[argc] = 0;
+    IceUtil::ArgVector av(args);
+    IceUtil::ArgVector env(envs);
     
-    int envCount = static_cast<int>(envs.size());
-    char** envArray = new char*[envCount];
-    i = 0;
-    for(StringSeq::const_iterator q = envs.begin(); q != envs.end(); ++q)
-    {
-        envArray[i++] = strdup(q->c_str());
-    }
-
     //
     // Current directory
     //
@@ -673,17 +658,17 @@ Activator::activate(const string& name,
             }
         }
 
-        for(i = 0; i < envCount; i++)
+        for(int i = 0; i < env.argc; i++)
         {
-            if(putenv(envArray[i]) != 0)
+            if(putenv(env.argv[i]) != 0)
             {
-                reportChildError(errno, fds[1], "cannot set environment variable",  envArray[i]); 
+                reportChildError(errno, fds[1], "cannot set environment variable",  env.argv[i]); 
             }
         }
         //
         // Each env is leaked on purpose ... see man putenv().
         //
-        delete[] envArray;
+        env.setNoDelete();
 
         //
         // Change working directory.
@@ -696,26 +681,14 @@ Activator::activate(const string& name,
             }
         }       
 
-        if(execvp(argv[0], argv) == -1)
+        if(execvp(av.argv[0], av.argv) == -1)
         {
-            reportChildError(errno, fds[1], "cannot execute",  argv[0]);
+            reportChildError(errno, fds[1], "cannot execute",  av.argv[0]);
         }
     }
     else // Parent process.
     {
         close(fds[1]);
-
-        for(i = 0; argv[i]; i++)
-        {
-            free(argv[i]);
-        }
-        free(argv);
-
-        for(i = 0; i < envCount; ++i)
-        {
-            free(envArray[i]);
-        }
-        delete[] envArray;
 
         Process process;
         process.pid = pid;
