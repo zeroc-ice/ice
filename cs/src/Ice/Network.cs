@@ -119,7 +119,10 @@ namespace IceInternal
         public static bool notConnected(Win32Exception ex)
         {
             // BUGFIX: WSAEINVAL because shutdown() under MacOS returns EINVAL if the server side is gone.
-            return ex.NativeErrorCode == WSAENOTCONN || ex.NativeErrorCode == WSAEINVAL;
+	    // BUGFIX: shutdown() under Vista might return WSAECONNRESET
+            return ex.NativeErrorCode == WSAENOTCONN ||
+		   ex.NativeErrorCode == WSAEINVAL ||
+		   ex.NativeErrorCode == WSAECONNRESET;
         }
 
         public static bool recvTruncated(Win32Exception ex)
