@@ -115,14 +115,15 @@ final class TransceiverI implements IceInternal.Transceiver
         catch(java.net.SocketException ex)
         {
             //
-            // Ignore errors indicating that we are shutdown already.
+            // Ignore. We can't reliably figure out if the socket
+            // exception is because the socket is not connected.
             //
-            if(!IceInternal.Network.notConnected(ex))
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
+            // if(!IceInternal.Network.notConnected(ex))
+            // {
+            //     Ice.SocketException se = new Ice.SocketException();
+            //     se.initCause(ex);
+            //     throw se;
+            // }
         }
         catch(java.io.IOException ex)
         {
@@ -155,7 +156,16 @@ final class TransceiverI implements IceInternal.Transceiver
         }
         catch(java.net.SocketException ex)
         {
-            // Ignore.
+            //
+            // Ignore. We can't reliably figure out if the socket
+            // exception is because the socket is not connected.
+            //
+            // if(!IceInternal.Network.notConnected(ex))
+            // {
+            //     Ice.SocketException se = new Ice.SocketException();
+            //     se.initCause(ex);
+            //     throw se;
+            // }
         }
         catch(java.io.IOException ex)
         {

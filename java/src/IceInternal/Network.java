@@ -82,24 +82,28 @@ public final class Network
         return false;
     }
 
-    public static boolean
-    notConnected(java.net.SocketException ex)
-    {
-        String msg = ex.getMessage().toLowerCase();
-        if(msg.indexOf("transport endpoint is not connected") != -1)
-        {
-            return true;
-        }
-        //
-        // BUGFIX: We check for EINVAL because shutdown() under Mac OS
-        // X returns EINVAL if the server side is gone.
-        //
-        else if(msg.indexOf("invalid argument") != -1)
-        {
-            return true;
-        }
-        return false;
-    }
+    //
+    // This method is not used anymore. See comments in
+    // TcpTransceiverI.java.
+    //
+//     public static boolean
+//     notConnected(java.net.SocketException ex)
+//     {
+//         String msg = ex.getMessage().toLowerCase();
+//         if(msg.indexOf("transport endpoint is not connected") != -1)
+//         {
+//             return true;
+//         }
+//         //
+//         // BUGFIX: We check for EINVAL because shutdown() under Mac OS
+//         // X returns EINVAL if the server side is gone.
+//         //
+//         else if(msg.indexOf("invalid argument") != -1)
+//         {
+//             return true;
+//         }
+//         return false;
+//     }
 
     public static java.nio.channels.SocketChannel
     createTcpSocket()
