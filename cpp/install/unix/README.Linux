@@ -146,10 +146,10 @@ CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
-To use the Java5 version of Ice instead, modify your CLASSPATH as
+To use the Java2 version of Ice instead, modify your CLASSPATH as
 follows:
 
-$ export CLASSPATH=$ICE_HOME/lib/java5/Ice.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/java2/Ice.jar:$CLASSPATH
 
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:
