@@ -75,7 +75,7 @@
       </server-instance>
       <server-instance template="IceBoxTemplate" name="IceBox2" AppVarOverridedByParam="Overrided">
         <properties>
-          <property name="IceBox.InheritContainerProperties" value="1"/>
+          <property name="IceBox.InheritProperties" value="1"/>
           <property name="IceBoxInstanceProperty" value="${name}"/>
         </properties>
         <properties service="${service4}">

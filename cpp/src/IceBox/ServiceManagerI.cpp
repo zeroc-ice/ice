@@ -404,7 +404,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         {       
             string name = properties->getProperty("Ice.ProgramName");
             PropertiesPtr serviceProperties;
-            if(properties->getPropertyAsInt("IceBox.InheritContainerProperties") > 0)
+            if(properties->getPropertyAsInt("IceBox.InheritProperties") > 0)
             {
                 serviceProperties = createProperties(info.args, properties);
             }

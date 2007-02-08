@@ -34,7 +34,7 @@ iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIc
                   ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12011"' + \
                   ' --Ice.OA.IceStorm.Publish.Endpoints="default"' + \
                   " --IceBox.PrintServicesReady=IceStorm" + \
-                  " --IceBox.InheritContainerProperties=1"
+                  " --IceBox.InheritProperties=1"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager: default -p 12011"'
 
 def doTest(batch):

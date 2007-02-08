@@ -37,7 +37,7 @@ iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIc
                   ' --IceStorm.InstanceName=TestIceStorm1 ' + \
                   ' --IceStorm.Discard.Interval=2' + \
                   ' --IceBox.PrintServicesReady=IceStorm' + \
-                  " --IceBox.InheritContainerProperties=1"
+                  " --IceBox.InheritProperties=1"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011"'
 
 iceBoxEndpoints2 = ' --Ice.OA.IceBox.ServiceManager.Endpoints="default -p 12020" --Ice.Default.Locator='
@@ -48,7 +48,7 @@ iceStormService2 = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getI
                   ' --IceStorm.InstanceName=TestIceStorm2 ' + \
                   ' --IceStorm.Discard.Interval=2' + \
                   ' --IceBox.PrintServicesReady=IceStorm' + \
-                  " --IceBox.InheritContainerProperties=1"
+                  " --IceBox.InheritProperties=1"
 iceStormReference2 = ' --IceStorm.TopicManager.Proxy="TestIceStorm2/TopicManager: default -p 12021"'
 
 adminIceStormReference = ' --IceStormAdmin.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011" ' + \

@@ -12,7 +12,7 @@ Changes since version 3.1.1
 
 - IceBox services no longer inherit the properties of the container
   by default. If this is the desired behavior set the property
-  IceBox.InheritContainerProperties to 1.
+  IceBox.InheritProperties to 1.
 
 - Fixed a bug where new connections are be accepted but not serviced
   correctly when using the thread pool concurrency model if the number
