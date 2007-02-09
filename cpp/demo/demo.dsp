@@ -8,12 +8,12 @@ CFG=all - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "all.mak".
+!MESSAGE NMAKE /f "demo.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "all.mak" CFG="all - Win32 Debug"
+!MESSAGE NMAKE /f "demo.mak" CFG="all - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -22,7 +22,7 @@ CFG=all - Win32 Debug
 !MESSAGE 
 
 # Begin Project
-# PROP allowPerConfigDependencies 0
+# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 MTL=midl.exe
