@@ -116,4 +116,13 @@ public final class Util
     }
 
     public final static String jdkTarget = "1.4";
+
+    //
+    // Needed by the test scripts to determine the JDK target of the SSL plug-in.
+    //
+    public static void
+    main(String[] args)
+    {
+        System.out.println(jdkTarget);
+    }
 }

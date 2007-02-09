@@ -79,36 +79,6 @@ for o, a in opts:
     if o == "--host":
         host = a
 
-#
-# If we are using SSL as the default protocol, we need to examine
-# the Java version to determine whether thread-per-connection is
-# required.
-#
-javaCmd = "java"
-jdk14 = False
-if protocol == "ssl":
-    javaPipeIn, javaPipeOut = os.popen4("java -version")
-    if not javaPipeIn or not javaPipeOut:
-        print "unable to get Java version!"
-        sys.exit(1)
-    version = javaPipeOut.readline()
-    if not version:
-        print "unable to get Java version!"
-        sys.exit(1)
-    if version.startswith("java version \"1.4"):
-        #
-        # IceSSL requires JDK thread-per-connection when used with JDK 1.4.
-        #
-        threadPerConnection = 1
-        #
-        # To avoid the potential for long delays at startup under JDK 1.4,
-        # we direct the JVM to use /dev/urandom instead of its default.
-        #
-        javaCmd = "java -Djava.security.egd=file:/dev/urandom"
-        jdk14 = True
-    javaPipeIn.close()
-    javaPipeOut.close()
-
 def isCygwin():
 
     # The substring on sys.platform is required because some cygwin
@@ -296,6 +266,32 @@ def printOutputFromPipe(pipe):
             break
         os.write(1, c)
 
+def getIceSslVersion():
+    javaPipeIn, javaPipeOut = os.popen4("java IceSSL.Util")
+    if not javaPipeIn or not javaPipeOut:
+        print "unable to get IceSSL version!"
+        sys.exit(1)
+    version = javaPipeOut.readline()
+    if not version:
+        print "unable to get IceSSL version!"
+        sys.exit(1)
+    javaPipeIn.close()
+    javaPipeOut.close()
+    return version.strip()
+
+def getJdkVersion():
+    javaPipeIn, javaPipeOut = os.popen4("java -version")
+    if not javaPipeIn or not javaPipeOut:
+        print "unable to get Java version!"
+        sys.exit(1)
+    version = javaPipeOut.readline()
+    if not version:
+        print "unable to get Java version!"
+        sys.exit(1)
+    javaPipeIn.close()
+    javaPipeOut.close()
+    return version
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -311,6 +307,29 @@ else:
 
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib", "Ice.jar") + sep + os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(toplevel, "lib") + sep + os.getenv("CLASSPATH", "")
+
+#
+# If we are using SSL as the default protocol, we need to take extra
+# precautions when using JDK 1.4.
+#
+javaCmd = "java"
+jdkVersion = None
+iceSslVersion = None
+if protocol == "ssl":
+    jdkVersion = getJdkVersion()
+    if jdkVersion.startswith("java version \"1.4"):
+        #
+        # To avoid the potential for long delays at startup under JDK 1.4,
+        # we direct the JVM to use /dev/urandom instead of its default.
+        #
+        javaCmd = "java -Djava.security.egd=file:/dev/urandom"
+
+    iceSslVersion = getIceSslVersion()
+    if iceSslVersion == "1.4":
+        #
+        # IceSSL for JDK 1.4 requires thread-per-connection.
+        #
+        threadPerConnection = 1
 
 if protocol == "ssl":
     plugin               = " --Ice.Plugin.IceSSL=IceSSL.PluginFactory"
