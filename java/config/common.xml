@@ -225,9 +225,9 @@
 	    a cleaned source distribution. In either case, Ice.jar is expected
 	    to be in lib.
 	  -->
-	<condition property="ice.jar.file" value="${lib.dir}/java2/Ice.jar}" else="${lib.dir}/Ice.jar">
+	<condition property="ice.jar.file" value="${lib.dir}/java2/Ice.jar" else="${lib.dir}/Ice.jar">
 	    <and>
-		<available file="${lib.dir}/java2/Ice.jar}"/>
+		<available file="${lib.dir}/java2/Ice.jar"/>
 		<isset property="java2"/>
 	    </and>
 	</condition>
