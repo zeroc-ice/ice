@@ -91,7 +91,7 @@
     <Import Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="QueueI.vb">
+    <Compile Include="HelloI.vb">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Server.vb">
