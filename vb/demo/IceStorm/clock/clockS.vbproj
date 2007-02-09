@@ -25,8 +25,11 @@
     <RootNamespace>icestormdemo</RootNamespace>
     <StartupObject>
     </StartupObject>
-    <FileUpgradeFlags>20</FileUpgradeFlags>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
     <MyType>Console</MyType>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>.\</OutputPath>
