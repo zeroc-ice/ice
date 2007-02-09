@@ -35,7 +35,14 @@ ifeq ($(STATICLIBS),)
 endif
 
 ifeq ($(OPTIMIZE),yes)
-     CXXFLAGS		+= -O -DNDEBUG
+   ifeq ($(LP64),yes)
+#
+# 64 bits -O (+O2) optimized build fail in the IceGrid tests so we use +O1
+#       
+      CXXFLAGS		+= +O1 -DNDEBUG 
+   else
+      CXXFLAGS		+= -O -DNDEBUG
+   endif
 else
      CXXFLAGS		+= -g0
 endif
