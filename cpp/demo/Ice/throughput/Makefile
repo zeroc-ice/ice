@@ -29,7 +29,16 @@ SLICE_SRCS	= Throughput.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS)
+ifeq ($(CXX),aCC)
+#                                                                                                          
+# Work-around 'quadrant warning' in aCC A.03.56
+# Puts string literals in read-write memory
+#
+EXTRA_CPPFLAGS   := +ESnolit
+endif
+
+CPPFLAGS         := -I. $(CPPFLAGS) $(EXTRA_CPPFLAGS)
+
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@

@@ -157,6 +157,7 @@ def getInstallFiles(cvsTag, buildDir, version, mmVersion):
         runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/common')
         runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/rpm')
         runprog('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/install/thirdparty')
+        fixVersion('ice/install/common/README.DEMOS', version, mmVersion)
         snapshot = os.walk('./ice/install/unix')
         for dirInfo in snapshot:
             for f in dirInfo[2]:
@@ -179,6 +180,7 @@ def getInstallFilesFromLocalDirectory(cvsTag, buildDir, version, mmVersion):
         os.makedirs(target)
         for f in ['unix', 'common', 'rpm', 'thirdparty']:
             shutil.copytree(os.path.join(iceloc, f), os.path.join(target, f)) 
+        fixVersion('ice/install/common/README.DEMOS', version, mmVersion)
         snapshot = os.walk('./ice/install/unix')
         for dirInfo in snapshot:
             for f in dirInfo[2]:
