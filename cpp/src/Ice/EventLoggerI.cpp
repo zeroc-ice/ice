@@ -37,59 +37,75 @@ Ice::EventLoggerI::EventLoggerI(const string& appName) :
     }
     string key = "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + _appName;
 
-    //
-    // Create the key if it doesn't already exist.
-    //
     HKEY hKey;
     DWORD d;
     LONG err;
+
+    //
+    // Try to create the key or gain full key access and set the values
+    //
+        
+    bool setValues = true;
     err = RegCreateKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, "REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
                          &hKey, &d);
     if(err != ERROR_SUCCESS)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-        throw ex;
+        //
+        // If the key exist and I can read it, that's good enough ... we hope the values are set properly.
+        //
+        if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, key.c_str(), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+        {
+            setValues = false;
+        }
+        else
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = err;
+            throw ex;
+        }
     }
-
-    //
-    // Get the filename of this DLL.
-    //
-    char path[_MAX_PATH];
-    assert(_module != NULL);
-    if(!GetModuleFileName(_module, path, _MAX_PATH))
+     
+    if(setValues)
     {
-        RegCloseKey(hKey);
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = GetLastError();
-        throw ex;
-    }
-
-    //
-    // The event resources are bundled into this DLL, therefore the
-    // "EventMessageFile" key should contain the path to this DLL.
-    //
-    err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ, 
-                        (unsigned char*)path, static_cast<DWORD>(strlen(path) + 1));
-    if(err != ERROR_SUCCESS)
-    {
-        RegCloseKey(hKey);
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-        throw ex;
-    }
-
-    //
-    // The "TypesSupported" key indicates the supported event types.
-    //
-    DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-    err = RegSetValueEx(hKey, "TypesSupported", 0, REG_DWORD, (unsigned char*)&typesSupported, sizeof(typesSupported));
-    if(err != ERROR_SUCCESS)
-    {
-        RegCloseKey(hKey);
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-        throw ex;
+        //
+        // Get the filename of this DLL.
+        //
+        char path[_MAX_PATH];
+        assert(_module != NULL);
+        if(!GetModuleFileName(_module, path, _MAX_PATH))
+        {
+            RegCloseKey(hKey);
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = GetLastError();
+            throw ex;
+        }
+        
+        //
+        // The event resources are bundled into this DLL, therefore the
+        // "EventMessageFile" key should contain the path to this DLL.
+        //
+        err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+                            (unsigned char*)path, static_cast<DWORD>(strlen(path) + 1));
+        if(err != ERROR_SUCCESS)
+        {
+            RegCloseKey(hKey);
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = err;
+            throw ex;
+        }
+        
+        //
+        // The "TypesSupported" key indicates the supported event types.
+        //
+        DWORD typesSupported = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
+        err = RegSetValueEx(hKey, "TypesSupported", 0, REG_DWORD, (unsigned char*)&typesSupported, sizeof(typesSupported));
+        if(err != ERROR_SUCCESS)
+        {
+            RegCloseKey(hKey);
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = err;
+            throw ex;
+        }
     }
 
     RegCloseKey(hKey);
