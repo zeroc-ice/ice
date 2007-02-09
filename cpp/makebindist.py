@@ -957,7 +957,7 @@ def main():
         sourceTarBalls = [ ('ice', 'Ice-%s' % version, ''),
                            ('icej','IceJ-%s-java2' % version, 'j')]
 
-        if not getPlatform() in ['aix', 'solaris', 'hpux']:
+        if not getPlatform() in ['aix', 'solaris', 'hpux', 'macosx']:
             sourceTarBalls.append(('icephp','IcePHP-' + version, 'php'))
 
         if not getPlatform() in ['aix', 'solaris', 'hpux']:
@@ -999,7 +999,7 @@ def main():
         #
         # Package up demo distribution.
         #
-        if getPlatform() != 'hpux' and getPlatform() != 'solaris':
+        if getPlatform() != 'hpux' and getPlatform() != 'solaris' and getPlatform() != 'macosx':
             toCollect = list(sourceTarBalls)
             toCollect.append(('icevb', 'IceVB-' + version, 'vb'))
             for cvs, tarball, demoDir in toCollect:
