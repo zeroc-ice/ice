@@ -43,7 +43,7 @@ namespace
 
 #ifdef _WIN32
 static string
-getLocalizedPerfName(const Ice::LoggerPtr& logger, int idx)
+getLocalizedPerfName(int idx)
 {
     vector<char> localized;
     unsigned long size = 256;
@@ -56,10 +56,6 @@ getLocalizedPerfName(const Ice::LoggerPtr& logger, int idx)
     }
     if(err != ERROR_SUCCESS)
     {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = err;
-        Ice::Warning out(logger);
-        out << "pdhLookupPerfNameByIndex: " << ex;
         return "";
     }
     return string(&localized[0]);
@@ -275,7 +271,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     char cwd[_MAX_PATH];
     if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
-        char cwd[PATH_MAX];
+    char cwd[PATH_MAX];
     if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
     {
@@ -474,10 +470,15 @@ PlatformInfo::runUpdateLoadInfo()
     //
     // If either lookup fails, close the query system, and we're done.
     //
-    string processor = getLocalizedPerfName(_traceLevels->logger, 238);
-    string percentProcessorTime = getLocalizedPerfName(_traceLevels->logger, 6);
+    string processor = getLocalizedPerfName(238);
+    string percentProcessorTime = getLocalizedPerfName(6);
     if(processor.empty() || percentProcessorTime.empty())
     {
+        Ice::SyscallException ex(__FILE__, __LINE__);
+        ex.error = err;
+        Ice::Warning out(_traceLevels->logger);
+        out << "can't add processor utilization performance counter (expected if\n";
+        out << "you have insufficient privileges to monitor performance counters):\n" << ex;
         PdhCloseQuery(query);
         return;
     }
@@ -489,9 +490,10 @@ PlatformInfo::runUpdateLoadInfo()
     {
         Ice::SyscallException ex(__FILE__, __LINE__);
         ex.error = err;
-
         Ice::Warning out(_traceLevels->logger);
-        out << "can't add performance counter `" << name << "':\n" << ex;
+        out << "can't add performance counter `" + name + "' (expected\n";
+        out << "if you have insufficient privileges to monitor performance counters):\n";
+        out << ex;
         PdhCloseQuery(query);
         return;
     }
@@ -519,7 +521,7 @@ PlatformInfo::runUpdateLoadInfo()
             Ice::SyscallException ex(__FILE__, __LINE__);
             ex.error = err;
             Ice::Warning out(_traceLevels->logger);
-            out << "PdhCollectQueryData failed: " << ex;
+            out << "couldn't collect performance counter data:\n" << ex;
         }
 	
 	_last1Total += usage - _usages1.back();
