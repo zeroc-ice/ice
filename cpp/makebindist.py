@@ -471,12 +471,7 @@ prefix = $(ICE_DIR)
         elif state == 'untilprefix':
             if line.startswith('prefix'):
                 state = 'done'
-    #
-    # Dependency files are all going to be bogus since they contain relative
-    # paths to Ice headers. We need to adjust this
-    #
-    os.chdir("..")
-    #runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
+
     makefile.close()
 
 def updateIceVersion(filename, version):
