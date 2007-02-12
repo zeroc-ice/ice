@@ -402,20 +402,13 @@ def editMakeRulesMak(filename, version):
 # Checks for ICE_HOME environment variable.
 #
 
-ifeq ($(ICE_HOME),)
-   ICE_DIR = /usr
-   ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-   endif
-else
-   ICE_DIR = $(ICE_HOME)
-   ifneq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
-$(error Ice distribution not found, please set ICE_HOME!)
-   endif
-endif
+!if "$(ICE_HOME)" == ""
+!error Ice distribution not found, please set ICE_HOME!
+!endif
 
 ICE_DIR = $(ICE_HOME)
 prefix = $(ICE_DIR)
+THIRDPARTY_HOME =
 
 """
         elif state == 'untilprefix':
@@ -430,6 +423,60 @@ prefix = $(ICE_DIR)
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\.\/slice/$(slicedir)/g' $f ; done")
     runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
+    makefile.close()
+
+def editMakeRulesMakCS(filename, version):
+    '''
+    Ice distributions contain files with useful build rules. However,
+    these rules are source distribution specific. This script edits
+    these files to make them appropriate to accompany binary
+    distributions.
+    '''
+    state = 'header'
+    reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
+
+    makefile =  fileinput.input(filename, True)
+    for line in makefile:
+        if state == 'done':
+            if reIceLocation.search(line) <> None:
+                output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
+                print output
+            elif line.startswith('install_'):
+                #
+                # Do nothing.
+                #
+                pass
+            else:
+                print line.rstrip('\n')
+        elif state == 'header':
+            #
+            # Reading header.
+            #
+            print line.rstrip('\n')
+            if line.strip() == "":
+                state = 'untilprefix'
+                print """
+#
+# Checks for ICE_HOME environment variable.
+#
+
+!if "$(ICE_HOME)" == ""
+!error Ice distribution not found, please set ICE_HOME!
+!endif
+
+ICE_DIR = $(ICE_HOME)
+prefix = $(ICE_DIR)
+
+"""
+        elif state == 'untilprefix':
+            if line.startswith('prefix'):
+                state = 'done'
+    #
+    # Dependency files are all going to be bogus since they contain relative
+    # paths to Ice headers. We need to adjust this
+    #
+    os.chdir("..")
+    #runprog("for f in `find . -name .depend` ; do sed -i -e 's/\.\.\/\.\.\/\.\./$(ICE_DIR)/g' $f ; done")
     makefile.close()
 
 def updateIceVersion(filename, version):
@@ -509,13 +556,6 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
         if os.path.exists(fullpath):
             remove.append(fullpath)
 
-    if len(demoDir) == 0:
-        basepath = os.path.join(buildDir, 'Ice-' + version + '-demos', 'demo')
-        for f in ['IcePatch2', os.path.join('Ice', 'MFC')]:
-            fullpath = os.path.join(basepath, f)
-            if os.path.exists(fullpath):
-                remove.append(fullpath)
-
     basepath = os.path.join(buildDir, 'Ice-' + version + '-demos', 'config')
 
     if distro.startswith('Ice-'):
@@ -523,6 +563,7 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
         editMakeRulesMak(os.path.join(basepath, 'Make.rules.mak'), version)
     elif distro.startswith('IceCS-'):
         editMakeRulesCS(os.path.join(basepath, 'Make.rules.cs'), version)
+        editMakeRulesMakCS(os.path.join(basepath, 'Make.rules.mak.cs'), version)
 
     #
     # Remove collected files.
@@ -536,8 +577,10 @@ def archiveDemoTree(buildDir, version, installFiles):
     cwd = os.getcwd()
     os.chdir(os.path.join(buildDir, 'Ice-%s-demos' % version))
     filesToRemove = ['certs/makecerts.py', 'certs/ImportKey.java', 'certs/ImportKey.class', 'certs/seed.dat',
-            'config/convertssl.py', 'config/upgradeicegrid.py', 'config/icegrid-slice.3.1.ice.gz', 'config/PropertyNames.def', 'config/makeprops.py', 
-            'config/TestUtil.py', 'config/IceGridAdmin.py', 'config/ice_ca.cnf', 'config/icegridgui.pro']
+            'config/convertssl.py', 'config/upgradeicegrid.py', 'config/upgradeicestorm.py',
+            'config/icegrid-slice.3.1.ice.gz', 'config/PropertyNames.def', 'config/makeprops.py', 
+            'config/Makefile', 'config/Makefile.mak', 'config/TestUtil.py', 'config/IceGridAdmin.py', 
+            'config/ice_ca.cnf', 'config/icegridgui.pro']
     obliterate(filesToRemove)
     os.chdir(buildDir)
     
