@@ -30,7 +30,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-IS_LIBS		= $(top_srcdir)\lib\icestorm$(LIBSUFFIX).lib $(LIBS)
+IS_LIBS		= $(libdir)\icestorm$(LIBSUFFIX).lib $(LIBS)
 
 !if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
