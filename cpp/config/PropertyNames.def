@@ -131,6 +131,7 @@ Ice:
     Default.Locator.Locator
     Default.Locator.Router
     Default.Locator.CollocationOptimization
+    Default.Locator.ThreadPerConnection
     Default.LocatorCacheTimeout
     Default.Package
     Default.PreferSecure
@@ -143,6 +144,7 @@ Ice:
     Default.Router.Locator
     Default.Router.Router
     Default.Router.CollocationOptimization
+    Default.Router.ThreadPerConnection
     GC.Interval
     ImplicitContext
     InitPlugins
@@ -265,6 +267,7 @@ IceGrid:
     Node.UserAccountMapper.Locator
     Node.UserAccountMapper.Router
     Node.UserAccountMapper.CollocationOptimization
+    Node.UserAccountMapper.ThreadPerConnection
     Node.WaitTime
     Registry.SessionManager.AdapterId
     Registry.SessionManager.ReplicaGroupId
@@ -277,7 +280,23 @@ IceGrid:
     Registry.SessionManager.ThreadPool.StackSize
     Registry.AdminCryptPasswords
     Registry.AdminPermissionsVerifier
+    Registry.AdminPermissionsVerifier.EndpointSelection
+    Registry.AdminPermissionsVerifier.ConnectionCached
+    Registry.AdminPermissionsVerifier.PreferSecure
+    Registry.AdminPermissionsVerifier.LocatorCacheTimeout
+    Registry.AdminPermissionsVerifier.Locator
+    Registry.AdminPermissionsVerifier.Router
+    Registry.AdminPermissionsVerifier.CollocationOptimization
+    Registry.AdminPermissionsVerifier.ThreadPerConnection
     Registry.AdminSSLPermissionsVerifier
+    Registry.AdminSSLPermissionsVerifier.EndpointSelection
+    Registry.AdminSSLPermissionsVerifier.ConnectionCached
+    Registry.AdminSSLPermissionsVerifier.PreferSecure
+    Registry.AdminSSLPermissionsVerifier.LocatorCacheTimeout
+    Registry.AdminSSLPermissionsVerifier.Locator
+    Registry.AdminSSLPermissionsVerifier.Router
+    Registry.AdminSSLPermissionsVerifier.CollocationOptimization
+    Registry.AdminSSLPermissionsVerifier.ThreadPerConnection
     Registry.Client.AdapterId
     Registry.Client.ReplicaGroupId
     Registry.Client.Endpoints
@@ -302,6 +321,14 @@ IceGrid:
     Registry.Internal.ThreadPool.StackSize
     Registry.NodeSessionTimeout
     Registry.PermissionsVerifier
+    Registry.PermissionsVerifier.EndpointSelection
+    Registry.PermissionsVerifier.ConnectionCached
+    Registry.PermissionsVerifier.PreferSecure
+    Registry.PermissionsVerifier.LocatorCacheTimeout
+    Registry.PermissionsVerifier.Locator
+    Registry.PermissionsVerifier.Router
+    Registry.PermissionsVerifier.CollocationOptimization
+    Registry.PermissionsVerifier.ThreadPerConnection
     Registry.ReplicaName
     Registry.ReplicaSessionTimeout
     Registry.Server.AdapterId
@@ -315,6 +342,14 @@ IceGrid:
     Registry.Server.ThreadPool.StackSize
     Registry.SessionTimeout
     Registry.SSLPermissionsVerifier
+    Registry.SSLPermissionsVerifier.EndpointSelection
+    Registry.SSLPermissionsVerifier.ConnectionCached
+    Registry.SSLPermissionsVerifier.PreferSecure
+    Registry.SSLPermissionsVerifier.LocatorCacheTimeout
+    Registry.SSLPermissionsVerifier.Locator
+    Registry.SSLPermissionsVerifier.Router
+    Registry.SSLPermissionsVerifier.CollocationOptimization
+    Registry.SSLPermissionsVerifier.ThreadPerConnection
     Registry.Trace.Application
     Registry.Trace.Adapter
     Registry.Trace.Locator
@@ -409,6 +444,7 @@ IceStorm:
     TopicManager.Proxy.Locator
     TopicManager.Proxy.Router
     TopicManager.Proxy.CollocationOptimization
+    TopicManager.Proxy.ThreadPerConnection
     TopicManager.PublishedEndpoints
     TopicManager.RegisterProcess
     TopicManager.ThreadPool.Size
@@ -461,6 +497,7 @@ Glacier2:
     PermissionsVerifier.Locator
     PermissionsVerifier.Router
     PermissionsVerifier.CollocationOptimization
+    PermissionsVerifier.ThreadPerConnection
     ReturnClientProxy
     SSLPermissionsVerifier
     SSLPermissionsVerifier.EndpointSelection
@@ -470,6 +507,7 @@ Glacier2:
     SSLPermissionsVerifier.Locator
     SSLPermissionsVerifier.Router
     SSLPermissionsVerifier.CollocationOptimization
+    SSLPermissionsVerifier.ThreadPerConnection
     RoutingTable.MaxSize
     Server.AlwaysBatch
     Server.Buffered
@@ -488,6 +526,7 @@ Glacier2:
     SessionManager.Locator
     SessionManager.Router
     SessionManager.CollocationOptimization
+    SessionManager.ThreadPerConnection
     SSLSessionManager
     SSLSessionManager.EndpointSelection
     SSLSessionManager.ConnectionCached
@@ -496,6 +535,7 @@ Glacier2:
     SSLSessionManager.Locator
     SSLSessionManager.Router
     SSLSessionManager.CollocationOptimization
+    SSLSessionManager.ThreadPerConnection
     SessionTimeout
     Trace.RoutingTable
     Trace.Session
