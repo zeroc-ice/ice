@@ -231,13 +231,8 @@ Running the PHP demos
 
 Two PHP demos are provided in the demophp directory.
 
-You'll need PHP 5.1.4 to use the demos. Source and binary
-distributions of PHP can be obtained from
-
-http://www.php.net/downloads.php
-
 The Ice extension for PHP is provided as a dynamically-loadable shared
-library (lib/icephp.so) in the Linux binary distribution. On all other
+library (lib/IcePHP.so) in the Linux binary distribution. On all other
 Unix platforms, you'll need to build PHP and the Ice extension from
 source code. Please refer to the INSTALL file included in the IcePHP
 source distribution for more information.
