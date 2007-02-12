@@ -230,6 +230,7 @@ IcePatch2::PatcherService::usage(const string& appName)
         "\n"
         "\n"
         "--daemon             Run as a daemon.\n"
+        "--pidfile FILE       Write process ID into FILE.\n"
         "--noclose            Do not close open file descriptors."
 
         // --nochdir is intentionally not shown here. (See the comment in main().)

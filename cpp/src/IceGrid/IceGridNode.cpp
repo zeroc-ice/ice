@@ -788,9 +788,9 @@ NodeService::usage(const string& appName)
         "\n"
         "\n"
         "--daemon             Run as a daemon.\n"
+        "--pidfile FILE       Write process ID into FILE."
         "--noclose            Do not close open file descriptors.\n"
         "--nochdir            Do not change the current working directory.\n"
-        "--pidfile <file>     Write process ID to <file>."
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);
