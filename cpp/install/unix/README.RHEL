@@ -21,62 +21,155 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is an RPM release of the Ice @ver@ run time for
-Linux and includes executables for the Ice services, HTML
-documentation, Slice files, and the C++ runtime libraries.
+This distribution is a binary release of Ice @ver@ for Linux and
+includes the following components:
 
-Additional Ice components are provided in separate RPM packages:
+- The Ice runtime, including executables for the Ice services, HTML
+  documentation, and Slice files.
 
-- Run time libraries for Java, Python, PHP, Ruby and C# (Mono). These
-  libraries enable you to execute Ice applications.
+- Run time libraries for C++, Java, Python, C# (Mono), Ruby and PHP.
+  These libraries enable you to execute Ice applications.
 
-- Development kits for C++, Java, Python, Ruby, and C# (Mono). A
-  development kit is required for building Ice applications using a
-  supported language mapping.
+- Tools and libraries for developing Ice applications.
 
-These RPMs are available for download at the ZeroC web site at
 
-http://www.zeroc.com/download.html
+======================================================================
+Requirements
+======================================================================
 
+This binary distribution was compiled on Red Hat Enterprise Linux 4
+update 4 (RHEL4), using the default C++ compiler (GCC 3.4.6).
+
+This distribution depends on a number of third-party libraries:
+
+- expat
+- OpenSSL
+- bzip2
+
+All of these libraries are included with your RHEL4 distribution in the
+following RPMs:
+
+expat 	       expat
+OpenSSL	       openssl
+bzip2          bzip2-libs
+
+
+Java
+----
+
+Ice for Java requires Java 1.4.2, 1.5.0 or 1.6.0. RPMs can be obtained 
+from Sun Microsystems at http://java.sun.com.
+
+Python
+------
+
+The Ice extension for Python included in this distribution requires
+the installation of the RHEL4 python RPM.
+
+C#
+--
+
+Ice for C# requires Mono 1.2.2 or later. You can download the corresponding
+RPM at:
+http://www.go-mono.com/download/x86/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.i586.rpm
+http://www.go-mono.com/download/x86_64/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.x86_64.rpm
+
+
+Ruby
+----
+The Ice extension for Ruby included in this distribution requires
+the installation of the RHEL4 ruby RPM.
+
+PHP
+---
+
+The Ice extension for PHP included in this distribution requires
+PHP 5.1.6. You can download the corresponding RPM from the Centos Plus
+repository:
+
+http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-pear-1.4.9-1.2.centos.noarch.rpm
+
+http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-5.1.6-1.2.1.centos.i386.rpm
+http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-devel-5.1.6-1.2.1.centos.i386.rpm
+
+http://mirror.centos.org/centos/4/centosplus/x86_64/RPMS/php-5.1.6-1.2.1.centos.x86_64.rpm
+http://mirror.centos.org/centos/4/centosplus/x86_64/RPMS/php-devel-5.1.6-1.2.1.centos.x86_64.rpm
+
+======================================================================
+Berkeley DB
+======================================================================
+
+This distribution includes the C++ and Java runtime for Berkeley DB
+4.5.20. The Berkeley DB license is provided in the file 
+THIRD_PARTY_LICENSE.
 
 ======================================================================
 Setting up your environment to use Ice
 ======================================================================
 
 
+General
+-------
+
+The discussion below assumes you have defined the ICE_HOME variable
+with the directory of your Ice installation.
+
+In order to use Ice services and tools such as Slice translators, you
+need to add $ICE_HOME/bin to your PATH as shown in the bash command
+below:
+
+$ export PATH=$ICE_HOME/bin:$PATH
+
+Ice shared libraries and executables in this distribution contain 
+/opt/Ice-@mmver@/lib as embedded runpath. In order to run Ice services 
+and tools, you can either:
+ - create a symbolic link /opt/Ice-@mmver@ that points to your Ice
+   installation.
+     $ ln -s $ICE_HOME /opt/Ice-@mmver@
+ - or add $ICE_HOME/lib to your LD_LIBRARY_PATH environment variable 
+     $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+   With the x86_64 distribution, libraries are installed in 
+   $ICE_HOME/lib64; if you use this distribution, set your 
+   LD_LIBRARY_PATH as follows:
+     $ export LD_LIBRARY_PATH=$ICE_HOME/lib64:$LD_LIBRARY_PATH
+
 C++
 ---
 
-No additional compiler or linker options are required for an RPM
-installation of the Ice for C++ development kit.
+When compiling Ice for C++ programs, you must pass $ICE_HOME/include
+to the compiler with the -I option, and $ICE_HOME/lib with the -L
+option. Furthermore, a C++ program needs to link with at least libIce
+and libIceUtil, so a typical link command would look like this:
+
+$ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+
+Use -L$ICE_HOME/lib64 instead of -L$ICE_HOME/lib for 64-bit builds.
+
+Additional libraries are necessary if you are using an Ice service
+such as IceGrid or Glacier2.
 
 
 Java
 ----
 
-To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
-in the following bash command:
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar to your
+CLASSPATH, as shown below:
 
-$ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$CLASSPATH
 
 To use the Java2 version of Ice instead, modify your CLASSPATH as
 follows:
 
-$ export CLASSPATH=/usr/lib/Ice-@ver@/java2/Ice.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/java2/Ice.jar:$CLASSPATH
 
-Note that the Freeze component of Ice for Java requires Berkeley DB.
-In order to use Freeze, you must add db.jar to your CLASSPATH. In
-addition, the JVM requires the directory containing the Berkeley DB
-libraries to be listed in java.library.path, therefore you must add
-this directory to your LD_LIBRARY_PATH. Assuming you are using the RPM
-installation of Berkeley DB, the bash command is shown below:
+If you plan to use Freeze for persistence, you must also add the
+Berkeley DB JAR file (db.jar) to your CLASSPATH:
 
-$ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
+$ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
 
-On a x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB 
-libraries are installed in /usr/lib64, so use instead:
-
-$ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
+In addition, the JVM requires that the directory containing the
+Berkeley DB libraries be listed in java.library.path, therefore you
+must add this directory to your LD_LIBRARY_PATH.
 
 
 Python
@@ -86,19 +179,21 @@ To use Ice for Python, the PYTHONPATH environment variable must be
 updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
-$ export PYTHONPATH=/usr/lib/Ice-@ver@/python:$PYTHONPATH
+$ export PYTHONPATH=$ICE_HOME/python:$PYTHONPATH
 
-On a x86_64 system, the python Ice extension is installed in
-/usr/lib64/Ice-@ver@/python, so use instead:
-
-$ export PYTHONPATH=/usr/lib64/Ice-@ver@/python:$PYTHONPATH
 
 C#/Mono
 -------
 
-The RPM installation adds the C# runtime libraries to the global
-assembly cache (GAC), so that no changes to your environment are
-necessary to locate the assemblies.
+You can update MONO_PATH with the directory containing the Ice for C#
+runtime libraries, as the following bash command shows:
+
+$ export MONO_PATH=$ICE_HOME/bin:$MONO_PATH
+
+Alternatively, you can add the libraries to the GAC yourself using a
+command like this:
+
+$ gacutil -i bin/icecs.dll
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
@@ -120,37 +215,36 @@ mono. For example,
 $ mono server.exe
 
 Ruby
-----
+---
 
 To use Ice for Ruby, the RUBYLIB environment variable must be
 updated so that the interpreter can locate the Ruby extension.
 
-$ export RUBYLIB=/usr/lib/Ice-@ver@/ruby:$RUBYLIB
+$ export RUBYLIB=$ICE_HOME/ruby:$RUBYLIB
 
-On a x86_64 system, the Ruby Ice extension is installed in
-/usr/lib64/Ice-@ver@/ruby, so use instead:
-
-$ export RUBYLIB=/usr/lib64/Ice-@ver@/ruby:$RUBYLIB
 
 PHP
 ---
 
-The Ice extension for PHP is loaded automatically when the
-interpreter loads the contents of the file /etc/php.d/ice.ini:
+The Ice extension for PHP must be added to your PHP configuration
+by editing php.ini and adding the following lines:
 
-extension=IcePHP.so
+extension_dir = <ICE_HOME>/lib
+extension = IcePHP.so
 
-You can modify this file to include additional configuration
-directives, such as those used by the Ice extension.
+(With the x86_64 distribution, use <ICE_HOME>/lib64 instead of 
+<ICE_HOME>/lib)
 
 At run time, the PHP interpreter requires the Ice shared libraries
-as well as the Slice preprocessor (icecpp).
+as well as the Slice preprocessor ($ICE_HOME/bin/icecpp), therefore
+these components must be in a standard location or accessible via the
+PATH and LD_LIBRARY_PATH environment variables.
 
 You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
-SELinux Notes (for Red Hat Enterprise Linux users):
+SELinux Notes:
 
 SELinux augments the traditional Unix permissions with a number of
 new features. In particular, SELinux can prevent the httpd daemon from
@@ -193,7 +287,7 @@ A Java-based graphical tool for administering IceGrid applications
 is included in this distribution. The Java archive file is installed
 as
 
-/usr/lib/Ice-@ver@/IceGridGUI.jar
+$ICE_HOME/lib/IceGridGUI.jar
 
 With a suitable Java installation, you can execute the application
 using the following command:
@@ -213,7 +307,7 @@ http://www.zeroc.com/download.html
 Please refer to the README.DEMOS file included in that package for
 more information.
 
-See doc/README.html for information on the documentation included with
+See doc/index.html for information on the documentation included with
 this distribution.
 
 

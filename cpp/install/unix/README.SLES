@@ -27,7 +27,7 @@ includes the following components:
 - The Ice runtime, including executables for the Ice services, HTML
   documentation, and Slice files.
 
-- Run time libraries for C++, Java, Python, PHP, and C# (Mono). These
+- Run time libraries for C++, Java, Python, C# (Mono) and PHP. These
   libraries enable you to execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
@@ -37,60 +37,57 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Linux Fedora Core 5 (FC5)
-using FC5's default current C++ compiler, GCC 4.1.1.
+This binary distribution was compiled on SuSE Linux Enterprise Server
+10 (SLES10), using the default C++ compiler (GCC 4.1.0).
 
 This distribution depends on a number of third-party libraries:
 
-- Berkeley DB 4.3.29
-- expat 1.95.8
-- OpenSSL 0.9.8a
-- bzip2 1.0.3
-- libgcc 4.1.1
-- libstdc++ 4.1.1 
+- expat
+- OpenSSL
+- bzip2
 
-All of these libraries are included with your FC5 distribution in the
+All of these libraries are included with your SLES10 distribution in the
 following RPMs:
 
-Berkeley DB    db4, db4-utils, db4-java
 expat 	       expat
 OpenSSL	       openssl
-bzip2          bzip2-libs
-libgcc         libgcc
-libstdc++      libstdc++
-
-If you prefer to install the third-party libraries yourself, be aware
-that Berkeley DB must be configured with --enable-cxx and
---enable-java.
+bzip2          bzip2s
 
 
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
-JavaSoft at http://www.javasoft.com/j2se.
-
+Ice for Java requires Java 1.4.2, 1.5.0 or 1.6.0. RPMs can be obtained 
+from Sun Microsystems at http://java.sun.com.
 
 Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.4.3. The Python runtime RPM is python-2.4.3-2.
-
+the installation of the SLES10 python RPM.
 
 C#
 --
 
-Ice for C# requires Mono 1.1.13.7 or later. The mono RPM is
-mono-core-1.13.7-1.
+Ice for C# requires Mono 1.2.2 or later. You can download the corresponding
+RPM at:
+http://www.go-mono.com/download/x86/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.i586.rpm
+http://www.go-mono.com/download/x86_64/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.x86_64.rpm
 
 
 PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-PHP 5.2.0. The PHP RPM is php-5.2.0-1.
+the SLES10 PHP5 RPM.
 
+======================================================================
+Berkeley DB
+======================================================================
+
+This distribution includes the C++ and Java runtime for Berkeley DB
+4.5.20. The Berkeley DB license is provided in the file 
+THIRD_PARTY_LICENSE.
 
 ======================================================================
 Setting up your environment to use Ice
@@ -154,7 +151,7 @@ $ export CLASSPATH=$ICE_HOME/lib/java2/Ice.jar:$CLASSPATH
 If you plan to use Freeze for persistence, you must also add the
 Berkeley DB JAR file (db.jar) to your CLASSPATH:
 
-$ export CLASSPATH=/usr/share/java/db.jar:$CLASSPATH
+$ export CLASSPATH=$ICE_HOME/lib/db.jar:$CLASSPATH
 
 In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
@@ -203,7 +200,6 @@ mono. For example,
 
 $ mono server.exe
 
-
 PHP
 ---
 
@@ -224,41 +220,6 @@ PATH and LD_LIBRARY_PATH environment variables.
 You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
-
-SELinux Notes:
-
-SELinux augments the traditional Unix permissions with a number of
-new features. In particular, SELinux can prevent the httpd daemon from
-opening network connections and reading files without the proper
-SELinux types.
-
-If you suspect that your IcePHP application does not work due to
-SELinux restrictions, we recommend that you first try with SELinux
-disabled. As root, run:
-
-# setenforce 0
-
-to disable SELinux until the next reboot of your computer.
-
-If you want to run httpd with IcePHP and SELinux enabled, you must do
-the following:
-
-- Allow httpd to open network connections:
-
-  # setsebool httpd_can_network_connect=1 
-
-  (add the -P option to make this setting persistent across reboots)
-
-- Make sure any .ice file used by your PHP scripts can be read by 
-  httpd. The enclosing directory also needs to be accessible. For
-  example:
-
-  # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
-
-See this FAQ for more information on SELinux:
-
-http://fedora.redhat.com/docs/selinux-faq/
-
 
 ======================================================================
 Using the IceGrid Administrative Console
