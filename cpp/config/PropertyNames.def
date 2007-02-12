@@ -411,7 +411,6 @@ IceStorm:
     Trace.Topic
     Trace.TopicManager
     Send.Timeout
-    Discard.Interval
 
 Glacier2:
     AddSSLContext
