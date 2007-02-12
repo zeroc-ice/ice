@@ -8,7 +8,7 @@
 # **********************************************************************
 
 !if "$(ICE_HOME)" == ""
-!error ICE_HOME is not defined
+!error Ice distribution not found, please set ICE_HOME!
 !endif
 
 #
