@@ -73,8 +73,18 @@ else:
     if domainname == "":
         limitedTests = True
 try:
-    testaddr = socket.gethostbyname(fqdn)
-    testaddr = socket.gethostbyname(hostname)
+    testaddr1 = socket.gethostbyname(fqdn)
+    testaddr2 = socket.gethostbyname(hostname)
+
+    # On SuSE distributions, 127.0.0.2 is sometime used in /etc/hosts
+    # for the hostname (apparently if no network interface was found
+    # when the OS was installed). However, connecting to this IP addr
+    # doesn't work (even if can be "ping").
+    if testaddr1 == "127.0.0.2" or testaddr2 == "127.0.0.2":
+        limitedTests = True
+        hostname = "127.0.0.1"
+        fqdn = ""
+        domainname = ""
 except:
     limitedTests = True
     hostname = "127.0.0.1"
