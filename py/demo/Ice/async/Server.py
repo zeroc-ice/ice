@@ -84,7 +84,7 @@ class HelloI(Demo.Hello):
         self._workQueue.destroy()
         self._workQueue.join()
 
-        current.adpater.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
 
 class Server(Ice.Application):
     def run(self, args):
