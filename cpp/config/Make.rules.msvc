@@ -28,6 +28,15 @@ CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include\stlport" $(CPPFLAGS)
 
 !endif
 
+#
+# ICE_DIR should only be set with demo tarball build, and if we are
+# building the demo tarball with VC60 then STLPort include must be set
+# properly.
+#
+!if "$(CPP_COMPILER)" == "VC60" & "$(ICE_DIR)" != ""
+CPPFLAGS        = -I"$(ICE_DIR)\include\stlport" $(CPPFLAGS)
+!endif
+
 CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE
 
 !if "$(OPTIMIZE)" == "yes"
