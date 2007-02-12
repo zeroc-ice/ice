@@ -25,6 +25,12 @@ Changes since version 3.1.1
 - The Glacier2 SessionControl object is now registered with the Server
   adapter rather than the Admin adapter.
 
+- Added "null" permissions verifier objects to Glacier2.
+
+- Renamed the property Glacier2.AddUserToAllowCategories to
+  Glacier2.Filter.Category.AcceptUser. The old property name has been
+  deprecated and will be removed in a future release.
+
 - Added destroy method to the ObjectAdapter interface. It is necessary
   to call destroy to clean up the adapter resources and be able to
   recreate a new adapter with the same name. Communicator destroy
@@ -36,10 +42,11 @@ Changes since version 3.1.1
   process logger will also be used as the default logger for all
   communicators that do not have a logger explicitly set.
 
-- Added new property, Glacier2.ReturnClientProxy to control whether
-  the Glacier2 Router::getClientProxy() returns a proxy or just null. By
-  default this property is set to 0. If Glacier2 is being used by clients
-  older than version 3.2, then this property must be set to 1.
+- Added the property Glacier2.ReturnClientProxy to control whether
+  Glacier2's implementation of the Router::getClientProxy() operation
+  returns a proxy or just null. By default this property is set to 0.
+  For backward compatibility with clients that use Ice versions older
+  than 3.2, this property must be set to 1.
 
 - Added support for a user callback when SIGINT like signals are
   sent to applications that use the Application interface. See
