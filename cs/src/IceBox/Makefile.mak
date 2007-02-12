@@ -22,7 +22,7 @@ GEN_SRCS	= $(GDIR)\IceBox.cs
 SDIR		= $(slicedir)\IceBox
 GDIR		= generated
 
-!include $(top_srcdir)/config/Make.rules.mak
+!include $(top_srcdir)/config/Make.rules.mak.cs
 
 EXE_MCSFLAGS	= $(MCSFLAGS) -target:exe
 

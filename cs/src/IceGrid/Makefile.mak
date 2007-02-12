@@ -28,7 +28,7 @@ GEN_SRCS	= $(GDIR)\Admin.cs \
 SDIR		= $(slicedir)\IceGrid
 GDIR		= generated
 
-!include $(top_srcdir)\config\Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk

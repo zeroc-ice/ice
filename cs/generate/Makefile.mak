@@ -13,7 +13,7 @@ TARGETS		= $(bindir)\generatecs.exe
 
 SRCS		= Generate.cs
 
-!include $(top_srcdir)\config\Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:exe
 

@@ -116,7 +116,7 @@ GEN_SRCS	= $(GDIR)\BuiltinSequences.cs \
 SDIR		= $(slicedir)\Ice
 GDIR		= generated
 
-!include $(top_srcdir)\config\Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak.cs
 
 MCSFLAGS	= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe -warnaserror-
 MCSFLAGS	= $(MCSFLAGS) -keyfile:$(top_srcdir)\config\IcecsKey.snk
