@@ -258,6 +258,13 @@ IceGrid:
     Node.Trace.Server
     Node.UserAccounts
     Node.UserAccountMapper
+    Node.UserAccountMapper.EndpointSelection
+    Node.UserAccountMapper.ConnectionCached
+    Node.UserAccountMapper.PreferSecure
+    Node.UserAccountMapper.LocatorCacheTimeout
+    Node.UserAccountMapper.Locator
+    Node.UserAccountMapper.Router
+    Node.UserAccountMapper.CollocationOptimization
     Node.WaitTime
     Registry.SessionManager.AdapterId
     Registry.SessionManager.ReplicaGroupId
@@ -395,6 +402,13 @@ IceStorm:
     TopicManager.ReplicaGroupId
     TopicManager.Endpoints
     TopicManager.Proxy
+    TopicManager.Proxy.EndpointSelection
+    TopicManager.Proxy.ConnectionCached
+    TopicManager.Proxy.PreferSecure
+    TopicManager.Proxy.LocatorCacheTimeout
+    TopicManager.Proxy.Locator
+    TopicManager.Proxy.Router
+    TopicManager.Proxy.CollocationOptimization
     TopicManager.PublishedEndpoints
     TopicManager.RegisterProcess
     TopicManager.ThreadPool.Size
@@ -411,6 +425,7 @@ IceStorm:
     Trace.Topic
     Trace.TopicManager
     Send.Timeout
+    Discard.Interval
 
 Glacier2:
     AddSSLContext

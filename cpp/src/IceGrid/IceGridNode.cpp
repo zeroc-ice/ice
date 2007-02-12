@@ -412,13 +412,14 @@ NodeService::start(int argc, char* argv[])
     //
     // Setup the user account mapper if configured.
     //
-    string mapperProperty = properties->getProperty("IceGrid.Node.UserAccountMapper");
+    string mapperProperty = "IceGrid.Node.UserAccountMapper";
+    string mapperPropertyValue = properties->getProperty(mapperProperty);
     UserAccountMapperPrx mapper;
-    if(!mapperProperty.empty())
+    if(!mapperPropertyValue.empty())
     {
         try
         {
-            mapper = UserAccountMapperPrx::uncheckedCast(communicator()->stringToProxy(mapperProperty));
+            mapper = UserAccountMapperPrx::uncheckedCast(communicator()->propertyToProxy(mapperProperty));
         }
         catch(const Ice::LocalException& ex)
         {
@@ -788,9 +789,9 @@ NodeService::usage(const string& appName)
         "\n"
         "\n"
         "--daemon             Run as a daemon.\n"
-        "--pidfile FILE       Write process ID into FILE."
         "--noclose            Do not close open file descriptors.\n"
         "--nochdir            Do not change the current working directory.\n"
+        "--pidfile <file>     Write process ID to <file>."
     );
 #endif
     print("Usage: " + appName + " [options]\n" + options);

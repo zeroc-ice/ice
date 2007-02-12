@@ -136,15 +136,15 @@ Client::run(int argc, char* argv[])
     
     // IceStorm.TopicManager.Proxy is the "default" manager.
     PropertiesPtr properties = communicator()->getProperties();
-    const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    const char* managerProxy= "IceStorm.TopicManager.Proxy";
+    string managerProxyValue = properties->getProperty(managerProxy);
     IceStorm::TopicManagerPrx defaultManager;
-    if(!managerProxy.empty())
+    if(!managerProxyValue.empty())
     {
-        defaultManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->stringToProxy(managerProxy));
+        defaultManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy(managerProxy));
         if(!defaultManager)
         {
-            cerr << appName() << ": `" << managerProxy << "' is not running" << endl;
+            cerr << appName() << ": `" << managerProxyValue << "' is not running" << endl;
             return EXIT_FAILURE;
         }
         managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
@@ -158,17 +158,23 @@ Client::run(int argc, char* argv[])
     {
         for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
         {
-            try
+            //
+            // Ignore proxy property settings. eg IceStormAdmin.TopicManager.*.LocatorCacheTimeout
+            //
+            if(p->first.find('.', strlen("IceStormAdmin.TopicManager.")) == string::npos)
             {
-                IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::uncheckedCast(
-                    communicator()->stringToProxy(p->second));
-                managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
-                                    manager->ice_getIdentity(), manager));
-            }
-            catch(const Ice::ProxyParseException&)
-            {
-                cerr << appName() << ": malformed proxy: " << p->second << endl;
-                return EXIT_FAILURE;
+                try
+                {
+                    IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::uncheckedCast(
+                        communicator()->propertyToProxy(p->first));
+                    managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
+                                        manager->ice_getIdentity(), manager));
+                }
+                catch(const Ice::ProxyParseException&)
+                {
+                    cerr << appName() << ": malformed proxy: " << p->second << endl;
+                    return EXIT_FAILURE;
+                }
             }
         }
         if(props.empty() && !defaultManager)
