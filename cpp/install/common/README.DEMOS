@@ -14,7 +14,7 @@ The build systems included in the demo distribution are either
 'makefile' based or 'ant' based. The C++ and C# demos use makefiles and
 the Java demos use the Apache Foundation's ant build tool. 
 
-    NOTE: The Ruby, Python and PHP do not need to be built. 
+    NOTE: The Ruby, Python and PHP demos do not need to be built. 
 
 The Unix C++ and C# makefiles require GNU gmake 3.80 or later. If your
 system does not come with GNU make, you can find information on how to
@@ -36,7 +36,7 @@ http://ant.apache.org/bindownload.cgi
 To build the demos you need to:
 
   - Configure your system according to the directions in the main README file 
-   (for binary distributions) or the platform specific INSTALL file (if you 
+    (for binary distributions) or the platform specific INSTALL file (if you 
     built Ice from sources).
 
   - On Linux or Unix:
@@ -52,7 +52,7 @@ To build the demos you need to:
 
         $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
     
-   - On Windows:
+  - On Windows:
     Set the environment variable ICE_HOME to point to your Ice installation,
     and add %ICE_HOME%\bin to your PATH. For example:  
 
@@ -103,7 +103,7 @@ Platform specific notes
     command line.
 
     Building the C++ demos using Microsoft C++ Environments
-    ------------------------------------------------------
+    -------------------------------------------------------
 
     These instructions apply to all supported versions of Microsoft C++
     development environments.
@@ -159,10 +159,12 @@ Running the Java demos
 To run the demos you need to add classes to your CLASSPATH.
 
 For example on Linux or Unix with a bash shell:
-   $ export CLASSPATH=classes:$CLASSPATH
-And on Windows:
-   > set CLASSPATH=classes;%CLASSPATH%
 
+   $ export CLASSPATH=classes:$CLASSPATH
+
+And on Windows:
+
+   > set CLASSPATH=classes;%CLASSPATH%
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
@@ -235,11 +237,10 @@ distributions of PHP can be obtained from
 http://www.php.net/downloads.php
 
 The Ice extension for PHP is provided as a dynamically-loadable shared
-library (lib/icephp.so) in the Linux and MacOS X binary
-distributions. On all other Unix platforms, the Ice extension can only
-be used in a static configuration, which requires that you build PHP
-and the Ice extension from source code. Please refer to the INSTALL
-file included in the IcePHP source distribution for more information.
+library (lib/icephp.so) in the Linux binary distribution. On all other
+Unix platforms, you'll need to build PHP and the Ice extension from
+source code. Please refer to the INSTALL file included in the IcePHP
+source distribution for more information.
 
 The example in demophp/Ice/hello demonstrates the use of the Ice
 extension for PHP in a dynamic Web page, whereas the example in
