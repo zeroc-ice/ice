@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/ArgVector.h>
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
@@ -254,42 +255,15 @@ main(int argc, char* argv[])
     // directory is specified as a relative path, we don't
     // misinterpret that path.
     //
-    char** v = new char*[argc + 2];
-    char** vsave = new char*[argc + 2]; // We need to keep a copy of the vector because svc.main modifies argv.
-
-    v[0] = new char[strlen(argv[0]) + 1];
-    strcpy(v[0], argv[0]);
-    vsave[0] = v[0];
-
-    v[1] = new char[sizeof("--nochdir")];
-    strcpy(v[1], "--nochdir");
-    vsave[1] = v[1];
-
-    int i;
-    for(i = 1; i < argc; ++i)
+    StringSeq ss;
+    ss.push_back(argv[0]);
+    ss.push_back("--nochdir");
+    for(int i = 1; i < argc; ++i)
     {
-        v[i + 1] = new char[strlen(argv[i]) + 1];
-        strcpy(v[i + 1], argv[i]);
-        vsave[i + 1] = v[i + 1];
+        ss.push_back(argv[i]);
     }
-    v[argc + 1] = 0;
-
-    try
-    {
-        int ac = argc + 1;
-        status = svc.main(ac, v);
-    }
-    catch(...)
-    {
-        // Ignore exceptions -- the only thing left to do is to free memory.
-    }
-
-    for(i = 0; i < argc + 1; ++i)
-    {
-        delete[] vsave[i];
-    }
-    delete[] v;
-    delete[] vsave;
+    IceUtil::ArgVector av(ss);
+    status = svc.main(av.argc, av.argv);
 #endif
 
     return status;
