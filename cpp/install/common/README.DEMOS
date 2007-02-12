@@ -58,6 +58,9 @@ To build the demos you need to:
 
 	c:\>set ICE_HOME=c:\Ice-@ver@
 	c:\>set PATH=%ICE_HOME%\bin;%PATH%
+
+    Edit Ice-@ver@-demos/config/Make.rules.mak and set CPP_COMPILER to the
+    appropriate value for your compiler. 
 	  
   - Build the demos. For example:
 
