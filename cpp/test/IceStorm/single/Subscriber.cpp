@@ -173,16 +173,26 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
     }
     {
+        // Use a separate adapter to ensure a separate connection is used for the subscriber
+        // (otherwise, if multiple UDP subscribers use the same connection we might get high
+        // packet loss, see bug 1784).
+        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdater1", "udp");
         subscribers.push_back(new SingleI(communicator, "datagram"));
         IceStorm::QoS qos;
         qos["reliability"] = "oneway";
-        topic->subscribe(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_datagram());
+        topic->subscribe(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_datagram());
+        adpt->activate();
     }
     {
+        // Use a separate adapter to ensure a separate connection is used for the subscriber
+        // (otherwise, if multiple UDP subscribers use the same connection we might get high
+        // packet loss, see bug 1784).
+        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdater2", "udp");
         subscribers.push_back(new SingleI(communicator, "batch datagram"));
         IceStorm::QoS qos;
         qos["reliability"] = "batch";
-        topic->subscribe(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_datagram());
+        topic->subscribe(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_datagram());
+        adpt->activate();
     }
     //
     // Next we use the new API call with the new proxy semantics.
@@ -210,12 +220,22 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         topic->subscribeAndGetPublisher(qos, adapter->addWithUUID(subscribers.back()));
     }
     {
+        // Use a separate adapter to ensure a separate connection is used for the subscriber
+        // (otherwise, if multiple UDP subscribers use the same connection we might get high
+        // packet loss, see bug 1784).
+        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdater3", "udp");
         subscribers.push_back(new SingleI(communicator, "datagram"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_datagram());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_datagram());
+        adpt->activate();
     }
     {
+        // Use a separate adapter to ensure a separate connection is used for the subscriber
+        // (otherwise, if multiple UDP subscribers use the same connection we might get high
+        // packet loss, see bug 1784).
+        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdater4", "udp");
         subscribers.push_back(new SingleI(communicator, "batch datagram"));
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), adapter->addWithUUID(subscribers.back())->ice_batchDatagram());
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), adpt->addWithUUID(subscribers.back())->ice_batchDatagram());
+        adpt->activate();
     }
 
     adapter->activate();
