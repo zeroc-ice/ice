@@ -115,7 +115,7 @@ SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 LDFLAGS			= $(LDFLAGS) $(LDPLATFORMFLAGS) $(CXXFLAGS)
 
-SLICEPARSERLIB		= $(top_srcdir)\lib\slice$(LIBSUFFIX).lib
+SLICEPARSERLIB		= $(libdir)\slice$(LIBSUFFIX).lib
 SLICE2CPP		= $(bindir)\slice2cpp.exe
 SLICE2XSD		= $(bindir)\slice2xsd.exe
 SLICE2FREEZE		= $(bindir)\slice2freeze.exe
