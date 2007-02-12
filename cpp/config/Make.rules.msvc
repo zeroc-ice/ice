@@ -45,7 +45,7 @@ CPPFLAGS        = $(CPPFLAGS) -RTC1
 
 !endif
 
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(top_srcdir)\lib" /nologo /FIXED:no
+LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo /FIXED:no
 
 !if "$(OPTIMIZE)" != "yes"
 LDFLAGS		= $(LDFLAGS) /debug /incremental:yes
