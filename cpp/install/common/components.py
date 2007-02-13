@@ -54,14 +54,39 @@ def recursiveListing(path):
             result.append(fullpath)
     return result
 
+def fixVersion(file, argsHash):
+    if not argsHash.has_key('version'):
+        print "fixVersion unable to execute, no version information available"
+        return
+
+    version = argsHash['version']
+
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    line = oldFile.read();
+    line = re.sub("@ver@", version, line)
+    newFile.write(line)
+    newFile.close()
+    oldFile.close()
+    os.remove(origfile)
+
 class FileSpecWorker:
-    def __init__(self, id, source, dest):
+    def __init__(self, id, source, dest, processors):
         self.id = id
         self.source = source
         self.dest = dest
         self.include = []
         self.exclude = []
         self.explicit = []
+        self.processors = []
+        for p in processors:
+            if globals().has_key(p.strip()):
+                self.processors.append(p.strip())
+            else:
+                print "Possible component configuration error:"
+                print "  Section %s is configured with non-existant processor %s." % (id, p.trim())
         
     def add(self, filename):
         parts = filename.split("=")
@@ -308,6 +333,10 @@ class FileSpecWorker:
                         shutil.copy2(d + ".bak", d)
                         os.remove(d + ".bak")
                         
+                    if self.processors != None and len(self.processors) > 0:
+                        for p in self.processors:
+                            e = globals()[p.strip()]
+                            e(d, defaults)
 
             except IOError, e:
                 logging.info('Copying %s to %s failed: %s' %  (s, d, str(e)))
@@ -365,13 +394,17 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
                         template = cfg.get(section, "filetemplate%d" %i, True)
                         mapping = defaults 
 
+                    processors = []
+                    if cfg.has_option(section, "processor%d" % i):
+                        processors = cfg.get(section, "processor%d" % i).split(',')
+
                     filename = os.path.join(componentdir, filelist)
                     if not (os.path.exists(filename) and os.path.isfile(filename)):
                         raise StageFileError("Component file %s does not exist or is not a file" % filename)
 
                     componentFile = file(filename, "r")
                     try:
-                        worker = FileSpecWorker("%s.%s.%d" % (filename, section.replace(" ", "_"), i), source, os.path.join(currentBase, dest))
+                        worker = FileSpecWorker("%s.%s.%d" % (filename, section.replace(" ", "_"), i), source, os.path.join(currentBase, dest), processors)
                         for line in componentFile:
                             current = line.strip()
                             if line.startswith('#'):
@@ -401,8 +434,7 @@ def stage(filename, componentdir, stageDirectory, group, defaults):
                             logging.warning(msg)
                         else:
                             #
-                            # XXX- fake is set to true while we are
-                            # debugging.
+                            # NOTE: set fake to true while debugging.
                             #
                             worker.execute(defaults, False)
 
