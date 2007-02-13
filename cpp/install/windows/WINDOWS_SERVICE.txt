@@ -15,11 +15,15 @@ create any required data/database directory.
 
 Step 4: Install the service, for example:
 > icegridregistry --install IceGridRegistry \
-  --Ice.Config=C:\Ice-3.2.0\config\icegridregistry.cfg
+  --Ice.Config=C:\Ice-@ver@\config\icegridregistry.cfg
 
 Step 5: In the Windows Services panel, edit the new Service.
 Change "Log on" to use the 'iceuser' account, instead of the Local
 System Account.
+
+On Windows Server 2003, the user account that runs IceGrid node
+needs to be a member of the local 'Performance Monitor Users' 
+group to be able to monitor the CPU usage of the system.
 
 Step 6: Start the service, and verify that the service starts
 properly.
