@@ -90,10 +90,17 @@ def getPlatform():
     if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
         return 'win32'
     elif sys.platform.startswith('linux'):
+        redhat = os.system('test -f /etc/redhat-release')
         if readcommand('uname -p') == 'x86_64':
-            return 'linux64'
+            if redhat == 0:
+                return 'rhel.x86_64'
+            else:
+                return 'sles.x86_64'
         else:
-            return 'linux'
+            if redhat == 0:
+                return 'rhel.i386'
+            else:
+                return 'sles.i586'
     elif sys.platform.startswith('sunos'):
         return 'solaris'
     elif sys.platform.startswith('hp'):
@@ -706,7 +713,7 @@ def getDBfiles(dbLocation):
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
     pipe_stdout.close()
-   
+
     fileList = ['lib/db.jar']
     fileList.extend(lines)
 
@@ -716,7 +723,7 @@ def getDBfiles(dbLocation):
     elif getPlatform() == 'macosx':
         findCmd = 'find lib \( -name "*'  + getPlatformLibExtension() + '" -or -name "*jnilib" \) -type f '
     else:
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
+        findCmd = 'find lib* -name "*'  + getPlatformLibExtension() + '" -type f'
     pipe_stdin, pipe_stdout = os.popen2(findCmd)
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
@@ -726,6 +733,7 @@ def getDBfiles(dbLocation):
         fileList.append('lib/libdb_cxx.so')     
 
     os.chdir(cwd)
+
     return fileList
 
 def copyExpatFiles(expatLocation, version):
@@ -737,7 +745,7 @@ def copyExpatFiles(expatLocation, version):
     if getPlatform() == 'solaris':
         findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f -maxdepth 1'
     else:
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
+        findCmd = 'find lib* -name "*'  + getPlatformLibExtension() + '" -type f'
     pipe_stdin, pipe_stdout = os.popen2(findCmd)
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
@@ -749,18 +757,19 @@ def copyExpatFiles(expatLocation, version):
     if getPlatform() == 'solaris':
         findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type l -maxdepth 1'
     else:
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type l'
+        findCmd = 'find lib* -name "*'  + getPlatformLibExtension() + '" -type l'
     pipe_stdin, pipe_stdout = os.popen2(findCmd)
     lines = pipe_stdout.readlines()
     pipe_stdin.close()
     pipe_stdout.close()
     fileList.extend(lines)
-
+    
     for i in lines:
         if i != 'libexpat.' + getPlatformLibExtension():
             linkList.append(i)
-
+            
     os.chdir(cwd)
+    
 
     if not os.path.exists('Ice-' + version + '/' + fileList[0].strip()):
         shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
@@ -1111,15 +1120,16 @@ def main():
     cwd = os.getcwd()
     os.chdir(installDir)
 
-    if not getPlatform().startswith('linux'):
-        #
-        # Get third party libraries.
-        #
-        dbLocation = os.environ['DB_HOME']
-        dbFiles = getDBfiles(dbLocation)
-        for f in dbFiles:
-            if not os.path.exists('Ice-' + version + '/' + f.strip()):
-                shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
+  
+    #
+    # Get third party libraries.
+    #
+    dbLocation = os.environ['DB_HOME']
+    
+    dbFiles = getDBfiles(dbLocation)    
+    for f in dbFiles:
+        if not os.path.exists('Ice-' + version + '/' + f.strip()):
+            shutil.copy(dbLocation + '/' + f.strip(), 'Ice-' + version + '/' + f.strip())
 
     if getPlatform() == 'macosx':
         copyExpatFiles(os.environ['EXPAT_HOME'], version)       
@@ -1137,7 +1147,14 @@ def main():
     uname = readcommand('uname')
     platformSpecificFiles = [ 'README', 'SOURCES', 'THIRD_PARTY_LICENSE' ]
     for psf in platformSpecificFiles:
-        cf = os.path.join(installFiles, 'unix', psf + '.' + uname)
+        platform = uname
+        if psf == 'README':
+            if platform == 'Linux':
+                if os.system('test -f /etc/redhat-release') == 0:
+                    plaform = 'RHEL'
+                else:
+                    platform = 'SLES'
+        cf = os.path.join(installFiles, 'unix', psf + '.' + platform)
         if os.path.exists(cf):
             shutil.copy(cf, os.path.join('Ice-' + version, psf))
 
