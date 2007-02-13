@@ -90,6 +90,22 @@ def getPlatform():
     if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
         return 'win32'
     elif sys.platform.startswith('linux'):
+        return 'linux'
+    elif sys.platform.startswith('sunos'):
+        return 'solaris'
+    elif sys.platform.startswith('hp'):
+        return 'hpux'
+    elif sys.platform.startswith('darwin'):
+        return 'macosx'
+    elif sys.platform.startswith('aix'):
+        return 'aix'
+    else:
+        return None
+
+
+def getPlatformString():
+    """Determine the platform string used in the .tar.gz names"""
+    if getPlatform() == 'linux':
         redhat = os.system('test -f /etc/redhat-release')
         if readcommand('uname -p') == 'x86_64':
             if redhat == 0:
@@ -101,16 +117,8 @@ def getPlatform():
                 return 'rhel-i386'
             else:
                 return 'sles-i586'
-    elif sys.platform.startswith('sunos'):
-        return 'solaris'
-    elif sys.platform.startswith('hp'):
-        return 'hpux'
-    elif sys.platform.startswith('darwin'):
-        return 'macosx'
-    elif sys.platform.startswith('aix'):
-        return 'aix'
     else:
-        return None
+        return getPlatform()
 
 def getMakeRulesSuffix():
     '''Ice for C++ contains system specific rules for make. This
@@ -976,7 +984,7 @@ def main():
         installFiles = getInstallFiles(cvsTag, buildDir, version, mmVersion)
 
     if verbose:
-        print 'Building binary distributions for Ice-' + version + ' on ' + getPlatform()
+        print 'Building binary distributions for Ice-' + version + ' on ' + getPlatformString()
         print 'Using build directory: ' + buildDir
         print 'Using install directory: ' + installDir
         print
@@ -1012,7 +1020,7 @@ def main():
         if not getPlatform() in ['aix', 'solaris', 'hpux']:
             sourceTarBalls.append(('icepy','IcePy-' + version, 'py'))
 
-        if getPlatform().startswith("linux"):
+        if getPlatform() == 'linux':
             sourceTarBalls.append(('icecs','IceCS-' + version, 'cs'))
             if os.system('which ruby 2>/dev/null') == 0:
                 sourceTarBalls.append(('icerb', 'IceRuby-%s' % version, 'rb'))
@@ -1164,8 +1172,8 @@ def main():
     runprog("rm -f Ice-%s/config/build.properties" % (version))
     runprog("rm -f Ice-%s/config/Make.rules*" % (version))
 
-    runprog('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
-    runprog('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
+    runprog('tar cf Ice-' + version + '-bin-' + getPlatformString() + '.tar Ice-' + version)
+    runprog('gzip -9 Ice-' + version + '-bin-' + getPlatformString() + '.tar')
     os.chdir(cwd)
 
     #
