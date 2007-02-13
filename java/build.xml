@@ -192,7 +192,7 @@
     <target name="icegridadmin-pro-jar" depends="icegridadmin-compile" if="build-icegridadmin-pro-jar">
 	<manifest file="${lib.dir}/icegridgui.mf">
 	    <attribute name="Main-Class" value="IceGridGUI.Main"/>
-	    <attribute name="Class-Path" value="../doc/ ../resources/ ../../share/doc/Ice-${ice.version}/"/>
+	    <attribute name="Class-Path" value="../doc/ ../resources/ ../../share/doc/Ice-${ice.version}/ ../../share/doc/packages/Ice-${ice.version}/"/>
 	</manifest>
 	<jar jarfile="${lib.dir}/IceGridGUItemp.jar" manifest="${lib.dir}/icegridgui.mf" basedir="${lib.dir}">
 	    <include name="IceGridGUI/**"/>
