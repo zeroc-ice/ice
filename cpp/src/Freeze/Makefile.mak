@@ -58,9 +58,9 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
-	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
+	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 	del /q $(HDIR)\Catalog.h Catalog.cpp

@@ -31,7 +31,7 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 $(CLIENT): $(OBJS) $(COBJS) HelloClient.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) HelloClient.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 HelloClient.res: HelloClient.rc

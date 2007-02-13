@@ -23,7 +23,7 @@ CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 $(NAME): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)slice$(LIBSUFFIX).lib $(BASELIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 clean::

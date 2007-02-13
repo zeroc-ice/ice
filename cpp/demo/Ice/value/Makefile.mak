@@ -37,12 +37,12 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 clean::

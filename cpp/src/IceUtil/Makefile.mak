@@ -53,9 +53,9 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(ICE_OS_LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
-	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
+	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 clean::
 	del /q $(DLLNAME:.dll=.*)

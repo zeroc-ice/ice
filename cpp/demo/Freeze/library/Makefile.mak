@@ -55,17 +55,17 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(COPDBFLAGS) $(OBJS) $(COLOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)

@@ -31,7 +31,7 @@ PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 clean::

@@ -49,13 +49,13 @@ DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 
 $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 	    del /q $(TRANSFORMDB).manifest
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 Scanner.cpp : Scanner.l

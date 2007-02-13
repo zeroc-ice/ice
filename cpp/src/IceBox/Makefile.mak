@@ -65,18 +65,18 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
-	-if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
+	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 $(ADMIN): $(AOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) icebox$(LIBSUFFIX).lib
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 !ifdef BUILD_UTILS

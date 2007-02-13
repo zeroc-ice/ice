@@ -39,7 +39,7 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 
 $(CLIENT): $(OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 !include .depend

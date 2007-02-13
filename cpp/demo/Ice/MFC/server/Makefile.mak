@@ -33,7 +33,7 @@ PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 $(SERVER): $(OBJS) $(COBJS) HelloServer.res
 	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) /subsystem:windows $(OBJS) $(COBJS) HelloServer.res \
 	  $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	-if exist $@.manifest \
+	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
 
 HelloServer.res: HelloServer.rc
