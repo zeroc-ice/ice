@@ -93,14 +93,14 @@ def getPlatform():
         redhat = os.system('test -f /etc/redhat-release')
         if readcommand('uname -p') == 'x86_64':
             if redhat == 0:
-                return 'rhel.x86_64'
+                return 'rhel-x86_64'
             else:
-                return 'sles.x86_64'
+                return 'sles-x86_64'
         else:
             if redhat == 0:
-                return 'rhel.i386'
+                return 'rhel-i386'
             else:
-                return 'sles.i586'
+                return 'sles-i586'
     elif sys.platform.startswith('sunos'):
         return 'solaris'
     elif sys.platform.startswith('hp'):
