@@ -91,6 +91,13 @@ def isWin32():
     else:
         return 0
 
+def isDarwin():
+
+   if sys.platform == "darwin":
+        return 1
+   else:
+        return 0
+
 def isSolaris():
 
     if sys.platform == "sunos5":
@@ -311,6 +318,15 @@ serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 
 php = "php"
+
+#
+# If there is no php in the PATH, try php5:
+#
+if not isWin32() and not isDarwin():
+    p = os.popen('php -v 2>/dev/null')
+    if p.close() != None:
+        php = "php5"
+
 if isWin32():
     extensionDir = os.path.abspath(os.path.join(toplevel, "bin"))
     extensionFile = "php_ice.dll"
