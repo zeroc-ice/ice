@@ -44,8 +44,12 @@ if len(sys.argv) == 1:
 
 # Work out the position of the script.
 script = 1
-while sys.argv[script].startswith("--"):
-    script = script+1
+while script < len(sys.argv) and sys.argv[script].startswith("--"):
+    script = script + 1
+
+if script > len(sys.argv):
+    usage()
+
 #
 # Parse the global options.
 #
