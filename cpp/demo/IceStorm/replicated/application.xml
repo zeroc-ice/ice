@@ -9,7 +9,7 @@
 
        <icebox id="DemoIceStorm-${index}" exe="icebox" activation="on-demand">
 
-         <service name="IceStorm" entry="IceStormService,32:createIceStorm">
+         <service name="IceStorm" entry="IceStormService,32b:createIceStorm">
 
            <dbenv name="${service}"/>
 

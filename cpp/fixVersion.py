@@ -241,6 +241,9 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
         
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replication", "application.xml"),
+                            [("IceStormService,([0-9]+b?)", soVersion(version))])
+
         fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
