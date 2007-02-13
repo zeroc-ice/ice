@@ -1,18 +1,17 @@
-%if "%{_target_cpu}" != "noarch" && "%{_vendor}" == "redhat"
+%if "%{_target_cpu}" != "noarch" && "%{dist}" == ".rhel4"
 %define ruby_included 1
 %else
 %define ruby_included 0
 %endif
 
-
 %define core_arches %{ix86} x86_64
 Summary: The Ice base runtime and services
 Name: ice
 Version: 3.2b
-Release: 1.%{_vendor}
+Release: 1%{dist}
 License: GPL
 Group:System Environment/Libraries
-Vendor: ZeroC, Inc
+Vendor: ZeroC, Inc.
 URL: http://www.zeroc.com/
 Source0: Ice-%{version}.tar.gz
 Source1: IceJ-%{version}-java2.tar.gz
@@ -50,19 +49,17 @@ BuildRequires: openssl >= 0.9.7a
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: bzip2 >= 1.0.2
 BuildRequires: expat >= 1.95.7
-%if "%{_vendor}" == "redhat"
-BuildRequires: bzip2-devel >= 1.0.2
-BuildRequires: expat-devel >= 1.95.7
 BuildRequires: db45 >= 4.5.20
 BuildRequires: db45-devel >= 4.5.20
+%if "%{dist}" == ".rhel4"
+BuildRequires: bzip2-devel >= 1.0.2
+BuildRequires: expat-devel >= 1.95.7
 BuildRequires: ruby >= 1.8.1
 BuildRequires: ruby-devel >= 1.8.1
 BuildRequires: php >= 5.1.4
 BuildRequires: php-devel >= 5.1.4
 %endif
-%if "%{_vendor}" == "suse"
-BuildRequires: db >= 4.3.29
-BuildRequires: db-devel >= 4.3.29
+%if "%{dist}" == ".sles10"
 BuildRequires: php5 >= 5.1.2
 BuildRequires: php5-devel >= 5.1.2
 %endif
@@ -90,9 +87,9 @@ firewall solution, and much more.
 
 %ifarch noarch
 #
-# We only build C# for noarch
+# Since we also have Java2 for IceGridGUI.jar and the demos, Java5 is purely noarch
 #
-sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/config/Make.rules.cs
+%setup -q -n IceJ-%{version}-java5 -T -D -b 4
 %endif
 
 %ifarch %{core_arches}
@@ -108,12 +105,6 @@ sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/conf
 %setup -q -n IceRuby-%{version} -T -D -b 7
 %endif
 
-%ifarch noarch
-#
-# Since we also have Java2 for IceGridGUI.jar and the demos, Java5 is purely noarch
-#
-%setup -q -n IceJ-%{version}-java5 -T -D -b 4
-%endif
 
 %build
 
@@ -121,19 +112,19 @@ sed -i -e 's/^cvs_build.*$/cvs_build = no/' $RPM_BUILD_DIR/IceCS-%{version}/conf
 # We need the slice2xxx translators all the time
 #
 cd $RPM_BUILD_DIR/Ice-%{version}/src
-gmake OPTIMIZE=yes prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+make OPTIMIZE=yes embedded_runpath_prefix=""
 
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake  OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix=""
 
 cd $RPM_BUILD_DIR/IcePHP-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix=""
 %endif
 
 %if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix=""
+make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix=""
 %endif
 
 %ifarch noarch
@@ -143,7 +134,7 @@ gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT
 cd $RPM_BUILD_DIR/IceCS-%{version}/src
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT
+make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version}
 %endif
 
 %install
@@ -157,14 +148,14 @@ fi
 
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/Ice-%{version}
-gmake prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+make prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 rm $RPM_BUILD_ROOT/bin/slice2vb
 
 cd $RPM_BUILD_DIR/IcePy-%{version}
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+make ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 
 cd $RPM_BUILD_DIR/IcePHP-%{version}
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
+make ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
 
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
@@ -202,7 +193,7 @@ done
 
 %if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
-gmake OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
+make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT embedded_runpath_prefix="" install
 %else
 rm -f  $RPM_BUILD_ROOT/bin/slice2rb
 %endif
@@ -216,7 +207,7 @@ cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/Ice.jar $RPM_BUILD_ROOT/lib/java2
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
+make NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
 
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
 do 
@@ -257,13 +248,13 @@ mv $RPM_BUILD_ROOT/include $RPM_BUILD_ROOT/usr/include
 mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/python $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/python
 
-mkdir -p $RPM_BUILD_ROOT/usr/share/doc
-mv $RPM_BUILD_ROOT/doc $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}
-mv $RPM_BUILD_ROOT/README $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/README
-mv $RPM_BUILD_ROOT/ICE_LICENSE $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/ICE_LICENSE
-mv $RPM_BUILD_ROOT/LICENSE $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/LICENSE
-mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/THIRD_PARTY_LICENSE
-mv $RPM_BUILD_ROOT/SOURCES $RPM_BUILD_ROOT/usr/share/doc/Ice-%{version}/SOURCES
+mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
+mv $RPM_BUILD_ROOT/doc ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/README
+mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/ICE_LICENSE
+mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/LICENSE
+mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/THIRD_PARTY_LICENSE
+mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/SOURCES
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/ant
@@ -309,6 +300,7 @@ mkdir -p $RPM_BUILD_ROOT/usr
 mv $RPM_BUILD_ROOT/bin $RPM_BUILD_ROOT/usr/bin
 
 %clean
+rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
 * Fri Dec 6 2006 ZeroC Staff
@@ -460,10 +452,10 @@ firewall solution, and much more.
 %package php
 Summary: The Ice runtime for PHP applications
 Group: System Environment/Libraries
-%if "%{_vendor}" == "redhat"
+%if "%{dist}" == ".rhel4"
 Requires: ice = %{version}, php >= 5.1.4
 %endif
-%if "%{_vendor}" == "suse"
+%if "%{dist}" == ".sles10"
 Requires: ice-%{_target_cpu}, php5 >= 5.1.2
 %endif
 %description php
@@ -484,12 +476,7 @@ firewall solution, and much more.
 %package java
 Summary: The Ice runtime for Java
 Group: System Environment/Libraries
-%if "%{_vendor}" == "redhat"
 Requires: ice = %{version}, db45-java >= 4.5.20
-%endif
-%if "%{_vendor}" == "suse"
-Requires: ice = %{version}, db-java >= 4.3.29
-%endif
 %description java
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
@@ -527,8 +514,8 @@ firewall solution, and much more.
 %files
 %defattr(644, root, root, 755)
 
-%dir /usr/share/doc/Ice-%{version}
-/usr/share/doc/Ice-%{version}
+%dir %{_defaultdocdir}/Ice-%{version}
+%{_defaultdocdir}/Ice-%{version}
 %attr(755, root, root) /usr/bin/dumpdb
 %attr(755, root, root) /usr/bin/transformdb
 %attr(755, root, root) /usr/bin/glacier2router
@@ -792,4 +779,3 @@ pklibdir="lib64"
 
 
 %endif
-
