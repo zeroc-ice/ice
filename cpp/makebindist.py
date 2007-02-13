@@ -398,11 +398,8 @@ def editMakeRulesMak(filename, version):
                 # Do nothing.
                 #
                 pass
-            elif line.startswith('THIRDPARTY_HOME'):
-                #
-                # Do nothing.
-                #
-                pass
+            elif line.startswith('# If third party'):
+                state = 'thirdparty'
             else:
                 print line.rstrip('\n')
         elif state == 'header':
@@ -428,6 +425,10 @@ THIRDPARTY_HOME =
 """
         elif state == 'untilprefix':
             if line.startswith('prefix'):
+                state = 'done'
+        elif state == 'thirdparty':
+            if line.startswith('# For VC80 and VC80'):
+                print line.rstrip('\n')
                 state = 'done'
     #
     # Dependency files are all going to be bogus since they contain relative
