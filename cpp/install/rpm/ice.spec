@@ -70,14 +70,14 @@ BuildRequires: php5-devel >= 5.1.2
 Provides: ice-%{_target_cpu}
 
 %description
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %prep
 
 
@@ -323,14 +323,14 @@ Group: Development/Tools
 Requires: ice = %{version}
 Requires: ice-%{_target_cpu}
 %description c++-devel
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -343,14 +343,14 @@ Group: Development/Tools
 Requires: ice-dotnet = %{version}
 Requires: ice-%{_target_cpu}
 %description csharp-devel
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -363,14 +363,14 @@ Group: Development/Tools
 Requires: ice-java = %{version}
 Requires: ice-%{_target_cpu}
 %description java-devel
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -384,14 +384,14 @@ Provides: ice-python-%{_target_cpu}
 Requires: ice = %{version}, python >= 2.3.4
 Requires: ice-%{_target_cpu}
 %description python
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -402,14 +402,14 @@ Group: Development/Tools
 Requires: ice-python = %{version}
 Requires: ice-python-%{_target_cpu}
 %description python-devel
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -423,14 +423,14 @@ Provides: ice-ruby-%{_target_cpu}
 Requires: ice = %{version}, ruby >= 1.8.1
 Requires: ice-%{_target_cpu}
 %description ruby
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -443,14 +443,14 @@ Group: Development/Tools
 Requires: ice-ruby = %{version}
 Requires: ice-ruby-%{_target_cpu}
 %description ruby-devel
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -467,14 +467,14 @@ Requires: ice = %{version}, php >= 5.1.4
 Requires: ice-%{_target_cpu}, php5 >= 5.1.2
 %endif
 %description php
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -491,14 +491,14 @@ Requires: ice = %{version}, db45-java >= 4.5.20
 Requires: ice = %{version}, db-java >= 4.3.29
 %endif
 %description java
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
@@ -510,14 +510,14 @@ Summary: The Ice runtime for C# applications
 Group: System Environment/Libraries
 Requires: ice = %{version}, mono-core >= 1.2.2
 %description dotnet
-Ice is a modern alternative to object middleware
-such as CORBA or COM/DCOM/COM+.  It is easy to learn, yet provides a
-powerful network infrastructure for demanding technical applications. It
-features an object-oriented specification language, easy to use C++,
-Java, Python, PHP, C#, and Visual Basic mappings, a highly efficient
-protocol, asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+Ice is a modern alternative to object middleware such as CORBA or
+COM/DCOM/COM+.  It is easy to learn, yet provides a powerful network
+infrastructure for demanding technical applications. It features an
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 %endif
 
 
