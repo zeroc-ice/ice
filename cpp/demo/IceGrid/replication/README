@@ -5,8 +5,8 @@ registries and start more later):
 $ icegridregistry --Ice.Config=config.master
 $ icegridregistry --Ice.Config=config.replica1
 $ icegridregistry --Ice.Config=config.replica2
-$ icegridregistry --Ice.Config=config.node1
-$ icegridregistry --Ice.Config=config.node2
+$ icegridnode --Ice.Config=config.node1
+$ icegridnode --Ice.Config=config.node2
 
 In a separate window:
 
