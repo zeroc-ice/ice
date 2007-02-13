@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
-#include <IceUtil/ArgVector.h>
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
@@ -255,15 +254,14 @@ main(int argc, char* argv[])
     // directory is specified as a relative path, we don't
     // misinterpret that path.
     //
-    StringSeq ss;
-    ss.push_back(argv[0]);
-    ss.push_back("--nochdir");
+    StringSeq args;
+    args.push_back(argv[0]);
+    args.push_back("--nochdir");
     for(int i = 1; i < argc; ++i)
     {
-        ss.push_back(argv[i]);
+        args.push_back(argv[i]);
     }
-    IceUtil::ArgVector av(ss);
-    status = svc.main(av.argc, av.argv);
+    status = svc.main(args);
 #endif
 
     return status;
