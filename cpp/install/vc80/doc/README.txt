@@ -4,11 +4,11 @@ The Internet Communications Engine
 Ice is a modern alternative to object middleware such as CORBA or
 COM/DCOM/COM+. It is easy to learn, yet provides a powerful network
 infrastructure for demanding technical applications. It features an
-object-oriented specification language, easy to use C++, Java, Python,
-PHP, C#, and Visual Basic mappings, a highly efficient protocol,
-asynchronous method invocation and dispatch, dynamic transport
-plug-ins, TCP/IP and UDP/IP support, SSL-based security, a firewall
-solution, and much more.
+object-oriented specification language, easy to use C++, C#, Java,
+Python, Ruby, PHP, and Visual Basic mappings, a highly efficient
+protocol, asynchronous method invocation and dispatch, dynamic
+transport plug-ins, TCP/IP and UDP/IP support, SSL-based security, a
+firewall solution, and much more.
 
 Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
