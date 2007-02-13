@@ -23,7 +23,8 @@ About this distribution
 
 This distribution is an RPM release of the Ice @ver@ run time for
 Linux and includes executables for the Ice services, HTML
-documentation, Slice files, and the C++ runtime libraries.
+documentation, Slice files, the C++ runtime libraries and sample
+/etc/init.d scripts.
 
 Additional Ice components are provided in separate RPM packages:
 
@@ -38,6 +39,8 @@ These RPMs are available for download at the ZeroC web site at
 
 http://www.zeroc.com/download.html
 
+Note: Ice Ruby RPMs are currently available only on Red Hat Enterprise
+Linux.
 
 ======================================================================
 Setting up your environment to use Ice
@@ -73,8 +76,8 @@ installation of Berkeley DB, the bash command is shown below:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
-On a x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB 
-libraries are installed in /usr/lib64, so use instead:
+On a x86_64 system with a 64-bit JVM, the 64-bit Berkeley DB libraries
+are installed in /usr/lib64, so use instead:
 
 $ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
@@ -122,8 +125,8 @@ $ mono server.exe
 Ruby
 ----
 
-To use Ice for Ruby, the RUBYLIB environment variable must be
-updated so that the interpreter can locate the Ruby extension.
+To use Ice for Ruby, the RUBYLIB environment variable must be updated 
+so that the interpreter can locate the Ruby extension.
 
 $ export RUBYLIB=/usr/lib/Ice-@ver@/ruby:$RUBYLIB
 
@@ -132,21 +135,24 @@ On a x86_64 system, the Ruby Ice extension is installed in
 
 $ export RUBYLIB=/usr/lib64/Ice-@ver@/ruby:$RUBYLIB
 
+Note: Ice Ruby RPMs are currently available only on Red Hat Enterprise
+Linux.
+
 PHP
 ---
 
-The Ice extension for PHP is loaded automatically when the
-interpreter loads the contents of the file /etc/php.d/ice.ini:
+The Ice extension for PHP is loaded automatically when the interpreter
+loads the contents of the file /etc/php.d/ice.ini:
 
 extension=IcePHP.so
 
-You can modify this file to include additional configuration
+You can modify this file to include additional configuration 
 directives, such as those used by the Ice extension.
 
-At run time, the PHP interpreter requires the Ice shared libraries
-as well as the Slice preprocessor (icecpp).
+At run time, the PHP interpreter requires the Ice shared libraries as 
+well as the Slice preprocessor (icecpp).
 
-You can verify that the Ice extension is installed properly by
+You can verify that the Ice extension is installed properly by 
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
@@ -183,6 +189,30 @@ the following:
 See this FAQ for more information on SELinux:
 
 http://fedora.redhat.com/docs/selinux-faq/
+
+
+======================================================================
+/etc/init.d scripts
+======================================================================
+
+The Ice RPM includes the following sample /etc/init.d scripts and
+associated configuration files:
+
+- /etc/init.d/icegridregistry and /etc/icegridregistry.conf
+- /etc/init.d/icegridnode and /etc/icegridnode.conf
+- /etc/init.d/glacier2router and /etc/glacier2router.conf
+
+None of these services are enabled during the RPM installation; you 
+need to manually enable the desired service(s) with:
+# chkconfig --add <service-name>
+for example:
+# chkconfig --add icegridregistry
+
+Before doing so, please review the script itself and its associated
+configuration file. You should create one or more accounts to run 
+these services ('iceuser' in the sample scripts); for icegridregistry
+and icegridnode, you also need to create 'data' directories with the 
+proper permissions (refer to the .conf files).
 
 
 ======================================================================
