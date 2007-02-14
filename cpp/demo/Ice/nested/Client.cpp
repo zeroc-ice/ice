@@ -38,7 +38,7 @@ NestedClient::run(int argc, char* argv[])
     //
     callbackOnInterrupt();
 
-    NestedPrx nested = NestedPrx::checkedCast(communicator()->propertyToProxy("Nested.Client.NestedServer"));
+    NestedPrx nested = NestedPrx::checkedCast(communicator()->propertyToProxy("Nested.NestedServer"));
     if(!nested)
     {
         cerr << appName() << ": invalid proxy" << endl;

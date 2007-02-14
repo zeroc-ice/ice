@@ -14,7 +14,7 @@ public class Client : Ice.Application
 {
     public override int run(string[] args)
     {
-        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.Client.NestedServer"));
+        NestedPrx nested = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.NestedServer"));
         if(nested == null)
         {
             Console.Error.WriteLine("invalid proxy");

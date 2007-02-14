@@ -4,7 +4,7 @@ Freeze.Evictor.db.contacts.SavePeriod=10000
 Freeze.Evictor.db.contacts.PopulateEmptyIndices=1
 
 PhoneBook.Endpoints=default -p 10000
-PhoneBook.EvictorSize=3
+EvictorSize=3
 
 #
 # Warn about connection exceptions

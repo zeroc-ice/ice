@@ -764,7 +764,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     if(unknownProps.size() != 0 && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
     {
         Warning out(_instance->initializationData().logger);
-        out << "Found unknown properties for object adapter '" << _name << "':";
+        out << "found unknown properties for object adapter '" << _name << "':";
         for(unsigned int i = 0; i < unknownProps.size(); ++i)
         {
             out << "\n    " << unknownProps[i];

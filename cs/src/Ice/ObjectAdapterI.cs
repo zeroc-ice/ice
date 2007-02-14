@@ -763,7 +763,7 @@ namespace Ice
             //
             if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
             {
-                string message = "Found unknown properties for object adapter '" + _name + "':";
+                string message = "found unknown properties for object adapter '" + _name + "':";
                 foreach(string s in unknownProps)
                 {
                     message += "\n    " + s;

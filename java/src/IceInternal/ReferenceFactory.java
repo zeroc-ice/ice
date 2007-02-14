@@ -800,7 +800,7 @@ public final class ReferenceFactory
 
         if(unknownProps.size() != 0)
         {
-            String message = "Found unknown properties for proxy '" + prefix + "':";
+            String message = "found unknown properties for proxy '" + prefix + "':";
             p = unknownProps.iterator();
             while(p.hasNext())
             {

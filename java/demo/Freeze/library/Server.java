@@ -23,7 +23,7 @@ class LibraryServer extends Ice.Application
         // Create an evictor for books.
         //
         Freeze.Evictor evictor = Freeze.Util.createEvictor(adapter, _envName, "books", null, null, true);
-        int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
+        int evictorSize = properties.getPropertyAsInt("EvictorSize");
         if(evictorSize > 0)
         {
             evictor.setSize(evictorSize);

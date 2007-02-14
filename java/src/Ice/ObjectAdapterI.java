@@ -757,7 +757,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
         {
-            String message = "Found unknown properties for object adapter '" + _name + "':";
+            String message = "found unknown properties for object adapter '" + _name + "':";
             java.util.Iterator p = unknownProps.iterator();
             while(p.hasNext())
             {

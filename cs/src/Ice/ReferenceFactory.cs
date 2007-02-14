@@ -807,7 +807,7 @@ namespace IceInternal
 
             if(unknownProps.Count != 0)
             {
-                string message = "Found unknown properties for proxy '" + prefix + "':";
+                string message = "found unknown properties for proxy '" + prefix + "':";
                 foreach(string s in unknownProps)
                 {
                     message += "\n    " + s;

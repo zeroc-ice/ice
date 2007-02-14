@@ -55,7 +55,7 @@ public class Client extends Ice.Application
         setInterruptHook(new ShutdownHook());
 
         CallbackSenderPrx twoway = CallbackSenderPrxHelper.checkedCast(
-            communicator().propertyToProxy("Callback.Client.CallbackServer").
+            communicator().propertyToProxy("Callback.CallbackServer").
                 ice_twoway().ice_timeout(-1).ice_secure(false));
         if(twoway == null)
         {

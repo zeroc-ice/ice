@@ -62,7 +62,7 @@ CallbackClient::run(int argc, char* argv[])
     callbackOnInterrupt();
 
     CallbackSenderPrx twoway = CallbackSenderPrx::checkedCast(
-        communicator()->propertyToProxy("Callback.Client.CallbackServer")->
+        communicator()->propertyToProxy("Callback.CallbackServer")->
             ice_twoway()->ice_timeout(-1)->ice_secure(false));
     if(!twoway)
     {

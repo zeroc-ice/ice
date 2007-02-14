@@ -818,7 +818,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
     if(unknownProps.size())
     {
         Warning out(_instance->initializationData().logger);
-        out << "Found unknown properties for proxy '" << prefix << "':";
+        out << "found unknown properties for proxy '" << prefix << "':";
         for(unsigned int i = 0; i < unknownProps.size(); ++i)
         {
             out << "\n    " << unknownProps[i];
