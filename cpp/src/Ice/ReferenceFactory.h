@@ -15,6 +15,7 @@
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/Reference.h> // For Reference::Mode
 #include <Ice/ConnectionIF.h>
+#include <Ice/BuiltinSequences.h>
 
 namespace IceInternal
 {
@@ -71,6 +72,7 @@ private:
 
     ReferenceFactory(const InstancePtr&, const ::Ice::CommunicatorPtr&);
     void destroy();
+    void checkForUnknownProperties(const std::string&);
     friend class Instance;
 
     InstancePtr _instance;

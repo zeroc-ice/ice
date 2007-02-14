@@ -30,6 +30,7 @@
 #include <Ice/Router.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/PropertyNames.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -752,11 +753,27 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         return;
     }
 
+    PropertiesPtr properties = instance->initializationData().properties;
+    StringSeq props;
+    StringSeq unknownProps;
+    filterProperties(props, unknownProps);
+
+    //
+    // Warn about unknown object adapter properties.
+    //
+    if(unknownProps.size() != 0 && properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+    {
+        Warning out(_instance->initializationData().logger);
+        out << "Found unknown properties for object adapter '" << _name << "':";
+        for(unsigned int i = 0; i < unknownProps.size(); ++i)
+        {
+            out << "\n    " << unknownProps[i];
+        }
+    }
+
     //
     // Make sure named adapter has some configuration
     //
-    PropertiesPtr properties = instance->initializationData().properties;
-    StringSeq props = filterProperties(_name + ".");
     if(endpointInfo.empty() && router == 0 && props.size() == 0)
     {
         InitializationException ex(__FILE__, __LINE__);
@@ -1171,8 +1188,8 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     }
 }
 
-StringSeq
-Ice::ObjectAdapterI::filterProperties(const string& prefix)
+void
+Ice::ObjectAdapterI::filterProperties(StringSeq& oaProps, StringSeq& unknownProps)
 {
     static const string suffixes[] = 
     { 
@@ -1183,23 +1200,50 @@ Ice::ObjectAdapterI::filterProperties(const string& prefix)
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "ThreadPerConnection",
+        "ThreadPerConnection.StackSize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize"
     };
 
-    StringSeq propertySet;
-    PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
-    for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
+    //
+    // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
+    //
+    bool addUnknown = true;
+    string prefix = _name + ".";
+    for(const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
     {
-        if(props.find(prefix + suffixes[i]) != props.end())
+        string icePrefix = string(*i) + ".";
+        if(prefix.find(icePrefix) == 0)
         {
-            propertySet.push_back(prefix + suffixes[i]);
+            addUnknown = false;
+            break;
         }
     }
 
-    return propertySet;
+    PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
+    PropertyDict::const_iterator p;
+    for(p = props.begin(); p != props.end(); ++p)
+    {
+        bool valid = false;
+        for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
+        {
+            string prop = prefix + suffixes[i];
+            if(p->first == prop)
+            {
+                oaProps.push_back(p->first);
+                valid = true;
+                break;
+            }
+        }
+
+        if(!valid && addUnknown)
+        {
+            unknownProps.push_back(p->first);
+        }
+    }
 }
 
 Ice::ObjectAdapterI::ProcessI::ProcessI(const CommunicatorPtr& communicator) :

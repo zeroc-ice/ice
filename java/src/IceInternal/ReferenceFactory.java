@@ -522,6 +522,14 @@ public final class ReferenceFactory
             return null;
         }
 
+        //
+        // Warn about unknown properties.
+        //
+        if(properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        {
+            checkForUnknownProperties(propertyPrefix);
+        }
+
         String property = propertyPrefix + ".Locator";
         if(properties.getProperty(property).length() != 0)
         {
@@ -738,6 +746,68 @@ public final class ReferenceFactory
         }
 
         return ref;
+    }
+
+    static private String[] _suffixes =
+    {
+        "EndpointSelection",
+        "ConnectionCached",
+        "PreferSecure",
+        "LocatorCacheTimeout",
+        "Locator",
+        "Router",
+        "CollocationOptimization",
+        "ThreadPerConnection"
+    };
+
+    private void
+    checkForUnknownProperties(String prefix)
+    {
+        //
+        // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
+        //      
+        for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+        {
+            if(prefix.startsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
+            {
+                return;
+            }
+        }
+
+        java.util.ArrayList unknownProps = new java.util.ArrayList();
+        java.util.Map props = _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+        java.util.Iterator p = props.entrySet().iterator();
+        while(p.hasNext())
+        {
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            String prop = (String)entry.getKey();
+
+            boolean valid = false;
+            for(int i = 0; i < _suffixes.length; ++i)
+            {
+                if(prop.equals(prefix + "." + _suffixes[i]))
+                {
+                    valid = true;
+                    break;
+                }
+            }
+
+            if(!valid)
+            {
+                unknownProps.add(prop);
+            }
+        }
+
+        if(unknownProps.size() != 0)
+        {
+            String message = "Found unknown properties for proxy '" + prefix + "':";
+            p = unknownProps.iterator();
+            while(p.hasNext())
+            {
+                message += "\n    " + (String)p.next();
+            }
+            _instance.initializationData().logger.warning(message);
+        }
     }
 
     private Instance _instance;

@@ -101,7 +101,7 @@ private:
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&) const;
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);
-    Ice::StringSeq filterProperties(const std::string&);
+    void filterProperties(Ice::StringSeq&, Ice::StringSeq&);
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;

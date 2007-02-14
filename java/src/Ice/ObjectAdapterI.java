@@ -747,12 +747,29 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             return;
         }
 
+        final Properties properties = _instance.initializationData().properties;
+        java.util.ArrayList props = new java.util.ArrayList();
+        java.util.ArrayList unknownProps = new java.util.ArrayList();
+        filterProperties(props, unknownProps);
+
+        //
+        // Warn about unknown object adapter properties.
+        //
+        if(unknownProps.size() != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+        {
+            String message = "Found unknown properties for object adapter '" + _name + "':";
+            java.util.Iterator p = unknownProps.iterator();
+            while(p.hasNext())
+            {
+                message += "\n    " + (String)p.next();
+            }
+            _instance.initializationData().logger.warning(message);
+        }
+
         //
         // Make sure named adapter has some configuration.
         //
-        final Properties properties = _instance.initializationData().properties;
-        String[] props = filterProperties(_name + ".");
-        if(endpointInfo.length() == 0 && router == null && props.length == 0)
+        if(endpointInfo.length() == 0 && router == null && props.size() == 0)
         {
             //
             // These need to be set to prevent finalizer from complaining.
@@ -1223,26 +1240,54 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         "RegisterProcess",
         "ReplicaGroupId",
         "Router",
+        "ThreadPerConnection",
+        "ThreadPerConnection.StackSize",
         "ThreadPool.Size",
         "ThreadPool.SizeMax",
         "ThreadPool.SizeWarn",
         "ThreadPool.StackSize"
     };
 
-    String[]
-    filterProperties(String prefix)
+    void
+    filterProperties(java.util.List oaProps, java.util.List unknownProps)
     {
-        java.util.ArrayList propertySet = new java.util.ArrayList();
-        java.util.Map props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
-        for(int i = 0; i < _suffixes.length; ++i)
+        //
+        // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
+        //
+        boolean addUnknown = true;
+        String prefix = _name + ".";
+        for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
         {
-            if(props.containsKey(prefix + _suffixes[i]))
+            if(prefix.startsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
             {
-                propertySet.add(prefix + _suffixes[i]);
+                addUnknown = false;
+                break;
             }
         }
 
-        return (String[])propertySet.toArray(new String[0]);
+        java.util.Map props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
+        java.util.Iterator p = props.entrySet().iterator();
+        while(p.hasNext())
+        {
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            String prop = (String)entry.getKey();
+
+            boolean valid = false;
+            for(int i = 0; i < _suffixes.length; ++i)
+            {
+                if(prop.equals(prefix + _suffixes[i]))
+                {
+                    oaProps.add(prop);
+                    valid = true;
+                    break;
+                }
+            }
+
+            if(!valid && addUnknown)
+            {
+                unknownProps.add(prop);
+            }
+        }
     }
 
     private static class ProcessI extends _ProcessDisp

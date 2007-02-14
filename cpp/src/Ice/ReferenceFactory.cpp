@@ -22,6 +22,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Properties.h>
 #include <Ice/DefaultsAndOverrides.h>
+#include <Ice/PropertyNames.h>
 #include <IceUtil/StringUtil.h>
 
 using namespace std;
@@ -569,6 +570,14 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
         return 0;
     }
 
+    //
+    // Warn about unknown properties.
+    //
+    if(properties->getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+    {
+        checkForUnknownProperties(propertyPrefix);
+    }
+
     string property = propertyPrefix + ".Locator";
     if(!properties->getProperty(property).empty())
     {
@@ -756,4 +765,63 @@ IceInternal::ReferenceFactory::destroy()
     _communicator = 0;
     _defaultRouter = 0;
     _defaultLocator = 0;
+}
+
+void
+IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
+{
+    static const string suffixes[] =
+    {
+        "EndpointSelection",
+        "ConnectionCached",
+        "PreferSecure",
+        "LocatorCacheTimeout",
+        "Locator",
+        "Router",
+        "CollocationOptimization",
+        "ThreadPerConnection"
+    };
+
+    //
+    // Do not warn about unknown properties list if Ice prefix, ie Ice, Glacier2, etc
+    //
+    for(const char** i = IceInternal::PropertyNames::clPropNames; *i != 0; ++i)
+    {
+        if(prefix.find(*i) == 0)
+        {
+            return;
+        }
+    }
+
+    StringSeq unknownProps;
+    PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix + ".");
+    PropertyDict::const_iterator p;
+    for(p = props.begin(); p != props.end(); ++p)
+    {
+        bool valid = false;
+        for(unsigned int i = 0; i < sizeof(suffixes)/sizeof(*suffixes); ++i)
+        {
+            string prop = prefix + "." + suffixes[i];
+            if(p->first == prop)
+            {
+                valid = true;
+                break;
+            }
+        }
+
+        if(!valid)
+        {
+            unknownProps.push_back(p->first);
+        }
+    }
+
+    if(unknownProps.size())
+    {
+        Warning out(_instance->initializationData().logger);
+        out << "Found unknown properties for proxy '" << prefix << "':";
+        for(unsigned int i = 0; i < unknownProps.size(); ++i)
+        {
+            out << "\n    " << unknownProps[i];
+        }
+    }
 }
