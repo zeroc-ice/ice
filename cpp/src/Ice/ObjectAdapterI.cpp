@@ -743,7 +743,9 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _waitForActivate(false),
     _destroying(false),
     _destroyed(false),
-    _noConfig(noConfig)
+    _noConfig(noConfig),
+    _threadPerConnection(false),
+    _threadPerConnectionStackSize(0)
 {
     if(_noConfig)
     {
@@ -795,10 +797,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
                 stackSize = 0;
             }
             _threadPerConnectionStackSize = stackSize;
-        }
-        else
-        {
-            _threadPerConnectionStackSize = 0;
         }
 
         //
