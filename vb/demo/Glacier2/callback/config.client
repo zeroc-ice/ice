@@ -4,14 +4,14 @@
 
 #
 # The proxy to the Glacier2 router for all outgoing connections. This
-# must match the value of Ice.OA.Glacier2.Client.Endpoints in config.glacier2.
+# must match the value of Glacier2.Client.Endpoints in config.glacier2.
 #
 Ice.Default.Router=DemoGlacier2/router:tcp -p 10006 -h 127.0.0.1:ssl -p 10005 -h 127.0.0.1
 
 #
 # The proxy for the Glacier2 router, installed in the client's
 # object adapter named Callback.Client. This router proxy must
-# match the value of Ice.OA.Glacier2.Client.Endpoints.
+# match the value of Glacier2.Client.Endpoints.
 #
 Callback.Client.Router=DemoGlacier2/router:tcp -p 10006 -h 127.0.0.1: ssl -p 10005 -h 127.0.0.1
 
@@ -20,10 +20,10 @@ Callback.Client.Router=DemoGlacier2/router:tcp -p 10006 -h 127.0.0.1: ssl -p 100
 # router. Incoming requests are received through connections
 # established from the client to the router.
 #
-Ice.OA.Callback.Client.Endpoints=
+Callback.Client.Endpoints=
 
 #
-# This must match the value of Ice.OA.Callback.Server.Endpoints in
+# This must match the value of Callback.Server.Endpoints in
 # config.server.
 #
 Callback.Proxy=callback:tcp -h 127.0.0.1 -p 10000

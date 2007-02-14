@@ -3,7 +3,7 @@
 # "SessionFactory". The following line sets the endpoints for this
 # adapter.
 #
-Ice.OA.SessionFactory.Endpoints=default -p 10000
+SessionFactory.Endpoints=default -p 10000
 
 #
 # Warn about connection exceptions

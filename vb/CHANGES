@@ -5,13 +5,15 @@ Changes since version 3.1.1
   the data members of an exception to be initialized during construction
   (similar to the way class members can be initialized during construction).
 
-  With this new mapping, the "Message" property of the System.ApplicationException
-  base class can no longer be set--the property is initialized to the empty
-  string. See the Ice Manual for more details.
+  With this new mapping, the "Message" property of the
+  System.ApplicationException base class can no longer be set--the
+  property is initialized to the empty string. See the Ice Manual for
+  more details.
 
-- Ice run-time threads are now created with the IsBackground property set to true.
-  This prevents Ice processes from hanging if an application calls Environment.Exit()
-  without first shutting down the Ice run time.
+- Ice run-time threads are now created with the IsBackground property
+  set to true. This prevents Ice processes from hanging if an
+  application calls Environment.Exit() without first shutting down the
+  Ice run time.
 
 - Added Communicator::propertyToProxy() which creates a proxy from
   a set of properties. This function allows you to set various local
