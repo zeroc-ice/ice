@@ -754,8 +754,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     // Make sure named adapter has some configuration
     //
     PropertiesPtr properties = instance->initializationData().properties;
-    StringSeq oldProps = filterProperties(_name + ".");
-    if(endpointInfo.empty() && router == 0)
+    StringSeq props = filterProperties(_name + ".");
+    if(endpointInfo.empty() && router == 0 && props.size() == 0)
     {
         InitializationException ex(__FILE__, __LINE__);
         ex.reason = "object adapter \"" + _name + "\" requires configuration.";
