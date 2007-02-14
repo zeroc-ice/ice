@@ -50,7 +50,6 @@ class ServerEditor extends CommunicatorEditor
         _enabled.setEnabled(false);
         
         _application.setEditable(false);
-        _iceVersion.setEditable(false);
         _exe.setEditable(false);
         _pwd.setEditable(false);
    
@@ -115,7 +114,6 @@ class ServerEditor extends CommunicatorEditor
         final Utils.Resolver resolver = server.getResolver();
 
         _application.setText(resolver.find("application"));
-        _iceVersion.setText(resolver.substitute(descriptor.iceVersion));
 
         super.show(descriptor, server.getProperties(), resolver);
         
@@ -185,9 +183,6 @@ class ServerEditor extends CommunicatorEditor
         builder.append("Application");
         builder.append(_application);
         builder.append(_gotoApplication);
-        builder.nextLine();
-        builder.append("Ice Version");
-        builder.append(_iceVersion, 3);
         builder.nextLine();
 
         //
@@ -284,8 +279,6 @@ class ServerEditor extends CommunicatorEditor
 
     private JTextField _application = new JTextField(20);
     private JButton _gotoApplication;
-
-    private JTextField _iceVersion = new JTextField(20);
 
     private JTextField _exe = new JTextField(20);
     private JTextField _pwd = new JTextField(20);

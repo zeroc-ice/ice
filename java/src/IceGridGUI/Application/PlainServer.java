@@ -81,9 +81,7 @@ class PlainServer extends Communicator implements Server
             true,
             new DistributionDescriptor("", new java.util.LinkedList()),
             false, // Allocatable
-            "",
-            "" // Ice version
-            );
+            "");
     }
 
     static public IceBoxDescriptor newIceBoxDescriptor()
@@ -111,7 +109,6 @@ class PlainServer extends Communicator implements Server
             new DistributionDescriptor("", new java.util.LinkedList()),
             false, // Allocatable
             "",
-            "", // Ice version
             new java.util.LinkedList()
             );
     }
