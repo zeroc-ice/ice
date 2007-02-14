@@ -748,9 +748,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
 
         final Properties properties = _instance.initializationData().properties;
-        java.util.ArrayList props = new java.util.ArrayList();
         java.util.ArrayList unknownProps = new java.util.ArrayList();
-        filterProperties(props, unknownProps);
+        boolean noProps = filterProperties(unknownProps);
 
         //
         // Warn about unknown object adapter properties.
@@ -769,7 +768,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         // Make sure named adapter has some configuration.
         //
-        if(endpointInfo.length() == 0 && router == null && props.size() == 0)
+        if(endpointInfo.length() == 0 && router == null && noProps)
         {
             //
             // These need to be set to prevent finalizer from complaining.
@@ -1248,8 +1247,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         "ThreadPool.StackSize"
     };
 
-    void
-    filterProperties(java.util.List oaProps, java.util.List unknownProps)
+    boolean
+    filterProperties(java.util.List unknownProps)
     {
         //
         // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
@@ -1265,6 +1264,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             }
         }
 
+        boolean noProps = true;
         java.util.Map props = _instance.initializationData().properties.getPropertiesForPrefix(prefix);
         java.util.Iterator p = props.entrySet().iterator();
         while(p.hasNext())
@@ -1277,7 +1277,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             {
                 if(prop.equals(prefix + _suffixes[i]))
                 {
-                    oaProps.add(prop);
+                    noProps = false;
                     valid = true;
                     break;
                 }
@@ -1288,6 +1288,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 unknownProps.add(prop);
             }
         }
+
+        return noProps;
     }
 
     private static class ProcessI extends _ProcessDisp

@@ -754,9 +754,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     }
 
     PropertiesPtr properties = instance->initializationData().properties;
-    StringSeq props;
     StringSeq unknownProps;
-    filterProperties(props, unknownProps);
+    bool noProps = filterProperties(unknownProps);
 
     //
     // Warn about unknown object adapter properties.
@@ -774,7 +773,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     //
     // Make sure named adapter has some configuration
     //
-    if(endpointInfo.empty() && router == 0 && props.size() == 0)
+    if(endpointInfo.empty() && router == 0 && noProps)
     {
         InitializationException ex(__FILE__, __LINE__);
         ex.reason = "object adapter \"" + _name + "\" requires configuration.";
@@ -1188,8 +1187,8 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     }
 }
 
-void
-Ice::ObjectAdapterI::filterProperties(StringSeq& oaProps, StringSeq& unknownProps)
+bool
+Ice::ObjectAdapterI::filterProperties(StringSeq& unknownProps)
 {
     static const string suffixes[] = 
     { 
@@ -1223,6 +1222,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& oaProps, StringSeq& unknownProp
         }
     }
 
+    bool noProps = true;
     PropertyDict props = _instance->initializationData().properties->getPropertiesForPrefix(prefix);
     PropertyDict::const_iterator p;
     for(p = props.begin(); p != props.end(); ++p)
@@ -1233,7 +1233,7 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& oaProps, StringSeq& unknownProp
             string prop = prefix + suffixes[i];
             if(p->first == prop)
             {
-                oaProps.push_back(p->first);
+                noProps = false;
                 valid = true;
                 break;
             }
@@ -1244,6 +1244,8 @@ Ice::ObjectAdapterI::filterProperties(StringSeq& oaProps, StringSeq& unknownProp
             unknownProps.push_back(p->first);
         }
     }
+
+    return noProps;
 }
 
 Ice::ObjectAdapterI::ProcessI::ProcessI(const CommunicatorPtr& communicator) :

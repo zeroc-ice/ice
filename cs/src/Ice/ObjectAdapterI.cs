@@ -754,9 +754,8 @@ namespace Ice
             }
 
             Properties properties = instance_.initializationData().properties;
-            ArrayList props = new ArrayList();
             ArrayList unknownProps = new ArrayList();
-            filterProperties(props, unknownProps);
+            bool noProps = filterProperties(unknownProps);
 
             //
             // Warn about unknown object adapter properties.
@@ -774,7 +773,7 @@ namespace Ice
             //
             // Make sure named adapter has configuration.
             //
-            if(endpointInfo.Length == 0 && router == null && props.Count == 0)
+            if(endpointInfo.Length == 0 && router == null && noProps)
             {
                 //
                 // These need to be set to prevent warnings/asserts in the destructor.
@@ -1265,8 +1264,8 @@ namespace Ice
             "ThreadPool.StackSize"
         };
             
-        private void
-        filterProperties(ArrayList oaProps, ArrayList unknownProps)
+        private bool
+        filterProperties(ArrayList unknownProps)
         {
             //
             // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
@@ -1282,6 +1281,7 @@ namespace Ice
                 }
             }
 
+            bool noProps = true;
             PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix);
             foreach(String prop in props.Keys)
             {
@@ -1290,7 +1290,7 @@ namespace Ice
                 {
                     if(prop.Equals(prefix + _suffixes[i]))
                     {
-                        oaProps.Add(prop);
+                        noProps = false;
                         valid = true;
                         break;
                     }
@@ -1301,6 +1301,8 @@ namespace Ice
                     unknownProps.Add(prop);
                 }
             }
+
+            return noProps;
         }
 
         private sealed class ProcessI : ProcessDisp_
