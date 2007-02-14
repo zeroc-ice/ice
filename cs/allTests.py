@@ -33,6 +33,12 @@ def isWin32():
     else:
         return 0
 
+def isVista():
+    if isWin32() and sys.getwindowsversion()[0]:
+        return 1
+    else:
+        return 0
+
 def runTests(args, tests, num = 0):
 
     #
@@ -128,7 +134,8 @@ for o, a in opts:
 if not isWin32():
     mono = 1
 
-if mono:
+# For mono or vista the IceSSL configuration test is removed.
+if mono or isVista():
     try:
 	tests.remove("IceSSL/configuration")
     except ValueError:

@@ -44,7 +44,6 @@ import sys, os, re, errno, getopt
 from threading import Thread
 
 def isCygwin():
-
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
     if sys.platform[:6] == "cygwin":
@@ -53,7 +52,6 @@ def isCygwin():
         return 0
 
 def isWin32():
-
     if sys.platform == "win32" or isCygwin():
         return 1
     else:

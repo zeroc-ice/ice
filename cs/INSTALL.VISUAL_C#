@@ -74,6 +74,11 @@ steps to remove the certificate:
 5) Select the entry for "ZeroC Test CA", click the Remove button, and
    confirm that you want to remove this certificate.
 
+Note that under Windows Vista, the IceSSL configuration test is disabled
+due to an apparent bug with the .NET framework version 2.0.50727.42. This
+bug manifests itself in those applications that initialize and destroy
+multiple IceSSL plug-ins in the same process. As this is an unusual use
+case, we don't believe this will affect most Ice applications.
 
 Running the tests
 -----------------
