@@ -745,15 +745,13 @@ namespace Ice
             _directCount = 0;
             _waitForActivate = false;
             _noConfig = noConfig;
-
+            
             if(_noConfig)
             {
+                _id = "";
+                _replicaGroupId = "";
                 return;
             }
-
-            //
-            // DEPRECATED PROPERTIES: Remove extra code in future release.
-            //
 
             //
             // Make sure named adapter has configuration.
