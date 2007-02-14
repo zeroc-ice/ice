@@ -34,7 +34,7 @@ def isWin32():
         return 0
 
 def isVista():
-    if isWin32() and sys.getwindowsversion()[0]:
+    if isWin32() and sys.getwindowsversion()[0] == 6:
         return 1
     else:
         return 0
