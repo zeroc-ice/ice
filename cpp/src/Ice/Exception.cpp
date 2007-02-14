@@ -250,7 +250,15 @@ void
 Ice::FileException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nfile exception: " << errorToString(error);
+    out << ":\nfile exception: ";
+    if(error == 0)
+    {
+        out << "couldn't open file";
+    }
+    else
+    {
+        out << errorToString(error);
+    }
     if(!path.empty())
     {
         out << "\npath: " << path;
