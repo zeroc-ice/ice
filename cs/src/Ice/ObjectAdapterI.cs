@@ -69,12 +69,7 @@ namespace Ice
                 if(!_noConfig)
                 {
                     Properties properties = instance_.initializationData().properties;
-                    //
-                    // DEPRECATED PROPERTY: Remove extra code in future release.
-                    //
-                    registerProcess = properties.getPropertyAsIntWithDefault(
-                        _propertyPrefix + _name + ".RegisterProcess",
-                        properties.getPropertyAsInt(_name + ".RegisterProcess")) > 0;
+                    registerProcess = properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
                     printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
                 }
             }
@@ -764,57 +759,31 @@ namespace Ice
             // Make sure named adapter has configuration.
             //
             Properties properties = instance_.initializationData().properties;
-            string[] oldProps = filterProperties(_name + ".");
-            if(endpointInfo.Length == 0 && router == null)
+            string[] props = filterProperties(_name + ".");
+            if(endpointInfo.Length == 0 && router == null && props.Length == 0)
             {
-                string[] props = filterProperties(_propertyPrefix + _name + ".");
-                if(props.Length == 0 && oldProps.Length == 0)
-                {
-                    //
-                    // These need to be set to prevent warnings/asserts in the destructor.
-                    //
-                    _deactivated = true;
-                    instance_ = null;
-                    _communicator = null;
-                    _incomingConnectionFactories = null;
+                //
+                // These need to be set to prevent warnings/asserts in the destructor.
+                //
+                _deactivated = true;
+                instance_ = null;
+                _communicator = null;
+                _incomingConnectionFactories = null;
 
-                    InitializationException ex = new InitializationException();
-                    ex.reason = "object adapter \"" + _name + "\" requires configuration.";
-                    throw ex;
-                }
+                InitializationException ex = new InitializationException();
+                ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+                throw ex;
             }
 
-            if(oldProps.Length != 0)
-            {
-                string message = "The following properties have been deprecated, please prepend \"Ice.OA.\":";
-                for(int i = 0; i < oldProps.Length; ++i)
-                {
-                    message += "\n    " + oldProps[i];
-                }
-                instance_.initializationData().logger.warning(message);
-            }
-            
-            _id = properties.getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
-                properties.getProperty(_name + ".AdapterId"));
-            _replicaGroupId = properties.getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
-                properties.getProperty(_name + ".ReplicaGroupId"));
+            _id = properties.getProperty(_name + ".AdapterId");
+            _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
 
             try
             {
-                _threadPerConnection =
-                    properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPerConnection") > 0;
+                _threadPerConnection = properties.getPropertyAsInt(_name + ".ThreadPerConnection") > 0;
 
-                int threadPoolSize = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-                if(threadPoolSize == 0)
-                {
-                    threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-                }
-                int threadPoolSizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-                if(threadPoolSizeMax == 0)
-                {
-                    threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-                }
-
+                int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+                int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
                 if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
                 {
                     InitializationException ex = new InitializationException();
@@ -830,26 +799,12 @@ namespace Ice
 
                 if(threadPoolSize > 0 || threadPoolSizeMax > 0)
                 {
-                    if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").Length != 0 ||
-                       properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").Length != 0)
-                    {
-                        _threadPool = new IceInternal.ThreadPool(instance_, _propertyPrefix + _name + ".ThreadPool", 0);
-                    }
-                    else
-                    {
-                        _threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
-                    }
+                    _threadPool = new IceInternal.ThreadPool(instance_, _name + ".ThreadPool", 0);
                 }
 
                 if(router == null)
                 {
-                    router = RouterPrxHelper.uncheckedCast(
-                        instance_.proxyFactory().propertyToProxy(_propertyPrefix + _name + ".Router"));
-                    if(router == null)
-                    {
-                        router = RouterPrxHelper.uncheckedCast(
-                            instance_.proxyFactory().propertyToProxy(_name + ".Router"));
-                    }
+                    router = RouterPrxHelper.uncheckedCast(instance_.proxyFactory().propertyToProxy(_name + ".Router"));
                 }
                 if(router != null)
                 {
@@ -920,9 +875,7 @@ namespace Ice
                     ArrayList endpoints;
                     if(endpointInfo.Length == 0)
                     {
-                        endpoints = parseEndpoints(properties.getPropertyWithDefault(
-                                _propertyPrefix + _name + ".Endpoints",
-                                properties.getProperty(_name + ".Endpoints")));
+                        endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"));
                     }
                     else
                     {
@@ -957,8 +910,7 @@ namespace Ice
                     // Parse published endpoints. If set, these are used in proxies
                     // instead of the connection factory endpoints.
                     //
-                    string endpts = properties.getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
-                        properties.getProperty(_name + ".PublishedEndpoints"));
+                    string endpts = properties.getProperty(_name + ".PublishedEndpoints");
                     _publishedEndpoints = parseEndpoints(endpts);
                     if(_publishedEndpoints.Count == 0)
                     {
@@ -982,13 +934,7 @@ namespace Ice
                     _publishedEndpoints = tmp;
                 }
 
-                string locatorProperty = _propertyPrefix + _name + ".Locator";
-                if(properties.getProperty(locatorProperty).Length > 0)
-                {
-                    setLocator(LocatorPrxHelper.uncheckedCast(
-                        instance_.proxyFactory().propertyToProxy(locatorProperty)));
-                }
-                else if(properties.getProperty(_name + ".Locator").Length > 0)
+                if(properties.getProperty(_name + ".Locator").Length > 0)
                 {
                     setLocator(LocatorPrxHelper.uncheckedCast(
                         instance_.proxyFactory().propertyToProxy(_name + ".Locator")));
@@ -1373,6 +1319,5 @@ namespace Ice
         private bool _destroyed;
         private bool _noConfig;
         private bool _threadPerConnection;
-        static private string _propertyPrefix = "Ice.OA.";
     }
 }

@@ -13,7 +13,7 @@ public class Server
     {
         public override int run(string[] args)
         {
-            communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000");
+            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
             communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
 
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");

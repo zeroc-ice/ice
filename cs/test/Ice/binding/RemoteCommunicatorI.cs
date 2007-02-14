@@ -17,7 +17,7 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         Ice.Communicator com = current.adapter.getCommunicator();
         if(com.getProperties().getPropertyAsIntWithDefault("Ice.ThreadPerConnection", 0) == 0)
         {
-            com.getProperties().setProperty("Ice.OA." + name + ".ThreadPool.Size", "1");
+            com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
         }
         Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
         return RemoteObjectAdapterPrxHelper.uncheckedCast(

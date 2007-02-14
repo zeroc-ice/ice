@@ -13,7 +13,7 @@ public class Server
     {
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 2000");
+        properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 2000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object @object = new TestI(adapter);
         adapter.add(@object, communicator.stringToIdentity("Test"));
