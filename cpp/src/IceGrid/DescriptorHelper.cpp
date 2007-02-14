@@ -1039,7 +1039,7 @@ CommunicatorHelper::print(const Ice::CommunicatorPtr& communicator, Output& out)
     {
         for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
         {
-            hiddenProperties.insert("Ice.OA." + p->name + ".Endpoints");
+            hiddenProperties.insert(p->name + ".Endpoints");
             printObjectAdapter(communicator, out, *p);
         }
     }
@@ -1118,7 +1118,7 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
         out << nl << "priority = `" << adapter.priority << "'";
     }
 
-    string endpoints = getProperty("Ice.OA." + adapter.name + ".Endpoints");
+    string endpoints = getProperty(adapter.name + ".Endpoints");
     if(!endpoints.empty())
     {
         out << nl << "endpoints = `" << endpoints << "'";
@@ -1509,7 +1509,7 @@ IceBoxHelper::print(const Ice::CommunicatorPtr& communicator, Output& out, const
     out << "icebox `" + _desc->id + "'";
     out << sb;
 
-    string endpoints = getProperty("Ice.OA.IceBox.ServiceManager.Endpoints");
+    string endpoints = getProperty("IceBox.ServiceManager.Endpoints");
     out << nl << "service manager endpoints = `" << endpoints << "'";
     printImpl(communicator, out, info);
     for(vector<ServiceInstanceHelper>::const_iterator p = _services.begin(); p != _services.end(); ++p)

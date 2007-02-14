@@ -227,23 +227,17 @@ PlatformInfo::PlatformInfo(const string& prefix,
     _machine = utsinfo.machine;
 #endif
 
-    //
-    // DEPRECATED PROPERTIES: Remove extra code in future release.
-    //
     Ice::PropertiesPtr properties = communicator->getProperties();
     string endpointsPrefix;
-    string oldEndpointsPrefix;
     if(prefix == "IceGrid.Registry")
     {
         _name = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
-        endpointsPrefix = "Ice.OA." + prefix + ".Client";
-        oldEndpointsPrefix = prefix + ".Client";
+        endpointsPrefix = prefix + ".Client";
     }
     else
     {
         _name = properties->getProperty(prefix + ".Name");
-        endpointsPrefix = "Ice.OA." + prefix;
-        oldEndpointsPrefix = prefix;
+        endpointsPrefix = prefix;
     }
 
     Ice::PropertyDict props = properties->getPropertiesForPrefix(endpointsPrefix);
@@ -254,17 +248,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     }
     else
     {
-        Ice::PropertyDict oldProps = properties->getPropertiesForPrefix(oldEndpointsPrefix);
-        p = props.find(oldEndpointsPrefix + ".PublishedEndpoints");
-        if(p != props.end())
-        {
-            _endpoints = p->second;
-        }
-        else
-        {
-            _endpoints = properties->getPropertyWithDefault(
-                endpointsPrefix + ".Endpoints", properties->getProperty(oldEndpointsPrefix + ".Endpoints"));    
-        }
+        _endpoints = properties->getProperty(endpointsPrefix + ".Endpoints");
     }
 
 #ifdef _WIN32
