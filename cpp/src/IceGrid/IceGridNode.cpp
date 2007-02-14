@@ -227,22 +227,14 @@ NodeService::start(int argc, char* argv[])
         out << "you should set individual adapter thread pools instead.";
     }
     
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    int size = properties->getPropertyAsIntWithDefault("Ice.OA.IceGrid.Node.ThreadPool.Size",
-                               properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.Size", 0));
+    int size = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.Size", 0);
     if(size <= 0)
     {
-        properties->setProperty("Ice.OA.IceGrid.Node.ThreadPool.Size", "1");
+        properties->setProperty("IceGrid.Node.ThreadPool.Size", "1");
         size = 1;
     }
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    int sizeMax = properties->getPropertyAsIntWithDefault("Ice.OA.IceGrid.Node.ThreadPool.SizeMax",
-                               properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 0));
+    int sizeMax = properties->getPropertyAsIntWithDefault("IceGrid.Node.ThreadPool.SizeMax", 0);
     if(sizeMax <= 0)
     {
         if(size >= sizeMax)
@@ -252,7 +244,7 @@ NodeService::start(int argc, char* argv[])
         
         ostringstream os;
         os << sizeMax;
-        properties->setProperty("Ice.OA.IceGrid.Node.ThreadPool.SizeMax", os.str());
+        properties->setProperty("IceGrid.Node.ThreadPool.SizeMax", os.str());
     }
 
     size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 0);
@@ -305,12 +297,7 @@ NodeService::start(int argc, char* argv[])
             Identity locatorId;
             locatorId.category = properties->getPropertyWithDefault("IceGrid.InstanceName", "IceGrid");
             locatorId.name = "Locator";
-            //
-            // DEPRECATED PROPERTY: Remove extra code in future release
-            //
-            string endpoints = 
-                properties->getPropertyWithDefault("Ice.OA.IceGrid.Registry.Client.Endpoints",
-                                                   properties->getProperty("IceGrid.Registry.Client.Endpoints"));
+            string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
             string locatorPrx = "\"" + communicator()->identityToString(locatorId) + "\" :" + endpoints;
             communicator()->setDefaultLocator(LocatorPrx::uncheckedCast(communicator()->stringToProxy(locatorPrx)));
             properties->setProperty("Ice.Default.Locator", locatorPrx);
@@ -376,12 +363,9 @@ NodeService::start(int argc, char* argv[])
     //
     // Check that required properties are set and valid.
     //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    if(properties->getProperty("Ice.OA.IceGrid.Node.Endpoints").empty() &&
-       properties->getProperty("IceGrid.Node.Endpoints").empty())
+    if(properties->getProperty("IceGrid.Node.Endpoints").empty())
     {
-        error("property `Ice.OA.IceGrid.Node.Endpoints' is not set");
+        error("property `IceGrid.Node.Endpoints' is not set");
         return false;
     }
 
@@ -401,11 +385,7 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the node object adapter.
     //
-    // DEPRECATED PROPERTIES: Remove extra code in future release.
-    //
-    properties->setProperty("Ice.OA.IceGrid.Node.RegisterProcess", "0");
-    properties->setProperty("IceGrid.Node.RegisterProcess", "");
-    properties->setProperty("Ice.OA.IceGrid.Node.AdapterId", "");
+    properties->setProperty("IceGrid.Node.RegisterProcess", "0");
     properties->setProperty("IceGrid.Node.AdapterId", "");
     _adapter = communicator()->createObjectAdapter("IceGrid.Node");
 

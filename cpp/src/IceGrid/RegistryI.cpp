@@ -161,63 +161,48 @@ RegistryI::start(bool nowarn)
     //
     // Check that required properties are set and valid.
     //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    if(properties->getProperty("Ice.OA.IceGrid.Registry.Client.Endpoints").empty() &&
-       properties->getProperty("IceGrid.Registry.Client.Endpoints").empty())
+    if(properties->getProperty("IceGrid.Registry.Client.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
-        out << "property `Ice.OA.IceGrid.Registry.Client.Endpoints' is not set";
+        out << "property `IceGrid.Registry.Client.Endpoints' is not set";
         return false;
     }
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    if(properties->getProperty("Ice.OA.IceGrid.Registry.Server.Endpoints").empty() &&
-       properties->getProperty("IceGrid.Registry.Server.Endpoints").empty())
+    if(properties->getProperty("IceGrid.Registry.Server.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
-        out << "property `Ice.OA.IceGrid.Registry.Server.Endpoints' is not set";
+        out << "property `IceGrid.Registry.Server.Endpoints' is not set";
         return false;
     }
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    if(properties->getProperty("Ice.OA.IceGrid.Registry.Internal.Endpoints").empty() &&
-       properties->getProperty("IceGrid.Registry.Internal.Endpoints").empty())
+    if(properties->getProperty("IceGrid.Registry.Internal.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
-        out << "property `Ice.OA.IceGrid.Registry.Internal.Endpoints' is not set";
+        out << "property `IceGrid.Registry.Internal.Endpoints' is not set";
         return false;
     }
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    if(!properties->getProperty("Ice.OA.IceGrid.Registry.SessionManager.Endpoints").empty() ||
-       !properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
+    if(!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         if(!nowarn)
         {
             Warning out(_communicator->getLogger());
-            out << "session manager endpoints `Ice.OA.IceGrid.Registry.SessionManager.Endpoints' enabled";
+            out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
         }
     }
 
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.ServerIdleTime", "0");
-    properties->setProperty("Ice.OA.IceGrid.Registry.Client.AdapterId", "");
-    properties->setProperty("Ice.OA.IceGrid.Registry.Server.AdapterId", "");
-    properties->setProperty("Ice.OA.IceGrid.Registry.SessionManager.AdapterId", "");
-    properties->setProperty("Ice.OA.IceGrid.Registry.Internal.AdapterId", "");
+    properties->setProperty("IceGrid.Registry.Client.AdapterId", "");
+    properties->setProperty("IceGrid.Registry.Server.AdapterId", "");
+    properties->setProperty("IceGrid.Registry.SessionManager.AdapterId", "");
+    properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
 
     setupThreadPool(properties, "Ice.ThreadPool.Client", 1, 100);
-    setupThreadPool(properties, "Ice.OA.IceGrid.Registry.Client.ThreadPool", 1, 10);
-    setupThreadPool(properties, "Ice.OA.IceGrid.Registry.Server.ThreadPool", 1, 10);
-    setupThreadPool(properties, "Ice.OA.IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
-    setupThreadPool(properties, "Ice.OA.IceGrid.Registry.Internal.ThreadPool", 1, 100);
+    setupThreadPool(properties, "IceGrid.Registry.Client.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.Server.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.SessionManager.ThreadPool", 1, 10);
+    setupThreadPool(properties, "IceGrid.Registry.Internal.ThreadPool", 1, 100);
 
     _replicaName = properties->getPropertyWithDefault("IceGrid.Registry.ReplicaName", "Master");
     _master = _replicaName == "Master";
@@ -260,12 +245,7 @@ RegistryI::start(bool nowarn)
     //
     try
     {
-        //
-        // DEPRECATED PROPERTY: Remove extra code in future release
-        //
-        string endpoints = 
-            properties->getPropertyWithDefault("Ice.OA.IceGrid.Registry.Client.Endpoints",
-                                               properties->getProperty("IceGrid.Registry.Client.Endpoints"));
+        string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
         string strPrx = _instanceName + "/Locator:" + endpoints;
         _communicator->stringToProxy(strPrx)->ice_timeout(5000)->ice_ping();
 
@@ -356,11 +336,7 @@ RegistryI::start(bool nowarn)
     ObjectAdapterPtr serverAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Server");
     _clientAdapter = _communicator->createObjectAdapter("IceGrid.Registry.Client");
     ObjectAdapterPtr sessionManagerAdapter;
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    if(!properties->getProperty("Ice.OA.IceGrid.Registry.SessionManager.Endpoints").empty() ||
-       !properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
+    if(!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         sessionManagerAdapter = _communicator->createObjectAdapter("IceGrid.Registry.SessionManager");
     }

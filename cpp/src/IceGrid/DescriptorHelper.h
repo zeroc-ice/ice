@@ -91,7 +91,6 @@ public:
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     
-    bool upgrade(CommunicatorDescriptorPtr&) const;
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
 
 protected:
@@ -210,8 +209,6 @@ public:
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
 
-    bool upgrade(CommunicatorDescriptorPtr&) const;
-
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&, const ServerInfo&) const;
 
@@ -271,7 +268,6 @@ public:
 
     NodeUpdateDescriptor diff(const NodeHelper&) const;
     NodeDescriptor update(const NodeUpdateDescriptor&, const Resolver&) const;
-    bool upgrade(NodeDescriptor&) const;
 
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     const NodeDescriptor& getDefinition() const;
@@ -305,7 +301,6 @@ public:
 
     ApplicationUpdateDescriptor diff(const ApplicationHelper&) const;
     ApplicationDescriptor update(const ApplicationUpdateDescriptor&) const;
-    bool upgrade(ApplicationDescriptor&) const;
     ApplicationDescriptor instantiateServer(const std::string&, const ServerInstanceDescriptor&) const;
 
     void getIds(std::set<std::string>&, std::set<std::string>&, std::set<Ice::Identity>&) const;

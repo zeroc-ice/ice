@@ -42,8 +42,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-o    Set the server version to 3.1. This option should be used if"
-    print "      the servers managed by the registry are still using Ice 3.1."
 
 def printOutputFromPipe(pipe):
     while 1:
@@ -84,15 +82,12 @@ def transformdb(db, desc):
 #
 # Check arguments
 #
-iceVersion = ""
 olddbenv = ""
 newdbenv = ""
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-o":
-        iceVersion = "3.1"
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
@@ -153,10 +148,6 @@ desc = \
 '' + \
 '    <transform type="::IceGrid::AdapterDescriptor">' + \
 '        <set target="new.serverLifetime" value="old.waitForActivation"/>' + \
-'    </transform>' + \
-'    ' + \
-'    <transform type="::IceGrid::ServerDescriptor">' + \
-'        <set target="new.iceVersion" value="\'' + iceVersion + '\'"/>' + \
 '    </transform>' + \
 '' + \
 '    <transform type="::IceGrid::ReplicaGroupDescriptor">' + \

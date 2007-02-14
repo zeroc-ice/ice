@@ -997,7 +997,7 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
         //
         // Make sure the endpoints are defined.
         //
-        if(IceGrid::getProperty(instance->propertySet.properties, "Ice.OA." + adapter.name + ".Endpoints").empty())
+        if(IceGrid::getProperty(instance->propertySet.properties, adapter.name + ".Endpoints").empty())
         {
             resolve.exception("invalid endpoints for adapter `" + adapter.name + "': empty string");
         }
@@ -1017,41 +1017,6 @@ CommunicatorHelper::instantiateImpl(const CommunicatorDescriptorPtr& instance, c
     {
         instance->logs.push_back(resolve(*l, "log path", false));
     }
-}
-
-bool
-CommunicatorHelper::upgrade(CommunicatorDescriptorPtr& desc) const
-{
-    desc = CommunicatorDescriptorPtr::dynamicCast(_desc->ice_clone());
-    PropertyDescriptorSeq& properties = desc->propertySet.properties;
-    set<string> oaProperties;
-    oaProperties.insert("AdapterId");
-    oaProperties.insert("Endpoints");
-    oaProperties.insert("Locator");
-    oaProperties.insert("PublishedEndpoints");
-    oaProperties.insert("RegisterProcess");
-    oaProperties.insert("ReplicaGroupId");
-    oaProperties.insert("Router");
-    oaProperties.insert("ThreadPool.Size");
-    oaProperties.insert("ThreadPool.SizeMax");
-    oaProperties.insert("ThreadPool.SizeWarn");
-    oaProperties.insert("ThreadPool.StackSize");
-    bool upgraded = false;
-    for(AdapterDescriptorSeq::const_iterator p = _desc->adapters.begin(); p != _desc->adapters.end(); ++p)
-    {
-        const string oaPrefix = p->name + ".";
-        for(PropertyDescriptorSeq::iterator q = properties.begin(); q != properties.end(); ++q)
-        {
-            if(q->name.find(oaPrefix) == 0 &&
-               q->name.size() > oaPrefix.size() &&
-               oaProperties.find(q->name.substr(oaPrefix.size())) != oaProperties.end())
-            {
-                q->name = "Ice.OA." + q->name;
-                upgraded = true;
-            }
-        }
-    }
-    return upgraded;
 }
 
 void
@@ -1344,11 +1309,6 @@ ServerHelper::operator==(const ServerHelper& helper) const
         return false;
     }
 
-    if(_desc->iceVersion != helper._desc->iceVersion)
-    {
-        return false;
-    }
-
     return true;
 }
 
@@ -1429,10 +1389,6 @@ ServerHelper::printImpl(const Ice::CommunicatorPtr& communicator, Output& out, c
     {
         out << nl << "user = `" << _desc->user << "'";
     }
-    if(!_desc->iceVersion.empty())
-    {
-        out << nl << "ice version = `" << _desc->iceVersion << "'";
-    }
     if(!_desc->applicationDistrib)
     {
         out << nl << "application distribution = `false'";
@@ -1473,26 +1429,6 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
     instance->applicationDistrib = _desc->applicationDistrib;
     instance->allocatable = _desc->allocatable;
     instance->user = resolve(_desc->user, "user");
-    instance->iceVersion = resolve(_desc->iceVersion, "ice version");
-    if(!instance->iceVersion.empty())
-    {
-        int version = getMMVersion(instance->iceVersion);
-        if(version < 0)
-        {
-            resolve.exception("invalid  ice version: " + instance->iceVersion);
-        }
-        else if(version > ICE_INT_VERSION)
-        {
-            //resolve.exception("invalid ice version: " + instance->iceVersion + " is superior to the IceGrid \n"
-            //"registry version (" + ICE_STRING_VERSION + ")");
-            if(resolve.warningEnabled())
-            {
-                Ice::Warning out(resolve.getCommunicator()->getLogger());
-                out << "invalid ice version: " << instance->iceVersion << " is superior to the IceGrid ";
-                out << "registry version (" << ICE_STRING_VERSION << ")";
-            }
-        }
-    }
     if(!instance->activation.empty() && 
        instance->activation != "manual" &&
        instance->activation != "on-demand" &&
@@ -1559,27 +1495,6 @@ IceBoxHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& obje
     {
         p->getIds(adapterIds, objectIds);
     }
-}
-
-bool
-IceBoxHelper::upgrade(CommunicatorDescriptorPtr& communicator) const
-{
-    bool upgraded = CommunicatorHelper::upgrade(communicator);
-    IceBoxDescriptorPtr iceBox = IceBoxDescriptorPtr::dynamicCast(communicator);
-    for(ServiceInstanceDescriptorSeq::iterator p = iceBox->services.begin(); p != iceBox->services.end(); ++p)
-    {
-        if(p->descriptor)
-        {
-            CommunicatorDescriptorPtr com;
-            if(ServiceHelper(p->descriptor).upgrade(com))
-            {
-                upgraded = true;
-                p->descriptor = ServiceDescriptorPtr::dynamicCast(com);
-                assert(p->descriptor);
-            }
-        }
-    }
-    return upgraded;
 }
 
 void
@@ -2198,25 +2113,6 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     return def;
 }
 
-bool
-NodeHelper::upgrade(NodeDescriptor& desc) const
-{
-    desc = _def;
-
-    bool upgraded = false;
-    for(ServerDescriptorSeq::iterator j = desc.servers.begin(); j != desc.servers.end(); ++j)
-    {
-        CommunicatorDescriptorPtr com;
-        if(createHelper(*j)->upgrade(com))
-        {
-            *j = ServerDescriptorPtr::dynamicCast(com);
-            upgraded = true;
-        }
-    }
-
-    return upgraded;
-}
-
 void
 NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
@@ -2745,36 +2641,6 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
     }
 
     return def;
-}
-
-bool
-ApplicationHelper::upgrade(ApplicationDescriptor& desc) const
-{
-    desc = _def;
-    bool upgraded = false;
-    for(NodeHelperDict::const_iterator n = _nodes.begin(); n != _nodes.end(); ++n)
-    {
-        NodeDescriptor nodeDesc;
-        if(n->second.upgrade(nodeDesc))
-        {
-            desc.nodes[n->first] = nodeDesc;
-            upgraded = true;
-        }
-    }
-
-    TemplateDescriptorDict::iterator t;
-    for(t = desc.serverTemplates.begin(); t != desc.serverTemplates.end(); ++t)
-    {
-        ServerDescriptorPtr desc = ServerDescriptorPtr::dynamicCast(t->second.descriptor);
-        upgraded |= createHelper(desc)->upgrade(t->second.descriptor);
-    }
-    for(t = desc.serviceTemplates.begin(); t != desc.serviceTemplates.end(); ++t)
-    {
-        ServiceDescriptorPtr desc = ServiceDescriptorPtr::dynamicCast(t->second.descriptor);
-        upgraded |= ServiceHelper(desc).upgrade(t->second.descriptor);
-    }
-
-    return upgraded;
 }
 
 ApplicationDescriptor

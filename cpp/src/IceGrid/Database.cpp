@@ -74,23 +74,7 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
     {
         try
         {
-            //
-            // Create an application helper for the application
-            // without instantiating. The application might be invalid
-            // if we need to upgrade it.
-            //
-            ApplicationInfo info = p->second;
-
-            ApplicationHelper helper(_communicator, p->second.descriptor, false, false); 
-            if(helper.upgrade(info.descriptor))
-            {
-                ++info.revision;
-                info.updateUser = "IceGrid Registry (database upgrade)";
-                info.updateTime = IceUtil::Time::now().toMilliSeconds();
-                p.set(info);
-            }
-            
-            load(ApplicationHelper(_communicator, info.descriptor), entries, info.uuid, info.revision);
+            load(ApplicationHelper(_communicator, p->second.descriptor), entries, p->second.uuid, p->second.revision);
         }
         catch(const DeploymentException& ex)
         {

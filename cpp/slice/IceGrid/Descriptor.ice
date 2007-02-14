@@ -391,16 +391,6 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     string user;
-
-    /**
-     *
-     * The Ice version used by this server. This is only required if
-     * backward compatibility with servers using old Ice versions is
-     * needed (otherwise the regsitry will assume the server is using
-     * the same Ice version).
-     *
-     **/ 
-    string iceVersion;
 };
 
 /**

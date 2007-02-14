@@ -125,7 +125,6 @@ descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const Int
        lhs->activation != rhs->activation ||
        lhs->activationTimeout != rhs->activationTimeout ||
        lhs->deactivationTimeout != rhs->deactivationTimeout ||
-       lhs->iceVersion != rhs->iceVersion ||
        lhs->applicationDistrib != rhs->applicationDistrib ||
        lhs->processRegistered != rhs->processRegistered ||
        lhs->options != rhs->options ||
@@ -2080,8 +2079,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 throw "couldn't create configuration file: " + configFilePath;
             }
-            configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime();
-            configfile << ", " << _desc->iceVersion << ")" << endl << endl;
+            configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime() << ")" << endl << endl;
             for(PropertyDescriptorSeq::const_iterator r = p->second.begin(); r != p->second.end(); ++r)
             {
                 if(r->value.empty() && r->name.find('#') == 0)

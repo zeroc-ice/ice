@@ -89,9 +89,6 @@ class InternalServerDescriptor
     /** The server deactivation timeout. */
     string deactivationTimeout;
 
-    /** The Ice version used by the server. */
-    string iceVersion;
-
     /** Specifies if the server depends on the application distrib. */
     bool applicationDistrib;
 

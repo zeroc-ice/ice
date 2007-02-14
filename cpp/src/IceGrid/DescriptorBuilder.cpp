@@ -681,7 +681,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     desc.serverLifetime = attrs.asBool("server-lifetime", true);
     _descriptor->adapters.push_back(desc);
 
-    addProperty(_hiddenProperties, "Ice.OA." + desc.name + ".Endpoints", attrs("endpoints", "default"));
+    addProperty(_hiddenProperties, desc.name + ".Endpoints", attrs("endpoints", "default"));
 }
 
 void
@@ -844,7 +844,6 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
     _descriptor->allocatable = attrs.asBool("allocatable", false);
     _descriptor->user = attrs("user", "");
-    _descriptor->iceVersion = attrs("ice-version", "");
 }
 
 ServiceDescriptorBuilder*
@@ -920,13 +919,13 @@ IceBoxDescriptorBuilder::finish()
     }
     if(_descriptor->adapters.empty())
     {
-        if(getProperty(_descriptor->propertySet.properties, "Ice.OA.IceBox.ServiceManager.Endpoints").empty())
+        if(getProperty(_descriptor->propertySet.properties, "IceBox.ServiceManager.Endpoints").empty())
         {
-            _hiddenProperties.push_back(createProperty("Ice.OA.IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
+            _hiddenProperties.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
         }
-        if(getProperty(_descriptor->propertySet.properties, "Ice.OA.IceBox.ServiceManager.RegisterProcess").empty())
+        if(getProperty(_descriptor->propertySet.properties, "IceBox.ServiceManager.RegisterProcess").empty())
         {
-            _hiddenProperties.push_back(createProperty("Ice.OA.IceBox.ServiceManager.RegisterProcess", "1"));
+            _hiddenProperties.push_back(createProperty("IceBox.ServiceManager.RegisterProcess", "1"));
         }
     }
     
