@@ -229,7 +229,7 @@ class TestCheckedCastI(Test.TestCheckedCast):
         return Test.TestCheckedCast.ice_isA(self, s, current)
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
     id = communicator.stringToIdentity("test")
     adapter.add(MyDerivedClassI(adapter, id), id)

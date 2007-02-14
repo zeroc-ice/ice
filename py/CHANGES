@@ -27,12 +27,6 @@ Changes since version 3.1.1
 - Added missing implementation of the createIndirectProxy() method to
   the ObjectAdapter interface.
 
-- Object adapter properties are now prefixed by "Ice.OA.". For example,
-  "Ice.OA.<Adpater name>.Endpoints" instead of "<Adpater name>.Endpoints".
-  The new properties can be set from the command line. The old style 
-  property names have been deprecated and support will be removed in a
-  future release.
-
 - Added Communicator::propertyToProxy() which creates a proxy from
   a set of properties. This function allows you to set various local
   proxy settings, such as the Locator cache timeout, which cannot be

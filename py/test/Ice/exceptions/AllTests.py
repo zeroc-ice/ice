@@ -289,7 +289,7 @@ class AMI_WrongOperation_noSuchOperationI(CallbackBase):
 
 def allTests(communicator):
     print "testing servant registration exceptions... ",
-    communicator.getProperties().setProperty("Ice.OA.TestAdapter1.Endpoints", "default")
+    communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
     adapter.add(obj, communicator.stringToIdentity("x"))
@@ -310,7 +310,7 @@ def allTests(communicator):
     print "ok"
 
     print "testing servant locator registrations exceptions... ",
-    communicator.getProperties().setProperty("Ice.OA.TestAdapter2.Endpoints", "default")
+    communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter2")
     loc = ServantLocatorI()
     adapter.addServantLocator(loc, "x")
