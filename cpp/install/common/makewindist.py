@@ -241,6 +241,9 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
     os.chdir(iceHome)
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+    os.chdir(os.path.join(iceHome, "src"))
+    runprog("nmake /f Makefile.mak")
+    os.chdir(os.path.join(iceHome, "test"))
     runprog("nmake /f Makefile.mak")
 
     if installVersion in ["vc80"]:
@@ -315,7 +318,12 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
     os.chdir(iceHome)
     setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+    os.chdir(os.path.join(iceHome, "src"))
     runprog("nmake /f Makefile.mak")
+    os.chdir(os.path.join(iceHome, "test"))
+    runprog("nmake /f Makefile.mak")
+    os.chdir(os.path.join(iceHome, "demo"))
+    runprog("nmake /f Makefile.mak clean")
 
     if installVersion == "vc71":
         #
@@ -331,13 +339,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         runprog("nmake /f Makefile.mak")
         
     if installVersion == "vc60":
-        #
-        # Ice for C++ 
-        #
-        os.chdir(os.path.join(sourcesDir, "release", "Ice-" + sourcesVersion))
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-        print "Building in " + os.getcwd() + "..."
-        runprog("nmake /f Makefile.mak") 
         #
         # Ice for PHP
         #

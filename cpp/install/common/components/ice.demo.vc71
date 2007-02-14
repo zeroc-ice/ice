@@ -7,6 +7,7 @@ exclude=**/*.suo
 exclude=**/*.exe
 exclude=**/*.ilk
 exclude=**/*.pdb
+exclude=**/*.lib
 exclude=**/*.idb
 exclude=**/*.plg
 exclude=**/*.depend

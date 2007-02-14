@@ -10,6 +10,7 @@ exclude=**/*.obj
 exclude=**/*.dll
 exclude=**/*.pdb
 exclude=**/*.idb
+exclude=**/*.lib
 exclude=**/*.plg
 exclude=**/*.depend
 exclude=**/*.dummy
