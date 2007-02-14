@@ -306,7 +306,7 @@ Ice::ObjectAdapterI::destroy()
         }
 
         //
-        // Object adpater is already destroyed.
+        // Object adapter is already destroyed.
         //
         if(_destroyed)
         {
