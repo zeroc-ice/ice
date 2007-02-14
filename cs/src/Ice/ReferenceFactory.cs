@@ -535,6 +535,14 @@ namespace IceInternal
                 return null;
             }
 
+            //
+            // Warn about unknown properties.
+            //
+            if(properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+            {
+                checkForUnknownProperties(propertyPrefix);
+            }
+
             string property = propertyPrefix + ".Locator";
             if(properties.getProperty(property).Length != 0)
             {
@@ -749,6 +757,63 @@ namespace IceInternal
             _references[w] = w;
 
             return @ref;
+        }
+
+        static private readonly string[] _suffixes =
+        {
+            "EndpointSelection",
+            "ConnectionCached",
+            "PreferSecure",
+            "LocatorCacheTimeout",
+            "Locator",
+            "Router",
+            "CollocationOptimization",
+            "ThreadPerConnection"
+        };
+
+        private void
+        checkForUnknownProperties(String prefix)
+        {
+            //
+            // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
+            //
+            for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+            {
+                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
+                {
+                    return;
+                }
+            }
+
+            ArrayList unknownProps = new ArrayList();
+            Ice.PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+            foreach(String prop in props.Keys)
+            {
+                bool valid = false;
+                for(int i = 0; i < _suffixes.Length; ++i)
+                {
+                    if(prop.Equals(prefix + "." + _suffixes[i]))
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if(!valid)
+                {
+                    unknownProps.Add(prop);
+                }
+            }
+
+            if(unknownProps.Count != 0)
+            {
+                string message = "Found unknown properties for proxy '" + prefix + "':";
+                foreach(string s in unknownProps)
+                {
+                    message += "\n    " + s;
+                }
+                instance_.initializationData().logger.warning(message);
+            }
         }
 
         private Instance instance_;

@@ -753,12 +753,28 @@ namespace Ice
                 return;
             }
 
+            Properties properties = instance_.initializationData().properties;
+            ArrayList props = new ArrayList();
+            ArrayList unknownProps = new ArrayList();
+            filterProperties(props, unknownProps);
+
+            //
+            // Warn about unknown object adapter properties.
+            //
+            if(unknownProps.Count != 0 && properties.getPropertyAsIntWithDefault("Ice.Warn.UnknownProperties", 1) > 0)
+            {
+                string message = "Found unknown properties for object adapter '" + _name + "':";
+                foreach(string s in unknownProps)
+                {
+                    message += "\n    " + s;
+                }
+                instance_.initializationData().logger.warning(message);
+            }
+
             //
             // Make sure named adapter has configuration.
             //
-            Properties properties = instance_.initializationData().properties;
-            string[] props = filterProperties(_name + ".");
-            if(endpointInfo.Length == 0 && router == null && props.Length == 0)
+            if(endpointInfo.Length == 0 && router == null && props.Count == 0)
             {
                 //
                 // These need to be set to prevent warnings/asserts in the destructor.
@@ -1241,26 +1257,50 @@ namespace Ice
             "RegisterProcess",
             "ReplicaGroupId",
             "Router",
+            "ThreadPerConnection",
+            "ThreadPerConnection.StackSize",
             "ThreadPool.Size",
             "ThreadPool.SizeMax",
             "ThreadPool.SizeWarn",
             "ThreadPool.StackSize"
         };
             
-        private string[]
-        filterProperties(string prefix)
+        private void
+        filterProperties(ArrayList oaProps, ArrayList unknownProps)
         {
-            ArrayList propertySet = new ArrayList();
-            PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix);
-            for(int i = 0; i < _suffixes.Length; ++i)
+            //
+            // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
+            //
+            bool addUnknown = true;
+            String prefix = _name + ".";
+            for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
             {
-                if(props.Contains(prefix + _suffixes[i]))
+                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + "."))
                 {
-                    propertySet.Add(prefix + _suffixes[i]);
+                    addUnknown = false;
+                    break;
                 }
             }
 
-            return (string[])propertySet.ToArray(typeof(string));
+            PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix);
+            foreach(String prop in props.Keys)
+            {
+                bool valid = false;
+                for(int i = 0; i < _suffixes.Length; ++i)
+                {
+                    if(prop.Equals(prefix + _suffixes[i]))
+                    {
+                        oaProps.Add(prop);
+                        valid = true;
+                        break;
+                    }
+                }
+
+                if(!valid && addUnknown)
+                {
+                    unknownProps.Add(prop);
+                }
+            }
         }
 
         private sealed class ProcessI : ProcessDisp_
