@@ -1,8 +1,8 @@
 Oracle Pro*C/C++ demo
 =====================
 
-This demo shows how to implement an Ice server that uses Oracle
-through its Embedded SQL (Pro*C/C++) API.
+This demo shows how to implement an Ice server that uses Oracle through
+its Embedded SQL (Pro*C/C++) API.
 
 It is a fairly simple demo that illustrates how to:
  - map relational data to Ice objects, in particular convert 
@@ -13,14 +13,17 @@ It is a fairly simple demo that illustrates how to:
 
 Building the demo
 -----------------
-On Linux or Unix, set ORACLE_HOME to point to your Oracle 
-installation home directory. Then build as usual.
+On Linux or Unix, set ORACLE_HOME to point to your Oracle installation 
+home directory. Then build as usual.
 
-On Windows, you need to add the following directories to your 
-Visual C++ environment: 
+On Windows using Visual Studio Project files, you need to add the 
+following directories to your Visual C++ environment: 
  - Include files: <oracle-home>\precomp\public
  - Library files: <oracle-home>\precomp\lib
  - Executable files: <oracle-home>\bin
+
+On Windows with nmake Makefiles, please review Makefile.mak.
+
 Then build as usual.
 
 Running the demo

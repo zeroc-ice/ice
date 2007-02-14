@@ -50,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 oraocci10.lib Ice.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../../lib" /FIXED:no
+# ADD LINK32 oraocci10.lib oci.lib Ice.lib IceUtil.lib /nologo /subsystem:console /pdb:none /machine:I386 /out:"server.exe" /libpath:"../../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "occiS - Win32 Debug"
@@ -75,7 +75,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 oraocci10d.lib Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib" /FIXED:no
+# ADD LINK32 oraocci10d.lib oci.lib Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -113,6 +113,10 @@ SOURCE=.\HR.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\OCCIServantLocator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
@@ -146,6 +150,10 @@ SOURCE=.\EmpI.h
 # Begin Source File
 
 SOURCE=.\HR.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OCCIServantLocator.h
 # End Source File
 # Begin Source File
 
