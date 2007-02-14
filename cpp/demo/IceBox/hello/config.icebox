@@ -7,7 +7,7 @@ IceBox.InstanceName=DemoIceBox
 #
 # The IceBox server endpoint configuration
 #
-Ice.OA.IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
+IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
 
 #
 # The hello service

@@ -4,7 +4,7 @@ Glacier2.InstanceName=DemoGlacier2
 # The client-visible endpoint of Glacier2. This should be an endpoint
 # visible from the public Internet, and it should be secure.
 # 
-Ice.OA.Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
+Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
 
 #
 # The server-visible endpoint of Glacier2. This endpoint is only
@@ -13,7 +13,7 @@ Ice.OA.Glacier2.Client.Endpoints=ssl -p 10005 -h 127.0.0.1
 # on the loopback, so that the server is not directly accessible from
 # the Internet.
 #
-Ice.OA.Glacier2.Server.Endpoints=tcp -h 127.0.0.1
+Glacier2.Server.Endpoints=tcp -h 127.0.0.1
 
 # 
 # The proxy of the session manager.

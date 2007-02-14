@@ -583,7 +583,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             // Expected
         }
 
-        communicator->getProperties()->setProperty("Ice.OA.TestAdapter0.Endpoints", "default");
+        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", "default");
         first = communicator->createObjectAdapter("TestAdapter0");
         try
         {
@@ -608,14 +608,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         //
         // Properties must remain unaffected if an exception occurs.
         //
-        test(communicator->getProperties()->getProperty("Ice.OA.TestAdapter0.Endpoints") == "default");
+        test(communicator->getProperties()->getProperty("TestAdapter0.Endpoints") == "default");
         first->deactivate();
     }
     cout << "ok" << endl;
     
     cout << "testing servant registration exceptions... " << flush;
     {
-        communicator->getProperties()->setProperty("Ice.OA.TestAdapter1.Endpoints", "default");
+        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", "default");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
         Ice::ObjectPtr obj = new EmptyI;
         adapter->add(obj, communicator->stringToIdentity("x"));
@@ -644,7 +644,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "testing servant locator registrations exceptions... " << flush;
     {
-        communicator->getProperties()->setProperty("Ice.OA.TestAdapter2.Endpoints", "default");
+        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", "default");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
         Ice::ServantLocatorPtr loc = new ServantLocatorI;
         adapter->addServantLocator(loc, "x");

@@ -45,8 +45,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-string Ice::ObjectAdapterI::_propertyPrefix = "Ice.OA.";
-
 string
 Ice::ObjectAdapterI::getName() const
 {
@@ -103,11 +101,7 @@ Ice::ObjectAdapterI::activate()
         {
             PropertiesPtr properties = _instance->initializationData().properties;
             printAdapterReady = properties->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
-            //
-            // DEPREACTED PROPERTY: Remove extra code in future release
-            //
-            registerProcess = properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".RegisterProcess",
-                properties->getPropertyAsInt(_name + ".RegisterProcess")) > 0;
+            registerProcess = properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
         }
     }
 
@@ -757,57 +751,27 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     }
 
     //
-    // DEPRECATED PROPERTIES: Remove extra code in future release
-    //
-
-    //
     // Make sure named adapter has some configuration
     //
     PropertiesPtr properties = instance->initializationData().properties;
     StringSeq oldProps = filterProperties(_name + ".");
     if(endpointInfo.empty() && router == 0)
     {
-        StringSeq props = filterProperties(_propertyPrefix + _name + ".");
-        if(oldProps.size() == 0 && props.size() == 0)
-        {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "object adapter \"" + _name + "\" requires configuration.";
-            throw ex;
-        }
+        InitializationException ex(__FILE__, __LINE__);
+        ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+        throw ex;
     }
 
-    if(oldProps.size() != 0)
-    {
-        Warning out(_instance->initializationData().logger);
-        out << "The following properties have been deprecated, please prepend \"Ice.OA.\":";
-        for(unsigned int i = 0; i < oldProps.size(); ++i)
-        {
-            out << "\n    " << oldProps[i];
-        }
-    }
-
-    const_cast<string&>(_id) = properties->getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
-        properties->getProperty(_name + ".AdapterId"));
-    const_cast<string&>(_replicaGroupId) = 
-        properties->getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
-        properties->getProperty(_name + ".ReplicaGroupId"));
+    const_cast<string&>(_id) = properties->getProperty(_name + ".AdapterId");
+    const_cast<string&>(_replicaGroupId) = properties->getProperty(_name + ".ReplicaGroupId");
 
     __setNoDelete(true);
     try
     {
-        _threadPerConnection = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPerConnection") > 0;
+        _threadPerConnection = properties->getPropertyAsInt(_name + ".ThreadPerConnection") > 0;
 
-        int threadPoolSize = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-        if(threadPoolSize == 0)
-        {
-            threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
-        }
-        int threadPoolSizeMax = properties->getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-        if(threadPoolSizeMax == 0)
-        {
-            threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-        }
-
+        int threadPoolSize = properties->getPropertyAsInt(_name + ".ThreadPool.Size");
+        int threadPoolSizeMax = properties->getPropertyAsInt(_name + ".ThreadPool.SizeMax");
         if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
         {
             InitializationException ex(__FILE__, __LINE__);
@@ -824,7 +788,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         if(_threadPerConnection)
         {
             int stackSize = 
-                properties->getPropertyAsIntWithDefault(_propertyPrefix + _name + ".ThreadPerConnection.StackSize",
+                properties->getPropertyAsIntWithDefault(_name + ".ThreadPerConnection.StackSize",
                                                         static_cast<Int>(_instance->threadPerConnectionStackSize()));
             if(stackSize < 0)
             {
@@ -843,26 +807,13 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
         //
         if(threadPoolSize > 0 || threadPoolSizeMax > 0)
         {
-            if(!properties->getProperty(_propertyPrefix + _name + ".ThreadPool.Size").empty() ||
-               !properties->getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").empty())
-            {
-                _threadPool = new ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
-            }
-            else
-            {
-                _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
-            }
+            _threadPool = new ThreadPool(_instance, _name + ".ThreadPool", 0);
         }
 
         if(!router)
         {
             const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
-                _instance->proxyFactory()->propertyToProxy(_propertyPrefix + _name + ".Router"));
-            if(!router)
-            {
-                const_cast<RouterPrx&>(router) = RouterPrx::uncheckedCast(
-                    _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
-            }
+                _instance->proxyFactory()->propertyToProxy(_name + ".Router"));
         }
         if(router)
         {
@@ -913,8 +864,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             vector<EndpointIPtr> endpoints;
             if(endpointInfo.empty())
             {
-                endpoints = parseEndpoints(properties->getPropertyWithDefault(_propertyPrefix + _name + ".Endpoints",
-                        properties->getProperty(_name + ".Endpoints")));
+                endpoints = parseEndpoints(properties->getProperty(_name + ".Endpoints"));
             }
             else
             {
@@ -938,8 +888,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             // Parse published endpoints. If set, these are used in proxies
             // instead of the connection factory endpoints. 
             //
-            string endpts = properties->getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
-                        properties->getProperty(_name + ".PublishedEndpoints"));
+            string endpts = properties->getProperty(_name + ".PublishedEndpoints");
             _publishedEndpoints = parseEndpoints(endpts);
             if(_publishedEndpoints.empty())
             {
@@ -954,12 +903,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
                                       not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
         }
 
-        string locatorProperty = _propertyPrefix + _name + ".Locator";
-        if(!properties->getProperty(locatorProperty).empty())
-        {
-            setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(locatorProperty)));
-        }
-        else if(!properties->getProperty(_name + ".Locator").empty())
+        if(!properties->getProperty(_name + ".Locator").empty())
         {
             setLocator(LocatorPrx::uncheckedCast(_instance->proxyFactory()->propertyToProxy(_name + ".Locator")));
         }

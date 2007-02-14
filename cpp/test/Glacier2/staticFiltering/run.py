@@ -258,8 +258,8 @@ for testcase in testcases:
     serverOptions = TestUtil.serverProtocol + commonServerOptions
 
     routerCmd = router + serverOptions + " --Ice.Config=%s" % os.path.join(testdir, "router.cfg") + \
-          r' --Ice.OA.Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          r' --Ice.OA.Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+          r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
+          r' --Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
           r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/staticFiltering/passwords"' 
 
     routerConfig = file(os.path.join(testdir, "router.cfg"), "w")
@@ -301,7 +301,7 @@ for testcase in testcases:
     if TestUtil.protocol != "ssl":
         serverConfig = file(os.path.join(testdir, "server.cfg"), "w")
         serverOptions = ' --Ice.Config=' + os.path.join(testdir, "server.cfg") + " " + serverOptions
-        serverConfig.write("Ice.OA.BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
+        serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
         serverConfig.close()
 
     serverCmd = os.path.join(testdir, 'server') + serverOptions

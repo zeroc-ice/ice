@@ -141,12 +141,8 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
         return false;
     }
     
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
-    const string endpointsProperty = "Ice.OA.IcePatch2.Endpoints";
-    string endpoints = properties->getPropertyWithDefault(endpointsProperty,
-                                                          properties->getProperty("IcePatch2.Endpoints"));
+    const string endpointsProperty = "IcePatch2.Endpoints";
+    string endpoints = properties->getProperty(endpointsProperty);
     if(endpoints.empty())
     {
         error("property `" + endpointsProperty + "' is not set");
@@ -154,12 +150,8 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch2");
 
-    //
-    // DEPRECATED PROPERTY: Remove extra code in future release
-    //
     ObjectAdapterPtr adminAdapter;
-    if(!properties->getProperty("Ice.OA.IcePatch2.Admin.Endpoints").empty() ||
-       !properties->getProperty("IcePatch2.Admin.Endpoints").empty())
+    if(!properties->getProperty("IcePatch2.Admin.Endpoints").empty())
     {
         adminAdapter = communicator()->createObjectAdapter("IcePatch2.Admin");
     }

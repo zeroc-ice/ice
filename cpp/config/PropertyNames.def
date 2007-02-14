@@ -153,19 +153,6 @@ Ice:
     MonitorConnections
     Nohup
     NullHandleAbort
-    OA.<any>.AdapterId
-    OA.<any>.Endpoints
-    OA.<any>.Locator
-    OA.<any>.PublishedEndpoints
-    OA.<any>.RegisterProcess
-    OA.<any>.ReplicaGroupId
-    OA.<any>.Router
-    OA.<any>.ThreadPerConnection
-    OA.<any>.ThreadPerConnection.StackSize
-    OA.<any>.ThreadPool.Size
-    OA.<any>.ThreadPool.SizeMax
-    OA.<any>.ThreadPool.SizeWarn
-    OA.<any>.ThreadPool.StackSize
     Override.Compress
     Override.ConnectTimeout
     Override.Timeout
@@ -214,10 +201,14 @@ IceBox:
     PrintServicesReady
     Service.<any>
     ServiceManager.AdapterId
-    ServiceManager.ReplicaGroupId
     ServiceManager.Endpoints
+    ServiceManager.Locator
     ServiceManager.PublishedEndpoints
     ServiceManager.RegisterProcess
+    ServiceManager.ReplicaGroupId
+    ServiceManager.Router
+    ServiceManager.ThreadPerConnection
+    ServiceManager.ThreadPerConnection.StackSize
     ServiceManager.ThreadPool.Size
     ServiceManager.ThreadPool.SizeMax
     ServiceManager.ThreadPool.SizeWarn
@@ -237,18 +228,22 @@ IceGrid:
     AdminGUI.Endpoints
     InstanceName
     Node.AdapterId
-    Node.ReplicaGroupId
-    Node.RegisterProcess
     Node.CollocateRegistry
     Node.Data
     Node.DisableOnFailure
     Node.Endpoints
+    Node.Locator
     Node.Name
     Node.Output
     Node.PrintServersReady
     Node.PropertiesOverride
     Node.PublishedEndpoints
     Node.RedirectErrToOut
+    Node.RegisterProcess
+    Node.ReplicaGroupId
+    Node.Router
+    Node.ThreadPerConnection
+    Node.ThreadPerConnection.StackSize
     Node.ThreadPool.Size
     Node.ThreadPool.SizeMax
     Node.ThreadPool.SizeWarn
@@ -269,15 +264,6 @@ IceGrid:
     Node.UserAccountMapper.CollocationOptimization
     Node.UserAccountMapper.ThreadPerConnection
     Node.WaitTime
-    Registry.SessionManager.AdapterId
-    Registry.SessionManager.ReplicaGroupId
-    Registry.SessionManager.Endpoints
-    Registry.SessionManager.PublishedEndpoints
-    Registry.SessionManager.RegisterProcess
-    Registry.SessionManager.ThreadPool.Size
-    Registry.SessionManager.ThreadPool.SizeMax
-    Registry.SessionManager.ThreadPool.SizeWarn
-    Registry.SessionManager.ThreadPool.StackSize
     Registry.AdminCryptPasswords
     Registry.AdminPermissionsVerifier
     Registry.AdminPermissionsVerifier.EndpointSelection
@@ -298,10 +284,14 @@ IceGrid:
     Registry.AdminSSLPermissionsVerifier.CollocationOptimization
     Registry.AdminSSLPermissionsVerifier.ThreadPerConnection
     Registry.Client.AdapterId
-    Registry.Client.ReplicaGroupId
     Registry.Client.Endpoints
+    Registry.Client.Locator
     Registry.Client.PublishedEndpoints
     Registry.Client.RegisterProcess
+    Registry.Client.ReplicaGroupId
+    Registry.Client.Router
+    Registry.Client.ThreadPerConnection
+    Registry.Client.ThreadPerConnection.StackSize
     Registry.Client.ThreadPool.Size
     Registry.Client.ThreadPool.SizeMax
     Registry.Client.ThreadPool.SizeWarn
@@ -311,10 +301,14 @@ IceGrid:
     Registry.DefaultTemplates
     Registry.DynamicRegistration
     Registry.Internal.AdapterId
-    Registry.Internal.ReplicaGroupId
     Registry.Internal.Endpoints
+    Registry.Internal.Locator
     Registry.Internal.PublishedEndpoints
     Register.Internal.RegisterProcess
+    Registry.Internal.ReplicaGroupId
+    Registry.Internal.Router
+    Registry.Internal.ThreadPerConnection
+    Registry.Internal.ThreadPerConnection.StackSize
     Registry.Internal.ThreadPool.Size
     Registry.Internal.ThreadPool.SizeMax
     Registry.Internal.ThreadPool.SizeWarn
@@ -332,14 +326,31 @@ IceGrid:
     Registry.ReplicaName
     Registry.ReplicaSessionTimeout
     Registry.Server.AdapterId
-    Registry.Server.ReplicaGroupId
     Registry.Server.Endpoints
+    Registry.Server.Locator
     Registry.Server.PublishedEndpoints
     Registry.Server.RegisterProcess
+    Registry.Server.ReplicaGroupId
+    Registry.Server.Router
+    Registry.Server.ThreadPerConnection
+    Registry.Server.ThreadPerConnection.StackSize
     Registry.Server.ThreadPool.Size
     Registry.Server.ThreadPool.SizeMax
     Registry.Server.ThreadPool.SizeWarn
     Registry.Server.ThreadPool.StackSize
+    Registry.SessionManager.AdapterId
+    Registry.SessionManager.Endpoints
+    Registry.SessionManager.Locator
+    Registry.SessionManager.PublishedEndpoints
+    Registry.SessionManager.RegisterProcess
+    Registry.SessionManager.ReplicaGroupId
+    Registry.SessionManager.Router
+    Registry.SessionManager.ThreadPerConnection
+    Registry.SessionManager.ThreadPerConnection.StackSize
+    Registry.SessionManager.ThreadPool.Size
+    Registry.SessionManager.ThreadPool.SizeMax
+    Registry.SessionManager.ThreadPool.SizeWarn
+    Registry.SessionManager.ThreadPool.StackSize
     Registry.SessionTimeout
     Registry.SSLPermissionsVerifier
     Registry.SSLPermissionsVerifier.EndpointSelection
@@ -363,12 +374,15 @@ IceGrid:
     
 IcePatch2:
     AdapterId
-    ReplicaGroupId
     Admin.AdapterId
-    Admin.ReplicaGroupId
     Admin.Endpoints
+    Admin.Locator
     Admin.PublishedEndpoints
     Admin.RegisterProcess
+    Admin.ReplicaGroupId
+    Admin.Router
+    Admin.ThreadPerConnection
+    Admin.ThreadPerConnection.StackSize
     Admin.ThreadPool.Size
     Admin.ThreadPool.SizeMax
     Admin.ThreadPool.SizeWarn
@@ -377,10 +391,15 @@ IcePatch2:
     Directory
     Endpoints
     InstanceName
+    Locator
     PublishedEndpoints
     RegisterProcess
+    ReplicaGroupId
     Remove
+    Router
     Thorough
+    ThreadPerConnection
+    ThreadPerConnection.StackSize
     ThreadPool.Size
     ThreadPool.SizeMax
     ThreadPool.SizeWarn
@@ -425,17 +444,21 @@ IceStorm:
     Flush.Timeout
     InstanceName
     Publish.AdapterId
-    Publish.ReplicaGroupId
     Publish.Endpoints
+    Publish.Locator
     Publish.PublishedEndpoints
     Publish.RegisterProcess
+    Publish.ReplicaGroupId
+    Publish.Router
+    Publish.ThreadPerConnection
+    Publish.ThreadPerConnection.StackSize
     Publish.ThreadPool.Size
     Publish.ThreadPool.SizeMax
     Publish.ThreadPool.SizeWarn
     Publish.ThreadPool.StackSize
     TopicManager.AdapterId
-    TopicManager.ReplicaGroupId
     TopicManager.Endpoints
+    TopicManager.Locator
     TopicManager.Proxy
     TopicManager.Proxy.EndpointSelection
     TopicManager.Proxy.ConnectionCached
@@ -447,6 +470,10 @@ IceStorm:
     TopicManager.Proxy.ThreadPerConnection
     TopicManager.PublishedEndpoints
     TopicManager.RegisterProcess
+    TopicManager.ReplicaGroupId
+    TopicManager.Router
+    TopicManager.ThreadPerConnection
+    TopicManager.ThreadPerConnection.StackSize
     TopicManager.ThreadPool.Size
     TopicManager.ThreadPool.SizeMax
     TopicManager.ThreadPool.SizeWarn

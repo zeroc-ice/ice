@@ -29,22 +29,22 @@ iceBox = TestUtil.getIceBox(exedir)
 iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
-iceBoxEndpoints = ' --Ice.OA.IceBox.ServiceManager.Endpoints="default -p 12010" --Ice.Default.Locator='
+iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12010" --Ice.Default.Locator='
 
 iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
-                  ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12011"' + \
-                  ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12012"' + \
+                  ' --IceStorm.TopicManager.Endpoints="default -p 12011"' + \
+                  ' --IceStorm.Publish.Endpoints="default -p 12012"' + \
                   ' --IceStorm.InstanceName=TestIceStorm1 ' + \
                   ' --IceStorm.Discard.Interval=2' + \
                   ' --IceBox.PrintServicesReady=IceStorm' + \
                   " --IceBox.InheritProperties=1"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="TestIceStorm1/TopicManager: default -p 12011"'
 
-iceBoxEndpoints2 = ' --Ice.OA.IceBox.ServiceManager.Endpoints="default -p 12020" --Ice.Default.Locator='
+iceBoxEndpoints2 = ' --IceBox.ServiceManager.Endpoints="default -p 12020" --Ice.Default.Locator='
 
 iceStormService2 = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
-                  ' --Ice.OA.IceStorm.TopicManager.Endpoints="default -p 12021"' + \
-                  ' --Ice.OA.IceStorm.Publish.Endpoints="default -p 12022"' + \
+                  ' --IceStorm.TopicManager.Endpoints="default -p 12021"' + \
+                  ' --IceStorm.Publish.Endpoints="default -p 12022"' + \
                   ' --IceStorm.InstanceName=TestIceStorm2 ' + \
                   ' --IceStorm.Discard.Interval=2' + \
                   ' --IceBox.PrintServicesReady=IceStorm' + \

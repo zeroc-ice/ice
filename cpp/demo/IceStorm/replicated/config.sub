@@ -7,7 +7,7 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
 # This property is used to configure the endpoints of the clock
 # subscriber adapter.
 #
-Ice.OA.Clock.Subscriber.Endpoints=tcp
+Clock.Subscriber.Endpoints=tcp
 
 #
 # Network Tracing

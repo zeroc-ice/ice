@@ -1,7 +1,7 @@
 #
 # The endpoints for the counter object.
 #
-Ice.OA.Counter.Endpoints=tcp -p 12000
+Counter.Endpoints=tcp -p 12000
 
 #
 # This property is used by the counter server to connect with IceStorm.

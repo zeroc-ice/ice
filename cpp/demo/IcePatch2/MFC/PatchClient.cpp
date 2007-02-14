@@ -63,9 +63,9 @@ CPatchClientApp::InitInstance()
     }
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    if(properties->getProperty("Ice.OA.IcePatch2.Endpoints").empty())
+    if(properties->getProperty("IcePatch2.Endpoints").empty())
     {
-        properties->setProperty("Ice.OA.IcePatch2.Endpoints", "tcp -h 127.0.0.1 -p 10000");
+        properties->setProperty("IcePatch2.Endpoints", "tcp -h 127.0.0.1 -p 10000");
     }
 
     CPatchDlg dlg(communicator);

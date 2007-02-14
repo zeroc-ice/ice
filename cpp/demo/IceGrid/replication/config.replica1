@@ -3,9 +3,9 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000 -t 10000:default -p 120
 #
 # IceGrid registry configuration.
 #
-Ice.OA.IceGrid.Registry.Client.Endpoints=default -p 12001 -t 10000
-Ice.OA.IceGrid.Registry.Server.Endpoints=default -t 10000
-Ice.OA.IceGrid.Registry.Internal.Endpoints=default -t 10000
+IceGrid.Registry.Client.Endpoints=default -p 12001 -t 10000
+IceGrid.Registry.Server.Endpoints=default -t 10000
+IceGrid.Registry.Internal.Endpoints=default -t 10000
 IceGrid.Registry.Data=db/replica1
 IceGrid.Registry.ReplicaName=Replica1
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier

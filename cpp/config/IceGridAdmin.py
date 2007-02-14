@@ -27,14 +27,14 @@ else:
 iceGridPort = 12010;
 
 nodeOptions = r' --Ice.Warn.Connections=0' + \
-              r' --Ice.OA.IceGrid.Node.Endpoints=default' + \
+              r' --IceGrid.Node.Endpoints=default' + \
               r' --IceGrid.Node.WaitTime=30' + \
               r' --Ice.ProgramName=icegridnode' + \
               r' --IceGrid.Node.Trace.Replica=0' + \
               r' --IceGrid.Node.Trace.Activator=0' + \
               r' --IceGrid.Node.Trace.Adapter=0' + \
               r' --IceGrid.Node.Trace.Server=0' + \
-              r' --Ice.OA.IceGrid.Node.ThreadPool.SizeWarn=0' + \
+              r' --IceGrid.Node.ThreadPool.SizeWarn=0' + \
               r' --IceGrid.Node.PrintServersReady=node' + \
               r' --Ice.NullHandleAbort' + \
               r' --Ice.ThreadPool.Server.Size=0' + \
@@ -45,9 +45,9 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.AdminPermissionsVerifier=IceGrid/NullPermissionsVerifier' + \
                   r' --IceGrid.Registry.SSLPermissionsVerifier=IceGrid/NullSSLPermissionsVerifier' + \
                   r' --IceGrid.Registry.AdminSSLPermissionsVerifier=IceGrid/NullSSLPermissionsVerifier' + \
-                  r' --Ice.OA.IceGrid.Registry.Server.Endpoints=default' + \
-                  r' --Ice.OA.IceGrid.Registry.Internal.Endpoints=default' + \
-                  r' --Ice.OA.IceGrid.Registry.SessionManager.Endpoints=default' + \
+                  r' --IceGrid.Registry.Server.Endpoints=default' + \
+                  r' --IceGrid.Registry.Internal.Endpoints=default' + \
+                  r' --IceGrid.Registry.SessionManager.Endpoints=default' + \
                   r' --IceGrid.Registry.Trace.Session=0' + \
                   r' --IceGrid.Registry.Trace.Application=0' + \
                   r' --IceGrid.Registry.Trace.Node=0' + \
@@ -58,7 +58,7 @@ registryOptions = r' --Ice.Warn.Connections=0' + \
                   r' --IceGrid.Registry.Trace.Locator=0' + \
                   r' --Ice.ThreadPool.Server.Size=0 ' + \
                   r' --Ice.ThreadPool.Client.SizeWarn=0' + \
-                  r' --Ice.OA.IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
+                  r' --IceGrid.Registry.Client.ThreadPool.SizeWarn=0' + \
                   r' --Ice.ServerIdleTime=0' + \
                   r' --IceGrid.Registry.DefaultTemplates=' + os.path.join(toplevel, "config", "templates.xml")
 
@@ -97,7 +97,7 @@ def startIceGridRegistry(testdir, dynamicRegistration = False):
         print "starting icegrid " + name + "...",
         cmd = command + \
               r' --Ice.ProgramName=' + name + \
-              r' --Ice.OA.IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + ' -t 30000" ' + \
+              r' --IceGrid.Registry.Client.Endpoints="default -p ' + str(iceGridPort + i) + ' -t 30000" ' + \
               r' --IceGrid.Registry.Data=' + dataDir
 
         if i > 0:

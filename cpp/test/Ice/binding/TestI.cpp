@@ -20,7 +20,7 @@ RemoteCommunicatorI::createObjectAdapter(const string& name, const string& endpo
     Ice::CommunicatorPtr com = current.adapter->getCommunicator();
     if(com->getProperties()->getPropertyAsIntWithDefault("Ice.ThreadPerConnection", 0) == 0)
     {
-        com->getProperties()->setProperty("Ice.OA." + name + ".ThreadPool.Size", "1");
+        com->getProperties()->setProperty( name + ".ThreadPool.Size", "1");
     }
     ObjectAdapterPtr adapter = com->createObjectAdapterWithEndpoints(name, endpoints);
     return RemoteObjectAdapterPrx::uncheckedCast(current.adapter->addWithUUID(new RemoteObjectAdapterI(adapter)));

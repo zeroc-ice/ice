@@ -64,7 +64,7 @@ main(int argc, char* argv[])
 int
 TestServer::run(int argc, char* argv[])
 {
-    communicator()->getProperties()->setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
+    communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
     communicator()->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");

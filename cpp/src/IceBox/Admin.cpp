@@ -92,15 +92,10 @@ Client::run(int argc, char* argv[])
     string managerProxy;
     if(properties->getProperty("Ice.Default.Locator").empty())
     {
-        //
-        // DEPRECATED PROPERTY: Remove extra code in future release.
-        //
-        string managerEndpoints = 
-            properties->getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.Endpoints",
-                                               properties->getProperty("IceBox.ServiceManager.Endpoints"));
+        string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
         if(managerEndpoints.empty())
         {
-            cerr << appName() << ": property `Ice.OA.IceBox.ServiceManager.Endpoints' is not set" << endl;
+            cerr << appName() << ": property `IceBox.ServiceManager.Endpoints' is not set" << endl;
             return EXIT_FAILURE;
         }
 
@@ -108,15 +103,10 @@ Client::run(int argc, char* argv[])
     }
     else
     {
-        //
-        // DEPRECATED PROPERTY: Remove extra code in future release.
-        //
-        string managerAdapterId = 
-            properties->getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.AdapterId",
-                                               properties->getProperty("IceBox.ServiceManager.AdapterId"));
+        string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
         if(managerAdapterId.empty())
         {
-            cerr << appName() << ": property `Ice.OA.IceBox.ServiceManager.AdapterId' is not set" << endl;
+            cerr << appName() << ": property `IceBox.ServiceManager.AdapterId' is not set" << endl;
             return EXIT_FAILURE;
         }
 

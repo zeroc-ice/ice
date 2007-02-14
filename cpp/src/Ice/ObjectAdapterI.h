@@ -126,8 +126,6 @@ private:
     bool _threadPerConnection;
     size_t _threadPerConnectionStackSize;
 
-    static std::string _propertyPrefix;
-
     class ProcessI : public Process
     {
     public:

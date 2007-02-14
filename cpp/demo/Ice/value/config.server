@@ -1,4 +1,4 @@
 #
 # The server's adapter endpoint.
 #
-Ice.OA.Value.Endpoints=tcp -p 10000
+Value.Endpoints=tcp -p 10000

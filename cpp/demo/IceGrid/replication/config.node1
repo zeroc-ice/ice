@@ -4,7 +4,7 @@ Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000 -t 10000:default -p 120
 # IceGrid node configuration.
 #
 IceGrid.Node.Name=node1
-Ice.OA.IceGrid.Node.Endpoints=default -t 10000
+IceGrid.Node.Endpoints=default -t 10000
 IceGrid.Node.Data=db/node1
 
 Ice.StdErr=db/node1/stderr.txt

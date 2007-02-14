@@ -3,9 +3,9 @@ IceGrid.InstanceName=DemoIceGrid
 #
 # IceGrid registry configuration.
 #
-Ice.OA.IceGrid.Registry.Client.Endpoints=default -p 12000 -t 10000
-Ice.OA.IceGrid.Registry.Server.Endpoints=default -t 10000
-Ice.OA.IceGrid.Registry.Internal.Endpoints=default -t 10000
+IceGrid.Registry.Client.Endpoints=default -p 12000 -t 10000
+IceGrid.Registry.Server.Endpoints=default -t 10000
+IceGrid.Registry.Internal.Endpoints=default -t 10000
 IceGrid.Registry.Data=db/master
 IceGrid.Registry.PermissionsVerifier=DemoIceGrid/NullPermissionsVerifier
 IceGrid.Registry.AdminPermissionsVerifier=DemoIceGrid/NullPermissionsVerifier

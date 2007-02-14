@@ -3,7 +3,7 @@
 # "Echo". The following line sets the endpoints for this
 # adapter.
 #
-Ice.OA.Echo.Endpoints=tcp -p 10000
+Echo.Endpoints=tcp -p 10000
 
 #
 # Warn about connection exceptions
