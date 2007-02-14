@@ -764,7 +764,7 @@ public final class ReferenceFactory
     checkForUnknownProperties(String prefix)
     {
         //
-        // Do not create unknown properties list if Ice prefix, ie Ice, Glacier2, etc
+        // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
         //      
         for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
         {
