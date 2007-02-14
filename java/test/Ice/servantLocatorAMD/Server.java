@@ -14,7 +14,7 @@ public class Server
         public int
         run(String[] args)
         {
-            communicator().getProperties().setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000");
+            communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
             communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0");
 
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");

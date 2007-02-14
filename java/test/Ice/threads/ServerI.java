@@ -57,8 +57,8 @@ public final class ServerI extends Test._ServerDisp
         //
         id.properties = communicator.getProperties()._clone();
         id.properties.setProperty("Ice.ThreadPerConnection", "1");
-        id.properties.setProperty("Ice.OA.Adapter3.ThreadPool.SizeMax", "2");
-        id.properties.setProperty("Ice.OA.Adapter3.ThreadPool.SizeWarn", "0");
+        id.properties.setProperty("Adapter3.ThreadPool.SizeMax", "2");
+        id.properties.setProperty("Adapter3.ThreadPool.SizeWarn", "0");
         comm = Ice.Util.initialize(id);
         adapter = comm.createObjectAdapterWithEndpoints("Adapter3", "default");
         ident = comm.stringToIdentity("adapter3");
@@ -73,7 +73,7 @@ public final class ServerI extends Test._ServerDisp
         id.properties.setProperty("Ice.ThreadPerConnection", "0");
         id.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "2");
         id.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        id.properties.setProperty("Ice.OA.Adapter4.ThreadPerConnection", "1");
+        id.properties.setProperty("Adapter4.ThreadPerConnection", "1");
         comm = Ice.Util.initialize(id);
         adapter = comm.createObjectAdapterWithEndpoints("Adapter4", "default");
         ident = comm.stringToIdentity("adapter4");

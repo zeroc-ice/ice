@@ -298,21 +298,21 @@ class AdapterEditor extends CommunicatorChildEditor
         Adapter adapter = getAdapter();
         if(!name.equals(_oldName))
         {
-            adapter.removeProperty("Ice.OA." + _oldName + ".Endpoints");
-            adapter.removeProperty("Ice.OA." + _oldName + ".PublishedEndpoints");
+            adapter.removeProperty(_oldName + ".Endpoints");
+            adapter.removeProperty(_oldName + ".PublishedEndpoints");
             _oldName = name;
         }
         
-        adapter.setProperty("Ice.OA." + name + ".Endpoints", _endpoints.getText().trim());
+        adapter.setProperty(name + ".Endpoints", _endpoints.getText().trim());
         
         Object published = _publishedEndpoints.getSelectedItem();
         if(published == PUBLISH_ACTUAL)
         {
-            adapter.removeProperty("Ice.OA." + name + ".PublishedEndpoints");
+            adapter.removeProperty(name + ".PublishedEndpoints");
         }
         else
         {
-            adapter.setProperty("Ice.OA." + name + ".PublishedEndpoints",
+            adapter.setProperty(name + ".PublishedEndpoints",
                                 published.toString().trim());
 
         }
@@ -437,7 +437,7 @@ class AdapterEditor extends CommunicatorChildEditor
         _name.setText(Utils.substitute(descriptor.name, resolver));
         _name.setEditable(isEditable);
 
-        String oaPrefix = "Ice.OA." + descriptor.name + ".";
+        String oaPrefix = descriptor.name + ".";
 
         _description.setText(
             Utils.substitute(descriptor.description, resolver));

@@ -68,12 +68,7 @@ public final class Admin
             String managerProxy;
             if(properties.getProperty("Ice.Default.Locator").length() == 0)
             {
-                //
-                // DEPREACTED PROPERTIES: Remove extra code in future release.
-                //
-                String managerEndpoints = 
-                    properties.getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.Endpoints",
-                                                      properties.getProperty("IceBox.ServiceManager.Endpoints"));
+                String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
                 if(managerEndpoints.length() == 0)
                 {
                     System.err.println(appName() + ": property `IceBox.ServiceManager.Endpoints' is not set");
@@ -84,12 +79,7 @@ public final class Admin
             }
             else
             {
-                //
-                // DEPREACTED PROPERTIES: Remove extra code in future release.
-                //
-                String managerAdapterId = 
-                    properties.getPropertyWithDefault("Ice.OA.IceBox.ServiceManager.AdapterId",
-                                                      properties.getProperty("IceBox.ServiceManager.AdapterId"));
+                String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
                 if(managerAdapterId.length() == 0)
                 {
                     System.err.println(appName() + ": property `IceBox.ServiceManager.AdapterId' is not set");

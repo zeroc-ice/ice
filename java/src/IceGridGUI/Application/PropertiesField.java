@@ -105,8 +105,8 @@ public class PropertiesField extends JTable
             while(p.hasNext())
             {
                 AdapterDescriptor ad = (AdapterDescriptor)p.next();
-                hiddenPropertyNames.add("Ice.OA." + ad.name + ".Endpoints");
-                hiddenPropertyNames.add("Ice.OA." + ad.name + ".PublishedEndpoints");
+                hiddenPropertyNames.add(ad.name + ".Endpoints");
+                hiddenPropertyNames.add(ad.name + ".PublishedEndpoints");
 
                 java.util.Iterator q = ad.objects.iterator();
                 while(q.hasNext())

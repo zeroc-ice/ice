@@ -105,8 +105,8 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     public void destroy()
     {
-        removeProperty("Ice.OA." + _descriptor.name + ".Endpoints");
-        removeProperty("Ice.OA." + _descriptor.name + ".PublishedEndpoints");
+        removeProperty(_descriptor.name + ".Endpoints");
+        removeProperty(_descriptor.name + ".PublishedEndpoints");
 
         ((Communicator)_parent).getAdapters().destroyChild(this);
     }
@@ -154,7 +154,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         {
             java.util.List attributes = new java.util.LinkedList();
             attributes.add(createAttribute("name", _descriptor.name));
-            String oaPrefix = "Ice.OA." + _descriptor.name + ".";
+            String oaPrefix = _descriptor.name + ".";
 
             attributes.add(createAttribute("endpoints", getProperty(oaPrefix + "Endpoints")));
             attributes.add(createAttribute("id", _descriptor.id));

@@ -71,9 +71,9 @@ class AdapterEditor extends Editor
         java.util.Map properties = adapter.getProperties();
         
         // getId() returns the name of the adapter!
-        _endpoints.setText(resolver.substitute((String)properties.get("Ice.OA." + adapter.getId() + ".Endpoints")));
+        _endpoints.setText(resolver.substitute((String)properties.get(adapter.getId() + ".Endpoints")));
         _publishedEndpoints.setText(
-            resolver.substitute((String)properties.get("Ice.OA." + adapter.getId() + ".PublishedEndpoints")));
+            resolver.substitute((String)properties.get(adapter.getId() + ".PublishedEndpoints")));
         
         _registerProcess.setSelected(descriptor.registerProcess);       
         _serverLifetime.setSelected(descriptor.serverLifetime);

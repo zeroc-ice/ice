@@ -69,11 +69,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             if(!_noConfig)
             {
                 final Properties properties = _instance.initializationData().properties;
-                //
-                // DEPRECATED PROPERTY: Remove extra code in future release.
-                //
-                registerProcess = properties.getPropertyAsIntWithDefault(_propertyPrefix + _name +".RegisterProcess",
-                        properties.getPropertyAsInt(_name +".RegisterProcess")) > 0;
+                registerProcess = properties.getPropertyAsInt(_name +".RegisterProcess") > 0;
                 printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
             }
         }
@@ -752,64 +748,35 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
 
         //
-        // DEPRECATED PROPERTIES: Remove extra code in future release.
-        //
-
-        //
         // Make sure named adapter has some configuration.
         //
         final Properties properties = _instance.initializationData().properties;
-        String[] oldProps = filterProperties(_name + ".");
-        if(endpointInfo.length() == 0 && router == null)
+        String[] props = filterProperties(_name + ".");
+        if(endpointInfo.length() == 0 && router == null && props.length == 0)
         {
-            String[] props = filterProperties(_propertyPrefix + _name + ".");
-            if(props.length == 0 && oldProps.length == 0)
-            {
-                //
-                // These need to be set to prevent finalizer from complaining.
-                //
-                _deactivated = true;
-                _destroyed = true;
-                _instance = null;
-                _communicator = null;
-                _incomingConnectionFactories = null;
+            //
+            // These need to be set to prevent finalizer from complaining.
+            //
+            _deactivated = true;
+            _destroyed = true;
+            _instance = null;
+            _communicator = null;
+            _incomingConnectionFactories = null;
 
-                InitializationException ex = new InitializationException();
-                ex.reason = "object adapter \"" + _name + "\" requires configuration.";
-                throw ex;
-            }
+            InitializationException ex = new InitializationException();
+            ex.reason = "object adapter \"" + _name + "\" requires configuration.";
+            throw ex;
         }
 
-        if(oldProps.length != 0)
-        {
-            String message = "The following properties have been deprecated, please prepend \"Ice.OA.\":";
-            for(int i = 0; i < oldProps.length; ++i)
-            {
-                message += "\n    " + oldProps[i];
-            }
-            _instance.initializationData().logger.warning(message);
-        }
-
-        _id = properties.getPropertyWithDefault(_propertyPrefix + _name + ".AdapterId",
-                properties.getProperty(_name + ".AdapterId"));
-        _replicaGroupId = properties.getPropertyWithDefault(_propertyPrefix + _name + ".ReplicaGroupId",
-                properties.getProperty(_name + ".ReplicaGroupId"));
+        _id = properties.getProperty(_name + ".AdapterId");
+        _replicaGroupId = properties.getProperty(_name + ".ReplicaGroupId");
         
         try
         {
-            _threadPerConnection = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPerConnection") > 0;
+            _threadPerConnection = properties.getPropertyAsInt(_name + ".ThreadPerConnection") > 0;
 
-            int threadPoolSize = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.Size");
-            if(threadPoolSize == 0)
-            {
-                threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
-            }
-            int threadPoolSizeMax = properties.getPropertyAsInt(_propertyPrefix + _name + ".ThreadPool.SizeMax");
-            if(threadPoolSizeMax == 0)
-            {
-                threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
-            }
-
+            int threadPoolSize = properties.getPropertyAsInt(_name + ".ThreadPool.Size");
+            int threadPoolSizeMax = properties.getPropertyAsInt(_name + ".ThreadPool.SizeMax");
             if(_threadPerConnection && (threadPoolSize > 0 || threadPoolSizeMax > 0))
             {
                 InitializationException ex = new InitializationException();
@@ -825,26 +792,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
             if(threadPoolSize > 0 || threadPoolSizeMax > 0)
             {
-                if(properties.getProperty(_propertyPrefix + _name + ".ThreadPool.Size").length() != 0 ||
-                   properties.getProperty(_propertyPrefix + _name + ".ThreadPool.SizeMax").length() != 0)
-                {
-                    _threadPool = new IceInternal.ThreadPool(_instance, _propertyPrefix + _name + ".ThreadPool", 0);
-                }
-                else
-                {
-                    _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
-                }
+                _threadPool = new IceInternal.ThreadPool(_instance, _name + ".ThreadPool", 0);
             }
 
             if(router == null)
             {
-                router = RouterPrxHelper.uncheckedCast(
-                    _instance.proxyFactory().propertyToProxy(_propertyPrefix + name + ".Router"));
-                if(router == null)
-                {
-                    router = RouterPrxHelper.uncheckedCast(
-                        _instance.proxyFactory().propertyToProxy(name + ".Router"));
-                }
+                router = RouterPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(name + ".Router"));
             }
             if(router != null)
             {
@@ -914,8 +867,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 java.util.ArrayList endpoints;
                 if(endpointInfo.length() == 0)
                 {
-                    endpoints = parseEndpoints(properties.getPropertyWithDefault(_propertyPrefix + _name + ".Endpoints",
-                        properties.getProperty(_name + ".Endpoints")));
+                    endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"));
                 }
                 else
                 {
@@ -950,8 +902,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 // Parse published endpoints. If set, these are used in proxies
                 // instead of the connection factory Endpoints.
                 //
-                String endpts = properties.getPropertyWithDefault(_propertyPrefix + _name + ".PublishedEndpoints",
-                        properties.getProperty(_name + ".PublishedEndpoints"));
+                String endpts = properties.getProperty(_name + ".PublishedEndpoints");
                 _publishedEndpoints = parseEndpoints(endpts);
                 if(_publishedEndpoints.size() == 0)
                 {
@@ -977,12 +928,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 }
             }
 
-            String locatorProperty = _propertyPrefix + _name + ".Locator";
-            if(properties.getProperty(locatorProperty).length() > 0)
-            {
-                setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().propertyToProxy(locatorProperty)));
-            }
-            else if(properties.getProperty(_name + ".Locator").length() > 0)
+            if(properties.getProperty(_name + ".Locator").length() > 0)
             {
                 setLocator(LocatorPrxHelper.uncheckedCast(
                     _instance.proxyFactory().propertyToProxy(_name + ".Locator")));
@@ -1354,5 +1300,4 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private boolean _destroyed;
     private boolean _noConfig;
     private boolean _threadPerConnection;
-    static private String _propertyPrefix = "Ice.OA.";
 }

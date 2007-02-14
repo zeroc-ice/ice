@@ -3,7 +3,7 @@ Freeze.Trace.DbEnv=1
 Freeze.Evictor.db.contacts.SavePeriod=10000
 Freeze.Evictor.db.contacts.PopulateEmptyIndices=1
 
-Ice.OA.PhoneBook.Endpoints=default -p 10000
+PhoneBook.Endpoints=default -p 10000
 PhoneBook.EvictorSize=3
 
 #

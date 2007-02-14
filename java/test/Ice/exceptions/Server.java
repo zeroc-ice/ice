@@ -15,7 +15,7 @@ public class Server
         Ice.Properties properties = communicator.getProperties();
         // We don't need to disable warnings, because we have a dummy logger.
         //properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.OA.TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
+        properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new ThrowerI(adapter);
         adapter.add(object, communicator.stringToIdentity("thrower"));

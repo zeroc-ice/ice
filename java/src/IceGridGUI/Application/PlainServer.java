@@ -88,8 +88,8 @@ class PlainServer extends Communicator implements Server
     {
         java.util.LinkedList properties = new java.util.LinkedList();
         properties.add(new PropertyDescriptor("IceBox.InstanceName", "${server}"));
-        properties.add(new PropertyDescriptor("Ice.OA.IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
-        properties.add(new PropertyDescriptor("Ice.OA.IceBox.ServiceManager.RegisterProcess", "1"));
+        properties.add(new PropertyDescriptor("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
+        properties.add(new PropertyDescriptor("IceBox.ServiceManager.RegisterProcess", "1"));
 
         return new IceBoxDescriptor(
             new java.util.LinkedList(),
