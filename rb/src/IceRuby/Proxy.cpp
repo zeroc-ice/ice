@@ -415,19 +415,6 @@ IceRuby_ObjectPrx_ice_context(VALUE self, VALUE ctx)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_ice_defaultContext(VALUE self)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_defaultContext());
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-extern "C"
-VALUE
 IceRuby_ObjectPrx_ice_getFacet(VALUE self)
 {
     ICE_RUBY_TRY
@@ -1371,7 +1358,6 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_identity", CAST_METHOD(IceRuby_ObjectPrx_ice_identity), 1);
     rb_define_method(_proxyClass, "ice_getContext", CAST_METHOD(IceRuby_ObjectPrx_ice_getContext), 0);
     rb_define_method(_proxyClass, "ice_context", CAST_METHOD(IceRuby_ObjectPrx_ice_context), 1);
-    rb_define_method(_proxyClass, "ice_defaultContext", CAST_METHOD(IceRuby_ObjectPrx_ice_defaultContext), 0);
     rb_define_method(_proxyClass, "ice_getFacet", CAST_METHOD(IceRuby_ObjectPrx_ice_getFacet), 0);
     rb_define_method(_proxyClass, "ice_facet", CAST_METHOD(IceRuby_ObjectPrx_ice_facet), 1);
     rb_define_method(_proxyClass, "ice_getAdapterId", CAST_METHOD(IceRuby_ObjectPrx_ice_getAdapterId), 0);
