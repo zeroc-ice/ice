@@ -114,17 +114,23 @@ firewall solution, and much more.
 cd $RPM_BUILD_DIR/Ice-%{version}/src
 make OPTIMIZE=yes embedded_runpath_prefix=""
 
+#
+# Required by non-C++ builds
+#
+export ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} 
+export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+
 %ifarch %{core_arches}
 cd $RPM_BUILD_DIR/IcePy-%{version}
-make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix=""
+make OPTIMIZE=yes embedded_runpath_prefix=""
 
 cd $RPM_BUILD_DIR/IcePHP-%{version}
-make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix=""
+make OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 %if %{ruby_included}
 cd $RPM_BUILD_DIR/IceRuby-%{version}
-make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix=""
+make OPTIMIZE=yes embedded_runpath_prefix=""
 %endif
 
 %ifarch noarch
@@ -132,9 +138,8 @@ make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} embedded_runpath_prefix
 # We only build C# for noarch
 #
 cd $RPM_BUILD_DIR/IceCS-%{version}/src
-export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
-export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-make OPTIMIZE=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version}
+export PATH=$ICE_HOME/bin:$PATH
+make OPTIMIZE=yes
 %endif
 
 %install
