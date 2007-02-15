@@ -45,7 +45,9 @@ module Ice
 local interface ImplicitContext
 {
     /**
-     * Get the underlying context.
+     * Get the underlying context. The operation returns a null proxy if no implicit
+     * context is established on the communicator (that is, if <tt>Ice.ImplicitContext</tt>
+     * is set to <tt>None</tt>).
      *
      * @return The underlying context.
      *
