@@ -105,7 +105,7 @@ def findSourceTree(tree, file):
 # will match the string version in "ICE_STRING_VERSION "2.1.0"" and will replace it with
 # the given version.
 #
-def fileMatchAndReplace(filename, matchAndReplaceExps):
+def fileMatchAndReplace(filename, matchAndReplaceExps, warn=True):
 
     oldConfigFile = open(filename, "r")
     newConfigFile = open(filename + ".new", "w")
@@ -139,7 +139,7 @@ def fileMatchAndReplace(filename, matchAndReplaceExps):
     if updated:
         print "updated " + filename
         os.rename(filename + ".new", filename)
-    else:
+    elif warn:
         print "warning: " + filename + " didn't contain any version"
         os.unlink(filename + ".new")
 
@@ -182,7 +182,6 @@ def fileMatchAllAndReplace(filename, matchAndReplaceExps):
         print "warning: " + filename + " didn't contain any version"
         os.unlink(filename + ".new")
 
-
 if len(sys.argv) < 2:
     usage()
     sys.exit(0)
@@ -204,8 +203,6 @@ if len(args) != 1:
     sys.exit(1)
 
 version = args[0]
-
-
 
 if not re.match(vpatCheck, version):
     print "invalid version number: " + version + " (it should have the form 3.2.1 or 3.2b or 3.2b2)"
@@ -241,7 +238,7 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "counter", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
         
-        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replication", "application.xml"),
+        fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "replicated", "application.xml"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
         fileMatchAndReplace(os.path.join(ice_home, "config", "templates.xml"),
@@ -253,7 +250,7 @@ if not patchIceE:
     icej_home = findSourceTree("icej", os.path.join("src", "IceUtil", "Version.java"))
     if icej_home:
         fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
-                            [("ice\.version[\t\s]*= " + vpatMatch, version)]
+                            [("ice\.version[\t\s]*= " + vpatMatch, version)])
          
         fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
                             [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
@@ -270,12 +267,13 @@ if not patchIceE:
         for f in find(icecs_home, "AssemblyInfo.cs"):
             if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
                 fileMatchAndReplace(f, [("AssemblyVersion\(\"" + vpatMatch + "\"",
-                                         majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
+                                         majorVersion(version) + "." + minorVersion(version) + "." + \
+                                         patchVersion(version))])
 
         fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.cs"),
                             [("VERSION[\t\s]*= " + vpatMatch, version)])
 
-        fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.mak"),
+        fileMatchAndReplace(os.path.join(icecs_home, "config", "Make.rules.mak.cs"),
                             [("VERSION[\t\s]*= " + vpatMatch, version)])
 
         fileMatchAndReplace(os.path.join(icecs_home, "config", "makeconfig.py"),
@@ -289,8 +287,16 @@ if not patchIceE:
 
         for f in find(icecs_home, "*.pc"):
             print "matching " + f
-            fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + vpatMatch,
-                                     majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
+            fileMatchAndReplace(f, [("[\t\s]*version[\t\s]*=[\t\s]* " + vpatMatch, majorVersion(version) + "." + \
+                                minorVersion(version) + "." + patchVersion(version))])
+
+        for f in find(icecs_home, "config*"):
+            print "matching " + f
+            fileMatchAndReplace(f, 
+                                [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",
+                                 majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))],
+                                False) # Disable warnings as many files might not have SSL configuration
+
 
     #
     # Fix version in IceVB sources
@@ -306,6 +312,13 @@ if not patchIceE:
 
         fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
+
+        for f in find(icecs_home, "config*"):
+            print "matching " + f
+            fileMatchAndReplace(f, 
+                                [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",
+                                 majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))],
+                                False) # Disable warnings as many files might not have SSL configuration
 
     #
     # Fix version in IcePHP
