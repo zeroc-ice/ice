@@ -221,7 +221,13 @@ public class Client extends Ice.Application
         }
         finally
         {
-            cleanup(true);
+            try
+            {
+                cleanup(true);
+            }
+            catch(Ice.LocalException ex)
+            {
+            }
         }
 
         return 0;
