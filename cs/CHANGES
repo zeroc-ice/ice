@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- createObjectAdapter() and propertyToProxy() print warnings if unknown
+  properties are found during creation of the adapter/proxy. These
+  warnings can be disabled by setting Ice.Warn.UnknownProperties=0.
+
 - The exception mapping now provides "one-shot" constructors that permit
   the data members of an exception to be initialized during construction
   (similar to the way class members can be initialized during construction).
