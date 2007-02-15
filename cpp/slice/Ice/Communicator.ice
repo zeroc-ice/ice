@@ -187,8 +187,15 @@ local interface Communicator
     /**
      *
      * Create a new object adapter. The endpoints for the object
-     * adapter are taken from the property
-     * <tt><em>name</em>.Endpoints</tt>.
+     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.</p>
+     *
+     * <p>It is legal to create an object adapter with the empty string as
+     * its name. Such an object adapter cannot be accessed remotely and, therefore,
+     * is accessible only for collocated invocations that originate from the
+     * the same communicator as is used by the adapter.</p>
+     *
+     * <p>Attempts to create a named object adapter for which no endpoint or
+     * router configuration can be found raise [InitializationException].
      *
      * @param name The object adapter name.
      *
@@ -204,16 +211,12 @@ local interface Communicator
     /**
      *
      * Create a new object adapter with endpoints. This operation sets
-     * the property
-     * <tt><em>name</em>.Endpoints</tt>,
+     * the property <tt><em>name</em>.Endpoints</tt>,
      * and then calls [createObjectAdapter]. It is provided as a
      * convenience function.</p>
      *
-     * <p>It is legal to create an object adapter without any endpoints.
-     * Such an object adapter cannot be accessed remotely and, therefore,
-     * is accessible only for collocated invocations that originate from the
-     * the same communicator as is used by the adapter.
-     * space.
+     * <p>Calling this operation with an empty name or empty endpoint string
+     * raises [InitializationException].
      * 
      * @param name The object adapter name.
      *
