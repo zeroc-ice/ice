@@ -174,7 +174,7 @@ static const char* _commandsHelp[][3] = {
 "adapter endpoints ID      Show the endpoints of adapter or replica group ID.\n" 
 },
 { "adapter", "remove",
- "adapter remove ID        Remove adapter or replica group ID.\n" 
+"adapter remove ID         Remove adapter or replica group ID.\n" 
 },
 { "object", "add",
 "object add PROXY [TYPE]   Add an object to the object registry,\n"
