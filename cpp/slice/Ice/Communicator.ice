@@ -63,8 +63,8 @@ local interface Communicator
 
     /**
      *
-     * Shuts down this communicator's server functionality, including
-     * the deactivation of all object adapters. (Attempts to use
+     * Shuts down this communicator's server functionality, which
+     * includes the deactivation of all object adapters. (Attempts to use
      * a deactivated object adapter raise [ObjectAdapterDeactivatedException].)
      * Subsequent calls to [shutdown] are ignored.</p>
      *
