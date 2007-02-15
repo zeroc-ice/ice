@@ -521,6 +521,7 @@ extern "C"
 static PyObject*
 proxyIceDefaultContext(ProxyObject* self)
 {
+    PyErr_Warn(PyExc_DeprecationWarning, STRCAST("ice_defaultContext is deprecated."));
     assert(self->proxy);
 
     Ice::ObjectPrx newProxy;

@@ -344,6 +344,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
         return ice_context(newContext);
     }
 
+    /**
+     * @deprecated
+     **/
     public final ObjectPrx
     ice_defaultContext()
     {

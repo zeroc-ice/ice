@@ -59,6 +59,9 @@ public interface ObjectPrx
      **/
     ObjectPrx ice_newContext(java.util.Map newContext);
     ObjectPrx ice_context(java.util.Map newContext);
+    /**
+     * @deprecated This method has been replaced with ice_context.
+     **/
     ObjectPrx ice_defaultContext();
 
     String ice_getFacet(); 
