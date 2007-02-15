@@ -777,6 +777,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "replicationC"=.\IceGrid\replication\replicationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "replicationS"=.\IceGrid\replication\replicationS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Project: "sessionActivationC"=.\IceGrid\sessionActivation\sessionActivationC.dsp - Package Owner=<4>
 
 Package=<5>
