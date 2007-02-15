@@ -131,7 +131,7 @@ Client::usage()
         "-s, --server         Start icegridadmin as a server (to parse XML files).\n"
         "-u, --username       Login with the given username.\n"
         "-p, --password       Login with the given password.\n"
-        "-s, --ssl            Authenticate through SSL.\n"
+        "-S, --ssl            Authenticate through SSL.\n"
         "-r, --routed         Login through a Glacier2 router.\n"
         "-R, --replica NAME   Connect to the replica NAME.\n"
         ;
