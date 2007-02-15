@@ -125,6 +125,7 @@
 	  <adapter name="${service}" endpoints="default">
 	    <object identity="${server}-${service}" type="::Test"/>
 	  </adapter>
+          <property name="Ice.Warn.UnknownProperties" value="0"/>
 	  <property name="${service}.Identity" value="${server}-${service}"/>
 	  <property name="${service}.Type" value="standard"/>
 	  <property name="${service}.ServiceName" value="${service}"/>
