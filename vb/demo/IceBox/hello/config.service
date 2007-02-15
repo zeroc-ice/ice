@@ -1,7 +1,9 @@
 #
-# The server listens at the following endpoints.
+# The server creates one single object adapter with the name of
+# the service. The following line sets the endpoints for this
+# adapter.
 #
-Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
+Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -27,15 +29,7 @@ Ice.Warn.Connections=1
 #Ice.Trace.Protocol=1
 
 #
-# Security Tracing
-#
-# 0 = no security tracing
-# 1 = trace messages
-#
-#IceSSL.Trace.Security=1
-
-#
-# SSL Configuration
+# SSL plugin configuration
 #
 Ice.Plugin.IceSSL=icesslcs, Version=3.2.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs

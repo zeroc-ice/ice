@@ -44,9 +44,9 @@ Ice.ACM.Server=10
 #
 # SSL plugin configuration
 #
-Ice.Plugin.IceSSL=../../../bin/icesslcs.dll:IceSSL.PluginFactory
+Ice.Plugin.IceSSL=icesslcs, Version=3.2.51.0, Culture=neutral, PublicKeyToken=1f998c50fec78381:IceSSL.PluginFactory
 IceSSL.DefaultDir=../../../certs
-IceSSL.ImportCert.LocalMachine.AuthRoot=cacert.pem
+IceSSL.ImportCert.CurrentUser.Root=cacert.pem
 IceSSL.CertFile=s_rsa1024.pfx
 IceSSL.Password=password
 Ice.ThreadPerConnection=1
