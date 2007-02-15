@@ -177,7 +177,7 @@ public:
     ::Ice::Context ice_getContext() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
     ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
-    ::Ice::ObjectPrx ice_defaultContext() const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
