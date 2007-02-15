@@ -12,6 +12,7 @@ top_srcdir	= ..\..
 !include $(top_srcdir)/config/Make.rules.mak
 
 CA_FILES =  iceca \
+            iceca.bat \
 	    ImportKey.class
 
 install::
