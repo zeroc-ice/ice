@@ -193,6 +193,7 @@ Ice:
     Warn.Datagrams
     Warn.Dispatch
     Warn.Endpoints
+    Warn.UnknownProperties
     CacheMessageBuffers
 
 IceBox:

@@ -1,6 +1,10 @@
 Changes since version 3.1.1
 ---------------------------
 
+- createObjectAdapter() and propertyToProxy() print warnings if unknown
+  properties are found during creation of the adapter/proxy. These
+  warnings can be disabled by setting Ice.Warn.UnknownProperties=0.
+
 - Fixed a race condition that could cause an assertion failure when
   using thread-per-connection.
 
