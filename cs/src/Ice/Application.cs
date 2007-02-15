@@ -454,10 +454,8 @@ namespace Ice
                 //
                 ignore = true;
             }
-            else if(_nohup && sig == SIGHUP)
-            {
-                ignore = true;
-            }
+            // For SIGHUP the user callback is always called. It can
+            // decide what to do.
             else
             {
                 _callbackInProgress = true;
