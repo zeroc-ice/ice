@@ -56,6 +56,7 @@ namespace Ice
         [Obsolete("This method is deprecated, use ice_context instead.")]
         ObjectPrx ice_newContext(Context newContext);
         ObjectPrx ice_context(Context newContext);
+        [Obsolete("This method is deprecated.")]
         ObjectPrx ice_defaultContext();
         
         string ice_getFacet();
