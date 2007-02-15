@@ -8,7 +8,7 @@
 Summary: The Ice base runtime and services
 Name: ice
 Version: 3.2b
-Release: 1%{dist}
+Release: 1%{?dist}
 License: GPL
 Group:System Environment/Libraries
 Vendor: ZeroC, Inc.
