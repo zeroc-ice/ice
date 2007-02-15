@@ -198,7 +198,7 @@ RegistryService::usage(const string& appName)
         "\n"
         "\n"
         "--daemon             Run as a daemon.\n"
-        "--pidfile FILE       Write process ID into FILE."
+        "--pidfile FILE       Write process ID into FILE.\n"
         "--noclose            Do not close open file descriptors.\n"
         "--nochdir            Do not change the current working directory.\n"
     );
