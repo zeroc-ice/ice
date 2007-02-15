@@ -252,8 +252,8 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         os.chdir(os.path.join(sourcesDir, "debug", "IceCS-" + sourcesVersion))
         print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
-        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
+        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
         runprog("nmake /f Makefile.mak") 
 
 
@@ -280,8 +280,8 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         os.chdir(os.path.join(sourcesDir, "release", "IceCS-" + sourcesVersion))
         print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), True)
+        setDebug(os.path.join(os.getcwd(), "config", "Make.rules.mak.cs"), False)
         runprog("nmake /f Makefile.mak") 
 
         #

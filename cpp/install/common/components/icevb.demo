@@ -11,6 +11,7 @@
 #
 include=**/*.*
 exclude=**/*.exe
+exclude=**/*.exe.config
 exclude=**/*.pdb
 exclude=**/*.dll
 exclude=**/*.bat
