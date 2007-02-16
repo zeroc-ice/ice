@@ -226,7 +226,6 @@ IceGridAdmin:
     Trace.SaveToRegistry
 
 IceGrid:
-    AdminGUI.Endpoints
     InstanceName
     Node.AdapterId
     Node.CollocateRegistry
