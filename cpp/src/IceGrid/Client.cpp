@@ -132,7 +132,7 @@ Client::usage()
         "-u, --username       Login with the given username.\n"
         "-p, --password       Login with the given password.\n"
         "-S, --ssl            Authenticate through SSL.\n"
-        "-R, --replica NAME   Connect to the replica NAME.\n"
+        "-r, --replica NAME   Connect to the replica NAME.\n"
         ;
 }
 
