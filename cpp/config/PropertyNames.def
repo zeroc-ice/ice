@@ -219,7 +219,6 @@ IceBox:
 
 IceGridAdmin:
     AuthenticateUsingSSL
-    Routed
     Username
     Password
     Replica

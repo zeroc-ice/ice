@@ -132,7 +132,6 @@ Client::usage()
         "-u, --username       Login with the given username.\n"
         "-p, --password       Login with the given password.\n"
         "-S, --ssl            Authenticate through SSL.\n"
-        "-r, --routed         Login through a Glacier2 router.\n"
         "-R, --replica NAME   Connect to the replica NAME.\n"
         ;
 }
@@ -255,10 +254,9 @@ Client::run(int argc, char* argv[])
     opts.addOpt("u", "username", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
     opts.addOpt("p", "password", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
     opts.addOpt("S", "ssl");
-    opts.addOpt("r", "routed");
     opts.addOpt("d", "debug");
     opts.addOpt("s", "server");
-    opts.addOpt("R", "replica", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
+    opts.addOpt("r", "replica", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
 
     vector<string> args;
     try
@@ -362,16 +360,7 @@ Client::run(int argc, char* argv[])
         password = opts.optArg("password");
     }
 
-    //
-    // If a glacier2 router is configured, then set routed to true by
-    // default.
-    //
     Ice::PropertiesPtr properties = communicator()->getProperties();
-    bool routed = properties->getPropertyAsIntWithDefault("IceGridAdmin.Routed", communicator()->getDefaultRouter());
-    if(opts.isSet("routed"))
-    {
-        routed = true;
-    }
     string replica = properties->getProperty("IceGridAdmin.Replica");
     if(!opts.optArg("replica").empty())
     {
@@ -384,7 +373,7 @@ Client::run(int argc, char* argv[])
     try
     {
         int timeout;
-        if(routed)
+        if(communicator()->getDefaultRouter())
         {
             Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter());
             if(!router)
