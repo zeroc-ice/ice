@@ -606,12 +606,20 @@ def archiveDemoTree(buildDir, version, installFiles):
     runprog("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name generated -type d` ; do rm -rf $f/* ; done'")
 
     #
+    # Remove config files.
+    #
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*\.config\" ` ; do rm -f $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos/demovb -name \"*\.config\" ` ; do rm -f $f ; done'")
+
+    #
     # Remove Windows project files.
     #
     runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsp\" ` ; do rm -rf $f ; done'")
     runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*\.dsw\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
-    runprog("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.sln\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.csproj\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.vbproj\" ` ; do rm -rf $f ; done'")
+    runprog("sh -c 'for f in `find Ice-" + version + "-demos -name \"*.vcproj\" ` ; do rm -rf $f ; done'")
    
     runprog("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     runprog("gzip -9 Ice-" + version + "-demos.tar")
