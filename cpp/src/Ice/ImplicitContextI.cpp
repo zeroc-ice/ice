@@ -16,43 +16,23 @@ using namespace Ice;
 namespace
 {
 
-class SharedImplicitContextWithoutLocking : public ImplicitContextI
+class SharedImplicitContext : public ImplicitContextI
 {
 public:
     
     virtual Context getContext() const;
     virtual void setContext(const Context&);
 
+    virtual bool containsKey(const string&) const;
     virtual string get(const string&) const;
-    virtual string getWithDefault(const string&, const string&) const;
-    virtual void set(const string&, const string&);
-    virtual void remove(const string&);
-
-    virtual void write(const Context&, ::IceInternal::BasicStream*) const;
-    virtual void combine(const Context&, Context&) const;
-
-protected:
-
-    Context _context;
-};
-
-class SharedImplicitContext : public SharedImplicitContextWithoutLocking
-{
-public:
-    
-    virtual Context getContext() const;
-    virtual void setContext(const Context&);
-
-    virtual string get(const string&) const;
-    virtual string getWithDefault(const string&, const string&) const;
-    virtual void set(const string&, const string&);
-    virtual void remove(const string&);
+    virtual string put(const string&, const string&);
+    virtual string remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
     virtual void combine(const Context&, Context&) const;
 
 private:
-
+    Context _context;
     IceUtil::Mutex _mutex;
 };
 
@@ -67,10 +47,10 @@ public:
     virtual Context getContext() const;
     virtual void setContext(const Context&);
 
+    virtual bool containsKey(const string&) const;
     virtual string get(const string&) const;
-    virtual string getWithDefault(const string&, const string&) const;
-    virtual void set(const string&, const string&);
-    virtual void remove(const string&);
+    virtual string put(const string&, const string&);
+    virtual string remove(const string&);
 
     virtual void write(const Context&, ::IceInternal::BasicStream*) const;
     virtual void combine(const Context&, Context&) const;
@@ -135,10 +115,6 @@ ImplicitContextI::create(const std::string& kind)
     {
         return new SharedImplicitContext;
     }
-    else if(kind == "SharedWithoutLocking")
-    {
-        return new SharedImplicitContextWithoutLocking;
-    }
     else if(kind == "PerThread")
     {
         return new PerThreadImplicitContext;
@@ -164,96 +140,6 @@ ImplicitContextI::cleanupThread()
 }
 #endif
 
-//
-// SharedImplicitContextWithoutLocking implementation
-//
-
-inline Context
-SharedImplicitContextWithoutLocking::getContext() const
-{
-    return _context;
-}
-
-inline void
-SharedImplicitContextWithoutLocking::setContext(const Context& newContext)
-{
-    _context = newContext;
-}
-
-inline string 
-SharedImplicitContextWithoutLocking::get(const string& k) const
-{
-    Context::const_iterator p = _context.find(k);
-    if(p == _context.end())
-    {
-        throw NotSetException(__FILE__, __LINE__, k);
-    }
-    return p->second;
-}
-
-inline string 
-SharedImplicitContextWithoutLocking::getWithDefault(const string& k, const string& d) const
-{
-    Context::const_iterator p = _context.find(k);
-    if(p == _context.end())
-    {
-        return d;
-    }
-    return p->second;
-}
-
-inline void 
-SharedImplicitContextWithoutLocking::set(const string& k, const string& v)
-{
-    _context[k] = v;
-}
-
-inline void 
-SharedImplicitContextWithoutLocking::remove(const string& k)
-{
-    if(_context.erase(k) == 0)
-    {
-        throw NotSetException(__FILE__, __LINE__, k);
-    }
-}
-
-void 
-SharedImplicitContextWithoutLocking::write(const Context& proxyCtx, ::IceInternal::BasicStream* s) const
-{
-    if(proxyCtx.size() == 0)
-    {
-        __write(s, _context, __U__Context());
-    }
-    else if(_context.size() == 0)
-    {
-        __write(s, proxyCtx, __U__Context());
-    }
-    else
-    {
-        Context combined = proxyCtx;
-        combined.insert(_context.begin(), _context.end());
-        __write(s, combined, __U__Context());
-    }
-}
-
-void 
-SharedImplicitContextWithoutLocking::combine(const Context& proxyCtx, Context& ctx) const
-{
-    if(proxyCtx.size() == 0)
-    {
-        ctx = _context;
-    }
-    else if(_context.size() == 0)
-    {
-        ctx = proxyCtx;
-    }
-    else
-    {
-        ctx = proxyCtx;
-        ctx.insert(_context.begin(), _context.end());
-    }
-
-}
 
 //
 // SharedImplicitContext implementation
@@ -263,42 +149,63 @@ Context
 SharedImplicitContext::getContext() const
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    return SharedImplicitContextWithoutLocking::getContext();
+    return _context;
 }
 
 void
 SharedImplicitContext::setContext(const Context& newContext)
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    SharedImplicitContextWithoutLocking::setContext(newContext);
+    _context = newContext;
+}
+
+bool 
+SharedImplicitContext::containsKey(const string& k) const
+{
+    IceUtil::Mutex::Lock lock(_mutex);
+    Context::const_iterator p = _context.find(k);
+    return p != _context.end();
 }
 
 string 
 SharedImplicitContext::get(const string& k) const
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    return SharedImplicitContextWithoutLocking::get(k);
+    Context::const_iterator p = _context.find(k);
+    if(p == _context.end())
+    {
+        return "";
+    }
+    return p->second;
 }
+
 
 string 
-SharedImplicitContext::getWithDefault(const string& k, const string& d) const
+SharedImplicitContext::put(const string& k, const string& v)
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    return SharedImplicitContextWithoutLocking::getWithDefault(k, d);
+    string& val = _context[k];
+    
+    string oldVal = val;
+    val = v;
+    return oldVal;
 }
 
-void 
-SharedImplicitContext::set(const string& k, const string& v)
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    SharedImplicitContextWithoutLocking::set(k, v);
-}
-
-void 
+string
 SharedImplicitContext::remove(const string& k)
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    SharedImplicitContextWithoutLocking::remove(k);
+    Context::iterator p = _context.find(k);
+    if(p == _context.end())
+    {
+        return "";
+    }
+    else
+    {
+        string oldVal = p->second;
+        _context.erase(p);
+        return oldVal;
+    }
 }
 
 void 
@@ -327,7 +234,19 @@ void
 SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 {
     IceUtil::Mutex::Lock lock(_mutex);
-    SharedImplicitContextWithoutLocking::combine(proxyCtx, ctx);
+    if(proxyCtx.size() == 0)
+    {
+        ctx = _context;
+    }
+    else if(_context.size() == 0)
+    {
+        ctx = proxyCtx;
+    }
+    else
+    {
+        ctx = proxyCtx;
+        ctx.insert(_context.begin(), _context.end());
+    }
 }
 
 //
@@ -579,64 +498,77 @@ PerThreadImplicitContext::setContext(const Context& newContext)
     }
 }
 
+bool 
+PerThreadImplicitContext::containsKey(const string& k) const
+{
+    const Context* ctx = getThreadContext(false);
+    if(ctx == 0)
+    {
+        return false;
+    }
+    Context::const_iterator p = ctx->find(k);
+    return p != ctx->end();
+}
+
 string 
 PerThreadImplicitContext::get(const string& k) const
 {
-    Context* ctx = getThreadContext(false);
+    const Context* ctx = getThreadContext(false);
     if(ctx == 0)
     {
-        throw NotSetException(__FILE__, __LINE__, k);
+        return "";
     }
     Context::const_iterator p = ctx->find(k);
     if(p == ctx->end())
     {
-        throw NotSetException(__FILE__, __LINE__, k);
+        return "";
     }
     return p->second;
 }
 
 string 
-PerThreadImplicitContext::getWithDefault(const string& k, const string& d) const
+PerThreadImplicitContext::put(const string& k, const string& v)
 {
-    Context* ctx = getThreadContext(false);
-    if(ctx == 0)
-    {
-        return d;
-    }
-    Context::const_iterator p = ctx->find(k);
-    if(p == ctx->end())
-    {
-        return d;
-    }
-    return p->second;
+    Context* ctx = getThreadContext(true);
+
+    string& val = (*ctx)[k];
+    
+    string oldVal = val;
+    val = v;
+    return oldVal;
 }
 
-void 
-PerThreadImplicitContext::set(const string& k, const string& v)
-{
-     Context* ctx = getThreadContext(true);
-     (*ctx)[k] = v;
-}
-
-void 
+string
 PerThreadImplicitContext::remove(const string& k)
 {
      Context* ctx = getThreadContext(false);
-     if(ctx == 0 || ctx->erase(k) == 0)
+     if(ctx == 0)
      {
-         throw NotSetException(__FILE__, __LINE__, k);
+         return "";
      }
      
-     if(ctx->size() == 0)
+     Context::iterator p = ctx->find(k);
+     if(p == ctx->end())
      {
-         clearThreadContext();
+         return "";
      }
+     else
+     {
+         string oldVal = p->second;
+         ctx->erase(p);
+
+         if(ctx->size() == 0)
+         {
+             clearThreadContext();
+         }
+         return oldVal;
+    }
 }
 
 void 
 PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream* s) const
 {
-    Context* threadCtx = getThreadContext(false);
+    const Context* threadCtx = getThreadContext(false);
 
     if(threadCtx == 0 || threadCtx->size() == 0)
     {
@@ -657,7 +589,7 @@ PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStr
 void 
 PerThreadImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 {
-    Context* threadCtx = getThreadContext(false);
+    const Context* threadCtx = getThreadContext(false);
 
     if(threadCtx == 0 || threadCtx->size() == 0)
     {

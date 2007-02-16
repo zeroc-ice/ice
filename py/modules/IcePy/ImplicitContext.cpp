@@ -128,6 +128,41 @@ implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
+{
+    char* key;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    {
+        return NULL;
+    }
+    
+    bool containsKey;
+    try
+    {
+        containsKey = (*self->implicitContext)->containsKey(key);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+    
+    if(containsKey)
+    {
+        Py_INCREF(Py_True);
+        return Py_True;
+    }
+    else
+    {
+        Py_INCREF(Py_False);
+        return Py_False;
+    }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 implicitContextGet(ImplicitContextObject* self, PyObject* args)
 {
     char* key;
@@ -154,25 +189,7 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-implicitContextGetWithDefault(ImplicitContextObject* self, PyObject* args)
-{
-    char* key;
-    char* dflt;
-    if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &dflt))
-    {
-        return NULL;
-    }
-    
-    string val = (*self->implicitContext)->getWithDefault(key, dflt);
-    return PyString_FromString(const_cast<char*>(val.c_str()));
-}
-
-
-#ifdef WIN32
-extern "C"
-#endif
-static PyObject*
-implicitContextSet(ImplicitContextObject* self, PyObject* args)
+implicitContextPut(ImplicitContextObject* self, PyObject* args)
 {
     char* key;
     char* val;
@@ -181,9 +198,17 @@ implicitContextSet(ImplicitContextObject* self, PyObject* args)
         return NULL;
     }
     
-    (*self->implicitContext)->set(key, val);
-    Py_INCREF(Py_None);
-    return Py_None;
+    string oldVal;
+    try
+    {
+        (*self->implicitContext)->put(key, val);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+    return PyString_FromString(const_cast<char*>(oldVal.c_str()));
 }
 
 #ifdef WIN32
@@ -198,18 +223,17 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
         return NULL;
     }
     
+    string val;
     try
     {
-        (*self->implicitContext)->remove(key);
+        val = (*self->implicitContext)->remove(key);
     }
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
         return NULL;
     }
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return PyString_FromString(const_cast<char*>(val.c_str()));
 }
     
 static PyMethodDef ImplicitContextMethods[] =
@@ -217,15 +241,15 @@ static PyMethodDef ImplicitContextMethods[] =
     { STRCAST("getContext"), (PyCFunction)implicitContextGetContext, METH_VARARGS,
       PyDoc_STR(STRCAST("getContext() -> Ice.Context")) },
     { STRCAST("setContext"), (PyCFunction)implicitContextSetContext, METH_VARARGS,
-      PyDoc_STR(STRCAST("setContext(ctx) -> None")) },
+      PyDoc_STR(STRCAST("setContext(ctx) -> string")) },
+    { STRCAST("containsKey"), (PyCFunction)implicitContextContainsKey, METH_VARARGS,
+      PyDoc_STR(STRCAST("containsKey(key) -> bool")) },
     { STRCAST("get"), (PyCFunction)implicitContextGet, METH_VARARGS,
       PyDoc_STR(STRCAST("get(key) -> string")) },
-    { STRCAST("getWithDefault"), (PyCFunction)implicitContextGetWithDefault, METH_VARARGS,
-      PyDoc_STR(STRCAST("getWithDefault(key, defaultValue) -> string")) },
-    { STRCAST("set"), (PyCFunction)implicitContextSet, METH_VARARGS,
-      PyDoc_STR(STRCAST("set(key, value) -> None")) },
+    { STRCAST("put"), (PyCFunction)implicitContextPut, METH_VARARGS,
+      PyDoc_STR(STRCAST("put(key, value) -> string")) },
     { STRCAST("remove"), (PyCFunction)implicitContextRemove, METH_VARARGS,
-      PyDoc_STR(STRCAST("remove(key) -> None")) },
+      PyDoc_STR(STRCAST("remove(key) -> string")) },
     { NULL, NULL} /* sentinel */
 };
 

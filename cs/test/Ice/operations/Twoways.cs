@@ -646,8 +646,8 @@ class Twoways
             // Test implicit context propagation
             //
             
-            String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
-            for(int i = 0; i < 3; i++)
+            String[] impls = {"Shared", "PerThread"};
+            for(int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().ice_clone_();
@@ -667,9 +667,10 @@ class Twoways
                 test(ic.getImplicitContext().getContext().Equals(ctx));
                 test(p3.opContext().Equals(ctx));
                 
-                ic.getImplicitContext().set("zero", "ZERO");
+                test(ic.getImplicitContext().containsKey("zero") == false);
+                String r = ic.getImplicitContext().put("zero", "ZERO");
+                test(r.Equals(""));
                 test(ic.getImplicitContext().get("zero").Equals("ZERO"));
-                test(ic.getImplicitContext().getWithDefault("foobar", "foo").Equals("foo"));
                 
                 ctx = ic.getImplicitContext().getContext();
                 test(p3.opContext().Equals(ctx));
@@ -690,6 +691,8 @@ class Twoways
                 ic.getImplicitContext().setContext(ctx);
                 test(p3.opContext().Equals(combined));
                 
+                test(ic.getImplicitContext().remove("one").Equals("ONE"));
+
                 ic.destroy();
             }
         }

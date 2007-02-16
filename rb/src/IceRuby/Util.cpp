@@ -472,11 +472,6 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         volatile VALUE v = createString(e.unsupportedFeature);
         callRuby(rb_iv_set, p, "@unsupportedFeature", v);
     }
-    catch(const Ice::NotSetException& e)
-    {
-        volatile VALUE v = createString(e.key);
-        callRuby(rb_iv_set, p, "@key", v);
-    }
     catch(const Ice::SecurityException& e)
     {
         volatile VALUE v = createString(e.reason);

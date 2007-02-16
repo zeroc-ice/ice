@@ -1329,8 +1329,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             // Test implicit context propagation
             //
             
-            string impls[] = {"Shared", "SharedWithoutLocking", "PerThread"};
-            for(int i = 0; i < 3; i++)
+            string impls[] = {"Shared", "PerThread"};
+            for(int i = 0; i < 2; i++)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
@@ -1356,10 +1356,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                     test(cb->check());
                 }
 
-                ic->getImplicitContext()->set("zero", "ZERO");
-                test(ic->getImplicitContext()->get("zero") == "ZERO");
-                test(ic->getImplicitContext()->getWithDefault("foobar", "foo") == "foo");
-
+                ic->getImplicitContext()->put("zero", "ZERO");
+          
                 ctx = ic->getImplicitContext()->getContext();
                 {
                     AMI_MyClass_opContextEqualIPtr cb = new AMI_MyClass_opContextEqualI(ctx);

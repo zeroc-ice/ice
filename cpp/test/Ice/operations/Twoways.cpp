@@ -692,8 +692,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
             // Test implicit context propagation
             //
             
-            string impls[] = {"Shared", "SharedWithoutLocking", "PerThread"};
-            for(int i = 0; i < 3; i++)
+            string impls[] = {"Shared", "PerThread"};
+            for(int i = 0; i < 2; i++)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
@@ -712,10 +712,12 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 test(p->opContext() == ctx);
-
-                ic->getImplicitContext()->set("zero", "ZERO");
+                
+                test(ic->getImplicitContext()->containsKey("zero") == false);
+                string r = ic->getImplicitContext()->put("zero", "ZERO");
+                test(r == "");
+                test(ic->getImplicitContext()->containsKey("zero") == true);
                 test(ic->getImplicitContext()->get("zero") == "ZERO");
-                test(ic->getImplicitContext()->getWithDefault("foobar", "foo") == "foo");
 
                 ctx = ic->getImplicitContext()->getContext();
                 test(p->opContext() == ctx);
@@ -735,6 +737,8 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrx& p)
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(p->opContext() == combined);
+
+                test(ic->getImplicitContext()->remove("one") == "ONE");
                 
                 ic->destroy();
             }

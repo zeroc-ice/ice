@@ -646,11 +646,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.unsupportedFeature.c_str()));
         PyObject_SetAttrString(p, STRCAST("unsupportedFeature"), m.get());
     }
-    catch(const Ice::NotSetException& e)
-    {
-        IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.key.c_str()));
-        PyObject_SetAttrString(p, STRCAST("key"), m.get());
-    }
     catch(const Ice::SecurityException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));

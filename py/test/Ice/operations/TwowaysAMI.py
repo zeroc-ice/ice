@@ -859,7 +859,7 @@ def twowaysAMI(communicator, p):
     #
     # Test implicit context propagation
     #
-    impls = ( 'Shared', 'SharedWithoutLocking', 'PerThread' )
+    impls = ( 'Shared', 'PerThread' )
     for i in impls:
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
@@ -877,11 +877,7 @@ def twowaysAMI(communicator, p):
         p.opContext_async(cb)
         test(cb.check())
         
-        ic.getImplicitContext().set('zero', 'ZERO')
-        test(ic.getImplicitContext().get('zero') == 'ZERO')
-        test(ic.getImplicitContext().getWithDefault('foobar', 'foo') == 'foo')
-        ic.getImplicitContext().remove('two')
-        test(ic.getImplicitContext().getWithDefault('two', 'bar') == 'bar')
+        ic.getImplicitContext().put('zero', 'ZERO')
         ctx = ic.getImplicitContext().getContext()
 
         cb = AMI_MyClass_opContextEqualI(ctx)

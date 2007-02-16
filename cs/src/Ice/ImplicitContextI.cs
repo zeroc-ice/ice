@@ -27,10 +27,6 @@ namespace Ice
             {
                 return new SharedImplicitContext();
             }
-            else if(kind.Equals("SharedWithoutLocking"))
-            {
-                return new SharedImplicitContextWithoutLocking();
-            }
             else if(kind.Equals("PerThread"))
             {
                 return new PerThreadImplicitContext();
@@ -44,171 +40,118 @@ namespace Ice
         
         public abstract Context getContext();
         public abstract void setContext(Context newContext);
-        public abstract  string get(string key);
-        public abstract string getWithDefault(string key, string defaultValue);
-        public abstract void set(string key, string value);
-        public abstract void remove(string key);
+        public abstract bool containsKey(string key);    
+        public abstract string get(string key);
+        public abstract string put(string key, string value);
+        public abstract string remove(string key);
 
         abstract public void write(Context prxContext, IceInternal.BasicStream os);
         abstract internal Context combine(Context prxContext);
     }
         
-    internal class SharedImplicitContextWithoutLocking : ImplicitContextI
+        
+    internal class SharedImplicitContext : ImplicitContextI
     {
         public override Context getContext()
         {
-            return (Context)_context.Clone();
+            lock(this)
+            {
+                return (Context)_context.Clone();
+            }
         }
             
         public override void setContext(Context context)
         {
-            if(context != null && context.Count != 0)
+            lock(this)
             {
-                _context = (Context)context.Clone();
-            }
-            else
-            {
-                _context.Clear();
+                if(context != null && context.Count != 0)
+                {
+                    _context = (Context)context.Clone();
+                }
+                else
+                {
+                    _context.Clear();
+                }
             }
         }
             
+        public override bool containsKey(string key)
+        {
+            lock(this)
+            {
+                if(key == null)
+                {
+                    key = "";
+                }
+                
+                return _context.Contains(key);
+            }
+        }
+
         public override string get(string key)
         {
-            if(key == null)
+            lock(this)
             {
-                key = "";
-            }
+                if(key == null)
+                {
+                    key = "";
+                }
                 
-            string val = _context[key];
-            if(val == null)
-            {
-                throw new NotSetException(key);
-            }
-            else
-            {
+                string val = _context[key];
+                if(val == null)
+                {
+                    val = "";
+                }
                 return val;
             }
         }
             
-        public override string getWithDefault(string key, string dflt)
+            
+        public override string put(string key, string value)
         {
-            if(key == null)
+            lock(this)
             {
-                key = "";
-            }
-            if(dflt == null)
-            {
-                dflt = "";
-            }
+                if(key == null)
+                {
+                    key = "";
+                }
+                if(value == null)
+                {
+                    value = "";
+                }
+
+                string oldVal = _context[key];
+                if(oldVal == null)
+                {
+                    oldVal = "";
+                }
+                _context[key] = value;
                 
-            string val = _context[key];
-            return val == null ? dflt : val;
-        }
-            
-        public override void set(string key, string value)
-        {
-            if(key == null)
-            {
-                key = "";
-            }
-            if(value == null)
-            {
-                value = "";
-            }
-                
-            _context[key] = value;
-        }
-            
-        public override void remove(string key)
-        {
-            if(key == null)
-            {
-                key = "";
-            }
-                
-            if(_context.Contains(key))
-            {
-                _context.Remove(key);
-            }
-            else
-            {
-                throw new NotSetException(key);
+                return oldVal;
             }
         }
             
-        public override void write(Context prxContext, IceInternal.BasicStream os)
-        {
-            if(prxContext.Count == 0)
-            {
-                ContextHelper.write(os, _context);
-            }
-            else if(_context.Count == 0)
-            {
-                ContextHelper.write(os, prxContext);
-            }
-            else
-            {
-                ContextHelper.write(os, combine(prxContext));
-            }
-        }
-            
-        internal override Context combine(Context prxContext)
-        {
-            Context combined = (Context)prxContext.Clone();
-            combined.AddRange(_context);
-            return combined;
-        }
-            
-        protected Context _context = new Context();
-    }
-        
-    internal class SharedImplicitContext : SharedImplicitContextWithoutLocking
-    {
-        public override Context getContext()
+        public override string remove(string key)
         {
             lock(this)
             {
-                return base.getContext();
-            }
-        }
-            
-        public override void setContext(Context context)
-        {
-            lock(this)
-            {
-                base.setContext(context);
-            }
-        }
-            
-        public override string get(string key)
-        {
-            lock(this)
-            {
-                return base.get(key);
-            }
-        }
-            
-        public override string getWithDefault(string key, string dflt)
-        {
-            lock(this)
-            {
-                return base.getWithDefault(key, dflt);
-            }
-        }
-            
-        public override void set(string key, string value)
-        {
-            lock(this)
-            {
-                base.set(key, value);
-            }
-        }
-            
-        public override void remove(string key)
-        {
-            lock(this)
-            {
-                base.remove(key);
+                if(key == null)
+                {
+                    key = "";
+                }
+
+                string val = _context[key];
+
+                if(val == null)
+                {
+                    val = "";
+                }
+                else
+                {
+                    _context.Remove(key);
+                }
+
+                return val;
             }
         }
             
@@ -226,7 +169,7 @@ namespace Ice
                 Context ctx = null;
                 lock(this)
                 {
-                    ctx = _context.Count == 0 ? prxContext : base.combine(prxContext); 
+                    ctx = _context.Count == 0 ? prxContext :combine(prxContext); 
                 }
                 ContextHelper.write(os, ctx);
             }
@@ -236,9 +179,13 @@ namespace Ice
         {
             lock(this)
             {
-                return base.combine(prxContext);
+                Context combined = (Context)prxContext.Clone();
+                combined.AddRange(_context);
+                return combined;
             }
         }
+
+        private Context _context = new Context();
     }
 
     internal class PerThreadImplicitContext : ImplicitContextI
@@ -278,6 +225,27 @@ namespace Ice
             }
         }
 
+        public override bool containsKey(string key)
+        {
+            if(key == null)
+            {
+                key = "";
+            }
+
+            Context threadContext = null;
+            lock(this)
+            {
+                threadContext = (Context)_map[Thread.CurrentThread];
+            }
+
+            if(threadContext == null)
+            {
+                return false;
+            }
+
+            return threadContext.Contains(key);
+        }
+
         public override string get(string key)
         {
             if(key == null)
@@ -293,46 +261,17 @@ namespace Ice
 
             if(threadContext == null)
             {
-                throw new NotSetException(key);
+                return "";
             }
             string val = threadContext[key];
             if(val == null)
             {
-                throw new NotSetException(key);
+                val = "";
             }
             return val;
         }
 
-        public override string getWithDefault(string key, string dflt)
-        {
-            if(key == null)
-            {
-                key = "";
-            }
-            if(dflt == null)
-            {
-                dflt = "";
-            }
-    
-            Context threadContext = null;
-            lock(this)
-            {
-                threadContext = (Context)_map[Thread.CurrentThread];
-            }
-
-            if(threadContext == null)
-            {
-                return dflt;
-            }
-            string val = threadContext[key];
-            if(val == null)
-            {
-                return dflt;
-            }
-            return val;
-        }
-
-        public override void set(string key, string value)
+        public override string put(string key, string value)
         {
             if(key == null)
             {
@@ -360,10 +299,17 @@ namespace Ice
                 }
             }
             
+            string oldVal = threadContext[key];
+            if(oldVal == null)
+            {
+                oldVal = "";
+            }
+
             threadContext[key] = value;
+            return oldVal;
         }
 
-        public override void remove(string key)
+        public override string remove(string key)
         {
             if(key == null)
             {
@@ -376,11 +322,22 @@ namespace Ice
                 threadContext = (Context)_map[Thread.CurrentThread];
             }
 
-            if(threadContext == null || !threadContext.Contains(key))
+            if(threadContext == null)
             {
-                throw new NotSetException(key);
+                return "";
             }
-            threadContext.Remove(key);
+
+            string val = threadContext[key];
+
+            if(val == null)
+            {
+                val = "";
+            }
+            else
+            {
+                threadContext.Remove(key);
+            }
+            return val;
         }
 
         public override void write(Context prxContext, IceInternal.BasicStream os)

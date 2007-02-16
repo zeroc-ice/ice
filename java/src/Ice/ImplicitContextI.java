@@ -24,10 +24,6 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
         {
             return new Shared();
         }
-        else if(kind.equals("SharedWithoutLocking"))
-        {
-            return new SharedWithoutLocking();
-        }
         else if(kind.equals("PerThread"))
         {
             return new PerThread();
@@ -43,14 +39,14 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
     abstract java.util.Map combine(java.util.Map prxContext);
 
 
-    static class SharedWithoutLocking extends ImplicitContextI
+    static class Shared extends ImplicitContextI
     {
-        public java.util.Map getContext()
+        public synchronized java.util.Map getContext()
         {
             return (java.util.Map)_context.clone();
         }
-
-        public void setContext(java.util.Map context)
+        
+        public synchronized void setContext(java.util.Map context)
         {
             _context.clear();
             if(context != null && !context.isEmpty())
@@ -58,42 +54,34 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
                 _context.putAll(context);
             }
         }
-
-        public String get(String key)
+        
+        public synchronized boolean containsKey(String key)
         {
             if(key == null)
             {
                 key = "";
             }
 
+            return _context.containsKey(key);
+        }
+
+        public synchronized String get(String key)
+        {
+            if(key == null)
+            {
+                key = "";
+            }
 
             String val = (String)_context.get(key);
             if(val == null)
             {
-                throw new Ice.NotSetException(key);
+                val = "";
             }
-            else
-            {
-                return val;
-            }
+           
+            return val;
         }
 
-        public String getWithDefault(String key, String dflt)
-        {
-            if(key == null)
-            {
-                key = "";
-            }
-            if(dflt == null)
-            {
-                dflt = "";
-            }
-
-            String val = (String)_context.get(key);
-            return val == null ? dflt : val;
-        }
-
-        public void set(String key, String value)
+        public synchronized String put(String key, String value)
         {
             if(key == null)
             {
@@ -104,78 +92,28 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
                 value = "";
             }
 
-            _context.put(key, value);
+            String oldVal = (String)_context.put(key, value);
+            if(oldVal == null)
+            {
+                oldVal = "";
+            }
+            return oldVal;
         }
 
-        public void remove(String key)
+        public synchronized String remove(String key)
         {
             if(key == null)
             {
                 key = "";
             }
 
-            if(_context.remove(key) == null)
+            String val = (String)_context.remove(key);
+
+            if(val == null)
             {
-                throw new Ice.NotSetException(key);
+                val = "";
             }
-        }
-
-        public void write(java.util.Map prxContext, IceInternal.BasicStream os)
-        {
-            if(prxContext.isEmpty())
-            {
-                ContextHelper.write(os, _context);
-            }
-            else if(_context.isEmpty())
-            {
-                ContextHelper.write(os, prxContext);
-            }
-            else
-            {
-                ContextHelper.write(os, combine(prxContext));
-            }
-        }
-
-        java.util.Map combine(java.util.Map prxContext)
-        {
-            java.util.Map combined = (java.util.Map)_context.clone();
-            combined.putAll(prxContext);
-            return combined;
-        }
-
-        protected java.util.HashMap _context = new java.util.HashMap();
-    }
-
-    static class Shared extends SharedWithoutLocking
-    {
-        public synchronized java.util.Map getContext()
-        {
-            return super.getContext();
-        }
-
-        public synchronized void setContext(java.util.Map context)
-        {
-            super.setContext(context);
-        }
-
-        public synchronized String get(String key)
-        {
-            return super.get(key);
-        }
-
-        public synchronized String getWithDefault(String key, String dflt)
-        {
-            return super.getWithDefault(key, dflt);
-        }
-
-        public synchronized void set(String key, String value)
-        {
-            super.set(key, value);
-        }
-
-        public synchronized void remove(String key)
-        {
-            super.remove(key);
+            return val;
         }
 
         public void write(java.util.Map prxContext, IceInternal.BasicStream os)
@@ -192,7 +130,7 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
                 java.util.Map ctx = null;
                 synchronized(this)
                 {
-                    ctx = _context.isEmpty() ? prxContext : super.combine(prxContext); 
+                    ctx = _context.isEmpty() ? prxContext : combine(prxContext); 
                 }
                 ContextHelper.write(os, ctx);
             }
@@ -200,8 +138,12 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
         synchronized java.util.Map combine(java.util.Map prxContext)
         {
-            return super.combine(prxContext);
+            java.util.Map combined = (java.util.Map)_context.clone();
+            combined.putAll(prxContext);
+            return combined;
         }
+
+        private java.util.HashMap _context = new java.util.HashMap();
     }
 
     static class PerThread extends ImplicitContextI
@@ -234,6 +176,23 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
             }
         }
 
+        public boolean containsKey(String key)
+        {
+            if(key == null)
+            {
+                key = "";
+            }
+
+            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
+
+            if(threadContext == null)
+            {
+                return false;
+            }
+
+            return threadContext.containsKey(key);
+        }
+
         public String get(String key)
         {
             if(key == null)
@@ -245,42 +204,17 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
             if(threadContext == null)
             {
-                throw new Ice.NotSetException(key);
+                return "";
             }
             String val = (String)threadContext.get(key);
             if(val == null)
             {
-                throw new Ice.NotSetException(key);
+                val = "";
             }
             return val;
         }
 
-        public String getWithDefault(String key, String dflt)
-        {
-            if(key == null)
-            {
-                key = "";
-            }
-            if(dflt == null)
-            {
-                dflt = "";
-            }
-    
-            java.util.HashMap threadContext = (java.util.HashMap)_map.get(Thread.currentThread());
-
-            if(threadContext == null)
-            {
-                return dflt;
-            }
-            String val = (String)threadContext.get(key);
-            if(val == null)
-            {
-                return dflt;
-            }
-            return val;
-        }
-
-        public void set(String key, String value)
+        public String put(String key, String value)
         {
             if(key == null)
             {
@@ -300,10 +234,15 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
                 _map.put(currentThread, threadContext);
             }
             
-            threadContext.put(key, value);
+            String oldVal = (String)threadContext.put(key, value);
+            if(oldVal == null)
+            {
+                oldVal = "";
+            }
+            return oldVal;
         }
 
-        public void remove(String key)
+        public String remove(String key)
         {
             if(key == null)
             {
@@ -314,13 +253,16 @@ public abstract class ImplicitContextI extends LocalObjectImpl implements Implic
 
             if(threadContext == null)
             {
-                throw new Ice.NotSetException(key);
+                return null;
             }
-            
-            if(threadContext.remove(key) == null)
+
+            String val = (String)threadContext.remove(key);
+
+            if(val == null)
             {
-                throw new Ice.NotSetException(key);
+                val = "";
             }
+            return val;
         }
 
         public void write(java.util.Map prxContext, IceInternal.BasicStream os)

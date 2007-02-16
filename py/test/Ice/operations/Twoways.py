@@ -599,7 +599,7 @@ def twoways(communicator, p):
     #
     # Test implicit context propagation
     #
-    impls = ( 'Shared', 'SharedWithoutLocking', 'PerThread' )
+    impls = ( 'Shared', 'PerThread' )
     for i in impls:
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
@@ -608,32 +608,36 @@ def twoways(communicator, p):
         
         ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
         
-        p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010 -t 10000"))
+        p = Test.MyClassPrx.uncheckedCast(ic.stringToProxy('test:default -p 12010 -t 10000'))
         
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)
         test(p.opContext() == ctx)
+
+        test(ic.getImplicitContext().containsKey('zero') == False);
+        r = ic.getImplicitContext().put('zero', 'ZERO');
+        test(r == '');
+        test(ic.getImplicitContext().containsKey('zero') == True);
+        test(ic.getImplicitContext().get('zero') == 'ZERO');
         
-        ic.getImplicitContext().set('zero', 'ZERO')
-        test(ic.getImplicitContext().get('zero') == 'ZERO')
-        test(ic.getImplicitContext().getWithDefault('foobar', 'foo') == 'foo')
-        ic.getImplicitContext().remove('two')
-        test(ic.getImplicitContext().getWithDefault('two', 'bar') == 'bar')
         ctx = ic.getImplicitContext().getContext()
         test(p.opContext() == ctx)
         
         prxContext = {'one': 'UN', 'four': 'QUATRE'}
         
-        combined = ctx
+        combined = ctx.copy()
         combined.update(prxContext)
         test(combined['one'] == 'UN')
         
         p = Test.MyClassPrx.uncheckedCast(p.ice_context(prxContext))
+       
         ic.getImplicitContext().setContext({})
         test(p.opContext() == prxContext)
         
         ic.getImplicitContext().setContext(ctx)
         test(p.opContext() == combined)
+        
+        test(ic.getImplicitContext().remove('one') == 'ONE');
 
         ic.destroy()
         

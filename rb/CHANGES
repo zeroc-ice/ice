@@ -34,16 +34,13 @@ Changes since version 3.1.1
   context, Ice uses the "implicit context" combined with the context
   associated with the proxy (if there is one)
   You can retrieve and set this ImplicitContext using 
-  Communicator::getImplicitContext(). Four ImplicitContext implementations
+  Communicator::getImplicitContext(). Three ImplicitContext implementations
   are available. You select an implementation by setting the 
   Ice.ImplicitContext property to one of the following values:
     * None: (the default) No implicit context at all
     * PerThread: The implementation maintains a Context per thread
     * Shared: The implementation maintains a single Context shared 
               by all threads, and serializes access to this Context
-    * SharedWithoutLocking: The implementation maintains a single 
-              Context shared by all threads, and does not serialize 
-              access to this Context
 
 - Removed defaultContext from InitializationData
 

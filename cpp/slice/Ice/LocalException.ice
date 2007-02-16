@@ -892,23 +892,6 @@ local exception FeatureNotSupportedException
 
 /**
  *
- * This exception is raised when attempting to read a context
- * entry that is not set.
- *
- **/
-local exception NotSetException
-{
-    /**
-     *
-     * The name of the key that is not set.
-     *
-     **/
-    string key;
-};
-
-
-/**
- *
  * This exception indicates a failure in a security subsystem,
  * such as the IceSSL plugin.
  *

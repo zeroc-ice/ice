@@ -650,14 +650,6 @@ Ice::FeatureNotSupportedException::ice_print(ostream& out) const
 }
 
 void
-Ice::NotSetException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nkey '" << key << "' is not set";
-}
-
-
-void
 Ice::SecurityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

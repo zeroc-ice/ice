@@ -32,24 +32,21 @@ module Ice
  * <dd>The implementation maintains a [Context] per thread.</dd>
  * <dt><tt>Shared</tt></dt>
  * <dd>The implementation maintains a single [Context] shared 
- * by all threads, and serializes access to this [Context].</dd>
- * <dt><tt>SharedWithoutLocking</tt></dt>
- * <dd>
- * The implementation maintains a single 
- * [Context] shared by all threads, and does not serialize access to this [Context].
- * </dd>
+ * by all threads.</dd>
  * </dl><p>
- *
+ *  
+ * <tt>ImplicitContext</tt> also provides a number of operations to create, update or retrieve
+ * an entry in the underlying context without first retrieving a copy of the entire
+ * context. These operations correspond to a subset of the <tt>java.util.Map</tt> methods,
+ * with <tt>java.lang.Object</tt> replaced by <tt>string</tt> and null replaced by the empty-string.
+ * 
  **/
 
 local interface ImplicitContext
 {
     /**
-     * Get the underlying context. The operation returns a null proxy if no implicit
-     * context is established on the communicator (that is, if <tt>Ice.ImplicitContext</tt>
-     * is set to <tt>None</tt>).
-     *
-     * @return The underlying context.
+     * Get a copy of the underlying context.
+     * @return A copy of the underlying context.
      *
      **/
     ["cpp:const"] Context getContext();
@@ -63,8 +60,20 @@ local interface ImplicitContext
     void setContext(Context newContext);
 
     /**
+     * Check if this key has an associated value in the underlying context. 
+     *
+     * @param key The key.
+     *
+     * @return True if the key has an associated value, False otherwise.
+     *
+     **/
+    ["cpp:const"] bool containsKey(string key);
+ 
+    /**
      * Get the value associated with the given key in the underlying context.
-     * Throws [NotSetException] when no value is associated with the given key.
+     * Returns an empty string if no value is associated with the key.
+     * [containsKey] allows you to distinguish between an empty-string value and 
+     * no value at all.
      *
      * @param key The key.
      *
@@ -74,36 +83,26 @@ local interface ImplicitContext
     ["cpp:const"] string get(string key);
 
     /**
-     * Get the value associated with the given key in the underlying context.
-     *
-     * @param key The key.
-     *
-     * @param defaultValue The default value
-     *
-     * @return The value associated with the key, or defaultValue when no
-     * value is associated with the given key.
-     *
-     **/
-    ["cpp:const"] string getWithDefault(string key, string defaultValue);
-
-    /**
-     * Set the value associated with the given key in the underlying context.
+     * Create or update a key/value entry in the underlying context.
      *
      * @param key The key.
      *
      * @param value The value.
      *
+     * @return The previous value associated with the key, if any.
+     *
      **/
-    void set(string key, string value);
+    string put(string key, string value);
 
     /**
-     * Remove the value associated with the given key in the underlying context.
-     * Throws [NotSetException] when no value is associated with the given key.
+     * Remove the entry for the given key in the underlying context.
      *
      * @param key The key.
      *
+     * @return The value associated with the key, if any.
+     *
      **/
-    void remove(string key);
+    string remove(string key);
 };
 };
 

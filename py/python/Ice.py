@@ -523,17 +523,18 @@ class ImplicitContextI(ImplicitContext):
     def getContext(self):
         return self._impl.getContext()
 
-    def set(self, key, value):
-        self._impl.set(key, value)
-
-    def remove(self, key):
-        self._impl.remove(key)
+    def containsKey(self, key):
+        return self._impl.containsKey(key)
 
     def get(self, key):
         return self._impl.get(key)
 
-    def getWithDefault(self, key, dflt):
-        return self._impl.getWithDefault(key, dflt)
+    def put(self, key, value):
+        return self._impl.put(key, value)
+
+    def remove(self, key):
+        return self._impl.remove(key)
+
     
 #
 # Its not possible to block in a python signal handler since this

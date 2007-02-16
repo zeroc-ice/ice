@@ -1110,7 +1110,7 @@ static PyMethodDef CommunicatorMethods[] =
     { STRCAST("waitForShutdown"), (PyCFunction)communicatorWaitForShutdown, METH_VARARGS,
         PyDoc_STR(STRCAST("waitForShutdown() -> None")) },
     { STRCAST("isShutdown"), (PyCFunction)communicatorIsShutdown, METH_NOARGS,
-        PyDoc_STR(STRCAST("isShutdown() -> None")) },
+        PyDoc_STR(STRCAST("isShutdown() -> bool")) },
     { STRCAST("stringToProxy"), (PyCFunction)communicatorStringToProxy, METH_VARARGS,
         PyDoc_STR(STRCAST("stringToProxy(str) -> Ice.ObjectPrx")) },
     { STRCAST("proxyToString"), (PyCFunction)communicatorProxyToString, METH_VARARGS,

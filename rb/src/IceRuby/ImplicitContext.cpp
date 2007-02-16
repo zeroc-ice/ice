@@ -59,6 +59,28 @@ IceRuby_ImplicitContext_setContext(VALUE self, VALUE context)
 
 extern "C"
 VALUE
+IceRuby_ImplicitContext_containsKey(VALUE self, VALUE key)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ImplicitContextPtr p = getImplicitContext(self);
+        string k = getString(key);
+        if(p->containsKey(k))
+        {
+            return Qtrue;
+        }
+        else
+        {
+            return Qfalse;
+        }
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+
+extern "C"
+VALUE
 IceRuby_ImplicitContext_get(VALUE self, VALUE key)
 {
     ICE_RUBY_TRY
@@ -75,31 +97,14 @@ IceRuby_ImplicitContext_get(VALUE self, VALUE key)
 
 extern "C"
 VALUE
-IceRuby_ImplicitContext_getWithDefault(VALUE self, VALUE key, VALUE dflt)
-{
-    ICE_RUBY_TRY
-    {
-        Ice::ImplicitContextPtr p = getImplicitContext(self);
-        string k = getString(key);
-        string d = getString(dflt);
-        string v = p->getWithDefault(k, d);
-        return createString(v);
-    }
-    ICE_RUBY_CATCH
-    return Qnil;
-}
-
-
-extern "C"
-VALUE
-IceRuby_ImplicitContext_set(VALUE self, VALUE key, VALUE value)
+IceRuby_ImplicitContext_put(VALUE self, VALUE key, VALUE value)
 {
     ICE_RUBY_TRY
     {
         Ice::ImplicitContextPtr p = getImplicitContext(self);
         string k = getString(key);
         string v = getString(value);
-        p->set(k, v);
+        return createString(p->put(k, v));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -113,7 +118,7 @@ IceRuby_ImplicitContext_remove(VALUE self, VALUE key)
     {
         Ice::ImplicitContextPtr p = getImplicitContext(self);
         string k = getString(key);
-        p->remove(k);
+        return createString(p->remove(k));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -125,10 +130,10 @@ IceRuby::initImplicitContext(VALUE iceModule)
 {
     _implicitContextClass = rb_define_class_under(iceModule, "ImplicitContextI", rb_cObject);
     rb_define_method(_implicitContextClass, "getContext", CAST_METHOD(IceRuby_ImplicitContext_getContext), 0);
-    rb_define_method(_implicitContextClass, "setContext", CAST_METHOD(IceRuby_ImplicitContext_setContext), 01);
+    rb_define_method(_implicitContextClass, "setContext", CAST_METHOD(IceRuby_ImplicitContext_setContext), 1);
+    rb_define_method(_implicitContextClass, "containsKey", CAST_METHOD(IceRuby_ImplicitContext_containsKey), 1);
     rb_define_method(_implicitContextClass, "get", CAST_METHOD(IceRuby_ImplicitContext_get), 1);
-    rb_define_method(_implicitContextClass, "getWithDefault", CAST_METHOD(IceRuby_ImplicitContext_getWithDefault), 2);
-    rb_define_method(_implicitContextClass, "set", CAST_METHOD(IceRuby_ImplicitContext_set), 2);
+    rb_define_method(_implicitContextClass, "put", CAST_METHOD(IceRuby_ImplicitContext_put), 2);
     rb_define_method(_implicitContextClass, "remove", CAST_METHOD(IceRuby_ImplicitContext_remove), 1);
 }
 

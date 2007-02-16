@@ -1390,8 +1390,8 @@ public class TwowaysAMI
             // Test implicit context propagation
             //
             
-            String[] impls = {"Shared", "SharedWithoutLocking", "PerThread"};
-            for(int i = 0; i < 3; i++)
+            String[] impls = {"Shared", "PerThread"};
+            for(int i = 0; i < 2; i++)
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().ice_clone_();
@@ -1414,12 +1414,9 @@ public class TwowaysAMI
                     p3.opContext_async(cb);
                     test(cb.check());
                 }
+                
+                ic.getImplicitContext().put("zero", "ZERO");
         
-                
-                ic.getImplicitContext().set("zero", "ZERO");
-                test(ic.getImplicitContext().get("zero").Equals("ZERO"));
-                test(ic.getImplicitContext().getWithDefault("foobar", "foo").Equals("foo"));
-                
                 ctx = ic.getImplicitContext().getContext();
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
