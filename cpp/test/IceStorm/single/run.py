@@ -70,7 +70,7 @@ if TestUtil.debug:
     print "(" + command + ")"
 subscriberPipe = os.popen(command + " 2>&1")
 TestUtil.getServerPid(subscriberPipe)
-TestUtil.getAdapterReady(subscriberPipe)
+TestUtil.getAdapterReady(subscriberPipe, True, 5)
 print "ok"
 
 #
