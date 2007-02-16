@@ -324,6 +324,7 @@ php = "php"
 #
 if not isWin32() and not isDarwin():
     p = os.popen('php -v 2>/dev/null')
+    lines = p.readlines() # This is necessary for close() to operate reliably.
     if p.close() != None:
         php = "php5"
 
