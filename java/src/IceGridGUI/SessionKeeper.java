@@ -427,7 +427,7 @@ class SessionKeeper
 
             routerSSLEnabled = routerUseSSL || _connectionPrefs.getBoolean("router.sslEnabled", routerSSLEnabled);
 
-            routed = properties.getPropertyAsInt("IceGridAdmin.Routed") > 0 || _connectionPrefs.getBoolean("routed", routed);
+            routed = _connectionPrefs.getBoolean("routed", routed);
 
             //
             // SSL Configuration
