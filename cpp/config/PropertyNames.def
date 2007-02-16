@@ -222,6 +222,7 @@ IceGridAdmin:
     Routed
     Username
     Password
+    Replica
     Trace.Observers
     Trace.SaveToRegistry
 
