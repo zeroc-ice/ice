@@ -924,6 +924,8 @@ def main():
         dylibEnvironmentVar = 'LIBPATH'
     elif getPlatform() == 'hpux':
         dylibEnvironmentVar = 'SHLIB_PATH'
+    elif getPlatform() == 'macosx':
+        dylibEnvironmentVar = 'DYLD_LIBRARY_PATH'
     else:
         dylibEnvironmentVar = 'LD_LIBRARY_PATH'
 
