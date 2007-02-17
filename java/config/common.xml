@@ -98,7 +98,7 @@
 
     <condition property="ice.dir" value="/usr">
 	<and>
-	    <available file="/usr/share/slice"/>
+	    <available file="/usr/share/Ice-${ice.version}/slice"/>
             <not>
                 <isset property="ice.dir"/>
             </not>
@@ -205,7 +205,7 @@
 	    <isset property="with-rpm"/>
 	</condition>
 
-	<condition property="slice.dir" value="/usr/share/slice" else="${ice.dir}/slice">
+	<condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
 	    <isset property="with-rpm"/>
 	</condition>
 

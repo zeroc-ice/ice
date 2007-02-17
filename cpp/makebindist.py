@@ -264,7 +264,7 @@ def editMakeRules(filename, version):
         if line.startswith('slicedir'):
             print """
 ifeq ($(ICE_DIR),/usr)
-   slicedir = $(ICE_DIR)/share/slice
+   slicedir = $(ICE_DIR)/share/Ice-$(VERSION)/slice
 else
    slicedir = $(ICE_DIR)/slice
 endif

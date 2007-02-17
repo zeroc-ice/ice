@@ -231,27 +231,25 @@ mv $RPM_BUILD_ROOT/lib $RPM_BUILD_ROOT/usr/lib
 
 if test -d $RPM_BUILD_ROOT/%{icelibdir}
 then
-    mv $RPM_BUILD_ROOT/%{icelibdir} $RPM_BUILD_ROOT/usr/%{icelibdir}
+    mv $RPM_BUILD_ROOT/%{icelibdir} ${RPM_BUILD_ROOT}%{_libdir}
 fi
 
 %ifarch %{core_arches}
 mkdir -p $RPM_BUILD_ROOT/etc/php.d
 mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php.d/ice.ini
 
-mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/php/modules
-mv $RPM_BUILD_ROOT/usr/%{icelibdir}/IcePHP.so $RPM_BUILD_ROOT/usr/%{icelibdir}/php/modules/IcePHP.so
+mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php/modules
+mv ${RPM_BUILD_ROOT}%{_libdir}/IcePHP.so ${RPM_BUILD_ROOT}%{_libdir}/php/modules/IcePHP.so
 
-mkdir -p $RPM_BUILD_ROOT/usr/share
-mv $RPM_BUILD_ROOT/config $RPM_BUILD_ROOT/usr/share/Ice-%{version}
-
-mkdir -p $RPM_BUILD_ROOT/usr/share
-mv $RPM_BUILD_ROOT/slice $RPM_BUILD_ROOT/usr/share/slice
+mkdir -p ${RPM_BUILD_ROOT}%{_datadir}
+mv $RPM_BUILD_ROOT/config ${RPM_BUILD_ROOT}%{_datadir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/slice ${RPM_BUILD_ROOT}%{_datadir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT/usr
-mv $RPM_BUILD_ROOT/include $RPM_BUILD_ROOT/usr/include
+mv $RPM_BUILD_ROOT/include ${RPM_BUILD_ROOT}%{_includedir}
 
-mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/python $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/python
+mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/python
 
 mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
 mv $RPM_BUILD_ROOT/doc ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
@@ -267,8 +265,8 @@ mv $RPM_BUILD_ROOT/usr/lib/IceGridGUI.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 %endif
 
 %if %{ruby_included}
-mkdir -p $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/ruby $RPM_BUILD_ROOT/usr/%{icelibdir}/Ice-%{version}/ruby
+mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/ruby ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/ruby
 %endif
 
 %ifarch noarch
@@ -519,7 +517,6 @@ firewall solution, and much more.
 %files
 %defattr(644, root, root, 755)
 
-%dir %{_defaultdocdir}/Ice-%{version}
 %{_defaultdocdir}/Ice-%{version}
 %attr(755, root, root) /usr/bin/dumpdb
 %attr(755, root, root) /usr/bin/transformdb
@@ -538,39 +535,39 @@ firewall solution, and much more.
 %attr(755, root, root) /usr/bin/icegridregistry
 %attr(755, root, root) /usr/bin/iceca
 /usr/bin/ImportKey.class
-%attr(755, root, root) /usr/%{icelibdir}/libFreeze.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libFreeze.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libGlacier2.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libGlacier2.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceBox.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceBox.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIcePatch2.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIcePatch2.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIce.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIce.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceSSL.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceSSL.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceStormService.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceStormService.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceStorm.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceStorm.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceUtil.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceUtil.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceXML.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceXML.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libSlice.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libSlice.so.%{soversion}
-%attr(755, root, root) /usr/%{icelibdir}/libIceGrid.so.%{version}
-%attr(755, root, root) /usr/%{icelibdir}/libIceGrid.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libFreeze.so.%{version}
+%attr(755, root, root) %{_libdir}/libFreeze.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libGlacier2.so.%{version}
+%attr(755, root, root) %{_libdir}/libGlacier2.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceBox.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceBox.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIcePatch2.so.%{version}
+%attr(755, root, root) %{_libdir}/libIcePatch2.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIce.so.%{version}
+%attr(755, root, root) %{_libdir}/libIce.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceSSL.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceSSL.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceStormService.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceStormService.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceStorm.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceStorm.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceUtil.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceUtil.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceXML.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceXML.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libSlice.so.%{version}
+%attr(755, root, root) %{_libdir}/libSlice.so.%{soversion}
+%attr(755, root, root) %{_libdir}/libIceGrid.so.%{version}
+%attr(755, root, root) %{_libdir}/libIceGrid.so.%{soversion}
 %dir /usr/lib/Ice-%{version}
 /usr/lib/Ice-%{version}/IceGridGUI.jar
-/usr/share/slice
-%dir /usr/share/Ice-%{version}
-/usr/share/Ice-%{version}/templates.xml
-%attr(755, root, root) /usr/share/Ice-%{version}/convertssl.py
-%attr(755, root, root) /usr/share/Ice-%{version}/upgradeicegrid.py
-%attr(755, root, root) /usr/share/Ice-%{version}/upgradeicestorm.py
-/usr/share/Ice-%{version}/icegrid-slice.3.1.ice.gz
+%dir %{_datadir}/Ice-%{version}
+%{_datadir}/Ice-%{version}/slice
+%{_datadir}/Ice-%{version}/templates.xml
+%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.py
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.py
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.py
+%{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
 %attr(755, root, root) /etc/init.d/icegridregistry
 %attr(755, root, root) /etc/init.d/icegridnode
 %attr(755, root, root) /etc/init.d/glacier2router
@@ -594,19 +591,19 @@ firewall solution, and much more.
 
 %attr(755, root, root) /usr/bin/slice2cpp
 %attr(755, root, root) /usr/bin/slice2freeze
-/usr/include
-%attr(755, root, root) /usr/%{icelibdir}/libFreeze.so
-%attr(755, root, root) /usr/%{icelibdir}/libGlacier2.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceBox.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceGrid.so
-%attr(755, root, root) /usr/%{icelibdir}/libIcePatch2.so
-%attr(755, root, root) /usr/%{icelibdir}/libIce.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceSSL.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceStormService.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceStorm.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceUtil.so
-%attr(755, root, root) /usr/%{icelibdir}/libIceXML.so
-%attr(755, root, root) /usr/%{icelibdir}/libSlice.so
+%{_includedir}
+%attr(755, root, root) %{_libdir}/libFreeze.so
+%attr(755, root, root) %{_libdir}/libGlacier2.so
+%attr(755, root, root) %{_libdir}/libIceBox.so
+%attr(755, root, root) %{_libdir}/libIceGrid.so
+%attr(755, root, root) %{_libdir}/libIcePatch2.so
+%attr(755, root, root) %{_libdir}/libIce.so
+%attr(755, root, root) %{_libdir}/libIceSSL.so
+%attr(755, root, root) %{_libdir}/libIceStormService.so
+%attr(755, root, root) %{_libdir}/libIceStorm.so
+%attr(755, root, root) %{_libdir}/libIceUtil.so
+%attr(755, root, root) %{_libdir}/libIceXML.so
+%attr(755, root, root) %{_libdir}/libSlice.so
 
 
 %post c++-devel
@@ -621,13 +618,13 @@ firewall solution, and much more.
 %defattr(644, root, root, 755)
 
 %attr(755, root, root) /usr/bin/slice2cs
-%dir /usr/%{icelibdir}/pkgconfig
-/usr/%{icelibdir}/pkgconfig/icecs.pc
-/usr/%{icelibdir}/pkgconfig/glacier2cs.pc
-/usr/%{icelibdir}/pkgconfig/iceboxcs.pc
-/usr/%{icelibdir}/pkgconfig/icegridcs.pc
-/usr/%{icelibdir}/pkgconfig/icepatch2cs.pc
-/usr/%{icelibdir}/pkgconfig/icestormcs.pc
+%dir %{_libdir}/pkgconfig
+%{_libdir}/pkgconfig/icecs.pc
+%{_libdir}/pkgconfig/glacier2cs.pc
+%{_libdir}/pkgconfig/iceboxcs.pc
+%{_libdir}/pkgconfig/icegridcs.pc
+%{_libdir}/pkgconfig/icepatch2cs.pc
+%{_libdir}/pkgconfig/icestormcs.pc
 
 
 %post csharp-devel
@@ -668,8 +665,8 @@ pklibdir="lib64"
 %files python
 %defattr(644, root, root, 755)
 
-%dir /usr/%{icelibdir}/Ice-%{version}
-/usr/%{icelibdir}/Ice-%{version}/python
+%dir %{_libdir}/Ice-%{version}
+%{_libdir}/Ice-%{version}/python
 
 
 %post python
@@ -697,8 +694,8 @@ pklibdir="lib64"
 %files ruby
 %defattr(644, root, root, 755)
 
-%dir /usr/%{icelibdir}/Ice-%{version}
-/usr/%{icelibdir}/Ice-%{version}/ruby
+%dir %{_libdir}/Ice-%{version}
+%{_libdir}/Ice-%{version}/ruby
 
 
 %post ruby
@@ -726,7 +723,7 @@ pklibdir="lib64"
 %files php
 %defattr(644, root, root, 755)
 
-%attr(755, root, root) /usr/%{icelibdir}/php/modules
+%attr(755, root, root) %{_libdir}/php/modules
 /etc/php.d/ice.ini
 
 

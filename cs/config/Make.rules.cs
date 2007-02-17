@@ -88,7 +88,7 @@ libdir			= $(top_srcdir)/lib
 #
 ifneq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
     ifeq ($(ICE_DIR),/usr)
-	slicedir = $(ICE_DIR)/share/slice
+	slicedir = $(ICE_DIR)/share/Ice-$(VERSION)/slice
     else
 	slicedir = $(ICE_DIR)/slice
     endif
