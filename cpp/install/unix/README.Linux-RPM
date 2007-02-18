@@ -57,8 +57,8 @@ installation of the Ice for C++ development kit.
 Java
 ----
 
-To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
-in the following bash command:
+To use Ice for Java with Java5 or Java6, add Ice.jar to your CLASSPATH,
+as shown in the following bash command:
 
 $ export CLASSPATH=/usr/lib/Ice-@ver@/Ice.jar:$CLASSPATH
 
@@ -81,6 +81,27 @@ are installed in /usr/lib64, so use instead:
 
 $ export LD_LIBRARY_PATH=/usr/lib64:$LD_LIBRARY_PATH
 
+When using the Ice for Java SSL plugin (IceSSL), you may experience
+occasional hangs. The most likely reason is that your system's entropy
+pool is empty. If you have sufficient system privileges, you can solve
+this issue by editing the following file
+
+<java.home>/jre/lib/security/java.security
+
+and changing it to use /dev/urandom instead of /dev/random. If you do
+not have permission to modify the security file, you can also use the
+command line option shown below:
+
+$ java -Djava.security.egd=file:/dev/urandom MyClass ...
+
+On SuSE Linux Enterprise Server, you may experience occasional hangs 
+the first time an Ice object adapter is activated within a JVM. A 
+work-around is to disable IPv6 support by setting the Java property 
+java.net.preferIPv4Stack to true. For example:
+
+$ java -Djava.net.preferIPv4Stack=true MyClass ...
+
+See also: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
 
 Python
 ------

@@ -157,6 +157,28 @@ In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
 must add this directory to your LD_LIBRARY_PATH.
 
+When using the Ice for Java SSL plugin (IceSSL), you may experience
+occasional hangs. The most likely reason is that your system's entropy
+pool is empty. If you have sufficient system privileges, you can solve
+this issue by editing the following file
+
+<java.home>/jre/lib/security/java.security
+
+and changing it to use /dev/urandom instead of /dev/random. If you do
+not have permission to modify the security file, you can also use the
+command line option shown below:
+
+$ java -Djava.security.egd=file:/dev/urandom MyClass ...
+
+On SuSE Linux Enterprise Server, you may experience occasional hangs 
+the first time an Ice object adapter is activated within a JVM. A 
+work-around is to disable IPv6 support by setting the Java property 
+java.net.preferIPv4Stack to true. For example:
+
+$ java -Djava.net.preferIPv4Stack=true MyClass ...
+
+See also: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
+
 
 Python
 ------

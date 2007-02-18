@@ -32,19 +32,10 @@ Ice for Java requires Java version 1.4.2 or later. Older versions are
 not supported, because Ice makes use of the new java.nio packages.
 (java.nio was introduced in version 1.4.0, but was broken on Windows.)
 
-You can download the Java 2 Platform, Standard Edition from
-http://java.sun.com/j2se/.
+You can download Java2, Java5 and Java6 for Solaris, Windows and
+Linux from http://java.sun.com.
 
 Make sure to add javac and java to your PATH.
-
-On HP-UX 11, we recommend using JDK 1.4.2.06 along with patch
-PHNE_29887 to avoid the potential for hangs during shutdown. See the
-link below for more information:
-
-http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.html
-
-On Linux x86_64, we recommend using JRE 1.5.0_07 or an ealier version. 
-JRE 1.5.0_08 and JRE 1.5.0_09 introduced a bug that affects Freeze maps.
 
 When using the Ice for Java SSL plugin (IceSSL), you may experience
 occasional hangs. The most likely reason is that your system's entropy
@@ -58,6 +49,15 @@ not have permission to modify the security file, you can also use the
 command line option shown below:
 
 java -Djava.security.egd=file:/dev/urandom MyClass ...
+
+On SuSE Linux Enterprise Server, you may experience occasional hangs 
+the first time an Ice object adapter is activated within a JVM. A 
+work-around is to disable IPv6 support by setting the Java property 
+java.net.preferIPv4Stack to true. For example:
+
+java -Djava.net.preferIPv4Stack=true MyClass ...
+
+See also: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
 
 
 Slice to Java translator
@@ -76,11 +76,11 @@ Berkeley DB
 -----------
 
 Freeze for Java uses Berkeley DB as its underlying database. It
-requires Berkeley DB 4.5.
+requires Berkeley DB 4.5.20.
 
 Even though Berkeley DB is included with many Linux distributions, the
 Java files for Berkeley DB are usually not available, which requires
-you to build Berkeley DB manually.
+you to build Berkeley DB yourself.
 
 You can download the Berkeley DB source distribution from:
 
@@ -91,19 +91,12 @@ Java support. For Linux, this is done by specifying --enable-java with
 "configure". For Windows you must select the "db_java -- Win32 Release"
 project.
 
-On Fedora Core 4, it is necessary to change the compiler's default
-optimization level when building Berkeley DB in order to avoid a bug
-in the packaged GCC compiler. We recommend you use the following
-syntax when you run configure:
-
-$ CFLAGS="-O1" ../dist/configure <your configure options>
-
 Make sure to add db.jar to your CLASSPATH, and verify that the
 Berkeley DB shared libraries are in your java.library.path. On Linux,
 this can be achieved by adding <Berkeley DB home>/lib to your
 LD_LIBRARY_PATH, for example:
 
-$ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH=/opt/db45/lib:$LD_LIBRARY_PATH
 
 Note that the Ice for Java distribution is compiled against Berkeley
 DB 4.5.20.
@@ -200,6 +193,9 @@ This archive is completely self-contained. You can start the
 application with the following command:
 
 $ java -jar IceGridGUI.jar
+
+IceGridGUI.jar is currently built only with a Java2 compiler or
+by passing -Djdk=1.4 to ant. 
 
 
 ======================================================================
