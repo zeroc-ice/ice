@@ -144,6 +144,9 @@ public:
         {
             _done = true;
             current.con->close(true);
+            // Deactivate the OA. This ensures that the subscribers
+            // that have subscribed with oneway QoS will be booted.
+            current.adapter->deactivate();
             _count = _total;
             {
                 IceUtil::StaticMutex::Lock sync(_remainingMutex);
