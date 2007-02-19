@@ -52,8 +52,8 @@ SUNWcry and SUNWcryr) available at http://www.sun.com/download/index.jsp?cat=Sec
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
-JavaSoft at http://www.javasoft.com/j2se
+Ice for Java requires J2SE 1.4.2, 1.5.0 or 1.6.0. RPMs can be obtained
+from Sun Microsystems at http://java.sun.com
 
 
 ======================================================================
