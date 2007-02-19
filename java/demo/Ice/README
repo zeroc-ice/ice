@@ -1,8 +1,9 @@
 Demos in this directory:
 
-- minimal
+- async
 
-  This demo illustrates a minimal Ice application.
+  This demo illustrates the use of Asynchronous Message Invocation (AMI)
+  and Asynchronous Message Dispatch (AMD).
 
 - bidir
 
@@ -33,10 +34,19 @@ Demos in this directory:
   A simple latency test that measures the basic call dispatch delay of
   Ice.
 
+- minimal
+
+  This demo illustrates a minimal Ice application.
+
 - nested
 
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
+
+- session
+
+  This demo shows how to use sessions to clean up client-specific
+  resources in a server after the client shuts down or crashes.
 
 - throughput
 
@@ -49,13 +59,3 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
-
-- session
-
-  This demo shows how to use sessions to clean up client-specific
-  resources in a server after the client shuts down or crashes.
-
-- async
-
-  This demo illustrates the use of Aysynchronous Message Invocation (AMI)
-  and Aysynchronous Message Dispatch (AMD).

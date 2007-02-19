@@ -1,13 +1,9 @@
 Demos in this directory:
 
-- minimal
+- async
 
-  This demo illustrates a minimal Ice application.
-
-- MFC
-
-  Shows how to use Ice in conjunction with the Microsoft Foundation
-  Classes.
+  This demo illustrates the use of Asynchronous Message Invocation (AMI)
+  and Asynchronous Message Dispatch (AMD).
 
 - bidir
 
@@ -22,6 +18,10 @@ Demos in this directory:
   proxy to a server, invoke an operation in the server, and the server
   call back into an object provided by the client as part of that
   invocation.
+
+- converter
+
+  This demo shows how to use string converters.
 
 - hello
 
@@ -38,10 +38,24 @@ Demos in this directory:
   A simple latency test that measures the basic call dispatch delay of
   Ice.
 
+- minimal
+
+  This demo illustrates a minimal Ice application.
+
+- MFC
+
+  Shows how to use Ice in conjunction with the Microsoft Foundation
+  Classes.
+
 - nested
 
   A demo to illustrate how nested callbacks work, and how the size of
   the thread pool affects the maximum nesting depth.
+
+- session
+
+  This demo shows how to use sessions to clean up client-specific
+  resources in a server after the client shuts down or crashes.
 
 - throughput
 
@@ -54,17 +68,3 @@ Demos in this directory:
 
   This demo shows how to use classes, class factories, and the
   difference between local and remote invocations of class operations.
-
-- session
-
-  This demo shows how to use sessions to clean up client-specific
-  resources in a server after the client shuts down or crashes.
-
-- converter
-
-  This demo shows how to use string converters.
-
-- async
-
-  This demo illustrates the use of Aysynchronous Message Invocation (AMI)
-  and Aysynchronous Message Dispatch (AMD).
