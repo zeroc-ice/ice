@@ -168,13 +168,11 @@ $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(REGISTRY_SVR_OBJS) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-	    del /q $(REGISTRY_SERVER).manifest
 
 $(NODE_SERVER): $(NODE_SVR_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
 	@if exist $@.manifest \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
-	    del /q $(NODE_SERVER).manifest
 
 StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp

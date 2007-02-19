@@ -51,7 +51,6 @@ $(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(TPDBFLAGS) $(TRANSFORM_OBJS) $(COMMON_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-	    del /q $(TRANSFORMDB).manifest
 
 $(DUMPDB): $(DUMP_OBJS) $(COMMON_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(DPDBFLAGS) $(DUMP_OBJS) $(COMMON_OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
