@@ -224,7 +224,7 @@ Running the Python demos
 
 The Python demos are in the demopy directory.
 
-You need Python 2.4.3 to run the demos. A binary installer for Python
+You need Python 2.5 to run the demos. A binary installer for Python
 can be downloaded from:
 
 http://www.python.org/download
