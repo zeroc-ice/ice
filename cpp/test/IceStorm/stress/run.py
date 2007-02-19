@@ -158,6 +158,25 @@ def stopServers(p1, p2 = None):
             sys.exit(1)
     print "ok"
 
+def runAdmin(cmd, desc = None):
+    global iceStormAdmin
+    global iceStormAdminReference
+    if desc:
+        print desc,
+        sys.stdout.flush()
+    command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
+        r' -e "' + cmd + '"'
+    if TestUtil.debug:
+        print "(" + command + ")",
+        sys.stdout.flush()
+    pipe = os.popen(command + " 2>&1")
+    status = TestUtil.closePipe(pipe)
+    if status:
+        TestUtil.killServers()
+        sys.exit(1)
+    if desc:
+        print "ok"
+
 dbHome = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbHome)
 iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
@@ -168,19 +187,7 @@ iceStormDBEnv2=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome2
 
 server1, server2 = startServers()
 
-print "setting up the topics...",
-sys.stdout.flush()
-command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
-    r' -e "create TestIceStorm1/fed1 TestIceStorm2/fed1; link TestIceStorm1/fed1 TestIceStorm2/fed1"'
-if TestUtil.debug:
-    print "(" + command + ")",
-    sys.stdout.flush()
-iceStormAdminPipe = os.popen(command + " 2>&1")
-iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
-if iceStormAdminStatus:
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
+runAdmin("create TestIceStorm1/fed1 TestIceStorm2/fed1", "setting up the topics...")
 
 print "Sending 5000 ordered events... ",
 sys.stdout.flush()
@@ -191,6 +198,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 5000 ordered events across a link... ",
 sys.stdout.flush()
 status = doTest('--events 5000 --qos "reliability,ordered" ' + iceStormReference2, '--events 5000')
@@ -199,6 +207,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events... ",
 sys.stdout.flush()
 status = doTest('--events 20000 ' + iceStormReference, '--events 20000 --oneway')
@@ -208,6 +217,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events across a link... ",
 sys.stdout.flush()
 status = doTest('--events 20000 ' + iceStormReference2, '--events 20000 --oneway')
@@ -216,6 +226,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered batch events... ",
 sys.stdout.flush()
 status = doTest('--events 20000 --qos "reliability,batch" ' + iceStormReference, '--events 20000 --oneway')
@@ -225,6 +236,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered batch events across a link... ",
 sys.stdout.flush()
 status = doTest('--events 20000 --qos "reliability,batch" ' + iceStormReference2, '--events 20000 --oneway')
@@ -233,6 +245,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events with slow subscriber... ",
 status = doTest(['--events 2 --slow ' + iceStormReference, '--events 20000 ' + iceStormReference], '--events 20000 --oneway')
 if status:
@@ -241,6 +254,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events with slow subscriber & link... ",
 status = doTest(['--events 2 --slow' + iceStormReference, '--events 20000' + iceStormReference, '--events 2 --slow' + iceStormReference2, '--events 20000' + iceStormReference2], '--events 20000 --oneway')
 if status:
@@ -262,6 +276,7 @@ TestUtil.collocatedOptions = TestUtil.collocatedOptions + ' --Ice.Warn.Connectio
 stopServers(server1, server2)
 server1, server2 = startServers()
 
+runAdmin("unlink TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events with erratic subscriber... ",
 sys.stdout.flush()
 status = doTest(\
@@ -275,6 +290,7 @@ if status:
     sys.exit(1)
 print "ok"
 
+runAdmin("link TestIceStorm1/fed1 TestIceStorm2/fed1")
 print "Sending 20000 unordered events with erratic subscriber across a link... ",
 sys.stdout.flush()
 status = doTest( \
