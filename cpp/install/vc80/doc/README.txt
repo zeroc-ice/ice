@@ -195,10 +195,10 @@ Before running the demos you must modify your CLASSPATH as follows:
 
 set CLASSPATH=%ICE_HOME%\lib\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
 
-If you prefer to use Ice for Java5 instead, modify your CLASSPATH
+If you prefer to use Ice for Java2 rather than Java5, modify your CLASSPATH
 as shown below:
 
-set CLASSPATH=%ICE_HOME%\lib\java5\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
+set CLASSPATH=%ICE_HOME%\lib\java2\Ice.jar;%ICE_HOME%\lib\db.jar;classes;%CLASSPATH%
 
 In addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore the Ice bin
