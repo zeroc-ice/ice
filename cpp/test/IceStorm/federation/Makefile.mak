@@ -37,13 +37,13 @@ SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 
 $(PUBLISHER): $(OBJS) $(POBJS)
 	$(LINK) $(LD_EXEFLAGS) $(PPDBFLAGS) $(OBJS) $(POBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	@if exist $@.manifest \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
-	@if exist $@.manifest \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Event.cpp Event.h

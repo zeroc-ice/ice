@@ -42,8 +42,8 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(OBJS)
 	$(LINK) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(BASELIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	@if exist $@.manifest \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 Scanner.cpp : Scanner.l

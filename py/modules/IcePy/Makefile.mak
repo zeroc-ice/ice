@@ -44,8 +44,8 @@ $(DLLNAME): $(OBJS)
 	$(LINK) $(PYTHON_LDFLAGS) $(ICE_LDFLAGS) $(LD_DLLFLAGS) $(PDBFLAGS) $(OBJS) \
 		$(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	move $(@:.pyd=.lib) $(LIBNAME)
-	-if exist $@.manifest \
-	   $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 & del /q $@.manifest
+	-if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	   $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	-if exist $(@:.pyd=.exp) del /q $(@:.pyd=.exp)
 
 install:: all
