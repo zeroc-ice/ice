@@ -34,5 +34,6 @@
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/Random.h>
+#include <IceUtil/CtrlCHandler.h>
 
 #endif

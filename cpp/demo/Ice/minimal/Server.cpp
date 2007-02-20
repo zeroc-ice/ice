@@ -7,16 +7,29 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <HelloI.h>
 #include <Ice/Ice.h>
 
 using namespace std;
 
+static Ice::CommunicatorPtr communicator;
+
+static void 
+onCtrlC(int)
+{
+    if(communicator)
+    {
+        communicator->shutdown();
+    }
+}
+
 int
 main(int argc, char* argv[])
 {
     int status = EXIT_SUCCESS;
-    Ice::CommunicatorPtr communicator;
+
+    IceUtil::CtrlCHandler ctrCHandler(onCtrlC);
 
     try
     {
