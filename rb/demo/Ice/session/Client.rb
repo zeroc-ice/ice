@@ -160,7 +160,10 @@ class Client < Ice::Application
             # The refresher thread must be terminated in the event of a
             # failure.
             #
-            cleanup(true)
+            begin
+                cleanup(true)
+            rescue
+            end
         end
 
         return true
