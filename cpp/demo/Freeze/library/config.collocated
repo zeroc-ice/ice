@@ -1,6 +1,11 @@
 Library.Endpoints=default -p 10000
 Library.Proxy=library:default -p 10000
-Library.EvictorSize=3
+EvictorSize=3
+
+#
+# Don't warn about unknown properties.
+# 
+Ice.Warn.UnknownProperties=0
 
 Freeze.Trace.Map=1
 Freeze.Trace.Evictor=2

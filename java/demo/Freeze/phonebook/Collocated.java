@@ -64,7 +64,7 @@ class PhoneBookCollocated extends Ice.Application
         // to createEvictor().
         //
         Freeze.Evictor evictor = Freeze.Util.createEvictor(adapter, _envName, "contacts", null, indices, true);
-        int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
+        int evictorSize = properties.getPropertyAsInt("EvictorSize");
         if(evictorSize > 0)
         {
             evictor.setSize(evictorSize);

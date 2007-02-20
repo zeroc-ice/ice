@@ -58,7 +58,7 @@ LibraryCollocated::run(int argc, char* argv[])
     // Create an evictor for books.
     //
     Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "books");
-    Ice::Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
+    Ice::Int evictorSize = properties->getPropertyAsInt("EvictorSize");
     if(evictorSize > 0)
     {
         evictor->setSize(evictorSize);

@@ -79,7 +79,7 @@ PhoneBookCollocated::run(int argc, char* argv[])
     Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "contacts", 0, indices);
     adapter->addServantLocator(evictor, "contact");
 
-    Ice::Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
+    Ice::Int evictorSize = properties->getPropertyAsInt("EvictorSize");
     if(evictorSize > 0)
     {
         evictor->setSize(evictorSize);

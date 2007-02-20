@@ -5,7 +5,12 @@ Freeze.Evictor.db.contacts.PopulateEmptyIndices=1
 
 PhoneBook.Endpoints=default -p 10000
 PhoneBook.Proxy=phonebook:default -p 10000
-PhoneBook.EvictorSize=3
+EvictorSize=3
+
+#
+# Don't warn about unknown properties.
+# 
+Ice.Warn.UnknownProperties=0
 
 #
 # Warn about connection exceptions
