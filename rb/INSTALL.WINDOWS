@@ -53,7 +53,7 @@ Follow these steps to build the Ice extension for Ruby:
    start a "Visual Studio Command Prompt" by selecting the appropriate
    entry from the Visual Studio program group in your Start menu.
 
-2) Change to the Ice for Python source directory.
+2) Change to the Ice for Ruby source directory.
 
 3) Set the ICE_HOME environment variable with the Ice installation
    directory. For example:
