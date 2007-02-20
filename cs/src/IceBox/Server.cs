@@ -13,7 +13,7 @@ public class Server : Ice.Application
 {
     private static void usage()
     {
-        Console.Error.WriteLine("Usage: IceBox.Server [options] --Ice.Config=<file>\n");
+        Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
         Console.Error.WriteLine(
             "Options:\n" +
             "-h, --help           Show this message.\n"
