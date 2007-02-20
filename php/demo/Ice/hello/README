@@ -32,7 +32,7 @@ hello.php and set the have_ssl variable to true.
 SELinux Notes
 =========================================================================
 
-On Fedora Linux and a number of other Linux distributions, SELinux 
+On RHEL Linux and a number of other Linux distributions, SELinux 
 augments the traditional Unix permissions with a number of new features. 
 In particular, SELinux can prevent the httpd daemon from opening
 network connections and reading files without the proper SELinux types.
