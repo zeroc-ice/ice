@@ -1,16 +1,3 @@
-# To create an explicit listing for the demos run the following command
-# in the demo directory of the IcePy distribution:
-# find . -name "*.py" -type f | sed -e 's/^\.\///' >> file
-#
-# If you want to use wild card searches instead of explicitly listing
-# files, you can delete the filenames and uncomment the following lines:
-#
-# *.py
-# include=**/*.py
-#
-# Stop uncommenting here
-# Delete from here to EOF
-
 Glacier2/__init__.py
 Glacier2_PermissionsVerifierF_ice.py
 Glacier2_PermissionsVerifier_ice.py
@@ -18,6 +5,8 @@ Glacier2_RouterF_ice.py
 Glacier2_Router_ice.py
 Glacier2_SessionF_ice.py
 Glacier2_Session_ice.py
+Ice_ImplicitContextF_ice.py
+Ice_ImplicitContext_ice.py
 Ice.py
 IceBox/__init__.py
 IceBox_IceBox_ice.py

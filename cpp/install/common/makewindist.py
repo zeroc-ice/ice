@@ -302,7 +302,6 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
 
         runprog("nmake /f Makefile.mak")
 
-
     #
     # Now run the release mode builds.
     #
@@ -325,7 +324,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
     os.chdir(os.path.join(iceHome, "demo"))
     runprog("nmake /f Makefile.mak clean")
 
-    if installVersion == "vc71":
+    if installVersion == "vc80":
         #
         # Ice for Python
         #
@@ -337,6 +336,7 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         print "Building in " + os.getcwd() + "..."
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
         runprog("nmake /f Makefile.mak")
+
         
     if installVersion == "vc60":
         #
