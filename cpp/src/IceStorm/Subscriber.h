@@ -72,6 +72,7 @@ protected:
     {
         SubscriberStateOnline,
         SubscriberStateFlushPending,
+        SubscriberStateSending,
         SubscriberStateOffline,
         SubscriberStateError
     };

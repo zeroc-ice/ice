@@ -277,6 +277,12 @@ SubscriberPool::dequeue(SubscriberPtr& subscriber, bool requeue, const IceUtil::
         if(requeue)
         {
             _pending.push_back(subscriber);
+            //
+            // Its necessary to notify here since this thread might go
+            // on and kill itself in which case if another worker is
+            // in wait() it will not wake up and process the subscriber.
+            //
+            notify();
             assert(invariants());
         }
         subscriber->flushTime(interval);
@@ -297,7 +303,6 @@ SubscriberPool::dequeue(SubscriberPtr& subscriber, bool requeue, const IceUtil::
     //
     if(_sizeMax != 1)
     {
-
         //
         // Reap dead workers, if necessary.
         //

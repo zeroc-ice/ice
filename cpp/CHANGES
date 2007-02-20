@@ -226,7 +226,7 @@ Changes since version 3.1.1
   IceStorm.Trace.SubscriberPool. The thread pool size is controlled
   through the following properties.
 
-  * IceStorm.SubscriberPool.Max. The initial size of the thread
+  * IceStorm.SubscriberPool.Size. The initial size of the thread
     pool, the default being 1.
   * IceStorm.SubscriberPool.SizeMax. The maximum size of the thread
     pool, the default being 0, which means unlimited.

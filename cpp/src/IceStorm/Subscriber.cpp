@@ -117,11 +117,15 @@ public:
     SubscriberTwoway(const InstancePtr&, const Ice::ObjectPrx&, const Ice::ObjectPrx&);
 
     virtual bool flush();
+    void response();
 
 private:
 
     const Ice::ObjectPrx _obj;
+    const int _maxOutstanding;
+    int _outstanding;
 };
+typedef IceUtil::Handle<SubscriberTwoway> SubscriberTwowayPtr;
 
 //
 // Twoway Ordered
@@ -284,7 +288,7 @@ class TwowayInvokeI : public Ice::AMI_Object_ice_invoke
 {
 public:
 
-    TwowayInvokeI(const SubscriberPtr& subscriber) :
+    TwowayInvokeI(const SubscriberTwowayPtr& subscriber) :
         _subscriber(subscriber)
     {
     }
@@ -292,6 +296,7 @@ public:
     virtual void
     ice_response(bool, const std::vector<Ice::Byte>&)
     {
+        _subscriber->response();
     }
 
     virtual void
@@ -302,7 +307,7 @@ public:
 
 private:
 
-    const SubscriberPtr _subscriber;
+    const SubscriberTwowayPtr _subscriber;
 };
 
 }
@@ -312,7 +317,9 @@ SubscriberTwoway::SubscriberTwoway(
     const Ice::ObjectPrx& proxy,
     const Ice::ObjectPrx& obj) :
     Subscriber(instance, proxy, false, obj->ice_getIdentity()),
-    _obj(obj)
+    _obj(obj),
+    _maxOutstanding(10),
+    _outstanding(0)
 {
 }
 
@@ -332,11 +339,28 @@ SubscriberTwoway::flush()
         }
         assert(_state == SubscriberStateFlushPending);
         assert(!_events.empty());
+
+        //
+        // If there are more than _maxOutstanding unanswered AMI
+        // events we're also done. In this case the response to the
+        // pending AMI requests will trigger another event to be sent.
+        //
+        if(_outstanding >= _maxOutstanding)
+        {
+            _state = SubscriberStateSending;
+            return false;
+        }
         
+        //
+        // Dequeue the head event, count one more outstanding AMI
+        // request.
+        //
         e = _events.front();
         _events.erase(_events.begin());
+        _state = SubscriberStateSending;
+        ++_outstanding;
     }
-    
+
     _obj->ice_invoke_async(new TwowayInvokeI(this), e->op, e->mode, e->data, e->context);
 
     //
@@ -346,26 +370,79 @@ SubscriberTwoway::flush()
     //
     {
         IceUtil::Mutex::Lock sync(_mutex);
-
         //
-        // If the subscriber errored out then we're done.
+        // If the subscriber has already been requeued for a flush or
+        // the subscriber errored out then we're done.
         //
-        if(_state == SubscriberStateError)
+        if(_state == SubscriberStateFlushPending || _state == SubscriberStateError)
         {
             return false;
         }
 
         //
-        // If there have been more events queued in the meantime then
-        // we have a pending flush.
+        // If there are no events left in the queue transition back to
+        // the online state, and return false to indicate to the
+        // worker not to requeue.
         //
-        if(!_events.empty())
+        if(_events.empty())
         {
-            assert(_state == SubscriberStateFlushPending);
-            return true;
+            _state = SubscriberStateOnline;
+            return false;
         }
-        _state = SubscriberStateOnline;
-        return false;
+
+        //
+        // We must still be in sending state.
+        //
+        assert(_state == SubscriberStateSending);
+
+        //
+        // If we're below the outstanding limit then requeue,
+        // otherwise the response callback will do so.
+        //
+        if(_outstanding < _maxOutstanding)
+        {
+            _state = SubscriberStateFlushPending;
+        }
+
+        return _state == SubscriberStateFlushPending;
+    }
+}
+
+void
+SubscriberTwoway::response()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+
+    --_outstanding;
+
+    //
+    // Note that its possible for the _state to be error if there are
+    // mutliple threads in the client side thread pool and response
+    // and exception are called out of order.
+    //
+    assert(_outstanding >= 0 && _outstanding < _maxOutstanding);
+
+    //
+    // Unless we're in the sending state we do nothing.
+    //
+    if(_state == SubscriberStateSending)
+    {
+        //
+        // If there are no more events then we transition back to
+        // online.
+        //
+        if(_events.empty())
+        {
+            _state = SubscriberStateOnline;
+        }
+        //
+        // Otherwise we re-add for a flush.
+        //
+        else
+        {
+            _state = SubscriberStateFlushPending;
+            _instance->subscriberPool()->flush(this);
+        }
     }
 }
 
@@ -778,7 +855,7 @@ Subscriber::queue(bool, const EventDataSeq& events)
     }
 
     copy(events.begin(), events.end(), back_inserter(_events));
-    if(_state == SubscriberStateFlushPending)
+    if(_state == SubscriberStateSending || _state == SubscriberStateFlushPending)
     {
         return QueueStateNoFlush;
     }
