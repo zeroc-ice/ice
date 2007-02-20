@@ -22,7 +22,7 @@ SDIR		= .
 
 GDIR		= generated
 
-!include $(top_srcdir)\config\Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak.vb
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:SessionDemo
 

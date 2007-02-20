@@ -97,6 +97,9 @@
     <Compile Include="Server.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WorkQueue.vb">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

@@ -24,7 +24,7 @@ GDIR		= generated
 
 SLICE2VBFLAGS 	= -I$(slicedir) $(SLICE2VBFLAGS)
 
-!include $(top_srcdir)\config\Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak.vb
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
 
