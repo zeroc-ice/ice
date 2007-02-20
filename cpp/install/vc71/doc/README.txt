@@ -25,10 +25,7 @@ this distribution.
 Visual Studio Requirements
 --------------------------
 
-This release requires Visual Studio .NET 2003 build 3088 or later. For
-C# or VB, the release requires Visual Studio .NET 2005 or later or
-Visual C# Express Version 8.0.50727.42 or later, and .NET 2.0,
-build 502727 or later.
+This release requires Visual Studio .NET 2003 build 3088 or later.
 
 
 Setting up Visual Studio .NET for C++
@@ -87,40 +84,6 @@ set PATH=%ICE_HOME%\bin;%PATH%
 Next, open a Command Prompt, change to the desired demo subdirectory,
 and type 'server' to start the server. In a separate Command Prompt
 window, type 'client' to start the client.
-
-Some demo directories contain README files if additional requirements
-are necessary.
-
-
-Building and running the C# demos
----------------------------------
-
-The C# demos are in the democs directory.
-
-To build a C# demo, start Visual Studio .NET and open the solution
-democs\demo.sln. Right click on the desired demo in the Solution
-Explorer window and select "Build".
-
-To run a demo, open a Command Prompt, change to the desired demo
-directory, and type 'server.exe' to start the server. In a separate
-Command Prompt window, type 'client.exe' to run the client.
-
-Some demo directories contain README files if additional requirements
-are necessary.
-
-
-Building and running the Visual Basic demos
--------------------------------------------
-
-The Visual Basic demos are in the demovb directory.
-
-To build a Visual Basic demo, start Visual Studio .NET and open the
-solution demovb\demo.sln. Right click on the desired demo in the
-Solution Explorer window and select "Build".
-
-To run a demo, open a Command Prompt, change to the desired demo
-directory, and type 'server.exe' to start the server. In a separate
-Command Prompt window, type 'client.exe' to run the client.
 
 Some demo directories contain README files if additional requirements
 are necessary.
