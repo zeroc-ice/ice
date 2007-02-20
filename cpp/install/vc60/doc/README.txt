@@ -80,6 +80,42 @@ Some demo directories contain README files if additional requirements
 are necessary.
 
 
+Running the Ruby demos
+----------------------
+
+The Ruby demos are in the demorb directory.
+
+You need Ruby 1.8.5 to run the demos. A binary installer for Ruby
+can be downloaded from:
+
+http://rubyforge.org/projects/rubyinstaller/
+
+You also need to add the Ice bin directory to your PATH, for example:
+
+set ICE_HOME=<Ice installation root directory>
+set PATH=%ICE_HOME%\bin;%PATH%
+
+Finally, set RUBYLIB so that the Ruby interpreter is able to load
+the Ice extension:
+
+set RUBYLIB=%ICE_HOME%\ruby;%RUBYLIB%
+
+Since Ice for Ruby does not support server-side activities, only 
+clients are provided in the demos. In order to run the demos you must
+use the corresponding C++ server.
+
+For example, to run the hello application in demo\Ice\hello, we begin
+by starting the C++ server:
+
+  > cd %ICE_HOME%\demo\Ice\hello
+  > server
+
+Then in a separate window, start the Ruby client:
+
+  > cd %ICE_HOME%\demorb\Ice\hello
+  > ruby Client.rb
+
+
 Running the PHP demos
 ---------------------
 
