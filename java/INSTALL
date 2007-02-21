@@ -32,8 +32,10 @@ Ice for Java requires Java version 1.4.2 or later. Older versions are
 not supported, because Ice makes use of the new java.nio packages.
 (java.nio was introduced in version 1.4.0, but was broken on Windows.)
 
-You can download Java2, Java5 and Java6 for Solaris, Windows and
-Linux from http://java.sun.com.
+You can download Java2, Java5, and Java6 for Solaris, Windows, and
+Linux from
+
+  http://java.sun.com
 
 Make sure to add javac and java to your PATH.
 
@@ -42,22 +44,24 @@ occasional hangs. The most likely reason is that your system's entropy
 pool is empty. If you have sufficient system privileges, you can solve
 this issue by editing the following file
 
-<java.home>/jre/lib/security/java.security
+  <java.home>/jre/lib/security/java.security
 
 and changing it to use /dev/urandom instead of /dev/random. If you do
 not have permission to modify the security file, you can also use the
-command line option shown below:
+command-line option shown below:
 
-java -Djava.security.egd=file:/dev/urandom MyClass ...
+  java -Djava.security.egd=file:/dev/urandom MyClass ...
 
 On SuSE Linux Enterprise Server, you may experience occasional hangs 
 the first time an Ice object adapter is activated within a JVM. A 
 work-around is to disable IPv6 support by setting the Java property 
 java.net.preferIPv4Stack to true. For example:
 
-java -Djava.net.preferIPv4Stack=true MyClass ...
+  java -Djava.net.preferIPv4Stack=true MyClass ...
 
-See also: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
+For more information on this issue, refer to Sun's bug database:
+
+  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
 
 
 Slice to Java translator
@@ -69,7 +73,7 @@ web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 
 Berkeley DB
@@ -84,12 +88,12 @@ you to build Berkeley DB yourself.
 
 You can download the Berkeley DB source distribution from:
 
-http://www.oracle.com/technology/software/products/berkeley-db/index.html
+  http://www.oracle.com/database/berkeley-db/index.html
 
 When you build Berkeley DB, make sure to configure Berkeley DB with
-Java support. For Linux, this is done by specifying --enable-java with
-"configure". For Windows you must select the "db_java -- Win32 Release"
-project.
+Java support. For Linux, this is done by specifying the --enable-java
+option when running the configure script. On Windows, you must select
+the project "db_java -- Win32 Release".
 
 Make sure to add db.jar to your CLASSPATH, and verify that the
 Berkeley DB shared libraries are in your java.library.path. On Linux,
@@ -112,7 +116,7 @@ Compression is automatically enabled if the classes are present in the
 CLASSPATH. You can either add ant.jar to your CLASSPATH, or download
 only the bzip2 classes from
 
-http://www.kohsuke.org/bzip2/
+  http://www.kohsuke.org/bzip2/
 
 Note that these classes are a pure Java implementation of the bzip2
 algorithm and therefore add significant latency to Ice requests.
@@ -128,7 +132,7 @@ source code.
 
 The libraries are available here:
 
-http://www.jgoodies.com/downloads/libraries.html
+  http://www.jgoodies.com/downloads/libraries.html
 
 
 ProGuard
@@ -141,7 +145,7 @@ below for more information.
 
 ProGuard is available here:
 
-http://proguard.sourceforge.net
+  http://proguard.sourceforge.net
 
 
 Python
@@ -152,7 +156,7 @@ If you have no interest in running the test scripts, Python is not
 required. Linux distributions usually include Python. For Windows 
 2000/XP, you can download a Python distribution from:
 
-http://www.python.org/download
+  http://www.python.org/download
 
 
 ======================================================================
@@ -187,10 +191,10 @@ IceGrid Administrative Console
 
 A graphical administrative tool for IceGrid is provided in the file
 
-lib/IceGridGUI.jar
+  lib/IceGridGUI.jar
 
 This archive is completely self-contained. You can start the
-application with the following command:
+application using the following command:
 
 $ java -jar IceGridGUI.jar
 
@@ -209,7 +213,7 @@ services, examples and tests.
 If you want to rebuild the source code, you will need to obtain the
 'ant' utility from
 
-http://ant.apache.org/
+  http://ant.apache.org/
 
 Ice requires ant 1.6.3 or later, but we recommend using the most
 recent release.
@@ -222,8 +226,8 @@ administrative console, you must have ProGuard in your CLASSPATH,
 and you should review config/build.properties to ensure the pathnames
 are correct. If ProGuard's JAR file is not present in your CLASSPATH
 during the build, the resulting IceGridGUI.jar file will not be a
-standalone JAR file but instead depend on Ice.jar and the JGoodies
-libraries.
+standalone JAR file but instead will depend on Ice.jar and the
+JGoodies libraries.
 
 After installing ant, run the following commands to completely rebuild
 the Ice for Java source code:
