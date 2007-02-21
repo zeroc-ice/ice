@@ -260,6 +260,7 @@ NodeSessionManager::create(const InternalRegistryPrx& replica)
     }
     else
     {
+        Lock sync(*this);
         thread = addReplicaSession(replica);
     }
 
