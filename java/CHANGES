@@ -1,9 +1,10 @@
 Changes since version 3.1.1
 ---------------------------     
 
-- createObjectAdapter() and propertyToProxy() print warnings if unknown
-  properties are found during creation of the adapter/proxy. These
-  warnings can be disabled by setting Ice.Warn.UnknownProperties=0.
+- createObjectAdapter() and propertyToProxy() print warnings if
+  unknown properties are found during creation of the adapter or
+  proxy. These warnings can be disabled by setting the property
+  Ice.Warn.UnknownProperties=0.
 
 - Added the property Ice.Default.EndpointSelection. If not defined,
   the default value is "Random".
@@ -15,36 +16,39 @@ Changes since version 3.1.1
   by default. If this is the desired behavior set the property
   IceBox.InheritProperties to 1.
 
-- The default mapping for Ice is now the Java 5 mapping. To use the Java 2
-  mapping the slice translator must use the new "java:java2" global
-  metadata.
+- The default mapping for Ice is now the Java 5 mapping. To use the
+  Java 2 mapping, you must define the new "java:java2" global
+  metadata. See the Ice manual for more information.
 
-- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
-  allow applications to determine, respectively, whether communicator has
-  been shutdown or object adapter has been deactivated.
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated()
+  to allow applications to determine whether a communicator has been
+  shutdown or an object adapter has been deactivated, respectively.
 
-- Added destroy method to the ObjectAdapter interface. It is necessary
-  to call destroy to clean up the adapter resources and be able to
-  recreate a new adapter with the same name. Communicator destroy
-  automatically calls destroy on all its adapters.
+- Added destroy() operation to the ObjectAdapter interface. This
+  operation must be called in order to reclaim the adapter's resources
+  and be able to recreate a new adapter with the same name. Destroying
+  a communicator automatically calls destroy on all of its adapters.
 
 - Added a per-process logger and two methods to get/set the logger,
-  Ice.Util.getProcessLogger() and Ice.Util.setProcessLogger(). Get will
-  create a default process logger when called if set has not been called.
-  The process logger will also be used as the default logger for all
-  communicators that do not have a logger explicitly set.
+  Ice.Util.getProcessLogger() and Ice.Util.setProcessLogger(). Calling
+  getProcessLogger() creates a default logger if setProcessLogger()
+  has not been called. The process logger is also used as the default
+  logger for all communicators that do not have a logger explicitly
+  set.
 
-- Added support to Ice.Application for shutdown hooks. See
-  Ice.Application.setInterruptHook for details.
+- Added support for shutdown hooks to Ice.Application. See the Ice
+  manual for more information on the setInterruptHook method.
 
 - Message batches are now automatically flushed when the total size of
-  the batch reaches the message size maximum. This feature can be controlled
-  using the Ice.BatchAutoFlush property, which is on by default.
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
 
-- The communcator object adapter now throw an InitializationException
-  if the adapter has no configuration. It is possible to explicitly
-  create a adapter with no configuration, useful for use with
-  bi-directional connections, by calling createObjectAdapter("").
+- During the creation of an object adapter, the communicator now
+  raises InitializationException if the adapter has no configuration.
+  It is possible to create an adapter with no configuration, which
+  is useful for bidirectional connections, by passing an empty string
+  as the argument to createObjectAdapter.
 
 - Fixed a bug in IceSSL for Java2 that would reject incoming
   connections if IceSSL.CheckCertName=1 was defined in a server.
@@ -53,47 +57,46 @@ Changes since version 3.1.1
   using the IceBox admin utility.
 
 - Added Communicator::propertyToProxy() which creates a proxy from
-  a set of properties. This function allows you to set various local
-  proxy settings, such as the Locator cache timeout, which cannot be
+  a set of properties. This operation allows you to set various local
+  proxy settings, such as the locator cache timeout, which cannot be
   set using stringToProxy().
 
 - The Ice.Logger.Timestamp property has been removed. Timestamps are
   now always printed.
 
-- Added new property Ice.Default.PreferSecure, which if set to 1
-  causes secure connections to be prefered over non-secure connections.
-  By default this property is set to 0. Also added functions to control
-  this behavior on a per-proxy rather global basis, ice_isPreferSecure()
-  and ice_preferSecure().
+- Added the property Ice.Default.PreferSecure, which if set to 1
+  causes secure endpoints to be preferred over non-secure endpoints.
+  By default this property is set to 0. Also added functions to
+  control this behavior on a per-proxy rather than global basis:
+  ice_isPreferSecure() and ice_preferSecure().
 
 - Added a demo to illustrate use of AMI/AMD.
 
 - IceBox services are now stopped in the reverse order from which they 
   were started.
 
-- If client endpoint configuration does not contain a hostname setting
-  (-h paramater), the client will try to connect using only the loopback
-  interface (127.0.0.1).
+- If a proxy does not specify a hostname (via -h HOST), the client
+  only attempts to connect to the loopback interface (127.0.0.1).
 
-- Attempts to change the properties of a fixed proxy now result in a
+- Attempts to change the attributes of a fixed proxy now result in a
   FixedProxyException rather than just ignoring the change request and
-  returning the same proxy. Also attempts to marshal a fixed proxy now
-  result in a FixedProxyException rather than a MarshalException.
+  returning the same proxy. Also, attempts to marshal a fixed proxy
+  now result in a FixedProxyException rather than a MarshalException.
 
-- New feature: implicit context 
-  When you invoke an operation on a proxy and don't pass an explicit 
-  context, Ice uses the "implicit context" combined with the context
-  associated with the proxy (if there is one)
-  You can retrieve and set this ImplicitContext using 
-  Communicator::getImplicitContext(). Three ImplicitContext implementations
-  are available. You select an implementation by setting the 
-  Ice.ImplicitContext property to one of the following values:
-    * None: (the default) No implicit context at all
-    * PerThread: The implementation maintains a Context per thread
-    * Shared: The implementation maintains a single Context shared 
-              by all threads, and serializes access to this Context
+- Added support for implicit request contexts. When you invoke an
+  operation on a proxy and don't pass an explicit context, Ice uses
+  the "implicit context" combined with the per-proxy context (if any).
+  You can obtain the implicit context using the new communicator
+  operation getImplicitContext(). Three implementations of implicit
+  context are available; you select one by setting the property
+  Ice.ImplicitContext to one of the following values:
 
-- Removed defaultContext from InitializationData
+  * None: No implicit context at all (default).
+  * PerThread: The implementation maintains a context per thread.
+  * Shared: The implementation maintains a single thread-safe context
+    that is shared by all threads.
+
+- Removed defaultContext from InitializationData.
 
 - Communicator::setDefaultContext(), Communicator::getDefaultContext()
   and Proxy::ice_defaultContext() have been deprecated.
@@ -104,10 +107,7 @@ Changes since version 3.1.1
 - Added Ice.Override.Secure which forces a client to only use
   secure connections.
 
-- If a proxy contains no -h parameter, an Ice client will now attempt
-  to connect using loopback as well as all other local interfaces.
-
-- Added more tracing to the IceSSL plug-in to help debugging the
+- Added more tracing to the IceSSL plug-in to aid in using the
   TrustOnly properties.
 
 - Removed support for the IceBox.ServiceManager.Identity property,
@@ -131,6 +131,24 @@ Changes since version 3.1.1
   "freeze:read" and "freeze:write" metadata (see below).
 
   If not defined, the default value of this property is 0.
+
+- New Slice metadata for operations:
+
+  - ["freeze:read"] or ["freeze:write"] marks the operation as "read"
+    or "write" for the Freeze evictor. The default is the Freeze mode
+    of the enclosing interface/class.
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using Ice 3.0 or 3.1.
+
+- New Slice metadata for interfaces/classes:
+
+  - ["freeze:read"] or ["freeze:write"] defines the default Freeze
+    mode for operations on the interface/class. The default is read.
+    This metadata has no effect on derived types.
 
 Changes since version 3.1.0
 ---------------------------

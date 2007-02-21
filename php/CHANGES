@@ -1,6 +1,8 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- This release is compatible with PHP 5.1.6, 5.2.0, and 5.2.1.
+
 - Added the following proxy methods:
 
   ice_isPreferSecure
@@ -11,7 +13,7 @@ Changes since version 3.1.1
 
 - Added Communicator::propertyToProxy() which creates a proxy from
   a set of properties. This function allows you to set various local
-  proxy settings, such as the Locator cache timeout, which cannot be
+  proxy settings, such as the locator cache timeout, which cannot be
   set using stringToProxy().
 
 - The supported platforms for IcePHP are now Linux and Windows XP.
@@ -26,6 +28,8 @@ Changes since version 3.1.1
 
 Changes since version 3.1.0
 ---------------------------
+
+- No changes.
 
 Changes since version 3.0.1
 ---------------------------

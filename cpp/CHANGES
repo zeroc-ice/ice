@@ -1,9 +1,10 @@
 Changes since version 3.1.1
 ---------------------------
 
-- createObjectAdapter() and propertyToProxy() print warnings if unknown
-  properties are found during creation of the adapter/proxy. These
-  warnings can be disabled by setting Ice.Warn.UnknownProperties=0.
+- createObjectAdapter() and propertyToProxy() print warnings if
+  unknown properties are found during creation of the adapter or
+  proxy. These warnings can be disabled by setting the property
+  Ice.Warn.UnknownProperties=0.
 
 - Fixed a race condition that could cause an assertion failure when
   using thread-per-connection.
@@ -18,13 +19,14 @@ Changes since version 3.1.1
   by default. If this is the desired behavior set the property
   IceBox.InheritProperties to 1.
 
-- Fixed a bug where new connections are be accepted but not serviced
-  correctly when using the thread pool concurrency model if the number
-  of file descriptors registered with the thread pool exceeds FD_SETSIZE.
+- Fixed a bug where new connections are being accepted but not
+  serviced correctly when using the thread pool concurrency model if
+  the number of file descriptors registered with the thread pool
+  exceeds FD_SETSIZE.
 
-- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated() to
-  allow applications to determine, respectively, whether communicator has
-  been shutdown or object adapter has been deactivated.
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated()
+  to allow applications to determine whether a communicator has been
+  shutdown or an object adapter has been deactivated, respectively.
 
 - The Glacier2 SessionControl object is now registered with the Server
   adapter rather than the Admin adapter.
@@ -35,16 +37,17 @@ Changes since version 3.1.1
   Glacier2.Filter.Category.AcceptUser. The old property name has been
   deprecated and will be removed in a future release.
 
-- Added destroy method to the ObjectAdapter interface. It is necessary
-  to call destroy to clean up the adapter resources and be able to
-  recreate a new adapter with the same name. Communicator destroy
-  automatically calls destroy on all its adapters.
+- Added destroy() operation to the ObjectAdapter interface. This
+  operation must be called in order to reclaim the adapter's resources
+  and be able to recreate a new adapter with the same name. Destroying
+  a communicator automatically calls destroy on all of its adapters.
 
 - Added a per-process logger and two methods to get/set the logger,
-  Ice::getProcessLogger() and Ice::setProcessLogger(). Get will create a
-  default process logger when called if set has not been called. The
-  process logger will also be used as the default logger for all
-  communicators that do not have a logger explicitly set.
+  Ice::getProcessLogger() and Ice::setProcessLogger(). Calling
+  getProcessLogger() creates a default logger if setProcessLogger()
+  has not been called. The process logger is also used as the default
+  logger for all communicators that do not have a logger explicitly
+  set.
 
 - Added the property Glacier2.ReturnClientProxy to control whether
   Glacier2's implementation of the Router::getClientProxy() operation
@@ -52,36 +55,36 @@ Changes since version 3.1.1
   For backward compatibility with clients that use Ice versions older
   than 3.2, this property must be set to 1.
 
-- Added support for a user callback when SIGINT like signals are
-  sent to applications that use the Application interface. See
-  Application::interruptCallback and Application::callbackOnInterrupt
-  for details.
+- Added support for a user-defined signal handler in Ice::Application.
+  A subclass must override the interruptCallback method and invoke
+  callbackOnInterrupt to activate it.
 
 - Message batches are now automatically flushed when the total size of
-  the batch reaches the message size maximum. This feature can be controlled
-  using the Ice.BatchAutoFlush property, which is on by default.
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
 
-- It's now possible to specify logs file for IceGrid servers
-  with the `log' XML element of a server descriptor. Server logs can
-  be viewed remotely with the IceGrid GUI or the icegridadmin command
-  line tool.
+- It is now possible to identify log files for IceGrid servers using
+  the `log' XML element of a server descriptor. Server logs can be
+  viewed remotely by the IceGrid GUI or the icegridadmin command-
+  line utility.
 
-- Added support for viewing the node, registry and server standard
-  error and output files from the IceGrid GUI and the icegridadmin
-  command line tool.
+- Added support to the IceGrid GUI and icegridadmin command-line
+  utility for viewing the standard error and standard output files
+  of an IceGrid node, registry, and server.
 
 - Added new `property' attribute to IceGrid object descriptors. If
-  this attribute is specified, the registry will generate a property
-  named with the value of the attribute, for example:
+  this attribute is specified, the registry generates a property
+  that supplies the object's identity. For example:
 
      <object id="hello" property="Identity"/>
   
-  will generate the property "Identity=hello".
+  generates the property "Identity=hello".
 
 - Patching a distribution with IceGrid should no longer result in an
   Ice::TimeoutException exception if the patching takes a long time.
 
-- Fixed IceGrid to no longer throw Ice::NoEndpointException to a
+- Fixed IceGrid to no longer return Ice::NoEndpointException to a
   client if the object adapter of a server managed by an IceGrid node
   is being deactivated. IceGrid will now queue the locate request from
   the client, reactivate the server and send the response of the
@@ -96,11 +99,11 @@ Changes since version 3.1.1
   at least one such adapter is deactivated.
 
 - Added findAllReplicas() method to the IceGrid::Query interface. This
-  operation allows to retrieve all the replicas associated to a given
-  proxy.
+  operation allows you to retrieve all the replicas associated with a
+  given proxy.
 
 - Added support for service property sets in server instances. These
-  property sets allow to specify additional properties for IceBox
+  property sets allow you to specify additional properties for IceBox
   services hosted by IceBox server template instances. For example:
    
     <server-instance template="MyIceBoxTemplate">
@@ -109,36 +112,37 @@ Changes since version 3.1.1
       </properties>
     </server-instance>
 
-- Added new IceGrid `Ordered' load balancing policy. The endpoint of a
-  replica group configured with this load balancing will be ordered by
-  priority of each replica. The priority can be set with the new
-  object adapter `priority' attribute.
+- Added new IceGrid `Ordered' load balancing policy. The endpoints of
+  a replica group configured with this load balancing policy are
+  ordered by the priority of each replica. A replica's priority is set
+  with the new object adapter `priority' attribute.
 
-- Removed the IceGrid `None' load balancing policy. This load
-  balancing is equivalent to the `Random' load balancing configured to
-  return the endpoints of all the replicas (i.e.: with the load
-  balancing `n-replicas' attribute set to 0).
+- Removed the `None' load balancing policy from IceGrid. This load
+  balancing policy is equivalent to the `Random' policy configured to
+  return the endpoints of all the replicas (i.e., with the
+  `n-replicas' attribute set to 0).
 
 - Setting the n-replicas attribute of an IceGrid replica group load
-  balancing policy to 0 is no longer equivalent to 1. It now specifies
-  to return the endpoints of all the replicas which are members of the
-  replica group.
+  balancing policy to 0 is no longer equivalent to 1. It now causes
+  the locator to return the endpoints of all the replicas that are
+  members of the replica group.
 
 - The IceGrid registry now supports replication in a master/slave
   scheme. See the Ice manual for information on the configuration
   of replicated IceGrid registries.
 
-- The communcator object adapter now throw an InitializationException
-  if the adapter has no configuration. It is possible to explicitly
-  create a adapter with no configuration, useful for use with 
-  bi-directional connections, by calling createObjectAdapter("").
+- During the creation of an object adapter, the communicator now
+  raises InitializationException if the adapter has no configuration.
+  It is possible to create an adapter with no configuration, which
+  is useful for bidirectional connections, by passing an empty string
+  as the argument to createObjectAdapter.
 
 - It is now possible to start and stop individual IceBox services
   using the IceBox admin utility.
 
 - Added Communicator::propertyToProxy() which creates a proxy from
-  a set of properties. This function allows you to set various local
-  proxy settings, such as the Locator cache timeout, which cannot be
+  a set of properties. This operation allows you to set various local
+  proxy settings, such as the locator cache timeout, which cannot be
   set using stringToProxy().
 
 - Added ["cpp:class"] C++ metadata to map a slice struct to a
@@ -150,54 +154,53 @@ Changes since version 3.1.1
 - The Ice.Logger.Timestamp property has been removed. Timestamps are
   now always printed.
 
-- Added new property Ice.Default.PreferSecure, which if set to 1
-  causes secure connections to be prefered over non-secure connections.
-  By default this property is set to 0. Also added functions to control
-  this behavior on a per-proxy rather global basis, ice_isPreferSecure()
-  and ice_preferSecure().
+- Added the property Ice.Default.PreferSecure, which if set to 1
+  causes secure endpoints to be preferred over non-secure endpoints.
+  By default this property is set to 0. Also added functions to
+  control this behavior on a per-proxy rather than global basis:
+  ice_isPreferSecure() and ice_preferSecure().
 
-- Added a demo to illustrate use of AMI/AMD.
+- Added a demo to illustrate the use of AMI/AMD.
 
 - IceBox services are now stopped in the reverse order from which they 
   were started.
 
-- If client endpoint configuration does not contain a hostname setting
-  (-h paramater), the client will try to connect using only the loopback
-  interface (127.0.0.1).
+- If a proxy does not specify a hostname (via -h HOST), the client
+  only attempts to connect to the loopback interface (127.0.0.1).
 
 - All Ice exceptions now derive from std::exception.
 
-- Attempts to change the properties of a fixed proxy now result in a
+- Attempts to change the attributes of a fixed proxy now result in a
   FixedProxyException rather than just ignoring the change request and
-  returning the same proxy. Also attempts to marshal a fixed proxy now 
-  result in a FixedProxyException rather than a MarshalException.
+  returning the same proxy. Also, attempts to marshal a fixed proxy
+  now result in a FixedProxyException rather than a MarshalException.
 
-- Fixed a bug in the IceGrid locator implementation which could cause
+- Fixed a bug in the IceGrid locator implementation that could cause
   a memory corruption when using replica groups.
 
-- New feature: implicit context 
-  When you invoke an operation on a proxy and don't pass an explicit 
-  context, Ice uses the "implicit context" combined with the context
-  associated with the proxy (if there is one)
-  You can retrieve and set this ImplicitContext using 
-  Communicator::getImplicitContext(). Three ImplicitContext implementations
-  are available. You select an implementation by setting the 
-  Ice.ImplicitContext property to one of the following values:
-    * None: (the default) No implicit context at all
-    * PerThread: The implementation maintains a Context per thread
-    * Shared: The implementation maintains a single Context shared 
-              by all threads, and serializes access to this Context.
+- Added support for implicit request contexts. When you invoke an
+  operation on a proxy and don't pass an explicit context, Ice uses
+  the "implicit context" combined with the per-proxy context (if any).
+  You can obtain the implicit context using the new communicator
+  operation getImplicitContext(). Three implementations of implicit
+  context are available; you select one by setting the property
+  Ice.ImplicitContext to one of the following values:
 
-- Removed defaultContext from InitializationData
+  * None: No implicit context at all (default).
+  * PerThread: The implementation maintains a context per thread.
+  * Shared: The implementation maintains a single thread-safe context
+    that is shared by all threads.
 
-- Communicator::setDefaultContext(),  Communicator::getDefaultContext()
+- Removed defaultContext from InitializationData.
+
+- Communicator::setDefaultContext(), Communicator::getDefaultContext()
   and Proxy::ice_defaultContext() have been deprecated.
 
 - Ice now uses the epoll() system call on Linux and the poll() system
   call on other Unix platforms instead of select().
 
-- Setting the IceGrid.Node.Name property is now required, the hostname
-  isn't the default value anymore.
+- Setting the IceGrid.Node.Name property is now required; this
+  property no longer uses the hostname as its default value.
 
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
@@ -208,79 +211,83 @@ Changes since version 3.1.1
 - IceStorm changes:
 
   Changed IceStorm federation such that IceStorm now detects when
-  a downstream topic is unavailable.  Once a link is diagnosed as
+  a downstream topic is unavailable. Once a link is diagnosed as
   non-functional, events are thrown out until a timer expires
   (specified using the property IceStorm.Discard.Interval in seconds,
-  default value is 1 minute).  At that point, delivery of the link
+  default value is 1 minute). At that point, delivery of the link
   is attempted once again.
 
-  Added a new property IceStorm.Send.Timeout. This specifies in
-  milliseconds a timeout value is that is set on all link and
-  subscriber proxies. The default value is 1 minute.
+  Added a new property IceStorm.Send.Timeout. This specifies a timeout
+  in milliseconds that is used for all link and subscriber proxies.
+  The default value is 1 minute.
 
   All message sending is now faster. In particular, oneway QoS is now
   significantly faster.
 
   All message propagation is now fully buffered through a dynamic
-  thread pool. Tracing for which can be enabled through the property
-  IceStorm.Trace.SubscriberPool. The thread pool size is controlled
-  through the following properties.
+  thread pool. Tracing for the thread pool can be enabled using the
+  property IceStorm.Trace.SubscriberPool. The thread pool size is
+  controlled by the following properties.
 
-  * IceStorm.SubscriberPool.Size. The initial size of the thread
-    pool, the default being 1.
-  * IceStorm.SubscriberPool.SizeMax. The maximum size of the thread
-    pool, the default being 0, which means unlimited.
-  * IceStorm.SubscriberPool.SizeWarn. If the size of the thread pool
-    exceeds this value a warning is issued. The default is 0, which
+  * IceStorm.SubscriberPool.Size: The initial size of the thread
+    pool. The default value is 1.
+  * IceStorm.SubscriberPool.SizeMax: The maximum size of the thread
+    pool. The default value is 0, which means unlimited.
+  * IceStorm.SubscriberPool.SizeWarn: A warning is issued if the size
+    of the thread pool exceeds this value. The default is 0, which
     means never warn.
-  * IceStorm.SubscriberPool.Timeout. Default value is 1s. If a
-    stall is detected for more than this timeout value (in
-    milliseconds) a new thread is spawned up to the maximum size.
+  * IceStorm.SubscriberPool.Timeout: Specifies a timeout in
+    milliseconds. IceStorm spawns a new thread, up to the maximum
+    size of the thread pool, if a stall is detected for longer than
+    this timeout value. The default value is one second.
 
-  It is now possible to call unlink with a topic proxy which refers
-  to an IceStorm topic that is now currently reachable.
+  It is now possible to call unlink with a topic proxy that refers
+  to an IceStorm topic that is not currently reachable.
 
-  Added per-subscriber publisher objects to IceStorm.
-  IceStorm::Topic::subscribeAndGetPublisher now returns a proxy which
-  is used to send an event to only that particular subscriber. See
-  demo/IceStorm/counter for a demo of this feature.
+  Added per-subscriber publisher objects to IceStorm. The new
+  operation Topic::subscribeAndGetPublisher returns a proxy that is
+  used to send an event to only that particular subscriber. See
+  demo/IceStorm/counter for an example of this feature.
 
-  The possible values of the reliability QoS passed to
-  subscribeAndGetPublisher are now different. The only allowable value
-  is either "ordered" or the empty string. The delivery reliability
-  quality of service used by IceStorm is now derived from the the
-  proxy mode. For example, if oneway delivery is required then a
-  oneway proxy must be passed. The "ordered" QoS requires a twoway
-  proxy otherwise a BadQoS exception is raised. Topic::subscribe has
-  been deprecated and retains the old subscription QoS semantics.
+  The legal values for the reliability QoS passed to the operation
+  subscribeAndGetPublisher() are different than that of subscribe().
+  The new operation accepts only "ordered" or an empty string and
+  derives the desired QoS from the mode of the subscriber's proxy.
+  For example, passing a subscriber proxy configured for oneway
+  invocations enables oneway delivery in IceStorm. The "ordered" QoS
+  requires a twoway proxy otherwise a BadQoS exception is raised.
+  Topic::subscribe has been deprecated and retains the old QoS
+  semantics.
 
-  The property IceStorm.InstanceName is now used to produce unique identities
-  for each IceStorm topic. The identities used are now:
+  The property IceStorm.InstanceName is now used to produce unique
+  identities for each IceStorm topic. The identities used are now:
 
     <instance-name>/topic.<topic name>
     <instance-name>/publisher.<topic name>
     <instance-name>/link.<topic name>
 
-  IceStorm is still fully compatible with pre 3.2 IceStorm.
+  IceStorm is still fully compatible with prior releases.
 
-  Due to identity change the IceStorm database format was changed. The
-  script config/upgradeicestorm.py can be used to upgrade old IceStorm
-  databases to the new format.
+  The IceStorm database format was changed to accommodate the new
+  identity semantics. The script config/upgradeicestorm.py can be
+  used to upgrade existing IceStorm databases to the new format.
 
-- icestorm admin changes
+- Changes in icestormadmin:
 
-  Removed support for the "graph" command from icestormadmin.
+  Removed support for the "graph" command.
 
   The various icestormadmin commands take the topic manager as an
-  optional part of the arguments. For example, create MyTopicManager/foo
-  creates the topic "foo" on the topic manager using the InstanceName
-  MyTopicManager. See the Ice manual for more information.
+  optional part of the arguments. For example, the command
+  "create MyTopicManager/foo" creates the topic "foo" on the topic
+  manager using the instance name MyTopicManager. See the Ice manual
+  for more information.
 
-  These proxies are configured using the property prefix
-  IceStormAdmin.TopicManager.<any>.  IceStormAdmin.TopicManager.Default
-  is the default proxy (used by the commands if no topic provided).
-  IceStorm.TopicManager.Proxy also sets the default topic manager
-  for backwards compatibility reasons.
+  The program obtains the proxy for a topic manager using a property
+  of the form IceStormAdmin.TopicManager.NAME. If an icestormadmin
+  command does not specify a topic manager, the program uses the
+  proxy in the property IceStormAdmin.TopicManager.Default. For
+  backward compatibility, the property IceStorm.TopicManager.Proxy
+  also sets the default topic manager.
 
   Added a new command "current" to set the default topic manager.
 
@@ -290,12 +297,9 @@ Changes since version 3.1.1
 - Added Ice.Override.Secure which forces a client to only use
   secure connections.
 
-- If a proxy contains no -h parameter, an Ice client will now attempt
-  to connect using loopback as well as all other local interfaces.
-
-- IceGrid registry now cleans up any created admin and regular client
-  sessions that do not correctly time out. This could occur if the
-  Glacier2 router terminates unexpectedly.
+- IceGrid registry now cleans up any existing administrative and
+  regular client sessions that do not correctly time out. This could
+  occur if the Glacier2 router terminates unexpectedly.
 
 - Added Glacier2::SessionControl::getSessionTimeout.
 
@@ -310,9 +314,9 @@ Changes since version 3.1.1
 
 - The IceGrid registry Admin endpoints have been removed. A new set of
   endpoints has been added for the Glacier2 session manager. These
-  should only be enabled through the
-  IceGrid.Registry.SessionManager.Endpoints property if Glacier2
-  integration is desired since it presents a security threat.
+  should only be enabled if Glacier2 integration is desired since it
+  presents a security threat. The endpoints are defined by the
+  property IceGrid.Registry.SessionManager.Endpoints.
 
 - The ice_name() member function of exceptions derived from
   Ice::Exception (and, hence, IceUtil::Exception) now returns a
@@ -347,8 +351,8 @@ Changes since version 3.1.1
     if(opts.isSet("v"))
 	// show version...
 
-  Either test works correctly, regardless of of whether the actual
-  option passed to the executable was -v or --version.
+  Either test works correctly, regardless of whether the actual option
+  passed to the executable was -v or --version.
 
   Note that, for this to work, you must add both long and short option
   in a single call to addOpt():
@@ -381,10 +385,10 @@ Changes since version 3.1.1
 
 - Added the NullSSLPermissionsVerifier to the IceGrid registry.
 
-- Added more tracing to the IceSSL plug-in to help with debugging
-  the TrustOnly properties.
+- Added more tracing to the IceSSL plug-in to aid in using the
+  TrustOnly properties.
 
-- Added --ip and --dns command line options to the iceca sign script.
+- Added --ip and --dns command line options to the iceca sign command.
   This adds support for subjectAltName in certificates.
 
 - Merged the simple CA scripts into a single iceca script.
@@ -429,7 +433,7 @@ Changes since version 3.1.1
     corresponding servant base class.
 
   - ["freeze:read"] or ["freeze:write"] marks the operation as "read"
-    or "write" for the Freeze evictor. The default is the freeze mode
+    or "write" for the Freeze evictor. The default is the Freeze mode
     of the enclosing interface/class.
 
   - ["nonmutating"] provides backward compatibility for idempotent
@@ -440,7 +444,7 @@ Changes since version 3.1.1
 
 - New Slice metadata for interfaces/classes:
 
-  - ["freeze:read"] or ["freeze:write"] defines the default freeze
+  - ["freeze:read"] or ["freeze:write"] defines the default Freeze
     mode for operations on the interface/class. The default is read.
     This metadata has no effect on derived types.
 
