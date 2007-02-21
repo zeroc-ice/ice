@@ -235,11 +235,24 @@ then
 fi
 
 %ifarch %{core_arches}
-mkdir -p $RPM_BUILD_ROOT/etc/php.d
-mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php.d/ice.ini
 
+#
+# Move ice.ini and IcePHP.so to distribution-dependent directories
+#
+
+%if "%{dist}" == ".rhel4"
+mkdir -p $RPM_BUILD_ROOT/etc/php.d
+mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php.d
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php/modules
-mv ${RPM_BUILD_ROOT}%{_libdir}/IcePHP.so ${RPM_BUILD_ROOT}%{_libdir}/php/modules/IcePHP.so
+mv ${RPM_BUILD_ROOT}%{_libdir}/IcePHP.so ${RPM_BUILD_ROOT}%{_libdir}/php/modules
+%endif
+
+%if "%{dist}" == ".sles10"
+mkdir -p $RPM_BUILD_ROOT/etc/php5/conf.d
+mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php5/conf.d
+mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php5/extensions
+mv ${RPM_BUILD_ROOT}%{_libdir}/IcePHP.so ${RPM_BUILD_ROOT}%{_libdir}/php5/extensions
+%endif
 
 mkdir -p ${RPM_BUILD_ROOT}%{_datadir}
 mv $RPM_BUILD_ROOT/config ${RPM_BUILD_ROOT}%{_datadir}/Ice-%{version}
@@ -723,9 +736,15 @@ pklibdir="lib64"
 %files php
 %defattr(644, root, root, 755)
 
+%if "%{dist}" == ".rhel4"
 %attr(755, root, root) %{_libdir}/php/modules
 /etc/php.d/ice.ini
+%endif
 
+%if "%{dist}" == ".sles10"
+%attr(755, root, root) %{_libdir}/php5/extensions
+/etc/php5/conf.d/ice.ini
+%endif
 
 %post php
 %postun php
