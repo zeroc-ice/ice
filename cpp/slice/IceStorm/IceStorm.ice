@@ -123,7 +123,7 @@ exception BadQoS
 {
     /*
      *
-     * The reason for the failed.
+     * The reason for the failure.
      *
      */
     string reason;
