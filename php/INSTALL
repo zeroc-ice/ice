@@ -2,7 +2,16 @@
 Requirements
 =========================================================================
 
-- PHP 5.1.6, 5.2.0, or 5.2.1 (http://www.php.net/downloads.php)
+- A supported version of PHP:
+
+  * 5.1.2 (SLES 10)
+  * 5.1.6 (RHEL)
+  * 5.2.1 (source builds)
+
+  You can download PHP from
+
+    http://www.php.net/downloads.php
+
 - Ice for C++ @ver@ Development Kit
 
 
