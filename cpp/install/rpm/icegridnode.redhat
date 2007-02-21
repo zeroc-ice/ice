@@ -30,7 +30,7 @@ prog="/usr/bin/icegridnode"
 progbase=${prog##*/}
 pidfile=/var/run/$progbase.pid
 
-options="--daemon --pidfile=$pidfile --Ice.Config=$nodeconf"
+options="--daemon --pidfile $pidfile --Ice.Config=$nodeconf"
 
 RETVAL=0
 
@@ -57,7 +57,7 @@ start() {
 
 stop() {
         echo -n $"Shutting down $progbase: "
-        killproc -p $pidfile $prog
+        killproc $prog
         RETVAL=$?
         echo
         [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$progbase

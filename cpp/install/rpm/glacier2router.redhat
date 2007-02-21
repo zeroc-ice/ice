@@ -29,7 +29,7 @@ prog="/usr/bin/glacier2router"
 progbase=${prog##*/}
 pidfile=/var/run/$progbase.pid
 
-options="--daemon --pidfile=$pidfile --Ice.Config=$routerconf"
+options="--daemon --pidfile $pidfile --Ice.Config=$routerconf"
 
 RETVAL=0
 
@@ -56,7 +56,7 @@ start() {
 
 stop() {
         echo -n $"Shutting down $progbase: "
-        killproc -p $pidfile $prog
+        killproc $prog
         RETVAL=$?
         echo
         [ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/$progbase
