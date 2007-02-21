@@ -1170,7 +1170,7 @@ def main():
         if psf == 'README':
             if platform == 'Linux':
                 if os.system('test -f /etc/redhat-release') == 0:
-                    plaform = 'RHEL'
+                    platform = 'RHEL'
                 else:
                     platform = 'SLES'
         cf = os.path.join(installFiles, 'unix', psf + '.' + platform)
