@@ -15,23 +15,38 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup Visual Studio for Ice, and provides
-instructions for building and running the sample programs.
+About this distribution
+-----------------------
+
+This binary distribution provides all Ice run time services and 
+development tools to build Ice applications:
+
+ - in C++, using Visual Studio 2005 or Visual C++ 2005 Express Edition
+ - in C#, using Visual Studio 2005 or Visual C# 2005 Express Edition
+ - in Visual Basic, using Visual Studio 2005 or Visual Basic 2005 
+   Express Edition
+ - in Java, using Java 2, Java 5 or Java 6.
+ - in Python, using Python 2.5.
+
+If you want to develop Ice applications in Ruby or in PHP, or with
+another C++ compiler, please download the corresponding Ice binary 
+distribution from http://www.zeroc.com/download.html.
+
+You only need the development environment for your target programming
+language to use this distribution. For example if you want to build
+Ice applications in Java, you need to install a JDK, but do not need 
+to install Visual Studio or Python.
+
+This file describes how to setup Visual Studio for Ice (when building
+C++ applications), and provides instructions for building and running 
+the sample programs.
 
 See doc/README.html for information on the documentation included with
 this distribution.
 
 
-Visual Studio Requirements
---------------------------
-
-This release requires Visual Studio 2005 version 8.0.50727.42 or
-later. For C# or Visual Basic, this release also requires the .NET
-Framework Version 2.0.50727 or later.
-
-
-Setting up Visual Studio 2005
------------------------------
+Setting up Visual Studio 2005 to build Ice applications in C++
+--------------------------------------------------------------
 
 Before you can use Ice in your C++ applications, you first need to
 configure Visual Studio with the locations of the Ice header files,
@@ -52,35 +67,19 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
-Visual C++ 2005 Express Notes
------------------------------
+Setting up Visual C++ 2005 Express Edition
+------------------------------------------
 
 Visual C++ 2005 Express is available for download from:
 
 http://msdn.microsoft.com/vstudio/express/visualc/
 
 In addition to the steps listed above for setting up Visual Studio
-2005, users of Visual C++ 2005 Express must also follow the
+2005, users of Visual C++ 2005 Express Edition must also follow the
 instructions at the link below for installing and configuring the
 Platform SDK:
 
 http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
-
-
-Using the IceGrid Administrative Console
-----------------------------------------
-
-A Java-based graphical tool for administering IceGrid applications
-is included in this distribution. The Java archive (JAR) file is
-installed as
-
-<Ice installation root directory>\bin\IceGridGUI.jar
-
-With a suitable Java installation, you can execute the application
-directly by double-clicking on its icon, or you can start it from
-a command prompt:
-
-> java -jar IceGridGUI.jar
 
 
 Building and running the C++ demos

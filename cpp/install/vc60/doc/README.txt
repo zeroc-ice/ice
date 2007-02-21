@@ -15,22 +15,39 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup Visual Studio 6.0 for Ice, and
-provides instructions for building and running the sample programs.
+About this distribution
+-----------------------
+
+This binary distribution provides all Ice run time services and 
+development tools to build Ice applications:
+
+ - in C++, using Visual Studio 6.0
+ - in Ruby, using Ruby 1.8.5
+ - in PHP, using PHP 5.2.0
+
+If you want to develop Ice applications in another programming 
+language, or with another C++ compiler, please download the 
+corresponding Ice binary distribution from 
+http://www.zeroc.com/download.html.
+
+You only need the development environment for your target programming
+language to use this distribution. For example if you want to build
+Ice applications in Ruby, you need to install Ruby, but do not need 
+to install Visual Studio or PHP.
+
+This file describes how to setup Visual Studio for Ice (when building
+C++ applications), and provides instructions for building and running 
+the sample programs.
 
 See doc/README.html for information on the documentation included with
 this distribution.
 
 
-Visual Studio Requirements
---------------------------
+Setting up Visual Studio 6.0 to build Ice applications in C++
+-------------------------------------------------------------
 
 This release requires Visual Studio 6.0 Service Pack 5 or later. We
 recommend using the most recent update, Service Pack 6.
-
-
-Setting up Visual Studio 6.0
-----------------------------
 
 Before you can use Ice in your C++ applications, you first need to
 configure Visual Studio with the locations of the Ice header files,
@@ -262,12 +279,12 @@ Apache1 and Apache2:
 
    bzip2.dll
    icecpp.exe
-   ice31.dll
-   iceutil31.dll
+   ice32b.dll
+   iceutil32b.dll
    msvcp60.dll
    msvcrt.dll
    php_ice.dll
-   slice31.dll
+   slice32b.dll
    stlport_vc646.dll
 
    NOTE: If you modify the System PATH, you will need to restart your

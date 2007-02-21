@@ -15,21 +15,27 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-This file describes how to setup Visual Studio for Ice, and provides
+About this distribution
+-----------------------
+
+This binary distribution provides all Ice run time services and 
+development tools to build Ice applications in C++ using Visual
+Studio .NET 2003.
+
+If you want to develop Ice applications in another programming
+language, on with another C++ compiler, please download the 
+corresponding Ice binary distribution from 
+http://www.zeroc.com/download.html.
+
+This file describes how to setup Visual Studio for Ice and provides 
 instructions for building and running the sample programs.
 
 See doc/README.html for information on the documentation included with
 this distribution.
 
 
-Visual Studio Requirements
---------------------------
-
-This release requires Visual Studio .NET 2003 build 3088 or later.
-
-
-Setting up Visual Studio .NET for C++
--------------------------------------
+Setting up Visual Studio .NET to build Ice applications in C++
+--------------------------------------------------------------
 
 Before you can use Ice in your C++ applications, you first need to
 configure Visual Studio with the locations of the Ice header files,
@@ -48,22 +54,6 @@ libraries, and executables.
 - Select "Executable files"
 
 - Add <Ice installation root directory>\bin
-
-
-Using the IceGrid Administrative Console
-----------------------------------------
-
-A Java-based graphical tool for administering IceGrid applications
-is included in this distribution. The Java archive (JAR) file is
-installed as
-
-<Ice installation root directory>\bin\IceGridGUI.jar
-
-With a suitable Java installation, you can execute the application
-directly by double-clicking on its icon, or you can start it from
-a command prompt:
-
-> java -jar IceGridGUI.jar
 
 
 Building and running the C++ demos

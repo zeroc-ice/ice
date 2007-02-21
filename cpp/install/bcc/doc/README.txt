@@ -20,7 +20,7 @@ About this distribution
 
 This binary distribution provides all Ice run time services and 
 development tools to build Ice applications in C++ using Borland
-C++ Builder 2006 update 2.
+C++Builder 2006 Update 2.
 
 If you want to develop Ice applications in another programming
 language, on with another C++ compiler, please download the 
