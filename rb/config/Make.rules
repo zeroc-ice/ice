@@ -21,6 +21,12 @@ endif
 prefix			= /opt/IceRuby-$(VERSION)
 
 #
+# The "root directory" for runpath embedded in executables. Can be unset
+# to avoid adding a runpath to Ice executables.
+#
+embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+
+#
 # Define OPTIMIZE as yes if you want to build with optimization.
 # Otherwise the Ice extension is built with debug information.
 #
@@ -79,6 +85,8 @@ endif
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
+VERSION_MAJOR           = 3
+VERSION_MINOR           = 2
 VERSION			= 3.2b
 SOVERSION		= 32b
 bindir			= $(top_srcdir)/bin
@@ -123,11 +131,20 @@ endif
 include	 $(configdir)/Make.rules.$(UNAME)
 
 ifeq ($(LP64),yes)
+    install_libdir	  := $(prefix)/lib$(lp64suffix)
     libsubdir		  := lib$(lp64suffix)
 else
+    install_libdir	  := $(prefix)/lib
     libsubdir		  := lib
 endif
 
+ifneq ($(embedded_runpath_prefix),)
+   ifeq ($(LP64),yes)
+       runpath_libdir	  := $(embedded_runpath_prefix)/lib$(lp64suffix)
+   else
+       runpath_libdir	  := $(embedded_runpath_prefix)/lib
+   endif
+endif
 
 CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
