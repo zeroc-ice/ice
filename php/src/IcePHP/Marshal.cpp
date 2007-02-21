@@ -1835,7 +1835,9 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 
         if(!slice->marshal(value, os, objectMap TSRMLS_CC))
         {
-            throw AbortMarshaling();
+            Ice::MarshalException ex(__FILE__, __LINE__);
+            ex.reason = "unable to marshal object slice of type " + scoped;
+            throw ex;
         }
 
         Slice::ClassList bases = def->bases();
@@ -1866,7 +1868,9 @@ IcePHP::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 
     if(!slice->marshal(value, os, objectMap TSRMLS_CC))
     {
-        throw AbortMarshaling();
+        Ice::MarshalException ex(__FILE__, __LINE__);
+        ex.reason = "unable to marshal object slice of type Ice::Object";
+        throw ex;
     }
 }
 
@@ -1950,7 +1954,9 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
 
             if(!slice->unmarshal(_value, is TSRMLS_CC))
             {
-                throw AbortMarshaling();
+                Ice::MarshalException ex(__FILE__, __LINE__);
+                ex.reason = "unable to unmarshal object slice of type " + scoped;
+                throw ex;
             }
 
             rid = true;
@@ -1989,7 +1995,9 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
 
     if(!slice->unmarshal(_value, is TSRMLS_CC))
     {
-        throw AbortMarshaling();
+        Ice::MarshalException ex(__FILE__, __LINE__);
+        ex.reason = "unable to unmarshal object slice of type Ice::Object";
+        throw ex;
     }
 }
 
@@ -2192,7 +2200,7 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
         AutoDestroy destroyResult(zresult);
 
         //
-        // Bail out if an exception has been thrown.
+        // Bail out if an exception has already been thrown.
         //
         if(EG(exception))
         {
@@ -2209,17 +2217,18 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
             {
                 if(Z_TYPE_P(zresult) != IS_OBJECT)
                 {
-                    php_error_docref(NULL TSRMLS_CC, E_ERROR, "object factory did not return an object");
-                    throw AbortMarshaling();
+                    Ice::MarshalException ex(__FILE__, __LINE__);
+                    ex.reason = "object factory did not return an object for type " + scoped;
+                    throw ex;
                 }
 
                 zend_class_entry* ce = Z_OBJCE_P(zresult);
                 zend_class_entry* base = findClass("Ice_ObjectImpl" TSRMLS_CC);
                 if(!checkClass(ce, base))
                 {
-                    php_error_docref(NULL TSRMLS_CC, E_ERROR,
-                                     "object returned by factory does not implement Ice_ObjectImpl");
-                    throw AbortMarshaling();
+                    Ice::MarshalException ex(__FILE__, __LINE__);
+                    ex.reason = "object returned by factory does not implement Ice_ObjectImpl";
+                    throw ex;
                 }
 
                 //

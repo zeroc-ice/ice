@@ -2207,6 +2207,14 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             }
         }
     }
+    catch(const AbortMarshaling&)
+    {
+        //
+        // We use AbortMarshaling to escape from any nesting depth if
+        // a PHP exception has already been set.
+        //
+        assert(EG(exception));
+    }
     catch(const IceUtil::Exception& ex)
     {
         throwException(ex TSRMLS_CC);
