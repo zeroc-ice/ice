@@ -15,14 +15,20 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
-See doc/README.html for information on the documentation included with
-this distribution.
-
-
-C++Builder Requirements
+About this distribution
 -----------------------
 
-This release requires C++Builder 2006 update 2.
+This binary distribution provides all Ice run time services and 
+development tools to build Ice applications in C++ using Borland
+C++ Builder 2006 update 2.
+
+If you want to develop Ice applications in another programming
+language, on with another C++ compiler, please download the 
+corresponding Ice binary distribution from 
+http://www.zeroc.com/download.html.
+
+See doc/README.html for information on the documentation included with
+this distribution.
 
 
 Demos and documentation
