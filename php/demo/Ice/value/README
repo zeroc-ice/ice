@@ -3,7 +3,7 @@ This is a PHP version of the Ice "value" demo client.
 First, start the value demo server, using any of the supported language
 mappings, on this host.
 
-Then, if you are using a RPM installation of ice-php, run the Ice PHP
+Then, if you are using an RPM installation of IcePHP, run the PHP
 client:
 
 $ php -f Client.php

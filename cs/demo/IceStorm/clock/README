@@ -1,6 +1,4 @@
-To run the demo:
-
-Start the IceStorm service:
+To run the demo, start the IceStorm service:
 
 $ icebox --Ice.Config=config.icebox
 
@@ -28,36 +26,37 @@ For the subscriber:
 
 subscriber.exe --oneway
 
-    The subscriber receives events as oneway messages. This is the default.
+  The subscriber receives events as oneway messages. This is the
+  default.
 
 subscriber.exe --datagram
 
-    The subscriber receives events as datagrams.
+  The subscriber receives events as datagrams.
 
 subscriber.exe --twoway
 
-    The subscriber receives events as twoway messages.
+  The subscriber receives events as twoway messages.
 
 subscriber.exe --ordered
 
-    The subscriber receives events as twoway messages with guaranteed
-    ordering.
+  The subscriber receives events as twoway messages with guaranteed
+  ordering.
 
 subscriber.exe --batch
 
-    This is an additional flag that forwards datagram and oneway events
-    to the subscriber in batches.
+  This is an additional flag that forwards datagram and oneway events
+  to the subscriber in batches.
 
 For the publisher:
 
 publisher.exe --oneway
 
-    The publisher sends events as oneway messages. This is the default.
+  The publisher sends events as oneway messages. This is the default.
 
 publisher.exe --datagram
 
-    The publisher sends events as datagrams.
+  The publisher sends events as datagrams.
 
 publisher.exe --twoway
 
-    The publisher sends events as twoway messages.
+  The publisher sends events as twoway messages.

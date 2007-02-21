@@ -6,7 +6,7 @@ Demos in this directory:
 
 - counter
 
-  A simple couter demo to illistrate implementing the observer
+  A simple counter demo to illustrate implementing the observer
   pattern using IceStorm.
 
 - replicated

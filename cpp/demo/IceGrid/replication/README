@@ -29,11 +29,12 @@ icegridadmin command or from the IceGrid Admin GUI. You can of course
 also try to kill them. As long as one IceGrid registry is still
 running, the client will continue to work.
 
-Similarly, you can shutdown or kill one of the the server or IceGrid
-node, the client will continue to work.
+Similarly, you can shutdown or kill one of the servers or nodes, and
+the client will continue to work.
 
 Finally, the registries and nodes are configured to redirect their
-standard error and output to stderr.txt and stdout.txt files in their
-data directory. You can view these files using the icegridadmin
-`registry show' or `node show' commands or with the IceGrid Admin
-GUI. The standard error files contain the registry and node traces.
+standard error and output to files in their data directories named
+stderr.txt and stdout.txt. You can view these files using the
+icegridadmin `registry show' or `node show' commands or with the
+IceGrid Admin GUI. The standard error files contain the registry and
+node traces.

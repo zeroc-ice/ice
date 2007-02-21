@@ -1,6 +1,4 @@
-To run the demo:
-
-Start the IceStorm service:
+To run the demo, start the IceStorm service:
 
 $ icebox --Ice.Config=config.icebox
 
@@ -15,7 +13,6 @@ In another window:
 
 $ client
 
-You can then press 'i', 'd' to increment a decrement the counter. If
-you want you can create more clients in other windows and observe that
-each is initialized and subsequently updated with the current counter
-value.
+Press 'i' and 'd' to increment and decrement the counter. You can also
+start more clients in other windows and observe that each is
+initialized and subsequently updated with the current counter value.

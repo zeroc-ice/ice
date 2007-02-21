@@ -4,7 +4,7 @@ Demos in this directory:
 
   This demo illustrates how to invoke ordinary (twoway) operations, as
   well as how to invoke oneway operations, use datagrams, secure
-  invocations, and how to used batched invocations.
+  invocations, and how to use batched invocations.
 
 - value
 

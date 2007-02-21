@@ -24,9 +24,9 @@ a new command window and execute this command:
 
 > mkdir C:\icepatch_download
 
-Now you can start the IcePatch2 client (You will also need to pass a 
-"IcePatch2.Endpoints" argument if you use a endpoint other than the
-one shown above when you start icepatch2server):
+Now you can start the IcePatch2 client (You will also need to pass an
+argument that defines IcePatch2.Endpoints if you use an endpoint other
+than the one shown above when you start icepatch2server):
 
 > patch
 

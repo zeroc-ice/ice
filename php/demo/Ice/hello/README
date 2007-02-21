@@ -28,33 +28,40 @@ Note that support for secure invocations via SSL are disabled by
 default. If you have configured SSL for the Ice extension, edit
 hello.php and set the have_ssl variable to true.
 
+
 =========================================================================
 SELinux Notes
 =========================================================================
 
-On RHEL Linux and a number of other Linux distributions, SELinux 
-augments the traditional Unix permissions with a number of new features. 
-In particular, SELinux can prevent the httpd daemon from opening
-network connections and reading files without the proper SELinux types.
+SELinux augments the traditional Unix permissions with a number of
+new features. In particular, SELinux can prevent the httpd daemon from
+opening network connections and reading files without the proper
+SELinux types.
 
 If you suspect that your IcePHP application does not work due to
-SELinux restrictions, we recommend to first try with SELinux disabled.
-As root, run:
+SELinux restrictions, we recommend that you first try it with SELinux
+disabled. As root, run:
 
 # setenforce 0
 
 to disable SELinux until the next reboot of your computer.
 
-If you want to run httpd with IcePHP and SELinux enabled, you need to:
- - allow httpd to open network connections:
+If you want to run httpd with IcePHP and SELinux enabled, you must do
+the following:
+
+- Allow httpd to open network connections:
+
   # setsebool httpd_can_network_connect=1 
-  (use the -P option to make this setting persistent across reboots)
- - make sure any .ice file used by your PHP scripts can be read by 
+
+  (add the -P option to make this setting persistent across reboots)
+
+- Make sure any .ice file used by your PHP scripts can be read by 
   httpd. The enclosing directory also needs to be accessible. For
   example:
+
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
-See this FAQ for more information on SELinux:
+For more information on SELinux in Red Hat Enterprise Linux 4, refer
+to the link below:
 
-http://fedora.redhat.com/docs/selinux-faq/
-
+  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/

@@ -15,7 +15,7 @@ In another window:
 
 $ python Publisher.py
 
-While the publisher continues to run "tick" messages should be
+While the publisher continues to run, "tick" messages should be
 displayed in the subscriber window.
 
 Both the subscriber and publisher take an optional topic name as a
@@ -28,36 +28,37 @@ For the subscriber:
 
 python Subscriber.py --oneway
 
-    The subscriber receives events as oneway messages. This is the default.
+  The subscriber receives events as oneway messages. This is the
+  default.
 
 python Subscriber.py --datagram
 
-    The subscriber receives events as datagrams.
+  The subscriber receives events as datagrams.
 
 python Subscriber.py --twoway
 
-    The subscriber receives events as twoway messages.
+  The subscriber receives events as twoway messages.
 
 python Subscriber.py --ordered
 
-    The subscriber receives events as twoway messages with guaranteed
-    ordering.
+  The subscriber receives events as twoway messages with guaranteed
+  ordering.
 
 python Subscriber.py --batch
 
-    This is an additional flag that forwards datagram and oneway events
-    to the subscriber in batches.
+  This is an additional flag that forwards datagram and oneway events
+  to the subscriber in batches.
 
 For the publisher:
 
 python Publisher.py --oneway
 
-    The publisher sends events as oneway messages. This is the default.
+  The publisher sends events as oneway messages. This is the default.
 
 python Publisher.py --datagram
 
-    The publisher sends events as datagrams.
+  The publisher sends events as datagrams.
 
 python Publisher.py --twoway
 
-    The publisher sends events as twoway messages.
+  The publisher sends events as twoway messages.

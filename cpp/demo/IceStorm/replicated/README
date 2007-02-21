@@ -1,9 +1,7 @@
-This demo demonstrates how to deploy and setup IceStorm in a
+This demo demonstrates how to configure and deploy IceStorm in a
 replicated fashion using IceGrid replica groups.
 
-To run the demo:
-
-Start the IceGrid service:
+To run the demo, start the IceGrid service:
 
 $ icegridnode --Ice.Config=config.grid
 
@@ -22,7 +20,7 @@ displayed in the subscriber window.
 
 The IceGrid application described in `application.xml' deploys three
 IceStorm service instances. The three IceStorm service instances share
-the same instance name and their objet adapters are configured to be
+the same instance name and their object adapters are configured to be
 members of IceGrid replica groups.
 
 When the subscriber starts, it retrieves all the topic manager object

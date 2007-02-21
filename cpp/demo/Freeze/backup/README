@@ -24,7 +24,7 @@ directory.
 
 % ./backup incremental
 
-Performs an incremental backup (only log files) in the the incremental
+Performs an incremental backup (only log files) in the incremental
 directory.
 
 The backup script uses the dd program as well as the Berkeley DB

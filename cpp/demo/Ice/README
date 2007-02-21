@@ -2,15 +2,15 @@ Demos in this directory:
 
 - async
 
-  This demo illustrates the use of Asynchronous Message Invocation (AMI)
-  and Asynchronous Message Dispatch (AMD).
+  This demo illustrates the use of Asynchronous Message Invocation
+  (AMI) and Asynchronous Message Dispatch (AMD).
 
 - bidir
 
-  This demo shows how to use bidirectional connections for
-  callbacks. This is typically used if the server cannot open a
-  connection to the client to send callbacks, for example, because
-  firewalls block incoming connections to the client.
+  This demo shows how to use bidirectional connections for callbacks.
+  This is typically used if the server cannot open a connection to the
+  client to send callbacks, for example, because firewalls block
+  incoming connections to the client.
 
 - callback
 
@@ -27,7 +27,7 @@ Demos in this directory:
 
   This demo illustrates how to invoke ordinary (twoway) operations, as
   well as how to invoke oneway operations, use datagrams, secure
-  invocations, and how to used batched invocations.
+  invocations, and how to use batched invocations.
 
 - invoke
 

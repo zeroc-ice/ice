@@ -1,59 +1,73 @@
 Oracle OCCI demo
 ================
 
-This demo shows how to implement an Ice server that uses Oracle through
-its Oracle C++ Call Interface (OCCI) API.
+This demo shows how to implement an Ice server that uses Oracle
+through its Oracle C++ Call Interface (OCCI) API.
 
 It is a fairly simple demo that illustrates how to:
- - map relational data to Ice objects, in particular convert between 
+
+ - Map relational data to Ice objects, in particular convert between 
    Ice and OCCI types.
- - use an OCCI pool to provide Oracle connections to Ice requests.
- - use an Ice servant locator
+ - Use an OCCI pool to provide Oracle connections to Ice requests.
+ - Use an Ice servant locator.
+
 
 Building the demo
 -----------------
+
 OCCI is only available for some C++ compilers. Make sure to select a 
 platform and C++ compiler supported by both Ice and OCCI.
 
 - Setup an Oracle database with the traditional EMP/DEPT schema. 
-With Oracle server 10.2, the corresponding SQL script is 
-$ORACLE_HOME/rdbms/admin/utilsamp.sql.
+  With Oracle server 10.2, the corresponding SQL script is 
+  $ORACLE_HOME/rdbms/admin/utilsamp.sql.
 
-- Ensure that your user (by default, scott) has the CREATE VIEW 
-privilege
+- Ensure that your user (by default, scott) has the CREATE VIEW
+  privilege.
 
 - Create object types and views using the provided createTypes.sql 
-  script, e.g.
+  script. For example:
+
      % sqlplus /nolog
      SQL> @createTypes.sql
-  This script assumes that you can connect to your database with 
-  'scott/tiger@orcl'. If you need another connect-string, please 
-  edit createTypes.sql
 
-- Oracle's ott utility needs to connect to the dabatase in order to 
-  generate code from file 'DbTypes.typ'. The default connect-
-  string is "scott/tiger@orcl". If this is not appropriate, please
-  edit the corresponding Makefile target, or Custum build rule for
+  This script assumes that you can connect to your database with 
+  'scott/tiger@orcl'. If you need another connect-string, edit
+  createTypes.sql.
+
+- Oracle's ott utility needs to connect to the database in order to 
+  generate code from the file 'DbTypes.typ'. The default connect-
+  string is "scott/tiger@orcl". If this is not appropriate, edit the
+  corresponding Makefile target, or the Custom build rule for
   Visual Studio projects. 
 
-- Set the environment variable ORACLE_HOME to point to your Oracle 
- installation home directory.
+- Set the environment variable ORACLE_HOME to point to your Oracle
+  installation home directory.
 
 - On Windows with Visual Studio 2005 Project Files, add the 
   following directories to your Visual C++ environment: 
+
   - Include files: $(ORACLE_HOME)\oci\include
+
   - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc8
                    $(ORACLE_HOME)\oci\lib\msvc
-   (make sure to list msvc\vc8 before msvc)
+
+    (make sure to list msvc\vc8 before msvc)
+
  - Executable files: 
+
     $(ORACLE_HOME)\oci\lib\msvc\vc8;$(ORACLE_HOME)\bin
 
 - On Windows with Visual Studio .NET 2003 Project Files, add the 
-following directories to your Visual C++ environment: 
+  following directories to your Visual C++ environment: 
+
  - Include files: $(ORACLE_HOME)\oci\include
+
  - Library files: $(ORACLE_HOME)\oci\lib\msvc\vc71
                   $(ORACLE_HOME)\oci\lib\msvc
+
  - Executable files: 
+
     $(ORACLE_HOME)\oci\lib\msvc\vc71;$(ORACLE_HOME)\bin
 
 - On Windows, when using nmake Makefiles, please review 
@@ -61,14 +75,17 @@ following directories to your Visual C++ environment:
 
 - Then build as usual.
 
+
 Running the demo
 ----------------
+
 - Review the Oracle properties in the config.server file.
-You may need to change them to connect to your Oracle instance.
+  You may need to change them to connect to your Oracle instance.
 
 - Start the server:
-$ server
 
-- Start the client in a separate terminal:
-$ client
+  $ server
 
+- Start the client in a separate window:
+
+  $ client
