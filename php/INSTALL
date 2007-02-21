@@ -1,6 +1,6 @@
-=========================================================================
+======================================================================
 Requirements
-=========================================================================
+======================================================================
 
 - A supported version of PHP:
 
@@ -15,9 +15,9 @@ Requirements
 - Ice for C++ @ver@ Development Kit
 
 
-=========================================================================
+======================================================================
 Building PHP with the Ice extension (Linux)
-=========================================================================
+======================================================================
 
 This source distribution only supports building IcePHP as a dynamic
 PHP extension; the product of the build is a shared library that you
@@ -43,9 +43,9 @@ Follow the steps below to build IcePHP:
 3. Run make.
 
 
-=========================================================================
+======================================================================
 Building PHP with the Ice extension (Windows)
-=========================================================================
+======================================================================
 
 Compiling PHP from source code on Windows is a tedious process,
 therefore we recommend that you download the precompiled dynamic
@@ -98,9 +98,9 @@ Follow these instructions to build the Ice extension:
    bin\php_ice.dll (Release) or bin\php_iced.dll (Debug).
 
 
-=========================================================================
+======================================================================
 Installing the Extension
-=========================================================================
+======================================================================
 
 To install the Ice extension, you must move the extension's shared
 library into PHP's extension directory. This directory is determined
@@ -114,9 +114,8 @@ extension_dir => C:\php5 => C:\php5
 ...
 
 After successfully building the extension on Linux, the shared library
-can be found in lib/IcePHP.so. On Windows, the DLL is located in
-bin/debug/php_ice.dll or bin/release/php_ice.dll, depending on the
-build configuration you selected.
+is created as lib/IcePHP.so. On Windows, the DLL is created as
+bin/php_ice.dll (release) or bin/php_iced.dll (debug).
 
 Once you've copied the extension to PHP's extension directory, you
 will need to enable the extension in your PHP configuration. In the
@@ -137,9 +136,9 @@ Configuration File (php.ini) Path => C:\WINDOWS
 ...
 
 
-=========================================================================
+======================================================================
 Dependencies
-=========================================================================
+======================================================================
 
 PHP will need to be able to locate the Ice run-time libraries "Ice",
 "Slice", "IceUtil" and "bzip2" (Windows) or "libbz2" (Unix). In
@@ -163,9 +162,9 @@ Finally, the Ice extension will need to execute the Ice preprocessor
 (icecpp), therefore this binary must reside in an accessible directory.
 
 
-=========================================================================
+======================================================================
 SELinux Notes
-=========================================================================
+======================================================================
 
 SELinux augments the traditional Unix permissions with a number of
 new features. In particular, SELinux can prevent the httpd daemon from
@@ -197,12 +196,12 @@ the following:
 
 See this FAQ for more information on SELinux:
 
-http://fedora.redhat.com/docs/selinux-faq/
+  http://fedora.redhat.com/docs/selinux-faq/
 
 
-=========================================================================
+======================================================================
 Running the Tests
-=========================================================================
+======================================================================
 
 The test subdirectory contains PHP implementations of the core Ice
 test suite. In order to run these tests, you must have Python 2.2
