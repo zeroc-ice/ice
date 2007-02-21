@@ -79,7 +79,11 @@ PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-the SLES10 PHP5 RPM.
+the SLES10 php5 RPM, version 5.1.2-29.22 or greater (as long as 
+the greater version maintains binary compatibility). 
+
+php5 5.1.2-29.22 is not binary compatible with the php5 RPM (version
+5.1.2-29.5) included in the original SLES10 distribution.
 
 ======================================================================
 Berkeley DB

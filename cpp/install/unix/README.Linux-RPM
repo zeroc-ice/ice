@@ -163,7 +163,8 @@ PHP
 ---
 
 The Ice extension for PHP is loaded automatically when the interpreter
-loads the contents of the file /etc/php.d/ice.ini:
+loads the contents of the file /etc/php.d/ice.ini (on Red Hat Enterprise
+Linux) or /etc/php5/conf.d/ice.ini (on SuSE Linux Enterprise Server):
 
 extension=IcePHP.so
 
@@ -176,6 +177,13 @@ well as the Slice preprocessor (icecpp).
 You can verify that the Ice extension is installed properly by 
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
+
+On SuSE Linux Enterprise Server 10, you need to install php5 version 
+5.1.2-29.22 or greater (as long as the greater version maintains 
+binary compatibility). 
+php5 5.1.2-29.22 is not binary compatible with the php5 RPM (version
+5.1.2-29.5) included in the original SuSE Linux Enterprise Server 10 
+distribution.
 
 SELinux Notes (for Red Hat Enterprise Linux users):
 
