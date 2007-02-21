@@ -38,7 +38,7 @@ The following C++ compilers are supported:
 
   http://msdn.microsoft.com/vstudio/express/visualc/
 
-- Microsoft Visual C++ .NET 2003 (aka VC++ 7.1)
+- Microsoft Visual C++ .NET 2003 SP1 (aka VC++ 7.1)
 
 - Microsoft Visual C++ 6.0 SP5 with STLport 4.5 (or later)
 

@@ -37,6 +37,8 @@ this distribution.
 Setting up Visual Studio .NET to build Ice applications in C++
 --------------------------------------------------------------
 
+This release requires Visual Studio .NET 2003 Service Pack 1 or later.
+
 Before you can use Ice in your C++ applications, you first need to
 configure Visual Studio with the locations of the Ice header files,
 libraries, and executables.
