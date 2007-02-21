@@ -7,8 +7,8 @@ Operating System
 ----------------
 
 Ice is expected to build and run properly on Solaris 8, Solaris 9
-and Solaris 10 on SPARC and Intel/AMD64. 
-However, Ice is officially supported only on Solaris 10 for SPARC.
+and Solaris 10 on SPARC and Intel/AMD64. However, Ice is officially
+supported only on Solaris 10 for SPARC.
 
 You also need to have /dev/urandom installed. This is installed by
 default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 
@@ -49,7 +49,7 @@ Ice has dependencies on a number of third-party libraries:
 
 You can download these packages at the following locations:
 
-Berkeley DB    http://www.oracle.com/technology/software/products/berkeley-db/index.html
+Berkeley DB    http://www.oracle.com/database/berkeley-db/index.html
 expat          http://sourceforge.net/projects/expat/
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
@@ -57,17 +57,21 @@ bzip2          http://sources.redhat.com/bzip2
 bzip2, expat and openssl are distributed with the Solaris 10 operating
 system.
 
-The "bundled" expat and openssl are installed in /usr/sfw. If you
-want to use the bundled openssl with Ice, we recommend to also
-install the "Solaris 10 Encryption Kit":
+The "bundled" expat and openssl are installed in /usr/sfw. If you want
+to use the bundled openssl with Ice, we recommend that you also
+install the "Solaris 10 Encryption Kit" available from:
+
 http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
+
 This kit is required to run the IceSSL tests successfully.
+
 
 GNU Make 3.80
 -------------
 
 GNU Make 3.80 is required to build Ice on SPARC/Solaris. GNU make is
 distributed on the "Solaris 10 OS Companion Software DVD":
+
 http://www.sun.com/software/solaris/freeware/
 
 
@@ -121,7 +125,7 @@ case of a failure, the tests abort with "failed".
 If you want to try out any of the demos, make sure to update your PATH
 environment variable to add the "bin" directory, and your
 LD_LIBRARY_PATH environment variable to add the "lib" directory.  For
-64 bit builds, add "lib" to LD_LIBRARY_PATH_64:
+64-bit builds, add "lib" to LD_LIBRARY_PATH_64:
 
 $ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
@@ -129,14 +133,14 @@ $ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
 
 
 ======================================================================
-64 bit builds
+64-bit builds
 ======================================================================
 
-To build Ice in 64 bit mode, you need to do the following:
+To build Ice in 64-bit mode, you need to do the following:
 
-- Obtain or build all the third-party dependencies, and put the 64 bit
+- Obtain or build all the third-party dependencies, and put the 64-bit
   libraries in the "lib/sparcv9" directories. For example, put
-  Berkeley DB 64 bit libraries in $DB_HOME/lib/sparcv9.
+  Berkeley DB 64-bit libraries in $DB_HOME/lib/sparcv9.
 
 - Set the environment variable LP64 to yes, as shown below:
 
@@ -158,5 +162,5 @@ When compiling Ice programs, you must pass the location of the
 <prefix>/include directory to the compiler with the -I option, and the
 location of the <prefix>/lib directory with the -L option.
 
-If you built in 64 bit mode, the libraries are installed in
+If you built in 64-bit mode, the libraries are installed in
 <prefix>/lib/sparcv9. No other changes are necessary.

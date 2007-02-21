@@ -35,6 +35,7 @@ Ice has dependencies on a number of third-party libraries:
   compiler compatible with the one you are using.
 
   You can download the Berkeley DB source distribution from
+
   http://www.oracle.com/technology/software/products/berkeley-db/index.html
 
   We recommend that you configure and build Berkeley DB with:
@@ -48,7 +49,7 @@ Ice has dependencies on a number of third-party libraries:
   If you intend to use Ice for Java with Berkeley DB, you must also
   include the option --enable-java.
 
-  For 64 bit builds, use:
+  For 64-bit builds, use:
 
   $ export CXXOPTS="-AA +DD64 -mt"
   $ export CCOPTS="+DD64 -mt"
@@ -56,9 +57,11 @@ Ice has dependencies on a number of third-party libraries:
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
  
-- OpenSSL 0.9.8, which can be downloaded from http://www.openssl.org
+- OpenSSL 0.9.8, which can be downloaded from
 
-  We do not recommend to use the binary distribution available from
+  http://www.openssl.org
+
+  We do not recommend using the binary distribution available from
   the "Software Porting And Archive Centre for HP-UX" as it depends on
   the GCC runtime.
 
@@ -67,20 +70,21 @@ Ice has dependencies on a number of third-party libraries:
   ./Configure hpux-parisc2-cc shared
   (and --prefix=<dir> if you like)
 
-  For 64 bit builds, a recommended configuration is:
+  For 64-bit builds, a recommended configuration is:
 
   ./Configure hpux64-parisc2-cc shared
   (and --prefix=<dir> if you like)
 
 - expat 2.0, which can be downloaded from
+
   http://sourceforge.net/projects/expat
 
-  For 32 bit builds, you can also use the binary distribution from the
+  For 32-bit builds, you can also use the binary distribution from the
   "Software Porting And Archive Centre for HP-UX" located at
   http://hpux.cs.utah.edu.
 
 - bzip2 1.0, which can be downloaded from the "Software Porting And
-  Archive Centre for HP-UX", http://hpux.cs.utah.edu. For 32 bit
+  Archive Centre for HP-UX", http://hpux.cs.utah.edu. For 32-bit
   builds, you can also use the binary distribution from the "Software
   Porting And Archive Centre for HP-UX".
 
@@ -139,7 +143,7 @@ case of a failure, the tests abort with "failed".
 
 If you want to try out any of the demos, make sure to update your PATH
 environment variable to add the "bin" directory, and your SHLIB_PATH
-environment variable to add the "lib" directory. For 64 bit builds,
+environment variable to add the "lib" directory. For 64-bit builds,
 add "lib" to LD_LIBRARY_PATH:
 
 $ export PATH=`pwd`/bin:$PATH
@@ -148,14 +152,14 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
 
 ======================================================================
-64 bit builds
+64-bit builds
 ======================================================================
 
-To build Ice in 64 bit mode, you need to:
+To build Ice in 64-bit mode, you need to:
 
-- Obtain or build all the third-party dependencies, and put the 64 bit
+- Obtain or build all the third-party dependencies, and put the 64-bit
   libraries in the "lib/pa20_64" directories. For example, put
-  Berkeley DB 64 bit libraries in $DB_HOME/lib/pa20_64.
+  Berkeley DB 64-bit libraries in $DB_HOME/lib/pa20_64.
 
 - Set the environment variable LP64 to yes, as shown below:
 
@@ -177,5 +181,5 @@ compiling Ice programs, you must pass the location of the
 <prefix>/include directory to the compiler with the -I option, and the
 location of the <prefix>/lib directory with the -L option.
 
-If you built in 64 bit mode, the libraries are installed in
+If you built in 64-bit mode, the libraries are installed in
 <prefix>/lib/pa20_64. No other changes are necessary.

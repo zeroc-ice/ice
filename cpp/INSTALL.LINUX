@@ -19,11 +19,12 @@ only on:
 C++ compiler
 ------------
 
-Ice is expected to build properly with GCC 3.3 or later.  However,
-only the following compilers are officially supported:
+Ice is expected to build properly with GCC 3.3 or later. However, only
+the following compilers are officially supported:
 
  - GCC 3.4.6 on RHEL 4.4
  - GCC 4.1.x on SLES 10
+
 
 Third-party libraries
 ---------------------
@@ -106,25 +107,28 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
 
 ======================================================================
-64 bit builds on x86_64
+64-bit builds on x86_64
 ======================================================================
 
-To build Ice in 64 bit mode, you need to do the following:
+To build Ice in 64-bit mode, you need to do the following:
 
-- Obtain or build all the third-party dependencies, and put the 64 bit
+- Obtain or build all the third-party dependencies, and put the 64-bit
   libraries in the "lib64" directories. For example, put Berkeley DB
-  64 bit libraries in $DB_HOME/lib64.
+  64-bit libraries in $DB_HOME/lib64.
 
 - Build and test as described above (with gcc).
 
+
 ======================================================================
-32 bit builds on x86_64
+32-bit builds on x86_64
 ======================================================================
 
 By default, builds on x86_64 are 64-bit. To perform a 32-bit build
 on a x86_64 Linux system, set the environment variable LP64 to no,
 as shown below:
-  $ export LP64=no
+
+$ export LP64=no
+
 
 ======================================================================
 Installation

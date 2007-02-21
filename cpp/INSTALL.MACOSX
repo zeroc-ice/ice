@@ -28,9 +28,11 @@ Ice has dependencies on a number of third-party libraries:
   include the option --enable-java.
 
   You can download the Berkeley DB source distribution from
+
   http://www.oracle.com/technology/software/products/berkeley-db/index.html
 
 - expat 2.0. You can download expat from
+
   http://sourceforge.net/projects/expat/
 
 
@@ -80,6 +82,7 @@ On Intel platforms, you also need to set DYLD_BIND_AT_LAUNCH to
 prevent random crashes at runtime in the dynamic linker binding code:
 
 $ export DYLD_BIND_AT_LAUNCH=1
+
 
 ======================================================================
 Installation
