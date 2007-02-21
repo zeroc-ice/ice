@@ -5,8 +5,8 @@ This version of Ice for C# requires Mono version 1.2.2.1 or later.
 Note that Mono currently does not contain full SSL support and 
 therefore IceSSL is not supported.
 
-Unpack the archive. The sources will be contained in the 
-IceCS-@ver@ subdirectory.
+Unpack the archive. The sources will be contained in the IceCS-@ver@
+subdirectory.
 
 You will need the Slice to C# translator and supporting executables
 and libraries. You can download a binary distribution from the ZeroC
@@ -14,8 +14,7 @@ web site, or you can build Ice for C++ yourself.
 
 Binary distributions for the supported platforms are available at
 
-http://www.zeroc.com/download.html
-
+  http://www.zeroc.com/download.html
 
 To build Ice for C#, run
 
@@ -74,7 +73,7 @@ $ gacutil -i icecs.dll
 
 To run the tests, you will need Python:
 
-http://www.python.org/download
+  http://www.python.org/download
 
 Run "python allTests.py" from the top-level directory to run all of the
 tests, or "python allTests.py -l" to run the tests in an endless loop.
@@ -99,7 +98,7 @@ to hold the top-level installation directory. This directory will be
 created automatically if necessary. Also review the comments for the
 "no_gac" variable and decide whether to enable it. Next, run
 
-    make install
+$ make install
 
 On other platforms, copy the libraries from IceCS-@ver@/bin to the
 desired location.
@@ -111,7 +110,7 @@ the libraries with the -r option to mcs.
 Alternatively, you can add the libraries to the global assembly cache.
 To do this, use
 
-    gacutil -i <path_to_lib.dll>
+$ gacutil -i <path_to_lib.dll>
 
 Once installed in the cache, the assemblies will always be located
 correctly without having to set environment variables.
