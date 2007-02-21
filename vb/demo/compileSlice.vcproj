@@ -4,6 +4,7 @@
 	Version="8.00"
 	Name="compileSlice"
 	ProjectGUID="{F47C2D68-B976-4D14-B4D5-E563001011D1}"
+	RootNamespace="compileSlice"
 	Keyword="MakeFileProj"
 	>
 	<Platforms>
@@ -61,7 +62,7 @@
 	</References>
 	<Files>
 		<File
-			RelativePath=".\README.txt"
+			RelativePath=".\COMPILE_SLICE.txt"
 			>
 		</File>
 	</Files>

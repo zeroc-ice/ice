@@ -1,0 +1,2 @@
+The compileSlice project compiles (with slice2vb) all the Slice files
+used by the Ice Visual Basic demos.
