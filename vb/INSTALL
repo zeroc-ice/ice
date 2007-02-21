@@ -6,8 +6,8 @@ The code has been built and tested with:
 - Microsoft Visual Studio 2005 Version 8.0.50727.42 and .NET Framework
   Version 2.0.50727.
 
-Unpack the archive. The sources will be contained in the 
-IceVB-@ver@ subdirectory.
+Unpack the archive. The sources will be contained in the IceVB-@ver@
+subdirectory.
 
 You can either build the slice2vb compiler from the Ice for C++ source
 distribution, or you can download the Ice binary installer for
@@ -35,6 +35,7 @@ the icecs.dll assembly has already been installed in the GAC. If you
 prefer to install the assembly in the GAC yourself, refer to the
 INSTALL file included with the Ice for C# source distribution for
 instructions.
+
 
 Building with Visual Basic 2005
 -------------------------------

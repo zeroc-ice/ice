@@ -1,10 +1,10 @@
-=========================================================================
+======================================================================
 Requirements
-=========================================================================
+======================================================================
 
 - Ice @ver@
-- Python 2.3, 2.4, or 2.5 built with a C++ compiler compatible with C++
-  compiler used to build Ice for C++.
+- Python 2.3, 2.4, or 2.5 built with a C++ compiler compatible with the
+  C++ compiler used to build Ice for C++.
 
 Depending on your platform, you may need to download the Python source
 distribution from http://www.python.org and make our own Python build.
@@ -12,9 +12,10 @@ distribution from http://www.python.org and make our own Python build.
 You can use the Ice for C++ binary distribution for your platform to
 build the Ice extension for Python.
 
-=========================================================================
+
+======================================================================
 Building the Ice extension for Python (Linux/Solaris/HP-UX/Mac OS X)
-=========================================================================
+======================================================================
 
 Follow these steps to build the Ice extension for Python:
 
@@ -36,9 +37,9 @@ Follow these steps to build the Ice extension for Python:
 5) See "Configuring your Environment" below.
 
 
-=========================================================================
+======================================================================
 Building the Ice extension for Python (Windows)
-=========================================================================
+======================================================================
 
 The Python interpreter is readily available on Windows platforms. You
 can build it yourself using Microsoft Visual C++, or obtain a binary
@@ -59,8 +60,8 @@ Follow these steps to build the Ice extension for Python:
 
    > set ICE_HOME=C:\Ice-@ver@
 
-4) Edit config\Make.rules.mak and review the settings. In particular you
-   must set CPP_COMPILER to the appropriate compiler.
+4) Edit config\Make.rules.mak and review the settings. In particular
+   you must set CPP_COMPILER to the appropriate compiler.
 
 5) Run nmake:
 
@@ -77,57 +78,62 @@ NOTES:
    was named python\IcePy.dll in prior releases, but the .dll suffix
    is no longer supported by Python 2.5.
 
+
 Visual C++ 2005 Express Setup
 -----------------------------
 
-Users of Visual C++ 2005 Express need to install the Microsoft Platform
-SDK:
+Users of Visual C++ 2005 Express need to install the Microsoft
+Platform SDK:
+
   http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
-and follow the instructions at the link below:
+Once installed, follow the instructions at the link below:
 
-   http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+  http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
 
-You also need to add Platform SDK directories to the INCLUDE, LIB and
-PATH variables set by 
-C:\Program Files\Microsoft Visual Studio 8\Common7\Tools\vsvars32.bat.
+You also need to add the Platform SDK directories to the INCLUDE, LIB
+and PATH environment variables. For example:
 
-For example:
 @SET PDK_HOME=C:\Program Files\Microsoft Platform SDK for Windows Server 2003 R2
 @SET PATH=%PDK_HOME%\bin;%PATH%
 @SET INCLUDE=%PDK_HOME%\include;%INCLUDE%
 @SET LIB=%PDK_HOME%\lib;%LIB%
 
-It is required to set the PDK_HOME environment variable correctly in
-order to build Ice for Python from source. Note that the PDK_HOME 
-environment variable must not have a trailing \.
+The PDK_HOME environment variable must be defined in order to build
+the Ice source distribution. Note that PDK_HOME must not contain a
+trailing backslash (\).
 
-=========================================================================
+You may also need to execute the vsvars32.bat script, located in
+C:\Program Files\Microsoft Visual Studio 8\Common7\Tools, to properly
+configure your build environment.
+
+
+======================================================================
 Configuring your Environment
-=========================================================================
+======================================================================
 
 Unix:
 
-   Modify your PYTHONPATH environment variable to include the Ice 
-   extension for Python. Assuming you installed the extension in the
-   default directory (/opt/IcePy-@ver@), you would modify your
-   environment as shown below:
+  Modify your PYTHONPATH environment variable to include the Ice 
+  extension for Python. Assuming you installed the extension in the
+  default directory (/opt/IcePy-@ver@), you would modify your
+  environment as shown below:
 
-   export ICEPY_HOME=/opt/IcePy-@ver@
-   export PYTHONPATH=$ICEPY_HOME/python:$PYTHONPATH
+  $ export ICEPY_HOME=/opt/IcePy-@ver@
+  $ export PYTHONPATH=$ICEPY_HOME/python:$PYTHONPATH
 
 Windows:
 
-   Modify your environment to allow Python to find the Ice extension for 
-   Python. The interpreter must be able to locate the extension DLL as
-   well as the Python source files in the "python" subdirectory.
-   This is normally accomplished by setting the PYTHONPATH environment
-   variable to contain the necessary subdirectories. For example, if
-   the Ice for Python extension is installed in C:\IcePy-@ver@, you
-   could configure your environment as follows:
+  Modify your environment to allow Python to find the Ice extension
+  for Python. The interpreter must be able to locate the extension
+  DLL as well as the Python source files in the "python" subdirectory.
+  This is normally accomplished by setting the PYTHONPATH environment
+  variable to contain the necessary subdirectory. For example, if
+  the Ice for Python extension is installed in C:\IcePy-@ver@, you
+  could configure your environment as follows:
 
-   set ICEPY_HOME=C:\IcePy-@ver@
-   set PYTHONPATH=%ICEPY_HOME%\python
+  > set ICEPY_HOME=C:\IcePy-@ver@
+  > set PYTHONPATH=%ICEPY_HOME%\python
 
 
 =========================================================================

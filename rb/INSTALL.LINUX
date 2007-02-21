@@ -79,7 +79,7 @@ You must also modify LD_LIBRARY_PATH to include the directory
   $ export LD_LIBRARY_PATH=/opt/IceRuby-@ver@/lib:LD_LIBRARY_PATH
 
 To verify that Ruby can load the Ice extension successfully, open a
-command window and start the interpreter using irb, as shown below:
+command window and start the interpreter using irb:
 
   $ irb
   irb(main):001:0>
@@ -112,8 +112,8 @@ message when Ruby attempts to load the Ice extension:
 
 There are two ways to solve this problem:
 
-- Change the default security context for the Ice extension
-  using the following command:
+- Change the default security context for the Ice extension using the
+  following command:
 
   $ chcon -t texrel_shlib_t /opt/IceRuby-@ver@/ruby/IceRuby.so
 
@@ -124,10 +124,10 @@ There are two ways to solve this problem:
 
   SELINUX=disabled
 
-For more information on SELinux in Red Hat Enterprise Linux 4, refer to
-the link below:
+For more information on SELinux in Red Hat Enterprise Linux 4, refer
+to the link below:
 
-http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
+  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
 
 
 Running the demos

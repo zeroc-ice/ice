@@ -46,7 +46,6 @@ Compiling Ice for Ruby
 
 Follow these steps to build the Ice extension for Ruby:
 
-
 1) Open a command prompt that supports command-line compilation with
    Visual C++. For example, you can execute the Visual C++ batch file
    vcvars32.bat to configure your environment. Alternatively, you can
@@ -60,8 +59,8 @@ Follow these steps to build the Ice extension for Ruby:
 
    > set ICE_HOME=C:\Ice-@ver@
 
-4) Edit config\Make.rules.mak and review the settings. In particular you
-   must set CPP_COMPILER to the appropriate compiler.
+4) Edit config\Make.rules.mak and review the settings. In particular
+   you must set CPP_COMPILER to the appropriate compiler.
 
 5) Run nmake:
 
@@ -105,8 +104,7 @@ At a command prompt, you can set your PATH as shown below:
   > set PATH=C:\Ice-@ver@-VC60\bin;C:\IceRuby-@ver@\bin;%PATH%
 
 To verify that Ruby can load the Ice extension successfully, open a
-command window and start the interpreter using irb.bat, as shown
-below:
+command window and start the interpreter using irb.bat:
 
   > irb.bat
   irb(main):001:0>
@@ -188,7 +186,7 @@ specified by the ICE_HOME environment variable.
 Open a command window and change to the top-level directory. At the
 command prompt, execute:
 
-  python allTests.py
+  > python allTests.py
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
