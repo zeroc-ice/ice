@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #ifdef _WIN32
 #   include <IceUtil/Config.h>
 #endif
