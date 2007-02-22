@@ -49,9 +49,9 @@ This distribution depends on a number of third-party libraries:
 All of these libraries are included with your RHEL4 distribution in the
 following RPMs:
 
-expat 	       expat
-OpenSSL	       openssl
-bzip2          bzip2-libs
+expat:	       expat
+OpenSSL:       openssl
+bzip2:         bzip2-libs
 
 
 Java
@@ -60,40 +60,45 @@ Java
 Ice for Java requires Java 1.4.2, 1.5.0 or 1.6.0. RPMs can be obtained 
 from Sun Microsystems at http://java.sun.com.
 
+
 Python
 ------
 
 The Ice extension for Python included in this distribution requires
 the installation of the RHEL4 python RPM.
 
+
 C#
 --
 
-Ice for C# requires Mono 1.2.2 or later. You can download the corresponding
-RPM at:
-http://www.go-mono.com/download/x86/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.i586.rpm
-http://www.go-mono.com/download/x86_64/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.x86_64.rpm
+Ice for C# requires Mono 1.2.2 or later. You can download an RPM at:
+
+  http://www.go-mono.com/download/x86/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.i586.rpm
+  http://www.go-mono.com/download/x86_64/mono/1.2.2.1/mono-core-1.2.2.1-0.novell.x86_64.rpm
 
 
 Ruby
 ----
-The Ice extension for Ruby included in this distribution requires
-the installation of the RHEL4 ruby RPM.
+
+The Ice extension for Ruby included in this distribution requires the
+installation of the RHEL4 ruby RPM.
+
 
 PHP
 ---
 
 The Ice extension for PHP included in this distribution requires
-PHP 5.1.6. You can download the corresponding RPM from the Centos Plus
+PHP 5.1.6. You can download the appropriate RPMs from the Centos Plus
 repository:
 
-http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-pear-1.4.9-1.2.centos.noarch.rpm
+  http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-pear-1.4.9-1.2.centos.noarch.rpm
 
-http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-5.1.6-1.2.1.centos.i386.rpm
-http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-devel-5.1.6-1.2.1.centos.i386.rpm
+  http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-5.1.6-1.2.1.centos.i386.rpm
+  http://mirror.centos.org/centos/4/centosplus/i386/RPMS/php-devel-5.1.6-1.2.1.centos.i386.rpm
 
-http://mirror.centos.org/centos/4/centosplus/x86_64/RPMS/php-5.1.6-1.2.1.centos.x86_64.rpm
-http://mirror.centos.org/centos/4/centosplus/x86_64/RPMS/php-devel-5.1.6-1.2.1.centos.x86_64.rpm
+  http://mirror.centos.org/centos/4/centosplus/x86_64/RPMS/php-5.1.6-1.2.1.centos.x86_64.rpm
+  http://mirror.centos.org/centos/4/centosplus/x86_64/RPMS/php-devel-5.1.6-1.2.1.centos.x86_64.rpm
+
 
 ======================================================================
 Berkeley DB
@@ -102,6 +107,7 @@ Berkeley DB
 This distribution includes the C++ and Java runtime for Berkeley DB
 4.5.20. The Berkeley DB license is provided in the file 
 THIRD_PARTY_LICENSE.
+
 
 ======================================================================
 Setting up your environment to use Ice
@@ -121,17 +127,24 @@ below:
 $ export PATH=$ICE_HOME/bin:$PATH
 
 Ice shared libraries and executables in this distribution contain 
-/opt/Ice-@mmver@/lib as embedded runpath. In order to run Ice services 
-and tools, you can either:
- - create a symbolic link /opt/Ice-@mmver@ that points to your Ice
-   installation.
-     $ ln -s $ICE_HOME /opt/Ice-@mmver@
- - or add $ICE_HOME/lib to your LD_LIBRARY_PATH environment variable 
-     $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+/opt/Ice-@mmver@/lib as the embedded runpath. In order to run Ice
+services and tools, you can do one of the following:
+
+ - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
+   installation:
+
+   $ ln -s $ICE_HOME /opt/Ice-@mmver@
+
+ - Add $ICE_HOME/lib to your LD_LIBRARY_PATH environment variable:
+
+   $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+
    With the x86_64 distribution, libraries are installed in 
    $ICE_HOME/lib64; if you use this distribution, set your 
    LD_LIBRARY_PATH as follows:
-     $ export LD_LIBRARY_PATH=$ICE_HOME/lib64:$LD_LIBRARY_PATH
+
+   $ export LD_LIBRARY_PATH=$ICE_HOME/lib64:$LD_LIBRARY_PATH
+
 
 C++
 ---
@@ -214,11 +227,12 @@ mono. For example,
 
 $ mono server.exe
 
+
 Ruby
 ---
 
-To use Ice for Ruby, the RUBYLIB environment variable must be
-updated so that the interpreter can locate the Ruby extension.
+To use Ice for Ruby, the RUBYLIB environment variable must be updated
+so that the interpreter can locate the Ruby extension.
 
 $ export RUBYLIB=$ICE_HOME/ruby:$RUBYLIB
 
@@ -226,8 +240,8 @@ $ export RUBYLIB=$ICE_HOME/ruby:$RUBYLIB
 PHP
 ---
 
-The Ice extension for PHP must be added to your PHP configuration
-by editing php.ini and adding the following lines:
+The Ice extension for PHP must be added to your PHP configuration by
+editing php.ini and adding the following lines:
 
 extension_dir = <ICE_HOME>/lib
 extension = IcePHP.so
@@ -244,7 +258,9 @@ You can verify that the Ice extension is installed properly by
 examining the output of the "php -m" command, or by calling the
 phpinfo() function from a script.
 
-SELinux Notes:
+
+SELinux Notes
+-------------
 
 SELinux augments the traditional Unix permissions with a number of
 new features. In particular, SELinux can prevent the httpd daemon from
@@ -252,7 +268,7 @@ opening network connections and reading files without the proper
 SELinux types.
 
 If you suspect that your IcePHP application does not work due to
-SELinux restrictions, we recommend that you first try with SELinux
+SELinux restrictions, we recommend that you first try it with SELinux
 disabled. As root, run:
 
 # setenforce 0
@@ -274,9 +290,10 @@ the following:
 
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
-See this FAQ for more information on SELinux:
+For more information on SELinux in Red Hat Enterprise Linux 4, refer
+to the link below:
 
-http://fedora.redhat.com/docs/selinux-faq/
+  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
 
 
 ======================================================================
@@ -302,7 +319,7 @@ Demos and documentation
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
 which can be downloaded from the ZeroC web site at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 Please refer to the README.DEMOS file included in that package for
 more information.

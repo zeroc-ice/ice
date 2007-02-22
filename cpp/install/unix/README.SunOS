@@ -42,18 +42,24 @@ version 5.8.
 
 The following Solaris 10 binary packages are required to use 
 this distribution:
+
 - bzip2 (Sun package SUNWbzip)
 - libexpat (Sun package SUNWlexpt)
 - openssl (Sun packages SUNWopenssl-libraries SUNWopenssl-commands)
 
-We also recommend to install the Solaris 10 Encryption Kit (Sun packages 
-SUNWcry and SUNWcryr) available at http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
+We also recommend that you install the Solaris 10 Encryption Kit (Sun
+packages SUNWcry and SUNWcryr) available at
+
+  http://www.sun.com/download/index.jsp?cat=Security&tab=3&subcat=Cryptography%20%26%20Encryption
+
 
 Java
 ----
 
 Ice for Java requires J2SE 1.4.2, 1.5.0 or 1.6.0. RPMs can be obtained
-from Sun Microsystems at http://java.sun.com
+from Sun Microsystems at
+
+  http://java.sun.com
 
 
 ======================================================================
@@ -64,6 +70,7 @@ This distribution includes the C++ and Java runtime for Berkeley DB
 4.5.20. The C++ runtime was built using Sun CC version 5.8. The
 Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
+
 ======================================================================
 Ice extension for Python
 ======================================================================
@@ -73,12 +80,14 @@ included in this distribution because there is no suitable binary
 distribution for Python itself available from Sun or 
 www.sunfreeware.com. 
 
-If you want to use Ice for Python on Solaris, you can build Ice for 
-Python using its source distribution, available at 
-http://www.zeroc.com/download.html.
+If you want to use Ice for Python on Solaris, you can build a source
+distribution available at 
+
+  http://www.zeroc.com/download.html
+
 
 ======================================================================
-64 bit builds
+64-bit builds
 ======================================================================
 
 This distribution only contains 32-bit binaries. If you need a 64-bit
@@ -105,13 +114,18 @@ below:
 $ export PATH=$ICE_HOME/bin:$PATH
 
 Ice shared libraries and executables in this distribution contain 
-/opt/Ice-@mmver@/lib as embedded runpath. In order to run Ice services 
-and tools, you can either:
- - create a symbolic link /opt/Ice-@mmver@ that points to your Ice
-   installation.
-     $ ln -s $ICE_HOME /opt/Ice-@mmver@
- - or add $ICE_HOME/lib to your LD_LIBRARY_PATH environment variable 
-     $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+/opt/Ice-@mmver@/lib as the embedded runpath. In order to run Ice
+services and tools, you can do one of the following:
+
+ - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
+   installation:
+
+   $ ln -s $ICE_HOME /opt/Ice-@mmver@
+
+ - Add $ICE_HOME/lib to your LD_LIBRARY_PATH environment variable:
+
+   $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+
 
 C++
 ---
@@ -149,6 +163,7 @@ In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
 must add this directory to LD_LIBRARY_PATH.
 
+
 ======================================================================
 Using the IceGrid Administrative Console
 ======================================================================
@@ -172,7 +187,7 @@ Demos and documentation
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
 which can be downloaded from the ZeroC web site at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 Please refer to the README.DEMOS file included in that package for
 more information.
@@ -194,4 +209,3 @@ With the binary installers, simply uninstall the previous version of
 Ice and install the new one. Already deployed applications that were
 compiled against the <x>.<y>.0 runtime will automatically use the
 <x>.<y>.1 runtime.
-

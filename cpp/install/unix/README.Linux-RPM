@@ -37,10 +37,11 @@ Additional Ice components are provided in separate RPM packages:
 
 These RPMs are available for download at the ZeroC web site at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 Note: Ice Ruby RPMs are currently available only on Red Hat Enterprise
 Linux.
+
 
 ======================================================================
 Setting up your environment to use Ice
@@ -90,7 +91,7 @@ this issue by editing the following file
 
 and changing it to use /dev/urandom instead of /dev/random. If you do
 not have permission to modify the security file, you can also use the
-command line option shown below:
+command-line option shown below:
 
 $ java -Djava.security.egd=file:/dev/urandom MyClass ...
 
@@ -101,7 +102,10 @@ java.net.preferIPv4Stack to true. For example:
 
 $ java -Djava.net.preferIPv4Stack=true MyClass ...
 
-See also: http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
+For more information on this issue, refer to Sun's bug database:
+
+  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
+
 
 Python
 ------
@@ -116,6 +120,7 @@ On a x86_64 system, the python Ice extension is installed in
 /usr/lib64/Ice-@ver@/python, so use instead:
 
 $ export PYTHONPATH=/usr/lib64/Ice-@ver@/python:$PYTHONPATH
+
 
 C#/Mono
 -------
@@ -143,6 +148,7 @@ mono. For example,
 
 $ mono server.exe
 
+
 Ruby
 ----
 
@@ -159,12 +165,14 @@ $ export RUBYLIB=/usr/lib64/Ice-@ver@/ruby:$RUBYLIB
 Note: Ice Ruby RPMs are currently available only on Red Hat Enterprise
 Linux.
 
+
 PHP
 ---
 
 The Ice extension for PHP is loaded automatically when the interpreter
 loads the contents of the file /etc/php.d/ice.ini (on Red Hat Enterprise
-Linux) or /etc/php5/conf.d/ice.ini (on SuSE Linux Enterprise Server):
+Linux) or /etc/php5/conf.d/ice.ini (on SuSE Linux Enterprise Server).
+This file contains the line shown below:
 
 extension=IcePHP.so
 
@@ -180,12 +188,13 @@ phpinfo() function from a script.
 
 On SuSE Linux Enterprise Server 10, you need to install php5 version 
 5.1.2-29.22 or greater (as long as the greater version maintains 
-binary compatibility). 
-php5 5.1.2-29.22 is not binary compatible with the php5 RPM (version
-5.1.2-29.5) included in the original SuSE Linux Enterprise Server 10 
-distribution.
+binary compatibility). Note that php5 5.1.2-29.22 is not binary
+compatible with the php5 RPM (version 5.1.2-29.5) included in the
+original SuSE Linux Enterprise Server 10 distribution.
 
-SELinux Notes (for Red Hat Enterprise Linux users):
+
+SELinux Notes (for Red Hat Enterprise Linux users)
+--------------------------------------------------
 
 SELinux augments the traditional Unix permissions with a number of
 new features. In particular, SELinux can prevent the httpd daemon from
@@ -193,7 +202,7 @@ opening network connections and reading files without the proper
 SELinux types.
 
 If you suspect that your IcePHP application does not work due to
-SELinux restrictions, we recommend that you first try with SELinux
+SELinux restrictions, we recommend that you first try it with SELinux
 disabled. As root, run:
 
 # setenforce 0
@@ -215,9 +224,10 @@ the following:
 
   # chcon -R -t httpd_sys_content_t /opt/MyApp/slice 
 
-See this FAQ for more information on SELinux:
+For more information on SELinux in Red Hat Enterprise Linux 4, refer
+to the link below:
 
-http://fedora.redhat.com/docs/selinux-faq/
+  http://www.redhat.com/docs/manuals/enterprise/RHEL-4-Manual/selinux-guide/
 
 
 ======================================================================
@@ -232,14 +242,14 @@ associated configuration files:
 - /etc/init.d/glacier2router and /etc/glacier2router.conf
 
 None of these services are enabled during the RPM installation; you 
-need to manually enable the desired service(s) with:
-# chkconfig --add <service-name>
-for example:
+need to manually enable the desired service(s) using the chkconfig
+command, for example:
+
 # chkconfig --add icegridregistry
 
 Before doing so, please review the script itself and its associated
 configuration file. You should create one or more accounts to run 
-these services ('iceuser' in the sample scripts); for icegridregistry
+these services ('iceuser' in the sample scripts). For icegridregistry
 and icegridnode, you also need to create 'data' directories with the 
 proper permissions (refer to the .conf files).
 
@@ -267,7 +277,7 @@ Demos and documentation
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
 which can be downloaded from the ZeroC web site at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 Please refer to the README.DEMOS file included in that package for
 more information.

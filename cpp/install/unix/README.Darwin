@@ -88,18 +88,23 @@ below:
 $ export PATH=$ICE_HOME/bin:$PATH
 
 Ice shared libraries and executables in this distribution contain 
-/opt/Ice-@mmver@/lib as embedded runpath. In order to run Ice services 
-and tools, you can either:
- - create a symbolic link /opt/Ice-@mmver@ that points to your Ice
-   installation.
-     $ ln -s $ICE_HOME /opt/Ice-@mmver@
- - or add $ICE_HOME/lib to your DYLD_LIBRARY_PATH environment variable 
-     $ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
+/opt/Ice-@mmver@/lib as the embedded runpath. In order to run Ice
+services and tools, you can do one of the following:
+
+ - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
+   installation:
+
+   $ ln -s $ICE_HOME /opt/Ice-@mmver@
+
+ - Add $ICE_HOME/lib to your DYLD_LIBRARY_PATH environment variable:
+
+   $ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
 On Intel platforms, you also need to set DYLD_BIND_AT_LAUNCH to
 prevent random crashes at runtime in the dynamic linker binding code:
 
 $ export DYLD_BIND_AT_LAUNCH=1
+
 
 C++
 ---
@@ -171,7 +176,7 @@ Demos and documentation
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
 which can be downloaded from the ZeroC web site at
 
-http://www.zeroc.com/download.html
+  http://www.zeroc.com/download.html
 
 Please refer to the README.DEMOS file included in that package for
 more information.
@@ -193,4 +198,3 @@ With the binary installers, simply uninstall the previous version of
 Ice and install the new one. Already deployed applications that were
 compiled against the <x>.<y>.0 runtime will automatically use the
 <x>.<y>.1 runtime.
-
