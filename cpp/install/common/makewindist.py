@@ -262,8 +262,8 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         os.chdir(os.path.join(sourcesDir, "debug", "IceVB-" + sourcesVersion))
         print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), False)
-        f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), False)
+        f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         for l in f:
             i = l.find("icecs") 
             if i <> -1:
@@ -289,8 +289,8 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         #
         os.chdir(os.path.join(sourcesDir, "release", "IceVB-" + sourcesVersion))
         print "Building in " + os.getcwd() + "..."
-        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
-        f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak"), True)
+        setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
+        f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         for l in f:
             i = l.find("icecs") 
             if i <> -1:
