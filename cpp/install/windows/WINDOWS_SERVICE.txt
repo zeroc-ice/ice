@@ -88,7 +88,7 @@ members of this group.
 
 Or under an admin rights command shell:
 
-net localgroup"Performance Log Users""MemberName"/add
+net localgroup "Performance Log Users" "<user>" /add
 
 Once this is done its necessary to logout and then login again if you
 are modifying the rights of the current logged in user.
