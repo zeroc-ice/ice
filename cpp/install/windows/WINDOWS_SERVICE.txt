@@ -1,64 +1,66 @@
-========================================================================
-Installing IceGrid registry, IceGrid node or Glacier2 router as a
-Windows Service
-========================================================================
+This file describes how to install the IceGrid registry, IceGrid node,
+and Glacier2 router as Windows services.
 
-Step 1: Review and edit the configuration file (icegridregistry.cfg,
-icegridnode.cfg or glacier2router.cfg)
+1. Review and edit the appropriate configuration file
+   (icegridregistry.cfg, icegridnode.cfg or glacier2router.cfg)
 
-Step 2: Create the account for the user that will run the service
-(iceuser in the sample configuration files). This user should be
-initially Administrator (see note below).
+2. Create the account for the user that will run the service (the
+   sample configuration files use the account 'iceuser'). Initially
+   this user should be Administrator (see note below).
 
-Step 3: For the IceGrid registry or node, log on as 'iceuser' and
-create any required data/database directory.
+3. For the IceGrid registry or node, log on as 'iceuser' and
+   create any required data/database directory.
 
-Step 4: Install the service, for example:
-> icegridregistry --install IceGridRegistry \
-  --Ice.Config=C:\Ice-@ver@\config\icegridregistry.cfg
+4. Install the service, for example:
 
-On Windows Vista if UAC is enabled then the installation of the
-service requires administrator priviledges. To do this run the command
-shell as administrator. Right-click the cmd shell icon and select "run
-as admin".
+   > icegridregistry --install IceGridRegistry \
+     --Ice.Config=C:\Ice-@ver@\config\icegridregistry.cfg
 
-Step 5: In the Windows Services panel, edit the new Service.
-Change "Log on" to use the 'iceuser' account, instead of the Local
-System Account.
+   Installing the service on Windows Vista with UAC enabled requires
+   administrator privileges. In this case, run the command shell as
+   administrator, right-click the command shell icon and select "Run
+   as admin", then execute the installation command.
 
-Unless there is a password associated with the account under Windows
-Vista it will not be possible to start the service.
+5. In the Windows Services panel, modify the properties of the new
+   service. Change "Log on" to use the 'iceuser' account, instead of
+   the Local System Account.
 
-On Windows Server 2003 and Windows Vista, the user account that runs
-IceGrid node needs to be a member of the local 'Performance Monitor Users'
-group to be able to monitor the CPU usage of the system. See below for
-a complete set of instructions.
+   On Windows Vista, it will not be possible to start the service
+   unless there is a password associated with the selected account.
 
-Step 6: Start the service, and verify that the service starts
-properly.
+   On Windows Server 2003 and Windows Vista, the user account that
+   runs IceGrid node must be a member of the local 'Performance
+   Monitor Users' group for the node to be able to monitor the CPU
+   usage of the system. See below for a complete set of instructions.
 
-Step 7: Downgrade the 'iceuser' account to a regular Users account
-(see note below).
+6. Start the service and verify that the service starts properly.
 
-Note: 'iceuser' needs to be Administrator the first time you start the
+7. Downgrade the 'iceuser' account to a regular Users account
+   (see note below).
+
+Note:
+
+'iceuser' needs to be Administrator the first time you start the
 service if you log messages to the Windows Event Log (see the 
 Ice.UseEventLog property).
+
 
 Windows Server 2003 and Windows Vista
 -------------------------------------
 
-As previously mentioned the user account that runs the IceGrid node
-needs to be a member of the local 'Performance Monitor Users' group.
+The user account that runs the IceGrid node needs to be a member of
+the local 'Performance Monitor Users' group so that the node can
+monitor CPU usage. This is only necessary if you intend to use an
+IceGrid load-balancing policy that relies on CPU usage.
 
-These instructions have been taken from a Microsoft article contained
-at URL:
+The instructions below were obtained from a Microsoft article:
 
 http://technet2.microsoft.com/WindowsVista/en/library/ab3b2cfc-b177-43ec-8a4d-0bfac62d88961033.mspx?mfr=true
 
 First grant the user account "Log on as a batch job" rights.
 
 To assign the "Log on as a batch job" user right to the Performance
-Log Users group
+Log Users group:
 	
 1. Click Start, click in the Search box, type secpol.msc, and press
    ENTER. The Local Security Policy snap-in will open in Microsoft
@@ -72,8 +74,8 @@ Log Users group
 
 4. In the Properties page, click Add User or Group.
 
-5. In the Select Users or Groups dialog box, click Object
-   Types. Select Groups in the Object Types dialog box and click OK.
+5. In the Select Users or Groups dialog box, click Object Types.
+   Select Groups in the Object Types dialog box and click OK.
 
 6. Type Performance Log Users in the Select Users or Groups dialog box
    and then click OK.
@@ -90,5 +92,5 @@ Or under an admin rights command shell:
 
 net localgroup "Performance Log Users" "<user>" /add
 
-Once this is done its necessary to logout and then login again if you
-are modifying the rights of the current logged in user.
+Once this is done it is necessary to logout and then login again if
+you are modifying the rights of the currently logged in user.

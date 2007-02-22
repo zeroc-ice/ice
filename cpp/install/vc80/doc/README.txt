@@ -25,12 +25,14 @@ development tools to build Ice applications:
  - in C#, using Visual Studio 2005 or Visual C# 2005 Express Edition
  - in Visual Basic, using Visual Studio 2005 or Visual Basic 2005 
    Express Edition
- - in Java, using Java 2, Java 5 or Java 6.
- - in Python, using Python 2.5.
+ - in Java, using Java 2, Java 5 or Java 6
+ - in Python, using Python 2.5
 
 If you want to develop Ice applications in Ruby or in PHP, or with
-another C++ compiler, please download the corresponding Ice binary 
-distribution from http://www.zeroc.com/download.html.
+another C++ compiler, please download the appropriate Ice binary 
+distribution from the ZeroC web site at
+
+  http://www.zeroc.com/download.html
 
 You only need the development environment for your target programming
 language to use this distribution. For example if you want to build
@@ -72,14 +74,14 @@ Setting up Visual C++ 2005 Express Edition
 
 Visual C++ 2005 Express is available for download from:
 
-http://msdn.microsoft.com/vstudio/express/visualc/
+  http://msdn.microsoft.com/vstudio/express/visualc/
 
 In addition to the steps listed above for setting up Visual Studio
 2005, users of Visual C++ 2005 Express Edition must also follow the
 instructions at the link below for installing and configuring the
 Platform SDK:
 
-http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
+  http://msdn.microsoft.com/vstudio/express/visualc/usingpsdk/
 
 
 Building and running the C++ demos
@@ -176,8 +178,8 @@ The Java demos are in the demoj directory.
 To build the Java demos, you need the Java SDK 1.4.2 or later, and Ant
 1.6.3 or later. They can be downloaded from:
 
-http://java.sun.com/j2se/index.jsp
-http://ant.apache.org/bindownload.cgi
+  http://java.sun.com/j2se/index.jsp
+  http://ant.apache.org/bindownload.cgi
 
 The ant bin directory must be added to your PATH, and the following
 environment variables need to be defined:
@@ -226,7 +228,7 @@ The Python demos are in the demopy directory.
 You need Python 2.5 to run the demos. A binary installer for Python
 can be downloaded from:
 
-http://www.python.org/download
+  http://www.python.org/download
 
 You also need to add the Ice bin directory to your PATH, for example:
 
@@ -264,8 +266,8 @@ Note: Under Mono, binary compatibility currently does not work due to
       the <x>.<y>.1 Ice assemblies.
 
 
-Acknowledgements
-----------------
+Acknowledgments
+---------------
 
 This product includes software developed by the OpenSSL Project for
 use in the OpenSSL Toolkit (http://www.openssl.org/).

@@ -23,9 +23,10 @@ development tools to build Ice applications in C++ using Visual
 Studio 2005 for the x64 architecture.
 
 If you want to develop Ice applications in another programming
-language, on with another C++ compiler, please download the 
-corresponding Ice binary distribution from 
-http://www.zeroc.com/download.html.
+language, or with another C++ compiler, please download the 
+appropriate Ice binary distribution from the ZeroC web site at
+
+  http://www.zeroc.com/download.html
 
 This file describes how to setup Visual Studio for Ice and provides 
 instructions for building and running the sample programs.
@@ -100,8 +101,8 @@ Note: Under Mono, binary compatibility currently does not work due to
 
 
 
-Acknowledgements
-----------------
+Acknowledgments
+---------------
 
 This product includes software developed by the OpenSSL Project for
 use in the OpenSSL Toolkit (http://www.openssl.org/).
