@@ -71,6 +71,7 @@ ICEGRID_SRCS	= IceGrid\Admin.rb \
 		  IceGrid\Descriptor.rb \
 		  IceGrid\Exception.rb \
 		  IceGrid\FileParser.rb \
+		  IceGrid\Locator.rb \
 		  IceGrid\Observer.rb \
 		  IceGrid\Query.rb \
 		  IceGrid\Registry.rb \
