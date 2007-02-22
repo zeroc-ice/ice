@@ -80,15 +80,15 @@ void
 Parser::usage()
 {
     cout <<
-        "help                        Print this message.\n"
-        "exit, quit                  Exit this program.\n"
-        "create TOPICS               Add TOPICS.\n"
-        "destroy TOPICS              Remove TOPICS.\n"
-        "link FROM TO [COST]         Link FROM to TO with the optional given COST.\n"
-        "unlink FROM TO              Unlink TO from FROM.\n"
-        "list SERVICE [TOPICS]       Display information on TOPICS or all topics for the given service.\n"
-        "current [TOPIC]             Set the current topic manager.\n"
-;
+        "help                         Print this message.\n"
+        "exit, quit                   Exit this program.\n"
+        "create TOPICS                Add TOPICS.\n"
+        "destroy TOPICS               Remove TOPICS.\n"
+        "link FROM TO [COST]          Link FROM to TO with the optional given COST.\n"
+        "unlink FROM TO               Unlink TO from FROM.\n"
+        "list INSTANCE-NAME [TOPICS]  Display information on TOPICS or all topics for the given service.\n"
+        "current [INSTANCE-NAME]      Set the current topic manager.\n"
+        ;
 }
 
 void
