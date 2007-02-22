@@ -128,9 +128,7 @@ local interface ObjectAdapter
      * Wait until the object adapter has deactivated. Calling
      * [deactivate] initiates object adapter deactivation, and
      * [waitForDeactivate] only returns when deactivation has
-     * been completed. Once [waitForDeactivate] has returned it
-     * is possible to recreate an object adapter with the
-     * same name.
+     * been completed. 
      *
      * @see deactivate
      * @see waitForHold
