@@ -155,7 +155,7 @@ class Client < Ice::Application
             if shutdown
                 factory.shutdown()
             end
-        ensure
+        rescue
             #
             # The refresher thread must be terminated in the event of a
             # failure.
