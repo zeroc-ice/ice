@@ -211,23 +211,16 @@ public class Client extends Ice.Application
                 factory.shutdown();
             }
         }
-        catch(java.io.IOException ex)
-        {
-            ex.printStackTrace();
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-        }
-        finally
+        catch(Exception ex)
         {
             try
             {
                 cleanup(true);
             }
-            catch(Ice.LocalException ex)
+            catch(Ice.LocalException e)
             {
             }
+            ex.printStackTrace();
         }
 
         return 0;

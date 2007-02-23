@@ -21,7 +21,8 @@ public class HelloI extends _HelloDisp
     public void
     sayHello(Ice.Current current)
     {
-        System.out.println("Hello object #" + _id + " for session `" + _name + "' says: Hello " + _name + "!");
+        System.out.println("Hello object #" + _id + " for session `" + _name + "' says:\n" +
+                           "Hello " + _name + "!");
     }
 
     final private String _name;
