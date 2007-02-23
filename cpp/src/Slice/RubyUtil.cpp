@@ -143,10 +143,6 @@ splitScopedName(const string& scoped)
     {
         ids.push_back(scoped.substr(next));
     }
-    else
-    {
-        ids.push_back("");
-    }
 
     return ids;
 }
@@ -1687,6 +1683,7 @@ Slice::Ruby::splitString(const string& str, vector<string>& args, const string& 
 string
 Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 {
+    assert(!ident.empty());
     if(ident[0] != ':')
     {
         string id = ident;
@@ -1714,6 +1711,7 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
     assert(!ids.empty());
 
     ostringstream result;
+
     for(vector<string>::size_type i = 0; i < ids.size() - 1; ++i)
     {
         //
@@ -1722,7 +1720,17 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
         //
         result << "::" << fixIdent(ids[i], IdentToUpper);
     }
+
     result << "::" << fixIdent(ids[ids.size() - 1], style);
+
+    //
+    // Preserve trailing scope resolution operator if necessary.
+    //
+    if(ident.rfind("::") == ident.size() - 2)
+    {
+        result << "::";
+    }
+
     return result.str();
 }
 
