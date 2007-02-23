@@ -1,30 +1,30 @@
-Building the Demos 
+Building the Demos
 ==================
 
 This section describes how to build the demos included in the Ice demo
 distribution. Check the 'Platform Specific Notes' section to see if
 there are extra details relevant to your platform.
 
-The demo archive contains demos for each language mapping supported by
-Ice. Not all demos will build against all Ice distributions.
-Distributions for specific platform/tool combinations may not support
-every Ice language mapping.
+The demo archive contains sample programs for each language mapping
+that Ice supports. Not all demos will build against all Ice
+distributions. Distributions for specific platform/tool combinations
+may not support every Ice language mapping.
 
 The build systems included in the demo distribution are either
 'makefile' based or 'ant' based. The C++ and C# demos use makefiles and
-the Java demos use the Apache Foundation's ant build tool. 
+the Java demos use the Apache Foundation's ant build tool.
 
-    NOTE: The Ruby, Python and PHP demos do not need to be built. 
+NOTE: The Ruby, Python and PHP demos do not need to be built.
 
-The Unix C++ and C# makefiles require GNU gmake 3.80 or later. If your
-system does not come with GNU make, you can find information on how to
-acquire it at the following link:
+The Unix makefiles for C++ and C# require GNU gmake 3.80 or later. If
+your system does not come with GNU make, you can find information on
+how to acquire it at the following link:
 
-http://www.gnu.org/software/make/ 
+http://www.gnu.org/software/make/
 
-The Windows C++ and C# makefiles require Microsoft NMAKE 1.5.2. If you
-do not have NMAKE installed on your system, you can obtain it as part
-of the Microsoft Platform SDK:
+The Windows makefiles for C++ and C# require Microsoft NMAKE 1.5.2. If
+you do not have NMAKE installed on your system, you can obtain it as
+part of the Microsoft Platform SDK:
 
 http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
 
@@ -35,37 +35,39 @@ http://ant.apache.org/bindownload.cgi
 
 To build the demos you need to:
 
-  - Configure your system according to the directions in the main README file 
-    (for binary distributions) or the platform specific INSTALL file (if you 
-    built Ice from sources).
+  - Configure your system according to the directions in the main
+    README file (for binary distributions) or the platform-specific
+    INSTALL file (if you built Ice from sources).
 
   - On Linux or Unix:
-    If you are using a non-RPM installation, set the environment variable
-    ICE_HOME to point to your Ice installation. For example in a Bash 
-    shell:
-        
-        $ export ICE_HOME=$HOME/testing/Ice-@ver@
 
-    You also need need add $ICE_HOME/lib to your library search-path,
+    If you are using a non-RPM installation, set the environment
+    variable ICE_HOME to point to your Ice installation. For example,
+    in a Bash shell:
+
+    $ export ICE_HOME=$HOME/testing/Ice-@ver@
+
+    You also need need add $ICE_HOME/lib to your library search path,
     unless you create the symbolic link /opt/Ice-@mmver@ (see the top-
     level README). For example:
 
-        $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
-    
+    $ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
+
   - On Windows:
-    Set the environment variable ICE_HOME to point to your Ice installation,
-    and add %ICE_HOME%\bin to your PATH. For example:  
 
-	c:\>set ICE_HOME=c:\Ice-@ver@
-	c:\>set PATH=%ICE_HOME%\bin;%PATH%
+    Set the environment variable ICE_HOME to point to your Ice
+    installation, and add %ICE_HOME%\bin to your PATH. For example:
 
-    Edit Ice-@ver@-demos/config/Make.rules.mak and set CPP_COMPILER to the
-    appropriate value for your compiler. 
-	  
+    c:\>set ICE_HOME=c:\Ice-@ver@
+    c:\>set PATH=%ICE_HOME%\bin;%PATH%
+
+    Edit Ice-@ver@-demos/config/Make.rules.mak and set CPP_COMPILER to
+    the appropriate value for your compiler.
+
   - Build the demos. For example:
 
     On Linux or Unix:
-	
+
         # C++ demos
 	cd Ice-@ver@-demos/demo
 	gmake
@@ -92,55 +94,61 @@ To build the demos you need to:
 	cd Ice-@ver@-demos\demoj
 	ant
 
-Platform specific notes 
+
+Platform specific notes
 =======================
 
-    Building the C++ demos using Borland C++ Builder
-    ------------------------------------------------
 
-    The C++ build system included in the demo archive is nmake-based
-    and requires that you open a Windows console (Command Line)
-    and run commands from the command prompt. The Borland installer
-    typically configures the Windows environment so you should not need
-    additional configuration to run the Borland C++ compiler from the
-    command line.
+Building the C++ demos using Borland C++ Builder
+------------------------------------------------
 
-    Building the C++ demos using Microsoft C++ Environments
-    -------------------------------------------------------
+The C++ build system included in the demo archive is nmake-based and
+requires that you open a Windows console (Command Line) and run
+commands from the command prompt. The Borland installer typically
+configures the Windows environment so you should not need additional
+configuration to run the Borland C++ compiler from the command line.
 
-    These instructions apply to all supported versions of Microsoft C++
-    development environments.
 
-    The C++ build system included in the demo archive is nmake-based
-    requires that you open a Windows console (Command Line) and configure 
-    the environment for your development tools. 
-    If you prefer building the demos from the IDE, please download the
-    Windows installer for your version of Microsoft development
-    environment or download the Ice source distribution.
+Building the C++ demos using Microsoft C++ Environments
+-------------------------------------------------------
 
-    To build from the console, you may need to take steps to configure
-    your environment for you compiler. This usually involves running a
-    file named vcvars32.bat (Visual C++ 6.0) or vsvars32.bat (VS .NET
-    2003 and VS 2005). A quick, but not definitive test, is to try
-    running "cl" or "nmake" from a console window. If you are using VS
-    .NET 2003 or VS 2005, there should be a shortcut in your development
-    tool's Start menu entry named "Visual Studio 2005 Command Prompt",
-    etc. Click on this to start a console window with your development
-    environment already configured. 
+These instructions apply to all supported versions of Microsoft C++
+development environments.
 
-    Building the demos on Windows using Mono, Cygwin, etc.
-    ------------------------------------------------------
+The C++ build system included in the demo archive is nmake-based and
+requires that you open a Windows console (Command Line) and configure
+the environment for your development tools.
 
-    Building the demos with Mono using the NMAKE makefiles or using
-    Cygwin and the gmake makefiles is not currently supported.
+If you prefer building the demos from the IDE, please download the
+appropriate Ice installer for your version of Microsoft Visual C++
+or download the Ice source distribution.
+
+To build from the console, you may need to take steps to configure
+your environment for your compiler. This usually involves running a
+file named vcvars32.bat (Visual C++ 6.0) or vsvars32.bat (VS .NET
+2003 and VS 2005). A quick, but not definitive, test is to try
+running "cl" or "nmake" from a console window. If you are using VS
+.NET 2003 or VS 2005, there should be a shortcut in your development
+tool's Start menu entry named "Visual Studio Command Prompt". Click
+on this to start a console window with your development environment
+already configured.
+
+
+Building the demos on Windows using Mono, Cygwin, etc.
+------------------------------------------------------
+
+Building the demos with Mono using the NMAKE makefiles or using
+Cygwin and the gmake makefiles is not currently supported.
+
 
 Running the Ice Demos
 =====================
 
 Most demos consist of a single server and client. The instructions to
 run a demo depend on the programming language. Instructions for each
-language are included below.  Some demo directories contain README files
-if additional steps are necessary.
+language are included below. Some demo directories contain README
+files if additional steps are necessary.
+
 
 Running the C++ demos
 =====================
@@ -148,12 +156,12 @@ Running the C++ demos
 To run a demo, open a terminal terminal window, change to the desired
 demo directory, and enter the following command to run the server:
 
-   $ ./server
+$ ./server
 
 To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
-   $ ./client
+$ ./client
 
 
 Running the Java demos
@@ -163,38 +171,39 @@ To run the demos you need to add classes to your CLASSPATH.
 
 For example on Linux or Unix with a bash shell:
 
-   $ export CLASSPATH=classes:$CLASSPATH
+$ export CLASSPATH=classes:$CLASSPATH
 
 And on Windows:
 
-   > set CLASSPATH=classes;%CLASSPATH%
+> set CLASSPATH=classes;%CLASSPATH%
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
 
-   $ java Server
+$ java Server
 
 To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
-   $ java Client
+$ java Client
 
 
 Running the C# demos
 ====================
 
-The C# demos are only supported on Linux or Windows, and the Ice 
-for C# runtime is included only in the Linux and Windows distributions.
+The C# demos are only supported on Linux or Windows, and the Ice
+for C# runtime is included only in the Linux and Windows
+distributions.
 
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
 
-   $ ./server.exe
+$ ./server.exe
 
 To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
-   $ ./client.exe
+$ ./client.exe
 
 
 Running the Python demos
@@ -203,12 +212,12 @@ Running the Python demos
 To run a demo, open a terminal window, change to the desired demo
 directory, and enter the following command to run the server:
 
-   $ python Server.py
+$ python Server.py
 
 To run the client, open another terminal window, also change to the
 desired demo directory, and run:
 
-   $ python Client.py
+$ python Client.py
 
 
 Running the Ruby demos
@@ -219,14 +228,14 @@ support server-side activities. In order to run a sample client, you
 must first start its corresponding server from another Ice language
 mapping, such as C++:
 
-   # for example in the /tmp/Ice-@ver@/demo/Ice/hello directory
-   $ server
+# for example in the /tmp/Ice-@ver@/demo/Ice/hello directory
+$ server
 
 To run the client, open another terminal window, change to the
 corresponding demo directory, and run:
 
-   # for example in the /tmp/Ice-@ver@/demorb/Ice/hello directory
-   $ ruby Client.rb
+# for example in the /tmp/Ice-@ver@/demorb/Ice/hello directory
+$ ruby Client.rb
 
 
 Running the PHP demos
