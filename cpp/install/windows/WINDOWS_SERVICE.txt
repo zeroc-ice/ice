@@ -2,7 +2,9 @@ This file describes how to install the IceGrid registry, IceGrid node,
 and Glacier2 router as Windows services.
 
 1. Review and edit the appropriate configuration file
-   (icegridregistry.cfg, icegridnode.cfg or glacier2router.cfg)
+   (icegridregistry.cfg, icegridnode.cfg or
+   glacier2router.cfg). Please make sure to review the notes in the
+   Vista section below!
 
 2. Create the account for the user that will run the service (the
    sample configuration files use the account 'iceuser'). Initially
@@ -33,10 +35,11 @@ and Glacier2 router as Windows services.
    Monitor Users' group for the node to be able to monitor the CPU
    usage of the system. See below for a complete set of instructions.
 
-6. Start the service and verify that the service starts properly.
+6. Start the service and verify that the service starts properly. Stop
+   the service.
 
-7. Downgrade the 'iceuser' account to a regular Users account
-   (see note below).
+7. Downgrade the 'iceuser' account to a regular Users account (see
+   note below). Restart the service.
 
 Note:
 
@@ -94,3 +97,39 @@ net localgroup "Performance Log Users" "<user>" /add
 
 Once this is done it is necessary to logout and then login again if
 you are modifying the rights of the currently logged in user.
+
+Windows Vista and Permissions
+-----------------------------
+
+Under Vista you must pay careful attention to the permissions of the
+data and output directories. In the default icegridnode.cfg and
+icegridregistry.cfg these are:
+
+IceGrid.Node.Data=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\node1
+IceGrid.Node.Output=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\node1
+IceGrid.Registry.Data=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\registry
+
+You can run into permissions inheritance problems if you blindly
+create directories on the file system and the node and registry
+service will fail to start.
+
+To use the default location as described above:
+
+Start a command shell
+
+> cd "\Documents and Settings\iceuser\Application Data\"
+> mkdir ZeroC
+
+Now start up the file explorer. Enter in the address bar
+
+C:\Documents and Settings\iceuser\Application Data\
+
+Create a directory icegrid. Now right-click on the directory, select
+properties, and select the security tab.  Select Advanced and
+Edit. Unselect "Include inheritable permissions from this object's
+parent", select Copy. Now remove all Permission entries. Next add a
+permission entry for iceuser, and select "Full control". Select ok,
+and you are done!
+
+Now you can create the registry and node1 subdirectories without any
+further action and the correct permissions will be used.
