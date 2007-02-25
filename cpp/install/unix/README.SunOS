@@ -56,8 +56,8 @@ packages SUNWcry and SUNWcryr) available at
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2, 1.5.0 or 1.6.0. RPMs can be obtained
-from Sun Microsystems at
+Ice for Java requires J2SE 1.4.2, 1.5.0 or 1.6.0. Java binary packages 
+can be obtained from Sun Microsystems at
 
   http://java.sun.com
 
