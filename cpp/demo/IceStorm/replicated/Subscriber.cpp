@@ -51,6 +51,11 @@ Subscriber::run(int argc, char* argv[])
 
     IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
     Ice::ObjectProxySeq managers = query->findAllReplicas(query->findObjectByType("::IceStorm::TopicManager"));
+    if(managers.size() == 0)
+    {
+        cerr << appName() << ": no topic managers found, make sure application was deployed." << endl;
+        return EXIT_FAILURE;
+    }
 
     string topicName = "time";
     if(argc != 1)

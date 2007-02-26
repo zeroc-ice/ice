@@ -39,6 +39,11 @@ Publisher::run(int argc, char* argv[])
     IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
     IceStorm::TopicManagerPrx manager = 
         IceStorm::TopicManagerPrx::checkedCast(query->findObjectByType("::IceStorm::TopicManager"));
+    if(manager == 0)
+    {
+        cerr << appName() << ": no topic manager found, make sure application was deployed." << endl;
+        return EXIT_FAILURE;
+    }
 
     string topicName = "time";
     if(argc != 1)
