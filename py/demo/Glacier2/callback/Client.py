@@ -128,6 +128,8 @@ class Client(Ice.Application):
                 else:
                     print "unknown command `" + c + "'"
                     menu()
+            except KeyboardInterrupt:
+                break
             except EOFError:
                 break
 
