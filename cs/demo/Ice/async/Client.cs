@@ -26,6 +26,7 @@ public class Client : Ice.Application
             }
             else
             {
+                Console.Error.WriteLine("sayHello AMI call failed:");
                 Console.Error.WriteLine(ex);
             }
         }

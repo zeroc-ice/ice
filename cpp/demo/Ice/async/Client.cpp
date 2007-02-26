@@ -23,7 +23,7 @@ public:
 
     virtual void ice_exception(const Ice::Exception& ex)
     {
-        cerr << ex << endl;
+        cerr << "sayHello AMI call failed:\n" << ex << endl;
     }
 };
 

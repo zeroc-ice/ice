@@ -25,6 +25,7 @@ Module AsyncC
                 If TypeOf ex Is RequestCanceledException Then
                     Console.Error.WriteLine("Request canceled")
                 Else
+                    Console.Error.WriteLine("sayHello AMI call failed:")
                     Console.Error.WriteLine(ex)
                 End If
             End Sub

@@ -18,6 +18,7 @@ class AMI_Hello_sayHelloI:
         pass
 
     def ice_exception(self, ex):
+        print "sayHello AMI call failed:"
         print ex
 
 def menu():

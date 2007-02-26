@@ -35,6 +35,7 @@ public class Client extends Ice.Application
 
         public void ice_exception(Ice.LocalException ex)
         {
+            System.err.println("sayHello AMI call failed:");
             ex.printStackTrace();
         }
 
