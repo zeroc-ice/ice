@@ -4,6 +4,10 @@ Demos in this directory:
 
   This demo shows how to use the allocation feature of IceGrid.
 
+- replication
+
+  This demo demonstrates IceGrid's registry replication feature.
+
 - sessionActivation
 
   This demo shows the use of the session activation mode.
