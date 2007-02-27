@@ -61,7 +61,7 @@ enum OperationMode
      * <tt>idempotent</tt> keyword instead. For C++, to retain the mapping
      * of <tt>nonmutating</tt> operations to C++ <tt>const</tt>
      * member functions, use the <tt>\["cpp:const"]</tt> metadata
-     * directive.</p>
+     * directive.
      */
     \Nonmutating,
 
