@@ -1,17 +1,17 @@
 This file describes how to install the IceGrid registry, IceGrid node,
 and Glacier2 router as Windows services.
 
+Please also review the notes below to make sure the correct
+permissions are set on your system.
+
 1. Review and edit the appropriate configuration file
-   (icegridregistry.cfg, icegridnode.cfg or
-   glacier2router.cfg). Please make sure to review the notes in the
-   Vista section below!
+   (icegridregistry.cfg, icegridnode.cfg or glacier2router.cfg).
 
 2. We recommend that you use the "Local Service" account to run the
    service. If you decide that you would rather use a standard user
    account then initially this user must be an Administrator if the
    service logs message to the Windows Event Log (see the
    Ice.UseEventLog property).
-
 
 3. For the IceGrid registry or node create any required data/database
    directory. The sample configuration files use the following two
@@ -39,10 +39,10 @@ and Glacier2 router as Windows services.
    as admin", then execute the installation command.
 
 5. In the Windows Services panel, modify the properties of the new
-   service. Change "Log on" to use the 'Local Service' account,
-   instead of the Local System Account. You must select the password
-   field and clear both entries. See the note below on Windows 2003
-   and Vista IceGridNode.
+   service. Change "Log on" to use the "Local Service" account (or
+   "NT AUTHORITY\Local Service" on Windows XP), instead of the Local 
+   System Account. You must select the password field and clear both 
+   entries.
 
 6. Start the service and verify that the service starts properly. Stop
    the service.
@@ -52,18 +52,24 @@ and Glacier2 router as Windows services.
    service.
 
 
-Windows Server 2003 and Windows Vista
--------------------------------------
+Performance Monitoring and IceGrid node
+---------------------------------------
 
-On Windows Server 2003 and Windows Vista, if you use a user account
-other than "Local Service" to run the IceGrid node service this
-account must have permission to read the following registry key.
+The account running the IceGrid node service must have permissions to
+read the following registry key if you intend to use the IceGrid
+adaptive load-balancing policy:
 
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib
 
-Note that this is only necessary if you intend to use an IceGrid
-load-balancing policy that relies on CPU usage.  The simplest method
-to do this is to edit the permissions of the registry key directly.
+On Windows Server 2003 or Windows Vista, you don't need to do anything
+if you run the IceGrid node with the "Local Service" account (this
+account already has the right permissions). Otherwise, if you use
+Windows XP or run the IceGrid node service with another user account
+than "Local Service" you should edit the permissions of the Perflib
+registry key.
+
+The simplest method to do this is to edit the permissions of the
+registry key directly.
 
 1. Start regedit. Navigate to the above key.
 
@@ -111,6 +117,11 @@ then take the following actions:
    and grant "Full Control" to each.
 
 8. Select ok, and you are done!
+
+You can also change the permissions of the "Local Service" directory
+with the following command:
+
+  > cacls "Local Service" /G SYSTEM:F /G "Local Service":F /G Administrators:F
 
 Now you can create the icegrid/registry and icegrid/node1
 subdirectories without any further action and the correct permissions
