@@ -97,7 +97,7 @@ else { parent.lazysync('command_line_arguments.htm'); }
 
 <div id="idcontent"><div id="innerdiv"> 
 <!--ZOOMRESTART-->
-<p>IceGrid Admin can be configured using Ice properties, and like with most Ice applications, these properties can be set using command-line arguments or a configuration file (or both).</p>
+<p>IceGrid Admin can be configured using Ice properties, and as for most Ice applications, these properties can be set using command-line arguments or a configuration file (or both).</p>
 <p>Since IceGrid Admin is an Ice application (a client to the IceGrid registry), setting regular Ice properties can be useful as well. For example, you can set the <span class="f_T_Code">Ice.Trace.Network</span> property to get detailed information about network communications sent to stderr.</p>
 <p class="p_Example"><span class="f_Example"> $ java -jar /usr/lib/Ice-3.2b/IceGridGUI.jar --Ice.Trace.Network=2</span></p>
 <p>Ice properties are described in detail in the <span class="f_IndentList2"> <img src="wblnk.png" width="12" height="10" border="0" alt=""> <a href="http://www.zeroc.com/doc/Ice-3.2b/manual/" target="_blank" class="weblink" title="Distributed Programming with Ice">Ice manual</a>. </span></p>
@@ -112,7 +112,7 @@ else { parent.lazysync('command_line_arguments.htm'); }
 <tr style="text-align:left;vertical-align:top;">
 <td valign="top" width="304" style="width:304px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">IceGridAdmin.AuthenticateUsingSSL</span></p>
 </td>
-<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">By default, when logging into an IceGrid registry, IceGrid Admin offers you to use username/password for user authentication. Setting this property to a value &gt; 0 instructs IceGrid Admin to offer SSL authentication by default. See <a href="login.htm">Login</a> for details.</span></p>
+<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">When logging into an IceGrid registry, IceGrid Admin uses username/password authentication by default. Setting this property to a value greater than zero instructs IceGrid Admin to use SSL authentication by default. See <a href="login.htm">Login</a> for details.</span></p>
 </td>
 </tr>
 <tr style="text-align:left;vertical-align:top;">
@@ -124,25 +124,25 @@ else { parent.lazysync('command_line_arguments.htm'); }
 <tr style="text-align:left;vertical-align:top;">
 <td valign="top" width="304" style="width:304px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">IceGridAdmin.Password</span></p>
 </td>
-<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The default password when authenticating with a username/password . See <a href="login.htm">Login</a> for details.</span></p>
+<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">The default password when authenticating with a username/password. See <a href="login.htm">Login</a> for details.</span></p>
 </td>
 </tr>
 <tr style="text-align:left;vertical-align:top;">
 <td valign="top" width="304" style="width:304px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">IceGridAdmin.Trace.Observers</span></p>
 </td>
-<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">When set to a value &gt; 0, IceGrid Admin writes a log message (to stderr) each time it receives information from the IceGrid registry. This is typically used to debug problems in IceGrid Admin.</span></p>
+<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">When set to a value greater than zero, IceGrid Admin writes a log message (to stderr) each time it receives information from the IceGrid registry. This is typically used to debug problems in IceGrid Admin.</span></p>
 </td>
 </tr>
 <tr style="text-align:left;vertical-align:top;">
 <td valign="top" width="304" style="width:304px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">IceGridAdmin.Trace.SaveToRegistry</span></p>
 </td>
-<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">When set to a value &gt; 0, IceGrid Admin logs information (to stderr) about all save activities directed to the IceGrid registry. This is typically used to debug problems in IceGrid Admin.</span></p>
+<td valign="top" width="607" style="width:607px; border: solid 1px #808080;"><p class="p_TableText"><span class="f_TableText">When set to a value greater than zero, IceGrid Admin logs information (to stderr) about all save activities directed to the IceGrid registry. This is typically used to debug problems in IceGrid Admin.</span></p>
 </td>
 </tr>
 </table>
 </div>
 <p><span class="f_IndentList2">&nbsp;</span></p>
-<p>If you need to set many properties, it is a good idea to write a configuration file and use the --Ice.Config command-line argument to specify the location of this file. For example:</p>
+<p>If you need to set a number of properties, it is a good idea to write a configuration file and use the --Ice.Config command-line argument to specify the location of this file. For example:</p>
 <p class="p_Example"><span class="f_Example"> $ java -jar /usr/lib/Ice-3.2b/IceGridGUI.jar --Ice.Config=$HOME/icegridadmin.conf</span></p>
 
 <!--ZOOMSTOP-->
