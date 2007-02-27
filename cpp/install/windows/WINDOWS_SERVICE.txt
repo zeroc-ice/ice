@@ -6,12 +6,27 @@ and Glacier2 router as Windows services.
    glacier2router.cfg). Please make sure to review the notes in the
    Vista section below!
 
-2. Create the account for the user that will run the service (the
-   sample configuration files use the account 'iceuser'). Initially
-   this user should be Administrator (see note below).
+2. We recommend that you use the "Local Service" account to run the
+   service. If you decide that you would rather use a standard user
+   account then initially this user must be an Administrator if the
+   service logs message to the Windows Event Log (see the
+   Ice.UseEventLog property).
 
-3. For the IceGrid registry or node, log on as 'iceuser' and
-   create any required data/database directory.
+
+3. For the IceGrid registry or node create any required data/database
+   directory. The sample configuration files use the following two
+   directories:
+
+   C:\Documents and Settings\Local Service\Application Data\ZeroC\icegrid\node1
+   C:\Documents and Settings\Local Service\Application Data\ZeroC\icegrid\registry
+
+   Under Vista we recommend using:
+
+   C:\Users\Local Service\AppData\ZeroC\icegrid\node1
+   C:\Users\Local Service\AppData\ZeroC\icegrid\registry
+
+   Note that once you create these directories you must fix the
+   permissions. See the note below.
 
 4. Install the service, for example:
 
@@ -24,120 +39,79 @@ and Glacier2 router as Windows services.
    as admin", then execute the installation command.
 
 5. In the Windows Services panel, modify the properties of the new
-   service. Change "Log on" to use the 'iceuser' account, instead of
-   the Local System Account.
-
-   On Windows Vista, it will not be possible to start the service
-   unless there is a password associated with the selected account.
-
-   On Windows Server 2003 and Windows Vista, the user account that
-   runs IceGrid node must be a member of the local 'Performance
-   Monitor Users' group for the node to be able to monitor the CPU
-   usage of the system. See below for a complete set of instructions.
+   service. Change "Log on" to use the 'Local Service' account,
+   instead of the Local System Account. You must select the password
+   field and clear both entries. See the note below on Windows 2003
+   and Vista IceGridNode.
 
 6. Start the service and verify that the service starts properly. Stop
    the service.
 
-7. Downgrade the 'iceuser' account to a regular Users account (see
-   note below). Restart the service.
-
-Note:
-
-'iceuser' needs to be Administrator the first time you start the
-service if you log messages to the Windows Event Log (see the 
-Ice.UseEventLog property).
+7. If you used an account other than "Local Service" then now
+   downgrade the account to a regular Users account Restart the
+   service.
 
 
 Windows Server 2003 and Windows Vista
 -------------------------------------
 
-The user account that runs the IceGrid node must be a member of the
-local 'Performance Monitor Users' group so that the node can monitor
-CPU usage. This is only necessary if you intend to use an IceGrid
-load-balancing policy that relies on CPU usage.
+On Windows Server 2003 and Windows Vista, if you use a user account
+other than "Local Service" to run the IceGrid node service this
+account must have permission to read the following registry key.
 
-The instructions below were obtained from a Microsoft article:
+HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib
+
+Note that this is only necessary if you intend to use an IceGrid
+load-balancing policy that relies on CPU usage.  The simplest method
+to do this is to edit the permissions of the registry key directly.
+
+1. Start regedit. Navigate to the above key.
+
+2. Right click, select "Permissions..."
+
+3. Add permission for the given account. Select "Read". Press OK.
+
+Another method to do this is to add the user to the "Performance
+Monitor Users" group. See the following Microsoft article for details:
 
 http://technet2.microsoft.com/WindowsVista/en/library/ab3b2cfc-b177-43ec-8a4d-0bfac62d88961033.mspx?mfr=true
 
-First grant the user account "Log on as a batch job" rights.
 
-To assign the "Log on as a batch job" user right to the Performance
-Log Users group:
+Permissions
+-----------
 
-1. Click Start, click in the Search box, type secpol.msc, and press
-   ENTER. The Local Security Policy snap-in will open in Microsoft
-   Management Console.
+You must pay careful attention to the permissions of the data and
+output directories. As previously mentioned under Vista we recommend
+using:
 
-2. In the navigation pane, expand Local Policies and click User Rights
-   Assignment.
-
-3. In the console pane, right-click Log on as a batch job and click
-   Properties.
-
-4. In the Properties page, click Add User or Group.
-
-5. In the Select Users or Groups dialog box, click Object Types.
-   Select Groups in the Object Types dialog box and click OK.
-
-6. Type Performance Log Users in the Select Users or Groups dialog box
-   and then click OK.
-
-7. In the properties page, click OK.
-
-Next to update the group membership:
-
-Open the computer management tool. Select "Local Users and Groups",
-then "Groups", then "Performance Log Users". Then add the user to the
-members of this group.
-
-Or under an admin rights command shell:
-
-net localgroup "Performance Log Users" "<user>" /add
-
-Once this is done, it is necessary to logout and then login again if
-you are modifying the rights of the currently logged in user.
-
-
-Windows Vista and Permissions
------------------------------
-
-Under Vista you must pay careful attention to the permissions of the
-data and output directories. In the default IceGrid configuration
-files (icegridnode.cfg and icegridregistry.cfg), these directories
-are as follows:
-
-IceGrid.Node.Data=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\node1
-IceGrid.Node.Output=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\node1
-IceGrid.Registry.Data=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\registry
+IceGrid.Node.Data=C:\Users\Local Service\AppData\ZeroC\icegrid\node1
+IceGrid.Node.Output=C:\Users\Local Service\AppData\ZeroC\icegrid\node1
+IceGrid.Registry.Data=C:\Users\Local Service\AppData\ZeroC\icegrid\registry
 
 The node and registry will fail to start unless you take the proper
 precautions when creating the directories. For example, to use the
-default locations shown above:
+locations shown above first login using an administrator account and
+then take the following actions:
 
-1. Start a command shell
+1. Start up the file explorer. Navigate to "C:\Users" and create a
+   directory named "Local Services" (for XP and Windows 2003 navigate to
+   the correct location).
 
-   > cd "\Documents and Settings\iceuser\Application Data\"
-   > mkdir ZeroC
-
-2. Start up the file explorer. Enter in the address bar
-
-   C:\Documents and Settings\iceuser\Application Data\ZeroC
-
-3. Create a directory named "icegrid".
-
-4. Right-click on the directory, select properties, and select the
+2. Right-click on the directory, select properties, and select the
    security tab.
 
-5. Select Advanced and Edit.
+3. Select Advanced and Edit.
 
-6. Unselect "Include inheritable permissions from this object's
+4. Unselect "Include inheritable permissions from this object's
    parent", select Copy.
 
-7. Remove all Permission entries.
+5. Remove all Permission entries.
 
-8. Add a permission entry for iceuser, and select "Full control".
-   Select ok, and you are done!
+7. Add a permission entry for Local Service, SYSTEM and Administrators and grant
+   "Full Control" to each.
 
-Now you can create the registry and node1 subdirectories without any
-further action and the correct permissions will be used.
+8. Select ok, and you are done!
+
+Now you can create the icegrid/registry and icegrid/node1
+subdirectories without any further action and the correct permissions
+will be used.
