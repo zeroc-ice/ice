@@ -94,7 +94,7 @@ locations shown above first login using an administrator account and
 then take the following actions:
 
 1. Start up the file explorer. Navigate to "C:\Users" and create a
-   directory named "Local Services" (for XP and Windows 2003 navigate to
+   directory named "Local Service" (for XP and Windows 2003 navigate to
    the correct location).
 
 2. Right-click on the directory, select properties, and select the
@@ -107,8 +107,8 @@ then take the following actions:
 
 5. Remove all Permission entries.
 
-7. Add a permission entry for Local Service, SYSTEM and Administrators and grant
-   "Full Control" to each.
+7. Add a permission entry for Local Service, SYSTEM and Administrators
+   and grant "Full Control" to each.
 
 8. Select ok, and you are done!
 
