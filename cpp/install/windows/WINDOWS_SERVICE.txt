@@ -51,10 +51,10 @@ Ice.UseEventLog property).
 Windows Server 2003 and Windows Vista
 -------------------------------------
 
-The user account that runs the IceGrid node needs to be a member of
-the local 'Performance Monitor Users' group so that the node can
-monitor CPU usage. This is only necessary if you intend to use an
-IceGrid load-balancing policy that relies on CPU usage.
+The user account that runs the IceGrid node must be a member of the
+local 'Performance Monitor Users' group so that the node can monitor
+CPU usage. This is only necessary if you intend to use an IceGrid
+load-balancing policy that relies on CPU usage.
 
 The instructions below were obtained from a Microsoft article:
 
@@ -64,7 +64,7 @@ First grant the user account "Log on as a batch job" rights.
 
 To assign the "Log on as a batch job" user right to the Performance
 Log Users group:
-	
+
 1. Click Start, click in the Search box, type secpol.msc, and press
    ENTER. The Local Security Policy snap-in will open in Microsoft
    Management Console.
@@ -95,41 +95,49 @@ Or under an admin rights command shell:
 
 net localgroup "Performance Log Users" "<user>" /add
 
-Once this is done it is necessary to logout and then login again if
+Once this is done, it is necessary to logout and then login again if
 you are modifying the rights of the currently logged in user.
+
 
 Windows Vista and Permissions
 -----------------------------
 
 Under Vista you must pay careful attention to the permissions of the
-data and output directories. In the default icegridnode.cfg and
-icegridregistry.cfg these are:
+data and output directories. In the default IceGrid configuration
+files (icegridnode.cfg and icegridregistry.cfg), these directories
+are as follows:
 
 IceGrid.Node.Data=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\node1
 IceGrid.Node.Output=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\node1
 IceGrid.Registry.Data=C:\Documents and Settings\iceuser\Application Data\ZeroC\icegrid\registry
 
-You can run into permissions inheritance problems if you blindly
-create directories on the file system and the node and registry
-service will fail to start.
+The node and registry will fail to start unless you take the proper
+precautions when creating the directories. For example, to use the
+default locations shown above:
 
-To use the default location as described above:
+1. Start a command shell
 
-Start a command shell
+   > cd "\Documents and Settings\iceuser\Application Data\"
+   > mkdir ZeroC
 
-> cd "\Documents and Settings\iceuser\Application Data\"
-> mkdir ZeroC
+2. Start up the file explorer. Enter in the address bar
 
-Now start up the file explorer. Enter in the address bar
+   C:\Documents and Settings\iceuser\Application Data\ZeroC
 
-C:\Documents and Settings\iceuser\Application Data\
+3. Create a directory named "icegrid".
 
-Create a directory icegrid. Now right-click on the directory, select
-properties, and select the security tab.  Select Advanced and
-Edit. Unselect "Include inheritable permissions from this object's
-parent", select Copy. Now remove all Permission entries. Next add a
-permission entry for iceuser, and select "Full control". Select ok,
-and you are done!
+4. Right-click on the directory, select properties, and select the
+   security tab.
+
+5. Select Advanced and Edit.
+
+6. Unselect "Include inheritable permissions from this object's
+   parent", select Copy.
+
+7. Remove all Permission entries.
+
+8. Add a permission entry for iceuser, and select "Full control".
+   Select ok, and you are done!
 
 Now you can create the registry and node1 subdirectories without any
 further action and the correct permissions will be used.

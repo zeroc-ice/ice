@@ -6,7 +6,7 @@ Demos in this directory:
 
 - replication
 
-  This demo demonstrates IceGrid's registry replication feature.
+  This example demonstrates IceGrid's registry replication feature.
 
 - sessionActivation
 
@@ -15,5 +15,4 @@ Demos in this directory:
 - simple
 
   This demo illustrates the basics of using IceGrid, including the 
-  use of templates and replication.
-
+  use of templates and object adapter replication.
