@@ -77,8 +77,8 @@ MT = "$(PDK_HOME)\bin\mt.exe"
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.2b
-SOVERSION		= 32b
+VERSION			= 3.2.0
+SOVERSION		= 32
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 includedir		= $(top_srcdir)\include

@@ -232,6 +232,17 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(ice_home, "src", "ca", "iceca"),
                             [("Ice-" + vpatMatch, version)])
 
+        fileMatchAndReplace(os.path.join(ice_home, "doc", "swish", "swish.conf"),
+                            [("doc/Ice-" + vpatMatch, version)])
+
+        fileMatchAndReplace(os.path.join(ice_home, "install", "rpm", "ice.spec"),
+                            [("Version: " + vpatMatch, version)])
+        fileMatchAndReplace(os.path.join(ice_home, "install", "rpm", "ice.spec"),
+                            [("%define soversion ([0-9]+b?)", soVersion(version))])
+        fileMatchAndReplace(os.path.join(ice_home, "install", "rpm", "ice.spec"),
+                            [("%define dotnetversion ([0-9]*\.[0-9]*\.[0-9]*)",
+                              majorVersion(version) + "." + minorVersion(version) + "." + patchVersion(version))])
+
         fileMatchAndReplace(os.path.join(ice_home, "demo", "IceStorm", "clock", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
@@ -303,7 +314,7 @@ if not patchIceE:
     #
     icevb_home = findSourceTree("icevb", os.path.join("generate", "Generate.vb"))
     if icevb_home:
-        fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak"),
+        fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak.vb"),
                             [("VERSION[\t\s]*= " + vpatMatch, version)])
 
         fileMatchAndReplace(os.path.join(icevb_home, "config", "makeconfig.py"),
@@ -323,7 +334,7 @@ if not patchIceE:
     #
     # Fix version in IcePHP
     #
-    icephp_home = findSourceTree("icephp", os.path.join("config", "Make.rules"))
+    icephp_home = findSourceTree("icephp", os.path.join("src", "IcePHP", "Profile.h"))
     if icephp_home:
         fileMatchAndReplace(os.path.join(icephp_home, "config", "Make.rules"),
                             [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),

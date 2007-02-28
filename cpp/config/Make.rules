@@ -114,8 +114,8 @@ KERBEROS_HOME           ?= /usr/kerberos
 SHELL			= /bin/sh
 VERSION_MAJOR           = 3
 VERSION_MINOR           = 2
-VERSION			= 3.2b
-SOVERSION		= 32b
+VERSION			= 3.2.0
+SOVERSION		= 32
 
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
