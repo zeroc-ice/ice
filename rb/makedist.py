@@ -100,7 +100,7 @@ else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
 print "Checking out C++ sources using CVS tag " + tag + "..."
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/slice")
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/config ice/slice")
 if not skipTranslator:
     os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
               " ice/bin ice/config ice/include ice/lib ice/src")
@@ -124,9 +124,8 @@ for x in slicedirs:
 #
 # Copy Make.rules.Linux
 #
-for x in glob.glob(os.path.join("ice", "config", "Make.rules.Linux")):
-    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
-       shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
+shutil.copyfile(os.path.join("ice", "config", "Make.rules.Linux"),
+                os.path.join("icerb", "config", "Make.rules.Linux"))
 
 #
 # Remove files.
