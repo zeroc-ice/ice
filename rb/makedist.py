@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip documentation conversion."
     print "-t    Skip building translator and use the one in PATH."
     print "-v    Be verbose."
     print
@@ -62,15 +61,12 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
 skipTranslator = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-t":
         skipTranslator = 1
     elif x == "-v":
@@ -105,9 +101,9 @@ else:
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
 print "Checking out C++ sources using CVS tag " + tag + "..."
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/slice")
-if not skipDocs or not skipTranslator:
+if not skipTranslator:
     os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-              " ice/bin ice/config ice/doc ice/include ice/lib ice/src")
+              " ice/bin ice/config ice/include ice/lib ice/src")
 
 #
 # Copy Slice directories.
@@ -144,34 +140,6 @@ filesToRemove = [ \
 filesToRemove.extend(find("icerb", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
-
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2html first.
-#
-if not skipDocs:
-    print "Generating documentation..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2html"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
-    os.mkdir(os.path.join("icerb", "doc"))
-    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icerb", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "index.html"), os.path.join("icerb", "doc", "index.html"))
-    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icerb", "doc", "images"))
 
 #
 # Build slice2rb.
@@ -230,8 +198,6 @@ version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icerb", "README*"), version)
 fixVersion(find("icerb", "INSTALL*"), version)
-if not skipDocs:
-    fixVersion(find("icerb/doc", "index.html"), version)
 
 #
 # Create source archives.

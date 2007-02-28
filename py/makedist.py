@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
     print "-t    Skip building translator and use the one in PATH."
     print "-v    Be verbose."
     print
@@ -62,15 +61,12 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
 skipTranslator = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-t":
         skipTranslator = 1
     elif x == "-v":
@@ -103,7 +99,7 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icepy ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
+          " icepy ice/bin ice/config ice/include ice/lib ice/slice ice/src")
 
 #
 # Copy Slice directories.
@@ -135,33 +131,6 @@ filesToRemove = [ \
 filesToRemove.extend(find("icepy", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
-
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2html first.
-#
-if not skipDocs:
-    print "Generating documentation..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2html"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.mkdir(os.path.join("icepy", "doc"))
-    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icepy", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "index.html"), os.path.join("icepy", "doc", "index.html"))
-    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icepy", "doc", "images"))
 
 #
 # Taken from ice/config/TestUtil.py
@@ -257,8 +226,6 @@ config.close()
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icepy", "README*"), version)
 fixVersion(find("icepy", "INSTALL*"), version)
-if not skipDocs:
-    fixVersion(find("icepy/doc", "index.html"), version)
 
 #
 # Create source archives.

@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -64,14 +63,11 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -81,10 +77,6 @@ for x in sys.argv[1:]:
         sys.exit(1)
     else:
         tag = "-r" + x
-
-if win32 and not skipDocs:
-    print sys.argv[0] + ": the documentation cannot be built on Windows."
-    sys.exit(1)
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -106,7 +98,7 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icecs ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src")
+          " icecs ice/bin ice/config ice/include ice/lib ice/slice ice/src")
 
 #
 # Copy Slice directories.
@@ -129,33 +121,6 @@ for x in slicedirs:
 # Makefiles found in the slice directories are removed later
 # on. 
 #
-
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2html first.
-#
-if not skipDocs:
-    print "Generating documentation..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2html"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.mkdir(os.path.join("icecs", "doc"))
-    os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icecs", "doc", "reference"))
-    os.rename(os.path.join("ice", "doc", "index.html"), os.path.join("icecs", "doc", "index.html"))
-    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icecs", "doc", "images"))
 shutil.rmtree("ice")
 
 #
@@ -183,8 +148,6 @@ dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("icecs", "README*"), version, dotnetversion)
 fixVersion(find("icecs", "INSTALL*"), version, dotnetversion)
-if not skipDocs:
-    fixVersion(find("icecs/doc", "index.html"), version, dotnetversion)
 
 #
 # Create source archives.

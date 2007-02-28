@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-d    Skip SGML documentation conversion."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -197,14 +196,11 @@ def fixVersion(files, version, mmversion):
 # Check arguments
 #
 tag = "-rHEAD"
-skipDocs = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-d":
-        skipDocs = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -244,7 +240,6 @@ mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
 print "Fixing version in various files..."
 fixVersion(find("ice", "README*"), version, mmversion)
 fixVersion(find("ice", "INSTALL*"), version, mmversion)
-fixVersion(find("ice/doc", "index.html"), version, mmversion)
 fixVersion(find("ice/install/rpm", "*.conf"), version, mmversion)
 
 print "Creating Ice-rpmbuild..."
@@ -360,35 +355,6 @@ for x in scanners:
 #
 print "Fixing makefiles..."
 fixMakeRules(os.path.join("ice", "config", "Make.rules"))
-
-#
-# Generate HTML documentation. We need to build icecpp
-# and slice2html first.
-#
-if not skipDocs:
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2html"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "doc"))
-    os.system("gmake")
-    os.chdir(cwd)
-
-    #
-    # Clean the source directory.
-    #
-    os.chdir(os.path.join("ice", "src"))
-    os.system("gmake clean")
-    os.chdir(cwd)
-
 
 #
 # Create archives.
