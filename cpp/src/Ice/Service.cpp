@@ -137,31 +137,6 @@ static IceUtil::StaticMutex outputMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 class SMEventLoggerI : public Ice::Logger
 {
-    static string
-    mangleService(string name)
-    {
-        //
-        // The application name cannot contain backslashes.
-        //
-        string::size_type pos = 0;
-        while((pos = name.find('\\', pos)) != string::npos)
-        {
-            name[pos] = '/';
-        }
-        return name;
-    }
-
-    static string
-    createKey(string name)
-    {
-        //
-        // The registry key is:
-        //
-        // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
-        //
-        return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleService(name);
-    }
-
 public:
 
     SMEventLoggerI(const string& service)
@@ -297,6 +272,32 @@ public:
     }
     
 private:
+
+    static string
+    mangleService(string name)
+    {
+        //
+        // The application name cannot contain backslashes.
+        //
+        string::size_type pos = 0;
+        while((pos = name.find('\\', pos)) != string::npos)
+        {
+            name[pos] = '/';
+        }
+        return name;
+    }
+
+    static string
+    createKey(string name)
+    {
+        //
+        // The registry key is:
+        //
+        // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
+        //
+        return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleService(name);
+    }
+
 
     HANDLE _source;
     static HMODULE _module;
