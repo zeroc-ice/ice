@@ -21,7 +21,7 @@
 #include <fstream>
 
 using namespace std;
-using namespace Ice;
+//using namespace Ice; // COMPILERFIX: VC6 reports compilation error because of ambiguous Locator symbol.
 using namespace IceGrid;
 
 class Client;
@@ -284,9 +284,10 @@ Client::run(int argc, char* argv[])
 
     if(opts.isSet("server"))
     {
-        ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
+        Ice::ObjectAdapterPtr adapter = 
+	    communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
         adapter->activate();
-        ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
+        Ice::ObjectPrx proxy = adapter->add(new FileParserI, communicator()->stringToIdentity("FileParser"));
         cout << proxy << endl;
 
         communicator()->waitForShutdown();
@@ -431,7 +432,7 @@ Client::run(int argc, char* argv[])
         }
         else if(communicator()->getDefaultLocator())
         {
-            Identity registryId;
+            Ice::Identity registryId;
             registryId.category = communicator()->getDefaultLocator()->ice_getIdentity().category;
             registryId.name = "Registry";
             if(!replica.empty() && replica != "Master")
