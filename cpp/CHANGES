@@ -1,3 +1,9 @@
+Changes since version 3.2b
+--------------------------
+
+- The icegridadmin command line utility now tries to connect to a
+  slave registry if the master is not available.
+
 Changes since version 3.1.1
 ---------------------------
 
