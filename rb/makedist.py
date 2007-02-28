@@ -122,11 +122,11 @@ for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icerb", "slice", x), 1)
 
 #
-# Copy any platform-specific Make.rules files.
+# Copy Make.rules.Linux
 #
-#for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
-#    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
-#       shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
+for x in glob.glob(os.path.join("ice", "config", "Make.rules.Linux")):
+    if not os.path.exists(os.path.join("icerb", "config", os.path.basename(x))):
+       shutil.copyfile(x, os.path.join("icerb", "config", os.path.basename(x)))
 
 #
 # Remove files.

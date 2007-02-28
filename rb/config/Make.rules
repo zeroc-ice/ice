@@ -99,16 +99,6 @@ else
     slicedir		= $(ICE_HOME)/slice
 endif
 
-ifeq ($(LP64),yes)
-#
-# TODO: Where should the shared library be installed if it is a 64 bit
-# build.
-#
-    install_libdir	= $(prefix)/lib
-else
-    install_libdir	= $(prefix)/lib
-endif
-
 install_bindir		= $(prefix)/bin
 install_slicedir	= $(prefix)/slice
 install_rubydir		= $(prefix)/ruby
