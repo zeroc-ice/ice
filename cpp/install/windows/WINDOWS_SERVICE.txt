@@ -93,8 +93,8 @@ locations shown above first login using an administrator account and
 then take the following actions:
 
 1. Start up the file explorer. Navigate to "C:\Users" and create a
-   directory named "Local Service" (for XP and Windows 2003 navigate to
-   the correct location).
+   directory named "Local Service" (for Windows XP and Windows Server
+   2003 navigate to the correct location).
 
 2. Right-click on the directory, select properties, and select the
    security tab.
