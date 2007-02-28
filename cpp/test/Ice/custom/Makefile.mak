@@ -55,8 +55,8 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
+SLICE2CPPFLAGS	= --stream $(SLICE2CPPFLAGS)
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 !if "$(CPP_COMPILER)" != "BCC2006"
 CPPFLAGS	= $(CPPFLAGS) -Zm200
 !endif
