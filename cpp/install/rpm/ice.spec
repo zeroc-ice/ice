@@ -164,7 +164,8 @@ make ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT install
 
 cp -p $RPM_BUILD_DIR/IceJ-%{version}-java2/lib/IceGridGUI.jar $RPM_BUILD_ROOT/lib/IceGridGUI.jar
 cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/ant $RPM_BUILD_ROOT
-cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/resources/IceGridAdmin $RPM_BUILD_ROOT/doc
+mkdir -p $RPM_BUILD_ROOT/help
+cp -pR $RPM_BUILD_DIR/IceJ-%{version}-java2/resources/IceGridAdmin $RPM_BUILD_ROOT/help
 
 #
 # .NET spec files (for csharp-devel)
@@ -265,7 +266,7 @@ mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/python
 
 mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
-mv $RPM_BUILD_ROOT/doc ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/help ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
 mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/README
 mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/ICE_LICENSE
 mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/LICENSE

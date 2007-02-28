@@ -657,7 +657,8 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
         #
         runprog('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
         runprog('find ' + installDir + '/ant  -name "*.java" | xargs rm')
-        runprog('cp -pR ' + buildDir + '/' + distro + '/resources/IceGridAdmin ' + installDir + '/doc')
+        initDirectory(os.path.join(installDir, 'help'))
+        runprog('cp -pR ' + buildDir + '/' + distro + '/resources/IceGridAdmin ' + installDir + '/help')
         destDir = os.path.join(installDir, 'config')
         if not os.path.exists(destDir):
             os.mkdir(destDir)
@@ -1124,7 +1125,8 @@ def main():
                 shutil.copy('lib/Ice.jar', installDir +'/Ice-' + version + '/lib')
                 shutil.copy('lib/IceGridGUI.jar', installDir +'/Ice-' + version + '/lib')
                 runprog('cp -pR ant ' + installDir + '/Ice-' + version)
-                runprog('cp -pR resources/IceGridAdmin ' + installDir + '/Ice-' + version + 'doc')
+                initDirectory(os.path.join(installDir, 'help'))
+                runprog('cp -pR resources/IceGridAdmin ' + installDir + '/Ice-' + version + '/help')
                 runprog('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
             else:
                 runprog('gmake prefix=' + installDir + '/Ice-' + version + ' install')
@@ -1186,7 +1188,6 @@ def main():
     # 
     # Remove html reference files from binary distribution. 
     #
-    runprog("rm -f Ice-%s/doc/index.html" % (version))
     runprog("rm -rf Ice-%s/doc/reference" % (version))
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatformString() + '.tar Ice-' + version)
