@@ -115,12 +115,13 @@ public:
     //
     // Installs a Win32 service.
     //
-    int installService(const std::string&, const std::string&, const std::string&, const std::vector<std::string>&);
+    int installService(bool, const std::string&, const std::string&, const std::string&,
+                       const std::vector<std::string>&);
 
     //
     // Uninstalls a Win32 service.
     //
-    int uninstallService(const std::string&);
+    int uninstallService(bool, const std::string&);
 
     //
     // Starts a Win32 service. The argument vector is passed to the
@@ -132,6 +133,8 @@ public:
     // Stops a running Win32 service.
     //
     int stopService(const std::string&);
+
+    static void setModuleHandle(HMODULE);
 
 #else
 

@@ -228,8 +228,10 @@ public:
     {
         const char* str[1];
         str[0] = message.c_str();
+        //
         // We ignore any failures from ReportEvent since there isn't
         // anything we can do about it.
+        //
         ReportEvent(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0);
     }
 
@@ -246,6 +248,10 @@ public:
 
         const char* str[1];
         str[0] = s.c_str();
+        //
+        // We ignore any failures from ReportEvent since there isn't
+        // anything we can do about it.
+        //
         ReportEvent(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0);
     }
 
@@ -254,6 +260,10 @@ public:
     {
         const char* str[1];
         str[0] = message.c_str();
+        //
+        // We ignore any failures from ReportEvent since there isn't
+        // anything we can do about it.
+        //
         ReportEvent(_source, EVENTLOG_WARNING_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0);
     }
 
@@ -262,6 +272,10 @@ public:
     {
         const char* str[1];
         str[0] = message.c_str();
+        //
+        // We ignore any failures from ReportEvent since there isn't
+        // anything we can do about it.
+        //
         ReportEvent(_source, EVENTLOG_ERROR_TYPE, 0, EVENT_LOGGER_MSG, 0, 1, 0, str, 0);
     }
 
@@ -277,7 +291,7 @@ private:
     mangleService(string name)
     {
         //
-        // The application name cannot contain backslashes.
+        // The service name cannot contain backslashes.
         //
         string::size_type pos = 0;
         while((pos = name.find('\\', pos)) != string::npos)

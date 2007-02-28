@@ -583,6 +583,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             if(_initData.properties->getPropertyAsInt("Ice.UseEventLog") > 0)
             {
                 _initData.logger = new EventLoggerI(_initData.properties->getProperty("Ice.ProgramName"));
+                //
+                // DEPRECATED PROPERTY: Ice.UseEventLog is deprecated.
+                //
+                _initData.logger->warning("Ice.UseEventLog has been deprecated.");
             }
 #else
             if(_initData.properties->getPropertyAsInt("Ice.UseSyslog") > 0)

@@ -9,6 +9,7 @@
 
 #include <Ice/EventLoggerI.h>
 #include <Ice/ImplicitContextI.h>
+#include <Ice/Service.h>
 
 extern "C" BOOL WINAPI _CRT_INIT(HINSTANCE, DWORD, LPVOID);
 
@@ -27,10 +28,10 @@ ice_DLL_Main(HINSTANCE hDLL, DWORD reason, LPVOID reserved)
         return FALSE;
     }
 #endif
-
     if(reason == DLL_PROCESS_ATTACH)
     {
         Ice::EventLoggerI::setModuleHandle(hDLL);
+        Ice::Service::setModuleHandle(hDLL);
     }
     else if(reason == DLL_THREAD_DETACH)
     {

@@ -1,6 +1,15 @@
 Changes since version 3.1.1
 ---------------------------
 
+- Deprecated Ice.UseEventLog. Windows services should no longer use
+  this property! Also fixed a bug with the windows event logger which
+  would cause hangs if the event log became full.
+
+- Under Windows Ice Services (Ice::Service) always use the windows
+  event logger unless initData is otherwise configured. Installing the
+  service will now create the appropriate registry keys, and uninstalling
+  the service will remove them.
+
 - createObjectAdapter() and propertyToProxy() print warnings if
   unknown properties are found during creation of the adapter or
   proxy. These warnings can be disabled by setting the property

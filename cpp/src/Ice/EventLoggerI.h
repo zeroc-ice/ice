@@ -31,7 +31,6 @@ public:
 
 private:
 
-    std::string _appName;
     HANDLE _source;
     static HMODULE _module;
 };
