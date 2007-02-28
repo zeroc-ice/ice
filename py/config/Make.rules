@@ -133,21 +133,7 @@ else
     slicedir		= $(ICE_HOME)/slice
 endif
 
-ifeq ($(LP64),yes)
-#
-# TODO: Where should the shared library be installed if it is a 64 bit
-# build.
-#
-    install_libdir	= $(prefix)/python
-else
-    install_libdir	= $(prefix)/python
-endif
-
-ifeq ($(LP64),yes)
-    libsubdir		  := lib$(lp64suffix)
-else
-    libsubdir		  := lib
-endif
+install_libdir	        = $(prefix)/python
 
 ifneq ($(embedded_runpath_prefix),)
    ifeq ($(LP64),yes)
