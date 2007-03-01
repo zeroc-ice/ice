@@ -34,13 +34,13 @@ permissions are set on your system.
    Installing the service on Windows Vista with UAC enabled requires
    administrator privileges. In this case, run the command shell as
    administrator, right-click the command shell icon and select "Run
-   as admin", then execute the installation command.
+   as administrator", then execute the installation command.
 
 5. In the Windows Services panel, modify the properties of the new
-   service. Change "Log on" to use the "Local Service" account (or
-   "NT AUTHORITY\Local Service" on Windows XP), instead of the Local 
-   System Account. You must select the password field and clear both 
-   entries.
+   service. Change "Log on" to use "Local Service" account under
+   Windows Vista, or "NT AUTHORITY\LocalService" on Windows XP or
+   Windows Server 2003, instead of the Local System Account. You must
+   select the password field and clear both entries.
 
 6. Start the service and verify that the service starts properly.
 
@@ -80,7 +80,7 @@ Permissions
 -----------
 
 You must pay careful attention to the permissions of the data and
-output directories. As previously mentioned under Windows Vista we 
+output directories. As previously mentioned under Windows Vista we
 recommend using:
 
 IceGrid.Node.Data=C:\Users\Local Service\AppData\Local\ZeroC\icegrid\node1
@@ -88,9 +88,14 @@ IceGrid.Node.Output=C:\Users\Local Service\AppData\Local\ZeroC\icegrid\node1
 IceGrid.Registry.Data=C:\Users\Local Service\AppData\Local\ZeroC\icegrid\registry
 
 The node and registry will fail to start unless you take the proper
-precautions when creating the directories. For example, to use the
-locations shown above first login using an administrator account and
-then take the following actions:
+precautions when creating the directories.  Note that the
+configuration file must also be readable by the account used to run
+the service. In the default location this will already be the case,
+however, if you copy the configuration file be careful to ensure that
+the configuration files have the correct permissions.
+
+For example, to use the locations shown above first login using an
+administrator account and then take the following actions:
 
 1. Start up the file explorer. Navigate to "C:\Users" and create a
    directory named "Local Service" (for Windows XP and Windows Server
@@ -116,6 +121,6 @@ with the following command:
 
   > cacls "Local Service" /G SYSTEM:F "Local Service":F Administrators:F
 
-Now you can create the icegrid/registry and icegrid/node1
-subdirectories without any further action and the correct permissions
-will be used.
+Now you can create the appropriate subdirectories without any further
+action and the correct permissions will be used.
+
