@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-t    Skip building translator and use the one in PATH."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -61,14 +60,11 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipTranslator = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-t":
-        skipTranslator = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -99,23 +95,9 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icepy ice/bin ice/config ice/include ice/lib ice/slice ice/src")
+          " icepy ice/config")
 
-#
-# Copy Slice directories.
-#
-print "Copying Slice directories..."
-slicedirs = [\
-    "Glacier2",\
-    "Ice",\
-    "IceBox",\
-    "IceGrid",\
-    "IcePatch2",\
-    "IceStorm",\
-]
-os.mkdir(os.path.join("icepy", "slice"))
-for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icepy", "slice", x), 1)
+print "Copying Make.rules.* files from ice..."
 for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
     if not os.path.exists(os.path.join("icepy", "config", os.path.basename(x))):
         shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
@@ -158,50 +140,6 @@ def isAIX():
    else:
         return 0
 
-#
-# Build slice2py.
-#
-if not skipTranslator:
-    print "Building translator..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2py"))
-    os.system("gmake")
-    os.chdir(cwd)
-
-    os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
-
-    if isHpUx():
-        os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
-    elif isDarwin():
-        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRRARY_PATH", "")
-    elif isAIX():
-        os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
-    else:
-        os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
-
-    os.environ["ICE_HOME"] = os.path.join(cwd, "ice")
-
-#
-# Translate Slice files.
-#
-print "Generating Python code..."
-cwd = os.getcwd()
-os.chdir(os.path.join("icepy", "python"))
-if verbose:
-    quiet = ""
-else:
-    quiet = " -s"
-os.system("gmake" + quiet)
-os.chdir(cwd)
 
 #
 # Get Ice version.

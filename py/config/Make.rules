@@ -8,7 +8,9 @@
 # **********************************************************************
 
 ifndef ICE_HOME
-    $(error ICE_HOME is not defined)
+   ifneq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
+      $(error Ice installation not found, please set ICE_HOME!)
+   endif
 endif
 
 #
@@ -119,18 +121,24 @@ else
 endif
 include	 $(configdir)/Make.rules.$(UNAME)
 
-ifeq ($(LP64),yes)
-   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
-else 
-   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+ifneq ($(ICE_HOME),)
+    ifeq ($(LP64),yes)
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib
+    else 
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib
+    endif
 endif
 
-ICE_FLAGS		= -I$(ICE_HOME)/include
+ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
 
-ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
-    slicedir		= $(top_srcdir)/slice
-else
+ifneq ($(ICE_HOME),)
+    ICE_FLAGS		= -I$(ICE_HOME)/include
+endif
+
+ifneq ($(ICE_HOME),)
     slicedir		= $(ICE_HOME)/slice
+else
+    slicedir		= /usr/share/Ice-$(VERSION)/slice
 endif
 
 install_libdir	        = $(prefix)/python
@@ -204,7 +212,11 @@ mkpylibfilename		= $(subst lib,,$(call mklibfilename,$(1),$(2)))
 mkpysoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
 mkpylibname		= $(subst lib,,$(call mklibname,$(1)))
 
-SLICE2PY		= $(ICE_HOME)/bin/slice2py
+ifneq ($(ICE_HOME),)
+   SLICE2PY		= $(ICE_HOME)/bin/slice2py
+else
+   SLICE2PY		= /usr/bin/slice2py
+endif
 
 EVERYTHING		= all depend clean install
 
