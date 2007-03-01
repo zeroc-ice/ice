@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 IceBox.lib Ice.lib IceUtil.lib /nologo /dll /pdb:none /machine:I386 /out:"$(OutDir)/helloservice.dll" /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 IceBox.lib Ice.lib IceUtil.lib setargv.obj /nologo /dll /pdb:none /machine:I386 /out:"$(OutDir)/helloservice.dll" /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 IceBoxd.lib Iced.lib IceUtild.lib /nologo /dll /debug /machine:I386 /out:"$(OutDir)/helloserviced.dll" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
+# ADD LINK32 IceBoxd.lib Iced.lib IceUtild.lib setargv.obj /nologo /dll /debug /machine:I386 /out:"$(OutDir)/helloserviced.dll" /pdbtype:sept /libpath:"../../../lib" /FIXED:no
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 OutDir=.\Debug
