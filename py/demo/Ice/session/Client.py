@@ -55,7 +55,7 @@ class Client(Ice.Application):
         factory = Demo.SessionFactoryPrx.checkedCast(base)
         if not factory:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
 
         session = factory.create(name)
         try:
@@ -124,7 +124,7 @@ class Client(Ice.Application):
                 refresh.terminate()
                 refresh.join()
 
-        return True
+        return 0
 
     def menu(self):
         print """

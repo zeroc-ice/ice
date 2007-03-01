@@ -22,7 +22,7 @@ class Publisher(Ice.Application):
             opts, args = getopt.getopt(args[1:], '', ['datagram', 'twoway', 'oneway'])
         except getopt.GetoptError:
             self.usage()
-            return False
+            return 1
 
         datagram = False
         twoway = False
@@ -40,7 +40,7 @@ class Publisher(Ice.Application):
 
         if optsSet > 1:
             self.usage()
-            return False
+            return 1
 
         if len(args) > 0:
             topicName = args[0]
@@ -49,7 +49,7 @@ class Publisher(Ice.Application):
             self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
         if not manager:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
 
         #
         # Retrieve the topic.
@@ -61,7 +61,7 @@ class Publisher(Ice.Application):
                 topic = manager.create(topicName)
             except IceStorm.TopicExists, ex:
                 print self.appName() + ": temporary error. try again"
-                return False
+                return 1
 
         #
         # Get the topic's publisher object, and create a Clock proxy with
@@ -86,7 +86,7 @@ class Publisher(Ice.Application):
             # Ignore
             pass
                 
-        return True
+        return 0
 
 app = Publisher()
 sys.exit(app.main(sys.argv, "config.pub"))

@@ -36,7 +36,7 @@ class SessionServer(Ice.Application):
         adapter.add(SessionManagerI(), self.communicator().stringToIdentity("sessionmanager"))
         adapter.activate()
         self.communicator().waitForShutdown()
-        return True
+        return 0
 
 app = SessionServer()
 sys.exit(app.main(sys.argv, "config.sessionserver"))

@@ -33,7 +33,7 @@ class Client(Ice.Application):
         initial = Demo.InitialPrx.checkedCast(base)
         if not initial:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
 
         print '\n'\
               "Let's first transfer a simple object, for a class without\n"\
@@ -148,7 +148,7 @@ class Client(Ice.Application):
 
         initial.shutdown()
 
-        return True
+        return 0
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

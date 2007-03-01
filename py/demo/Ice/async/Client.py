@@ -36,7 +36,7 @@ class Client(Ice.Application):
         hello = Demo.HelloPrx.checkedCast(self.communicator().propertyToProxy('Hello.Proxy'))
         if not hello:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
 
         menu()
 
@@ -64,7 +64,7 @@ class Client(Ice.Application):
             except Ice.Exception, ex:
                 print ex
 
-        return True
+        return 0
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

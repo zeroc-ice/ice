@@ -34,7 +34,7 @@ class Client(Ice.Application):
 
         if not hello:
             print self.appName() + ": couldn't find a `::Demo::Hello' object."
-            return False
+            return 1
 
         menu()
 
@@ -58,7 +58,7 @@ class Client(Ice.Application):
             except KeyboardInterrupt:
                 break
 
-        return True
+        return 0
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

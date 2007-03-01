@@ -53,11 +53,11 @@ class SessionKeepAliveThread(threading.Thread):
 
 class Client(Ice.Application):
     def run(self, args):
-        status = True
+        status = 0
         registry = IceGrid.RegistryPrx.checkedCast(self.communicator().stringToProxy("DemoIceGrid/Registry"))
         if registry == None:
             print self.appName() + ": could not contact registry"
-            return False
+            return 1
 
         while True:
             print "This demo accepts any user-id / password combination."
@@ -96,13 +96,13 @@ class Client(Ice.Application):
                     break
         except IceGrid.AllocationException, ex:
             print self.appName() + ": could not allocate object: " + ex.reason
-            status = False
+            status = 1
         except IceGrid.ObjectNotRegisteredException:
             print self.appName() + ": object not registered with registry"
-            status = False
+            status = 1
         except:
             print self.appName() + ": could not allocate object: " + str(sys.exc_info()[0])
-            status = False
+            status = 1
 
         #
         # Destroy the keepAlive thread and the sesion object otherwise

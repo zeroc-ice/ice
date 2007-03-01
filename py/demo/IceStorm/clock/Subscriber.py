@@ -26,7 +26,7 @@ class Subscriber(Ice.Application):
             opts, args = getopt.getopt(args[1:], '', ['datagram', 'twoway', 'oneway', 'ordered', 'batch'])
         except getopt.GetoptError:
             self.usage()
-            return False
+            return 1
 
         topicName = "time"
         datagram = False
@@ -51,7 +51,7 @@ class Subscriber(Ice.Application):
 
         if batch and (twoway or ordered):
             print self.appName() + ": batch can only be set with oneway or datagram"
-            return False
+            return 1
 
         if optsSet > 1:
             self.usage()
@@ -64,7 +64,7 @@ class Subscriber(Ice.Application):
             self.communicator().propertyToProxy('IceStorm.TopicManager.Proxy'))
         if not manager:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
 
         #
         # Retrieve the topic.
@@ -76,7 +76,7 @@ class Subscriber(Ice.Application):
                 topic = manager.create(topicName)
             except IceStorm.TopicExists, ex:
                 print self.appName() + ": temporary error. try again"
-                return False
+                return 1
 
         adapter = self.communicator().createObjectAdapter("Clock.Subscriber")
 
@@ -116,7 +116,7 @@ class Subscriber(Ice.Application):
         #
         topic.unsubscribe(subscriber)
             
-        return True
+        return 0
 
 app = Subscriber()
 sys.exit(app.main(sys.argv, "config.sub"))

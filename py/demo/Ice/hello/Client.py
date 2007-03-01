@@ -36,7 +36,7 @@ class Client(Ice.Application):
             self.communicator().propertyToProxy('Hello.Proxy').ice_twoway().ice_timeout(-1).ice_secure(False))
         if not twoway:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
 
         oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
         batchOneway = Demo.HelloPrx.uncheckedCast(twoway.ice_batchOneway())
@@ -124,7 +124,7 @@ class Client(Ice.Application):
             except Ice.Exception, ex:
                 print ex
 
-        return True
+        return 0
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

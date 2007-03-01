@@ -176,7 +176,7 @@ class Server(Ice.Application):
         finally:
             reaper.terminate()
             reaper.join()
-        return True
+        return 0
 
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

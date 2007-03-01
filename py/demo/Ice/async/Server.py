@@ -98,7 +98,7 @@ class Server(Ice.Application):
         adapter.activate()
         
         self.communicator().waitForShutdown()
-        return True
+        return 0
 
     def interruptCallback(self, sig):
         self._workQueue.destroy()

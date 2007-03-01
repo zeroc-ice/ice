@@ -19,7 +19,7 @@ class Server(Ice.Application):
         adapter.add(Demo.Ping(), self.communicator().stringToIdentity("ping"))
         adapter.activate()
         self.communicator().waitForShutdown()
-        return True
+        return 0
 
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

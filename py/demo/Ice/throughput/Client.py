@@ -40,7 +40,7 @@ class Client(Ice.Application):
         throughput = Demo.ThroughputPrx.checkedCast(self.communicator().propertyToProxy('Throughput.Throughput'))
         if not throughput:
             print args[0] + ": invalid proxy"
-            return False
+            return 1
         throughputOneway = Demo.ThroughputPrx.uncheckedCast(throughput.ice_oneway())
 
         bytes = []
@@ -190,7 +190,7 @@ class Client(Ice.Application):
             except KeyboardInterrupt:
                 break
 
-        return True
+        return 0
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))

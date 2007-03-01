@@ -18,7 +18,7 @@ class Client(Ice.Application):
         ping = Demo.PingPrx.checkedCast(self.communicator().propertyToProxy('Latency.Ping'))
         if not ping:
             print "invalid proxy"
-            return False
+            return 1
 
         # Initial ping to setup the connection.
         ping.ice_ping();
@@ -39,7 +39,7 @@ class Client(Ice.Application):
         print "time for %d pings: %.3fms" % (repetitions, tmsec)
         print "time per ping: %.3fms" % (tmsec / repetitions)
 
-        return True
+        return 0
 
 app = Client()
 sys.exit(app.main(sys.argv, "config.client"))
