@@ -54,17 +54,17 @@ SOVERSION		= 32
 libdir			= $(top_srcdir)\lib
 rubydir			= $(top_srcdir)\ruby
 
-!if exist ($(top_srcdir)\slice)
-slicedir		= $(top_srcdir)\slice
-!else
-slicedir		= $(ICE_HOME)\slice
-!endif
-
 install_libdir		= $(prefix)\lib
 install_slicedir        = $(prefix)\slice
 install_rubydir		= $(prefix)\ruby
 
+THIRDPARTY_HOME         = $(STLPORT_HOME)
+
+!if exist ($(top_srcdir)\config\Make.rules.msvc)
 !include $(top_srcdir)\config\Make.rules.msvc
+!else
+!include $(ICE_HOME)\config\Make.rules.msvc
+!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
@@ -74,6 +74,12 @@ ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
 ICE_CPPFLAGS		= -I"$(ICE_HOME)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ICE_HOME)\lib"
+
+!if exist ($(top_srcdir)\slice)
+slicedir		= $(top_srcdir)\slice
+!else
+slicedir		= $(ICE_HOME)\slice
+!endif
 
 RUBY_CPPFLAGS		= -I"$(RUBY_HOME)\lib\ruby\1.8\i386-mswin32"
 RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"

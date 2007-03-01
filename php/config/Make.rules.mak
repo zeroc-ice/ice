@@ -40,6 +40,7 @@ PHP_BIN_HOME		= C:\php-5.2.1-Win32
 #
 # Set STLPORT_HOME to your STLPort installation directory.
 #
+
 STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 
 # ----------------------------------------------------------------------
@@ -62,7 +63,14 @@ install_libdir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
 install_slicedir        = $(prefix)\slice
 
+THIRDPARTY_HOME         = $(STLPORT_HOME)
+CPP_COMPILER		= VC60
+
+!if exist ($(top_srcdir)\config\Make.rules.msvc)
 !include $(top_srcdir)\config\Make.rules.msvc
+!else
+!include $(ICE_HOME)\config\Make.rules.msvc
+!endif
 
 !if "$(OPTIMIZE)" != "yes"
 LIBSUFFIX       = $(LIBSUFFIX)d
