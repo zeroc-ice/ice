@@ -71,10 +71,13 @@ case "$1" in
     
 	    if [ ! -e $pidfile ]
 	    then
-		touch $pidfile
-		startoptions="$startoptions -f"
+		echo 0 > $pidfile
 	    fi
 	    chown $user $pidfile
+            if [ `cat $pidfile` = "0" ]
+            then
+               startoptions="$startoptions -f"
+	    fi
         fi
         startoptions="$startoptions -p $pidfile"           
 

@@ -21,6 +21,11 @@
 user=iceuser
 
 #
+# Ask for a password at startup?
+#
+prompt=no
+
+#
 # The IceGrid node configuration file
 #
 nodeconf="/etc/icegridnode.conf"
@@ -35,7 +40,13 @@ options="--daemon --pidfile $pidfile --Ice.Config=$nodeconf"
 RETVAL=0
 
 start() {
-        echo -n $"Starting $progbase: "
+        if [ "${prompt:-}" = "yes" ]
+        then
+           echo $"Starting $progbase: "
+           INITLOG_ARGS=              # clears -q
+        else
+           echo -n $"Starting $progbase: "
+        fi
 
         if [ "$user" != "root" ]
         then
