@@ -122,10 +122,13 @@ for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icerb", "slice", x), 1)
 
 #
-# Copy Make.rules.Linux
+# Copy Make.rules.Linux and Make.rules.msvc
 #
 shutil.copyfile(os.path.join("ice", "config", "Make.rules.Linux"),
                 os.path.join("icerb", "config", "Make.rules.Linux"))
+
+shutil.copyfile(os.path.join("ice", "config", "Make.rules.msvc"),
+                os.path.join("icerb", "config", "Make.rules.msvc"))
 
 #
 # Remove files.

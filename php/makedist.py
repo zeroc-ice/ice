@@ -82,7 +82,17 @@ os.chdir(distdir)
 #
 # Export sources from CVS.
 #
-os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp ice/include/IceUtil/Config.h")
+os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp ice/config ice/include/IceUtil/Config.h")
+
+
+#
+# Copy Make.rules.Linux and Make.rules.msvc
+#
+shutil.copyfile(os.path.join("ice", "config", "Make.rules.Linux"),
+                os.path.join("icephp", "config", "Make.rules.Linux"))
+
+shutil.copyfile(os.path.join("ice", "config", "Make.rules.msvc"),
+                os.path.join("icephp", "config", "Make.rules.msvc"))
 
 #
 # Remove files.
