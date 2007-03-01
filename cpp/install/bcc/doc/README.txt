@@ -30,6 +30,11 @@ http://www.zeroc.com/download.html.
 See doc/README.html for information on the documentation included with
 this distribution.
 
+Supported Windows versions
+--------------------------
+
+This distribution is supported on Windows XP with Service Pack 2.
+
 
 Demos and documentation
 -----------------------

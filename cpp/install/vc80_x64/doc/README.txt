@@ -34,6 +34,12 @@ instructions for building and running the sample programs.
 See doc/README.html for information on the documentation included with
 this distribution.
 
+Supported Windows versions
+--------------------------
+
+This distribution is only supported on Windows Server 2003 x64 
+Standard.
+
 
 Setting up Visual Studio 2005 to build Ice applications in C++
 --------------------------------------------------------------

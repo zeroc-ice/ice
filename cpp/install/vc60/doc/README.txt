@@ -43,6 +43,11 @@ the sample programs.
 See doc/README.html for information on the documentation included with
 this distribution.
 
+Supported Windows versions
+--------------------------
+
+This distribution is supported on Windows XP with Service Pack 2.
+
 
 Setting up Visual Studio 6.0 to build Ice applications in C++
 -------------------------------------------------------------
