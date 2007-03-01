@@ -2,8 +2,8 @@ Demos in this directory:
 
 - backup
 
-  Illustrates how to back up a Berkeley DB database. (Hot backups are
-  possible.) This demo is not supported on Windows.
+  Illustrates how to perform hot-backups of a Berkeley DB database. 
+  This demo is not supported nor distributed on Windows.
 
 - bench
 
