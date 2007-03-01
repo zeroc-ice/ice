@@ -96,7 +96,7 @@ $(SVCDLLNAME): $(SERVICE_OBJS)
 	@if exist $(SVCDLLNAME:.dll=.exp) del /q $(SVCDLLNAME:.dll=.exp)
 
 $(ADMIN): $(AOBJS)
-	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(APDBFLAGS) $(AOBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(ALINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

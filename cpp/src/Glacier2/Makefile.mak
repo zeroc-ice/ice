@@ -81,7 +81,7 @@ $(DLLNAME): $(OBJS)
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 $(ROUTER): $(ROBJS)
-	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(RPDBFLAGS) $(ROBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
