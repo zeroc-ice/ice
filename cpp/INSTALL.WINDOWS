@@ -81,12 +81,12 @@ C:\Program Files\Microsoft Visual Studio 8\Common7\Tools, to properly
 configure your build environment.
 
 
-NMAKE
------
+NMAKE and Message Compiler (MC.EXE)
+-----------------------------------
 
-In order to build Ice you need the Microsoft NMAKE utility. NMAKE is
-included in all Microsoft C++ compiler distributions. If you are using
-the Borland C++ compiler, you can download NMAKE as part of the 
+In order to build Ice you need the Microsoft NMAKE and Message Compiler 
+utilities. These are included in all Microsoft C++ compiler distributions. If
+you are using the Borland C++ compiler, you can download them as part of the 
 Windows Platform SDK:
  
   http://www.microsoft.com/downloads/details.aspx?FamilyId=A55B6B43-E24F-4EA3-A93E-40C0EC4F68E5&displaylang=en
