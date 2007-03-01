@@ -8,7 +8,9 @@
 # **********************************************************************
 
 ifndef ICE_HOME
-    $(error ICE_HOME is not defined)
+   ifneq ($(shell test -f /usr/include/Ice/Ice.h && echo 0),0)
+      $(error Ice installation not found, please set ICE_HOME!)
+   endif
 endif
 
 #
@@ -64,7 +66,6 @@ ifeq ($(shell test -f $(top_srcdir)/config/Make.rules.$(UNAME) && echo 0),0)
 else
     configdir		= $(ICE_HOME)/config
 endif
-
 include	 $(configdir)/Make.rules.$(UNAME)
 
 #
@@ -112,25 +113,27 @@ INSTALL_PROGRAM		= ${INSTALL}
 INSTALL_LIBRARY		= ${INSTALL}
 INSTALL_DATA		= ${INSTALL}
 
-ifeq ($(LP64),yes)
-   ICE_LIBS             = -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice 
-else 
-   ICE_LIBS		= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+ifneq ($(ICE_HOME),)
+    ifeq ($(LP64),yes)
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib
+    else 
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib
+    endif
 endif
 
-ICE_FLAGS		= -I$(ICE_HOME)/include
+ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
 
-ifeq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
-    slicedir		= $(top_srcdir)/slice
-else
+ifneq ($(ICE_HOME),)
+    ICE_FLAGS		= -I$(ICE_HOME)/include
+endif
+
+ifneq ($(ICE_HOME),)
     slicedir		= $(ICE_HOME)/slice
+else
+    slicedir		= /usr/share/Ice-$(VERSION)/slice
 endif
 
 ifeq ($(LP64),yes)
-#
-# TODO: Where should the shared library be installed if it is a 64 bit
-# build.
-#
     install_libdir	= $(prefix)/lib$(lp64suffix)
 else
     install_libdir	= $(prefix)/lib
