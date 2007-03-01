@@ -34,3 +34,13 @@ proxy is configured to use per-request load balancing so that each
 invocation is sent successively to each replica thanks to the round
 robin load balancing configured for the replica group (you can set
 Ice.Trace.Location=1 to see the locator invocations).
+
+Note that the subscriptions are not persistent and the subscriber
+makes no attempt to re-establish dropped subscriptions. So if an
+IceStorm service instance is restarted, its subscriptions are lost and
+need to be re-established by restarting the subscribers.
+
+Similarly, if you add an IceStorm service instance while some
+publishers and subscribers are already running, you need to restart
+the subscribers in order to get them to subscribe to this new IceStorm
+service instance.
