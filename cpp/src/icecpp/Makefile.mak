@@ -22,7 +22,7 @@ OBJS		= cccp.obj \
 CFLAGS = $(CFLAGS) -I. -I../../include -DWIN32_LEAN_AND_MEAN
 
 !if "$(CPP_COMPILER)" != "BCC2006"
-LINKWITH	= setargv.obj advapi32.lib
+LINKWITH	= advapi32.lib
 !endif
 
 !if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
@@ -36,7 +36,7 @@ prefix.obj: prefix.c
 	$(CC) /c $(CPPFLAGS) $(CFLAGS) -D__STDC__ prefix.c
 
 $(NAME): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(LINKWITH)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

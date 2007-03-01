@@ -93,6 +93,8 @@ install_docdir		= $(prefix)\doc
 
 OBJEXT			= .obj
 
+SETARGV			= setargv.obj
+
 !if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
 !else

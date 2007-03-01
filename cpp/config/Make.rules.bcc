@@ -27,6 +27,8 @@ LINK 		= ilink32.exe
 PREOUT		= ,
 PRELIBS		= ,,
 
+SETARGV		= wildargs.obj
+
 !if "$(THIRDPARTY_HOME)" != ""
 CPPFLAGS        = -I"$(THIRDPARTY_HOME)\include"
 LDFLAGS		= -L"$(THIRDPARTY_HOME)\lib"
