@@ -13,7 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= src ruby
 
-INSTALL_SUBDIRS	= $(install_libdir) $(install_rubydir) $(install_slicedir)
+INSTALL_SUBDIRS	= $(install_libdir) $(install_rubydir)
 
 install::
 	@if test ! -d $(prefix) ; \
@@ -37,29 +37,6 @@ $(EVERYTHING)::
 	    echo "making $@ in $$subdir"; \
 	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
 	done
-
-install::
-	@if test -d slice ; \
-	then \
-	    cd slice ; \
-	    for i in * ; \
-	    do \
-		if test ! -d $(install_slicedir)/$$i ; \
-		then \
-		    echo "Creating $(install_slicedir)/$$i..." ; \
-		    mkdir $(install_slicedir)/$$i ; \
-		    chmod a+rx $(install_slicedir)/$$i ; \
-		fi ; \
-		cd $$i ; \
-		for f in *.ice ; \
-		do \
-		    echo "Installing $$i/$$f" ; \
-		    $(INSTALL_DATA) $$f $(install_slicedir)/$$i ; \
-		    chmod a+r $(install_slicedir)/$$i/$$f ; \
-		done ; \
-		cd .. ; \
-	    done \
-	fi
 
 install::
 	$(call installdata,ICE_LICENSE,$(prefix))
