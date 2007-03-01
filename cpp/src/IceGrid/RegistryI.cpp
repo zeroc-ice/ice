@@ -250,8 +250,7 @@ RegistryI::start(bool nowarn)
         _communicator->stringToProxy(strPrx)->ice_timeout(5000)->ice_ping();
 
         Error out(_communicator->getLogger());
-        out << "an IceGrid registry is already running and listening on\n";
-        out << "the client endpoints `" << endpoints << "'";
+        out << "an IceGrid registry is already running and listening on the client endpoints `" << endpoints << "'";
         return false;
     }
     catch(const Ice::LocalException&)

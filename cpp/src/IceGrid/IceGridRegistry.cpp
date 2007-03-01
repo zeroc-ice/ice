@@ -111,7 +111,7 @@ RegistryService::start(int argc, char* argv[])
     if(!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
     {
         Warning out(communicator()->getLogger());
-        out << "setting `Ice.ThreadPool.Server.Size' is not useful,\n";
+        out << "setting `Ice.ThreadPool.Server.Size' is not useful, ";
         out << "you should set individual adapter thread pools instead.";
     }
 

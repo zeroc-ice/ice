@@ -1513,7 +1513,7 @@ ServerI::destroy()
         if(!_destroy->loadFailure())
         {
             Ice::Warning out(_node->getTraceLevels()->logger);
-            out << "removing server directory `" << _serverDir << "' failed: " << msg;
+            out << "removing server directory `" << _serverDir << "' failed:\n" << msg;
         }
     }
     
