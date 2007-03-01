@@ -18,7 +18,6 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
-    print "-t    Skip building translator and use the one in PATH."
     print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
@@ -61,14 +60,11 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 # Check arguments
 #
 tag = "-rHEAD"
-skipTranslator = 0
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
         sys.exit(0)
-    elif x == "-t":
-        skipTranslator = 1
     elif x == "-v":
         verbose = 1
     elif x.startswith("-"):
@@ -100,26 +96,8 @@ else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " icerb")
 print "Checking out C++ sources using CVS tag " + tag + "..."
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice/config ice/slice")
-if not skipTranslator:
-    os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-              " ice/bin ice/config ice/include ice/lib ice/src")
-
-#
-# Copy Slice directories.
-#
-print "Copying Slice directories..."
-slicedirs = [\
-    "Glacier2",\
-    "Ice",\
-    "IceBox",\
-    "IceGrid",\
-    "IcePatch2",\
-    "IceStorm",\
-]
-os.mkdir(os.path.join("icerb", "slice"))
-for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icerb", "slice", x), 1)
+os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
+          " ice/config ")
 
 #
 # Copy Make.rules.Linux and Make.rules.msvc
@@ -142,54 +120,6 @@ filesToRemove = [ \
 filesToRemove.extend(find("icerb", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
-
-#
-# Build slice2rb.
-#
-if not skipTranslator:
-    print "Building translator..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2rb"))
-    os.system("gmake")
-    os.chdir(cwd)
-
-    os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.path.join(cwd, "icerb", "bin") + ":" + os.getenv("PATH", "")
-    os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.path.join(cwd, "icerb", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
-
-#
-# Translate Slice files.
-#
-print "Generating Ruby code..."
-cwd = os.getcwd()
-os.chdir(os.path.join("icerb", "ruby"))
-if verbose:
-    quiet = ""
-else:
-    quiet = " -s"
-os.system("gmake" + quiet)
-os.chdir(cwd)
-
-#
-# Clean up after build.
-#
-if not skipTranslator:
-    cwd = os.getcwd()
-    os.chdir(os.path.join("icerb", "src"))
-    if verbose:
-        quiet = ""
-    else:
-        quiet = " -s"
-    os.system("gmake" + quiet + " clean")
-    os.chdir(cwd)
 
 #
 # Get Ice version.
