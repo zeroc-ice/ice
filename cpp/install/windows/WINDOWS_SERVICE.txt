@@ -20,6 +20,14 @@ that you use the "Local Service" user account, which has fewer
 privileges than the "Local System" account that Windows assigns by
 default to a newly-installed service.
 
+<bernard>You're highliting a limitation (bug?) of --install here. 
+"Local System" is the account used when lpServiceStartName is
+NULL in the CreateService call. We could as easily use 
+NT AUTHORITY\LocalService. And maybe we should!
+
+See http://msdn2.microsoft.com/en-us/library/ms682450.aspx
+</bernard>
+
 After selecting a user account, your next task is to prepare whatever
 filesystem resources are required and ensure that the service has the
 necessary permissions to access those resources. A common mistake is
@@ -51,6 +59,19 @@ Note that we would use a different directory on Windows Vista:
 
   C:\Users\Local Service\AppData\Local\MyApp
 
+<bernard>MyApp? It should be ZeroC</bernard>
+
+<bernard>We should mention that all these examples are for
+English locales. In other locales, all these directories have
+different, locale-specific names. Benoit could provide the names in
+the French locale. Even "Local Service" is local-specific:
+
+http://blogs.msdn.com/michkap/archive/2006/12/01/1183198.aspx
+
+However my understanding is that NT Authority\LocalService [no space]
+is locale-independent.
+</bernard>
+
 In the discussion below, we use the Windows XP/Windows Server 2003
 directory for our examples.
 
@@ -81,6 +102,10 @@ which is described at the link below:
 The following command does what we need:
 
   > cacls "Local Service" /G "Local Service":F Administrators:F
+
+<bernard>I would change the permissions only on the ZeroC directory;
+we may not want to change permissions on other subdirectories of
+"Local Service"</bernard>
 
 By omitting the /E option to cacls, we have replaced all of the
 prior access rights on the directory with the rights given in this
@@ -124,6 +149,10 @@ file is included with the Ice distribution and can be found in
 C:\Ice-@ver@\config\glacier2router.cfg. You should review the
 comments and property settings in this file to familiarize yourself
 with a typical router installation.
+
+<bernard><ice-home>\config\glacier2router.cfg would be
+more correct. Even with default install dirs, it could be 
+C:\Ice-3.2.0-VC71</bernard>
 
 You can modify the default configuration file to suit your needs, copy
 it to use as a starting point for your own configuration, or create an
@@ -246,6 +275,9 @@ services:
    adaptive load balancing policy, you may need to give additional
    privileges to the node's user account. See the section IceGrid
    Node Performance Monitoring below for more information.
+
+<bernard>You should remove this reference to the load-balancing
+policy. IceGrid collects this info whether adaptive is used or not</bernard>
 
 6. Start the services and verify that they started successfully. If
    a service failed to start, check the Event Log for error messages.
