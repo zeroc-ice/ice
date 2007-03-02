@@ -12,6 +12,7 @@ service:
 * What files does the service need to access?
 * Does the service create new files or directories?
 * What other resources does the service require?
+* Does the Windows Firewall need to be configured for the service?
 
 Your choice for the user account influences the actions that are
 required to address the remaining issues shown above. We recommend
@@ -283,27 +284,26 @@ http://technet2.microsoft.com/WindowsVista/en/library/ab3b2cfc-b177-43ec-8a4d-0b
 Windows Firewall
 ----------------
 
-Depending on what user account you run the services under you may not
-receive any notification that the Windows Firewall is blocking the
-ports that are used by your service.
+Your choice of user account also determines whether you receive any
+notification when the Windows Firewall blocks the ports that are used
+by your service.
 
 See the following Microsoft article for details:
 
 http://technet2.microsoft.com/WindowsServer/en/library/b3440a22-ae9c-45a3-8a61-da3f8a2c791f1033.mspx?mfr=true
 
-If you do not receive notifications then you will have to manually add
-a firewall exception. For example, if you want to allow traffic to the
-Glacier2 router to traverse the Windows Firewall you would do the
-following:
+If you are not prompted to unblock your service, you will need to
+manually add an exception in Windows Firewall. For example, follow
+the steps below to unblock the ports of a Glacier2 router service:
 
 1. Open the Windows Firewall Settings panel and navigate to the
    Exceptions panel.
 
-2. Select "Add program..."
+2. Select "Add program...".
 
-3. Select "Browse" and navigate to the Glacier2 router executable, and
-   select "OK".
+3. Select "Browse", navigate to the Glacier2 router executable, and
+   click "OK".
 
-Note that adding an exception for a Program unblocks all ports that
-are listened on by that application. This means that you must be
-diligent about the endpoint configuration for your service.
+Note that adding an exception for a program unblocks all ports on
+which the program listens. Review the endpoint configurations of your
+services carefully to ensure that no unnecessary ports are opened.
