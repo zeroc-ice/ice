@@ -278,3 +278,32 @@ Another solution is to add the user to the "Performance Monitor Users"
 group. See the following Microsoft article for details:
 
 http://technet2.microsoft.com/WindowsVista/en/library/ab3b2cfc-b177-43ec-8a4d-0bfac62d88961033.mspx?mfr=true
+
+
+Windows Firewall
+----------------
+
+Depending on what user account you run the services under you may not
+receive any notification that the Windows Firewall is blocking the
+ports that are used by your service.
+
+See the following Microsoft article for details:
+
+http://technet2.microsoft.com/WindowsServer/en/library/b3440a22-ae9c-45a3-8a61-da3f8a2c791f1033.mspx?mfr=true
+
+If you do not receive notifications then you will have to manually add
+a firewall exception. For example, if you want to allow traffic to the
+Glacier2 router to traverse the Windows Firewall you would do the
+following:
+
+1. Open the Windows Firewall Settings panel and navigate to the
+   Exceptions panel.
+
+2. Select "Add program..."
+
+3. Select "Browse" and navigate to the Glacier2 router executable, and
+   select "OK".
+
+Note that adding an exception for a Program unblocks all ports that
+are listened on by that application. This means that you must be
+diligent about the endpoint configuration for your service.
