@@ -312,13 +312,29 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
         while(true)
         {
             bool added = false;
-            ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(id));
-            if(!server)
+            ServerIPtr server;
+            try
             {
-                ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-                server = new ServerI(this, proxy, _serversDir, descriptor->id, _waitTime);
-                _adapter->add(server, id);
-                added = true;
+                server = ServerIPtr::dynamicCast(_adapter->find(id));
+                if(!server)
+                {
+                    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
+                    server = new ServerI(this, proxy, _serversDir, descriptor->id, _waitTime);
+                    _adapter->add(server, id);
+                    added = true;
+                }
+            }
+            catch(const Ice::ObjectAdapterDeactivatedException&)
+            {
+                //
+                // We throw an object not exist exception to avoid
+                // dispatch warnings. The registry will consider the
+                // node has being unreachable upon receival of this
+                // exception (like any other Ice::LocalException). We
+                // could also have disabled dispatch warnings but they
+                // can still useful to catch other issues.
+                //
+                throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
             }
             
             try
@@ -334,7 +350,14 @@ NodeI::loadServer_async(const AMD_Node_loadServerPtr& amdCB,
             {
                 if(added)
                 {
-                    _adapter->remove(id);
+                    try
+                    {
+                        _adapter->remove(id);
+                    }
+                    catch(const Ice::ObjectAdapterDeactivatedException&)
+                    {
+                        // IGNORE
+                    }
                 }
                 throw;
             }
@@ -360,7 +383,24 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
         Lock sync(*this);
         ++_serial;
         
-        ServerIPtr server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
+        ServerIPtr server;
+        try
+        {
+            server = ServerIPtr::dynamicCast(_adapter->find(createServerIdentity(serverId)));
+        }
+        catch(const Ice::ObjectAdapterDeactivatedException&)
+        {
+            //
+            // We throw an object not exist exception to avoid
+            // dispatch warnings. The registry will consider the node
+            // has being unreachable upon receival of this exception
+            // (like any other Ice::LocalException). We could also
+            // have disabled dispatch warnings but they can still
+            // useful to catch other issues.
+            //
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
+        }
+
         if(!server)
         {
             server = new ServerI(this, 0, _serversDir, serverId, _waitTime);
@@ -438,111 +478,120 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
         // Get the given server.
         //
         Ice::Identity id = createServerIdentity(server);
-        ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
-        if(svr)
+        try
         {
-            servers.insert(svr);
+            ServerIPtr svr = ServerIPtr::dynamicCast(_adapter->find(id));
+            if(svr)
+            {
+                servers.insert(svr);
+            }
+        }
+        catch(const Ice::ObjectAdapterDeactivatedException&)
+        {
         }
     }
 
     string failure;
-    try
+    if(!servers.empty())
     {
-        set<ServerIPtr>::iterator s = servers.begin(); 
-        vector<string> running;
-        while(s != servers.end())
+        try
         {
-            try
+            set<ServerIPtr>::iterator s = servers.begin(); 
+            vector<string> running;
+            while(s != servers.end())
             {
-                if(!(*s)->startPatch(shutdown))
+                try
                 {
-                    running.push_back((*s)->getId());
+                    if(!(*s)->startPatch(shutdown))
+                    {
+                        running.push_back((*s)->getId());
+                        servers.erase(s++);
+                    }
+                    else
+                    {
+                        ++s;
+                    }
+                }
+                catch(const Ice::ObjectNotExistException&)
+                {
                     servers.erase(s++);
+                }
+            }
+            
+            if((servers.empty() || !appDistrib->icepatch.empty()) && !running.empty())
+            {
+                if(running.size() == 1)
+                {
+                    throw "server `" + toString(running) + "' is active";
                 }
                 else
                 {
-                    ++s;
+                    throw "servers `" + toString(running, ", ") + "' are active";
                 }
             }
-            catch(const Ice::ObjectNotExistException&)
-            {
-                servers.erase(s++);
-            }
-        }
 
-        if((servers.empty() || !appDistrib->icepatch.empty()) && !running.empty())
-        {
-            if(running.size() == 1)
+            for(s = servers.begin(); s != servers.end(); ++s)
             {
-                throw "server `" + toString(running) + "' is active";
+                (*s)->waitForPatch();
             }
-            else
-            {
-                throw "servers `" + toString(running, ", ") + "' are active";
-            }
-        }
 
-        for(s = servers.begin(); s != servers.end(); ++s)
-        {
-            (*s)->waitForPatch();
-        }
-
-        // 
-        // Patch the application.
-        //
-        FileServerPrx icepatch;
-        if(!appDistrib->icepatch.empty())
-        {
-            icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
-            if(!icepatch)
+            // 
+            // Patch the application.
+            //
+            FileServerPrx icepatch;
+            if(!appDistrib->icepatch.empty())
             {
-                throw "proxy `" + appDistrib->icepatch + "' is not a file server.";
+                icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
+                if(!icepatch)
+                {
+                    throw "proxy `" + appDistrib->icepatch + "' is not a file server.";
+                }
+                patch(icepatch, "distrib/" + application, appDistrib->directories);
             }
-            patch(icepatch, "distrib/" + application, appDistrib->directories);
-        }
         
-        //
-        // Patch the server(s).
-        //
-        for(s = servers.begin(); s != servers.end(); ++s)
-        {
-            InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
-            if(!dist || (!server.empty() && (*s)->getId() != server))
+            //
+            // Patch the server(s).
+            //
+            for(s = servers.begin(); s != servers.end(); ++s)
             {
-                continue;
-            }
+                InternalDistributionDescriptorPtr dist = (*s)->getDistribution();
+                if(!dist || (!server.empty() && (*s)->getId() != server))
+                {
+                    continue;
+                }
             
-            icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
-            if(!icepatch)
-            {
-                throw "proxy `" + dist->icepatch + "' is not a file server.";
-            }
-            patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
+                icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
+                if(!icepatch)
+                {
+                    throw "proxy `" + dist->icepatch + "' is not a file server.";
+                }
+                patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
             
-            if(!server.empty())
-            {
-                break;
+                if(!server.empty())
+                {
+                    break;
+                }
             }
         }
-    }
-    catch(const Ice::LocalException& e)
-    {
-        ostringstream os;
-        os << e;
-        failure = os.str();
-    }
-    catch(const string& e)
-    {
-        failure = e;
-    }
-    catch(const char* e)
-    {
-        failure = e;
-    }
+        catch(const Ice::LocalException& e)
+        {
+            ostringstream os;
+            os << e;
+            failure = os.str();
+        }
+        catch(const string& e)
+        {
+            failure = e;
+        }
+        catch(const char* e)
+        {
+            failure = e;
+        }
 
-    for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
-    {
-        (*s)->finishPatch();
+        for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
+        {
+            (*s)->finishPatch();
+        }
     }
 
     {
@@ -939,6 +988,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     //
     // Remove the extra servers if possible.
     //
+    try
     {
         vector<string>::iterator p = remove.begin();
         while(p != remove.end())
@@ -991,6 +1041,14 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
 
             ++p;
         }
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+        //
+        // Just return the server commands, we'll finish the
+        // consistency check next time the node is started.
+        //
+        return commands;
     }
         
     if(remove.empty())
