@@ -30,6 +30,7 @@ protected:
     CComboBox* _mode;
     CButton* _secure;
     CButton* _timeout;
+    CButton* _delay;
     CStatic* _status;
     Demo::HelloPrx _proxy;
     Demo::HelloPrx _currentProxy;

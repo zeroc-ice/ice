@@ -1,4 +1,4 @@
-// Microsoft Visual C++ generated resource script.
+//Microsoft Developer Studio generated resource script.
 //
 #include "resource.h"
 
@@ -27,18 +27,18 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE 
+1 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE 
+2 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "#include ""afxres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE 
+3 TEXTINCLUDE MOVEABLE PURE 
 BEGIN
     "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
     "#define _AFX_NO_OLE_RESOURCES\r\n"
@@ -64,34 +64,37 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\HelloClient.ico"
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\HelloClient.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Dialog
 //
 
-IDD_HELLOCLIENT_DIALOG DIALOGEX 0, 0, 234, 91
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | 
-    WS_CAPTION | WS_SYSMENU
+IDD_HELLOCLIENT_DIALOG DIALOGEX 0, 0, 234, 97
+STYLE DS_FIXEDSYS | WS_MINIMIZEBOX | WS_POPUP | WS_VISIBLE | WS_CAPTION | 
+    WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
 CAPTION "Ice Hello Client"
-FONT 8, "MS Shell Dlg", 0, 0, 0x1
+FONT 8, "MS Shell Dlg"
 BEGIN
     LTEXT           "Mode",IDC_MODELABEL,7,18,19,8
     COMBOBOX        IDC_MODE,28,16,109,70,CBS_DROPDOWNLIST | WS_TABSTOP
     CONTROL         "Secure",IDC_SECURE,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,147,18,38,10
+                    WS_TABSTOP,155,14,38,10
     CONTROL         "Timeout",IDC_TIMEOUT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,189,18,41,10
-    DEFPUSHBUTTON   "Say Hello",IDC_INVOKE,7,48,68,14
-    PUSHBUTTON      "Flush Batch",IDC_FLUSH,83,48,68,14
-    PUSHBUTTON      "Shutdown Server",IDC_SHUTDOWN,160,48,68,14
-    LTEXT           "",IDC_STATUSBAR,0,78,234,12,SS_CENTERIMAGE | 
+                    WS_TABSTOP,155,26,41,10
+    DEFPUSHBUTTON   "Say Hello",IDC_INVOKE,7,56,68,14
+    PUSHBUTTON      "Flush Batch",IDC_FLUSH,83,56,68,14
+    PUSHBUTTON      "Shutdown Server",IDC_SHUTDOWN,159,56,68,14
+    LTEXT           "",IDC_STATUSBAR,0,84,234,12,SS_CENTERIMAGE | 
                     SS_ENDELLIPSIS,WS_EX_STATICEDGE
+    CONTROL         "Delay",IDC_DELAY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,
+                    155,38,34,10
 END
 
 
+#ifndef _MAC
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version
@@ -114,14 +117,14 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "ZeroC, Inc."
-            VALUE "FileDescription", "Ice Hello Client"
-            VALUE "FileVersion", "1.0.0.1"
-            VALUE "InternalName", "HelloClient.exe"
-            VALUE "LegalCopyright", "Copyright (c) 2003 - 2007 ZeroC, Inc.  All rights reserved."
-            VALUE "OriginalFilename", "HelloClient.exe"
-            VALUE "ProductName", "Ice"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "CompanyName", "ZeroC, Inc.\0"
+            VALUE "FileDescription", "Ice Hello Client\0"
+            VALUE "FileVersion", "1.0.0.1\0"
+            VALUE "InternalName", "HelloClient.exe\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003 - 2007 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "OriginalFilename", "HelloClient.exe\0"
+            VALUE "ProductName", "Ice\0"
+            VALUE "ProductVersion", "1.0.0.1\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -130,6 +133,8 @@ BEGIN
     END
 END
 
+#endif    // !_MAC
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -137,14 +142,14 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO MOVEABLE PURE 
 BEGIN
     IDD_HELLOCLIENT_DIALOG, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 227
         TOPMARGIN, 7
-        BOTTOMMARGIN, 84
+        BOTTOMMARGIN, 90
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -169,13 +174,6 @@ BEGIN
 0x6142, 0x6374, 0x2068, 0x6144, 0x6174, 0x7267, 0x6d61, "\000" 
     0
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// String Table
-//
-
 
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////

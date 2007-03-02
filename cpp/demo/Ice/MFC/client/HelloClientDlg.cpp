@@ -56,6 +56,7 @@ CHelloClientDlg::OnInitDialog()
     _mode = (CComboBox*)GetDlgItem(IDC_MODE);
     _secure = (CButton*)GetDlgItem(IDC_SECURE);
     _timeout = (CButton*)GetDlgItem(IDC_TIMEOUT);
+    _delay = (CButton*)GetDlgItem(IDC_DELAY);
     _status = (CStatic*)GetDlgItem(IDC_STATUSBAR);
 
     //
@@ -118,7 +119,7 @@ CHelloClientDlg::OnSayHello()
     try
     {
         updateProxy();
-        _currentProxy->sayHello();
+        _currentProxy->sayHello(_delay->GetCheck() == BST_CHECKED ? 2500 : 0);
         if(_currentProxy->ice_isBatchOneway() || _currentProxy->ice_isBatchDatagram())
         {
             _status->SetWindowText(CString(" Queued batch request"));
