@@ -558,7 +558,10 @@ def buildInstallers(startDir, stageDir, sourcesVersion, installVersion, installe
     os.chdir(startDir)
     for project, release in installers:
         runprog(os.environ['INSTALLSHIELD_HOME'] + "\IsCmdBld -x -w -c COMP -a ZEROC -p " + project + ".ism -r " + release)
-        msi = project + "-" + sourcesVersion + "-" + installVersion + ".msi"
+        if project == "Ice":
+            msi = project + "-" + sourcesVersion + "-" + installVersion + ".msi"
+        else:
+            msi = "Ice-" + sourcesVersion + "-" + project + "-" + installVersion + ".msi"
         msiPath = os.path.join(os.getcwd(), project, "ZEROC", release, "DiskImages/DISK1", msi)
         shutil.copy(msiPath, stageDir)
 

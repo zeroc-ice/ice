@@ -52,7 +52,7 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Ice 3.2b for Visual Studio 2005 (x64)</subject>
+		<subject>Ice 3.2.0 for Visual Studio 2005 (x64)</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
 		<comments>##ID_STRING32##</comments>
@@ -346,7 +346,6 @@
 		<row><td>IceCppDev</td><td>{F01E335F-15C8-46AB-89C9-9BE6C058201C}</td><td>INSTALLDIR</td><td>264</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppRuntime</td><td>{BE67F984-6A48-43F4-BAEF-2D93FFEB52C4}</td><td>INSTALLDIR</td><td>264</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceDoc</td><td>{A4CEDCC5-0ED1-4AE5-9D25-8EB1F13A3BE5}</td><td>INSTALLDIR</td><td>264</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>IceManual</td><td>{00EBB362-2DE1-42C2-A1FC-E8D454E6871B}</td><td>INSTALLDIR</td><td>264</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>VisualStudioRuntime</td><td>{399DE746-3648-48CC-B9E5-4415CC821A44}</td><td>INSTALLDIR</td><td>264</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 	</table>
 
@@ -1052,7 +1051,7 @@
 		<row><td>GAC</td><td>ASSEMBLY</td><td>GAC</td><td/><td>0</td><td/></row>
 		<row><td>GlobalAssemblyCache</td><td>TARGETDIR</td><td>.:Global~1|GlobalAssemblyCache</td><td/><td>0</td><td/></row>
 		<row><td>ICE_3.1.0_VC80</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.1.0-VC80</td><td/><td>0</td><td/></row>
-		<row><td>ICE_3.1.0_VC80_X641</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2b-VC80-x64</td><td/><td>0</td><td/></row>
+		<row><td>ICE_3.1.0_VC80_X641</td><td>WindowsVolume</td><td>ICE-3_~1|Ice-3.2.0-VC80-x64</td><td/><td>0</td><td/></row>
 		<row><td>INSTALLDIR</td><td>ICE_3.1.0_VC80_X641</td><td>.</td><td/><td>0</td><td/></row>
 		<row><td>ISCommonFilesFolder</td><td>CommonFilesFolder</td><td>Instal~1|InstallShield</td><td/><td>0</td><td/></row>
 		<row><td>ISMyCompanyDir</td><td>ProgramFilesFolder</td><td>MYCOMP~1|My Company Name</td><td/><td>0</td><td/></row>
@@ -1297,7 +1296,6 @@
 		<col key="yes" def="s72">Component_</col>
 		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
-		<row><td>ice_doc</td><td>IceManual</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
@@ -1474,7 +1472,6 @@
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceDoc</td><td/><td/><td>_12A3BACF_1B61_45A5_928F_45572487D618_FILTER</td><td/><td/><td/><td/></row>
-		<row><td>IceManual</td><td/><td/><td>_39A98665_B8A5_4D60_B66F_B6A1C75C4080_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>VisualStudioRuntime</td><td/><td/><td>_30BA3320_69CB_4682_87F9_962EE1BF4FF1_FILTER</td><td/><td/><td/><td/></row>
 	</table>
 
@@ -1507,7 +1504,6 @@
 		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice\cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceDoc</td><td>&lt;ISProjectFolder&gt;\install\ice\common\doc</td><td>4</td><td/><td/><td>0</td></row>
-		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice\common\html</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>VisualStudioRuntime</td><td>&lt;ISProjectFolder&gt;\install\microsoft\runtime</td><td>4</td><td/><td/><td>2</td></row>
 	</table>
 
@@ -1717,8 +1713,11 @@
 		<col key="yes" def="s72">ISProductConfiguration_</col>
 		<col key="yes" def="s72">Property</col>
 		<col def="L255">Value</col>
-		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2b-VC80-x64</td></row>
+		<row><td>ZEROC</td><td>MSIPackageFileName</td><td>Ice-3.2.0-VC80-x64</td></row>
+		<row><td>ZEROC</td><td>PackageCode</td><td>{CF4ED909-4D11-4AD1-A5A1-AFB9052C3025}</td></row>
+		<row><td>ZEROC</td><td>ProductCode</td><td>{126FCC48-6DDD-45A4-A74B-D067CCC016A3}</td></row>
 		<row><td>ZEROC</td><td>SetupFileName</td><td/></row>
+		<row><td>ZEROC</td><td>UpgradeCode</td><td>{3B66588C-70AD-4265-AC15-80DB3E92517B}</td></row>
 	</table>
 
 	<table name="ISRelease">
@@ -2796,8 +2795,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>ProductCode</td><td>{0E895E26-9005-4EA6-8995-A61C8A4F958A}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
-		<row><td>ProductName</td><td>Ice 3.2b for Visual Studio 2005 (x64)</td><td/></row>
-		<row><td>ProductVersion</td><td>3.2.51</td><td/></row>
+		<row><td>ProductName</td><td>Ice 3.2.0 for Visual Studio 2005 (x64)</td><td/></row>
+		<row><td>ProductVersion</td><td>3.2.0</td><td/></row>
 		<row><td>ProgressType0</td><td>install</td><td/></row>
 		<row><td>ProgressType1</td><td>Installing</td><td/></row>
 		<row><td>ProgressType2</td><td>installed</td><td/></row>
