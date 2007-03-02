@@ -2801,6 +2801,12 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col key="yes" def="s255">Name</col>
 		<col def="s255">Value</col>
                 <row><td>GAC_icecs</td><td>processorArchitecture</td><td>MSIL</td></row>
+                <row><td>GAC_icesslcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+                <row><td>GAC_icegridcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+                <row><td>GAC_glacier2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
+                <row><td>GAC_iceboxcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+                <row><td>GAC_icestormcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+                <row><td>GAC_icepatch2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
 	</table>
 
 	<table name="MsiDigitalCertificate">
