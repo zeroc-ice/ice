@@ -68,6 +68,11 @@ class SessionKeeper
                 throw e;
             }
 
+            if(_coordinator.getCommunicator().getDefaultRouter() == null)
+            {
+                _admin = AdminPrxHelper.uncheckedCast(_admin.ice_endpoints(session.ice_getEndpoints()));
+            }
+
             _thread = new Pinger(_session, keepAliveperiod);
             _thread.start();
             

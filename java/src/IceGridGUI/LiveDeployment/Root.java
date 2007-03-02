@@ -918,14 +918,22 @@ public class Root extends ListArrayTreeNode
                 {
                     AdminSessionPrx session = _coordinator.getSession();
 
+                    FileIteratorPrx result;
                     if(stdout)
                     {
-                        return session.openRegistryStdOut(_replicaName, count);
+                        result = session.openRegistryStdOut(_replicaName, count);
                     }
                     else
                     {
-                        return session.openRegistryStdErr(_replicaName, count);
+                        result = session.openRegistryStdErr(_replicaName, count);
                     }
+                    
+                    if(_coordinator.getCommunicator().getDefaultRouter() == null)
+                    {
+                        result = FileIteratorPrxHelper.uncheckedCast(
+                            result.ice_endpoints(session.ice_getEndpoints()));
+                    }
+                    return result;
                 }
 
                 public String getTitle()

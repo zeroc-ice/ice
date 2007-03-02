@@ -72,8 +72,14 @@ class Service extends ListArrayTreeNode
                         throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, 
                         DeploymentException
                     {
-                        AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
-                        return adminSession.openServerLog(_parent.getId(), fPath, count);
+                        AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                        FileIteratorPrx result = session.openServerLog(_parent.getId(), fPath, count);
+                        if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
+                        {
+                            result = FileIteratorPrxHelper.uncheckedCast(
+                                result.ice_endpoints(session.ice_getEndpoints()));
+                        }
+                        return result;
                     }
                     
                     public String getTitle()

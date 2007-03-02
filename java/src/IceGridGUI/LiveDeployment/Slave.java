@@ -90,14 +90,22 @@ class Slave extends TreeNode
                 {
                     AdminSessionPrx session = getCoordinator().getSession();
 
+                    FileIteratorPrx result;
                     if(stdout)
                     {
-                        return session.openRegistryStdOut(_id, count);
+                        result = session.openRegistryStdOut(_id, count);
                     }
                     else
                     {
-                        return session.openRegistryStdErr(_id, count);
+                        result = session.openRegistryStdErr(_id, count);
                     }
+                    
+                    if(getCoordinator().getCommunicator().getDefaultRouter() == null)
+                    {
+                        result = FileIteratorPrxHelper.uncheckedCast(
+                            result.ice_endpoints(session.ice_getEndpoints()));
+                    }
+                    return result;
                 }
 
                 public String getTitle()

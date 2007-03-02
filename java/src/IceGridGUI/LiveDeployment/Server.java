@@ -177,16 +177,22 @@ class Server extends ListArrayTreeNode
                 public FileIteratorPrx open(int count)
                     throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, DeploymentException
                 {
-                    AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
-
+                    AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                    FileIteratorPrx result;
                     if(stdout)
                     {
-                        return adminSession.openServerStdOut(_id, count);
+                        result = session.openServerStdOut(_id, count);
                     }
                     else
                     {
-                        return adminSession.openServerStdErr(_id, count);
+                        result = session.openServerStdErr(_id, count);
                     }
+                    if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
+                    {
+                        result = FileIteratorPrxHelper.uncheckedCast(
+                            result.ice_endpoints(session.ice_getEndpoints()));
+                    }
+                    return result;
                 }
 
                 public String getTitle()
@@ -237,8 +243,15 @@ class Server extends ListArrayTreeNode
                         throws FileNotAvailableException, ServerNotExistException, NodeUnreachableException, 
                         DeploymentException
                     {
-                        AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
-                        return adminSession.openServerLog(_id, fPath, count);
+                        AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                        FileIteratorPrx result = session.openServerLog(_id, fPath, count);
+
+                        if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
+                        {
+                            result = FileIteratorPrxHelper.uncheckedCast(
+                                result.ice_endpoints(session.ice_getEndpoints()));
+                        }
+                        return result;
                     }
                     
                     public String getTitle()

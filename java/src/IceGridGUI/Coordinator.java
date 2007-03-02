@@ -1350,7 +1350,7 @@ public class Coordinator
             String str = "\"" + _communicator.identityToString(locatorId) + "\"";
             str += ":" + info.registryEndpoints;
            
-            RegistryPrx localRegistry = null; 
+            RegistryPrx currentRegistry = null; 
 
             try
             {
@@ -1366,8 +1366,15 @@ public class Coordinator
                         JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
-
-                localRegistry = defaultLocator.getLocalRegistry();
+ 
+                currentRegistry = defaultLocator.getLocalRegistry();
+                
+                //
+                // Make sure the currentRegistry uses the same endpoints as the locator
+                // (for when IceGrid Admin is used over a ssh tunnel)
+                //
+                currentRegistry = RegistryPrxHelper.uncheckedCast(
+                    currentRegistry.ice_endpoints(defaultLocator.ice_getEndpoints()));
 
                 _communicator.setDefaultLocator(defaultLocator);
             }
@@ -1381,17 +1388,17 @@ public class Coordinator
                 return null;
             }
 
-            RegistryPrx registry = localRegistry;
+            RegistryPrx registry = currentRegistry;
 
-            if(info.connectToMaster)
+            if(info.connectToMaster && !currentRegistry.ice_getIdentity().name.equals("Registry"))
             {
                 Ice.Identity masterRegistryId = new Ice.Identity();
                 masterRegistryId.category = info.registryInstanceName;
                 masterRegistryId.name = "Registry";
 
                 registry = RegistryPrxHelper.
-                    uncheckedCast(_communicator.stringToProxy("\"" + 
-                                                              _communicator.identityToString(masterRegistryId) + "\""));
+                    uncheckedCast(_communicator.stringToProxy(
+                                      "\"" + _communicator.identityToString(masterRegistryId) + "\""));
             }
             
             do
@@ -1413,6 +1420,16 @@ public class Coordinator
                         assert session != null;
                     }
                     keepAlivePeriodHolder.value = registry.getSessionTimeout() * 1000 / 2;
+
+                    //
+                    // Make sure the session uses the same endpoints as the locator
+                    // (for when IceGrid Admin is used over a ssh tunnel)
+                    //
+                    if(registry == currentRegistry)
+                    {
+                        session = AdminSessionPrxHelper.uncheckedCast(
+                            session.ice_endpoints(currentRegistry.ice_getEndpoints()));
+                    }
                 }
                 catch(IceGrid.PermissionDeniedException e)
                 {
@@ -1425,7 +1442,7 @@ public class Coordinator
                 }
                 catch(Ice.LocalException e)
                 {
-                    if(registry.ice_getIdentity().equals(localRegistry.ice_getIdentity()))
+                    if(registry.ice_getIdentity().equals(currentRegistry.ice_getIdentity()))
                     {
                         JOptionPane.showMessageDialog(parent,
                                                       "Could not create session: "
@@ -1444,8 +1461,7 @@ public class Coordinator
                                JOptionPane.YES_NO_OPTION,
                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION)
                         {
-
-                            registry = localRegistry;
+                            registry = currentRegistry;
                         }
                         else
                         {

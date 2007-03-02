@@ -48,16 +48,22 @@ class Node extends ListTreeNode
                 public FileIteratorPrx open(int count)
                     throws FileNotAvailableException, NodeNotExistException, NodeUnreachableException
                 {
-                    AdminSessionPrx adminSession = getRoot().getCoordinator().getSession();
-
+                    AdminSessionPrx session = getRoot().getCoordinator().getSession();
+                    FileIteratorPrx result;
                     if(stdout)
                     {
-                        return adminSession.openNodeStdOut(_id, count);
+                        result = session.openNodeStdOut(_id, count);
                     }
                     else
                     {
-                        return adminSession.openNodeStdErr(_id, count);
+                        result = session.openNodeStdErr(_id, count);
                     }
+                    if(getRoot().getCoordinator().getCommunicator().getDefaultRouter() == null)
+                    {
+                        result = FileIteratorPrxHelper.uncheckedCast(
+                            result.ice_endpoints(session.ice_getEndpoints()));
+                    }
+                    return result;
                 }
 
                 public String getTitle()
