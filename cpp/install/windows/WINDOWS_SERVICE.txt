@@ -106,6 +106,9 @@ The following command does what we need:
 <bernard>I would change the permissions only on the ZeroC directory;
 we may not want to change permissions on other subdirectories of
 "Local Service"</bernard>
+<matthew>I disagree with that... the permissions on this "home"
+directory should be the same as other standard user
+accounts.</matthew>
 
 By omitting the /E option to cacls, we have replaced all of the
 prior access rights on the directory with the rights given in this
@@ -277,7 +280,7 @@ services:
    Node Performance Monitoring below for more information.
 
 <bernard>You should remove this reference to the load-balancing
-policy. IceGrid collects this info whether adaptive is used or not</bernard>
+policy. IceGrid collects this info whether adaptive is used or not.</bernard>
 
 6. Start the services and verify that they started successfully. If
    a service failed to start, check the Event Log for error messages.
