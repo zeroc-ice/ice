@@ -23,6 +23,7 @@
 CXX		= bcc32.exe
 CC		= bcc32.exe
 LINK 		= ilink32.exe
+RC		= brc32.exe
 
 PREOUT		= ,
 PRELIBS		= ,,

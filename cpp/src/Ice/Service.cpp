@@ -409,7 +409,15 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
             // executable's arguments and the service's arguments into
             // one vector.
             //
-            _logger = (initData.logger) ? initData.logger : new SMEventLoggerI(name);
+	    if(initData.logger)
+	    {
+		_logger = initData.logger;
+	    }
+	    else
+	    {
+		_logger = new SMEventLoggerI(name);
+	    }
+
             setProcessLogger(_logger);
 
             for(int i = idx; i + 2 < argc; ++i)

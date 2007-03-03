@@ -14,6 +14,7 @@
 CXX		= cl.exe
 CC		= cl.exe
 LINK 		= link.exe
+RC		= rc.exe
 
 PREOUT		= /out:
 PRELIBS		= 

@@ -21,7 +21,7 @@ MyByteSeq::MyByteSeq(size_t size)
 {
     if(_size != 0)
     {
-        _data = (Ice::Byte*)malloc(_size);
+        _data = new Ice::Byte[_size];
     }
 }
 
@@ -30,7 +30,7 @@ MyByteSeq::MyByteSeq(const MyByteSeq& seq)
     _size = seq._size;
     if(_size != 0)
     {
-        _data = (Ice::Byte*)malloc(_size);
+        _data = new Ice::Byte[_size];
         memcpy(_data, seq._data, _size);
     }
     else
@@ -41,10 +41,7 @@ MyByteSeq::MyByteSeq(const MyByteSeq& seq)
 
 MyByteSeq::~MyByteSeq()
 {
-    if(_data != 0)
-    {
-        free(_data);
-    }
+    delete[] _data;
 }
 
 size_t
@@ -79,15 +76,13 @@ MyByteSeq::end() const
 void
 MyByteSeq::operator=(const MyByteSeq& rhs)
 {
-    if(_data != 0)
-    {
-        free(_data);
-        _data = 0;
-    }
+    delete[] _data;
+    _data = 0;
+
     _size = rhs._size;
     if(_size != 0)
     {
-        _data = (Ice::Byte*)malloc(_size);
+        _data = new Ice::Byte[_size];
         memcpy(_data, rhs._data, _size);
     }
 }

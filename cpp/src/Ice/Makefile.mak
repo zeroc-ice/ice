@@ -135,7 +135,7 @@ EventLoggerI.obj: EventLoggerMsg.h
 
 EventLoggerMsg.h EventLoggerMsg.res: EventLoggerMsg.mc
 	mc EventLoggerMsg.mc
-	rc -r -fo EventLoggerMsg.res EventLoggerMsg.rc
+	$(RC) -r -fo EventLoggerMsg.res EventLoggerMsg.rc
 
 clean::
 	del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
