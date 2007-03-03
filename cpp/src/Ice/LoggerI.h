@@ -31,6 +31,8 @@ private:
     std::string _prefix;
 };
 
+typedef IceUtil::Handle<LoggerI> LoggerIPtr;
+
 }
 
 #endif

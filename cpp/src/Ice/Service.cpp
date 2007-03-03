@@ -14,6 +14,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/ArgVector.h>
 #include <Ice/Service.h>
+#include <Ice/LoggerI.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
@@ -401,24 +402,15 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
             name = argv[idx + 1];
 
             //
-            // The logger for the process is either the configured
-            // logger, or an event logger using the service name.
+            // If the process logger the default logger then we use
+            // our own logger.
             //
-            // We postpone the initialization of the communicator
-            // until serviceMain so that we can incorporate the
-            // executable's arguments and the service's arguments into
-            // one vector.
-            //
-	    if(initData.logger)
-	    {
-		_logger = initData.logger;
-	    }
-	    else
-	    {
-		_logger = new SMEventLoggerI(name);
-	    }
-
-            setProcessLogger(_logger);
+            _logger = getProcessLogger();
+            if(LoggerIPtr::dynamicCast(_logger))
+            {
+                _logger = new SMEventLoggerI(name);
+                setProcessLogger(_logger);
+            }
 
             for(int i = idx; i + 2 < argc; ++i)
             {
