@@ -5,3 +5,7 @@
 %_gpg_name ZeroC, Inc. (release key) <support@zeroc.com>
 
 %_gpgbin /usr/bin/gpg 
+
+%vendor ZeroC, Inc.
+
+%dist .sles10
