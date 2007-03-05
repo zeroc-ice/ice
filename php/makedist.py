@@ -66,10 +66,6 @@ for x in sys.argv[1:]:
     else:
         tag = "-r" + x
 
-if not os.environ.has_key("ICE_HOME"):
-    print "The ICE_HOME environment variable is not set."
-    sys.exit(1)
-
 #
 # Remove any existing "dist" directory and create a new one.
 #
