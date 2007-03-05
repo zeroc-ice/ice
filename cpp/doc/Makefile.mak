@@ -34,6 +34,6 @@ reference\index.html: $(SLICEFILES)
 clean::
 	-rd /s /q reference
 
-install:: reference\index.html
-	copy index.html $(install_docdir)
+install:: reference\index.html 
+	copy reference\index.html $(install_docdir)
 	xcopy /i /s /y reference $(install_docdir)\reference
