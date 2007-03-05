@@ -194,7 +194,7 @@ mkrbsoname		= $(subst lib,,$(call mksoname,$(1),$(2)))
 mkrblibname		= $(subst lib,,$(call mklibname,$(1)))
 
 ifneq ($(ICE_HOME),)
-   SLICE2RB		= $(ICE_HOME)/bin/slice2rn
+   SLICE2RB		= $(ICE_HOME)/bin/slice2rb
 else
    SLICE2RB		= /usr/bin/slice2rb
 endif
