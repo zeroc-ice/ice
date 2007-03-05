@@ -63,6 +63,14 @@ libraries, and executables.
 - Add <Ice installation root directory>\bin
 
 
+Running IceGrid and Glacier2 components as services
+---------------------------------------------------
+
+The WINDOWS_SERVICES.txt file included in this distribution contains
+information on how to install and run the IceGrid registry, IceGrid
+node, and Glacier2 router as Windows services.
+
+
 Building and running the C++ demos
 ----------------------------------
 

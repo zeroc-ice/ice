@@ -290,3 +290,7 @@ directory to the Visual C++ "Include files", the lib directory to the
 
   * Visual C++ 2005: Tools->Options->Projects and Solutions->
                                                     VC++ Directories
+
+See the WINDOWS_SERVICES.txt file included in this distribution for
+information on how to install and run the IceGrid registry, IceGrid
+node, and Glacier2 router as Windows services.

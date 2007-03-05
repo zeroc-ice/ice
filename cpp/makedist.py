@@ -240,6 +240,8 @@ mmversion = re.search("([0-9]+\.[0-9b]+)[\.0-9]*", version).group(1)
 print "Fixing version in various files..."
 fixVersion(find("ice", "README*"), version, mmversion)
 fixVersion(find("ice", "INSTALL*"), version, mmversion)
+fixVersion(find("ice/config", "glacier2router.cfg"), version, mmversion)
+fixVersion(find("ice/config", "icegridregistry.cfg"), version, mmversion)
 fixVersion(find("ice/install/rpm", "*.conf"), version, mmversion)
 
 print "Creating Ice-rpmbuild..."
