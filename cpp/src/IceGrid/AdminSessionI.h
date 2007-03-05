@@ -33,7 +33,9 @@ public:
 
     virtual Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&, 
                                                       const RegistryIPtr&);
-    virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&, const RegistryIPtr&);
+
+    virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&, const RegistryIPtr&, 
+                                                     const Glacier2::SessionControlPrx&);
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
@@ -77,6 +79,7 @@ private:
     AdminPrx _admin;
     std::map<TopicName, Ice::ObjectPrx> _observers;
     std::set<Ice::Identity> _iterators;
+    Glacier2::SessionControlPrx _sessionControl;
 };
 typedef IceUtil::Handle<AdminSessionI> AdminSessionIPtr;
 

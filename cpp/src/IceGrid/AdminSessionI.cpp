@@ -76,13 +76,16 @@ AdminSessionI::registerWithServantLocator(const SessionServantLocatorIPtr& serva
 }
 
 Ice::ObjectPrx
-AdminSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter, const RegistryIPtr& registry)
+AdminSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter, 
+                                         const RegistryIPtr& registry,
+                                         const Glacier2::SessionControlPrx& ctl)
 {
     Ice::ObjectPrx proxy = BaseSessionI::registerWithObjectAdapter(adapter);
     Ice::Identity identity;
     identity.category = _database->getInstanceName();
     identity.name = IceUtil::generateUUID();
     _admin = AdminPrx::uncheckedCast(adapter->add(new AdminI(_database, registry, this), identity));
+    _sessionControl = ctl;
     return proxy;
 }
 
@@ -344,6 +347,19 @@ AdminSessionI::addFileIterator(const FileReaderPrx& reader,
     {
         assert(_adapter);
         obj = _adapter->addWithUUID(servant);
+        
+        if(_sessionControl)
+        {
+            try
+            {
+                Ice::IdentitySeq ids;
+                ids.push_back(obj->ice_getIdentity());
+                _sessionControl->identities()->add(ids);
+            }
+            catch(const Ice::LocalException&)
+            {
+            }
+        }
     }
     _iterators.insert(obj->ice_getIdentity());
     return FileIteratorPrx::uncheckedCast(obj);
@@ -361,11 +377,24 @@ AdminSessionI::removeFileIterator(const Ice::Identity& id, const Ice::Current& c
     {
         try
         {
-            assert(_adapter);
+            assert(_adapter && _sessionControl);
             _adapter->remove(id);
         }
         catch(const Ice::ObjectAdapterDeactivatedException&)
         {
+        }
+
+        if(_sessionControl)
+        {
+            try
+            {
+                Ice::IdentitySeq ids;
+                ids.push_back(id);
+                _sessionControl->identities()->remove(ids);
+            }
+            catch(const Ice::LocalException&)
+            {
+            }
         }
     }
     _iterators.erase(id);
@@ -456,7 +485,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
     assert(_adapter);
 
     AdminSessionIPtr session = createSessionServant(sessionId);
-    Ice::ObjectPrx proxy = session->registerWithObjectAdapter(_adapter, _registry);
+    Ice::ObjectPrx proxy = session->registerWithObjectAdapter(_adapter, _registry, ctl);
 
     Ice::Identity queryId;
     queryId.category = _database->getInstanceName();
