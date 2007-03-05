@@ -71,6 +71,7 @@ TITLE
     <body>
 	<div class="Page">
 	    <div class="HeaderFooter">
+                <!-- SwishCommand noindex -->
 		<table class="ButtonTable">
 		    <tr>
 			<td>

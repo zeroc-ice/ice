@@ -905,7 +905,7 @@ sub show_debug_output {
     if ( $results->hits ) {
         print STDERR "swish.cgi: returned a page of $results->{navigation}{showing} results of $results->{navigation}{hits} total hits\n";
     } else {
-        print STDERR "swish.cgi: no results\n";
+        print STDERR "swish.cgi: No results\n";
     }
 
     if ($conf->{debug} & $SwishSearch::DEBUG_HEADERS ) {
@@ -1790,7 +1790,7 @@ sub run_swish {
         }
 
 
-        # return swish errors as a mesage to the script
+        # return swish errors as a message to the script
         $self->errstr($1), return if /^err:\s*(.+)/;
 
         # Or, if you want to log the errors and just say "Service Unavailable" use this:
@@ -2048,7 +2048,7 @@ sub run_library {
     $headers->{'parsed words'} = join ' ', $results->ParsedWords( ($swish->IndexNames)[0] );
 
     if ( ! $results->Hits ) {
-        $self->errstr('no results');
+        $self->errstr('No results');
         return;
     }
     $headers->{'number of hits'} = $results->Hits;

@@ -679,6 +679,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     }
 
     start("div", "HeaderFooter");
+    _out << nl << "<!-- SwishCommand noindex -->";
 
     start("table", "ButtonTable");
     start("tr");
@@ -1566,6 +1567,8 @@ void
 Slice::StartPageGenerator::printHeaderFooter()
 {
     start("div", "HeaderFooter");
+
+    _out << nl << "<!-- SwishCommand noindex -->";
 
     start("table", "ButtonTable");
     start("tr");
