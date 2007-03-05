@@ -2,6 +2,6 @@
 
 %_gpg_path /home/bernard/.gnupg
 
-%_gpg_name ZeroC, Inc. (beta key) <support@zeroc.com>
+%_gpg_name ZeroC, Inc. (release key) <support@zeroc.com>
 
 %_gpgbin /usr/bin/gpg 
