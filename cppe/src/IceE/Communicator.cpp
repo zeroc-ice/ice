@@ -60,6 +60,13 @@ Ice::Communicator::waitForShutdown()
 {
     _instance->objectAdapterFactory()->waitForShutdown();
 }
+
+bool
+Ice::Communicator::isShutdown() const
+{
+    return _instance->objectAdapterFactory()->isShutdown();
+}
+
 #endif
 
 ObjectPrx

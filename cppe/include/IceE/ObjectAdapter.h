@@ -54,6 +54,8 @@ public:
     void waitForHold();
     void deactivate();
     void waitForDeactivate();
+    bool isDeactivated() const;
+    void destroy();
 
     ObjectPrx add(const ObjectPtr&, const Identity&);
     ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
@@ -130,7 +132,8 @@ private:
 #endif
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForActivate;
-    bool _waitForDeactivate;
+    bool _destroying;
+    bool _destroyed;
 };
 
 }

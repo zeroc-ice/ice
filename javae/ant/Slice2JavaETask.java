@@ -135,13 +135,13 @@ public class Slice2JavaETask extends SliceTask
             String translator;
             if(_translator == null)
             {
-                if(_iceHome == null)
+                if(getIceHome() == null)
                 {
                     translator = "slice2javae";
                 }
                 else
                 {
-                    translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2javae").toString();
+                    translator = new File(getIceHome() + File.separator + "bin" + File.separator + "slice2javae").toString();
                 }
             }
             else

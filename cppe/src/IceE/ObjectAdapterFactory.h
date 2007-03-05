@@ -31,6 +31,8 @@ public:
 
     void shutdown();
     void waitForShutdown();
+    bool isShutdown() const;
+    void destroy();
 
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&
 #ifdef ICEE_HAS_ROUTER

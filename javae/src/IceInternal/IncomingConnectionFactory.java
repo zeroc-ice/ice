@@ -132,12 +132,15 @@ public final class IncomingConnectionFactory
 	    }
 	}
 
-	java.util.Enumeration p = connections.elements();
-	while(p.hasMoreElements())
-	{
-	    Ice.Connection connection = (Ice.Connection)p.nextElement();
-	    connection.waitUntilFinished();
-	}
+        if(connections != null)
+        {
+	    java.util.Enumeration p = connections.elements();
+	    while(p.hasMoreElements())
+	    {
+	        Ice.Connection connection = (Ice.Connection)p.nextElement();
+	        connection.waitUntilFinished();
+	    }
+        }
     }
 
     public Endpoint

@@ -224,7 +224,6 @@ Ice::ObjectAdapter::deactivate()
 	    wait();
 	}
 
-
 #ifdef ICEE_HAS_ROUTER
         if(_routerInfo)
         {
@@ -284,75 +283,116 @@ Ice::ObjectAdapter::deactivate()
 void
 Ice::ObjectAdapter::waitForDeactivate()
 {
+    vector<IceInternal::IncomingConnectionFactoryPtr> incomingConnectionFactories;
+
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-	//
-	// First we wait for deactivation of the adapter itself, and for
-	// the return of all direct method calls using this adapter.
-	//
-	while(!_deactivated || _directCount > 0)
-	{
-	    wait();
-	}
+        if(_destroyed)
+        {
+            return;
+        }
 
-	//
-	// If some other thread is currently deactivating, we wait
-	// until this thread is finished.
-	//
-	while(_waitForDeactivate)
-	{
-	    wait();
-	}
-	_waitForDeactivate = true;
+        //
+        // Wait for deactivation of the adapter itself, and for
+        // the return of all direct method calls using this adapter.
+        //
+        while(!_deactivated || _directCount > 0)
+        {
+            wait();
+        }
+
+        incomingConnectionFactories = _incomingConnectionFactories;
     }
 
     //
     // Now we wait until all incoming connection factories are
     // finished.
     //
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
+             Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+}
+
+bool
+Ice::ObjectAdapter::isDeactivated() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    return _deactivated;
+}
+
+void
+Ice::ObjectAdapter::destroy()
+{
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+        //
+        // Another thread is in the process of destroying the object
+        // adapter. Wait for it to finish.
+        //
+        while(_destroying)
+        {
+            wait();
+        }
+
+        //
+        // Object adapter is already destroyed.
+        //
+        if(_destroyed)
+        {
+            return;
+        }
+
+        _destroying = true;
+    }
+
+    //
+    // Deactivate and wait for completion.
+    //
+    deactivate();
+    waitForDeactivate();
 
     //
     // Now it's also time to clean up our servants and servant
     // locators.
     //
-    if(_instance) // Don't destroy twice.
-    {
-	_servantManager->destroy();
-    }
+    _servantManager->destroy();
 
     ObjectAdapterFactoryPtr objectAdapterFactory;
 
     {
-	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
-	//
-	// Signal that waiting is complete.
-	//
-	_waitForDeactivate = false;
-	notifyAll();
+        //
+        // Signal that destroy is complete.
+        //
+        _destroying = false;
+        _destroyed = true;
+        notifyAll();
 
-	//
-	// We're done, now we can throw away all incoming connection
-	// factories.
-	//
-	_incomingConnectionFactories.clear();
+        //
+        // We're done, now we can throw away all incoming connection
+        // factories.
+        //
+        _incomingConnectionFactories.clear();
 
-	//
-	// Remove object references (some of them cyclic).
-	//
-	_instance = 0;
-	_communicator = 0;
+        //
+        // Remove object references (some of them cyclic).
+        //
+        _instance = 0;
+        _communicator = 0;
 #ifdef ICEE_HAS_ROUTER
-	_routerInfo = 0;
+        _routerEndpoints.clear();
+        _routerInfo = 0;
 #endif
+        _publishedEndpoints.clear();
 #ifdef ICEE_HAS_LOCATOR
-	_locatorInfo = 0;
+        _locatorInfo = 0;
 #endif
-	objectAdapterFactory = _objectAdapterFactory;
-	_objectAdapterFactory = 0;
+
+        objectAdapterFactory = _objectAdapterFactory;
+        _objectAdapterFactory = 0;
     }
 
     if(objectAdapterFactory)
@@ -604,7 +644,8 @@ Ice::ObjectAdapter::ObjectAdapter(const InstancePtr& instance, const Communicato
 #endif
     _directCount(0),
     _waitForActivate(false),
-    _waitForDeactivate(false)
+    _destroying(false),
+    _destroyed(false)
 {
     __setNoDelete(true);
     try
@@ -730,10 +771,10 @@ Ice::ObjectAdapter::~ObjectAdapter()
 	Warning out(_instance->initializationData().logger);
 	out << "object adapter `" << _name << "' has not been deactivated";
     }
-    else if(_instance)
+    else if(!_destroyed)
     {
 	Warning out(_instance->initializationData().logger);
-	out << "object adapter `" << _name << "' deactivation had not been waited for";
+	out << "object adapter `" << _name << "' has not been destroyed";
     }
     else
     {
@@ -742,7 +783,6 @@ Ice::ObjectAdapter::~ObjectAdapter()
 	assert(_incomingConnectionFactories.empty());
 	assert(_directCount == 0);
 	assert(!_waitForActivate);
-	assert(!_waitForDeactivate);
     }
 }
 

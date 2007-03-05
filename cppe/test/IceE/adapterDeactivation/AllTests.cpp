@@ -42,11 +42,9 @@ allTests(const CommunicatorPtr& communicator)
         catch(const AlreadyRegisteredException&)
         {
         }
-        adapter->deactivate();
-        adapter->waitForDeactivate();
+        adapter->destroy();
         adapter = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
-        adapter->deactivate();
-        adapter->waitForDeactivate();
+        adapter->destroy();
         printf("ok\n");
     }
 

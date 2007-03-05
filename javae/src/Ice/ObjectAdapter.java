@@ -252,86 +252,120 @@ public final class ObjectAdapter
     public void
     waitForDeactivate()
     {
-	synchronized(this)
-	{
-	    //
-	    // First we wait for deactivation of the adapter itself, and
-	    // for the return of all direct method calls using this
-	    // adapter.
-	    //
-	    while(!_deactivated || _directCount > 0)
-	    {
-		try
-		{
-		    wait();
-		}
-		catch(InterruptedException ex)
-		{
-		}
-	    }
-	    
-	    //
-	    // If some other thread is currently deactivating, we wait
-	    // until this thread is finished.
-	    //
-	    while(_waitForDeactivate)
-	    {
-		try
-		{
-		    wait();
-		}
-		catch(InterruptedException ex)
-		{
-		}
-	    }
-	    _waitForDeactivate = true;
-	}
-	
-	//
-	// Now we wait for until all incoming connection factories are
-	// finished.
-	//
-	if(_incomingConnectionFactories != null)
-	{
-	    java.util.Enumeration e = _incomingConnectionFactories.elements();
-	    while(e.hasMoreElements())
-	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)e.nextElement();
-		factory.waitUntilFinished();
-	    }
-	}
-	
-	//
-	// Now it's also time to clean up our servants and servant
-	// locators.
-	//
-	if(_instance != null) // Don't destroy twice.
-	{
-	    _servantManager.destroy();
-	}
+        IceInternal.IncomingConnectionFactory[] incomingConnectionFactories;
+
+        synchronized(this)
+        {
+            if(_destroyed)
+            {
+                return;
+            }
+
+            //
+            // Wait for deactivation of the adapter itself, and
+            // for the return of all direct method calls using this
+            // adapter.
+            //
+            while(!_deactivated || _directCount > 0)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+
+            incomingConnectionFactories =
+                (IceInternal.IncomingConnectionFactory[])_incomingConnectionFactories.toArray(
+                    new IceInternal.IncomingConnectionFactory[0]);
+        }
+
+        //
+        // Now we wait for until all incoming connection factories are
+        // finished.
+        //
+        for(int i = 0; i < incomingConnectionFactories.length; ++i)
+        {
+            incomingConnectionFactories[i].waitUntilFinished();
+        }
+    }
+
+    public synchronized boolean
+    isDeactivated()
+    {
+        return _deactivated;
+    }
+
+    public void
+    destroy()
+    {
+        synchronized(this)
+        {
+            //
+            // Another thread is in the process of destroying the object
+            // adapter. Wait for it to finish.
+            //
+            while(_destroying)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+
+            //
+            // Object adpater is already destroyed.
+            //
+            if(_destroyed)
+            {
+                return;
+            }
+
+            _destroying = true;
+        }
+
+        //
+        // Deactivate and wait for completion.
+        //
+        deactivate();
+        waitForDeactivate();
+
+        //
+        // Now it's also time to clean up our servants and servant
+        // locators.
+        //
+        _servantManager.destroy();
 
         IceInternal.ObjectAdapterFactory objectAdapterFactory;
-	
-	synchronized(this)
-	{
-	    //
-	    // Signal that waiting is complete.
-	    //
-	    _waitForDeactivate = false;
-	    notifyAll();
 
-	    //
-	    // We're done, now we can throw away all incoming connection
-	    // factories.
-	    //
-	    _incomingConnectionFactories = null;
-	    
-	    //
-	    // Remove object references (some of them cyclic).
-	    //
-	    _instance = null;
-	    _communicator = null;
+        synchronized(this)
+        {
+            //
+            // Signal that destroying is complete.
+            //
+            _destroying = false;
+            _destroyed = true;
+            notifyAll();
+
+            //
+            // We're done, now we can throw away all incoming connection
+            // factories.
+            //
+            // For compatibility with C#, we set _incomingConnectionFactories
+            // to null so that the finalizer does not invoke methods on objects.
+            //
+            _incomingConnectionFactories = null;
+
+
+            //
+            // Remove object references (some of them cyclic).
+            //
+            _instance = null;
             _communicator = null;
             _routerEndpoints = null;
             _routerInfo = null;
@@ -340,7 +374,7 @@ public final class ObjectAdapter
 
             objectAdapterFactory = _objectAdapterFactory;
             _objectAdapterFactory = null;
-	}
+        }
 
         if(objectAdapterFactory != null)
         {
@@ -595,7 +629,8 @@ public final class ObjectAdapter
 	_replicaGroupId = instance.initializationData().properties.getProperty(name + ".ReplicaGroupId");
 	_directCount = 0;
 	_waitForActivate = false;
-	_waitForDeactivate = false;
+	_destroying = false;
+	_destroyed = false;
 	
         try
         {
@@ -724,10 +759,10 @@ public final class ObjectAdapter
 	{
 	    _instance.initializationData().logger.warning("object adapter `" + _name + "' has not been deactivated");
 	}
-	else if(_instance != null)
+	else if(!_destroyed)
 	{
 	    _instance.initializationData().logger.warning("object adapter `" + _name +
-	    						  "' deactivation had not been waited for");
+	    						  "' has not been destroyed");
 	}
 	else
 	{
@@ -736,7 +771,6 @@ public final class ObjectAdapter
 	    IceUtil.Debug.FinalizerAssert(_incomingConnectionFactories == null);
 	    IceUtil.Debug.FinalizerAssert(_directCount == 0);
 	    IceUtil.Debug.FinalizerAssert(!_waitForActivate);
-	    IceUtil.Debug.FinalizerAssert(!_waitForDeactivate);
 	}
     }
 
@@ -982,5 +1016,6 @@ public final class ObjectAdapter
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
     private boolean _waitForActivate;
-    private boolean _waitForDeactivate;
+    private boolean _destroying;
+    private boolean _destroyed;
 }

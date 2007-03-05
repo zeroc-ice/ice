@@ -28,6 +28,7 @@ public:
     void destroy();
     void shutdown();
     void waitForShutdown();
+    bool isShutdown() const;
 
     ObjectPrx stringToProxy(const std::string&) const;
     std::string proxyToString(const ObjectPrx&) const;
