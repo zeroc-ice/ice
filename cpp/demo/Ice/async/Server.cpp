@@ -45,6 +45,7 @@ AsyncServer::run(int argc, char* argv[])
     adapter->activate();
 
     communicator()->waitForShutdown();
+    _workQueue->getThreadControl().join();
     return EXIT_SUCCESS;
 }
 
@@ -52,18 +53,5 @@ void
 AsyncServer::interruptCallback(int)
 {
     _workQueue->destroy();
-    _workQueue->getThreadControl().join();
-
-    try
-    {
-        communicator()->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << appName() << ": " << ex << endl;
-    }
-    catch(...)
-    {
-        cerr << appName() << ": unknown exception" << endl;
-    }
+    communicator()->shutdown();
 }

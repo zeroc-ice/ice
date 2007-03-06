@@ -82,8 +82,6 @@ class HelloI(Demo.Hello):
 
     def shutdown(self, current=None):
         self._workQueue.destroy()
-        self._workQueue.join()
-
         current.adapter.getCommunicator().shutdown();
 
 class Server(Ice.Application):
@@ -98,16 +96,12 @@ class Server(Ice.Application):
         adapter.activate()
         
         self.communicator().waitForShutdown()
+        self._workQueue.join()
         return 0
 
     def interruptCallback(self, sig):
         self._workQueue.destroy()
-        self._workQueue.join()
-
-        try:
-            self._communicator.destroy()
-        except:
-            traceback.print_exc()
+        self._communicator.shutdown()
 
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

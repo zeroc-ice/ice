@@ -28,8 +28,6 @@ Public Class HelloI
 
     Public Overloads Overrides Sub shutdown(ByVal current As Ice.Current)
         _workQueue.destroy()
-        _workQueue.Join()
-
         current.adapter.getCommunicator().shutdown()
     End Sub
     

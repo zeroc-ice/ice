@@ -21,26 +21,14 @@ public class Server : Ice.Application
         adapter.activate();
 
         communicator().waitForShutdown();
+        _workQueue.Join();
         return 0;
     }
 
     public override void interruptCallback(int sig)
     {
         _workQueue.destroy();
-        _workQueue.Join();
-
-        try
-        {
-            communicator().destroy();
-        }
-        catch(Ice.Exception ex)
-        {
-            System.Console.Error.WriteLine(appName() + ": " + ex);
-        }
-        catch(System.Exception ex)
-        {
-            System.Console.Error.WriteLine(appName() + ": unknown exception: " + ex);
-        }
+        communicator().shutdown();
     }
 
     public static void Main(string[] args)

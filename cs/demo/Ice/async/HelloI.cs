@@ -33,8 +33,6 @@ public class HelloI : HelloDisp_
     public override void shutdown(Ice.Current current)
     {
         _workQueue.destroy();
-        _workQueue.Join();
-
         current.adapter.getCommunicator().shutdown();
     }
 

@@ -17,22 +17,7 @@ public class Server extends Ice.Application
         run()
         {
             _workQueue.destroy();
-            try
-            {
-                _workQueue.join();
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
-
-            try
-            {
-                communicator().destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-            }
+            communicator().shutdown();
         }
     }
 
@@ -49,6 +34,15 @@ public class Server extends Ice.Application
         adapter.activate();
 
         communicator().waitForShutdown();
+
+        try
+        {
+            _workQueue.join();
+        }
+        catch(java.lang.InterruptedException ex)
+        {
+        }
+
         return 0;
     }
 

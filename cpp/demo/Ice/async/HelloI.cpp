@@ -37,7 +37,5 @@ HelloI::shutdown(const Ice::Current& curr)
     cout << "Shutting down..." << endl;
 
     _workQueue->destroy();
-    _workQueue->getThreadControl().join();
-
     curr.adapter->getCommunicator()->shutdown();
 }

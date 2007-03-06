@@ -23,20 +23,13 @@ Module AsyncS
             adapter.activate()
 
             communicator().waitForShutdown()
+            _workQueue.Join()
             Return 0
         End Function
 
         Public Overloads Overrides Sub interruptCallback(ByVal sig As Integer)
             _workQueue.destroy()
-            _workQueue.Join()
-
-            Try
-                communicator().destroy()
-            Catch ex As Ice.LocalException
-                Console.Error.WriteLine(ex)
-            Catch ex As System.Exception
-                Console.Error.WriteLine(ex)
-            End Try
+            communicator().shutdown()
         End Sub
 
         Private _workQueue As WorkQueue
