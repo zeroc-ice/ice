@@ -47,7 +47,6 @@ install::
 		$(call mkdir,$(install_docdir)/reference) ; \
 	    fi ; \
 	    echo "Installing HTML..." ; \
-	    $(call installdata,index.html,$(install_docdir)) ; \
 	    $(call installdata,reference/*.*,$(install_docdir)/reference) ; \
             for i in reference/*; \
             do if test -d $$i ; \
