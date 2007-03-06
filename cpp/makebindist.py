@@ -1186,9 +1186,9 @@ def main():
     runprog("rm -f Ice-%s/config/Make.rules*" % (version))
 
     # 
-    # Remove html reference files from binary distribution. 
+    # Remove doc from binary distribution. 
     #
-    runprog("rm -rf Ice-%s/doc/reference" % (version))
+    runprog("rm -rf Ice-%s/doc" % (version))
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatformString() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatformString() + '.tar')
