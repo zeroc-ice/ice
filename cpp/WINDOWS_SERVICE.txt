@@ -1,135 +1,63 @@
 This file describes how to install the IceGrid registry, IceGrid node,
-and Glacier2 router as Windows services.
+and Glacier2 router as Windows services using the sample configuration
+files included in the Ice distribution.
 
 
-Overview
---------
+Selecting a User Account
+------------------------
 
-There are several issues to consider before installing any Windows
-service:
+Before installing a service, you should give careful consideration to
+the user account that will run the service. None of the Ice services
+require privileges beyond a normal user account, therefore we
+recommend that you use the built-in account that Windows provides
+specifically for this purpose. The fully-qualified name for this
+account is "NT AUTHORITY\LocalService"; in an English locale, its name
+is displayed as "Local Service".
 
-* Under what user account will the service run?
-* What files does the service need to access?
-* Does the service create new files or directories?
-* What other resources does the service require?
-* Does the Windows Firewall need to be configured for the service?
-
-Your choice for the user account influences the actions that are
-required to address the remaining issues shown above. We recommend
-that you use the "Local Service" user account.
-
-After selecting a user account, your next task is to prepare whatever
-filesystem resources are required and ensure that the service has the
-necessary permissions to access those resources. A common mistake is
-assuming that the service will be able to access a file or directory
-that you created using your current account. With careful planning and
-preparation, you can avoid failures caused by insufficient permissions
-that are often difficult to diagnose.
+Once you have chosen a user account for the service, you may need to
+perform additional steps to prepare the service's resources. For
+example, the IceGrid services require subdirectories in which to store
+their persistent data. These subdirectories must be configured with
+the proper permissions so that they can be accessed by the designated
+user account. A common mistake is assuming that the service will be
+able to access a file or directory that you created using your current
+account. With careful planning and preparation, you can avoid failures
+caused by insufficient permissions that are often difficult to
+diagnose.
 
 
-Filesystem Resources
---------------------
- 
-Windows services generally require access to filesystem resources, and
-Ice services are no exception. For example, an Ice service is often
-configured using a configuration file, and at a minimum the service
-requires read access to that file (the Ice run time never writes to a
-configuration file). The service may also need the ability to create
-files and databases to maintain its persistent state.
+Configuration Files
+-------------------
 
-For the purposes of this discussion, let us assume that you have
-decided to use "Local Service" as the user account for your service,
-and that you need to create a directory in which to store the
-service's configuration file. As an example, we will use the following
-directory for an English locale on Windows XP and Windows Server 2003:
+The sample configuration files can be found in <ice-home>/config,
+where <ice-home> represents your Ice installation directory. We
+recommend that you review the comments and settings in these files to
+familiarize yourself with a typical configuration of each service.
 
-  C:\Documents and Settings\Local Service\Local Settings\Application Data\ZeroC
+You can modify a configuration file to suit your needs, copy one to
+use as a starting point for your own configuration, or create an
+entirely new file. You can even omit a configuration file altogether
+and use command-line options to define your properties, but we do not
+recommend that approach because it requires that you reinstall the
+service each time you need to change its command-line options.
 
-Note that we would use a different directory on Windows Vista:
+A service must have read access to its configuration file (the Ice run
+time never writes to a configuration file). If you used a binary Ice
+installer, the sample configuration files should already have the
+necessary permissions. If you want to verify or modify the access
+rights of a configuration file, refer to the section Filesystem
+Resources below for more information.
 
-  C:\Users\Local Service\AppData\Local\ZeroC
-
-In the discussion below, we use the Windows XP/Windows Server 2003
-directory for our examples.
-
-For the service to be able to read its configuration file, it must
-have sufficient privileges to access the entire directory hierarchy.
-In a command window, we execute the following steps to create the
-"Local Service" directory:
-
-  > cd \Documents and Settings
-  > mkdir "Local Service"
-
-At this point we could create the rest of the directory hierarchy and
-then create a configuration file. However, a newly-created file or
-directory inherits the privileges of its enclosing directory, and we
-have not yet modified the privileges of the "Local Service" directory
-to grant access to the Local Service account. At present, the
-privileges of the "Local Service" directory are inherited from
-"Documents and Settings" and require modification. In general, it is
-better to establish the necessary access rights on the parent
-directory prior to creating any subdirectories or files, so we will
-modify the "Local Service" directory first.
-
-On all Windows systems, we can use the command-line utility "cacls",
-which is described at the link below:
-
-  http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/cacls.mspx?mfr=true
-
-The following command does what we need:
-
-  > cacls "Local Service" /G "Local Service":F Administrators:F
-
-By omitting the /E option to cacls, we have replaced all of the
-prior access rights on the directory with the rights given in this
-command. As a result, the Local Service account and anyone in the
-Administrators group are granted full access to the directory,
-while all others are forbidden. (We grant full access to the
-Administrators group because presumably someone other than the
-Local Service account will need to manage the subdirectory,
-create the configuration file, an so on). You can verify the
-directory's current privilege settings by running cacls without
-options:
-
-  > cacls "Local Service"
-
-Now we can create the remaining subdirectories and the service's
-configuration file, and they will automatically inherit the access
-rights we established for the "Local Service" directory. If you want
-to further restrict access to files or subdirectories, you can modify
-them as necessary using the cacls utility. Note however that certain
-actions may cause a file to revert back to the access rights of its
-enclosing directory. For example, modifying a file using a text editor
-is often the equivalent of erasing the file and recreating it, which
-discards any access rights you may have previously set for the file.
-
-On some versions of Windows XP, and on Windows Server 2003 and Windows
-Vista, you can manage privilege settings interactively using Windows
-Explorer. For example, right click on the "Local Service" directory,
-select Properties, and select the Security tab. Next select Advanced
-and Edit, uncheck "Include inheritable permissions from this object's
-parent", and select Copy. Remove all permission entries, then add
-entries for Local Service and the Administrators group and grant "Full
-Control" to each.
+The instructions that follow assume that you are using the sample
+configuration files.
 
 
 Installing a Glacier2 Router Service
 ------------------------------------
 
 The Glacier2 router has no persistent state aside from an optional
-configuration file that is read at startup. A default configuration
-file is included with the Ice distribution and can be found in
-<ice-home>\config\glacier2router.cfg, where <ice-home> is the
-directory of your Ice installation. You should review the comments and
-property settings in this file to familiarize yourself with a typical
-router installation.
-
-You can modify the default configuration file to suit your needs, copy
-it to use as a starting point for your own configuration, or create an
-entirely new file. You can even omit a configuration file altogether
-and use command-line options to define your properties, but we do not
-recommend that approach because it requires that you reinstall the
-service each time you need to change its command-line options.
+configuration file that is read at startup. The sample configuration
+file can be found in <ice-home>\config\glacier2router.cfg.
 
 Follow these steps to install a Glacier2 router as a service:
 
@@ -137,9 +65,6 @@ Follow these steps to install a Glacier2 router as a service:
 
    > glacier2router --install Glacier2Router \
      --Ice.Config=<ice-home>\config\glacier2router.cfg
-
-   If you are using a different configuration file, modify the
-   --Ice.Config option to use the proper path name.
 
    Installing the service on Windows Vista with UAC enabled requires
    administrator privileges. In this case, run the command shell as
@@ -158,9 +83,7 @@ Follow these steps to install a Glacier2 router as a service:
 
 3. Verify that the user account you selected for the service has
    access to the configuration file and its enclosing directory, as
-   described in the Filesystem Resources section above. If you are
-   using the default configuration file, it likely already has
-   sufficient privileges to allow the service to read the file.
+   described in the Filesystem Resources section below.
 
 4. Start the service and verify that it started successfully. If
    the service failed to start, check the Event Log for error
@@ -171,22 +94,10 @@ Installing an IceGrid Registry or Node Service
 ----------------------------------------------
 
 The IceGrid registry and node services each require full access to
-subdirectories. The default configuration files included with the Ice
-distribution contain settings that reflect our recommendations for
-these directories, but you can use the directories of your choosing.
-These configuration files (icegridregistry.cfg and icegridnode.cfg)
-can be found in the directory <ice-home>\config, where <ice-home> is
-the directory of your Ice installation. You should review the comments
-and property settings in these files to familiarize yourself with a
-typical IceGrid installation.
-
-You can modify the default configuration files to suit your needs,
-copy them to use as a starting point for your own configuration, or
-create entirely new files. You can even omit configuration files
-altogether and use command-line options to define your properties, but
-we do not recommend that approach because it requires that you
-reinstall a service each time you need to change its command-line
-options.
+subdirectories. The sample configuration files contain settings that
+reflect our recommendations for these directories, but you can use the
+directories of your choosing. The sample configuration files are named
+icegridregistry.cfg and icegridnode.cfg.
 
 Several installation options are available for IceGrid registry and
 node services. You are not required to install both a registry and
@@ -207,9 +118,6 @@ services:
    > icegridregistry --install IceGridRegistry \
      --Ice.Config=<ice-home>\config\icegridregistry.cfg
 
-   If you are using different configuration files, modify the
-   --Ice.Config options to use the proper path names.
-
    Installing a service on Windows Vista with UAC enabled requires
    administrator privileges. In this case, run the command shell as
    administrator, right-click the command shell icon and select "Run
@@ -228,12 +136,10 @@ services:
 
 3. Verify that the user account you selected for the services has
    access to the configuration files and their enclosing directories,
-   as described in the Filesystem Resources section above. If you are
-   using the default configuration files, they likely already have
-   sufficient privileges to allow the services to read the files.
+   as described in the Filesystem Resources section above.
 
 4. Prepare the subdirectories for each service using the steps
-   outlined in the Filesystem Resources section above. The services
+   outlined in the Filesystem Resources section below. The services
    require that their subdirectories already exist.
 
    For the registry service, create the directory identified by the
@@ -250,12 +156,94 @@ services:
    a service failed to start, check the Event Log for error messages.
 
 
+Filesystem Resources
+--------------------
+ 
+Windows services generally require access to filesystem resources, and
+Ice services are no exception. For example, an Ice service typically
+has a configuration file that it must have permission to read; the
+service may also need the ability to create files and databases to
+maintain its persistent state.
+
+As an example, let us assume that you have decided to use the "Local
+Service" user account and that you need to create the directories
+required by the IceGrid services. The sample configuration files use
+the following parent directory on Windows XP and Windows Server 2003
+(note that this path name is locale dependent):
+
+  C:\Documents and Settings\Local Service\Local Settings\Application Data\ZeroC\icegrid
+
+Note that we would use a different directory on Windows Vista:
+
+  C:\Users\Local Service\AppData\Local\ZeroC\icegrid
+
+In the discussion below, we use the Windows XP/Windows Server 2003
+directory for our examples.
+
+Although "Local Service" is a built-in account, it may not have a
+user directory yet. In a command window, we execute the following
+steps to create the directory:
+
+  > cd \Documents and Settings
+  > mkdir "Local Service"
+
+At this point we could create the rest of the directory hierarchy.
+However, a newly-created directory inherits the privileges of its
+enclosing directory, and we have not yet modified the privileges of
+the "Local Service" directory to grant access to the "Local Service"
+account. At present, the privileges of the "Local Service" directory
+are inherited from "Documents and Settings" and require modification.
+In general, it is better to establish the necessary access rights on
+the parent directory prior to creating any subdirectories, so we will
+modify the "Local Service" directory first.
+
+On all Windows systems, we can use the command-line utility "cacls",
+which is described at the link below:
+
+  http://www.microsoft.com/resources/documentation/windows/xp/all/proddocs/en-us/cacls.mspx?mfr=true
+
+The following command does what we need:
+
+  > cacls "Local Service" /G "Local Service":F Administrators:F
+
+By omitting the /E option to cacls, we have replaced all of the
+prior access rights on the directory with the rights given in this
+command. As a result, the "Local Service" account and anyone in the
+Administrators group are granted full access to the directory,
+while all others are forbidden. (We grant full access to the
+Administrators group because presumably someone other than the
+"Local Service" account will need to manage the subdirectory,
+create the configuration file, an so on). You can verify the
+directory's current privilege settings by running cacls without
+options:
+
+  > cacls "Local Service"
+
+Now we can create the remaining subdirectories, and they will
+automatically inherit the access rights we established for the "Local
+Service" directory. If you want to further restrict access to files or
+subdirectories, you can modify them as necessary using the cacls
+utility. Note however that certain actions may cause a file to revert
+back to the access rights of its enclosing directory. For example,
+modifying a file using a text editor is often the equivalent of
+erasing the file and recreating it, which discards any access rights
+you may have previously set for the file.
+
+On some versions of Windows XP, and on Windows Server 2003 and Windows
+Vista, you can manage privilege settings interactively using Windows
+Explorer. For example, right click on the "Local Service" directory,
+select Properties, and select the Security tab. Next select Advanced
+and Edit, uncheck "Include inheritable permissions from this object's
+parent", and select Copy. Remove all permission entries, then add
+entries for Local Service and the Administrators group and grant "Full
+Control" to each.
+
+
 IceGrid Node Performance Monitoring
 -----------------------------------
 
 The IceGrid node's user account must have permission to read the
-following registry key if you intend to use IceGrid's adaptive load-
-balancing policy:
+following registry key:
 
 HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib
 
@@ -265,8 +253,8 @@ required if the IceGrid node runs under the "Local Service" account
 use Windows XP, or if you run the IceGrid node under a different
 account, you must edit the permissions of the Perflib registry key.
 
-The simplest approach is to edit the permissions of the registry key
-directly:
+The simplest approach is to modify the permissions of the registry key
+directly using regedit:
 
 1. Start regedit. Navigate to the above key.
 
