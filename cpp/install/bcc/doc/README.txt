@@ -36,6 +36,14 @@ Supported Windows versions
 This distribution is supported on Windows XP with Service Pack 2.
 
 
+Running IceGrid and Glacier2 components as services
+---------------------------------------------------
+
+The WINDOWS_SERVICES.txt file included in this distribution contains
+information on how to install and run the IceGrid registry, IceGrid
+node, and Glacier2 router as Windows services.
+
+
 Demos and documentation
 -----------------------
 
