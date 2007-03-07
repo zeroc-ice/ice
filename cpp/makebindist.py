@@ -260,8 +260,11 @@ def editMakeRules(filename, version):
     reIceLocation = re.compile('^[a-z]*dir.*=\s*\$\(top_srcdir\)')
 
     makefile =  fileinput.input(filename, True)
+    skipLine = 0
     for line in makefile:
-        if line.startswith('slicedir'):
+        if (skipLine > 0):
+            skipLine = skipLine - 1 
+        elif line.startswith('slicedir'):
             print """
 ifeq ($(ICE_DIR),/usr)
    slicedir = $(ICE_DIR)/share/Ice-$(VERSION)/slice
@@ -270,18 +273,21 @@ else
 endif
 """
         elif line.startswith('embedded_runpath_prefix'):
-                state = 'untilblank'
-                print """
-ifneq ($(ICE_DIR),/usr)
-   embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
-endif
-"""
-        elif line.startswith('embedded_runpath_prefix'):
             # 
             # embedded_runpath_prefix is moved down to after the version
             # information is set.
             #
             pass
+        elif line.startswith('# Select an installation base directory'):
+            #
+            # Delete this comment
+            #
+            skipLine = 2
+        elif line.startswith('# The "root directory" for runpath'):
+            #
+            # Delete this comment
+            #
+            skipLine = 2
         elif reIceLocation.search(line) <> None:
             output = line.rstrip('\n').replace('top_srcdir', 'ICE_DIR', 10)
             if line.startswith('libdir'):
@@ -315,7 +321,7 @@ endif
 
         elif line.startswith('install_'):
             #
-            # Do nothing.
+            # Delete
             #
             pass
         elif line.startswith('SOVERSION'):
@@ -332,25 +338,25 @@ ifeq ($(ICE_HOME),)
     ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
         NEXTDIR = /opt/Ice-$(VERSION)
         ifneq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
-$(error Unable to locate Ice distribution, please set ICE_HOME!)
+           $(error Unable to locate Ice distribution, please set ICE_HOME!)
         else
             ICE_DIR = $(NEXTDIR)
         endif
     else
         NEXTDIR = /opt/Ice-$(VERSION)
         ifeq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
-$(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
+           $(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
         endif
     endif
 else
     ICE_DIR = $(ICE_HOME)
     ifneq ($(shell test -f $(ICE_DIR)/bin/icestormadmin && echo 0),0)
-$(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
+       $(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
     endif
 endif
 
 ifneq ($(ICE_DIR),/usr)
-embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+   embedded_runpath_prefix  ?= /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
 endif
 
 prefix = $(ICE_DIR)
@@ -358,11 +364,9 @@ prefix = $(ICE_DIR)
 """
         elif line.startswith('prefix'):
             #
-            # Delete the prefix line. It will be set later on after
-            # SOVERSION.
+            # Delete prefix line
             #
-            print "# 'prefix' is automatically defined later on in this file using default"
-            print "# locations or ICE_HOME"
+            pass
         else:
             print line.rstrip('\n')
 
