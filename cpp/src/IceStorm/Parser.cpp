@@ -299,17 +299,9 @@ Parser::dolist(const list<string>& _args)
                 manager = _defaultManager;
             }
             TopicDict d = manager->retrieveAll();
-            if(!d.empty())
+            for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
             {
-                for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
-                {
-                    if(i != d.begin())
-                    {
-                        cout << ", ";
-                    }
-                    cout << i->first;
-                }
-                cout << endl;
+                cout << i->first << endl;
             }
         }
         else
@@ -326,12 +318,12 @@ Parser::dolist(const list<string>& _args)
                     LinkInfoSeq links = topic->getLinkInfoSeq();
                     for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
                     {
-                        cout << (*p).name << " with cost " << (*p).cost << endl;
+                        cout << arg << " to " << (*p).name << " with cost " << (*p).cost << endl;
                     }
                 }
-                catch(const NoSuchTopic&)
+                catch(const NoSuchTopic& ex)
                 {
-                    cout << "No such topic" << endl;
+                    cout << "Topic `" << ex.name << "' not found" << endl;
                 }
             }
         }
