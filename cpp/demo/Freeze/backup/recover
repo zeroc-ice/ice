@@ -1,5 +1,19 @@
 #!/bin/sh
 
+#
+# Prefix for utilities
+#
+db="db"
+
+#
+# db45 RPM installation use the db45_ prefix for db utilities
+#
+if [ -x /usr/bin/db45_archive ]
+then
+   db="db45"
+fi
+
+
 case $1 in
   "full" | "incremental") echo "Performing $1 recovery"
           
@@ -28,7 +42,7 @@ case $1 in
           \rm -r db/logs/save
 
           echo "====== Please run now ======"
-          echo "% db_recover -c -h db"
+          echo "% ${db}_recover -c -h db"
           echo "or"
           echo "client with Freeze.DbEnv.backup.DbRecoverFatal=1"
           ;;

@@ -61,3 +61,9 @@ incremental'.
 Before doing a recover, you can "corrupt" the main database, for
 example by removing the data file (db/data/IntLongMap), or add random
 characters to the latest log file.
+
+RPM installation note
+---------------------
+If you use a RPM installation of Berkeley DB 4.5.20, you need to install
+the db45-utils RPM to get the Berkeley DB utilities (db45_checkpoint
+and db45_archive) used by the backup shell script.
