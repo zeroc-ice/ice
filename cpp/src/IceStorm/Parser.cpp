@@ -80,14 +80,15 @@ void
 Parser::usage()
 {
     cout <<
-        "help                         Print this message.\n"
-        "exit, quit                   Exit this program.\n"
-        "create TOPICS                Add TOPICS.\n"
-        "destroy TOPICS               Remove TOPICS.\n"
-        "link FROM TO [COST]          Link FROM to TO with the optional given COST.\n"
-        "unlink FROM TO               Unlink TO from FROM.\n"
-        "list INSTANCE-NAME [TOPICS]  Display information on TOPICS or all topics for the given service.\n"
-        "current [INSTANCE-NAME]      Set the current topic manager.\n"
+        "help                           Print this message.\n"
+        "exit, quit                     Exit this program.\n"
+        "create TOPICS                  Add TOPICS.\n"
+        "destroy TOPICS                 Remove TOPICS.\n"
+        "link FROM TO [COST]            Link FROM to TO with the optional given COST.\n"
+        "unlink FROM TO                 Unlink TO from FROM.\n"
+        "list [INSTANCE-NAME [TOPICS]]  Display link information for TOPICS, or list\n"
+        "                               all topics for the given service.\n"
+        "current [INSTANCE-NAME]        Set the current topic manager.\n"
         ;
 }
 
@@ -325,12 +326,12 @@ Parser::dolist(const list<string>& _args)
                     LinkInfoSeq links = topic->getLinkInfoSeq();
                     for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
                     {
-                        cout << "\t" << (*p).name << " with cost " << (*p).cost << endl;
+                        cout << (*p).name << " with cost " << (*p).cost << endl;
                     }
                 }
                 catch(const NoSuchTopic&)
                 {
-                    cout << "\tNo such topic" << endl;
+                    cout << "No such topic" << endl;
                 }
             }
         }
