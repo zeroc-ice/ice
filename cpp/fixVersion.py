@@ -324,7 +324,7 @@ if not patchIceE:
         fileMatchAndReplace(os.path.join(icevb_home, "demo", "IceStorm", "clock", "config.icebox"),
                             [("IceStormService,([0-9]+b?)", soVersion(version))])
 
-        for f in find(icecs_home, "config*"):
+        for f in find(icevb_home, "config*"):
             print "matching " + f
             fileMatchAndReplace(f, 
                                 [("Version=*([0-9]*\.[0-9]*\.[0-9]*).0",
