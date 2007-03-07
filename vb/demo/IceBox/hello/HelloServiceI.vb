@@ -20,7 +20,7 @@ Module HelloIceBoxS
         End Sub
 
         Public Overridable Sub [stop]() Implements IceBox.Service.stop
-            _adapter.deactivate()
+            _adapter.destroy()
         End Sub
 
         Private _adapter As Ice.ObjectAdapter
