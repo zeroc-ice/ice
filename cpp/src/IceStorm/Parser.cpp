@@ -87,7 +87,7 @@ Parser::usage()
         "link FROM TO [COST]            Link FROM to TO with the optional given COST.\n"
         "unlink FROM TO                 Unlink TO from FROM.\n"
         "list [INSTANCE-NAME [TOPICS]]  Display link information for TOPICS, or list\n"
-        "                               all topics for the given service.\n"
+        "                               all topics for the given topic manager.\n"
         "current [INSTANCE-NAME]        Set the current topic manager.\n"
         ;
 }
