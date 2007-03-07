@@ -313,12 +313,12 @@ Apache1 and Apache2:
 
    bzip2.dll
    icecpp.exe
-   ice32b.dll
-   iceutil32b.dll
+   ice@libver@.dll
+   iceutil@libver@.dll
    msvcp60.dll
    msvcrt.dll
    php_ice.dll
-   slice32b.dll
+   slice@libver@.dll
    stlport_vc646.dll
 
    NOTE: If you modify the System PATH, you will need to restart your
