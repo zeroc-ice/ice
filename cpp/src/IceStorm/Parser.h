@@ -70,14 +70,13 @@ public:
 
     void create(const std::list<std::string>&);
     void destroy(const std::list<std::string>&);
-    void dolist(const std::list<std::string>&); // Don't name list - conflicts with std::list
     void link(const std::list<std::string>&);
     void unlink(const std::list<std::string>&);
+    void links(const std::list<std::string>&);
+    void topics(const std::list<std::string>&);
     void current(const std::list<std::string>&);
 
     void showBanner();
-    void showCopying();
-    void showWarranty();
 
     void getInput(char*, int&, int);
     void nextLine();

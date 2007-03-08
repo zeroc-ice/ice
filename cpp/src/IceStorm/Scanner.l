@@ -116,10 +116,6 @@ NL	[\n]
     return ICE_STORM_DESTROY;
 }
 
-"list" {
-    return ICE_STORM_LIST;
-}
-
 "link" {
     return ICE_STORM_LINK;
 }
@@ -128,16 +124,12 @@ NL	[\n]
     return ICE_STORM_UNLINK;
 }
 
-"show" {
-    return ICE_STORM_SHOW;
+"links" {
+    return ICE_STORM_LINKS;
 }
 
-"copying" {
-    return ICE_STORM_COPYING;
-}
-
-"warranty" {
-    return ICE_STORM_WARRANTY;
+"topics" {
+    return ICE_STORM_TOPICS;
 }
 
 {WS}*(\\{WS}*{NL})? {

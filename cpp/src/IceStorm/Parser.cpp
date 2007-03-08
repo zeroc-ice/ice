@@ -80,15 +80,18 @@ void
 Parser::usage()
 {
     cout <<
-        "help                           Print this message.\n"
-        "exit, quit                     Exit this program.\n"
-        "create TOPICS                  Add TOPICS.\n"
-        "destroy TOPICS                 Remove TOPICS.\n"
-        "link FROM TO [COST]            Link FROM to TO with the optional given COST.\n"
-        "unlink FROM TO                 Unlink TO from FROM.\n"
-        "list [INSTANCE-NAME [TOPICS]]  Display link information for TOPICS, or list\n"
-        "                               all topics for the given topic manager.\n"
-        "current [INSTANCE-NAME]        Set the current topic manager.\n"
+        "help                     Print this message.\n"
+        "exit, quit               Exit this program.\n"
+        "create TOPICS            Add TOPICS.\n"
+        "destroy TOPICS           Remove TOPICS.\n"
+        "link FROM TO [COST]      Link FROM to TO with the optional given COST.\n"
+        "unlink FROM TO           Unlink TO from FROM.\n"
+        "links [INSTANCE-NAME]    Display all links for the topics in the current topic\n"
+        "                         manager, or in the given INSTANCE-NAME.\n"
+        "topics [INSTANCE-NAME]   Display the names of all topics in the current topic\n"
+        "                         manager, or in the given INSTANCE-NAME.\n"
+        "current [INSTANCE-NAME]  Display the current topic manager, or change it to\n"
+        "                         INSTANCE-NAME.\n"
         ;
 }
 
@@ -255,6 +258,78 @@ Parser::unlink(const list<string>& _args)
 }
 
 void
+Parser::links(const list<string>& args)
+{
+    if(args.size() > 1)
+    {
+        error("`links' requires at most one argument (type `help' for more info)");
+        return;
+    }
+
+    try
+    {
+        IceStorm::TopicManagerPrx manager;
+        if(args.size() == 0)
+        {
+            manager = _defaultManager;
+        }
+        else
+        {
+            manager = findManagerByCategory(args.front());
+        }
+        TopicDict d = manager->retrieveAll();
+        for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+        {
+            LinkInfoSeq links = i->second->getLinkInfoSeq();
+            for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
+            {
+                cout << i->first << " to " << (*p).name << " with cost " << (*p).cost << endl;
+            }
+        }
+    }
+    catch(const Exception& ex)
+    {
+        ostringstream s;
+        s << ex;
+        error(s.str());
+    }
+}
+
+void
+Parser::topics(const list<string>& args)
+{
+    if(args.size() > 1)
+    {
+        error("`topics' requires at most one argument (type `help' for more info)");
+        return;
+    }
+
+    try
+    {
+        IceStorm::TopicManagerPrx manager;
+        if(args.size() == 0)
+        {
+            manager = _defaultManager;
+        }
+        else
+        {
+            manager = findManagerByCategory(args.front());
+        }
+        TopicDict d = manager->retrieveAll();
+        for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+        {
+            cout << i->first << endl;
+        }
+    }
+    catch(const Exception& ex)
+    {
+        ostringstream s;
+        s << ex;
+        error(s.str());
+    }
+}
+
+void
 Parser::current(const list<string>& _args)
 {
     list<string> args = _args;
@@ -281,77 +356,9 @@ Parser::current(const list<string>& _args)
 }
 
 void
-Parser::dolist(const list<string>& _args)
-{
-    list<string> args = _args;
-
-    try
-    {
-        if(args.size() <= 1)
-        {
-            IceStorm::TopicManagerPrx manager;
-            if(args.size() == 1)
-            {
-                manager = findManagerByCategory(args.front());
-            }
-            else
-            {
-                manager = _defaultManager;
-            }
-            TopicDict d = manager->retrieveAll();
-            for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
-            {
-                cout << i->first << endl;
-            }
-        }
-        else
-        {
-            IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
-            args.pop_front();
-            while(!args.empty())
-            {
-                try
-                {
-                    string arg = args.front();
-                    args.pop_front();
-                    TopicPrx topic = manager->retrieve(arg);
-                    LinkInfoSeq links = topic->getLinkInfoSeq();
-                    for(LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
-                    {
-                        cout << arg << " to " << (*p).name << " with cost " << (*p).cost << endl;
-                    }
-                }
-                catch(const NoSuchTopic& ex)
-                {
-                    cout << "Topic `" << ex.name << "' not found" << endl;
-                }
-            }
-        }
-    }
-    catch(const Exception& ex)
-    {
-        ostringstream s;
-        s << ex;
-        error(s.str());
-    }
-}
-
-void
 Parser::showBanner()
 {
     cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2007 ZeroC, Inc." << endl;
-}
-
-void
-Parser::showCopying()
-{
-    cout << "This command is not implemented." << endl;
-}
-
-void
-Parser::showWarranty()
-{
-    cout << "This command is not implemented." << endl;
 }
 
 void
