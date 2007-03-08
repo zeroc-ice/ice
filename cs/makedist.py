@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re
+import os, sys, shutil, fnmatch, re, fileinput
 
 #
 # Show usage information.
@@ -53,6 +53,16 @@ def fixVersion(files, version, dotnetversion):
         newFile.close()
         oldFile.close()
         os.remove(origfile)
+
+
+def editMakefileMak(file):
+    makefile =  fileinput.input(file, True)
+    for line in makefile:
+        if line.startswith('!include'):
+            print '!include $(top_srcdir)/config/Make.rules.mak.cs'
+        else:
+            print line.rstrip('\n')
+    makefile.close()
 
 #
 # Are we on Windows?
@@ -104,18 +114,10 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
 # Copy Slice directories.
 #
 print "Copying Slice directories..."
-slicedirs = [\
-    "Freeze",\
-    "Glacier2",\
-    "Ice",\
-    "IceBox",\
-    "IceGrid",\
-    "IcePatch2",\
-    "IceStorm",\
-]
-os.mkdir(os.path.join("icecs", "slice"))
-for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icecs", "slice", x), 1)
+shutil.copytree(os.path.join("ice", "slice"), os.path.join("icecs", "slice"), 1)
+for file in find(os.path.join("icecs", "slice"), "Makefile.mak"):
+    editMakefileMak(file)
+shutil.rmtree(os.path.join("icecs", "slice", "IceSSL"))
 
 #
 # Makefiles found in the slice directories are removed later
@@ -131,7 +133,6 @@ filesToRemove = [ \
     os.path.join("icecs", "makedist.py"), \
     ]
 filesToRemove.extend(find("icecs", ".dummy"))
-filesToRemove.extend(find(os.path.join("icecs", "slice"), "Makefile.mak"))
 filesToRemove.extend(find(os.path.join("icecs", "slice"), "Makefile"))
 for x in filesToRemove:
     os.remove(x)
