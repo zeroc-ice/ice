@@ -283,6 +283,9 @@ Apache2 only:
 
    PHPIniDir "C:/PHP5"
 
+   NOTE: It is important to use forward slashes in the PHPIniDir
+   directive.
+
 Apache1 and Apache2:
 
 3) To ensure that you are using the correct php.ini file, create a
