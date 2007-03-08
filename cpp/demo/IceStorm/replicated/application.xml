@@ -38,7 +38,6 @@
      </replica-group>
 
      <replica-group id="IceStormTopicManagerReplicaGroup">
-       <load-balancing type="round-robin" n-replicas="2"/>
        <object identity="DemoIceStorm/TopicManager" type="::IceStorm::TopicManager"/>
      </replica-group>
 

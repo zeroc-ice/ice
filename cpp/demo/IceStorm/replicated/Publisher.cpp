@@ -36,9 +36,8 @@ Publisher::run(int argc, char* argv[])
 {
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
-    IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
     IceStorm::TopicManagerPrx manager = 
-        IceStorm::TopicManagerPrx::checkedCast(query->findObjectByType("::IceStorm::TopicManager"));
+        IceStorm::TopicManagerPrx::checkedCast(communicator()->stringToProxy("DemoIceStorm/TopicManager"));
     if(manager == 0)
     {
         cerr << appName() << ": no topic manager found, make sure application was deployed." << endl;
