@@ -20,7 +20,7 @@ MCSFLAGS	= $(MCSFLAGS) -target:exe
 $(TARGETS): $(SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(SRCS)
 
-install::
+install:: all
 	copy $(TARGETS) $(install_bindir)
 
 !include .depend
