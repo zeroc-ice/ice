@@ -371,7 +371,7 @@ iceBoxPipe1, iceBoxPipe2 = startServers()
 print "ok"
 
 print "checking link still exists...",
-command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + r' -e "list TestIceStorm1 fed1"'
+command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + r' -e "links TestIceStorm1"'
 if TestUtil.debug:
     print "(" + command + ")",
 iceStormAdminPipe = os.popen(command + " 2>&1")
@@ -423,7 +423,7 @@ if publisherStatus:
 print "verifying that the link has been destroyed...",
 sys.stdout.flush()
 command = iceStormAdmin + TestUtil.clientOptions + adminIceStormReference + \
-    r' -e "list TestIceStorm1 fed1"' + " 2>&1"
+    r' -e "links TestIceStorm1"' + " 2>&1"
 if TestUtil.debug:
     print "(" + command + ")",
 iceStormAdminPipe = os.popen(command + " 2>&1")
