@@ -262,7 +262,12 @@ directly using regedit:
 
 2. Right click and select "Permissions...".
 
-3. Add permission for the given account. Select "Read". Press OK.
+3. If the user account is not already listed, click "Add...". Enter
+   "LOCAL SERVICE" if you are using the "Local Service" account,
+   otherwise enter the desired user account. Press OK.
+
+3. Check the "Read" box in the Allow column to grant permission. Press
+   OK to apply the changes.
 
 Another solution is to add the user to the "Performance Monitor Users"
 group. See the following Microsoft article for details:
