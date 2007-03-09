@@ -28,7 +28,7 @@ private:
     typedef std::map<Ice::Identity, EvictorEntryPtr> EvictorMap;
     typedef std::list<EvictorMap::iterator> EvictorQueue;
 
-    struct EvictorEntry : public Ice::LocalObject
+    struct EvictorEntry : public IceUtil::Shared
     {
         Ice::ObjectPtr servant;
         Ice::LocalObjectPtr userCookie;
