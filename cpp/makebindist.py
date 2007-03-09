@@ -792,10 +792,45 @@ def copyExpatFiles(expatLocation, version):
             
     os.chdir(cwd)
     
-
     if not os.path.exists('Ice-' + version + '/' + fileList[0].strip()):
         shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
         os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
+
+def fixInstallNames(version, mmVersion):
+
+    #
+    # Fix the install names of the 3rd party libraries.
+    # 
+    libs = ['libdb-*.dylib', 'libdb_cxx-*.dylib', 'libdb_java-*.jnilib', 'libexpat*.dylib']
+    oldInstallNames = []
+    for l in libs:
+        p = os.popen('otool -D ' + 'Ice-' + version + '/lib/'  + l + ' | tail -1')
+        oldInstallNames.append(p.readline().strip())
+        p.close()
+
+    allFiles = []
+    p = os.popen('find Ice-' + version + '/bin -name "*" -type f')
+    allFiles.extend(p.readlines())
+    p.close()
+    p = os.popen('find Ice-' + version + '/lib -name "*.dylib" -type f')
+    allFiles.extend(p.readlines())
+    p.close()
+
+    binFiles = []
+    for f in allFiles:
+        f = f.strip()
+        if not os.system('file -b ' + f + ' | grep -q "Mach-O"'):
+            os.system('chmod u+w ' + f)
+            binFiles.append(f)
+
+    for oldName in oldInstallNames:
+        libName = re.sub("\/opt\/.*\/(.*)", "\\1", oldName)
+        newName = '/opt/Ice-' + mmVersion + '/' + libName
+
+        os.system('install_name_tool -id ' + newName + ' Ice-' + version + '/lib/' + libName)
+        for f in binFiles:
+            os.system('install_name_tool -change ' + oldName + ' ' + newName + ' ' + f)
+
 
 def usage():
     """Print usage/help information"""
@@ -1193,6 +1228,12 @@ def main():
     # Remove doc from binary distribution. 
     #
     runprog("rm -rf Ice-%s/doc" % (version))
+
+    #
+    # Fix install names on Mac OS X   
+    #
+    if getPlatform() == 'macosx':
+        fixInstallNames(version, mmVersion)
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatformString() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatformString() + '.tar')
