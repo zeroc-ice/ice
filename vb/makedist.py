@@ -123,19 +123,7 @@ if verbose:
 else:
     quiet = "-Q"
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icevb ice/bin ice/config ice/include ice/lib ice/slice ice/src" +
-          " icecs/src/Ice/AssemblyInfo.cs")
-
-#
-# Copy Slice directories.
-#
-print "Copying Slice directories..."
-shutil.copytree(os.path.join("ice", "slice"), os.path.join("icevb", "slice"), 1)
-for file in find(os.path.join("icevb", "slice"), "Makefile.mak"):
-    editMakefileMak(file)
-shutil.rmtree(os.path.join("icevb", "slice", "IceSSL"))
-
-shutil.rmtree("ice")
+          " icevb icecs/src/Ice/AssemblyInfo.cs")
 
 #
 # Remove files.
