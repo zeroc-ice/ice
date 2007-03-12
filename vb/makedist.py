@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re
+import os, sys, shutil, fnmatch, re, fileinput
 
 #
 # Show usage information.
@@ -66,6 +66,15 @@ def sedFile(path, patt, replace):
     dst = open(path, "w")
     dst.writelines(dstLines)
 
+def editMakefileMak(file):
+    makefile =  fileinput.input(file, True)
+    for line in makefile:
+        if line.startswith('!include'):
+            print '!include $(top_srcdir)/config/Make.rules.mak.vb'
+        else:
+            print line.rstrip('\n')
+    makefile.close()
+
 #
 # Are we on Windows?
 #
@@ -121,18 +130,10 @@ os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
 # Copy Slice directories.
 #
 print "Copying Slice directories..."
-slicedirs = [\
-    "Freeze",\
-    "Glacier2",\
-    "Ice",\
-    "IceBox",\
-    "IceGrid",\
-    "IcePatch2",\
-    "IceStorm",\
-]
-os.mkdir(os.path.join("icevb", "slice"))
-for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icevb", "slice", x), 1)
+shutil.copytree(os.path.join("ice", "slice"), os.path.join("icevb", "slice"), 1)
+for file in find(os.path.join("icevb", "slice"), "Makefile.mak"):
+    editMakefileMak(file)
+shutil.rmtree(os.path.join("icevb", "slice", "IceSSL"))
 
 shutil.rmtree("ice")
 
