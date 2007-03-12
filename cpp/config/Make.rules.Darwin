@@ -49,6 +49,20 @@ else
     mkshlib                 = $(CXX)  -dynamiclib $(shlibldflags) -o $(1) $(3) $(4)
 endif
 
+ifeq ($(DB_HOME),)
+   #
+   # If DB_HOME is not set and the BerkeleyDB library is not at the expected location
+   # but in the ICE_DIR/lib directory, we set DB_RPATH_LINK to tell the linker where 
+   # to find it.
+   #
+   ifeq ($(shell test -f $(libdir)/libFreeze.$(VERSION).dylib && echo 0),0)
+      dblib_install_name=$(firstword $(strip $(shell otool -L $(libdir)/libFreeze.$(VERSION).dylib | grep libdb_cxx)))
+      ifeq ($(shell test ! -f $(dblib_install_name) -a -f $(libdir)/$(notdir $(dblib_install_name)) && echo 0),0)
+         DB_RPATH_LINK=-dylib_file $(dblib_install_name):$(libdir)/$(notdir $(dblib_install_name))
+      endif
+   endif
+endif
+
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
 
