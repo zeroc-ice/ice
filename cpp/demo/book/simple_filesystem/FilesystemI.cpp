@@ -17,7 +17,7 @@ Ice::ObjectAdapterPtr Filesystem::NodeI::_adapter;      // static member
 // Slice Node::name() operation
 
 std::string
-Filesystem::NodeI::name(const Ice::Current &) const
+Filesystem::NodeI::name(const Ice::Current &)
 {
     return _name;
 }
@@ -57,7 +57,7 @@ Filesystem::NodeI::NodeI(const Ice::CommunicatorPtr & ic, const string & name, c
 // Slice File::read() operation
 
 Filesystem::Lines
-Filesystem::FileI::read(const Ice::Current &) const
+Filesystem::FileI::read(const Ice::Current &)
 {
     return _lines;
 }
@@ -81,7 +81,7 @@ Filesystem::FileI::FileI(const Ice::CommunicatorPtr & ic, const string & name, c
 // Slice Directory::list() operation
 
 Filesystem::NodeSeq
-Filesystem::DirectoryI::list(const Ice::Current &) const
+Filesystem::DirectoryI::list(const Ice::Current &)
 {
     return _contents;
 }
