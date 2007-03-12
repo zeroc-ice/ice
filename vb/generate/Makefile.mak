@@ -20,7 +20,4 @@ VBCFLAGS	= $(VBCFLAGS) -target:exe
 $(TARGETS): $(SRCS)
 	$(VBC) $(VBCFLAGS) -out:$@ $(SRCS)
 
-install:: all
-	copy $(TARGETS) $(install_bindir)
-
 !include .depend

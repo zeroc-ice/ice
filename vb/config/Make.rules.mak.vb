@@ -12,13 +12,6 @@
 !endif
 
 #
-# Select an installation base directory. The directory will be created
-# if it does not exist.
-#
-
-prefix			= C:\IceVB-$(VERSION)
-
-#
 # Define DEBUG as yes if you want to build with debug information and
 # assertions enabled.
 #
@@ -57,10 +50,6 @@ slicedir 		= $(top_srcdir)\slice
 slicedir 		= $(ICE_HOME)\slice
 !endif
 
-install_bindir		= $(prefix)\bin
-install_libdir		= $(prefix)\lib
-install_slicedir	= $(prefix)\slice
-
 VBC			= vbc -nologo /r:system.dll
 
 VBCFLAGS = -warnaserror
@@ -74,7 +63,7 @@ VBCFLAGS 		= $(VBCFLAGS) -optimize+
 
 SLICE2VB		= $(ICE_HOME)\bin\slice2vb
 
-EVERYTHING		= all clean depend install config
+EVERYTHING		= all clean depend config
 
 .SUFFIXES:
 .SUFFIXES:		.vb .ice
@@ -126,4 +115,3 @@ clean::
 clean::
 	del /q $(SAMD_GEN_SRCS)
 !endif
-install::
