@@ -34,7 +34,6 @@
      </server-template>
 
      <replica-group id="IceStormPublishReplicaGroup">
-       <load-balancing type="round-robin"/>
      </replica-group>
 
      <replica-group id="IceStormTopicManagerReplicaGroup">

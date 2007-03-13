@@ -63,11 +63,9 @@ Publisher::run(int argc, char* argv[])
 
     //
     // Get the topic's publisher object, and configure a Clock proxy
-    // with per-request load balancing with round robin from the
-    // IceGrid locator for the publisher object.
+    // with per-request load balancing.
     //
-    ClockPrx clock = ClockPrx::uncheckedCast(
-        topic->getPublisher()->ice_oneway()->ice_locatorCacheTimeout(0)->ice_connectionCached(false));
+    ClockPrx clock = ClockPrx::uncheckedCast(topic->getPublisher()->ice_oneway()->ice_connectionCached(false));
 
     try
     {

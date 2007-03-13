@@ -31,9 +31,7 @@ to the `time' topic of each IceStorm service instance.
 The publisher just retrieves the publisher proxy of the `time' topic
 from a randomly selected IceStorm service instance. This publisher
 proxy is configured to use per-request load balancing so that each
-invocation is sent successively to each replica thanks to the round
-robin load balancing configured for the replica group (you can set
-Ice.Trace.Location=1 to see the locator invocations).
+invocation is sent to a random replica.
 
 Note that the subscriptions are not persistent and the subscriber
 makes no attempt to re-establish dropped subscriptions. So if an
