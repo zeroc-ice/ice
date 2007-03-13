@@ -43,7 +43,7 @@ Module InvokeC
                     Console.Out.Flush()
                     line = Console.In.ReadLine()
                     If line Is Nothing Then
-                        Exit Try
+                        Exit Do
                     End If
 
                     Dim outParams As Byte() = Nothing

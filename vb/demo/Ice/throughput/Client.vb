@@ -114,7 +114,7 @@ Module ThroughputC
                     Console.Out.Flush()
                     line = Console.In.ReadLine()
                     If line Is Nothing Then
-                        Exit Try
+                        Exit Do
                     End If
 
                     Dim tmsec As Long = System.DateTime.Now.Ticks / 10000

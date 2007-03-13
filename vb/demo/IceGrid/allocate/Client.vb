@@ -109,7 +109,7 @@ Module AllocateC
                         Console.Out.Flush()
                         line = Console.In.ReadLine()
                         If line Is Nothing Then
-                            Exit Try
+                            Exit Do
                         End If
                         If line.Equals("t") Then
                             hello.sayHello()

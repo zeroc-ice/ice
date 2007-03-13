@@ -56,7 +56,7 @@ Module AsyncC
                     Console.Out.Flush()
                     line = Console.In.ReadLine()
                     If line Is Nothing Then
-                        Exit Try
+                        Exit Do
                     End If
                     If line.Equals("i") Then
                         hello.sayHello(0)

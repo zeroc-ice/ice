@@ -40,7 +40,7 @@ Module NestedC
                     Console.Out.Flush()
                     S = Console.In.ReadLine()
                     If S Is Nothing Then
-                        Exit Try
+                        Exit Do
                     End If
                     Dim level As Integer = System.Int32.Parse(S)
                     If level > 0 Then
