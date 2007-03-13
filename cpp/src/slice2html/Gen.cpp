@@ -678,6 +678,7 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
         indexImage = "<img class=\"Button\" src=\"" + path + indexImage + "\" alt=\"Index\"/>";
     }
 
+    _out << nl << "<!-- SwishCommand noindex -->";
     start("div", "HeaderFooter");
 
     start("table", "ButtonTable");
@@ -742,6 +743,8 @@ Slice::GeneratorBase::printHeaderFooter(const ContainedPtr& c)
     printSearch();
 
     printLogo(c, container, onEnumPage);
+
+    _out << nl << "<!-- SwishCommand index>";
 
     end();
 }
@@ -1528,6 +1531,7 @@ Slice::StartPageGenerator::~StartPageGenerator()
 
     printHeaderFooter();
 
+    _out << nl << "<!-- SwishCommand noindex -->";
     _out << nl << "<hr>";
 
     start("h1");
