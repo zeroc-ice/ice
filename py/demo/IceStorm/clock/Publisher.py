@@ -82,6 +82,9 @@ class Publisher(Ice.Application):
             while 1:
                 clock.tick(time.strftime("%m/%d/%Y %H:%M:%S"))
                 time.sleep(1)
+        except IOError, e:
+            # Ignore
+            pass
         except Ice.CommunicatorDestroyedException, e:
             # Ignore
             pass
