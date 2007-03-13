@@ -27,8 +27,6 @@ language, on with another C++ compiler, please download the
 corresponding Ice binary distribution from 
 http://www.zeroc.com/download.html.
 
-See doc/README.html for information on the documentation included with
-this distribution.
 
 Supported Windows versions
 --------------------------
@@ -44,8 +42,8 @@ information on how to install and run the IceGrid registry, IceGrid
 node, and Glacier2 router as Windows services.
 
 
-Demos and documentation
------------------------
+Demos
+-----
 
 Sample programs are provided in the Ice-@ver@-demos.zip package,
 which can be downloaded from the ZeroC web site at
@@ -54,9 +52,6 @@ http://www.zeroc.com/download.html
 
 Please refer to the README.DEMOS file included in that package for
 more information.
-
-See doc/README.html for information on the documentation included with
-this distribution.
 
 
 Binary compatibility

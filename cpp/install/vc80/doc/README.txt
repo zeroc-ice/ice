@@ -15,6 +15,7 @@ Ice is available under the terms of the GNU General Public License
 customers who wish to use Ice in proprietary products. Please contact
 sales@zeroc.com for more information on licensing Ice.
 
+
 About this distribution
 -----------------------
 
@@ -43,8 +44,6 @@ This file describes how to setup Visual Studio for Ice (when building
 C++ applications), and provides instructions for building and running 
 the sample programs.
 
-See doc/README.html for information on the documentation included with
-this distribution.
 
 Supported Windows versions
 --------------------------
