@@ -27,13 +27,26 @@ using namespace IceGrid;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
+namespace IceGrid
+{
+
+typedef std::map<std::string, int> StringTokenMap;
+static StringTokenMap keywordMap;
+
+void initScanner();
+
+}
+#define	YY_USER_INIT initScanner();
+
 %}
 
 WS	[ \t\v\f\r]
 NL	[\n]
+keyword [[:alpha:]]*
 
 %option noyywrap
 %option never-interactive
+
 
 %%
 
@@ -94,150 +107,6 @@ NL	[\n]
 	    break;
 	}
     }
-}
-
-"help" {
-    return ICE_GRID_HELP;
-}
-
-"quit"|"exit" {
-    return ICE_GRID_EXIT;
-}
-
-"application" {
-    return ICE_GRID_APPLICATION;
-}
-
-"server" {
-    return ICE_GRID_SERVER;
-}
-
-"adapter" {
-    return ICE_GRID_ADAPTER;
-}
-
-"add" {
-    return ICE_GRID_ADD;
-}
-
-"remove" {
-    return ICE_GRID_REMOVE;
-}
-
-"list" {
-    return ICE_GRID_LIST;
-}
-
-"shutdown" {
-    return ICE_GRID_SHUTDOWN;
-}
-
-"describe" {
-    return ICE_GRID_DESCRIBE;
-}
-
-"state" {
-    return ICE_GRID_STATE;
-}
-
-"pid" {
-    return ICE_GRID_PID;
-}
-
-"endpoints" {
-    return ICE_GRID_ENDPOINTS;
-}
-
-"start" {
-    return ICE_GRID_START;
-}
-
-"patch" {
-    return ICE_GRID_PATCH;
-}
-
-"stop" {
-    return ICE_GRID_STOP;
-}
-
-"signal" {
-    return ICE_GRID_SIGNAL;
-}
-
-"stdout" {
-    return ICE_GRID_STDOUT;
-}
-
-"stderr" {
-    return ICE_GRID_STDERR;
-}
-
-"node" {
-    return ICE_GRID_NODE;
-}
-
-"registry" {
-    return ICE_GRID_REGISTRY;
-}
-
-"ping" {
-    return ICE_GRID_PING;
-}
-
-"load" {
-    return ICE_GRID_LOAD;
-}
-
-"activation" {
-    return ICE_GRID_ACTIVATION;
-}
-
-"object" {
-    return ICE_GRID_OBJECT;
-}
-
-"find" {
-    return ICE_GRID_FIND;
-}
-
-"show" {
-    return ICE_GRID_SHOW;
-}
-
-"copying" {
-    return ICE_GRID_COPYING;
-}
-
-"warranty" {
-    return ICE_GRID_WARRANTY;
-}
-
-"diff" {
-    return ICE_GRID_DIFF;
-}
-
-"update" {
-    return ICE_GRID_UPDATE;
-}
-
-"instantiate" {
-    return ICE_GRID_INSTANTIATE;
-}
-
-"template" {
-    return ICE_GRID_TEMPLATE;
-}
-
-"service" {
-    return ICE_GRID_SERVICE;
-}
-
-"enable" {
-    return ICE_GRID_ENABLE;
-}
-
-"disable" {
-    return ICE_GRID_DISABLE;
 }
 
 {WS}*(\\{WS}*{NL})? {
@@ -395,9 +264,62 @@ NL	[\n]
 	
 	s += c;
     }
+
     yylvalp->clear();
     yylvalp->push_back(s);
-    return ICE_GRID_STRING;
+
+    StringTokenMap::const_iterator pos = keywordMap.find(s);
+    return pos != keywordMap.end() ? pos->second : ICE_GRID_STRING;
 }
 
 %%
+
+namespace IceGrid {
+
+//
+// initScanner() fills the keyword map with all keyword-token pairs.
+//
+
+void
+initScanner()
+{
+    keywordMap["help"] = ICE_GRID_HELP;
+    keywordMap["quit"] = ICE_GRID_EXIT;
+    keywordMap["exit"] = ICE_GRID_EXIT;
+    keywordMap["application"] = ICE_GRID_APPLICATION;
+    keywordMap["server"] = ICE_GRID_SERVER;
+    keywordMap["adapter"] = ICE_GRID_ADAPTER;
+    keywordMap["add"] = ICE_GRID_ADD;
+    keywordMap["remove"] = ICE_GRID_REMOVE;
+    keywordMap["list"] = ICE_GRID_LIST;
+    keywordMap["shutdown"] = ICE_GRID_SHUTDOWN;
+    keywordMap["describe"] = ICE_GRID_DESCRIBE;
+    keywordMap["state"] = ICE_GRID_STATE;
+    keywordMap["pid"] = ICE_GRID_PID;
+    keywordMap["endpoints"] = ICE_GRID_ENDPOINTS;
+    keywordMap["start"] = ICE_GRID_START;
+    keywordMap["patch"] = ICE_GRID_PATCH;
+    keywordMap["stop"] = ICE_GRID_STOP;
+    keywordMap["signal"] = ICE_GRID_SIGNAL;
+    keywordMap["stdout"] = ICE_GRID_STDOUT;
+    keywordMap["stderr"] = ICE_GRID_STDERR;
+    keywordMap["node"] = ICE_GRID_NODE;
+    keywordMap["registry"] = ICE_GRID_REGISTRY;
+    keywordMap["ping"] = ICE_GRID_PING;
+    keywordMap["load"] = ICE_GRID_LOAD;
+    keywordMap["activation"] = ICE_GRID_ACTIVATION;
+    keywordMap["object"] = ICE_GRID_OBJECT;
+    keywordMap["find"] = ICE_GRID_FIND;
+    keywordMap["show"] = ICE_GRID_SHOW;
+    keywordMap["copying"] = ICE_GRID_COPYING;
+    keywordMap["warranty"] = ICE_GRID_WARRANTY;
+    keywordMap["diff"] = ICE_GRID_DIFF;
+    keywordMap["update"] = ICE_GRID_UPDATE;
+    keywordMap["instantiate"] = ICE_GRID_INSTANTIATE;
+    keywordMap["template"] = ICE_GRID_TEMPLATE;
+    keywordMap["service"] = ICE_GRID_SERVICE;
+    keywordMap["enable"] = ICE_GRID_ENABLE;
+    keywordMap["disable"] = ICE_GRID_DISABLE;
+}
+
+}

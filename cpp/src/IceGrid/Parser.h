@@ -83,7 +83,7 @@ public:
     void diffApplication(const std::list<std::string>&);
     void updateApplication(const std::list<std::string>&);
     void patchApplication(const std::list<std::string>&);
-    void listAllApplications();
+    void listAllApplications(const std::list<std::string>&);
 
     void describeServerTemplate(const std::list<std::string>&);
     void describeServiceTemplate(const std::list<std::string>&);
@@ -93,12 +93,12 @@ public:
     void pingNode(const std::list<std::string>&);
     void printLoadNode(const std::list<std::string>&);
     void shutdownNode(const std::list<std::string>&);
-    void listAllNodes();
+    void listAllNodes(const std::list<std::string>&);
 
     void describeRegistry(const std::list<std::string>&);
     void pingRegistry(const std::list<std::string>&);
     void shutdownRegistry(const std::list<std::string>&);
-    void listAllRegistries();
+    void listAllRegistries(const std::list<std::string>&);
 
     void removeServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
@@ -110,11 +110,11 @@ public:
     void stateServer(const std::list<std::string>&);
     void enableServer(const std::list<std::string>&, bool);
     void pidServer(const std::list<std::string>&);
-    void listAllServers();
+    void listAllServers(const std::list<std::string>&);
 
     void endpointsAdapter(const std::list<std::string>&);
     void removeAdapter(const std::list<std::string>&);
-    void listAllAdapters();
+    void listAllAdapters(const std::list<std::string>&);
 
     void addObject(const std::list<std::string>&);
     void removeObject(const std::list<std::string>&);
@@ -137,6 +137,9 @@ public:
     void invalidCommand(const char*);
     void invalidCommand(const std::string&);
     void invalidCommand(const std::string&, const std::string&);
+
+    void invalidCommand(const std::list<std::string>&);
+
     void patchFailed(const Ice::StringSeq&);
     void error(const char*);
     void error(const std::string&);
