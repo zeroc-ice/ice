@@ -63,8 +63,8 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&,
-                                  const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const TopicManagerPrx&, 
+                                  const std::map<Ice::Identity, TopicManagerPrx>&);
 
     void usage();
 
@@ -90,20 +90,24 @@ public:
     void warning(const char*);
     void warning(const std::string&);
 
+    void invalidCommand(const std::string&);
+
     int parse(FILE*, bool);
     int parse(const std::string&, bool);
 
 private:
 
-    IceStorm::TopicManagerPrx findManagerById(const std::string&, std::string&) const;
-    IceStorm::TopicManagerPrx findManagerByCategory(const std::string&) const;
+    TopicManagerPrx findManagerById(const std::string&, std::string&) const;
+    TopicManagerPrx findManagerByCategory(const std::string&) const;
+    TopicPrx findTopic(const std::string&) const;
 
-    Parser(const Ice::CommunicatorPtr&, const IceStorm::TopicManagerPrx&,
-           const std::map<Ice::Identity, IceStorm::TopicManagerPrx>&);
+    Parser(const Ice::CommunicatorPtr&, const TopicManagerPrx&, const std::map<Ice::Identity, TopicManagerPrx>&);
+    
+    void exception(const Ice::Exception&, bool = false);
 
     const Ice::CommunicatorPtr _communicator;
-    IceStorm::TopicManagerPrx _defaultManager;
-    const std::map<Ice::Identity, IceStorm::TopicManagerPrx> _managers;
+    TopicManagerPrx _defaultManager;
+    const std::map<Ice::Identity, TopicManagerPrx> _managers;
     std::string _commands;
     bool _continue;
     int _errors;

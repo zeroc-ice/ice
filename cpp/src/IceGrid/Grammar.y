@@ -34,6 +34,11 @@ yyerror(const char* s)
 
 %pure_parser
 
+//
+// All keyword tokens. Make sure to modify the "keyword" rule in this
+// file if the list of keywords is changed. Also make sure to add the
+// keyword to the keyword table in Scanner.l.
+//
 %token ICE_GRID_HELP
 %token ICE_GRID_EXIT
 %token ICE_GRID_APPLICATION
@@ -162,6 +167,14 @@ command
 {
     parser->usage("application", "patch");
 }
+| ICE_GRID_APPLICATION ICE_GRID_LIST strings ';'
+{
+    parser->listAllApplications($3);
+}
+| ICE_GRID_APPLICATION ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("application", "list");
+}
 | ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
 {
     parser->describeServerTemplate($4);
@@ -185,10 +198,6 @@ command
 | ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'
 {
     parser->usage("service template", "describe");
-}
-| ICE_GRID_APPLICATION ICE_GRID_LIST strings ';'
-{
-    parser->listAllApplications($3);
 }
 | ICE_GRID_NODE ICE_GRID_DESCRIBE strings ';'
 {
@@ -226,6 +235,10 @@ command
 {
     parser->listAllNodes($3);
 }
+| ICE_GRID_NODE ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("node", "list");
+}
 | ICE_GRID_NODE ICE_GRID_SHOW strings ';'
 {
     parser->showFile("node", $3);
@@ -261,6 +274,10 @@ command
 | ICE_GRID_REGISTRY ICE_GRID_LIST strings ';'
 {
     parser->listAllRegistries($3);
+}
+| ICE_GRID_REGISTRY ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("registry", "list");
 }
 | ICE_GRID_REGISTRY ICE_GRID_SHOW strings ';'
 {
@@ -370,6 +387,10 @@ command
 {
     parser->listAllServers($3);
 }
+| ICE_GRID_SERVER ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("server", "list");
+}
 | ICE_GRID_SERVER ICE_GRID_SHOW strings ';'
 {
     parser->showFile("server", $3);
@@ -398,6 +419,10 @@ command
 {
     parser->listAllAdapters($3);
 }
+| ICE_GRID_ADAPTER ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("adapter", "list");
+}
 | ICE_GRID_OBJECT ICE_GRID_ADD strings ';'
 {
     parser->addObject($3);
@@ -425,6 +450,10 @@ command
 | ICE_GRID_OBJECT ICE_GRID_LIST strings ';'
 {
     parser->listObject($3);
+}
+| ICE_GRID_OBJECT ICE_GRID_LIST ICE_GRID_HELP ';'
+{
+    parser->usage("object", "list");
 }
 | ICE_GRID_OBJECT ICE_GRID_DESCRIBE strings ';'
 {
@@ -515,7 +544,9 @@ strings
 }
 ;
 
+// ----------------------------------------------------------------------
 keyword
+// ----------------------------------------------------------------------
 : ICE_GRID_EXIT
 {
 }

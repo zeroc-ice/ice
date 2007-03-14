@@ -34,6 +34,11 @@ yyerror(const char* s)
 
 %pure_parser
 
+//
+// All keyword tokens. Make sure to modify the "keyword" rule in this
+// file if the list of keywords is changed. Also make sure to add the
+// keyword to the keyword table in Scanner.l.
+//
 %token ICE_STORM_HELP
 %token ICE_STORM_EXIT
 %token ICE_STORM_CURRENT
@@ -84,11 +89,6 @@ command
 {
     parser->create($2);
 }
-| ICE_STORM_CURRENT ';'
-{
-    std::list<std::string> args;
-    parser->current(args);
-}
 | ICE_STORM_CURRENT strings ';'
 {
     parser->current($2);
@@ -105,23 +105,17 @@ command
 {
     parser->unlink($2);
 }
-| ICE_STORM_LINKS ';'
-{
-    std::list<std::string> args;
-    parser->links(args);
-}
 | ICE_STORM_LINKS strings ';'
 {
     parser->links($2);
 }
-| ICE_STORM_TOPICS ';'
-{
-    std::list<std::string> args;
-    parser->topics(args);
-}
 | ICE_STORM_TOPICS strings ';'
 {
     parser->topics($2);
+}
+| ICE_STORM_STRING error ';'
+{
+    parser->invalidCommand("unknown command `" + $1.front() + "' (type `help' for more info)");
 }
 | error ';'
 {
@@ -140,10 +134,46 @@ strings
     $$ = $2;
     $$.push_front($1.front());
 }
-| ICE_STORM_STRING
+| keyword strings
 {
-    $$ = $1;
+    $$ = $2;
+    $$.push_front($1.front());
+}
+|
+{
+    $$ = YYSTYPE();
 }
 ;
+
+// ----------------------------------------------------------------------
+keyword
+// ----------------------------------------------------------------------
+: ICE_STORM_HELP
+{
+}
+| ICE_STORM_EXIT
+{
+}
+| ICE_STORM_CURRENT
+{
+}
+| ICE_STORM_CREATE
+{
+}
+| ICE_STORM_DESTROY
+{
+}
+| ICE_STORM_LINK
+{
+}
+| ICE_STORM_UNLINK
+{
+}
+| ICE_STORM_LINKS
+{
+}
+| ICE_STORM_TOPICS
+{
+}
 
 %%

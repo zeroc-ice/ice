@@ -53,6 +53,7 @@ public:
     {
         return "UnknownManagerException";
     }
+
     virtual Exception*
     ice_clone() const
     {
@@ -64,6 +65,7 @@ public:
     {
         throw *this;
     }
+
     const string name;
 };
 
@@ -71,7 +73,7 @@ public:
 
 ParserPtr
 Parser::createParser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
-                     const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers)
+                     const map<Ice::Identity, TopicManagerPrx>& managers)
 {
     return new Parser(communicator, admin, managers);
 }
@@ -98,115 +100,77 @@ Parser::usage()
 void
 Parser::create(const list<string>& args)
 {
-    if(args.size() == 0)
+    if(args.empty())
     {
-        error("`create' requires an argument (type `help' for more info)");
+        error("`create' requires at least one argument (type `help' for more info)");
         return;
     }
 
-    try
+    for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
     {
-        for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
+        try
         {
-            string arg;
-            IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
-            manager->create(arg);
+            string topicName;
+            TopicManagerPrx manager = findManagerById(*i, topicName);
+            manager->create(topicName);
         }
-    }
-    catch(const Exception& ex)
-    {
-        ostringstream s;
-        s << ex;
-        error(s.str());
+        catch(const Ice::Exception& ex)
+        {
+            exception(ex, args.size() > 1); // Print a warning if we're creating multiple topics, an error otherwise.
+        }
     }
 }
 
 void
 Parser::destroy(const list<string>& args)
 {
-    try
+    if(args.empty())
     {
-        for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
-        {
-            string arg;
-            IceStorm::TopicManagerPrx manager = findManagerById(*i, arg);
-            TopicPrx topic = manager->retrieve(arg);
-            topic->destroy();
-        }
+        error("`destroy' requires at least one argument (type `help' for more info)");
+        return;
     }
-    catch(const Exception& ex)
+
+    for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
     {
-        ostringstream s;
-        s << ex;
-        error(s.str());
+        try
+        {
+            findTopic(*i)->destroy();
+        }
+        catch(const Ice::Exception& ex)
+        {
+            exception(ex, args.size() > 1); // Print a warning if we're destroying multiple topics, an error otherwise.
+        }
     }
 }
 
 void
-Parser::link(const list<string>& _args)
+Parser::link(const list<string>& args)
 {
-    list<string> args = _args;
-
-    if(args.size() < 2)
+    if(args.size() != 2 && args.size() != 3)
     {
-        error("`link' requires at least two arguments (type `help' for more info)");
+        error("`link' requires two or three arguments (type `help' for more info)");
         return;
     }
 
     try
     {    
-        TopicPrx fromTopic;
-        TopicPrx toTopic;
-        
-        try
-        {
-            string arg;
-            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-            fromTopic = manager->retrieve(arg);
-        }
-        catch(const IceStorm::NoSuchTopic&)
-        {
-            ostringstream s;
-            s << args.front() << ": topic doesn't exist";
-            error(s.str());
-            return;
-        }
-        args.pop_front();
-        
-        try
-        {
-            string arg;
-            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-            toTopic = manager->retrieve(arg);
-        }
-        catch(const IceStorm::NoSuchTopic&)
-        {
-            ostringstream s;
-            s << args.front() << ": topic doesn't exist";
-            error(s.str());
-            return;
-        }
-        args.pop_front();
-        Ice::Int cost = 0;
-        if(!args.empty())
-        {
-            cost = atoi(args.front().c_str());
-        }
+        list<string>::const_iterator p = args.begin(); 
+
+        TopicPrx fromTopic = findTopic(*p++);
+        TopicPrx toTopic = findTopic(*p++);
+        Ice::Int cost = p != args.end() ? atoi(p->c_str()) : 0;
+
         fromTopic->link(toTopic, cost);
     }
     catch(const Exception& ex)
     {
-        ostringstream s;
-        s << ex;
-        error(s.str());
+        exception(ex);
     }
 }
 
 void
-Parser::unlink(const list<string>& _args)
+Parser::unlink(const list<string>& args)
 {
-    list<string> args = _args;
-
     if(args.size() != 2)
     {
         error("`unlink' requires exactly two arguments (type `help' for more info)");
@@ -214,46 +178,17 @@ Parser::unlink(const list<string>& _args)
     }
 
     try
-    {    
-        TopicPrx fromTopic;
-        TopicPrx toTopic;
-        
-        try
-        {
-            string arg;
-            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-            fromTopic = manager->retrieve(arg);
-        }
-        catch(const IceStorm::NoSuchTopic&)
-        {
-            ostringstream s;
-            s << args.front() << ": topic doesn't exist";
-            error(s.str());
-            return;
-        }
-        args.pop_front();
-        
-        try
-        {
-            string arg;
-            IceStorm::TopicManagerPrx manager = findManagerById(args.front(), arg);
-            toTopic = manager->retrieve(arg);
-        }
-        catch(const IceStorm::NoSuchTopic&)
-        {
-            ostringstream s;
-            s << args.front() << ": topic doesn't exist";
-            error(s.str());
-            return;
-        }
+    {   
+        list<string>::const_iterator p = args.begin();
+
+        TopicPrx fromTopic = findTopic(*p++);
+        TopicPrx toTopic = findTopic(*p++);
 
         fromTopic->unlink(toTopic);
     }
     catch(const Exception& ex)
     {
-        ostringstream s;
-        s << ex;
-        error(s.str());
+        exception(ex);
     }
 }
 
@@ -268,7 +203,7 @@ Parser::links(const list<string>& args)
 
     try
     {
-        IceStorm::TopicManagerPrx manager;
+        TopicManagerPrx manager;
         if(args.size() == 0)
         {
             manager = _defaultManager;
@@ -277,6 +212,7 @@ Parser::links(const list<string>& args)
         {
             manager = findManagerByCategory(args.front());
         }
+
         TopicDict d = manager->retrieveAll();
         for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
         {
@@ -289,9 +225,7 @@ Parser::links(const list<string>& args)
     }
     catch(const Exception& ex)
     {
-        ostringstream s;
-        s << ex;
-        error(s.str());
+        exception(ex);
     }
 }
 
@@ -306,7 +240,7 @@ Parser::topics(const list<string>& args)
 
     try
     {
-        IceStorm::TopicManagerPrx manager;
+        TopicManagerPrx manager;
         if(args.size() == 0)
         {
             manager = _defaultManager;
@@ -315,6 +249,7 @@ Parser::topics(const list<string>& args)
         {
             manager = findManagerByCategory(args.front());
         }
+
         TopicDict d = manager->retrieveAll();
         for(TopicDict::iterator i = d.begin(); i != d.end(); ++i)
         {
@@ -323,35 +258,33 @@ Parser::topics(const list<string>& args)
     }
     catch(const Exception& ex)
     {
-        ostringstream s;
-        s << ex;
-        error(s.str());
+        exception(ex);
     }
 }
 
 void
-Parser::current(const list<string>& _args)
+Parser::current(const list<string>& args)
 {
-    list<string> args = _args;
-
-    if(args.size() == 0)
+    if(args.empty())
     {
         cout << _communicator->identityToString(_defaultManager->ice_getIdentity()) << endl;
+        return;
+    }
+    else if(args.size() > 1)
+    {
+        error("`current' requires at most one argument (type `help' for more info)");
         return;
     }
 
     try
     {
-        IceStorm::TopicManagerPrx manager = findManagerByCategory(args.front());
+        TopicManagerPrx manager = findManagerByCategory(args.front());
         manager->ice_ping();
         _defaultManager = manager;
     }
     catch(const Exception& ex)
     {
-        ostringstream s;
-        s << args.front() << ": " << ex;
-        error(s.str());
-        return;
+        exception(ex);
     }
 }
 
@@ -579,6 +512,12 @@ Parser::warning(const string& s)
     warning(s.c_str());
 }
 
+void
+Parser::invalidCommand(const string& s)
+{
+    cerr << s << endl;
+}
+
 int
 Parser::parse(FILE* file, bool debug)
 {
@@ -635,7 +574,7 @@ Parser::parse(const std::string& commands, bool debug)
     return status;
 }
 
-IceStorm::TopicManagerPrx
+TopicManagerPrx
 Parser::findManagerById(const string& full, string& arg) const
 {
     Ice::Identity id = _communicator->stringToIdentity(full);
@@ -644,8 +583,8 @@ Parser::findManagerById(const string& full, string& arg) const
     {
         return _defaultManager;
     }
-   id.name = "TopicManager";
-    map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = _managers.find(id);
+    id.name = "TopicManager";
+    map<Ice::Identity, TopicManagerPrx>::const_iterator p = _managers.find(id);
     if(p == _managers.end())
     {
         throw UnknownManagerException(id.category, __FILE__, __LINE__);
@@ -653,13 +592,13 @@ Parser::findManagerById(const string& full, string& arg) const
     return p->second;
 }
 
-IceStorm::TopicManagerPrx
+TopicManagerPrx
 Parser::findManagerByCategory(const string& full) const
 {
     Ice::Identity id;
     id.category = full;
     id.name = "TopicManager";
-    map<Ice::Identity, IceStorm::TopicManagerPrx>::const_iterator p = _managers.find(id);
+    map<Ice::Identity, TopicManagerPrx>::const_iterator p = _managers.find(id);
     if(p == _managers.end())
     {
         throw UnknownManagerException(id.category, __FILE__, __LINE__);
@@ -667,10 +606,69 @@ Parser::findManagerByCategory(const string& full) const
     return p->second;
 }
 
+TopicPrx
+Parser::findTopic(const string& full) const
+{
+    string topicName;
+    TopicManagerPrx manager = findManagerById(full, topicName);
+    return manager->retrieve(topicName);
+}
+
 Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin,
-               const map<Ice::Identity, IceStorm::TopicManagerPrx>& managers) :
+               const map<Ice::Identity, TopicManagerPrx>& managers) :
     _communicator(communicator),
     _defaultManager(admin),
     _managers(managers)
 {
+}
+
+void
+Parser::exception(const Ice::Exception& ex, bool warn)
+{
+    ostringstream os;
+    try
+    {
+        ex.ice_throw();
+    }
+    catch(const LinkExists& ex)
+    {
+        os << "link `" << ex.name << "' already exists";
+    }
+    catch(const NoSuchLink& ex)
+    {
+        os << "couldn't find link `" << ex.name << "'";
+    }
+    catch(const TopicExists& ex)
+    {
+        os << "topic `" << ex.name << "' exists";
+    }
+    catch(const NoSuchTopic& ex)
+    {
+        os << "couldn't find topic `" << ex.name << "'";
+    }
+    catch(const UnknownManagerException& ex)
+    {
+        os << "couldn't find IceStorm service `" << ex.name << "'";
+    }
+    catch(const IdentityParseException& ex)
+    {
+        os << "invalid identity `" << ex.str << "'";
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        os << "couldn't reach IceStorm service:\n" << ex;
+    }
+    catch(const Ice::Exception& ex)
+    {
+        os << ex;
+    }
+
+    if(warn)
+    {
+        warning(os.str());
+    }
+    else
+    {
+        error(os.str());
+    }
 }

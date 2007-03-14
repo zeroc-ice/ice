@@ -27,10 +27,22 @@ using namespace IceStorm;
 
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
+namespace IceStorm
+{
+
+typedef std::map<std::string, int> StringTokenMap;
+static StringTokenMap keywordMap;
+
+void initScanner();
+
+}
+#define	YY_USER_INIT initScanner();
+
 %}
 
 WS	[ \t\v\f\r]
 NL	[\n]
+keyword [[:alpha:]]*
 
 %option noyywrap
 %option never-interactive
@@ -94,42 +106,6 @@ NL	[\n]
 	    break;
 	}
     }
-}
-
-"help" {
-    return ICE_STORM_HELP;
-}
-
-"quit"|"exit" {
-    return ICE_STORM_EXIT;
-}
-
-"current" {
-    return ICE_STORM_CURRENT;
-}
-
-"create" {
-    return ICE_STORM_CREATE;
-}
-
-"destroy" {
-    return ICE_STORM_DESTROY;
-}
-
-"link" {
-    return ICE_STORM_LINK;
-}
-
-"unlink" {
-    return ICE_STORM_UNLINK;
-}
-
-"links" {
-    return ICE_STORM_LINKS;
-}
-
-"topics" {
-    return ICE_STORM_TOPICS;
 }
 
 {WS}*(\\{WS}*{NL})? {
@@ -287,9 +263,35 @@ NL	[\n]
 	
 	s += c;
     }
+
     yylvalp->clear();
     yylvalp->push_back(s);
-    return ICE_STORM_STRING;
+
+    StringTokenMap::const_iterator pos = keywordMap.find(s);
+    return pos != keywordMap.end() ? pos->second : ICE_STORM_STRING;
 }
 
 %%
+
+namespace IceStorm {
+
+//
+// initScanner() fills the keyword map with all keyword-token pairs.
+//
+
+void
+initScanner()
+{
+    keywordMap["help"] = ICE_STORM_HELP;
+    keywordMap["quit"] = ICE_STORM_EXIT;
+    keywordMap["exit"] = ICE_STORM_EXIT;
+    keywordMap["current"] = ICE_STORM_CURRENT;
+    keywordMap["create"] = ICE_STORM_CREATE;
+    keywordMap["destroy"] = ICE_STORM_DESTROY;
+    keywordMap["link"] = ICE_STORM_LINK;
+    keywordMap["unlink"] = ICE_STORM_UNLINK;
+    keywordMap["links"] = ICE_STORM_LINKS;
+    keywordMap["topics"] = ICE_STORM_TOPICS;
+}
+
+}

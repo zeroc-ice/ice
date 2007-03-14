@@ -484,7 +484,7 @@ Parser::updateApplication(const list<string>& args)
 {
     if(args.size() < 1)
     {
-        invalidCommand("application diff", "requires at least one argument");
+        invalidCommand("application update", "requires at least one argument");
         return;
     }
 
@@ -1393,7 +1393,7 @@ Parser::describeObject(const list<string>& args)
 {
     if(args.size() > 1)
     {
-        invalidCommand("object find", "requires at most one argument");
+        invalidCommand("object describe", "requires at most one argument");
         return;
     }
 
@@ -1437,7 +1437,7 @@ Parser::listObject(const list<string>& args)
 {
     if(args.size() > 1)
     {
-        invalidCommand("object find", "requires at most one argument");
+        invalidCommand("object list", "requires at most one argument");
         return;
     }
 
