@@ -33,7 +33,7 @@ IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE)
 
 clean::
 	rm -f IntLongMap.h IntLongMap.cpp
-	rm -f db/data/IntLongMap db/logs/log* 
-	rm -rf full incremental
+	rm -f db/data/IntLongMap db/data/__catalog db/logs/log.* db/__db.* 
+	rm -rf hotbackup hotbackup.1
 
 include .depend

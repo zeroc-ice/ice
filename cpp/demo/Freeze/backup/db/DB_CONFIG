@@ -10,11 +10,6 @@ set_lg_dir logs
 set_verbose DB_VERB_RECOVERY
 
 #
-# Not available with DB 4.3
-#
-#set_verbose DB_VERB_CHKPOINT
-
-#
 # Reduces the size of log files only for demonstration purposes
 # Please keep the default for real applications
 #

@@ -1,5 +1,5 @@
-Freeze online backup demo (Linux/Unix only)
-===========================================
+Freeze online backup demo
+=========================
 
 This demo helps you experiment with Berkeley DB's hot backup
 capabilities, and shows how to configure Freeze to support hot
@@ -14,28 +14,38 @@ the old values are all the same.
 This program runs forever: you need to kill it (e.g., with CTRL-C) to
 terminate it.
 
+db utility names
+----------------
+
+The Berkeley DB utilities are usually named db_hotbackup, db_archive,
+db_recover etc. If you use the Berkeley DB 4.5.20 RPMs provided by
+ZeroC, the utility names are db45_hotbackup, db45_archive etc.
+Please adjust the instructions below accordingly.
+
+Backup
+------
+
 While the program is running, you can perform a hot backup with the
-backup shell script:
+backup shell script (on Unix/Linux) and batch file on Windows.
 
-% ./backup full
+These two scripts illustrate how to use the Berkeley DB db_hotbackup
+utility. Please refer to:
+http://www.oracle.com/technology/documentation/berkeley-db/db/utility/db_hotbackup.html
 
-Performs a full backup (both data and log files) in the full
+for a full description of db_hotbackup.
+
+ $ ./backup full
+ or on Windows
+ > backup full
+
+Creates a full backup (both data and log files) in the 'hotbackup'
 directory.
 
-% ./backup incremental
+ $ ./backup incremental
+ or on Windows
+ > backup incremental
 
-Performs an incremental backup (only log files) in the incremental
-directory.
-
-The backup script uses the dd program as well as the Berkeley DB
-utilities db_archive and db_checkpoint.
-
-The backup shell script runs db_archive before copying any file to get
-a list of unused (old) log files. These files are deleted after the
-backup is performed. This is a safe way to perform backups, but other
-approaches are also possible. Please consult the Berkeley DB
-documentation at http://www.sleepycat.com/docs for detailed
-information on Berkeley DB hot backups.
+Moves and copies log files to the hotbackup directory.
 
 Note that the Ice config file (named config) disables the automatic
 deletion of old log files:
@@ -50,20 +60,32 @@ Freeze.DbEnv.backup.DbPrivate=0
 The db/DB_CONFIG file is used to put the data files and log files in
 different sub-directories, which simplifies archiving.
 
-The recover shell script restores either a full backup (the files in
-the full directory) or an incremental backup (the files in the full
-directory and the files in the incremental directory). Do not run this
-script while the client is running.
+Recovery
+--------
 
-If your latest backup was incremental, you should use 'recover 
-incremental'.
+After a successful backup, the hotbackup directory always contains
+a full backup, ready to use. To switch over to this backup, you
+only need to:
+ - make sure the client is not running
+ - move the old 'db' directory out of the way, e.g.
+  $ mv db db.old
+  or on Windows
+  > rename db db.old
+ - move or copy the hotbackup directory to db, e.g.
+  $ cp -R hotbackup db
+  or on Windows
+  > xcopy /s /I hotbackup db
 
-Before doing a recover, you can "corrupt" the main database, for
-example by removing the data file (db/data/IntLongMap), or add random
-characters to the latest log file.
+If you have recent uncorrupted log files in your original db directory,
+you can also copy these log files over your restored log files and 
+perform a catastrophic recovery to recover these updates.
 
-RPM installation note
----------------------
-If you use a RPM installation of Berkeley DB 4.5.20, you need to install
-the db45-utils RPM to get the Berkeley DB utilities (db45_checkpoint
-and db45_archive) used by the backup shell script.
+With the example above:
+ 
+  $ cp db.old/logs/log.* db/logs
+  $ db_recover -c -h db
+  or on Windows
+  > xcopy db.old/logs/log.* db/logs
+  > db_recover -c -h db
+
+Finally, restart the client.
