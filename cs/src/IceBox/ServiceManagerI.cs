@@ -548,13 +548,17 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
             _services.Reverse();
             foreach(ServiceInfo info in _services)
             {
-                try
+                if(info.active)
                 {
-                    info.service.stop();
-                }
-                catch(Exception e)
-                {
-                    _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" + e.ToString());
+                    try
+                    {
+                        info.service.stop();
+                    }
+                    catch(Exception e)
+                    {
+                        _logger.warning("ServiceManager: exception in stop for service " + info.name + "\n" +
+                                        e.ToString());
+                    }
                 }
 
                 if(info.communicator != null)
