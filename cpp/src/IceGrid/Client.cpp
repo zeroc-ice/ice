@@ -359,6 +359,7 @@ Client::run(int argc, char* argv[])
         replica = opts.optArg("replica");
     }
 
+    Glacier2::RouterPrx router;
     AdminSessionPrx session;
     SessionKeepAliveThreadPtr keepAlive;
     int status = EXIT_SUCCESS;
@@ -367,7 +368,6 @@ Client::run(int argc, char* argv[])
         int timeout;
         if(communicator()->getDefaultRouter())
         {
-            Glacier2::RouterPrx router;
             try
             {
                 router = Glacier2::RouterPrx::checkedCast(communicator()->getDefaultRouter());
@@ -648,15 +648,19 @@ Client::run(int argc, char* argv[])
             keepAlive->getThreadControl().join();
         }
 
-        if(session)
+        try
         {
-            try
+            if(router)
+            {
+                router->destroySession();
+            }
+            else
             {
                 session->destroy();
             }
-            catch(const Ice::Exception&)
-            {
-            }
+        }
+        catch(const Ice::Exception&)
+        {
         }
         throw;
     }
@@ -668,7 +672,14 @@ Client::run(int argc, char* argv[])
     {
         try
         {
-            session->destroy();
+            if(router)
+            {
+                router->destroySession();
+            }
+            else
+            {
+                session->destroy();
+            }
         }
         catch(const Ice::Exception&)
         {
