@@ -12,89 +12,66 @@ package Ice;
 public final class LoggerI extends LocalObjectImpl implements Logger
 {
     public 
-    LoggerI(String prefix, boolean timestamp)
+    LoggerI(String prefix)
     {
 	if(prefix.length() > 0)
 	{
 	    _prefix = prefix + ": ";
 	}
 
-	_timestamp = timestamp;
+        _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+        _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
     }
 
     public void
     print(String message)
     {
-	synchronized(_globalMutex)
-	{
-	    System.err.println(message);
-	}
+        System.err.print(message + "\n");
     }
 
     public void
     trace(String category, String message)
     {
-	synchronized(_globalMutex)
-	{
-            StringBuffer s = new StringBuffer("[ ");
-	    if(_timestamp)
-	    {
-		s.append(new java.util.Date().toString());
-		s.append(' ');
-	    }
-	    s.append(_prefix);
-	    s.append(category);
-	    s.append(": ");
-            int beg = 0, end;
-            while((end = message.indexOf('\n', beg)) != -1)
-            {
-		s.append(message.substring(beg, end + 1));
-		s.append("  ");
-		beg = end + 1;
-            }
-	    if(beg < message.length())
-	    {
-		s.append(message.substring(beg));
-	    }
-	    s.append(" ]");
-            System.err.println(s.toString());
-	}
+        StringBuffer s = new StringBuffer("[ ");
+        s.append(_date.format(new java.util.Date()));
+        s.append(_time.format(new java.util.Date()));
+        s.append(' ');
+	s.append(_prefix);
+	s.append(category);
+	s.append(": ");
+        s.append(message);
+        s.append(" ]");
+        int idx = 0;
+        while((idx = s.indexOf("\n", idx)) != -1)
+        {
+            s.insert(idx + 1, "  ");
+            ++idx;
+        }
+        System.err.print(s.toString() + "\n");
     }
 
     public void
     warning(String message)
     {
-	synchronized(_globalMutex)
-	{
-	    StringBuffer s = new StringBuffer();
-	    if(_timestamp)
-	    {
-		s.append(new java.util.Date().toString());
-		s.append(' ');
-	    }
-	    s.append(_prefix);
-	    s.append("warning: ");
-	    s.append(message);
-	    System.err.println(s.toString());
-	}
+	StringBuffer s = new StringBuffer();
+        s.append(_date.format(new java.util.Date()));
+        s.append(_time.format(new java.util.Date()));
+	s.append(_prefix);
+	s.append("warning: ");
+	s.append(message);
+	System.err.println(s.toString());
     }
 
     public void
     error(String message)
     {
-	synchronized(_globalMutex)
-	{
-	    StringBuffer s = new StringBuffer();
-	    if(_timestamp)
-	    {
-		s.append(new java.util.Date().toString());
-		s.append(' ');
-	    }
-	    s.append(_prefix);
-	    s.append("error: ");
-	    s.append(message);
-	    System.err.println(s.toString());
-	}
+	StringBuffer s = new StringBuffer();
+        s.append(_date.format(new java.util.Date()));
+        s.append(_time.format(new java.util.Date()));
+	s.append(_prefix);
+	s.append("error: ");
+	s.append(message);
+	System.err.print(s.toString() + "\n");
     }
 
     protected
@@ -102,7 +79,8 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     {
 	super(source);
 	_prefix = source._prefix;
-	_timestamp = source._timestamp;
+        _date = source._date;
+        _time = source._time;
     }
     
     public java.lang.Object
@@ -112,6 +90,6 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     }
 
     String _prefix = "";
-    static java.lang.Object _globalMutex = new java.lang.Object();
-    boolean _timestamp = false;
+    java.text.DateFormat _date;
+    java.text.SimpleDateFormat _time;
 }

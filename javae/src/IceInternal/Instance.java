@@ -216,8 +216,7 @@ public class Instance
         {
 	    if(_initData.logger == null)
 	    {
-	        _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"),
-				      _initData.properties.getPropertyAsIntWithDefault("Ice.Logger.Timestamp", 1) > 0);
+	        _initData.logger = new Ice.LoggerI(_initData.properties.getProperty("Ice.ProgramName"));
 	    }
 
             validatePackages();
