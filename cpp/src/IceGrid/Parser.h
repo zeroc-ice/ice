@@ -140,7 +140,7 @@ public:
 
     void invalidCommand(const std::list<std::string>&);
 
-    void patchFailed(const Ice::StringSeq&);
+    std::string patchFailed(const Ice::StringSeq&);
     void error(const char*);
     void error(const std::string&);
 

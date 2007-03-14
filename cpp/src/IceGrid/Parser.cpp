@@ -373,7 +373,7 @@ Parser::addApplication(const list<string>& origArgs)
             }
             catch(const PatchException& ex)
             {
-                patchFailed(ex.reasons);
+                warning(patchFailed(ex.reasons));
             }
         }
     }
@@ -1906,42 +1906,51 @@ Parser::invalidCommand(const list<string>& s)
     }
 }
 
-void
+string
 Parser::patchFailed(const Ice::StringSeq& reasons)
 {
-    ostringstream os;
-    IceUtil::Output out(os);
-    out.setIndent(2);
-    out << "the patch failed on some nodes:\n";
-    for(Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)
+    if(reasons.size() == 1)
     {
-        string reason = *p;
-        string::size_type beg = 0;
-        string::size_type end = reason.find_first_of("\n");
-        if(end == string::npos)
+        ostringstream s;
+        s << "the patch failed:\n" << reasons[0];
+        return s.str();
+    }
+    else
+    {
+        ostringstream os;
+        IceUtil::Output out(os);
+        out.setIndent(2);
+        out << "the patch failed on some nodes:\n";
+        for(Ice::StringSeq::const_iterator p = reasons.begin(); p != reasons.end(); ++p)
         {
-            end = reason.size();
-        }
-        out << "- " << reason.substr(beg, end - beg);
-        out.inc();
-        while(end < reason.size())
-        {
-            beg = end + 1;
-            end = reason.find_first_of("\n", beg);
+            string reason = *p;
+            string::size_type beg = 0;
+            string::size_type end = reason.find_first_of("\n");
             if(end == string::npos)
             {
                 end = reason.size();
             }
-            out.newline();
-            out << reason.substr(beg, end - beg);
+            out << "- " << reason.substr(beg, end - beg);
+            out.inc();
+            while(end < reason.size())
+            {
+                beg = end + 1;
+                end = reason.find_first_of("\n", beg);
+                if(end == string::npos)
+                {
+                    end = reason.size();
+                }
+                out.newline();
+                out << reason.substr(beg, end - beg);
+            }
+            out.dec();
+            if(p + 1 != reasons.end())
+            {
+                out.newline();
+            }
         }
-        out.dec();
-        if(p + 1 != reasons.end())
-        {
-            out.newline();
-        }
+        return os.str();
     }
-    warning(os.str());
 }
 
 void
@@ -2074,6 +2083,10 @@ Parser::exception(const Ice::Exception& ex)
     {
         error("couldn't find node `" + ex.name + "'");
     }
+    catch(const RegistryNotExistException& ex)
+    {
+        error("couldn't find registry `" + ex.name + "'");
+    }
     catch(const ServerNotExistException& ex)
     {
         error("couldn't find server `" + ex.id + "'");
@@ -2081,6 +2094,10 @@ Parser::exception(const Ice::Exception& ex)
     catch(const AdapterNotExistException& ex)
     {
         error("couldn't find adapter `" + ex.id + "'");
+    }
+    catch(const ObjectNotRegisteredException& ex)
+    {
+        error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
     }
     catch(const ObjectExistsException& ex)
     {
@@ -2094,16 +2111,7 @@ Parser::exception(const Ice::Exception& ex)
     }
     catch(const PatchException& ex)
     {
-        if(ex.reasons.size() == 1)
-        {
-            ostringstream s;
-            s << ex << ":\n" << ex.reasons[0];
-            error(s.str());
-        }
-        else
-        {
-            patchFailed(ex.reasons);
-        }
+        error(patchFailed(ex.reasons));
     }
     catch(const BadSignalException& ex)
     {
@@ -2114,6 +2122,10 @@ Parser::exception(const Ice::Exception& ex)
     catch(const NodeUnreachableException& ex)
     {
         error("node `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+    }
+    catch(const RegistryUnreachableException& ex)
+    {
+        error("registry `" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
     catch(const AccessDeniedException& ex)
     {
