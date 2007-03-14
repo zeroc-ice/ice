@@ -1,9 +1,9 @@
 Changes since version 3.2.0
 ---------------------------
 
-- The findAllReplicas() method from the IceGrid::Query interface now
-  accepts well-known proxies from a replica group. This allows to
-  retrieve the replicas of a replicated object with its well-known
+- The findAllReplicas() operation in the IceGrid::Query interface now
+  accepts well-known proxies from a replica group. This allows you to
+  retrieve the replicas of a replicated object using its well-known
   proxy.
 
 Changes since version 3.2b

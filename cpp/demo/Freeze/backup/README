@@ -14,77 +14,95 @@ the old values are all the same.
 This program runs forever: you need to kill it (e.g., with CTRL-C) to
 terminate it.
 
+
 db utility names
 ----------------
 
 The Berkeley DB utilities are usually named db_hotbackup, db_archive,
-db_recover etc. If you use the Berkeley DB 4.5.20 RPMs provided by
-ZeroC, the utility names are db45_hotbackup, db45_archive etc.
-Please adjust the instructions below accordingly.
+db_recover, etc. If you use the Berkeley DB 4.5.20 RPMs provided by
+ZeroC, the utility names are db45_hotbackup, db45_archive, etc. Please
+adjust the instructions below accordingly.
+
 
 Backup
 ------
 
 While the program is running, you can perform a hot backup with the
-backup shell script (on Unix/Linux) and batch file on Windows.
+backup shell script (on Unix/Linux) or batch file (on Windows).
 
 These two scripts illustrate how to use the Berkeley DB db_hotbackup
-utility. Please refer to:
-http://www.oracle.com/technology/documentation/berkeley-db/db/utility/db_hotbackup.html
+utility. For a full description of db_hotbackup, please refer to:
 
-for a full description of db_hotbackup.
+  http://www.oracle.com/technology/documentation/berkeley-db/db/utility/db_hotbackup.html
+
+The following command creates a full backup (both data and log files)
+in the 'hotbackup' directory:
 
  $ ./backup full
- or on Windows
+
+Or on Windows:
+
  > backup full
 
-Creates a full backup (both data and log files) in the 'hotbackup'
-directory.
+Alternatively, you can perform an incremental backup, which only moves
+and copies log files to the hotbackup directory:
 
  $ ./backup incremental
- or on Windows
+
+Or on Windows:
+
  > backup incremental
 
-Moves and copies log files to the hotbackup directory.
-
-Note that the Ice config file (named config) disables the automatic
-deletion of old log files:
+Note that the Ice configuration file (named config) disables the
+automatic deletion of old log files:
 
 Freeze.DbEnv.backup.OldLogsAutoDelete=0
 
-and also sets DbPrivate to 0 to allow db_archive to access the db 
+The file also sets DbPrivate to 0 to allow db_archive to access the db
 environment while the client is running:
 
 Freeze.DbEnv.backup.DbPrivate=0
 
 The db/DB_CONFIG file is used to put the data files and log files in
-different sub-directories, which simplifies archiving.
+different subdirectories, which simplifies archiving.
+
 
 Recovery
 --------
 
 After a successful backup, the hotbackup directory always contains
-a full backup, ready to use. To switch over to this backup, you
-only need to:
- - make sure the client is not running
- - move the old 'db' directory out of the way, e.g.
-  $ mv db db.old
-  or on Windows
-  > rename db db.old
- - move or copy the hotbackup directory to db, e.g.
-  $ cp -R hotbackup db
-  or on Windows
-  > xcopy /s /I hotbackup db
+a full backup that is ready to use. To switch over to this backup, you
+only need to do the following:
 
-If you have recent uncorrupted log files in your original db directory,
-you can also copy these log files over your restored log files and 
-perform a catastrophic recovery to recover these updates.
+ 1. Make sure the client is not running.
+
+ 2. Move the old 'db' directory out of the way:
+
+    $ mv db db.old
+
+    Or on Windows:
+
+    > rename db db.old
+
+ 3. Move or copy the hotbackup directory to db:
+
+    $ cp -R hotbackup db
+
+    Or on Windows:
+
+    > xcopy /s /I hotbackup db
+
+If you have recent uncorrupted log files in your original db
+directory, you can also copy these log files over your restored log
+files and perform a catastrophic recovery to recover these updates.
 
 With the example above:
  
   $ cp db.old/logs/log.* db/logs
   $ db_recover -c -h db
-  or on Windows
+
+Or on Windows:
+
   > xcopy db.old/logs/log.* db/logs
   > db_recover -c -h db
 
