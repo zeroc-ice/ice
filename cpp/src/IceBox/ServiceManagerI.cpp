@@ -542,21 +542,24 @@ IceBox::ServiceManagerI::stopAll()
     for(p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
-        try
+        if(info.active)
         {
-            info.service->stop();
-            info.active = false;
-        }
-        catch(const Ice::Exception& ex)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: exception in stop for service " << info.name << ":\n";
-            out << ex;
-        }
-        catch(...)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: unknown exception in stop for service " << info.name;
+            try
+            {
+                info.service->stop();
+                info.active = false;
+            }
+            catch(const Ice::Exception& ex)
+            {
+                Warning out(_logger);
+                out << "ServiceManager: exception in stop for service " << info.name << ":\n";
+                out << ex;
+            }
+            catch(...)
+            {
+                Warning out(_logger);
+                out << "ServiceManager: unknown exception in stop for service " << info.name;
+            }
         }
     }
 

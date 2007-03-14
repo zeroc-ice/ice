@@ -163,20 +163,11 @@ IceStorm::ServiceI::stop()
 {
     if(_topicAdapter)
     {
-        _topicAdapter->deactivate();
+        _topicAdapter->destroy();
     }
     if(_publishAdapter)
     {
-        _publishAdapter->deactivate();
-    }
-
-    if(_topicAdapter)
-    {
-        _topicAdapter->waitForDeactivate();
-    }
-    if(_publishAdapter)
-    {
-        _publishAdapter->waitForDeactivate();
+        _publishAdapter->destroy();
     }
 
     //
