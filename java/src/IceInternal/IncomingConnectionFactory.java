@@ -455,7 +455,7 @@ public final class IncomingConnectionFactory extends EventHandler
             //
             // Clean up for finalizer.
             //
-                    
+
             if(_acceptor != null)
             {
                 try
@@ -476,9 +476,16 @@ public final class IncomingConnectionFactory extends EventHandler
                 _threadPerIncomingConnectionFactory = null;
             }
 
-            Ice.SyscallException e = new Ice.SyscallException();
-            e.initCause(ex);
-            throw e;
+            if(ex instanceof Ice.LocalException)
+            {
+                throw (Ice.LocalException)ex;
+            }
+            else
+            {
+                Ice.SyscallException e = new Ice.SyscallException();
+                e.initCause(ex);
+                throw e;
+            }
         }
     }
 
