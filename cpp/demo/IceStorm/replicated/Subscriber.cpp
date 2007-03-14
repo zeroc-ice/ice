@@ -50,7 +50,7 @@ Subscriber::run(int argc, char* argv[])
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     IceGrid::QueryPrx query = IceGrid::QueryPrx::uncheckedCast(communicator()->stringToProxy("DemoIceGrid/Query"));
-    Ice::ObjectProxySeq managers = query->findAllReplicas(query->findObjectByType("::IceStorm::TopicManager"));
+    Ice::ObjectProxySeq managers = query->findAllReplicas(communicator()->stringToProxy("DemoIceStorm/TopicManager"));
     if(managers.size() == 0)
     {
         cerr << appName() << ": no topic managers found, make sure application was deployed." << endl;

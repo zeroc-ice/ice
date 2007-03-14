@@ -173,6 +173,13 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(serverReplicaIds.find(objs[0]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[1]->ice_getAdapterId()) != serverReplicaIds.end());
         test(serverReplicaIds.find(objs[2]->ice_getAdapterId()) != serverReplicaIds.end());
+
+        obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("RoundRobin"));
+        objs = query->findAllReplicas(obj);
+        test(objs.size() == 3);
+        test(serverReplicaIds.find(objs[0]->ice_getAdapterId()) != serverReplicaIds.end());
+        test(serverReplicaIds.find(objs[1]->ice_getAdapterId()) != serverReplicaIds.end());
+        test(serverReplicaIds.find(objs[2]->ice_getAdapterId()) != serverReplicaIds.end());
         
         obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("dummy@dummy"));
         objs = query->findAllReplicas(obj);
