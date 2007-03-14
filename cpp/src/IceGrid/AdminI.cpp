@@ -535,6 +535,12 @@ void
 AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
     checkIsMaster();
+
+    if(!proxy)
+    {
+        throw DeploymentException("proxy is null");
+    }
+
     try
     {
         addObjectWithType(proxy, proxy->ice_id(), current);
@@ -553,6 +559,13 @@ void
 AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
     checkIsMaster();
+
+    if(!proxy)
+    {
+        throw DeploymentException("proxy is null");
+    }
+
+
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {
@@ -567,6 +580,12 @@ void
 AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current& current)
 {
     checkIsMaster();
+
+    if(!proxy)
+    {
+        throw DeploymentException("proxy is null");
+    }
+
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {

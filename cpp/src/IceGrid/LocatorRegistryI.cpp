@@ -226,6 +226,15 @@ LocatorRegistryI::setAdapterDirectProxy(const AMI_Adapter_setDirectProxyPtr& ami
                                         const string& replicaGroupId,
                                         const Ice::ObjectPrx& proxy)
 {
+    //
+    // Ignore request with empty adapter id.
+    //
+    if(adapterId.empty())
+    {
+        amiCB->ice_response();
+        return;
+    }
+
     int nRetry = 5;
     do
     {
