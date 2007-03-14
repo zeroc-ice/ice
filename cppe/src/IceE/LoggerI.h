@@ -30,7 +30,6 @@ public:
 private:
 
     std::string _prefix;
-    std::string _emptyPrefix;
 };
 
 }

@@ -28,15 +28,12 @@ void
 Ice::LoggerI::print(const string& message)
 {
     IceUtil::StaticMutex::Lock sync(globalMutex);
-
     fprintf(stderr, "%s\n", message.c_str());
 }
 
 void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
-    IceUtil::StaticMutex::Lock sync(globalMutex);
-
     string s = "[ ";
     s += _prefix;
     if(!category.empty())
@@ -51,6 +48,8 @@ Ice::LoggerI::trace(const string& category, const string& message)
 	s.insert(idx + 1, "  ");
 	++idx;
     }
+
+    IceUtil::StaticMutex::Lock sync(globalMutex);
     fprintf(stderr, "%s\n", s.c_str());
 }
 
