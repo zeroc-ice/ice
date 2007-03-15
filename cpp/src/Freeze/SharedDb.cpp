@@ -178,7 +178,7 @@ void Freeze::SharedDb::__incRef()
     if(_trace >= 2)
     {
         Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
-        out << "incremeting reference count for Db \"" << _mapKey.dbName << "\"";
+        out << "incrementing reference count for Db \"" << _mapKey.dbName << "\"";
     }
 
     IceUtil::StaticMutex::Lock lock(_refCountMutex);
