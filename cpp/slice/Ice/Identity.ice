@@ -18,6 +18,9 @@ module Ice
  * The identity of an Ice object. An empty [name] denotes a null
  * object.
  *
+ * @see ServantLocator
+ * @see ObjectAdapter::addServantLocator
+ *
  **/
 struct Identity
 {
@@ -31,9 +34,6 @@ struct Identity
     /**
      *
      * The Ice object category.
-     *
-     * @see ServantLocator
-     * @see ObjectAdapter::addServantLocator
      *
      **/
     string category;
