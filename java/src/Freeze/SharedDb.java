@@ -275,6 +275,7 @@ class SharedDb
         _mapKey = mapKey;
         _key = "string";
         _value = "::Freeze::CatalogData";
+        _trace = _mapKey.communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
         
         if(_trace >= 1)
         {
@@ -302,7 +303,7 @@ class SharedDb
         }       
         _refCount = 1;
     }
-        
+
     private void
     connectIndices(Map.Index[] indices)
     {

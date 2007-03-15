@@ -373,10 +373,9 @@ public abstract class Map extends java.util.AbstractMap
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
         dbValue.setPartial(true);
 
-        if(_trace >= 1)
+        if(_trace >= 2)
         {
-            _connection.communicator().getLogger().trace(
-                "Freeze.Map", "checking key in Db \"" + _db.dbName() + "\"");
+            _connection.communicator().getLogger().trace("Freeze.Map", "checking key in Db \"" + _db.dbName() + "\"");
         }
 
         for(;;)
@@ -693,10 +692,9 @@ public abstract class Map extends java.util.AbstractMap
             throw ex;
         }
         
-        if(_trace >= 1)
+        if(_trace >= 2)
         {
-            _connection.communicator().getLogger().trace(
-                "Freeze.Map", "Searching db \"" + dbName + "\"");
+            _connection.communicator().getLogger().trace("Freeze.Map", "searching Db \"" + dbName + "\"");
         }
         
         com.sleepycat.db.DatabaseEntry dbKey = key == null ?
@@ -817,7 +815,7 @@ public abstract class Map extends java.util.AbstractMap
 
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
 
-        if(_trace >= 1)
+        if(_trace >= 2)
         {
             _connection.communicator().getLogger().trace("Freeze.Map", "reading value from Db \"" + _db.dbName() +
                                                          "\"");
@@ -883,7 +881,7 @@ public abstract class Map extends java.util.AbstractMap
         byte[] v = encodeValue(value, _connection.communicator());      
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(v);
         
-        if(_trace >= 1)
+        if(_trace >= 2)
         {
             _connection.communicator().getLogger().trace("Freeze.Map", "writing value in Db \"" + _db.dbName() + "\"");
         }
@@ -944,7 +942,7 @@ public abstract class Map extends java.util.AbstractMap
             throw ex;
         }
 
-        if(_trace >= 1)
+        if(_trace >= 2)
         {
             _connection.communicator().getLogger().trace("Freeze.Map", "deleting value from Db \"" + _db.dbName() +
                                                          "\"");
@@ -1267,10 +1265,10 @@ public abstract class Map extends java.util.AbstractMap
             com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry();
             dbValue.setPartial(true);
 
-            if(_trace >= 1)
+            if(_trace >= 2)
             {
-                _connection.communicator().getLogger().trace(
-                    "Freeze.Map.Index", "checking key in Db \"" + _dbName + "\"");
+                _connection.communicator().getLogger().trace("Freeze.Map.Index", "checking key in Db \"" + _dbName +
+                                                             "\"");
             }
             
             for(;;)
