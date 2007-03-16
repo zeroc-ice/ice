@@ -1,6 +1,9 @@
 Changes since version 3.2.0
 ---------------------------
 
+- Fixed collocation optimization to also work for indirect proxies
+  referring to a replica group.
+
 - The findAllReplicas() operation in the IceGrid::Query interface now
   accepts well-known proxies from a replica group. This allows you to
   retrieve the replicas of a replicated object using its well-known

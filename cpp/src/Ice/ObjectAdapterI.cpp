@@ -581,9 +581,9 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
         {
             //
             // Proxy is local if the reference adapter id matches this
-            // adapter id.
+            // adapter id or replica group id.
             //
-            return ir->getAdapterId() == _id;
+            return ir->getAdapterId() == _id || ir->getAdapterId() == _replicaGroupId;
         }
 
         //
