@@ -1,17 +1,7 @@
-// **********************************************************************
-//
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
-
 package Evictor;
 
 public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.ServantLocator
 {
-
     public
     EvictorBase()
     {
@@ -34,23 +24,15 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     locate(Ice.Current c, Ice.LocalObjectHolder cookie)
     {
         //
-        // Create a cookie.
+        // Check if we have a servant in the map already.
         //
-        EvictorCookie ec = new EvictorCookie();
-        cookie.value = ec;
-
-        //
-        // Check if we a servant in the map already.
-        //
-        ec.entry = (EvictorEntry)_map.get(c.id);
-        boolean newEntry = ec.entry == null;
-        if(!newEntry)
+        EvictorEntry entry = (EvictorEntry)_map.get(c.id);
+        if(entry != null)
         {
             //
-            // Got an entry already, dequeue the entry from
-            // its current position.
+            // Got an entry already, dequeue the entry from its current position.
             //
-            ec.entry.pos.remove();
+            entry.queuePos.remove();
         }
         else
         {
@@ -58,40 +40,40 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
             // We do not have entry. Ask the derived class to
             // instantiate a servant and add a new entry to the map.
             //
-            ec.entry = new EvictorEntry();
+            entry = new EvictorEntry();
             Ice.LocalObjectHolder cookieHolder = new Ice.LocalObjectHolder();
-            ec.entry.servant = add(c, cookieHolder); // Down-call
-            if(ec.entry.servant == null)
+            entry.servant = add(c, cookieHolder); // Down-call
+            if(entry.servant == null)
             {
                 return null;
             }
-            ec.entry.userCookie = cookieHolder.value;
-            ec.entry.useCount = 0;
-            _map.put(c.id, ec.entry);
+            entry.userCookie = cookieHolder.value;
+            entry.useCount = 0;
+            _map.put(c.id, entry);
         }
 
         //
         // Increment the use count of the servant and enqueue
         // the entry at the front, so we get LRU order.
         //
-        ++(ec.entry.useCount);
+        ++(entry.useCount);
         _queue.addFirst(c.id);
-        ec.entry.pos = _queue.iterator();
-        ec.entry.pos.next(); // Position the iterator on the element.
+        entry.queuePos = _queue.iterator();
+        entry.queuePos.next(); // Position the iterator on the element.
 
-        return ec.entry.servant;
+        return entry.servant;
     }
 
     synchronized public final void
     finished(Ice.Current c, Ice.Object o, Ice.LocalObject cookie)
     {
-        EvictorCookie ec = (EvictorCookie)cookie;
+        EvictorEntry entry = (EvictorEntry)cookie;
 
         //
         // Decrement use count and check if
         // there is something to evict.
         //
-        --(ec.entry.useCount);
+        --(entry.useCount);
         evictServants();
     }
 
@@ -102,17 +84,12 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
         evictServants();
     }
 
-    private class EvictorEntry
+    private class EvictorEntry extends Ice.LocalObjectImpl
     {
         Ice.Object servant;
         Ice.LocalObject userCookie;
-        java.util.Iterator pos;
+        java.util.Iterator queuePos;
         int useCount;
-    }
-
-    private class EvictorCookie extends Ice.LocalObjectImpl
-    {
-        public EvictorEntry entry;
     }
 
     private void evictServants()
@@ -122,15 +99,16 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
         // look at the excess elements to see whether any of them
         // can be evicted.
         //
-        for(int i = _map.size() - _size; i > 0; --i)
+        java.util.Iterator queuePos = _queue.riterator();
+        int excessEntries = _map.size() - _size;
+        for(int i = 0; i < excessEntries; ++i)
         {
-            java.util.Iterator p = _queue.riterator();
-            Ice.Identity id = (Ice.Identity)p.next();
+            Ice.Identity id = (Ice.Identity)queuePos.next();
             EvictorEntry e = (EvictorEntry)_map.get(id);
             if(e.useCount == 0)
             {
                 evict(e.servant, e.userCookie); // Down-call
-                p.remove();
+                queuePos.remove();
                 _map.remove(id);
             }
         }
