@@ -583,9 +583,9 @@ namespace Ice
                 {
                     //
                     // Proxy is local if the reference adapter id matches this
-                    // adapter name.
+                    // adapter id or replica group id.
                     //
-                    return ir.getAdapterId().Equals(_id);
+                    return ir.getAdapterId().Equals(_id) || ir.getAdapterId().Equals(_replicaGroupId);
                 }
                 IceInternal.LocatorInfo info = ir.getLocatorInfo();
                 if(info != null)

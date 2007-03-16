@@ -578,9 +578,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             {
                 //
                 // Proxy is local if the reference adapter id matches this
-                // adapter name.
+                // adapter id or replica group id.
                 //
-                return ir.getAdapterId().equals(_id);
+                return ir.getAdapterId().equals(_id) || ir.getAdapterId().equals(_replicaGroupId);
             }
             IceInternal.LocatorInfo info = ir.getLocatorInfo();
             if(info != null)
