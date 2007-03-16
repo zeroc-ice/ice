@@ -14,7 +14,20 @@ public class BasicStream
     public
     BasicStream(IceInternal.Instance instance)
     {
+        initialize(instance, false);
+    }
+
+    public
+    BasicStream(IceInternal.Instance instance, boolean unlimited)
+    {
+        initialize(instance, unlimited);
+    }
+
+    private void
+    initialize(IceInternal.Instance instance, boolean unlimited)
+    {
         _instance = instance;
+        _unlimited = unlimited;
         allocate(1500);
         _capacity = _buf.capacity();
         _limit = 0;
@@ -114,12 +127,16 @@ public class BasicStream
 	int tmpShrinkCounter = other._shrinkCounter;
 	other._shrinkCounter = _shrinkCounter;
 	_shrinkCounter = tmpShrinkCounter;
+
+        boolean tmpUnlimited = other._unlimited;
+        other._unlimited = _unlimited;
+        _unlimited = tmpUnlimited;
     }
 
     public void
     resize(int total, boolean reading)
     {
-        if(total > _messageSizeMax)
+        if(!_unlimited && total > _messageSizeMax)
         {
             throw new Ice.MemoryLimitException();
         }
@@ -1221,7 +1238,7 @@ public class BasicStream
         {
             int oldLimit = _limit;
             _limit += size;
-            if(_limit > _messageSizeMax)
+            if(!_unlimited && _limit > _messageSizeMax)
             {
                 throw new Ice.MemoryLimitException();
             }
@@ -1495,7 +1512,10 @@ public class BasicStream
         //
 	// Limit buffer size to MessageSizeMax
 	//
-	size = size > _messageSizeMax ? _messageSizeMax : size;
+        if(!_unlimited)
+        {
+	    size = size > _messageSizeMax ? _messageSizeMax : size;
+        }
 
 	ByteBuffer old = _buf;
 	if(IceUtil.Debug.ASSERT)
@@ -1545,6 +1565,7 @@ public class BasicStream
     private int _writeSlice;
 
     private int _messageSizeMax;
+    private boolean _unlimited;
     private int _shrinkCounter;
 
     private static final class SeqData

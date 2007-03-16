@@ -139,6 +139,10 @@ private:
     void readStreamAndParseMessage(IceInternal::BasicStream&, Int&);
 #endif
 
+#ifdef ICEE_HAS_BATCH
+    void flushBatchRequestsInternal(bool);
+    void resetBatch(bool);
+#endif
 
 #ifndef ICEE_PURE_BLOCKING_CLIENT
 
@@ -178,9 +182,11 @@ private:
     IceInternal::BasicStream _stream;
 #endif
 #ifdef ICEE_HAS_BATCH
+    const bool _batchAutoFlush;
     IceInternal::BasicStream _batchStream;
     bool _batchStreamInUse;
     int _batchRequestNum;
+    size_t _batchMarker;
 #endif
 
 #if !defined(ICEE_PURE_BLOCKING_CLIENT)

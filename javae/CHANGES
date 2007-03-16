@@ -1,6 +1,11 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Message batches are now automatically flushed when the total size of
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
+
 - Added destroy() operation to the ObjectAdapter interface. This
   operation must be called in order to reclaim the adapter's resources
   and be able to recreate a new adapter with the same name. Destroying

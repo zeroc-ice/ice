@@ -75,12 +75,13 @@ public:
     };
 
     BasicStream(Instance* instance, int messageSizeMax, const Ice::StringConverterPtr& stringConverter, 
-		const Ice::WstringConverterPtr& wstringConverter) :
+		const Ice::WstringConverterPtr& wstringConverter, bool unlimited = false) :
 	Buffer::Buffer(messageSizeMax),
 	_instance(instance),
 	_currentReadEncaps(0),
 	_currentWriteEncaps(0),
 	_messageSizeMax(messageSizeMax),
+        _unlimited(unlimited),
 	_stringConverter(stringConverter),
 	_wstringConverter(wstringConverter),
 	_seqDataStack(0)
@@ -112,7 +113,7 @@ public:
 
     void resize(Container::size_type sz)
     {
-	if(sz > _messageSizeMax)
+	if(!_unlimited && sz > _messageSizeMax)
 	{
 	    throwMemoryLimitException(__FILE__, __LINE__);
 	}
@@ -631,6 +632,8 @@ private:
     Container::size_type _writeSlice;
 
     const Container::size_type _messageSizeMax;
+    bool _unlimited;
+
     const Ice::StringConverterPtr& _stringConverter;
     const Ice::WstringConverterPtr& _wstringConverter;
 

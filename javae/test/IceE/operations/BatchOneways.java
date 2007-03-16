@@ -57,7 +57,7 @@ class BatchOneways
 
 	Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
-	for(int i = 0 ; i < 9 ; ++i)
+	for(int i = 0 ; i < 30 ; ++i)
 	{
 	    try
 	    {
@@ -68,36 +68,8 @@ class BatchOneways
 	    {
 		test(false);
 	    }
-
-	    batch.ice_getConnection().flushBatchRequests();
 	}
 
-	for(int i = 0 ; i < 10 ; ++i)
-	{
-	    try
-	    {
-		batch.opByteSOneway(bs1);
-		test(i < 9);
-	    }
-	    catch(Ice.MemoryLimitException ex)
-	    {
-		test(i == 9);
-	    }
-	}
-
-	for(int i = 0 ; i < 9 ; ++i)
-	{
-	    try
-	    {
-		batch.opByteSOneway(bs1);
-		test(true);
-	    }
-	    catch(Ice.MemoryLimitException ex)
-	    {
-		test(false);
-	    }
-
-	    batch.ice_getConnection().flushBatchRequests();
-	}
+	batch.ice_getConnection().flushBatchRequests();
     }
 }

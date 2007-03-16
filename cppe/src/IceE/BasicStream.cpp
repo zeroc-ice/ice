@@ -96,6 +96,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
     }
 
     std::swap(_seqDataStack, other._seqDataStack);
+    std::swap(_unlimited, other._unlimited);
 }
 
 //

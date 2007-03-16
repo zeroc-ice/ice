@@ -1,6 +1,11 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Message batches are now automatically flushed when the total size of
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
+
 - Added destroy() operation to the ObjectAdapter interface. This
   operation must be called in order to reclaim the adapter's resources
   and be able to recreate a new adapter with the same name. Destroying
@@ -64,10 +69,6 @@ Changes since version 1.1.0
 
 - Fixed an assert which could occur with proxies received over
   the wire and containing unknown endpoints.
-
-- It is now permissible to recreate a new object adapter with the same 
-  name as an old adapter once waitForDeactivate() has returned on the
-  old adapter.
 
 - Added new method Ice::Communicator::createObjectAdapterWithRouter()
   which creates a routed object adapter. A object adapter can now only
