@@ -7,7 +7,7 @@
 #include <map>
 #include <list>
 
-class EvictorBase : virtual public Ice::ServantLocator
+class EvictorBase : public Ice::ServantLocator
 {
 public:
 
@@ -16,6 +16,8 @@ public:
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate(const std::string&);
+
+protected:
 
     virtual Ice::ObjectPtr add(const Ice::Current&, Ice::LocalObjectPtr&) = 0;
     virtual void evict(const Ice::ObjectPtr&, const Ice::LocalObjectPtr&) = 0;
@@ -28,19 +30,13 @@ private:
     typedef std::map<Ice::Identity, EvictorEntryPtr> EvictorMap;
     typedef std::list<EvictorMap::iterator> EvictorQueue;
 
-    struct EvictorEntry : public IceUtil::Shared
+    struct EvictorEntry : public Ice::LocalObject
     {
         Ice::ObjectPtr servant;
         Ice::LocalObjectPtr userCookie;
         EvictorQueue::iterator pos;
         int useCount;
     };
-
-    struct EvictorCookie : public Ice::LocalObject
-    {
-        EvictorEntryPtr entry;
-    };
-    typedef IceUtil::Handle<EvictorCookie> EvictorCookiePtr;
 
     EvictorMap _map;
     EvictorQueue _queue;
