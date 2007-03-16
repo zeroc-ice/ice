@@ -3028,6 +3028,8 @@ void
 Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
     StringList metaData = p->getMetaData();
+    metaData.remove("cpp:const");
+
     TypePtr returnType = p->returnType();
     if(!metaData.empty())
     {
