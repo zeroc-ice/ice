@@ -22,10 +22,10 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
-// This file was slightly modified to move the definitions to the
-// IceUtil namespace and use C++ types.
+// This copy of Ice-E is licensed to you under the terms described in the
+// ICEE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
