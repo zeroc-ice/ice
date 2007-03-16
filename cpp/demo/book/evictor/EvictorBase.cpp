@@ -1,5 +1,4 @@
 #include <EvictorBase.h>
-#include <Ice/LocalException.h>
 
 EvictorBase::EvictorBase(Ice::Int size)
     : _size(size)
@@ -20,14 +19,13 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
     //
     EvictorEntryPtr entry;
     EvictorMap::iterator i = _map.find(c.id);
-    bool newEntry = i == _map.end();
-    if(!newEntry)
+    if(i != _map.end())
     {
         //
         // Got an entry already, dequeue the entry from its current position.
         //
         entry = i->second;
-        _queue.erase(entry->pos);
+        _queue.erase(entry->queuePos);
     }
     else
     {
@@ -35,7 +33,7 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
         // We do not have an entry. Ask the derived class to
         // instantiate a servant and add a new entry to the map.
         //
-        EvictorEntryPtr entry = new EvictorEntry;
+        entry = new EvictorEntry;
         entry->servant = add(c, entry->userCookie); // Down-call
         if(!entry->servant)
         {
@@ -50,7 +48,7 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
     // the entry at the front, so we get LRU order.
     //
     ++(entry->useCount);
-    entry->pos = _queue.insert(_queue.begin(), i);
+    entry->queuePos = _queue.insert(_queue.begin(), i);
 
     return entry->servant;
 }
@@ -86,16 +84,16 @@ EvictorBase::evictServants()
     // look at the excess elements to see whether any of them
     // can be evicted.
     //
-    EvictorQueue::reverse_iterator p = _queue.rbegin();
+    EvictorQueue::reverse_iterator queuePos = _queue.rbegin();
     int excessEntries = static_cast<int>(_map.size() - _size);
     for(int i = 0; i < excessEntries; ++i)
     {
-        EvictorMap::iterator pos = *p++;
-        if(pos->second->useCount == 0)
+        EvictorMap::iterator mapPos = *queuePos++;
+        if(mapPos->second->useCount == 0)
         {
-            evict(pos->second->servant, pos->second->userCookie); // Down-call
-            _queue.erase(pos->second->pos);
-            _map.erase(pos);
+            evict(mapPos->second->servant, mapPos->second->userCookie); // Down-call
+            _queue.erase(mapPos->second->queuePos);
+            _map.erase(mapPos);
         }
     }
 }

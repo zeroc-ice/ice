@@ -34,7 +34,7 @@ private:
     {
         Ice::ObjectPtr servant;
         Ice::LocalObjectPtr userCookie;
-        EvictorQueue::iterator pos;
+        EvictorQueue::iterator queuePos;
         int useCount;
     };
 
