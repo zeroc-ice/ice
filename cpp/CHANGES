@@ -1,3 +1,22 @@
+Changes since version 3.2.X (binary incompabible)
+-------------------------------------------------
+
+- Added what() member to IceUtil::Exception, so a single catch handler
+  can be used for Ice exceptions:
+
+  try
+  {
+      // Call something that may throw an Ice exception
+  }
+  catch(const ::std::exception& ex)
+  {
+      cerr << ex.what() << endl; // Works for any ::std::exception,
+                                 // including Ice exceptions
+  }
+
+  what() is implemented in terms of ice_print(), so overriding ice_print()
+  also changes the string returned by what().
+
 Changes since version 3.2.0
 ---------------------------
 

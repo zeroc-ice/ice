@@ -8,6 +8,8 @@
 // **********************************************************************
 
 #include <IceUtil/Exception.h>
+#include <IceUtil/StaticMutex.h>
+#include <ostream>
 
 using namespace std;
 
@@ -50,6 +52,21 @@ IceUtil::Exception::ice_print(ostream& out) const
         out << _file << ':' << _line << ": ";
     }
     out << ice_name();
+}
+
+const char*
+IceUtil::Exception::what() const throw()
+{
+    StaticMutex::Lock lock(globalMutex);
+    {
+        if(_str.empty())
+        {
+            stringstream s;
+            ice_print(s);
+            _str = s.str(); // Lazy initialization.
+        }
+    }
+    return _str.c_str();
 }
 
 IceUtil::Exception*

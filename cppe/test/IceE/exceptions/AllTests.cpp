@@ -63,6 +63,31 @@ private:
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    tprintf("testing toString()/what()... ");
+    {
+        A a;
+        string aMsg = "Test::A";
+
+        Ice::UnknownLocalException ule("thisFile", 99);
+        string uleMsg = "thisFile:99: Ice::UnknownLocalException:\nunknown local exception";
+
+        //
+        // Test toString().
+        //
+        test(a.toString() == aMsg);
+        test(ule.toString() == uleMsg);
+
+        //
+        // Test what(). (Called twice because of lazy initialization in what().)
+        //
+        test(aMsg == a.what());
+        test(aMsg == a.what());
+
+        test(uleMsg == ule.what());
+        test(uleMsg == ule.what());
+    }
+    tprintf("ok\n");
+
     tprintf("testing object adapter registration exceptions... ");
     {
 	Ice::ObjectAdapterPtr first = communicator->createObjectAdapter("TestAdapter0");

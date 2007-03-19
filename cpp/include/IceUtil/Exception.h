@@ -24,6 +24,7 @@ public:
     virtual ~Exception() throw();
     virtual std::string ice_name() const;
     virtual void ice_print(std::ostream&) const;
+    virtual const char* what() const throw();
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
     const char* ice_file() const;
@@ -34,6 +35,7 @@ private:
     const char* _file;
     int _line;
     static const char* _name;
+    mutable ::std::string _str; // Initialized lazily in what().
 };
 
 ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Exception&);

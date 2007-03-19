@@ -570,6 +570,53 @@ typedef IceUtil::Handle<AMI_WrongOperation_noSuchOperationI> AMI_WrongOperation_
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
+    cout << "testing ice_print()/what()... " << flush;
+    {
+        A a;
+        string aMsg = "Test::A";
+
+        Ice::UnknownLocalException ule("thisFile", 99);
+        string uleMsg = "thisFile:99: Ice::UnknownLocalException:\nunknown local exception";
+
+        //
+        // Test ice_print().
+        //
+        {
+            stringstream str;
+            a.ice_print(str);
+            test(str.str() == aMsg);
+        }
+        {
+            stringstream str;
+            ule.ice_print(str);
+            test(str.str() == uleMsg);
+        }
+
+        //
+        // Test operator<<().
+        //
+        {
+            stringstream str;
+            str << a;
+            test(str.str() == aMsg);
+        }
+        {
+            stringstream str;
+            str << ule;
+            test(str.str() == uleMsg);
+        }
+
+        //
+        // Test what(). (Called twice because of lazy initialization in what().)
+        //
+        test(aMsg == a.what());
+        test(aMsg == a.what());
+
+        test(uleMsg == ule.what());
+        test(uleMsg == ule.what());
+    }
+    cout << "ok" << endl;
+
     cout << "testing object adapter registration exceptions... " << flush;
     {
         Ice::ObjectAdapterPtr first;

@@ -24,6 +24,7 @@ public:
     virtual ~Exception() throw();
     virtual std::string ice_name() const;
     virtual std::string toString() const;
+    virtual const char* what() const throw();
     virtual Exception* ice_clone() const;
     virtual void ice_throw() const;
     const char* ice_file() const;
@@ -34,6 +35,7 @@ private:
     const char* _file;
     int _line;
     static const char* _name;
+    mutable std::string _str; // Initialized lazily in what().
 };
 
 class ICE_API NullHandleException : public Exception

@@ -9,6 +9,7 @@
 
 #include <IceE/Exception.h>
 #include <IceE/SafeStdio.h>
+#include <IceE/StaticMutex.h>
 
 using namespace std;
 
@@ -49,10 +50,23 @@ IceUtil::Exception::toString() const
     string out;
     if(_file && _line > 0)
     {
-	out += Ice::printfToString("%s:%d: ", _file, _line);
+        out += Ice::printfToString("%s:%d: ", _file, _line);
     }
     out += ice_name();
     return out;
+}
+
+const char*
+IceUtil::Exception::what() const throw()
+{
+    StaticMutex::Lock lock(globalMutex);
+    {
+        if(_str.empty())
+        {
+            _str = toString(); // Lazy initialization.
+        }
+    }
+    return _str.c_str();
 }
 
 IceUtil::Exception*
