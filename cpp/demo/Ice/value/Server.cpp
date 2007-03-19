@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <ValueI.h>
 #include <Ice/Ice.h>
+#include <ValueI.h>
 
 using namespace std;
 

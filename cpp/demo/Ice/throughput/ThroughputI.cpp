@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <ThroughputI.h>
 #include <Ice/Ice.h>
+#include <ThroughputI.h>
 
 ThroughputI::ThroughputI() :
     _byteSeq(Demo::ByteSeqSize),

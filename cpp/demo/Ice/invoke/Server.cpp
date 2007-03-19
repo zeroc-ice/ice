@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <PrinterI.h>
-#include <Ice/Application.h>
 
 using namespace std;
 

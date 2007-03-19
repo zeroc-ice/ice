@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <HelloI.h>
 #include <WorkQueue.h>
-#include <Ice/Application.h>
 
 using namespace std;
 

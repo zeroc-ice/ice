@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <Echo.h>
 #include <StringConverterI.h>
-#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Demo;

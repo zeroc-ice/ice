@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <PhoneBookI.h>
-#include <IceUtil/UUID.h>
 
 using namespace std;
 using namespace Demo;

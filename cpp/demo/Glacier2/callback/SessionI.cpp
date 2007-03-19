@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <SessionI.h>
 #include <Ice/Ice.h>
+#include <SessionI.h>
 
 using namespace std;
 

@@ -7,12 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Thread.h>
-#include <IceUtil/Exception.h>
-#include <IceUtil/Monitor.h>
-#include <IceUtil/Mutex.h>
-#include <IceUtil/StaticMutex.h>
-
+#include <IceUtil/IceUtil.h>
 #include <list>
 
 using namespace std;

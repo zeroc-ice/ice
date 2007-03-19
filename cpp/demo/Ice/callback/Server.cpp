@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <CallbackSenderI.h>
-#include <Ice/Application.h>
 
 using namespace std;
 using namespace Demo;

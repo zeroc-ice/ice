@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <ChatSessionI.h>
-#include <Ice/Application.h>
 #include <Glacier2/PermissionsVerifier.h>
 
 using namespace std;

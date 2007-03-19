@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceUtil/Thread.h>
-#include <Ice/Application.h>
+#include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Query.h>
 

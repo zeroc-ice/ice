@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Callback.h>
 
 using namespace std;

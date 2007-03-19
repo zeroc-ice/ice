@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <FilesystemI.h>
 
 using namespace std;

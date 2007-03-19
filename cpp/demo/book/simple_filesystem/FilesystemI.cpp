@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <FilesystemI.h>
-#include <IceUtil/UUID.h>
 
 using namespace std;
 

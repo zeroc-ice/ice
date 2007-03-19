@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <HelloI.h>
 #include <Ice/Ice.h>
+#include <HelloI.h>
 
 using namespace std;
 

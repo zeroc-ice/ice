@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceUtil/UUID.h>
-#include <Ice/Application.h>
+#include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <Callback.h>
 
 using namespace std;

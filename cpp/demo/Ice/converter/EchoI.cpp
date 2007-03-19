@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#include <EchoI.h>
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <IceUtil/StringUtil.h>
+#include <EchoI.h>
 
 using namespace std;
 

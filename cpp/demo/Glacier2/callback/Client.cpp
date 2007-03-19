@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#include <CallbackI.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Glacier2/Router.h>
+#include <CallbackI.h>
 
 using namespace std;
 using namespace Demo;

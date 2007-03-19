@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
 #include <BenchTypes.h>
 #include <cstdlib>

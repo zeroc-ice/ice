@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#include <BookFactory.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
+#include <BookFactory.h>
 
 using namespace std;
 

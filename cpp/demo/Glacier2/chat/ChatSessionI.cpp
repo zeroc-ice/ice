@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <ChatSessionI.h>
 #include <Ice/Ice.h>
+#include <ChatSessionI.h>
 #include <list>
 
 using namespace std;

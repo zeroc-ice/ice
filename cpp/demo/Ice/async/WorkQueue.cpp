@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <WorkQueue.h>
-#include <Ice/LocalException.h>
 
 using namespace std;
 

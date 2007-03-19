@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <DeptFactoryI.h>
-#include <Ice/Application.h>
 #include <OCCIServantLocator.h>
 #include <occi.h>
 #include <DbTypesMap.h>

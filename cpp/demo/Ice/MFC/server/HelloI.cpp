@@ -8,8 +8,8 @@
 // **********************************************************************
 
 #include "stdafx.h"
+#include <IceUtil/IceUtil.h>
 #include <HelloI.h>
-#include <IceUtil/Thread.h>
 
 using namespace std;
 

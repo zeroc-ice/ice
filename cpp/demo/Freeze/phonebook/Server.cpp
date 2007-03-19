@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <ContactFactory.h>
 #include <NameIndex.h>
 #include <PhoneBookI.h>

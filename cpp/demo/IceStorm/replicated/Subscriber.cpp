@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/Query.h>
-#include <IceUtil/UUID.h>
 
 #include <Clock.h>
 

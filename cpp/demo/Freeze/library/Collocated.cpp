@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
+#include <Freeze/Freeze.h>
 #include <BookFactory.h>
 #include <Parser.h>
-#include <Freeze/Freeze.h>
 
 using namespace std;
 

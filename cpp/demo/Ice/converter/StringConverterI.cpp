@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
+#include <Ice/Ice.h>
 #include <StringConverterI.h>
-#include <Ice/LocalException.h>
 
 using namespace std;
 
