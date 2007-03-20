@@ -128,7 +128,13 @@ public final class ObjectAdapterFactory
 
         synchronized(this)
         {
-            adapters = (Ice.ObjectAdapter[])_adapters.values().toArray(new Ice.ObjectAdapter[0]);
+            adapters = new Ice.ObjectAdapter[_adapters.size()];
+            int idx = 0;
+            for(java.util.Enumeration e = _adapters.elements(); e.hasMoreElements(); )
+            {
+                adapters[idx] = (Ice.ObjectAdapter)e.nextElement();
+                idx++;
+            }
 
             //
             // For consistency with C#, we set _adapters to null

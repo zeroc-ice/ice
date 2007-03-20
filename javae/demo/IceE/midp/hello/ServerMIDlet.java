@@ -22,7 +22,7 @@ public class ServerMIDlet
 	}
 
 	public void
-	sayHello(Ice.Current current)
+	sayHello(int delay, Ice.Current current)
 	{
 	    _msg.setText("Hello World!");
 	}

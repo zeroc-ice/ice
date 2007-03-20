@@ -125,7 +125,7 @@ public class ClientMIDlet
 	}
 	try
 	{
-	    _helloPrx.sayHello();
+	    _helloPrx.sayHello(0);
 	    _msg.setText("'sayHello()' succeeded");
 	}
 	catch(Exception ex)

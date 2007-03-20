@@ -277,9 +277,8 @@ public final class ObjectAdapter
                 }
             }
 
-            incomingConnectionFactories =
-                (IceInternal.IncomingConnectionFactory[])_incomingConnectionFactories.toArray(
-                    new IceInternal.IncomingConnectionFactory[0]);
+            incomingConnectionFactories = new IceInternal.IncomingConnectionFactory[_incomingConnectionFactories.size()];
+            _incomingConnectionFactories.copyInto(incomingConnectionFactories);
         }
 
         //

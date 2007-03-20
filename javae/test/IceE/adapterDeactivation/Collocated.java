@@ -10,7 +10,7 @@
 public class Collocated
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
 	communicator.getProperties().setProperty("Test.Proxy", "test:default -p 12010 -t 10000");
 	communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
@@ -35,7 +35,7 @@ public class Collocated
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator, System.out);
+            status = run(args, communicator, null, System.out);
         }
         catch(Ice.LocalException ex)
         {

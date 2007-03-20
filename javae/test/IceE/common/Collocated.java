@@ -13,7 +13,7 @@
 public class Collocated
 {
     public static int 
-    run(String[] args, Ice.Communicator comm, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator comm, Ice.InitializationData data, java.io.PrintStream out)
     {
 	return -1;
     }

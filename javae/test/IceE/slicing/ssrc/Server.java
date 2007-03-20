@@ -10,7 +10,7 @@
 public class Server
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.Warn.Dispatch", "0");
@@ -36,7 +36,7 @@ public class Server
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator, System.out);
+            status = run(args, communicator, null, System.out);
         }
         catch(Ice.LocalException ex)
         {

@@ -10,8 +10,9 @@
 package Ice;
 
 //
-// The default logger for MIDP application simply stubs out the calls to the logger interface. MIDP apps generally
-// don't have a stderr or stdout to write to.
+// The default logger for MIDP application simply stubs out the calls to
+// the logger interface. MIDP apps generally don't have a stderr or
+// stdout to write to.
 //
 
 public final class LoggerI extends LocalObjectImpl implements Logger
@@ -23,27 +24,8 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	{
 	    _prefix = prefix + ": ";
 	}
-	/*
-	String logURL = "socket://142.163.163.194:33456";
-	try
-	{
-	    javax.microedition.io.SocketConnection s = 
-		(javax.microedition.io.SocketConnection)javax.microedition.io.Connector.open(logURL);
-	    
-	    s.setSocketOption(javax.microedition.io.SocketConnection.DELAY, 0);
-	    s.setSocketOption(javax.microedition.io.SocketConnection.LINGER, 0);
-	    s.setSocketOption(javax.microedition.io.SocketConnection.KEEPALIVE, 0);
-	    
-	    _out = new java.io.PrintStream(s.openOutputStream());
-	}
-	catch(java.io.IOException ex)
-	{
-	    // Ignore.
-	}
-	*/
 
-        _date = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
-        _time = new java.text.SimpleDateFormat(" HH:mm:ss:SSS");
+        _date = java.util.Calendar.getInstance();
     }
 
     public void
@@ -60,18 +42,22 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     trace(String category, String message)
     {
         StringBuffer s = new StringBuffer("[ ");
-        s.append(_date.format(new java.util.Date()));
-        s.append(_time.format(new java.util.Date()));
+        s = timeStamp(s);
+        s.append(" ");
 	s.append(_prefix);
 	s.append(category);
 	s.append(": ");
         s.append(message);
         s.append(" ]");
-        int idx = 0;
-        while((idx = s.indexOf("\n", idx)) != -1)
+        int start = 0;
+        int end = 0;
+        String temp = s.toString();
+        s.setLength(0);
+        while((end = temp.indexOf("\n", start)) != -1)
         {
-            s.insert(idx + 1, "  ");
-            ++idx;
+            s.append(temp.substring(start, end-1));
+            s.append(" ");
+            start = end + 1;
         }
 
 	synchronized(_globalMutex)
@@ -81,12 +67,40 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	}
     }
 
+    //
+    // MIDP does not have a direct way to produce a date & time string
+    // consistent with the JDK version of the logger. timeStamp is
+    // intended to emulate it through java.util.Calendar fields.
+    //
+    private StringBuffer
+    timeStamp(StringBuffer b)
+    {
+        _date.setTime(new java.util.Date());
+        /* M.D.Y */
+        b.append(_date.get(java.util.Calendar.MONTH));
+        b.append(".");
+        b.append(_date.get(java.util.Calendar.DATE));
+        b.append(".");
+        b.append(_date.get(java.util.Calendar.YEAR));
+        b.append(" ");
+
+        /* HH:mm:ss:SSS */
+        b.append(_date.get(java.util.Calendar.HOUR));
+        b.append(":");
+        b.append(_date.get(java.util.Calendar.MONTH));
+        b.append(":");
+        b.append(_date.get(java.util.Calendar.SECOND));
+        b.append(":");
+        b.append(_date.get(java.util.Calendar.MILLISECOND));
+        return b;
+    }
+
     public void
     warning(String message)
     {
 	StringBuffer s = new StringBuffer();
-        s.append(_date.format(new java.util.Date()));
-        s.append(_time.format(new java.util.Date()));
+        s = timeStamp(s);
+        s.append(" ");
 	s.append(_prefix);
 	s.append("warning: ");
 	s.append(message);
@@ -102,8 +116,8 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     error(String message)
     {
 	StringBuffer s = new StringBuffer();
-        s.append(_date.format(new java.util.Date()));
-        s.append(_time.format(new java.util.Date()));
+        s = timeStamp(s);
+        s.append(" ");
 	s.append(_prefix);
 	s.append("error: ");
 	s.append(message);
@@ -121,7 +135,6 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	super(source);
 	_prefix = source._prefix;
 	_date = source._date;
-	_time = source._time;
 	_out = source._out;
     }
     
@@ -133,7 +146,6 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 
     String _prefix = "";
     static java.lang.Object _globalMutex = new java.lang.Object();
-    java.text.DateFormat _date;
-    java.text.SimpleDateFormat _time;
+    java.util.Calendar _date;
     java.io.PrintStream _out = System.err;
 }

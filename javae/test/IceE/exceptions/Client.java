@@ -12,7 +12,7 @@ import Test.*;
 public class Client
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
         ThrowerPrx thrower = AllTests.allTests(communicator, out);
         thrower.shutdown();
@@ -28,7 +28,7 @@ public class Client
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator, System.out);
+            status = run(args, communicator, null, System.out);
         }
         catch(Ice.LocalException ex)
         {

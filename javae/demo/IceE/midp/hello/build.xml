@@ -76,7 +76,7 @@
     <target name="client-preverify" depends="client-obfuscate" if="midp">
         <exec executable="${WTK}/bin/preverify">
             <arg line="-classpath ${WTKLIBS}"/>
-            <arg line="-d ."/>
+	    <arg line="-d ."/>
 	    <arg line="tmp/HelloClient.jar"/>
 	</exec>
     </target>

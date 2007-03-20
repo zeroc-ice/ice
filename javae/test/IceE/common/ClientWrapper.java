@@ -26,7 +26,7 @@ public class ClientWrapper
 	{
 	    if(_communicator != null)
 	    {
-		Client.run(new String[0], _communicator, _out);
+		Client.run(new String[0], _communicator, null, _out);
 	    }
 	    done();
 	}

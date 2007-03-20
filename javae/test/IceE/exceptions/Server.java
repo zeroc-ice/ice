@@ -10,7 +10,7 @@
 public class Server
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
 	//
 	// When running as a MIDlet the properties for the server may be
@@ -45,7 +45,7 @@ public class Server
 	    Ice.InitializationData initData = new Ice.InitializationData();
 	    initData.logger = new DummyLogger();
             communicator = Ice.Util.initialize(args, initData);
-            status = run(args, communicator, System.out);
+            status = run(args, communicator, initData, System.out);
         }
         catch(Ice.LocalException ex)
         {

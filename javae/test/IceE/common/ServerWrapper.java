@@ -51,7 +51,7 @@ public class ServerWrapper
 	{
 	    if(_communicator != null)
 	    {
-		Server.run(new String[0], _communicator, _out);
+		Server.run(new String[0], _communicator, null, _out);
 	    }
 	    done();
 	}

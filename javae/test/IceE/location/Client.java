@@ -10,7 +10,7 @@
 public class Client
 {
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
 	AllTests.allTests(communicator, out);
         return 0;
@@ -36,7 +36,7 @@ public class Client
 	    }
 
             communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, System.out);
+            status = run(argsH.value, communicator, initData, System.out);
         }
         catch (Ice.LocalException ex)
         {

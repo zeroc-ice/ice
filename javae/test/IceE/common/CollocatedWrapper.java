@@ -26,7 +26,7 @@ public class CollocatedWrapper
 	{
 	    if(_communicator != null)
 	    {
-		Collocated.run(new String[0], _communicator, _out); 
+		Collocated.run(new String[0], _communicator, null, _out); 
 	    }
 	    done();
 	}

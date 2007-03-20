@@ -16,7 +16,7 @@ public class Client
     }
 
     public static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
         java.util.Vector ports = new java.util.Vector(args.length);
         for(int i = 0; i < args.length; i++)
@@ -119,7 +119,7 @@ public class Client
 	    initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, System.out);
+            status = run(argsH.value, communicator, initData, System.out);
         }
         catch(Ice.LocalException ex)
         {

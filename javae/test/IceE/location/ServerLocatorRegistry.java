@@ -12,14 +12,29 @@ public class ServerLocatorRegistry extends Ice._LocatorRegistryDisp
     public void
     setAdapterDirectProxy(String adapter, Ice.ObjectPrx object, Ice.Current current)
     {
-	_adapters.put(adapter, object);
+        if(object == null)
+        {
+            _adapters.remove(adapter);
+        }
+        else
+        {
+            _adapters.put(adapter, object);
+        }
     }
 
     public void
     setReplicatedAdapterDirectProxy(String adapter, String replicaId, Ice.ObjectPrx object, Ice.Current current)
     {
-	_adapters.put(adapter, object);
-	_adapters.put(replicaId, object);
+        if(object == null)
+        {
+            _adapters.remove(adapter);
+            _adapters.remove(replicaId);
+        }
+        else
+        {
+            _adapters.put(adapter, object);
+            _adapters.put(replicaId, object);
+        }
     }
 
     public Ice.ObjectPrx
