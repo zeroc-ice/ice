@@ -50,6 +50,7 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
     ++(entry->useCount);
     entry->queuePos = _queue.insert(_queue.begin(), i);
 
+    cookie = entry;
     return entry->servant;
 }
 
@@ -84,11 +85,11 @@ EvictorBase::evictServants()
     // look at the excess elements to see whether any of them
     // can be evicted.
     //
-    EvictorQueue::reverse_iterator queuePos = _queue.rbegin();
+    EvictorQueue::reverse_iterator p = _queue.rbegin();
     int excessEntries = static_cast<int>(_map.size() - _size);
     for(int i = 0; i < excessEntries; ++i)
     {
-        EvictorMap::iterator mapPos = *queuePos++;
+        EvictorMap::iterator mapPos = *p++;
         if(mapPos->second->useCount == 0)
         {
             evict(mapPos->second->servant, mapPos->second->userCookie); // Down-call
