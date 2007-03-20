@@ -1,0 +1,5 @@
+Warehouse.Endpoints=tcp -p 10000
+
+Ice.ThreadPool.Server.Size=10
+Ice.ThreadPool.Server.SizeWarn=-1
+
