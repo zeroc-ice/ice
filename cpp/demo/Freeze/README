@@ -9,6 +9,11 @@ Demos in this directory:
   A simple benchmark to measure the performance of Freeze for various
   data types.
 
+- customEvictor
+
+  Illustrates how to write your own evictor, using either IceUtil::Cache
+  or EvictorBase.
+
 - library
 
   A simple application that allows you to borrow books from a library.

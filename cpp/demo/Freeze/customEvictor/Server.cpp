@@ -77,7 +77,7 @@ WarehouseServer::run(int argc, char* argv[])
                 os << "P/N " << i;
                 string name = os.str();
                 info.description = "The description of " + name;
-                info.unitPrice = i + 0.95;
+                info.unitPrice = i + 0.95f;
                 info.quantityInStock = i;
                 info.filler = string(5000, 'x');
                 

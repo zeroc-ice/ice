@@ -14,6 +14,9 @@
 using namespace std;
 using namespace Warehouse;
 
+const int readCount = 15000;
+const int writeCount = 1500;
+
 const int objectCount = 10000;
 
 class WarehouseClient : public Ice::Application
@@ -73,16 +76,14 @@ public:
     virtual void run()
     {
         //
-        // Measures how long it takes to read 'count' items at random
+        // Measures how long it takes to read 'readCount' items at random
         //
-        const int count = 50000;
-
         StopWatch stopWatch;
         stopWatch.start();
         
         try
         {
-            for(int i = 0; i < count; ++i)
+            for(int i = 0; i < readCount; ++i)
             {
                 int id = IceUtil::random(objectCount);
                 ostringstream os;
@@ -93,7 +94,7 @@ public:
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
                 item->getDescription();
             }
-            _requestsPerSecond = static_cast<int>(count / stopWatch.stop().toSecondsDouble());  
+            _requestsPerSecond = static_cast<int>(readCount / stopWatch.stop().toSecondsDouble());  
         }
         catch(const IceUtil::Exception& e)
         {
@@ -128,16 +129,14 @@ public:
     virtual void run()
     {
         //
-        // Measure how long it takes to write 'count' items at random
+        // Measure how long it takes to write 'writeCount' items at random
         //
-        const int count = 5000;
-
         StopWatch stopWatch;
         stopWatch.start();
         
         try
         {
-            for(int i = 0; i < count; ++i)
+            for(int i = 0; i < writeCount; ++i)
             {
                 int id = IceUtil::random(objectCount);
                     
@@ -150,7 +149,7 @@ public:
                 
                 item->adjustStock(1);
             }
-            _requestsPerSecond = static_cast<int>(count / stopWatch.stop().toSecondsDouble());  
+            _requestsPerSecond = static_cast<int>(writeCount / stopWatch.stop().toSecondsDouble());  
         }
         catch(const IceUtil::Exception& e)
         {

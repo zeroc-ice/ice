@@ -27,7 +27,9 @@ SOBJS		= ItemInfo.o \
                   SimpleEvictor.o \
                   Server.o
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.o=.cpp) \
+                  $(COBJS:.o=.cpp) \
+                  $(SOBJS:.o=.cpp)
 
 SLICE_SRCS	= Item.ice ItemInfo.ice
 
@@ -44,7 +46,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 
-Database.h Database.cpp: $(SLICE2FREEZE)
+Database.h Database.cpp: ItemInfo,ice $(SLICE2FREEZE)
 	rm -f Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
