@@ -1,3 +1,9 @@
+Changes since version 3.2.0
+---------------------------     
+
+- Fixed bugs in stringToProxy and propertyToProxy that reported a
+  "NullHandleException".
+
 Changes since version 3.1.1
 ---------------------------     
 

@@ -263,7 +263,10 @@ IceRuby_Communicator_stringToProxy(VALUE self, VALUE str)
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
         Ice::ObjectPrx proxy = p->stringToProxy(s);
-        return createProxy(proxy);
+        if(proxy)
+        {
+            return createProxy(proxy);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -301,7 +304,10 @@ IceRuby_Communicator_propertyToProxy(VALUE self, VALUE str)
         Ice::CommunicatorPtr p = getCommunicator(self);
         string s = getString(str);
         Ice::ObjectPrx proxy = p->propertyToProxy(s);
-        return createProxy(proxy);
+        if(proxy)
+        {
+            return createProxy(proxy);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
