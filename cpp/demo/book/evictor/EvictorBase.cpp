@@ -51,6 +51,7 @@ EvictorBase::locate(const Ice::Current& c, Ice::LocalObjectPtr& cookie)
     entry->queuePos = _queue.insert(_queue.begin(), i);
 
     cookie = entry;
+
     return entry->servant;
 }
 
@@ -87,14 +88,19 @@ EvictorBase::evictServants()
     //
     EvictorQueue::reverse_iterator p = _queue.rbegin();
     int excessEntries = static_cast<int>(_map.size() - _size);
+
     for(int i = 0; i < excessEntries; ++i)
     {
-        EvictorMap::iterator mapPos = *p++;
+        EvictorMap::iterator mapPos = *p;
         if(mapPos->second->useCount == 0)
         {
             evict(mapPos->second->servant, mapPos->second->userCookie); // Down-call
-            _queue.erase(mapPos->second->queuePos);
+            p = EvictorQueue::reverse_iterator(_queue.erase(mapPos->second->queuePos));
             _map.erase(mapPos);
+        }
+        else
+        {
+            ++p;
         }
     }
 }

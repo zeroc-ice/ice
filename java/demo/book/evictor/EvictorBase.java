@@ -61,6 +61,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
         entry.queuePos = _queue.iterator();
         entry.queuePos.next(); // Position the iterator on the element.
 
+        cookie.value = entry;
         return entry.servant;
     }
 
@@ -99,16 +100,16 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
         // look at the excess elements to see whether any of them
         // can be evicted.
         //
-        java.util.Iterator queuePos = _queue.riterator();
+        java.util.Iterator p = _queue.riterator();
         int excessEntries = _map.size() - _size;
         for(int i = 0; i < excessEntries; ++i)
         {
-            Ice.Identity id = (Ice.Identity)queuePos.next();
+            Ice.Identity id = (Ice.Identity)p.next();
             EvictorEntry e = (EvictorEntry)_map.get(id);
             if(e.useCount == 0)
             {
                 evict(e.servant, e.userCookie); // Down-call
-                queuePos.remove();
+                e.queuePos.remove();
                 _map.remove(id);
             }
         }
