@@ -3,7 +3,6 @@
 //      are changed infrequently
 //
 
-
 #if !defined(AFX_STDAFX_H__CCAD4B79_862C_4DFB_A13B_E56154F5C0B8__INCLUDED_)
 #define AFX_STDAFX_H__CCAD4B79_862C_4DFB_A13B_E56154F5C0B8__INCLUDED_
 

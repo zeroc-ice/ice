@@ -1,0 +1,2 @@
+Hello$(OBJEXT): Hello.h
+Hello.cpp: Hello.ice

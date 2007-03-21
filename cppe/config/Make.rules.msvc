@@ -1,0 +1,71 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This file is included by Make.rules.mak when using Microsoft VC++
+#
+
+CXX		= cl.exe
+CC		= cl.exe
+LINK 		= link.exe
+AR		= lib.exe
+
+CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE -DWIN32_LEAN_AND_MEAN
+
+!if "$(STLPORT_HOME)" != ""
+
+CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
+LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib"
+
+!endif
+
+!if "$(STATICLIBS)" == "yes"
+
+CPPFLAGS	= $(CPPFLAGS) -DICEE_STATIC_LIBS
+
+!endif
+
+!if "$(OPTIMIZE_SPEED)" == "yes"
+
+CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
+
+!elseif "$(OPTIMIZE_SIZE)" == "yes"
+
+CPPFLAGS	= $(CPPFLAGS) -MD -O1 -DNDEBUG
+
+!else
+
+CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -Od -D_DEBUG
+!if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
+CPPFLAGS        = $(CPPFLAGS) -GZ
+!else
+CPPFLAGS        = $(CPPFLAGS) -RTC1
+!endif
+
+!endif
+
+LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo /FIXED:no
+!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+LDFLAGS		= $(LDFLAGS) /debug
+!else
+LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF
+!endif
+
+ARFLAGS		= /nologo 
+
+BASELIBS        = rpcrt4.lib advapi32.lib ws2_32.lib
+LIBS		= icee$(LIBSUFFIX).lib
+MINLIBS		= iceec$(LIBSUFFIX).lib
+
+!if "$(STATICLIBS)" == "yes"
+LIBS		= $(LIBS) $(BASELIBS)
+MINLIBS		= $(MINLIBS) $(BASELIBS)
+!endif
+
+TESTLIBS	= testcommon$(LIBSUFFIX).lib $(LIBS)

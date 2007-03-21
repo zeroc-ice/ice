@@ -76,7 +76,7 @@ public:
 
     BasicStream(Instance* instance, int messageSizeMax, const Ice::StringConverterPtr& stringConverter, 
 		const Ice::WstringConverterPtr& wstringConverter, bool unlimited = false) :
-	Buffer::Buffer(messageSizeMax),
+	Buffer(messageSizeMax),
 	_instance(instance),
 	_currentReadEncaps(0),
 	_currentWriteEncaps(0),
