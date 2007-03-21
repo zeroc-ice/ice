@@ -1,12 +1,3 @@
-// **********************************************************************
-//
-// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
-
 namespace Evictor
 {
     public abstract class EvictorBase : Ice.LocalObjectImpl, Ice.ServantLocator
@@ -31,22 +22,16 @@ namespace Evictor
             lock(this)
             {
                 //
-                // Create a cookie.
-                //
-                EvictorCookie ec = new EvictorCookie();
-
-                //
                 // Check if we a servant in the map already.
                 //
-                ec.entry = (EvictorEntry)_map[c.id];
-                bool newEntry = ec.entry == null;
-                if(!newEntry)
+                EvictorEntry entry = (EvictorEntry)_map[c.id];
+                if(entry != null)
                 {
                     //
                     // Got an entry already, dequeue the entry from
                     // its current position.
                     //
-                    ec.entry.pos.Remove();
+                    entry.queuePos.Remove();
                 }
                 else
                 {
@@ -54,29 +39,29 @@ namespace Evictor
                     // We do not have an entry. Ask the derived class to
                     // instantiate a servant and add a new entry to the map.
                     //
-                    ec.entry = new EvictorEntry();
-                    Ice.LocalObject theCookie;
-                    ec.entry.servant = add(c, out theCookie); // Down-call
-                    if(ec.entry.servant == null)
+                    entry = new EvictorEntry();
+                    entry.servant = add(c, out theCookie); // Down-call
+                    if(entry.servant == null)
                     {
                         return null;
                     }
-                    ec.entry.userCookie = theCookie;
-                    ec.entry.useCount = 0;
-                    _map[c.id] = ec.entry;
+                    entry.userCookie = cookie;
+                    entry.useCount = 0;
+                    _map[c.id] = entry;
                 }
 
                 //
                 // Increment the use count of the servant and enqueue
                 // the entry at the front, so we get LRU order.
                 //
-                ++(ec.entry.useCount);
+                ++(entry.useCount);
                 _queue.AddFirst(c.id);
-                ec.entry.pos = (LinkedList.Enumerator)_queue.GetEnumerator();
-                ec.entry.pos.MovePrev();
-                cookie = ec;
+                entry.queuePos = (LinkedList.Enumerator)_queue.GetEnumerator();
+                entry.queuePos.MovePrev();
 
-                return ec.entry.servant;
+                cookie = entry;
+
+                return entry.servant;
             }
         }
 
@@ -84,13 +69,13 @@ namespace Evictor
         {
             lock(this)
             {
-                EvictorCookie ec = (EvictorCookie)cookie;
+                EvictorEntry entry = (EvictorEntry)cookie;
 
                 //
                 // Decrement use count and check if
                 // there is something to evict.
                 //
-                --(ec.entry).useCount;
+                --(entry.useCount);
                 evictServants();
             }
         }
@@ -104,17 +89,12 @@ namespace Evictor
             }
         }
 
-        private class EvictorEntry
+        private class EvictorEntry : Ice.LocalObjectImpl
         {
             internal Ice.Object servant;
             internal Ice.LocalObject userCookie;
-            internal LinkedList.Enumerator pos;
+            internal LinkedList.Enumerator queuePos;
             internal int useCount;
-        }
-
-        private class EvictorCookie : Ice.LocalObjectImpl
-        {
-            public EvictorEntry entry;
         }
 
         private void evictServants()
@@ -125,7 +105,8 @@ namespace Evictor
             // can be evicted.
             //
             LinkedList.Enumerator p = (LinkedList.Enumerator)_queue.GetEnumerator();
-            for(int i = _map.Count - _size; i > 0; --i)
+            int excessEntries = _map.Count - _size;
+            for(int i = 0; i < excessEntries; ++i)
             {
                 p.MovePrev();
                 Ice.Identity id = (Ice.Identity)p.Current;
@@ -133,7 +114,7 @@ namespace Evictor
                 if(e.useCount == 0)
                 {
                     evict(e.servant, e.userCookie); // Down-call
-                    p.Remove();
+                    e.queuePos.Remove();
                     _map.Remove(id);
                 }
             }
