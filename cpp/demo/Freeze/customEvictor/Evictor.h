@@ -10,11 +10,10 @@
 #ifndef EVICTOR_H
 #define EVICTOR_H
 
+#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <CurrentDatabase.h>
 #include <ItemI.h>
-#include <IceUtil/IceUtil.h>
-#include <IceUtil/Cache.h>
 #include <list>
 
 

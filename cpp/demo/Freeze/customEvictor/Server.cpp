@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
 #include <Database.h>
 #include <CurrentDatabase.h>

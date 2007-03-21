@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#include <CurrentDatabase.h>
 #include <Freeze/Freeze.h>
+#include <CurrentDatabase.h>
 
 using namespace std;
 
