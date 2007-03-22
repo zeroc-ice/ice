@@ -87,9 +87,19 @@ public final class LoggerI extends LocalObjectImpl implements Logger
         /* HH:mm:ss:SSS */
         b.append(_date.get(java.util.Calendar.HOUR));
         b.append(":");
-        b.append(_date.get(java.util.Calendar.MONTH));
+        int t = _date.get(java.util.Calendar.MINUTE);
+        if(t < 10)
+        {
+            b.append("0");
+        }
+        b.append(t);
         b.append(":");
-        b.append(_date.get(java.util.Calendar.SECOND));
+        t = _date.get(java.util.Calendar.SECOND);
+        if(t < 10)
+        {
+            b.append("0");
+        }
+        b.append(t);
         b.append(":");
         b.append(_date.get(java.util.Calendar.MILLISECOND));
         return b;
