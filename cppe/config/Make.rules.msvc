@@ -20,7 +20,7 @@ CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE -DWIN32_LEAN_AND_MEAN
 
 !if "$(STLPORT_HOME)" != ""
 
-CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
+CPPFLAGS        = -I"$(STLPORT_HOME)\stlport" $(CPPFLAGS)
 LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib"
 
 !endif
@@ -50,11 +50,11 @@ CPPFLAGS        = $(CPPFLAGS) -RTC1
 
 !endif
 
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo /FIXED:no
+LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
-LDFLAGS		= $(LDFLAGS) /debug
+LDFLAGS		= $(LDFLAGS) /debug /fixed:no /incremental:yes
 !else
-LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF
+LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF /incremental:no
 !endif
 
 ARFLAGS		= /nologo 
