@@ -98,17 +98,15 @@ namespace Evictor
             if(_tail == null)
             {
                 n.prev = null;
-                n.next = null;
                 _head = n;
-                _tail = n;
             }
             else
             {
                 n.prev = _tail;
-                n.next = null;
                 _tail.next = n;
-                _tail = n;        
             }
+            n.next = null;
+            _tail = n;
             _count++;
         }
 
@@ -118,18 +116,16 @@ namespace Evictor
             n.val = value;
             if(_head == null)
             {
-                n.prev = null;
                 n.next = null;
-                _head = n;
                 _tail = n;
             }
             else
             {
-                n.prev = null;
                 n.next = _head;
                 _head.prev = n;
-                _head = n;
             }
+            n.prev = null;
+            _head = n;
             _count++;
         }
 
@@ -221,6 +217,7 @@ namespace Evictor
 
             public bool MovePrev()
             {
+
                 if(_removed)
                 {
                     _current = _movePrev;
@@ -253,11 +250,10 @@ namespace Evictor
             }
 
             private LinkedList _list; // The list we are iterating over.
-            private Node _current; // Current iterator position.
-            private Node _moveNext; // Remembers node that preceded a removed element.
-            private Node _movePrev; // Remembers node that followed a removed element.
-            private bool _removed; // True after a call to Remove(), false otherwise.
+            private Node _current;    // Current iterator position.
+            private Node _moveNext;   // Remembers node that followed a removed element.
+            private Node _movePrev;   // Remembers node that preceded a removed element.
+            private bool _removed;    // True after a call to Remove(), false otherwise.
         }
     }
 }
-

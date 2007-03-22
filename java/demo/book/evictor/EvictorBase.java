@@ -62,6 +62,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
         entry.queuePos.next(); // Position the iterator on the element.
 
         cookie.value = entry;
+
         return entry.servant;
     }
 

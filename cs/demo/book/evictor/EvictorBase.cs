@@ -13,9 +13,9 @@ namespace Evictor
             _size = size < 0 ? 1000 : size;
         }
 
-        public abstract Ice.Object add(Ice.Current c, out Ice.LocalObject cookie);
+        protected abstract Ice.Object add(Ice.Current c, out Ice.LocalObject cookie);
 
-        public abstract void evict(Ice.Object servant, Ice.LocalObject cookie);
+        protected abstract void evict(Ice.Object servant, Ice.LocalObject cookie);
 
         public Ice.Object locate(Ice.Current c, out Ice.LocalObject cookie)
         {
@@ -40,12 +40,12 @@ namespace Evictor
                     // instantiate a servant and add a new entry to the map.
                     //
                     entry = new EvictorEntry();
-                    entry.servant = add(c, out theCookie); // Down-call
+                    entry.servant = add(c, out entry.userCookie); // Down-call
                     if(entry.servant == null)
                     {
+                        cookie = null;
                         return null;
                     }
-                    entry.userCookie = cookie;
                     entry.useCount = 0;
                     _map[c.id] = entry;
                 }
@@ -57,7 +57,7 @@ namespace Evictor
                 ++(entry.useCount);
                 _queue.AddFirst(c.id);
                 entry.queuePos = (LinkedList.Enumerator)_queue.GetEnumerator();
-                entry.queuePos.MovePrev();
+                entry.queuePos.MoveNext();
 
                 cookie = entry;
 
@@ -114,7 +114,7 @@ namespace Evictor
                 if(e.useCount == 0)
                 {
                     evict(e.servant, e.userCookie); // Down-call
-                    e.queuePos.Remove();
+                    p.Remove();
                     _map.Remove(id);
                 }
             }
