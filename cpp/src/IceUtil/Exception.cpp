@@ -57,16 +57,23 @@ IceUtil::Exception::ice_print(ostream& out) const
 const char*
 IceUtil::Exception::what() const throw()
 {
-    StaticMutex::Lock lock(globalMutex);
+    try
     {
-        if(_str.empty())
+        StaticMutex::Lock lock(globalMutex);
         {
-            stringstream s;
-            ice_print(s);
-            _str = s.str(); // Lazy initialization.
+            if(_str.empty())
+            {
+                stringstream s;
+                ice_print(s);
+                _str = s.str(); // Lazy initialization.
+            }
         }
+        return _str.c_str();
     }
-    return _str.c_str();
+    catch(...)
+    {
+    }
+    return "";
 }
 
 IceUtil::Exception*
