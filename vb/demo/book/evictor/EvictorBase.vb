@@ -18,18 +18,20 @@ Namespace Evictor
             End If
         End Sub
 
-        Public MustOverride Function add(ByVal c As Ice.Current, <Out()> ByRef cookie As Ice.LocalObject) As Ice.Object
+        Protected MustOverride Function add(ByVal c As Ice.Current, <Out()> ByRef cookie As Ice.LocalObject) _
+                As Ice.Object
 
-        Public MustOverride Sub evict(ByVal servant As Ice.Object, ByVal cookie As Ice.LocalObject)
+        Protected MustOverride Sub evict(ByVal servant As Ice.Object, ByVal cookie As Ice.LocalObject)
 
-        Public Function locate(ByVal c As Ice.Current, <Out()> ByRef cookie As Ice.LocalObject) As Ice.Object Implements Ice.ServantLocator.locate
+        Public Function locate(ByVal c As Ice.Current, <Out()> ByRef cookie As Ice.LocalObject) As Ice.Object _
+                Implements Ice.ServantLocator.locate
             SyncLock (Me)
                 '
                 ' Check if we a servant in the map already.
                 '
                 Dim entry As EvictorEntry
                 entry = CType(_map(c.id), EvictorEntry)
-                If Not entry Is Nothing
+                If Not entry Is Nothing Then
                     '
                     ' Got an entry already, dequeue the entry from
                     ' its current position.
@@ -41,11 +43,11 @@ Namespace Evictor
                     ' instantiate a servant and add a new entry to the map.
                     '
                     entry = New EvictorEntry
-                    entry.servant = add(c, theCookie) ' Down-call
+                    entry.servant = add(c, entry.userCookie) ' Down-call
                     If entry.servant Is Nothing Then
+                        cookie = Nothing
                         Return Nothing
                     End If
-                    entry.userCookie = theCookie
                     entry.useCount = 0
                     _map(c.id) = entry
                 End If
@@ -57,8 +59,7 @@ Namespace Evictor
                 entry.useCount += 1
                 _queue.AddFirst(c.id)
                 entry.queuePos = CType(_queue.GetEnumerator(), LinkedList.Enumerator)
-                entry.queuePos.MovePrev()
-                cookie = ec
+                entry.queuePos.MoveNext()
 
                 cookie = entry
 
@@ -66,7 +67,8 @@ Namespace Evictor
             End SyncLock
         End Function
 
-        Public Sub finished(ByVal c As Ice.Current, ByVal o As Ice.Object, ByVal cookie As Ice.LocalObject) Implements Ice.ServantLocator.finished
+        Public Sub finished(ByVal c As Ice.Current, ByVal o As Ice.Object, ByVal cookie As Ice.LocalObject) _
+                Implements Ice.ServantLocator.finished
             SyncLock (Me)
                 Dim entry As EvictorEntry = CType(cookie, EvictorEntry)
 
@@ -87,6 +89,7 @@ Namespace Evictor
         End Sub
 
         Private Class EvictorEntry
+            Inherits Ice.LocalObjectImpl
             Friend servant As Ice.Object
             Friend userCookie As Ice.LocalObject
             Friend queuePos As LinkedList.Enumerator
@@ -107,7 +110,7 @@ Namespace Evictor
                 Dim e As EvictorEntry = CType(_map(id), EvictorEntry)
                 If e.useCount = 0 Then
                     evict(e.servant, e.userCookie) ' Down-call
-                    e.queuePos.Remove()
+                    p.Remove()
                     _map.Remove(id)
                 End If
             Next

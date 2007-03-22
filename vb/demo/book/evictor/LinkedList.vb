@@ -81,15 +81,13 @@ Namespace Evictor
             n.val = value
             If _tail Is Nothing Then
                 n.prev = Nothing
-                n.next = Nothing
                 _head = n
-                _tail = n
             Else
                 n.prev = _tail
-                n.next = Nothing
                 _tail.next = n
-                _tail = n
             End If
+            n.next = Nothing
+            _tail = n
             _count += 1
         End Sub
 
@@ -97,16 +95,14 @@ Namespace Evictor
             Dim n As Node = New Node
             n.val = value
             If _head Is Nothing Then
-                n.prev = Nothing
                 n.next = Nothing
-                _head = n
                 _tail = n
             Else
-                n.prev = Nothing
                 n.next = _head
                 _head.prev = n
-                _head = n
             End If
+            n.prev = Nothing
+            _head = n
             _count += 1
         End Sub
 
@@ -214,9 +210,9 @@ Namespace Evictor
             End Sub
 
             Private _list As LinkedList ' The list we are iterating over.
-            Private _current As Node ' Current iterator position.
-            Private _moveNext As Node ' Remembers node that preceded a removed element.
-            Private _movePrev As Node ' Remembers node that followed a removed element.
+            Private _current As Node    ' Current iterator position.
+            Private _moveNext As Node   ' Remembers node that followed a removed element.
+            Private _movePrev As Node   ' Remembers node that preceded a removed element.
             Private _removed As Boolean ' True after a call to Remove(), false otherwise.
 
         End Class
