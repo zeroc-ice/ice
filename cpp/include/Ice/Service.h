@@ -143,7 +143,9 @@ public:
     // argument indicates whether the daemon should change its
     // working directory to the root directory. The second
     // argument indicates whether extraneous file descriptors are
-    // closed.
+    // closed. If the value of the last argument is not an empty
+    // string, the daemon writes its process ID to the given
+    // filename.
     //
     void configureDaemon(bool, bool, const std::string&);
 

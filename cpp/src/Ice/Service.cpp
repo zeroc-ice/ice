@@ -582,7 +582,7 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
     }
 #else
     //
-    // Check for --daemon, --noclose, --nochdir and --pidfile
+    // Check for --daemon, --noclose, --nochdir and --pidfile.
     //
     bool daemonize = false;
     bool closeFiles = true;
@@ -958,7 +958,7 @@ Ice::Service::uninstallService(bool useEventLogger, const string& name)
     CloseServiceHandle(hService);
 
     //
-    // Rrmove the registry keys for the event logger if necessary.
+    // Remove the registry keys for the event logger if necessary.
     //
     if(useEventLogger)
     {
