@@ -11,7 +11,10 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= phonebook bench library backup customEvictor
+SUBDIRS		= phonebook bench library backup
+ifneq ($(UNAME),Darwin)
+SUBDIRS		+= customEvictor
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

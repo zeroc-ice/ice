@@ -1,3 +1,6 @@
+NOTE: this demo is not supported on Mac OS X due to the lack of
+support for the "__thread" specifier (for thread-local storage).
+
 This demo shows how to write a custom evictor using IceUtil::Cache,
 and compares the performance of this evictor to the performance of
 a simple evictor implemented using EvictorBase (described in the
