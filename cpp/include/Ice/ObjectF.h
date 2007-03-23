@@ -12,6 +12,7 @@
 
 #include <Ice/Handle.h>
 #include <Ice/GCCountMap.h>
+#include <Ice/GCShared.h>
 
 namespace Ice
 {
@@ -23,8 +24,7 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Object*);
-ICE_API void decRef(::Ice::Object*);
+ICE_API GCShared* upCast(::Ice::Object*);
 
 }
 

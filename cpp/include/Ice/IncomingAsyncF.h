@@ -10,14 +10,15 @@
 #ifndef ICE_INCOMING_ASYNC_F_H
 #define ICE_INCOMING_ASYNC_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class IncomingAsync;
-ICE_API void incRef(IncomingAsync*);
-ICE_API void decRef(IncomingAsync*);
+ICE_API IceUtil::Shared* upCast(IncomingAsync*);
 typedef IceInternal::Handle<IncomingAsync> IncomingAsyncPtr;
 
 }
@@ -33,10 +34,8 @@ class AMD_Array_Object_ice_invoke;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::AMD_Object_ice_invoke*);
-ICE_API void decRef(::Ice::AMD_Object_ice_invoke*);
-ICE_API void incRef(::Ice::AMD_Array_Object_ice_invoke*);
-ICE_API void decRef(::Ice::AMD_Array_Object_ice_invoke*);
+ICE_API IceUtil::Shared* upCast(::Ice::AMD_Object_ice_invoke*);
+ICE_API IceUtil::Shared* upCast(::Ice::AMD_Array_Object_ice_invoke*);
 
 }
 

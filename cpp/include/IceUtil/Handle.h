@@ -107,16 +107,7 @@ inline bool operator==(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 template<typename T, typename U>
 inline bool operator!=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
-    T* l = lhs.get();
-    U* r = rhs.get();
-    if(l && r)
-    {
-        return *l != *r;
-    }
-    else
-    {
-        return l || r;
-    }   
+    return !operator==(lhs, rhs);
 }
 
 template<typename T, typename U>
@@ -132,6 +123,24 @@ inline bool operator<(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
     {
         return !l && r;
     }
+}
+
+template<typename T, typename U>
+inline bool operator<=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
+{
+    return lhs < rhs || lhs == rhs;
+}
+
+template<typename T, typename U>
+inline bool operator>(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
+{
+    return !(lhs < rhs || lhs == rhs);
+}
+
+template<typename T, typename U>
+inline bool operator>=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
+{
+    return !(lhs < rhs);
 }
 
 template<typename T>

@@ -23,11 +23,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ThreadPool* p) { p->__incRef(); }
-#ifdef __BCPLUSPLUS__
-ICE_API
-#endif
-void IceInternal::decRef(ThreadPool* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ThreadPool* p) { return p; }
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout) :
     _instance(instance),

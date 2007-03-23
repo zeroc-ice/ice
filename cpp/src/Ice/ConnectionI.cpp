@@ -31,8 +31,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ConnectionI* p) { p->__incRef(); }
-void IceInternal::decRef(ConnectionI* p) { p->__decRef(); }
+Ice::LocalObject* IceInternal::upCast(ConnectionI* p) { return p; }
 
 void
 Ice::ConnectionI::validate()

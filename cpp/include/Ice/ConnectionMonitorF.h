@@ -10,14 +10,15 @@
 #ifndef ICE_CONNECTION_MONITOR_F_H
 #define ICE_CONNECTION_MONITOR_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class ConnectionMonitor;
-ICE_API void incRef(ConnectionMonitor*);
-ICE_API void decRef(ConnectionMonitor*);
+ICE_API IceUtil::Shared* upCast(ConnectionMonitor*);
 typedef IceInternal::Handle<ConnectionMonitor> ConnectionMonitorPtr;
 
 }

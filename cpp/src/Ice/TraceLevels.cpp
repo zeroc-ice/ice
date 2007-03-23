@@ -14,11 +14,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(TraceLevels* p) { p->__incRef(); }
-#ifdef __BCPLUSPLUS__
-ICE_API
-#endif
-void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(TraceLevels* p) { return p; }
 
 IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     network(0),

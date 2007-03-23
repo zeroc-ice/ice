@@ -11,5 +11,4 @@
 
 using namespace Ice;
 
-void IceInternal::incRef(EndpointI* p) { p->__incRef(); }
-void IceInternal::decRef(EndpointI* p) { p->__decRef(); }
+Ice::LocalObject* IceInternal::upCast(EndpointI* p) { return p; }

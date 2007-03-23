@@ -18,8 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ProtocolPluginFacade* p) { p->__incRef(); }
-void IceInternal::decRef(ProtocolPluginFacade* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ProtocolPluginFacade* p) { return p; }
 
 ProtocolPluginFacadePtr
 IceInternal::getProtocolPluginFacade(const CommunicatorPtr& communicator)

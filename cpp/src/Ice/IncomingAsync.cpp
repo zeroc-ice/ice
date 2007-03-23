@@ -20,14 +20,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(IncomingAsync* p) { p->__incRef(); }
-void IceInternal::decRef(IncomingAsync* p) { p->__decRef(); }
-
-void IceInternal::incRef(AMD_Object_ice_invoke* p) { p->__incRef(); }
-void IceInternal::decRef(AMD_Object_ice_invoke* p) { p->__decRef(); }
-
-void IceInternal::incRef(AMD_Array_Object_ice_invoke* p) { p->__incRef(); }
-void IceInternal::decRef(AMD_Array_Object_ice_invoke* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IncomingAsync* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(AMD_Object_ice_invoke* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(AMD_Array_Object_ice_invoke* p) { return p; }
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),

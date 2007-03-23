@@ -13,8 +13,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(EndpointFactory* p) { p->__incRef(); }
-void IceInternal::decRef(EndpointFactory* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(EndpointFactory* p) { return p; }
 
 IceInternal::EndpointFactory::EndpointFactory()
 {

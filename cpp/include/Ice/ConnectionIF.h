@@ -11,6 +11,7 @@
 #define ICE_CONNECTIONI_F_H
 
 #include <Ice/Handle.h>
+#include <Ice/LocalObject.h>
 
 namespace Ice
 {
@@ -22,8 +23,7 @@ class ConnectionI;
 namespace IceInternal
 {
 
-ICE_API void incRef(Ice::ConnectionI*);
-ICE_API void decRef(Ice::ConnectionI*);
+ICE_API Ice::LocalObject* upCast(Ice::ConnectionI*);
 
 }
 

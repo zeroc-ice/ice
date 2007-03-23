@@ -214,19 +214,19 @@ SharedImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStream
     IceUtil::Mutex::Lock lock(_mutex);
     if(proxyCtx.size() == 0)
     {
-        __write(s, _context, __U__Context());
+        __writeContext(s, _context);
     }
     else if(_context.size() == 0)
     {
         lock.release();
-        __write(s, proxyCtx, __U__Context());
+        __writeContext(s, proxyCtx);
     }
     else
     {
         Context combined = proxyCtx;
         combined.insert(_context.begin(), _context.end());
         lock.release();
-        __write(s, combined, __U__Context());
+        __writeContext(s, combined);
     }
 }
 
@@ -572,17 +572,17 @@ PerThreadImplicitContext::write(const Context& proxyCtx, ::IceInternal::BasicStr
 
     if(threadCtx == 0 || threadCtx->size() == 0)
     {
-        __write(s, proxyCtx, __U__Context());
+        __writeContext(s, proxyCtx);
     }
     else if(proxyCtx.size() == 0)
     {
-        __write(s, *threadCtx, __U__Context());
+        __writeContext(s, *threadCtx);
     }
     else
     {
         Context combined = proxyCtx;
         combined.insert(threadCtx->begin(), threadCtx->end());
-        __write(s, combined, __U__Context());
+        __writeContext(s, combined);
     }
 }
 

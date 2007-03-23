@@ -30,18 +30,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(::IceProxy::Ice::Object* p) { p->__incRef(); }
-void IceInternal::decRef(::IceProxy::Ice::Object* p) { p->__decRef(); }
-
-void IceInternal::incRef(::IceDelegate::Ice::Object* p) { p->__incRef(); }
-void IceInternal::decRef(::IceDelegate::Ice::Object* p) { p->__decRef(); }
-
-void IceInternal::incRef(::IceDelegateM::Ice::Object* p) { p->__incRef(); }
-void IceInternal::decRef(::IceDelegateM::Ice::Object* p) { p->__decRef(); }
-
-void IceInternal::incRef(::IceDelegateD::Ice::Object* p) { p->__incRef(); }
-void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
-
+IceUtil::Shared* IceInternal::upCast(::IceProxy::Ice::Object* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(::IceDelegate::Ice::Object* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(::IceDelegateM::Ice::Object* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(::IceDelegateD::Ice::Object* p) { return p; }
 
 ::Ice::ObjectPrx
 IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context* context)

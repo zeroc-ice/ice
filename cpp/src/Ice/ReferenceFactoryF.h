@@ -16,8 +16,7 @@ namespace IceInternal
 {
 
 class ReferenceFactory;
-void incRef(ReferenceFactory*);
-void decRef(ReferenceFactory*);
+IceUtil::Shared* upCast(ReferenceFactory*);
 typedef Handle<ReferenceFactory> ReferenceFactoryPtr;
 
 }

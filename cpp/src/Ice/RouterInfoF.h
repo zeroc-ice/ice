@@ -10,19 +10,19 @@
 #ifndef ICE_ROUTER_INFO_F_H
 #define ICE_ROUTER_INFO_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class RouterManager;
-void incRef(RouterManager*);
-void decRef(RouterManager*);
+IceUtil::Shared* upCast(RouterManager*);
 typedef Handle<RouterManager> RouterManagerPtr;
 
 class RouterInfo;
-void incRef(RouterInfo*);
-void decRef(RouterInfo*);
+IceUtil::Shared* upCast(RouterInfo*);
 typedef Handle<RouterInfo> RouterInfoPtr;
 
 }

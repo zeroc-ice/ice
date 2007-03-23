@@ -17,11 +17,8 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
-void IceInternal::incRef(DynamicLibrary* p) { p->__incRef(); }
-void IceInternal::decRef(DynamicLibrary* p) { p->__decRef(); }
-
-void IceInternal::incRef(DynamicLibraryList* p) { p->__incRef(); }
-void IceInternal::decRef(DynamicLibraryList* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(DynamicLibrary* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(DynamicLibraryList* p) { return p; }
 
 IceInternal::DynamicLibrary::DynamicLibrary()
     : _hnd(0)

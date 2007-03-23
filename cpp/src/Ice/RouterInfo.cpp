@@ -18,11 +18,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(RouterManager* p) { p->__incRef(); }
-void IceInternal::decRef(RouterManager* p) { p->__decRef(); }
-
-void IceInternal::incRef(RouterInfo* p) { p->__incRef(); }
-void IceInternal::decRef(RouterInfo* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(RouterManager* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(RouterInfo* p) { return p; }
 
 IceInternal::RouterManager::RouterManager() :
     _tableHint(_table.end())

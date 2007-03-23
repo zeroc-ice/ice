@@ -10,14 +10,15 @@
 #ifndef ICE_CONNECTOR_F_H
 #define ICE_CONNECTOR_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class Connector;
-ICE_API void incRef(Connector*);
-ICE_API void decRef(Connector*);
+ICE_API IceUtil::Shared* upCast(Connector*);
 typedef Handle<Connector> ConnectorPtr;
 
 }

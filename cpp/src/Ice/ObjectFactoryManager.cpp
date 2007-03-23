@@ -17,8 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ObjectFactoryManager* p) { p->__incRef(); }
-void IceInternal::decRef(ObjectFactoryManager* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ObjectFactoryManager* p) { return p; }
 
 void
 IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const string& id)

@@ -10,19 +10,19 @@
 #ifndef ICE_CONNECTION_FACTORY_F_H
 #define ICE_CONNECTION_FACTORY_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class OutgoingConnectionFactory;
-ICE_API void incRef(OutgoingConnectionFactory*);
-ICE_API void decRef(OutgoingConnectionFactory*);
+ICE_API IceUtil::Shared* upCast(OutgoingConnectionFactory*);
 typedef IceInternal::Handle<OutgoingConnectionFactory> OutgoingConnectionFactoryPtr;
 
 class IncomingConnectionFactory;
-ICE_API void incRef(IncomingConnectionFactory*);
-ICE_API void decRef(IncomingConnectionFactory*);
+ICE_API IceUtil::Shared* upCast(IncomingConnectionFactory*);
 typedef IceInternal::Handle<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
 
 }

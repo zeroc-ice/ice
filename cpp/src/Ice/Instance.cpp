@@ -67,8 +67,7 @@ extern bool ICE_UTIL_API nullHandleAbort;
 
 }
 
-void IceInternal::incRef(Instance* p) { p->__incRef(); }
-void IceInternal::decRef(Instance* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(Instance* p) { return p; }
 
 bool
 IceInternal::Instance::destroyed() const

@@ -22,14 +22,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(LocatorManager* p) { p->__incRef(); }
-void IceInternal::decRef(LocatorManager* p) { p->__decRef(); }
-
-void IceInternal::incRef(LocatorInfo* p) { p->__incRef(); }
-void IceInternal::decRef(LocatorInfo* p) { p->__decRef(); }
-
-void IceInternal::incRef(LocatorTable* p) { p->__incRef(); }
-void IceInternal::decRef(LocatorTable* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(LocatorManager* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(LocatorInfo* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(LocatorTable* p) { return p; }
 
 IceInternal::LocatorManager::LocatorManager() :
     _tableHint(_table.end())

@@ -32,8 +32,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::Reference* p) { return p; }
 
 namespace
 {
@@ -421,8 +420,7 @@ IceInternal::Reference::Reference(const Reference& r) :
 {
 }
 
-void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
                                             const SharedContextPtr& ctx, const string& fs, Mode md,
@@ -749,8 +747,7 @@ IceInternal::FixedReference::filterConnections(const vector<ConnectionIPtr>& all
     return connections;
 }
 
-void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::RoutableReference* p) { return p; }
 
 vector<EndpointIPtr>
 IceInternal::RoutableReference::getRoutedEndpoints() const
@@ -1303,8 +1300,7 @@ IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) 
     }
 }
 
-void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::DirectReference* p) { return p; }
 
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
                                               const Identity& ident, const SharedContextPtr& ctx, const string& fs,
@@ -1558,8 +1554,7 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r) :
 {
 }
 
-void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::IndirectReference* p) { return p; }
 
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
                                                   const Identity& ident, const SharedContextPtr& ctx, const string& fs,

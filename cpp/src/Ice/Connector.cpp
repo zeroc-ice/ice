@@ -13,5 +13,4 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Connector* p) { p->__incRef(); }
-void IceInternal::decRef(Connector* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(Connector* p) { return p; }

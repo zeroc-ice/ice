@@ -10,6 +10,8 @@
 #ifndef ICE_SSL_UTIL_F_H
 #define ICE_SSL_UTIL_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 #include <openssl/ssl.h>
@@ -25,8 +27,7 @@ class DHParams;
 namespace IceInternal
 {
 
-void incRef(IceSSL::DHParams*);
-void decRef(IceSSL::DHParams*);
+IceUtil::Shared* upCast(IceSSL::DHParams*);
 
 }
 

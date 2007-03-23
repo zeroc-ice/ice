@@ -10,14 +10,15 @@
 #ifndef ICE_SERVANT_FACTORY_MANAGER_F_H
 #define ICE_SERVANT_FACTORY_MANAGER_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class ObjectFactoryManager;
-void incRef(ObjectFactoryManager*);
-void decRef(ObjectFactoryManager*);
+IceUtil::Shared* upCast(ObjectFactoryManager*);
 typedef Handle<ObjectFactoryManager> ObjectFactoryManagerPtr;
 
 }

@@ -17,8 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ConnectionMonitor* p) { p->__incRef(); }
-void IceInternal::decRef(ConnectionMonitor* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ConnectionMonitor* p) { return p; }
 
 void
 IceInternal::ConnectionMonitor::destroy()

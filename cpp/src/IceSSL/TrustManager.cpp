@@ -20,8 +20,7 @@
 using namespace std;
 using namespace IceSSL;
 
-void IceInternal::incRef(IceSSL::TrustManager* p) { p->__incRef(); }
-void IceInternal::decRef(IceSSL::TrustManager* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceSSL::TrustManager* p) { return p; }
 
 TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator)

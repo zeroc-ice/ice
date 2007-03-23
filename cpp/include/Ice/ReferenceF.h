@@ -10,34 +10,31 @@
 #ifndef ICE_REFERENCE_F_H
 #define ICE_REFERENCE_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class Reference;
-ICE_API void incRef(Reference*);
-ICE_API void decRef(Reference*);
+ICE_API IceUtil::Shared* upCast(Reference*);
 typedef IceInternal::Handle<Reference> ReferencePtr;
 
 class FixedReference;
-ICE_API void incRef(FixedReference*);
-ICE_API void decRef(FixedReference*);
+ICE_API IceUtil::Shared* upCast(FixedReference*);
 typedef IceInternal::Handle<FixedReference> FixedReferencePtr;
 
 class RoutableReference;
-ICE_API void incRef(RoutableReference*);
-ICE_API void decRef(RoutableReference*);
+ICE_API IceUtil::Shared* upCast(RoutableReference*);
 typedef IceInternal::Handle<RoutableReference> RoutableReferencePtr;
 
 class DirectReference;
-ICE_API void incRef(DirectReference*);
-ICE_API void decRef(DirectReference*);
+ICE_API IceUtil::Shared* upCast(DirectReference*);
 typedef IceInternal::Handle<DirectReference> DirectReferencePtr;
 
 class IndirectReference;
-ICE_API void incRef(IndirectReference*);
-ICE_API void decRef(IndirectReference*);
+ICE_API IceUtil::Shared* upCast(IndirectReference*);
 typedef IceInternal::Handle<IndirectReference> IndirectReferencePtr;
 
 

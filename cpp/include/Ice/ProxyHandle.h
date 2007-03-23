@@ -97,7 +97,6 @@ uncheckedCastHelper(const ::IceInternal::ProxyHandle<Y>& b, void*)
     return uncheckedCastImpl<ProxyHandle<T> >(b);
 }
 
-
 //
 // Like IceInternal::Handle, but specifically for proxies, with
 // support for checkedCast() and uncheckedCast() instead of
@@ -114,7 +113,7 @@ public:
 
         if(this->_ptr)
         {
-            incRef(this->_ptr);
+            upCast(this->_ptr)->__incRef();
         }
     }
     
@@ -125,7 +124,7 @@ public:
 
         if(this->_ptr)
         {
-            incRef(this->_ptr);
+            upCast(this->_ptr)->__incRef();
         }
     }
 
@@ -136,7 +135,7 @@ public:
 
         if(this->_ptr)
         {
-            incRef(this->_ptr);
+            upCast(this->_ptr)->__incRef();
         }
     }
 
@@ -146,7 +145,7 @@ public:
 
         if(this->_ptr)
         {
-            incRef(this->_ptr);
+            upCast(this->_ptr)->__incRef();
         }
     }
     
@@ -154,7 +153,7 @@ public:
     {
         if(this->_ptr)
         {
-            decRef(this->_ptr);
+            upCast(this->_ptr)->__decRef();
         }
     }
     
@@ -164,12 +163,12 @@ public:
         {
             if(p)
             {
-                incRef(p);
+                upCast(p)->__incRef();
             }
 
             if(this->_ptr)
             {
-                decRef(this->_ptr);
+                upCast(this->_ptr)->__decRef();
             }
             
             this->_ptr = p;
@@ -184,12 +183,12 @@ public:
         {
             if(r._ptr)
             {
-                incRef(r._ptr);
+                upCast(r._ptr)->__incRef();
             }
 
             if(this->_ptr)
             {
-                decRef(this->_ptr);
+                upCast(this->_ptr)->__decRef();
             }
             
             this->_ptr = r._ptr;
@@ -204,12 +203,12 @@ public:
         {
             if(r._ptr)
             {
-                incRef(r._ptr);
+                upCast(r._ptr)->__incRef();
             }
 
             if(this->_ptr)
             {
-                decRef(this->_ptr);
+                upCast(this->_ptr)->__decRef();
             }
             
             this->_ptr = r._ptr;
@@ -223,12 +222,12 @@ public:
         {
             if(r._ptr)
             {
-                incRef(r._ptr);
+                upCast(r._ptr)->__incRef();
             }
 
             if(this->_ptr)
             {
-                decRef(this->_ptr);
+                upCast(this->_ptr)->__decRef();
             }
             
             this->_ptr = r._ptr;

@@ -24,8 +24,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ProxyFactory* p) { p->__incRef(); }
-void IceInternal::decRef(ProxyFactory* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ProxyFactory* p) { return p; }
 
 ObjectPrx
 IceInternal::ProxyFactory::stringToProxy(const string& str) const

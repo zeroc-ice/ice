@@ -11,13 +11,13 @@
 #define ICE_ENDPOINT_I_F_H
 
 #include <Ice/Handle.h>
+#include <Ice/LocalObject.h>
 
 namespace IceInternal
 {
 
 class EndpointI;
-ICE_API void incRef(IceInternal::EndpointI*);
-ICE_API void decRef(IceInternal::EndpointI*);
+ICE_API Ice::LocalObject* upCast(IceInternal::EndpointI*);
 typedef IceInternal::Handle<EndpointI> EndpointIPtr;
 
 }

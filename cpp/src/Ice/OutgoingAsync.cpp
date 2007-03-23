@@ -26,14 +26,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(OutgoingAsync* p) { p->__incRef(); }
-void IceInternal::decRef(OutgoingAsync* p) { p->__decRef(); }
-
-void IceInternal::incRef(AMI_Object_ice_invoke* p) { p->__incRef(); }
-void IceInternal::decRef(AMI_Object_ice_invoke* p) { p->__decRef(); }
-
-void IceInternal::incRef(AMI_Array_Object_ice_invoke* p) { p->__incRef(); }
-void IceInternal::decRef(AMI_Array_Object_ice_invoke* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(OutgoingAsync* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(AMI_Object_ice_invoke* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(AMI_Array_Object_ice_invoke* p) { return p; }
 
 IceInternal::OutgoingAsync::OutgoingAsync() :
     __is(0),
@@ -315,7 +310,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
             //
             // Explicit context
             //
-            __write(__os, *context, __U__Context());
+            __writeContext(__os, *context);
         }
         else
         {
@@ -329,7 +324,7 @@ IceInternal::OutgoingAsync::__prepare(const ObjectPrx& prx, const string& operat
 
             if(implicitContext == 0)
             {
-                __write(__os, prxContext, __U__Context());
+                __writeContext(__os, prxContext);
             }
             else
             {

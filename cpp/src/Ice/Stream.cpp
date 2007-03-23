@@ -13,10 +13,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(InputStream* p) { p->__incRef(); }
-void IceInternal::decRef(InputStream* p) { p->__decRef(); }
-void IceInternal::incRef(OutputStream* p) { p->__incRef(); }
-void IceInternal::decRef(OutputStream* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(InputStream* p) { return p; }
+IceUtil::Shared* IceInternal::upCast(OutputStream* p) { return p; }
 
 Ice::ReadObjectCallbackI::ReadObjectCallbackI(PatchFunc func, void* arg) :
     _func(func), _arg(arg)

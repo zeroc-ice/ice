@@ -10,6 +10,8 @@
 #ifndef ICE_SSL_INSTANCE_F_H
 #define ICE_SSL_INSTANCE_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceSSL
@@ -22,8 +24,7 @@ class Instance;
 namespace IceInternal
 {
 
-void incRef(IceSSL::Instance*);
-void decRef(IceSSL::Instance*);
+IceUtil::Shared* upCast(IceSSL::Instance*);
 
 }
 

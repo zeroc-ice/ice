@@ -635,7 +635,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
         string scope = fixKwd(cl->scope());
         if(marshal)
         {
-            out << nl << scope << "__write(" << (pointer ? "" : "&") << stream << ", " << fixedParam << ");";
+            out << nl << stream << deref << "write(::Ice::ObjectPtr(::IceInternal::upCast(" << fixedParam << ".get())));";
         }
         else
         {
@@ -643,6 +643,21 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 << scope << "__patch__" << cl->name() << "Ptr, &" << fixedParam << ");";
         }
 
+        return;
+    }
+
+    ProxyPtr px = ProxyPtr::dynamicCast(type);
+    if(px)
+    {
+        string scope = fixKwd(px->_class()->scope());
+        if(marshal)
+        {
+            out << nl << stream << deref << "write(::Ice::ObjectPrx(::IceInternal::upCast(" << fixedParam << ".get())));";
+        }
+        else
+        {
+            out << nl << scope << "__read(" << (pointer ? "" : "&") << stream << ", " << fixedParam << ");";
+        }
         return;
     }
     
@@ -670,6 +685,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     {
         string seqType = findMetaData(metaData, inParam);
         builtin = BuiltinPtr::dynamicCast(seq->type());
+        string funcSeq = (marshal ? "write" : "read") + fixKwd(seq->name()) + "(";
+
         if(marshal)
         {
             string scope = fixKwd(seq->scope());
@@ -689,9 +706,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     seqType = findMetaData(l, false);
                     if(seqType.empty())
                     {
-                        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-                            << fixedParam << ".first, " << fixedParam << ".second, " << scope
-                            << "__U__" << fixKwd(seq->name()) << "());";
+                        out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", "
+                            << fixedParam << ".first, " << fixedParam << ".second);";
                     }
                     else
                     {
@@ -759,8 +775,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 seqType = findMetaData(l, false);
                 if(!seqType.empty())
                 {
-                    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", " << fixedParam << ", "
-                        << scope << "__U__" << fixKwd(seq->name()) << "());";
+                    out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", " << fixedParam 
+                        << ");";
                 }
                 else if(!builtin || builtin->kind() == Builtin::KindObject ||
                         builtin->kind() == Builtin::KindObjectProxy)
@@ -771,9 +787,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     out << eb;
                     out << nl << "else";
                     out << sb;
-                    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", &"
-                        << fixedParam << "[0], &" << fixedParam << "[0] + " << fixedParam << ".size(), " << scope
-                        << "__U__" << fixKwd(seq->name()) << "());";
+                    out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", &"
+                        << fixedParam << "[0], &" << fixedParam << "[0] + " << fixedParam << ".size());";
                     out << eb;
                 }
                 else if(builtin->kind() == Builtin::KindBool)
@@ -809,8 +824,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                     if(seqType.empty())
                     {
                         out << nl << typeToString(type, false) << " ___" << fixedParam << ";";
-                        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", ___"
-                            << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+                        out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", ___"
+                            << fixedParam << ");";
                     }
                     else
                     {
@@ -914,8 +929,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
                 if(!seqType.empty() || !builtin || builtin->kind() == Builtin::KindObject ||
                    builtin->kind() == Builtin::KindObjectProxy)
                 {
-                    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-                        << fixedParam << ", " << scope << "__U__" << fixKwd(seq->name()) << "());";
+                    out << nl << scope << "__" << funcSeq << (pointer ? "" : "&") << stream << ", "
+                        << fixedParam << ");";
                 }
                 else if(builtin->kind() == Builtin::KindByte)
                 {
@@ -961,18 +976,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     if(dict)
     {
         string scope = fixKwd(dict->scope());
-        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-            << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
+        string funcDict = (marshal ? "write" : "read") + fixKwd(dict->name()) + "(";
+        out << nl << scope << "__" << funcDict << (pointer ? "" : "&") << stream << ", " << fixedParam << ");";
         return;
     }
     
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    if(!constructed)
-    {
-        ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-        assert(proxy);
-        constructed = proxy->_class();
-    }
+    assert(constructed);
 
     out << nl << fixKwd(constructed->scope()) << "__" << func << (pointer ? "" : "&") << stream << ", "
         << fixedParam << ");";

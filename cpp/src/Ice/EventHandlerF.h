@@ -10,14 +10,15 @@
 #ifndef ICE_EVENT_HANDLER_F_H
 #define ICE_EVENT_HANDLER_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class EventHandler;
-void incRef(EventHandler*);
-void decRef(EventHandler*);
+IceUtil::Shared* upCast(EventHandler*);
 typedef Handle<EventHandler> EventHandlerPtr;
 
 }

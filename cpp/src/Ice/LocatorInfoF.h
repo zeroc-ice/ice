@@ -10,24 +10,23 @@
 #ifndef ICE_LOCATOR_INFO_F_H
 #define ICE_LOCATOR_INFO_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
 class LocatorManager;
-void incRef(LocatorManager*);
-void decRef(LocatorManager*);
+IceUtil::Shared* upCast(LocatorManager*);
 typedef Handle<LocatorManager> LocatorManagerPtr;
 
 class LocatorInfo;
-void incRef(LocatorInfo*);
-void decRef(LocatorInfo*);
+IceUtil::Shared* upCast(LocatorInfo*);
 typedef Handle<LocatorInfo> LocatorInfoPtr;
 
 class LocatorTable;
-void incRef(LocatorTable*);
-void decRef(LocatorTable*);
+IceUtil::Shared* upCast(LocatorTable*);
 typedef Handle<LocatorTable> LocatorTablePtr;
 
 }

@@ -98,7 +98,7 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
             //
             // Explicit context
             //
-            __write(&_os, *context, __U__Context());
+            __writeContext(&_os, *context);
         }
         else
         {
@@ -112,7 +112,7 @@ IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const s
 
             if(implicitContext == 0)
             {
-                __write(&_os, prxContext, __U__Context());
+                __writeContext(&_os, prxContext);
             }
             else
             {

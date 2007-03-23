@@ -27,8 +27,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceSSL;
 
-void IceInternal::incRef(IceSSL::Instance* p) { p->__incRef(); }
-void IceInternal::decRef(IceSSL::Instance* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceSSL::Instance* p) { return p; }
 
 extern "C"
 {

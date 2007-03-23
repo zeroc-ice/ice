@@ -10,6 +10,8 @@
 #ifndef ICE_STREAM_F_H
 #define ICE_STREAM_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace Ice
@@ -23,10 +25,8 @@ class OutputStream;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::InputStream*);
-ICE_API void decRef(::Ice::InputStream*);
-ICE_API void incRef(::Ice::OutputStream*);
-ICE_API void decRef(::Ice::OutputStream*);
+ICE_API IceUtil::Shared* upCast(::Ice::InputStream*);
+ICE_API IceUtil::Shared* upCast(::Ice::OutputStream*);
 
 }
 

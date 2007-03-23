@@ -14,8 +14,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(EventHandler* p) { p->__incRef(); }
-void IceInternal::decRef(EventHandler* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(EventHandler* p) { return p; }
 
 InstancePtr
 IceInternal::EventHandler::instance() const

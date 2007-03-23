@@ -10,6 +10,8 @@
 #ifndef ICE_SSL_TRUST_MANAGER_F_H
 #define ICE_SSL_TRUST_MANAGER_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Handle.h>
 
 namespace IceSSL
@@ -22,8 +24,7 @@ class TrustManager;
 namespace IceInternal
 {
 
-void incRef(IceSSL::TrustManager*);
-void decRef(IceSSL::TrustManager*);
+IceUtil::Shared* upCast(IceSSL::TrustManager*);
 
 }
 

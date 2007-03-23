@@ -10,6 +10,8 @@
 #ifndef ICE_PROXY_F_H
 #define ICE_PROXY_F_H
 
+#include <IceUtil/Shared.h>
+
 #include <Ice/Config.h>
 #include <Ice/ProxyHandle.h>
 
@@ -64,17 +66,10 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API void incRef(::IceProxy::Ice::Object*);
-ICE_API void decRef(::IceProxy::Ice::Object*);
-
-ICE_API void incRef(::IceDelegate::Ice::Object*);
-ICE_API void decRef(::IceDelegate::Ice::Object*);
-
-ICE_API void incRef(::IceDelegateM::Ice::Object*);
-ICE_API void decRef(::IceDelegateM::Ice::Object*);
-
-ICE_API void incRef(::IceDelegateD::Ice::Object*);
-ICE_API void decRef(::IceDelegateD::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::IceProxy::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::IceDelegate::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::IceDelegateD::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::IceDelegateM::Ice::Object*);
 
 }
 
