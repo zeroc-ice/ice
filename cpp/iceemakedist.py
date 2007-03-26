@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re, glob, RPMTools
+import os, sys, shutil, fnmatch, re, glob 
 
 #
 # Program usage.
@@ -260,24 +260,16 @@ shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.WINDOWS"), os.pa
 print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("ice", "CHANGES"), \
-    os.path.join("ice", "INSTALL.AIX"), \
-    os.path.join("ice", "INSTALL.FREEBSD"), \
     os.path.join("ice", "INSTALL.HP-UX"), \
     os.path.join("ice", "INSTALL.MACOSX"), \
     os.path.join("ice", "INSTALL.SOLARIS"), \
     os.path.join("ice", "iceemakedist.py"), \
+    os.path.join("ice", "WINDOWS_SERVICE.txt"), \
     os.path.join("ice", "makedist.py"), \
     os.path.join("ice", "makebindist.py"), \
-    os.path.join("ice", "RPMTools.py"), \
     os.path.join("ice", "fixCopyright.py"), \
     os.path.join("ice", "fixVersion.py"), \
-    os.path.join("ice", "minimal.dsp"), \
-    os.path.join("ice", "all.dsw"), \
-    os.path.join("ice", "all.dsp"), \
     os.path.join("ice", "allTests.py"), \
-    os.path.join("ice", "src", "icecpp", "icecpp.dsp"), \
-    os.path.join("ice", "src", "IceUtil", "iceutil.dsp"), \
-    os.path.join("ice", "src", "Slice", "slice.dsp"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
