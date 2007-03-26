@@ -12,7 +12,6 @@
 #include <TestApplication.h>
 #include <TestI.h>
 #include <WstringI.h>
-#include <StringConverterI.h>
 
 using namespace std;
 
@@ -30,8 +29,6 @@ public:
     {
         Ice::InitializationData initData;
 	initData.properties = Ice::createProperties();
-	initData.stringConverter = new Test::StringConverterI();
-	initData.wstringConverter = new Test::WstringConverterI();
 
 	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
 	//initData.properties->setProperty("Ice.Trace.Network", "5");

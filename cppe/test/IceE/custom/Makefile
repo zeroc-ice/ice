@@ -19,16 +19,14 @@ COBJS		= Test.o \
 		  Wstring.o \
 		  Client.o \
 		  AllTests.o \
-		  MyByteSeq.o \
-		  StringConverterI.o
+		  MyByteSeq.o
 
 SOBJS		= Test.o \
 		  TestI.o \
 		  Wstring.o \
 		  WstringI.o \
 		  Server.o \
-		  MyByteSeq.o \
-		  StringConverterI.o
+		  MyByteSeq.o
 
 COLOBJS		= Test.o \
 		  TestI.o \
@@ -36,8 +34,7 @@ COLOBJS		= Test.o \
 		  WstringI.o \
 		  Collocated.o \
 		  AllTests.o \
-		  MyByteSeq.o \
-		  StringConverterI.o
+		  MyByteSeq.o
 
 SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
