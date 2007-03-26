@@ -35,13 +35,15 @@ SLICE_API std::string operationModeToString(Operation::Mode);
 
 SLICE_API std::string fixKwd(const std::string&);
 
-SLICE_API void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
+SLICE_API void writeMarshalUnmarshalCode(bool, ::IceUtil::Output&, const TypePtr&, const std::string&, bool,
                                          const std::string& = "", bool = true, const StringList& = StringList(),
                                          bool = false);
-SLICE_API void writeMarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&, 
+                                             
+SLICE_API void writeMarshalCode(bool, ::IceUtil::Output&, const ParamDeclList&, const TypePtr&, 
                                 const StringList&, bool = false);
-SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
+SLICE_API void writeUnmarshalCode(bool, ::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
                                   const StringList&, bool = false);
+
 SLICE_API void writeAllocateCode(::IceUtil::Output&, const ParamDeclList&, const TypePtr&,
                                  const StringList&, bool = false, bool = false);
 SLICE_API void writeStreamMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,

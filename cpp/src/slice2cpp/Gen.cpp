@@ -692,7 +692,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << nl << "__os->startWriteSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
+            writeMarshalUnmarshalCode(false, C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
         }
         C << nl << "__os->endWriteSlice();";
         if(base)
@@ -711,7 +711,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << nl << "__is->startReadSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
+            writeMarshalUnmarshalCode(false, C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
         }
         C << nl << "__is->endReadSlice();";
         if(base)
@@ -1015,7 +1015,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         C << sb;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
+            writeMarshalUnmarshalCode(false, C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
         }
         C << eb;
 
@@ -1023,7 +1023,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         C << sb;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
+            writeMarshalUnmarshalCode(false, C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
         }
         C << eb;
 
@@ -1151,7 +1151,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             C << nl << "__os->writeSize(size);";
             C << nl << "for(" << name << "::const_iterator p = v.begin(); p != v.end(); ++p)";
             C << sb;
-            writeMarshalUnmarshalCode(C, type, "(*p)", true);
+            writeMarshalUnmarshalCode(false, C, type, "(*p)", true);
             C << eb;
             C << eb;
 
@@ -1172,7 +1172,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             }
             C << nl << "for(" << name << "::iterator p = v.begin(); p != v.end(); ++p)";
             C << sb;
-            writeMarshalUnmarshalCode(C, type, "(*p)", false);
+            writeMarshalUnmarshalCode(false, C, type, "(*p)", false);
 
             //
             // After unmarshaling each element, check that there are still enough bytes left in the stream
@@ -1249,7 +1249,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             C << nl << "__os->writeSize(size);";
             C << nl << "for(int i = 0; i < size; ++i)";
             C << sb;
-            writeMarshalUnmarshalCode(C, type, "begin[i]", true);
+            writeMarshalUnmarshalCode(false, C, type, "begin[i]", true);
             C << eb;
             C << eb;
 
@@ -1270,7 +1270,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
             C << nl << "v.resize(sz);";
             C << nl << "for(int i = 0; i < sz; ++i)";
             C << sb;
-            writeMarshalUnmarshalCode(C, type, "v[i]", false);
+            writeMarshalUnmarshalCode(false, C, type, "v[i]", false);
 
             //
             // After unmarshaling each element, check that there are still enough bytes left in the stream
@@ -1364,8 +1364,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         C << nl << scoped << "::const_iterator p;";
         C << nl << "for(p = v.begin(); p != v.end(); ++p)";
         C << sb;
-        writeMarshalUnmarshalCode(C, keyType, "p->first", true);
-        writeMarshalUnmarshalCode(C, valueType, "p->second", true);
+        writeMarshalUnmarshalCode(false, C, keyType, "p->first", true);
+        writeMarshalUnmarshalCode(false, C, valueType, "p->second", true);
         C << eb;
         C << eb;
 
@@ -1378,9 +1378,9 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         C << sb;
         C << nl << "::std::pair<const " << ks << ", " << vs << "> pair;";
         const string pf = string("const_cast<") + ks + "&>(pair.first)";
-        writeMarshalUnmarshalCode(C, keyType, pf, false);
+        writeMarshalUnmarshalCode(false, C, keyType, pf, false);
         C << nl << scoped << "::iterator __i = v.insert(v.end(), pair);";
-        writeMarshalUnmarshalCode(C, valueType, "__i->second", false);
+        writeMarshalUnmarshalCode(false, C, valueType, "__i->second", false);
         C << eb;
         C << eb;
 
@@ -2270,7 +2270,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
         C << nl << "::IceInternal::BasicStream* __os = __og.os();";
-        writeMarshalCode(C, inParams, 0, StringList(), true);
+        writeMarshalCode(false, C, inParams, 0, StringList(), true);
         if(p->sendsClasses())
         {
             C << nl << "__os->writePendingObjects();";
@@ -2345,7 +2345,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
             C << nl << fixKwd((*opi)->name()) << " = new " << fixKwd(st->scoped()) << ";";
         }
     }
-    writeUnmarshalCode(C, outParams, ret, p->getMetaData());
+    writeUnmarshalCode(false, C, outParams, ret, p->getMetaData());
     if(p->returnsClasses())
     {
         C << nl << "__is->readPendingObjects();";
@@ -3124,7 +3124,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             DataMemberList::const_iterator q;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
+                writeMarshalUnmarshalCode(false, C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
             }
             C << nl << "__os->endWriteSlice();";
             emitUpcall(base, "::__write(__os);");
@@ -3140,7 +3140,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "__is->startReadSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
+                writeMarshalUnmarshalCode(false, C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
             }
             C << nl << "__is->endReadSlice();";
             emitUpcall(base, "::__read(__is, true);");
@@ -3512,7 +3512,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __os = __inS.os();";
             }
             writeAllocateCode(C, inParams, 0, StringList(), _useWstring, true);
-            writeUnmarshalCode(C, inParams, 0, StringList(), true);
+            writeUnmarshalCode(false, C, inParams, 0, StringList(), true);
             if(p->sendsClasses())
             {
                 C << nl << "__is->readPendingObjects();";
@@ -3529,7 +3529,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << retS << " __ret = ";
             }
             C << fixKwd(name) << args << ';';
-            writeMarshalCode(C, outParams, ret, p->getMetaData());
+            writeMarshalCode(false, C, outParams, ret, p->getMetaData());
             if(p->returnsClasses())
             {
                 C << nl << "__os->writePendingObjects();";
@@ -3558,7 +3558,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "::IceInternal::BasicStream* __is = __inS.is();";
             }
             writeAllocateCode(C, inParams, 0, StringList(), _useWstring, true);
-            writeUnmarshalCode(C, inParams, 0, StringList(), true);
+            writeUnmarshalCode(false, C, inParams, 0, StringList(), true);
             if(p->sendsClasses())
             {
                 C << nl << "__is->readPendingObjects();";
@@ -4715,7 +4715,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
         C << nl << "__prepare(__prx, " << flatName << ", " << operationModeToString(p->sendMode()) << ", __ctx);";
-        writeMarshalCode(C, inParams, 0, StringList(), true);
+        writeMarshalCode(false, C, inParams, 0, StringList(), true);
         if(p->sendsClasses())
         {
             C << nl << "__os->writePendingObjects();";
@@ -4768,10 +4768,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << eb;
 
-        writeUnmarshalCode(C, outParams, 0, StringList(), true);
+        writeUnmarshalCode(false, C, outParams, 0, StringList(), true);
         if(ret)
         {
-            writeMarshalUnmarshalCode(C, ret, "__ret", false, "", true, p->getMetaData(), true);
+            writeMarshalUnmarshalCode(false, C, ret, "__ret", false, "", true, p->getMetaData(), true);
         }
         if(p->returnsClasses())
         {
@@ -4977,10 +4977,10 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << nl << "try";
         C << sb;
         C << nl << "::IceInternal::BasicStream* __os = this->__os();";
-        writeMarshalCode(C, outParams, 0, StringList(), true);
+        writeMarshalCode(false, C, outParams, 0, StringList(), true);
         if(ret)
         {
-            writeMarshalUnmarshalCode(C, ret, "__ret", true, "", true, p->getMetaData(), true);
+            writeMarshalUnmarshalCode(false, C, ret, "__ret", true, "", true, p->getMetaData(), true);
         }
         if(p->returnsClasses())
         {
