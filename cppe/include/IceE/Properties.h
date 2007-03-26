@@ -39,18 +39,17 @@ public:
 private:
 
     Properties(const Properties*);
-    Properties(const StringConverterPtr&);
-    Properties(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
+    Properties();
+    Properties(StringSeq&, const PropertiesPtr&);
 
-    friend ICE_API PropertiesPtr createProperties(const StringConverterPtr&);
-    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
+    friend ICE_API PropertiesPtr createProperties();
+    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
 
-    void parseLine(const std::string&, const StringConverterPtr&);
+    void parseLine(const std::string&);
 
     void loadConfig();
 
     std::map<std::string, std::string> _properties;
-    const StringConverterPtr _converter;
 };
 
 }

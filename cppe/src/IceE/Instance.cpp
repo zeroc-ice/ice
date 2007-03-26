@@ -307,48 +307,19 @@ IceInternal::Instance::stringToIdentity(const string& s) const
         }
     }
 
-    if(_initData.stringConverter)
-    {
-        string tmpString;
-        _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.name.data()),
-                                            reinterpret_cast<const Byte*>(ident.name.data() + ident.name.size()),
-                                            tmpString);
-        ident.name = tmpString;
-
-        _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.category.data()),
-                                           reinterpret_cast<const Byte*>(ident.category.data() + ident.category.size()),
-                                           tmpString);
-        ident.category = tmpString;
-    }
-
     return ident;
 }
 
 string
 IceInternal::Instance::identityToString(const Identity& ident) const
 {
-    string name = ident.name;
-    string category = ident.category;
-    if(_initData.stringConverter)
+    if(ident.category.empty())
     {
-        UTF8BufferI buffer;
-        Byte* last = _initData.stringConverter->toUTF8(ident.name.data(), ident.name.data() + ident.name.size(),
-                                                       buffer);
-        name = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-
-        buffer.reset();
-        last = _initData.stringConverter->toUTF8(ident.category.data(), ident.category.data() + ident.category.size(),
-                                                 buffer);
-        category = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
-    }
-
-    if(category.empty())
-    {
-        return IceUtil::escapeString(name, "/");
+        return IceUtil::escapeString(ident.name, "/");
     }
     else
     {
-        return IceUtil::escapeString(category, "/") + '/' + IceUtil::escapeString(name, "/");
+        return IceUtil::escapeString(ident.category, "/") + '/' + IceUtil::escapeString(ident.name, "/");
     }
 }
 
@@ -539,11 +510,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 #ifndef ICEE_PURE_CLIENT
 	_objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 #endif
-
-	if(!_initData.wstringConverter)
-	{
-	    _initData.wstringConverter = new UnicodeWstringConverter();
-	}
 
 	__setNoDelete(false);
     }
@@ -742,46 +708,4 @@ IceInternal::Instance::destroy()
 
 	_state = StateDestroyed;
     }
-}
-
-IceInternal::UTF8BufferI::UTF8BufferI() :
-    _buffer(0),
-    _offset(0)
-{
-}
-
-IceInternal::UTF8BufferI::~UTF8BufferI()
-{
-    free(_buffer);
-}
-
-Byte*
-IceInternal::UTF8BufferI::getMoreBytes(size_t howMany, Byte* firstUnused)
-{
-    if(_buffer == 0)
-    {
-        _buffer = (Byte*)malloc(howMany);
-    }
-    else
-    {
-        assert(firstUnused != 0);
-        _offset = firstUnused - _buffer;
-        _buffer = (Byte*)realloc(_buffer, _offset + howMany);
-    }
-
-    return _buffer + _offset;
-}
-
-Byte*
-IceInternal::UTF8BufferI::getBuffer()
-{
-    return _buffer;
-}
-
-void
-IceInternal::UTF8BufferI::reset()
-{
-    free(_buffer);
-    _buffer = 0;
-    _offset = 0;
 }

@@ -61,22 +61,22 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 }
 
 PropertiesPtr
-Ice::createProperties(const StringConverterPtr& converter)
+Ice::createProperties()
 {
-    return new Properties(converter);
+    return new Properties();
 }
 
 PropertiesPtr
-Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults, const StringConverterPtr& converter)
+Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
 {
-    return new Properties(args, defaults, converter);
+    return new Properties(args, defaults);
 }
 
 PropertiesPtr
-Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults, const StringConverterPtr& converter)
+Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
 {
     StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults, converter);
+    PropertiesPtr properties = createProperties(args, defaults);
     stringSeqToArgs(args, argc, argv);
     return properties;
 }
@@ -180,14 +180,6 @@ Ice::initialize(const InitializationData& initData, Int version)
     char* argv[] = { 0 };
     communicator->finishSetup(argc, argv);
     return communicator;
-}
-
-CommunicatorPtr
-Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& properties, Int version)
-{
-    InitializationData initData;
-    initData.properties = properties;
-    return initialize(argc, argv, initData, version);
 }
 
 InstancePtr

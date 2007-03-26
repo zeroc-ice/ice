@@ -24,8 +24,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::Incoming::Incoming(Instance* inst, Connection* con, BasicStream& is, const ObjectAdapterPtr& adapter) :
-    _os(inst, inst->messageSizeMax(), inst->initializationData().stringConverter, 
-        inst->initializationData().wstringConverter),
+    _os(inst, inst->messageSizeMax()),
     _is(is),
     _connection(con)
 {
@@ -103,7 +102,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	_current.facet.clear();
     }
 
-    _is.read(_current.operation, false);
+    _is.read(_current.operation);
 
     Byte b;
     _is.read(b);
@@ -219,7 +218,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 		_os.write(&ex.facet, &ex.facet + 1);
 	    }
 
-	    _os.write(ex.operation, false);
+	    _os.write(ex.operation);
 	    
 	    _connection->sendResponse(&_os);
 	}
@@ -244,7 +243,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
-	    _os.write(ex.unknown, false);
+	    _os.write(ex.unknown);
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -268,7 +267,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
-	    _os.write(ex.unknown, false);
+	    _os.write(ex.unknown);
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -292,7 +291,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
-	    _os.write(ex.unknown, false);
+	    _os.write(ex.unknown);
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -316,7 +315,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
-	    _os.write(ex.toString(), false);
+	    _os.write(ex.toString());
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -340,7 +339,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
-	    _os.write(ex.toString(), false);
+	    _os.write(ex.toString());
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -364,7 +363,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
-	    _os.write(ex.toString(), false);
+	    _os.write(ex.toString());
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -389,7 +388,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    string msg = string("std::exception: ") + ex.what();
-	    _os.write(msg, false);
+	    _os.write(msg);
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -413,7 +412,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	    _os.endWriteEncaps();
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
-	    _os.write(string("unknown c++ exception"), false);
+	    _os.write(string("unknown c++ exception"));
 	    _connection->sendResponse(&_os);
 	}
 	else
@@ -459,7 +458,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 		_os.write(&_current.facet, &_current.facet + 1);
 	    }
 
-	    _os.write(_current.operation, false);
+	    _os.write(_current.operation);
 	}
 	else
 	{

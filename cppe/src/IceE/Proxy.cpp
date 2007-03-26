@@ -196,7 +196,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
             BasicStream* __stream = __og.stream();
             try
             {
-                __stream->write(__id, false);
+                __stream->write(__id);
             }
             catch(const ::Ice::LocalException& __ex)
             {
@@ -346,7 +346,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
 		    }
                 }
-                __is->read(__ret, false);
+                __is->read(__ret);
             }
             catch(const ::Ice::LocalException& __ex)
             {
@@ -412,7 +412,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
 		        throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
 		    }
                 }
-                __is->read(__ret, false);
+                __is->read(__ret);
             }
             catch(const ::Ice::LocalException& __ex)
             {

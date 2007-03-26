@@ -41,7 +41,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
 		  Identity.o \
-		  IdentityUtil.o \
 		  Incoming.o \
 		  IncomingConnectionFactory.o \
 		  Initialize.o \
@@ -74,7 +73,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  ServantManager.o \
 		  Shared.o \
 		  StaticMutex.o \
-		  StringConverter.o \
 		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \

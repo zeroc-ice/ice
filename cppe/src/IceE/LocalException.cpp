@@ -1879,49 +1879,6 @@ Ice::MemoryLimitException::ice_throw() const
     throw *this;
 }
 
-
-Ice::StringConversionException::StringConversionException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line)
-#else
-    ::Ice::MarshalException(__file, __line)
-#endif
-{
-}
-
-Ice::StringConversionException::StringConversionException(const char* __file, int __line, const ::std::string& __reason) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line, __reason)
-#else
-    ::Ice::MarshalException(__file, __line, __reason)
-#endif
-{
-}
-
-Ice::StringConversionException::~StringConversionException() throw()
-{
-}
-
-static const char* __Ice__StringConversionException_name = "Ice::StringConversionException";
-
-::std::string
-Ice::StringConversionException::ice_name() const
-{
-    return __Ice__StringConversionException_name;
-}
-
-::Ice::Exception*
-Ice::StringConversionException::ice_clone() const
-{
-    return new StringConversionException(*this);
-}
-
-void
-Ice::StringConversionException::ice_throw() const
-{
-    throw *this;
-}
-
 Ice::EncapsulationException::EncapsulationException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
@@ -2435,14 +2392,6 @@ Ice::MemoryLimitException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: memory limit exceeded";
-    return out;
-}
-
-string
-Ice::StringConversionException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: string conversion failed";
     return out;
 }
 

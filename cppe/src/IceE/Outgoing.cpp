@@ -49,9 +49,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
-    _stream(ref->getInstance().get(), ref->getInstance()->messageSizeMax(), 
-            ref->getInstance()->initializationData().stringConverter,
-            ref->getInstance()->initializationData().wstringConverter)
+    _stream(ref->getInstance().get(), ref->getInstance()->messageSizeMax())
 {
     switch(_reference->getMode())
     {
@@ -96,7 +94,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 	_stream.write(_reference->getFacet());
     }
 
-    _stream.write(operation, false);
+    _stream.write(operation);
 
     _stream.write(static_cast<Byte>(mode));
 
@@ -309,7 +307,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    }
 
 	    string operation;
-	    _stream.read(operation, false);
+	    _stream.read(operation);
 	    
 	    RequestFailedException* ex;
 	    switch(static_cast<DispatchStatus>(status))
@@ -359,7 +357,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    // exception, you will have a memory leak.
 	    //
 	    string unknown;
-	    _stream.read(unknown, false);
+	    _stream.read(unknown);
 	    
 	    UnknownException* ex;
 	    switch(static_cast<DispatchStatus>(status))

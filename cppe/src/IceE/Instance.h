@@ -112,23 +112,6 @@ private:
     SharedContextPtr _defaultContext;
 };
 
-class UTF8BufferI : public Ice::UTF8Buffer
-{
-public:
-
-   UTF8BufferI();
-   ~UTF8BufferI();
-
-   Ice::Byte* getMoreBytes(size_t howMany, Ice::Byte* firstUnused);
-   Ice::Byte* getBuffer();
-   void reset();
-
-private:
-
-    Ice::Byte* _buffer;
-    size_t _offset;
-};
-
 }
 
 #endif

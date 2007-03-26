@@ -15,7 +15,6 @@
 #include <IceE/Buffer.h>
 #include <IceE/Protocol.h>
 #include <IceE/Unicode.h>
-#include <IceE/StringConverter.h>
 
 namespace Ice
 {
@@ -33,57 +32,13 @@ class ICE_API BasicStream : public Buffer
 {
 public:
 
-    class StreamUTF8BufferI : public Ice::UTF8Buffer
-    {
-    public:
-
-        StreamUTF8BufferI(BasicStream& stream) :
-            _stream(stream)
-        {
-        }
-
-        Ice::Byte*
-        getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
-        {
-            assert(howMany > 0);
-
-            if(firstUnused != 0)
-            {
-                //
-                // Return unused bytes
-                //
-                _stream.b.resize(firstUnused - _stream.b.begin());
-            }
-
-            //
-            // Index of first unused byte
-            //
-            Container::size_type pos = _stream.b.size();
-
-            //
-            // Since resize may reallocate the buffer, when firstUnused != 0, the
-            // return value can be != firstUnused
-            //
-            _stream.resize(pos + howMany);
-
-            return &_stream.b[pos];
-        }
-
-    private:
-
-        BasicStream& _stream;
-    };
-
-    BasicStream(Instance* instance, int messageSizeMax, const Ice::StringConverterPtr& stringConverter, 
-		const Ice::WstringConverterPtr& wstringConverter, bool unlimited = false) :
+    BasicStream(Instance* instance, int messageSizeMax, bool unlimited = false) :
 	Buffer(messageSizeMax),
 	_instance(instance),
 	_currentReadEncaps(0),
 	_currentWriteEncaps(0),
 	_messageSizeMax(messageSizeMax),
         _unlimited(unlimited),
-	_stringConverter(stringConverter),
-	_wstringConverter(wstringConverter),
 	_seqDataStack(0)
     {
 	// Inlined for performance reasons.
@@ -490,27 +445,19 @@ public:
     //
     void write(const char*);
 
-    void writeConverted(const std::string& v);
-    void write(const std::string& v, bool convert = true)
+    void write(const std::string& v)
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
-        if(convert && sz > 0 && _stringConverter != 0)
+        writeSize(sz);
+        if(sz > 0)
         {
-            writeConverted(v);
-        }
-        else
-        {   
-            writeSize(sz);
-            if(sz > 0)
-            {
-                Container::size_type pos = b.size();
-                resize(pos + sz);
-                memcpy(&b[pos], v.data(), sz);
-            }
+            Container::size_type pos = b.size();
+            resize(pos + sz);
+            memcpy(&b[pos], v.data(), sz);
         }
     }
-    void write(const std::string*, const std::string*, bool = true);
-    void read(std::string& v, bool convert = true)
+    void write(const std::string*, const std::string*);
+    void read(std::string& v)
     {
 	Ice::Int sz;
 	readSize(sz);
@@ -520,15 +467,8 @@ public:
 	    {
 		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	    }
-            if(convert && _stringConverter != 0)
-            {
-                _stringConverter->fromUTF8(i, i + sz, v);
-            }
-            else
-            {
-                std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
-//              v.assign(reinterpret_cast<const char*>(&(*i)), sz);
-            }
+            std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+//          v.assign(reinterpret_cast<const char*>(&(*i)), sz);
 	    i += sz;
 	}
 	else
@@ -536,9 +476,20 @@ public:
 	    v.clear();
 	}
     }
-    void read(std::vector<std::string>&, bool = true);
+    void read(std::vector<std::string>&);
 
-    void write(const std::wstring& v);
+    void write(const std::wstring& v)
+    {
+        std::string s = IceUtil::wstringToString(v);
+        Ice::Int sz = static_cast<Ice::Int>(s.size());
+        writeSize(sz);
+        if(sz > 0)
+        {
+            Container::size_type pos = b.size();
+            resize(pos + sz);
+            memcpy(&b[pos], s.c_str(), sz);
+        }
+    }
     void write(const std::wstring*, const std::wstring*);
     void read(std::wstring& v)
     {
@@ -550,8 +501,8 @@ public:
             {
                 throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-
-            _wstringConverter->fromUTF8(i, i + sz, v);
+            std::string s(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz);
+            IceUtil::stringToWstring(s).swap(v);
             i += sz;
         }
         else
@@ -633,9 +584,6 @@ private:
 
     const Container::size_type _messageSizeMax;
     bool _unlimited;
-
-    const Ice::StringConverterPtr& _stringConverter;
-    const Ice::WstringConverterPtr& _wstringConverter;
 
     struct SeqData
     {

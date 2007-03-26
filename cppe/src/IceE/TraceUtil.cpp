@@ -40,7 +40,7 @@ printIdentityFacetOperation(string& s, BasicStream& stream)
     }
 
     string operation;
-    stream.read(operation, false);
+    stream.read(operation);
     s += "\noperation = ";
     s += operation;
 }
@@ -367,7 +367,7 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const Logge
 	}
 		
 	string unknown;
-	stream.read(unknown, false);
+	stream.read(unknown);
 	s += "\nunknown = ";
 	s += unknown;
 	break;

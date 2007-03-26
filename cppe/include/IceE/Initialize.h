@@ -14,7 +14,6 @@
 #include <IceE/PropertiesF.h>
 #include <IceE/LoggerF.h>
 #include <IceE/InstanceF.h>
-#include <IceE/StringConverter.h>
 #include <IceE/BuiltinSequences.h>
 
 namespace Ice
@@ -29,17 +28,15 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 //
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
-ICE_API PropertiesPtr createProperties(const StringConverterPtr& = 0);
-ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0, const StringConverterPtr& = 0);
-ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0, const StringConverterPtr& = 0);
+ICE_API PropertiesPtr createProperties();
+ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0);
+ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0);
 
 struct InitializationData
 {
     PropertiesPtr properties;
     LoggerPtr logger;
     Context defaultContext;
-    StringConverterPtr stringConverter;
-    WstringConverterPtr wstringConverter;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),
@@ -49,9 +46,6 @@ ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData& = Initi
 				   Int = ICEE_INT_VERSION);
 
 ICE_API CommunicatorPtr initialize(const InitializationData& = InitializationData(), Int = ICEE_INT_VERSION);
-
-ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithProperties(int&, char*[], const PropertiesPtr&,
-								    Int = ICEE_INT_VERSION);
 
 }
 
