@@ -1032,8 +1032,16 @@ Slice::writeMarshalUnmarshalCode(bool iceE, Output& out, const TypePtr& type, co
     if(dict)
     {
         string scope = fixKwd(dict->scope());
-        out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
-            << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
+        if(iceE)
+        {
+            out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+                << fixedParam << ", " << scope << "__U__" << fixKwd(dict->name()) << "());";
+        }
+        else
+        {
+            string funcDict = (marshal ? "write" : "read") + fixKwd(dict->name()) + "(";
+            out << nl << scope << "__" << funcDict << (pointer ? "" : "&") << stream << ", " << fixedParam << ");";
+        }
         return;
     }
     
