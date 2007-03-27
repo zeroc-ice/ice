@@ -34,10 +34,16 @@ CPPFLAGS	= $(CPPFLAGS) -DICEE_STATIC_LIBS
 !if "$(OPTIMIZE_SPEED)" == "yes"
 
 CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
+!if "$(CPP_COMPILER)" != "VC60"
+CPPFLAGS	= $(CPPFLAGS) -GL
+!endif
 
 !elseif "$(OPTIMIZE_SIZE)" == "yes"
 
 CPPFLAGS	= $(CPPFLAGS) -MD -O1 -DNDEBUG
+!if "$(CPP_COMPILER)" != "VC60"
+CPPFLAGS	= $(CPPFLAGS) -GL
+!endif
 
 !else
 
@@ -50,14 +56,23 @@ CPPFLAGS        = $(CPPFLAGS) -RTC1
 
 !endif
 
+
 LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 LDFLAGS		= $(LDFLAGS) /debug /fixed:no /incremental:yes
 !else
 LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF /incremental:no
+!if "$(CPP_COMPILER)" != "VC60"
+LDFLAGS		= $(LDFLAGS) /OPT:NOWIN98 /LTCG
+!endif
 !endif
 
-ARFLAGS		= /nologo 
+ARFLAGS		= /nologo
+!if "$(OPTIMIZE_SPEED)" == "yes" | "$(OPTIMIZE_SIZE)" == "yes"
+!if "$(CPP_COMPILER)" != "VC60"
+ARFLAGS		= $(ARFLAGS) /LTCG
+!endif
+!endif
 
 BASELIBS        = rpcrt4.lib advapi32.lib ws2_32.lib
 LIBS		= icee$(LIBSUFFIX).lib
