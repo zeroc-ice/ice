@@ -12,19 +12,21 @@ Ice-E has been extensively tested with Windows XP.
 C++ compiler
 ------------
 
-The following microsoft Visual C++ compilers are supported:
+The following C++ compilers are supported:
 
-- Visual C++ 6.0 SP5 with STLport 4.5 (or later)
+- Microsoft Visual C++ 2005 (both Professional and Express editions)
 
-- Visual C++ .NET 2003 (aka VC 7.1)
+  Visual C++ 2005 Express is available for download from:
 
-- Visual C++ 2005 (aka VC++ 8.0)
+  http://msdn.microsoft.com/vstudio/express/visualc/
 
-The STL (Standard Template Library) that is included with Visual C++ 
-6.0 is not supported. You must use STLport with this compiler.
+- Microsoft Visual C++ .NET 2003 SP1 (aka VC++ 7.1)
 
-For Visual C++ .NET 2003 and Visual C++ 2005, you can use the included
-STL library.
+- Microsoft Visual C++ 6.0 SP5 with STLport 4.5 (or later)
+
+  The Standard Template Library included with Visual C++ 6.0 is not
+  supported. STLPort is included in the Ice third-party package
+  for Visual C++ 6.0.
 
 
 Slice-to-Embedded-C++ translator
@@ -82,38 +84,28 @@ http://www.python.org/download
 Compilation and Testing
 ======================================================================
 
-Using your favorite Zip tool, unzip the Ice-E archive anywhere you
-like, then start the Microsoft Visual C++ IDE. You are now ready to
-compile Ice-E.
+Building Ice
+------------
 
-Open the "all.dsw" workspace. If you are using Visual C++ .NET 2003 or
-Visual C++ 2005, you must first convert the project files from Visual
-C++ 6.0 to the new solution and project file format.
+Using your favorite Zip tool, unzip the Ice source archive anywhere
+you like.
 
-Set your active project to "all" to compile everything including the
-tests and demos. To set your active project with Visual C++ 6.0,
-use Project->Set Active Project. For Visual C++ .NET 2003 or Visual 
-C++ 2005, click on "all" in the class view, then use Project->Set as
-StartUp Project.
+Open a command prompt and change the working directory to Ice-@ver@.
+For example:
 
-Four build configurations are supported:
+> cd C:\IceE-@ver@
 
-  Win32 Release
-  Win32 Debug
-  Win32 Release Static
-  Win32 Debug Static
+Edit config\Make.rules.mak to establish your build configuration. The
+comments in the file provide more information. In particular, you
+must set CPP_COMPILER to the appropriate compiler.
 
-The first two create DLLs for the Ice-E run time, whereas the last two
-generate only static libraries.
+Now you're ready to build Ice:
 
-For Visual C++ 2005, you should set the maximum number of parallel
-builds to 1. Otherwise you may get failures that require you to build
-the solution multiple times. This setting can be found in
-Tools->Options->Projects and Solutions->Build and Run.
+> nmake /f Makefile.mak
 
-After selecting a build configuration, start the compilation using
-Build->Build for Visual C++ 6.0, or Build->Build all for Visual C++
-.NET 2003 or Visual C++ 2005.
+
+Running the Test Suite
+----------------------
 
 You can run the test suite if you compiled the tests and have
 installed Python. Open a command prompt and change to the top-level
@@ -133,11 +125,8 @@ Ice-E DLLs.
 Installation
 ======================================================================
 
-No automatic installation support is provided; you need to copy the
-contents of the bin, include, and lib directories to your preferred
-location. The include directory contains all Ice-E include files, the
-lib directory contains all Ice-E libraries, and the bin directory
-contains all Ice-E DLLs.
+Simply run "nmake /f Makefile.mak install". This will install Ice-E in
+the directory specified by the "prefix" variable in config\Make.rules.mak.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files" and the lib directory to the "Library
