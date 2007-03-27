@@ -42,8 +42,7 @@ CPP_COMPILER            = VC80
 # STLport is not used.
 #
 !if "$(CPP_COMPILER)" == "VC60"
-#STLPORT_HOME		= C:\STLport-5.0
-STLPORT_HOME		= E:\src\packages_win32
+STLPORT_HOME		= C:\STLport-5.0
 !endif
 
 #

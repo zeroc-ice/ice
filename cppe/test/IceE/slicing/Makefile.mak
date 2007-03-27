@@ -28,7 +28,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-ICECPPFLAGS	= -I. $(ICECPPFLAGS)
+ICECPPFLAGS	= -I. $(ICECPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -WX
 

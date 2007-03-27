@@ -92,7 +92,7 @@ SDIR		= $(slicedir)\IceE
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -WX
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -WX -DWIN32_LEAN_AND_MEAN
 SLICE2CPPEFLAGS	= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"

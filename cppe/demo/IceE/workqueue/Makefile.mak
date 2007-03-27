@@ -19,7 +19,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. $(CPPFLAGS) -DICEE_PURE_CLIENT -WX
+CPPFLAGS	= -I. $(CPPFLAGS) -DICEE_PURE_CLIENT -WX -DWIN32_LEAN_AND_MEAN
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

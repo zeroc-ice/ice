@@ -16,7 +16,7 @@ CC		= cl.exe
 LINK 		= link.exe
 AR		= lib.exe
 
-CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE
 
 !if "$(STLPORT_HOME)" != ""
 
@@ -61,9 +61,11 @@ LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 LDFLAGS		= $(LDFLAGS) /debug /fixed:no /incremental:yes
 !else
-LDFLAGS         = $(LDFLAGS) /pdb:none /OPT:REF /incremental:no
+LDFLAGS         = $(LDFLAGS) /OPT:REF /incremental:no
 !if "$(CPP_COMPILER)" != "VC60"
 LDFLAGS		= $(LDFLAGS) /OPT:NOWIN98 /LTCG
+!else
+LDFLAGS         = $(LDFLAGS) /pdb:none
 !endif
 !endif
 

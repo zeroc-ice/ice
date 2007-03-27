@@ -42,7 +42,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -WX -Zm200
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -WX -Zm200 -DWIN32_LEAN_AND_MEAN
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)

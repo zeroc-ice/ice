@@ -73,7 +73,7 @@ ICEE_OBJS      	= BasicStream.obj \
 
 !include $(top_srcdir)\config\Make.rules.mak
 
-CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DICEE_PURE_CLIENT
+CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DICEE_PURE_CLIENT -DWIN32_LEAN_AND_MEAN
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 !if "$(STATICLIBS)" == "yes"
