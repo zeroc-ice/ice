@@ -73,8 +73,10 @@ clean::
 	del /q Router.cpp Router.h
 	del /q Session.cpp Session.h
 
+!if "$(CPP_COMPILER)" != "VC80_EXPRESS"
 $(EVERYTHING)::
 	$(MAKE) -nologo /f Makefile.mak BUILD_MFC=1 $@
+!endif
 
 !endif
 
