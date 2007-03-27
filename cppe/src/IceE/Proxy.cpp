@@ -29,8 +29,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(::IceProxy::Ice::Object* p) { p->__incRef(); }
-void IceInternal::decRef(::IceProxy::Ice::Object* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(::IceProxy::Ice::Object* p) { return p; }
 
 void
 Ice::__write(::IceInternal::BasicStream* __os, const ::Ice::Context& v, ::Ice::__U__Context)
@@ -130,12 +129,6 @@ bool
 IceProxy::Ice::Object::operator==(const Object& r) const
 {
     return _reference == r._reference;
-}
-
-bool
-IceProxy::Ice::Object::operator!=(const Object& r) const
-{
-    return _reference != r._reference;
 }
 
 bool

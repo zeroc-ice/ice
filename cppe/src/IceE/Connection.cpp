@@ -32,19 +32,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Connection* p) { p->__incRef(); }
-void IceInternal::decRef(Connection* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(Connection* p) { return p; }
 
 bool
 Ice::operator==(const Connection& l, const Connection& r)
 {
     return &l == &r;
-}
-
-bool
-Ice::operator!=(const Connection& l, const Connection& r)
-{
-    return &l != &r;
 }
 
 bool

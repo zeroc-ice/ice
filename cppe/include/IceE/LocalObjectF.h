@@ -11,6 +11,7 @@
 #define ICEE_LOCAL_OBJECT_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace Ice
 {
@@ -22,8 +23,7 @@ class LocalObject;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::LocalObject*);
-ICE_API void decRef(::Ice::LocalObject*);
+ICE_API IceUtil::Shared* upCast(::Ice::LocalObject*);
 
 }
 

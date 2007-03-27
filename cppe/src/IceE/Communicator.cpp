@@ -29,17 +29,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void
-IceInternal::incRef(::Ice::Communicator* p)
-{
-    p->__incRef();
-}
-
-void
-IceInternal::decRef(::Ice::Communicator* p)
-{
-    p->__decRef();
-}
+IceUtil::Shared* IceInternal::upCast(::Ice::Communicator* p) { return p; }
 
 void
 Ice::Communicator::destroy()

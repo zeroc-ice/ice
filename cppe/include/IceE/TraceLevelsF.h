@@ -11,13 +11,13 @@
 #define ICEE_TRACE_LEVELS_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class TraceLevels;
-void incRef(TraceLevels*);
-void decRef(TraceLevels*);
+IceUtil::Shared* upCast(TraceLevels*);
 typedef Handle<TraceLevels> TraceLevelsPtr;
 
 }

@@ -20,8 +20,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Transceiver* p) { p->__incRef(); }
-void IceInternal::decRef(Transceiver* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(Transceiver* p) { return p; }
 
 void
 IceInternal::Transceiver::setTimeouts(int readTimeout, int writeTimeout)

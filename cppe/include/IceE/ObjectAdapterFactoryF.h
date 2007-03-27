@@ -11,13 +11,13 @@
 #define ICEE_OBJECT_ADAPTER_FACTORY_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class ObjectAdapterFactory;
-void incRef(ObjectAdapterFactory*);
-void decRef(ObjectAdapterFactory*);
+IceUtil::Shared* upCast(ObjectAdapterFactory*);
 typedef IceInternal::Handle<ObjectAdapterFactory> ObjectAdapterFactoryPtr;
 
 }

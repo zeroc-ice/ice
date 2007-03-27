@@ -104,7 +104,6 @@ class ICE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
 public:
 
     bool operator==(const Object&) const;
-    bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
     ICE_DEPRECATED_API ::Ice::Int ice_hash() const;

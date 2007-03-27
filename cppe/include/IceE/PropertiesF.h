@@ -11,6 +11,7 @@
 #define ICEE_PROPERTIES_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace Ice
 {
@@ -22,8 +23,7 @@ class Properties;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Properties*);
-ICE_API void decRef(::Ice::Properties*);
+ICE_API IceUtil::Shared* upCast(::Ice::Properties*);
 
 }
 

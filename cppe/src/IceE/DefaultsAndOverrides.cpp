@@ -15,8 +15,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(DefaultsAndOverrides* p) { p->__incRef(); }
-void IceInternal::decRef(DefaultsAndOverrides* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(DefaultsAndOverrides* p) { return p; }
 
 IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) :
     overrideTimeout(false),

@@ -11,13 +11,13 @@
 #define ICEE_ACCEPTOR_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class Acceptor;
-ICE_API void incRef(Acceptor*);
-ICE_API void decRef(Acceptor*);
+ICE_API IceUtil::Shared* upCast(Acceptor*);
 typedef Handle<Acceptor> AcceptorPtr;
 
 }

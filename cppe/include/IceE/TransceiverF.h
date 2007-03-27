@@ -11,13 +11,13 @@
 #define ICEE_TRANSCEIVER_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class Transceiver;
-ICE_API void incRef(Transceiver*);
-ICE_API void decRef(Transceiver*);
+ICE_API IceUtil::Shared* upCast(Transceiver*);
 typedef Handle<Transceiver> TransceiverPtr;
 
 }

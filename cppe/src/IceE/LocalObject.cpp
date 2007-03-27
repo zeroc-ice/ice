@@ -13,19 +13,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(LocalObject* p) { p->__incRef(); }
-void IceInternal::decRef(LocalObject* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(LocalObject* p) { return p; }
 
 bool
 Ice::LocalObject::operator==(const LocalObject& r) const
 {
     return this == &r;
-}
-
-bool
-Ice::LocalObject::operator!=(const LocalObject& r) const
-{
-    return this != &r;
 }
 
 bool

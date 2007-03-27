@@ -29,8 +29,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(::IceInternal::ReferenceFactory* p) { p->__incRef(); }
-void IceInternal::decRef(::IceInternal::ReferenceFactory* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(::IceInternal::ReferenceFactory* p) { return p; }
 
 ReferencePtr
 IceInternal::ReferenceFactory::copy(const Reference* r) const

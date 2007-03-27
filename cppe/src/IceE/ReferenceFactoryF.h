@@ -11,13 +11,13 @@
 #define ICEE_REFERENCE_FACTORY_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class ReferenceFactory;
-void incRef(ReferenceFactory*);
-void decRef(ReferenceFactory*);
+IceUtil::Shared* upCast(ReferenceFactory*);
 typedef Handle<ReferenceFactory> ReferenceFactoryPtr;
 
 }

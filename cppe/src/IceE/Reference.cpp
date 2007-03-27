@@ -35,8 +35,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::Reference* p) { return p; }
 
 ReferencePtr
 IceInternal::Reference::defaultContext() const
@@ -319,12 +318,6 @@ IceInternal::Reference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::Reference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::Reference::operator<(const Reference& r) const
 {
     //
@@ -452,8 +445,7 @@ IceInternal::Reference::applyOverrides(vector<EndpointPtr>& endpts) const
     }
 }
 
-void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
 					    const SharedContextPtr& ctx, const string& fs, Mode md,
@@ -590,12 +582,6 @@ IceInternal::FixedReference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::FixedReference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::FixedReference::operator<(const Reference& r) const
 {
     if(this == &r)
@@ -628,8 +614,7 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r) :
 }
 
 #ifdef ICEE_HAS_ROUTER
-void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::RoutableReference* p) { return p; }
 
 vector<EndpointPtr>
 IceInternal::RoutableReference::getRoutedEndpoints() const
@@ -681,12 +666,6 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::RoutableReference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::RoutableReference::operator<(const Reference& r) const
 {
     if(this == &r)
@@ -719,8 +698,7 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 }
 #endif
 
-void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::DirectReference* p) { return p; }
 
 
 #ifdef ICEE_HAS_ROUTER
@@ -890,12 +868,6 @@ IceInternal::DirectReference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::DirectReference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
-}
-
-bool
 IceInternal::DirectReference::operator<(const Reference& r) const
 {
     if(this == &r)
@@ -928,8 +900,7 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r) :
 
 #ifdef ICEE_HAS_LOCATOR
 
-void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
-void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IceInternal::IndirectReference* p) { return p; }
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
@@ -1132,12 +1103,6 @@ IceInternal::IndirectReference::operator==(const Reference& r) const
         return false;
     }
     return _adapterId == rhs->_adapterId && _locatorInfo == rhs->_locatorInfo;
-}
-
-bool
-IceInternal::IndirectReference::operator!=(const Reference& r) const
-{
-    return !operator==(r);
 }
 
 bool

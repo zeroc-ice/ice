@@ -11,13 +11,13 @@
 #define ICEE_CONNECTOR_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class Connector;
-ICE_API void incRef(Connector*);
-ICE_API void decRef(Connector*);
+ICE_API IceUtil::Shared* upCast(Connector*);
 typedef Handle<Connector> ConnectorPtr;
 
 }

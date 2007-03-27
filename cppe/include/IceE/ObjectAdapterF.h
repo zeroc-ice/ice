@@ -11,13 +11,13 @@
 #define ICEE_OBJECT_ADAPTER_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace Ice
 {
 
 class ObjectAdapter;
 ICE_API bool operator==(const ObjectAdapter&, const ObjectAdapter&);
-ICE_API bool operator!=(const ObjectAdapter&, const ObjectAdapter&);
 ICE_API bool operator<(const ObjectAdapter&, const ObjectAdapter&);
 
 }
@@ -25,8 +25,7 @@ ICE_API bool operator<(const ObjectAdapter&, const ObjectAdapter&);
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::ObjectAdapter*);
-ICE_API void decRef(::Ice::ObjectAdapter*);
+ICE_API IceUtil::Shared* upCast(::Ice::ObjectAdapter*);
 
 }
 

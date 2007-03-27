@@ -11,13 +11,13 @@
 #define ICEE_ENDPOINT_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class Endpoint;
-ICE_API void incRef(Endpoint*);
-ICE_API void decRef(Endpoint*);
+ICE_API IceUtil::Shared* upCast(Endpoint*);
 typedef IceInternal::Handle<Endpoint> EndpointPtr;
 
 }

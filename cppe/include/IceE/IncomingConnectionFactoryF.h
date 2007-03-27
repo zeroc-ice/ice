@@ -11,13 +11,13 @@
 #define ICEE_INCOMING_CONNECTION_FACTORY_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class IncomingConnectionFactory;
-ICE_API void incRef(IncomingConnectionFactory*);
-ICE_API void decRef(IncomingConnectionFactory*);
+ICE_API IceUtil::Shared* upCast(IncomingConnectionFactory*);
 typedef IceInternal::Handle<IncomingConnectionFactory> IncomingConnectionFactoryPtr;
 
 }

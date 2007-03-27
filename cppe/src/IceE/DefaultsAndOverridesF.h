@@ -11,13 +11,13 @@
 #define ICEE_DEFAULTS_AND_OVERRIDES_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class DefaultsAndOverrides;
-void incRef(DefaultsAndOverrides*);
-void decRef(DefaultsAndOverrides*);
+IceUtil::Shared* upCast(DefaultsAndOverrides*);
 typedef Handle<DefaultsAndOverrides> DefaultsAndOverridesPtr;
 
 }

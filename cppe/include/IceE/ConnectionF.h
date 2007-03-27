@@ -11,13 +11,13 @@
 #define ICEE_CONNECTION_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace Ice
 {
 
 class Connection;
 ICE_API bool operator==(const Connection&, const Connection&);
-ICE_API bool operator!=(const Connection&, const Connection&);
 ICE_API bool operator<(const Connection&, const Connection&);
 
 }
@@ -25,8 +25,7 @@ ICE_API bool operator<(const Connection&, const Connection&);
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Connection*);
-ICE_API void decRef(::Ice::Connection*);
+ICE_API IceUtil::Shared* upCast(::Ice::Connection*);
 
 }
 

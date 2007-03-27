@@ -11,13 +11,13 @@
 #define ICEE_PROXY_FACTORY_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class ProxyFactory;
-void incRef(ProxyFactory*);
-void decRef(ProxyFactory*);
+IceUtil::Shared* upCast(ProxyFactory*);
 typedef IceInternal::Handle<ProxyFactory> ProxyFactoryPtr;
 
 }

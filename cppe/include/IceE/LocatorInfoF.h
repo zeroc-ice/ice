@@ -15,23 +15,21 @@
 #ifdef ICEE_HAS_LOCATOR
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class LocatorManager;
-void incRef(LocatorManager*);
-void decRef(LocatorManager*);
+IceUtil::Shared* upCast(LocatorManager*);
 typedef Handle<LocatorManager> LocatorManagerPtr;
 
 class LocatorInfo;
-void incRef(LocatorInfo*);
-void decRef(LocatorInfo*);
+IceUtil::Shared* upCast(LocatorInfo*);
 typedef Handle<LocatorInfo> LocatorInfoPtr;
 
 class LocatorTable;
-void incRef(LocatorTable*);
-void decRef(LocatorTable*);
+IceUtil::Shared* upCast(LocatorTable*);
 typedef Handle<LocatorTable> LocatorTablePtr;
 
 }

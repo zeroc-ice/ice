@@ -11,6 +11,7 @@
 #define ICEE_OBJECT_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace Ice
 {
@@ -22,8 +23,7 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Object*);
-ICE_API void decRef(::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::Ice::Object*);
 
 }
 

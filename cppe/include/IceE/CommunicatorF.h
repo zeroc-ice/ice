@@ -11,6 +11,7 @@
 #define ICEE_COMMUNICATOR_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace Ice
 {
@@ -22,8 +23,7 @@ class Communicator;
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Communicator*);
-ICE_API void decRef(::Ice::Communicator*);
+ICE_API IceUtil::Shared* upCast(::Ice::Communicator*);
 
 }
 

@@ -16,8 +16,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ObjectAdapterFactory* p) { p->__incRef(); }
-void IceInternal::decRef(ObjectAdapterFactory* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ObjectAdapterFactory* p) { return p; }
 
 void
 IceInternal::ObjectAdapterFactory::shutdown()

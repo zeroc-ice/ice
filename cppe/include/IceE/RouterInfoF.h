@@ -15,18 +15,17 @@
 #ifdef ICEE_HAS_ROUTER
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class RouterManager;
-void incRef(RouterManager*);
-void decRef(RouterManager*);
+IceUtil::Shared* upCast(RouterManager*);
 typedef Handle<RouterManager> RouterManagerPtr;
 
 class RouterInfo;
-void incRef(RouterInfo*);
-void decRef(RouterInfo*);
+IceUtil::Shared* upCast(RouterInfo*);
 typedef Handle<RouterInfo> RouterInfoPtr;
 
 }

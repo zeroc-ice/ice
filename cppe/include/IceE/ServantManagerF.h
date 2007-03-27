@@ -11,13 +11,13 @@
 #define ICEE_SERVANT_MANAGER_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class ServantManager;
-void incRef(ServantManager*);
-void decRef(ServantManager*);
+IceUtil::Shared* upCast(ServantManager*);
 typedef Handle<ServantManager> ServantManagerPtr;
 
 }

@@ -16,8 +16,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(ServantManager* p) { p->__incRef(); }
-void IceInternal::decRef(ServantManager* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(ServantManager* p) { return p; }
 
 void
 IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity& ident, const string& facet)

@@ -12,6 +12,7 @@
 #define ICEE_PROXY_F_H
 
 #include <IceE/Config.h>
+#include <IceE/Shared.h>
 
 namespace IceProxy
 {
@@ -28,8 +29,7 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API void incRef(::IceProxy::Ice::Object*);
-ICE_API void decRef(::IceProxy::Ice::Object*);
+ICE_API IceUtil::Shared* upCast(::IceProxy::Ice::Object*);
 
 }
 

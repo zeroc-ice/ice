@@ -17,17 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void
-IceInternal::incRef(::Ice::Properties* p)
-{
-    p->__incRef();
-}
-
-void
-IceInternal::decRef(::Ice::Properties* p)
-{
-    p->__decRef();
-}
+IceUtil::Shared* IceInternal::upCast(::Ice::Properties* p) { return p; }
 
 string
 Ice::Properties::getProperty(const string& key)

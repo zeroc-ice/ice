@@ -24,8 +24,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(IncomingConnectionFactory* p) { p->__incRef(); }
-void IceInternal::decRef(IncomingConnectionFactory* p) { p->__decRef(); }
+IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
 
 void
 IceInternal::IncomingConnectionFactory::activate()

@@ -30,7 +30,6 @@ class ICE_API Object : public IceUtil::Shared
 public:
 
     virtual bool operator==(const Object&) const;
-    virtual bool operator!=(const Object&) const;
     virtual bool operator<(const Object&) const;
 
     virtual Int ice_hash() const;

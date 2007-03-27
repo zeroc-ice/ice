@@ -107,16 +107,7 @@ inline bool operator==(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 template<typename T, typename U>
 inline bool operator!=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
 {
-    T* l = lhs.get();
-    U* r = rhs.get();
-    if(l && r)
-    {
-	return *l != *r;
-    }
-    else
-    {
-	return l || r;
-    }	
+    return !operator==(lhs, rhs);
 }
 
 template<typename T, typename U>
@@ -132,6 +123,24 @@ inline bool operator<(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
     {
 	return !l && r;
     }
+}
+
+template<typename T, typename U>
+inline bool operator<=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
+{
+    return lhs < rhs || lhs == rhs;
+}
+
+template<typename T, typename U>
+inline bool operator>(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
+{
+    return !(lhs < rhs || lhs == rhs);
+}
+
+template<typename T, typename U>
+inline bool operator>=(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
+{
+    return !(lhs < rhs);
 }
 
 template<typename T>
@@ -259,11 +268,10 @@ public:
 // IceUtil::Shared, or IceUtil::SimpleShared.
 //
 // In constrast to IceUtil::Handle, IceInternal::Handle requires the
-// declaration of the two global operations IceInternal::incRef(T*)
-// and IceInternal::decRef(T*). The use of global operations allows
-// this template to be used for types which are declared but not
-// defined, provided that the two above mentioned operations are
-// declared.
+// declaration of the one global operation IceInternal::upCast(T*).
+// The use of global operations allows this template to be used for
+// types which are declared but not defined, provided that the two 
+// above mentioned operations are declared.
 //
 
 namespace IceInternal
@@ -280,7 +288,7 @@ public:
 
 	if(this->_ptr)
 	{
-	    incRef(this->_ptr);
+	    upCast(this->_ptr)->__incRef();
 	}
     }
     
@@ -291,7 +299,7 @@ public:
 
 	if(this->_ptr)
 	{
-	    incRef(this->_ptr);
+	    upCast(this->_ptr)->__incRef();
 	}
     }
 
@@ -302,7 +310,7 @@ public:
 
 	if(this->_ptr)
 	{
-	    incRef(this->_ptr);
+	    upCast(this->_ptr)->__incRef();
 	}
     }
 
@@ -312,7 +320,7 @@ public:
 
 	if(this->_ptr)
 	{
-	    incRef(this->_ptr);
+	    upCast(this->_ptr)->__incRef();
 	}
     }
     
@@ -320,7 +328,7 @@ public:
     {
 	if(this->_ptr)
 	{
-	    decRef(this->_ptr);
+	    upCast(this->_ptr)->__decRef();
 	}
     }
     
@@ -330,7 +338,7 @@ public:
 	{
 	    if(p)
 	    {
-		incRef(p);
+		upCast(p)->__incRef();
 	    }
 
 	    T* ptr = this->_ptr;
@@ -338,7 +346,7 @@ public:
 
 	    if(ptr)
 	    {
-		decRef(ptr);
+		upCast(ptr)->__decRef();
 	    }
 	}
 	return *this;
@@ -351,7 +359,7 @@ public:
 	{
 	    if(r._ptr)
 	    {
-		incRef(r._ptr);
+                upCast(r._ptr)->__incRef();
 	    }
 
 	    T* ptr = this->_ptr;
@@ -359,7 +367,7 @@ public:
 
 	    if(ptr)
 	    {
-		decRef(ptr);
+		upCast(ptr)->__decRef();
 	    }
 	}
 	return *this;
@@ -372,7 +380,7 @@ public:
 	{
 	    if(r._ptr)
 	    {
-		incRef(r._ptr);
+		upCast(r._ptr)->__incRef();
 	    }
 
 	    T* ptr = this->_ptr;
@@ -380,7 +388,7 @@ public:
 
 	    if(ptr)
 	    {
-		decRef(ptr);
+		upCast(ptr)->__decRef();
 	    }
 	}
 	return *this;
@@ -392,7 +400,7 @@ public:
 	{
 	    if(r._ptr)
 	    {
-		incRef(r._ptr);
+		upCast(r._ptr)->__incRef();
 	    }
 
 	    T* ptr = this->_ptr;
@@ -400,7 +408,7 @@ public:
 
 	    if(ptr)
 	    {
-		decRef(ptr);
+		upCast(ptr)->__decRef();
 	    }
 	}
 	return *this;
@@ -416,11 +424,6 @@ public:
     static Handle dynamicCast(Y* p)
     {
 	return Handle(dynamic_cast<T*>(p));
-    }
-
-    void __clearHandleUnsafe()
-    {
-	this->_ptr = 0;
     }
 };
 

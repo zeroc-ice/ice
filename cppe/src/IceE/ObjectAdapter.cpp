@@ -44,28 +44,12 @@ Ice::operator==(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
 }
 
 bool
-Ice::operator!=(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
-{
-    return &l != &r;
-}
-
-bool
 Ice::operator<(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
 {
     return &l < &r;
 }
 
-void
-IceInternal::incRef(::Ice::ObjectAdapter* p)
-{
-    p->__incRef();
-}
-
-void
-IceInternal::decRef(::Ice::ObjectAdapter* p)
-{
-    p->__decRef();
-}
+IceUtil::Shared* IceInternal::upCast(::Ice::ObjectAdapter* p) { return p; }
 
 string
 Ice::ObjectAdapter::getName() const

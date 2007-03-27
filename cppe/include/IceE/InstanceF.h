@@ -11,13 +11,13 @@
 #define ICEE_INSTANCE_F_H
 
 #include <IceE/Handle.h>
+#include <IceE/Shared.h>
 
 namespace IceInternal
 {
 
 class Instance;
-ICE_API void incRef(Instance*);
-ICE_API void decRef(Instance*);
+ICE_API IceUtil::Shared* upCast(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 }

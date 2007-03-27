@@ -110,7 +110,6 @@ public:
     virtual Ice::ConnectionPtr getConnection() const = 0;
 
     virtual bool operator==(const Reference&) const = 0;
-    virtual bool operator!=(const Reference&) const = 0;
     virtual bool operator<(const Reference&) const = 0;
 
     virtual ReferencePtr clone() const = 0;
@@ -175,7 +174,6 @@ public:
     virtual Ice::ConnectionPtr getConnection() const;
 
     virtual bool operator==(const Reference&) const;
-    virtual bool operator!=(const Reference&) const;
     virtual bool operator<(const Reference&) const;
 
     virtual ReferencePtr clone() const;
@@ -204,7 +202,6 @@ public:
     int hash() const; // Conceptually const.
 
     virtual bool operator==(const Reference&) const = 0;
-    virtual bool operator!=(const Reference&) const = 0;
     virtual bool operator<(const Reference&) const = 0;
 
     virtual ReferencePtr clone() const = 0;
@@ -253,7 +250,6 @@ public:
     virtual Ice::ConnectionPtr getConnection() const;
 
     virtual bool operator==(const Reference&) const;
-    virtual bool operator!=(const Reference&) const;
     virtual bool operator<(const Reference&) const;
 
     virtual ReferencePtr clone() const;
@@ -307,7 +303,6 @@ public:
     int hash() const; // Conceptually const.
 
     virtual bool operator==(const Reference&) const;
-    virtual bool operator!=(const Reference&) const;
     virtual bool operator<(const Reference&) const;
 
     virtual ReferencePtr clone() const;
