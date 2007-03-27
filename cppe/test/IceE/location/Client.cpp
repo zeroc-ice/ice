@@ -78,6 +78,18 @@ main(int argc, char** argv)
 
 #include <TestCommon.h>
 
+#ifdef _WIN32_WCE
+
+int WINAPI
+WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow)
+{
+    tprintf("Adapter Ready\n");
+
+    return 0;
+}
+
+#else
+
 int
 main(int argc, char* argv[])
 {
@@ -90,5 +102,7 @@ main(int argc, char* argv[])
 
     return 0;
 }
+
+#endif
 
 #endif

@@ -1066,10 +1066,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\StringConverterI.cpp"
-				>
-			</File>
-			<File
 				RelativePath="Test.cpp"
 				>
 				<FileConfiguration
@@ -1236,10 +1232,6 @@
 			>
 			<File
 				RelativePath="MyByteSeq.h"
-				>
-			</File>
-			<File
-				RelativePath=".\StringConverterI.h"
 				>
 			</File>
 			<File
