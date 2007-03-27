@@ -1958,80 +1958,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="IdentityUtil.cpp"
-				>
-				<FileConfiguration
-					Name="Release Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="Incoming.cpp"
 				>
 				<FileConfiguration
@@ -4330,10 +4256,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\StringConverter.cpp"
-				>
-			</File>
-			<File
 				RelativePath="StringUtil.cpp"
 				>
 				<FileConfiguration
@@ -5119,11 +5041,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Config.h"
+				RelativePath="..\..\include\IceE\Config.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Config.h"
+				RelativePath="..\..\include\IceUtil\Config.h"
 				>
 			</File>
 			<File
@@ -5175,11 +5097,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Exception.h"
+				RelativePath="..\..\include\IceE\Exception.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Exception.h"
+				RelativePath="..\..\include\IceUtil\Exception.h"
 				>
 			</File>
 			<File
@@ -5195,19 +5117,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Functional.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\include\IceE\Functional.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Handle.h"
+				RelativePath="..\..\include\IceUtil\Functional.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\Handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceUtil\Handle.h"
 				>
 			</File>
 			<File
@@ -5224,10 +5146,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\Identity.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\IceE\IdentityUtil.h"
 				>
 			</File>
 			<File
