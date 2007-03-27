@@ -217,7 +217,7 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
     {
         C << nl << "stream.startWriteEncaps();";
     }
-    writeMarshalUnmarshalCode(false, C, type, "v", true, "stream", false, metaData);
+    writeMarshalUnmarshalCode(C, type, "v", true, "stream", false, metaData);
     if(type->usesClasses())
     {
         C << nl << "stream.writePendingObjects();";
@@ -245,7 +245,7 @@ writeCodecC(const TypePtr& type, const StringList& metaData, const string& name,
     {
         C << nl << "stream.startReadEncaps();";
     }
-    writeMarshalUnmarshalCode(false, C, type, "v", false, "stream", false, metaData);
+    writeMarshalUnmarshalCode(C, type, "v", false, "stream", false, metaData);
     if(type->usesClasses())
     {
         C << nl << "stream.readPendingObjects();";
@@ -592,7 +592,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
                 valueS = "__lowerCaseIndex";
             }
             
-            writeMarshalUnmarshalCode(false, C, indexTypes[i].type, valueS, true, "__stream", false, indexTypes[i].metaData);
+            writeMarshalUnmarshalCode(C, indexTypes[i].type, valueS, true, "__stream", false, indexTypes[i].metaData);
             C << nl << "::std::vector<Ice::Byte>(__stream.b.begin(), __stream.b.end()).swap(__bytes);";
         }
         C << eb;
@@ -615,7 +615,7 @@ writeDictWithIndicesC(const string& name, const string& absolute, const Dict& di
             C << nl << "__stream.b.resize(__bytes.size());";
             C << nl << "::memcpy(&__stream.b[0], &__bytes[0], __bytes.size());";
             C << nl << "__stream.i = __stream.b.begin();";
-            writeMarshalUnmarshalCode(false, C, indexTypes[i].type, "__index", false, "__stream", false, 
+            writeMarshalUnmarshalCode(C, indexTypes[i].type, "__index", false, "__stream", false, 
                                       indexTypes[i].metaData);
         }
         C << eb;
@@ -1066,7 +1066,7 @@ writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& member
         valueS = "__lowerCaseIndex";
     }
 
-    writeMarshalUnmarshalCode(false, C, memberType, valueS, true, "__stream", false);
+    writeMarshalUnmarshalCode(C, memberType, valueS, true, "__stream", false);
     if(memberType->usesClasses())
     {
         C << nl << "__stream.writePendingObjects();";
