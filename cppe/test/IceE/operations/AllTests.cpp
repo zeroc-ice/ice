@@ -35,12 +35,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
 
     tprintf("testing proxy comparison... ");
 
-    test(communicator->stringToProxy("foo") == communicator->stringToProxy("foo"));
-    test(communicator->stringToProxy("foo") != communicator->stringToProxy("foo2"));
-    test(communicator->stringToProxy("foo") < communicator->stringToProxy("foo2"));
-    test(!(communicator->stringToProxy("foo2") < communicator->stringToProxy("foo")));
-
-    Ice::ObjectPrx compObj = communicator->stringToProxy("foo");
+    Ice::ObjectPrx compObj = communicator->stringToProxy("foo:tcp");
 
     test(compObj->ice_facet("facet") == compObj->ice_facet("facet"));
     test(compObj->ice_facet("facet") != compObj->ice_facet("facet1"));
@@ -63,6 +58,12 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
     test(compObj1 < compObj2);
     test(!(compObj2 < compObj1));
 
+#ifdef ICEE_HAS_LOCATOR
+    test(communicator->stringToProxy("foo") == communicator->stringToProxy("foo"));
+    test(communicator->stringToProxy("foo") != communicator->stringToProxy("foo2"));
+    test(communicator->stringToProxy("foo") < communicator->stringToProxy("foo2"));
+    test(!(communicator->stringToProxy("foo2") < communicator->stringToProxy("foo")));
+
     compObj1 = communicator->stringToProxy("foo@MyAdapter1");
     compObj2 = communicator->stringToProxy("foo@MyAdapter2");
     test(compObj1 != compObj2);
@@ -74,6 +75,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
     test(compObj1 != compObj2);
     test(compObj1 < compObj2);
     test(!(compObj2 < compObj1));
+#endif
 
     //
     // TODO: Ideally we should also test comparison of fixed proxies.
