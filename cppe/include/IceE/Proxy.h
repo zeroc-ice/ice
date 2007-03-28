@@ -106,10 +106,16 @@ public:
     bool operator==(const Object&) const;
     bool operator<(const Object&) const;
 
-    ICE_DEPRECATED_API ::Ice::Int ice_hash() const;
+    ICE_DEPRECATED_API ::Ice::Int ice_hash() const
+    {
+	return ice_getHash();
+    }
     ::Ice::Int ice_getHash() const;
 
-    ICE_DEPRECATED_API ::Ice::CommunicatorPtr ice_communicator() const;
+    ICE_DEPRECATED_API ::Ice::CommunicatorPtr ice_communicator() const
+    {
+	return ice_getCommunicator();
+    }
     ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
     ::std::string ice_toString() const;
@@ -124,16 +130,25 @@ public:
     ::std::string ice_id(const ::Ice::Context&);
 
     ::Ice::Identity ice_getIdentity() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity& id) const
+    {
+	return ice_identity(id);
+    }
     ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
     
     ::Ice::Context ice_getContext() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context& ctx) const
+    {
+	return ice_context(ctx);
+    }
     ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
     ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
-    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string&) const;
+    ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string& facet) const
+    {
+	return ice_facet(facet);
+    }
     ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
 #ifdef ICEE_HAS_ROUTER
@@ -156,11 +171,18 @@ public:
 
     ::Ice::ObjectPrx ice_timeout(int) const;
 
-    ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection();
+    ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection()
+    {
+	return ice_getConnection();
+    }
     ::Ice::ConnectionPtr ice_getConnection();
     ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
-    ::IceInternal::ReferencePtr __reference() const;
+    ::IceInternal::ReferencePtr __reference() const
+    {
+	return _reference;
+    }
+
     void __copyFrom(const ::Ice::ObjectPrx&);
     void __handleException(const ::Ice::ConnectionPtr&, const ::Ice::LocalException&, int&);
     void __handleExceptionWrapper(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&);
@@ -175,7 +197,18 @@ protected:
 
 private:
 
-    void setup(const ::IceInternal::ReferencePtr&);
+    void setup(const ::IceInternal::ReferencePtr& ref)
+    {
+	//
+	// No need to synchronize "*this", as this operation is only
+	// called upon initialization.
+	//
+	
+	assert(!_reference);
+	assert(!_connection);
+	
+	_reference = ref;
+    }
     friend class ::IceInternal::ProxyFactory;
 
     ::Ice::ConnectionPtr _connection;

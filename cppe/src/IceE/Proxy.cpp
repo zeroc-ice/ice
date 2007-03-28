@@ -138,21 +138,9 @@ IceProxy::Ice::Object::operator<(const Object& r) const
 }
 
 Int
-IceProxy::Ice::Object::ice_hash() const
-{
-    return ice_getHash();
-}
-
-Int
 IceProxy::Ice::Object::ice_getHash() const
 {
     return _reference->hash();
-}
-
-CommunicatorPtr
-IceProxy::Ice::Object::ice_communicator() const
-{
-    return ice_getCommunicator();
 }
 
 CommunicatorPtr
@@ -451,12 +439,6 @@ IceProxy::Ice::Object::ice_context(const Context& newContext) const
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
-{
-    return ice_context(newContext);
-}
-
-ObjectPrx
 IceProxy::Ice::Object::ice_defaultContext() const
 {
     ObjectPrx proxy(new ::IceProxy::Ice::Object());
@@ -489,12 +471,6 @@ IceProxy::Ice::Object::ice_identity(const Identity& newIdentity) const
     }
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
-{
-    return ice_identity(newIdentity);
-}
-
 const string&
 IceProxy::Ice::Object::ice_getFacet() const
 {
@@ -514,12 +490,6 @@ IceProxy::Ice::Object::ice_facet(const string& newFacet) const
 	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
-}
-
-ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
-{
-    return ice_facet(newFacet);
 }
 
 #ifdef ICEE_HAS_ROUTER
@@ -658,12 +628,6 @@ IceProxy::Ice::Object::ice_timeout(int t) const
 }
 
 ConnectionPtr
-IceProxy::Ice::Object::ice_connection()
-{
-    return ice_getConnection();
-}
-
-ConnectionPtr
 IceProxy::Ice::Object::ice_getConnection()
 {
     ::IceUtil::Mutex::Lock sync(*this);
@@ -693,12 +657,6 @@ IceProxy::Ice::Object::ice_getCachedConnection() const
 {
     ::IceUtil::Mutex::Lock sync(*this);
     return _connection;
-}
-
-ReferencePtr
-IceProxy::Ice::Object::__reference() const
-{
-    return _reference;
 }
 
 void
@@ -810,20 +768,6 @@ const Context&
 IceProxy::Ice::Object::__defaultContext() const
 {
     return _reference->getContext()->getValue();
-}
-
-void
-IceProxy::Ice::Object::setup(const ReferencePtr& ref)
-{
-    //
-    // No need to synchronize "*this", as this operation is only
-    // called upon initialization.
-    //
-
-    assert(!_reference);
-    assert(!_connection);
-
-    _reference = ref;
 }
 
 bool

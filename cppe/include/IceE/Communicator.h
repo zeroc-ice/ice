@@ -79,7 +79,6 @@ private:
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     const ::IceInternal::InstancePtr _instance;
-    const ::Ice::Context _dfltContext;
 };
 
 }
