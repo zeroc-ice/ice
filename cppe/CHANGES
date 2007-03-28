@@ -71,14 +71,8 @@ Changes since version 1.1.0
 - Added a new communicator-initialization function:
   CommunicatorPtr initialize(const InitializationData&);
 
-- Added identityToString and stringToIdentity to the Communicator
-  interface. If a string converter is configured these functions
-  must be used instead of the current static functions.
-
-- Added ability to configure user defined string and wstring
-  converters that are used during marshalling/unmarshalling to
-  convert between UTF8 as required in the over-the-wire stream
-  and the users character set.
+- Moved identityToString and stringToIdentity to the Communicator
+  interface. 
 
 - Added operators <=, > and >= for slice classes, proxies and 
   structures.
