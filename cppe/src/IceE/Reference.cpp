@@ -1183,6 +1183,7 @@ IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference:
 	    ex.unsupportedFeature = "batch";
 	}
 #endif
+        ex.unsupportedFeature += " proxy mode";
 	throw ex;
     }
 

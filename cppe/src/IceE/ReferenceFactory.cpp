@@ -437,12 +437,11 @@ IceInternal::ReferenceFactory::create(const string& str)
 	return create(ident, _instance->getDefaultContext(), facet, mode, secure, "", locatorInfo);
 #   endif
 #else	
-	ProxyParseException ex(__FILE__, __LINE__);
-	ex.str = str;
-	throw ex;
+        FeatureNotSupportedException ex(__FILE__, __LINE__);
+        ex.unsupportedFeature = "indirect proxy `" + str + "' (no locator support built-in)";
+        throw ex;
 #endif
     }
-
     vector<EndpointPtr> endpoints;
 
     switch(s[beg])
@@ -501,9 +500,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    break;
 	}
 
-#ifdef ICEE_HAS_LOCATOR
 	case '@':
 	{
+#ifdef ICEE_HAS_LOCATOR
 	    beg = s.find_first_not_of(delim, beg + 1);
 	    if(beg == string::npos)
 	    {
@@ -546,9 +545,14 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    return create(ident, _instance->getDefaultContext(), facet, mode, secure, adapter,
 	    		  locatorInfo);
 #endif
+#else
+            FeatureNotSupportedException ex(__FILE__, __LINE__);
+            ex.unsupportedFeature = "indirect proxy `" + str + "' (no locator support built-in)";
+            throw ex;
+#endif
 	    break;
 	}
-#endif
+
 	default:
 	{
 	    ProxyParseException ex(__FILE__, __LINE__);

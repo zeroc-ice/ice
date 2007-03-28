@@ -93,9 +93,8 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->initializationData().logger;
 
-    const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
-
 #if defined(ICEE_HAS_LOCATOR) || defined(ICEE_HAS_ROUTER)
+    const ObjectNotExistException* one = dynamic_cast<const ObjectNotExistException*>(&ex);
     if(one)
     {
 #ifdef ICEE_HAS_LOCATOR

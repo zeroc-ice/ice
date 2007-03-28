@@ -2352,9 +2352,12 @@ string
 Ice::FeatureNotSupportedException::toString() const
 {
     string out = Exception::toString();
-    out += ":\nfeature `";
-    out += unsupportedFeature;
-    out += "' is not supported.";
+    out += ":\nfeature not supported";
+    if(!unsupportedFeature.empty())
+    {
+        out += ": ";
+        out += unsupportedFeature;
+    }
     return out;
 }
 
