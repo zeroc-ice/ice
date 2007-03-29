@@ -43,7 +43,10 @@ module Ice
     end
 
     T_Object.defineClass(nil, true, nil, [], [])
+    Object_mixin::ICE_TYPE = T_Object
+
     T_ObjectPrx.defineProxy(ObjectPrx, T_Object)
+    ObjectPrx::ICE_TYPE = T_ObjectPrx
 
     #
     # LocalObject.
