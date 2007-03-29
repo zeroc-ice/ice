@@ -194,13 +194,86 @@ public class Instance
     public Ice.Identity
     stringToIdentity(String s)
     {
-        return Ice.Util.stringToIdentity(s);
+        Ice.Identity ident = new Ice.Identity();
+
+        //
+        // Find unescaped separator.
+        //
+        int slash = -1, pos = 0;
+        while((pos = s.indexOf('/', pos)) != -1)
+        {
+            if(pos == 0 || s.charAt(pos - 1) != '\\')
+            {
+                if(slash == -1)
+                {
+                    slash = pos;
+                }
+                else
+                {
+                    //
+                    // Extra unescaped slash found.
+                    //
+                    Ice.IdentityParseException ex = new Ice.IdentityParseException();
+                    ex.str = s;
+                    throw ex;
+                }
+            }
+            pos++;
+        }
+
+        if(slash == -1)
+        {
+            Ice.StringHolder token = new Ice.StringHolder();
+            if(!IceUtil.StringUtil.unescapeString(s, 0, s.length(), token))
+            {
+                Ice.IdentityParseException ex = new Ice.IdentityParseException();
+                ex.str = s;
+                throw ex;
+            }
+            ident.category = "";
+            ident.name = token.value;
+        }
+        else
+        {
+            Ice.StringHolder token = new Ice.StringHolder();
+            if(!IceUtil.StringUtil.unescapeString(s, 0, slash, token))
+            {
+                Ice.IdentityParseException ex = new Ice.IdentityParseException();
+                ex.str = s;
+                throw ex;
+            }
+            ident.category = token.value;
+            if(slash + 1 < s.length())
+            {
+                if(!IceUtil.StringUtil.unescapeString(s, slash + 1, s.length(), token))
+                {
+                    Ice.IdentityParseException ex = new Ice.IdentityParseException();
+                    ex.str = s;
+                    throw ex;
+                }
+                ident.name = token.value;
+            }
+            else
+            {
+                ident.name = "";
+            }
+        }
+
+        return ident;
     }
 
     public String
     identityToString(Ice.Identity ident)
     {
-        return Ice.Util.identityToString(ident);
+        if(ident.category.length() == 0)
+        {
+            return IceUtil.StringUtil.escapeString(ident.name, "/");
+        }
+        else
+        {
+            return IceUtil.StringUtil.escapeString(ident.category, "/") + '/' +
+                IceUtil.StringUtil.escapeString(ident.name, "/");
+        }
     }
 
     //
