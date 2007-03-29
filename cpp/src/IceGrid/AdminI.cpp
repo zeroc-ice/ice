@@ -570,7 +570,8 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
     if(id.category == _database->getInstanceName())
     {
         DeploymentException ex;
-        ex.reason ="updating object `" + _database->getCommunicator()->identityToString(id) + "' is not allowed";
+        ex.reason = "updating object `" + _database->getCommunicator()->identityToString(id) + "' is not allowed:\n";
+        ex.reason += "objects with identity category `" + id.category + "' are managed by IceGrid";
         throw ex;
     }
     _database->updateObject(proxy);
@@ -590,7 +591,8 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
     if(id.category == _database->getInstanceName())
     {
         DeploymentException ex;
-        ex.reason = "adding object `" + _database->getCommunicator()->identityToString(id) + "' is not allowed";
+        ex.reason = "adding object `" + _database->getCommunicator()->identityToString(id) + "' is not allowed:\n";
+        ex.reason += "objects with identity category `" + id.category + "' are managed by IceGrid";
         throw ex;
     }
 
@@ -607,7 +609,8 @@ AdminI::removeObject(const Ice::Identity& id, const Ice::Current& current)
     if(id.category == _database->getInstanceName())
     {
         DeploymentException ex;
-        ex.reason = "removing object `" + _database->getCommunicator()->identityToString(id) + "' is not allowed";
+        ex.reason = "removing object `" + _database->getCommunicator()->identityToString(id) + "' is not allowed:\n";
+        ex.reason += "objects with identity category `" + id.category + "' are managed by IceGrid";
         throw ex;
     }
     _database->removeObject(id);

@@ -191,6 +191,10 @@ command
 {
     parser->usage("server template", "instantiate");
 }
+| ICE_GRID_SERVER ICE_GRID_TEMPLATE ICE_GRID_HELP ';'
+{
+    parser->usage("server template");
+}
 | ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE strings ';'
 {
     parser->describeServiceTemplate($4);
@@ -198,6 +202,10 @@ command
 | ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_DESCRIBE ICE_GRID_HELP ';'
 {
     parser->usage("service template", "describe");
+}
+| ICE_GRID_SERVICE ICE_GRID_TEMPLATE ICE_GRID_HELP ';'
+{
+    parser->usage("service template");
 }
 | ICE_GRID_NODE ICE_GRID_DESCRIBE strings ';'
 {
@@ -475,7 +483,44 @@ command
 {
     parser->usage($2.front());
 }
-| ICE_GRID_HELP ICE_GRID_STRING ';'
+| ICE_GRID_HELP keyword keyword ';'
+{
+    if(($2.front() == "server" || $2.front() == "service") && $3.front() == "template")
+    {
+        parser->usage($2.front() + " " + $3.front());
+    }
+    else
+    {
+        parser->usage($2.front(), $3.front());
+    }
+}
+| ICE_GRID_HELP keyword ICE_GRID_STRING strings ';'
+{
+    parser->usage($2.front(), $3.front());
+}
+| ICE_GRID_HELP keyword keyword keyword ';'
+{
+    if(($2.front() == "server" || $2.front() == "service") && $3.front() == "template")
+    {
+        parser->usage($2.front() + " " + $3.front(), $4.front());
+    }
+    else
+    {
+        parser->usage($2.front(), $3.front());
+    }
+}
+| ICE_GRID_HELP keyword keyword ICE_GRID_STRING strings ';'
+{
+    if(($2.front() == "server" || $2.front() == "service") && $3.front() == "template")
+    {
+        parser->usage($2.front() + " " + $3.front(), $4.front());
+    }
+    else
+    {
+        parser->usage($2.front(), $3.front());
+    }
+}
+| ICE_GRID_HELP ICE_GRID_STRING strings ';'
 {
     parser->usage($2.front());
 }
