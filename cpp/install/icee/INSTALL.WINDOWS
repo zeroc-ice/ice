@@ -45,13 +45,10 @@ http://www.stlport.org/doc/install.html
 Compilation
 ======================================================================
 
-Using your favorite Zip tool, unzip the Ice-E translator archive
-anywhere you like.
-
 Using your favorite Zip tool, unzip the Ice source archive anywhere
 you like.
 
-Open a command prompt and change the working directory to Ice-@ver@.
+Open a command prompt and change the working directory to IceE-trans-@ver@.
 For example:
 
 > cd C:\IceE-trans-@ver@
@@ -60,7 +57,7 @@ Edit config\Make.rules.mak to establish your build configuration. The
 comments in the file provide more information. In particular, you
 must set CPP_COMPILER to the appropriate compiler.
 
-Now you're ready to build Ice:
+Now you're ready to build the Ice-E translators:
 
 > nmake /f Makefile.mak
 
