@@ -1787,7 +1787,41 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                     }
                 }
-                out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
+                //
+                // In Java5, we cannot allocate an array of a generic type, such as
+                //
+                // arr = new Map<String, String>[sz];
+                //
+                // Attempting to compile this code results in a "generic array creation" error
+                // message. This problem can occur when the sequence's element type is a
+                // dictionary, or when the element type is a nested sequence that uses a custom
+                // mapping.
+                //
+                // The solution is to rewrite the code as follows:
+                //
+                // arr = (Map<String, String>[])new Map[sz];
+                //
+                // Unfortunately, this produces an unchecked warning during compilation.
+                //
+                // A simple test is to look for a "<" character in the content type, which
+                // indicates the use of a generic type.
+                //
+                string::size_type pos = origContentS.find('<');
+                if(pos != string::npos)
+                {
+                    string nonGenericType = origContentS.substr(0, pos);
+                    out << nl << v << " = (" << origContentS << "[]";
+                    int d = depth;
+                    while(d--)
+                    {
+                        out << "[]";
+                    }
+                    out << ")new " << nonGenericType << "[__len" << iter << "]";
+                }
+                else
+                {
+                    out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
+                }
                 int d = depth;
                 while(d--)
                 {
@@ -2953,7 +2987,41 @@ Slice::JavaGenerator::writeStreamSequenceMarshalUnmarshalCode(Output& out,
                         }
                     }
                 }
-                out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
+                //
+                // In Java5, we cannot allocate an array of a generic type, such as
+                //
+                // arr = new Map<String, String>[sz];
+                //
+                // Attempting to compile this code results in a "generic array creation" error
+                // message. This problem can occur when the sequence's element type is a
+                // dictionary, or when the element type is a nested sequence that uses a custom
+                // mapping.
+                //
+                // The solution is to rewrite the code as follows:
+                //
+                // arr = (Map<String, String>[])new Map[sz];
+                //
+                // Unfortunately, this produces an unchecked warning during compilation.
+                //
+                // A simple test is to look for a "<" character in the content type, which
+                // indicates the use of a generic type.
+                //
+                string::size_type pos = origContentS.find('<');
+                if(pos != string::npos)
+                {
+                    string nonGenericType = origContentS.substr(0, pos);
+                    out << nl << v << " = (" << origContentS << "[]";
+                    int d = depth;
+                    while(d--)
+                    {
+                        out << "[]";
+                    }
+                    out << ")new " << nonGenericType << "[__len" << iter << "]";
+                }
+                else
+                {
+                    out << nl << v << " = new " << origContentS << "[__len" << iter << "]";
+                }
                 int d = depth;
                 while(d--)
                 {
@@ -3420,29 +3488,6 @@ Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
     StringList metaData = getMetaData(p);
     validateType(p, metaData, p->definitionContext()->filename(), p->line());
     validateGetSet(p, metaData, p->definitionContext()->filename(), p->line());
-
-    //
-    // Java5 does not allow the creation of an array of a generic type.
-    // We check for the situation where an unmodified sequence contains
-    // a modified sequence or dictionary type. Since we can't be sure whether
-    // the inner sequence actually maps to a generic type, we only issue a
-    // warning.
-    //
-    if(p->definitionContext()->findMetaData(_java2MetaData) != _java2MetaData && !hasTypeMetaData(p))
-    {
-        SequencePtr innerSeq = SequencePtr::dynamicCast(p->type());
-        DictionaryPtr innerDict = DictionaryPtr::dynamicCast(p->type());
-        if((innerSeq && hasTypeMetaData(innerSeq)) || (innerDict && hasTypeMetaData(innerDict)))
-        {
-            string file = p->file();
-            string line = p->line();
-            if(!file.empty())
-            {
-                cout << file << ':' << line << ": ";
-            }
-            cout << "warning: Java5 forbids arrays of generic types";
-        }
-    }
 }
 
 void

@@ -3740,7 +3740,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string helper = getAbsolute(p, "", "", "Helper");
     string package = getPackage(p);
     StringList metaData = p->getMetaData();
-    string concreteType = typeToString(p, TypeModeIn, package, StringList(), false);
     string abstractType = typeToString(p, TypeModeIn, package, StringList(), true);
 
     if(open(helper))
@@ -3760,7 +3759,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public static " << abstractType
             << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
-        out << nl << abstractType << " __v = new " << concreteType << "();";
+        out << nl << abstractType << " __v;";
         iter = 0;
         writeDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
@@ -3778,7 +3777,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
             out << sp << nl << "public static " << abstractType
                 << nl << "read(Ice.InputStream __inS)";
             out << sb;
-            out << nl << abstractType << " __v = new " << concreteType << "();";
+            out << nl << abstractType << " __v;";
             iter = 0;
             writeStreamDictionaryMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
             out << nl << "return __v;";
