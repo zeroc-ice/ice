@@ -100,51 +100,6 @@ def editFile(file, target):
     os.remove(origfile)
 
 #
-# Comment out rules in VC project.
-#
-def fixProject(file, target):
-    origfile = file + ".orig"
-    os.rename(file, origfile)
-    oldProject = open(origfile, "r")
-    newProject = open(file, "w")
-    origLines = oldProject.readlines()
-
-    #
-    # Find a Source File declaration containing SOURCE=<target>
-    # and comment out the entire declaration.
-    #
-    expr = re.compile("SOURCE=.*" + target.replace(".", "\\.") + ".*")
-    inSource = 0
-    doComment = 0
-    newLines = []
-    source = []
-    for x in origLines:
-        if x.startswith("# Begin Source File"):
-            inSource = 1
-
-        if inSource:
-            if not doComment and expr.match(x) != None:
-                doComment = 1
-            source.append(x)
-        else:
-            newLines.append(x)
-
-        if x.startswith("# End Source File"):
-            inSource = 0
-            for s in source:
-                if doComment:
-                    newLines.append('#xxx#' + s)
-                else:
-                    newLines.append(s)
-            doComment = 0
-            source = []
-
-    newProject.writelines(newLines)
-    newProject.close()
-    oldProject.close()
-    os.remove(origfile)
-
-#
 # Comment out implicit parser/scanner rules in config/Make.rules.
 #
 def fixMakeRules(file):
@@ -178,7 +133,6 @@ def fixMakeRules(file):
 # Fix version in README, INSTALL files
 #
 def fixVersion(files, version):
-
     for file in files:
         origfile = file + ".orig"
         os.rename(file, origfile)
@@ -304,11 +258,8 @@ for x in grammars:
     # Edit the Makefile to comment out the grammar rules.
     #
     fixMakefile("Makefile", base)
-    #
-    # Edit the project file(s) to comment out the grammar rules.
-    #
-    for p in glob.glob("*.dsp"):
-        fixProject(p, file)
+    fixMakefile("Makefile.mak", base)
+
     os.chdir(cwd)
 
 #
@@ -335,20 +286,9 @@ for x in scanners:
     # Edit the Makefile to comment out the flex rules.
     #
     fixMakefile("Makefile", base)
-    #
-    # Edit the project file(s) to comment out the flex rules.
-    #
-    for p in glob.glob("*.dsp"):
-        fixProject(p, file)
-    os.chdir(cwd)
+    fixMakefile("Makefile.mak", base)
 
-#
-# Comment out the implicit parser and scanner rules in
-# config/Make.rules.
-#
-print "Fixing makefiles..."
-makeRulesName = os.path.join("ice", "config", "Make.rules")
-fixMakeRules(makeRulesName)
+    os.chdir(cwd)
 
 #
 # Get Ice-E version.
@@ -357,50 +297,68 @@ config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
 version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 #
+# Comment out the implicit parser and scanner rules in
+# config/Make.rules.
+#
+print "Fixing makefiles..."
+
+#
 # Enable STATICLIBS and OPTIMIZE in config/Make.rules.
 #
-makeRules = open(makeRulesName, "r")
-lines = makeRules.readlines()
-makeRules.close()
-for i in range(len(lines)):
-    if lines[i].find("#STATICLIBS") == 0:
-        lines[i] = lines[i].replace("#STATICLIBS", "STATICLIBS")
-    if lines[i].find("#OPTIMIZE") == 0:
-        lines[i] = lines[i].replace("#OPTIMIZE", "OPTIMIZE")
-    if lines[i].find("prefix") == 0:
-        lines[i] = lines[i].replace("Ice-$(VERSION)", "IceE-" + version)
-makeRules = open(makeRulesName, "w")
-makeRules.writelines(lines)
-makeRules.close()
+for makeRulesName in [os.path.join("ice", "config", "Make.rules"), \
+                      os.path.join("ice", "config", "Make.rules.mak")]:
+    fixMakeRules(makeRulesName)
+    makeRules = open(makeRulesName, "r")
+    lines = makeRules.readlines()
+    makeRules.close()
+    for i in range(len(lines)):
+        if lines[i].find("#STATICLIBS") == 0:
+            lines[i] = lines[i].replace("#STATICLIBS", "STATICLIBS")
+        if lines[i].find("#OPTIMIZE") == 0:
+            lines[i] = lines[i].replace("#OPTIMIZE", "OPTIMIZE")
+        if lines[i].find("prefix") == 0:
+            lines[i] = lines[i].replace("Ice-$(VERSION)", "IceE-" + version)
+    makeRules = open(makeRulesName, "w")
+    makeRules.writelines(lines)
+    makeRules.close()
 
 #
 # Change SUBDIRS and INSTALL_SUBDIRS in top-level Makefile.
 #
-makeFileName = os.path.join("ice", "Makefile")
-makeFile = open(makeFileName, "r")
-lines = makeFile.readlines()
-makeFile.close()
-for i in range(len(lines)):
-    if lines[i].find("SUBDIRS") == 0:
-        lines[i] = "SUBDIRS = src\n"
-    if lines[i].find("INSTALL_SUBDIRS") == 0:
-        lines[i] = "INSTALL_SUBDIRS = $(install_bindir) $(install_libdir)\n"
-makeFile = open(makeFileName, "w")
-makeFile.writelines(lines)
-makeFile.close()
+for makeFileName in [os.path.join("ice", "Makefile"), \
+                     os.path.join("ice", "Makefile.mak")]:
+    makeFile = open(makeFileName, "r")
+    lines = makeFile.readlines()
+    makeFile.close()
+    for i in range(len(lines)):
+        if lines[i].find("SUBDIRS") == 0:
+            lines[i] = "SUBDIRS = src\n"
+        if lines[i].find("INSTALL_SUBDIRS") == 0:
+            lines[i] = "INSTALL_SUBDIRS = $(install_bindir) $(install_libdir)\n"
+    makeFile = open(makeFileName, "w")
+    makeFile.writelines(lines)
+    makeFile.close()
 
 #
 # Disable install targets for libIceUtil, libSlice.
 #
 for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
-                     os.path.join("ice", "src", "Slice", "Makefile")]:
+                     os.path.join("ice", "src", "IceUtil", "Makefile.mak"), \
+                     os.path.join("ice", "src", "Slice", "Makefile"), \
+                     os.path.join("ice", "src", "Slice", "Makefile.mak")]:
     makeFile = open(makeFileName, "r")
     lines = makeFile.readlines()
     makeFile.close()
+
+    doComment = 0
     for i in range(len(lines)):
         if lines[i].find("install::") == 0:
-            lines[i + 1] = "#" + lines[i + 1]
-            break
+            doComment = 1
+        elif len(lines[i].strip()) == 0:
+            doComment = 0
+        elif doComment:
+            lines[i] = "#" + lines[i]
+
     makeFile = open(makeFileName, "w")
     makeFile.writelines(lines)
     makeFile.close()

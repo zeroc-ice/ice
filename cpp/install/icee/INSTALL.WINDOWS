@@ -6,8 +6,7 @@ Requirements
 Windows version
 ---------------
 
-The Ice-E translators have been extensively tested on Windows XP and
-Windows 2000.
+The Ice-E translators have been extensively tested on Windows XP.
 
 
 C++ compiler
@@ -41,51 +40,34 @@ STLport installation instructions can be found at
 
 http://www.stlport.org/doc/install.html
 
-You must also configure Visual Studio to use STLPort:
-
-- In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
-
-- Select "Include files"
-
-- Add the include directory for STLport first in the list. (Note that
-  you must add the "include\stlport" directory, not just "include".)
-
 
 ======================================================================
 Compilation
 ======================================================================
 
 Using your favorite Zip tool, unzip the Ice-E translator archive
-anywhere you like, then start the Microsoft Visual C++ IDE.
+anywhere you like.
 
-Open the "icee.dsw" workspace. If you are using Visual C++ .NET 2003
-or Visual C++ 2005, you must first convert the project files from
-Visual C++ 6.0 to the new solution and project file format.
+Using your favorite Zip tool, unzip the Ice source archive anywhere
+you like.
 
-Set your active project to "icee" to build all of the Ice-E
-translator executables. Four build configurations are supported:
+Open a command prompt and change the working directory to Ice-@ver@.
+For example:
 
-  Win32 Release
-  Win32 Debug
-  Win32 Release Static
-  Win32 Debug Static
+> cd C:\IceE-trans-@ver@
 
-The first two generate DLLs for the supporting libraries required
-by the translators, whereas the last two generate static libraries.
-We recommend using a static configuration in order to avoid potential
-conflicts with an existing Ice installation.
+Edit config\Make.rules.mak to establish your build configuration. The
+comments in the file provide more information. In particular, you
+must set CPP_COMPILER to the appropriate compiler.
 
-To set your active project with Visual C++ 6.0, use Project->Set
-Active Project. For Visual C++ .NET 2003 and Visual C++ 2005, click on
-"icee" in the class view, then use Project->Set as StartUp Project.
+Now you're ready to build Ice:
 
-To start the compilation, use Build->Build for Visual C++ 6.0, or
-Build->Build icee for Visual C++ .NET 2003 or Visual C++ 2005.
+> nmake /f Makefile.mak
 
 
 ======================================================================
 Installation
 ======================================================================
 
-No automatic installation support is provided; you need to copy the
-contents of the bin directory to your preferred location. 
+Simply run "nmake /f Makefile.mak install". This will install Ice-E in
+the directory specified by the "prefix" variable in config\Make.rules.mak.
