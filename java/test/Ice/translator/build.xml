@@ -25,12 +25,7 @@
             <includepath>
                 <pathelement path="." />
             </includepath>
-	    <fileset dir=".">
-		<include name="Metadata2.ice" if="java2"/>
-	    </fileset>
-	    <fileset dir=".">
-		<include name="Metadata.ice" unless="java2"/>
-	    </fileset>
+            <fileset dir="." includes="Metadata.ice"/>
             <fileset dir="." includes="DoubleModuleNoPackage.ice"/>
             <fileset dir="." includes="DoubleModuleWithPackage.ice"/>
             <fileset dir="." includes="NoModuleNoPackage.ice"/>

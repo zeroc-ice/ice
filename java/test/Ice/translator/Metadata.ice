@@ -1,40 +1,50 @@
 module MetadataTest
 {
     sequence<int> IntSeq;
-    ["java:type:java.util.LinkedList"] sequence<int> IntList;
-    ["java:type:java.util.LinkedList"] sequence<IntSeq> IntSeqList;
+    ["java:type:{java.util.LinkedList}"] sequence<int> IntList;
+    ["java:type:{java.util.LinkedList}"] sequence<IntSeq> IntSeqList;
 
     sequence<Object> ObjectSeq;
-    ["java:type:java.util.LinkedList"] sequence<Object> ObjectList;
-    ["java:type:java.util.LinkedList"] sequence<ObjectSeq> ObjectSeqList;
+    ["java:type:{java.util.LinkedList}"] sequence<Object> ObjectList;
+    ["java:type:{java.util.LinkedList}"] sequence<ObjectSeq> ObjectSeqList;
 
     dictionary<string, string> StringDict;
-    ["java:type:java.util.TreeMap"] dictionary<string, string> StringMap;
+    ["java:type:{java.util.TreeMap}"] dictionary<string, string> StringMap;
 
     dictionary<string, Object> ObjectDict;
-    ["java:type:java.util.TreeMap"] dictionary<string, Object> ObjectMap;
+    ["java:type:{java.util.TreeMap}"] dictionary<string, Object> ObjectMap;
+
+    sequence<StringDict> StringDictSeq;
+    sequence<string> StringSeq;
+    ["java:type:{java.util.ArrayList}"] sequence<string> StringList;
+    sequence<StringList> StringListSeq;
+    sequence<StringListSeq> StringListSeqSeq;
+
+    dictionary<string, StringSeq> StringSeqDict;
+    dictionary<string, StringList> StringListDict;
+    dictionary<string, StringListSeq> StringListSeqDict;
 
     ["java:getset"] class C
     {
         IntSeq intSeqMember;
         IntList intListMember;
-        ["java:type:java.util.ArrayList"] IntSeq modifiedIntSeqMember;
+        ["java:type:{java.util.ArrayList}"] IntSeq modifiedIntSeqMember;
         ["java:type:Test.CustomList"] IntList modifiedIntListMember;
 
         ObjectSeq objectSeqMember;
         ObjectList objectListMember;
-        ["java:type:java.util.ArrayList"] ObjectSeq modifiedObjectSeqMember;
+        ["java:type:{java.util.ArrayList}"] ObjectSeq modifiedObjectSeqMember;
         ["java:type:Test.CustomList"] ObjectList modifiedObjectListMember;
 
         StringDict stringDictMember;
         StringMap stringMapMember;
-        ["java:type:java.util.TreeMap"] StringDict modifiedStringDictMember;
-        ["java:type:java.util.IdentityHashMap"] StringMap modifiedStringMapMember;
+        ["java:type:{java.util.TreeMap}"] StringDict modifiedStringDictMember;
+        ["java:type:{java.util.IdentityHashMap}"] StringMap modifiedStringMapMember;
 
         ObjectDict objectDictMember;
         ObjectMap objectMapMember;
-        ["java:type:java.util.TreeMap"] ObjectDict modifiedObjectDictMember;
-        ["java:type:java.util.IdentityHashMap"] ObjectMap modifiedObjectMapMember;
+        ["java:type:{java.util.TreeMap}"] ObjectDict modifiedObjectDictMember;
+        ["java:type:{java.util.IdentityHashMap}"] ObjectMap modifiedObjectMapMember;
 
         IntSeq opIntSeq(IntSeq inArg, out IntSeq outArg);
         IntList opIntList(IntList inArg, out IntList outArg);
@@ -63,56 +73,56 @@ module MetadataTest
         ["amd"] StringDict opStringDictAMD(StringDict inArg, out StringDict outArg);
         ["amd"] StringMap opStringMapAMD(StringMap inArg, out StringMap outArg);
 
-        ["java:type:java.util.LinkedList"] IntSeq
-        opIntSeq2(["java:type:java.util.ArrayList"] IntSeq inArg,
+        ["java:type:{java.util.LinkedList}"] IntSeq
+        opIntSeq2(["java:type:{java.util.ArrayList}"] IntSeq inArg,
                   out ["java:type:Test.CustomList"] IntSeq outArg);
 
-        ["java:type:java.util.ArrayList"] IntList
-        opIntList2(["java:type:java.util.ArrayList"] IntList inArg,
+        ["java:type:{java.util.ArrayList}"] IntList
+        opIntList2(["java:type:{java.util.ArrayList}"] IntList inArg,
                    out ["java:type:Test.CustomList"] IntList outArg);
 
-        ["java:type:java.util.LinkedList"] ObjectSeq
-        opObjectSeq2(["java:type:java.util.ArrayList"] ObjectSeq inArg,
+        ["java:type:{java.util.LinkedList}"] ObjectSeq
+        opObjectSeq2(["java:type:{java.util.ArrayList}"] ObjectSeq inArg,
                      out ["java:type:Test.CustomList"] ObjectSeq outArg);
 
-        ["java:type:java.util.ArrayList"] ObjectList
-        opObjectList2(["java:type:java.util.ArrayList"] ObjectList inArg,
+        ["java:type:{java.util.ArrayList}"] ObjectList
+        opObjectList2(["java:type:{java.util.ArrayList}"] ObjectList inArg,
                       out ["java:type:Test.CustomList"] ObjectList outArg);
 
-        ["java:type:java.util.IdentityHashMap"] StringMap
-        opStringMap2(["java:type:java.util.IdentityHashMap"] StringMap inArg,
-                     out ["java:type:java.util.IdentityHashMap"] StringMap outArg);
+        ["java:type:{java.util.IdentityHashMap}"] StringMap
+        opStringMap2(["java:type:{java.util.IdentityHashMap}"] StringMap inArg,
+                     out ["java:type:{java.util.IdentityHashMap}"] StringMap outArg);
 
-        ["ami", "java:type:java.util.LinkedList"] IntSeq
-        opIntSeq2AMI(["java:type:java.util.ArrayList"] IntSeq inArg,
+        ["ami", "java:type:{java.util.LinkedList}"] IntSeq
+        opIntSeq2AMI(["java:type:{java.util.ArrayList}"] IntSeq inArg,
                      out ["java:type:Test.CustomList"] IntSeq outArg);
 
-        ["ami", "java:type:java.util.ArrayList"] IntList
-        opIntList2AMI(["java:type:java.util.ArrayList"] IntList inArg,
+        ["ami", "java:type:{java.util.ArrayList}"] IntList
+        opIntList2AMI(["java:type:{java.util.ArrayList}"] IntList inArg,
                       out ["java:type:Test.CustomList"] IntList outArg);
 
-        ["ami", "java:type:java.util.LinkedList"] ObjectSeq
-        opObjectSeq2AMI(["java:type:java.util.ArrayList"] ObjectSeq inArg,
+        ["ami", "java:type:{java.util.LinkedList}"] ObjectSeq
+        opObjectSeq2AMI(["java:type:{java.util.ArrayList}"] ObjectSeq inArg,
                         out ["java:type:Test.CustomList"] ObjectSeq outArg);
 
-        ["ami", "java:type:java.util.ArrayList"] ObjectList
-        opObjectList2AMI(["java:type:java.util.ArrayList"] ObjectList inArg,
+        ["ami", "java:type:{java.util.ArrayList}"] ObjectList
+        opObjectList2AMI(["java:type:{java.util.ArrayList}"] ObjectList inArg,
                          out ["java:type:Test.CustomList"] ObjectList outArg);
 
-        ["amd", "java:type:java.util.LinkedList"] IntSeq
-        opIntSeq2AMD(["java:type:java.util.ArrayList"] IntSeq inArg,
+        ["amd", "java:type:{java.util.LinkedList}"] IntSeq
+        opIntSeq2AMD(["java:type:{java.util.ArrayList}"] IntSeq inArg,
                      out ["java:type:Test.CustomList"] IntSeq outArg);
 
-        ["amd", "java:type:java.util.ArrayList"] IntList
-        opIntList2AMD(["java:type:java.util.ArrayList"] IntList inArg,
+        ["amd", "java:type:{java.util.ArrayList}"] IntList
+        opIntList2AMD(["java:type:{java.util.ArrayList}"] IntList inArg,
                       out ["java:type:Test.CustomList"] IntList outArg);
 
-        ["amd", "java:type:java.util.LinkedList"] ObjectSeq
-        opObjectSeq2AMD(["java:type:java.util.ArrayList"] ObjectSeq inArg,
+        ["amd", "java:type:{java.util.LinkedList}"] ObjectSeq
+        opObjectSeq2AMD(["java:type:{java.util.ArrayList}"] ObjectSeq inArg,
                      out ["java:type:Test.CustomList"] ObjectSeq outArg);
 
-        ["amd", "java:type:java.util.ArrayList"] ObjectList
-        opObjectList2AMD(["java:type:java.util.ArrayList"] ObjectList inArg,
+        ["amd", "java:type:{java.util.ArrayList}"] ObjectList
+        opObjectList2AMD(["java:type:{java.util.ArrayList}"] ObjectList inArg,
                       out ["java:type:Test.CustomList"] ObjectList outArg);
     };
 };
