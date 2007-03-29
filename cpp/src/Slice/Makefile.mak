@@ -37,6 +37,15 @@ CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DSLICE_API_EXPORTS  -DWIN32_LEAN_AND
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
+!if "$(STATICLIBS)" == "yes"
+
+$(DLLNAME):
+
+$(LIBNAME): $(OBJS)
+	$(AR) $(ARFLAGS) $(PDBFLAGS) $(OBJS) $(PREOUT)$@
+
+!else
+
 $(LIBNAME): $(DLLNAME)
 
 $(DLLNAME): $(OBJS)
@@ -45,6 +54,8 @@ $(DLLNAME): $(OBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
+
+!endif
 
 Scanner.cpp : Scanner.l
 	flex Scanner.l

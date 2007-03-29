@@ -20,6 +20,12 @@ prefix			= C:\Ice-$(VERSION)
 #OPTIMIZE		= yes
 
 #
+# Define if you want to build the Ice-E slice compilers with
+# static libraries.
+#
+#STATICLIBS             = yes
+
+#
 # Specify your C++ compiler. Supported values are:
 # VC60, VC71, VC80, VC80_EXPRESS, BCC2006 
 #
@@ -71,6 +77,7 @@ MT = "$(VS80COMNTOOLS)bin\mt.exe"
 !elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
 MT = "$(PDK_HOME)\bin\mt.exe"
 !endif
+
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
