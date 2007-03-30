@@ -92,7 +92,7 @@ class Client < Ice::Application
         factory = Demo::SessionFactoryPrx::checkedCast(base)
         if not factory
             puts $0 + ": invalid proxy"
-            return false
+            return 1
         end
 
         @mutex.synchronize {
@@ -166,7 +166,7 @@ class Client < Ice::Application
             end
         end
 
-        return true
+        return 0
     end
 
     def cleanup(destroy)

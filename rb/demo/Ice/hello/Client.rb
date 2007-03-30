@@ -52,7 +52,7 @@ class Client < Ice::Application
                 ice_twoway().ice_timeout(-1).ice_secure(false))
         if not twoway
             puts $0 + ": invalid proxy"
-            return false
+            return 1
         end
 
         oneway = Demo::HelloPrx::uncheckedCast(twoway.ice_oneway())
@@ -152,7 +152,7 @@ class Client < Ice::Application
             end
         end
 
-        return true
+        return 0
     end
 end
 

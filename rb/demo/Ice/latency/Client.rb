@@ -17,7 +17,7 @@ class Client < Ice::Application
         ping = Demo::PingPrx::checkedCast(Ice::Application::communicator().propertyToProxy('Latency.Ping'))
         if not ping
             puts "invalid proxy"
-            return false
+            return 1
         end
 
         # Initial ping to setup the connection.
@@ -40,7 +40,7 @@ class Client < Ice::Application
         printf "time for %d pings: %.3fms\n", repetitions, tmsec
         printf "time per ping: %.3fms\n", tmsec / repetitions
 
-        return true
+        return 0
     end
 end
 

@@ -56,7 +56,7 @@ class Client < Ice::Application
             Ice::Application::communicator().propertyToProxy('Throughput.Throughput'))
         if not throughput
             puts $0 + ": invalid proxy"
-            return false
+            return 1
         end
         throughputOneway = Demo::ThroughputPrx::uncheckedCast(throughput.ice_oneway())
 
@@ -213,7 +213,7 @@ class Client < Ice::Application
             end
         end
 
-        return true
+        return 0
     end
 end
 

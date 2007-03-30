@@ -69,7 +69,7 @@ class Client < Ice::Application
         initial = Demo::InitialPrx::checkedCast(base)
         if not initial
             puts $0 + ": invalid proxy"
-            return false
+            return 1
         end
 
         puts "\n"\
@@ -187,7 +187,7 @@ class Client < Ice::Application
 
         initial.shutdown()
 
-        return true
+        return 0
     end
 end
 
