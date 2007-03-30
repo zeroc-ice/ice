@@ -7,14 +7,15 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_F_ICE
-#define ICE_LOGGER_F_ICE
+package Ice;
 
-module Ice
+public interface Logger
 {
+    void print(String message);
 
-local interface Logger;
+    void trace(String category, String message);
 
-};
+    void warning(String message);
 
-#endif
+    void error(String message);
+}

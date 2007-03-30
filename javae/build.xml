@@ -34,7 +34,6 @@
                 <include name="Identity.ice" />
                 <include name="LocalException.ice" />
                 <include name="Locator.ice" />
-                <include name="Logger.ice" />
                 <include name="Router.ice" />
             </fileset>
         </slice2javae>
