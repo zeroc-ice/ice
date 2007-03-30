@@ -14,7 +14,7 @@ SERVER		= server.exe
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Library.obj
+OBJS		= Filesystem.obj
 
 COBJS		= Client.obj
 
