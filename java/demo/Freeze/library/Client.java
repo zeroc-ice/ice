@@ -32,9 +32,9 @@ public class Client extends Ice.Application
         // Since this is an interactive demo we want to clear the
         // Application installed interrupt callback and install our
         // own shutdown hook.
-    //
+        //
         setInterruptHook(new ShutdownHook());
-        
+
         return RunParser.runParser(appName(), args, communicator());
     }
 
