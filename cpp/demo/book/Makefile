@@ -12,7 +12,8 @@ top_srcdir	= ../..
 include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= printer \
-		  simple_filesystem
+		  simple_filesystem \
+		  freeze_filesystem
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
