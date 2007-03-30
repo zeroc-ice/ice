@@ -343,8 +343,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		}
 
 		tm = IceUtil::Time::now() - tm;
-		printf("time for %d sequences: %fms\n", repetitions, tm.toMilliSecondsDouble());
-		printf("time per sequence: %fms\n", tm.toMilliSecondsDouble() / repetitions);
+		printf("time for %d sequences: %lfms\n", repetitions, tm.toMilliSecondsDouble());
+		printf("time per sequence: %lfms\n", tm.toMilliSecondsDouble() / repetitions);
 		int wireSize = 0;
 		switch(currentType)
 		{
@@ -375,7 +375,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		{
 		    mbit *= 2;
 		}
-		printf("throughput: %.2fMbps\n", mbit);
+		printf("throughput: %.2lfMbps\n", mbit);
 	    }
 	    else if(c == 's')
 	    {
