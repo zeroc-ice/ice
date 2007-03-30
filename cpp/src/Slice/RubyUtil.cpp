@@ -477,6 +477,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
             _out << nl << "end";
 
+/* If AMI/AMD is ever implemented...
             if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
             {
                 _out << sp << nl << "def " << fixedOpName << "_async(_cb";
@@ -495,6 +496,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out.dec();
                 _out << nl << "end";
             }
+*/
         }
         _out.dec();
         _out << nl << "end"; // End of mix-in module for proxy.
