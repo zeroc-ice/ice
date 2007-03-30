@@ -20,10 +20,7 @@ ICE_SRCS	= Ice\LocalException.rb \
 		  Ice\Logger.rb \
 		  Ice\LoggerF.rb \
 		  Ice\BuiltinSequences.rb \
-		  Ice\ObjectAdapter.rb \
 		  Ice\ObjectAdapterF.rb \
-		  Ice\ServantLocator.rb \
-		  Ice\ServantLocatorF.rb \
 		  Ice\Properties.rb \
 		  Ice\PropertiesF.rb \
 		  Ice\ObjectFactory.rb \
