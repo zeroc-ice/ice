@@ -7,14 +7,31 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_F_ICE
-#define ICE_LOGGER_F_ICE
+#ifndef ICEE_LOGGER_F_H
+#define ICEE_LOGGER_F_H
 
-module Ice
+#include <IceE/Handle.h>
+#include <IceE/Shared.h>
+
+namespace Ice
 {
 
-local interface Logger;
+class Logger;
 
-};
+}
+
+namespace IceInternal
+{
+
+ICE_API IceUtil::Shared* upCast(::Ice::Logger*);
+
+}
+
+namespace Ice
+{
+
+typedef ::IceInternal::Handle< ::Ice::Logger> LoggerPtr;
+
+}
 
 #endif

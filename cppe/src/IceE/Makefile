@@ -93,8 +93,6 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LoggerF.ice \
-		  $(SDIR)/Logger.ice \
 		  $(SDIR)/RouterF.ice \
 		  $(SDIR)/Router.ice
 

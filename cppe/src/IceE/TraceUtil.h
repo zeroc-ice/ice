@@ -10,8 +10,8 @@
 #ifndef ICEE_TRACE_UTIL_H
 #define ICEE_TRACE_UTIL_H
 
-#include <IceE/LoggerF.h>
 #include <IceE/TraceLevelsF.h>
+#include <IceE/LoggerF.h>
 
 namespace IceInternal
 {

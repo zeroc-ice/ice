@@ -132,8 +132,6 @@ clean::
 	del /q Identity.cpp $(HDIR)\Identity.h
 	del /q LocatorF.cpp $(HDIR)\LocatorF.h
 	del /q Locator.cpp $(HDIR)\Locator.h
-	del /q LoggerF.cpp $(HDIR)\LoggerF.h
-	del /q Logger.cpp $(HDIR)\Logger.h
 	del /q RouterF.cpp $(HDIR)\RouterF.h
 	del /q Router.cpp $(HDIR)\Router.h
 	del /q $(LIBNAME:.lib=.*)

@@ -40,6 +40,7 @@ ICE_OBJS	= BasicStream.o \
 		  LocalException.o \
 		  LocalObject.o \
 		  LocatorInfo.o \
+		  Logger.o \
 		  LoggerI.o \
 		  LoggerUtil.o \
 		  Network.o \
@@ -71,7 +72,6 @@ ICE_OBJS	= BasicStream.o \
 LOCAL_OBJS	= BuiltinSequences.o \
 		  Identity.o \
 		  Locator.o \
-		  Logger.o \
 		  Router.o
 
 OBJS		= $(LOCAL_OBJS) $(ICE_OBJS) $(TRANSPORT_OBJS)
@@ -85,8 +85,6 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/LocatorF.ice \
-		  $(SDIR)/Logger.ice \
-		  $(SDIR)/LoggerF.ice \
 		  $(SDIR)/Router.ice \
 		  $(SDIR)/RouterF.ice
 

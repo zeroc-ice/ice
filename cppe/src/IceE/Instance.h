@@ -13,7 +13,6 @@
 #include <IceE/InstanceF.h>
 #include <IceE/CommunicatorF.h>
 #include <IceE/PropertiesF.h>
-#include <IceE/LoggerF.h>
 #include <IceE/TraceLevelsF.h>
 #include <IceE/DefaultsAndOverridesF.h>
 #include <IceE/RouterInfoF.h>
