@@ -600,6 +600,7 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
         {
             out << " with facet \"" << facet << "\"";
         }
+        out << " to Db \"" << _filename << "\"";
     }
 
     ObjectPrx obj = _adapter->createProxy(ident);
@@ -729,6 +730,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
         {
             out << " with facet \"" << facet << "\"";
         }
+        out << " from Db \"" << _filename << "\"";
     }
     return servant;
 }
@@ -1089,8 +1091,8 @@ Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
             if(_trace >= 2)
             {
                 Trace out(_communicator->getLogger(), "Freeze.Evictor");
-                out << "locate could not find \"" << _communicator->identityToString(current.id) << "\" in database \""
-                    << current.facet << "\"";
+                out << "locate could not find \"" << _communicator->identityToString(current.id) << "\" in Db \""
+                    << _filename << "\"";
             }
             return 0;
         }
@@ -1124,8 +1126,8 @@ Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
         if(_trace >= 2)
         {
             Trace out(_communicator->getLogger(), "Freeze.Evictor");
-            out << "locate found \"" << _communicator->identityToString(current.id) << "\" in database \"" 
-                << current.facet << "\"";
+            out << "locate found \"" << _communicator->identityToString(current.id) << "\" in Db \"" 
+                << _filename << "\"";
         }
 
         fixEvictPosition(element);

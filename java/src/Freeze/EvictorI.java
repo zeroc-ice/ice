@@ -570,7 +570,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
                     objString += " with facet \"" + facet + "\"";
                 }
                 
-                _communicator.getLogger().trace("Freeze.Evictor", "added " + objString);
+                _communicator.getLogger().trace("Freeze.Evictor", "added " + objString + " to Db \"" + _filename +
+                                                "\"");
             }
             
             Ice.ObjectPrx obj = _adapter.createProxy(ident);
@@ -837,7 +838,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
                     objString += " with facet \"" + facet + "\"";
                 }
                 
-                _communicator.getLogger().trace("Freeze.Evictor", "removed " + objString);
+                _communicator.getLogger().trace("Freeze.Evictor", "removed " + objString + " from Db \"" + _filename +
+                                                "\"");
             }
             return servant;
         }
@@ -1266,8 +1268,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
                 if(_trace >= 2)
                 {
                     _communicator.getLogger().trace("Freeze.Evictor", "locate could not find \"" +
-                                                    _communicator.identityToString(ident) + "\" in database \"" +
-                                                    current.facet + "\"");
+                                                    _communicator.identityToString(ident) + "\" in Db \"" +
+                                                    _filename + "\"");
                 }
                 return null;
             }
@@ -1291,7 +1293,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
                         {
                             _communicator.getLogger().trace("Freeze.Evictor", "locate found \"" +
                                                             _communicator.identityToString(ident) +
-                                                            "\" in the cache for database \"" + current.facet +
+                                                            "\" in the cache for Db \"" + _filename +
                                                             "\" but it was dead or destroyed");
                         }
                         return null;
@@ -1304,8 +1306,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
                     if(_trace >= 2)
                     {
                         _communicator.getLogger().trace("Freeze.Evictor", "locate found \"" +
-                                                        _communicator.identityToString(ident) + "\" in database \"" +
-                                                        current.facet + "\"");
+                                                        _communicator.identityToString(ident) + "\" in Db \"" +
+                                                        _filename + "\"");
                     }
 
                     fixEvictPosition(element);
