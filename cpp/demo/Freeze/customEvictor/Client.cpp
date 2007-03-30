@@ -90,7 +90,8 @@ public:
                 os << "P/N " << id;
                 string name = os.str();
                 
-                Ice::Identity identity = { name, "" };
+                Ice::Identity identity;
+                identity.name = name;
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
                 item->getDescription();
             }
@@ -144,7 +145,8 @@ public:
                 os << "P/N " << id;
                 string name = os.str();
 
-                Ice::Identity identity = { name, "" };
+                Ice::Identity identity;
+                identity.name = name;
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
                 
                 item->adjustStock(1);
