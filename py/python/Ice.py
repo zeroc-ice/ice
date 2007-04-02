@@ -470,10 +470,10 @@ class PropertiesI(Properties):
         return self._impl.getCommandLineOptions()
 
     def parseCommandLineOptions(self, prefix, options):
-        self._impl.parseCommandLineOptions(prefix, options)
+        return self._impl.parseCommandLineOptions(prefix, options)
 
     def parseIceCommandLineOptions(self, options):
-        self._impl.parseIceCommandLineOptions(options)
+        return self._impl.parseIceCommandLineOptions(options)
 
     def load(self, file):
         self._impl.load(file)

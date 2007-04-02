@@ -1,3 +1,9 @@
+Changes since version 3.2.0
+---------------------------
+
+- Fixed a bug that caused Properties.parseCommandLineOptions and
+  parseIceCommandLineOptions to always return None.
+
 Changes since version 3.1.1
 ---------------------------
 
