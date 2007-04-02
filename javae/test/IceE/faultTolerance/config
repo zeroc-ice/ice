@@ -22,8 +22,8 @@
 #
 # Set Test.Host to the hostname or IP address for the server host.
 #
-Test.Host=localhost
-Test.FirstPort=12345
+Test.Host=142.163.181.190
+Test.FirstPort=12010
 Test.ServerCount= 13
 
 Ice.ServerIdleTime = 120

@@ -12,6 +12,6 @@
 # appropriate for the network configuration for your test.
 
 Ice.MessageSizeMax = 100
-Test.Proxy=test:default -p 12010  -t 10000
-Test.ProxyWithContext=context:default -p 12010  -t 10000
+Test.Proxy=test:default -h 127.0.0.1 -p 12010  -t 20000
+Test.ProxyWithContext=context:default -h 127.0.0.1 -p 12010  -t 20000
 TestAdapter.Endpoints=default -p 12010 -t 10000

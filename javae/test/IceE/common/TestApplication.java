@@ -10,74 +10,74 @@
 //
 // Wraps a test driver class to run it within a MIDP environment.
 //
-public class TestApplication
+abstract public class TestApplication
     extends javax.microedition.midlet.MIDlet
-    implements javax.microedition.lcdui.CommandListener
 {
-    class ShutdownTask 
-	implements Runnable
+    protected String
+    getHost()
     {
-	public void
-	run()
+	try
 	{
-	    shutdown();
+	    _hostnameConnection = 
+		(javax.microedition.io.ServerSocketConnection)javax.microedition.io.Connector.open("socket://");
+	    return _hostnameConnection.getLocalAddress();
 	}
-    }
-    
-    protected void
-    shutdown()
-    {
-	if(_communicator != null)
+	catch(Exception ex)
 	{
-	    try
-	    {
-		_communicator.shutdown();
-		_communicator.destroy();
-		_communicator = null;
-	    }
-	    catch(Exception ex)
-	    {
-		message("Exception occurred on shutdown: " + ex.toString());
-	    }
+            return null;
 	}
     }
 
-    protected void
-    initIce()
-    {
-	Ice.Properties properties = Ice.Util.createProperties();
-	java.io.InputStream is = getClass().getResourceAsStream("config");
-	if(is != null)
-	{
-	    properties.load(is);
-	}
+    //
+    // Needs to be overridden by wrapper class.
+    //
+    abstract protected ConfigurationForm
+    initConfigurationForm(javax.microedition.midlet.MIDlet parent, Ice.Properties properties);
 
-	_communicator = Ice.Util.initializeWithProperties(new String[0], properties);
-    }
+    abstract protected void
+    updateProperties(Ice.Properties properties);
 
     protected void
     startApp()
 	throws javax.microedition.midlet.MIDletStateChangeException
     {
 	try
-	{
-	    if(_display == null)
-	    {
-		_display = javax.microedition.lcdui.Display.getDisplay(this);
-		_screen.addCommand(CMD_EXIT);
-		_screen.setCommandListener(this);
-	    }
-	    _out = new java.io.PrintStream(new Test.StreamListAdapter((javax.microedition.lcdui.List)_screen));
-	    _display.setCurrent(_screen);
-	    initIce();
-	}
+        {
+            //
+            // Read properties from embedded config file. 
+            //
+            Ice.Properties properties = Ice.Util.createProperties();
+            java.io.InputStream is = getClass().getResourceAsStream("config");
+            if(is != null)
+            {
+                properties.load(is);
+            }
+
+            //
+            // Pick up our host name/IP address from the current tcp/ip stack
+            // instantiation.
+            //
+            String defaultHost = getHost();
+            if(defaultHost != null)
+            {
+                properties.setProperty("Ice.Default.Host", defaultHost);
+            }
+
+            if(_display == null)
+            {
+                _display = javax.microedition.lcdui.Display.getDisplay(this);
+                _configForm = initConfigurationForm(this, properties); 
+                _display.setCurrent(_configForm);
+            }
+
+        }
 	catch(Exception ex)
 	{
 	    javax.microedition.lcdui.Alert a = 
 		new javax.microedition.lcdui.Alert("startApp alert", ex.getMessage(),
 			null, javax.microedition.lcdui.AlertType.ERROR);
 	    a.setTimeout(javax.microedition.lcdui.Alert.FOREVER);
-	    _display.setCurrent(a);
+	    javax.microedition.lcdui.Display.getDisplay(this).setCurrent(a);
 	    throw new javax.microedition.midlet.MIDletStateChangeException(ex.getMessage());
 	}
     }
@@ -92,54 +92,31 @@ public class TestApplication
     }
 
     protected void
-    destroyApp(boolean unconditional)
-	throws javax.microedition.midlet.MIDletStateChangeException
+    destroyApp(boolean f)
     {
-	new Thread(new ShutdownTask()).start();
+        //
+        // Nothing to do here really. Communicators, etc. should all be
+        // shutdown in the forms that have references to them.
+        //
+        notifyDestroyed();
     }
 
-    public void
-    commandAction(javax.microedition.lcdui.Command cmd, javax.microedition.lcdui.Displayable source)
+    public void 
+    shutdown()
     {
-	if(source == _screen)
-	{
-	    if(cmd == CMD_EXIT)
-	    {
-		try
-		{
-		    destroyApp(true);
-		    notifyDestroyed();
-		}
-		catch(javax.microedition.midlet.MIDletStateChangeException ex)
-		{
-		}
-	    }
-	}
+        destroyApp(true);
     }
 
-    protected void
-    message(String msg)
-    {
-	_out.println(msg);
-    }
-
-    protected void
-    done()
-    {
-	message("Done!");
-    }
+    abstract public void
+    runTest(Ice.Communicator communicator, java.io.PrintStream ps);
+    
+    //
+    // While it's not necessary in all cases, we will want to hold onto
+    // our connection in case the KVM aggressively cleans things up and
+    // we lose our assigned IP address.
+    //
+    protected javax.microedition.io.ServerSocketConnection _hostnameConnection;  
     
     protected javax.microedition.lcdui.Display _display;
-    protected javax.microedition.lcdui.Screen _screen =
-        new javax.microedition.lcdui.List("Standard Output",
-					  javax.microedition.lcdui.Choice.EXCLUSIVE);
-
-    protected java.io.PrintStream _out;
-
-    protected static final int CMD_PRIORITY = 1;
-
-    protected javax.microedition.lcdui.Command CMD_EXIT =
-        new javax.microedition.lcdui.Command("Exit", javax.microedition.lcdui.Command.EXIT, CMD_PRIORITY);
-
-    protected Ice.Communicator _communicator;
+    protected ConfigurationForm _configForm;
 }

@@ -31,22 +31,30 @@
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="." destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" excludes="generated/**"
-	    debug="${debug}" target="1.1"/>
+        <javac srcdir="." destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" 
+	    debug="${debug}" target="1.1">
+            <exclude name="generated/**" />
+            <exclude name="*MIDlet*" />
+        </javac>
     </target>
 
     <target name="midp-compile" depends="generate" if="midp">
         <mkdir dir="${midp.class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${midp.class.dir}" classpath="${midp.lib.dir}" debug="${debug}"
 	    target="1.1"/>
-        <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**"
-	    debug="${debug}" target="1.1"/>
+        <javac destdir="${midp.class.dir}" classpath="${midp.lib.dir}" 
+            classpathref="midp.classpath" bootclasspathref="midp.bootclasspath" 
+            debug="${debug}" target="1.1">
+            <src path="." />
+            <src path="../common" />
+            <exclude name="generated/**" />
+            <exclude name="**/CollocatedBase.java" />
+        </javac>
     </target>
 
     <property name="testname" value="Location"/>
 
     <target name="midlet-jar" depends="midp-compile" if="midp">
-	<ant dir="../common" inheritAll="false" target="compile"/>
         <mkdir dir="tmp"/>
 	<manifest file="MANIFEST.MF">
 	    <attribute name="Microedition-Configuration" value="CLDC-1.1"/>
@@ -59,8 +67,6 @@
 	<copy overwrite="true" file="config" todir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}" />
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="../common/midp" update="true"
-	    excludes="**/Client.class,**/Server.class,**/Collocated.class"/>
     </target>
 
     <target name="obfuscate" depends="midlet-jar" if="hasProguardAndMIDP">
@@ -95,8 +101,8 @@
 	    <attribute name="MIDlet-Jar-URL" value="${testname}.jar"/>
 	    <attribute name="MicroEdition-Profile" value="MIDP-2.0"/>
 	    <attribute name="MicroEdition-Configuration" value="CLDC-1.1"/>
-	    <attribute name="MIDlet-1" value="Client, , ClientWrapper"/>
-	    <attribute name="MIDlet-2" value="Server, , ServerWrapper"/>
+	    <attribute name="MIDlet-1" value="Client, , ClientMIDlet"/>
+	    <attribute name="MIDlet-2" value="Server, , ServerMIDlet"/>
 	    <attribute name="MIDlet-Jar-Size" value="${jarfile-length}"/>
 	    <attribute name="MIDlet-Name" value="${testname}Test"/>
 	    <attribute name="MIDlet-Permissions" 

@@ -12,7 +12,6 @@
 <project name="test_IceE" default="all" basedir=".">
 
     <target name="all">
-	<ant dir="common"/>
         <ant dir="adapterDeactivation"/>
         <ant dir="exceptions"/>
         <ant dir="facets"/>
@@ -27,7 +26,6 @@
     </target>
 
     <target name="clean">
-        <ant dir="common" target="clean"/>
         <ant dir="adapterDeactivation" target="clean"/>
         <ant dir="exceptions" target="clean"/>
         <ant dir="facets" target="clean"/>

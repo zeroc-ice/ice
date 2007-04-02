@@ -13,5 +13,5 @@
 
 Ice.RetryIntervals = -1
 Ice.Warn.Connections = 0
-Retry.Proxy=retry:default -p 12010  -t 10000
+Retry.Proxy=retry:default -h 127.0.0.1 -p 12010  -t 10000
 TestAdapter.Endpoints=default -p 12010 -t 10000
