@@ -22,7 +22,7 @@
 #
 # Set Test.Host to the hostname or IP address for the server host.
 #
-Test.Host=142.163.181.190
+Test.Host=127.0.0.1
 Test.FirstPort=12010
 Test.ServerCount= 13
 
