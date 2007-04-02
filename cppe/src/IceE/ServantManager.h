@@ -12,10 +12,10 @@
 
 #include <IceE/ServantManagerF.h>
 #include <IceE/InstanceF.h>
+#include <IceE/ObjectAdapter.h>
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
 #include <IceE/Identity.h>
-#include <IceE/FacetMap.h>
 
 namespace IceInternal
 {

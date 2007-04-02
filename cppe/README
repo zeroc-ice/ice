@@ -47,8 +47,7 @@ own.
 Objects by Value
 ----------------
 
-Ice-E does not allow Slice classes to be transmitted by value,
-although it is still possible to use Slice classes in a local context.
+Ice-E does not allow Slice classes to be transmitted by value.
 
 Servant Locators
 ----------------

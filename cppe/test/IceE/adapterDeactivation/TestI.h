@@ -20,11 +20,4 @@ public:
     virtual void deactivate(const Ice::Current&);
 };
 
-class CookieI : public Test::Cookie
-{
-public:
-
-    virtual std::string message() const;
-};
-
 #endif

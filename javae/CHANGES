@@ -1,6 +1,8 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Removed support for local interfaces in slice.
+
 - Message batches are now automatically flushed when the total size of
   the batch reaches the message size maximum. This feature can be
   controlled using the Ice.BatchAutoFlush property, which is on by

@@ -15,7 +15,7 @@ package Ice;
 // stdout to write to.
 //
 
-public final class LoggerI extends LocalObjectImpl implements Logger
+public final class LoggerI implements Logger
 {
     public 
     LoggerI(String prefix)
@@ -137,21 +137,6 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	    _out.println(s.toString());
 	    _out.flush();
 	}
-    }
-
-    protected
-    LoggerI(LoggerI source)
-    {
-	super(source);
-	_prefix = source._prefix;
-	_date = source._date;
-	_out = source._out;
-    }
-    
-    public java.lang.Object
-    ice_clone()
-    {
-	return new LoggerI(this);
     }
 
     String _prefix = "";

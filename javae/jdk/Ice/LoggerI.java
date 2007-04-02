@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class LoggerI extends LocalObjectImpl implements Logger
+public final class LoggerI implements Logger
 {
     public 
     LoggerI(String prefix)
@@ -72,21 +72,6 @@ public final class LoggerI extends LocalObjectImpl implements Logger
 	s.append("error: ");
 	s.append(message);
 	System.err.print(s.toString() + "\n");
-    }
-
-    protected
-    LoggerI(LoggerI source)
-    {
-	super(source);
-	_prefix = source._prefix;
-        _date = source._date;
-        _time = source._time;
-    }
-    
-    public java.lang.Object
-    ice_clone()
-    {
-	return new LoggerI(this);
     }
 
     String _prefix = "";

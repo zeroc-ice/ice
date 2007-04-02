@@ -1261,18 +1261,13 @@ public class BasicStream
         }
     }
 
-    private static final class DynamicUserExceptionFactory extends Ice.LocalObjectImpl
+    private static final class DynamicUserExceptionFactory
         implements UserExceptionFactory
     {
         DynamicUserExceptionFactory(Class c)
         {
             _class = c;
         }
-
-	DynamicUserExceptionFactory(DynamicUserExceptionFactory source)
-	{
-	    _class = source._class;
-	}
 
         public void
         createAndThrow()
@@ -1298,12 +1293,6 @@ public class BasicStream
         destroy()
         {
         }
-
-	public java.lang.Object
-	ice_clone()
-	{
-	    return new DynamicUserExceptionFactory(this);
-	}
 
         private Class _class;
     }

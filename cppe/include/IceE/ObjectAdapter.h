@@ -34,12 +34,13 @@
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
 #include <IceE/Monitor.h>
-#include <IceE/FacetMap.h>
 #include <IceE/Proxy.h>
 #include <list>
 
 namespace Ice
 {
+
+typedef ::std::map< ::std::string, ::Ice::ObjectPtr> FacetMap;
 
 class ICE_API ObjectAdapter : public IceUtil::Monitor<IceUtil::RecMutex>, public ::IceUtil::Shared
 {

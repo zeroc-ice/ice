@@ -20,11 +20,6 @@ interface TestIntf
     void deactivate();
 };
 
-local class Cookie
-{
-    ["cpp:const"] idempotent string message();
-};
-
 };
 
 #endif

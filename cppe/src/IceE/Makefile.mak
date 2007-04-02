@@ -33,7 +33,6 @@ LOCAL_OBJS      = BasicStream.obj \
                   DefaultsAndOverrides.obj \
                   Endpoint.obj \
                   ExceptionBase.obj \
-                  FacetMap.obj \
                   FactoryTable.obj \
                   FactoryTableDef.obj \
                   Identity.obj \
@@ -42,7 +41,6 @@ LOCAL_OBJS      = BasicStream.obj \
                   Initialize.obj \
                   Instance.obj \
                   LocalException.obj \
-                  LocalObject.obj \
                   Locator.obj \
                   LocatorInfo.obj \
                   Logger.obj \
@@ -128,7 +126,6 @@ $(DLLNAME): $(LOCAL_OBJS) $(TRANSPORT_OBJS)
 
 clean::
 	del /q BuiltinSequences.cpp $(HDIR)\BuiltinSequences.h
-	del /q FacetMap.cpp $(HDIR)\FacetMap.h
 	del /q Identity.cpp $(HDIR)\Identity.h
 	del /q LocatorF.cpp $(HDIR)\LocatorF.h
 	del /q Locator.cpp $(HDIR)\Locator.h

@@ -37,7 +37,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  DefaultsAndOverrides.o \
 		  Endpoint.o \
 		  ExceptionBase.o \
-		  FacetMap.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
 		  Identity.o \
@@ -46,7 +45,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  Initialize.o \
 		  Instance.o \
 		  LocalException.o \
-		  LocalObject.o \
 		  Locator.o \
 		  LocatorInfo.o \
 		  Logger.o \
@@ -89,7 +87,6 @@ SRCS		= $(LOCAL_OBJS:.o=.cpp) \
 		  $(patsubst %.o,$(TRANSPORT_DIR)/%.cpp,$(TRANSPORT_OBJS)) 
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/LocatorF.ice \
 		  $(SDIR)/Locator.ice \

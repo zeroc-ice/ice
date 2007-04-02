@@ -30,7 +30,6 @@
             </includepath>
             <fileset dir="${slice.dir}/IceE">
                 <include name="BuiltinSequences.ice" />
-                <include name="FacetMap.ice" />
                 <include name="Identity.ice" />
                 <include name="LocalException.ice" />
                 <include name="Locator.ice" />

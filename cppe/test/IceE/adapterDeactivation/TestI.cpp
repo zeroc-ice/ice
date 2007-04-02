@@ -31,9 +31,3 @@ TestI::deactivate(const Current& current)
     current.adapter->deactivate();
     IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 }
-
-string
-CookieI::message() const
-{
-    return "blahblah";
-}

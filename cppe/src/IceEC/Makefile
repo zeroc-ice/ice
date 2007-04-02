@@ -38,7 +38,6 @@ ICE_OBJS	= BasicStream.o \
 		  Initialize.o \
 		  Instance.o \
 		  LocalException.o \
-		  LocalObject.o \
 		  LocatorInfo.o \
 		  Logger.o \
 		  LoggerI.o \
@@ -81,7 +80,6 @@ SRCS		= $(LOCAL_OBJS:.o=.cpp) \
 		  $(patsubst %.o,$(TRANSPORT_DIR)/%.cpp,$(TRANSPORT_OBJS))
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
 		  $(SDIR)/Locator.ice \
 		  $(SDIR)/LocatorF.ice \

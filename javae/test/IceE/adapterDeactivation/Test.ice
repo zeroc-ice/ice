@@ -20,11 +20,6 @@ interface TestIntf
     void deactivate();
 };
 
-local class Cookie
-{
-    idempotent string message();
-};
-
 };
 
 #endif

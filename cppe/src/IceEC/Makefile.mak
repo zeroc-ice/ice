@@ -38,7 +38,6 @@ ICEE_OBJS      	= BasicStream.obj \
                   Initialize.obj \
                   Instance.obj \
                   LocalException.obj \
-                  LocalObject.obj \
                   Locator.obj \
                   LocatorInfo.obj \
                   Logger.obj \
