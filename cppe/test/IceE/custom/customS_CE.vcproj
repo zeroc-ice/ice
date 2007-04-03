@@ -1259,12 +1259,75 @@
 				RelativePath=".\Wstring.ice"
 				>
 				<FileConfiguration
+					Name="Release|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug|Pocket PC 2003 (ARMV4)"
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe Wstring.ice&#x0D;&#x0A;"
-						Outputs="Wstring.cpp;Wstring.h"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Smartphone 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Static|Pocket PC 2003 (ARMV4)"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="slice2cppe.exe Wstring.ice"
+						Outputs="Wstring.h;Wstring.cpp"
 					/>
 				</FileConfiguration>
 			</File>

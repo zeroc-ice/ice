@@ -2328,80 +2328,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="LocalObject.cpp"
-				>
-				<FileConfiguration
-					Name="Release Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="Locator.cpp"
 				>
 				<FileConfiguration
@@ -5041,11 +4967,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Config.h"
+				RelativePath="..\..\include\IceUtil\Config.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Config.h"
+				RelativePath="..\..\include\IceE\Config.h"
 				>
 			</File>
 			<File
@@ -5097,11 +5023,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Exception.h"
+				RelativePath="..\..\include\IceUtil\Exception.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceUtil\Exception.h"
+				RelativePath="..\..\include\IceE\Exception.h"
 				>
 			</File>
 			<File
@@ -5113,19 +5039,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Functional.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\include\IceUtil\Functional.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\IceE\Handle.h"
+				RelativePath="..\..\include\IceE\Functional.h"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\IceUtil\Handle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\IceE\Handle.h"
 				>
 			</File>
 			<File
@@ -5174,14 +5100,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\IceE\LocalException.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\IceE\LocalObject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\IceE\LocalObjectF.h"
 				>
 			</File>
 			<File
@@ -5665,7 +5583,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5674,7 +5592,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5683,7 +5601,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5692,7 +5610,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5701,7 +5619,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5710,7 +5628,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5719,7 +5637,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
 					/>
 				</FileConfiguration>
@@ -5728,160 +5646,8 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;"
+						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LocatorF.ice&#x0D;&#x0A;move LocatorF.h ..\..\include\icee&#x0D;&#x0A;del LocatorF.cpp"
 						Outputs="..\..\include\icee\LocatorF.h"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\slice\IceE\Logger.ice"
-				>
-				<FileConfiguration
-					Name="Release Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/Logger.ice&#x0D;&#x0A;move Logger.h ..\..\include\icee&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\Logger.h;Logger.cpp"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\slice\IceE\LoggerF.ice"
-				>
-				<FileConfiguration
-					Name="Release Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug Static|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Smartphone 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Pocket PC 2003 (ARMV4)"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice --dll-export ICE_API --include-dir IceE -I../../slice ../../slice/IceE/LoggerF.ice&#x0D;&#x0A;move LoggerF.h ..\..\include\icee&#x0D;&#x0A;del LoggerF.cpp&#x0D;&#x0A;"
-						Outputs="..\..\include\icee\LoggerF.h"
 					/>
 				</FileConfiguration>
 			</File>
