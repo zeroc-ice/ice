@@ -152,7 +152,13 @@ final class UdpTransceiver implements Transceiver
 
         synchronized(this)
         {
-            assert(_fd != null);
+            //
+            // Check for shutdown.
+            //
+            if(_fd == null)
+            {
+                throw new Ice.ConnectionLostException();
+            }
             if(_readSelector == null)
             {
                 try
