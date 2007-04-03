@@ -387,12 +387,12 @@ public final class IncomingConnectionFactory extends EventHandler
         Ice.ObjectAdapterI adapterImpl = (Ice.ObjectAdapterI)_adapter;
         _threadPerConnection = adapterImpl.getThreadPerConnection();
 
-        EndpointIHolder h = new EndpointIHolder();
-        h.value = _endpoint;
-        _transceiver = _endpoint.serverTransceiver(h);
-
         try
         {
+            EndpointIHolder h = new EndpointIHolder();
+            h.value = _endpoint;
+            _transceiver = _endpoint.serverTransceiver(h);
+
             if(_transceiver != null)
             {
                 _endpoint = h.value;

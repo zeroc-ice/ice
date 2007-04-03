@@ -897,11 +897,11 @@ namespace IceInternal
             Ice.ObjectAdapterI adapterImpl = (Ice.ObjectAdapterI)_adapter;
             _threadPerConnection = adapterImpl.getThreadPerConnection();
 
-            EndpointI h = _endpoint;
-            _transceiver = _endpoint.serverTransceiver(ref h);
-
             try
             {
+                EndpointI h = _endpoint;
+                _transceiver = _endpoint.serverTransceiver(ref h);
+
                 if(_transceiver != null)
                 {
                     _endpoint = h;
