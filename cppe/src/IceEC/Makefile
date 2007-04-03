@@ -26,6 +26,7 @@ TRANSPORT_OBJS	= Connector.o \
 
 ICE_OBJS	= BasicStream.o \
 		  Buffer.o \
+                  BuiltinSequences.o \
 		  Communicator.o \
 		  Cond.o \
 		  Connection.o \
@@ -35,9 +36,11 @@ ICE_OBJS	= BasicStream.o \
 		  ExceptionBase.o \
 		  FactoryTable.o \
 		  FactoryTableDef.o \
+		  Identity.o \
 		  Initialize.o \
 		  Instance.o \
 		  LocalException.o \
+		  Locator.o \
 		  LocatorInfo.o \
 		  Logger.o \
 		  LoggerI.o \
@@ -53,6 +56,7 @@ ICE_OBJS	= BasicStream.o \
 		  RecMutex.o \
 		  Reference.o \
 		  ReferenceFactory.o \
+		  Router.o \
 		  RouterInfo.o \
 		  RWRecMutex.o \
 		  SafeStdio.o \
@@ -68,15 +72,9 @@ ICE_OBJS	= BasicStream.o \
 		  Unicode.o \
 		  UUID.o
 
-LOCAL_OBJS	= BuiltinSequences.o \
-		  Identity.o \
-		  Locator.o \
-		  Router.o
-
 OBJS		= $(LOCAL_OBJS) $(ICE_OBJS) $(TRANSPORT_OBJS)
 
-SRCS		= $(LOCAL_OBJS:.o=.cpp) \
-		  $(patsubst %.o,$(ICE_DIR)/%.cpp,$(ICE_OBJS)) \
+SRCS		= $(patsubst %.o,$(ICE_DIR)/%.cpp,$(ICE_OBJS)) \
 		  $(patsubst %.o,$(TRANSPORT_DIR)/%.cpp,$(TRANSPORT_OBJS))
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
@@ -98,6 +96,12 @@ OBJS		:= 	$(OBJS) $(AOBJ)
 CFLAGS		:= 	$(CFLAGS) -fomit-frame-pointer
 endif
 
+$(HDIR)/%.h $(ICE_DIR)/%.cpp: $(SDIR)/%.ice
+	rm -f $(HDIR)/$(*F).h $(ICE_DIR)/$(*F).cpp
+	$(SLICE2CPPE) $(SLICE2CPPEFLAGS) $<
+	mv $(*F).h $(HDIR)
+	mv $(*F).cpp $(ICE_DIR)
+
 %.o: $(TRANSPORT_DIR)/%.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
@@ -110,10 +114,13 @@ SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLA
 LINKWITH        := $(ICE_OS_LIBS)
 
 ifeq ($(STATICLIBS),yes)
+
 $(libdir)/$(LIBNAME): $(OBJS)
 	rm -f $@
 	$(call mklib,$@,$(OBJS))
+
 else
+
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
 	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
@@ -125,6 +132,7 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
+
 endif
 
 install:: all

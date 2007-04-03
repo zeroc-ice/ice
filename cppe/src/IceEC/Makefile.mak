@@ -70,9 +70,13 @@ ICEE_OBJS      	= BasicStream.obj \
                   Unicode.obj \
                   UUID.obj
 
+HDIR		= $(includedir)\IceE
+SDIR		= $(slicedir)\IceE
+
 !include $(top_srcdir)\config\Make.rules.mak
 
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DICEE_PURE_CLIENT -DWIN32_LEAN_AND_MEAN
+SLICE2CPPEFLAGS = --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 !if "$(STATICLIBS)" == "yes"
@@ -81,6 +85,12 @@ PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 !endif
+
+{$(SDIR)\}.ice{$(HDIR)}.h:
+	del /q $(HDIR)\$(*F).h $(ICEE_DIR)\$(*F).cpp 
+	$(SLICE2CPP) $(SLICE2CPPEFLAGS) $< 
+	move $(*F).h $(HDIR)
+	move $(*F).cpp $(ICEE_DIR)
 
 {$(TRANSPORT_DIR)\}.cpp.obj::
     $(CXX) /c $(CPPFLAGS) $(CXXFLAGS) $<
