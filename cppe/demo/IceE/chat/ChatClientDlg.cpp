@@ -407,13 +407,18 @@ CChatClientDlg::OnLogin()
 	{
 	    _router->destroySession();
 	}
+        catch(const Ice::ConnectionLostException&)
+        {
+            //
+            // Expected: the router closed the connection.
+            //
+        }
 	catch(const Ice::Exception& ex)
 	{
 	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
 	}
 
-	_adapter->deactivate();
-	_adapter->waitForDeactivate();
+	_adapter->destroy();
 	_router = 0;
     }
 
