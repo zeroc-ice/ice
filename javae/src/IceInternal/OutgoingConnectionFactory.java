@@ -390,10 +390,9 @@ public final class OutgoingConnectionFactory
 	// connections, so that callbacks from the router can be
 	// received over such connections.
 	//
-	Ice.ObjectPrx proxy = routerInfo.getClientProxy();
 	Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-	Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().getEndpoints();
+	Endpoint[] endpoints = routerInfo.getClientEndpoints();
 	for(int i = 0; i < endpoints.length; i++)
 	{
 	    Endpoint endpoint = endpoints[i];

@@ -659,8 +659,7 @@ public final class ObjectAdapter
                     // Add the router's server proxy endpoints to this object
                     // adapter.
                     //
-                    ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)_routerInfo.getServerProxy();
-                    IceInternal.Endpoint[] endpoints = proxy.__reference().getEndpoints();
+                    IceInternal.Endpoint[] endpoints = _routerInfo.getServerEndpoints();
                     for(int i = 0; i < endpoints.length; ++i)
                     {
                         _routerEndpoints.addElement(endpoints[i]);
