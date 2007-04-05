@@ -19,6 +19,7 @@
 #ifndef ICEE_PURE_CLIENT
 #    include <IceE/ObjectAdapterF.h>
 #endif
+#include <IceE/EndpointF.h>
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
 
@@ -61,10 +62,8 @@ public:
     bool operator<(const RouterInfo&) const;
 
     Ice::RouterPrx getRouter() const;
-    Ice::ObjectPrx getClientProxy();
-    void setClientProxy(const Ice::ObjectPrx&);
-    Ice::ObjectPrx getServerProxy();
-    void setServerProxy(const Ice::ObjectPrx&);
+    std::vector<IceInternal::EndpointPtr> getClientEndpoints();
+    std::vector<IceInternal::EndpointPtr> getServerEndpoints();
     void addProxy(const Ice::ObjectPrx&);
 #ifndef ICEE_PURE_CLIENT
     void setAdapter(const Ice::ObjectAdapterPtr&);
@@ -74,8 +73,8 @@ public:
 private:
 
     const Ice::RouterPrx _router;
-    Ice::ObjectPrx _clientProxy;
-    Ice::ObjectPrx _serverProxy;
+    std::vector<IceInternal::EndpointPtr> _clientEndpoints;
+    std::vector<IceInternal::EndpointPtr> _serverEndpoints;
 #ifndef ICEE_PURE_CLIENT
     Ice::ObjectAdapterPtr _adapter;
 #endif

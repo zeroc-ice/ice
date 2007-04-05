@@ -13,6 +13,7 @@
 
 #include <IceE/RouterInfo.h>
 #include <IceE/Router.h>
+#include <IceE/Reference.h>
 #include <IceE/LocalException.h>
 #include <IceE/Connection.h> // For ice_getConnection()->timeout().
 #include <IceE/Functional.h>
@@ -121,8 +122,8 @@ IceInternal::RouterInfo::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    _clientProxy = 0;
-    _serverProxy = 0;
+    _clientEndpoints.clear();
+    _serverEndpoints.clear();
 #ifndef ICEE_PURE_CLIENT
     _adapter = 0;
 #endif
@@ -156,71 +157,58 @@ IceInternal::RouterInfo::getRouter() const
     return _router;
 }
 
-ObjectPrx
-IceInternal::RouterInfo::getClientProxy()
+vector<EndpointPtr>
+IceInternal::RouterInfo::getClientEndpoints()
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if(!_clientProxy) // Lazy initialization.
+    if(_clientEndpoints.size() == 0) // Lazy initialization.
     {
-	_clientProxy = _router->getClientProxy();
-	if(!_clientProxy)
+	ObjectPrx clientProxy = _router->getClientProxy();
+	if(!clientProxy)
+	{
+            //
+            // If getClientProxy() return nil, use router endpoints.
+            //
+            _clientEndpoints = _router->__reference()->getEndpoints();
+	}
+        else
+        {
+	    clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
+
+	    //
+	    // In order to avoid creating a new connection to the router,
+	    // we must use the same timeout as the already existing
+	    // connection.
+	    //
+	    clientProxy = clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
+
+            _clientEndpoints = clientProxy->__reference()->getEndpoints();
+        }
+    }
+
+    return _clientEndpoints;
+}
+
+vector<EndpointPtr>
+IceInternal::RouterInfo::getServerEndpoints()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    if(_serverEndpoints.size() == 0) // Lazy initialization.
+    {
+	ObjectPrx serverProxy = _router->getServerProxy();
+	if(!serverProxy)
 	{
 	    throw NoEndpointException(__FILE__, __LINE__);
 	}
 
-	_clientProxy = _clientProxy->ice_router(0); // The client proxy cannot be routed.
+	serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
 
-	//
-	// In order to avoid creating a new connection to the router,
-	// we must use the same timeout as the already existing
-	// connection.
-	//
-	_clientProxy = _clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
-    }
-
-    return _clientProxy;
-}
-
-void
-IceInternal::RouterInfo::setClientProxy(const ObjectPrx& clientProxy)
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    _clientProxy = clientProxy->ice_router(0); // The client proxy cannot be routed.
-
-    //
-    // In order to avoid creating a new connection to the router, we
-    // must use the same timeout as the already existing connection.
-    //
-    _clientProxy = _clientProxy->ice_timeout(_router->ice_getConnection()->timeout());
-}
-
-ObjectPrx
-IceInternal::RouterInfo::getServerProxy()
-{
-    IceUtil::Mutex::Lock sync(*this);
-    
-    if(!_serverProxy) // Lazy initialization.
-    {
-	_serverProxy = _router->getServerProxy();
-	if(!_serverProxy)
-	{
-	    throw NoEndpointException(__FILE__, __LINE__);
-	}
-
-	_serverProxy = _serverProxy->ice_router(0); // The server proxy cannot be routed.
+        _serverEndpoints = serverProxy->__reference()->getEndpoints();
     }
     
-    return _serverProxy;
-}
-
-void
-IceInternal::RouterInfo::setServerProxy(const ObjectPrx& serverProxy)
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    _serverProxy = serverProxy->ice_router(0); // The server proxy cannot be routed.
+    return _serverEndpoints;
 }
 
 void

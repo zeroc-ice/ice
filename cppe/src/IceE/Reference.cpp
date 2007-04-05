@@ -625,8 +625,7 @@ IceInternal::RoutableReference::getRoutedEndpoints() const
 	// If we route, we send everything to the router's client
 	// proxy endpoints.
 	//
-	ObjectPrx clientProxy = _routerInfo->getClientProxy();
-	return clientProxy->__reference()->getEndpoints();
+	return _routerInfo->getClientEndpoints();
     }
     return vector<EndpointPtr>();
 }
