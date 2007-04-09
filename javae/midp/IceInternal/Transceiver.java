@@ -164,7 +164,7 @@ final public class Transceiver
     {
         if(_traceLevels.network >= 1)
         {
-            String s = "closing tcp connection\n" + toString();
+            String s = "closing tcp connection " + toString();
             _logger.trace(_traceLevels.networkCat, s);
         }
 
@@ -211,7 +211,7 @@ final public class Transceiver
     {
 	if(_traceLevels.network >= 2)
 	{
-	    String s = "shutting down tcp connection for reading and writing\n" + toString();
+	    String s = "shutting down tcp connection for reading and writing " + toString();
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
@@ -304,7 +304,7 @@ final public class Transceiver
 
 		if(_traceLevels.network >= 3)
 		{
-		    String s = "sent " + rem + " of " + buf.limit() + " bytes via tcp\n" + toString();
+		    String s = "sent " + rem + " of " + buf.limit() + " bytes via tcp " + toString();
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
 	    }
@@ -389,7 +389,7 @@ final public class Transceiver
 		{
 		    if(_traceLevels.network >= 3)
 		    {
-			String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
+			String s = "received " + ret + " of " + remaining + " bytes via tcp " + toString();
 			_logger.trace(_traceLevels.networkCat, s);
 		    }
 		    buf.position(pos + ret);

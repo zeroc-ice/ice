@@ -12,7 +12,7 @@ public class ClientMIDlet extends ClientBase
     public void
     updateProperties(Ice.Properties properties)
     {
-        String ref = "test:default -h " + _addr.getString() + " -p " + _port.getString() + " -t " + _timeout.getString();
-        properties.setProperty("Test.Proxy", ref);
+        properties.setProperty("Test.Proxy", 
+                "test:default -h " + _addr.getString() + " -p " + _port.getString() + " -t " + _timeout.getString());
     }
 }

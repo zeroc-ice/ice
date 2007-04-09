@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public final class DummyLogger extends Ice.LocalObjectImpl implements Ice.Logger
+public final class DummyLogger implements Ice.Logger
 {
     public void
     print(String message)

@@ -37,7 +37,6 @@ public class AllTests
         test(obj != null);
         test(obj.equals(base));
         out.println("ok");
-
         {
             out.print("creating/destroying/recreating object adapter... ");
             out.flush();
@@ -52,9 +51,19 @@ public class AllTests
             {
             }
             adapter.destroy();
-            adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+
+            adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9998");
             adapter.destroy();
             out.println("ok");
+
+            //
+            // Resources on J2ME devices aren't always release in a very
+            // timely manner.  We explicitly call for a garbage collection
+            // with the hope that the KVM will serially release all actual
+            // resources before continuing with the test to prevent false
+            // negatives. This seems to work on the Nokia 6230i.
+            //
+            System.gc();
         }
 
         out.print("creating/activating/deactivating object adapter in one operation... ");

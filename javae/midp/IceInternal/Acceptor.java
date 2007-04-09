@@ -82,7 +82,7 @@ class Acceptor
 
 	if(_traceLevels.network >= 1)
 	{
-	    String s = "accepted tcp connection\n" + Network.toString(incoming);
+	    String s = "accepted tcp connection " + Network.toString(incoming);
 	    _logger.trace(_traceLevels.networkCat, s);
 	}
 
@@ -101,7 +101,7 @@ class Acceptor
 	    }
 	    catch(java.io.IOException ex)
 	    {
-		ip = "127.0.0.1";
+		ip = "127.0.0.1"; 
 	    }
 	}
 
