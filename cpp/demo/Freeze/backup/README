@@ -82,7 +82,7 @@ only need to do the following:
 
     Or on Windows:
 
-    > rename db db.old
+    > move db db.old
 
  3. Move or copy the hotbackup directory to db:
 
@@ -90,7 +90,7 @@ only need to do the following:
 
     Or on Windows:
 
-    > xcopy /s /I hotbackup db
+    > xcopy /s hotbackup db\
 
 If you have recent uncorrupted log files in your original db
 directory, you can also copy these log files over your restored log
@@ -103,7 +103,7 @@ With the example above:
 
 Or on Windows:
 
-  > xcopy db.old/logs/log.* db/logs
+  > xcopy /y db.old\logs\log.* db\logs
   > db_recover -c -h db
 
 Finally, restart the client.

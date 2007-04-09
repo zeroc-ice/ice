@@ -32,9 +32,9 @@ case $1 in
                  fi
                  \mv hotbackup hotbackup.1
              fi
-             mkdir -p hotbackup/logs
+           
              echo "====== Retrieve list of old logs ======"
-             oldLogs=`db_archive -h db`
+             oldLogs=`${db}_archive -h db`
              
              echo "====== Run ${db}_hotbackup ======"
              ${db}_hotbackup -b hotbackup -v -D -h db
@@ -44,8 +44,8 @@ case $1 in
              echo "===== Remove old logs ====="
              for i in $oldLogs
              do
-              \rm db/logs/$i
-              echo "db/logs/$i deleted"
+                \rm db/logs/$i
+                echo "db/logs/$i deleted"
              done
           fi
           
@@ -68,6 +68,6 @@ case $1 in
           fi          
 
           ;;
-  *) echo "Usage: $0 [full | incremental]"
+  *) echo "Usage: $0 {full|incremental}"
      exit 1 ;;
 esac
