@@ -30,9 +30,9 @@
     <target name="compile" depends="generate">
         <mkdir dir="${class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
-	    target="1.1"/>
+	    source="1.2" target="1.1"/>
         <javac srcdir="." destdir="${class.dir}" classpath="${jdk.lib.dir}/IceE.jar" 
-	    debug="${debug}" target="1.1">
+	    debug="${debug}" source="1.2" target="1.1">
             <exclude name="generated/**" />
             <exclude name="*MIDlet*" />
         </javac>
@@ -41,10 +41,10 @@
     <target name="midp-compile" depends="generate" if="midp">
         <mkdir dir="${midp.class.dir}"/>
         <javac srcdir="${generated.dir}" destdir="${midp.class.dir}" classpath="${midp.lib.dir}" debug="${debug}"
-	    target="1.1"/>
+	    source="1.2" target="1.1"/>
         <javac srcdir="." destdir="${midp.class.dir}" classpath="${midp.lib.dir}" excludes="generated/**"
             classpathref="midp.classpath" bootclasspathref="midp.bootclasspath" 
-	    debug="${debug}" target="1.1">
+	    debug="${debug}" source="1.2" target="1.1">
             <src path="." />
             <src path="../common" />
             <exclude name="**/CollocatedBase.java" />

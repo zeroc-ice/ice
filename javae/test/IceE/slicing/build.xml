@@ -57,17 +57,17 @@
     <target name="compile" depends="generate">
         <mkdir dir="${cclass.dir}"/>
         <javac srcdir="${cgen.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
-	    target="1.1"/>
+	    source="1.2" target="1.1"/>
         <javac srcdir="${csrc.dir}" destdir="${cclass.dir}" classpath="${jdk.lib.dir}/IceE.jar"
-            debug="${debug}" target="1.1">
+            debug="${debug}" source="1.2" target="1.1">
             <exclude name="${cgen.dir}/**" />
             <exclude name="**/*MIDlet*" />
         </javac>
         <mkdir dir="${sclass.dir}"/>
         <javac srcdir="${sgen.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}/IceE.jar" debug="${debug}"
-	    target="1.1"/>
+	    source="1.2" target="1.1"/>
         <javac srcdir="${ssrc.dir}" destdir="${sclass.dir}" classpath="${jdk.lib.dir}/IceE.jar"
-            debug="${debug}" target="1.1">
+            debug="${debug}" source="1.2" target="1.1">
             <exclude name="${sgen.dir}/**" />
             <exclude name="**/*MIDlet*" />
         </javac>
@@ -76,10 +76,10 @@
     <target name="midp-compile" depends="generate" if="midp">
         <mkdir dir="${midp.cclass.dir}"/>
         <javac srcdir="${cgen.dir}" destdir="${midp.cclass.dir}" classpath="${midp.lib.dir}" debug="${debug}"
-	    target="1.1"/>
+	    source="1.2" target="1.1"/>
         <javac srcdir="${csrc.dir}" destdir="${midp.cclass.dir}" classpath="${midp.lib.dir}" excludes="${cgen.dir}/**"
             classpathref="midp.classpath" bootclasspathref="midp.bootclasspath" 
-            debug="${debug}" target="1.1">
+            debug="${debug}" source="1.2" target="1.1">
             <src path="${csrc.dir}" />
             <src path="../common" />
             <exclude name="**/ServerBase.java" />
@@ -87,10 +87,10 @@
         </javac>
         <mkdir dir="${midp.sclass.dir}"/>
         <javac srcdir="${sgen.dir}" destdir="${midp.sclass.dir}" classpath="${midp.lib.dir}" debug="${debug}"
-            target="1.1"/>
+            source="1.2" target="1.1"/>
         <javac destdir="${midp.sclass.dir}" classpath="${midp.lib.dir}" excludes="${sgen.dir}/**"
             classpathref="midp.classpath" bootclasspathref="midp.bootclasspath" 
-            debug="${debug}" target="1.1">
+            debug="${debug}" source="1.2" target="1.1">
             <src path="${ssrc.dir}" />
             <src path="../common" />
             <exclude name="**/ClientBase.java" />
