@@ -23,7 +23,7 @@
 # Set Test.Host to the hostname or IP address for the server host.
 #
 Test.Host=127.0.0.1
-Test.FirstPort=12010
-Test.ServerCount= 13
+Test.FirstPort=12340
+Test.ServerCount= 12
 
 Ice.ServerIdleTime = 120
