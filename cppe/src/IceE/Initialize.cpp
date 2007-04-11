@@ -120,7 +120,7 @@ CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
     int origArgc;
-    char** argv;
+    char** argv = 0;
 
     CommunicatorPtr communicator;
     try

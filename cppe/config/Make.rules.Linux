@@ -33,6 +33,9 @@ ifeq ($(CXX),g++)
    CXX			= c++
 endif
 
+ifeq ($(AR),)
+   AR			= ar
+endif
 
 ifeq ($(MACHINE),x86_64)
    #
@@ -43,99 +46,69 @@ ifeq ($(MACHINE),x86_64)
    endif
 endif
 
-
-ifeq ($(CXX),c++)
-
-   ifeq ($(MACHINE),sparc64)
-      #
-      # We are an ultra, at least, and so have the atomic instructions
-      #
-      USE_SPARC_ASM	= yes
-      CXXARCHFLAGS	= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
-   endif
-
-   ifeq ($(MACHINE),sparc)
-      #
-      # We are a sun4m or sun4c
-      # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
-      # prevents us from using '-mcpu=v8'.
-      #
-      USE_SPARC_ASM	= no
-      CXXARCHFLAGS	= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
-   endif
-
-   ifeq ($(MACHINE),x86_64)
-      ifeq ($(LP64),yes)
-         CXXARCHFLAGS	= -m64
-      else
-         CXXARCHFLAGS	= -m32
-      endif
-      lp64suffix	= 64
-   endif
-
-   CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
-
-   ifeq ($(STATICLIBS),)
-      CXXFLAGS		+= -fPIC
-   endif
-
-   ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		+= $(OPT_FLAGS) -DNDEBUG
-   else
-      CXXFLAGS		+= -g
-   endif
-
-   ifeq ($(USE_SPARC_ASM),yes)
-      CFLAGS		= $(OPT_FLAGS) -mcpu=ultrasparc -pipe -DNDEBUG -DUSE_SPARC_ASM
-      ifeq ($(STATICLIBS),)
-         CFLAGS		+= -fPIC
-      endif
-   endif
-
-   ifeq ($(USE_SPARC_ASM),no)
-      CFLAGS		= $(OPT_FLAGS) -mcpu=v8 -pipe -DNDEBUG -DICE_USE_MUTEX_SHARED
-      ifeq ($(STATICLIBS),)
-         CFLAGS		+= -fPIC
-      endif
-   endif
-
+ifeq ($(MACHINE),sparc64)
    #
-   # C++ run-time libraries, necessary for linking some shared libraries.
+   # We are an ultra, at least, and so have the atomic instructions
    #
-   CXXLIBS		=
-
-   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
-
-   mklib		= ar cr $(1) $(2)
-
-   LDPLATFORMFLAGS 	= -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
-
+   USE_SPARC_ASM	= yes
+   CXXARCHFLAGS	= -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
 endif
 
-ifeq ($(CXX),icpc)
-
-   CXXFLAGS		= -D_REENTRANT    
-
-   ifeq ($(STATICLIBS),)
-      CXXFLAGS		+= -fPIC
-   endif
-
-   ifeq ($(OPTIMIZE),yes)
-      CXXFLAGS		+= $(OPT_FLAGS) -DNDEBUG
-   else
-      CXXFLAGS		+= -g
-   endif
-
+ifeq ($(MACHINE),sparc)
    #
-   # C++ run-time libraries, necessary for linking some shared libraries.
+   # We are a sun4m or sun4c
+   # On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+   # prevents us from using '-mcpu=v8'.
    #
-   CXXLIBS		=
-
-   mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
-
-   mklib		= ar cr $(1) $(2)
-
+   USE_SPARC_ASM	= no
+   CXXARCHFLAGS	= -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
 endif
+
+ifeq ($(MACHINE),x86_64)
+   ifeq ($(LP64),yes)
+      CXXARCHFLAGS	= -m64
+   else
+      CXXARCHFLAGS	= -m32
+   endif
+   lp64suffix	= 64
+endif
+
+CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
+
+ifeq ($(STATICLIBS),)
+   CXXFLAGS		+= -fPIC
+endif
+
+ifeq ($(OPTIMIZE),yes)
+   CXXFLAGS		+= $(OPT_FLAGS) -DNDEBUG
+else
+   CXXFLAGS		+= -g
+endif
+
+ifeq ($(USE_SPARC_ASM),yes)
+   CFLAGS		= $(OPT_FLAGS) -mcpu=ultrasparc -pipe -DNDEBUG -DUSE_SPARC_ASM
+   ifeq ($(STATICLIBS),)
+      CFLAGS		+= -fPIC
+   endif
+endif
+
+ifeq ($(USE_SPARC_ASM),no)
+   CFLAGS		= $(OPT_FLAGS) -mcpu=v8 -pipe -DNDEBUG -DICE_USE_MUTEX_SHARED
+   ifeq ($(STATICLIBS),)
+      CFLAGS		+= -fPIC
+   endif
+endif
+
+#
+# C++ run-time libraries, necessary for linking some shared libraries.
+#
+CXXLIBS		=
+
+mkshlib		= $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
+
+mklib		= $(AR) cr $(1) $(2)
+
+LDPLATFORMFLAGS 	= -Wl,--enable-new-dtags -Wl,-rpath,$(install_libdir)
 
 BASELIBS		= $(STLPORT_LIBS) -lpthread 
 LIBS			= -lIceE $(BASELIBS)

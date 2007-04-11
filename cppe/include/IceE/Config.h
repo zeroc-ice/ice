@@ -88,7 +88,7 @@
 // of Itanium (IA64) and MIPS.
 //
 #if defined(__i386)  || defined(_M_IX86)    || defined (__x86_64) || \
-    defined (_M_ARM) || defined(__MIPSEL__)
+    defined (_M_ARM) || defined(__MIPSEL__) || defined (__ARMEL__)
 #   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc) || defined(__sparc__) || defined(__hppa) || \
       defined(__ppc__) || defined(_ARCH_COM) || defined(__MIPSEB__)

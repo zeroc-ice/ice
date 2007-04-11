@@ -14,8 +14,6 @@
 
 #if defined(_WIN32)
 #  include <winsock2.h>
-#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
-#  include <ifaddrs.h>
 #else
 #  include <sys/ioctl.h>
 #  include <net/if.h>
@@ -946,31 +944,6 @@ IceInternal::getLocalHosts()
     {
         result.push_back(inetAddrToString(addrs[i].sin_addr));
     }
-#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
-    struct ifaddrs* ifap;
-    if(::getifaddrs(&ifap) == SOCKET_ERROR)
-    {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
-    }
-
-    struct ifaddrs* curr = ifap;
-    while(curr != 0)
-    {
-        if(curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET)
-        {
-            struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(curr->ifa_addr);
-            if(addr->sin_addr.s_addr != 0)
-            {
-                result.push_back(inetAddrToString((*addr).sin_addr));
-            }
-        }
-
-        curr = curr->ifa_next;
-    }
-
-    ::freeifaddrs(ifap);
 #else
     SOCKET fd = createSocket();
 
