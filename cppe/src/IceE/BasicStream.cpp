@@ -1073,7 +1073,7 @@ IceInternal::BasicStream::write(Double v)
     *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
-#  if defined(_ARM_) && defined(__linux)
+#  if defined(__arm__) && defined(__linux)
     dest[4] = *src++;
     dest[5] = *src++;
     dest[6] = *src++;
@@ -1116,7 +1116,7 @@ IceInternal::BasicStream::read(Double& v)
     *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
-#  if defined(_ARM_) && defined(__linux)
+#  if defined(__arm__) && defined(__linux)
     dest[4] = *src++;
     dest[5] = *src++;
     dest[6] = *src++;
@@ -1162,7 +1162,7 @@ IceInternal::BasicStream::write(const Double* begin, const Double* end)
 	    *dest++ = *src--;
 	    src += 2 * sizeof(Double);
 	}
-#elif defined(_ARM_) && defined(__linux)
+#elif defined(__arm__) && defined(__linux)
 	const Byte* src = reinterpret_cast<const Byte*>(begin);
 	Byte* dest = &(*(b.begin() + pos));
 	for(int j = 0 ; j < sz ; ++j)
@@ -1209,7 +1209,7 @@ IceInternal::BasicStream::read(vector<Double>& v)
 	    *dest-- = *src++;
 	    dest += 2 * sizeof(Double);
 	}
-#elif defined(_ARM_) && defined(__linux)
+#elif defined(__arm__) && defined(__linux)
 	const Byte* src = &(*begin);
 	Byte* dest = reinterpret_cast<Byte*>(&v[0]);
 	for(int j = 0 ; j < sz ; ++j)
