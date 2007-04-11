@@ -63,6 +63,8 @@ cleandb:
 	del /q db\log.* db\__catalog db\items
 
 clean:: cleandb
+	del /q Item.h Item.cpp
+	del /q ItemInfo.h ItemInfo.cpp
 	del /q Database.h Database.cpp
 
 include .depend
