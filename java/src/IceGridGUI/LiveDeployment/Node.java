@@ -381,10 +381,23 @@ class Node extends ListTreeNode
             for(int i = 0; i < update.removeServers.length; ++i)
             {
                 Server server = findServer(update.removeServers[i]);
-                removeDescriptor(nodeDesc, server);
-                int index = getIndex(server); 
-                _children.remove(server);
-                getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{server});
+                if(server == null)
+                {
+                    //
+                    // This should never happen
+                    //
+                    String errorMsg = "LiveDeployment/Node: unable to remove server '" + update.removeServers[i] 
+                        + "'; please report this bug."; 
+
+                    getCoordinator().getCommunicator().getLogger().error(errorMsg);
+                }
+                else
+                {
+                    removeDescriptor(nodeDesc, server);
+                    int index = getIndex(server); 
+                    _children.remove(server);
+                    getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{server});
+                }
             }
 
             //
