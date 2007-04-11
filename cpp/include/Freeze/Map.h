@@ -614,7 +614,7 @@ private:
     mutable bool _refValid;
 };
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
 //
 // Without partial template specialization
 //
@@ -649,7 +649,7 @@ class KeyCompare : public KeyCompareBase
 public:
     KeyCompare(const Compare& compare, 
                const Ice::CommunicatorPtr& communicator) :
-#if defined(_MSC_VER) && (_MSC_VER <= 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
         KeyCompareBase(enableKeyCompare(compare)),
 #else
         KeyCompareBase(true),
@@ -696,7 +696,7 @@ public:
         KeyCompareBase(false)
     {}
 
-    virtual int compare(const Key& dbKey1, const Key& dbKey2)
+    virtual int compare(const Key&, const Key&)
     {
         assert(0);
         return 0;
@@ -735,7 +735,7 @@ public:
 
 protected:
     MapIndex(const std::string& name, const Compare& compare) :
-#if defined(_MSC_VER) && (_MSC_VER <= 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
         MapIndexBase(name, enableKeyCompare(compare)),
 #else
         MapIndexBase(name, true),
@@ -756,7 +756,7 @@ template<typename key_type, typename KeyCodec>
 class MapIndex<key_type, KeyCodec, IceEncodingCompare> : public MapIndexBase
 {
 public:
-    virtual int compare(const Key& dbKey1, const Key& dbKey2)
+    virtual int compare(const Key&, const Key&)
     {
         assert(0);
         return 0;
