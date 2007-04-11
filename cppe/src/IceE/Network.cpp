@@ -14,6 +14,8 @@
 
 #if defined(_WIN32)
 #  include <winsock2.h>
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+#  include <ifaddrs.h>
 #else
 #  include <sys/ioctl.h>
 #  include <net/if.h>
@@ -342,7 +344,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
     }
 }
 
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 void
 IceInternal::setTimeout(SOCKET fd, bool recv, int timeout)
 {
@@ -547,30 +549,11 @@ repeatConnect:
 	    assert(nevents.lNetworkEvents & FD_CONNECT);
 	    val = nevents.iErrorCode[FD_CONNECT_BIT];
 #else
-	repeatSelect:
-
-	    int ret;
-	    fd_set wFdSet;
-	    FD_ZERO(&wFdSet);
-	    FD_SET(fd, &wFdSet);
-	    //
-	    // Note that although we use a different mechanism for
-	    // WIN32, winsock notifies about connection failures
-	    // through the exception filedescriptors
-	    //
-	    if(timeout >= 0)
-	    {
-		struct timeval tv;
-		tv.tv_sec = timeout / 1000;
-		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
-	    }
-	    else
-	    {
-
-		ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
-	    }
-	    
+        repeatPoll:
+            struct pollfd pollFd[1];
+            pollFd[0].fd = fd;
+            pollFd[0].events = POLLOUT;
+            int ret = ::poll(pollFd, 1, timeout);
 	    if(ret == 0)
 	    {
 		closeSocketNoThrow(fd);
@@ -580,7 +563,7 @@ repeatConnect:
 	    {
 		if(interrupted())
 		{
-		    goto repeatSelect;
+		    goto repeatPoll;
 		}
 		
 		SocketException ex(__FILE__, __LINE__);
@@ -588,12 +571,12 @@ repeatConnect:
 		throw ex;
 	    }
 	    
-	    //
-	    // Strange windows bug: The following call to Sleep() is
-	    // necessary, otherwise no error is reported through
-	    // getsockopt.
-	    //
-	    //Sleep(0);
+            //
+            // Strange windows bug: The following call to Sleep() is
+            // necessary, otherwise no error is reported through
+            // getsockopt.
+            //
+            //Sleep(0);
 	    socklen_t len = static_cast<socklen_t>(sizeof(int));
 	    if(getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
 	    {
@@ -944,6 +927,31 @@ IceInternal::getLocalHosts()
     {
         result.push_back(inetAddrToString(addrs[i].sin_addr));
     }
+#elif defined(__APPLE__) || defined(__FreeBSD__)
+    struct ifaddrs* ifap;
+    if(::getifaddrs(&ifap) == SOCKET_ERROR)
+    {
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+
+    struct ifaddrs* curr = ifap;
+    while(curr != 0)
+    {
+        if(curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET)
+        {
+            struct sockaddr_in* addr = reinterpret_cast<struct sockaddr_in*>(curr->ifa_addr);
+            if(addr->sin_addr.s_addr != 0)
+            {
+                result.push_back(inetAddrToString((*addr).sin_addr));
+            }
+        }
+
+        curr = curr->ifa_next;
+    }
+
+    ::freeifaddrs(ifap);
 #else
     SOCKET fd = createSocket();
 
@@ -967,10 +975,10 @@ IceInternal::getLocalHosts()
         int bufsize = numaddrs * sizeof(struct ifreq);
         ifc.ifc_len = bufsize;
         ifc.ifc_buf = (char*)malloc(bufsize);
-
         int rs = ioctl(fd, cmd, &ifc);
         if(rs == SOCKET_ERROR)
         {
+            free(ifc.ifc_buf);
             closeSocketNoThrow(fd);
             SocketException ex(__FILE__, __LINE__);
             ex.error = getSocketErrno();

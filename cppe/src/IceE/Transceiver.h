@@ -63,7 +63,7 @@ private:
     friend class Connector;
     friend class Acceptor;
 
-#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     void doSelect(bool, int);
 #endif
 
@@ -74,7 +74,7 @@ private:
     int _readTimeout;
     int _writeTimeout;
 
-#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 #ifdef _WIN32
     WSAEVENT _event;
     WSAEVENT _readEvent;

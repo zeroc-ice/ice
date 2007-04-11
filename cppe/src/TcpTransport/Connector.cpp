@@ -33,7 +33,7 @@ Connector::connect(int timeout)
     SOCKET fd = createSocket();
     setBlock(fd, false);
     doConnect(fd, _addr, timeout);
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     setBlock(fd, true);
 #endif
 

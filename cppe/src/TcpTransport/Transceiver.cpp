@@ -26,12 +26,12 @@ void
 IceInternal::Transceiver::setTimeouts(int readTimeout, int writeTimeout)
 {
     _readTimeout = readTimeout;
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS    
     setTimeout(_fd, true, _readTimeout);
 #endif
 
     _writeTimeout = writeTimeout;
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS    
     setTimeout(_fd, false, _writeTimeout);
 #endif
 }
@@ -52,7 +52,7 @@ IceInternal::Transceiver::close()
 	out << "closing tcp connection\n" << toString();
     }
 
-#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 #ifdef _WIN32
     assert(_event != 0);
     WSACloseEvent(_event);
@@ -119,7 +119,7 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
     }
 #endif
 
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     if(timeout > 0 && timeout != _writeTimeout)
     {
 	setTimeout(_fd, false, timeout);
@@ -154,7 +154,7 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 		    goto repeatSend;
 		}
 	    
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 		if(timedout())
 		{
 		    throw TimeoutException(__FILE__, __LINE__);
@@ -194,7 +194,7 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
 		packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 	    }
 	}
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     }
     catch(const Ice::LocalException&)
     {
@@ -234,7 +234,7 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
     Buffer::Container::difference_type packetSize = 
 	static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS    
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS    
     if(timeout > 0 && timeout != _readTimeout)
     {
 	setTimeout(_fd, true, timeout);
@@ -279,7 +279,7 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
 		    goto repeatRead;
 		}
 		
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 		if(timedout())
 		{
 		    throw TimeoutException(__FILE__, __LINE__);
@@ -327,7 +327,7 @@ IceInternal::Transceiver::readWithTimeout(Buffer& buf, int timeout)
 		packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 	    }
 	}
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     }
     catch(const Ice::LocalException&)
     {
@@ -382,7 +382,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     , _isPeerLocal(isPeerLocal(fd))
 #endif
 {
-#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 #ifdef _WIN32
     _event = WSACreateEvent();
     _readEvent = WSACreateEvent();
@@ -435,7 +435,7 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
 IceInternal::Transceiver::~Transceiver()
 {
     assert(_fd == INVALID_SOCKET);
-#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 #ifdef _WIN32
     assert(_event == 0);
     assert(_readEvent == 0);
@@ -444,7 +444,7 @@ IceInternal::Transceiver::~Transceiver()
 #endif
 }
 
-#ifdef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 void
 IceInternal::Transceiver::doSelect(bool read, int timeout)
 {
@@ -574,18 +574,10 @@ IceInternal::Transceiver::doSelect(bool read, int timeout)
 	    FD_SET(_fd, &_wFdSet);
 	}
 	    
-	if(timeout >= 0)
-	{
-	    struct timeval tv;
-	    tv.tv_sec = timeout / 1000;
-	    tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-	    rs = ::select(_fd + 1, read ? &_rFdSet : 0, read ? 0 : &_wFdSet, 0, &tv);
-	}
-	else
-	{
-	    rs = ::select(_fd + 1, read ? &_rFdSet : 0, read ? 0 : &_wFdSet, 0, 0);
-	}
-	    
+        struct pollfd pollFd[1];
+        pollFd[0].fd = _fd;
+        pollFd[0].events = read ? POLLIN : POLLOUT;
+        rs = ::poll(pollFd, 1, timeout);
 	if(rs == SOCKET_ERROR)
 	{
 	    if(interrupted())

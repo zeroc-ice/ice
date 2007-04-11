@@ -27,7 +27,7 @@ typedef int ssize_t;
 #   if defined(__hpux)
 #      include <sys/time.h>
 #   else   
-#      include <sys/select.h>
+#      include <sys/poll.h>
 #   endif
 
 #   include <netinet/in.h>
@@ -86,7 +86,7 @@ void shutdownSocketWrite(SOCKET);
 void shutdownSocketReadWrite(SOCKET);
 
 void setBlock(SOCKET, bool);
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 void setTimeout(SOCKET, bool, int);
 #endif
 void setTcpNoDelay(SOCKET);

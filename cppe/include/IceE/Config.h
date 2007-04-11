@@ -56,18 +56,22 @@
 #endif
 
 //
-// We use select()/WSAEventSelect for timeouts on Windows. This is 
-// necessary because on Windows if a socket times out it can't be
-// safely re-used (and we need the transceiver read() call to 
-// periodically timeout because it can't be unblocked by shutting
-// down the socket.)
+// Use poll()/WSAEventSelect for timeouts. 
+//
+// Using WSAEventSelect for timeouts on Windows is necessary because
+// when a socket times out, it can't be re-used (and we need the
+// transceiver read() call to periodically timeout since it can't be
+// unblocked by shutting down the socket.)
 //
 // Also, on Windows CE, socket timeouts (SO_SNDTIMEO and SO_RCVTIMEO)
-// are not supported so we use select()/WSAEventSelect to implement
+// are not supported so we have to use WSAEventSelect to implement
 // timeouts.
 //
+// This macro can also be defined for non-Windows platforms to use
+// poll() for timeouts rather than using socket timeouts.
+//
 #if defined(_WIN32)
-#   define ICEE_USE_SELECT_FOR_TIMEOUTS
+#   define ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 #endif
 
 //

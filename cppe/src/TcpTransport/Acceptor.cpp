@@ -65,7 +65,7 @@ TransceiverPtr
 IceInternal::Acceptor::accept()
 {
     SOCKET fd = doAccept(_fd);
-#ifndef ICEE_USE_SELECT_FOR_TIMEOUTS
+#ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     setBlock(fd, true);
 #endif
 
