@@ -10,6 +10,7 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/StaticMutex.h>
 #include <ostream>
+#include <cstdlib>
 
 using namespace std;
 
