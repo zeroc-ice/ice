@@ -12,19 +12,21 @@ require 'Ice'
 
 Ice::loadSlice('Value.ice')
 
-module PrinterI_mixin
-    def printBackwards(current=nil)
+#
+# Reopen Demo::Printer (generated 'on the fly' by loadSlice above)
+# and define printBackwards
+#
+class Demo::Printer
+    def printBackwards()
         puts message.reverse
     end
 end
 
-class PrinterI < Demo::Printer
-    include PrinterI_mixin
-end
-
+#
+# We can also use derivation (and register a factory) to implement 
+# local operations
+#
 class DerivedPrinterI < Demo::DerivedPrinter
-    include PrinterI_mixin
-
     def printUppercase(current=nil)
         puts derivedMessage.upcase
     end
@@ -32,23 +34,18 @@ end
 
 class ObjectFactory
     def create(type)
-        if type == "::Demo::Printer"
-            return PrinterI.new
-        end
-
         if type == "::Demo::DerivedPrinter"
             return DerivedPrinterI.new
         end
 
         fail "unknown type"
     end
-
-    def destroy
-        # Nothing to do
-    end
 end
 
-class Client < Ice::Application
+#
+# Redefine a number of methods in Ice::Application
+#
+class Ice::Application
     def interruptCallback(sig)
         begin
             Ice::Application::communicator.destroy
@@ -74,7 +71,7 @@ class Client < Ice::Application
 
         puts "\n"\
              "Let's first transfer a simple object, for a class without\n"\
-             "operations, and print its contents. No factory is required\n"\
+             "operations, and print its contents. No factory is ever required\n"\
              "for this.\n"\
              "[press enter]"
         STDIN.readline
@@ -84,29 +81,10 @@ class Client < Ice::Application
 
         puts "\n"\
              "Yes, this worked. Now let's try to transfer an object for a class\n"\
-             "with operations as type ::Demo::Printer, without installing a factory\n"\
-             "first. This should give us a `no factory' exception.\n"\
+             "with operations as type ::Demo::Printer.\n"\
              "[press enter]"
         STDIN.readline
-
-        begin
-            printer, printerProxy = initial.getPrinter()
-            puts $0 + ": Did not get the expected NoObjectFactoryException!"
-            exit(false)
-        rescue Ice::NoObjectFactoryException => ex
-            puts "==> " + ex
-        end
-
-        puts "\n"\
-             "Yep, that's what we expected. Now let's try again, but with\n"\
-             "installing an appropriate factory first. If successful, we print\n"\
-             "the object's content.\n"\
-             "[press enter]"
-        STDIN.readline
-
-        factory = ObjectFactory.new
-        Ice::Application::communicator().addObjectFactory(factory, "::Demo::Printer")
-
+      
         printer, printerProxy = initial.getPrinter()
         puts "==> " + printer.message
 
@@ -128,25 +106,37 @@ class Client < Ice::Application
         printerProxy.printBackwards()
 
         puts "\n"\
-             "Next, we transfer a derived object from the server as a base\n"\
-             "object. Since we haven't yet installed a factory for the derived\n"\
-             "class, the derived class (::Demo::DerivedPrinter) is sliced\n"\
-             "to its base class (::Demo::Printer).\n"\
+             "Next, we transfer a derived object from the server.\n"\
+             "With Ice for Ruby, installing an object factory is optional,\n"\
+             "and since we compiled the Slice definition for DerivedPrinter, the object\n"\
+             "is not sliced.\n"\
              "[press enter]"
         STDIN.readline
 
-        derivedAsBase = initial.getDerivedPrinter()
-        puts "==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\""
-        fail unless derivedAsBase.ice_id() == "::Demo::Printer"
+        derived = initial.getDerivedPrinter()
+        puts "==> The type ID of the received object is \"" + derived.ice_id() + "\""
+        fail unless derived.ice_id() == "::Demo::DerivedPrinter"
+
+        puts "\n"\
+             "However since we did not implement Demo::DerivedPrinter::printUppercase.\n"\
+             "calling printUppercase on this object does not work.\n"\
+             "[press enter]"
+        STDIN.readline
+
+        begin
+            derived.printUpperCase
+            puts $0 + ": Did not get the expected NoMethodError!"
+            exit(false)
+        rescue NoMethodError => ex
+            puts "==> " + ex
+        end
 
         puts "\n"\
              "Now we install a factory for the derived class, and try again.\n"\
-             "Because we receive the derived object as a base object, we\n"\
-             "we need to do a dynamic_cast<> to get from the base to the derived object.\n"\
              "[press enter]"
         STDIN.readline
 
-        Ice::Application::communicator().addObjectFactory(factory, "::Demo::DerivedPrinter")
+        Ice::Application::communicator().addObjectFactory(ObjectFactory.new, "::Demo::DerivedPrinter")
 
         derived = initial.getDerivedPrinter()
         puts "==> The type ID of the received object is \"" + derived.ice_id() + "\""
@@ -191,5 +181,5 @@ class Client < Ice::Application
     end
 end
 
-app = Client.new
+app = Ice::Application.new
 exit(app.main(ARGV, "config.client"))

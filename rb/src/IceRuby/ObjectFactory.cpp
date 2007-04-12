@@ -57,14 +57,6 @@ IceRuby::ObjectFactory::create(const string& id)
     }
 
     //
-    // If the requested type is an abstract class, then we give up.
-    //
-    if(info->isAbstract)
-    {
-        return 0;
-    }
-
-    //
     // Instantiate the object.
     //
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, reinterpret_cast<VALUE*>(0), info->rubyClass);

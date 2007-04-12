@@ -185,12 +185,7 @@ module Ice
     # Ice::Application.
     #
     class Application
-        def initialize
-            if self.instance_of?(Application):
-                raise RuntimeError, "Ice.Application is an abstract class"
-            end
-        end
-
+        
         def main(args, configFile=nil, initData=nil)
             if @@_communicator
                 print $0 + ": only one instance of the Application class can be used"
@@ -272,10 +267,6 @@ module Ice
             @@_ctrlCHandler = nil
 
             return status
-        end
-
-        def run(args)
-            raise RuntimeError, 'run() not implemented'
         end
 
         def interruptCallback(sig)
