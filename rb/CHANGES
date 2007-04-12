@@ -1,8 +1,20 @@
 Changes since version 3.2.0
 ---------------------------     
 
+- All local methods on a proxy that return the "same" proxy with
+  a different attribute (such as ice_oneway and ice_secure) now return
+  a proxy of the same class as the target. So you can now write:
+    oneway = twoway.ice_oneway()
+  instead of
+    oneway = Demo::HelloPrx::uncheckedCast(twoway.ice_oneway())
+
+  The local methods ice_identity() and ice_facet() still return an 
+  Ice::ObjectPrx, since a different identity or different facet typically
+  refers to an object with a different Slice type.
+
 - Fixed bugs in stringToProxy and propertyToProxy that reported a
   "NullHandleException".
+
 
 Changes since version 3.1.1
 ---------------------------     

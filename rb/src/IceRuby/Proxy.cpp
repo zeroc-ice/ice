@@ -407,7 +407,7 @@ IceRuby_ObjectPrx_ice_context(VALUE self, VALUE ctx)
         {
             throw RubyException(rb_eTypeError, "argument is not a context hash");
         }
-        return createProxy(p->ice_context(context));
+        return createProxy(p->ice_context(context), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -463,7 +463,7 @@ IceRuby_ObjectPrx_ice_adapterId(VALUE self, VALUE id)
     {
         Ice::ObjectPrx p = getProxy(self);
         string idstr = getString(id);
-        return createProxy(p->ice_adapterId(idstr));
+        return createProxy(p->ice_adapterId(idstr), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -523,7 +523,7 @@ IceRuby_ObjectPrx_ice_endpoints(VALUE self, VALUE seq)
                 endpoints.push_back(*e);
             }
         }
-        return createProxy(p->ice_endpoints(endpoints));
+        return createProxy(p->ice_endpoints(endpoints), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -551,7 +551,7 @@ IceRuby_ObjectPrx_ice_locatorCacheTimeout(VALUE self, VALUE timeout)
     {
         Ice::ObjectPrx p = getProxy(self);
         long t = getInteger(timeout);
-        return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)));
+        return createProxy(p->ice_locatorCacheTimeout(static_cast<Ice::Int>(t)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -577,7 +577,7 @@ IceRuby_ObjectPrx_ice_connectionCached(VALUE self, VALUE b)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_connectionCached(RTEST(b)));
+        return createProxy(p->ice_connectionCached(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -627,7 +627,7 @@ IceRuby_ObjectPrx_ice_endpointSelection(VALUE self, VALUE type)
 
         volatile VALUE val = callRuby(rb_funcall, type, rb_intern("to_i"), 0);
         Ice::EndpointSelectionType t = static_cast<Ice::EndpointSelectionType>(getInteger(val));
-        return createProxy(p->ice_endpointSelection(t));
+        return createProxy(p->ice_endpointSelection(t), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -653,7 +653,7 @@ IceRuby_ObjectPrx_ice_secure(VALUE self, VALUE b)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_secure(RTEST(b)));
+        return createProxy(p->ice_secure(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -679,7 +679,7 @@ IceRuby_ObjectPrx_ice_preferSecure(VALUE self, VALUE b)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_preferSecure(RTEST(b)));
+        return createProxy(p->ice_preferSecure(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -722,7 +722,7 @@ IceRuby_ObjectPrx_ice_router(VALUE self, VALUE router)
             }
             proxy = Ice::RouterPrx::uncheckedCast(getProxy(router));
         }
-        return createProxy(p->ice_router(proxy));
+        return createProxy(p->ice_router(proxy), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -765,7 +765,7 @@ IceRuby_ObjectPrx_ice_locator(VALUE self, VALUE locator)
             }
             proxy = Ice::LocatorPrx::uncheckedCast(getProxy(locator));
         }
-        return createProxy(p->ice_locator(proxy));
+        return createProxy(p->ice_locator(proxy), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -778,7 +778,7 @@ IceRuby_ObjectPrx_ice_twoway(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_twoway());
+        return createProxy(p->ice_twoway(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -804,7 +804,7 @@ IceRuby_ObjectPrx_ice_oneway(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_oneway());
+        return createProxy(p->ice_oneway(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -830,7 +830,7 @@ IceRuby_ObjectPrx_ice_batchOneway(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_batchOneway());
+        return createProxy(p->ice_batchOneway(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -856,7 +856,7 @@ IceRuby_ObjectPrx_ice_datagram(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_datagram());
+        return createProxy(p->ice_datagram(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -882,7 +882,7 @@ IceRuby_ObjectPrx_ice_batchDatagram(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_batchDatagram());
+        return createProxy(p->ice_batchDatagram(), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -908,7 +908,7 @@ IceRuby_ObjectPrx_ice_compress(VALUE self, VALUE b)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_compress(RTEST(b)));
+        return createProxy(p->ice_compress(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -922,7 +922,7 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
     {
         Ice::ObjectPrx p = getProxy(self);
         Ice::Int timeout = static_cast<Ice::Int>(getInteger(t));
-        return createProxy(p->ice_timeout(timeout));
+        return createProxy(p->ice_timeout(timeout), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -936,7 +936,7 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
     {
         Ice::ObjectPrx p = getProxy(self);
         string idstr = getString(id);
-        return createProxy(p->ice_connectionId(idstr));
+        return createProxy(p->ice_connectionId(idstr), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -962,7 +962,7 @@ IceRuby_ObjectPrx_ice_threadPerConnection(VALUE self, VALUE b)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return createProxy(p->ice_threadPerConnection(RTEST(b)));
+        return createProxy(p->ice_threadPerConnection(RTEST(b)), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;

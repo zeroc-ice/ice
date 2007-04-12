@@ -55,10 +55,10 @@ class Client < Ice::Application
             return 1
         end
 
-        oneway = Demo::HelloPrx::uncheckedCast(twoway.ice_oneway())
-        batchOneway = Demo::HelloPrx::uncheckedCast(twoway.ice_batchOneway())
-        datagram = Demo::HelloPrx::uncheckedCast(twoway.ice_datagram())
-        batchDatagram = Demo::HelloPrx::uncheckedCast(twoway.ice_batchDatagram())
+        oneway = twoway.ice_oneway()
+        batchOneway = twoway.ice_batchOneway()
+        datagram = twoway.ice_datagram()
+        batchDatagram = twoway.ice_batchDatagram()
 
         secure = false
         timeout = -1
@@ -100,9 +100,9 @@ class Client < Ice::Application
                         timeout = -1
                     end
 
-                    twoway = Demo::HelloPrx::uncheckedCast(twoway.ice_timeout(timeout))
-                    oneway = Demo::HelloPrx::uncheckedCast(oneway.ice_timeout(timeout))
-                    batchOneway = Demo::HelloPrx::uncheckedCast(batchOneway.ice_timeout(timeout))
+                    twoway = twoway.ice_timeout(timeout)
+                    oneway = oneway.ice_timeout(timeout)
+                    batchOneway = batchOneway.ice_timeout(timeout)
 
                     if timeout == -1
                         puts "timeout is now switched off"
@@ -124,11 +124,11 @@ class Client < Ice::Application
                 elsif c == 'S'
                     secure = !secure
 
-                    twoway = Demo::HelloPrx::uncheckedCast(twoway.ice_secure(secure))
-                    oneway = Demo::HelloPrx::uncheckedCast(oneway.ice_secure(secure))
-                    batchOneway = Demo::HelloPrx::uncheckedCast(batchOneway.ice_secure(secure))
-                    datagram = Demo::HelloPrx::uncheckedCast(datagram.ice_secure(secure))
-                    batchDatagram = Demo::HelloPrx::uncheckedCast(batchDatagram.ice_secure(secure))
+                    twoway = twoway.ice_secure(secure)
+                    oneway = oneway.ice_secure(secure)
+                    batchOneway = batchOneway.ice_secure(secure)
+                    datagram = datagram.ice_secure(secure)
+                    batchDatagram = batchDatagram.ice_secure(secure)
 
                     if secure
                         puts "secure mode is now on"
