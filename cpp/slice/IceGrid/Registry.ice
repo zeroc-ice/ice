@@ -117,7 +117,7 @@ interface Registry
      * @see Session::keepAlive
      * @see AdminSession::keepAlive
      *
-     * @return The timeout in milliseconds.
+     * @return The timeout (in seconds).
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getSessionTimeout();
