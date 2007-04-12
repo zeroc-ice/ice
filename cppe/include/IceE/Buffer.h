@@ -11,6 +11,7 @@
 #define ICEE_BUFFER_H
 
 #include <IceE/Config.h>
+#include <cstdlib>
 
 #define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
 #define ICE_BUFFER_FIXED_SIZE 64

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <MyByteSeq.h>
+#include <cstdlib>
 
 MyByteSeq::MyByteSeq()
     : _size(0),
