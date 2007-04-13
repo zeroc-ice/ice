@@ -277,63 +277,6 @@ public:
     }
 };
 
-//
-// Inline comparison functions for proxies
-//
-
-template<typename T, typename U>
-inline bool operator==(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
-{
-    ::IceProxy::Ice::Object* l = upCast(lhs.get());
-    ::IceProxy::Ice::Object* r = upCast(rhs.get());
-    if(l && r)
-    {
-        return *l == *r;
-    }
-    else
-    {
-        return !l && !r;
-    }   
-}
-
-template<typename T, typename U>
-inline bool operator!=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
-{
-    return !operator==(lhs, rhs);
-}
-
-template<typename T, typename U>
-inline bool operator<(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
-{
-    ::IceProxy::Ice::Object* l = upCast(lhs.get());
-    ::IceProxy::Ice::Object* r = upCast(rhs.get());
-    if(l && r)
-    {
-        return *l < *r;
-    }
-    else
-    {
-        return !l && r;
-    }
-}
-
-template<typename T, typename U>
-inline bool operator<=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
-{
-    return lhs < rhs || lhs == rhs;
-}
-
-template<typename T, typename U>
-inline bool operator>(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
-{
-    return !(lhs < rhs || lhs == rhs);
-}
-
-template<typename T, typename U>
-inline bool operator>=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
-{
-    return !(lhs < rhs);
-}
 
 }
 
