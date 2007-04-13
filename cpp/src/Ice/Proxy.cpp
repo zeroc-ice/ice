@@ -30,11 +30,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceUtil::Shared* IceInternal::upCast(::IceProxy::Ice::Object* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(::IceDelegate::Ice::Object* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(::IceDelegateM::Ice::Object* p) { return p; }
-IceUtil::Shared* IceInternal::upCast(::IceDelegateD::Ice::Object* p) { return p; }
-
 ::Ice::ObjectPrx
 IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId, const Context* context)
 {

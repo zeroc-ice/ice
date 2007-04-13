@@ -945,19 +945,19 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     H << sp;
     H << nl << dllExport << "bool operator==(const " << name << "&) const;";
     H << nl << dllExport << "bool operator<(const " << name << "&) const;";
-    H << nl << dllExport << "bool operator!=(const " << name << "& __rhs) const";
+    H << nl << "bool operator!=(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return !operator==(__rhs);";
     H << eb;
-    H << nl << dllExport << "bool operator<=(const " << name << "& __rhs) const";
+    H << nl << "bool operator<=(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return operator<(__rhs) || operator==(__rhs);";
     H << eb;
-    H << nl << dllExport << "bool operator>(const " << name << "& __rhs) const";
+    H << nl << "bool operator>(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return !operator<(__rhs) && !operator==(__rhs);";
     H << eb;
-    H << nl << dllExport << "bool operator>=(const " << name << "& __rhs) const";
+    H << nl << "bool operator>=(const " << name << "& __rhs) const";
     H << sb;
     H << nl << "return !operator<(__rhs);";
     H << eb;
@@ -1673,8 +1673,6 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
 
     H << sp << nl << "class " << name << ';';
-    H << nl << _dllExport << "bool operator==(const " << name << "&, const " << name << "&);";
-    H << nl << _dllExport << "bool operator<(const " << name << "&, const " << name << "&);";
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport) :
@@ -1740,7 +1738,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     ClassList bases = p->bases();
 
-    H << sp << nl << "class " << _dllExport << name << " : ";
+    H << sp << nl << "class " << name << " : ";
     if(bases.empty())
     {
         H << "virtual public ::IceProxy::Ice::Object";
@@ -1774,13 +1772,13 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     string scoped = fixKwd(p->scoped());
     string scope = fixKwd(p->scope());
     
-    H << nl << nl << "static const ::std::string& ice_staticId();";
+    H << nl << nl << _dllExport << "static const ::std::string& ice_staticId();";
     
     H.dec();
     H << sp << nl << "private: ";
     H.inc();
-    H << sp << nl << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
-    H << nl << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
+    H << sp << nl << _dllExport << "virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();";
+    H << nl <<  _dllExport << "virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();";
     H << eb << ';';
 
     C << sp;
@@ -1798,21 +1796,6 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "IceProxy" << scoped << "::__createDelegateD()";
     C << sb;
     C << nl << "return ::IceInternal::Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD" << scoped << ");";
-    C << eb;
-
-    C << sp;
-    C << nl << "bool" << nl << "IceProxy" << scope << "operator==(const ::IceProxy" << scoped
-      << "& l, const ::IceProxy" << scoped << "& r)";
-    C << sb;
-    C << nl << "return static_cast<const ::IceProxy::Ice::Object&>(l) == "
-      << "static_cast<const ::IceProxy::Ice::Object&>(r);";
-    C << eb;
-    C << sp;
-    C << nl << "bool" << nl << "IceProxy" << scope << "operator<(const ::IceProxy" << scoped
-      << "& l, const ::IceProxy" << scoped << "& r)";
-    C << sb;
-    C << nl << "return static_cast<const ::IceProxy::Ice::Object&>(l) < "
-      << "static_cast<const ::IceProxy::Ice::Object&>(r);";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -1903,7 +1886,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H.dec();
     H << nl << "private:";
     H.inc();
-    H << sp << nl << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar << ';'; 
+    H << sp << nl << _dllExport << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar << ';'; 
     H << nl;
     H.dec();
     H << nl << "public:";
@@ -1959,9 +1942,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string classScope = fixKwd(cl->scope());
         string classScopedAMI = classScope + classNameAMI;
 
-        H << nl << "void " << name << "_async" << spar << ("const " + classScopedAMI + '_' + name + "Ptr&")
+        H << nl << _dllExport << "void " << name << "_async" << spar << ("const " + classScopedAMI + '_' + name + "Ptr&")
           << paramsAMI << epar << ';';
-        H << nl << "void " << name << "_async" << spar << ("const " + classScopedAMI + '_' + name + "Ptr&")
+        H << nl << _dllExport << "void " << name << "_async" << spar << ("const " + classScopedAMI + '_' + name + "Ptr&")
           << paramsAMI << "const ::Ice::Context&" << epar << ';';
 
         C << sp << nl << "void" << nl << "IceProxy" << scope << name << "_async" << spar

@@ -66,10 +66,29 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API IceUtil::Shared* upCast(::IceProxy::Ice::Object*);
-ICE_API IceUtil::Shared* upCast(::IceDelegate::Ice::Object*);
-ICE_API IceUtil::Shared* upCast(::IceDelegateD::Ice::Object*);
-ICE_API IceUtil::Shared* upCast(::IceDelegateM::Ice::Object*);
+inline ::IceProxy::Ice::Object* 
+upCast(::IceProxy::Ice::Object* o)
+{
+    return o;
+}
+
+inline ::IceDelegate::Ice::Object*
+upCast(::IceDelegate::Ice::Object* o)
+{
+    return o;
+}
+
+inline ::IceDelegateD::Ice::Object*
+upCast(::IceDelegateD::Ice::Object* o)
+{
+    return o;
+}
+
+inline ::IceDelegateM::Ice::Object*
+upCast(::IceDelegateM::Ice::Object* o)
+{
+    return o;
+}
 
 }
 
@@ -79,5 +98,6 @@ namespace Ice
 typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 }
+
 
 #endif
