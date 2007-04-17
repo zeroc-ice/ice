@@ -455,6 +455,24 @@ NodeService::start(int argc, char* argv[])
     _node->getPlatformInfo().start();
 
     //
+    // Ensures that the locator is reachable.
+    // 
+    if(!nowarn)
+    {
+        try
+        {
+            communicator()->getDefaultLocator()->ice_timeout(15000)->ice_ping();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            Warning out(communicator()->getLogger());
+            out << "couldn't reach the IceGrid registry (this is expected ";
+            out << "if it's down, otherwise please check the value of the ";
+            out << "Ice.Default.Locator property):\n" << ex;
+        }
+    }
+
+    //
     // Create the node sessions with the registries.
     //
     _sessions.create(_node);

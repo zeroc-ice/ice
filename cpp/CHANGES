@@ -17,6 +17,9 @@ Changes since version 3.2.X (binary incompabible)
   what() is implemented in terms of ice_print(), so overriding ice_print()
   also changes the string returned by what().
 
+- The IceGrid node now prints a warning if it can't reach the IceGrid
+  registry when it starts. This warning can be disabled with --nowarn.
+
 Changes since version 3.2.0
 ---------------------------
 
