@@ -23,6 +23,8 @@ Changes since version 3.2.X (binary incompabible)
 Changes since version 3.2.0
 ---------------------------
 
+- Added code generated from FileParser.ice to the IceGrid library.
+
 - Fixed collocation optimization to also work for indirect proxies
   referring to a replica group.
 

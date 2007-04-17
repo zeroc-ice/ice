@@ -25,6 +25,7 @@ LIB_OBJS	= Admin.o \
 		  Query.o \
 	 	  Exception.o \
 		  Descriptor.o \
+                  FileParser.o \
 		  Observer.o \
 		  Session.o \
 		  Registry.o \
@@ -36,7 +37,6 @@ ADMIN_OBJS	= Grammar.o \
                   DescriptorParser.o \
                   DescriptorBuilder.o \
 		  DescriptorHelper.o \
-                  FileParser.o \
                   FileParserI.o \
 		  Util.o \
 		  Internal.o \
