@@ -424,8 +424,8 @@ namespace IceInternal
 template<typename T, typename U>
 inline bool operator==(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
 {
-    ::IceProxy::Ice::Object* l = upCast(lhs.get());
-    ::IceProxy::Ice::Object* r = upCast(rhs.get());
+    ::IceProxy::Ice::Object* l = lhs.__upCast();
+    ::IceProxy::Ice::Object* r = rhs.__upCast();
     if(l && r)
     {
         return *l == *r;
@@ -445,8 +445,8 @@ inline bool operator!=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
 template<typename T, typename U>
 inline bool operator<(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
 {
-    ::IceProxy::Ice::Object* l = upCast(lhs.get());
-    ::IceProxy::Ice::Object* r = upCast(rhs.get());
+    ::IceProxy::Ice::Object* l = lhs.__upCast();
+    ::IceProxy::Ice::Object* r = rhs.__upCast();
     if(l && r)
     {
         return *l < *r;
