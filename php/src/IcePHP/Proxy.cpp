@@ -149,60 +149,60 @@ private:
 //
 static function_entry _proxyMethods[] =
 {
-    {"__construct",                PHP_FN(Ice_ObjectPrx___construct),                NULL},
-    {"__tostring",                 PHP_FN(Ice_ObjectPrx___tostring),                 NULL},
-    {"ice_getCommunicator",        PHP_FN(Ice_ObjectPrx_ice_getCommunicator),        NULL},
-    {"ice_toString",               PHP_FN(Ice_ObjectPrx_ice_toString),               NULL},
-    {"ice_isA",                    PHP_FN(Ice_ObjectPrx_ice_isA),                    NULL},
-    {"ice_ping",                   PHP_FN(Ice_ObjectPrx_ice_ping),                   NULL},
-    {"ice_id",                     PHP_FN(Ice_ObjectPrx_ice_id),                     NULL},
-    {"ice_ids",                    PHP_FN(Ice_ObjectPrx_ice_ids),                    NULL},
-    {"ice_getIdentity",            PHP_FN(Ice_ObjectPrx_ice_getIdentity),            NULL},
-    {"ice_newIdentity",            PHP_FN(Ice_ObjectPrx_ice_identity),               NULL},
-    {"ice_identity",               PHP_FN(Ice_ObjectPrx_ice_identity),               NULL},
-    {"ice_getContext",             PHP_FN(Ice_ObjectPrx_ice_getContext),             NULL},
-    {"ice_newContext",             PHP_FN(Ice_ObjectPrx_ice_context),                NULL},
-    {"ice_context",                PHP_FN(Ice_ObjectPrx_ice_context),                NULL},
-    {"ice_defaultContext",         PHP_FN(Ice_ObjectPrx_ice_defaultContext),         NULL},
-    {"ice_getFacet",               PHP_FN(Ice_ObjectPrx_ice_getFacet),               NULL},
-    {"ice_newFacet",               PHP_FN(Ice_ObjectPrx_ice_facet),                  NULL},
-    {"ice_facet",                  PHP_FN(Ice_ObjectPrx_ice_facet),                  NULL},
-    {"ice_getAdapterId",           PHP_FN(Ice_ObjectPrx_ice_getAdapterId),           NULL},
-    {"ice_newAdapterId",           PHP_FN(Ice_ObjectPrx_ice_adapterId),              NULL},
-    {"ice_adapterId",              PHP_FN(Ice_ObjectPrx_ice_adapterId),              NULL},
-    {"ice_getEndpoints",           PHP_FN(Ice_ObjectPrx_ice_getEndpoints),           NULL},
-    {"ice_newEndpoints",           PHP_FN(Ice_ObjectPrx_ice_endpoints),              NULL},
-    {"ice_endpoints",              PHP_FN(Ice_ObjectPrx_ice_endpoints),              NULL},
-    {"ice_getLocatorCacheTimeout", PHP_FN(Ice_ObjectPrx_ice_getLocatorCacheTimeout), NULL},
-    {"ice_locatorCacheTimeout",    PHP_FN(Ice_ObjectPrx_ice_locatorCacheTimeout),    NULL},
-    {"ice_isConnectionCached",     PHP_FN(Ice_ObjectPrx_ice_isConnectionCached),     NULL},
-    {"ice_connectionCached",       PHP_FN(Ice_ObjectPrx_ice_connectionCached),       NULL},
-    {"ice_getEndpointSelection",   PHP_FN(Ice_ObjectPrx_ice_getEndpointSelection),   NULL},
-    {"ice_endpointSelection",      PHP_FN(Ice_ObjectPrx_ice_endpointSelection),      NULL},
-    {"ice_isSecure",               PHP_FN(Ice_ObjectPrx_ice_isSecure),               NULL},
-    {"ice_secure",                 PHP_FN(Ice_ObjectPrx_ice_secure),                 NULL},
-    {"ice_isPreferSecure",         PHP_FN(Ice_ObjectPrx_ice_isPreferSecure),         NULL},
-    {"ice_preferSecure",           PHP_FN(Ice_ObjectPrx_ice_preferSecure),           NULL},
-    {"ice_twoway",                 PHP_FN(Ice_ObjectPrx_ice_twoway),                 NULL},
-    {"ice_isTwoway",               PHP_FN(Ice_ObjectPrx_ice_isTwoway),               NULL},
-    {"ice_oneway",                 PHP_FN(Ice_ObjectPrx_ice_oneway),                 NULL},
-    {"ice_isOneway",               PHP_FN(Ice_ObjectPrx_ice_isOneway),               NULL},
-    {"ice_batchOneway",            PHP_FN(Ice_ObjectPrx_ice_batchOneway),            NULL},
-    {"ice_isBatchOneway",          PHP_FN(Ice_ObjectPrx_ice_isBatchOneway),          NULL},
-    {"ice_datagram",               PHP_FN(Ice_ObjectPrx_ice_datagram),               NULL},
-    {"ice_isDatagram",             PHP_FN(Ice_ObjectPrx_ice_isDatagram),             NULL},
-    {"ice_batchDatagram",          PHP_FN(Ice_ObjectPrx_ice_batchDatagram),          NULL},
-    {"ice_isBatchDatagram",        PHP_FN(Ice_ObjectPrx_ice_isBatchDatagram),        NULL},
-    {"ice_compress",               PHP_FN(Ice_ObjectPrx_ice_compress),               NULL},
-    {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                NULL},
-    {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           NULL},
-    {"ice_isThreadPerConnection",  PHP_FN(Ice_ObjectPrx_ice_isThreadPerConnection),  NULL},
-    {"ice_threadPerConnection",    PHP_FN(Ice_ObjectPrx_ice_threadPerConnection),    NULL},
-    {"ice_getConnection",          PHP_FN(Ice_ObjectPrx_ice_getConnection),          NULL},
-    {"ice_getCachedConnection",    PHP_FN(Ice_ObjectPrx_ice_getCachedConnection),    NULL},
-    {"ice_uncheckedCast",          PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),          NULL},
-    {"ice_checkedCast",            PHP_FN(Ice_ObjectPrx_ice_checkedCast),            NULL},
-    {NULL, NULL, NULL}
+    {"__construct",                PHP_FN(Ice_ObjectPrx___construct),                0},
+    {"__tostring",                 PHP_FN(Ice_ObjectPrx___tostring),                 0},
+    {"ice_getCommunicator",        PHP_FN(Ice_ObjectPrx_ice_getCommunicator),        0},
+    {"ice_toString",               PHP_FN(Ice_ObjectPrx_ice_toString),               0},
+    {"ice_isA",                    PHP_FN(Ice_ObjectPrx_ice_isA),                    0},
+    {"ice_ping",                   PHP_FN(Ice_ObjectPrx_ice_ping),                   0},
+    {"ice_id",                     PHP_FN(Ice_ObjectPrx_ice_id),                     0},
+    {"ice_ids",                    PHP_FN(Ice_ObjectPrx_ice_ids),                    0},
+    {"ice_getIdentity",            PHP_FN(Ice_ObjectPrx_ice_getIdentity),            0},
+    {"ice_newIdentity",            PHP_FN(Ice_ObjectPrx_ice_identity),               0},
+    {"ice_identity",               PHP_FN(Ice_ObjectPrx_ice_identity),               0},
+    {"ice_getContext",             PHP_FN(Ice_ObjectPrx_ice_getContext),             0},
+    {"ice_newContext",             PHP_FN(Ice_ObjectPrx_ice_context),                0},
+    {"ice_context",                PHP_FN(Ice_ObjectPrx_ice_context),                0},
+    {"ice_defaultContext",         PHP_FN(Ice_ObjectPrx_ice_defaultContext),         0},
+    {"ice_getFacet",               PHP_FN(Ice_ObjectPrx_ice_getFacet),               0},
+    {"ice_newFacet",               PHP_FN(Ice_ObjectPrx_ice_facet),                  0},
+    {"ice_facet",                  PHP_FN(Ice_ObjectPrx_ice_facet),                  0},
+    {"ice_getAdapterId",           PHP_FN(Ice_ObjectPrx_ice_getAdapterId),           0},
+    {"ice_newAdapterId",           PHP_FN(Ice_ObjectPrx_ice_adapterId),              0},
+    {"ice_adapterId",              PHP_FN(Ice_ObjectPrx_ice_adapterId),              0},
+    {"ice_getEndpoints",           PHP_FN(Ice_ObjectPrx_ice_getEndpoints),           0},
+    {"ice_newEndpoints",           PHP_FN(Ice_ObjectPrx_ice_endpoints),              0},
+    {"ice_endpoints",              PHP_FN(Ice_ObjectPrx_ice_endpoints),              0},
+    {"ice_getLocatorCacheTimeout", PHP_FN(Ice_ObjectPrx_ice_getLocatorCacheTimeout), 0},
+    {"ice_locatorCacheTimeout",    PHP_FN(Ice_ObjectPrx_ice_locatorCacheTimeout),    0},
+    {"ice_isConnectionCached",     PHP_FN(Ice_ObjectPrx_ice_isConnectionCached),     0},
+    {"ice_connectionCached",       PHP_FN(Ice_ObjectPrx_ice_connectionCached),       0},
+    {"ice_getEndpointSelection",   PHP_FN(Ice_ObjectPrx_ice_getEndpointSelection),   0},
+    {"ice_endpointSelection",      PHP_FN(Ice_ObjectPrx_ice_endpointSelection),      0},
+    {"ice_isSecure",               PHP_FN(Ice_ObjectPrx_ice_isSecure),               0},
+    {"ice_secure",                 PHP_FN(Ice_ObjectPrx_ice_secure),                 0},
+    {"ice_isPreferSecure",         PHP_FN(Ice_ObjectPrx_ice_isPreferSecure),         0},
+    {"ice_preferSecure",           PHP_FN(Ice_ObjectPrx_ice_preferSecure),           0},
+    {"ice_twoway",                 PHP_FN(Ice_ObjectPrx_ice_twoway),                 0},
+    {"ice_isTwoway",               PHP_FN(Ice_ObjectPrx_ice_isTwoway),               0},
+    {"ice_oneway",                 PHP_FN(Ice_ObjectPrx_ice_oneway),                 0},
+    {"ice_isOneway",               PHP_FN(Ice_ObjectPrx_ice_isOneway),               0},
+    {"ice_batchOneway",            PHP_FN(Ice_ObjectPrx_ice_batchOneway),            0},
+    {"ice_isBatchOneway",          PHP_FN(Ice_ObjectPrx_ice_isBatchOneway),          0},
+    {"ice_datagram",               PHP_FN(Ice_ObjectPrx_ice_datagram),               0},
+    {"ice_isDatagram",             PHP_FN(Ice_ObjectPrx_ice_isDatagram),             0},
+    {"ice_batchDatagram",          PHP_FN(Ice_ObjectPrx_ice_batchDatagram),          0},
+    {"ice_isBatchDatagram",        PHP_FN(Ice_ObjectPrx_ice_isBatchDatagram),        0},
+    {"ice_compress",               PHP_FN(Ice_ObjectPrx_ice_compress),               0},
+    {"ice_timeout",                PHP_FN(Ice_ObjectPrx_ice_timeout),                0},
+    {"ice_connectionId",           PHP_FN(Ice_ObjectPrx_ice_connectionId),           0},
+    {"ice_isThreadPerConnection",  PHP_FN(Ice_ObjectPrx_ice_isThreadPerConnection),  0},
+    {"ice_threadPerConnection",    PHP_FN(Ice_ObjectPrx_ice_threadPerConnection),    0},
+    {"ice_getConnection",          PHP_FN(Ice_ObjectPrx_ice_getConnection),          0},
+    {"ice_getCachedConnection",    PHP_FN(Ice_ObjectPrx_ice_getCachedConnection),    0},
+    {"ice_uncheckedCast",          PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),          0},
+    {"ice_checkedCast",            PHP_FN(Ice_ObjectPrx_ice_checkedCast),            0},
+    {0, 0, 0}
 };
 
 //
@@ -210,10 +210,10 @@ static function_entry _proxyMethods[] =
 //
 static function_entry _endpointMethods[] =
 {
-    {"__construct",         PHP_FN(Ice_Endpoint___construct),         NULL},
-    {"__tostring",          PHP_FN(Ice_Endpoint___tostring),          NULL},
-    {"toString",            PHP_FN(Ice_Endpoint_toString),            NULL},
-    {NULL, NULL, NULL}
+    {"__construct", PHP_FN(Ice_Endpoint___construct), 0},
+    {"__tostring",  PHP_FN(Ice_Endpoint___tostring),  0},
+    {"toString",    PHP_FN(Ice_Endpoint_toString),    0},
+    {0, 0, 0}
 };
 
 //
@@ -221,14 +221,14 @@ static function_entry _endpointMethods[] =
 //
 static function_entry _connectionMethods[] =
 {
-    {"__construct",         PHP_FN(Ice_Connection___construct),         NULL},
-    {"__tostring",          PHP_FN(Ice_Connection___tostring),          NULL},
-    {"close",               PHP_FN(Ice_Connection_close),               NULL},
-    {"flushBatchRequests",  PHP_FN(Ice_Connection_flushBatchRequests),  NULL},
-    {"type",                PHP_FN(Ice_Connection_type),                NULL},
-    {"timeout",             PHP_FN(Ice_Connection_timeout),             NULL},
-    {"toString",            PHP_FN(Ice_Connection_toString),            NULL},
-    {NULL, NULL, NULL}
+    {"__construct",         PHP_FN(Ice_Connection___construct),         0},
+    {"__tostring",          PHP_FN(Ice_Connection___tostring),          0},
+    {"close",               PHP_FN(Ice_Connection_close),               0},
+    {"flushBatchRequests",  PHP_FN(Ice_Connection_flushBatchRequests),  0},
+    {"type",                PHP_FN(Ice_Connection_type),                0},
+    {"timeout",             PHP_FN(Ice_Connection_timeout),             0},
+    {"toString",            PHP_FN(Ice_Connection_toString),            0},
+    {0, 0, 0}
 };
 
 bool
@@ -277,7 +277,7 @@ IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr&
 {
     if(object_init_ex(zv, proxyClassEntry) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize proxy");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize proxy");
         return false;
     }
 
@@ -296,12 +296,12 @@ IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, Slice::ClassDefPtr& def TSRMLS
         void* p = zend_object_store_get_object(zv TSRMLS_CC);
         if(!p)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to retrieve proxy object from object store");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to retrieve proxy object from object store");
             return false;
         }
         if(Z_OBJCE_P(zv) != proxyClassEntry)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "value is not a proxy");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "value is not a proxy");
             return false;
         }
         ice_object* obj = static_cast<ice_object*>(p);
@@ -318,7 +318,7 @@ createEndpoint(zval* zv, const Ice::EndpointPtr& p TSRMLS_DC)
 {
     if(object_init_ex(zv, endpointClassEntry) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize endpoint");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize endpoint");
         return false;
     }
 
@@ -337,12 +337,12 @@ fetchEndpoint(zval* zv, Ice::EndpointPtr& endpoint TSRMLS_DC)
         void* p = zend_object_store_get_object(zv TSRMLS_CC);
         if(!p)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to retrieve endpoint object from object store");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to retrieve endpoint object from object store");
             return false;
         }
         if(Z_OBJCE_P(zv) != endpointClassEntry)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "value is not an endpoint");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "value is not an endpoint");
             return false;
         }
         ice_object* obj = static_cast<ice_object*>(p);
@@ -358,7 +358,7 @@ createConnection(zval* zv, const Ice::ConnectionPtr& p TSRMLS_DC)
 {
     if(object_init_ex(zv, connectionClassEntry) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize connection");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize connection");
         return false;
     }
 
@@ -371,7 +371,7 @@ createConnection(zval* zv, const Ice::ConnectionPtr& p TSRMLS_DC)
 
 ZEND_FUNCTION(Ice_ObjectPrx___construct)
 {
-    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_ObjectPrx cannot be instantiated, use $ICE->stringToProxy()");
+    php_error_docref(0 TSRMLS_CC, E_ERROR, "Ice_ObjectPrx cannot be instantiated, use $ICE->stringToProxy()");
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx___tostring)
@@ -420,7 +420,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
 
     char* id;
     int len;
-    zval* arr = NULL;
+    zval* arr = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|a", &id, &len, &arr) == FAILURE)
     {
@@ -468,7 +468,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
         WRONG_PARAM_COUNT;
     }
 
-    zval* arr = NULL;
+    zval* arr = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
     {
@@ -514,7 +514,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
         WRONG_PARAM_COUNT;
     }
 
-    zval* arr = NULL;
+    zval* arr = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
     {
@@ -561,7 +561,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
         WRONG_PARAM_COUNT;
     }
 
-    zval* arr = NULL;
+    zval* arr = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
     {
@@ -682,7 +682,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_context)
         WRONG_PARAM_COUNT;
     }
 
-    zval* arr = NULL;
+    zval* arr = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &arr) == FAILURE)
     {
@@ -705,7 +705,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_context)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_context(ctx);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -731,7 +731,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_defaultContext)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_defaultContext();
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -845,7 +845,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_adapterId)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_adapterId(id);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -918,11 +918,11 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
     zval** val;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
     {
         if(Z_TYPE_PP(val) != IS_OBJECT)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an element of type Ice_Endpoint");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "expected an element of type Ice_Endpoint");
             RETURN_NULL();
         }
 
@@ -940,7 +940,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpoints)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_endpoints(seq);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -995,7 +995,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_locatorCacheTimeout)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_locatorCacheTimeout(l);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1050,7 +1050,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionCached)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_connectionCached(b ? true : false);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1104,14 +1104,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_endpointSelection)
 
     if(l < 0 || l > 1)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expecting Random or Ordered");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expecting Random or Ordered");
         RETURN_NULL();
     }
 
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_endpointSelection(l == 0 ? Ice::Random : Ice::Ordered);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1166,7 +1166,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_secure(b ? true : false);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1221,7 +1221,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_preferSecure)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_preferSecure(b ? true : false);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1247,7 +1247,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_twoway();
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1296,7 +1296,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_oneway)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_oneway();
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1345,7 +1345,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchOneway)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_batchOneway();
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1394,7 +1394,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_datagram)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_datagram();
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1443,7 +1443,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchDatagram)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_batchDatagram();
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1498,7 +1498,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_compress)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_compress(b ? true : false);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1530,7 +1530,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout)
         }
         // TODO: range check?
         Ice::ObjectPrx prx = _this->getProxy()->ice_timeout(l);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1562,7 +1562,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_connectionId)
             RETURN_NULL();
         }
         Ice::ObjectPrx prx = _this->getProxy()->ice_connectionId(id);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1617,7 +1617,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_threadPerConnection)
     try
     {
         Ice::ObjectPrx prx = _this->getProxy()->ice_threadPerConnection(b ? true : false);
-        if(!createProxy(return_value, prx TSRMLS_CC))
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -1695,7 +1695,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     char* id;
     int idLen;
-    char* facet = NULL;
+    char* facet = 0;
     int facetLen;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &id, &idLen, &facet, &facetLen) == FAILURE)
@@ -1718,7 +1718,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(l.empty())
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "no Slice definition found for type %s", id);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "no Slice definition found for type %s", id);
             RETURN_NULL();
         }
 
@@ -1739,20 +1739,20 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(!decl)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id);
             RETURN_NULL();
         }
 
         if(decl->isLocal())
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s is a local type", id);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is a local type", id);
             RETURN_NULL();
         }
 
         Slice::ClassDefPtr def = decl->definition();
         if(!def)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "%s is declared but not defined", id);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is declared but not defined", id);
             RETURN_NULL();
         }
 
@@ -1763,7 +1763,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         //
         if(findClassScoped(scoped TSRMLS_CC) == 0)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "the Slice definition for type %s has not been compiled",
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "the Slice definition for type %s has not been compiled",
                              scoped.c_str());
             RETURN_NULL();
         }
@@ -1810,7 +1810,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
 
 ZEND_FUNCTION(Ice_Endpoint___construct)
 {
-    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_Endpoint cannot be instantiated");
+    php_error_docref(0 TSRMLS_CC, E_ERROR, "Ice_Endpoint cannot be instantiated");
 }
 
 ZEND_FUNCTION(Ice_Endpoint___tostring)
@@ -1843,7 +1843,7 @@ ZEND_FUNCTION(Ice_Endpoint_toString)
 
 ZEND_FUNCTION(Ice_Connection___construct)
 {
-    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_Connection cannot be instantiated");
+    php_error_docref(0 TSRMLS_CC, E_ERROR, "Ice_Connection cannot be instantiated");
 }
 
 ZEND_FUNCTION(Ice_Connection___tostring)
@@ -2008,8 +2008,8 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
             break;
         }
         _paramNames.push_back((*p)->name());
-        argInfo[i].name = NULL;
-        argInfo[i].class_name = NULL;
+        argInfo[i].name = 0;
+        argInfo[i].class_name = 0;
         argInfo[i].allow_null = 1;
         Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(paramType);
         if(cont)
@@ -2062,7 +2062,7 @@ IcePHP::Operation::~Operation()
 zend_function*
 IcePHP::Operation::getZendFunction() const
 {
-    return (zend_function*)_zendFunction;
+    return reinterpret_cast<zend_function*>(_zendFunction);
 }
 
 void
@@ -2077,7 +2077,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     int numParams = static_cast<int>(_inParams.size() + _outParams.size());
     if(ZEND_NUM_ARGS() != numParams && ZEND_NUM_ARGS() != numParams + 1)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "incorrect number of parameters (%d)", numParams);
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "incorrect number of parameters (%d)", numParams);
         return;
     }
 
@@ -2088,7 +2088,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     AutoEfree autoArgs(args); // Call efree on return
     if(zend_get_parameters_array_ex(ZEND_NUM_ARGS(), args) == FAILURE)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to get arguments");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to get arguments");
         return;
     }
 
@@ -2099,7 +2099,7 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     {
         if(!PZVAL_IS_REF(*args[i]))
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "argument for out parameter %s must be passed by reference",
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "argument for out parameter %s must be passed by reference",
                              _paramNames[i].c_str());
             return;
         }
@@ -2239,7 +2239,7 @@ IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
         {
             if(ex->isLocal())
             {
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "cannot unmarshal local exception %s", id.c_str());
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "cannot unmarshal local exception %s", id.c_str());
                 return;
             }
 
@@ -2375,8 +2375,8 @@ handleProxyAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleProxyFreeStorage,
-                                           NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleProxyFreeStorage,
+                                           0 TSRMLS_CC);
     result.handlers = &_proxyHandlers;
 
     return result;
@@ -2388,12 +2388,12 @@ extern "C"
 static void
 handleProxyFreeStorage(void* p TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
+    ice_object* obj = static_cast<ice_object*>(p);
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
+    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
 #ifdef WIN32
@@ -2417,7 +2417,7 @@ handleProxyClone(zval* zv TSRMLS_DC)
     MAKE_STD_ZVAL(clone);
     if(object_init_ex(clone, IcePHP::proxyClassEntry) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize proxy");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize proxy");
         return result;
     }
 
@@ -2448,11 +2448,11 @@ handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
 
     //
     // First delegate to the standard implementation of get_method. This will find
-    // any of our predefined proxy methods. If it returns NULL, then we return a
+    // any of our predefined proxy methods. If it returns 0, then we return a
     // function that will check the class definition.
     //
     result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
-    if(result == NULL)
+    if(!result)
     {
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
         assert(obj->ptr);
@@ -2461,17 +2461,17 @@ handleProxyGetMethod(zval** zv, char* method, int len TSRMLS_DC)
         Slice::ClassDefPtr def = _this->getClass();
         if(!def)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown method %s invoked on untyped proxy", method);
-            return NULL;
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unknown method %s invoked on untyped proxy", method);
+            return 0;
         }
 
         OperationPtr op = _this->getOperation(method);
         if(!op)
         {
             string scoped = def->scoped();
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown operation %s invoked on proxy of type %s", method,
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unknown operation %s invoked on proxy of type %s", method,
                              scoped.c_str());
-            return NULL;
+            return 0;
         }
 
         result = op->getZendFunction();
@@ -2537,8 +2537,8 @@ handleEndpointAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleEndpointFreeStorage,
-                                           NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleEndpointFreeStorage,
+                                           0 TSRMLS_CC);
     result.handlers = &_endpointHandlers;
 
     return result;
@@ -2550,12 +2550,12 @@ extern "C"
 static void
 handleEndpointFreeStorage(void* p TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
+    ice_object* obj = static_cast<ice_object*>(p);
     Ice::EndpointPtr* _this = static_cast<Ice::EndpointPtr*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
+    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
 #ifdef WIN32
@@ -2569,8 +2569,8 @@ handleConnectionAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleConnectionFreeStorage,
-                                           NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleConnectionFreeStorage,
+                                           0 TSRMLS_CC);
     result.handlers = &_connectionHandlers;
 
     return result;
@@ -2582,12 +2582,12 @@ extern "C"
 static void
 handleConnectionFreeStorage(void* p TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
+    ice_object* obj = static_cast<ice_object*>(p);
     Ice::ConnectionPtr* _this = static_cast<Ice::ConnectionPtr*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
+    zend_objects_free_object_storage(static_cast<zend_object*>(p) TSRMLS_CC);
 }
 
 #ifdef WIN32

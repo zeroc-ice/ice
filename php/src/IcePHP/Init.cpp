@@ -27,7 +27,7 @@ function_entry ice_functions[] =
     ICE_PHP_IDENTITY_FUNCTIONS
     ICE_PHP_PROXY_FUNCTIONS
     ICE_PHP_PROFILE_FUNCTIONS
-    {NULL, NULL, NULL}
+    {0, 0, 0}
 };
 
 zend_module_entry ice_module_entry =
@@ -50,16 +50,16 @@ ZEND_GET_MODULE(ice)
 // Declare initialization file entries.
 //
 PHP_INI_BEGIN()
-  PHP_INI_ENTRY("ice.config", "", PHP_INI_SYSTEM, NULL)
-  PHP_INI_ENTRY("ice.options", "", PHP_INI_SYSTEM, NULL)
-  PHP_INI_ENTRY("ice.profiles", "", PHP_INI_SYSTEM, NULL)
-  PHP_INI_ENTRY("ice.slice", "", PHP_INI_SYSTEM, NULL)
+  PHP_INI_ENTRY("ice.config", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.options", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.profiles", "", PHP_INI_SYSTEM, 0)
+  PHP_INI_ENTRY("ice.slice", "", PHP_INI_SYSTEM, 0)
 PHP_INI_END()
 
 extern "C"
 int initIceGlobals(zend_ice_globals* g)
 {
-    g->communicator = NULL;
+    g->communicator = 0;
     g->marshalerMap = 0;
     g->profile = 0;
     g->properties = 0;
@@ -69,7 +69,7 @@ int initIceGlobals(zend_ice_globals* g)
 ZEND_MINIT_FUNCTION(ice)
 {
     REGISTER_INI_ENTRIES();
-    ZEND_INIT_MODULE_GLOBALS(ice, initIceGlobals, NULL);
+    ZEND_INIT_MODULE_GLOBALS(ice, initIceGlobals, 0);
 
     if(!profileInit(TSRMLS_C))
     {
@@ -105,7 +105,7 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
 ZEND_RINIT_FUNCTION(ice)
 {
-    ICE_G(communicator) = NULL;
+    ICE_G(communicator) = 0;
     ICE_G(marshalerMap) = new MarshalerMap;
     ICE_G(profile) = 0;
     ICE_G(properties) = 0;
@@ -133,7 +133,7 @@ ZEND_RSHUTDOWN_FUNCTION(ice)
     for(ObjectFactoryMap::iterator p = ofm->begin(); p != ofm->end(); ++p)
     {
         zval* factory = p->second;
-        zend_call_method_with_0_params(&factory, NULL, NULL, "destroy", NULL);
+        zend_call_method_with_0_params(&factory, 0, 0, "destroy", 0);
         zval_ptr_dtor(&factory);
     }
     delete ofm;

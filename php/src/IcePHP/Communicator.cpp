@@ -44,17 +44,17 @@ static void initCommunicator(ice_object* TSRMLS_DC);
 //
 static function_entry _methods[] =
 {
-    {"__construct",            PHP_FN(Ice_Communicator___construct),            NULL},
-    {"getProperty",            PHP_FN(Ice_Communicator_getProperty),            NULL},
-    {"stringToProxy",          PHP_FN(Ice_Communicator_stringToProxy),          NULL},
-    {"proxyToString",          PHP_FN(Ice_Communicator_proxyToString),          NULL},
-    {"propertyToProxy",        PHP_FN(Ice_Communicator_propertyToProxy),        NULL},
-    {"stringToIdentity",       PHP_FN(Ice_Communicator_stringToIdentity),          NULL},
-    {"identityToString",       PHP_FN(Ice_Communicator_identityToString),          NULL},
-    {"addObjectFactory",       PHP_FN(Ice_Communicator_addObjectFactory),       NULL},
-    {"findObjectFactory",      PHP_FN(Ice_Communicator_findObjectFactory),      NULL},
-    {"flushBatchRequests",     PHP_FN(Ice_Communicator_flushBatchRequests),     NULL},
-    {NULL, NULL, NULL}
+    {"__construct",        PHP_FN(Ice_Communicator___construct),        0},
+    {"getProperty",        PHP_FN(Ice_Communicator_getProperty),        0},
+    {"stringToProxy",      PHP_FN(Ice_Communicator_stringToProxy),      0},
+    {"proxyToString",      PHP_FN(Ice_Communicator_proxyToString),      0},
+    {"propertyToProxy",    PHP_FN(Ice_Communicator_propertyToProxy),    0},
+    {"stringToIdentity",   PHP_FN(Ice_Communicator_stringToIdentity),   0},
+    {"identityToString",   PHP_FN(Ice_Communicator_identityToString),   0},
+    {"addObjectFactory",   PHP_FN(Ice_Communicator_addObjectFactory),   0},
+    {"findObjectFactory",  PHP_FN(Ice_Communicator_findObjectFactory),  0},
+    {"flushBatchRequests", PHP_FN(Ice_Communicator_flushBatchRequests), 0},
+    {0, 0, 0}
 };
 
 bool
@@ -86,7 +86,7 @@ IcePHP::createCommunicator(TSRMLS_D)
     //
     if(object_init_ex(global, _communicatorClassEntry) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create object for communicator");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create object for communicator");
         return false;
     }
 
@@ -105,7 +105,7 @@ IcePHP::getCommunicator(TSRMLS_D)
     Ice::CommunicatorPtr result;
 
     zval **zv;
-    if(zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv) == SUCCESS)
+    if(zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), reinterpret_cast<void **>(&zv)) == SUCCESS)
     {
         ice_object* obj = getObject(*zv TSRMLS_CC);
         assert(obj);
@@ -123,7 +123,7 @@ IcePHP::getCommunicator(TSRMLS_D)
             {
                 ostringstream ostr;
                 ex.ice_print(ostr);
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
                 return 0;
             }
         }
@@ -138,15 +138,15 @@ IcePHP::getCommunicator(TSRMLS_D)
 zval*
 IcePHP::getCommunicatorZval(TSRMLS_D)
 {
-    zval **zv = NULL;
-    zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv);
+    zval **zv = 0;
+    zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), reinterpret_cast<void **>(&zv));
     assert(zv);
     return *zv;
 }
 
 ZEND_FUNCTION(Ice_Communicator___construct)
 {
-    php_error_docref(NULL TSRMLS_CC, E_ERROR, "Ice_Communicator cannot be instantiated, use the global variable $ICE");
+    php_error_docref(0 TSRMLS_CC, E_ERROR, "Ice_Communicator cannot be instantiated, use the global variable $ICE");
 }
 
 ZEND_FUNCTION(Ice_Communicator_getProperty)
@@ -166,7 +166,7 @@ ZEND_FUNCTION(Ice_Communicator_getProperty)
 
     char *name;
     int nameLen;
-    char *def = NULL;
+    char *def = 0;
     int defLen = 0;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &name, &nameLen, &def, &defLen) == FAILURE)
@@ -415,7 +415,7 @@ ZEND_FUNCTION(Ice_Communicator_addObjectFactory)
     assert(base);
     if(!checkClass(ce, base))
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "object does not implement Ice_ObjectFactory");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "object does not implement Ice_ObjectFactory");
         return;
     }
 
@@ -526,8 +526,7 @@ handleAlloc(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj = newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, NULL, (zend_objects_free_object_storage_t)handleFreeStorage,
-                                           NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, 0, (zend_objects_free_object_storage_t)handleFreeStorage, 0 TSRMLS_CC);
     result.handlers = &_handlers;
 
     return result;
@@ -541,7 +540,7 @@ handleClone(zval* zv TSRMLS_DC)
 {
     zend_object_value result;
     memset(&result, 0, sizeof(zend_object_value));
-    php_error_docref(NULL TSRMLS_CC, E_ERROR, "__clone is not supported for Ice_Communicator");
+    php_error_docref(0 TSRMLS_CC, E_ERROR, "__clone is not supported for Ice_Communicator");
     return result;
 }
 
@@ -551,7 +550,7 @@ extern "C"
 static void
 handleFreeStorage(void* p TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
+    ice_object* obj = static_cast<ice_object*>(p);
     if(obj->ptr)
     {
         Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
@@ -563,12 +562,12 @@ handleFreeStorage(void* p TSRMLS_DC)
         {
             ostringstream ostr;
             ex.ice_print(ostr);
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to destroy communicator:\n%s", ostr.str().c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to destroy communicator:\n%s", ostr.str().c_str());
         }
         delete _this;
     }
 
-    zend_objects_free_object_storage((zend_object*)p TSRMLS_CC);
+    zend_objects_free_object_storage(reinterpret_cast<zend_object*>(p) TSRMLS_CC);
 }
 
 #ifdef WIN32
@@ -587,9 +586,9 @@ handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
         ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(*zv TSRMLS_CC));
         if(!obj->ptr)
         {
-            if(ICE_G(profile) == NULL)
+            if(!ICE_G(profile))
             {
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "$ICE used before a profile was loaded");
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "$ICE used before a profile was loaded");
                 return 0;
             }
 
@@ -601,7 +600,7 @@ handleGetMethod(zval** zv, char* method, int len TSRMLS_DC)
             {
                 ostringstream ostr;
                 ex.ice_print(ostr);
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
                 return 0;
             }
         }

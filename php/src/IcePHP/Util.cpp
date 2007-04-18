@@ -132,7 +132,7 @@ IcePHP::createIdentity(zval* zv, const Ice::Identity& id TSRMLS_DC)
 
     if(object_init_ex(zv, cls) != SUCCESS)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize Ice::Identity");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to initialize Ice::Identity");
         return false;
     }
 
@@ -148,7 +148,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "value does not contain an object");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "value does not contain an object");
         return false;
     }
 
@@ -158,26 +158,26 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     zend_class_entry* ce = Z_OBJCE_P(zv);
     if(ce != cls)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an identity but received %s", ce->name);
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected an identity but received %s", ce->name);
         return false;
     }
 
     //
     // Category is optional, but name is required.
     //
-    zval** categoryVal = NULL;
+    zval** categoryVal = 0;
     zval** nameVal;
-    if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), (void**)&nameVal) == FAILURE)
+    if(zend_hash_find(Z_OBJPROP_P(zv), "name", sizeof("name"), reinterpret_cast<void**>(&nameVal)) == FAILURE)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "identity value does not contain member `name'");
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "identity value does not contain member `name'");
         return false;
     }
-    zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), (void**)&categoryVal);
+    zend_hash_find(Z_OBJPROP_P(zv), "category", sizeof("category"), reinterpret_cast<void**>(&categoryVal));
 
     if(Z_TYPE_PP(nameVal) != IS_STRING)
     {
         string s = zendTypeToString(Z_TYPE_PP(nameVal));
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected a string value for identity member `name' but received %s",
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected a string value for identity member `name' but received %s",
                          s.c_str());
         return false;
     }
@@ -185,7 +185,7 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id TSRMLS_DC)
     if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING && Z_TYPE_PP(categoryVal) != IS_NULL)
     {
         string s = zendTypeToString(Z_TYPE_PP(categoryVal));
-        php_error_docref(NULL TSRMLS_CC, E_ERROR,
+        php_error_docref(0 TSRMLS_CC, E_ERROR,
                          "expected a string value for identity member `category' but received %s", s.c_str());
         return false;
     }
@@ -224,7 +224,7 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "expected an array for the context argument but received %s",
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected an array for the context argument but received %s",
                          s.c_str());
         return false;
     }
@@ -234,7 +234,7 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
     zval** val;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    while(zend_hash_get_current_data_ex(arr, reinterpret_cast<void**>(&val), &pos) != FAILURE)
     {
         //
         // Get the key (which can be a long or a string).
@@ -249,13 +249,13 @@ IcePHP::extractContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
         //
         if(keyType != HASH_KEY_IS_STRING)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "context key must be a string");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "context key must be a string");
             return false;
         }
 
         if(Z_TYPE_PP(val) != IS_STRING)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "context value must be a string");
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "context value must be a string");
             return false;
         }
 
@@ -273,7 +273,7 @@ extern "C"
 static void
 dtor_wrapper(void* p)
 {
-    zval_ptr_dtor((zval**)p);
+    zval_ptr_dtor(static_cast<zval**>(p));
 }
 
 ice_object*
@@ -284,11 +284,11 @@ IcePHP::newObject(zend_class_entry* ce TSRMLS_DC)
 
     obj = static_cast<ice_object*>(emalloc(sizeof(ice_object)));
     obj->zobj.ce = ce;
-    obj->zobj.guards = NULL;
+    obj->zobj.guards = 0;
     obj->ptr = 0;
 
     obj->zobj.properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
-    zend_hash_init(obj->zobj.properties, 0, NULL, dtor_wrapper, 0);
+    zend_hash_init(obj->zobj.properties, 0, 0, dtor_wrapper, 0);
     zend_hash_copy(obj->zobj.properties, &ce->default_properties, (copy_ctor_func_t) zval_add_ref, &tmp,
                    sizeof(zval*));
 
@@ -300,7 +300,7 @@ IcePHP::getObject(zval* zv TSRMLS_DC)
 {
     if(!zv)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method %s() must be invoked on an object",
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "method %s() must be invoked on an object",
                          get_active_function_name(TSRMLS_C));
         return 0;
     }
@@ -308,7 +308,7 @@ IcePHP::getObject(zval* zv TSRMLS_DC)
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
     if(!obj)
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "no object found in %s()", get_active_function_name(TSRMLS_C));
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "no object found in %s()", get_active_function_name(TSRMLS_C));
         return 0;
     }
 
@@ -328,7 +328,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -336,7 +336,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, cls) != SUCCESS)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
             return;
         }
 
@@ -357,7 +357,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -365,7 +365,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, cls) != SUCCESS)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
             return;
         }
 
@@ -386,7 +386,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -394,7 +394,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, cls) != SUCCESS)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
             return;
         }
 
@@ -434,7 +434,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -442,7 +442,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, cls) != SUCCESS)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
             return;
         }
 
@@ -468,7 +468,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -476,7 +476,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, cls) != SUCCESS)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
             return;
         }
 
@@ -504,7 +504,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
         if(!cls)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
             return;
         }
 
@@ -512,7 +512,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, cls) != SUCCESS)
         {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
             return;
         }
 
@@ -541,7 +541,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         {
             if(object_init_ex(zex, cls) != SUCCESS)
             {
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
                 return;
             }
         }
@@ -550,13 +550,13 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
             cls = findClass("Ice_UnknownLocalException" TSRMLS_CC);
             if(!cls)
             {
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to find class Ice_UnknownLocalException");
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class Ice_UnknownLocalException");
                 return;
             }
 
             if(object_init_ex(zex, cls) != SUCCESS)
             {
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
                 return;
             }
 
@@ -583,7 +583,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
     {
         ostringstream ostr;
         e.ice_print(ostr);
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "exception: %s", ostr.str().c_str());
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "exception: %s", ostr.str().c_str());
     }
 }
 
@@ -726,7 +726,7 @@ IcePHP::isNativeKey(const Slice::TypePtr& type)
 bool
 IcePHP::checkClass(zend_class_entry* ce, zend_class_entry* base)
 {
-    while(ce != NULL)
+    while(ce)
     {
         if(ce == base)
         {
