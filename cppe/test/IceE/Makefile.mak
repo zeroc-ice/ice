@@ -15,14 +15,18 @@ SUBDIRS		= operations \
 		  exceptions \
 		  inheritance \
 		  facets \
-		  faultTolerance \
 		  location \
-		  adapterDeactivation \
 		  slicing \
 		  custom \
 		  retry \
 		  thread \
 		  uuid
+
+!if "$(SMART_DEVICE)" == ""
+SUBDIRS		= $(SUBDIRS) \
+		  faultTolerance \
+		  adapterDeactivation \
+!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

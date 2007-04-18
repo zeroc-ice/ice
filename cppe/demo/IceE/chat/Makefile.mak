@@ -9,7 +9,9 @@
 
 top_srcdir	= ..\..\..
 
+!if "$(SMART_DEVICE)" == ""
 CLIENT		= client.exe
+!endif
 MFCCLIENT	= mfcclient.exe
 
 !ifdef BUILD_MFC
@@ -42,10 +44,13 @@ SRCS		= $(OBJS:.obj=.cpp) \
 
 SLICE2CPPEFLAGS = -I. --ice $(SLICE2CPPEFLAGS)
 
+CPPFLAGS        = -I. $(CPPFLAGS) $(MFC_CPPFLAGS)
 !ifdef BUILD_MFC
-CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL
+!if "$(SMART_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
+CPPFLAGS	= $(CPPFLAGS) -D_AFXDLL
+!endif
 !else
-CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -WX
+CPPFLAGS	= $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -WX
 !endif
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
@@ -53,18 +58,27 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 MPDBFLAGS        = /pdb:$(MFCCLIENT:.exe=.pdb)
 !endif
 
+!if "$(SMART_DEVICE)" == ""
+
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LDFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) /out:$@ $(LIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-$(MFCCLIENT): $(OBJS) $(MOBJS) ChatClient.res
-	$(LINK) $(LDFLAGS) $(MPDBFLAGS) /subsystem:windows $(OBJS) $(MOBJS) ChatClient.res /out:$@ $(LIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-
+RESFILE		= ChatClient.res
 ChatClient.res: ChatClient.rc
-	rc.exe ChatClient.rc
+	$(RC) ChatClient.rc
+
+!else
+
+$(CLIENT)::
+
+RESFILE		= ChatClientCE.res
+ChatClientCE.res: ChatClientCE.rc
+	$(RC) ChatClientCE.rc
+
+!endif
+
+$(MFCCLIENT): $(OBJS) $(MOBJS) $(RESFILE)
+	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(MPDBFLAGS) $(OBJS) $(MOBJS) $(RESFILE) /out:$@ $(LIBS)
 
 !ifndef BUILD_MFC
 
@@ -72,6 +86,7 @@ clean::
 	del /q Chat.cpp Chat.h
 	del /q Router.cpp Router.h
 	del /q Session.cpp Session.h
+	del /q $(RESFILE)
 
 !if "$(CPP_COMPILER)" != "VC80_EXPRESS"
 $(EVERYTHING)::

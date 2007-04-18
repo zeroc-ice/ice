@@ -11,13 +11,27 @@
 # This file is included by Make.rules.mak when using Microsoft VC++
 #
 
+!if "$(SMART_DEVICE)" != ""
+CXX		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\cl.exe"
+CC		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\cl.exe"
+LINK 		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\link.exe"
+AR		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\lib.exe"
+RC		= rc.exe /i "$(VSINSTALLDIR)\VC\ce\atlmfc\include" /d "UNDER_CE=0x420" /d "_WIN32_WCE=0x420"
+!else
 CXX		= cl.exe
 CC		= cl.exe
 LINK 		= link.exe
 AR		= lib.exe
+RC		= rc.exe
+!endif
+
 
 CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE
 
+
+#
+# Add options for STLPort support
+#
 !if "$(STLPORT_HOME)" != ""
 
 CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
@@ -25,39 +39,99 @@ LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib"
 
 !endif
 
-!if "$(STATICLIBS)" == "yes"
+#
+# Add options for WinCE support
+#
+!if "$(SMART_DEVICE)" != ""
 
-CPPFLAGS	= $(CPPFLAGS) -DICEE_STATIC_LIBS
+CPPFLAGS 	= -QRarch4 -I"$(VSINSTALLDIR)\VC\ce\Include" -I"$(VSINSTALLDIR)\SmartDevices\SDK\$(SMART_DEVICE)\Include" -fp:fast -TP $(CPPFLAGS) /D "ARM" /D "_ARM_" /D "ARMV4" /D "UNICODE" /D "_WIN32_WCE=0x420" /D "UNDER_CE=0x420" /D "_UNICODE"
 
+!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+CPPFLAGS	= $(CPPFLAGS) -GS-
 !endif
 
-!if "$(OPTIMIZE_SPEED)" == "yes"
+LDFLAGS		= /LIBPATH:"$(VSINSTALLDIR)\VC\ce\Lib\armv4" /LIBPATH:"$(VSINSTALLDIR)\SmartDevices\SDK\$(SMART_DEVICE)\Lib\armv4" -nodefaultlib:"kernel32.lib" -nodefaultlib:"oldnames.lib" /MACHINE:ARM /STACK:65536,4096
 
-CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
-!if "$(CPP_COMPILER)" != "VC60"
-CPPFLAGS	= $(CPPFLAGS) -GL
-!endif
-
-!elseif "$(OPTIMIZE_SIZE)" == "yes"
-
-CPPFLAGS	= $(CPPFLAGS) -MD -O1 -DNDEBUG
-!if "$(CPP_COMPILER)" != "VC60"
-CPPFLAGS	= $(CPPFLAGS) -GL
-!endif
-
+!if "$(SMART_DEVICE)" == "PocketPC2003"
+CPPFLAGS	= $(CPPFLAGS) /D "WIN32_PLATFORM_PSPC"
+!elseif "$(SMART_DEVICE)" == "Smartphone2003"
+CPPFLAGS	= $(CPPFLAGS) /D "WIN32_PLATFORM_WFSP"
 !else
+!error Unknown setting for SMART_DEVICE
+!endif
 
-CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -Od -D_DEBUG
+!endif
+
+#
+# Add options for static library support
+#
+!if "$(STATICLIBS)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -DICEE_STATIC_LIBS
+!endif
+
+#
+# Add release vs debug options
+#
+!if "$(OPTIMIZE_SPEED)" == "yes" # Optimize Speed
+
+!if "$(SMART_DEVICE)" != "" & "$(STATICLIBS)" == "yes"
+CPPFLAGS        = $(CPPFLAGS) -MT
+!else
+CPPFLAGS        = $(CPPFLAGS) -MD
+!endif
+
+CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG
+!if "$(CPP_COMPILER)" != "VC60"
+CPPFLAGS	= $(CPPFLAGS) -GL
+!endif
+ 
+!elseif "$(OPTIMIZE_SIZE)" == "yes" # Optimize size
+
+!if "$(SMART_DEVICE)" != "" & "$(STATICLIBS)" == "yes"
+CPPFLAGS        = $(CPPFLAGS) -MT
+!else
+CPPFLAGS        = $(CPPFLAGS) -MD
+!endif
+
+CPPFLAGS	= $(CPPFLAGS) -O1 -DNDEBUG
+!if "$(CPP_COMPILER)" != "VC60"
+CPPFLAGS	= $(CPPFLAGS) -GL -GF
+!endif
+
+!else # Debug
+
+!if "$(SMART_DEVICE)" != "" & "$(STATICLIBS)" == "yes"
+CPPFLAGS        = $(CPPFLAGS) -MTd
+!else
+CPPFLAGS        = $(CPPFLAGS) -MDd
+!endif
+
+CPPFLAGS	= $(CPPFLAGS) -Zi -Gm -Od -D_DEBUG
+
+!if "$(SMART_DEVICE)" == ""
 !if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
 CPPFLAGS        = $(CPPFLAGS) -GZ
 !else
 CPPFLAGS        = $(CPPFLAGS) -RTC1
 !endif
+!endif
 
 !endif
 
+#
+# Linker flags
+#
+LDFLAGS         = $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo
+!if "$(SMART_DEVICE)" == ""
+LDFLAGS		= $(LDFLAGS) /subsystem:windows
+!else
+LDFLAGS		= $(LDFLAGS) /subsystem:windowsce
+!endif
 
-LDFLAGS		= $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo 
+!if "$(CPP_COMPILER)" == "VC80" | "$(CPP_COMPILER)" == "VC80_EXPRESS"
+LDFLAGS         = $(LDFLAGS) -manifest:no
+!endif
+
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 LDFLAGS		= $(LDFLAGS) /debug /fixed:no /incremental:yes
 !else
@@ -76,15 +150,31 @@ ARFLAGS		= $(ARFLAGS) /LTCG
 !endif
 !endif
 
+#
+# MFC specific flags
+#
+!if "$(SMART_DEVICE)" != ""
+MFC_CPPFLAGS	= -I"$(VSINSTALLDIR)\VC\ce\atlmfc\include"
+MFC_LDFLAGS	= /LIBPATH:"$(VSINSTALLDIR)\VC\ce\atlmfc\lib\armv4"
+!endif
+
 !if "$(STATICLIBS)" == "yes"
 LIBSUFFIX	= _static$(LIBSUFFIX)
 !endif
 
+!if "$(SMART_DEVICE)" != ""
+BASELIBS        = coredll.lib ccrtrtti.lib ws2.lib 
+!if "$(STATICLIBS)" == "yes"
+BASELIBS        = $(BASELIBS)
+!endif
+!else
 BASELIBS        = rpcrt4.lib advapi32.lib ws2_32.lib
+!endif
+
 LIBS		= icee$(LIBSUFFIX).lib
 MINLIBS		= iceec$(LIBSUFFIX).lib
 
-!if "$(STATICLIBS)" == "yes"
+!if "$(STATICLIBS)" == "yes" | "$(SMART_DEVICE)" != ""
 LIBS		= $(LIBS) $(BASELIBS)
 MINLIBS		= $(MINLIBS) $(BASELIBS)
 !endif

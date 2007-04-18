@@ -16,16 +16,28 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Throughput.obj
 
-COBJS		= Client.obj
+!include $(top_srcdir)/config/Make.rules.mak
 
-SOBJS		= ThroughputI.obj \
-		  Server.obj
+!if "$(SMART_DEVICE)" != ""
+
+COBJS           = WinCEClient.obj
+
+SOBJS           = WinCEServer.obj
+
+!else
+
+COBJS           = Client.obj
+
+SOBJS           = Server.obj
+
+!endif
+
+SOBJS		= $(SOBJS) \
+		  ThroughputI.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \
 		  $(COBJS:.obj=.cpp) \
 		  $(SOBJS:.obj=.cpp)
-
-!include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -WX -DWIN32_LEAN_AND_MEAN
 
@@ -36,13 +48,9 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LDFLAGS) $(CPDBFLAGS) ThroughputC.obj $(COBJS) /out:$@ $(MINLIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LDFLAGS) $(SPDBFLAGS) $(OBJS) $(SOBJS) /out:$@ $(LIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 Client.obj: Client.cpp
         $(CXX) /c -DICEE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) Client.cpp

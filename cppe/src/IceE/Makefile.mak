@@ -93,12 +93,8 @@ SDIR		= $(slicedir)\IceE
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -WX -DWIN32_LEAN_AND_MEAN
 SLICE2CPPEFLAGS	= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
-!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
-!if "$(STATICLIBS)" == "yes"
-PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
-!else
+!if "$(STATICLIBS)" != "yes" & "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes" 
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
-!endif
 !endif
 
 {$(TRANSPORT_DIR)\}.cpp.obj::
@@ -118,8 +114,6 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(LOCAL_OBJS) $(TRANSPORT_OBJS)
 	$(LINK) $(LDFLAGS) /dll $(PDBFLAGS) $(LOCAL_OBJS) $(TRANSPORT_OBJS) /out:$(DLLNAME) $(BASELIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 !endif

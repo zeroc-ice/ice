@@ -37,27 +37,20 @@ CPP_COMPILER            = VC80
 #STATICLIBS             = yes
 
 #
+# If building for an WinCE embedded device with VS2005 set SMART_DEVICE.
+# Supported options are PocketPC2003 and Smartphone2003.
+#
+!if "$(CPP_COMPILER)" == "VC80"
+#SMART_DEVICE	= PocketPC2003
+!endif
+
+#
 # If you want to use STLport, set STLPORT_HOME to the STLport
 # installation directory. If STLPORT_HOME is undefined or empty,
 # STLport is not used.
 #
 !if "$(CPP_COMPILER)" == "VC60"
 STLPORT_HOME		= C:\STLport-4.5
-!endif
-
-#
-# For VC80 and VC80 Express it is necessary to set the location of the
-# manifest tool. This must be the 6.x version of mt.exe, not the 5.x
-# version!
-#
-# For VC80 Express mt.exe 6.x is provided by the Windows Platform SDK.
-# It is necessary to set the location of the Platform SDK through the
-# PDK_HOME environment variable (see INSTALL.WINDOWS for details).
-#
-!if "$(CPP_COMPILER)" == "VC80"
-MT = "$(VS80COMNTOOLS)bin\mt.exe"
-!elseif "$(CPP_COMPILER)" == "VC80_EXPRESS"
-MT = "$(PDK_HOME)\bin\mt.exe"
 !endif
 
 # ----------------------------------------------------------------------

@@ -12,12 +12,16 @@ top_srcdir	= ..\..
 !include $(top_srcdir)\config\Make.rules.mak
 
 SUBDIRS		= minimal \
-		  hello \
 		  latency \
 		  throughput \
-		  callback \
-		  bidir \
 		  chat
+
+!if "$(SMART_DEVICE)" == ""
+SUBDIRS 	= $(SUBDIRS) \
+		  hello \
+		  callback \
+		  bidir
+!endif
 
 !if "$(CPP_COMPILER)" != "VC80_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC

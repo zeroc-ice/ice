@@ -9,9 +9,9 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= client.exe
-SERVER		= server.exe
-COLLOCATED	= collocated.exe
+CLIENT		= exceptionsClient.exe
+SERVER		= exceptionsServer.exe
+COLLOCATED	= exceptionsCollocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
@@ -44,18 +44,12 @@ COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 
 $(CLIENT): $(COBJS)
 	$(LINK) $(LDFLAGS) $(CPDBFLAGS) $(COBJS) /out:$@ $(TESTLIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(SERVER): $(SOBJS)
 	$(LINK) $(LDFLAGS) $(SPDBFLAGS) $(SOBJS) /out:$@ $(TESTLIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 $(COLLOCATED): $(COLOBJS)
 	$(LINK) $(LDFLAGS) $(COPDBFLAGS) $(COLOBJS) /out:$@ $(TESTLIBS)
-	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
 	del /q Test.cpp Test.h

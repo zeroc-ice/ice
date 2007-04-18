@@ -22,12 +22,12 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I..\include $(CPPFLAGS) -DICE_TEST_COMMON_API_EXPORTS
 
-!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
-!if "$(STATICLIBS)" == "yes"
-PDBFLAGS        = /pdb:$(LIBNAME:.lib=.pdb)
-!else
+!if "$(STATICLIBS)" != "yes" & "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
+
+!if "$(SMART_DEVICE)" != ""
+LIBS		= $(LIBS) 
 !endif
 
 !if "$(STATICLIBS)" == "yes"
