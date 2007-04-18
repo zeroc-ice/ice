@@ -1,6 +1,29 @@
 Changes since version 3.2.0
 ---------------------------
 
+- All local methods on a proxy that return the "same" proxy with
+  a different attribute (such as ice_oneway and ice_secure) now return
+  a proxy of the same class as the original. As a result, once you
+  have downcast a proxy, it will rarely be necessary to downcast it
+  again. For example, you can rewrite the following statements
+
+  twoway = Demo.HelloPrx.checkedCast(...)
+  oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
+
+  as simply
+
+  twoway = Demo.HelloPrx.checkedCast(...)
+  oneway = twoway.ice_oneway()
+
+  The local methods ice_facet and ice_identity still return a proxy of
+  the base class Ice.ObjectPrx, since a change to the proxy's facet
+  or identity typically refers to an object with a different Slice
+  type and therefore requires a new downcast.
+
+  This change does not affect the behavior of existing code. However,
+  code that depends on these new semantics will not run correctly
+  using prior versions of Ice.
+
 - Fixed a bug that caused Properties.parseCommandLineOptions and
   parseIceCommandLineOptions to always return None.
 

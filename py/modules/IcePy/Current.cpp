@@ -56,19 +56,19 @@ static CurrentObject*
 currentNew(PyObject* /*arg*/)
 {
     CurrentObject* self = PyObject_New(CurrentObject, &CurrentType);
-    if(self == NULL)
+    if(!self)
     {
-        return NULL;
+        return 0;
     }
 
     self->current = new Ice::Current;
-    self->adapter = NULL;
-    self->con = NULL;
-    self->id = NULL;
-    self->facet = NULL;
-    self->operation = NULL;
-    self->mode = NULL;
-    self->ctx = NULL;
+    self->adapter = 0;
+    self->con = 0;
+    self->id = 0;
+    self->facet = 0;
+    self->operation = 0;
+    self->mode = 0;
+    self->ctx = 0;
 
     return self;
 }
@@ -101,7 +101,7 @@ currentGetter(CurrentObject* self, void* closure)
     // lazy initialization in order to minimize the cost of translating Ice::Current into a
     // Python object for every upcall.
     //
-    PyObject* result = NULL;
+    PyObject* result = 0;
 
     assert(self->current);
 
@@ -110,12 +110,12 @@ currentGetter(CurrentObject* self, void* closure)
     {
     case CURRENT_ADAPTER:
     {
-        if(self->adapter == NULL)
+        if(!self->adapter)
         {
             self->adapter = wrapObjectAdapter(self->current->adapter);
-            if(self->adapter == NULL)
+            if(!self->adapter)
             {
-                return NULL;
+                return 0;
             }
         }
         Py_INCREF(self->adapter);
@@ -124,12 +124,12 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_CONNECTION:
     {
-        if(self->con == NULL)
+        if(!self->con)
         {
             self->con = createConnection(self->current->con, self->current->adapter->getCommunicator());
-            if(self->con == NULL)
+            if(!self->con)
             {
-                return NULL;
+                return 0;
             }
         }
         Py_INCREF(self->con);
@@ -138,7 +138,7 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_ID:
     {
-        if(self->id == NULL)
+        if(!self->id)
         {
             self->id = createIdentity(self->current->id);
         }
@@ -148,7 +148,7 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_FACET:
     {
-        if(self->facet == NULL)
+        if(!self->facet)
         {
             self->facet = PyString_FromString(const_cast<char*>(self->current->facet.c_str()));
         }
@@ -158,7 +158,7 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_OPERATION:
     {
-        if(self->operation == NULL)
+        if(!self->operation)
         {
             self->operation = PyString_FromString(const_cast<char*>(self->current->operation.c_str()));
         }
@@ -168,10 +168,10 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_MODE:
     {
-        if(self->mode == NULL)
+        if(!self->mode)
         {
             PyObject* type = lookupType("Ice.OperationMode");
-            assert(type != NULL);
+            assert(type);
             const char* enumerator = 0;
             switch(self->current->mode)
             {
@@ -186,7 +186,7 @@ currentGetter(CurrentObject* self, void* closure)
                 break;
             }
             self->mode = PyObject_GetAttrString(type, STRCAST(enumerator));
-            assert(self->mode != NULL);
+            assert(self->mode);
         }
         Py_INCREF(self->mode);
         result = self->mode;
@@ -194,13 +194,13 @@ currentGetter(CurrentObject* self, void* closure)
     }
     case CURRENT_CTX:
     {
-        if(self->ctx == NULL)
+        if(!self->ctx)
         {
             self->ctx = PyDict_New();
-            if(self->ctx != NULL && !contextToDictionary(self->current->ctx, self->ctx))
+            if(self->ctx && !contextToDictionary(self->current->ctx, self->ctx))
             {
                 Py_DECREF(self->ctx);
-                self->ctx = NULL;
+                self->ctx = 0;
                 break;
             }
         }
@@ -215,14 +215,21 @@ currentGetter(CurrentObject* self, void* closure)
 
 static PyGetSetDef CurrentGetSetters[] =
 {
-    {STRCAST("adapter"), (getter)currentGetter, NULL, STRCAST("object adapter"), (void*)CURRENT_ADAPTER},
-    {STRCAST("con"), (getter)currentGetter, NULL, STRCAST("connection info"), (void*)CURRENT_CONNECTION},
-    {STRCAST("id"), (getter)currentGetter, NULL, STRCAST("identity"), (void*)CURRENT_ID},
-    {STRCAST("facet"), (getter)currentGetter, NULL, STRCAST("facet name"), (void*)CURRENT_FACET},
-    {STRCAST("operation"), (getter)currentGetter, NULL, STRCAST("operation name"), (void*)CURRENT_OPERATION},
-    {STRCAST("mode"), (getter)currentGetter, NULL, STRCAST("operation mode"), (void*)CURRENT_MODE},
-    {STRCAST("ctx"), (getter)currentGetter, NULL, STRCAST("context"), (void*)CURRENT_CTX},
-    {NULL}  /* Sentinel */
+    { STRCAST("adapter"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("object adapter"),
+      reinterpret_cast<void*>(CURRENT_ADAPTER) },
+    { STRCAST("con"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("connection info"),
+      reinterpret_cast<void*>(CURRENT_CONNECTION) },
+    { STRCAST("id"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("identity"),
+      reinterpret_cast<void*>(CURRENT_ID) },
+    { STRCAST("facet"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("facet name"),
+      reinterpret_cast<void*>(CURRENT_FACET) },
+    { STRCAST("operation"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("operation name"),
+      reinterpret_cast<void*>(CURRENT_OPERATION) },
+    { STRCAST("mode"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("operation mode"),
+      reinterpret_cast<void*>(CURRENT_MODE) },
+    { STRCAST("ctx"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("context"),
+      reinterpret_cast<void*>(CURRENT_CTX) },
+    { 0 }  /* Sentinel */
 };
 
 namespace IcePy
@@ -232,13 +239,13 @@ PyTypeObject CurrentType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(NULL)
+    PyObject_HEAD_INIT(0)
     0,                               /* ob_size */
     STRCAST("IcePy.Current"),        /* tp_name */
     sizeof(CurrentObject),           /* tp_basicsize */
     0,                               /* tp_itemsize */
     /* methods */
-    (destructor)currentDealloc,      /* tp_dealloc */
+    reinterpret_cast<destructor>(currentDealloc), /* tp_dealloc */
     0,                               /* tp_print */
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
@@ -271,7 +278,7 @@ PyTypeObject CurrentType =
     0,                               /* tp_dictoffset */
     0,                               /* tp_init */
     0,                               /* tp_alloc */
-    (newfunc)currentNew,             /* tp_new */
+    reinterpret_cast<newfunc>(currentNew), /* tp_new */
     0,                               /* tp_free */
     0,                               /* tp_is_gc */
 };
@@ -285,7 +292,8 @@ IcePy::initCurrent(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, STRCAST("Current"), (PyObject*)&CurrentType) < 0)
+    PyTypeObject* type = &CurrentType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("Current"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -299,10 +307,10 @@ IcePy::createCurrent(const Ice::Current& current)
     //
     // Return an instance of IcePy.Current to hold the current information.
     //
-    CurrentObject* obj = currentNew(NULL);
-    if(obj != NULL)
+    CurrentObject* obj = currentNew(0);
+    if(obj)
     {
         *obj->current = current;
     }
-    return (PyObject*)obj;
+    return reinterpret_cast<PyObject*>(obj);
 }

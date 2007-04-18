@@ -26,8 +26,8 @@ IcePy::ThreadNotificationWrapper::start()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("start"), NULL);
-    if(tmp.get() == NULL)
+    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("start"), 0);
+    if(!tmp.get())
     {
         throwPythonException();
     }
@@ -38,8 +38,8 @@ IcePy::ThreadNotificationWrapper::stop()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("stop"), NULL);
-    if(tmp.get() == NULL)
+    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("stop"), 0);
+    if(!tmp.get())
     {
         throwPythonException();
     }

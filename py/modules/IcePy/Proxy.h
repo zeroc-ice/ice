@@ -21,7 +21,7 @@ extern PyTypeObject ProxyType;
 
 bool initProxy(PyObject*);
 
-PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject* = NULL);
+PyObject* createProxy(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject* = 0);
 
 bool checkProxy(PyObject*);
 

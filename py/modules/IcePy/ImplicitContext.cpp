@@ -39,9 +39,9 @@ static ImplicitContextObject*
 implicitContextNew(PyObject* /*arg*/)
 {
     ImplicitContextObject* self = PyObject_New(ImplicitContextObject, &ImplicitContextType);
-    if (self == NULL)
+    if(!self)
     {
-        return NULL;
+        return 0;
     }
     self->implicitContext = 0;
     return self;
@@ -86,19 +86,18 @@ implicitContextGetContext(ImplicitContextObject* self)
     Ice::Context ctx = (*self->implicitContext)->getContext();
 
     PyObjectHandle dict = PyDict_New();
-    if(dict.get() == NULL)
+    if(!dict.get())
     {
-        return NULL;
+        return 0;
     }
 
     if(!contextToDictionary(ctx, dict.get()))
     {
-        return NULL;
+        return 0;
     }
 
     return dict.release();
 }
-
 
 #ifdef WIN32
 extern "C"
@@ -109,13 +108,13 @@ implicitContextSetContext(ImplicitContextObject* self, PyObject* args)
     PyObject* dict;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), &PyDict_Type, &dict))
     {
-        return NULL;
+        return 0;
     }
 
     Ice::Context ctx;
     if(!dictionaryToContext(dict, ctx))
     {
-        return NULL;
+        return 0;
     }
 
     (*self->implicitContext)->setContext(ctx);
@@ -133,9 +132,9 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
     char* key;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
     {
-        return NULL;
+        return 0;
     }
-    
+
     bool containsKey;
     try
     {
@@ -144,18 +143,16 @@ implicitContextContainsKey(ImplicitContextObject* self, PyObject* args)
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
-        return NULL;
+        return 0;
     }
-    
+
     if(containsKey)
     {
-        Py_INCREF(Py_True);
-        return Py_True;
+        PyRETURN_TRUE;
     }
     else
     {
-        Py_INCREF(Py_False);
-        return Py_False;
+        PyRETURN_FALSE;
     }
 }
 
@@ -168,9 +165,9 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
     char* key;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
     {
-        return NULL;
+        return 0;
     }
-    
+
     string val;
     try
     {
@@ -179,11 +176,10 @@ implicitContextGet(ImplicitContextObject* self, PyObject* args)
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
-        return NULL;
+        return 0;
     }
     return PyString_FromString(const_cast<char*>(val.c_str()));
 }
-
 
 #ifdef WIN32
 extern "C"
@@ -195,9 +191,9 @@ implicitContextPut(ImplicitContextObject* self, PyObject* args)
     char* val;
     if(!PyArg_ParseTuple(args, STRCAST("ss"), &key, &val))
     {
-        return NULL;
+        return 0;
     }
-    
+
     string oldVal;
     try
     {
@@ -206,7 +202,7 @@ implicitContextPut(ImplicitContextObject* self, PyObject* args)
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
-        return NULL;
+        return 0;
     }
     return PyString_FromString(const_cast<char*>(oldVal.c_str()));
 }
@@ -220,9 +216,9 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
     char* key;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
     {
-        return NULL;
+        return 0;
     }
-    
+
     string val;
     try
     {
@@ -231,26 +227,26 @@ implicitContextRemove(ImplicitContextObject* self, PyObject* args)
     catch(const Ice::Exception& ex)
     {
         setPythonException(ex);
-        return NULL;
+        return 0;
     }
     return PyString_FromString(const_cast<char*>(val.c_str()));
 }
-    
+
 static PyMethodDef ImplicitContextMethods[] =
 {
-    { STRCAST("getContext"), (PyCFunction)implicitContextGetContext, METH_VARARGS,
+    { STRCAST("getContext"), reinterpret_cast<PyCFunction>(implicitContextGetContext), METH_VARARGS,
       PyDoc_STR(STRCAST("getContext() -> Ice.Context")) },
-    { STRCAST("setContext"), (PyCFunction)implicitContextSetContext, METH_VARARGS,
+    { STRCAST("setContext"), reinterpret_cast<PyCFunction>(implicitContextSetContext), METH_VARARGS,
       PyDoc_STR(STRCAST("setContext(ctx) -> string")) },
-    { STRCAST("containsKey"), (PyCFunction)implicitContextContainsKey, METH_VARARGS,
+    { STRCAST("containsKey"), reinterpret_cast<PyCFunction>(implicitContextContainsKey), METH_VARARGS,
       PyDoc_STR(STRCAST("containsKey(key) -> bool")) },
-    { STRCAST("get"), (PyCFunction)implicitContextGet, METH_VARARGS,
+    { STRCAST("get"), reinterpret_cast<PyCFunction>(implicitContextGet), METH_VARARGS,
       PyDoc_STR(STRCAST("get(key) -> string")) },
-    { STRCAST("put"), (PyCFunction)implicitContextPut, METH_VARARGS,
+    { STRCAST("put"), reinterpret_cast<PyCFunction>(implicitContextPut), METH_VARARGS,
       PyDoc_STR(STRCAST("put(key, value) -> string")) },
-    { STRCAST("remove"), (PyCFunction)implicitContextRemove, METH_VARARGS,
+    { STRCAST("remove"), reinterpret_cast<PyCFunction>(implicitContextRemove), METH_VARARGS,
       PyDoc_STR(STRCAST("remove(key) -> string")) },
-    { NULL, NULL} /* sentinel */
+    { 0, 0 } /* sentinel */
 };
 
 namespace IcePy
@@ -260,17 +256,17 @@ PyTypeObject ImplicitContextType =
 {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(NULL)
+    PyObject_HEAD_INIT(0)
     0,                              /* ob_size */
     STRCAST("IcePy.ImplicitContext"),    /* tp_name */
     sizeof(ImplicitContextObject),       /* tp_basicsize */
     0,                              /* tp_itemsize */
     /* methods */
-    (destructor)implicitContextDealloc,  /* tp_dealloc */
+    reinterpret_cast<destructor>(implicitContextDealloc), /* tp_dealloc */
     0,                              /* tp_print */
     0,                              /* tp_getattr */
     0,                              /* tp_setattr */
-    (cmpfunc)implicitContextCompare,     /* tp_compare */
+    reinterpret_cast<cmpfunc>(implicitContextCompare), /* tp_compare */
     0,                              /* tp_repr */
     0,                              /* tp_as_number */
     0,                              /* tp_as_sequence */
@@ -299,7 +295,7 @@ PyTypeObject ImplicitContextType =
     0,                              /* tp_dictoffset */
     0,                              /* tp_init */
     0,                              /* tp_alloc */
-    (newfunc)implicitContextNew,         /* tp_new */
+    reinterpret_cast<newfunc>(implicitContextNew), /* tp_new */
     0,                              /* tp_free */
     0,                              /* tp_is_gc */
 };
@@ -313,7 +309,8 @@ IcePy::initImplicitContext(PyObject* module)
     {
         return false;
     }
-    if(PyModule_AddObject(module, STRCAST("ImplicitContext"), (PyObject*)&ImplicitContextType) < 0)
+    PyTypeObject* type = &ImplicitContextType; // Necessary to prevent GCC's strict-alias warnings.
+    if(PyModule_AddObject(module, STRCAST("ImplicitContext"), reinterpret_cast<PyObject*>(type)) < 0)
     {
         return false;
     }
@@ -324,10 +321,10 @@ IcePy::initImplicitContext(PyObject* module)
 PyObject*
 IcePy::createImplicitContext(const Ice::ImplicitContextPtr& implicitContext)
 {
-    ImplicitContextObject* obj = implicitContextNew(NULL);
-    if(obj != NULL)
+    ImplicitContextObject* obj = implicitContextNew(0);
+    if(obj)
     {
         obj->implicitContext = new Ice::ImplicitContextPtr(implicitContext);
     }
-    return (PyObject*)obj;
+    return reinterpret_cast<PyObject*>(obj);
 }

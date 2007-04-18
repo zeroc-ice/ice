@@ -32,10 +32,10 @@ PyObject*
 IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
 {
     char* cmd;
-    PyObject* list = NULL;
+    PyObject* list = 0;
     if(!PyArg_ParseTuple(args, STRCAST("s|O!"), &cmd, &PyList_Type, &list))
     {
-        return NULL;
+        return 0;
     }
 
     vector<string> argSeq;
@@ -46,19 +46,19 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     catch(const IceUtil::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-        return NULL;
+        return 0;
     }
     catch(const IceUtil::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-        return NULL;
+        return 0;
     }
 
-    if(list != NULL)
+    if(list)
     {
         if(!listToStringSeq(list, argSeq))
         {
-            return NULL;
+            return 0;
         }
     }
 
@@ -80,18 +80,18 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         if(files.empty())
         {
             PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
-            return NULL;
+            return 0;
         }
     }
     catch(const IceUtil::BadOptException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-        return NULL;
+        return 0;
     }
     catch(const IceUtil::APIException& ex)
     {
         PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
-        return NULL;
+        return 0;
     }
 
     string cppArgs;
@@ -141,7 +141,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         if(cppHandle == 0)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice preprocessing failed for `%s'", cmd);
-            return NULL;
+            return 0;
         }
 
         UnitPtr u = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
@@ -151,7 +151,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         {
             PyErr_Format(PyExc_RuntimeError, "Slice parsing failed for `%s'", cmd);
             u->destroy();
-            return NULL;
+            return 0;
         }
 
         //
@@ -166,22 +166,22 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         string code = codeStream.str();
         PyObjectHandle src = Py_CompileString(const_cast<char*>(code.c_str()), const_cast<char*>(file.c_str()),
                                               Py_file_input);
-        if(src.get() == NULL)
+        if(!src.get())
         {
-            return NULL;
+            return 0;
         }
 
         PyObjectHandle globals = PyDict_New();
-        if(globals.get() == NULL)
+        if(!globals.get())
         {
-            return NULL;
+            return 0;
         }
         PyDict_SetItemString(globals.get(), "__builtins__", PyEval_GetBuiltins());
 
-        PyObjectHandle val = PyEval_EvalCode((PyCodeObject*)src.get(), globals.get(), 0);
-        if(val.get() == NULL)
+        PyObjectHandle val = PyEval_EvalCode(reinterpret_cast<PyCodeObject*>(src.get()), globals.get(), 0);
+        if(!val.get())
         {
-            return NULL;
+            return 0;
         }
     }
 

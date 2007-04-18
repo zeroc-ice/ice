@@ -18,8 +18,34 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
 
+//
+// These macros replace Py_RETURN_FALSE and Py_RETURN TRUE. We use these
+// instead of the standard ones in order to avoid GCC warnings about
+// strict aliasing and type punning.
+//
+#define PyRETURN_FALSE return Py_INCREF(getFalse()), getFalse()
+#define PyRETURN_TRUE return Py_INCREF(getTrue()), getTrue()
+
 namespace IcePy
 {
+
+//
+// This should be used instead of Py_False to avoid GCC compiler warnings.
+//
+inline PyObject* getFalse()
+{
+    PyIntObject* i = &_Py_ZeroStruct;
+    return reinterpret_cast<PyObject*>(i);
+}
+
+//
+// This should be used instead of Py_True to avoid GCC compiler warnings.
+//
+inline PyObject* getTrue()
+{
+    PyIntObject* i = &_Py_TrueStruct;
+    return reinterpret_cast<PyObject*>(i);
+}
 
 //
 // Invokes Py_DECREF on a Python object.
@@ -28,7 +54,7 @@ class PyObjectHandle
 {
 public:
 
-    PyObjectHandle(PyObject* = NULL);
+    PyObjectHandle(PyObject* = 0);
     PyObjectHandle(const PyObjectHandle&);
     ~PyObjectHandle();
 
