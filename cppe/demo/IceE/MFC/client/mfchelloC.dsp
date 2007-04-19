@@ -46,7 +46,6 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /Yu"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "." /I "../../../../include" /D "NDEBUG" /D "VC_EXTRALEAN" /D "WIN32" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "ICEE_PURE_CLIENT" /YX"stdafx.h" /FD /c
-# SUBTRACT CPP /Z<none>
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
@@ -56,7 +55,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
+# ADD LINK32 iceec.lib /nologo /subsystem:windows /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
 # SUBTRACT LINK32 /debug
 
 !ELSEIF  "$(CFG)" == "mfchelloC - Win32 Debug"
@@ -83,7 +82,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
+# ADD LINK32 iceecd.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfchelloC - Win32 Debug Static"
@@ -112,7 +111,7 @@ BSC32=bscmake.exe
 LINK32=link.exe
 # ADD BASE LINK32 IceEd.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib"
 # SUBTRACT BASE LINK32 /incremental:no
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
+# ADD LINK32 iceec_staticd.lib ws2_32.lib rpcrt4.lib /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib" /fixed:no
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "mfchelloC - Win32 Release Static"
@@ -131,7 +130,6 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MD /W3 /GR /GX /O2 /I "." /I "../../../../include" /I "../../../../include/stlport" /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /YX"stdafx.h" /FD /c
 # ADD CPP /nologo /MD /W3 /GR /GX /O1 /I "." /I "../../../../include" /D "NDEBUG" /D "ICEE_STATIC_LIBS" /D "VC_EXTRALEAN" /D "WIN32" /D "_WINDOWS" /D "_AFXDLL" /D "_MBCS" /D "ICEE_PURE_CLIENT" /YX"stdafx.h" /FD /c
-# SUBTRACT CPP /Z<none>
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG" /d "_AFXDLL"
@@ -141,7 +139,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 IceE.lib /nologo /subsystem:windows /incremental:yes /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
-# ADD LINK32 ws2_32.lib rpcrt4.lib /nologo /subsystem:windows /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
+# ADD LINK32 ws2_32.lib rpcrt4.lib iceec_static.lib /nologo /subsystem:windows /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
 # SUBTRACT LINK32 /incremental:yes /debug
 
 !ENDIF 

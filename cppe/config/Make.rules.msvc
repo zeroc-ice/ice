@@ -122,9 +122,7 @@ CPPFLAGS        = $(CPPFLAGS) -RTC1
 # Linker flags
 #
 LDFLAGS         = $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo
-!if "$(SMART_DEVICE)" == ""
-LDFLAGS		= $(LDFLAGS) /subsystem:windows
-!else
+!if "$(SMART_DEVICE)" != ""
 LDFLAGS		= $(LDFLAGS) /subsystem:windowsce
 !endif
 
@@ -156,6 +154,8 @@ ARFLAGS		= $(ARFLAGS) /LTCG
 !if "$(SMART_DEVICE)" != ""
 MFC_CPPFLAGS	= -I"$(VSINSTALLDIR)\VC\ce\atlmfc\include"
 MFC_LDFLAGS	= /LIBPATH:"$(VSINSTALLDIR)\VC\ce\atlmfc\lib\armv4"
+!else
+MFC_LDFLAGS     = /subsystem:windows
 !endif
 
 !if "$(STATICLIBS)" == "yes"

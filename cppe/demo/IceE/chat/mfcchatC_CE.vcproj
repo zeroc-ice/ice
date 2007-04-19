@@ -81,10 +81,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_staticd.lib commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
@@ -183,10 +184,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_staticd.lib commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
@@ -285,10 +287,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="iceed.lib commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
@@ -387,10 +390,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="iceed.lib commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
@@ -488,10 +492,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_static.lib commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
@@ -590,10 +595,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_static.lib commctrl.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
@@ -690,10 +696,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee.lib commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
@@ -792,10 +799,11 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee.lib commctrl.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="mfcchatC.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="..\..\..\lib"
 				IgnoreDefaultLibraryNames="$(CENoDefaultLib)"
 				ProgramDatabaseFile="$(PlatformName)\$(ConfigurationName)/mfcchatC.pdb"
 				StackReserveSize="65536"
@@ -1579,7 +1587,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1588,7 +1596,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1597,7 +1605,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1606,7 +1614,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1615,7 +1623,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1624,7 +1632,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1633,7 +1641,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1642,7 +1650,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice"
+						CommandLine="slice2cppe -I. -I..\..\..\slice Chat.ice&#x0D;&#x0A;"
 						Outputs="Chat.cpp;Chat.h"
 					/>
 				</FileConfiguration>
@@ -1739,7 +1747,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1748,7 +1756,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1757,7 +1765,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1766,7 +1774,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1775,7 +1783,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1784,7 +1792,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1793,7 +1801,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>
@@ -1802,7 +1810,7 @@
 					>
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice"
+						CommandLine="slice2cppe.exe --ice -I..\..\..\slice Session.ice&#x0D;&#x0A;"
 						Outputs="Session.cpp;Session.h"
 					/>
 				</FileConfiguration>

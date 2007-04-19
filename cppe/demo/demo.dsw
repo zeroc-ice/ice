@@ -11,6 +11,57 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name bidirC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bidirS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name callbackC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name callbackS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name chatC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mfcchatC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mfchelloC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mfchelloS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name minimalC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name minimalS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name workqueue
+    End Project Dependency
 }}}
 
 ###############################################################################

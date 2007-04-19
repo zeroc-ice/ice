@@ -80,7 +80,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_staticd.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -182,7 +182,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_staticd.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -284,7 +284,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="iceed.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -387,7 +387,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="iceed.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -489,7 +489,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -592,7 +592,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee.lib coredll.lib ccrtrtti.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -693,7 +693,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_static.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -795,7 +795,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/ALIGN:4096 /subsystem:$(CESubsystem) /MACHINE:ARM "
-				AdditionalDependencies="coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
+				AdditionalDependencies="icee_static.lib coredll.lib ccrtrtti.lib ws2.lib secchk.lib ccrtrtti.lib"
 				OutputFile="latencyServer.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
