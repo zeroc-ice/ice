@@ -52,26 +52,21 @@ Compilation and Testing
 ======================================================================
 
 Using your favorite Zip tool, unzip the Ice-E archive anywhere you
-like, then start the Visual Studio 2005 IDE. You are now ready to 
-compile Ice-E.
+like.
 
-Open the "all_CE.sln" solution.
+Open a Visual Studio 2005 command prompt and change the working directory
+to IceE-@ver@. For example:
 
-Four build configurations are supported:
+> cd C:\IceE-@ver@
 
-  Release
-  Debug
-  Debug Static
-  Release Static
+Edit config\Make.rules.mak to establish your build configuration. The
+comments in the file provide more information. In particular, you
+must set CPP_COMPILER to VC80 and set SMART_DEVICE to the appropriate
+target.
 
-Configurations whose names end in "Static" generate static libraries
-for the Ice-E run time, whereas the other configurations generate
-DLLs.
+Now you're ready to build Ice-E:
 
-Set your active project to "all" to compile everything, including the
-tests and demos. To set your active project, click on "all" in the
-class view, then use Project->Set as StartUp Project. To start the
-compilation, use Build->Build all.
+> nmake /f Makefile.mak
 
 In order to run the test suite, you must build all of the tests, and
 then manually run the server followed by the client. Any failures
@@ -82,4 +77,10 @@ will be reported.
 Installation
 ======================================================================
 
-No automatic installation support is provided.
+Simply run "nmake /f Makefile.mak install". This will install Ice-E in
+the directory specified by the "prefix" variable in config\Make.rules.mak.
+
+After installation, make sure to add the include directory to the
+Visual C++ "Include files" and the lib directory to the "Library
+files" (Tools->Options->Projects and Solutions->VC++ Directories).
+
