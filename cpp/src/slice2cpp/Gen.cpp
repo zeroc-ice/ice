@@ -3089,99 +3089,97 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             }
         }
         
-        if(!p->isInterface())
+        H << sp;
+        H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
+        H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
+        H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
+        H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
+        
+        C << sp;
+        C << nl << "void" << nl << scoped.substr(2)
+          << "::__write(::IceInternal::BasicStream* __os) const";
+        C << sb;
+        C << nl << "__os->writeTypeId(ice_staticId());";
+        C << nl << "__os->startWriteSlice();";
+        DataMemberList dataMembers = p->dataMembers();
+        DataMemberList::const_iterator q;
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            H << sp;
-            H << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
-            H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
-            H << nl << "virtual void __write(const ::Ice::OutputStreamPtr&) const;";
-            H << nl << "virtual void __read(const ::Ice::InputStreamPtr&, bool);";
-
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
+        }
+        C << nl << "__os->endWriteSlice();";
+        emitUpcall(base, "::__write(__os);");
+        C << eb;
+        C << sp;
+        C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is, bool __rid)";
+        C << sb;
+        C << nl << "if(__rid)";
+        C << sb;
+        C << nl << "::std::string myId;";
+        C << nl << "__is->readTypeId(myId);";
+        C << eb;
+        C << nl << "__is->startReadSlice();";
+        for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
+        }
+        C << nl << "__is->endReadSlice();";
+        emitUpcall(base, "::__read(__is, true);");
+        C << eb;
+        
+        if(_stream)
+        {
             C << sp;
-            C << nl << "void" << nl << scoped.substr(2)
-              << "::__write(::IceInternal::BasicStream* __os) const";
+            C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
             C << sb;
-            C << nl << "__os->writeTypeId(ice_staticId());";
-            C << nl << "__os->startWriteSlice();";
-            DataMemberList dataMembers = p->dataMembers();
-            DataMemberList::const_iterator q;
+            C << nl << "__outS->writeTypeId(ice_staticId());";
+            C << nl << "__outS->startSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), true, "", true, (*q)->getMetaData());
+                writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), true, "", _useWstring, 
+                                                (*q)->getMetaData());
             }
-            C << nl << "__os->endWriteSlice();";
-            emitUpcall(base, "::__write(__os);");
+            C << nl << "__outS->endSlice();";
+            emitUpcall(base, "::__write(__outS);");
             C << eb;
             C << sp;
-            C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is, bool __rid)";
+            C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __inS, bool __rid)";
             C << sb;
             C << nl << "if(__rid)";
             C << sb;
-            C << nl << "::std::string myId;";
-            C << nl << "__is->readTypeId(myId);";
+            C << nl << "__inS->readTypeId();";
             C << eb;
-            C << nl << "__is->startReadSlice();";
+            C << nl << "__inS->startSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(C, (*q)->type(), fixKwd((*q)->name()), false, "", true, (*q)->getMetaData());
+                writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), false, "", _useWstring,
+                                                (*q)->getMetaData());
             }
-            C << nl << "__is->endReadSlice();";
-            emitUpcall(base, "::__read(__is, true);");
+            C << nl << "__inS->endSlice();";
+            emitUpcall(base, "::__read(__inS, true);");
             C << eb;
-
-            if(_stream)
-            {
-                C << sp;
-                C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr& __outS) const";
-                C << sb;
-                C << nl << "__outS->writeTypeId(ice_staticId());";
-                C << nl << "__outS->startSlice();";
-                for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-                {
-                    writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), true, "", _useWstring, 
-                                                    (*q)->getMetaData());
-                }
-                C << nl << "__outS->endSlice();";
-                emitUpcall(base, "::__write(__outS);");
-                C << eb;
-                C << sp;
-                C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr& __inS, bool __rid)";
-                C << sb;
-                C << nl << "if(__rid)";
-                C << sb;
-                C << nl << "__inS->readTypeId();";
-                C << eb;
-                C << nl << "__inS->startSlice();";
-                for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-                {
-                    writeStreamMarshalUnmarshalCode(C, (*q)->type(), (*q)->name(), false, "", _useWstring,
-                                                    (*q)->getMetaData());
-                }
-                C << nl << "__inS->endSlice();";
-                emitUpcall(base, "::__read(__inS, true);");
-                C << eb;
-            }
-            else
-            {
-                //
-                // Emit placeholder functions to catch errors.
-                //
-                C << sp;
-                C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
-                C << sb;
-                C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
-                C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-                C << nl << "throw ex;";
-                C << eb;
-                C << sp;
-                C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&, bool)";
-                C << sb;
-                C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
-                C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-                C << nl << "throw ex;";
-                C << eb;
-            }
         }
+        else
+        {
+            //
+            // Emit placeholder functions to catch errors.
+            //
+            C << sp;
+            C << nl << "void" << nl << scoped.substr(2) << "::__write(const ::Ice::OutputStreamPtr&) const";
+            C << sb;
+            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
+            C << nl << "throw ex;";
+            C << eb;
+            C << sp;
+            C << nl << "void" << nl << scoped.substr(2) << "::__read(const ::Ice::InputStreamPtr&, bool)";
+            C << sb;
+            C << nl << "Ice::MarshalException ex(__FILE__, __LINE__);";
+            C << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
+            C << nl << "throw ex;";
+            C << eb;
+        }
+
         if(!p->isAbstract())
         {
             H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";

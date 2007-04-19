@@ -59,9 +59,9 @@ protected:
                        const std::list<std::string>& = std::list<std::string>());
 
     //
-    // Generate dispatch methods for a class or interface.
+    // Generate dispatch and marshalling methods for a class or interface.
     //
-    void writeDispatch(::IceUtil::Output&, const ClassDefPtr&);
+    void writeDispatchAndMarshalling(::IceUtil::Output&, const ClassDefPtr&, bool);
 };
 
 class Gen : private ::IceUtil::noncopyable
@@ -224,9 +224,13 @@ private:
     {
     public:
 
-        DispatcherVisitor(const std::string&);
+        DispatcherVisitor(const std::string&, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+
+        bool _stream;
     };
 
     class BaseImplVisitor : public JavaVisitor

@@ -119,11 +119,28 @@ private:
 };
 typedef IceUtil::Handle<MyClassFactoryWrapper> MyClassFactoryWrapperPtr;
 
+class MyInterfaceFactory : public Ice::ObjectFactory
+{
+public:
+
+    virtual Ice::ObjectPtr
+    create(const string& type)
+    {
+        return new Test::MyInterface;
+    }
+
+    virtual void
+    destroy()
+    {
+    }
+};
+
 int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
     MyClassFactoryWrapperPtr factoryWrapper = new MyClassFactoryWrapper;
     communicator->addObjectFactory(factoryWrapper, Test::MyClass::ice_staticId());
+    communicator->addObjectFactory(new MyInterfaceFactory, Test::MyInterface::ice_staticId());
 
     Ice::InputStreamPtr in;
     Ice::OutputStreamPtr out;
@@ -441,6 +458,19 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             test(arr2[j]->seq9 == arr[j]->seq9);
             test(arr2[j]->d["hi"] == arr2[j]);
         }
+    }
+
+    {
+        Test::MyInterfacePtr i = new Test::MyInterface();
+        out = Ice::createOutputStream(communicator);
+        Test::ice_writeMyInterface(out, i);
+        out->writePendingObjects();
+        out->finished(data);
+        in = Ice::createInputStream(communicator, data);
+        i = 0;
+        Test::ice_readMyInterface(in, i);
+        in->readPendingObjects();
+        test(i);
     }
 
     {

@@ -32,6 +32,19 @@ public:
         {
             return new DI;
         }
+        else if(type == "::Test::I")
+        {
+            return new II;
+        }
+        else if(type == "::Test::J")
+        {
+            return new JI;
+        }
+        else if(type == "::Test::H")
+        {
+            return new HI;
+        }
+
         assert(false); // Should never be reached
         return 0;
     }
@@ -49,6 +62,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(factory, "::Test::B");
     communicator->addObjectFactory(factory, "::Test::C");
     communicator->addObjectFactory(factory, "::Test::D");
+    communicator->addObjectFactory(factory, "::Test::I");
+    communicator->addObjectFactory(factory, "::Test::J");
+    communicator->addObjectFactory(factory, "::Test::H");
 
     InitialPrx allTests(const Ice::CommunicatorPtr&, bool);
     InitialPrx initial = allTests(communicator, false);

@@ -1651,9 +1651,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
         //
         if(id == Ice::Object::ice_staticId())
         {
-            throw NoObjectFactoryException(__FILE__, __LINE__,
-                                           "class sliced to ::Ice::Object, which is abstract",
-                                           mostDerivedId);
+            throw NoObjectFactoryException(__FILE__, __LINE__, "", mostDerivedId);
         }
 
         //

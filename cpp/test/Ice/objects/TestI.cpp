@@ -159,6 +159,24 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
     d = _d;
 }
 
+IPtr
+InitialI::getI(const Ice::Current&)
+{
+    return new II();
+}
+
+IPtr
+InitialI::getJ(const Ice::Current&)
+{
+    return new JI();
+}
+
+IPtr
+InitialI::getH(const Ice::Current&)
+{
+    return new HI();
+}
+
 bool
 UnexpectedObjectExceptionTestI::ice_invoke(const std::vector<Ice::Byte>&,
                                            std::vector<Ice::Byte>& outParams,

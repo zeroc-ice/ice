@@ -59,6 +59,18 @@ class D
     bool postUnmarshalInvoked();
 };
 
+interface I
+{
+};
+
+interface J extends I
+{
+};
+
+class H implements I
+{
+};
+
 class Initial
 {
     void shutdown();
@@ -66,7 +78,12 @@ class Initial
     B getB2();
     C getC();
     D getD();
+
     void getAll(out B b1, out B b2, out C theC, out D theD);
+
+    I getI();
+    I getJ();
+    I getH();
 };
 
 class Empty

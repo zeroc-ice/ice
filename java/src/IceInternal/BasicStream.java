@@ -1340,8 +1340,7 @@ public class BasicStream
             //
             if(id.equals(Ice.ObjectImpl.ice_staticId()))
             {
-                throw new Ice.NoObjectFactoryException("class sliced to Ice.Object, which is abstract",
-                                                        mostDerivedId);
+                throw new Ice.NoObjectFactoryException("", mostDerivedId);
             }
 
             //

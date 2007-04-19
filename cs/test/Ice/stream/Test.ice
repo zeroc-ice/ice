@@ -82,6 +82,10 @@ class MyClass
     StringMyClassD d;
 };
 
+interface MyInterface
+{
+};
+
 };
 
 #endif

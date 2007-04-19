@@ -138,6 +138,15 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
+    cout << "testing getting I, J and H... " << flush;
+    IPtr i = initial->getI();
+    test(i);
+    IPtr j = initial->getJ();
+    test(j && JPtr::dynamicCast(j));
+    IPtr h = initial->getH();
+    test(h && HPtr::dynamicCast(h));
+    cout << "ok" << endl;
+
     if(!collocated)
     {
         cout << "testing UnexpectedObjectException... " << flush;

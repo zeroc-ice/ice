@@ -28,6 +28,19 @@ public class Client
             {
                 return new DI();
             }
+            else if(type.equals("::Test::I"))
+            {
+                return new II();
+            }
+            else if(type.equals("::Test::J"))
+            {
+                return new JI();
+            }
+            else if(type.equals("::Test::H"))
+            {
+                return new HI();
+            }
+
             assert(false); // Should never be reached
             return null;
         }
@@ -46,6 +59,9 @@ public class Client
         communicator.addObjectFactory(factory, "::Test::B");
         communicator.addObjectFactory(factory, "::Test::C");
         communicator.addObjectFactory(factory, "::Test::D");
+        communicator.addObjectFactory(factory, "::Test::I");
+        communicator.addObjectFactory(factory, "::Test::J");
+        communicator.addObjectFactory(factory, "::Test::H");
 
         InitialPrx initial = AllTests.allTests(communicator, false);
         initial.shutdown();

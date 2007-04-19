@@ -62,6 +62,21 @@ public sealed class InitialI : Initial
         return _d;
     }
     
+    public override I getI(Ice.Current current)
+    {
+        return new II();
+    }
+    
+    public override I getJ(Ice.Current current)
+    {
+        return new JI();
+    }
+    
+    public override I getH(Ice.Current current)
+    {
+        return new HI();
+    }
+    
     public override void shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();

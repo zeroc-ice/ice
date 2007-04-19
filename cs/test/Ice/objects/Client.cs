@@ -28,6 +28,18 @@ public class Client
             {
                 return new DI();
             }
+            else if(type.Equals("::Test::I"))
+            {
+                return new II();
+            }
+            else if(type.Equals("::Test::J"))
+            {
+                return new JI();
+            }
+            else if(type.Equals("::Test::H"))
+            {
+                return new HI();
+            }
             Debug.Assert(false); // Should never be reached
             return null;
         }
@@ -45,6 +57,9 @@ public class Client
         communicator.addObjectFactory(factory, "::Test::B");
         communicator.addObjectFactory(factory, "::Test::C");
         communicator.addObjectFactory(factory, "::Test::D");
+        communicator.addObjectFactory(factory, "::Test::I");
+        communicator.addObjectFactory(factory, "::Test::J");
+        communicator.addObjectFactory(factory, "::Test::H");
 
         InitialPrx initial = AllTests.allTests(communicator, false);
         initial.shutdown();

@@ -60,6 +60,18 @@ private:
     bool _postUnmarshalInvoked;
 };
 
+class II : public Test::I
+{
+};
+
+class JI : public Test::J
+{
+};
+
+class HI : public Test::H
+{
+};
+
 class InitialI : public Test::Initial
 {
 public:
@@ -72,6 +84,9 @@ public:
     virtual Test::CPtr getC(const Ice::Current&);
     virtual Test::DPtr getD(const Ice::Current&);
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
+    virtual Test::IPtr getI(const Ice::Current&);
+    virtual Test::IPtr getJ(const Ice::Current&);
+    virtual Test::IPtr getH(const Ice::Current&);
 
 private:
 

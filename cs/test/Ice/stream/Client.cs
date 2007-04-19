@@ -89,6 +89,23 @@ public class Client
         internal bool called = false;
     }
 
+    private class MyInterfaceI : Test.MyInterfaceDisp_
+    {
+    }
+
+    private class MyInterfaceFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+    {
+        public Ice.Object create(string type)
+        {
+            Debug.Assert(type.Equals(Test.MyInterfaceDisp_.ice_staticId()));
+            return new MyInterfaceI();
+        }
+
+        public void destroy()
+        {
+        }
+    }
+
     private class TestObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
     {
         public Ice.Object create(string type)
@@ -144,6 +161,7 @@ public class Client
     {
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
         communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
+        communicator.addObjectFactory(new MyInterfaceFactory(), Test.MyInterfaceDisp_.ice_staticId());
 
         Ice.InputStream @in;
         Ice.OutputStream @out;
@@ -480,6 +498,19 @@ public class Client
             }
             @out.destroy();
             @in.destroy();
+        }
+
+        {
+            Test.MyInterface i = new MyInterfaceI();
+            @out = Ice.Util.createOutputStream(communicator);
+            Test.MyInterfaceHelper.write(@out, i);
+            @out.writePendingObjects();
+            byte[] data = @out.finished();
+            @in = Ice.Util.createInputStream(communicator, data);
+            Test.MyInterfaceHelper helper = new Test.MyInterfaceHelper(@in);
+            helper.read();
+            @in.readPendingObjects();
+            test(helper.value != null);
         }
 
         {

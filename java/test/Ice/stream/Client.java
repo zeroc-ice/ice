@@ -65,6 +65,25 @@ public class Client
         }
     }
 
+    private static class MyInterfaceI extends Test._MyInterfaceDisp
+    {
+    };
+
+    private static class MyInterfaceFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    {
+        public Ice.Object
+        create(String type)
+        {
+            assert(type.equals(Test._MyInterfaceDisp.ice_staticId()));
+            return new MyInterfaceI();
+        }
+        
+        public void
+        destroy()
+        {
+        }
+    }
+
     private static class TestReadObjectCallback implements Ice.ReadObjectCallback
     {
         public void
@@ -108,6 +127,7 @@ public class Client
     {
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
         communicator.addObjectFactory(factoryWrapper, Test.MyClass.ice_staticId());
+        communicator.addObjectFactory(new MyInterfaceFactory(), Test._MyInterfaceDisp.ice_staticId());
 
         Ice.InputStream in;
         Ice.OutputStream out;
@@ -444,6 +464,19 @@ public class Client
             }
             out.destroy();
             in.destroy();
+        }
+        
+        {
+            Test.MyInterface i = new MyInterfaceI();
+            out = Ice.Util.createOutputStream(communicator);
+            Test.MyInterfaceHelper.write(out, i);
+            out.writePendingObjects();
+            byte[] data = out.finished();
+            in = Ice.Util.createInputStream(communicator, data);
+            Test.MyInterfaceHolder j = new Test.MyInterfaceHolder();
+            Test.MyInterfaceHelper.read(in, j);
+            in.readPendingObjects();
+            test(j.value != null);
         }
 
         {
