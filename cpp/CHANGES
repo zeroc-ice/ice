@@ -23,6 +23,9 @@ Changes since version 3.2.X (binary incompabible)
 Changes since version 3.2.0
 ---------------------------
 
+- Fixed IceGrid registry assert which would be triggered on registration
+  of duplicate well-known objects with the same object adapter.
+
 - Added code generated from FileParser.ice to the IceGrid library.
 
 - Fixed collocation optimization to also work for indirect proxies

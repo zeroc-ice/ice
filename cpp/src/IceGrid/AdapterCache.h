@@ -112,8 +112,10 @@ class AdapterCache : public CacheByString<AdapterEntry>
 {
 public:
 
-    ServerAdapterEntryPtr addServerAdapter(const AdapterDescriptor&, const ServerEntryPtr&, const std::string&);
-    ReplicaGroupEntryPtr addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
+    AdapterCache(const Ice::CommunicatorPtr&);
+
+    void addServerAdapter(const AdapterDescriptor&, const ServerEntryPtr&, const std::string&);
+    void addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
 
     AdapterEntryPtr get(const std::string&) const;
     
@@ -125,6 +127,9 @@ protected:
     virtual AdapterEntryPtr addImpl(const std::string&, const AdapterEntryPtr&);
     virtual void removeImpl(const std::string&);
 
+private:
+
+    const Ice::CommunicatorPtr _communicator;
 };
 
 };

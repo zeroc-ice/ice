@@ -79,7 +79,12 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
     const Ice::Identity& id = info.proxy->ice_getIdentity();
 
     Lock sync(*this);
-    assert(!getImpl(id));
+    if(getImpl(id))
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't add duplicate object `" << _communicator->identityToString(id) << "'";
+        return;
+    }
 
     ObjectEntryPtr entry = new ObjectEntry(*this, info, application);
     addImpl(id, entry);
@@ -110,12 +115,17 @@ ObjectCache::get(const Ice::Identity& id) const
     return entry;
 }
 
-ObjectEntryPtr
+void
 ObjectCache::remove(const Ice::Identity& id)
 {
     Lock sync(*this);
     ObjectEntryPtr entry = getImpl(id);
-    assert(entry);
+    if(!entry)
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+        return;
+    }
     removeImpl(id);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
@@ -130,8 +140,6 @@ ObjectCache::remove(const Ice::Identity& id)
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
         out << "removed object `" << _communicator->identityToString(id) << "'";        
     }    
-
-    return entry;
 }
 
 Ice::ObjectProxySeq

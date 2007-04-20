@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Random.h>
+#include <Ice/Communicator.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Locator.h>
 #include <IceGrid/AdapterCache.h>
@@ -67,11 +68,20 @@ struct TransformToReplica : public unary_function<const pair<string, ServerAdapt
 
 }
 
-ServerAdapterEntryPtr
+AdapterCache::AdapterCache(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
+{
+}
+
+void
 AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const ServerEntryPtr& server, const string& app)
 {
     Lock sync(*this);
-    assert(!getImpl(desc.id));
+    if(getImpl(desc.id))
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't add duplicate adapter `" << desc.id << "'";
+        return;
+    }
 
     istringstream is(desc.priority);
     int priority = 0;
@@ -86,18 +96,20 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const ServerEntryP
         assert(repEntry);
         repEntry->addReplica(desc.id, entry);
     }
-
-    return entry;
 }
 
-ReplicaGroupEntryPtr
+void
 AdapterCache::addReplicaGroup(const ReplicaGroupDescriptor& desc, const string& app)
 {
     Lock sync(*this);
-    assert(!getImpl(desc.id));
-    ReplicaGroupEntryPtr entry = new ReplicaGroupEntry(*this, desc.id, app, desc.loadBalancing);
-    addImpl(desc.id, entry);
-    return entry;
+    if(getImpl(desc.id))
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't add duplicate replica group `" << desc.id << "'";
+        return;
+    }
+
+    addImpl(desc.id, new ReplicaGroupEntry(*this, desc.id, app, desc.loadBalancing));
 }
 
 AdapterEntryPtr
@@ -118,7 +130,12 @@ AdapterCache::removeServerAdapter(const string& id)
     Lock sync(*this);
 
     ServerAdapterEntryPtr entry = ServerAdapterEntryPtr::dynamicCast(getImpl(id));
-    assert(entry);
+    if(!entry)
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't remove unknown adapter `" << id << "'";
+        return;
+    }
     removeImpl(id);
     
     string replicaGroupId = entry->getReplicaGroupId();
@@ -134,6 +151,13 @@ void
 AdapterCache::removeReplicaGroup(const string& id)
 {
     Lock sync(*this);
+    ReplicaGroupEntryPtr entry = ReplicaGroupEntryPtr::dynamicCast(getImpl(id));
+    if(!entry)
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't remove unknown replica group `" << id << "'";
+        return;
+    }
     removeImpl(id);
 }
 

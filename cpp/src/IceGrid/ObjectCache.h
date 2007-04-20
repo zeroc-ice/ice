@@ -48,7 +48,7 @@ public:
 
     void add(const ObjectInfo&, const std::string&);
     ObjectEntryPtr get(const Ice::Identity&) const;
-    ObjectEntryPtr remove(const Ice::Identity&);
+    void remove(const Ice::Identity&);
 
     Ice::ObjectProxySeq getObjectsByType(const std::string&); 
     ObjectInfoSeq getAll(const std::string&);

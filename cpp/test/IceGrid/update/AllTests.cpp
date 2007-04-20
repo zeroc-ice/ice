@@ -459,9 +459,112 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex << endl;
             test(false);
         }
-        cout << "ok" << endl;
+
+        info = admin->getServerInfo("Server");
+        test(info.descriptor);
+        object = ObjectDescriptor();
+        object.id = communicator->stringToIdentity("test");
+        info.descriptor->adapters[0].objects.push_back(object);
+        update = empty;
+        update.nodes[0].servers.push_back(info.descriptor);
+        try
+        {
+            admin->updateApplication(update);
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // Object already exists
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        info = admin->getServerInfo("Server");
+        test(info.descriptor);
+        object = ObjectDescriptor();
+        object.id = communicator->stringToIdentity("test1");
+        info.descriptor->adapters[0].allocatables.push_back(object);
+        update = empty;
+        update.nodes[0].servers.push_back(info.descriptor);
+        try
+        {
+            admin->updateApplication(update);
+            test(true);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        info = admin->getServerInfo("Server");
+        test(info.descriptor);
+        object = ObjectDescriptor();
+        object.id = communicator->stringToIdentity("test1");
+        info.descriptor->adapters[0].allocatables.push_back(object);
+        update = empty;
+        update.nodes[0].servers.push_back(info.descriptor);
+        try
+        {
+            admin->updateApplication(update);
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // Object already exists
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        info = admin->getServerInfo("Server");
+        test(info.descriptor);
+        object = ObjectDescriptor();
+        object.id = communicator->stringToIdentity("test");
+        info.descriptor->adapters[0].allocatables.push_back(object);
+        update = empty;
+        update.nodes[0].servers.push_back(info.descriptor);
+        try
+        {
+            admin->updateApplication(update);
+            test(true);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        info = admin->getServerInfo("Server");
+        test(info.descriptor);
+        object = ObjectDescriptor();
+        object.id = communicator->stringToIdentity("test");
+        info.descriptor->adapters[0].allocatables.push_back(object);
+        update = empty;
+        update.nodes[0].servers.push_back(info.descriptor);
+        try
+        {
+            admin->updateApplication(update);
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // Object already exists
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
 
         admin->removeApplication("TestApp");
+
+        cout << "ok" << endl;
     }
 
     {

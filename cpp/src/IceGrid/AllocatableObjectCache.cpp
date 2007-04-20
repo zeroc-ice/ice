@@ -131,7 +131,12 @@ AllocatableObjectCache::add(const ObjectInfo& info, const AllocatablePtr& parent
     const Ice::Identity& id = info.proxy->ice_getIdentity();
 
     Lock sync(*this);
-    assert(!getImpl(id));
+    if(getImpl(id))
+    {
+        Ice::Error out(_communicator->getLogger());
+        out << "can't add duplicate allocatable object `" << _communicator->identityToString(id) << "'";
+        return;
+    }
 
     AllocatableObjectEntryPtr entry = new AllocatableObjectEntry(*this, info, parent);
     addImpl(id, entry);
@@ -169,7 +174,11 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
     {
         Lock sync(*this);
         entry = getImpl(id);
-        assert(entry);
+        if(!entry)
+        {
+            Ice::Error out(_communicator->getLogger());
+            out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+        }
         removeImpl(id);
 
         map<string, TypeEntry>::iterator p = _types.find(entry->getType());

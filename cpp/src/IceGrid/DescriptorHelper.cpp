@@ -961,12 +961,19 @@ CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>
         for(q = p->objects.begin(); q != p->objects.end(); ++q)
         {
             ids.insert(q->id);
+            objectIds.insert(q->id);
         }
         for(q = p->allocatables.begin(); q != p->allocatables.end(); ++q)
         {
-            ids.insert(q->id);
+             if(ids.find(q->id) == ids.end())
+             {
+                 objectIds.insert(q->id);
+             }
+             else
+             {
+                 ids.erase(q->id);
+             }
         }
-        objectIds.insert(ids.begin(), ids.end());
     }
 }
 
