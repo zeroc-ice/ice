@@ -24,6 +24,12 @@ class MyObjectFactory(Ice.ObjectFactory):
             return TestI.CI()
         elif type == '::Test::D':
             return TestI.DI()
+        elif type == '::Test::I':
+            return TestI.II()
+        elif type == '::Test::J':
+            return TestI.JI()
+        elif type == '::Test::H':
+            return TestI.HI()
         assert(False) # Should never be reached
 
     def destroy(self):
@@ -39,6 +45,9 @@ def allTests(communicator, collocated):
     communicator.addObjectFactory(factory, '::Test::B')
     communicator.addObjectFactory(factory, '::Test::C')
     communicator.addObjectFactory(factory, '::Test::D')
+    communicator.addObjectFactory(factory, '::Test::I')
+    communicator.addObjectFactory(factory, '::Test::J')
+    communicator.addObjectFactory(factory, '::Test::H')
 
     print "testing stringToProxy... ",
     ref = "initial:default -p 12010 -t 10000"
@@ -70,6 +79,21 @@ def allTests(communicator, collocated):
     print "getting D... ",
     d = initial.getD()
     test(d)
+    print "ok"
+    
+    print "getting I... ",
+    i = initial.getI()
+    test(i)
+    print "ok"
+    
+    print "getting J... ",
+    j = initial.getJ()
+    test(isinstance(j, Test.J))
+    print "ok"
+    
+    print "getting H... ",
+    h = initial.getH()
+    test(isinstance(h, Test.H))
     print "ok"
     
     print "checking consistency... ",
@@ -133,7 +157,7 @@ def allTests(communicator, collocated):
     print "ok"
 
     if not collocated:
-        print "testing UnexpectedObjectException... "
+        print "testing UnexpectedObjectException... ",
         ref = "uoet:default -p 12010 -t 10000"
         base = communicator.stringToProxy(ref)
         test(base)

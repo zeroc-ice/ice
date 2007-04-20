@@ -52,6 +52,15 @@ class DI(Test.D):
     def ice_postUnmarshal(self):
         self._postUnmarshalInvoked = True
 
+class II(Test.I):
+    pass
+
+class JI(Test.J):
+    pass
+
+class HI(Test.H):
+    pass
+
 class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._adapter = adapter
@@ -108,6 +117,16 @@ class InitialI(Test.Initial):
         self._c.preMarshalInvoked = False
         self._d.preMarshalInvoked = False
         return (self._b1, self._b2, self._c, self._d)
+
+    def getI(self, current=None):
+        return II()
+
+    def getJ(self, current=None):
+        return JI()
+
+    def getH(self, current=None):
+        return HI()
+
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
