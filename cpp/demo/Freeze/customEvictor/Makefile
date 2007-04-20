@@ -35,6 +35,10 @@ SLICE_SRCS	= Item.ice ItemInfo.ice
 
 include $(top_srcdir)/config/Make.rules
 
+ifeq ($(UNAME),Darwin)
+    $(error Demo not supported on Mac OS X) 
+endif
+
 CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
