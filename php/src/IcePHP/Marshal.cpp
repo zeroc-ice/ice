@@ -2162,8 +2162,6 @@ IcePHP::PHPObjectFactory::PHPObjectFactory(TSRMLS_D)
 Ice::ObjectPtr
 IcePHP::PHPObjectFactory::create(const string& scoped)
 {
-    Ice::ObjectPtr result;
-
     Profile* profile = static_cast<Profile*>(ICE_G(profile));
     assert(profile);
 
@@ -2171,22 +2169,35 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     assert(ofm);
 
     //
+    // We can only unmarshal an object if we have the definition of its Slice type.
+    //
+    Profile::ClassMap::iterator p = profile->classes.find(flatten(scoped));
+    Slice::ClassDefPtr def;
+    if(p != profile->classes.end())
+    {
+        def = p->second;
+    }
+    else
+    {
+        return 0;
+    }
+
+    //
     // First check our map for a factory registered for this type.
     //
-    ObjectFactoryMap::iterator p;
-    p = ofm->find(scoped);
-    if(p == ofm->end())
+    ObjectFactoryMap::iterator q = ofm->find(scoped);
+    if(q == ofm->end())
     {
         //
         // Next, check for a default factory.
         //
-        p = ofm->find("");
+        q = ofm->find("");
     }
 
     //
     // If we found a factory, invoke create() on the object.
     //
-    if(p != ofm->end())
+    if(q != ofm->end())
     {
         zval* id;
         MAKE_STD_ZVAL(id);
@@ -2194,7 +2205,7 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
 
         zval* zresult = 0;
 
-        zend_call_method_with_1_params(&p->second, 0, 0, "create", &zresult, id);
+        zend_call_method_with_1_params(&q->second, 0, 0, "create", &zresult, id);
 
         zval_ptr_dtor(&id);
 
@@ -2212,7 +2223,7 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
         {
             //
             // If the factory returned a non-null value, verify that it is an object, and that it
-            // inherits from Ice_ObjectImpl.
+            // implements Ice_Object.
             //
             if(!ZVAL_IS_NULL(zresult))
             {
@@ -2224,28 +2235,12 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
                 }
 
                 zend_class_entry* ce = Z_OBJCE_P(zresult);
-                zend_class_entry* base = findClass("Ice_ObjectImpl" TSRMLS_CC);
+                zend_class_entry* base = findClass("Ice_Object" TSRMLS_CC);
                 if(!checkClass(ce, base))
                 {
                     Ice::MarshalException ex(__FILE__, __LINE__);
-                    ex.reason = "object returned by factory does not implement Ice_ObjectImpl";
+                    ex.reason = "object returned by factory does not implement Ice_Object";
                     throw ex;
-                }
-
-                //
-                // Attempt to find a class definition for the object.
-                //
-                Profile::ClassMap::iterator p;
-                while(ce && (p = profile->classes.find(ce->name)) == profile->classes.end())
-                {
-                    ce = ce->parent;
-                }
-
-                Slice::ClassDefPtr def;
-                if(ce)
-                {
-                    assert(p != profile->classes.end());
-                    def = p->second;
                 }
 
                 return new ObjectReader(zresult, def TSRMLS_CC);
@@ -2258,28 +2253,15 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
     // found, or the class is abstract, then we return nil and the stream will skip
     // the slice and try again.
     //
-    zend_class_entry* cls = 0;
-    Slice::ClassDefPtr def;
-    if(scoped == Ice::Object::ice_staticId())
-    {
-        cls = findClass("Ice_ObjectImpl" TSRMLS_CC);
-    }
-    else
-    {
-        cls = findClassScoped(scoped TSRMLS_CC);
-    }
+    zend_class_entry* cls = findClassScoped(scoped TSRMLS_CC);
 
     //
     // Instantiate the class if it's not abstract.
     //
+    Ice::ObjectPtr result;
     const int abstractFlags = ZEND_ACC_INTERFACE | ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
     if(cls && (cls->ce_flags & abstractFlags) == 0)
     {
-        Profile::ClassMap::iterator p = profile->classes.find(cls->name);
-        if(p != profile->classes.end())
-        {
-            def = p->second;
-        }
         zval* obj;
         MAKE_STD_ZVAL(obj);
         object_init_ex(obj, cls);
