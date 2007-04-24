@@ -320,212 +320,211 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
 {
     try
     {
-        ex.ice_throw();
-    }
-    catch(const Ice::TwowayOnlyException& e)
-    {
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-        if(!cls)
+        try
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-            return;
+            ex.ice_throw();
         }
-
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-        if(object_init_ex(zex, cls) != SUCCESS)
+        catch(const Ice::TwowayOnlyException& e)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-            return;
+            string name = e.ice_name();
+            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+            if(!cls)
+            {
+                throw;
+            }
+
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the unknown member.
+            //
+            zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
+                                        const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
+
+            //
+            // Throw the exception.
+            //
+            zend_throw_exception_object(zex TSRMLS_CC);
         }
-
-        //
-        // Set the unknown member.
-        //
-        zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
-                                    const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
-    }
-    catch(const Ice::UnknownException& e)
-    {
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-        if(!cls)
+        catch(const Ice::UnknownException& e)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-            return;
-        }
+            string name = e.ice_name();
+            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+            if(!cls)
+            {
+                throw;
+            }
 
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-        if(object_init_ex(zex, cls) != SUCCESS)
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the unknown member.
+            //
+            zend_update_property_string(cls, zex, "unknown", sizeof("unknown") - 1,
+                                        const_cast<char*>(e.unknown.c_str()) TSRMLS_CC);
+
+            //
+            // Throw the exception.
+            //
+            zend_throw_exception_object(zex TSRMLS_CC);
+        }
+        catch(const Ice::RequestFailedException& e)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-            return;
+            string name = e.ice_name();
+            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+            if(!cls)
+            {
+                throw;
+            }
+
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the id member.
+            //
+            zval* id;
+            MAKE_STD_ZVAL(id);
+            if(!createIdentity(id, e.id TSRMLS_CC))
+            {
+                return;
+            }
+            zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
+
+            //
+            // Set the facet member.
+            //
+            zval* facet;
+            MAKE_STD_ZVAL(facet);
+            ZVAL_STRINGL(facet, const_cast<char*>(e.facet.c_str()), e.facet.length(), 1);
+            zend_update_property(cls, zex, "facet", sizeof("facet") - 1, facet TSRMLS_CC);
+
+            //
+            // Set the operation member.
+            //
+            zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
+                                        const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
+
+            //
+            // Throw the exception.
+            //
+            zend_throw_exception_object(zex TSRMLS_CC);
         }
-
-        //
-        // Set the unknown member.
-        //
-        zend_update_property_string(cls, zex, "unknown", sizeof("unknown") - 1,
-                                    const_cast<char*>(e.unknown.c_str()) TSRMLS_CC);
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
-    }
-    catch(const Ice::RequestFailedException& e)
-    {
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-        if(!cls)
+        catch(const Ice::NoObjectFactoryException& e)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-            return;
-        }
+            string name = e.ice_name();
+            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+            if(!cls)
+            {
+                throw;
+            }
 
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-        if(object_init_ex(zex, cls) != SUCCESS)
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the reason member.
+            //
+            zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
+                                        const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
+
+            //
+            // Set the type member.
+            //
+            zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str())
+                                        TSRMLS_CC);
+
+            //
+            // Throw the exception.
+            //
+            zend_throw_exception_object(zex TSRMLS_CC);
+        }
+        catch(const Ice::UnexpectedObjectException& e)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-            return;
-        }
+            string name = e.ice_name();
+            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+            if(!cls)
+            {
+                throw;
+            }
 
-        //
-        // Set the id member.
-        //
-        zval* id;
-        MAKE_STD_ZVAL(id);
-        if(!createIdentity(id, e.id TSRMLS_CC))
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the reason member.
+            //
+            zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
+                                        const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
+
+            //
+            // Set the type and exptected type members.
+            //
+            zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str())
+                                        TSRMLS_CC);
+            zend_update_property_string(cls, zex, "expectedType", sizeof("expectedType") - 1,
+                                        const_cast<char*>(e.expectedType.c_str()) TSRMLS_CC);
+
+            //
+            // Throw the exception.
+            //
+            zend_throw_exception_object(zex TSRMLS_CC);
+        }
+        catch(const Ice::MarshalException& e)
         {
-            return;
+            string name = e.ice_name();
+            zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
+            if(!cls)
+            {
+                throw;
+            }
+
+            zval* zex;
+            MAKE_STD_ZVAL(zex);
+            if(object_init_ex(zex, cls) != SUCCESS)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
+                return;
+            }
+
+            //
+            // Set the reason member.
+            //
+            zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
+                                        const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
+
+            //
+            // Throw the exception.
+            //
+            zend_throw_exception_object(zex TSRMLS_CC);
         }
-        zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
-
-        //
-        // Set the facet member.
-        //
-        zval* facet;
-        MAKE_STD_ZVAL(facet);
-        ZVAL_STRINGL(facet, const_cast<char*>(e.facet.c_str()), e.facet.length(), 1);
-        zend_update_property(cls, zex, "facet", sizeof("facet") - 1, facet TSRMLS_CC);
-
-        //
-        // Set the operation member.
-        //
-        zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
-                                    const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
-    }
-    catch(const Ice::NoObjectFactoryException& e)
-    {
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-        if(!cls)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-            return;
-        }
-
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-        if(object_init_ex(zex, cls) != SUCCESS)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-            return;
-        }
-
-        //
-        // Set the reason member.
-        //
-        zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
-                                    const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
-
-        //
-        // Set the type member.
-        //
-        zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str()) TSRMLS_CC);
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
-    }
-    catch(const Ice::UnexpectedObjectException& e)
-    {
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-        if(!cls)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-            return;
-        }
-
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-        if(object_init_ex(zex, cls) != SUCCESS)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-            return;
-        }
-
-        //
-        // Set the reason member.
-        //
-        zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
-                                    const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
-
-        //
-        // Set the type and exptected type members.
-        //
-        zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str()) TSRMLS_CC);
-        zend_update_property_string(cls, zex, "expectedType", sizeof("expectedType") - 1,
-                                    const_cast<char*>(e.expectedType.c_str()) TSRMLS_CC);
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
-    }
-    catch(const Ice::MarshalException& e)
-    {
-        string name = e.ice_name();
-        zend_class_entry* cls = findClassScoped(name TSRMLS_CC);
-        if(!cls)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to find class %s", name.c_str());
-            return;
-        }
-
-        zval* zex;
-        MAKE_STD_ZVAL(zex);
-        if(object_init_ex(zex, cls) != SUCCESS)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to create exception %s", cls->name);
-            return;
-        }
-
-        //
-        // Set the reason member.
-        //
-        zend_update_property_string(cls, zex, "reason", sizeof("reason") - 1,
-                                    const_cast<char*>(e.reason.c_str()) TSRMLS_CC);
-
-        //
-        // Throw the exception.
-        //
-        zend_throw_exception_object(zex TSRMLS_CC);
     }
     catch(const Ice::LocalException& e)
     {
