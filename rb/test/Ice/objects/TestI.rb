@@ -46,7 +46,10 @@ class CI < Test::C
     end
 end
 
-class DI < Test::D
+#
+# Re-open Test::D instead of specializing it.
+#
+class Test::D
     def initialize
         @preMarshalInvoked = false
         @_postUnmarshalInvoked = false
@@ -64,3 +67,4 @@ class DI < Test::D
         @_postUnmarshalInvoked = true
     end
 end
+

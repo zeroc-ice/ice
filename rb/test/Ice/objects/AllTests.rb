@@ -22,8 +22,12 @@ class MyObjectFactory
             return BI.new
         elsif type == '::Test::C'
             return CI.new
-        elsif type == '::Test::D'
-            return DI.new
+        #
+        # We do not specialize D, instead we just re-open it to define
+        # its methods.
+        #
+        #elsif type == '::Test::D'
+        #      return DI.new
         end
         fail "unknown type"
     end
@@ -40,10 +44,11 @@ def test(b)
 end
 
 def allTests(communicator)
+
     factory = MyObjectFactory.new
     communicator.addObjectFactory(factory, '::Test::B')
     communicator.addObjectFactory(factory, '::Test::C')
-    communicator.addObjectFactory(factory, '::Test::D')
+    #communicator.addObjectFactory(factory, '::Test::D')
 
     print "testing stringToProxy... "
     STDOUT.flush
@@ -144,6 +149,23 @@ def allTests(communicator)
     test(d.theB.postUnmarshalInvoked())
     test(d.theB.theC.preMarshalInvoked)
     test(d.theB.theC.postUnmarshalInvoked())
+    puts "ok"
+
+    print "getting I, J, H... "
+    STDOUT.flush
+    i = initial.getI()
+    test(i)
+    j = initial.getJ()
+    test(i)
+    h = initial.getH()
+    test(i)
+    puts "ok"
+
+    print "setting I... "
+    STDOUT.flush
+    initial.setI(i)
+    initial.setI(j)
+    initial.setI(h)
     puts "ok"
 
     print "testing UnexpectedObjectException... "
