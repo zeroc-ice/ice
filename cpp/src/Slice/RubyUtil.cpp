@@ -367,7 +367,18 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out.dec();
     _out << nl << "end"; // End of mix-in module for class.
 
-    if(!p->isInterface())
+    if(p->isInterface())
+    {
+        //
+        // Class.
+        //
+        _out << nl << "class " << name;
+        _out.inc();
+        _out << nl << "include " << name << "_mixin";
+        _out.dec();
+        _out << nl << "end";
+    }
+    else
     {
         //
         // Class.
@@ -535,7 +546,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "end";
     _classHistory.insert(scoped); // Avoid redundant declarations.
 
-    _out << sp << nl << "T_" << name << ".defineClass(" << (p->isInterface() ? string("nil") : name) << ", "
+    _out << sp << nl << "T_" << name << ".defineClass(" << name << ", "
          << (p->isAbstract() ? "true" : "false") << ", ";
     if(!base)
     {
