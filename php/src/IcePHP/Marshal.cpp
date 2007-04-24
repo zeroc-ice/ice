@@ -2076,30 +2076,6 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
         return false;
     }
 
-#if 0
-    //
-    // Compare the class entries.
-    //
-    if(ce != _class)
-    {
-        //
-        // Check for inheritance.
-        //
-        zend_class_entry* parent = ce->parent;
-        while(parent && parent != _class)
-        {
-            parent = parent->parent;
-        }
-
-        if(!parent)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "expected object value of type %s but received %s", _class->name,
-                             ce->name);
-            return false;
-        }
-    }
-#endif
-
     //
     // ObjectWriter is a subclass of Ice::Object that wraps a PHP object for marshaling. It is
     // possible that this PHP object has already been marshaled, therefore we first must check
