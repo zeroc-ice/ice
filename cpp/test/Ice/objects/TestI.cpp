@@ -165,6 +165,12 @@ InitialI::getI(const Ice::Current&)
     return new II();
 }
 
+void
+InitialI::setI(const IPtr&, const Ice::Current&)
+{
+}
+
+
 IPtr
 InitialI::getJ(const Ice::Current&)
 {

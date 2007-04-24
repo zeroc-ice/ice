@@ -104,6 +104,11 @@ public final class InitialI extends Initial
     }
 
     public void
+    setI(I theI, Ice.Current current)
+    {
+    }
+
+    public void
     shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();

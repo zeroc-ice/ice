@@ -88,6 +88,8 @@ public:
     virtual Test::IPtr getJ(const Ice::Current&);
     virtual Test::IPtr getH(const Ice::Current&);
 
+    virtual void setI(const Test::IPtr&, const Ice::Current&);
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;

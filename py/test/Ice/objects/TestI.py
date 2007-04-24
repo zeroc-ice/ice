@@ -127,6 +127,8 @@ class InitialI(Test.Initial):
     def getH(self, current=None):
         return HI()
 
+    def setI(self, i, current=None):
+        pass
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):

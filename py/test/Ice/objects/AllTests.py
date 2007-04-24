@@ -81,19 +81,19 @@ def allTests(communicator, collocated):
     test(d)
     print "ok"
     
-    print "getting I... ",
+    print "getting I, J, H... ",
     i = initial.getI()
     test(i)
-    print "ok"
-    
-    print "getting J... ",
     j = initial.getJ()
     test(isinstance(j, Test.J))
-    print "ok"
-    
-    print "getting H... ",
     h = initial.getH()
     test(isinstance(h, Test.H))
+    print "ok"
+
+    print "setting I... ",
+    initial.setI(TestI.II())
+    initial.setI(TestI.JI())
+    initial.setI(TestI.HI())
     print "ok"
     
     print "checking consistency... ",

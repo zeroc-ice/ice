@@ -9,9 +9,43 @@
 
 public class Server
 {
+    private static class MyObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    {
+        public Ice.Object
+        create(String type)
+        {
+            if(type.equals("::Test::I"))
+            {
+                return new II();
+            }
+            else if(type.equals("::Test::J"))
+            {
+                return new JI();
+            }
+            else if(type.equals("::Test::H"))
+            {
+                return new HI();
+            }
+
+            assert(false); // Should never be reached
+            return null;
+        }
+
+        public void
+        destroy()
+        {
+            // Nothing to do
+        }
+    }
+
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
+        Ice.ObjectFactory factory = new MyObjectFactory();
+        communicator.addObjectFactory(factory, "::Test::I");
+        communicator.addObjectFactory(factory, "::Test::J");
+        communicator.addObjectFactory(factory, "::Test::H");
+
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object object = new InitialI(adapter);

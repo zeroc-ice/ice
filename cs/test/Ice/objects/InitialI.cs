@@ -76,6 +76,10 @@ public sealed class InitialI : Initial
     {
         return new HI();
     }
+
+    public override void setI(I theI, Ice.Current current)
+    {
+    }
     
     public override void shutdown(Ice.Current current)
     {

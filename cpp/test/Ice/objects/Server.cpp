@@ -13,9 +13,43 @@
 using namespace std;
 using namespace Test;
 
+class MyObjectFactory : public Ice::ObjectFactory
+{
+public:
+
+    virtual Ice::ObjectPtr create(const string& type)
+    {
+        if(type == "::Test::I")
+        {
+            return new II;
+        }
+        else if(type == "::Test::J")
+        {
+            return new JI;
+        }
+        else if(type == "::Test::H")
+        {
+            return new HI;
+        }
+
+        assert(false); // Should never be reached
+        return 0;
+    }
+
+    virtual void destroy()
+    {
+        // Nothing to do
+    }
+};
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    Ice::ObjectFactoryPtr factory = new MyObjectFactory;
+    communicator->addObjectFactory(factory, "::Test::I");
+    communicator->addObjectFactory(factory, "::Test::J");
+    communicator->addObjectFactory(factory, "::Test::H");
+
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     InitialPtr initial = new InitialI(adapter);

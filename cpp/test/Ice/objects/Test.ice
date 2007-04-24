@@ -84,6 +84,8 @@ class Initial
     I getI();
     I getJ();
     I getH();
+
+    void setI(I theI);
 };
 
 class Empty
