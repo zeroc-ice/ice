@@ -264,16 +264,23 @@ function allTests()
     $d->theA = null;
     $d->theB = null;
 
-    echo "testing getting I, J and H... ";
+    echo "getting I, J and H... ";
     flush();
     $i = $initial->getI();
     test($i != null);
-    $i = $initial->getJ();
-    test($i != null and $i instanceof Test_J);
-    $i = $initial->getH();
-    test($i != null and $i instanceof Test_H);
+    $j = $initial->getJ();
+    test($j != null and $j instanceof Test_J);
+    $h = $initial->getH();
+    test($h != null and $h instanceof Test_H);
     echo "ok\n";
 
+//    echo "setting I... ";
+//    flush();
+//    $initial->setI($i);
+//    $initial->setI($j);
+//    $initial->setI($h);
+//    echo "ok\n";
+ 
     echo "testing UnexpectedObjectException... ";
     flush();
     $ref = "uoet:default -p 12010 -t 2000";
