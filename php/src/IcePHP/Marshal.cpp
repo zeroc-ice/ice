@@ -2042,7 +2042,7 @@ IcePHP::ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC
     else
     {
         _scoped = "::Ice::Object";
-        _class = findClass("Ice_ObjectImpl" TSRMLS_CC);
+        _class = findClass("Ice_Object" TSRMLS_CC);
     }
 
     assert(_class);
@@ -2060,15 +2060,26 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
     if(Z_TYPE_P(zv) != IS_OBJECT)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected object value of type %s but received %s",
-                         _class ? _class->name : "ice_object", s.c_str());
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected object value of type %s but received %s", _class->name,
+                         s.c_str());
         return false;
     }
 
     //
-    // Compare the class entries.
+    // Verify that the given object is compatible with the formal type.
     //
     zend_class_entry* ce = Z_OBJCE_P(zv);
+    if(!checkClass(ce, _class))
+    {
+        php_error_docref(0 TSRMLS_CC, E_ERROR, "expected object value of type %s but received %s", _class->name,
+                         ce->name);
+        return false;
+    }
+
+#if 0
+    //
+    // Compare the class entries.
+    //
     if(ce != _class)
     {
         //
@@ -2087,6 +2098,7 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
             return false;
         }
     }
+#endif
 
     //
     // ObjectWriter is a subclass of Ice::Object that wraps a PHP object for marshaling. It is
@@ -2096,22 +2108,32 @@ IcePHP::ObjectMarshaler::marshal(zval* zv, const Ice::OutputStreamPtr& os, Objec
     //
     Ice::ObjectPtr writer;
 
-    //
-    // Retrieve the ClassDef for the actual type. This may fail if the type is Ice::Object.
-    //
-    Profile* profile = static_cast<Profile*>(ICE_G(profile));
-    assert(profile);
-    Slice::ClassDefPtr def;
-    Profile::ClassMap::iterator p = profile->classes.find(ce->name);
-    if(p != profile->classes.end())
-    {
-        def = p->second;
-    }
-
     ObjectMap::iterator q = m.find(Z_OBJ_HANDLE_P(zv));
     if(q == m.end())
     {
-        writer = new ObjectWriter(zv, def, m TSRMLS_CC);
+        //
+        // Determine the most-derived Slice type implemented by this object by scanning its
+        // inheritance hierarchy until we find a class or interface that we recognize.
+        //
+        Profile* profile = static_cast<Profile*>(ICE_G(profile));
+        assert(profile);
+        zend_class_entry* cls = ce;
+        Profile::ClassMap::iterator p = profile->classes.find(cls->name);
+        while(p == profile->classes.end())
+        {
+            if(cls->parent)
+            {
+                p = profile->classes.find(cls->parent->name);
+            }
+            for(zend_uint i = 0; i < cls->num_interfaces && p == profile->classes.end(); ++i)
+            {
+                p = profile->classes.find(cls->interfaces[i]->name);
+            }
+            cls = cls->parent;
+        }
+        assert(p != profile->classes.end());
+
+        writer = new ObjectWriter(zv, p->second, m TSRMLS_CC);
         m.insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
     }
     else

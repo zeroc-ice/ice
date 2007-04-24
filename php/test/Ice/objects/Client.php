@@ -274,12 +274,12 @@ function allTests()
     test($h != null and $h instanceof Test_H);
     echo "ok\n";
 
-//    echo "setting I... ";
-//    flush();
-//    $initial->setI($i);
-//    $initial->setI($j);
-//    $initial->setI($h);
-//    echo "ok\n";
+    echo "setting I... ";
+    flush();
+    $initial->setI($i);
+    $initial->setI($j);
+    $initial->setI($h);
+    echo "ok\n";
  
     echo "testing UnexpectedObjectException... ";
     flush();
