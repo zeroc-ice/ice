@@ -48,7 +48,6 @@ class ConfigurationForm extends Form implements CommandListener, Runnable
         _okCommand = new Command("OK", Command.OK, 0);
         _exitCommand = new Command("Exit", Command.EXIT, 1);
 
-        addCommand(_okCommand);
         addCommand(_exitCommand);
         setCommandListener(this);
     }
@@ -71,6 +70,18 @@ class ConfigurationForm extends Form implements CommandListener, Runnable
             Thread t = new Thread(this);
             t.start();
         }
+    }
+
+    public void
+    setHost(String host)
+    {
+        _properties.setProperty("Ice.Default.Host", host);
+    }
+
+    public void
+    enableOk()
+    {
+        addCommand(_okCommand);
     }
 
     public void 

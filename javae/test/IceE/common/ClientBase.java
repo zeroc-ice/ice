@@ -36,6 +36,13 @@ abstract public class ClientBase
     }
 
     public void
+    setup()
+    {
+        _configForm.setHost(getHost());
+        _configForm.enableOk();
+    }
+
+    public void
     runTest(Ice.Communicator communicator, java.io.PrintStream ps)
     {
 	try

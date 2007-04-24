@@ -23,15 +23,24 @@ abstract public class ServerBase extends TestApplication
         _properties = properties;
         ConfigurationForm cf = new ConfigurationForm(parent, properties);
         ProxyStringHelper p = new ProxyStringHelper(properties.getProperty(endpointPropertyName()));
-        cf.append(new StringItem("My IP: ", properties.getProperty("Ice.Default.Host")));
-        
+        _host = new StringItem("My IP: ", "");
         _port = new TextField("Port", p.port(), 128, TextField.NUMERIC);
         _timeout = new TextField("Timeout", p.timeout(), 128, TextField.NUMERIC);
+        cf.append(_host);
         cf.append(_port);
         cf.append(_timeout);
         return cf;
     }
-    
+
+    public void
+    setup()
+    {
+        String host = getHost();
+        _host.setText(host);
+        _configForm.setHost(host);
+        _configForm.enableOk();
+    }
+
     public void
     runTest(Ice.Communicator communicator, java.io.PrintStream ps)
     {
@@ -52,6 +61,7 @@ abstract public class ServerBase extends TestApplication
 	}
     }
 
+    protected StringItem _host;
     protected TextField _port;
     protected TextField _timeout;
     protected Ice.Properties _properties;

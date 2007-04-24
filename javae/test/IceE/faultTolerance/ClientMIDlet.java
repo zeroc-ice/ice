@@ -11,15 +11,6 @@ import javax.microedition.lcdui.*;
 
 public class ClientMIDlet extends ClientBase
 {
-    protected String
-    getHost()
-    {
-        //
-        // We don't need the local address for this MIDlet.
-        //
-        return null;
-    }
-
     protected ConfigurationForm
     initConfigurationForm(javax.microedition.midlet.MIDlet parent, Ice.Properties properties)
     {

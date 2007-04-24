@@ -28,9 +28,28 @@ abstract public class TestApplication
 	}
     }
 
+    class SetupThread implements Runnable
+    {
+        public SetupThread(TestApplication app)
+        {
+            _app = app;
+        }
+
+        public
+        void run()
+        {
+            _app.setup();
+        }
+
+        TestApplication _app;
+    }
+
+
     //
     // Needs to be overridden by wrapper class.
     //
+    abstract public void setup();
+
     abstract protected ConfigurationForm
     initConfigurationForm(javax.microedition.midlet.MIDlet parent, Ice.Properties properties);
 
@@ -53,16 +72,6 @@ abstract public class TestApplication
                 properties.load(is);
             }
 
-            //
-            // Pick up our host name/IP address from the current tcp/ip stack
-            // instantiation.
-            //
-            String defaultHost = getHost();
-            if(defaultHost != null)
-            {
-                properties.setProperty("Ice.Default.Host", defaultHost);
-            }
-
             if(_display == null)
             {
                 _display = javax.microedition.lcdui.Display.getDisplay(this);
@@ -70,6 +79,11 @@ abstract public class TestApplication
                 _display.setCurrent(_configForm);
             }
 
+            //
+            // Some initialization has to occur in a worker thread. 
+            //
+            Thread t = new Thread(new SetupThread(this));
+            t.start();
         }
 	catch(Exception ex)
 	{

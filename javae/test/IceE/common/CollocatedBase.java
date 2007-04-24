@@ -15,9 +15,19 @@ abstract public class CollocatedBase extends TestApplication
     initConfigurationForm(javax.microedition.midlet.MIDlet parent, Ice.Properties properties)
     {
         ConfigurationForm cf = new ConfigurationForm(parent, properties);
-        cf.append(new StringItem("My IP:", properties.getProperty("Ice.Default.Host")));
+        _host = new StringItem("My IP:", "");
+        cf.append(_host); 
         cf.append(new StringItem("Just press OK to continue", ""));
         return cf;
+    }
+
+    public void
+    setup()
+    {
+        String host = getHost();
+        _host.setText(host);
+        _configForm.setHost(host);
+        _configForm.enableOk();
     }
 
     public void
@@ -37,4 +47,6 @@ abstract public class CollocatedBase extends TestApplication
 	    ex.printStackTrace();
 	}
     }
+
+    StringItem _host;
 }
