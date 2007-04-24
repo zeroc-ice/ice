@@ -62,6 +62,18 @@ class DI extends Test_D
     var $_postUnmarshalInvoked = false;
 }
 
+class II extends Ice_ObjectImpl implements Test_I
+{
+}
+
+class JI extends Ice_ObjectImpl implements Test_J
+{
+}
+
+class HI extends Test_H
+{
+}
+
 class MyObjectFactory implements Ice_ObjectFactory
 {
     function create($id)
@@ -77,6 +89,18 @@ class MyObjectFactory implements Ice_ObjectFactory
         else if($id == "::Test::D")
         {
             return new DI();
+        }
+	else if($id == "::Test::I")
+        {
+            return new II();
+        }
+        else if($id == "::Test::J")
+        {
+            return new JI();
+        }
+        else if($id == "::Test::H")
+        {
+            return new HI();
         }
         return null;
     }
@@ -240,6 +264,16 @@ function allTests()
     $d->theA = null;
     $d->theB = null;
 
+    echo "testing getting I, J and H... ";
+    flush();
+    $i = $initial->getI();
+    test($i != null);
+    $i = $initial->getJ();
+    test($i != null and $i instanceof Test_J);
+    $i = $initial->getH();
+    test($i != null and $i instanceof Test_H);
+    echo "ok\n";
+
     echo "testing UnexpectedObjectException... ";
     flush();
     $ref = "uoet:default -p 12010 -t 2000";
@@ -270,6 +304,9 @@ $factory = new MyObjectFactory();
 $ICE->addObjectFactory($factory, "::Test::B");
 $ICE->addObjectFactory($factory, "::Test::C");
 $ICE->addObjectFactory($factory, "::Test::D");
+$ICE->addObjectFactory($factory, "::Test::I");
+$ICE->addObjectFactory($factory, "::Test::J");
+$ICE->addObjectFactory($factory, "::Test::H");
 $initial = allTests();
 $initial->shutdown();
 exit();
