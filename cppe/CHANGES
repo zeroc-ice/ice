@@ -183,6 +183,10 @@ Changes since version 1.0.0
   Ice::AlreadyRegisteredException if it is called with the name of an
   object adapter that already exists.
 
+- Added Communicator::isShutdown() and ObjectAdapter::isDeactivated()
+  to allow applications to determine whether a communicator has been
+  shutdown or an object adapter has been deactivated, respectively.
+
 - Ice-E now uses -Os rather than -O3 for optimized GCC builds.
 
 - EVC++ release builds now use "Optimize Size".

@@ -73,6 +73,7 @@ Ice-E has also eliminated the following features:
 * Active connection management
 * Protocol compression
 * Ice::Application and Ice::Service classes
+* Local interfaces.
 
 Optional Features
 -----------------

@@ -1,18 +1,11 @@
-This demo allows you to send sequences of various types between client
-and server and to measure the maximum bandwidth that can be achieved
-using serialized synchronous requests.
+A simple throughput demo that allows you to send sequences of various
+types between client and server and to measure the maximum bandwidth
+that can be achieved using serialized synchronous requests.
 
-It is possible to run this demo with reduced-size sequences on platforms
-that may have memory constraints that make the full-size sequences 
-unusable.
+To run the demo, first start the server:
 
-To start the server with reduced sequences, use this command:
+$ java Server
 
-$ java Server --small
+In a separate window, start the client:
 
-Similarly, use this command for the client:
-
-$ java Client --small
-
-Failure to ensure that both client and server are using the same
-sequence sizes will result in invalid output.
+$ java Client
