@@ -360,7 +360,6 @@ public final class ObjectAdapter
             //
             _incomingConnectionFactories = null;
 
-
             //
             // Remove object references (some of them cyclic).
             //
@@ -1010,7 +1009,7 @@ public final class ObjectAdapter
     private java.util.Vector _incomingConnectionFactories = new java.util.Vector();
     private java.util.Vector _routerEndpoints = new java.util.Vector();
     private IceInternal.RouterInfo _routerInfo = null;
-    private java.util.Vector _publishedEndpoints;
+    private java.util.Vector _publishedEndpoints = new java.util.Vector();
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
     private boolean _waitForActivate;
