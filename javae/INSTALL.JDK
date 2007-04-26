@@ -14,8 +14,8 @@ Operating systems
 The JDK version of Ice-E for Java has been tested in the following
 environments:
 
-* Linux using JDK 1.1.8 and 1.4.2.
-* Windows 2000/XP using JDK 1.1.8 and 1.4.2.
+* Red Hat Enterprise Linux 4.4 using JDK 1.4.2, 1.5, and 1.6.
+* Windows XP/Vista using JDK 1.4.2, 1.5, and 1.6.
 * Windows CE 4.2 with CrEme 3.27 (http://www.nsicom.com) on a Pocket
   PC 2003 (HP iPAQ PXA270).
 

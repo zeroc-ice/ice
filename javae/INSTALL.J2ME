@@ -14,9 +14,10 @@ Operating systems
 The J2ME version of Ice-E for Java has been tested in the following
 environments:
 
-* Linux and Windows 2000/XP using J2ME emulators from Sun and Nokia
-* A Nokia Series 40 mobile phone
-* A PalmOS 5 mobile phone running IBM's JVM
+* Red Hat Enterprise Linux 4.4 and Windows XP/Vista using J2ME
+  emulators from Sun and Nokia.
+* A Nokia Series 40 mobile phone.
+* A PalmOS 5 mobile phone running IBM's JVM.
 
 In addition to the Ice-E for Java classes, you will also need the
 Slice-to-Embedded-Java translator (see below). ZeroC provides
@@ -167,9 +168,11 @@ PalmOS Notes
 
 One way to install J2ME MIDlets on a PalmOS-based device is to convert
 the MIDlet into a Palm resource (PRC) file. IBM's WebSphere Everyplace
-Micro Edition (WEME) toolkit, available for download from Palm's
-"Plugged In" developer program, includes command-line and graphical
-utilities for performing this conversion.
+Micro Edition (WEME) toolkit includes command-line and graphical
+utilities for performing this conversion. You can download the toolkit
+from the ACCESS Developer Network:
+
+http://www.developerpavilion.com/palmos/
 
 While testing Ice-E on a PalmOS-based smart phone using IBM's J9 JVM,
 we encountered a problem for which we were unable to find a solution:
