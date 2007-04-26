@@ -28,17 +28,6 @@ RC		= rc.exe
 
 CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE
 
-
-#
-# Add options for STLPort support
-#
-!if "$(STLPORT_HOME)" != ""
-
-CPPFLAGS        = -I"$(STLPORT_HOME)\include\stlport" $(CPPFLAGS)
-LDFLAGS         = /LIBPATH:"$(STLPORT_HOME)\lib"
-
-!endif
-
 #
 # Add options for WinCE support
 #
@@ -80,10 +69,7 @@ CPPFLAGS        = $(CPPFLAGS) -MT
 CPPFLAGS        = $(CPPFLAGS) -MD
 !endif
 
-CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG
-!if "$(CPP_COMPILER)" != "VC60"
-CPPFLAGS	= $(CPPFLAGS) -GL
-!endif
+CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG -GL
  
 !elseif "$(OPTIMIZE_SIZE)" == "yes" # Optimize size
 
@@ -93,10 +79,7 @@ CPPFLAGS        = $(CPPFLAGS) -MT
 CPPFLAGS        = $(CPPFLAGS) -MD
 !endif
 
-CPPFLAGS	= $(CPPFLAGS) -O1 -DNDEBUG
-!if "$(CPP_COMPILER)" != "VC60"
-CPPFLAGS	= $(CPPFLAGS) -GL -GF
-!endif
+CPPFLAGS	= $(CPPFLAGS) -O1 -DNDEBUG -GL -GF
 
 !else # Debug
 
@@ -109,11 +92,7 @@ CPPFLAGS        = $(CPPFLAGS) -MDd
 CPPFLAGS	= $(CPPFLAGS) -Zi -Gm -Od -D_DEBUG
 
 !if "$(SMART_DEVICE)" == ""
-!if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
-CPPFLAGS        = $(CPPFLAGS) -GZ
-!else
 CPPFLAGS        = $(CPPFLAGS) -RTC1
-!endif
 !endif
 
 !endif
@@ -123,29 +102,18 @@ CPPFLAGS        = $(CPPFLAGS) -RTC1
 #
 LDFLAGS         = $(LDFLAGS) /LIBPATH:"$(libdir)" /nologo
 !if "$(SMART_DEVICE)" != ""
-LDFLAGS		= $(LDFLAGS) /subsystem:windowsce
-!endif
-
-!if "$(CPP_COMPILER)" == "VC80" | "$(CPP_COMPILER)" == "VC80_EXPRESS"
-LDFLAGS         = $(LDFLAGS) -manifest:no
+LDFLAGS		= $(LDFLAGS) /subsystem:windowsce -manifest:no
 !endif
 
 !if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
 LDFLAGS		= $(LDFLAGS) /debug /fixed:no /incremental:yes
 !else
-LDFLAGS         = $(LDFLAGS) /OPT:REF /incremental:no
-!if "$(CPP_COMPILER)" != "VC60"
-LDFLAGS		= $(LDFLAGS) /OPT:NOWIN98 /LTCG
-!else
-LDFLAGS         = $(LDFLAGS) /pdb:none
-!endif
+LDFLAGS         = $(LDFLAGS) /OPT:REF /incremental:no /OPT:NOWIN98 /LTCG
 !endif
 
 ARFLAGS		= /nologo
 !if "$(OPTIMIZE_SPEED)" == "yes" | "$(OPTIMIZE_SIZE)" == "yes"
-!if "$(CPP_COMPILER)" != "VC60"
 ARFLAGS		= $(ARFLAGS) /LTCG
-!endif
 !endif
 
 #

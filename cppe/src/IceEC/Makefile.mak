@@ -108,6 +108,8 @@ $(LIBNAME): $(DLLNAME)
 $(DLLNAME): $(ICEE_OBJS) $(TRANSPORT_OBJS)
 	$(LINK) $(LDFLAGS) /dll $(PDBFLAGS) $(ICEE_OBJS) $(TRANSPORT_OBJS) /out:$(DLLNAME) $(BASELIBS)
 	move $(DLLNAME:.dll=.lib) $(LIBNAME)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 	@if exist $(DLLNAME:.dll=.exp) del /q $(DLLNAME:.dll=.exp)
 
 !endif

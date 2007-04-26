@@ -50,6 +50,8 @@ HelloServerCE.res: HelloServerCE.rc
 
 $(SERVER): $(OBJS) $(COBJS) $(RESFILE)
 	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(PDBFLAGS) $(OBJS) $(COBJS) $(RESFILE) /out:$@ $(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 
 clean::
 	del /q Hello.cpp Hello.h

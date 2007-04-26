@@ -62,6 +62,8 @@ MPDBFLAGS        = /pdb:$(MFCCLIENT:.exe=.pdb)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LDFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) /out:$@ $(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 
 RESFILE		= ChatClient.res
 ChatClient.res: ChatClient.rc
@@ -79,6 +81,8 @@ ChatClientCE.res: ChatClientCE.rc
 
 $(MFCCLIENT): $(OBJS) $(MOBJS) $(RESFILE)
 	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(MPDBFLAGS) $(OBJS) $(MOBJS) $(RESFILE) /out:$@ $(LIBS)
+	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 
 !ifndef BUILD_MFC
 
