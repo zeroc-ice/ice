@@ -120,14 +120,41 @@ public:
 
     ::std::string ice_toString() const;
 
-    bool ice_isA(const ::std::string&);
-    bool ice_isA(const ::std::string&, const ::Ice::Context&);
-    void ice_ping();
-    void ice_ping(const ::Ice::Context&);
-    ::std::vector< ::std::string> ice_ids();
-    ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
-    ::std::string ice_id();
-    ::std::string ice_id(const ::Ice::Context&);
+    bool ice_isA(const ::std::string& typeId)
+    {
+        return ice_isA(typeId, 0);
+    }
+    bool ice_isA(const ::std::string& typeId, const ::Ice::Context& context)
+    {
+        return ice_isA(typeId, &context);
+    }
+
+    void ice_ping()
+    {
+        ice_ping(0);
+    }
+    void ice_ping(const ::Ice::Context& context)
+    {
+        ice_ping(&context);
+    }
+    
+    ::std::vector< ::std::string> ice_ids()
+    {
+        return ice_ids(0);
+    }
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context& context)
+    {
+        return ice_ids(&context);
+    }
+
+    ::std::string ice_id()
+    {
+        return ice_id(0);
+    }
+    ::std::string ice_id(const ::Ice::Context& context)
+    {
+        return ice_id(&context);
+    }
 
     ::Ice::Identity ice_getIdentity() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity& id) const
@@ -195,6 +222,11 @@ protected:
     ::IceInternal::ReferencePtr _reference;
 
 private:
+
+    bool ice_isA(const ::std::string&, const ::Ice::Context*);
+    void ice_ping(const ::Ice::Context*);
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
+    ::std::string ice_id(const ::Ice::Context*);
 
     void setup(const ::IceInternal::ReferencePtr& ref)
     {

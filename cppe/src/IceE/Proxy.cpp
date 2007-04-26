@@ -154,13 +154,7 @@ IceProxy::Ice::Object::ice_toString() const
 }
 
 bool
-IceProxy::Ice::Object::ice_isA(const string& __id)
-{
-    return ice_isA(__id, _reference->getContext()->getValue());
-}
-
-bool
-IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
+IceProxy::Ice::Object::ice_isA(const string& __id, const Context* __context)
 {
     int __cnt = 0;
     while(true)
@@ -228,13 +222,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 }
 
 void
-IceProxy::Ice::Object::ice_ping()
-{
-    ice_ping(_reference->getContext()->getValue());
-}
-
-void
-IceProxy::Ice::Object::ice_ping(const Context& __context)
+IceProxy::Ice::Object::ice_ping(const Context* __context)
 {
     int __cnt = 0;
     while(true)
@@ -291,13 +279,7 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 }
 
 vector<string>
-IceProxy::Ice::Object::ice_ids()
-{
-    return ice_ids(_reference->getContext()->getValue());
-}
-
-vector<string>
-IceProxy::Ice::Object::ice_ids(const Context& __context)
+IceProxy::Ice::Object::ice_ids(const Context* __context)
 {
     int __cnt = 0;
     while(true)
@@ -357,13 +339,7 @@ IceProxy::Ice::Object::ice_ids(const Context& __context)
 }
 
 string
-IceProxy::Ice::Object::ice_id()
-{
-    return ice_id(_reference->getContext()->getValue());
-}
-
-string
-IceProxy::Ice::Object::ice_id(const Context& __context)
+IceProxy::Ice::Object::ice_id(const Context* __context)
 {
     int __cnt = 0;
     while(true)

@@ -45,7 +45,7 @@ IceInternal::LocalExceptionWrapper::retry() const
 }
 
 IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const string& operation,
-				OperationMode mode, const Context& context) :
+				OperationMode mode, const Context* context) :
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
@@ -98,9 +98,14 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 
     _stream.write(static_cast<Byte>(mode));
 
-    _stream.writeSize(Int(context.size()));
+    if(context == 0)
+    {
+        context = &_reference->getContext()->getValue();
+    }
+
+    _stream.writeSize(Int(context->size()));
     Context::const_iterator p;
-    for(p = context.begin(); p != context.end(); ++p)
+    for(p = context->begin(); p != context->end(); ++p)
     {
 	_stream.write(p->first);
 	_stream.write(p->second);

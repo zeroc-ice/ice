@@ -68,7 +68,7 @@ public:
 	StateLocalException
     };
 
-    Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&);
+    Outgoing(Ice::Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context*);
     ~Outgoing() {}
 
     bool invoke(); // Returns true if ok, false if user exception.
