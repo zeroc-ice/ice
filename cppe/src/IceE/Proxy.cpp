@@ -436,14 +436,6 @@ IceProxy::Ice::Object::ice_context(const Context& newContext) const
     return proxy;
 }
 
-ObjectPrx
-IceProxy::Ice::Object::ice_defaultContext() const
-{
-    ObjectPrx proxy(new ::IceProxy::Ice::Object());
-    proxy->setup(_reference->defaultContext());
-    return proxy;
-}
-
 Identity
 IceProxy::Ice::Object::ice_getIdentity() const
 {

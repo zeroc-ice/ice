@@ -57,9 +57,6 @@ public:
     void flushBatchRequests();
 #endif
 
-     void setDefaultContext(const ::Ice::Context&);
-    SharedContextPtr getDefaultContext() const;
-
 #ifndef ICEE_PURE_BLOCKING_CLIENT
     size_t threadPerConnectionStackSize() const;
 #endif
@@ -108,7 +105,6 @@ private:
 #ifndef ICEE_PURE_CLIENT
     ObjectAdapterFactoryPtr _objectAdapterFactory;
 #endif
-    SharedContextPtr _defaultContext;
 };
 
 }

@@ -356,14 +356,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	return ice_context(newContext);
     }
 
-    public final ObjectPrx
-    ice_defaultContext()
-    {
-	ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-	proxy.setup(_reference.defaultContext());
-	return proxy;
-    }
-
     public final String
     ice_getFacet()
     {

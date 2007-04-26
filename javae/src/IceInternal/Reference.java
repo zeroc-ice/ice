@@ -54,15 +54,6 @@ public abstract class Reference
 	return _context;
     }
 
-    public final Reference
-    defaultContext()
-    {
-	Reference r = _instance.referenceFactory().copy(this);
-	r._context = _instance.getDefaultContext();
-	return r;
-
-    }
-
     public final Ice.Communicator getCommunicator()
     {
         return _communicator;
@@ -443,7 +434,6 @@ public abstract class Reference
     Reference(Instance inst,
               Ice.Communicator com,
               Ice.Identity ident,
-	      java.util.Hashtable ctx,
               String fac,
               int md,
 	      boolean sec)
@@ -463,7 +453,7 @@ public abstract class Reference
         _mode = md;
         _secure = sec;
         _identity = ident;
-	_context = ctx == null ? _emptyContext : ctx;
+	_context = _emptyContext;
         _facet = fac;
 	_overrideTimeout = false;
 	_timeout = -1;

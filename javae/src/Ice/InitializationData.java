@@ -21,12 +21,10 @@ public final class InitializationData
 	InitializationData clone = new InitializationData();
 	clone.properties = properties;
 	clone.logger = logger;
-	clone.defaultContext = defaultContext;
 	return clone;
     }
     
 
     public Properties properties;
     public Logger logger;
-    public java.util.Hashtable defaultContext;
 }

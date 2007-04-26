@@ -37,14 +37,6 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(IceInternal::Reference* p) { return p; }
 
-ReferencePtr
-IceInternal::Reference::defaultContext() const
-{
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = _instance->getDefaultContext();
-    return r;
-}
-
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
 {
@@ -402,14 +394,14 @@ IceInternal::Reference::operator<(const Reference& r) const
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-				  const SharedContextPtr& ctx, const string& fs, Mode md, bool sec) :
+				  const string& fs, Mode md, bool sec) :
     _hashInitialized(false),
     _instance(inst),
     _communicator(com),
     _mode(md),
     _secure(sec),
     _identity(ident),
-    _context(ctx),
+    _context(new SharedContext(Ice::Context())),
     _facet(fs),
     _overrideTimeout(false),
     _timeout(-1)
@@ -448,9 +440,8 @@ IceInternal::Reference::applyOverrides(vector<EndpointPtr>& endpts) const
 IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-					    const SharedContextPtr& ctx, const string& fs, Mode md,
-					    const vector<ConnectionPtr>& fixedConns) :
-    Reference(inst, com, ident, ctx, fs, md, false),
+					    const string& fs, Mode md, const vector<ConnectionPtr>& fixedConns) :
+    Reference(inst, com, ident, fs, md, false),
     _fixedConnections(fixedConns)
 {
 }
@@ -685,9 +676,9 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 }
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
+						  const Identity& ident, const string& fs,
 						  Mode md, bool sec, const RouterInfoPtr& rtrInfo) :
-    Reference(inst, com, ident, ctx, fs, md, sec), _routerInfo(rtrInfo)
+    Reference(inst, com, ident, fs, md, sec), _routerInfo(rtrInfo)
 {
 }
 
@@ -702,19 +693,19 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::DirectReference* p) { return p
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
+					      const Identity& ident, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo) :
 
-    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
+    RoutableReference(inst, com, ident, fs, md, sec, rtrInfo),
     _endpoints(endpts)
 {
 }
 #else
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const SharedContextPtr& ctx, const string& fs, Mode md,
+					      const Identity& ident, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts) :
-    Reference(inst, com, ident, ctx, fs, md, sec),
+    Reference(inst, com, ident, fs, md, sec),
     _endpoints(endpts)
 {
 }
@@ -903,20 +894,20 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::IndirectReference* p) { return
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
+						  const Identity& ident, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
-    RoutableReference(inst, com, ident, ctx, fs, md, sec, rtrInfo),
+    RoutableReference(inst, com, ident, fs, md, sec, rtrInfo),
     _adapterId(adptid),
     _locatorInfo(locInfo)
 {
 }
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com, 
-						  const Identity& ident, const SharedContextPtr& ctx, const string& fs,
+						  const Identity& ident, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const LocatorInfoPtr& locInfo) :
-    Reference(inst, com, ident, ctx, fs, md, sec),
+    Reference(inst, com, ident, fs, md, sec),
     _adapterId(adptid),
     _locatorInfo(locInfo)
 {

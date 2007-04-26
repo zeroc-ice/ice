@@ -50,7 +50,6 @@ public interface ObjectPrx
      **/
     ObjectPrx ice_newContext(java.util.Hashtable newContext);
     ObjectPrx ice_context(java.util.Hashtable newContext);
-    ObjectPrx ice_defaultContext();
 
     String ice_getFacet();
     /**

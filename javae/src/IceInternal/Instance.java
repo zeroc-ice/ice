@@ -128,49 +128,6 @@ public class Instance
     }
 
     public void
-    setDefaultContext(java.util.Hashtable ctx)
-    {
-	if(ctx == null || ctx.isEmpty())
-	{
-	    _defaultContext = _emptyContext;
-	}
-	else
-	{
-	    _defaultContext = new java.util.Hashtable(ctx.size());
-	    java.util.Enumeration e = ctx.keys();
-	    while(e.hasMoreElements())
-	    {
-		java.lang.Object key = e.nextElement();
-		_defaultContext.put(key, ctx.get(key));
-	    }
-	}
-    }
-
-    public java.util.Hashtable
-    getDefaultContext()
-    {
-	//
-	// JDK 1.1 raises IllegalArgumentException if we pass 0 as the initial capacity.
-	//
-	if(_defaultContext.isEmpty())
-	{
-	    return new java.util.Hashtable();
-	}
-	else
-	{
-	    java.util.Hashtable result = new java.util.Hashtable(_defaultContext.size());
-	    java.util.Enumeration e = _defaultContext.keys();
-	    while(e.hasMoreElements())
-	    {
-		java.lang.Object key = e.nextElement();
-		java.lang.Object value = _defaultContext.get(key);
-		result.put(key, value);
-	    }
-	    return result;
-	}
-    }
-
-    public void
     flushBatchRequests()
     {
 	OutgoingConnectionFactory connectionFactory;
@@ -333,15 +290,6 @@ public class Instance
             _proxyFactory = new ProxyFactory(this);
 
             _endpointFactory = new EndpointFactory(this);
-
-	    if(_initData.defaultContext == null)
-	    {
-	        _defaultContext = _emptyContext;
-	    }
-	    else
-	    {
-		_defaultContext = _initData.defaultContext;
-	    }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
@@ -519,8 +467,6 @@ public class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private final int _threadPerConnectionStackSize;
     private EndpointFactory _endpointFactory;
-    private java.util.Hashtable _defaultContext;
-    private static java.util.Hashtable _emptyContext = new java.util.Hashtable();
 
     private static boolean _oneOffDone = false;
 }

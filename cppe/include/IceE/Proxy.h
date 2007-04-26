@@ -142,7 +142,6 @@ public:
 	return ice_context(ctx);
     }
     ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
-    ::Ice::ObjectPrx ice_defaultContext() const;
 
     const ::std::string& ice_getFacet() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string& facet) const

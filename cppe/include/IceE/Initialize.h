@@ -36,7 +36,6 @@ struct InitializationData
 {
     PropertiesPtr properties;
     LoggerPtr logger;
-    Context defaultContext;
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),

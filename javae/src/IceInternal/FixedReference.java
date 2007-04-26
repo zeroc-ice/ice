@@ -15,12 +15,11 @@ public class FixedReference extends Reference
     FixedReference(Instance inst,
 		   Ice.Communicator com,
     		   Ice.Identity ident,
-		   java.util.Hashtable ctx,
 		   String fs,
 		   int md,
 		   Ice.Connection[] fixedConns)
     {
-    	super(inst, com, ident, ctx, fs, md, false);
+    	super(inst, com, ident, fs, md, false);
         _fixedConnections = fixedConns;
     }
 

@@ -113,18 +113,6 @@ public final class Communicator
         _instance.referenceFactory().setDefaultLocator(locator);
     }
 
-    public void 
-    setDefaultContext(java.util.Hashtable ctx)
-    {
-	_instance.setDefaultContext(ctx);
-    }
-
-    public java.util.Hashtable
-    getDefaultContext()
-    {
-	return _instance.getDefaultContext();
-    }
-
     public void
     flushBatchRequests()
     {

@@ -906,8 +906,8 @@ public final class Connection
         //
         Connection[] connections = new Connection[1];
         connections[0] = this;
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.Hashtable(), "",
-                                                                        IceInternal.Reference.ModeTwoway, connections);
+        IceInternal.Reference ref = 
+            _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 

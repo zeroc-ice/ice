@@ -15,14 +15,13 @@ public class DirectReference extends RoutableReference
     DirectReference(Instance inst,
 		    Ice.Communicator com,
     		    Ice.Identity ident,
-		    java.util.Hashtable ctx,
 		    String fs,
 		    int md,
 		    boolean sec,
 		    Endpoint[] endpts,
 		    RouterInfo rtrInfo)
     {
-    	super(inst, com, ident, ctx, fs, md, sec, rtrInfo);
+    	super(inst, com, ident, fs, md, sec, rtrInfo);
         _endpoints = endpts;
     }
 

@@ -534,8 +534,8 @@ public final class ObjectAdapter
         IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
         Connection[] arr = new Connection[connections.size()];
         connections.copyInto( arr);
-        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.Hashtable(), "",
-                                                                        IceInternal.Reference.ModeTwoway, arr);
+        IceInternal.Reference ref = 
+                _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, arr);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
@@ -830,8 +830,7 @@ public final class ObjectAdapter
         //
         Connection[] connections = new Connection[0];
         IceInternal.Reference reference =
-	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
-						IceInternal.Reference.ModeTwoway, false, endpoints, null);
+	    _instance.referenceFactory().create(ident, facet, IceInternal.Reference.ModeTwoway, false, endpoints, null);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
@@ -845,8 +844,7 @@ public final class ObjectAdapter
 	IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
 	Connection[] connections = new Connection[0];
 	IceInternal.Reference reference =
-	    _instance.referenceFactory().create(ident, new java.util.Hashtable(), facet,
-						IceInternal.Reference.ModeTwoway, false, id, null,
+	    _instance.referenceFactory().create(ident, facet, IceInternal.Reference.ModeTwoway, false, id, null,
 						_locatorInfo);
 	return _instance.proxyFactory().referenceToProxy(reference);
     }

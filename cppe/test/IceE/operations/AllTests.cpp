@@ -165,7 +165,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
     test(c == c2);
 
     tprintf("ok\n");
-//XXXX:
 
     tprintf("testing timeout...");
     Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(cl->ice_timeout(500));
