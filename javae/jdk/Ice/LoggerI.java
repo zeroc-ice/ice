@@ -56,6 +56,7 @@ public final class LoggerI implements Logger
 	StringBuffer s = new StringBuffer();
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
+        s.append(' ');
 	s.append(_prefix);
 	s.append("warning: ");
 	s.append(message);
@@ -68,6 +69,7 @@ public final class LoggerI implements Logger
 	StringBuffer s = new StringBuffer();
         s.append(_date.format(new java.util.Date()));
         s.append(_time.format(new java.util.Date()));
+        s.append(' ');
 	s.append(_prefix);
 	s.append("error: ");
 	s.append(message);
