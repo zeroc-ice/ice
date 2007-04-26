@@ -1435,12 +1435,31 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         H << "return ";
     }
-    H << fixKwd(name) << spar << args << "__defaultContext()" << epar << ';';
+    H << fixKwd(name) << spar << args << "0" << epar << ';';
     H << eb;
-    H << nl << _dllExport << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context&" << epar
-      << ';';
+    H << nl << deprecateSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << "const ::Ice::Context& __ctx"
+      << epar;
+    H << sb;
+    H << nl;
+    if(ret)
+    {
+        H << "return ";
+    }
+    H << fixKwd(name) << spar << args << "&__ctx" << epar << ';';
+    H << eb;
 
-    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context& __ctx" << epar;
+    H << nl;
+    H.dec();
+    H << nl << "private:";
+    H.inc();
+    H << sp << nl << _dllExport << retS << ' ' << fixKwd(name) << spar << params << "const ::Ice::Context*" << epar 
+      << ';';
+    H << nl;
+    H.dec();
+    H << nl << "public:";
+    H.inc();
+
+    C << sp << nl << retS << nl << "IceProxy" << scoped << spar << paramsDecl << "const ::Ice::Context* __ctx" << epar;
     C << sb;
     C << nl << "int __cnt = 0;";
     C << nl << "while(true)";
