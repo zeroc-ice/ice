@@ -249,6 +249,11 @@ public:
 	}
 	return *this;
     }
+
+    ::IceProxy::Ice::Object* __upCast() const
+    {
+        return upCast(this->_ptr);
+    }
         
     template<class Y>
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r)

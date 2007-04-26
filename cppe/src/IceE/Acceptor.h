@@ -31,7 +31,7 @@ namespace IceInternal
 
 class Endpoint;
 
-class ICE_API Acceptor : public ::IceUtil::Shared
+class Acceptor : public ::IceUtil::Shared
 {
 public:
 

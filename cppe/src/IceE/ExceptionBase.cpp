@@ -16,7 +16,7 @@ using namespace std;
 namespace IceUtil
 {
 
-bool ICE_API nullHandleAbort = false;
+bool nullHandleAbort = false;
 
 };
 

@@ -11,8 +11,9 @@
 #ifndef ICEE_PROXY_F_H
 #define ICEE_PROXY_F_H
 
-#include <IceE/Config.h>
 #include <IceE/Shared.h>
+#include <IceE/Config.h>
+#include <IceE/ProxyHandle.h>
 
 namespace IceProxy
 {
@@ -29,11 +30,13 @@ class Object;
 namespace IceInternal
 {
 
-ICE_API IceUtil::Shared* upCast(::IceProxy::Ice::Object*);
-
+inline ::IceProxy::Ice::Object* 
+upCast(::IceProxy::Ice::Object* o)
+{
+    return o;
 }
 
-#include <IceE/ProxyHandle.h>
+}
 
 namespace Ice
 {

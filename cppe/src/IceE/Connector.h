@@ -28,7 +28,7 @@ namespace IceInternal
 
 class Endpoint;
 
-class ICE_API Connector : public ::IceUtil::Shared
+class Connector : public ::IceUtil::Shared
 {
 public:
     

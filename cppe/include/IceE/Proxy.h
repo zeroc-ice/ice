@@ -263,6 +263,63 @@ namespace IceInternal
 {
 
 //
+// Inline comparison functions for proxies
+//
+template<typename T, typename U>
+inline bool operator==(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
+{
+    ::IceProxy::Ice::Object* l = lhs.__upCast();
+    ::IceProxy::Ice::Object* r = rhs.__upCast();
+    if(l && r)
+    {
+        return *l == *r;
+    }
+    else
+    {
+        return !l && !r;
+    }   
+}
+
+template<typename T, typename U>
+inline bool operator!=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
+{
+    return !operator==(lhs, rhs);
+}
+
+template<typename T, typename U>
+inline bool operator<(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
+{
+    ::IceProxy::Ice::Object* l = lhs.__upCast();
+    ::IceProxy::Ice::Object* r = rhs.__upCast();
+    if(l && r)
+    {
+        return *l < *r;
+    }
+    else
+    {
+        return !l && r;
+    }
+}
+
+template<typename T, typename U>
+inline bool operator<=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
+{
+    return lhs < rhs || lhs == rhs;
+}
+
+template<typename T, typename U>
+inline bool operator>(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
+{
+    return !(lhs < rhs || lhs == rhs);
+}
+
+template<typename T, typename U>
+inline bool operator>=(const ProxyHandle<T>& lhs, const ProxyHandle<U>& rhs)
+{
+    return !(lhs < rhs);
+}
+
+//
 // checkedCast and uncheckedCast functions without facet:
 //
 

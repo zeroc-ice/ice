@@ -17,7 +17,7 @@ namespace IceInternal
 {
 
 class EndpointFactory;
-ICE_API IceUtil::Shared* upCast(EndpointFactory*);
+IceUtil::Shared* upCast(EndpointFactory*);
 typedef Handle<EndpointFactory> EndpointFactoryPtr;
 
 }

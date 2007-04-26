@@ -52,7 +52,7 @@ static bool printProcessIdDone = false;
 namespace IceUtil
 {
 
-extern bool ICE_API nullHandleAbort;
+extern bool nullHandleAbort;
 
 }
 
