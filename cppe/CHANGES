@@ -3,7 +3,7 @@ Changes since version 1.1.0
 
 - Removed default context support.
 
-- Removed support for local interfaces in slice.
+- Removed support for local interfaces in Slice.
 
 - Added what() member to IceUtil::Exception, so a single catch handler
   can be used for Ice exceptions:
@@ -41,6 +41,21 @@ Changes since version 1.1.0
 
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
+
+- The Slice keyword 'nonmutating' is now deprecated; 'idempotent'
+  should be used instead. A new metadata directive is supported for
+  backward-compatibility (see below).
+
+- New Slice metadata for operations:
+
+  - ["cpp:const"] generates a const member function on the
+    corresponding servant base class.
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
+    objects implemented using earlier versions.
 
 - Added new overload of Ice::initialize() that accepts a StringSeq as
   the first argument.
@@ -90,7 +105,7 @@ Changes since version 1.1.0
   as a result of this change, the ObjectAdapter::addRouter() and
   ObjectAdapter::removeRouter() operations have been removed.
 
-- Added communicator initialize functions that takes an argument of
+- Added communicator initialize functions that take an argument of
   type Ice::InitializationData. This structure contains communicator
   members that may only be set during communicator initialization.
   Currently included are Properties and Logger. The initializeWithXXX
