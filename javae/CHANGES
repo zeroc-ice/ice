@@ -3,7 +3,7 @@ Changes since version 1.1.0
 
 - Removed default context support.
 
-- Removed support for local interfaces in slice.
+- Removed support for local interfaces in Slice.
 
 - Message batches are now automatically flushed when the total size of
   the batch reaches the message size maximum. This feature can be
@@ -18,14 +18,16 @@ Changes since version 1.1.0
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
 
-- The keyword 'nonmutating' is now deprecated; use 'idempotent'
-  instead.
+- The Slice keyword 'nonmutating' is now deprecated; 'idempotent'
+  should be used instead. A new metadata directive is supported for
+  backward-compatibility (see below).
 
-- New metadata:
-  - ["nonmutating"]: for idempotent operations, instruct Ice to send
-    the nonmutating operation-mode instead of the idempotent operation
-    -mode. This metadata allows you to replace 'nonmutating' by 
-    '["nonmutating"] idempotent' while maintaining compatibility with 
+- New Slice metadata for operations:
+
+  - ["nonmutating"] provides backward compatibility for idempotent
+    operations that were previously declared using the deprecated
+    'nonmutating' keyword. You can replace the 'nonmutating' keyword
+    with '["nonmutating"] idempotent' to maintain compatibility with
     objects implemented using Ice 3.0 or 3.1.
 
 - Removed getDefaultProperties() method, and the global default
@@ -33,8 +35,10 @@ Changes since version 1.1.0
   create your own global variable.
 
 - Added new createProperties() methods:
+
   public static Properties
   createProperties(StringSeqHolder args, Properties defaults)
+
   public static Properties
   createProperties(String[] args, Properties defaults)
  
@@ -43,30 +47,22 @@ Changes since version 1.1.0
   defined on the command-line and properties defined in the Ice
   config file may override these default properties.
    
-- Added a new communicator-initialization method:
-  public static Communicator
-  initialize(InitializationData initData)
-
 - Added identityToString and stringToIdentity to the Communicator
   interface.
 
-- It is now permissible to recreate a new object adapter with the same 
-  name as an old adapter once waitForDeactivate() has returned on the
-  old adapter.
+- Added new operation Communicator::createObjectAdapterWithRouter(),
+  which creates a routed object adapter. An object adapter may now
+  be associated with at most one router, which is defined using this
+  operation or by setting the <AdapterName>.Router property. Also
+  as a result of this change, the ObjectAdapter::addRouter() and
+  ObjectAdapter::removeRouter() operations have been removed.
 
-- Added new method Ice::Communicator::createObjectAdapterWithRouter()
-  which creates a routed object adapter. A object adapter can now only
-  have one router associated with it, which is set with using this 
-  method or by setting the <AdapterName>.Router property.  Also 
-  as a result of this the Ice::ObjectAdapter::addRouter() and
-  Ice::ObjectAdapter::removeRouter() methods have been removed.
-
-- Added communicator initialize method which takes a InitializationData
-  structure containing communicator members which are only allowed
-  to be set during communicator creation. Currently included are
-  Properties, Logger, and default context. The initializeWith
-  communicator initialization functions have been deprecated and the
-  setLogger() method has been removed.
+- Added communicator initialize functions that take an argument of
+  type Ice.InitializationData. This structure contains communicator
+  members that may only be set during communicator initialization.
+  Currently included are Properties and Logger. The initializeWithXXX
+  functions have been deprecated and the setLogger() operation has
+  been removed.
 
 - Added requestId to Current.
 
