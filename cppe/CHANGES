@@ -18,8 +18,8 @@ Changes since version 1.1.0
                                  // including Ice exceptions
   }
 
-  what() is implemented in terms of toString(), so overriding toString()
-  also changes the string returned by what().
+  what() is implemented in terms of toString(), so overriding
+  toString() also changes the string returned by what().
 
 - Message batches are now automatically flushed when the total size of
   the batch reaches the message size maximum. This feature can be
@@ -31,27 +31,27 @@ Changes since version 1.1.0
   and be able to recreate a new adapter with the same name. Destroying
   a communicator automatically calls destroy on all of its adapters.
 
-- If client endpoint configuration does not contain a hostname setting
-  (-h paramater), the client will try to connect using only the loopback
-  interface (127.0.0.1).
+- If a proxy does not specify a hostname (via -h HOST), the client
+  only attempts to connect to the loopback interface (127.0.0.1).
 
 - All Ice exceptions now derive from std::exception.
 
 - Fixed a bug where proxy operator< could return an incorrect result
-  for proxy of different types (e.g.: direct vs. indirect proxies).
+  for proxies of different types (e.g., direct vs. indirect proxies).
 
 - For object adapters without endpoints, Ice.Trace.Network >= 2 now
   prints a trace message.
 
-- Added new overload of Ice::initialize() that accepts a StringSeq as the first argument.
+- Added new overload of Ice::initialize() that accepts a StringSeq as
+  the first argument.
 
-- The ice_name() member function of exceptions derived from Ice::Exception
-  (and, hence, IceUtil::Exception) now returns a non-const string
-  instead of a const string:
+- The ice_name() member function of exceptions derived from
+  Ice::Exception (and, hence, IceUtil::Exception) now returns a
+  non-const string instead of a const string:
 
-  	const ::std::string ice_name() const; // Old signature
+  const ::std::string ice_name() const; // Old signature
 
-	::std::string ice_name() const; // New signature
+  ::std::string ice_name() const; // New signature
 
 - For non-abstract Slice classes, the C++ code generated now adds a
   protected destructor. This prevents accidental allocation of
@@ -64,16 +64,15 @@ Changes since version 1.1.0
   properties. If you need global properties, you can easily
   create your own global variable.
 
-- The signature of createProperties()-with-parameters is now:
+- The signature of createProperties(argc, argv) is now:
+
   PropertiesPtr createProperties(int* argc, char* argv[],
-                                 const PropertiesPtr& defaults = 0);
-  "defaults" represents an optional set of default properties
-  used to initialize the new Properties object. Ice properties 
-  defined on the command-line and properties defined in the Ice
-  config file may override these default properties.
-   
-- Added a new communicator-initialization function:
-  CommunicatorPtr initialize(const InitializationData&);
+				 const PropertiesPtr& defaults = 0);
+
+  where "defaults" represents an optional set of default properties
+  used to initialize the new Properties object. Ice properties
+  defined on the command line and properties defined in a
+  configuration file override these default properties.
 
 - Moved identityToString and stringToIdentity to the Communicator
   interface. 
@@ -81,26 +80,26 @@ Changes since version 1.1.0
 - Added operators <=, > and >= for slice classes, proxies and 
   structures.
 
-- Fixed an assert which could occur with proxies received over
-  the wire and containing unknown endpoints.
+- Fixed an assert that could occur when a proxy received over the
+  wire contained an unknown endpoint.
 
-- Added new method Ice::Communicator::createObjectAdapterWithRouter()
-  which creates a routed object adapter. A object adapter can now only
-  have one router associated with it, which is set with using this 
-  method or by setting the <AdapterName>.Router property.  Also 
-  as a result of this the Ice::ObjectAdapter::addRouter() and
-  Ice::ObjectAdapter::removeRouter() methods have been removed.
+- Added new operation Communicator::createObjectAdapterWithRouter(),
+  which creates a routed object adapter. An object adapter may now
+  be associated with at most one router, which is defined using this
+  operation or by setting the <AdapterName>.Router property. Also
+  as a result of this change, the ObjectAdapter::addRouter() and
+  ObjectAdapter::removeRouter() operations have been removed.
 
-- Added communicator initialize method which takes a InitializationData
-  structure containing communicator members which are only allowed
-  to be set during communicator creation. Currently included are
-  Properties, Logger, and default context. The initializeWith
-  communicator initialization functions have been deprecated and the
-  setLogger() method has been removed.
+- Added communicator initialize functions that takes an argument of
+  type Ice::InitializationData. This structure contains communicator
+  members that may only be set during communicator initialization.
+  Currently included are Properties and Logger. The initializeWithXXX
+  functions have been deprecated and the setLogger() operation has
+  been removed.
 
-- Added support for the "cpp:type:wstring" slice metadata. When used
-  generated code will use std::wstring instead of std::string. See
-  manual for more details.
+- Added support for new Slice metadata ("cpp:type:wstring") that
+  generates code to use std::wstring instead of std::string. See the
+  Ice manual for more details.
 
 - Added requestId to Current.
 
