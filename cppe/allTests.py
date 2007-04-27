@@ -45,7 +45,6 @@ def isWin9x():
 
 def runTests(args, tests, num = 0):
 
-    print args
     #
     # Run each of the tests.
     #
