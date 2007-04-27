@@ -4,6 +4,9 @@ Changes since version 3.2.0
 - Trailing characters past the adapter id in a stringified proxy
   will now raise a ProxyParseException.
 
+- Fixed the translator to correctly generate marhsaling/unmarshaling
+  methods for interfaces and allow them to be transfered by value.
+
 Changes since version 3.1.1
 ---------------------------     
 
