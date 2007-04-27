@@ -25,7 +25,6 @@
 #include <IceE/ConnectionF.h>
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
-#include <IceE/SharedContext.h>
 #include <IceE/Identity.h>
 
 namespace IceInternal
@@ -59,7 +58,7 @@ public:
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
     const InstancePtr& getInstance() const { return _instance; }
-    const SharedContextPtr& getContext() const { return _context; }
+    const Ice::Context* getContext() const { return &_context; }
 
     Ice::CommunicatorPtr getCommunicator() const;
 
@@ -131,7 +130,7 @@ private:
     Mode _mode;
     bool _secure;
     Ice::Identity _identity;
-    SharedContextPtr _context;
+    Ice::Context _context;
     std::string _facet;
 
     //

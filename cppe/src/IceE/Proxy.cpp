@@ -401,7 +401,7 @@ IceProxy::Ice::Object::ice_id(const Context* __context)
 Context
 IceProxy::Ice::Object::ice_getContext() const
 {
-    return _reference->getContext()->getValue();
+    return *_reference->getContext();
 }
 
 ObjectPrx
@@ -728,12 +728,6 @@ IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 	ex.operation = name;
 	throw ex;
     }
-}
-
-const Context&
-IceProxy::Ice::Object::__defaultContext() const
-{
-    return _reference->getContext()->getValue();
 }
 
 bool

@@ -100,7 +100,7 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 
     if(context == 0)
     {
-        context = &_reference->getContext()->getValue();
+        context = _reference->getContext();
     }
 
     _stream.writeSize(Int(context->size()));

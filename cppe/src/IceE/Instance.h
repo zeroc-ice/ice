@@ -27,7 +27,6 @@
 #include <IceE/Shared.h>
 #include <IceE/RecMutex.h>
 #include <IceE/Initialize.h>
-#include <IceE/SharedContext.h>
 #include <IceE/Identity.h>
 
 namespace IceInternal

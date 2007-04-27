@@ -217,8 +217,6 @@ public:
 
 protected:
 
-    const ::Ice::Context& __defaultContext() const;
-
     ::IceInternal::ReferencePtr _reference;
 
 private:

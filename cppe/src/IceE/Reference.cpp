@@ -47,7 +47,7 @@ ReferencePtr
 IceInternal::Reference::changeContext(const Context& newContext) const
 {
     ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_context = new SharedContext(newContext);
+    r->_context = newContext;
     return r;
 }
 
@@ -125,7 +125,7 @@ Reference::hash() const
         h = 5 * h + *p;
     }
 
-    for(q = _context->getValue().begin(); q != _context->getValue().end(); ++q)
+    for(q = _context.begin(); q != _context.end(); ++q)
     {
 	for(p = q->first.begin(); p != q->first.end(); ++p)
 	{
@@ -291,7 +291,7 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(_context->getValue() != r._context->getValue())
+    if(_context != r._context)
     {
 	return false;
     }
@@ -343,11 +343,11 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
-    if(_context->getValue() < r._context->getValue())
+    if(_context < r._context)
     {
 	return true;
     }
-    else if(r._context->getValue() < _context->getValue())
+    else if(r._context < _context)
     {
 	return false;
     }
@@ -401,7 +401,6 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr
     _mode(md),
     _secure(sec),
     _identity(ident),
-    _context(new SharedContext(Ice::Context())),
     _facet(fs),
     _overrideTimeout(false),
     _timeout(-1)
