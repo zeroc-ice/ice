@@ -684,12 +684,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	}
     }
 
-    protected java.util.Hashtable
-    __defaultContext()
-    {
-        return _reference.getContext();
-    }
-
     //
     // Only for use by IceInternal.ProxyFactory
     //
@@ -710,6 +704,9 @@ public class ObjectPrxHelperBase implements ObjectPrx
         _reference = ref;
     }
 
+    protected static final java.util.Hashtable _emptyContext = new java.util.Hashtable();
+
     protected IceInternal.Reference _reference;
     private Connection _connection;
+
 }

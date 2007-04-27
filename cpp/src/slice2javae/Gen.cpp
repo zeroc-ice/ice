@@ -2175,13 +2175,30 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "return ";
         }
-        out << opName << spar << args << "__defaultContext()" << epar << ';';
+        out << opName << spar << args << "null, false" << epar << ';';
         out << eb;
 
         out << sp;
         out << nl << "public " << retS << nl << opName << spar << params << "java.util.Hashtable __ctx" << epar;
         writeThrowsClause(package, throws);
         out << sb;
+        out << nl;
+        if(ret)
+        {
+            out << "return ";
+        }
+        out << opName << spar << args << "__ctx, true" << epar << ';';
+        out << eb;
+
+        out << sp;
+        out << nl << "public " << retS << nl << opName << spar << params 
+            << "java.util.Hashtable __ctx, boolean __explicitCtx" << epar;
+        writeThrowsClause(package, throws);
+        out << sb;
+        out << nl << "if(__explicitCtx && __ctx == null)";
+        out << sb;
+        out << nl << "__ctx = _emptyContext;";
+        out << eb;
         out << nl << "int __cnt = 0;";
         out << nl << "while(true)";
         out << sb;

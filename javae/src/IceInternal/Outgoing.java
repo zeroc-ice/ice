@@ -414,22 +414,20 @@ public final class Outgoing
 
         if(context == null)
         {
-            _stream.writeSize(0);
+            context = _reference.getContext();
         }
-        else
+
+        final int sz = context.size();
+        _stream.writeSize(sz);
+        if(sz > 0)
         {
-            final int sz = context.size();
-            _stream.writeSize(sz);
-            if(sz > 0)
+	    java.util.Enumeration e = context.keys();
+            while(e.hasMoreElements())
             {
-		java.util.Enumeration e = context.keys();
-                while(e.hasMoreElements())
-                {
-		    String key = (String)e.nextElement();
-		    String value = (String)context.get(key);
-                    _stream.writeString(key);
-                    _stream.writeString(value);
-                }
+		String key = (String)e.nextElement();
+		String value = (String)context.get(key);
+                _stream.writeString(key);
+                _stream.writeString(value);
             }
         }
 
