@@ -486,6 +486,7 @@ namespace IceInternal
                     throw e;
                 }
 
+                string adapterstr = null;
                 end = IceUtil.StringUtil.checkQuote(s, beg);
                 if(end == -1)
                 {
@@ -500,13 +501,24 @@ namespace IceInternal
                     {
                         end = s.Length;
                     }
+                    adapterstr = s.Substring(beg, end - beg);
                 }
                 else
                 {
                     beg++; // Skip leading quote
+                    adapterstr = s.Substring(beg, end - beg);
+                    end++; // Skip trailing quote
                 }
 
-                if(!IceUtil.StringUtil.unescapeString(s, beg, end, out adapter) || adapter.Length == 0)
+                if(end != s.Length && IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
+                {
+                    Ice.ProxyParseException e = new Ice.ProxyParseException();
+                    e.str = s;
+                    throw e;
+                }
+
+                if(!IceUtil.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, out adapter) ||
+                   adapter.Length == 0)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
                     e.str = s;

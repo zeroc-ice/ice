@@ -75,6 +75,7 @@ def runTests(args, tests, num = 0):
 #
 tests = [ \
     "IceUtil/inputUtil", \
+    "Ice/proxy", \
     "Ice/operations", \
     "Ice/exceptions", \
     "Ice/inheritance", \

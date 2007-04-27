@@ -471,6 +471,7 @@ public final class ReferenceFactory
                 throw e;
             }
 
+            String adapterstr = null;
             end = IceUtil.StringUtil.checkQuote(s, beg);
             if(end == -1)
             {
@@ -485,14 +486,25 @@ public final class ReferenceFactory
                 {
                     end = s.length();
                 }
+                adapterstr = s.substring(beg, end);
             }
             else
             {
                 beg++; // Skip leading quote
+                adapterstr = s.substring(beg, end);
+                end++; // Skip trailing quote
             }
 
+            if(end != s.length() && IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
+            {
+                Ice.ProxyParseException e = new Ice.ProxyParseException();
+                e.str = s;
+                throw e;
+            }
+            
             Ice.StringHolder token = new Ice.StringHolder();
-            if(!IceUtil.StringUtil.unescapeString(s, beg, end, token) || token.value.length() == 0)
+            if(!IceUtil.StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), token) ||
+               token.value.length() == 0)
             {
                 Ice.ProxyParseException e = new Ice.ProxyParseException();
                 e.str = s;

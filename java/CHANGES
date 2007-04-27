@@ -1,6 +1,9 @@
 Changes since version 3.2.0
 ---------------------------     
 
+- Trailing characters past the adapter id in a stringified proxy
+  will now raise a ProxyParseException.
+
 - Fixed a translator bug that generated invalid code for certain
   Java5 types.
 

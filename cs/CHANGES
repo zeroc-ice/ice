@@ -1,3 +1,9 @@
+Changes since version 3.2.0
+---------------------------
+
+- Trailing characters past the adapter id in a stringified proxy
+  will now raise a ProxyParseException.
+
 Changes since version 3.1.1
 ---------------------------     
 
