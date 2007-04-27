@@ -428,21 +428,6 @@ public class BasicStream
 	_readEncapsStack = _readEncapsStack.next;
     }
 
-    public void
-    checkReadEncaps()
-    {
-	if(IceUtil.Debug.ASSERT)
-	{
-	    IceUtil.Debug.Assert(_readEncapsStack != null);
-	}
-        int start = _readEncapsStack.start;
-        int sz = _readEncapsStack.sz;
-        if(_buf.position() != start + sz)
-        {
-            throw new Ice.EncapsulationException();
-        }
-    }
-
     public int
     getReadEncapsSize()
     {
