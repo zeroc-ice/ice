@@ -1879,48 +1879,6 @@ Ice::MemoryLimitException::ice_throw() const
     throw *this;
 }
 
-Ice::EncapsulationException::EncapsulationException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line)
-#else
-    ::Ice::MarshalException(__file, __line)
-#endif
-{
-}
-
-Ice::EncapsulationException::EncapsulationException(const char* __file, int __line, const ::std::string& __reason) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line, __reason)
-#else
-    ::Ice::MarshalException(__file, __line, __reason)
-#endif
-{
-}
-
-Ice::EncapsulationException::~EncapsulationException() throw()
-{
-}
-
-static const char* __Ice__EncapsulationException_name = "Ice::EncapsulationException";
-
-::std::string
-Ice::EncapsulationException::ice_name() const
-{
-    return __Ice__EncapsulationException_name;
-}
-
-::Ice::Exception*
-Ice::EncapsulationException::ice_clone() const
-{
-    return new EncapsulationException(*this);
-}
-
-void
-Ice::EncapsulationException::ice_throw() const
-{
-    throw *this;
-}
-
 Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     MarshalException(__file, __line)
@@ -1959,6 +1917,40 @@ Ice::NegativeSizeException::ice_clone() const
 
 void
 Ice::NegativeSizeException::ice_throw() const
+{
+    throw *this;
+}
+
+
+Ice::FixedProxyException::FixedProxyException(const char* __file, int __line) :
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
+    LocalException(__file, __line)
+#else
+    ::Ice::LocalException(__file, __line)
+#endif
+{
+}
+
+Ice::FixedProxyException::~FixedProxyException() throw()
+{
+}
+
+static const char* __Ice__FixedProxyException_name = "Ice::FixedProxyException";
+
+::std::string
+Ice::FixedProxyException::ice_name() const
+{
+    return __Ice__FixedProxyException_name;
+}
+
+::Ice::Exception*
+Ice::FixedProxyException::ice_clone() const
+{
+    return new FixedProxyException(*this);
+}
+
+void
+Ice::FixedProxyException::ice_throw() const
 {
     throw *this;
 }
@@ -2399,14 +2391,6 @@ Ice::MemoryLimitException::toString() const
 }
 
 string
-Ice::EncapsulationException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: illegal encapsulation";
-    return out;
-}
-
-string
 Ice::NegativeSizeException::toString() const
 {
     string out = Exception::toString();
@@ -2453,5 +2437,13 @@ Ice::CloneNotImplementedException::toString() const
 {
     string out = Exception::toString();
     out += ":\n ice_clone() must be implemented in classes derived from abstract base classes";
+    return out;
+}
+
+string
+Ice::FixedProxyException::toString() const
+{
+    string out = Exception::toString();
+    out += ":\nfixed proxy exception";
     return out;
 }

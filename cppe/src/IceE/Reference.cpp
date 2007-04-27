@@ -462,7 +462,8 @@ IceInternal::FixedReference::getEndpoints() const
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 #endif
@@ -472,7 +473,8 @@ IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 #endif
@@ -480,19 +482,21 @@ IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
 ReferencePtr
 IceInternal::FixedReference::changeTimeout(int) const
 {
-    return FixedReferencePtr(const_cast<FixedReference*>(this));
+    throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
 }
 
 void
 IceInternal::FixedReference::streamWrite(BasicStream* s) const
 {
-    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
+    throw FixedProxyException(__FILE__, __LINE__);
 }
 
 string
 IceInternal::FixedReference::toString() const
 {
-    throw MarshalException(__FILE__, __LINE__, "Cannot marshal a fixed proxy");
+    throw FixedProxyException(__FILE__, __LINE__);
+    return string(); // To keep the compiler from complaining.
 }
 
 ConnectionPtr

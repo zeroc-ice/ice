@@ -700,20 +700,6 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_API EncapsulationException : public ::Ice::MarshalException
-{
-public:
-
-    EncapsulationException(const char*, int);
-    EncapsulationException(const char*, int, const ::std::string&);
-    virtual ~EncapsulationException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
 class ICE_API NegativeSizeException : public ::Ice::MarshalException
 {
 public:
@@ -724,6 +710,19 @@ public:
 
     virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
+    virtual ::Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+};
+
+class ICE_API FixedProxyException : public ::Ice::LocalException
+{
+public:
+
+    FixedProxyException(const char*, int);
+    virtual ~FixedProxyException() throw();
+
+    virtual ::std::string ice_name() const;
+    virtual ::std::string toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
 };
