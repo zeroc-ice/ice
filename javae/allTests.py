@@ -87,12 +87,12 @@ tests = [ \
     ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --host host"
+    print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --host host --blocking"
     sys.exit(2)
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "lr:R:", \
-        ["debug", "host="])
+        ["host=", "blocking"])
 except getopt.GetoptError:
     usage()
 
@@ -114,7 +114,7 @@ for o, a in opts:
         tests = filter(rematch, tests)
     if o == "--host" :
         args += " " + o + " " + a
-    if o in ( "--debug" ):
+    if o in ( "--blocking" ):
         args += " " + o 
 
 if loop:

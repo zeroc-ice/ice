@@ -29,7 +29,21 @@ host = "127.0.0.1"
 # Don't change anything below this line!
 #
 
-import sys, os
+import sys, os, getopt
+
+def usage():
+    print "usage: " + sys.argv[0] + " --host host --blocking"
+    sys.exit(2)
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "", ["host=", "blocking"])
+except getopt.GetoptError:
+    usage()
+
+for o, a in opts:
+    if o == "--blocking":
+        blocking = 1
+    if o == "--host":
+        host = a
 
 def isCygwin():
 
