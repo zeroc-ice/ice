@@ -23,17 +23,6 @@ public class Server
 	}
 
 	//
-        // For blocking client test, set timeout so CloseConnection send will
-        // return quickly. Otherwise server will hang since client is not 
-        // listening for these messages.
-        //
-	if(communicator.getProperties().getPropertyAsInt("Ice.Blocking") > 0)
-        {
-            communicator.getProperties().setProperty("Ice.Override.Timeout", "100"); 
-	    communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
-	}
-
-	//
 	// Register the server manager. The server manager creates a new
 	// 'server' (a server isn't a different process, it's just a new
 	// communicator and object adapter).
@@ -73,6 +62,17 @@ public class Server
 	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
 	    Ice.InitializationData initData = new Ice.InitializationData();
 	    initData.properties = Ice.Util.createProperties(argsH);
+
+	    //
+            // For blocking client test, set timeout so CloseConnection send will
+            // return quickly. Otherwise server will hang since client is not 
+            // listening for these messages.
+            //
+	    if(initData.properties.getPropertyAsInt("Ice.Blocking") > 0)
+            {
+                initData.properties.setProperty("Ice.Override.Timeout", "100"); 
+	        initData.properties.setProperty("Ice.Warn.Connections", "0");
+	    }
 
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator, initData, System.out);
