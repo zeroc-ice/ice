@@ -32,33 +32,33 @@ public class FixedReference extends Reference
     public Reference
     changeRouter(Ice.RouterPrx newRouter)
     {
-        return this;
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
-        return this;
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
     changeTimeout(int newTimeout)
     {
-	return this;
+        throw new Ice.FixedProxyException();
     }
 
     public void
     streamWrite(BasicStream s)
 	throws Ice.MarshalException
     {
-	 throw new Ice.MarshalException("Cannot marshal a fixed proxy");
+        throw new Ice.FixedProxyException();
     }
 
     public String
     toString()
 	throws Ice.MarshalException
     {
-	 throw new Ice.MarshalException("Cannot marshal a fixed proxy");
+        throw new Ice.FixedProxyException();
     }
 
     public Ice.Connection

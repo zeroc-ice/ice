@@ -706,16 +706,6 @@ local exception MemoryLimitException extends MarshalException
 
 /**
  *
- * This exception is a specialization of [MarshalException],
- * indicating a malformed data encapsulation.
- *
- **/
-local exception EncapsulationException extends MarshalException
-{
-};
-
-/**
- *
  * This exception is a specialization of [MarshalException] that is
  * raised if a negative size (e.g., a negative sequence size) is
  * received.
@@ -740,6 +730,16 @@ local exception FeatureNotSupportedException
      *
      **/
     string unsupportedFeature;
+};
+
+/**
+ * 
+ * This exception indicates that an attempt has been made to
+ * change the connection properties of a fixed proxy.
+ *
+ **/
+local exception FixedProxyException
+{
 };
 
 };

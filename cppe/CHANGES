@@ -1,6 +1,11 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Attempts to change the attributes of a fixed proxy now result in a
+  FixedProxyException rather than just ignoring the change request and
+  returning the same proxy. Also, attempts to marshal a fixed proxy
+  now result in a FixedProxyException rather than a MarshalException.
+
 - Removed default context support.
 
 - Removed support for local interfaces in Slice.
