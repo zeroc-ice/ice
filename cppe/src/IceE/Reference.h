@@ -151,8 +151,6 @@ public:
     FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&,
 		   const std::string&, Mode, const std::vector<Ice::ConnectionPtr>&);
 
-    const std::vector<Ice::ConnectionPtr>& getFixedConnections() const;
-
     virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 

@@ -445,12 +445,6 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Commu
 {
 }
 
-const vector<ConnectionPtr>&
-IceInternal::FixedReference::getFixedConnections() const
-{
-    return _fixedConnections;
-}
-
 Reference::Type
 IceInternal::FixedReference::getType() const
 {
