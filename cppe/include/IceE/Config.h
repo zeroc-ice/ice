@@ -13,18 +13,18 @@
 //
 // Comment this out if you want to build without Router support.
 //
-//#define ICEE_HAS_ROUTER
+#define ICEE_HAS_ROUTER
 
 //
 // Comment this out if you want to build without Locator support.
 //
-//#define ICEE_HAS_LOCATOR
+#define ICEE_HAS_LOCATOR
 
 //
 // Comment this out if you want to build without batch mode on the
 // client side.
 //
-//#define ICEE_HAS_BATCH
+#define ICEE_HAS_BATCH
 
 //
 // Comment this out if want the pure client library built with both
@@ -32,7 +32,7 @@
 // If uncommented, only blocking support will be included in client
 // library.
 //
-#define ICEE_PURE_BLOCKING_CLIENT
+//#define ICEE_PURE_BLOCKING_CLIENT
 
 // ***********************************************************************
 //
