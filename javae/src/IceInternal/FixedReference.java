@@ -23,12 +23,6 @@ public class FixedReference extends Reference
         _fixedConnections = fixedConns;
     }
 
-    public final Ice.Connection[]
-    getFixedConnections()
-    {
-        return _fixedConnections;
-    }
-
     public Endpoint[]
     getEndpoints()
     {
