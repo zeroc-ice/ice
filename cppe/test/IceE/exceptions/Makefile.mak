@@ -9,9 +9,9 @@
 
 top_srcdir	= ..\..\..
 
-CLIENT		= exceptionsClient.exe
-SERVER		= exceptionsServer.exe
-COLLOCATED	= exceptionsCollocated.exe
+CLIENT		= client.exe
+SERVER		= server.exe
+COLLOCATED	= collocated.exe
 
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
