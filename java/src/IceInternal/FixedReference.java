@@ -24,12 +24,6 @@ public class FixedReference extends Reference
         _fixedConnections = fixedConns;
     }
 
-    public final Ice.ConnectionI[]
-    getFixedConnections()
-    {
-        return _fixedConnections;
-    }
-
     public boolean
     getSecure()
     {

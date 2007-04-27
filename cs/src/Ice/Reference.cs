@@ -410,11 +410,6 @@ namespace IceInternal
             _fixedConnections = fixedConns;
         }
 
-        public Ice.ConnectionI[] getFixedConnections()
-        {
-            return _fixedConnections;
-        }
-
         public override bool getSecure()
         {
             return false;
