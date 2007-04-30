@@ -474,118 +474,15 @@ class ICE_API ProtocolException : public ::Ice::LocalException
 public:
 
     ProtocolException(const char*, int);
+    ProtocolException(const char*, int, const ::std::string&);
     virtual ~ProtocolException() throw();
 
     virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
-};
 
-class ICE_API BadMagicException : public ::Ice::ProtocolException
-{
-public:
-
-    BadMagicException(const char*, int);
-    BadMagicException(const char*, int, const ::Ice::ByteSeq&);
-    virtual ~BadMagicException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    ::Ice::ByteSeq badMagic;
-};
-
-class ICE_API UnsupportedProtocolException : public ::Ice::ProtocolException
-{
-public:
-
-    UnsupportedProtocolException(const char*, int);
-    UnsupportedProtocolException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
-    virtual ~UnsupportedProtocolException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    ::Ice::Int badMajor;
-    ::Ice::Int badMinor;
-    ::Ice::Int major;
-    ::Ice::Int minor;
-};
-
-class ICE_API UnsupportedEncodingException : public ::Ice::ProtocolException
-{
-public:
-
-    UnsupportedEncodingException(const char*, int);
-    UnsupportedEncodingException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
-    virtual ~UnsupportedEncodingException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    ::Ice::Int badMajor;
-    ::Ice::Int badMinor;
-    ::Ice::Int major;
-    ::Ice::Int minor;
-};
-
-class ICE_API UnknownMessageException : public ::Ice::ProtocolException
-{
-public:
-
-    UnknownMessageException(const char*, int);
-    virtual ~UnknownMessageException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
-class ICE_API ConnectionNotValidatedException : public ::Ice::ProtocolException
-{
-public:
-
-    ConnectionNotValidatedException(const char*, int);
-    virtual ~ConnectionNotValidatedException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
-class ICE_API UnknownRequestIdException : public ::Ice::ProtocolException
-{
-public:
-
-    UnknownRequestIdException(const char*, int);
-    virtual ~UnknownRequestIdException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
-class ICE_API UnknownReplyStatusException : public ::Ice::ProtocolException
-{
-public:
-
-    UnknownReplyStatusException(const char*, int);
-    virtual ~UnknownReplyStatusException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
+    ::std::string reason;
 };
 
 class ICE_API CloseConnectionException : public ::Ice::ProtocolException
@@ -614,33 +511,34 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_API IllegalMessageSizeException : public ::Ice::ProtocolException
+ICE_API void throwBadMagicException(const char*, int, const ::Ice::ByteSeq&);
+ICE_API void throwUnsupportedProtocolException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
+ICE_API void throwUnsupportedEncodingException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
+
+inline void throwUnknownMessageException(const char* file, int line)
 {
-public:
+    throw ProtocolException(file, line, "unknown message type");
+}
 
-    IllegalMessageSizeException(const char*, int);
-    virtual ~IllegalMessageSizeException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
-class ICE_API FeatureNotSupportedException : public ::Ice::LocalException
+inline void throwConnectionNotValidatedException(const char* file, int line)
 {
-public:
+    throw ProtocolException(file, line, "received message over unvalidated connection");
+}
 
-    FeatureNotSupportedException(const char*, int);
-    virtual ~FeatureNotSupportedException() throw();
+inline void throwUnknownRequestIdException(const char* file, int line)
+{
+    throw ProtocolException(file, line, "unknown request id");
+}
 
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
+inline void throwUnknownReplyStatusException(const char* file, int line)
+{
+    throw ProtocolException(file, line, "unknown reply status");
+}
 
-    ::std::string unsupportedFeature;
-};
+inline void throwIllegalMessageSizeException(const char* file, int line)
+{
+    throw ProtocolException(file, line, "illegal message size");
+}
 
 class ICE_API MarshalException : public ::Ice::ProtocolException
 {
@@ -649,36 +547,6 @@ public:
     MarshalException(const char*, int);
     MarshalException(const char*, int, const ::std::string&);
     virtual ~MarshalException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-    ::std::string reason;
-};
-
-class ICE_API ProxyUnmarshalException : public ::Ice::MarshalException
-{
-public:
-
-    ProxyUnmarshalException(const char*, int);
-    ProxyUnmarshalException(const char*, int, const ::std::string&);
-    virtual ~ProxyUnmarshalException() throw();
-
-    virtual ::std::string ice_name() const;
-    virtual ::std::string  toString() const;
-    virtual ::Ice::Exception* ice_clone() const;
-    virtual void ice_throw() const;
-};
-
-class ICE_API UnmarshalOutOfBoundsException : public ::Ice::MarshalException
-{
-public:
-
-    UnmarshalOutOfBoundsException(const char*, int);
-    UnmarshalOutOfBoundsException(const char*, int, const ::std::string&);
-    virtual ~UnmarshalOutOfBoundsException() throw();
 
     virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
@@ -700,18 +568,28 @@ public:
     virtual void ice_throw() const;
 };
 
-class ICE_API NegativeSizeException : public ::Ice::MarshalException
+ICE_API void throwMemoryLimitException(const char*, int);
+ICE_API void throwUnmarshalOutOfBoundsException(const char*, int);
+ICE_API void throwNegativeSizeException(const char*, int);
+
+inline void throwProxyUnmarshalException(const char* file, int line)
+{     
+    throw MarshalException(file, line, "inconsistent proxy data during unmarshaling");
+}
+
+class ICE_API FeatureNotSupportedException : public ::Ice::LocalException
 {
 public:
 
-    NegativeSizeException(const char*, int);
-    NegativeSizeException(const char*, int, const ::std::string&);
-    virtual ~NegativeSizeException() throw();
+    FeatureNotSupportedException(const char*, int);
+    virtual ~FeatureNotSupportedException() throw();
 
     virtual ::std::string ice_name() const;
     virtual ::std::string  toString() const;
     virtual ::Ice::Exception* ice_clone() const;
     virtual void ice_throw() const;
+
+    ::std::string unsupportedFeature;
 };
 
 class ICE_API FixedProxyException : public ::Ice::LocalException

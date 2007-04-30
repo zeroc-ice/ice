@@ -580,7 +580,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     {
 	if(facetPath.size() > 1)
 	{
-	    throw ProxyUnmarshalException(__FILE__, __LINE__);
+	    throwProxyUnmarshalException(__FILE__, __LINE__);
 	}
 	facet.swap(facetPath[0]);
     }
@@ -590,7 +590,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
     if(mode < 0 || mode > Reference::ModeLast)
     {
-	throw ProxyUnmarshalException(__FILE__, __LINE__);
+	throwProxyUnmarshalException(__FILE__, __LINE__);
     }
 
     vector<EndpointPtr> endpoints;
@@ -632,7 +632,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	return create(ident, facet, mode, secure, adapterId, locatorInfo);
 #   endif
 #else
-	throw ProxyUnmarshalException(__FILE__, __LINE__);
+	throwProxyUnmarshalException(__FILE__, __LINE__);
+        return 0; // Unreachable, fixes compiler warning.
 #endif
     }
 }

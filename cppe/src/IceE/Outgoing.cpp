@@ -402,7 +402,8 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	
 	default:
 	{
-	    _exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
+	    //_exception.reset(new UnknownReplyStatusException(__FILE__, __LINE__));
+	    _exception.reset(new ProtocolException(__FILE__, __LINE__, "unknown reply status"));
 	    _state = StateLocalException;
 	    break;
 	}

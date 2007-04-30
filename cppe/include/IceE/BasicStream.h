@@ -15,11 +15,16 @@
 #include <IceE/Buffer.h>
 #include <IceE/Protocol.h>
 #include <IceE/Unicode.h>
+//#include <IceE/LocalException.h>
 
 namespace Ice
 {
 
 class UserException;
+ICE_API void throwUnmarshalOutOfBoundsException(const char*, int);
+ICE_API void throwNegativeSizeException(const char*, int);
+ICE_API void throwMemoryLimitException(const char*, int);
+ICE_API void throwUnsupportedEncodingException(const char*, int, ::Ice::Int, ::Ice::Int, ::Ice::Int, ::Ice::Int);
 
 }
 
@@ -70,7 +75,7 @@ public:
     {
 	if(!_unlimited && sz > _messageSizeMax)
 	{
-	    throwMemoryLimitException(__FILE__, __LINE__);
+	    Ice::throwMemoryLimitException(__FILE__, __LINE__);
 	}
 	
 	b.resize(sz);
@@ -106,7 +111,7 @@ public:
 	
 	if(size > bytesLeft)
 	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
     }
     void checkFixedSeq(int, int); // For sequences of fixed-size types.
@@ -193,11 +198,11 @@ public:
 	read(sz);
 	if(sz < 0)
 	{
-	    throwNegativeSizeException(__FILE__, __LINE__);
+	    Ice::throwNegativeSizeException(__FILE__, __LINE__);
 	}
 	if(i - sizeof(Ice::Int) + sz > b.end())
 	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
 	_currentReadEncaps->sz = sz;
 	
@@ -208,7 +213,7 @@ public:
 	if(eMajor != encodingMajor
 	   || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
 	{
-	    throwUnsupportedEncodingException(__FILE__, __LINE__, eMajor, eMinor);
+	    Ice::throwUnsupportedEncodingException(__FILE__, __LINE__, eMajor, eMinor, encodingMajor, encodingMinor);
 	}
 	_currentReadEncaps->encodingMajor = eMajor;
 	_currentReadEncaps->encodingMinor = eMinor;
@@ -292,7 +297,7 @@ public:
 	    read(v);
 	    if(v < 0)
 	    {
-		throwNegativeSizeException(__FILE__, __LINE__);
+		Ice::throwNegativeSizeException(__FILE__, __LINE__);
 	    }
 	}
 	else
@@ -321,7 +326,7 @@ public:
 	    v = i;
 	    if(static_cast<Container::size_type>(b.end() - i) < sz)
 	    {
-		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+		Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	    }
 	    i += sz;
 	}
@@ -339,7 +344,7 @@ public:
     {
 	if(i >= b.end())
 	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
 	v = *i++;
     }
@@ -357,7 +362,7 @@ public:
     {
 	if(i >= b.end())
 	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
 	v = *i++;
     }
@@ -395,7 +400,7 @@ public:
     {
 	if(b.end() - i < static_cast<int>(sizeof(Ice::Int)))
 	{
-	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
 	const Ice::Byte* src = &(*i);
 	i += sizeof(Ice::Int);
@@ -465,7 +470,7 @@ public:
 	{
 	    if(b.end() - i < sz)
 	    {
-		throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+		Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	    }
             std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
 //          v.assign(reinterpret_cast<const char*>(&(*i)), sz);
@@ -499,7 +504,7 @@ public:
         {
             if(b.end() - i < sz)
             {
-                throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
+                Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
             std::string s(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz);
             IceUtil::stringToWstring(s).swap(v);
@@ -519,17 +524,6 @@ public:
     void throwException();
 
 private:
-
-    //
-    // I can't throw these exception from inline functions from within
-    // this file, because I cannot include the header with the
-    // exceptions. Doing so would screw up the whole include file
-    // ordering.
-    //
-    void throwUnmarshalOutOfBoundsException(const char*, int);
-    void throwMemoryLimitException(const char*, int);
-    void throwNegativeSizeException(const char*, int);
-    void throwUnsupportedEncodingException(const char*, int, Ice::Byte, Ice::Byte);
 
     //
     // Optimization. The instance may not be deleted while a

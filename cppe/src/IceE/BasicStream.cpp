@@ -170,7 +170,7 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
 	//
 	if(numElements * minSize > bytesLeft) 
 	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
     }
     else // Nested sequence
@@ -190,7 +190,7 @@ IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 	//
 	if(numElements * elemSize > bytesLeft) 
 	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
     }
     else // Nested sequence
@@ -251,11 +251,11 @@ IceInternal::BasicStream::skipEncaps()
     read(sz);
     if(sz < 0)
     {
-	throw NegativeSizeException(__FILE__, __LINE__);
+	throwNegativeSizeException(__FILE__, __LINE__);
     }
     if(i - sizeof(Int) + sz > b.end())
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     i += sz - sizeof(Int);
 }
@@ -294,7 +294,7 @@ IceInternal::BasicStream::startReadSlice()
     read(sz);
     if(sz < 0)
     {
-	throw NegativeSizeException(__FILE__, __LINE__);
+	throwNegativeSizeException(__FILE__, __LINE__);
     }
     _readSlice = i - b.begin();
 }
@@ -311,12 +311,12 @@ IceInternal::BasicStream::skipSlice()
     read(sz);
     if(sz < 0)
     {
-	throw NegativeSizeException(__FILE__, __LINE__);
+	throwNegativeSizeException(__FILE__, __LINE__);
     }
     i += sz - sizeof(Int);
     if(i > b.end())
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
 }
 
@@ -338,7 +338,7 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
     {
 	if(b.end() - i < sz)
 	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
 	vector<Byte>(i, i + sz).swap(v);
 	i += sz;
@@ -524,7 +524,7 @@ IceInternal::BasicStream::read(Short& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Short)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Short);
@@ -769,7 +769,7 @@ IceInternal::BasicStream::read(Long& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Long)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Long);
@@ -935,7 +935,7 @@ IceInternal::BasicStream::read(Float& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Float)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Float);
@@ -1100,7 +1100,7 @@ IceInternal::BasicStream::read(Double& v)
 {
     if(b.end() - i < static_cast<int>(sizeof(Double)))
     {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
     const Byte* src = &(*i);
     i += sizeof(Double);
@@ -1436,35 +1436,6 @@ IceInternal::BasicStream::throwException()
     // use. In that case, the receiver will eventually fail to read
     // another type ID and throw a MarshalException.
     //
-}
-
-void
-IceInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
-{
-    throw UnmarshalOutOfBoundsException(file, line);
-}
-
-void
-IceInternal::BasicStream::throwMemoryLimitException(const char* file, int line)
-{
-    throw MemoryLimitException(file, line);
-}
-
-void
-IceInternal::BasicStream::throwNegativeSizeException(const char* file, int line)
-{
-    throw NegativeSizeException(file, line);
-}
-
-void
-IceInternal::BasicStream::throwUnsupportedEncodingException(const char* file, int line, Byte eMajor, Byte eMinor)
-{
-    UnsupportedEncodingException ex(file, line);
-    ex.badMajor = static_cast<unsigned char>(eMajor);
-    ex.badMinor = static_cast<unsigned char>(eMinor);
-    ex.major = static_cast<unsigned char>(encodingMajor);
-    ex.minor = static_cast<unsigned char>(encodingMinor);
-    throw ex;
 }
 
 IceInternal::BasicStream::SeqData::SeqData(int num, int sz) : numElements(num), minSize(sz)

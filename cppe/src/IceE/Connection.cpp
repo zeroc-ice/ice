@@ -405,17 +405,17 @@ Ice::Connection::sendRequest(BasicStream* os, Outgoing* out)
 	    readStreamAndParseMessage(*os, receivedRequestId, invokeNum);
 	    if(invokeNum > 0)
 	    {
-		throw UnknownMessageException(__FILE__, __LINE__);
+		throwUnknownMessageException(__FILE__, __LINE__);
 	    }
 	    else if(requestId != receivedRequestId)
 	    {
-		throw UnknownRequestIdException(__FILE__, __LINE__);
+		throwUnknownRequestIdException(__FILE__, __LINE__);
 	    }
 #else
 	    readStreamAndParseMessage(*os, receivedRequestId);
 	    if(requestId != receivedRequestId)
 	    {
-		throw UnknownRequestIdException(__FILE__, __LINE__);
+		throwUnknownRequestIdException(__FILE__, __LINE__);
 	    }
 #endif
 	    out->finished(*os);
@@ -576,7 +576,7 @@ Ice::Connection::finishBatchRequest(BasicStream* os)
                 if(_batchRequestNum == 0)
                 {
                     resetBatch(true);
-                    throw MemoryLimitException(__FILE__, __LINE__);
+                    throwMemoryLimitException(__FILE__, __LINE__);
                 }
                 vector<Ice::Byte>(_batchStream.b.begin() + _batchMarker, _batchStream.b.end()).swap(lastRequest);
                 _batchStream.b.resize(_batchMarker);
@@ -617,7 +617,7 @@ Ice::Connection::finishBatchRequest(BasicStream* os)
         if(sizeof(requestBatchHdr) + lastRequest.size() >  _instance->messageSizeMax())
         {
             resetBatch(true);
-            throw MemoryLimitException(__FILE__, __LINE__);
+            throwMemoryLimitException(__FILE__, __LINE__);
         }
 
         //
@@ -1196,9 +1196,7 @@ Ice::Connection::validate()
 	    is.read(m[3]);
 	    if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
 	    {
-		BadMagicException ex(__FILE__, __LINE__);
-		ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(m));
-		throw ex;
+		throwBadMagicException(__FILE__, __LINE__, Ice::ByteSeq(&m[0], &m[0] + sizeof(m)));
 	    }
     	    Byte pMajor;
     	    Byte pMinor;
@@ -1206,12 +1204,7 @@ Ice::Connection::validate()
     	    is.read(pMinor);
     	    if(pMajor != protocolMajor)
     	    {
-    	        UnsupportedProtocolException ex(__FILE__, __LINE__);
-    	        ex.badMajor = static_cast<unsigned char>(pMajor);
-    	        ex.badMinor = static_cast<unsigned char>(pMinor);
-    	        ex.major = static_cast<unsigned char>(protocolMajor);
-    	        ex.minor = static_cast<unsigned char>(protocolMinor);
-    	        throw ex;
+    	        throwUnsupportedProtocolException(__FILE__, __LINE__, pMajor, pMinor, protocolMajor, protocolMinor);
     	    }
     	    Byte eMajor;
     	    Byte eMinor;
@@ -1219,18 +1212,13 @@ Ice::Connection::validate()
     	    is.read(eMinor);
     	    if(eMajor != encodingMajor)
     	    {
-    	        UnsupportedEncodingException ex(__FILE__, __LINE__);
-    	        ex.badMajor = static_cast<unsigned char>(eMajor);
-    	        ex.badMinor = static_cast<unsigned char>(eMinor);
-    	        ex.major = static_cast<unsigned char>(encodingMajor);
-    	        ex.minor = static_cast<unsigned char>(encodingMinor);
-    	        throw ex;
+		throwUnsupportedEncodingException(__FILE__, __LINE__, eMajor, eMinor, encodingMajor, encodingMinor);
     	    }
     	    Byte messageType;
     	    is.read(messageType);
     	    if(messageType != validateConnectionMsg)
     	    {
-    	        throw ConnectionNotValidatedException(__FILE__, __LINE__);
+    	        throwConnectionNotValidatedException(__FILE__, __LINE__);
     	    }
             Byte compress;
             is.read(compress); // Ignore compression status for validate connection.
@@ -1238,7 +1226,7 @@ Ice::Connection::validate()
 	    is.read(size);
 	    if(size != headerSize)
 	    {
-	        throw IllegalMessageSizeException(__FILE__, __LINE__);
+	        throwIllegalMessageSizeException(__FILE__, __LINE__);
 	    }
 	    if(_traceLevels->protocol >= 1)
 	    {
@@ -1501,27 +1489,15 @@ Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int
     stream.readBlob(header, headerSize);
     if(header[0] != magic[0] || header[1] != magic[1] || header[2] != magic[2] || header[3] != magic[3])
     {
-	BadMagicException ex(__FILE__, __LINE__);
-	ex.badMagic = Ice::ByteSeq(&header[0], &header[0] + sizeof(magic));
-	throw ex;
+	throwBadMagicException(__FILE__, __LINE__, Ice::ByteSeq(&header[0], &header[0] + sizeof(magic)));
     }
     if(header[4] != protocolMajor)
     {
-	UnsupportedProtocolException ex(__FILE__, __LINE__);
-	ex.badMajor = static_cast<unsigned char>(header[4]);
-	ex.badMinor = static_cast<unsigned char>(header[5]);
-	ex.major = static_cast<unsigned char>(protocolMajor);
-	ex.minor = static_cast<unsigned char>(protocolMinor);
-	throw ex;
+	throwUnsupportedProtocolException(__FILE__, __LINE__, header[4], header[5], protocolMajor, protocolMinor);
     }
     if(header[6] != encodingMajor)
     {
-	UnsupportedEncodingException ex(__FILE__, __LINE__);
-	ex.badMajor = static_cast<unsigned char>(header[6]);
-	ex.badMinor = static_cast<unsigned char>(header[7]);
-	ex.major = static_cast<unsigned char>(encodingMajor);
-	ex.minor = static_cast<unsigned char>(encodingMinor);
-	throw ex;
+	throwUnsupportedEncodingException(__FILE__, __LINE__, header[6], header[7], encodingMajor, encodingMinor);
     }
     const Byte messageType = header[8];
     if(header[9] == 2)
@@ -1536,11 +1512,11 @@ Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int
     stream.read(size);
     if(size < headerSize)
     {
-	throw IllegalMessageSizeException(__FILE__, __LINE__);
+	throwIllegalMessageSizeException(__FILE__, __LINE__);
     }
     if(size > static_cast<Int>(_instance->messageSizeMax()))
     {
-	throw MemoryLimitException(__FILE__, __LINE__);
+	throwMemoryLimitException(__FILE__, __LINE__);
     }
     if(size > static_cast<Int>(stream.b.size()))
     {
@@ -1600,7 +1576,7 @@ Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int
 	if(invokeNum < 0)
 	{
 	    invokeNum = 0;
-	    throw NegativeSizeException(__FILE__, __LINE__);
+	    throwNegativeSizeException(__FILE__, __LINE__);
 	}
 	break;
     }
@@ -1626,7 +1602,7 @@ Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int
 	{
 	    traceHeader("received unknown message\n(invalid, closing connection)", stream, _logger, _traceLevels);
 	}
-	throw UnknownMessageException(__FILE__, __LINE__);
+	throwUnknownMessageException(__FILE__, __LINE__);
 	break;
     }
     }
@@ -1758,7 +1734,7 @@ Ice::Connection::run()
 			
 			if(p == _requests.end())
 			{
-			    throw UnknownRequestIdException(__FILE__, __LINE__);
+			    throwUnknownRequestIdException(__FILE__, __LINE__);
 			}
 			
 			p->second->finished(_stream);

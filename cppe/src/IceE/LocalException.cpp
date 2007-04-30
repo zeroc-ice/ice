@@ -1287,6 +1287,16 @@ Ice::ProtocolException::ProtocolException(const char* __file, int __line) :
 {
 }
 
+Ice::ProtocolException::ProtocolException(const char* __file, int __line, const ::std::string& __reason) :
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
+    LocalException(__file, __line),
+#else
+    ::Ice::LocalException(__file, __line),
+#endif
+    reason(__reason)
+{
+}
+
 Ice::ProtocolException::~ProtocolException() throw()
 {
 }
@@ -1307,273 +1317,6 @@ Ice::ProtocolException::ice_clone() const
 
 void
 Ice::ProtocolException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::BadMagicException::BadMagicException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::BadMagicException::BadMagicException(const char* __file, int __line, const ::Ice::ByteSeq& __badMagic) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line),
-#else
-    ::Ice::ProtocolException(__file, __line),
-#endif
-    badMagic(__badMagic)
-{
-}
-
-Ice::BadMagicException::~BadMagicException() throw()
-{
-}
-
-static const char* __Ice__BadMagicException_name = "Ice::BadMagicException";
-
-::std::string
-Ice::BadMagicException::ice_name() const
-{
-    return __Ice__BadMagicException_name;
-}
-
-::Ice::Exception*
-Ice::BadMagicException::ice_clone() const
-{
-    return new BadMagicException(*this);
-}
-
-void
-Ice::BadMagicException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::UnsupportedProtocolException::UnsupportedProtocolException(const char* __file, int __line, ::Ice::Int __badMajor, ::Ice::Int __badMinor, ::Ice::Int __major, ::Ice::Int __minor) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line),
-#else
-    ::Ice::ProtocolException(__file, __line),
-#endif
-    badMajor(__badMajor),
-    badMinor(__badMinor),
-    major(__major),
-    minor(__minor)
-{
-}
-
-Ice::UnsupportedProtocolException::~UnsupportedProtocolException() throw()
-{
-}
-
-static const char* __Ice__UnsupportedProtocolException_name = "Ice::UnsupportedProtocolException";
-
-::std::string
-Ice::UnsupportedProtocolException::ice_name() const
-{
-    return __Ice__UnsupportedProtocolException_name;
-}
-
-::Ice::Exception*
-Ice::UnsupportedProtocolException::ice_clone() const
-{
-    return new UnsupportedProtocolException(*this);
-}
-
-void
-Ice::UnsupportedProtocolException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::UnsupportedEncodingException::UnsupportedEncodingException(const char* __file, int __line, ::Ice::Int __badMajor, ::Ice::Int __badMinor, ::Ice::Int __major, ::Ice::Int __minor) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line),
-#else
-    ::Ice::ProtocolException(__file, __line),
-#endif
-    badMajor(__badMajor),
-    badMinor(__badMinor),
-    major(__major),
-    minor(__minor)
-{
-}
-
-Ice::UnsupportedEncodingException::~UnsupportedEncodingException() throw()
-{
-}
-
-static const char* __Ice__UnsupportedEncodingException_name = "Ice::UnsupportedEncodingException";
-
-::std::string
-Ice::UnsupportedEncodingException::ice_name() const
-{
-    return __Ice__UnsupportedEncodingException_name;
-}
-
-::Ice::Exception*
-Ice::UnsupportedEncodingException::ice_clone() const
-{
-    return new UnsupportedEncodingException(*this);
-}
-
-void
-Ice::UnsupportedEncodingException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::UnknownMessageException::UnknownMessageException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::UnknownMessageException::~UnknownMessageException() throw()
-{
-}
-
-static const char* __Ice__UnknownMessageException_name = "Ice::UnknownMessageException";
-
-::std::string
-Ice::UnknownMessageException::ice_name() const
-{
-    return __Ice__UnknownMessageException_name;
-}
-
-::Ice::Exception*
-Ice::UnknownMessageException::ice_clone() const
-{
-    return new UnknownMessageException(*this);
-}
-
-void
-Ice::UnknownMessageException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::ConnectionNotValidatedException::ConnectionNotValidatedException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::ConnectionNotValidatedException::~ConnectionNotValidatedException() throw()
-{
-}
-
-static const char* __Ice__ConnectionNotValidatedException_name = "Ice::ConnectionNotValidatedException";
-
-::std::string
-Ice::ConnectionNotValidatedException::ice_name() const
-{
-    return __Ice__ConnectionNotValidatedException_name;
-}
-
-::Ice::Exception*
-Ice::ConnectionNotValidatedException::ice_clone() const
-{
-    return new ConnectionNotValidatedException(*this);
-}
-
-void
-Ice::ConnectionNotValidatedException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::UnknownRequestIdException::UnknownRequestIdException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::UnknownRequestIdException::~UnknownRequestIdException() throw()
-{
-}
-
-static const char* __Ice__UnknownRequestIdException_name = "Ice::UnknownRequestIdException";
-
-::std::string
-Ice::UnknownRequestIdException::ice_name() const
-{
-    return __Ice__UnknownRequestIdException_name;
-}
-
-::Ice::Exception*
-Ice::UnknownRequestIdException::ice_clone() const
-{
-    return new UnknownRequestIdException(*this);
-}
-
-void
-Ice::UnknownRequestIdException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::UnknownReplyStatusException::UnknownReplyStatusException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
-{
-}
-
-Ice::UnknownReplyStatusException::~UnknownReplyStatusException() throw()
-{
-}
-
-static const char* __Ice__UnknownReplyStatusException_name = "Ice::UnknownReplyStatusException";
-
-::std::string
-Ice::UnknownReplyStatusException::ice_name() const
-{
-    return __Ice__UnknownReplyStatusException_name;
-}
-
-::Ice::Exception*
-Ice::UnknownReplyStatusException::ice_clone() const
-{
-    return new UnknownReplyStatusException(*this);
-}
-
-void
-Ice::UnknownReplyStatusException::ice_throw() const
 {
     throw *this;
 }
@@ -1644,70 +1387,32 @@ Ice::ForcedCloseConnectionException::ice_throw() const
     throw *this;
 }
 
-Ice::IllegalMessageSizeException::IllegalMessageSizeException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line)
-#else
-    ::Ice::ProtocolException(__file, __line)
-#endif
+void
+Ice::throwBadMagicException(const char* file, int line, const ::Ice::ByteSeq& badMagic)
 {
-}
-
-Ice::IllegalMessageSizeException::~IllegalMessageSizeException() throw()
-{
-}
-
-static const char* __Ice__IllegalMessageSizeException_name = "Ice::IllegalMessageSizeException";
-
-::std::string
-Ice::IllegalMessageSizeException::ice_name() const
-{
-    return __Ice__IllegalMessageSizeException_name;
-}
-
-::Ice::Exception*
-Ice::IllegalMessageSizeException::ice_clone() const
-{
-    return new IllegalMessageSizeException(*this);
+    string out = "unknown magic number: ";
+    out += Ice::printfToString("0x%2X, 0x%2X, 0x%2X, 0x%2X", badMagic[0], badMagic[1], badMagic[2], badMagic[3]);
+    throw ProtocolException(__FILE__, __LINE__, out);
 }
 
 void
-Ice::IllegalMessageSizeException::ice_throw() const
+Ice::throwUnsupportedProtocolException(const char* file, int line, Int badMajor, Int badMinor, Int major, Int minor)
 {
-    throw *this;
-}
-
-Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    LocalException(__file, __line)
-#else
-    ::Ice::LocalException(__file, __line)
-#endif
-{
-}
-
-Ice::FeatureNotSupportedException::~FeatureNotSupportedException() throw()
-{
-}
-
-static const char* __Ice__FeatureNotSupportedException_name = "Ice::FeatureNotSupportedException";
-
-::std::string
-Ice::FeatureNotSupportedException::ice_name() const
-{
-    return __Ice__FeatureNotSupportedException_name;
-}
-
-::Ice::Exception*
-Ice::FeatureNotSupportedException::ice_clone() const
-{
-    return new FeatureNotSupportedException(*this);
+    string out = "unsupported protocol version: ";
+    out += Ice::printfToString("%d.%d", badMajor, badMinor);
+    out += "\n(can only support protocols compatible with version ";
+    out += Ice::printfToString("%d.%d", major, minor) + ")";
+    throw ProtocolException(__FILE__, __LINE__, out);
 }
 
 void
-Ice::FeatureNotSupportedException::ice_throw() const
+Ice::throwUnsupportedEncodingException(const char* file, int line, Int badMajor, Int badMinor, Int major, Int minor)
 {
-    throw *this;
+    string out = "unsupported encoding version: ";
+    out += Ice::printfToString("%d.%d", badMajor, badMinor);
+    out += "\n(can only support protocols compatible with version ";
+    out += Ice::printfToString("%d.%d", major, minor) + ")";
+    throw ProtocolException(__FILE__, __LINE__, out);
 }
 
 Ice::MarshalException::MarshalException(const char* __file, int __line) :
@@ -1721,11 +1426,10 @@ Ice::MarshalException::MarshalException(const char* __file, int __line) :
 
 Ice::MarshalException::MarshalException(const char* __file, int __line, const ::std::string& __reason) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    ProtocolException(__file, __line),
+    ProtocolException(__file, __line, __reason)
 #else
-    ::Ice::ProtocolException(__file, __line),
+    ::Ice::ProtocolException(__file, __line, __reason)
 #endif
-    reason(__reason)
 {
 }
 
@@ -1749,90 +1453,6 @@ Ice::MarshalException::ice_clone() const
 
 void
 Ice::MarshalException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line)
-#else
-    ::Ice::MarshalException(__file, __line)
-#endif
-{
-}
-
-Ice::ProxyUnmarshalException::ProxyUnmarshalException(const char* __file, int __line, const ::std::string& __reason) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line, __reason)
-#else
-    ::Ice::MarshalException(__file, __line, __reason)
-#endif
-{
-}
-
-Ice::ProxyUnmarshalException::~ProxyUnmarshalException() throw()
-{
-}
-
-static const char* __Ice__ProxyUnmarshalException_name = "Ice::ProxyUnmarshalException";
-
-::std::string
-Ice::ProxyUnmarshalException::ice_name() const
-{
-    return __Ice__ProxyUnmarshalException_name;
-}
-
-::Ice::Exception*
-Ice::ProxyUnmarshalException::ice_clone() const
-{
-    return new ProxyUnmarshalException(*this);
-}
-
-void
-Ice::ProxyUnmarshalException::ice_throw() const
-{
-    throw *this;
-}
-
-Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line)
-#else
-    ::Ice::MarshalException(__file, __line)
-#endif
-{
-}
-
-Ice::UnmarshalOutOfBoundsException::UnmarshalOutOfBoundsException(const char* __file, int __line, const ::std::string& __reason) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line, __reason)
-#else
-    ::Ice::MarshalException(__file, __line, __reason)
-#endif
-{
-}
-
-Ice::UnmarshalOutOfBoundsException::~UnmarshalOutOfBoundsException() throw()
-{
-}
-
-static const char* __Ice__UnmarshalOutOfBoundsException_name = "Ice::UnmarshalOutOfBoundsException";
-
-::std::string
-Ice::UnmarshalOutOfBoundsException::ice_name() const
-{
-    return __Ice__UnmarshalOutOfBoundsException_name;
-}
-
-::Ice::Exception*
-Ice::UnmarshalOutOfBoundsException::ice_clone() const
-{
-    return new UnmarshalOutOfBoundsException(*this);
-}
-
-void
-Ice::UnmarshalOutOfBoundsException::ice_throw() const
 {
     throw *this;
 }
@@ -1879,48 +1499,56 @@ Ice::MemoryLimitException::ice_throw() const
     throw *this;
 }
 
-Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line)
-#else
-    ::Ice::MarshalException(__file, __line)
-#endif
+void
+Ice::throwMemoryLimitException(const char* file, int line)
 {
-}
-
-Ice::NegativeSizeException::NegativeSizeException(const char* __file, int __line, const ::std::string& __reason) :
-#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
-    MarshalException(__file, __line, __reason)
-#else
-    ::Ice::MarshalException(__file, __line, __reason)
-#endif
-{
-}
-
-Ice::NegativeSizeException::~NegativeSizeException() throw()
-{
-}
-
-static const char* __Ice__NegativeSizeException_name = "Ice::NegativeSizeException";
-
-::std::string
-Ice::NegativeSizeException::ice_name() const
-{
-    return __Ice__NegativeSizeException_name;
-}
-
-::Ice::Exception*
-Ice::NegativeSizeException::ice_clone() const
-{
-    return new NegativeSizeException(*this);
+     throw MemoryLimitException(file, line);
 }
 
 void
-Ice::NegativeSizeException::ice_throw() const
+Ice::throwUnmarshalOutOfBoundsException(const char* file, int line)
+{
+     throw MarshalException(file, line, "out of bounds during unmarshaling");
+}
+
+void
+Ice::throwNegativeSizeException(const char* file, int line)
+{
+    throw MarshalException(file, line, "negative size for sequence, dictionary, etc.");
+}
+
+Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __file, int __line) :
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
+    LocalException(__file, __line)
+#else
+    ::Ice::LocalException(__file, __line)
+#endif
+{
+}
+
+Ice::FeatureNotSupportedException::~FeatureNotSupportedException() throw()
+{
+}
+
+static const char* __Ice__FeatureNotSupportedException_name = "Ice::FeatureNotSupportedException";
+
+::std::string
+Ice::FeatureNotSupportedException::ice_name() const
+{
+    return __Ice__FeatureNotSupportedException_name;
+}
+
+::Ice::Exception*
+Ice::FeatureNotSupportedException::ice_clone() const
+{
+    return new FeatureNotSupportedException(*this);
+}
+
+void
+Ice::FeatureNotSupportedException::ice_throw() const
 {
     throw *this;
 }
-
 
 Ice::FixedProxyException::FixedProxyException(const char* __file, int __line) :
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
@@ -2243,76 +1871,15 @@ string
 Ice::ProtocolException::toString() const
 {
     string out = Exception::toString();
-    out += ":\nunknown protocol exception";
-    return out;
-}
-
-string
-Ice::BadMagicException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nunknown magic number: ";
-    out += Ice::printfToString("0x%2X, 0x%2X, 0x%2X, 0x%2X", badMagic[0], badMagic[1], badMagic[2], badMagic[3]);
-
-    return out;
-}
-
-string
-Ice::UnsupportedProtocolException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: unsupported protocol version: ";
-    out += Ice::printfToString("%d.%d", badMajor, badMinor);
-    out += "\n(can only support protocols compatible with version ";
-    out += Ice::printfToString("%d.%d", major, minor);
-    out += ")";
-    return out;
-}
-
-string
-Ice::UnsupportedEncodingException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: unsupported encoding version: ";
-    out += badMajor;
-    out += ".";
-    out += badMinor;
-    out += "\n(can only support encodings compatible with version ";
-    out += major;
-    out += ".";
-    out += minor;
-    return out;
-}
-
-string
-Ice::UnknownMessageException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: unknown message type";
-    return out;
-}
-
-string
-Ice::ConnectionNotValidatedException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: received message over unvalidated connection";
-    return out;
-}
-
-string
-Ice::UnknownRequestIdException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: unknown request id";
-    return out;
-}
-
-string
-Ice::UnknownReplyStatusException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: unknown reply status";
+    out += ":\nprotocol error: ";
+    if(!reason.empty())
+    {
+	out += reason;
+    }
+    else
+    {
+	out += "unknown protocol exception";
+    }
     return out;
 }
 
@@ -2329,14 +1896,6 @@ Ice::ForcedCloseConnectionException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: connection forcefully closed";
-    return out;
-}
-
-string
-Ice::IllegalMessageSizeException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: illegal message size";
     return out;
 }
 
@@ -2367,34 +1926,10 @@ Ice::MarshalException::toString() const
 }
 
 string
-Ice::UnmarshalOutOfBoundsException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: out of bounds during unmarshaling";
-    return out;
-}
-
-string
-Ice::ProxyUnmarshalException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: inconsistent proxy data during unmarshaling";
-    return out;
-}
-
-string
 Ice::MemoryLimitException::toString() const
 {
     string out = Exception::toString();
     out += ":\nprotocol error: memory limit exceeded";
-    return out;
-}
-
-string
-Ice::NegativeSizeException::toString() const
-{
-    string out = Exception::toString();
-    out += ":\nprotocol error: negative size for sequence, dictionary, etc.";
     return out;
 }
 
