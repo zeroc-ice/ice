@@ -13,5 +13,4 @@
 
 #include <IceE/ProxyHandle.h>
 
-
 #endif

@@ -13,14 +13,6 @@
 #include <IceE/Handle.h>
 #include <IceE/Config.h>
 
-namespace IceInternal
-{
-
-template<typename T> class ProxyHandle;
-template<typename T> class Handle;
-
-}
-
 namespace IceProxy 
 { 
 namespace Ice
@@ -29,6 +21,21 @@ namespace Ice
 class Object;
 
 }
+
+}
+
+namespace IceInternal
+{
+
+template<typename T> class ProxyHandle;
+template<typename T> class Handle;
+
+inline ::IceProxy::Ice::Object* 
+upCast(::IceProxy::Ice::Object* o)
+{
+    return o;
+}
+
 }
 
 namespace Ice
