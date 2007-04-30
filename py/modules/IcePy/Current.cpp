@@ -34,6 +34,7 @@ struct CurrentObject
     PyObject* operation;
     PyObject* mode;
     PyObject* ctx;
+    PyObject* requestId;
 };
 
 //
@@ -46,6 +47,7 @@ const Py_ssize_t CURRENT_FACET      = 3;
 const Py_ssize_t CURRENT_OPERATION  = 4;
 const Py_ssize_t CURRENT_MODE       = 5;
 const Py_ssize_t CURRENT_CTX        = 6;
+const Py_ssize_t CURRENT_REQUEST_ID = 7;
 
 }
 
@@ -69,6 +71,7 @@ currentNew(PyObject* /*arg*/)
     self->operation = 0;
     self->mode = 0;
     self->ctx = 0;
+    self->requestId = 0;
 
     return self;
 }
@@ -86,6 +89,7 @@ currentDealloc(CurrentObject* self)
     Py_XDECREF(self->operation);
     Py_XDECREF(self->mode);
     Py_XDECREF(self->ctx);
+    Py_XDECREF(self->requestId);
     delete self->current;
     PyObject_Del(self);
 }
@@ -208,6 +212,17 @@ currentGetter(CurrentObject* self, void* closure)
         result = self->ctx;
         break;
     }
+    case CURRENT_REQUEST_ID:
+    {
+        if(!self->requestId)
+        {
+            self->requestId = PyInt_FromLong(self->current->requestId);
+            assert(self->requestId);
+        }
+        Py_INCREF(self->requestId);
+        result = self->requestId;
+        break;
+    }
     }
 
     return result;
@@ -229,6 +244,8 @@ static PyGetSetDef CurrentGetSetters[] =
       reinterpret_cast<void*>(CURRENT_MODE) },
     { STRCAST("ctx"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("context"),
       reinterpret_cast<void*>(CURRENT_CTX) },
+    { STRCAST("requestId"), reinterpret_cast<getter>(currentGetter), 0, STRCAST("requestId"),
+      reinterpret_cast<void*>(CURRENT_REQUEST_ID) },
     { 0 }  /* Sentinel */
 };
 

@@ -1,6 +1,8 @@
 Changes since version 3.2.0
 ---------------------------
 
+- Added missing requestId to Ice.Current.
+
 - All local methods on a proxy that return the "same" proxy with
   a different attribute (such as ice_oneway and ice_secure) now return
   a proxy of the same class as the original. As a result, once you
