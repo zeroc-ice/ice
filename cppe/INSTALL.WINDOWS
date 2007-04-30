@@ -20,14 +20,6 @@ The following C++ compilers are supported:
 
   http://msdn.microsoft.com/vstudio/express/visualc/
 
-- Microsoft Visual C++ .NET 2003 SP1 (aka VC++ 7.1)
-
-- Microsoft Visual C++ 6.0 SP5 with STLport 4.5 (or later)
-
-  The Standard Template Library included with Visual C++ 6.0 is not
-  supported. STLPort is included in the Ice third-party package
-  for Visual C++ 6.0.
-
 
 Slice-to-Embedded-C++ translator
 --------------------------------
@@ -41,31 +33,6 @@ Binary and source distributions for the supported platforms are
 available at
 
 http://www.zeroc.com/download.html
-
-
-STLport
--------
-
-Ice-E requires STLport 4.5 or later for Visual C++ 6.0. You can
-download STLport at the following location:
-
-http://www.stlport.org/download.html
-
-For STLport installation instructions, please refer to
-
-http://www.stlport.org/doc/install.html
-
-There is no need to compile STLport for use with Ice-E, since Ice-E does
-not use iostream, locale nor complex support provided by STLport.
-
-Users must configure Visual Studio to use STLport:
-
-- In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
-
-- Select "Include files"
-
-- Add the include directory for STLport first in the list. (Note that
-  you must add the "include\stlport" directory, not just "include".)
 
 
 Python
@@ -130,11 +97,6 @@ the directory specified by the "prefix" variable in config\Make.rules.mak.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files" and the lib directory to the "Library
-files":
+files" in the Visual C++ IDE:
 
-  * Visual C++ 6.0: Tools->Options->Directories
-
-  * Visual C++ .NET 2003: Tools->Options->Projects->VC++ Directories
-
-  * Visual C++ 2005: Tools->Options->Projects and Solutions->
-                                                    VC++ Directories
+  * Tools->Options->Projects and Solutions->VC++ Directories
