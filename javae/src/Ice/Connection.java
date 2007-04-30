@@ -346,11 +346,11 @@ public final class Connection
 		    readStreamAndParseMessage(os, info);
 		    if(info.invokeNum > 0)
 		    {
-			throw new UnknownMessageException();
+			Ice.Util.throwUnknownMessageException();
 		    }
 		    else if(info.requestId != requestId)
 		    {
-			throw new UnknownRequestIdException();
+			Ice.Util.throwUnknownRequestIdException();
 		    }
 			
 		    out.finished(os);
@@ -1096,42 +1096,30 @@ public final class Connection
 	        if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
 	           m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
 	        {
-	            BadMagicException ex = new BadMagicException();
-	    	    ex.badMagic = m;
-	    	    throw ex;
+                    Ice.Util.throwBadMagicException(m);
 	        }
 	        byte pMajor = is.readByte();
 	        byte pMinor = is.readByte();
 	        if(pMajor != IceInternal.Protocol.protocolMajor)
 	        {
-	    	    UnsupportedProtocolException e = new UnsupportedProtocolException();
-	    	    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-	    	    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-	    	    e.major = IceInternal.Protocol.protocolMajor;
-	    	    e.minor = IceInternal.Protocol.protocolMinor;
-	    	    throw e;
+                    Ice.Util.throwUnsupportedProtocolException(pMajor, pMinor);
 	        }
 	        byte eMajor = is.readByte();
 	        byte eMinor = is.readByte();
 	        if(eMajor != IceInternal.Protocol.encodingMajor)
 	        {
-	    	    UnsupportedEncodingException e = new UnsupportedEncodingException();
-	    	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-	    	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-	    	    e.major = IceInternal.Protocol.encodingMajor;
-	    	    e.minor = IceInternal.Protocol.encodingMinor;
-	    	    throw e;
+                    Ice.Util.throwUnsupportedEncodingException(eMajor, eMinor);
 	        }
 	        byte messageType = is.readByte();
 	        if(messageType != IceInternal.Protocol.validateConnectionMsg)
 	        {
-	    	    throw new ConnectionNotValidatedException();
+	    	    Ice.Util.throwConnectionNotValidatedException();
 	        }
 	        byte compress = is.readByte(); // Ignore compression status for validate connection.
 	        int size = is.readInt();
 	        if(size != IceInternal.Protocol.headerSize)
 	        {
-	    	    throw new IllegalMessageSizeException();
+	    	    Ice.Util.throwIllegalMessageSizeException();
 	        }
 	        IceInternal.TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
 	    }
@@ -1394,31 +1382,19 @@ public final class Connection
 	if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
 	   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
 	{
-	    BadMagicException ex = new BadMagicException();
-	    ex.badMagic = m;
-	    throw ex;
+            Ice.Util.throwBadMagicException(m);
 	}
 	byte pMajor = stream.readByte();
 	byte pMinor = stream.readByte();
 	if(pMajor != IceInternal.Protocol.protocolMajor)
 	{
-	    UnsupportedProtocolException e = new UnsupportedProtocolException();
-	    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-	    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-	    e.major = IceInternal.Protocol.protocolMajor;
-	    e.minor = IceInternal.Protocol.protocolMinor;
-	    throw e;
+            Ice.Util.throwUnsupportedProtocolException(pMajor, pMinor);
 	}
 	byte eMajor = stream.readByte();
 	byte eMinor = stream.readByte();
 	if(eMajor != IceInternal.Protocol.encodingMajor)
 	{
-	    UnsupportedEncodingException e = new UnsupportedEncodingException();
-	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-	    e.major = IceInternal.Protocol.encodingMajor;
-	    e.minor = IceInternal.Protocol.encodingMinor;
-	    throw e;
+            Ice.Util.throwUnsupportedEncodingException(eMajor, eMinor);
 	}
 	byte messageType = stream.readByte();
 	byte compress = stream.readByte();
@@ -1432,7 +1408,7 @@ public final class Connection
 	int size = stream.readInt();
 	if(size < IceInternal.Protocol.headerSize)
 	{
-	    throw new IllegalMessageSizeException();
+	    Ice.Util.throwIllegalMessageSizeException();
 	}
 	if(size > _instance.messageSizeMax())
 	{
@@ -1488,7 +1464,7 @@ public final class Connection
 	    if(info.invokeNum < 0)
 	    {
 		info.invokeNum = 0;
-		throw new NegativeSizeException();
+		Ice.Util.throwNegativeSizeException();
 	    }
 	    break;
 	}
@@ -1508,7 +1484,7 @@ public final class Connection
 	    IceInternal.TraceUtil.traceHeader("received unexpected message\n" +
 					      "(invalid, closing connection)", stream, _logger,
 					      _traceLevels);
-	    throw new UnknownMessageException();
+	    Ice.Util.throwUnknownMessageException();
 	}
 	}
     }
@@ -1617,7 +1593,7 @@ public final class Connection
 				}
 				else
 				{
-				    throw new UnknownRequestIdException();
+				    Ice.Util.throwUnknownRequestIdException();
 				}
 			    }
 			}

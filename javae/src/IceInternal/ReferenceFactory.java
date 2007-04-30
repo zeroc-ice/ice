@@ -500,7 +500,7 @@ public final class ReferenceFactory
         {
 	    if(facetPath.length > 1)
 	    {
-	        throw new Ice.ProxyUnmarshalException();
+	        Ice.Util.throwProxyUnmarshalException();
 	    }
             facet = facetPath[0];
         }
@@ -512,7 +512,7 @@ public final class ReferenceFactory
         int mode = (int)s.readByte();
         if(mode < 0 || mode > Reference.ModeLast)
         {
-            throw new Ice.ProxyUnmarshalException();
+            Ice.Util.throwProxyUnmarshalException();
         }
 
 	boolean secure = s.readBool();

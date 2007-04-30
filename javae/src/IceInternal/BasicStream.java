@@ -249,7 +249,7 @@ public class BasicStream
 	    //
 	    if(numElements * minSize > bytesLeft) 
 	    {
-		throw new Ice.UnmarshalOutOfBoundsException();
+		Ice.Util.throwUnmarshalOutOfBoundsException();
 	    }
 	}
 	else // Nested sequence
@@ -284,7 +284,7 @@ public class BasicStream
 
 	if(size > bytesLeft)
 	{
-	    throw new Ice.UnmarshalOutOfBoundsException();
+	    Ice.Util.throwUnmarshalOutOfBoundsException();
 	}
     }
 
@@ -299,7 +299,7 @@ public class BasicStream
 	    //
 	    if(numElements * elemSize > bytesLeft) 
 	    {
-		throw new Ice.UnmarshalOutOfBoundsException();
+		Ice.Util.throwUnmarshalOutOfBoundsException();
 	    }
 	}
 	else // Nested sequence
@@ -383,12 +383,12 @@ public class BasicStream
         int sz = readInt();
 	if(sz < 0)
 	{
-	    throw new Ice.NegativeSizeException();
+	    Ice.Util.throwNegativeSizeException();
 	}
 
 	if(sz - 4 > _buf.limit())
 	{
-	    throw new Ice.UnmarshalOutOfBoundsException();
+	    Ice.Util.throwUnmarshalOutOfBoundsException();
 	}
 	_readEncapsStack.sz = sz;
 
@@ -396,12 +396,7 @@ public class BasicStream
         byte eMinor = readByte();
 	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
 	{
-	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-	    e.badMajor = eMajor < 0 ? eMajor + 256 : eMajor;
-	    e.badMinor = eMinor < 0 ? eMinor + 256 : eMinor;
-	    e.major = Protocol.encodingMajor;
-	    e.minor = Protocol.encodingMinor;
-	    throw e;
+            Ice.Util.throwUnsupportedEncodingException(eMajor, eMinor);
 	}
         _readEncapsStack.encodingMajor = eMajor;
         _readEncapsStack.encodingMinor = eMinor;
@@ -422,7 +417,7 @@ public class BasicStream
         }
         catch(IllegalArgumentException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
         }
 
 	_readEncapsStack = _readEncapsStack.next;
@@ -444,7 +439,7 @@ public class BasicStream
         int sz = readInt();
 	if(sz < 0)
 	{
-	    throw new Ice.NegativeSizeException();
+	    Ice.Util.throwNegativeSizeException();
 	}
         try
         {
@@ -452,7 +447,7 @@ public class BasicStream
         }
         catch(IllegalArgumentException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
         }
     }
 
@@ -474,7 +469,7 @@ public class BasicStream
         int sz = readInt();
 	if(sz < 0)
 	{
-	    throw new Ice.NegativeSizeException();
+	    Ice.Util.throwNegativeSizeException();
 	}
         _readSlice = _buf.position();
     }
@@ -488,7 +483,7 @@ public class BasicStream
         int sz = readInt();
 	if(sz < 0)
 	{
-	    throw new Ice.NegativeSizeException();
+	    Ice.Util.throwNegativeSizeException();
 	}
         try
         {
@@ -496,7 +491,7 @@ public class BasicStream
         }
         catch(IllegalArgumentException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
         }
     }
 
@@ -527,7 +522,7 @@ public class BasicStream
 		int v = _buf.getInt();
 		if(v < 0)
 		{
-		    throw new Ice.NegativeSizeException();
+		    Ice.Util.throwNegativeSizeException();
 		}
 		return v;
 	    }
@@ -538,7 +533,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0; // Keep the compiler happy.
         }
     }
 
@@ -567,7 +563,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new byte[0]; // Keep the compiler happy.
         }
     }
 
@@ -602,7 +599,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0; // Keep the compiler happy.
         }
     }
 
@@ -620,7 +618,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new byte[0]; // Keep the compiler happy.
         }
     }
 
@@ -658,7 +657,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return false; // Keep the compiler happy.
         }
     }
 
@@ -678,7 +678,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new boolean[0]; // Keep the compiler happy.
         }
     }
 
@@ -713,7 +714,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0; // Keep the compiler happy.
         }
     }
 
@@ -730,7 +732,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new short[0];
         }
     }
 
@@ -765,7 +768,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0; // Keep the compiler happy.
         }
     }
 
@@ -782,7 +786,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new int[0]; // Keep the compiler happy.
         }
     }
 
@@ -817,7 +822,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0; // Keep the compiler happy.
         }
     }
 
@@ -834,7 +840,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new long[0]; // Keep the compiler happy.
         }
     }
 
@@ -869,7 +876,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0.0f; // Kee the compiler happy.
         }
     }
 
@@ -886,7 +894,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new float[0]; // Keep the compiler happy.
         }
     }
 
@@ -921,7 +930,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return 0.0; // Keep the compiler happy.
         }
     }
 
@@ -938,7 +948,8 @@ public class BasicStream
         }
         catch(ByteBuffer.UnderflowException ex)
         {
-            throw new Ice.UnmarshalOutOfBoundsException();
+            Ice.Util.throwUnmarshalOutOfBoundsException();
+            return new double[0]; // Keep the compiler happy.
         }
     }
 
@@ -1038,7 +1049,8 @@ public class BasicStream
             }
             catch(ByteBuffer.UnderflowException ex)
             {
-                throw new Ice.UnmarshalOutOfBoundsException();
+                Ice.Util.throwUnmarshalOutOfBoundsException();
+                return "";
             }
         }
     }

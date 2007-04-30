@@ -1,6 +1,13 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Removed most specializations of Ice::ProtocolException local exceptions
+  for code size gains. Only the following specializations were kept:
+  Ice::CloseConnectionException, Ice::ForcedCloseConnectionException, 
+  Ice::MarshalException, Ice::MemoryLimitException. The reason of the 
+  protocol error is now included in the reason attribute of 
+  Ice::ProtocolException.
+
 - Attempts to change the attributes of a fixed proxy now result in a
   FixedProxyException rather than just ignoring the change request and
   returning the same proxy. Also, attempts to marshal a fixed proxy

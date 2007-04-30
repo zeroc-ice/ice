@@ -479,141 +479,12 @@ local exception CloseTimeoutException extends TimeoutException
  **/
 local exception ProtocolException
 {
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that a message did not start with the expected
- * magic number ('I', 'c', 'e', 'P').
- *
- **/
-local exception BadMagicException extends ProtocolException
-{
     /**
      *
-     * A sequence containing the first four bytes of the incorrect message.
+     * The reason for the failure.
      *
      **/
-    ByteSeq badMagic;
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that an unsupported protocol version has been
- * encountered.
- *
- **/
-local exception UnsupportedProtocolException extends ProtocolException
-{
-    /**
-     *
-     * The major version number of the unsupported protocol.
-     *
-     **/
-    int badMajor;
-
-    /**
-     *
-     * The minor version number of the unsupported protocol.
-     *
-     **/
-    int badMinor;
-
-    /**
-     *
-     * The major version number of the protocol that is supported.
-     *
-     **/
-    int major;
-
-    /**
-     *
-     * The highest minor version number of the protocol that can be supported.
-     *
-     **/
-    int minor;
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that an unsupported data encoding version has been
- * encountered.
- *
- **/
-local exception UnsupportedEncodingException extends ProtocolException
-{
-    /**
-     *
-     * The major version number of the unsupported encoding.
-     *
-     **/
-    int badMajor;
-
-    /**
-     *
-     * The minor version number of the unsupported encoding.
-     *
-     **/
-    int badMinor;
-
-    /**
-     *
-     * The major version number of the encoding that is supported.
-     *
-     **/
-    int major;
-
-    /**
-     *
-     * The highest minor version number of the encoding that can be supported.
-     *
-     **/
-    int minor;
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that an unknown protocol message has been received.
- *
- **/
-local exception UnknownMessageException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException], that is
- * raised if a message is received over a connection that is not yet
- * validated.
- *
- **/
-local exception ConnectionNotValidatedException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that a response for an unknown request id has been
- * received.
- *
- **/
-local exception UnknownRequestIdException extends ProtocolException
-{
-};
-
-/**
- *
- * This exception is a specialization of [ProtocolException],
- * indicating that an unknown reply status has been received.
- *
- **/
-local exception UnknownReplyStatusException extends ProtocolException
-{
+    string reason;
 };
 
 /**
@@ -648,48 +519,11 @@ local exception ForcedCloseConnectionException extends ProtocolException
 
 /**
  *
- * This exception is a specialization of [ProtocolException],
- * indicating that the message size is illegal, i.e., it is
- * less than the minimum required size.
- *
- **/
-local exception IllegalMessageSizeException extends ProtocolException
-{
-};
-
-/**
- *
  * This exception is a specialization of [ProtocolException] that is
  * raised upon an error during marshaling or unmarshaling data.
  *
  **/
 local exception MarshalException extends ProtocolException
-{
-    /**
-     *
-     * The reason for the failure.
-     *
-     **/
-    string reason;
-};
-
-/**
- *
- * This exception is a specialization of [MarshalException] that is
- * raised if inconsistent data is received while unmarshaling a proxy.
- *
- **/
-local exception ProxyUnmarshalException extends MarshalException
-{
-};
-
-/**
- *
- * This exception is a specialization of [MarshalException] that is
- * raised if an out-of-bounds condition occurs during unmarshaling.
- *
- **/
-local exception UnmarshalOutOfBoundsException extends MarshalException
 {
 };
 
@@ -701,17 +535,6 @@ local exception UnmarshalOutOfBoundsException extends MarshalException
  *
  **/
 local exception MemoryLimitException extends MarshalException
-{
-};
-
-/**
- *
- * This exception is a specialization of [MarshalException] that is
- * raised if a negative size (e.g., a negative sequence size) is
- * received.
- *
- **/
-local exception NegativeSizeException extends MarshalException
 {
 };
 

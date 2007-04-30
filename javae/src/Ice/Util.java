@@ -229,5 +229,82 @@ public final class Util
 	}
     }
 
+    public static void
+    throwBadMagicException(byte[] badMagic)
+    {
+        String out = "unknown magic number: ";
+        out += "0x" + Integer.toHexString((int)badMagic[0]) + ", ";
+        out += "0x" + Integer.toHexString((int)badMagic[1]) + ", ";
+        out += "0x" + Integer.toHexString((int)badMagic[2]) + ", ";
+        out += "0x" + Integer.toHexString((int)badMagic[3]) + "";
+        throw new ProtocolException(out);
+    }
+
+    public static void
+    throwUnsupportedProtocolException(int badMajor, int badMinor)
+    {
+        String out = "unsupported protocol version: " + badMajor + "." + badMinor;
+        out += "\n(can only support protocols compatible with version ";
+        out += IceInternal.Protocol.protocolMajor + "." + IceInternal.Protocol.protocolMinor;
+        throw new ProtocolException(out);
+    }
+
+    public static void
+    throwUnsupportedEncodingException(int badMajor, int badMinor)
+    {
+        String out = "unsupported encoding version: " + badMajor + "." + badMinor;
+        out += "\n(can only support protocols compatible with version ";
+        out += IceInternal.Protocol.encodingMajor + "." + IceInternal.Protocol.encodingMinor;
+        throw new ProtocolException(out);
+    }
+
+    public static void
+    throwUnknownMessageException()
+    {
+        throw new ProtocolException("unknown message type");
+    }
+
+    public static void
+    throwConnectionNotValidatedException()
+    {
+        throw new ProtocolException("received message over unvalidated connection");
+    }
+
+    public static void
+    throwUnknownRequestIdException()
+    {
+        throw new ProtocolException("unknown request id");
+    }
+
+    public static void
+    throwUnknownReplyStatusException()
+    {
+        throw new ProtocolException("unknown reply status");
+    }
+
+    public static void
+    throwIllegalMessageSizeException()
+    {
+        throw new ProtocolException("illegal message size");
+    }
+
+    public static void
+    throwUnmarshalOutOfBoundsException()
+    {
+        throw new MarshalException("out of bounds during unmarshaling");
+    }
+
+    public static void
+    throwNegativeSizeException()
+    {
+        throw new MarshalException("negative size for sequence, dictionary, etc.");
+    }
+
+    public static void
+    throwProxyUnmarshalException()
+    {
+        throw new MarshalException("inconsistent proxy data during unmarshaling");
+    }
+
     private static String _localAddress = null;
 }

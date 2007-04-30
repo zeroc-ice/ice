@@ -337,7 +337,7 @@ public final class Outgoing
 	    
 	    default:
 	    {
-		_exception = new Ice.UnknownReplyStatusException();
+		_exception = new Ice.ProtocolException("unknown reply status");
 		_state = StateLocalException;
 		break;
 	    }
