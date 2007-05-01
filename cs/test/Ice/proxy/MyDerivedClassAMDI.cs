@@ -8,7 +8,6 @@
 // **********************************************************************
 
 using System;
-using System.Threading;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
@@ -22,12 +21,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response();
     }
     
-    public override void opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
-    {
-        System.Threading.Thread.Sleep(duration);
-        cb.ice_response();
-    }
-
     public override void
     getContext_async(Test.AMD_MyClass_getContext cb, Ice.Current current)
     {

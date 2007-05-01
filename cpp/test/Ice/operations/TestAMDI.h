@@ -17,17 +17,11 @@ class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
-    MyDerivedClassI(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-    
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
 
     virtual void opVoid_async(const Test::AMD_MyClass_opVoidPtr&,
                               const Ice::Current&);
-
-    virtual void opSleep_async(const Test::AMD_MyClass_opSleepPtr&,
-                               int,
-                               const Ice::Current&);
 
     virtual void opByte_async(const Test::AMD_MyClass_opBytePtr&,
                               Ice::Byte, Ice::Byte,
@@ -140,22 +134,7 @@ public:
     
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
-    Ice::Identity _identity;
     IceUtil::ThreadPtr _opVoidThread;
-};
-
-class TestCheckedCastI : public Test::TestCheckedCast
-{
-public:
-
-    virtual void getContext_async(const Test::AMD_TestCheckedCast_getContextPtr& cb,
-                                                    const Ice::Current&);
-    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
-
-private:
-
-    mutable Ice::Context _ctx;
 };
 
 #endif

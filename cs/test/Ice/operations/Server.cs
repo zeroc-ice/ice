@@ -18,11 +18,9 @@ public class Server
         //
         communicator.getProperties().setProperty("Ice.Warn.Connections", "0");
         
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 5000:udp");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Identity id = communicator.stringToIdentity("test");
-        adapter.add(new MyDerivedClassI(adapter, id), id);
-        adapter.add(new TestCheckedCastI(), communicator.stringToIdentity("context"));
+        adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
         adapter.activate();
 
         communicator.waitForShutdown();
@@ -36,7 +34,10 @@ public class Server
         
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
+            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

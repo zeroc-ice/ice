@@ -31,17 +31,11 @@ public:
 
 private:
 
-    Test::AMD_MyClass_opVoidPtr _cb;
+    const Test::AMD_MyClass_opVoidPtr _cb;
 };
 
-MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
-    _adapter(adapter),
-    _identity(identity)
-{
-}
-
 void
-MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current&)
+MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& current)
 {
     if(_opVoidThread)
     {
@@ -49,7 +43,7 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
         _opVoidThread = 0;
     }
 
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
     cb->ice_response();
 }
 
@@ -64,15 +58,6 @@ MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::
 
     _opVoidThread = new Thread_opVoid(cb);
     _opVoidThread->start();
-}
-
-void
-MyDerivedClassI::opSleep_async(const Test::AMD_MyClass_opSleepPtr& cb, 
-                               int duration, 
-                               const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
-    cb->ice_response();
 }
 
 void
@@ -132,12 +117,12 @@ MyDerivedClassI::opMyEnum_async(const Test::AMD_MyClass_opMyEnumPtr& cb,
 void
 MyDerivedClassI::opMyClass_async(const Test::AMD_MyClass_opMyClassPtr& cb,
                                  const Test::MyClassPrx& p1,
-                                 const Ice::Current&)
+                                 const Ice::Current& current)
 {
     Test::MyClassPrx p2 = p1;
-    Test::MyClassPrx p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(
-                                        _adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
-    cb->ice_response(Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity)), p2, p3);
+    Test::MyClassPrx p3 = Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(
+                                        current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+    cb->ice_response(Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(current.id)), p2, p3);
 }
 
 void
@@ -410,21 +395,4 @@ void
 MyDerivedClassI::opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr& cb, const Ice::Current&)
 {
     cb->ice_response();
-}
-
-void
-TestCheckedCastI::getContext_async(const Test::AMD_TestCheckedCast_getContextPtr& cb, const Ice::Current&)
-{
-    cb->ice_response(_ctx);
-}
-
-bool
-TestCheckedCastI::ice_isA(const std::string& s, const Ice::Current& current) const
-{
-    _ctx = current.ctx;
-#ifdef __BCPLUSPLUS__
-    return Test::TestCheckedCast::ice_isA(s, current);
-#else
-    return TestCheckedCast::ice_isA(s, current);
-#endif
 }

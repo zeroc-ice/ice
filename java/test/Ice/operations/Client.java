@@ -55,11 +55,6 @@ public class Client
             //
             initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
-            //
-            // We don't want connection warnings because of the timeout test.
-            //
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(argsH.value, communicator);
         }

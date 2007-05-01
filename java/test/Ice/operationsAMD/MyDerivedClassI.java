@@ -35,13 +35,6 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         private Test.AMD_MyClass_opVoid _cb;
     }
 
-    public
-    MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
-    {
-        _adapter = adapter;
-        _identity = identity;
-    }
-
     public void
     shutdown_async(Test.AMD_MyClass_shutdown cb,
                    Ice.Current current)
@@ -58,7 +51,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
             }
         }
 
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
 
@@ -80,23 +73,6 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 
         _opVoidThread = new Thread_opVoid(cb);
         _opVoidThread.start();
-    }
-
-    public void
-    opSleep_async(Test.AMD_MyClass_opSleep cb, int duration, Ice.Current current)
-    {
-        while(true)
-        {
-            try
-            {
-                Thread.currentThread().sleep(duration);
-                cb.ice_response();
-                break;
-            }
-            catch(java.lang.InterruptedException ex)
-            {
-            }
-        }       
     }
 
     public void
@@ -259,8 +235,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         Test.MyClassPrx p2 = p1;
         Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-            _adapter.createProxy(_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
-        cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity)), p2, p3);
+            current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+        cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3);
     }
 
     public void
@@ -460,7 +436,5 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         cb.ice_response();
     }
 
-    private Ice.ObjectAdapter _adapter;
-    private Ice.Identity _identity;
     private Thread _opVoidThread;
 }

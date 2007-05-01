@@ -8,13 +8,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceUtil/IceUtil.h>
 #include <TestI.h>
 #include <TestCommon.h>
-#include <functional>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
 
 MyDerivedClassI::MyDerivedClassI()
 {
@@ -24,12 +19,6 @@ void
 MyDerivedClassI::shutdown(const Ice::Current& c)
 {
     c.adapter->getCommunicator()->shutdown();
-}
-
-void
-MyDerivedClassI::opSleep(int duration, const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
 }
 
 Ice::Context

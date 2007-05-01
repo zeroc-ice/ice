@@ -19,7 +19,6 @@ public:
     MyDerivedClassI();
 
     virtual void shutdown(const Ice::Current&);
-    virtual void opSleep(int, const Ice::Current&);
     virtual Ice::Context getContext(const Ice::Current&);
     virtual bool ice_isA(const std::string&, const Ice::Current&) const;
 

@@ -16,13 +16,9 @@ class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
-    MyDerivedClassI(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-
     virtual void shutdown(const Ice::Current&);
 
     virtual void opVoid(const Ice::Current&);
-
-    virtual void opSleep(int, const Ice::Current&);
 
     virtual Ice::Byte opByte(Ice::Byte,
                              Ice::Byte,
@@ -157,23 +153,6 @@ public:
     virtual void opDoubleMarshaling(Ice::Double, const Test::DoubleS&, const Ice::Current&);
 
     virtual void opDerived(const Ice::Current&);
-
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
-    Ice::Identity _identity;
-};
-
-class TestCheckedCastI : public Test::TestCheckedCast
-{
-public:
-
-    virtual Ice::Context getContext(const Ice::Current&);
-    virtual bool ice_isA(const std::string&, const Ice::Current&) const;
-
-private:
-
-    mutable Ice::Context _ctx;
 };
 
 #endif

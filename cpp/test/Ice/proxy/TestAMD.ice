@@ -19,7 +19,6 @@ module Test
 {
     void shutdown();
 
-    void opSleep(int duration);
     Ice::Context getContext();
 };
 

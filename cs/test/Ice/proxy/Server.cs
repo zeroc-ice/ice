@@ -34,7 +34,10 @@ public class Server
         
         try
         {
-            communicator = Ice.Util.initialize(ref args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = Ice.Util.createProperties(ref args);
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

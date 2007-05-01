@@ -21,8 +21,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator,
     adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
     adapter->activate();
 
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
-    allTests(communicator, true);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
+    allTests(communicator);
 
     return EXIT_SUCCESS;
 }

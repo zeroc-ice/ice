@@ -72,8 +72,6 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     void opVoid();
 
-    void opSleep(int duration);
-
     byte opByte(byte p1, byte p2,
                 out byte p3);
 
@@ -157,11 +155,6 @@ dictionary<string, MyEnum> StringMyEnumD;
 ["ami"] class MyDerivedClass extends MyClass
 {
     void opDerived();
-};
-
-interface TestCheckedCast
-{
-    Ice::Context getContext();
 };
 
 };

@@ -16,7 +16,7 @@
 using namespace std;
 
 Test::MyClassPrx
-allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
+allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
     string ref = "test:default -p 12010 -t 10000";

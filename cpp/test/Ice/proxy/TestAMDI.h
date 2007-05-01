@@ -10,7 +10,6 @@
 #ifndef TEST_AMD_I_H
 #define TEST_AMD_I_H
 
-#include <IceUtil/Thread.h>
 #include <TestAMD.h>
 
 class MyDerivedClassI : public Test::MyDerivedClass
@@ -21,10 +20,6 @@ public:
     
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
-
-    virtual void opSleep_async(const Test::AMD_MyClass_opSleepPtr&,
-                               int,
-                               const Ice::Current&);
 
     virtual void getContext_async(const Test::AMD_MyClass_getContextPtr& cb,
                                   const Ice::Current&);

@@ -18,8 +18,8 @@ run(int argc, char* argv[],
     const Ice::CommunicatorPtr& communicator,
     const Ice::InitializationData& initData)
 {
-    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, bool);
-    Test::MyClassPrx myClass = allTests(communicator, false);
+    Test::MyClassPrx allTests(const Ice::CommunicatorPtr&);
+    Test::MyClassPrx myClass = allTests(communicator);
 
     myClass->shutdown();
 

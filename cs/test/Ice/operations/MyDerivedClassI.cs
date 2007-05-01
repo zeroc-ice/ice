@@ -19,26 +19,15 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         }
     }
 
-    public MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
-    {
-        _adapter = adapter;
-        _identity = identity;
-    }
-    
     public override void shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
     
     public override void opVoid(Ice.Current current)
     {
     }
     
-    public override void opSleep(int duration, Ice.Current current)
-    {
-        System.Threading.Thread.Sleep(duration);
-    }
-
     public override bool opBool(bool p1, bool p2, out bool p3, Ice.Current current)
     {
         p3 = p1;
@@ -170,9 +159,9 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
                                               Ice.Current current)
     {
         p2 = p1;
-        p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(
-                                                _adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
-        return Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity));
+        p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
+                                                current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+        return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
     
     public override Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Ice.Current current)
@@ -342,7 +331,4 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     public override void opDerived(Ice.Current current)
     {
     }
-    
-    private Ice.ObjectAdapter _adapter;
-    private Ice.Identity _identity;
 }

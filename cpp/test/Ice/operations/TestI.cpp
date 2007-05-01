@@ -16,27 +16,15 @@
 #  include <iterator>
 #endif
 
-MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
-    _adapter(adapter),
-    _identity(identity)
-{
-}
-
 void
-MyDerivedClassI::shutdown(const Ice::Current&)
+MyDerivedClassI::shutdown(const Ice::Current& current)
 {
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 void
 MyDerivedClassI::opVoid(const Ice::Current&)
 {
-}
-
-void
-MyDerivedClassI::opSleep(int duration, const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
 }
 
 Ice::Byte
@@ -109,12 +97,12 @@ Test::MyClassPrx
 MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
                            Test::MyClassPrx& p2,
                            Test::MyClassPrx& p3,
-                           const Ice::Current&)
+                           const Ice::Current& current)
 {
     p2 = p1;
-    p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(
-                                _adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
-    return Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
+    p3 = Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(
+                                current.adapter->getCommunicator()->stringToIdentity("noSuchIdentity")));
+    return Test::MyClassPrx::uncheckedCast(current.adapter->createProxy(current.id));
 }
 
 Test::Structure
@@ -381,21 +369,4 @@ MyDerivedClassI::opDoubleMarshaling(Ice::Double p1, const Test::DoubleS& p2, con
 void
 MyDerivedClassI::opDerived(const Ice::Current&)
 {
-}
-
-Ice::Context
-TestCheckedCastI::getContext(const Ice::Current& c)
-{
-    return _ctx;
-}
-
-bool
-TestCheckedCastI::ice_isA(const std::string& s, const Ice::Current& current) const
-{
-    _ctx = current.ctx;
-#ifdef __BCPLUSPLUS__
-    return Test::TestCheckedCast::ice_isA(s, current);
-#else
-    return TestCheckedCast::ice_isA(s, current);
-#endif
 }

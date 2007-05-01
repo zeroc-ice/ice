@@ -19,7 +19,7 @@ public class AllTests
     }
 
     public static Test.MyClassPrx
-    allTests(Ice.Communicator communicator, boolean collocated)
+    allTests(Ice.Communicator communicator)
     {
         System.out.print("testing stringToProxy... ");
         System.out.flush();

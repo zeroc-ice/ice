@@ -17,7 +17,7 @@ public class Collocated
         adapter.add(new MyDerivedClassI(), communicator.stringToIdentity("test"));
         adapter.activate();
 
-        AllTests.allTests(communicator, true);
+        AllTests.allTests(communicator);
 
         return 0;
     }

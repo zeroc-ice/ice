@@ -53,12 +53,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         private Thread _thread;
     }
     
-    public MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
-    {
-        _adapter = adapter;
-        _identity = identity;
-    }
-    
     public override void shutdown_async(Test.AMD_MyClass_shutdown cb, Ice.Current current)
     {
         while(_opVoidThread != null)
@@ -67,7 +61,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
             _opVoidThread = null;
         }
         
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
         cb.ice_response();
     }
     
@@ -214,9 +208,9 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     public override void opMyClass_async(Test.AMD_MyClass_opMyClass cb, Test.MyClassPrx p1, Ice.Current current)
     {
         Test.MyClassPrx p2 = p1;
-        Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(
-                                                _adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
-        cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity)), p2, p3);
+        Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(
+                                                current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+        cb.ice_response(Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id)), p2, p3);
     }
     
     public override void opMyEnum_async(Test.AMD_MyClass_opMyEnum cb, Test.MyEnum p1, Ice.Current current)
@@ -377,7 +371,5 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response();
     }
     
-    private Ice.ObjectAdapter _adapter;
-    private Ice.Identity _identity;
     private Thread_opVoid _opVoidThread;
 }

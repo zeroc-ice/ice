@@ -10,10 +10,6 @@
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
 #include <TestCommon.h>
-#include <functional>
-#ifdef __BCPLUSPLUS__
-#  include <iterator>
-#endif
 
 MyDerivedClassI::MyDerivedClassI()
 {
@@ -23,15 +19,6 @@ void
 MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& c)
 {
     c.adapter->getCommunicator()->shutdown();
-    cb->ice_response();
-}
-
-void
-MyDerivedClassI::opSleep_async(const Test::AMD_MyClass_opSleepPtr& cb, 
-                               int duration, 
-                               const Ice::Current&)
-{
-    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(duration));
     cb->ice_response();
 }
 

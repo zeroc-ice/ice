@@ -9,7 +9,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Threading;
 
 public class AllTests
 {
@@ -21,48 +20,7 @@ public class AllTests
         }
     }
 
-    class AMI_MyClass_opSleepI : Test.AMI_MyClass_opSleep
-    {
-        override public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        override public void
-        ice_exception(Ice.Exception ex)
-        {
-            lock(this)
-            {
-                Debug.Assert(!_called);
-                _called = true;
-                Monitor.Pulse(this);
-                test(ex is Ice.TimeoutException);
-            }
-        }
-
-        public bool check()
-        {
-            lock(this)
-            {
-                while(!_called)
-                {
-                    Monitor.Wait(this, 5000);
-
-                    if(!_called)
-                    {
-                        return false; // Must be timeout.
-                    }
-                }
-
-                _called = false;
-                return true;
-            }
-        }
-        private bool _called = false;
-    };
-    
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static Test.MyClassPrx allTests(Ice.Communicator communicator)
     {
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
@@ -466,32 +424,6 @@ public class AllTests
         test(c.Equals(c2));
         Console.Out.WriteLine("ok");
 
-        if(!collocated)
-        {
-            Console.Out.Write("testing timeout... ");
-            Console.Out.Flush();
-            Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
-            try
-            {
-                clTimeout.opSleep(1000);
-                test(false);
-            }
-            catch(Ice.TimeoutException)
-            {
-            }
-            AMI_MyClass_opSleepI cb = new AMI_MyClass_opSleepI();
-            try
-            {
-                clTimeout.opSleep_async(cb, 2000);
-            }
-            catch(Ice.Exception)
-            {
-                test(false);
-            }
-            test(cb.check());
-            Console.Out.WriteLine("ok");
-        }
-        
         return cl;
     }
 }

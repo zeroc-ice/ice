@@ -33,7 +33,7 @@ public class Server
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(argsH);
 
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            initData.properties.setProperty("Ice.Warn.Dispatch", "0");
 
             communicator = Ice.Util.initialize(argsH, initData);
             status = run(args, communicator);

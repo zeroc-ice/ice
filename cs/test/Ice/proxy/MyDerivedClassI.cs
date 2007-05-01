@@ -20,11 +20,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         current.adapter.getCommunicator().shutdown();
     }
     
-    public override void opSleep(int duration, Ice.Current current)
-    {
-        System.Threading.Thread.Sleep(duration);
-    }
-
     public override Ice.Context
     getContext(Ice.Current current)
     {

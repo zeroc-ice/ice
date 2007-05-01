@@ -28,7 +28,6 @@ class BatchOneways
         try
         {
             p.opByteSOneway(bs1);
-            test(true);
         }
         catch(Ice.MemoryLimitException ex)
         {
@@ -38,7 +37,6 @@ class BatchOneways
         try
         {
             p.opByteSOneway(bs2);
-            test(true);
         }
         catch(Ice.MemoryLimitException ex)
         {
@@ -52,7 +50,6 @@ class BatchOneways
         }
         catch(Ice.MemoryLimitException ex)
         {
-            test(true);
         }
 
         Test.MyClassPrx batch = Test.MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
@@ -62,7 +59,6 @@ class BatchOneways
             try
             {
                 batch.opByteSOneway(bs1);
-                test(true);
             }
             catch(Ice.MemoryLimitException ex)
             {
