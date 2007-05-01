@@ -21,5 +21,8 @@ public class ClientMIDlet extends ClientBase
         properties.setProperty("Ice.Default.Locator", 
                 "locator: default -h " + _addr.getString() + " -p " + _port.getString() + " -t " + 
                 _timeout.getString());
+        properties.setProperty("Test.ServerManager", 
+                "ServerManager:default -h " + _addr.getString() + " -p " + _port.getString() + " -t " +
+                _timeout.getString());
     }
 }
