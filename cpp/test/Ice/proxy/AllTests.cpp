@@ -15,49 +15,6 @@
 
 using namespace std;
 
-class AMI_MyClass_opSleepI : public Test::AMI_MyClass_opSleep, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    AMI_MyClass_opSleepI() :
-        _called(false)
-    {
-    }
-
-    virtual void ice_response()
-    {
-        test(false);
-    }
-
-    virtual void ice_exception(const ::Ice::Exception& ex)
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        assert(!_called);
-        _called = true;
-        notify();
-        test(dynamic_cast<const ::Ice::TimeoutException*>(&ex));
-    }
-
-    bool check()
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-        while(!_called)
-        {
-            if(!timedWait(IceUtil::Time::seconds(5)))
-            {
-                return false;
-            }
-        }
-        _called = false;
-        return true;
-    }
-
-private:
-
-    bool _called;
-};
-typedef IceUtil::Handle<AMI_MyClass_opSleepI> AMI_MyClass_opSleepIPtr;
-
 Test::MyClassPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
@@ -529,33 +486,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(c == c2);
 
     cout << "ok" << endl;
-
-    if(!collocated)
-    {
-        cout << "testing timeout... " << flush;
-        Test::MyClassPrx clTimeout = Test::MyClassPrx::uncheckedCast(base->ice_timeout(500));
-        try
-        {
-            clTimeout->opSleep(2000);
-            test(false);
-        }
-        catch(const Ice::TimeoutException&)
-        {
-        }
-
-        AMI_MyClass_opSleepIPtr cb = new AMI_MyClass_opSleepI();
-        try
-        {
-            clTimeout->opSleep_async(cb, 2000);
-        }
-        catch(const Ice::Exception&)
-        {
-            test(false);
-        }
-        test(cb->check());
-
-        cout << "ok" << endl;
-    }
 
     return cl;
 }

@@ -44,16 +44,10 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
         //
-        // We must set MessageSizeMax to an explicit values, because
-        // we run tests to check whether Ice.MemoryLimitException is
-        // raised as expected.
-        //
-        initData.properties->setProperty("Ice.MessageSizeMax", "100");
-
-        //
         // We don't want connection warnings because of the timeout test.
         //
         initData.properties->setProperty("Ice.Warn.Connections", "0");
+
         //
         // Use a faster connection monitor timeout to test AMI
         // timeouts.

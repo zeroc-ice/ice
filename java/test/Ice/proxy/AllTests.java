@@ -9,48 +9,6 @@
 
 public class AllTests
 {
-    static class AMI_MyClass_opSleepI extends Test.AMI_MyClass_opSleep
-    {
-        public void
-        ice_response()
-        {
-            test(false);
-        }
-
-        synchronized public void
-        ice_exception(Ice.LocalException ex)
-        {
-            assert(!_called);
-            _called = true;
-            notify();
-            test(ex instanceof Ice.TimeoutException);
-        }
-
-        synchronized public boolean
-        check()
-        {
-            while(!_called)
-            {
-                try
-                {
-                    wait(5000);
-                }
-                catch(InterruptedException ex)
-                {
-                    continue;
-                }
-
-                if(!_called)
-                {
-                    return false; // Must be timeout.
-                }
-            }
-            return true;
-        }
-
-        private boolean _called = false;
-    };
-
     private static void
     test(boolean b)
     {
@@ -466,32 +424,6 @@ public class AllTests
         test(c.equals(c2));
         System.out.println("ok");
 
-        if(!collocated)
-        {
-            System.out.print("testing timeout... ");
-            System.out.flush();
-            Test.MyClassPrx clTimeout = Test.MyClassPrxHelper.uncheckedCast(cl.ice_timeout(500));
-            try
-            {
-                clTimeout.opSleep(1000);
-                test(false);
-            }
-            catch(Ice.TimeoutException ex)
-            {
-            }
-            System.out.println("ok");
-
-            AMI_MyClass_opSleepI cb = new AMI_MyClass_opSleepI();
-            try
-            {
-                clTimeout.opSleep_async(cb, 2000);
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
-            test(cb.check());
-        }
         return cl;
     }
 }

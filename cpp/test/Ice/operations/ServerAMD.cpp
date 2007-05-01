@@ -17,9 +17,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::Identity id = communicator->stringToIdentity("test");
-    adapter->add(new MyDerivedClassI(adapter, id), id);
-    adapter->add(new TestCheckedCastI, communicator->stringToIdentity("context"));
+    adapter->add(new MyDerivedClassI, communicator->stringToIdentity("test"));
     adapter->activate();
 
     communicator->waitForShutdown();
