@@ -20,8 +20,6 @@ else:
 sys.path.insert(0, os.path.join(toplevel, "python"))
 sys.path.insert(0, os.path.join(toplevel, "lib"))
 
-import Ice
-
 #
 # Find Slice directory.
 #
@@ -32,21 +30,43 @@ if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
     print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
+import Ice
 Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
-import Test, TestI
+import AllTests
+
+def test(b):
+    if not b:
+        raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(TestI.MyDerivedClassI(), communicator.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
+    timeout = AllTests.allTests(communicator, False)
+    timeout.shutdown()
+
     return True
 
 try:
+    #
+    # In this test, we need at least two threads in the
+    # client side thread pool for nested AMI.
+    #
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+
+    #
+    # For this test, we want to disable retries.
+    #
+    initData.properties.setProperty("Ice.RetryIntervals", "-1");
+
+    #
+    # This test kills connections, so we don't want warnings.
+    #
+    initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+    #
+    # Check for AMI timeouts every second.
+    #
+    initData.properties.setProperty("Ice.MonitorConnections", "1");
+
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:

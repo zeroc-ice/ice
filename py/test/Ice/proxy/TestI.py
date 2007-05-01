@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+import Ice, Test
+import time
+
+class MyDerivedClassI(Test.MyDerivedClass):
+    def __init__(self):
+        self.ctx = None
+
+    def shutdown(self, current=None):
+        current.adapter.getCommunicator().shutdown()
+
+    def opSleep(self, timeout, current=None):
+        if timeout != 0:
+            time.sleep(timeout / 1000.0)
+
+    def getContext(self, current):
+        return self.ctx
+
+    def ice_isA(self, s, current):
+        self.ctx = current.ctx
+        return Test.MyDerivedClass.ice_isA(self, s, current)

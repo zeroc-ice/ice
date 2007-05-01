@@ -39,7 +39,7 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def run(args, communicator):
-    myClass = AllTests.allTests(communicator)
+    myClass = AllTests.allTests(communicator, False)
 
     print "testing server shutdown...",
     myClass.shutdown()
@@ -58,9 +58,15 @@ try:
     #
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    initData.properties = Ice.createProperties(sys.argv, initData.properties)
     initData.properties.setProperty('Ice.ThreadPool.Client.Size', '2')
     initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
+
+    #
+    # We must set MessageSizeMax to an explicit values, because
+    # we run tests to check whether Ice.MemoryLimitException is
+    # raised as expected.
+    #
+    initData.properties.setProperty("Ice.MessageSizeMax", "100");
 
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)

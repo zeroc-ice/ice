@@ -60,6 +60,7 @@ tests = [ \
     "Ice/custom", \
     "Ice/checksum", \
     "Ice/retry", \
+    "Ice/timeout", \
     "Ice/servantLocator", \
     ]
 

@@ -143,6 +143,8 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
+    void opByteSOneway(ByteS s);
+
     StringStringD opContext();
 
 };
@@ -150,11 +152,6 @@ dictionary<string, MyEnum> StringMyEnumD;
 ["ami", "amd"] class MyDerivedClass extends MyClass
 {
     void opDerived();
-};
-
-interface TestCheckedCast
-{
-    StringStringD getContext();
 };
 
 };

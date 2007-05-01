@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+import os, sys, traceback, time, threading
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -33,12 +33,41 @@ if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, "slice")):
     sys.exit(1)
 
 Ice.loadSlice('-I' + slice_dir + '/slice Test.ice')
-import Test, TestI
+import Test
+
+class ActivateAdapterThread(threading.Thread):
+    def __init__(self, adapter, timeout):
+        threading.Thread.__init__(self)
+        self._adapter = adapter
+        self._timeout = timeout
+
+    def run(self):
+        time.sleep(self._timeout / 1000.0)
+        self._adapter.activate()
+
+class TimeoutI(Test.Timeout):
+    def op(self, current=None):
+        pass
+
+    def sendData(self, data, current=None):
+        pass
+
+    def sleep(self, timeout, current=None):
+        if timeout != 0:
+            time.sleep(timeout / 1000.0)
+
+    def holdAdapter(self, to, current=None):
+        current.adapter.hold()
+        t = ActivateAdapterThread(current.adapter, to)
+        t.start()
+
+    def shutdown(self, current=None):
+        current.adapter.getCommunicator().shutdown()
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
     adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(TestI.MyDerivedClassI(), communicator.stringToIdentity("test"))
+    adapter.add(TimeoutI(), communicator.stringToIdentity("timeout"))
     adapter.activate()
     communicator.waitForShutdown()
     return True
@@ -46,7 +75,7 @@ def run(args, communicator):
 try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+    initData.properties.setProperty("Ice.Warn.Connections", "0");
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:

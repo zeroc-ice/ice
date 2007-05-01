@@ -11,12 +11,8 @@
 import Ice, Test
 
 class MyDerivedClassI(Test.MyDerivedClass):
-    def __init__(self, adapter, identity):
-        self.adapter = adapter
-        self.identity = identity
-
     def shutdown(self, current=None):
-        self.adapter.getCommunicator().shutdown()
+        current.adapter.getCommunicator().shutdown()
 
     def opVoid(self, current=None):
         pass
@@ -40,8 +36,8 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return (Test.MyEnum.enum3, p1)
 
     def opMyClass(self, p1, current=None):
-        return (Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(self.identity)), p1,
-                Test.MyClassPrx.uncheckedCast(self.adapter.createProxy(self.adapter.getCommunicator().stringToIdentity("noSuchIdentity"))))
+        return (Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.id)), p1,
+                Test.MyClassPrx.uncheckedCast(current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity"))))
 
     def opStruct(self, p1, p2, current=None):
         p1.s.s = "a new string"
@@ -162,19 +158,11 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def opIntS(self, s, current=None):
         return [-x for x in s]
 
+    def opByteSOneway(self, s, current=None):
+        pass
+
     def opContext(self, current=None):
         return current.ctx
 
     def opDerived(self, current=None):
         pass
-
-class TestCheckedCastI(Test.TestCheckedCast):
-    def __init__(self):
-        self.ctx = None
-
-    def getContext(self, current):
-        return self.ctx;
-
-    def ice_isA(self, s, current):
-        self.ctx = current.ctx
-        return Test.TestCheckedCast.ice_isA(self, s, current)
