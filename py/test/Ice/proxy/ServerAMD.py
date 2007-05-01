@@ -43,11 +43,6 @@ class MyDerivedClassI(Test.MyDerivedClass):
         current.adapter.getCommunicator().shutdown()
         cb.ice_response()
 
-    def opSleep_async(self, cb, timeout, current=None):
-        if timeout != 0:
-            time.sleep(timeout / 1000.0)
-        cb.ice_response()
-
     def getContext_async(self, cb, current):
         return cb.ice_response(self.ctx)
 

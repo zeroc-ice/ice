@@ -14,28 +14,6 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class AMI_MyClass_opSleepI:
-    def __init__(self):
-        self.called = False
-        self.cond = threading.Condition()
-
-    def ice_response(self):
-        test(False)
-
-    def ice_exception(self, ex):
-        self.cond.acquire()
-        self.called = True
-        self.cond.notify()
-        test(isinstance(ex, Ice.TimeoutException))
-        self.cond.release()
-
-    def check(self):
-        self.cond.acquire()
-        while not self.called:
-            self.cond.wait(5.0)
-        self.called = False
-        return True
-
 def allTests(communicator, collocated):
     print "testing stringToProxy...",
     ref = "test:default -p 12010 -t 10000"
@@ -452,22 +430,5 @@ def allTests(communicator, collocated):
     c2 = tccp.getContext()
     test(c == c2)
     print "ok"
-
-    if not collocated:
-        print "testing timeout... ",
-        clTimeout = Test.MyClassPrx.uncheckedCast(base.ice_timeout(500))
-        try:
-            clTimeout.opSleep(2000)
-            test(False)
-        except Ice.TimeoutException:
-            pass
-
-        cb = AMI_MyClass_opSleepI()
-        try:
-            clTimeout.opSleep_async(cb, 2000)
-        except Ice.Exception:
-            test(False)
-        test(cb.check())
-        print "ok"
 
     return cl

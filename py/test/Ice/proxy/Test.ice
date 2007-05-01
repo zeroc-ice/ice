@@ -18,7 +18,6 @@ module Test
 ["ami"] class MyClass
 {
     void shutdown();
-    void opSleep(int timeout);
 
     Ice::Context getContext();
 };

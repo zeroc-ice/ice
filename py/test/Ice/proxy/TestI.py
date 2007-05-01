@@ -18,10 +18,6 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-    def opSleep(self, timeout, current=None):
-        if timeout != 0:
-            time.sleep(timeout / 1000.0)
-
     def getContext(self, current):
         return self.ctx
 
