@@ -59,6 +59,7 @@ public final class LoggerI implements Logger
             s.append(" ");
             start = end + 1;
         }
+        s.append(temp.substring(start));
 
 	synchronized(_globalMutex)
         {
