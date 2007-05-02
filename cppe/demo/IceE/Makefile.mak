@@ -20,7 +20,8 @@ SUBDIRS		= minimal \
 SUBDIRS 	= $(SUBDIRS) \
 		  hello \
 		  callback \
-		  bidir
+		  bidir \
+		  workqueue
 !endif
 
 !if "$(CPP_COMPILER)" != "VC80_EXPRESS"
