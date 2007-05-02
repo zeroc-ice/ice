@@ -391,6 +391,32 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	return ice_facet(newFacet);
     }
 
+    public final String
+    ice_getAdapterId()
+    {
+        return _reference.getAdapterId();
+    }
+
+    public final ObjectPrx
+    ice_adapterId(String newAdapterId)
+    {
+        if(newAdapterId == null)
+        {
+            newAdapterId = "";
+        }
+
+        if(newAdapterId.equals(_reference.getAdapterId()))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeAdapterId(newAdapterId));
+            return proxy;
+        }
+    }
+
     public final Ice.RouterPrx
     ice_getRouter()
     {

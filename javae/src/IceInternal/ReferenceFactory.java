@@ -13,6 +13,7 @@ public final class ReferenceFactory
 {
     public synchronized Reference
     create(Ice.Identity ident,
+           java.util.Hashtable context,
            String facet,
            int mode,
 	   boolean secure,
@@ -32,11 +33,13 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new DirectReference(_instance, _communicator, ident, facet, mode, secure, endpoints, routerInfo);
+        return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, endpoints, 
+                                   routerInfo);
     }
 
     public synchronized Reference
     create(Ice.Identity ident,
+           java.util.Hashtable context,
            String facet,
            int mode,
 	   boolean secure,
@@ -57,12 +60,13 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new IndirectReference(_instance, _communicator, ident, facet, mode, secure, adapterId,
+        return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId,
 				     routerInfo, locatorInfo);
     }
 
     public synchronized Reference
     create(Ice.Identity ident,
+           java.util.Hashtable context,
            String facet,
            int mode,
 	   Ice.Connection[] fixedConnections)
@@ -80,7 +84,7 @@ public final class ReferenceFactory
         //
         // Create new reference
         //
-        return new FixedReference(_instance, _communicator, ident, facet, mode, fixedConnections);
+        return new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
     }
 
     public synchronized Reference
@@ -379,7 +383,7 @@ public final class ReferenceFactory
 
 	if(beg == -1)
 	{
-	    return create(ident, facet, mode, secure, "", routerInfo, locatorInfo);
+	    return create(ident, null, facet, mode, secure, "", routerInfo, locatorInfo);
 	}
 
         java.util.Vector endpoints = new java.util.Vector();
@@ -430,7 +434,7 @@ public final class ReferenceFactory
 
 	    Endpoint[] endp = new Endpoint[endpoints.size()];
 	    endpoints.copyInto(endp);
-	    return create(ident, facet, mode, secure, endp, routerInfo);
+	    return create(ident, null, facet, mode, secure, endp, routerInfo);
 	}
 	else if(s.charAt(beg) == '@')
 	{
@@ -470,7 +474,7 @@ public final class ReferenceFactory
 		throw e;
 	    }
 	    adapter = token.value;
-	    return create(ident, facet, mode, secure, adapter, routerInfo, locatorInfo);
+	    return create(ident, null, facet, mode, secure, adapter, routerInfo, locatorInfo);
 	}
 
 	Ice.ProxyParseException ex = new Ice.ProxyParseException();
@@ -531,13 +535,13 @@ public final class ReferenceFactory
 	    {
 		endpoints[i] = _instance.endpointFactory().read(s);
 	    }
-	    return create(ident, facet, mode, secure, endpoints, routerInfo);
+	    return create(ident, null, facet, mode, secure, endpoints, routerInfo);
 	}
 	else
 	{
 	    endpoints = new Endpoint[0];
 	    adapterId = s.readString();
-	    return create(ident, facet, mode, secure, adapterId, routerInfo, locatorInfo);
+	    return create(ident, null, facet, mode, secure, adapterId, routerInfo, locatorInfo);
 	}
     }
 

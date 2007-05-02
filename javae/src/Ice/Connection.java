@@ -907,7 +907,7 @@ public final class Connection
         Connection[] connections = new Connection[1];
         connections[0] = this;
         IceInternal.Reference ref = 
-            _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, connections);
+            _instance.referenceFactory().create(ident, null, "", IceInternal.Reference.ModeTwoway, connections);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 

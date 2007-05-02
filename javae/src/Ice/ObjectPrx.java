@@ -58,6 +58,9 @@ public interface ObjectPrx
     ObjectPrx ice_newFacet(String newFacet);
     ObjectPrx ice_facet(String newFacet);
 
+    String ice_getAdapterId();
+    ObjectPrx ice_adapterId(String newAdapterId);
+
     ObjectPrx ice_router(Ice.RouterPrx router);
     Ice.RouterPrx ice_getRouter();
     

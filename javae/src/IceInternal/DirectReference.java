@@ -15,19 +15,41 @@ public class DirectReference extends RoutableReference
     DirectReference(Instance inst,
 		    Ice.Communicator com,
     		    Ice.Identity ident,
+                    java.util.Hashtable context,
 		    String fs,
 		    int md,
 		    boolean sec,
 		    Endpoint[] endpts,
 		    RouterInfo rtrInfo)
     {
-    	super(inst, com, ident, fs, md, sec, rtrInfo);
+    	super(inst, com, ident, context, fs, md, sec, rtrInfo);
         _endpoints = endpts;
     }
 
-    public Endpoint[] getEndpoints()
+    public Endpoint[] 
+    getEndpoints()
     {
         return _endpoints;
+    }
+
+    public String 
+    getAdapterId()
+    {
+        return "";
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+        if(newAdapterId == null || newAdapterId.length() == 0)
+        {
+            return this;
+        }
+        LocatorInfo locatorInfo = 
+            getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
+        return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+                                                       getSecure(), newAdapterId, getRouterInfo(),
+                                                       locatorInfo);
     }
 
     public Reference

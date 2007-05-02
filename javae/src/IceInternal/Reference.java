@@ -72,6 +72,7 @@ public abstract class Reference
     }
 
     public abstract Endpoint[] getEndpoints();
+    public abstract String getAdapterId();
 
     //
     // The change* methods (here and in derived classes) create
@@ -163,6 +164,7 @@ public abstract class Reference
 	return r;	
     }
 
+    public abstract Reference changeAdapterId(String newAdapterId);
     public abstract Reference changeRouter(Ice.RouterPrx newRouter);
     public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
 
@@ -434,6 +436,7 @@ public abstract class Reference
     Reference(Instance inst,
               Ice.Communicator com,
               Ice.Identity ident,
+              java.util.Hashtable context,
               String fac,
               int md,
 	      boolean sec)
@@ -453,7 +456,7 @@ public abstract class Reference
         _mode = md;
         _secure = sec;
         _identity = ident;
-	_context = _emptyContext;
+	_context = context == null ? _emptyContext : context;
         _facet = fac;
 	_overrideTimeout = false;
 	_timeout = -1;

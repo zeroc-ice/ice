@@ -15,6 +15,7 @@ public class IndirectReference extends RoutableReference
     IndirectReference(Instance inst,
 		      Ice.Communicator com,
     		      Ice.Identity ident,
+                      java.util.Hashtable context,
 		      String fs,
 		      int md,
 		      boolean sec,
@@ -22,7 +23,7 @@ public class IndirectReference extends RoutableReference
 		      RouterInfo rtrInfo,
 		      LocatorInfo locInfo)
     {
-    	super(inst, com, ident, fs, md, sec, rtrInfo);
+    	super(inst, com, ident, context, fs, md, sec, rtrInfo);
         _adapterId = adptid;
 	_locatorInfo = locInfo;
     }
@@ -43,6 +44,18 @@ public class IndirectReference extends RoutableReference
     getEndpoints()
     {
         return new Endpoint[0];
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+        if(_adapterId.equals(newAdapterId))
+        {
+            return this;
+        }
+        IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+        r._adapterId = newAdapterId;
+        return r;       
     }
 
     public Reference

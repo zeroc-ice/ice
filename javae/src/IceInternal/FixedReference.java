@@ -15,11 +15,12 @@ public class FixedReference extends Reference
     FixedReference(Instance inst,
 		   Ice.Communicator com,
     		   Ice.Identity ident,
+                    java.util.Hashtable context,
 		   String fs,
 		   int md,
 		   Ice.Connection[] fixedConns)
     {
-    	super(inst, com, ident, fs, md, false);
+    	super(inst, com, ident, context, fs, md, false);
         _fixedConnections = fixedConns;
     }
 
@@ -27,6 +28,18 @@ public class FixedReference extends Reference
     getEndpoints()
     {
         return new Endpoint[0];
+    }
+
+    public String
+    getAdapterId()
+    {
+        return "";
+    }
+
+    public Reference
+    changeAdapterId(String newAdapterId)
+    {
+        throw new Ice.FixedProxyException();
     }
 
     public Reference
