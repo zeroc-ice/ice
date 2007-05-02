@@ -17,6 +17,14 @@ namespace Ice
 {
 
 class Communicator;
+inline bool operator==(const Communicator& l, const Communicator& r)
+{
+    return &l == &r;
+}
+inline bool operator<(const Communicator& l, const Communicator& r)
+{
+    return &l < &r;
+}
 
 }
 

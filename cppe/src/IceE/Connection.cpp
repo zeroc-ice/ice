@@ -34,18 +34,6 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(Connection* p) { return p; }
 
-bool
-Ice::operator==(const Connection& l, const Connection& r)
-{
-    return &l == &r;
-}
-
-bool
-Ice::operator<(const Connection& l, const Connection& r)
-{
-    return &l < &r;
-}
-
 void
 Ice::Connection::waitForValidation()
 {

@@ -17,8 +17,14 @@ namespace Ice
 {
 
 class ObjectAdapter;
-ICE_API bool operator==(const ObjectAdapter&, const ObjectAdapter&);
-ICE_API bool operator<(const ObjectAdapter&, const ObjectAdapter&);
+inline bool operator==(const ObjectAdapter& l, const ObjectAdapter& r)
+{
+    return &l == &r;
+}
+inline bool operator<(const ObjectAdapter& l, const ObjectAdapter& r)
+{
+    return &l < &r;
+}
 
 }
 

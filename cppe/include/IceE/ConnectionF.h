@@ -17,8 +17,14 @@ namespace Ice
 {
 
 class Connection;
-ICE_API bool operator==(const Connection&, const Connection&);
-ICE_API bool operator<(const Connection&, const Connection&);
+inline bool operator==(const Connection& l, const Connection& r)
+{
+    return &l == &r;
+}
+inline bool operator<(const Connection& l, const Connection& r)
+{
+    return &l < &r;
+}
 
 }
 

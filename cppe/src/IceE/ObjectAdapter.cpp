@@ -37,18 +37,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-bool
-Ice::operator==(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
-{
-    return &l == &r;
-}
-
-bool
-Ice::operator<(const ::Ice::ObjectAdapter& l, const ::Ice::ObjectAdapter& r)
-{
-    return &l < &r;
-}
-
 IceUtil::Shared* IceInternal::upCast(::Ice::ObjectAdapter* p) { return p; }
 
 string
