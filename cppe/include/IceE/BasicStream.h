@@ -33,7 +33,7 @@ namespace IceInternal
 
 class Instance;
 
-class ICE_API BasicStream : public Buffer
+class BasicStream : public Buffer
 {
 public:
 
@@ -61,7 +61,7 @@ public:
 	}
     }
 
-    void clear();
+    ICE_API void clear();
 
     //
     // Must return Instance*, because we don't hold an InstancePtr for
@@ -69,7 +69,7 @@ public:
     //
     Instance* instance() const { return _instance; } // Inlined for performance reasons.
 
-    void swap(BasicStream&);
+    ICE_API void swap(BasicStream&);
 
     void resize(Container::size_type sz)
     {
@@ -87,7 +87,7 @@ public:
 	i = b.begin();
     }
 
-    void startSeq(int, int);
+    ICE_API void startSeq(int, int);
     void checkSeq()
     {
 	checkSeq(static_cast<int>(b.end() - i));
@@ -114,13 +114,13 @@ public:
 	    Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	}
     }
-    void checkFixedSeq(int, int); // For sequences of fixed-size types.
+    ICE_API void checkFixedSeq(int, int); // For sequences of fixed-size types.
     void endElement()
     {
 	assert(_seqDataStack);
 	--_seqDataStack->numElements;
     }
-    void endSeq(int);
+    ICE_API void endSeq(int);
 
     void startWriteEncaps()
     {
@@ -236,15 +236,15 @@ public:
 	    delete oldEncaps;
 	}
     }
-    Ice::Int getReadEncapsSize();
-    void skipEncaps();
+    ICE_API Ice::Int getReadEncapsSize();
+    ICE_API void skipEncaps();
 
-    void startWriteSlice();
-    void endWriteSlice();
+    ICE_API void startWriteSlice();
+    ICE_API void endWriteSlice();
 
-    void startReadSlice();
-    void endReadSlice();
-    void skipSlice();
+    ICE_API void startReadSlice();
+    ICE_API void endReadSlice();
+    ICE_API void skipSlice();
 
     void writeSize(Ice::Int v) // Inlined for performance reasons.
     {
@@ -306,8 +306,8 @@ public:
 	}
     }
 
-    void writeBlob(const std::vector<Ice::Byte>&);
-    void readBlob(std::vector<Ice::Byte>&, Ice::Int);
+    ICE_API void writeBlob(const std::vector<Ice::Byte>&);
+    ICE_API void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
     void writeBlob(const Ice::Byte* v, Container::size_type sz)
     {
@@ -349,15 +349,15 @@ public:
 	v = *i++;
     }
 
-    void write(const Ice::Byte*, const Ice::Byte*);
-    void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
+    ICE_API void write(const Ice::Byte*, const Ice::Byte*);
+    ICE_API void read(std::pair<const Ice::Byte*, const Ice::Byte*>&);
 
     void write(bool v) // Inlined for performance reasons.
     {
 	b.push_back(static_cast<Ice::Byte>(v));
     }
-    void write(const std::vector<bool>&);
-    void write(const bool*, const bool*);
+    ICE_API void write(const std::vector<bool>&);
+    ICE_API void write(const bool*, const bool*);
     void read(bool& v) // Inlined for performance reasons.
     {
 	if(i >= b.end())
@@ -366,14 +366,14 @@ public:
 	}
 	v = *i++;
     }
-    void read(std::vector<bool>&);
-    bool* read(std::pair<const bool*, const bool*>&);
+    ICE_API void read(std::vector<bool>&);
+    ICE_API bool* read(std::pair<const bool*, const bool*>&);
 
-    void write(Ice::Short);
-    void read(Ice::Short&);
-    void write(const Ice::Short*, const Ice::Short*);
-    void read(std::vector<Ice::Short>&);
-    Ice::Short* read(std::pair<const Ice::Short*, const Ice::Short*>&);
+    ICE_API void write(Ice::Short);
+    ICE_API void read(Ice::Short&);
+    ICE_API void write(const Ice::Short*, const Ice::Short*);
+    ICE_API void read(std::vector<Ice::Short>&);
+    ICE_API Ice::Short* read(std::pair<const Ice::Short*, const Ice::Short*>&);
 
     void
     write(Ice::Int v) // Inlined for performance reasons.
@@ -419,27 +419,27 @@ public:
 #endif
     }
 
-    void write(const Ice::Int*, const Ice::Int*);
-    void read(std::vector<Ice::Int>&);
-    Ice::Int* read(std::pair<const Ice::Int*, const Ice::Int*>&);
+    ICE_API void write(const Ice::Int*, const Ice::Int*);
+    ICE_API void read(std::vector<Ice::Int>&);
+    ICE_API Ice::Int* read(std::pair<const Ice::Int*, const Ice::Int*>&);
 
-    void write(Ice::Long);
-    void read(Ice::Long&);
-    void write(const Ice::Long*, const Ice::Long*);
-    void read(std::vector<Ice::Long>&);
-    Ice::Long* read(std::pair<const Ice::Long*, const Ice::Long*>&);
+    ICE_API void write(Ice::Long);
+    ICE_API void read(Ice::Long&);
+    ICE_API void write(const Ice::Long*, const Ice::Long*);
+    ICE_API void read(std::vector<Ice::Long>&);
+    ICE_API Ice::Long* read(std::pair<const Ice::Long*, const Ice::Long*>&);
 
-    void write(Ice::Float);
-    void read(Ice::Float&);
-    void write(const Ice::Float*, const Ice::Float*);
-    void read(std::vector<Ice::Float>&);
-    Ice::Float* read(std::pair<const Ice::Float*, const Ice::Float*>&);
+    ICE_API void write(Ice::Float);
+    ICE_API void read(Ice::Float&);
+    ICE_API void write(const Ice::Float*, const Ice::Float*);
+    ICE_API void read(std::vector<Ice::Float>&);
+    ICE_API Ice::Float* read(std::pair<const Ice::Float*, const Ice::Float*>&);
 
-    void write(Ice::Double);
-    void read(Ice::Double&);
-    void write(const Ice::Double*, const Ice::Double*);
-    void read(std::vector<Ice::Double>&);
-    Ice::Double* read(std::pair<const Ice::Double*, const Ice::Double*>&);
+    ICE_API void write(Ice::Double);
+    ICE_API void read(Ice::Double&);
+    ICE_API void write(const Ice::Double*, const Ice::Double*);
+    ICE_API void read(std::vector<Ice::Double>&);
+    ICE_API Ice::Double* read(std::pair<const Ice::Double*, const Ice::Double*>&);
 
     //
     // NOTE: This function is not implemented. It is declared here to
@@ -448,7 +448,7 @@ public:
     // will silently select a different overloading. A link error is the
     // intended result.
     //
-    void write(const char*);
+    ICE_API void write(const char*);
 
     void write(const std::string& v)
     {
@@ -461,7 +461,7 @@ public:
             memcpy(&b[pos], v.data(), sz);
         }
     }
-    void write(const std::string*, const std::string*);
+    ICE_API void write(const std::string*, const std::string*);
     void read(std::string& v)
     {
 	Ice::Int sz;
@@ -481,7 +481,7 @@ public:
 	    v.clear();
 	}
     }
-    void read(std::vector<std::string>&);
+    ICE_API void read(std::vector<std::string>&);
 
     void write(const std::wstring& v)
     {
@@ -495,7 +495,7 @@ public:
             memcpy(&b[pos], s.c_str(), sz);
         }
     }
-    void write(const std::wstring*, const std::wstring*);
+    ICE_API void write(const std::wstring*, const std::wstring*);
     void read(std::wstring& v)
     {
         Ice::Int sz;
@@ -515,13 +515,13 @@ public:
             v.clear();
         }
     }
-    void read(std::vector<std::wstring>&);
+    ICE_API void read(std::vector<std::wstring>&);
 
-    void write(const Ice::ObjectPrx&);
-    void read(Ice::ObjectPrx&);
+    ICE_API void write(const Ice::ObjectPrx&);
+    ICE_API void read(Ice::ObjectPrx&);
 
-    void write(const Ice::UserException&);
-    void throwException();
+    ICE_API void write(const Ice::UserException&);
+    ICE_API void throwException();
 
 private:
 
@@ -531,7 +531,7 @@ private:
     //
     Instance* _instance;
 
-    class ICE_API ReadEncaps : private ::IceUtil::noncopyable
+    class ReadEncaps : private ::IceUtil::noncopyable
     {
     public:
 
@@ -539,7 +539,7 @@ private:
 	~ReadEncaps() { } // Inlined for performance reasons.
 
 	void reset() { previous = 0; } // Inlined for performance reasons.
-	void swap(ReadEncaps&);
+	ICE_API void swap(ReadEncaps&);
 
 	Container::size_type start;
 	Ice::Int sz;
@@ -550,7 +550,7 @@ private:
 	ReadEncaps* previous;
     };
 
-    class ICE_API WriteEncaps : private ::IceUtil::noncopyable
+    class WriteEncaps : private ::IceUtil::noncopyable
     {
     public:
 
@@ -558,7 +558,7 @@ private:
 	~WriteEncaps() { } // Inlined for performance reasons.
 
 	void reset() { writeIndex = 0; previous = 0; } // Inlined for performance reasons.
-	void swap(WriteEncaps&);
+	ICE_API void swap(WriteEncaps&);
 
 	Container::size_type start;
 

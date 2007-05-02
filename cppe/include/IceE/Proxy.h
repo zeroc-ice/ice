@@ -99,26 +99,26 @@ namespace IceProxy { namespace Ice
 typedef ::std::map< ::std::string, ::std::string> Context;
 #endif
 
-class ICE_API Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
+class Object : public ::IceUtil::Shared, private ::IceUtil::Mutex
 {
 public:
 
-    bool operator==(const Object&) const;
-    bool operator<(const Object&) const;
+    ICE_API bool operator==(const Object&) const;
+    ICE_API bool operator<(const Object&) const;
 
     ICE_DEPRECATED_API ::Ice::Int ice_hash() const
     {
 	return ice_getHash();
     }
-    ::Ice::Int ice_getHash() const;
+    ICE_API ::Ice::Int ice_getHash() const;
 
     ICE_DEPRECATED_API ::Ice::CommunicatorPtr ice_communicator() const
     {
 	return ice_getCommunicator();
     }
-    ::Ice::CommunicatorPtr ice_getCommunicator() const;
+    ICE_API ::Ice::CommunicatorPtr ice_getCommunicator() const;
 
-    ::std::string ice_toString() const;
+    ICE_API ::std::string ice_toString() const;
 
     bool ice_isA(const ::std::string& typeId)
     {
@@ -156,64 +156,64 @@ public:
         return ice_id(&context);
     }
 
-    ::Ice::Identity ice_getIdentity() const;
+    ICE_API ::Ice::Identity ice_getIdentity() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity& id) const
     {
 	return ice_identity(id);
     }
-    ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
+    ICE_API ::Ice::ObjectPrx ice_identity(const ::Ice::Identity&) const;
     
-    ::Ice::Context ice_getContext() const;
+    ICE_API ::Ice::Context ice_getContext() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newContext(const ::Ice::Context& ctx) const
     {
 	return ice_context(ctx);
     }
-    ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
+    ICE_API ::Ice::ObjectPrx ice_context(const ::Ice::Context&) const;
 
-    const ::std::string& ice_getFacet() const;
+    ICE_API const ::std::string& ice_getFacet() const;
     ICE_DEPRECATED_API ::Ice::ObjectPrx ice_newFacet(const ::std::string& facet) const
     {
 	return ice_facet(facet);
     }
-    ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
+    ICE_API ::Ice::ObjectPrx ice_facet(const ::std::string&) const;
 
 #ifdef ICEE_HAS_ROUTER
-    ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
-    ::Ice::RouterPrx ice_getRouter() const;
+    ICE_API ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
+    ICE_API ::Ice::RouterPrx ice_getRouter() const;
 #endif
 #ifdef ICEE_HAS_LOCATOR
-    ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
-    ::Ice::LocatorPrx ice_getLocator() const;
+    ICE_API ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
+    ICE_API ::Ice::LocatorPrx ice_getLocator() const;
 #endif
 
-    ::Ice::ObjectPrx ice_twoway() const;
-    bool ice_isTwoway() const;
-    ::Ice::ObjectPrx ice_oneway() const;
-    bool ice_isOneway() const;
+    ICE_API ::Ice::ObjectPrx ice_twoway() const;
+    ICE_API bool ice_isTwoway() const;
+    ICE_API ::Ice::ObjectPrx ice_oneway() const;
+    ICE_API bool ice_isOneway() const;
 #ifdef ICEE_HAS_BATCH
-    ::Ice::ObjectPrx ice_batchOneway() const;
-    bool ice_isBatchOneway() const;
+    ICE_API ::Ice::ObjectPrx ice_batchOneway() const;
+    ICE_API bool ice_isBatchOneway() const;
 #endif
 
-    ::Ice::ObjectPrx ice_timeout(int) const;
+    ICE_API ::Ice::ObjectPrx ice_timeout(int) const;
 
     ICE_DEPRECATED_API ::Ice::ConnectionPtr ice_connection()
     {
 	return ice_getConnection();
     }
-    ::Ice::ConnectionPtr ice_getConnection();
-    ::Ice::ConnectionPtr ice_getCachedConnection() const;
+    ICE_API ::Ice::ConnectionPtr ice_getConnection();
+    ICE_API ::Ice::ConnectionPtr ice_getCachedConnection() const;
 
     ::IceInternal::ReferencePtr __reference() const
     {
 	return _reference;
     }
 
-    void __copyFrom(const ::Ice::ObjectPrx&);
-    void __handleException(const ::Ice::ConnectionPtr&, const ::Ice::LocalException&, int&);
-    void __handleExceptionWrapper(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&);
-    void __handleExceptionWrapperRelaxed(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&, int&);
-    void __checkTwowayOnly(const char*) const;
+    ICE_API void __copyFrom(const ::Ice::ObjectPrx&);
+    ICE_API void __handleException(const ::Ice::ConnectionPtr&, const ::Ice::LocalException&, int&);
+    ICE_API void __handleExceptionWrapper(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&);
+    ICE_API void __handleExceptionWrapperRelaxed(const ::Ice::ConnectionPtr&, const ::IceInternal::LocalExceptionWrapper&, int&);
+    ICE_API void __checkTwowayOnly(const char*) const;
 
 protected:
 
@@ -221,10 +221,10 @@ protected:
 
 private:
 
-    bool ice_isA(const ::std::string&, const ::Ice::Context*);
-    void ice_ping(const ::Ice::Context*);
-    ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
-    ::std::string ice_id(const ::Ice::Context*);
+    ICE_API bool ice_isA(const ::std::string&, const ::Ice::Context*);
+    ICE_API void ice_ping(const ::Ice::Context*);
+    ICE_API ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
+    ICE_API ::std::string ice_id(const ::Ice::Context*);
 
     void setup(const ::IceInternal::ReferencePtr& ref)
     {

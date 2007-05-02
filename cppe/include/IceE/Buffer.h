@@ -19,16 +19,16 @@
 namespace IceInternal
 {
 
-class ICE_API Buffer : private IceUtil::noncopyable
+class Buffer : private IceUtil::noncopyable
 {
 public:
 
     Buffer(size_t maxCapacity) : b(maxCapacity), i(b.begin()) { }
     virtual ~Buffer() { }
 
-    void swap(Buffer&);
+    ICE_API void swap(Buffer&);
 
-    class ICE_API Container : private IceUtil::noncopyable
+    class Container : private IceUtil::noncopyable
     {
     public:
 
@@ -105,9 +105,9 @@ public:
 	    return !_size;
 	}
 
-	void swap(Container&);
+	ICE_API void swap(Container&);
 	
-	void clear();
+	ICE_API void clear();
 
 	void resize(size_type n) // Inlined for performance reasons.
         {
@@ -165,9 +165,9 @@ public:
 
     private:
 
-	Container(const Container&);
-	void operator=(const Container&);
-	void reserve(size_type);
+	ICE_API Container(const Container&);
+	ICE_API void operator=(const Container&);
+	ICE_API void reserve(size_type);
 
 	pointer _buf;
 	size_type _size;
