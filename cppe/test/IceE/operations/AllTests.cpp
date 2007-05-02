@@ -28,6 +28,9 @@ allTests(const Ice::CommunicatorPtr& communicator, const Ice::InitializationData
     test(communicator->identityToString(base->ice_identity(communicator->stringToIdentity("other"))->ice_getIdentity())
     	  == "other");
     test(base->ice_facet("facet")->ice_getFacet() == "facet");
+#ifdef ICEE_HAS_LOCATOR
+    test(base->ice_adapterId("id")->ice_getAdapterId() == "id");
+#endif    
     test(base->ice_twoway()->ice_isTwoway());
     test(base->ice_oneway()->ice_isOneway());
     test(base->ice_batchOneway()->ice_isBatchOneway());
