@@ -21,7 +21,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(ENABLE_WSTRING)" != "yes"
+!if "$(ENABLE_WSTRING)" == "yes"
 CPPFLAGS        = -DENABLE_WSTRING $(CPPFLAGS)
 !endif
 
