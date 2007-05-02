@@ -7,8 +7,8 @@ Operating System
 ----------------
 
 Ice-E is expected to build and run properly on any recent Linux
-distribution for x86 and x86_64. However, Ice-E is officially supported
-only on:
+distribution for x86 and x86_64. However, Ice-E is officially
+supported only on:
 
  - Red Hat Enterprise Linux Advanced Server 4 Update 4 for x86 or
    x86_64 (RHEL 4.4)
@@ -21,8 +21,8 @@ only on:
 C++ compiler
 ------------
 
-Ice-E is expected to build properly with GCC 3.3 or later. However, only
-the following compilers are officially supported:
+Ice-E is expected to build properly with GCC 3.3 or later. However,
+only the following compilers are officially supported:
 
  - GCC 3.4.6 on RHEL 4.4
  - GCC 4.1.x on SLES 10A
@@ -42,7 +42,10 @@ available at
 
 http://www.zeroc.com/download.html
 
-Please ensure that the translator bin directory is added to your PATH.
+The directory containing the translator executables must be added to
+your PATH. For example, if the translator distribution is installed
+in /opt/IceE-trans-@ver@, you must add /opt/IceE-trans-@ver@/bin to
+your PATH.
 
 
 Python
@@ -98,19 +101,21 @@ $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 Cross-compiling for Gumstix
 ---------------------------
 
-To build Ice-E for the gumstix you must first build the buildroot 
-toolchain. Ice-E has been tested with revision 1364 of buildroot. For 
-information on how to obtain and build the toolchain please see the
-following link from the Gumstix Support Wiki:
+To build Ice-E for the Gumstix embedded environment, you must first
+build the buildroot toolchain. Ice-E has been tested with revision
+1364 of buildroot. For information on how to obtain and build the
+toolchain, please see the following link from the Gumstix Support
+Wiki:
 
 http://docwiki.gumstix.org/Buildroot
 
-Make sure to enable C++ support in the toolchain. See:
+Make sure to enable C++ support in the toolchain, as discussed at
+the link below:
 
 http://docwiki.gumstix.org/Sample_code/Cpp/Hello_World
 
 Once you have the toolchain built, add the bin directory to your path
-by running the following:
+by executing the following command:
 
 $ export PATH=<Buildroot install dir>/build_arm_nofpu/staging_dir/bin:$PATH
 
@@ -119,11 +124,10 @@ You now must set the following environment variables:
 $ export CXX=arm-linux-c++
 $ export AR=arm-linux-ar
 
-Finally, you just need to follow the regular Ice-E build steps as
-mentioned above.
+Finally, follow the regular Ice-E build steps as described above.
 
 In order to run the test suite, you must copy the executables to your
-gumstix board and then manually run the server followed by the client.
+Gumstix board and then manually run the server followed by the client.
 Any failures will be reported.
 
 
@@ -135,7 +139,7 @@ By default, builds on x86_64 are 64-bit. To perform a 32-bit build on
 an x86_64 Linux system, set the environment variable LP64 to no, as
 shown below:
 
-  $ export LP64=no
+$ export LP64=no
 
 
 ======================================================================

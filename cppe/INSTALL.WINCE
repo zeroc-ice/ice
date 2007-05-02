@@ -34,7 +34,10 @@ available at
 
 http://www.zeroc.com/download.html
 
-Ensure that the translator bin directory is located in your PATH.
+The directory containing the translator executables must be added to
+your PATH. For example, if the translator distribution is installed
+in C:\IceE-trans-@ver@, you must add C:\IceE-trans-@ver@\bin to
+your PATH.
 
 
 ======================================================================
@@ -56,8 +59,8 @@ Compilation and Testing
 Using your favorite Zip tool, unzip the Ice-E archive anywhere you
 like.
 
-Open a Visual Studio 2005 command prompt and change the working directory
-to IceE-@ver@. For example:
+Open a Visual Studio 2005 command prompt and change the working
+directory to IceE-@ver@. For example:
 
 > cd C:\IceE-@ver@
 
@@ -80,9 +83,9 @@ Installation
 ======================================================================
 
 Simply run "nmake /f Makefile.mak install". This will install Ice-E in
-the directory specified by the "prefix" variable in config\Make.rules.mak.
+the directory specified by the "prefix" variable in the file
+config\Make.rules.mak.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files" and the lib directory to the "Library files"
 in the IDE (Tools->Options->Projects and Solutions->VC++ Directories).
-

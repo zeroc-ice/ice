@@ -59,7 +59,7 @@ By default, builds on x86_64 are 64-bit. To perform a 32-bit build on
 an x86_64 Linux system, set the environment variable LP64 to no, as
 shown below:
 
-  $ export LP64=no
+$ export LP64=no
 
 
 ======================================================================
@@ -70,8 +70,8 @@ Simply run "make install". This will install the Ice-E translators in
 the directory specified by the "prefix" variable in config/Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
-your PATH, and the <prefix>/lib directory is in your
-LD_LIBRARY_PATH (if you built dynamic libraries). 
+your PATH, and the <prefix>/lib directory is in your LD_LIBRARY_PATH
+(if you built dynamic libraries). 
 
 On an x86_64 system, the libraries are installed in <prefix>/lib64
 unless LP64 is set to no. No other changes are necessary.
