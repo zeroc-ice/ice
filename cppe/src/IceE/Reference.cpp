@@ -394,13 +394,14 @@ IceInternal::Reference::operator<(const Reference& r) const
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-				  const string& fs, Mode md, bool sec) :
+				  const Context& context, const string& fs, Mode md, bool sec) :
     _hashInitialized(false),
     _instance(inst),
     _communicator(com),
     _mode(md),
     _secure(sec),
     _identity(ident),
+    _context(context),
     _facet(fs),
     _overrideTimeout(false),
     _timeout(-1)
@@ -439,8 +440,9 @@ IceInternal::Reference::applyOverrides(vector<EndpointPtr>& endpts) const
 IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-					    const string& fs, Mode md, const vector<ConnectionPtr>& fixedConns) :
-    Reference(inst, com, ident, fs, md, false),
+					    const Context& context, const string& fs, Mode md, 
+					    const vector<ConnectionPtr>& fixedConns) :
+    Reference(inst, com, ident, context, fs, md, false),
     _fixedConnections(fixedConns)
 {
 }
@@ -469,6 +471,19 @@ IceInternal::FixedReference::changeRouter(const RouterPrx&) const
 #endif
 
 #ifdef ICEE_HAS_LOCATOR
+
+string
+IceInternal::FixedReference::getAdapterId() const
+{
+    return string();
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeAdapterId(const std::string&) const
+{
+    throw FixedProxyException(__FILE__, __LINE__);
+    return 0; // Keep the compiler happy.
+}
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
@@ -673,9 +688,9 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 }
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const string& fs,
+						  const Identity& ident, const Context& context, const string& fs,
 						  Mode md, bool sec, const RouterInfoPtr& rtrInfo) :
-    Reference(inst, com, ident, fs, md, sec), _routerInfo(rtrInfo)
+    Reference(inst, com, ident, context, fs, md, sec), _routerInfo(rtrInfo)
 {
 }
 
@@ -690,19 +705,19 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::DirectReference* p) { return p
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const string& fs, Mode md,
+					      const Identity& ident, const Context& context, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo) :
 
-    RoutableReference(inst, com, ident, fs, md, sec, rtrInfo),
+    RoutableReference(inst, com, ident, context, fs, md, sec, rtrInfo),
     _endpoints(endpts)
 {
 }
 #else
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const string& fs, Mode md,
+					      const Identity& ident, const Context& context, const string& fs, Mode md,
 					      bool sec, const vector<EndpointPtr>& endpts) :
-    Reference(inst, com, ident, fs, md, sec),
+    Reference(inst, com, ident, context, fs, md, sec),
     _endpoints(endpts)
 {
 }
@@ -721,6 +736,32 @@ IceInternal::DirectReference::getEndpoints() const
 }
 
 #ifdef ICEE_HAS_LOCATOR
+
+string
+IceInternal::DirectReference::getAdapterId() const
+{
+    return string();
+}
+
+ReferencePtr
+DirectReference::changeAdapterId(const string& newAdapterId) const
+{
+    if(!newAdapterId.empty())
+    {
+        LocatorInfoPtr locatorInfo = 
+            getInstance()->locatorManager()->get(getInstance()->referenceFactory()->getDefaultLocator());
+        return getInstance()->referenceFactory()->create(getIdentity(), *getContext(), getFacet(), getMode(),
+                                                         getSecure(), newAdapterId,
+#ifdef ICEE_HAS_ROUTER
+							 getRouterInfo(),
+#endif
+                                                         locatorInfo);
+    }
+    else
+    {
+        return DirectReferencePtr(const_cast<DirectReference*>(this));
+    }
+}
 
 ReferencePtr
 IceInternal::DirectReference::changeLocator(const LocatorPrx& newLocator) const
@@ -878,20 +919,20 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::IndirectReference* p) { return
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-						  const Identity& ident, const string& fs,
+						  const Identity& ident, const Context& context, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
-    RoutableReference(inst, com, ident, fs, md, sec, rtrInfo),
+    RoutableReference(inst, com, ident, context, fs, md, sec, rtrInfo),
     _adapterId(adptid),
     _locatorInfo(locInfo)
 {
 }
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com, 
-						  const Identity& ident, const string& fs,
+						  const Identity& ident, const Context& context, const string& fs,
 						  Mode md, bool sec, const string& adptid,
 						  const LocatorInfoPtr& locInfo) :
-    Reference(inst, com, ident, fs, md, sec),
+    Reference(inst, com, ident, context, fs, md, sec),
     _adapterId(adptid),
     _locatorInfo(locInfo)
 {
@@ -908,6 +949,24 @@ vector<EndpointPtr>
 IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointPtr>();
+}
+
+string
+IceInternal::IndirectReference::getAdapterId() const
+{
+    return _adapterId;
+}
+
+ReferencePtr
+IceInternal::IndirectReference::changeAdapterId(const string& newAdapterId) const
+{
+    if(newAdapterId == _adapterId)
+    {
+        return IndirectReferencePtr(const_cast<IndirectReference*>(this));
+    }
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_adapterId = newAdapterId;
+    return r;
 }
 
 ReferencePtr

@@ -63,13 +63,15 @@ public:
     Ice::CommunicatorPtr getCommunicator() const;
 
     virtual Type getType() const = 0;
+    virtual std::vector<EndpointPtr> getEndpoints() const = 0;
+
 #ifdef ICEE_HAS_ROUTER
     virtual RouterInfoPtr getRouterInfo() const { return 0; }
 #endif
 #ifdef ICEE_HAS_LOCATOR
+    virtual std::string getAdapterId() const = 0;
     virtual LocatorInfoPtr getLocatorInfo() const { return 0; }
 #endif
-    virtual std::vector<EndpointPtr> getEndpoints() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -85,6 +87,7 @@ public:
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const = 0;
 #endif
 #ifdef ICEE_HAS_LOCATOR
+    virtual ReferencePtr changeAdapterId(const std::string&) const = 0;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const = 0;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -113,7 +116,8 @@ public:
 
 protected:
 
-    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode, bool);
+    Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
+	      const std::string&, Mode, bool);
     Reference(const Reference&);
 
     void applyOverrides(std::vector<EndpointPtr>&) const;
@@ -148,7 +152,7 @@ class FixedReference : public Reference
 {
 public:
 
-    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&,
+    FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
 		   const std::string&, Mode, const std::vector<Ice::ConnectionPtr>&);
 
     virtual Type getType() const;
@@ -158,6 +162,8 @@ public:
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
 #endif
 #ifdef ICEE_HAS_LOCATOR
+    virtual std::string getAdapterId() const;
+    virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -202,7 +208,7 @@ public:
 
 protected:
 
-    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&,
+    RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
 		      const std::string&, Mode, bool, const RouterInfoPtr&);
     RoutableReference(const RoutableReference&);
 
@@ -222,7 +228,7 @@ class DirectReference :
 {
 public:
 
-    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&,
+    DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
 		    const std::string&, Mode, bool, const std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 		    , const RouterInfoPtr&
@@ -233,6 +239,8 @@ public:
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
 #ifdef ICEE_HAS_LOCATOR
+    virtual std::string getAdapterId() const;
+    virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif
     virtual ReferencePtr changeTimeout(int) const;
@@ -272,20 +280,20 @@ class IndirectReference :
 {
 public:
 
-    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&,
+    IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
 		      const std::string&, Mode, bool, const std::string&
 #ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif
 		      , const LocatorInfoPtr&);
 
-    const std::string& getAdapterId() const { return _adapterId; }
-
     virtual LocatorInfoPtr getLocatorInfo() const { return _locatorInfo; }
 
     virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
+    virtual std::string getAdapterId() const;
 
+    virtual ReferencePtr changeAdapterId(const std::string&) const;
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 
     virtual void streamWrite(BasicStream*) const;

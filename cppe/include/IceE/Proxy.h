@@ -182,6 +182,8 @@ public:
     ICE_API ::Ice::RouterPrx ice_getRouter() const;
 #endif
 #ifdef ICEE_HAS_LOCATOR
+    ICE_API ::Ice::ObjectPrx ice_adapterId(const std::string&) const;
+    ICE_API std::string ice_getAdapterId() const;
     ICE_API ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
     ICE_API ::Ice::LocatorPrx ice_getLocator() const;
 #endif

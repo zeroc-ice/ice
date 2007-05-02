@@ -1,6 +1,8 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added ice_getAdapterId/ice_adapterId proxy methods.
+
 - Removed most specializations of Ice::ProtocolException local exceptions
   for code size gains. Only the following specializations were kept:
   Ice::CloseConnectionException, Ice::ForcedCloseConnectionException, 

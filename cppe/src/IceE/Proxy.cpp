@@ -487,6 +487,28 @@ IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
 
 #ifdef ICEE_HAS_LOCATOR
 
+string
+IceProxy::Ice::Object::ice_getAdapterId() const
+{
+    return _reference->getAdapterId();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_adapterId(const string& adapterId) const
+{
+    ReferencePtr ref = _reference->changeAdapterId(adapterId);
+    if(ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
 LocatorPrx
 IceProxy::Ice::Object::ice_getLocator() const
 {

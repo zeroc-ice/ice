@@ -52,6 +52,7 @@ IceInternal::ReferenceFactory::copy(const Reference* r) const
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
+				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
@@ -77,9 +78,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
 #ifdef ICEE_HAS_ROUTER
-    return new DirectReference(_instance, _communicator, ident, facet, mode, secure, endpoints, routerInfo);
+    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, endpoints, routerInfo);
 #else
-    return new DirectReference(_instance, _communicator, ident, facet, mode, secure, endpoints);
+    return new DirectReference(_instance, _communicator, ident, context, facet, mode, secure, endpoints);
 #endif
 }
 
@@ -87,6 +88,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
+				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
@@ -112,10 +114,10 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
 #ifdef ICEE_HAS_ROUTER
-    return new IndirectReference(_instance, _communicator, ident, facet, mode, secure, adapterId, routerInfo,
+    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId, routerInfo,
 				locatorInfo);
 #else
-    return new IndirectReference(_instance, _communicator, ident, facet, mode, secure, adapterId, locatorInfo);
+    return new IndirectReference(_instance, _communicator, ident, context, facet, mode, secure, adapterId, locatorInfo);
 #endif
 }
 
@@ -123,6 +125,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
+				      const Context& context,
 				      const string& facet,
 				      Reference::Mode mode,
 				      const vector<Ice::ConnectionPtr>& fixedConnections)
@@ -142,7 +145,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new FixedReference(_instance, _communicator, ident, facet, mode, fixedConnections);
+    return new FixedReference(_instance, _communicator, ident, context, facet, mode, fixedConnections);
 }
 
 ReferencePtr
@@ -428,9 +431,9 @@ IceInternal::ReferenceFactory::create(const string& str)
     {
 #ifdef ICEE_HAS_LOCATOR
 #   ifdef ICEE_HAS_ROUTER
-	return create(ident, facet, mode, secure, "", routerInfo, locatorInfo);
+	return create(ident, Ice::Context(), facet, mode, secure, "", routerInfo, locatorInfo);
 #   else
-	return create(ident, facet, mode, secure, "", locatorInfo);
+	return create(ident, Ice::Context(), facet, mode, secure, "", locatorInfo);
 #   endif
 #else	
         FeatureNotSupportedException ex(__FILE__, __LINE__);
@@ -488,9 +491,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    }
 
 #ifdef ICEE_HAS_ROUTER
-	    return create(ident, facet, mode, secure, endpoints, routerInfo);
+	    return create(ident, Ice::Context(), facet, mode, secure, endpoints, routerInfo);
 #else
-	    return create(ident, facet, mode, secure, endpoints);
+	    return create(ident, Ice::Context(), facet, mode, secure, endpoints);
 #endif
 	    break;
 	}
@@ -534,9 +537,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    }
 
 #ifdef ICEE_HAS_ROUTER
-	    return create(ident, facet, mode, secure, adapter, routerInfo, locatorInfo);
+	    return create(ident, Ice::Context(), facet, mode, secure, adapter, routerInfo, locatorInfo);
 #else
-	    return create(ident, facet, mode, secure, adapter, locatorInfo);
+	    return create(ident, Ice::Context(), facet, mode, secure, adapter, locatorInfo);
 #endif
 #else
             FeatureNotSupportedException ex(__FILE__, __LINE__);
@@ -615,9 +618,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	    endpoints.push_back(endpoint);
 	}
 #ifdef ICEE_HAS_ROUTER
-	return create(ident, facet, mode, secure, endpoints, routerInfo);
+	return create(ident, Ice::Context(), facet, mode, secure, endpoints, routerInfo);
 #else
-	return create(ident, facet, mode, secure, endpoints);
+	return create(ident, Ice::Context(), facet, mode, secure, endpoints);
 #endif
     }
     else
@@ -626,10 +629,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 	LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
 	s->read(adapterId);
 #   ifdef ICEE_HAS_ROUTER
-	return create(ident, facet, mode, secure, adapterId,
-		      routerInfo, locatorInfo);
+	return create(ident, Ice::Context(), facet, mode, secure, adapterId, routerInfo, locatorInfo);
 #   else
-	return create(ident, facet, mode, secure, adapterId, locatorInfo);
+	return create(ident, Ice::Context(), facet, mode, secure, adapterId, locatorInfo);
 #   endif
 #else
 	throwProxyUnmarshalException(__FILE__, __LINE__);
