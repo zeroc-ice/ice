@@ -83,6 +83,9 @@
 	    <keepclasseswithmembernames>
 		<method access="native" />
 	    </keepclasseswithmembernames>
+            <keep name="Ice.**">
+                <method access="public"/>
+            </keep>
 	</proguard>
     </target>
 

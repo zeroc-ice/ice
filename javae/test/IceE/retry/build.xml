@@ -79,7 +79,10 @@
 	    <keep access="public" extends="javax.microedition.midlet.MIDlet"/>
 	    <keepclasseswithmembernames>
 		<method access="native" />
-	    </keepclasseswithmembernames>
+            </keepclasseswithmembernames>
+            <keep name="Ice.**">
+                <method access="public"/>
+            </keep>
 	</proguard>
     </target>
 
