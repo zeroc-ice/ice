@@ -232,8 +232,6 @@ public:
     virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
-    DirectReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
-
 #ifdef ICEE_HAS_LOCATOR
     virtual ReferencePtr changeLocator(const Ice::LocatorPrx&) const;
 #endif

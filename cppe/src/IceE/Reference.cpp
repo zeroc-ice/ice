@@ -720,19 +720,6 @@ IceInternal::DirectReference::getEndpoints() const
     return _endpoints;
 }
 
-DirectReferencePtr
-IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndpoints) const
-{
-    if(newEndpoints == _endpoints)
-    {
-	return DirectReferencePtr(const_cast<DirectReference*>(this));
-    }
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
-    r->_endpoints = newEndpoints;
-    r->applyOverrides(r->_endpoints);
-    return r;
-}
-
 #ifdef ICEE_HAS_LOCATOR
 
 ReferencePtr

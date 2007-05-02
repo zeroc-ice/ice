@@ -30,19 +30,6 @@ public class DirectReference extends RoutableReference
         return _endpoints;
     }
 
-    public final Reference
-    changeEndpoints(Endpoint[] newEndpoints)
-    {
-	if(compare(newEndpoints, _endpoints))
-	{
-	    return this;
-	}
-        DirectReference r = (DirectReference)getInstance().referenceFactory().copy(this);
-	r._endpoints = newEndpoints;
-	r.applyOverrides(r._endpoints);
-	return r;
-    }
-
     public Reference
     changeLocator(Ice.LocatorPrx newLocator)
     {
