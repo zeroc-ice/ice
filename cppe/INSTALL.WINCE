@@ -34,6 +34,8 @@ available at
 
 http://www.zeroc.com/download.html
 
+Ensure that the translator bin directory is located in your PATH.
+
 
 ======================================================================
 Installing and Configuring Microsoft Visual C++ 2005

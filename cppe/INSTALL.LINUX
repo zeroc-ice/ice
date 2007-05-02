@@ -15,6 +15,8 @@ only on:
 
  - Novell SuSE Linux Enterprise Server 10 for x86 or x86_64 (SLES 10)
 
+ - Gumstix Linux revision 1364
+
 
 C++ compiler
 ------------
@@ -23,7 +25,8 @@ Ice-E is expected to build properly with GCC 3.3 or later. However, only
 the following compilers are officially supported:
 
  - GCC 3.4.6 on RHEL 4.4
- - GCC 4.1.x on SLES 10
+ - GCC 4.1.x on SLES 10A
+ - GCC 4.1.1 ARM cross-compiler on Gumstix
 
 
 Slice-to-Embedded-C++ translator
@@ -38,6 +41,8 @@ Binary and source distributions for the supported platforms are
 available at
 
 http://www.zeroc.com/download.html
+
+Please ensure that the translator bin directory is added to your PATH.
 
 
 Python
@@ -88,6 +93,38 @@ statically, make sure to update your LD_LIBRARY_PATH environment
 variable to add the "lib" directory:
 
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+
+
+Cross-compiling for Gumstix
+---------------------------
+
+To build Ice-E for the gumstix you must first build the buildroot 
+toolchain. Ice-E has been tested with revision 1364 of buildroot. For 
+information on how to obtain and build the toolchain please see the
+following link from the Gumstix Support Wiki:
+
+http://docwiki.gumstix.org/Buildroot
+
+Make sure to enable C++ support in the toolchain. See:
+
+http://docwiki.gumstix.org/Sample_code/Cpp/Hello_World
+
+Once you have the toolchain built, add the bin directory to your path
+by running the following:
+
+$ export PATH=<Buildroot install dir>/build_arm_nofpu/staging_dir/bin:$PATH
+
+You now must set the following environment variables:
+
+$ export CXX=arm-linux-c++
+$ export AR=arm-linux-ar
+
+Finally, you just need to follow the regular Ice-E build steps as
+mentioned above.
+
+In order to run the test suite, you must copy the executables to your
+gumstix board and then manually run the server followed by the client.
+Any failures will be reported.
 
 
 ======================================================================
