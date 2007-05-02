@@ -67,6 +67,10 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _impl(imp),
     _ice(ice)
 {
+#ifndef ENABLE_WSTRING
+    Slice::wstringDisabled = true;
+#endif
+
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         if(p->length() && (*p)[p->length() - 1] != '/')
@@ -640,7 +644,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         H << nl << "virtual void __read(::IceInternal::BasicStream*, bool);";
         C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
         C << sb;
-        C << nl << "__os->write(::std::string(\"" << p->scoped() << "\"));";
+        C << nl << "__os->write(::std::string(\"" << p->scoped() << "\"), false);";
         C << nl << "__os->startWriteSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
@@ -658,7 +662,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << nl << "if(__rid)";
         C << sb;
         C << nl << "::std::string myId;";
-        C << nl << "__is->read(myId);";
+        C << nl << "__is->read(myId, false);";
         C << eb;
         C << nl << "__is->startReadSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1149,10 +1153,12 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
                                                "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
         static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
+#ifdef ENABLE_WSTRING
         if(_useWstring || findMetaData(p->typeMetaData(), true) == "wstring")
         {
             H << 'L';
         }
+#endif
         H << "\"";                                      // Opening "
 
         const string val = p->value();
@@ -2908,7 +2914,11 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             if(s.find(prefix) == 0)
             {
                 string ss = s.substr(prefix.size());
-                if(ss.find("type:wstring") == 0 || ss.find("type:string") == 0)
+                if(ss.find("type:string") == 0
+#ifdef ENABLE_WSTRING
+                   || ss.find("type:wstring") == 0
+#endif
+                  )
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(cont);
                     ModulePtr module = ModulePtr::dynamicCast(cont);
@@ -2944,6 +2954,7 @@ Slice::Gen::validateMetaData(const UnitPtr& u)
 bool
 Slice::Gen::setUseWstring(ContainedPtr p, list<bool>& hist, bool use)
 {
+#ifdef ENABLE_WSTRING
     hist.push_back(use);
     StringList metaData = p->getMetaData();
     if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
@@ -2955,14 +2966,21 @@ Slice::Gen::setUseWstring(ContainedPtr p, list<bool>& hist, bool use)
         use = false;
     }
     return use;
+#else
+    return false;
+#endif
 }
 
 bool
 Slice::Gen::resetUseWstring(list<bool>& hist)
 {
+#ifdef ENABLE_WSTRING
     bool use = hist.back();
     hist.pop_back();
     return use;
+#else
+    return false;
+#endif
 }
 
 void

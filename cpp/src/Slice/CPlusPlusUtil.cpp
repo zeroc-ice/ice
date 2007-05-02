@@ -13,6 +13,8 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
+bool Slice::wstringDisabled = false;
+
 char
 Slice::ToIfdef::operator()(char c)
 {
@@ -168,7 +170,7 @@ Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& meta
         if(builtin->kind() == Builtin::KindString)
         {
             string strType = findMetaData(metaData, true);
-            if(strType != "string" && (useWstring || strType == "wstring"))
+            if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
             {
                 return "::std::wstring";
             }
@@ -302,7 +304,7 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
         if(builtin->kind() == Builtin::KindString)
         {
             string strType = findMetaData(metaData, true);
-            if(strType != "string" && (useWstring || strType == "wstring"))
+            if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
             {
                 return "const ::std::wstring&";
             }
@@ -411,7 +413,7 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
         if(builtin->kind() == Builtin::KindString)
         {
             string strType = findMetaData(metaData, true);
-            if(strType != "string" && (useWstring || strType == "wstring"))
+            if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
             {
                 return "::std::wstring&";
             }
@@ -1193,7 +1195,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             case Builtin::KindString:
             {
                 string strType = findMetaData(metaData, true);
-                if(strType != "string" && (useWstring || strType == "wstring"))
+                if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
                 {
                     if(marshal)
                     {
@@ -1424,7 +1426,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     case Builtin::KindString:
                     {
                         string strType = findMetaData(seq->typeMetaData(), true);
-                        if(strType != "string" && (useWstring || strType == "wstring"))
+                        if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
                         {
                             if(marshal)
                             {
@@ -1573,6 +1575,11 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
 bool
 Slice::inWstringModule(const SequencePtr& seq)
 {
+    if(wstringDisabled)
+    {
+        return false;
+    }
+
     ContainerPtr cont = seq->container();
     while(cont)
     {

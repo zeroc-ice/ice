@@ -16,6 +16,8 @@
 namespace Slice
 {
 
+extern bool wstringDisabled;
+
 struct ToIfdef
 {
     SLICE_API char operator()(char);

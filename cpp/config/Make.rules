@@ -107,6 +107,11 @@ KERBEROS_HOME           ?= /usr/kerberos
 #
 #STATICLIBS		= yes
 
+#
+# Support for wstring in the Ice-E Slice-C++ translator.
+#
+#ENABLE_WSTRING		= yes
+
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
