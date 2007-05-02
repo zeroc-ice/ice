@@ -39,17 +39,40 @@ public:
 private:
 
     Properties(const Properties*);
-    Properties();
-    Properties(StringSeq&, const PropertiesPtr&);
+    Properties(
+#ifdef ICEE_HAS_WSTRING
+               const StringConverterPtr&
+#endif
+              );
+    Properties(StringSeq&, const PropertiesPtr&
+#ifdef ICEE_HAS_WSTRING
+               , const StringConverterPtr&
+#endif
+              );
 
-    friend ICE_API PropertiesPtr createProperties();
-    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&);
+    friend ICE_API PropertiesPtr createProperties(
+#ifdef ICEE_HAS_WSTRING
+                                                  const StringConverterPtr&
+#endif
+                                                 );
+    friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&
+#ifdef ICEE_HAS_WSTRING
+                                                  , const StringConverterPtr&
+#endif
+                                                 );
 
-    void parseLine(const std::string&);
+    void parseLine(const std::string&
+#ifdef ICEE_HAS_WSTRING
+                   , const StringConverterPtr&
+#endif
+                  );
 
     void loadConfig();
 
     std::map<std::string, std::string> _properties;
+#ifdef ICEE_HAS_WSTRING
+    const StringConverterPtr _converter;
+#endif
 };
 
 }

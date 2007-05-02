@@ -10,6 +10,10 @@
 #ifndef WSTRING_I_H
 #define WSTRING_I_H
 
+#include <IceE/Config.h>
+
+#ifdef ICEE_HAS_WSTRING
+
 #include <Wstring.h>
 
 namespace Test1
@@ -53,5 +57,7 @@ public:
 };
 
 }
+
+#endif
 
 #endif

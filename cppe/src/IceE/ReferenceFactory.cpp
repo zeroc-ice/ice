@@ -335,7 +335,16 @@ IceInternal::ReferenceFactory::create(const string& str)
 		    ex.str = str;
 		    throw ex;
 		}
-
+#ifdef ICEE_HAS_WSTRING
+                if(_instance->initializationData().stringConverter)
+                {
+                    string tmpFacet;
+                    _instance->initializationData().stringConverter->fromUTF8(
+                                reinterpret_cast<const Byte*>(facet.data()),
+                                reinterpret_cast<const Byte*>(facet.data() + facet.size()), tmpFacet);
+                    facet = tmpFacet;
+                }
+#endif
 		break;
 	    }
 
@@ -535,6 +544,16 @@ IceInternal::ReferenceFactory::create(const string& str)
 		ex.str = str;
 		throw ex;
 	    }
+#ifdef ICEE_HAS_WSTRING
+            if(_instance->initializationData().stringConverter)
+            {
+                string tmpAdapter;
+                _instance->initializationData().stringConverter->fromUTF8(
+                               reinterpret_cast<const Byte*>(adapter.data()),
+                               reinterpret_cast<const Byte*>(adapter.data() + adapter.size()), tmpAdapter);
+                adapter = tmpAdapter;
+            }
+#endif
 
 #ifdef ICEE_HAS_ROUTER
 	    return create(ident, Ice::Context(), facet, mode, secure, adapter, routerInfo, locatorInfo);

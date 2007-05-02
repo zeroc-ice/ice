@@ -11,6 +11,9 @@
 #define ICEE_UNICODE_H
 
 #include <IceE/Config.h>
+
+#ifdef ICEE_HAS_WSTRING
+
 #include <IceE/Exception.h>
 
 namespace IceUtil
@@ -152,5 +155,7 @@ private:
 };
 
 }
+
+#endif
 
 #endif

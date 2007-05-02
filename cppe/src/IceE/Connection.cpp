@@ -767,7 +767,11 @@ Ice::Connection::flushBatchRequestsInternal(bool ignoreInUse)
 void
 Ice::Connection::resetBatch(bool resetInUse)
 {
-    BasicStream dummy(_instance.get(), _instance->messageSizeMax(), _batchAutoFlush);
+    BasicStream dummy(_instance.get(), _instance->messageSizeMax(),
+#ifdef ICEE_HAS_WSTRING
+        _instance->initializationData().stringConverter, _instance->initializationData().wstringConverter,
+#endif
+        _batchAutoFlush);
     _batchStream.swap(dummy);
     _batchRequestNum = 0;
     _batchMarker = 0;
@@ -991,12 +995,20 @@ Ice::Connection::Connection(const InstancePtr& instance,
 	_in(_instance.get(), this, _stream, adapter),
 #endif
 #ifndef ICEE_PURE_BLOCKING_CLIENT
-	_stream(_instance.get(), _instance->messageSizeMax()),
+	_stream(_instance.get(), _instance->messageSizeMax()
+#ifdef ICEE_HAS_WSTRING
+                , _instance->initializationData().stringConverter, _instance->initializationData().wstringConverter
+#endif
+                ),
 #endif
 #ifdef ICEE_HAS_BATCH
         _batchAutoFlush(
             _instance->initializationData().properties->getPropertyAsIntWithDefault("Ice.BatchAutoFlush", 1) > 0),
-	_batchStream(_instance.get(), _instance->messageSizeMax(), _batchAutoFlush),
+	_batchStream(_instance.get(), _instance->messageSizeMax(),
+#ifdef ICEE_HAS_WSTRING
+                     _instance->initializationData().stringConverter, _instance->initializationData().wstringConverter,
+#endif
+                     _batchAutoFlush),
 	_batchStreamInUse(false),
 	_batchRequestNum(0),
         _batchMarker(0),
@@ -1136,7 +1148,12 @@ Ice::Connection::validate()
 #ifndef ICEE_PURE_CLIENT
         if(active)
         {
-    	    BasicStream os(_instance.get(), _instance->messageSizeMax());
+    	    BasicStream os(_instance.get(), _instance->messageSizeMax()
+#ifdef ICEE_HAS_WSTRING
+                           , _instance->initializationData().stringConverter,
+                           _instance->initializationData().wstringConverter
+#endif
+                          );
 	    os.write(magic[0]);
 	    os.write(magic[1]);
 	    os.write(magic[2]);
@@ -1165,7 +1182,12 @@ Ice::Connection::validate()
         else
 #endif
         {
-    	    BasicStream is(_instance.get(), _instance->messageSizeMax());
+    	    BasicStream is(_instance.get(), _instance->messageSizeMax()
+#ifdef ICEE_HAS_WSTRING
+                           , _instance->initializationData().stringConverter,
+                           _instance->initializationData().wstringConverter
+#endif
+                          );
     	    is.b.resize(headerSize);
     	    is.i = is.b.begin();
     	    try
@@ -1423,7 +1445,12 @@ Ice::Connection::initiateShutdown() const
     //
     // Before we shut down, we send a close connection message.
     //
-    BasicStream os(_instance.get(), _instance->messageSizeMax());
+    BasicStream os(_instance.get(), _instance->messageSizeMax()
+#ifdef ICEE_HAS_WSTRING
+                   , _instance->initializationData().stringConverter, _instance->initializationData().wstringConverter
+#endif
+                  );
+
     os.write(magic[0]);
     os.write(magic[1]);
     os.write(magic[2]);

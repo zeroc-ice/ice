@@ -1297,8 +1297,70 @@ IceInternal::BasicStream::write(const char*)
 }
 */
 
+#ifdef ICEE_HAS_WSTRING
+
 void
-IceInternal::BasicStream::write(const string* begin, const string* end)
+IceInternal::BasicStream::writeConverted(const string& v)
+{
+    //
+    // What is the size of the resulting UTF-8 encoded string?
+    // Impossible to tell, so we guess. If we don't guess correctly,
+    // we'll have to fix the mistake afterwards
+    //
+
+    Int guessedSize = static_cast<Int>(v.size());
+    writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
+
+    size_t firstIndex = b.size();
+    StreamUTF8BufferI buffer(*this);
+
+    Byte* lastByte = _stringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+    if(lastByte != b.end())
+    {
+        b.resize(lastByte - b.begin());
+    }
+    size_t lastIndex = b.size();
+
+    Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+
+    //
+    // Check against the guess
+    //
+    if(guessedSize != actualSize)
+    {
+        if(guessedSize <= 254 && actualSize > 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes further
+            // Use memmove instead of memcpy since the source and destination typically overlap.
+            //
+            resize(b.size() + 4);
+            memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+        }
+        else if(guessedSize > 254 && actualSize <= 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes back
+            //
+            memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+            resize(b.size() - 4);
+        }
+
+        if(guessedSize <= 254)
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1);
+        }
+        else
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+        }
+    }
+}
+
+#endif
+
+void
+IceInternal::BasicStream::write(const string* begin, const string* end, bool convert)
 {
     Int sz = static_cast<Int>(end - begin);
     writeSize(sz);
@@ -1306,13 +1368,13 @@ IceInternal::BasicStream::write(const string* begin, const string* end)
     {
 	for(int i = 0; i < sz; ++i)
 	{
-	    write(begin[i]);
+	    write(begin[i], convert);
 	}
     }
 }
 
 void
-IceInternal::BasicStream::read(vector<string>& v)
+IceInternal::BasicStream::read(vector<string>& v, bool convert)
 {
     Int sz;
     readSize(sz);
@@ -1322,7 +1384,7 @@ IceInternal::BasicStream::read(vector<string>& v)
 	v.resize(sz);
 	for(int i = 0; i < sz; ++i)
 	{
-	    read(v[i]);
+	    read(v[i], convert);
 	    checkSeq();
 	    endElement();
 	}
@@ -1331,6 +1393,72 @@ IceInternal::BasicStream::read(vector<string>& v)
     else
     {
        v.clear();
+    }
+}
+
+#ifdef ICEE_HAS_WSTRING
+
+void
+IceInternal::BasicStream::write(const wstring& v)
+{
+    if(v.size() == 0)
+    {
+        writeSize(0);
+        return;
+    }
+
+    //
+    // What is the size of the resulting UTF-8 encoded string?
+    // Impossible to tell, so we guess. If we don't guess correctly,
+    // we'll have to fix the mistake afterwards
+    //
+
+    Int guessedSize = static_cast<Int>(v.size());
+    writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
+
+    size_t firstIndex = b.size();
+    StreamUTF8BufferI buffer(*this);
+
+    Byte* lastByte = _wstringConverter->toUTF8(v.data(), v.data() + v.size(), buffer);
+    if(lastByte != b.end())
+    {
+        b.resize(lastByte - b.begin());
+    }
+    size_t lastIndex = b.size();
+
+    Int actualSize = static_cast<Int>(lastIndex - firstIndex);
+
+    //
+    // Check against the guess
+    //
+    if(guessedSize != actualSize)
+    {
+        if(guessedSize <= 254 && actualSize > 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes further
+            // Use memmove instead of memcpy since the source and destination typically overlap.
+            //
+            resize(b.size() + 4);
+            memmove(b.begin() + firstIndex + 4, b.begin() + firstIndex, actualSize);
+        }
+        else if(guessedSize > 254 && actualSize <= 254)
+        {
+            //
+            // Move the UTF-8 sequence 4 bytes back
+            //
+            memmove(b.begin() + firstIndex - 4, b.begin() + firstIndex, actualSize);
+            resize(b.size() - 4);
+        }
+
+        if(guessedSize <= 254)
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1);
+        }
+        else
+        {
+            rewriteSize(actualSize, b.begin() + firstIndex - 1 - 4);
+        }
     }
 }
 
@@ -1371,6 +1499,8 @@ IceInternal::BasicStream::read(vector<wstring>& v)
     }
 }
 
+#endif
+
 void
 IceInternal::BasicStream::write(const ObjectPrx& v)
 {
@@ -1397,7 +1527,7 @@ IceInternal::BasicStream::throwException()
     read(usesClasses);
 
     string id;
-    read(id);
+    read(id, false);
     for(;;)
     {
 	//
@@ -1425,7 +1555,7 @@ IceInternal::BasicStream::throwException()
 	else
 	{
 	    skipSlice(); // Slice off what we don't understand.
-	    read(id); // Read type id for next slice.
+	    read(id, false); // Read type id for next slice.
 	}
     }
 

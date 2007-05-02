@@ -461,6 +461,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tprintf("ok\n");
 
+#ifdef ICEE_HAS_WSTRING
     tprintf("testing wstring... ");
 
     Test1::WstringSeq wseq1;
@@ -532,6 +533,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     tprintf("ok\n");
+#endif
 
     return t;
 }

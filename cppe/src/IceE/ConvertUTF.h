@@ -1,3 +1,7 @@
+#include <IceE/Config.h>
+
+#ifdef ICEE_HAS_WSTRING
+
 /*
  * Copyright 2001-2004 Unicode, Inc.
  * 
@@ -141,4 +145,6 @@ ConversionResult ConvertUTF32toUTF8(
 /* --------------------------------------------------------------------- */
 
 }
+#endif
+
 #endif

@@ -208,7 +208,17 @@ IceInternal::Reference::toString() const
 	// the reference parser uses as separators, then we enclose
 	// the facet string in quotes.
 	//
-	string fs = IceUtil::escapeString(_facet, "");
+        string fs = _facet;
+#ifdef ICEE_HAS_WSTRING
+        if(_instance->initializationData().stringConverter)
+        {
+            UTF8BufferI buffer;
+            Byte* last =
+                _instance->initializationData().stringConverter->toUTF8(fs.data(), fs.data() + fs.size(), buffer);
+            fs = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        }
+#endif
+	fs = IceUtil::escapeString(fs, "");
 	if(fs.find_first_of(" :@") != string::npos)
 	{
             s += "\"";
@@ -1007,7 +1017,16 @@ IceInternal::IndirectReference::toString() const
     // reference parser uses as separators, then we enclose the
     // adapter id string in quotes.
     //
-    string a = IceUtil::escapeString(_adapterId, "");
+    string a = _adapterId;
+#ifdef ICEE_HAS_WSTRING
+    if(getInstance()->initializationData().stringConverter)
+    {
+        UTF8BufferI buffer;
+        Byte* last = getInstance()->initializationData().stringConverter->toUTF8(a.data(), a.data() + a.size(), buffer);
+        a = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+    }
+#endif
+    a = IceUtil::escapeString(a, "");
     if(a.find_first_of(" ") != string::npos)
     {
 	result.append("\"");

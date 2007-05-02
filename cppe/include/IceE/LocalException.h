@@ -605,6 +605,22 @@ public:
     virtual void ice_throw() const;
 };
 
+#ifdef ICEE_HAS_WSTRING
+class ICE_API StringConversionException : public ::Ice::MarshalException
+{
+public:
+
+    StringConversionException(const char*, int);
+    StringConversionException(const char*, int, const ::std::string&); 
+    virtual ~StringConversionException() throw();
+
+    virtual ::std::string ice_name() const;
+    virtual ::std::string  toString() const;
+    virtual ::Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+};
+#endif
+
 }
 
 #endif

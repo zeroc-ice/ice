@@ -28,14 +28,30 @@ ICE_API StringSeq argsToStringSeq(int, char*[]);
 //
 ICE_API void stringSeqToArgs(const StringSeq&, int&, char*[]);
 
-ICE_API PropertiesPtr createProperties();
-ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0);
-ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0);
+ICE_API PropertiesPtr createProperties(
+#ifdef ICEE_HAS_WSTRING
+                                       const StringConverterPtr& = 0
+#endif
+                                      );
+ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr& = 0
+#ifdef ICEE_HAS_WSTRING
+                                       , const StringConverterPtr& = 0
+#endif
+                                      );
+ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr& = 0
+#ifdef ICEE_HAS_WSTRING
+                                       , const StringConverterPtr& = 0
+#endif
+                                      );
 
 struct InitializationData
 {
     PropertiesPtr properties;
     LoggerPtr logger;
+#ifdef ICEE_HAS_WSTRING
+    StringConverterPtr stringConverter;
+    WstringConverterPtr wstringConverter;
+#endif
 };
 
 ICE_API CommunicatorPtr initialize(int&, char*[], const InitializationData& = InitializationData(),

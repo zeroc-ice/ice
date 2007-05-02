@@ -40,8 +40,10 @@ public:
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
         adapter->add(new TestIntfI(communicator()), communicator()->stringToIdentity("test"));
+#ifdef ICEE_HAS_WSTRING
 	adapter->add(new Test1::WstringClassI, communicator()->stringToIdentity("wstring1"));
 	adapter->add(new Test2::WstringClassI, communicator()->stringToIdentity("wstring2"));
+#endif
         adapter->activate();
 
         Test::TestIntfPrx allTests(const Ice::CommunicatorPtr&);

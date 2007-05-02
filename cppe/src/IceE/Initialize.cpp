@@ -61,22 +61,46 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
 }
 
 PropertiesPtr
-Ice::createProperties()
+Ice::createProperties(
+#ifdef ICEE_HAS_WSTRING
+                      const StringConverterPtr& converter
+#endif
+                     )
 {
-    return new Properties();
+    return new Properties(
+#ifdef ICEE_HAS_WSTRING
+                          converter
+#endif
+                         );
 }
 
 PropertiesPtr
-Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults)
+Ice::createProperties(StringSeq& args, const PropertiesPtr& defaults
+#ifdef ICEE_HAS_WSTRING
+                      , const StringConverterPtr& converter
+#endif
+                     )
 {
-    return new Properties(args, defaults);
+    return new Properties(args, defaults
+#ifdef ICEE_HAS_WSTRING
+                          , converter
+#endif
+                         );
 }
 
 PropertiesPtr
-Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults)
+Ice::createProperties(int& argc, char* argv[], const PropertiesPtr& defaults
+#ifdef ICEE_HAS_WSTRING
+                      , const StringConverterPtr& converter
+#endif
+                     )
 {
     StringSeq args = argsToStringSeq(argc, argv);
-    PropertiesPtr properties = createProperties(args, defaults);
+    PropertiesPtr properties = createProperties(args, defaults
+#ifdef ICEE_HAS_WSTRING
+                                                , converter
+#endif
+                                               );
     stringSeqToArgs(args, argc, argv);
     return properties;
 }

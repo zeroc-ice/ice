@@ -149,7 +149,11 @@ Ice::Properties::parseCommandLineOptions(const string& prefix, const StringSeq& 
                 opt += "=1";
             }
             
-            parseLine(opt.substr(2));
+            parseLine(opt.substr(2)
+#ifdef ICEE_HAS_WSTRING
+                      , 0
+#endif
+                      );
         }
         else
         {
@@ -180,7 +184,11 @@ Ice::Properties::load(const std::string& file)
     char line[1024];
     while(fgets(line, 1024, in) != NULL)
     {
-	parseLine(line);
+	parseLine(line
+#ifdef ICEE_HAS_WSTRING
+                  , _converter
+#endif
+                  );
     }
     fclose(in);
 }
@@ -194,14 +202,27 @@ Ice::Properties::clone()
 
 Ice::Properties::Properties(const Properties* p) :
     _properties(p->_properties)
+#ifdef ICEE_HAS_WSTRING
+    , _converter(p->_converter)
+#endif
 {
 }
 
-Ice::Properties::Properties()
+Ice::Properties::Properties(
+#ifdef ICEE_HAS_WSTRING
+    const StringConverterPtr& converter) : _converter(converter)
+#else
+    )
+#endif
 {
 }
 
-Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
+Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults
+#ifdef ICEE_HAS_WSTRING
+    , const StringConverterPtr& converter) : _converter(converter)
+#else
+    )
+#endif
 {
     if(defaults != 0)
     {
@@ -232,7 +253,11 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            parseLine(s.substr(2));
+            parseLine(s.substr(2)
+#ifdef ICEE_HAS_WSTRING
+                      , 0
+#endif
+                      );
 	    loadConfigFiles = true;
         }
         else
@@ -260,7 +285,11 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
 }
 
 void
-Ice::Properties::parseLine(const string& line)
+Ice::Properties::parseLine(const string& line
+#ifdef ICEE_HAS_WSTRING
+        , const StringConverterPtr& converter
+#endif
+        )
 {
     const string delim = " \t\r\n";
     string s = line;
@@ -305,6 +334,20 @@ Ice::Properties::parseLine(const string& line)
 	end = s.length();
 	value = s.substr(beg, end - beg);
     }
+
+#ifdef ICEE_HAS_WSTRING
+    if(converter)
+    {
+        string tmp;
+        converter->fromUTF8(reinterpret_cast<const Byte*>(key.data()),
+                            reinterpret_cast<const Byte*>(key.data() + key.size()), tmp);
+        key.swap(tmp);
+
+        converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
+                            reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+        value.swap(tmp);
+    }
+#endif
 
     setProperty(key, value);
 }

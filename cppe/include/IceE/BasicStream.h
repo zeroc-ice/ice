@@ -15,7 +15,10 @@
 #include <IceE/Buffer.h>
 #include <IceE/Protocol.h>
 #include <IceE/Unicode.h>
-//#include <IceE/LocalException.h>
+
+#ifdef ICEE_HAS_WSTRING
+#  include <IceE/StringConverter.h>
+#endif
 
 namespace Ice
 {
@@ -37,13 +40,64 @@ class BasicStream : public Buffer
 {
 public:
 
-    BasicStream(Instance* instance, int messageSizeMax, bool unlimited = false) :
+#ifdef ICEE_HAS_WSTRING
+    class StreamUTF8BufferI : public Ice::UTF8Buffer
+    {
+    public:
+
+        StreamUTF8BufferI(BasicStream& stream) :
+            _stream(stream)
+        {
+        }
+
+        Ice::Byte*
+        getMoreBytes(size_t howMany, Ice::Byte* firstUnused)
+        {
+            assert(howMany > 0);
+
+            if(firstUnused != 0)
+            {
+                //
+                // Return unused bytes
+                //
+                _stream.b.resize(firstUnused - _stream.b.begin());
+            }
+
+            //
+            // Index of first unused byte
+            //
+            Container::size_type pos = _stream.b.size();
+
+            //
+            // Since resize may reallocate the buffer, when firstUnused != 0, the
+            // return value can be != firstUnused
+            //
+            _stream.resize(pos + howMany);
+
+            return &_stream.b[pos];
+        }
+
+    private:
+
+        BasicStream& _stream;
+    };
+#endif
+
+    BasicStream(Instance* instance, int messageSizeMax,
+#ifdef ICEE_HAS_WSTRING
+                const Ice::StringConverterPtr& stringConverter, const Ice::WstringConverterPtr& wstringConverter,
+#endif
+                bool unlimited = false) :
 	Buffer(messageSizeMax),
 	_instance(instance),
 	_currentReadEncaps(0),
 	_currentWriteEncaps(0),
 	_messageSizeMax(messageSizeMax),
         _unlimited(unlimited),
+#ifdef ICEE_HAS_WSTRING
+        _stringConverter(stringConverter),
+        _wstringConverter(wstringConverter),
+#endif
 	_seqDataStack(0)
     {
 	// Inlined for performance reasons.
@@ -450,19 +504,31 @@ public:
     //
     ICE_API void write(const char*);
 
-    void write(const std::string& v)
+#ifdef ICEE_HAS_WSTRING
+    void writeConverted(const std::string& v);
+#endif
+    void write(const std::string& v, bool convert = true)
     {
         Ice::Int sz = static_cast<Ice::Int>(v.size());
-        writeSize(sz);
-        if(sz > 0)
+#ifdef ICEE_HAS_WSTRING
+        if(convert && sz > 0 && _stringConverter != 0)
         {
-            Container::size_type pos = b.size();
-            resize(pos + sz);
-            memcpy(&b[pos], v.data(), sz);
+            writeConverted(v);
+        }
+        else
+#endif
+        {
+            writeSize(sz);
+            if(sz > 0)
+            {
+                Container::size_type pos = b.size();
+                resize(pos + sz);
+                memcpy(&b[pos], v.data(), sz);
+            }
         }
     }
-    ICE_API void write(const std::string*, const std::string*);
-    void read(std::string& v)
+    ICE_API void write(const std::string*, const std::string*, bool = true);
+    void read(std::string& v, bool convert = true)
     {
 	Ice::Int sz;
 	readSize(sz);
@@ -472,8 +538,17 @@ public:
 	    {
 		Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
 	    }
-            std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
-//          v.assign(reinterpret_cast<const char*>(&(*i)), sz);
+#ifdef ICEE_HAS_WSTRING
+            if(convert && _stringConverter != 0)
+            {
+                _stringConverter->fromUTF8(i, i + sz, v);
+            }
+            else
+#endif
+            {
+                std::string(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz).swap(v);
+//              v.assign(reinterpret_cast<const char*>(&(*i)), sz);
+            }
 	    i += sz;
 	}
 	else
@@ -481,20 +556,10 @@ public:
 	    v.clear();
 	}
     }
-    ICE_API void read(std::vector<std::string>&);
+    ICE_API void read(std::vector<std::string>&, bool = true);
 
-    void write(const std::wstring& v)
-    {
-        std::string s = IceUtil::wstringToString(v);
-        Ice::Int sz = static_cast<Ice::Int>(s.size());
-        writeSize(sz);
-        if(sz > 0)
-        {
-            Container::size_type pos = b.size();
-            resize(pos + sz);
-            memcpy(&b[pos], s.c_str(), sz);
-        }
-    }
+#ifdef ICEE_HAS_WSTRING
+    void write(const std::wstring& v);
     ICE_API void write(const std::wstring*, const std::wstring*);
     void read(std::wstring& v)
     {
@@ -506,8 +571,8 @@ public:
             {
                 Ice::throwUnmarshalOutOfBoundsException(__FILE__, __LINE__);
             }
-            std::string s(reinterpret_cast<const char*>(&*i), reinterpret_cast<const char*>(&*i) + sz);
-            IceUtil::stringToWstring(s).swap(v);
+
+            _wstringConverter->fromUTF8(i, i + sz, v);
             i += sz;
         }
         else
@@ -516,6 +581,7 @@ public:
         }
     }
     ICE_API void read(std::vector<std::wstring>&);
+#endif
 
     ICE_API void write(const Ice::ObjectPrx&);
     ICE_API void read(Ice::ObjectPrx&);
@@ -578,6 +644,11 @@ private:
 
     const Container::size_type _messageSizeMax;
     bool _unlimited;
+
+#ifdef ICEE_HAS_WSTRING
+    const Ice::StringConverterPtr& _stringConverter;
+    const Ice::WstringConverterPtr& _wstringConverter;
+#endif
 
     struct SeqData
     {

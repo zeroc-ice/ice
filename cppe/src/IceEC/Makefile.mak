@@ -60,6 +60,7 @@ ICEE_OBJS      	= BasicStream.obj \
                   SafeStdio.obj \
                   Shared.obj \
                   StaticMutex.obj \
+                  StringConverter.obj \
                   StringUtil.obj \
                   Thread.obj \
                   ThreadException.obj \

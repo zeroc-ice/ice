@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#include <IceE/Config.h>
+
+#ifdef ICEE_HAS_WSTRING
+
 #include <WstringI.h>
 
 ::std::wstring
@@ -62,3 +66,5 @@ Test2::WstringClassI::throwExcept(const ::std::wstring& reason,
     ex.reason = reason;
     throw ex;
 }
+
+#endif

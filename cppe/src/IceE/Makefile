@@ -71,6 +71,7 @@ LOCAL_OBJS	= BasicStream.o \
 		  ServantManager.o \
 		  Shared.o \
 		  StaticMutex.o \
+		  StringConverter.o \
 		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \

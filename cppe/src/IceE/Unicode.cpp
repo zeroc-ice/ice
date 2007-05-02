@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#include <IceE/Config.h>
+
+#ifdef ICEE_HAS_WSTRING
+
 #include <IceE/Unicode.h>
 #include <IceE/ConvertUTF.h>
 
@@ -267,4 +271,6 @@ IceUtil::stringToTypedefWstring(const string& str)
 }
 
 #   endif
+#endif
+
 #endif
