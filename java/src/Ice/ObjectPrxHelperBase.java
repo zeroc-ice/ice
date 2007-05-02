@@ -399,6 +399,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_adapterId(String newAdapterId)
     {
+        if(newAdapterId == null)
+        {
+            newAdapterId = "";
+        }
+
         if(newAdapterId.equals(_reference.getAdapterId()))
         {
             return this;
