@@ -15,7 +15,7 @@ only on:
 
  - Novell SuSE Linux Enterprise Server 10 for x86 or x86_64 (SLES 10)
 
- - Gumstix Linux revision 1364
+ - Gumstix Linux (buildroot revision 1364)
 
 
 C++ compiler
