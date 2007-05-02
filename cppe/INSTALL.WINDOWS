@@ -6,7 +6,10 @@ Requirements
 Windows version
 ---------------
 
-Ice-E has been extensively tested with Windows XP.
+Ice-E has been extensively tested on:
+
+- Windows XP x86
+- Windows Vista x86
 
 
 C++ compiler
@@ -62,8 +65,8 @@ For example:
 > cd C:\IceE-@ver@
 
 Edit config\Make.rules.mak to establish your build configuration. The
-comments in the file provide more information. In particular, you
-must set CPP_COMPILER to the appropriate compiler.
+comments in the file provide more information. In particular, you must
+ensure that CPP_COMPILER is set appropriately for your environment.
 
 Now you're ready to build Ice-E:
 
@@ -82,9 +85,9 @@ python allTests.py
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to update your PATH
-environment variable to add the "bin" directory that contains the
-Ice-E DLLs.
+If you want to try out any of the demos and you did not build Ice-E
+statically, make sure to update your PATH environment variable to add 
+the "bin" directory that contains the Ice-E DLLs.
 
 
 ======================================================================
@@ -95,7 +98,5 @@ Simply run "nmake /f Makefile.mak install". This will install Ice-E in
 the directory specified by the "prefix" variable in config\Make.rules.mak.
 
 After installation, make sure to add the include directory to the
-Visual C++ "Include files" and the lib directory to the "Library
-files" in the Visual C++ IDE:
-
-  * Tools->Options->Projects and Solutions->VC++ Directories
+Visual C++ "Include files" and the lib directory to the "Library files"
+in the IDE (Tools->Options->Projects and Solutions->VC++ Directories).

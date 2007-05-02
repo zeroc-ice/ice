@@ -6,13 +6,24 @@ Requirements
 Operating System
 ----------------
 
-A recent Linux distribution for x86 or x86_64.
+Ice-E is expected to build and run properly on any recent Linux
+distribution for x86 and x86_64. However, Ice-E is officially supported
+only on:
+
+ - Red Hat Enterprise Linux Advanced Server 4 Update 4 for x86 or
+   x86_64 (RHEL 4.4)
+
+ - Novell SuSE Linux Enterprise Server 10 for x86 or x86_64 (SLES 10)
 
 
 C++ compiler
 ------------
 
-- GCC 3.2, 3.3, 3.4, or 4.0.1 or later
+Ice-E is expected to build properly with GCC 3.3 or later. However, only
+the following compilers are officially supported:
+
+ - GCC 3.4.6 on RHEL 4.4
+ - GCC 4.1.x on SLES 10
 
 
 Slice-to-Embedded-C++ translator
@@ -52,15 +63,7 @@ $ cd IceE-@ver@
 Review the README file to determine whether you want to modify the
 default set of features provided by the run time libraries. Next,
 edit config/Make.rules to establish your build configuration. The
-comments in the file provide more information. Pay particular
-attention to the variables that define the locations of the third-
-party libraries.
-
-If you want to build Ice-E with the Intel C++ compiler, first set the
-following environment variables:
-
-$ export CC=icc
-$ export CXX=icpc
+comments in the file provide more information. 
 
 Now you're ready to build Ice-E:
 
@@ -80,8 +83,9 @@ $ python allTests.py
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to update your
-LD_LIBRARY_PATH environment variable to add the "lib" directory:
+If you want to try out any of the demos and you did not build Ice-E
+statically, make sure to update your LD_LIBRARY_PATH environment
+variable to add the "lib" directory:
 
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
 
