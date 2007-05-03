@@ -48,6 +48,13 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy) const
 }
 
 ObjectPrx
+IceInternal::ProxyFactory::propertyToProxy(const string& prefix) const
+{
+    ReferencePtr ref = _instance->referenceFactory()->createFromProperties(prefix);
+    return referenceToProxy(ref);
+}
+
+ObjectPrx
 IceInternal::ProxyFactory::streamToProxy(BasicStream* s) const
 {
     Identity ident;

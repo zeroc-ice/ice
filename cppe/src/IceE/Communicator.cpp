@@ -71,6 +71,12 @@ Ice::Communicator::proxyToString(const ObjectPrx& proxy) const
     return _instance->proxyFactory()->proxyToString(proxy);
 }
 
+ObjectPrx
+Ice::Communicator::propertyToProxy(const string& p) const
+{
+    return _instance->proxyFactory()->propertyToProxy(p);
+}
+
 Identity
 Ice::Communicator::stringToIdentity(const string& s) const
 {

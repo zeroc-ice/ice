@@ -33,6 +33,8 @@ public:
     ObjectPrx stringToProxy(const std::string&) const;
     std::string proxyToString(const ObjectPrx&) const;
 
+    ObjectPrx propertyToProxy(const std::string&) const;
+
     Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Identity&) const;
 

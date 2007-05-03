@@ -64,6 +64,11 @@ public:
     //
     ReferencePtr create(const ::Ice::Identity&, BasicStream*);
 
+    //
+    // Create a reference from a property set.
+    //
+    ReferencePtr createFromProperties(const ::std::string&);
+
 #ifdef ICEE_HAS_ROUTER
     void setDefaultRouter(const ::Ice::RouterPrx&);
     ::Ice::RouterPrx getDefaultRouter() const;

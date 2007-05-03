@@ -24,6 +24,7 @@
 #include <IceE/StringUtil.h>
 #include <IceE/LoggerUtil.h>
 #include <IceE/Properties.h>
+#include <IceE/Communicator.h>
 
 using namespace std;
 using namespace Ice;
@@ -589,6 +590,38 @@ IceInternal::ReferenceFactory::create(const string& str)
     }
 
     return 0; // Unreachable, fixes compiler warning.
+}
+
+ReferencePtr
+IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix)
+{
+    PropertiesPtr properties = _instance->initializationData().properties;
+
+    ReferencePtr ref = create(properties->getProperty(propertyPrefix));
+    if(!ref)
+    {
+        return 0;
+    }
+
+#ifdef ICEE_HAS_LOCATOR
+    string property = propertyPrefix + ".Locator";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeLocator(
+            LocatorPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+    }
+#endif
+
+#ifdef ICEE_HAS_ROUTER
+    property = propertyPrefix + ".Router";
+    if(!properties->getProperty(property).empty())
+    {
+        ref = ref->changeRouter(
+            RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+    }
+#endif
+
+    return ref;
 }
 
 ReferencePtr
