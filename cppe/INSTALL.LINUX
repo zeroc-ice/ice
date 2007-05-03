@@ -25,7 +25,7 @@ Ice-E is expected to build properly with GCC 3.3 or later. However,
 only the following compilers are officially supported:
 
  - GCC 3.4.6 on RHEL 4.4
- - GCC 4.1.x on SLES 10A
+ - GCC 4.1.0 on SLES 10
  - GCC 4.1.1 ARM cross-compiler on Gumstix
 
 
