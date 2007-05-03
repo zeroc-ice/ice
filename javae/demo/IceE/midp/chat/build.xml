@@ -70,7 +70,7 @@
 	<taskdef resource="proguard/ant/task.properties"/>
 	<move overwrite="true" file="tmp/ChatDemo.jar" tofile="tmp/ChatDemo_orig.jar"/>
 	<proguard overloadaggressively="on" optimize="off" defaultpackage="" obfuscate="on"
-	    allowaccessmodification="on" printseeds="on" usemixedcaseclassnames="off">
+	    allowaccessmodification="on" printseeds="off" usemixedcaseclassnames="off">
 	    <injar file="tmp/ChatDemo_orig.jar"/>
 	    <outjar file="tmp/ChatDemo.jar"/>
 	    <libraryjar refid="wtklibs"/>
