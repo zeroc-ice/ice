@@ -17,7 +17,7 @@ prefix			= C:\IceE-$(VERSION)
 # Define OPTIMIZE as yes if you want to build with
 # optimization. Otherwise build with debug information.
 #
-#OPTIMIZE		= yes
+OPTIMIZE		= yes
 
 #
 # Specify your C++ compiler. Supported values are:
