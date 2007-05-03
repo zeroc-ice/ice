@@ -113,6 +113,20 @@ EVERYTHING		= all depend clean install
 	$(CC) -c $(CPPFLAGS) $(CFLAGS) $<
 
 
+%.h %.cpp: %.y
+	rm -f $(*F).h $(*F).cpp
+	bison $(BISONFLAGS) $<
+	mv $(*F).tab.c $(*F).cpp
+	mv $(*F).tab.h $(*F).h
+	rm -f $(*F).output
+
+%.cpp: %.l
+	flex $(FLEXFLAGS) $<
+	rm -f $@
+	echo '#include <IceUtil/Config.h>' > $@
+	cat lex.yy.c >> $@
+	rm -f lex.yy.c
+
 all:: $(SRCS) $(TARGETS)
 
 depend:: $(SRCS)
