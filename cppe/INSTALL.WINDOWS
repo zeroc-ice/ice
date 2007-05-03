@@ -77,15 +77,14 @@ Now you're ready to build Ice-E:
 
 > nmake /f Makefile.mak
 
+After a successful build, you can run the test suite, provided that
+you have installed Python:
 
-Running the Test Suite
-----------------------
+> nmake /f makefile.mak test
 
-You can run the test suite if you compiled the tests and have
-installed Python. Open a command prompt and change to the top-level
-Ice-E directory. At the command prompt, execute:
+This is equivalent to:
 
-python allTests.py
+> python allTests.py
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".

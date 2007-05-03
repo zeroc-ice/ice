@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Trailing characters past the adapter id in a stringified proxy
+  will now raise a ProxyParseException.
+
 - Added ice_getAdapterId/ice_adapterId proxy methods.
 
 - Removed most specializations of Ice::ProtocolException local exceptions

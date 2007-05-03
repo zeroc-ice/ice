@@ -518,6 +518,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 
+            string adapterstr;
 	    end = IceUtil::checkQuote(s, beg);
 	    if(end == string::npos)
 	    {
@@ -532,13 +533,24 @@ IceInternal::ReferenceFactory::create(const string& str)
 		{
 		    end = s.size();
 		}
+                adapterstr = s.substr(beg, end - beg);
 	    }
 	    else
 	    {
 		beg++; // Skip leading quote
+                adapterstr = s.substr(beg, end - beg);
+                end++; // Skip trailing quote.
 	    }
 
-	    if(!IceUtil::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
+            // Check for trailing whitespace.
+            if(end != string::npos && s.find_first_not_of(delim, end) != string::npos)
+            {
+                ProxyParseException ex(__FILE__, __LINE__);
+                ex.str = str;
+                throw ex;
+            }
+
+	    if(!IceUtil::unescapeString(adapterstr, 0, adapterstr.size(), adapter) || adapter.size() == 0)
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
 		ex.str = str;
