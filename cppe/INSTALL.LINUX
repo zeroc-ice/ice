@@ -10,12 +10,17 @@ Ice-E is expected to build and run properly on any recent Linux
 distribution for x86 and x86_64. However, Ice-E is officially
 supported only on:
 
- - Red Hat Enterprise Linux Advanced Server 4 Update 4 for x86 or
-   x86_64 (RHEL 4.4)
-
- - Novell SuSE Linux Enterprise Server 10 for x86 or x86_64 (SLES 10)
-
- - Gumstix Linux (buildroot revision 1364)
+Development Platform           | Runtime Platform
+-------------------------------|--------------------------------------
+Red Hat Enterprise Linux AS    | Same as development
+4 update 4 (i386 or x86_64)    |
+                               | 
+Novell SuSE Linux Enterprise   | Same as development
+Server 10 (i586 or x86_64)     |
+                               |
+Red Hat Enterprise Linux AS    | Gumstix Linux buildroot revision 1364
+4 update 4 (i386) with Gumstix |
+buildroot revision 1364        | 
 
 
 C++ compiler
@@ -26,7 +31,7 @@ only the following compilers are officially supported:
 
  - GCC 3.4.6 on RHEL 4.4
  - GCC 4.1.0 on SLES 10
- - GCC 4.1.1 ARM cross-compiler on Gumstix
+ - GCC 4.1.1 ARM cross-compiler for Gumstix
 
 
 Slice-to-Embedded-C++ translator
