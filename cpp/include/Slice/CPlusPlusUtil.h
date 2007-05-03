@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-extern bool wstringDisabled;
+SLICE_API extern bool wstringDisabled;
 
 struct ToIfdef
 {
