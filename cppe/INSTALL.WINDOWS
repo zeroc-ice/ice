@@ -64,7 +64,7 @@ Building Ice
 Using your favorite Zip tool, unzip the Ice source archive anywhere
 you like.
 
-Open a VIsual Studio 2005 command prompt and change the working
+Open a Visual Studio 2005 command prompt and change the working
 directory to IceE-@ver@. For example:
 
 > cd C:\IceE-@ver@
