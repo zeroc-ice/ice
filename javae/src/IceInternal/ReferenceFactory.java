@@ -495,6 +495,32 @@ public final class ReferenceFactory
     }
 
     public Reference
+    createFromProperties(String propertyPrefix)
+    {
+        Ice.Properties properties = _instance.initializationData().properties;
+
+        Reference ref = create(properties.getProperty(propertyPrefix));
+        if(ref == null)
+        {
+            return null;
+        }
+
+        String property = propertyPrefix + ".Locator";
+        if(properties.getProperty(property).length() != 0)
+        {
+            ref = ref.changeLocator(Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+        }
+
+        property = propertyPrefix + ".Router";
+        if(properties.getProperty(property).length() != 0)
+        {
+            ref = ref.changeRouter(Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+        }
+
+        return ref;
+    }
+
+    public Reference
     create(Ice.Identity ident, BasicStream s)
     {
         //

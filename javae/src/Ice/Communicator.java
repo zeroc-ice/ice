@@ -47,6 +47,12 @@ public final class Communicator
         return _instance.proxyFactory().proxyToString(proxy);
     }
 
+    public Ice.ObjectPrx
+    propertyToProxy(String s)
+    {
+        return _instance.proxyFactory().propertyToProxy(s);
+    }
+
     public Ice.Identity
     stringToIdentity(String s)
     {
