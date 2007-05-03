@@ -38,12 +38,7 @@ Change the working directory to IceE-trans-@ver@:
 
 $ cd IceE-trans-@ver@
 
-Edit config/Make.rules to establish your build configuration. The
-comments in the file provide more information. We recommend building
-with static libraries in order to avoid potential conflicts with an
-existing Ice installation.
-
-Now you're ready to build the translators:
+Then build the translators:
 
 $ make
 
@@ -69,9 +64,3 @@ Installation
 Simply run "make install". This will install the Ice-E translators in 
 the directory specified by the "prefix" variable in config/Make.rules.
 
-After installation, make sure that the <prefix>/bin directory is in
-your PATH, and the <prefix>/lib directory is in your LD_LIBRARY_PATH
-(if you built dynamic libraries). 
-
-On an x86_64 system, the libraries are installed in <prefix>/lib64
-unless LP64 is set to no. No other changes are necessary.

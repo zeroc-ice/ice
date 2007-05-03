@@ -8,7 +8,7 @@ Windows version
 
 The Ice-E translators have been extensively tested on:
 
-- Windows XP
+- Windows XP x86
 - Windows Vista x86
 
 
@@ -49,5 +49,6 @@ Now you're ready to build the Ice-E translators:
 Installation
 ======================================================================
 
-Simply run "nmake /f Makefile.mak install". This will install Ice-E in
-the directory specified by the "prefix" variable in config\Make.rules.mak.
+Simply run "nmake /f Makefile.mak install". This will install the Ice-E 
+translators in the directory specified by the "prefix" variable in 
+config\Make.rules.mak.
