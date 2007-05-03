@@ -40,7 +40,7 @@ translator yourself.
 Binary and source distributions for the supported platforms are
 available at
 
-http://www.zeroc.com/download.html
+http://www.zeroc.com/icee/download.html
 
 The directory containing the translator executables must be added to
 your PATH. For example, if the translator distribution is installed
