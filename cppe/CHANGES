@@ -1,6 +1,11 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This operation allows you to set various local
+  proxy settings, such as the locator, which cannot be set using
+  stringToProxy().
+
 - Trailing characters past the adapter id in a stringified proxy
   will now raise a ProxyParseException.
 
@@ -99,7 +104,8 @@ Changes since version 1.1.0
 - The signature of createProperties(argc, argv) is now:
 
   PropertiesPtr createProperties(int* argc, char* argv[],
-				 const PropertiesPtr& defaults = 0);
+				 const PropertiesPtr& defaults = 0,
+                                 const StringConverterPtr& conv = 0);
 
   where "defaults" represents an optional set of default properties
   used to initialize the new Properties object. Ice properties
@@ -125,9 +131,14 @@ Changes since version 1.1.0
 - Added communicator initialize functions that take an argument of
   type Ice::InitializationData. This structure contains communicator
   members that may only be set during communicator initialization.
-  Currently included are Properties and Logger. The initializeWithXXX
-  functions have been deprecated and the setLogger() operation has
-  been removed.
+  Currently included are Properties, Logger and string converters.
+  The initializeWithXXX functions have been deprecated and the 
+  setLogger() operation has been removed.
+
+- Added ability to configure user-defined string and wstring
+  converters that are used during marshalling/unmarshalling to
+  convert between UTF8 (as required by the Ice protocol) and the
+  user's character set.
 
 - Added support for new Slice metadata ("cpp:type:wstring") that
   generates code to use std::wstring instead of std::string. See the
