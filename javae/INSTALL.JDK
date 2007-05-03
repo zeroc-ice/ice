@@ -16,8 +16,10 @@ environments:
 
 * Red Hat Enterprise Linux 4.4 using JDK 1.4.2, 1.5, and 1.6.
 * Windows XP/Vista using JDK 1.4.2, 1.5, and 1.6.
-* Windows CE 4.2 with CrEme 3.27 (http://www.nsicom.com) on a Pocket
+* Windows CE 4.2 with CrEme 3.29 (http://www.nsicom.com) on a Pocket
   PC 2003 (HP iPAQ PXA270).
+* Gumstix Linux (buildroot revision 1364) with JamVM 1.4.5 and GNU 
+  Classpath 0.90
 
 Due to the portability of Java, it is very likely that it will also
 work on other platforms for which a suitable Java implementation is
