@@ -44,7 +44,7 @@ You will need the Slice-to-Embedded-Java translator (slice2javae)
 and the Slice preprocessor (icecpp). You can download binary and
 source distributions from the ZeroC web site:
 
-http://www.zeroc.com/download.html
+http://www.zeroc.com/icee/download.html
 
 
 Python
