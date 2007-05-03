@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-SLICE_API extern bool wstringDisabled;
+extern FeatureProfile featureProfile;
 
 struct ToIfdef
 {

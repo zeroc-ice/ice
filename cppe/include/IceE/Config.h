@@ -13,23 +13,23 @@
 //
 // Uncomment if you want to build with Router support.
 //
-//#define ICEE_HAS_ROUTER
+#define ICEE_HAS_ROUTER
 
 //
 // Uncomment if you want to build with Locator support.
 //
-//#define ICEE_HAS_LOCATOR
+#define ICEE_HAS_LOCATOR
 
 //
 // Uncomment if you want to build with batch mode on the client side.
 //
-//#define ICEE_HAS_BATCH
+#define ICEE_HAS_BATCH
 
 //
 // Uncomment if you want to build with wstring and string converter
 // support.
 //
-//#define ICEE_HAS_WSTRING
+#define ICEE_HAS_WSTRING
 
 //
 // Comment this out if want the pure client library built with both
@@ -37,7 +37,7 @@
 // If uncommented, only blocking support will be included in client
 // library.
 //
-#define ICEE_PURE_BLOCKING_CLIENT
+//#define ICEE_PURE_BLOCKING_CLIENT
 
 // ***********************************************************************
 //
@@ -336,6 +336,12 @@ typedef int Int;
 typedef IceUtil::Int64 Long;
 typedef float Float;
 typedef double Double;
+
+#ifdef ICEE_HAS_WSTRING
+typedef std::wstring Wstring;
+#else
+typedef std::string Wstring;
+#endif
 
 }
 

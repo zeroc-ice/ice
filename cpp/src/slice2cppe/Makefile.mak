@@ -21,9 +21,6 @@ SRCS		= $(OBJS:.obj=.cpp)
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
-!if "$(ENABLE_WSTRING)" == "yes"
-CPPFLAGS        = -DENABLE_WSTRING $(CPPFLAGS)
-!endif
 
 !if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)

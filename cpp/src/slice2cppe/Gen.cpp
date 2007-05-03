@@ -67,9 +67,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& headerExte
     _impl(imp),
     _ice(ice)
 {
-#ifndef ENABLE_WSTRING
-    Slice::wstringDisabled = true;
-#endif
+    Slice::featureProfile = Slice::IceE;
 
     for(vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -1153,13 +1151,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
                                                "_{}[]#()<>%:;.?*+-/^&|~!=,\\\"' ";
         static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
-#ifdef ENABLE_WSTRING
-        if(_useWstring || findMetaData(p->typeMetaData(), true) == "wstring")
-        {
-            H << 'L';
-        }
-#endif
-        H << "\"";                                      // Opening "
+        ostringstream initString;
+        initString << "\"";                                      // Opening "
 
         const string val = p->value();
         for(string::const_iterator c = val.begin(); c != val.end(); ++c)
@@ -1173,15 +1166,33 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
                 s.width(3);
                 s.fill('0');
                 s << static_cast<unsigned>(uc);
-                H << s.str();
+                initString << s.str();
             }
             else
             {
-                H << *c;                                // Print normally if in basic source character set
+                initString << *c;                       // Print normally if in basic source character set
             }
         }
+        initString << "\"";                             // Closing "
 
-        H << "\"";                                      // Closing "
+        bool isWstring = _useWstring || findMetaData(p->typeMetaData(), true) == "wstring";
+        if(isWstring)
+        {
+            H.zeroIndent();
+            H << "#ifdef ICEE_HAS_WSTRING";
+            H.restoreIndent();
+            H << 'L' << initString.str();;
+            H.zeroIndent();
+            H << "#else";
+            H.restoreIndent();
+        }
+        H << initString.str();
+        if(isWstring)
+        {
+            H.zeroIndent();
+            H << "#endif";
+            H.restoreIndent();
+        }
     }
     else if(bp && bp->kind() == Builtin::KindLong)
     {
@@ -2914,11 +2925,7 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
             if(s.find(prefix) == 0)
             {
                 string ss = s.substr(prefix.size());
-                if(ss.find("type:string") == 0
-#ifdef ENABLE_WSTRING
-                   || ss.find("type:wstring") == 0
-#endif
-                  )
+                if(ss.find("type:string") == 0 || ss.find("type:wstring") == 0)
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(cont);
                     ModulePtr module = ModulePtr::dynamicCast(cont);
@@ -2954,7 +2961,6 @@ Slice::Gen::validateMetaData(const UnitPtr& u)
 bool
 Slice::Gen::setUseWstring(ContainedPtr p, list<bool>& hist, bool use)
 {
-#ifdef ENABLE_WSTRING
     hist.push_back(use);
     StringList metaData = p->getMetaData();
     if(find(metaData.begin(), metaData.end(), "cpp:type:wstring") != metaData.end())
@@ -2966,21 +2972,14 @@ Slice::Gen::setUseWstring(ContainedPtr p, list<bool>& hist, bool use)
         use = false;
     }
     return use;
-#else
-    return false;
-#endif
 }
 
 bool
 Slice::Gen::resetUseWstring(list<bool>& hist)
 {
-#ifdef ENABLE_WSTRING
     bool use = hist.back();
     hist.pop_back();
     return use;
-#else
-    return false;
-#endif
 }
 
 void

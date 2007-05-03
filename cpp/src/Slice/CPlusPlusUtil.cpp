@@ -13,7 +13,7 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-bool Slice::wstringDisabled = false;
+Slice::FeatureProfile Slice::featureProfile = Slice::Ice;
 
 char
 Slice::ToIfdef::operator()(char c)
@@ -170,9 +170,16 @@ Slice::typeToString(const TypePtr& type, bool useWstring, const StringList& meta
         if(builtin->kind() == Builtin::KindString)
         {
             string strType = findMetaData(metaData, true);
-            if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
+            if(strType != "string" && (useWstring || strType == "wstring"))
             {
-                return "::std::wstring";
+                if(featureProfile == IceE)
+                {
+                    return "::Ice::Wstring";
+                }
+                else
+                {
+                    return "::std::wstring";
+                }
             }
         }
         return builtinTable[builtin->kind()];
@@ -304,9 +311,16 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
         if(builtin->kind() == Builtin::KindString)
         {
             string strType = findMetaData(metaData, true);
-            if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
+            if(strType != "string" && (useWstring || strType == "wstring"))
             {
-                return "const ::std::wstring&";
+                if(featureProfile == IceE)
+                {
+                    return "const ::Ice::Wstring&";
+                }
+                else
+                {
+                    return "const ::std::wstring&";
+                }
             }
         }
         return inputBuiltinTable[builtin->kind()];
@@ -413,9 +427,16 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
         if(builtin->kind() == Builtin::KindString)
         {
             string strType = findMetaData(metaData, true);
-            if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
+            if(strType != "string" && (useWstring || strType == "wstring"))
             {
-                return "::std::wstring&";
+                if(featureProfile == IceE)
+                {
+                    return "::Ice::Wstring&";
+                }
+                else
+                {
+                    return "::std::wstring&";
+                }
             }
         }
         return outputBuiltinTable[builtin->kind()];
@@ -1195,7 +1216,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
             case Builtin::KindString:
             {
                 string strType = findMetaData(metaData, true);
-                if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
+                if(strType != "string" && (useWstring || strType == "wstring"))
                 {
                     if(marshal)
                     {
@@ -1426,7 +1447,7 @@ Slice::writeStreamMarshalUnmarshalCode(Output& out, const TypePtr& type, const s
                     case Builtin::KindString:
                     {
                         string strType = findMetaData(seq->typeMetaData(), true);
-                        if(!wstringDisabled && strType != "string" && (useWstring || strType == "wstring"))
+                        if(strType != "string" && (useWstring || strType == "wstring"))
                         {
                             if(marshal)
                             {
@@ -1575,11 +1596,6 @@ Slice::findMetaData(const StringList& metaData, bool inParam)
 bool
 Slice::inWstringModule(const SequencePtr& seq)
 {
-    if(wstringDisabled)
-    {
-        return false;
-    }
-
     ContainerPtr cont = seq->container();
     while(cont)
     {

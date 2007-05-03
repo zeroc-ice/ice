@@ -160,6 +160,13 @@ Blocking Client Support
 If ICEE_PURE_BLOCKING_CLIENT is defined, the Ice-E client library will
 include support only for the blocking client-side concurrency model. 
 
+Wstring and String Converter Support
+------------------------------------
+
+If ICEE_HAS_WSTRING is defined, the Ice-E libraries will include 
+support for using wide strings as well as configuring custom string
+converters.
+
 
 Installation
 ============

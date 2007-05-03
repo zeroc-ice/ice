@@ -26,12 +26,6 @@ prefix			= C:\Ice-$(VERSION)
 #STATICLIBS             = yes
 
 #
-# Define if you want support for wstring in the Ice-E Slice-C++
-# translator.
-#
-#ENABLE_WSTRING            = yes
-
-#
 # Specify your C++ compiler. Supported values are:
 # VC60, VC71, VC80, VC80_EXPRESS, BCC2006 
 #

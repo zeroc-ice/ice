@@ -21,9 +21,6 @@ SRCS		= $(OBJS:.o=.cpp)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-ifeq ($(ENABLE_WSTRING),yes)
-CPPFLAGS        := -DENABLE_WSTRING $(CPPFLAGS)
-endif
 
 $(NAME): $(OBJS)
 	rm -f $@
