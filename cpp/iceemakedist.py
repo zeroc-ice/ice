@@ -182,7 +182,10 @@ else:
 os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export -l " + tag + " " +
           "ice " +
           "ice/bin " +
-          "ice/config " +
+          "ice/config/Make.rules.icee " +
+          "ice/config/Make.rules.mak.icee " +
+          "ice/config/Make.rules.Linux " +
+          "ice/config/Make.rules.msvc " +
           "ice/include " +
           "ice/include/IceUtil " +
           "ice/include/Slice " +
@@ -207,6 +210,12 @@ shutil.copyfile(os.path.join("ice", "install", "icee", "ICE_LICENSE"), os.path.j
 shutil.copyfile(os.path.join("ice", "install", "icee", "README"), os.path.join("ice", "README"))
 shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.LINUX"), os.path.join("ice", "INSTALL.LINUX"))
 shutil.copyfile(os.path.join("ice", "install", "icee", "INSTALL.WINDOWS"), os.path.join("ice", "INSTALL.WINDOWS"))
+
+#
+# Move Make.rules*icee
+#
+shutil.move(os.path.join("ice", "config", "Make.rules.icee"), os.path.join("ice", "config", "Make.rules"))
+shutil.move(os.path.join("ice", "config", "Make.rules.mak.icee"), os.path.join("ice", "config", "Make.rules.mak"))
 
 #
 # Remove files.
@@ -296,15 +305,10 @@ for x in scanners:
 config = open(os.path.join("icee", "include", "IceE", "Config.h"), "r")
 version = re.search("ICEE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
-#
-# Comment out the implicit parser and scanner rules in
-# config/Make.rules.
-#
+
 print "Fixing makefiles..."
 
-#
-# Enable STATICLIBS and OPTIMIZE in config/Make.rules.
-#
+
 for makeRulesName in [os.path.join("ice", "config", "Make.rules"), \
                       os.path.join("ice", "config", "Make.rules.mak")]:
     fixMakeRules(makeRulesName)
@@ -312,15 +316,12 @@ for makeRulesName in [os.path.join("ice", "config", "Make.rules"), \
     lines = makeRules.readlines()
     makeRules.close()
     for i in range(len(lines)):
-        if lines[i].find("#STATICLIBS") == 0:
-            lines[i] = lines[i].replace("#STATICLIBS", "STATICLIBS")
-        if lines[i].find("#OPTIMIZE") == 0:
-            lines[i] = lines[i].replace("#OPTIMIZE", "OPTIMIZE")
         if lines[i].find("prefix") == 0:
-            lines[i] = lines[i].replace("Ice-$(VERSION)", "IceE-" + version)
+            lines[i] = lines[i].replace("IceE-$(VERSION)", "IceE-" + version)
     makeRules = open(makeRulesName, "w")
     makeRules.writelines(lines)
     makeRules.close()
+
 
 #
 # Change SUBDIRS and INSTALL_SUBDIRS in top-level Makefile.
@@ -364,7 +365,7 @@ for makeFileName in [os.path.join("ice", "src", "IceUtil", "Makefile"), \
     makeFile.close()
 
 #
-# Fix versions in READE and INSTALL files.
+# Fix versions in README and INSTALL files.
 #
 print "Fixing version in README and INSTALL files..."
 fixVersion(find("ice", "README*"), version)
