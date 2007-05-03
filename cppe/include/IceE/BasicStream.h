@@ -505,7 +505,7 @@ public:
     ICE_API void write(const char*);
 
 #ifdef ICEE_HAS_WSTRING
-    void writeConverted(const std::string& v);
+    ICE_API void writeConverted(const std::string& v);
 #endif
     void write(const std::string& v, bool convert = true)
     {
@@ -559,7 +559,7 @@ public:
     ICE_API void read(std::vector<std::string>&, bool = true);
 
 #ifdef ICEE_HAS_WSTRING
-    void write(const std::wstring& v);
+    ICE_API void write(const std::wstring& v);
     ICE_API void write(const std::wstring*, const std::wstring*);
     void read(std::wstring& v)
     {
