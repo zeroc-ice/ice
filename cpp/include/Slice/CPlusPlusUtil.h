@@ -16,7 +16,7 @@
 namespace Slice
 {
 
-extern FeatureProfile featureProfile;
+SLICE_API extern FeatureProfile featureProfile;
 
 struct ToIfdef
 {
