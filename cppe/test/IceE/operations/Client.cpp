@@ -34,8 +34,6 @@ public:
 	// raised as expected.
 	//
 	initData.properties->setProperty("Ice.MessageSizeMax", "100");
-	//initData.properties->setProperty("Ice.Trace.Network", "5");
-	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
 	loadConfig(initData.properties);
 
