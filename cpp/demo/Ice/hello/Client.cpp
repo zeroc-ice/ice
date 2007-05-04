@@ -66,7 +66,17 @@ HelloClient::run(int argc, char* argv[])
         {
             cout << "==> ";
             cin >> c;
-            if(c == 't')
+            if(c == 'p')
+            {
+                cout << communicator()->proxyToString(twoway) << endl;
+                cout << twoway->proxy(twoway) << endl;
+            }
+            else if(c == 'e')
+            {
+                HelloPrx h = twoway->echo(twoway);
+                cout << communicator()->proxyToString(h) << endl;
+            }
+            else if(c == 't')
             {
                 twoway->sayHello(delay);
             }

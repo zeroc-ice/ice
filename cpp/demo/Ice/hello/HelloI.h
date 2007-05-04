@@ -18,6 +18,8 @@ public:
 
     virtual void sayHello(int delay, const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&);
+    virtual ::std::string proxy(const Demo::HelloPrx&, const Ice::Current&);
+    virtual Demo::HelloPrx echo(const Demo::HelloPrx&, const Ice::Current&);
 };
 
 #endif

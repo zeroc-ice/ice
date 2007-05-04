@@ -183,6 +183,42 @@ IceUtil::Base64::decode(const string& str)
     return retval;
 }
 
+bool
+IceUtil::Base64::isBase64(char c)
+{
+    if(c >= 'A' && c <= 'Z')
+    {
+        return true;
+    }
+
+    if(c >= 'a' && c <= 'z')
+    {
+        return true;
+    }
+
+    if(c >= '0' && c <= '9')
+    {
+        return true;
+    }
+
+    if(c == '+')
+    {
+        return true;
+    }
+
+    if(c == '/')
+    {
+        return true;
+    }
+
+    if(c == '=')
+    {
+        return true;
+    }
+
+    return false;
+}
+
 char
 IceUtil::Base64::encode(unsigned char uc)
 {
@@ -233,41 +269,4 @@ IceUtil::Base64::decode(char c)
     }
  
     return 63;
-}
-
-
-bool
-IceUtil::Base64::isBase64(char c)
-{
-    if(c >= 'A' && c <= 'Z')
-    {
-        return true;
-    }
-
-    if(c >= 'a' && c <= 'z')
-    {
-        return true;
-    }
-
-    if(c >= '0' && c <= '9')
-    {
-        return true;
-    }
-
-    if(c == '+')
-    {
-        return true;
-    }
-
-    if(c == '/')
-    {
-        return true;
-    }
-
-    if(c == '=')
-    {
-        return true;
-    }
-
-    return false;
 }

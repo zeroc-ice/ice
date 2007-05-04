@@ -11,10 +11,111 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
+#include <IceUtil/Base64.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+IceInternal::UnknownEndpointI::UnknownEndpointI(const string& str)
+{
+    const string delim = " \t\n\r";
+
+    string::size_type beg;
+    string::size_type end = 0;
+
+    int topt = 0;
+    int vopt = 0;
+
+    while(true)
+    {
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            break;
+        }
+        
+        end = str.find_first_of(delim, beg);
+        if(end == string::npos)
+        {
+            end = str.length();
+        }
+
+        string option = str.substr(beg, end - beg);
+        if(option.length() != 2 || option[0] != '-')
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "opaque " + str;
+            throw ex;
+        }
+
+        string argument;
+        string::size_type argumentBeg = str.find_first_not_of(delim, end);
+        if(argumentBeg != string::npos && str[argumentBeg] != '-')
+        {
+            beg = argumentBeg;
+            end = str.find_first_of(delim, beg);
+            if(end == string::npos)
+            {
+                end = str.length();
+            }
+            argument = str.substr(beg, end - beg);
+        }
+
+        switch(option[1])
+        {
+            case 't':
+            {
+                istringstream p(argument);
+                Ice::Int t;
+                if(!(p >> t) || !p.eof() || t < 0 || t > 65535)
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "opaque " + str;
+                    throw ex;
+                }
+                _type = static_cast<Ice::Short>(t);
+                ++topt;
+                break;
+            }
+
+            case 'v':
+            {
+                if(argument.empty())
+                {
+                    EndpointParseException ex(__FILE__, __LINE__);
+                    ex.str = "opaque " + str;
+                    throw ex;
+                }
+                for(string::size_type i = 0; i < argument.size(); ++i)
+                {
+                    if(!IceUtil::Base64::isBase64(argument[i]))
+                    {
+                        EndpointParseException ex(__FILE__, __LINE__);
+                        ex.str = "opaque " + str;
+                        throw ex;
+                    }
+                    const_cast<vector<Byte>&>(_rawBytes) = IceUtil::Base64::decode(argument);
+                }
+                ++vopt;
+                break;
+            }
+
+            default:
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "opaque " + str;
+                throw ex;
+            }
+        }
+    }
+    if(topt != 1 || vopt != 1)
+    {
+        EndpointParseException ex(__FILE__, __LINE__);
+        ex.str = "opaque " + str;
+        throw ex;
+    }
+}
 
 IceInternal::UnknownEndpointI::UnknownEndpointI(Short type, BasicStream* s) :
     _instance(s->instance()),
@@ -38,7 +139,11 @@ IceInternal::UnknownEndpointI::streamWrite(BasicStream* s) const
 string
 IceInternal::UnknownEndpointI::toString() const
 {
-    return string();
+
+    ostringstream s;
+    string val = IceUtil::Base64::encode(_rawBytes);
+    s << "opaque -t " << _type << " -v " << val;
+    return s.str();
 }
 
 Short

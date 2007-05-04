@@ -29,3 +29,15 @@ HelloI::shutdown(const Ice::Current& c)
     cout << "Shutting down..." << endl;
     c.adapter->getCommunicator()->shutdown();
 }
+
+string
+HelloI::proxy(const Demo::HelloPrx& p, const Ice::Current& c)
+{
+    return c.adapter->getCommunicator()->proxyToString(p);
+}
+
+Demo::HelloPrx
+HelloI::echo(const Demo::HelloPrx& p, const Ice::Current& c)
+{
+    return p;
+}

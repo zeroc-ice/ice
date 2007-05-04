@@ -98,7 +98,48 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
     {
         if(_factories[i]->protocol() == protocol)
         {
+#if 1
             return _factories[i]->create(str.substr(end));
+#else
+            // Code below left in place for debugging.
+
+            EndpointIPtr e = _factories[i]->create(str.substr(end));
+            BasicStream bs(_instance.get());
+            e->streamWrite(&bs);
+            bs.i = bs.b.begin();
+            short type;
+            bs.read(type);
+            EndpointIPtr ue = new IceInternal::UnknownEndpointI(type, &bs);
+            cerr << "Normal: " << e->toString() << endl;
+            cerr << "Opaque: " << ue->toString() << endl;
+            return e;
+#endif
+        }
+    }
+
+    //
+    // If the stringified endpoint is opaque, create an unknown endpoint,
+    // then see whether the type matches one of the known endpoints.
+    //
+    if(protocol == "opaque")
+    {
+        EndpointIPtr ue = new UnknownEndpointI(str.substr(end));
+        for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+        {
+            if(_factories[i]->type() == ue->type())
+            {
+                //
+                // Make a temporary stream, write the opaque endpoint data into the stream,
+                // and ask the factory to read the endpoint data from that stream to create
+                // the actual endpoint.
+                //
+                BasicStream bs(_instance.get());
+                ue->streamWrite(&bs);
+                bs.i = bs.b.begin();
+                short type;
+                bs.read(type);
+                return _factories[i]->read(&bs);
+            }
         }
     }
 

@@ -487,5 +487,142 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "ok" << endl;
 
+    cout << "testing opaque endpoints... " << flush;
+
+    try
+    {
+        // Invalid -x option
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Missing -t and -v
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Repeated -t
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Repeated -v
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Missing -t
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Missing -v
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Missing arg for -t
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Missing arg for -v
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 1 -v");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Not a number for -t
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t x -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // < 0 for -t
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t -1 -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Invalid char for -v
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 99 -v xbc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    try
+    {
+        // Opaque endpoint, but no known endpoint.
+        Ice::ObjectPrx p = communicator->stringToProxy("id:opaque -t 99 -v abc");
+        test(false);
+    }
+    catch(const Ice::EndpointParseException&)
+    {
+    }
+
+    // Legal TCP endpoint expressed as opaque endpoint
+    Ice::ObjectPrx p1 = communicator->stringToProxy("test:opaque -t 1 -v AOouAAAQJwAAAA==");
+    string pstr = communicator->proxyToString(p1);
+    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
+    
+    // Working?
+    p1->ice_ping();
+
+    // Two legal TCP endpoints expressed as opaque endpoings
+    p1 = communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+    pstr = communicator->proxyToString(p1);
+    test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+
+    cout << "ok" << endl;
+
     return cl;
 }
