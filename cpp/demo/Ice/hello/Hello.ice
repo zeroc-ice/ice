@@ -17,8 +17,6 @@ interface Hello
 {
     ["cpp:const"] idempotent void sayHello(int delay);
     idempotent void shutdown();
-    string proxy(Hello* h);
-    Hello* echo(Hello* h);
 };
 
 };
