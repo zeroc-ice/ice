@@ -14,7 +14,6 @@
 
 #include <IceE/Buffer.h>
 #include <IceE/Protocol.h>
-#include <IceE/Unicode.h>
 
 #ifdef ICEE_HAS_WSTRING
 #  include <IceE/StringConverter.h>

@@ -58,7 +58,6 @@ ICE_OBJS	= BasicStream.o \
 		  ReferenceFactory.o \
 		  Router.o \
 		  RouterInfo.o \
-		  RWRecMutex.o \
 		  SafeStdio.o \
 		  Shared.o \
 		  StaticMutex.o \
@@ -70,8 +69,7 @@ ICE_OBJS	= BasicStream.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  UnknownEndpoint.o \
-		  Unicode.o \
-		  UUID.o
+		  Unicode.o
 
 OBJS		= $(LOCAL_OBJS) $(ICE_OBJS) $(TRANSPORT_OBJS)
 
@@ -109,7 +107,9 @@ $(HDIR)/%.h $(ICE_DIR)/%.cpp: $(SDIR)/%.ice
 %.o: $(ICE_DIR)/%.cpp
 	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
 
+
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DICEE_PURE_CLIENT
+
 SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
 LINKWITH        := $(ICE_OS_LIBS)

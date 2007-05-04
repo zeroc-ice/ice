@@ -19,9 +19,13 @@
 #ifndef ICEE_PURE_CLIENT
 #   include <IceE/ObjectAdapter.h>
 #   include <IceE/Object.h>
+#   include <IceE/UUID.h>
 #endif
 #include <IceE/Proxy.h>
 #include <IceE/Connection.h>
 #include <IceE/Functional.h>
+#ifdef ICEE_HAS_WSTRING
+#   include <IceE/Unicode.h>
+#endif
 
 #endif

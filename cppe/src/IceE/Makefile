@@ -66,7 +66,6 @@ LOCAL_OBJS	= BasicStream.o \
 		  ReferenceFactory.o \
 		  Router.o \
 		  RouterInfo.o \
-		  RWRecMutex.o \
 		  SafeStdio.o \
 		  ServantManager.o \
 		  Shared.o \
@@ -99,7 +98,8 @@ SDIR		= $(slicedir)/IceE
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS 
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS
+
 SLICE2CPPEFLAGS	:= --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
 LINKWITH        := $(ICE_OS_LIBS)

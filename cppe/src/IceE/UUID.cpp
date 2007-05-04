@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceE/Config.h>
 #include <IceE/UUID.h>
 
 // On Windows, we use Windows's RPC UUID generator.

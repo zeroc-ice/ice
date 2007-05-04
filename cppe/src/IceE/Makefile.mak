@@ -62,7 +62,6 @@ LOCAL_OBJS      = BasicStream.obj \
                   ReferenceFactory.obj \
                   Router.obj \
                   RouterInfo.obj \
-                  RWRecMutex.obj \
                   SafeStdio.obj \
                   ServantManager.obj \
                   Shared.obj \

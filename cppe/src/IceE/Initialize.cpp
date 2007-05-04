@@ -143,7 +143,7 @@ Ice::initialize(int& argc, char* argv[], const InitializationData& initializatio
 CommunicatorPtr
 Ice::initialize(StringSeq& args, const InitializationData& initializationData, Int version)
 {
-    int origArgc;
+    int origArgc = 0;
     char** argv = 0;
 
     CommunicatorPtr communicator;

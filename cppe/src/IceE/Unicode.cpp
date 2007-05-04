@@ -9,7 +9,7 @@
 
 #include <IceE/Config.h>
 
-#ifdef ICEE_HAS_WSTRING
+#if defined(ICEE_HAS_WSTRING)
 
 #include <IceE/Unicode.h>
 #include <IceE/ConvertUTF.h>

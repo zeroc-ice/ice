@@ -56,7 +56,6 @@ ICEE_OBJS      	= BasicStream.obj \
                   ReferenceFactory.obj \
                   Router.obj \
                   RouterInfo.obj \
-                  RWRecMutex.obj \
                   SafeStdio.obj \
                   Shared.obj \
                   StaticMutex.obj \
@@ -68,8 +67,7 @@ ICEE_OBJS      	= BasicStream.obj \
                   TraceLevels.obj \
                   TraceUtil.obj \
                   UnknownEndpoint.obj \
-                  Unicode.obj \
-                  UUID.obj
+                  Unicode.obj
 
 HDIR		= $(includedir)\IceE
 SDIR		= $(slicedir)\IceE
