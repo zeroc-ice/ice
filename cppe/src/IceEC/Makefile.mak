@@ -22,7 +22,8 @@ TRANSPORT_OBJS  = Connector.obj \
                   TcpEndpoint.obj \
                   Transceiver.obj
 
-ICEE_OBJS      	= BasicStream.obj \
+ICEE_OBJS      	= Base64.obj \
+		  BasicStream.obj \
                   Buffer.obj \
                   BuiltinSequences.obj \
                   Communicator.obj \

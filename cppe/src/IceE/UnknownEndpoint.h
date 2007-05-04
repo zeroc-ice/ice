@@ -19,6 +19,7 @@ class UnknownEndpoint : public Endpoint
 {
 public:
 
+    UnknownEndpoint(const std::string&);
     UnknownEndpoint(Ice::Short, BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;

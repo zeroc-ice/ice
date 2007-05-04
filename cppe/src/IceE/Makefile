@@ -26,7 +26,8 @@ TRANSPORT_OBJS	= Acceptor.o \
 		  TcpEndpoint.o \
 		  Transceiver.o
 
-LOCAL_OBJS	= BasicStream.o \
+LOCAL_OBJS	= Base64.o \
+		  BasicStream.o \
 		  Buffer.o \
 		  BuiltinSequences.o \
 		  Communicator.o \
