@@ -44,7 +44,7 @@
 	<depend srcdir="${generated.dir}:${src.dir}:jdk" destdir="${jdk.lib.dir}" cache="${cache.dir}"/>
 	<javac srcdir="${generated.dir}:${src.dir}:jdk" destdir="${jdk.lib.dir}"
             debug="${debug}" optimize="${optimize}" deprecation="on" target="1.1" source="1.2"/>
-	<jar jarfile="${jdk.lib.dir}/IceE-jse.jar" basedir="${jdk.lib.dir}" excludes="IceE.jar"/>
+	<jar jarfile="${jdk.lib.dir}/IceEse.jar" basedir="${jdk.lib.dir}" excludes="IceE.jar"/>
     </target>
 
     <target name="compile-midp" depends="generate" if="midp">
@@ -55,7 +55,7 @@
 	    debug="${debug}" optimize="${optimize}" deprecation="on" target="1.1" source="1.2">
 		<bootclasspath refid="midp.bootclasspath"/>  
 	</javac>
-	<jar jarfile="${midp.lib.dir}/IceE-jme.jar" basedir="${midp.lib.dir}" excludes="IceE.jar"/>
+	<jar jarfile="${midp.lib.dir}/IceEme.jar" basedir="${midp.lib.dir}" excludes="IceE.jar"/>
     </target>
 
     <target name="compile" depends="compile-jdk,compile-midp"/>
