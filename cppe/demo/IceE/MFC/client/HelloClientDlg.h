@@ -12,6 +12,7 @@
 #define HELLO_CLIENT_DLG_H
 
 #include "Hello.h"
+#include <IceE/IceE.h>
 
 #pragma once
 

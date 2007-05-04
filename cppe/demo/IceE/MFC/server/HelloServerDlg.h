@@ -14,6 +14,7 @@
 #pragma once
 
 #include "LogI.h"
+#include <IceE/IceE.h>
 
 class CHelloServerDlg : public CDialog
 {

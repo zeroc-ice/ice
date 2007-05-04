@@ -10,6 +10,8 @@
 #ifndef LOG_I_H
 #define LOG_I_H
 
+#include <IceE/IceE.h>
+
 class LogI : public Ice::Logger
 {
 public:

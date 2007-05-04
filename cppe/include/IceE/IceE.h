@@ -28,4 +28,9 @@
 #   include <IceE/Unicode.h>
 #endif
 
+#include <IceE/Thread.h>
+#include <IceE/Monitor.h>
+#include <IceE/Mutex.h>
+#include <IceE/SafeStdio.h>
+
 #endif

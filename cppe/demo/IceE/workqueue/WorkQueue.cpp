@@ -7,10 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceE/Thread.h>
-#include <IceE/Exception.h>
-#include <IceE/Monitor.h>
-#include <IceE/Mutex.h>
+#include <IceE/IceE.h>
 
 #include <stdio.h>
 #include <list>

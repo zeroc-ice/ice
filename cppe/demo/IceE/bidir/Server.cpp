@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceE/IceE.h>
 #include <CallbackI.h>
 
 using namespace std;

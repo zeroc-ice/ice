@@ -10,8 +10,7 @@
 #ifndef CALLBACK_I_H
 #define CALLBACK_I_H
 
-#include <IceE/Thread.h>
-#include <IceE/Monitor.h>
+#include <IceE/IceE.h>
 #include <Callback.h>
 #include <set>
 

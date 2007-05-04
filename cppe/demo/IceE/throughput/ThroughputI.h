@@ -10,7 +10,6 @@
 #ifndef THROUGHPUT_I_H
 #define THROUGHPUT_I_H
 
-#include <IceE/IceE.h>
 #include <Throughput.h>
 
 class ThroughputI : public Demo::Throughput

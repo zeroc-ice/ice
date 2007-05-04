@@ -7,9 +7,8 @@
 //
 // **********************************************************************
 
-#include <IceE/IceE.h>
-#include <IceE/UUID.h>
 #include <Callback.h>
+#include <IceE/IceE.h>
 
 using namespace std;
 using namespace Demo;

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <ThroughputI.h>
+#include <IceE/IceE.h>
 
 using namespace std;
 using namespace Demo;
