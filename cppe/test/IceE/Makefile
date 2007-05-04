@@ -11,7 +11,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= operations \
+SUBDIRS		= proxy \
+                  operations \
 		  exceptions \
 		  inheritance \
 		  facets \

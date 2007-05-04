@@ -76,6 +76,7 @@ def runTests(args, tests, num = 0):
 tests = [
     "IceE/thread", 
     "IceE/uuid", 
+    "IceE/proxy", 
     "IceE/operations", 
     "IceE/exceptions", 
     "IceE/inheritance", 

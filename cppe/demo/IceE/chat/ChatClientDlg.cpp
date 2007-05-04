@@ -12,7 +12,7 @@
 #include <ChatClientDlg.h>
 #include <ChatConfigDlg.h>
 #include <Router.h>
-#include <IceE/SafeStdio.h>
+#include <IceE/IceE.h>
 
 #ifdef ICEE_HAS_ROUTER
 
