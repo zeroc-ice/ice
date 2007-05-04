@@ -49,9 +49,7 @@ public:
 	setCommunicator(Ice::initialize(argc, argv, initData));
 
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-	Ice::Identity id = communicator()->stringToIdentity("test");
-        adapter->add(new MyDerivedClassI(adapter, id), id);
-	adapter->add(new TestCheckedCastI, communicator()->stringToIdentity("context"));
+        adapter->add(new MyDerivedClassI, communicator()->stringToIdentity("test"));
         adapter->activate();
 
         Test::MyClassPrx allTests(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
