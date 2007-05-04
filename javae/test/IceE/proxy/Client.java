@@ -9,8 +9,8 @@
 
 public class Client
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator, java.io.PrintStream out)
+    public static int
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream out)
     {
         Test.MyClassPrx myClass = AllTests.allTests(communicator, out);
         myClass.shutdown();
@@ -54,7 +54,7 @@ public class Client
             initData.properties.setProperty("Ice.MonitorConnections", "1");
             
             communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator, System.out);
+            status = run(argsH.value, communicator, initData, System.out);
         }
         catch(Ice.LocalException ex)
         {

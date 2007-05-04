@@ -516,17 +516,15 @@ public abstract class Reference
             case Reference.ModeBatchOneway:
             {
                 //
-                // Filter out datagram endpoints.
-                //
-                java.util.Iterator i = endpoints.iterator();
-                while(i.hasNext())
-                {
-                    Endpoint endpoint = (Endpoint)i.next();
-                    if(endpoint.datagram())
-                    {
-                        i.remove();
-                    }
-                }
+                // Filter out datagram endpoints. 
+		//
+		for(int i = endpoints.size(); i > 0; --i)
+		{
+		    if(((Endpoint)endpoints.elementAt(i - 1)).datagram())
+		    {
+			endpoints.removeElementAt(i - 1);
+		    }
+		}
                 break;
             }
 
@@ -536,15 +534,13 @@ public abstract class Reference
                 //
                 // Filter out non-datagram endpoints.
                 //
-                java.util.Iterator i = endpoints.iterator();
-                while(i.hasNext())
-                {
-                    Endpoint endpoint = (Endpoint)i.next();
-                    if(!endpoint.datagram())
-                    {
-                        i.remove();
-                    }
-                }
+		for(int i = endpoints.size(); i > 0; --i)
+		{
+		    if(!((Endpoint)endpoints.elementAt(i - 1)).datagram())
+		    {
+			endpoints.removeElementAt(i - 1);
+		    }
+		}
                 break;
             }
         }
@@ -565,8 +561,8 @@ public abstract class Reference
                 {
                     index = Math.abs(r.nextInt() % endpoints.size());
                 }   
-                while(randomizedEndpoints.get(index) != null);
-                randomizedEndpoints.set(index, e.nextElement());
+                while(randomizedEndpoints.elementAt(index) != null);
+                randomizedEndpoints.setElementAt(e.nextElement(), index);
             }
             endpoints = randomizedEndpoints;
         }
@@ -580,31 +576,33 @@ public abstract class Reference
             // endpoints preferred over secure endpoints.
             //
             java.util.Vector secureEndpoints = new java.util.Vector();
-            java.util.Iterator i = endpoints.iterator();
-            while(i.hasNext())
-            {
-                Endpoint endpoint = (Endpoint)i.next();
-                if(endpoint.secure())
-                {
-                    i.remove();
-                    secureEndpoints.add(endpoint);
-                }
-            }
+	    for(int i = endpoints.size(); i > 0; --i)
+	    {
+		if(((Endpoint)endpoints.elementAt(i - 1)).secure())
+		{
+		    secureEndpoints.addElement(endpoints.elementAt(i - 1));
+		    endpoints.removeElementAt(i - 1);
+		}
+	    }
             if(getSecure())
             {
                 endpoints = secureEndpoints;
             }
             else
             {
-                endpoints.addAll(secureEndpoints);
+		java.util.Enumeration e = secureEndpoints.elements();
+		while(e.hasMoreElements())
+		{
+		    endpoints.addElement(e.nextElement());
+		}
             }
         }
         else if(endpoints.size() == 1)
         {
-            Endpoint endpoint = (Endpoint)endpoints.get(0);
+            Endpoint endpoint = (Endpoint)endpoints.elementAt(0);
             if(getSecure() && !endpoint.secure())
             {
-                endpoints.remove(0);
+                endpoints.removeElementAt(0);
             }
         }
 
@@ -612,12 +610,7 @@ public abstract class Reference
         // Copy the endpoints into an array.
         //
         Endpoint[] arr = new Endpoint[endpoints.size()];
-        java.util.Enumeration e = endpoints.elements();
-        int index = 0;
-	while(e.hasMoreElements())
-	{
-	    arr[index++] = (IceInternal.Endpoint)e.nextElement();
-	}
+	endpoints.copyInto(arr);
         return arr;
     }
 

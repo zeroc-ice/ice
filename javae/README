@@ -1,14 +1,25 @@
+XXXX- notes:
+> CLDC 1.1 not MIDP
+> Required flags for JME development.
+> Metadata comment is already added
+> It's JME, not J2ME
+> The IceJE distribution contains prebuilt jars and midlets for both
+Java SE and Java ME.
+> Rename INSTALL.J2ME and INSTALL.JDK?
+XXXX
+
 Introduction
 ============
 
-Ice-E is a compact subset of Ice designed for embedded environments
-while retaining many of the features that have made Ice such a
-compelling alternative for distributed applications.
+Ice-E is a compact subset of Ice designed for embedded and resource
+constrained environments while retaining many of the features that
+have made Ice such a compelling alternative for distributed
+applications.
 
-Ice-E for Java is supported in two environments: Java Development
-Kit (JDK) 1.1 or later, and Java2 Micro Edition (J2ME). For
-installation information, see the files INSTALL.JDK and INSTALL.J2ME,
-respectively.
+Ice-E for Java is supported in two environments: Java Platform,
+Standard Edition (Java SE), and Java Platform, Micro Edition (Java
+ME). For installation information, see the files INSTALL.JDK and
+INSTALL.JME, respectively.
 
 
 Comparing Ice-E and Ice
@@ -71,17 +82,18 @@ be marshaled and sent over the built-in transport.
 Mapping Changes
 ---------------
 
-The MIDP specification does not include java.util.Map, therefore the
+The CLDC specification does not include java.util.Map, therefore the
 mapping for the Slice dictionary type has been changed to use
 java.util.Hashtable instead.
 
-Metadata to customize the mapping for sequences is ignored.
+Due to restrictions of the CLDC platform, metadata to customize the
+mapping for sequences is ignored.
 
 Property Changes
 ----------------
 
-The properties Ice.StdErr and Ice.StdOut properties are not supported, 
-since J2ME does not provide a mechanism for reassigning the stderr and
+The properties Ice.StdErr and Ice.StdOut properties are not supported,
+since JME does not provide a mechanism for reassigning the stderr and
 stdout streams.
 
 Other Removed Features

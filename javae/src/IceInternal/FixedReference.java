@@ -91,7 +91,7 @@ public class FixedReference extends Reference
                 {
                     if(!_fixedConnections[i].endpoint().datagram())
                     {
-                        connections.add(_fixedConnections[i]);
+                        connections.addElement(_fixedConnections[i]);
                     }
                 }
 
@@ -108,7 +108,7 @@ public class FixedReference extends Reference
                 {
                     if(_fixedConnections[i].endpoint().datagram())
                     {
-                        connections.add(_fixedConnections[i]);
+                        connections.addElement(_fixedConnections[i]);
                     }
                 }
 
@@ -132,8 +132,8 @@ public class FixedReference extends Reference
                 {
                     index = Math.abs(r.nextInt() % connections.size());
                 }   
-                while(randomizedConnections.get(index) != null);
-                randomizedConnections.set(index, e.nextElement());
+                while(randomizedConnections.elementAt(index) != null);
+                randomizedConnections.setElementAt(e.nextElement(), index);
             }
             connections = randomizedConnections;
         }
@@ -147,31 +147,35 @@ public class FixedReference extends Reference
             // connections preferred over secure connections.
             //
             java.util.Vector secureConnections = new java.util.Vector();
-            java.util.Iterator i = connections.iterator();
-            while(i.hasNext())
-            {
-                Ice.Connection connection = (Ice.Connection)i.next();
-                if(connection.endpoint().secure())
-                {
-                    i.remove();
-                    secureConnections.add(connection);
-                }
-            }
+
+	    for(int i = connections.size(); i > 0; --i)
+	    {
+		if(((Endpoint)connections.elementAt(i - 1)).secure())
+		{
+		    secureConnections.addElement(connections.elementAt(i - 1));
+		    connections.removeElementAt(i - 1);
+		}
+	    }
+	    
             if(getSecure())
             {
                 connections = secureConnections;
             }
             else
             {
-                connections.addAll(secureConnections);
+		java.util.Enumeration e = secureConnections.elements();
+		while(e.hasMoreElements())
+		{
+		    connections.addElement(e.nextElement());
+		}
             }
         }
         else if(connections.size() == 1)
         {
-            Ice.Connection connection = (Ice.Connection)connections.get(0);
+            Ice.Connection connection = (Ice.Connection)connections.elementAt(0);
             if(getSecure() && !connection.endpoint().secure())
             {
-                connections.remove(0);
+                connections.removeElementAt(0);
             }
         }
 
@@ -182,7 +186,7 @@ public class FixedReference extends Reference
             throw ex;
         }
 	
-	Ice.Connection connection = (Ice.Connection)connections.get(0);
+	Ice.Connection connection = (Ice.Connection)connections.elementAt(0);
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(connection != null);

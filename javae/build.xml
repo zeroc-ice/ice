@@ -55,6 +55,7 @@
 	    debug="${debug}" optimize="${optimize}" deprecation="on" target="1.1" source="1.2">
 		<bootclasspath refid="midp.bootclasspath"/>  
 	</javac>
+	<jar jarfile="${midp.lib.dir}/IceE.jar" basedir="${midp.lib.dir}" excludes="IceE.jar"/>
     </target>
 
     <target name="compile" depends="compile-jdk,compile-midp"/>

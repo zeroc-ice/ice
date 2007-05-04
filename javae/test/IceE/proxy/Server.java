@@ -9,8 +9,8 @@
 
 public class Server
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public static int
+    run(String[] args, Ice.Communicator communicator, Ice.InitializationData data, java.io.PrintStream ps)
     {
 	//
 	// When running as a MIDlet the properties for the server may be
@@ -43,7 +43,7 @@ public class Server
             initData.properties.setProperty("Ice.Warn.Connections", "0");
 
             communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator);
+            status = run(argsH.value, communicator, initData, System.out);
         }
         catch(Ice.LocalException ex)
         {

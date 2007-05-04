@@ -59,7 +59,7 @@
 	    </fileset>
 	</path>
 
-	<!-- classpath and bootclasspath for compiling with J2ME -->
+	<!-- classpath and bootclasspath for compiling with JME -->
 	<path id="midp.classpath" location="${midp.lib.dir}"/>
         <path id="midp.bootclasspath" path="${WTKLIBS}"/>
     </target>

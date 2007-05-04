@@ -427,7 +427,7 @@ public class AllTests
         c.put("one", "hello");
         c.put("two", "world");
         cl = Test.MyClassPrxHelper.checkedCast(base, c);
-        java.util.Map c2 = cl.getContext();
+        java.util.Hashtable c2 = cl.getContext();
         test(c.equals(c2));
         out.println("ok");
 
