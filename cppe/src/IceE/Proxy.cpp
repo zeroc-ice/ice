@@ -534,70 +534,26 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
 
 #endif
 
-ObjectPrx
-IceProxy::Ice::Object::ice_twoway() const
-{
-    if(_reference->getMode() == Reference::ModeTwoway)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeMode(Reference::ModeTwoway));
-	return proxy;
-    }
-}
-
 bool
-IceProxy::Ice::Object::ice_isTwoway() const
+IceProxy::Ice::Object::ice_isSecure() const
 {
-    return _reference->getMode() == Reference::ModeTwoway;
+    return _reference->getSecure();
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_oneway() const
+IceProxy::Ice::Object::ice_secure(bool b) const
 {
-    if(_reference->getMode() == Reference::ModeOneway)
+    if(b == _reference->getSecure())
     {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+        return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
     }
     else
     {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeMode(Reference::ModeOneway));
-	return proxy;
+        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        proxy->setup(_reference->changeSecure(b));
+        return proxy;
     }
 }
-
-bool
-IceProxy::Ice::Object::ice_isOneway() const
-{
-    return _reference->getMode() == Reference::ModeOneway;
-}
-
-#ifdef ICEE_HAS_BATCH
-ObjectPrx
-IceProxy::Ice::Object::ice_batchOneway() const
-{
-    if(_reference->getMode() == Reference::ModeBatchOneway)
-    {
-	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
-    }
-    else
-    {
-	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeMode(Reference::ModeBatchOneway));
-	return proxy;
-    }
-}
-
-bool
-IceProxy::Ice::Object::ice_isBatchOneway() const
-{
-    return _reference->getMode() == Reference::ModeBatchOneway;
-}
-#endif
 
 ObjectPrx
 IceProxy::Ice::Object::ice_timeout(int t) const
@@ -749,6 +705,27 @@ IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
         TwowayOnlyException ex(__FILE__, __LINE__);
 	ex.operation = name;
 	throw ex;
+    }
+}
+
+ReferenceMode
+IceProxy::Ice::Object::getMode() const
+{
+    return _reference->getMode();
+}
+
+ObjectPrx
+IceProxy::Ice::Object::changeMode(ReferenceMode newMode) const
+{
+    if(_reference->getMode() == newMode)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(_reference->changeMode(newMode));
+	return proxy;
     }
 }
 

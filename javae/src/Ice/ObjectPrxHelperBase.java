@@ -417,6 +417,27 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final boolean
+    ice_isSecure()
+    {
+        return _reference.getSecure();
+    }
+
+    public final ObjectPrx
+    ice_secure(boolean newSecure)
+    {
+        if(newSecure == _reference.getSecure())
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(_reference.changeSecure(newSecure));
+            return proxy;
+        }
+    }
+
     public final Ice.RouterPrx
     ice_getRouter()
     {
@@ -527,6 +548,50 @@ public class ObjectPrxHelperBase implements ObjectPrx
     ice_isBatchOneway()
     {
 	return _reference.getMode() == IceInternal.Reference.ModeBatchOneway;
+    }
+
+    public final ObjectPrx
+    ice_datagram()
+    {
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeDatagram);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final boolean
+    ice_isDatagram()
+    {
+	return _reference.getMode() == IceInternal.Reference.ModeDatagram;
+    }
+
+    public final ObjectPrx
+    ice_batchDatagram()
+    {
+        IceInternal.Reference ref = _reference.changeMode(IceInternal.Reference.ModeBatchDatagram);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
+            proxy.setup(ref);
+            return proxy;
+        }
+    }
+
+    public final boolean
+    ice_isBatchDatagram()
+    {
+	return _reference.getMode() == IceInternal.Reference.ModeBatchDatagram;
     }
 
     public final ObjectPrx

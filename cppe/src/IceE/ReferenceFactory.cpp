@@ -55,7 +55,7 @@ ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
-				      Reference::Mode mode,
+				      ReferenceMode mode,
 				      bool secure,
 				      const vector<EndpointPtr>& endpoints
 #ifdef ICEE_HAS_ROUTER
@@ -91,7 +91,7 @@ ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
-				      Reference::Mode mode,
+				      ReferenceMode mode,
 				      bool secure,
 				      const string& adapterId
 #ifdef ICEE_HAS_ROUTER
@@ -128,7 +128,7 @@ ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const Context& context,
 				      const string& facet,
-				      Reference::Mode mode,
+				      ReferenceMode mode,
 				      const vector<Ice::ConnectionPtr>& fixedConnections)
 {
     Mutex::Lock sync(*this);
@@ -166,9 +166,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     beg = s.find_first_not_of(delim, end);
     if(beg == string::npos)
     {
-	ProxyParseException ex(__FILE__, __LINE__);
-	ex.str = str;
-	throw ex;
+	throw ProxyParseException(__FILE__, __LINE__, str);
     }
     
     //
@@ -179,9 +177,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     end = IceUtil::checkQuote(s, beg);
     if(end == string::npos)
     {
-	ProxyParseException ex(__FILE__, __LINE__);
-	ex.str = str;
-	throw ex;
+	throw ProxyParseException(__FILE__, __LINE__, str);
     }
     else if(end == 0)
     {
@@ -201,9 +197,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if(beg == end)
     {
-	ProxyParseException ex(__FILE__, __LINE__);
-	ex.str = str;
-	throw ex;
+	throw ProxyParseException(__FILE__, __LINE__, str);
     }
 
     //
@@ -219,9 +213,7 @@ IceInternal::ReferenceFactory::create(const string& str)
         //
         if(!ident.category.empty())
         {
-            IllegalIdentityException e(__FILE__, __LINE__);
-            e.id = ident;
-            throw e;
+            throw IllegalIdentityException(__FILE__, __LINE__, ident);
         }
         //
         // Treat a stringified proxy containing two double
@@ -231,9 +223,7 @@ IceInternal::ReferenceFactory::create(const string& str)
         //
         else if(s.find_first_not_of(delim, end) != string::npos)
         {
-            ProxyParseException ex(__FILE__, __LINE__);
-            ex.str = str;
-            throw ex;
+            throw ProxyParseException(__FILE__, __LINE__, str);
         }
         else
         {
@@ -242,7 +232,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     }
 
     string facet;
-    Reference::Mode mode = Reference::ModeTwoway;
+    ReferenceMode mode = ReferenceModeTwoway;
     bool secure = false;
     string adapter;
 
@@ -273,9 +263,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	string option = s.substr(beg, end - beg);
 	if(option.length() != 2 || option[0] != '-')
 	{
-	    ProxyParseException ex(__FILE__, __LINE__);
-	    ex.str = str;
-	    throw ex;
+            throw ProxyParseException(__FILE__, __LINE__, str);
 	}
 
         //
@@ -293,9 +281,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 end = IceUtil::checkQuote(s, beg);
                 if(end == string::npos)
                 {
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
                 }
                 else if(end == 0)
                 {
@@ -325,16 +311,12 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
 
 		if(!IceUtil::unescapeString(argument, 0, argument.size(), facet))
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
 #ifdef ICEE_HAS_WSTRING
                 if(_instance->initializationData().stringConverter)
@@ -353,11 +335,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
-		mode = Reference::ModeTwoway;
+		mode = ReferenceModeTwoway;
 		break;
 	    }
 
@@ -365,11 +345,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
-		mode = Reference::ModeOneway;
+		mode = ReferenceModeOneway;
 		break;
 	    }
 
@@ -377,11 +355,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
-		mode = Reference::ModeBatchOneway;
+		mode = ReferenceModeBatchOneway;
 		break;
 	    }
 
@@ -389,11 +365,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
-		mode = Reference::ModeDatagram;
+		mode = ReferenceModeDatagram;
 		break;
 	    }
 
@@ -401,11 +375,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
-		mode = Reference::ModeBatchDatagram;
+		mode = ReferenceModeBatchDatagram;
 		break;
 	    }
 
@@ -413,9 +385,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
+		    throw ProxyParseException(__FILE__, __LINE__, str);
 		}
 		secure = true;
 		break;
@@ -423,9 +393,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    default:
 	    {
-		ProxyParseException ex(__FILE__, __LINE__);
-		ex.str = str;
-		throw ex;
+		throw ProxyParseException(__FILE__, __LINE__, str);
 	    }
 	}
     }
@@ -446,9 +414,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	return create(ident, Ice::Context(), facet, mode, secure, "", locatorInfo);
 #   endif
 #else	
-        FeatureNotSupportedException ex(__FILE__, __LINE__);
-        ex.unsupportedFeature = "indirect proxy `" + str + "' (no locator support built-in)";
-        throw ex;
+        throw FeatureNotSupportedException(__FILE__, __LINE__, 
+					   "indirect proxy `" + str + "' (no locator support built-in)");
 #endif
     }
     vector<EndpointPtr> endpoints;
@@ -484,9 +451,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    }
 	    if(endpoints.size() == 0)
 	    {
-	        EndpointParseException ex(__FILE__, __LINE__);
-		ex.str = unknownEndpoints.front();
-		throw ex;
+	        throw EndpointParseException(__FILE__, __LINE__, unknownEndpoints.front());
 	    }
 	    else if(unknownEndpoints.size() != 0 &&
 	            _instance->initializationData().properties->getPropertyAsIntWithDefault(
@@ -514,18 +479,14 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    beg = s.find_first_not_of(delim, beg + 1);
 	    if(beg == string::npos)
 	    {
-		ProxyParseException ex(__FILE__, __LINE__);
-		ex.str = str;
-		throw ex;
+		throw ProxyParseException(__FILE__, __LINE__, str);
 	    }
 
             string adapterstr;
 	    end = IceUtil::checkQuote(s, beg);
 	    if(end == string::npos)
 	    {
-		ProxyParseException ex(__FILE__, __LINE__);
-		ex.str = str;
-		throw ex;
+		throw ProxyParseException(__FILE__, __LINE__, str);
 	    }
 	    else if(end == 0)
 	    {
@@ -546,16 +507,12 @@ IceInternal::ReferenceFactory::create(const string& str)
             // Check for trailing whitespace.
             if(end != string::npos && s.find_first_not_of(delim, end) != string::npos)
             {
-                ProxyParseException ex(__FILE__, __LINE__);
-                ex.str = str;
-                throw ex;
+		throw ProxyParseException(__FILE__, __LINE__, str);
             }
 
 	    if(!IceUtil::unescapeString(adapterstr, 0, adapterstr.size(), adapter) || adapter.size() == 0)
 	    {
-		ProxyParseException ex(__FILE__, __LINE__);
-		ex.str = str;
-		throw ex;
+		throw ProxyParseException(__FILE__, __LINE__, str);
 	    }
 #ifdef ICEE_HAS_WSTRING
             if(_instance->initializationData().stringConverter)
@@ -574,18 +531,15 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    return create(ident, Ice::Context(), facet, mode, secure, adapter, locatorInfo);
 #endif
 #else
-            FeatureNotSupportedException ex(__FILE__, __LINE__);
-            ex.unsupportedFeature = "indirect proxy `" + str + "' (no locator support built-in)";
-            throw ex;
+            throw FeatureNotSupportedException(__FILE__, __LINE__, 
+					       "indirect proxy `" + str + "' (no locator support built-in)");
 #endif
 	    break;
 	}
 
 	default:
 	{
-	    ProxyParseException ex(__FILE__, __LINE__);
-	    ex.str = str;
-	    throw ex;
+	    throw ProxyParseException(__FILE__, __LINE__, str);
 	}
     }
 
@@ -654,8 +608,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 
     Byte modeAsByte;
     s->read(modeAsByte);
-    Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
-    if(mode < 0 || mode > Reference::ModeLast)
+    ReferenceMode mode = static_cast<ReferenceMode>(modeAsByte);
+    if(mode < 0 || mode > ReferenceModeLast)
     {
 	throwProxyUnmarshalException(__FILE__, __LINE__);
     }

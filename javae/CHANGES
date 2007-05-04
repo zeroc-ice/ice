@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added ice_secure/ice_isSecure, ice_datagram/ice_isDatagram,
+  ice_batchDatagram/ice_isBatchDatagram proxy methods.
+
 - Added Communicator::propertyToProxy() which creates a proxy from
   a set of properties. This operation allows you to set various local
   proxy settings, such as the locator, which cannot be set using

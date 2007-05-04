@@ -906,9 +906,7 @@ Ice::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 
     if(_blocking)
     {
-        FeatureNotSupportedException ex(__FILE__, __LINE__);
-	ex.unsupportedFeature = "setAdapter with blocking connection";
-        throw ex;
+        throw FeatureNotSupportedException(__FILE__, __LINE__, "setAdapter with blocking connection");
     }
 
     //
@@ -947,7 +945,7 @@ Ice::Connection::createProxy(const Identity& ident) const
     //
     vector<ConnectionPtr> connections;
     connections.push_back(const_cast<Connection*>(this));
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), "", Reference::ModeTwoway, 
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), "", ReferenceModeTwoway, 
 							     connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
@@ -1518,9 +1516,7 @@ Ice::Connection::readStreamAndParseMessage(IceInternal::BasicStream& stream, Int
     const Byte messageType = header[8];
     if(header[9] == 2)
     {
-	FeatureNotSupportedException ex(__FILE__, __LINE__);
-	ex.unsupportedFeature = "compression";
-	throw ex;
+	throw FeatureNotSupportedException(__FILE__, __LINE__, "compression");
     }
     
     Int size;

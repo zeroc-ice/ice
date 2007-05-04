@@ -203,6 +203,18 @@ IceInternal::TcpEndpoint::timeout(Int timeout) const
 }
 
 bool
+IceInternal::TcpEndpoint::secure() const
+{
+    return false;
+}
+
+bool
+IceInternal::TcpEndpoint::datagram() const
+{
+    return false;
+}
+
+bool
 IceInternal::TcpEndpoint::unknown() const
 {
     return false;

@@ -532,7 +532,7 @@ Ice::ObjectAdapter::createReverseProxy(const Identity& ident) const
     // reference.
     //
     vector<EndpointPtr> endpoints;
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), "", Reference::ModeTwoway, 
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), "", ReferenceModeTwoway, 
 							     connections);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
@@ -796,10 +796,10 @@ Ice::ObjectAdapter::newDirectProxy(const Identity& ident, const string& facet) c
     // Create a reference and return a proxy for this reference.
     //
 #ifdef ICEE_HAS_ROUTER
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), facet, Reference::ModeTwoway,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), facet, ReferenceModeTwoway,
 							     false, endpoints, 0);
 #else
-    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), facet, Reference::ModeTwoway,
+    ReferencePtr ref = _instance->referenceFactory()->create(ident, Ice::Context(), facet, ReferenceModeTwoway,
 							     false, endpoints);
 #endif
     return _instance->proxyFactory()->referenceToProxy(ref);
@@ -815,11 +815,11 @@ Ice::ObjectAdapter::newIndirectProxy(const Identity& ident, const string& facet,
     //
 #ifdef ICEE_HAS_ROUTER
     ReferencePtr ref =
-        _instance->referenceFactory()->create(ident, Ice::Context(), facet, Reference::ModeTwoway, false, id, 0,
+        _instance->referenceFactory()->create(ident, Ice::Context(), facet, ReferenceModeTwoway, false, id, 0,
 					      _locatorInfo);
 #else
     ReferencePtr ref =
-        _instance->referenceFactory()->create(ident, Ice::Context(), facet, Reference::ModeTwoway, false, id, 
+        _instance->referenceFactory()->create(ident, Ice::Context(), facet, ReferenceModeTwoway, false, id, 
 					      _locatorInfo);
 #endif
 

@@ -37,6 +37,28 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(IceInternal::Reference* p) { return p; }
 
+class ConnectionIsDatagram : public unary_function<ConnectionPtr, bool>
+{
+public:
+
+    bool
+    operator()(ConnectionPtr p) const
+    {
+        return p->endpoint()->datagram();
+    }
+};
+
+class ConnectionIsSecure : public unary_function<ConnectionPtr, bool>
+{
+public:
+
+    bool
+    operator()(ConnectionPtr p) const
+    {
+        return p->endpoint()->secure();
+    }
+};
+
 CommunicatorPtr
 IceInternal::Reference::getCommunicator() const
 {
@@ -52,7 +74,7 @@ IceInternal::Reference::changeContext(const Context& newContext) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeMode(Mode newMode) const
+IceInternal::Reference::changeMode(ReferenceMode newMode) const
 {
     if(newMode == _mode)
     {
@@ -60,6 +82,18 @@ IceInternal::Reference::changeMode(Mode newMode) const
     }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_mode = newMode;
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeSecure(bool newSecure) const
+{
+    if(newSecure == _secure)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_secure = newSecure;
     return r;
 }
 
@@ -233,31 +267,31 @@ IceInternal::Reference::toString() const
 
     switch(_mode)
     {
-	case ModeTwoway:
+	case ReferenceModeTwoway:
 	{
 	    s += " -t";
 	    break;
 	}
 
-	case ModeOneway:
+	case ReferenceModeOneway:
 	{
 	    s += " -o";
 	    break;
 	}
 
-	case ModeBatchOneway:
+	case ReferenceModeBatchOneway:
 	{
 	    s += " -O";
 	    break;
 	}
 
-	case ModeDatagram:
+	case ReferenceModeDatagram:
 	{
 	    s += " -d";
 	    break;
 	}
 
-	case ModeBatchDatagram:
+	case ReferenceModeBatchDatagram:
 	{
 	    s += " -D";
 	    break;
@@ -404,7 +438,7 @@ IceInternal::Reference::operator<(const Reference& r) const
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-				  const Context& context, const string& fs, Mode md, bool sec) :
+				  const Context& context, const string& fs, ReferenceMode md, bool sec) :
     _hashInitialized(false),
     _instance(inst),
     _communicator(com),
@@ -450,7 +484,7 @@ IceInternal::Reference::applyOverrides(vector<EndpointPtr>& endpts) const
 IceUtil::Shared* IceInternal::upCast(IceInternal::FixedReference* p) { return p; }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const CommunicatorPtr& com, const Identity& ident,
-					    const Context& context, const string& fs, Mode md, 
+					    const Context& context, const string& fs, ReferenceMode md, 
 					    const vector<ConnectionPtr>& fixedConns) :
     Reference(inst, com, ident, context, fs, md, false),
     _fixedConnections(fixedConns)
@@ -527,52 +561,89 @@ IceInternal::FixedReference::toString() const
 ConnectionPtr
 IceInternal::FixedReference::getConnection() const
 {
+    vector<ConnectionPtr> connections = _fixedConnections;
+    switch(getMode())
+    {
+        case ReferenceModeTwoway:
+        case ReferenceModeOneway:
+#ifdef ICEE_HAS_BATCH
+        case ReferenceModeBatchOneway:
+#endif
+        {
+            //
+            // Filter out datagram connections.
+            //
+            connections.erase(remove_if(connections.begin(), connections.end(), ConnectionIsDatagram()),
+                              connections.end());
+            break;
+        }
+        
+        case ReferenceModeDatagram:
+#ifdef ICEE_HAS_BATCH
+        case ReferenceModeBatchDatagram:
+#endif
+        {
+            //
+            // Filter out non-datagram connections.
+            //
+            connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsDatagram())),
+                              connections.end());
+            break;
+        }
+
+#ifndef ICEE_HAS_BATCH
+        case ReferenceModeBatchDatagram:
+        case ReferenceModeBatchOneway:
+	{
+	    throw FeatureNotSupportedException(__FILE__, __LINE__, "batch proxy mode");
+	}
+#endif
+    }
+    
     //
     // Randomize the order of connections.
     //
-    // If a reference is secure or the mode is datagram or batch
-    // datagram then we throw a NoEndpointException since IceE lacks
-    // this support.
-    //
-    if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.empty()
-#ifndef ICEE_HAS_BATCH
-       || getMode() == ModeBatchOneway
-#endif
-      )
-    {
-	if(_fixedConnections.empty())
-	{
-	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = ""; // No stringified representation for fixed proxies.
-	    throw ex;
-	}
+    random_shuffle(connections.begin(), connections.end());
 
-	FeatureNotSupportedException ex(__FILE__, __LINE__);
-	if(getSecure())
+    //
+    // If a secure connection is requested or secure overrides is set,
+    // remove all non-secure connections. Otherwise make non-secure
+    // connections preferred over secure connections by partitioning
+    // the connection vector, so that non-secure connections come
+    // first.
+    //
+    // NOTE: we don't use the stable_partition algorithm from STL to
+    // keep the code size down.
+    //
+    vector<ConnectionPtr>::iterator p = connections.begin();
+    vector<ConnectionPtr> secureConnections;
+    while(p != connections.end())
+    {
+	if((*p)->endpoint()->secure())
 	{
-	    ex.unsupportedFeature = "ssl";
+	    secureConnections.push_back(*p);
+	    p = connections.erase(p);
 	}
-	else if(getMode() == ModeDatagram)
+	else
 	{
-	    ex.unsupportedFeature = "datagram";
+	    ++p;
 	}
-	else if(getMode() == ModeBatchDatagram)
-	{
-	    ex.unsupportedFeature = "batch datagram";
-	}
-#ifndef ICEE_HAS_BATCH
-	else if(getMode() == ModeBatchOneway)
-	{
-	    ex.unsupportedFeature = "batch";
-	}
-#endif
-	throw ex;
+    }
+    if(getSecure())
+    {
+	connections.swap(secureConnections);
+    }
+    else
+    {
+	connections.insert(connections.end(), secureConnections.begin(), secureConnections.end());
+    }
+    
+    if(connections.empty())
+    {
+	throw NoEndpointException(__FILE__, __LINE__); // No stringified representation for fixed proxies.
     }
 
-    vector<ConnectionPtr> randomCons = _fixedConnections;
-    random_shuffle(randomCons.begin(), randomCons.end());
-
-    ConnectionPtr connection = randomCons[0];
+    ConnectionPtr connection = connections[0];
     assert(connection);
     connection->throwException(); // Throw in case our connection is already destroyed.
 
@@ -699,7 +770,7 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const Context& context, const string& fs,
-						  Mode md, bool sec, const RouterInfoPtr& rtrInfo) :
+						  ReferenceMode md, bool sec, const RouterInfoPtr& rtrInfo) :
     Reference(inst, com, ident, context, fs, md, sec), _routerInfo(rtrInfo)
 {
 }
@@ -715,7 +786,7 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::DirectReference* p) { return p
 
 #ifdef ICEE_HAS_ROUTER
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const Context& context, const string& fs, Mode md,
+					      const Identity& ident, const Context& context, const string& fs, ReferenceMode md,
 					      bool sec, const vector<EndpointPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo) :
 
@@ -725,7 +796,7 @@ IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Com
 }
 #else
 IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
-					      const Identity& ident, const Context& context, const string& fs, Mode md,
+					      const Identity& ident, const Context& context, const string& fs, ReferenceMode md,
 					      bool sec, const vector<EndpointPtr>& endpts) :
     Reference(inst, com, ident, context, fs, md, sec),
     _endpoints(endpts)
@@ -852,9 +923,7 @@ IceInternal::DirectReference::getConnection() const
     vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
     if(filteredEndpoints.empty())
     {
-        NoEndpointException ex(__FILE__, __LINE__);
-	ex.proxy = toString();
-	throw ex;
+        throw NoEndpointException(__FILE__, __LINE__, toString());
     }
 
     OutgoingConnectionFactoryPtr factory = getInstance()->outgoingConnectionFactory();
@@ -930,7 +999,7 @@ IceUtil::Shared* IceInternal::upCast(IceInternal::IndirectReference* p) { return
 #ifdef ICEE_HAS_ROUTER
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com,
 						  const Identity& ident, const Context& context, const string& fs,
-						  Mode md, bool sec, const string& adptid,
+						  ReferenceMode md, bool sec, const string& adptid,
 						  const RouterInfoPtr& rtrInfo, const LocatorInfoPtr& locInfo) :
     RoutableReference(inst, com, ident, context, fs, md, sec, rtrInfo),
     _adapterId(adptid),
@@ -940,7 +1009,7 @@ IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const
 #else
 IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const CommunicatorPtr& com, 
 						  const Identity& ident, const Context& context, const string& fs,
-						  Mode md, bool sec, const string& adptid,
+						  ReferenceMode md, bool sec, const string& adptid,
 						  const LocatorInfoPtr& locInfo) :
     Reference(inst, com, ident, context, fs, md, sec),
     _adapterId(adptid),
@@ -1064,9 +1133,7 @@ IceInternal::IndirectReference::getConnection() const
 	vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpts, getMode(), getSecure());
 	if(filteredEndpoints.empty())
 	{
-	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = toString();
-	    throw ex;
+	    throw NoEndpointException(__FILE__, __LINE__, toString());
 	}
 
 	try
@@ -1201,56 +1268,95 @@ IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
 #endif // ICEE_HAS_LOCATOR
 
 vector<EndpointPtr>
-IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference::Mode m, bool sec)
+IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, ReferenceMode m, bool sec)
 {
-    vector<EndpointPtr> endpoints;
-
-    //
-    // If a secure endpoint, batch (if batch is not supported),
-    // datagram or batch datagram endpoint is requested since IceE
-    // lacks this support we throw an unsupported feature.
-    //
-    if(sec || m == Reference::ModeDatagram || m == Reference::ModeBatchDatagram
-#ifndef ICEE_HAS_BATCH
-       || m == Reference::ModeBatchOneway
-#endif
-	)
-    {
-	FeatureNotSupportedException ex(__FILE__, __LINE__);
-	if(sec)
-	{
-	    ex.unsupportedFeature = "ssl";
-	}
-	else if(m == Reference::ModeDatagram)
-	{
-	    ex.unsupportedFeature = "datagram";
-	}
-	else if(m == Reference::ModeBatchDatagram)
-	{
-	    ex.unsupportedFeature = "batch datagram";
-	}
-#ifndef ICEE_HAS_BATCH
-	else if(m == Reference::ModeBatchOneway)
-	{
-	    ex.unsupportedFeature = "batch";
-	}
-#endif
-        ex.unsupportedFeature += " proxy mode";
-	throw ex;
-    }
-
-    endpoints = allEndpoints;
+    vector<EndpointPtr> endpoints = allEndpoints;
 
     //
     // Filter out unknown endpoints.
     //
     endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::unknown)),
                     endpoints.end());
-    
+
+    //
+    // Filter out endpoints according to the mode of the reference.
+    //
+    switch(m)
+    {
+        case ReferenceModeTwoway:
+        case ReferenceModeOneway:
+#ifdef ICEE_HAS_BATCH
+        case ReferenceModeBatchOneway:
+#endif
+        {
+            //
+            // Filter out datagram endpoints.
+            //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&Endpoint::datagram)),
+                            endpoints.end());
+            break;
+        }
+        
+        case ReferenceModeDatagram:
+#ifdef ICEE_HAS_BATCH
+        case ReferenceModeBatchDatagram:
+#endif
+        {
+            //
+            // Filter out non-datagram endpoints.
+            //
+	    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+				      not1(Ice::constMemFun(&Endpoint::datagram))),
+			    endpoints.end());
+            break;
+        }
+
+#ifndef ICEE_HAS_BATCH
+        case ReferenceModeBatchDatagram:
+        case ReferenceModeBatchOneway:
+	{
+	    throw FeatureNotSupportedException(__FILE__, __LINE__, "batch proxy mode");
+	}
+#endif
+    }
+
     //
     // Randomize the order of endpoints.
     //
     random_shuffle(endpoints.begin(), endpoints.end());
     
+    //
+    // If a secure connection is requested or secure overrides is set,
+    // remove all non-secure endpoints. Otherwise make non-secure
+    // endpoints preferred over secure endpoints by partitioning
+    // the endpoint vector, so that non-secure endpoints come
+    // first.
+    //
+    // NOTE: we don't use the stable_partition algorithm from STL to
+    // keep the code size down.
+    //
+    vector<EndpointPtr>::iterator p = endpoints.begin();
+    vector<EndpointPtr> secureEndpoints;
+    while(p != endpoints.end())
+    {
+	if((*p)->secure())
+	{
+	    secureEndpoints.push_back(*p);
+	    p = endpoints.erase(p);
+	}
+	else
+	{
+	    ++p;
+	}
+    }
+    if(sec)
+    {
+	endpoints.swap(secureEndpoints);
+    }
+    else
+    {
+	endpoints.insert(endpoints.end(), secureEndpoints.begin(), secureEndpoints.end());
+    }
+
     return endpoints;
 }

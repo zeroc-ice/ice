@@ -40,6 +40,16 @@ public interface Endpoint extends IceUtil.Comparable
     Endpoint timeout(int t);
 
     //
+    // Return true if the endpoint is secure.
+    //
+    boolean secure();
+
+    //
+    // Return true if the endpoint is datagram-based.
+    //
+    boolean datagram();
+
+    //
     // Return true if the endpoint type is unknown.
     //
     boolean unknown();

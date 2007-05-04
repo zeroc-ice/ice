@@ -161,6 +161,18 @@ IceInternal::UnknownEndpoint::timeout(Int) const
 }
 
 bool
+IceInternal::UnknownEndpoint::secure() const
+{
+    return false;
+}
+
+bool
+IceInternal::UnknownEndpoint::datagram() const
+{
+    return false;
+}
+
+bool
 IceInternal::UnknownEndpoint::unknown() const
 {
     return true;

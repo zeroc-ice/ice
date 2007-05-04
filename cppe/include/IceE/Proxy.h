@@ -188,14 +188,50 @@ public:
     ICE_API ::Ice::LocatorPrx ice_getLocator() const;
 #endif
 
-    ICE_API ::Ice::ObjectPrx ice_twoway() const;
-    ICE_API bool ice_isTwoway() const;
-    ICE_API ::Ice::ObjectPrx ice_oneway() const;
-    ICE_API bool ice_isOneway() const;
-#ifdef ICEE_HAS_BATCH
-    ICE_API ::Ice::ObjectPrx ice_batchOneway() const;
-    ICE_API bool ice_isBatchOneway() const;
-#endif
+    ICE_API bool ice_isSecure() const;
+    ICE_API ::Ice::ObjectPrx ice_secure(bool) const;
+    
+    ::Ice::ObjectPrx ice_twoway() const
+    {
+        return changeMode(IceInternal::ReferenceModeTwoway);
+    }
+    bool ice_isTwoway() const
+    {
+        return getMode() == IceInternal::ReferenceModeTwoway;
+    }
+    ::Ice::ObjectPrx ice_oneway() const
+    {
+        return changeMode(IceInternal::ReferenceModeOneway);
+    }
+    bool ice_isOneway() const
+    {
+        return getMode() == IceInternal::ReferenceModeOneway;
+    }
+    ::Ice::ObjectPrx ice_datagram() const
+    {
+        return changeMode(IceInternal::ReferenceModeDatagram);
+    }
+    bool ice_isDatagram() const
+    {
+        return getMode() == IceInternal::ReferenceModeDatagram;
+    }
+
+    ::Ice::ObjectPrx ice_batchOneway() const
+    {
+        return changeMode(IceInternal::ReferenceModeBatchOneway);
+    }
+    bool ice_isBatchOneway() const
+    {
+        return getMode() == IceInternal::ReferenceModeBatchOneway;
+    }
+    ::Ice::ObjectPrx ice_batchDatagram() const
+    {
+        return changeMode(IceInternal::ReferenceModeBatchDatagram);
+    }
+    bool ice_isBatchDatagram() const
+    {
+        return getMode() == IceInternal::ReferenceModeBatchDatagram;
+    }
 
     ICE_API ::Ice::ObjectPrx ice_timeout(int) const;
 
@@ -227,6 +263,9 @@ private:
     ICE_API void ice_ping(const ::Ice::Context*);
     ICE_API ::std::vector< ::std::string> ice_ids(const ::Ice::Context*);
     ICE_API ::std::string ice_id(const ::Ice::Context*);
+
+    ICE_API IceInternal::ReferenceMode getMode() const;
+    ICE_API ::Ice::ObjectPrx changeMode(IceInternal::ReferenceMode) const;
 
     void setup(const ::IceInternal::ReferencePtr& ref)
     {

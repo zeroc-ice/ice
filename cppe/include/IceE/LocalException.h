@@ -582,6 +582,7 @@ class ICE_API FeatureNotSupportedException : public ::Ice::LocalException
 public:
 
     FeatureNotSupportedException(const char*, int);
+    FeatureNotSupportedException(const char*, int, const std::string&);
     virtual ~FeatureNotSupportedException() throw();
 
     virtual ::std::string ice_name() const;

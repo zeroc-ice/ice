@@ -30,6 +30,8 @@ public:
     virtual Ice::Short type() const;
     virtual Ice::Int timeout() const;
     virtual EndpointPtr timeout(Ice::Int) const;
+    virtual bool secure() const;
+    virtual bool datagram() const;
     virtual bool unknown() const;
     virtual ConnectorPtr connector() const;
 #ifndef ICEE_PURE_CLIENT

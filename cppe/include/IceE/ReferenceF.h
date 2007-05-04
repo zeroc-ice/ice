@@ -16,6 +16,21 @@
 namespace IceInternal
 {
 
+//
+// The Reference mode enumeration is defined here rather than in
+// IceInternal::Reference to allow the proxy code to inline the
+// proxy mode methods.
+//
+enum ReferenceMode
+{
+    ReferenceModeTwoway,
+    ReferenceModeOneway,
+    ReferenceModeBatchOneway,
+    ReferenceModeDatagram,
+    ReferenceModeBatchDatagram,
+    ReferenceModeLast = ReferenceModeBatchDatagram
+};
+
 class Reference;
 ICE_API IceUtil::Shared* upCast(Reference*);
 typedef IceInternal::Handle<Reference> ReferencePtr;

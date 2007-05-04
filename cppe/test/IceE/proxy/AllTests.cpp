@@ -189,14 +189,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_isOneway());
     b1 = communicator->stringToProxy("test -O:tcp");
     test(b1->ice_isBatchOneway());
-    //b1 = communicator->stringToProxy("test -d:tcp");
-    //test(b1->ice_isDatagram());
-    //b1 = communicator->stringToProxy("test -D:tcp");
-    //test(b1->ice_isBatchDatagram());
-    //b1 = communicator->stringToProxy("test:tcp");
-    //test(!b1->ice_isSecure());
-    //b1 = communicator->stringToProxy("test -s:tcp");
-    //test(b1->ice_isSecure());
+    b1 = communicator->stringToProxy("test -d:tcp");
+    test(b1->ice_isDatagram());
+    b1 = communicator->stringToProxy("test -D:tcp");
+    test(b1->ice_isBatchDatagram());
+    b1 = communicator->stringToProxy("test:tcp");
+    test(!b1->ice_isSecure());
+    b1 = communicator->stringToProxy("test -s:tcp");
+    test(b1->ice_isSecure());
 
     try
     {
@@ -348,10 +348,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(base->ice_twoway()->ice_isTwoway());
     test(base->ice_oneway()->ice_isOneway());
     test(base->ice_batchOneway()->ice_isBatchOneway());
-    //test(base->ice_datagram()->ice_isDatagram());
-    //test(base->ice_batchDatagram()->ice_isBatchDatagram());
-    //test(base->ice_secure(true)->ice_isSecure());
-    //test(!base->ice_secure(false)->ice_isSecure());
+    test(base->ice_datagram()->ice_isDatagram());
+    test(base->ice_batchDatagram()->ice_isBatchDatagram());
+    test(base->ice_secure(true)->ice_isSecure());
+    test(!base->ice_secure(false)->ice_isSecure());
     //test(base->ice_collocationOptimized(true)->ice_isCollocationOptimized());
     //test(!base->ice_collocationOptimized(false)->ice_isCollocationOptimized());
     tprintf("ok\n");
@@ -375,12 +375,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(compObj->ice_twoway() < compObj->ice_oneway());
     test(!(compObj->ice_oneway() < compObj->ice_twoway()));
 
-/*
     test(compObj->ice_secure(true) == compObj->ice_secure(true));
     test(compObj->ice_secure(false) != compObj->ice_secure(true));
     test(compObj->ice_secure(false) < compObj->ice_secure(true));
     test(!(compObj->ice_secure(true) < compObj->ice_secure(false)));
 
+/*
     test(compObj->ice_collocationOptimized(true) == compObj->ice_collocationOptimized(true));
     test(compObj->ice_collocationOptimized(false) != compObj->ice_collocationOptimized(true));
     test(compObj->ice_collocationOptimized(false) < compObj->ice_collocationOptimized(true));

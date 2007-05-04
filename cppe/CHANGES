@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added ice_secure/ice_isSecure, ice_datagram/ice_isDatagram,
+  ice_batchDatagram/ice_isBatchDatagram proxy methods.
+
 - Added support for opaque endpoints. For example:
 
   opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==

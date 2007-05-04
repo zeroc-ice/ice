@@ -118,6 +118,18 @@ public abstract class Reference
     }
 
     public final Reference
+    changeSecure(boolean newSecure)
+    {
+        if(newSecure == _secure)
+	{
+	    return this;
+	}
+	Reference r = _instance.referenceFactory().copy(this);
+	r._secure = newSecure;
+	return r;
+    }
+
+    public final Reference
     changeIdentity(Ice.Identity newIdentity)
     {
         if(newIdentity.equals(_identity))
@@ -483,29 +495,6 @@ public abstract class Reference
     {
         java.util.Vector endpoints = new java.util.Vector();
 
-	//
-	// If a secure endpoint, datagram or batch datagram endpoint
-	// is requested since IceE lacks this support we throw an
-	// unsupported feature.
-	//
-	if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram)
-	{
-	    Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
-	    if(getSecure())
-	    {
-		ex.unsupportedFeature = "ssl";
-	    }
-	    else if(getMode() == ModeDatagram)
-	    {
-		ex.unsupportedFeature = "datagram";
-	    }
-	    else if(getMode() == ModeBatchDatagram)
-	    {
-		ex.unsupportedFeature = "batch datagram";
-	    }
-	    throw ex;
-	}
-
         //
         // Filter out unknown endpoints.
         //
@@ -518,20 +507,116 @@ public abstract class Reference
         }
 
         //
-        // Randomize the order while copying the endpoints into an array.
+        // Filter out endpoints according to the mode of the reference.
         //
-	java.util.Random r = new java.util.Random();
+        switch(getMode())
+        {
+            case Reference.ModeTwoway:
+            case Reference.ModeOneway:
+            case Reference.ModeBatchOneway:
+            {
+                //
+                // Filter out datagram endpoints.
+                //
+                java.util.Iterator i = endpoints.iterator();
+                while(i.hasNext())
+                {
+                    Endpoint endpoint = (Endpoint)i.next();
+                    if(endpoint.datagram())
+                    {
+                        i.remove();
+                    }
+                }
+                break;
+            }
+
+            case Reference.ModeDatagram:
+            case Reference.ModeBatchDatagram:
+            {
+                //
+                // Filter out non-datagram endpoints.
+                //
+                java.util.Iterator i = endpoints.iterator();
+                while(i.hasNext())
+                {
+                    Endpoint endpoint = (Endpoint)i.next();
+                    if(!endpoint.datagram())
+                    {
+                        i.remove();
+                    }
+                }
+                break;
+            }
+        }
+
+        if(endpoints.size() > 1)
+        {
+            //
+            // Randomize the order of the endpoints.
+            //
+            java.util.Vector randomizedEndpoints = new java.util.Vector();
+            randomizedEndpoints.setSize(endpoints.size());
+            java.util.Random r = new java.util.Random();
+            java.util.Enumeration e = endpoints.elements();
+            while(e.hasMoreElements())
+            {
+                int index;
+                do
+                {
+                    index = Math.abs(r.nextInt() % endpoints.size());
+                }   
+                while(randomizedEndpoints.get(index) != null);
+                randomizedEndpoints.set(index, e.nextElement());
+            }
+            endpoints = randomizedEndpoints;
+        }
+
+        if(endpoints.size() > 1)
+        {
+            //
+            // If a secure connection is requested or secure overrides is
+            // set, remove all non-secure endpoints. Otherwise if preferSecure is set
+            // make secure endpoints prefered. By default make non-secure
+            // endpoints preferred over secure endpoints.
+            //
+            java.util.Vector secureEndpoints = new java.util.Vector();
+            java.util.Iterator i = endpoints.iterator();
+            while(i.hasNext())
+            {
+                Endpoint endpoint = (Endpoint)i.next();
+                if(endpoint.secure())
+                {
+                    i.remove();
+                    secureEndpoints.add(endpoint);
+                }
+            }
+            if(getSecure())
+            {
+                endpoints = secureEndpoints;
+            }
+            else
+            {
+                endpoints.addAll(secureEndpoints);
+            }
+        }
+        else if(endpoints.size() == 1)
+        {
+            Endpoint endpoint = (Endpoint)endpoints.get(0);
+            if(getSecure() && !endpoint.secure())
+            {
+                endpoints.remove(0);
+            }
+        }
+
+        //
+        // Copy the endpoints into an array.
+        //
         Endpoint[] arr = new Endpoint[endpoints.size()];
         java.util.Enumeration e = endpoints.elements();
+        int index = 0;
 	while(e.hasMoreElements())
 	{
-	    int index = Math.abs(r.nextInt() % endpoints.size());
-	    while(arr[index] != null)
-	    {
-		index = Math.abs(r.nextInt() % endpoints.size());
-	    }
-	    
-	    arr[index] = (IceInternal.Endpoint)e.nextElement();
+	    arr[index++] = (IceInternal.Endpoint)e.nextElement();
 	}
         return arr;
     }

@@ -58,22 +58,22 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
 {
     switch(_reference->getMode())
     {
-	case Reference::ModeTwoway:
-	case Reference::ModeOneway:
+	case ReferenceModeTwoway:
+	case ReferenceModeOneway:
 	{
 	    _stream.writeBlob(requestHdr, sizeof(requestHdr));
 	    break;
 	}
 
-	case Reference::ModeBatchOneway:
+	case ReferenceModeBatchOneway:
 #ifdef ICEE_HAS_BATCH
 	{
 	    _connection->prepareBatchRequest(&_stream);
 	    break;
 	}
 #endif
-	case Reference::ModeDatagram:
-	case Reference::ModeBatchDatagram:
+	case ReferenceModeDatagram:
+	case ReferenceModeBatchDatagram:
 	{
 	    assert(false);
 	    break;
@@ -134,7 +134,7 @@ IceInternal::Outgoing::invoke()
     
     switch(_reference->getMode())
     {
-	case Reference::ModeTwoway:
+	case ReferenceModeTwoway:
 	{
 	    //
 	    // We let all exceptions raised by sending directly
@@ -182,7 +182,7 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 	
-	case Reference::ModeOneway:
+	case ReferenceModeOneway:
 	{
 	    //
 	    // For oneway requests, the connection object
@@ -196,7 +196,7 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 
-	case Reference::ModeBatchOneway:
+	case ReferenceModeBatchOneway:
 #ifdef ICEE_HAS_BATCH
 	{
 	    //
@@ -208,8 +208,8 @@ IceInternal::Outgoing::invoke()
 	    break;
 	}
 #endif
-	case Reference::ModeDatagram:
-	case Reference::ModeBatchDatagram:
+	case ReferenceModeDatagram:
+	case ReferenceModeBatchDatagram:
 	{
 	    assert(false);
 	    return false;
@@ -230,7 +230,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
     // batch stream.
     //
 #ifdef ICEE_HAS_BATCH
-    if(_reference->getMode() == Reference::ModeBatchOneway)
+    if(_reference->getMode() == ReferenceModeBatchOneway)
     {
 	_connection->abortBatchRequest();
 	
@@ -249,7 +249,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
 void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
-    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
+    assert(_reference->getMode() == ReferenceModeTwoway); // Can only be called for twoways.
     assert(_state <= StateInProgress);
 
     //
@@ -418,7 +418,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
-    assert(_reference->getMode() == Reference::ModeTwoway); // Can only be called for twoways.
+    assert(_reference->getMode() == ReferenceModeTwoway); // Can only be called for twoways.
     assert(_state <= StateInProgress);
     
     _state = StateLocalException;

@@ -1526,6 +1526,16 @@ Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __fi
 {
 }
 
+Ice::FeatureNotSupportedException::FeatureNotSupportedException(const char* __file, int __line, const string& __unsupportedFeature) :
+#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
+    LocalException(__file, __line),
+#else
+    ::Ice::LocalException(__file, __line),
+#endif
+    unsupportedFeature(__unsupportedFeature)
+{
+}
+
 Ice::FeatureNotSupportedException::~FeatureNotSupportedException() throw()
 {
 }

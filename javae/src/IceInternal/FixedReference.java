@@ -77,46 +77,117 @@ public class FixedReference extends Reference
     public Ice.Connection
     getConnection()
     {
-	//
-	// If a reference is secure or the mode is datagram or batch
-	// datagram then we throw a NoEndpointException since IceE lacks
-	// this support.
-	//
-	if(getSecure() || getMode() == ModeDatagram || getMode() == ModeBatchDatagram || _fixedConnections.length == 0)
-	{
-	    if(_fixedConnections.length == 0)
-	    {
-		Ice.NoEndpointException ex = new Ice.NoEndpointException();
-		ex.proxy = ""; // No stringified representation for fixed proxies.
-		throw ex;
-	    }
+        java.util.Vector connections = new java.util.Vector();
+        switch(getMode())
+        {
+            case Reference.ModeTwoway:
+            case Reference.ModeOneway:
+            case Reference.ModeBatchOneway:
+            {
+                //
+                // Filter out datagram connections.
+                //
+                for(int i = 0; i < _fixedConnections.length; ++i)
+                {
+                    if(!_fixedConnections[i].endpoint().datagram())
+                    {
+                        connections.add(_fixedConnections[i]);
+                    }
+                }
 
-	    Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
-	    if(getSecure())
-	    {
-		ex.unsupportedFeature = "ssl";
-	    }
-	    else if(getMode() == ModeDatagram)
-	    {
-		ex.unsupportedFeature = "datagram";
-	    }
-	    else if(getMode() == ModeBatchDatagram)
-	    {
-		ex.unsupportedFeature = "batch datagram";
-	    }
-	    throw ex;
-	}
+                break;
+            }
 
-	//
-	// Choose a random connection
-	//
-	Ice.Connection connection = _fixedConnections[Math.abs(_rand.nextInt() % _fixedConnections.length)];
+            case Reference.ModeDatagram:
+            case Reference.ModeBatchDatagram:
+            {
+                //
+                // Filter out non-datagram connections.
+                //
+                for(int i = 0; i < _fixedConnections.length; i++)
+                {
+                    if(_fixedConnections[i].endpoint().datagram())
+                    {
+                        connections.add(_fixedConnections[i]);
+                    }
+                }
+
+                break;
+            }
+        }
+
+        if(connections.size() > 1)
+        {
+            //
+            // Randomize the order of the connections.
+            //
+            java.util.Vector randomizedConnections = new java.util.Vector();
+            randomizedConnections.setSize(connections.size());
+            java.util.Random r = new java.util.Random();
+            java.util.Enumeration e = connections.elements();
+            while(e.hasMoreElements())
+            {
+                int index;
+                do
+                {
+                    index = Math.abs(r.nextInt() % connections.size());
+                }   
+                while(randomizedConnections.get(index) != null);
+                randomizedConnections.set(index, e.nextElement());
+            }
+            connections = randomizedConnections;
+        }
+
+        if(connections.size() > 1)
+        {
+            //
+            // If a secure connection is requested or secure overrides is
+            // set, remove all non-secure connections. Otherwise if preferSecure is set
+            // make secure connections prefered. By default make non-secure
+            // connections preferred over secure connections.
+            //
+            java.util.Vector secureConnections = new java.util.Vector();
+            java.util.Iterator i = connections.iterator();
+            while(i.hasNext())
+            {
+                Ice.Connection connection = (Ice.Connection)i.next();
+                if(connection.endpoint().secure())
+                {
+                    i.remove();
+                    secureConnections.add(connection);
+                }
+            }
+            if(getSecure())
+            {
+                connections = secureConnections;
+            }
+            else
+            {
+                connections.addAll(secureConnections);
+            }
+        }
+        else if(connections.size() == 1)
+        {
+            Ice.Connection connection = (Ice.Connection)connections.get(0);
+            if(getSecure() && !connection.endpoint().secure())
+            {
+                connections.remove(0);
+            }
+        }
+
+        if(connections.size() == 0)
+        {
+            Ice.NoEndpointException ex = new Ice.NoEndpointException();
+            ex.proxy = ""; // No stringified representation for fixed proxies.
+            throw ex;
+        }
+	
+	Ice.Connection connection = (Ice.Connection)connections.get(0);
 	if(IceUtil.Debug.ASSERT)
 	{
 	    IceUtil.Debug.Assert(connection != null);
 	}
 	connection.throwException();
-
 	return connection;
     }
 

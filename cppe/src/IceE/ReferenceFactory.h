@@ -14,7 +14,7 @@
 #include <IceE/ConnectionF.h>
 #include <IceE/Shared.h>
 #include <IceE/Mutex.h>
-#include <IceE/Reference.h> // For Reference::Mode
+#include <IceE/Reference.h> // For ReferenceMode
 
 namespace IceInternal
 {
@@ -31,7 +31,7 @@ public:
     //
     // Create a direct reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, Reference::Mode, bool,
+    ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, ReferenceMode, bool,
                         const ::std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 			, const RouterInfoPtr&
@@ -41,7 +41,7 @@ public:
     // Create an indirect reference.
     //
 #ifdef ICEE_HAS_LOCATOR
-    ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, Reference::Mode, bool,
+    ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, ReferenceMode, bool,
 			const ::std::string&
 #ifdef ICEE_HAS_ROUTER
 			, const RouterInfoPtr&
@@ -51,7 +51,7 @@ public:
     //
     // Create a fixed reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, Reference::Mode,
+    ReferencePtr create(const ::Ice::Identity&, const Ice::Context&, const ::std::string&, ReferenceMode,
                         const ::std::vector< ::Ice::ConnectionPtr>&);
 
     //

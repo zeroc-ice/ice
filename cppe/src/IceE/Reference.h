@@ -43,17 +43,21 @@ public:
 	TypeFixed
     };
 
-    enum Mode
-    {
-	ModeTwoway,
-	ModeOneway,
-	ModeBatchOneway,
-	ModeDatagram,
-	ModeBatchDatagram,
-	ModeLast = ModeBatchDatagram
-    };
+    //
+    // The reference mode in Ice-E is defined in ReferenceF.h to allow the proxy
+    // to inline methods such as ice_twoway, ice_isTwoway, etc.
+    //
+//     enum Mode
+//     {
+// 	ModeTwoway,
+// 	ModeOneway,
+// 	ModeBatchOneway,
+// 	ModeDatagram,
+// 	ModeBatchDatagram,
+// 	ModeLast = ModeBatchDatagram
+//     };
 
-    Mode getMode() const { return _mode; }
+    ReferenceMode getMode() const { return _mode; }
     bool getSecure() const { return _secure; };
     const Ice::Identity& getIdentity() const { return _identity; }
     const std::string& getFacet() const { return _facet; }
@@ -79,7 +83,8 @@ public:
     // corresponding value changed.
     //
     ReferencePtr changeContext(const Ice::Context&) const;
-    ReferencePtr changeMode(Mode) const;
+    ReferencePtr changeMode(ReferenceMode) const;
+    ReferencePtr changeSecure(bool) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
     ReferencePtr changeFacet(const std::string&) const;
 
@@ -117,7 +122,7 @@ public:
 protected:
 
     Reference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
-	      const std::string&, Mode, bool);
+	      const std::string&, ReferenceMode, bool);
     Reference(const Reference&);
 
     void applyOverrides(std::vector<EndpointPtr>&) const;
@@ -131,7 +136,7 @@ private:
     const InstancePtr _instance;
     const Ice::CommunicatorPtr _communicator;
 
-    Mode _mode;
+    ReferenceMode _mode;
     bool _secure;
     Ice::Identity _identity;
     Ice::Context _context;
@@ -153,7 +158,7 @@ class FixedReference : public Reference
 public:
 
     FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
-		   const std::string&, Mode, const std::vector<Ice::ConnectionPtr>&);
+		   const std::string&, ReferenceMode, const std::vector<Ice::ConnectionPtr>&);
 
     virtual Type getType() const;
     virtual std::vector<EndpointPtr> getEndpoints() const;
@@ -209,7 +214,7 @@ public:
 protected:
 
     RoutableReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
-		      const std::string&, Mode, bool, const RouterInfoPtr&);
+		      const std::string&, ReferenceMode, bool, const RouterInfoPtr&);
     RoutableReference(const RoutableReference&);
 
 
@@ -229,7 +234,7 @@ class DirectReference :
 public:
 
     DirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
-		    const std::string&, Mode, bool, const std::vector<EndpointPtr>&
+		    const std::string&, ReferenceMode, bool, const std::vector<EndpointPtr>&
 #ifdef ICEE_HAS_ROUTER
 		    , const RouterInfoPtr&
 #endif
@@ -281,7 +286,7 @@ class IndirectReference :
 public:
 
     IndirectReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const Ice::Context&,
-		      const std::string&, Mode, bool, const std::string&
+		      const std::string&, ReferenceMode, bool, const std::string&
 #ifdef ICEE_HAS_ROUTER
 		      , const RouterInfoPtr&
 #endif
@@ -324,7 +329,7 @@ private:
 
 #endif // ICEE_HAS_LOCATOR
 
-std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&, Reference::Mode, bool);
+std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&, ReferenceMode, bool);
 
 }
 

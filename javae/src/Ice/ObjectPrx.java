@@ -61,6 +61,9 @@ public interface ObjectPrx
     String ice_getAdapterId();
     ObjectPrx ice_adapterId(String newAdapterId);
 
+    boolean ice_isSecure();
+    ObjectPrx ice_secure(boolean b);
+
     ObjectPrx ice_router(Ice.RouterPrx router);
     Ice.RouterPrx ice_getRouter();
     
@@ -73,6 +76,10 @@ public interface ObjectPrx
     boolean ice_isOneway();
     ObjectPrx ice_batchOneway();
     boolean ice_isBatchOneway();
+    ObjectPrx ice_datagram();
+    boolean ice_isDatagram();
+    ObjectPrx ice_batchDatagram();
+    boolean ice_isBatchDatagram();
 
     ObjectPrx ice_timeout(int t);
 

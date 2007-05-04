@@ -59,6 +59,16 @@ public:
     virtual EndpointPtr timeout(Ice::Int) const = 0;
     
     //
+    // Return true if the endpoint is datagram-based.
+    //
+    virtual bool datagram() const = 0;
+
+    //
+    // Return true if the endpoint is secure.
+    //
+    virtual bool secure() const = 0;
+
+    //
     // Return true if the endpoint type is unknown.
     //
     virtual bool unknown() const = 0;
