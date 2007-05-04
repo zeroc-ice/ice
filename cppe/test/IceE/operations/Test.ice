@@ -157,11 +157,6 @@ class MyDerivedClass extends MyClass
     void opDerived();
 };
 
-interface TestCheckedCast
-{
-    StringStringD getContext();
-};
-
 };
 
 #endif

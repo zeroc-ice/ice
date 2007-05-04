@@ -36,10 +36,9 @@ public:
 	//
 	initData.properties->setProperty("Ice.MessageSizeMax", "100");
 	initData.properties->setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-	//initData.properties->setProperty("Ice.Trace.Network", "5");
-	//initData.properties->setProperty("Ice.Trace.Protocol", "5");
 
 	loadConfig(initData.properties);
+
 	//
 	// Now parse argc/argv into initData.properties
 	//
