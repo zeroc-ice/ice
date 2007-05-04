@@ -1,0 +1,240 @@
+======================================================================
+Requirements
+======================================================================
+
+Java Platform
+-------------
+
+Ice-E for Java runs on a number of Java platforms:
+
+- Java Standard Edition (SE) version 1.1.8 or later
+- Personal Java version 3.1
+- Java Micro Edition (ME) with the Mobile Information Device Profile 
+  (MIDP) version 2.0 and the Connected Limited Device Configuration 
+  (CLDC) version 1.1.
+
+The API provided by Ice-E for Java is identical on all these Java 
+platforms.
+ 
+
+Supported Environments
+----------------------
+
+Ice-E for Java is supported in the following environments:
+
+- Java SE
+ - JamVM 1.4.5 with GNU Classpath 0.90 (http://jamvm.sourceforge.net)
+   on Gumstix Linux buildroot revision 1364
+ - Sun JDK/JRE 1.4.2, 1.5 and 1.6 on Red Hat Linux Enterprise
+   4 Update 4, SuSE Linux Enterprise Server 10 and Microsoft 
+   Windows XP
+ - Sun JDK/JRE 1.6 on Microsoft Windows Vista
+  
+- Personal Java
+ - CrEme 3.29 (http://www.nsicom.com) on Windows CE 4.2
+
+- Java ME with MIDP 2.0 and CLDC 1.1
+ - Nokia S40 phones with the Nokia Series 40 Developer Platform 2.0 
+   SDK 1.1
+ - Nokia S60 phones with the Nokia Series 60 SDK 2nd Edition
+ - IBM Java WebSphere EveryPlace Micro Environment on PalmOS 5
+ - Sun emulator from the Sun WTK 2.5
+
+Personal Java and Java ME development with Ice-E for Java is currently 
+supported only on Windows XP using Sun JDK 1.5.
+
+
+Slice translator
+----------------
+
+In addition to the Ice-E for Java classes, you will also need the
+Slice-to-Embedded-Java translator. ZeroC provides translator binaries 
+for a number of platforms:
+
+http://www.zeroc.com/icee/download.html
+
+For other platforms, you can either download and build the translator
+from source, or you can run the translator on another system and copy 
+the resulting Java files to your target platform.
+
+
+Java ME Tools
+-------------
+
+Sun's Java Wireless Toolkit includes the MIDP and CLDC classes,
+as well as an emulator and supporting development tools:
+
+http://java.sun.com/products/sjwtoolkit/index.html
+
+Nokia's Java ME developer suite and Platform SDKs include the MIDP 
+and CLDC classes as well as emulators for different phone types and
+supporting development tools:
+
+http://forum.nokia.com/
+
+ProGuard is a free Java class file optimizer that can dramatically
+shrink the size of your Java applications:
+
+http://proguard.sourceforge.net/
+
+
+Python
+------
+
+To run the automated test suite for Java SE, you will need Python 2.2 
+or later. If you have no interest in running the test scripts, Python
+is not required. Linux distributions usually include Python. For
+Windows XP/Vista, you can download a Python distribution from:
+
+http://www.python.org/download
+
+
+======================================================================
+Tests and Demos
+======================================================================
+
+Java SE Platform
+----------------
+
+You can run the test suite provided that you have installed Python:
+
+python allTests.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
+
+If you want to try out any of the demos, make sure to add
+jdk/lib/IceE.jar and "classes" to your CLASSPATH. Then change to the
+desired demo directory and follow the instructions in the README file.
+If no README file is present, the demo can be run by entering the
+following command to start the server:
+
+$ java Server
+
+Then in a separate window enter the following command to start the
+client:
+
+$ java Client
+
+
+Java ME / MIDP Platform
+------------------------
+
+The Ice-E for Java tests are provided in MIDlet format suitable for
+use in a Java ME / MIDP emulator. All of the tests have client and 
+server components, and you can run either component in an emulator. 
+You can also run a "collocated" version of most tests, in which the 
+client and server components are collocated in the same process.
+
+A simple way to get started is to run the server on the Java SE 
+platform, and the client in an emulator on the same host. For example, 
+to run the exceptions test we need to do the following:
+
+1. In a console window, change to the test directory:
+
+   $ cd test/IceE/exceptions
+
+2. Start the test server using Java SE. On Unix, the command looks
+   like this:
+
+   $ java -classpath ../../../jdk/lib/IceE.jar:classes:$CLASSPATH \
+     Server
+
+   The Windows command looks similar:
+
+   > java -classpath "../../../jdk/lib/IceE.jar;classes;%CLASSPATH%" \
+     Server
+
+3. Run the test client in an emulator. Using Sun's Wireless Toolkit
+   emulator, the command looks like this:
+
+   $ emulator -Xdescriptor:Exceptions.jad
+
+   After the emulator window appears, select the Client application
+   in the list and launch it.
+
+If you want to run a test on a Java ME device, you will need to modify
+the test's configuration file in order to specify a hostname in
+proxies and endpoints, and then rebuild the JAR file (see "Compiling
+the Source" below).
+
+
+======================================================================
+Compiling the Source
+======================================================================
+
+There is generally no need to compile Ice-E for Java because this
+distribution already contains the class and jar files for the Ice-E,
+the demos and the tests.
+
+In order to rebuild the source code with Java ME support, you must have
+Sun's Java Wireless Toolkit installed (see "Java ME Tools" above).
+
+Follow these steps to rebuild the source:
+
+1. Ensure that 'ant' version 1.6.3 or later is installed. To verify
+   your version of ant, run
+
+   $ ant -version
+
+   The latest version of ant is available here:
+
+   http://ant.apache.org/
+
+2. Add the directory containing the Slice translator (slice2javae) to
+   your PATH.
+
+3. Edit config/build.properties:
+
+   a. To enable Java ME support, set midp=on and change the value of WTK
+      to reflect your installation directory for the Wireless Toolkit.
+
+   b. Review the remaining properties, which are described by comments
+      in the file.
+
+4. If you have enabled Java ME support, you can optimize the sample
+   MIDlets using ProGuard by adding proguard.jar to your CLASSPATH.
+
+5. Clean the existing source tree:
+
+   $ ant clean
+
+6. Finally, compile the sources:
+
+   $ ant
+
+
+======================================================================
+Installation
+======================================================================
+
+No automatic installation for Ice-E for Java is supported. Simply copy
+jdk/lib/IceE.jar and midp/lib/IceE-midp.jar to the directory of your
+choice.
+
+
+======================================================================
+PalmOS Notes
+======================================================================
+
+One way to install Java ME MIDlets on a PalmOS-based device is to 
+convert the MIDlet into a Palm resource (PRC) file. IBM's WebSphere 
+Everyplace Micro Edition (WEME) toolkit includes command-line and 
+graphical utilities for performing this conversion. You can download 
+the toolkit from the ACCESS Developer Network:
+
+http://www.developerpavilion.com/palmos/
+
+Note that before you can use the command-line utility jartoprc.exe,
+you must copy a subdirectory from the WEME installation to your JDK's
+installation directory. For example, if WEME is installed in C:\WEME
+and the JDK is installed in C:\jdk1.5.0, execute the following
+commands:
+
+> cd C:\jdk1.5.0\lib
+> xcopy /I C:\WEME\Tools\lib\jclFoundation10 jclFoundation10
+
+While testing Ice-E on a PalmOS-based smart phone using IBM's J9 JVM,
+we encountered a problem for which we were unable to find a solution:
+the JVM hangs if a MIDlet attempts to open a socket connection to a
+port on which no server is listening.
