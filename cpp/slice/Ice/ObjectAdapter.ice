@@ -16,7 +16,7 @@
 #include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
-#include <Ice/Locator.ice>
+
 module Ice
 {
 

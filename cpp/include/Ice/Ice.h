@@ -30,4 +30,7 @@
 #include <Ice/Functional.h>
 #include <Ice/Stream.h>
 #include <Ice/ImplicitContext.h>
+#include <Ice/Locator.h>
+#include <Ice/Router.h>
+
 #endif

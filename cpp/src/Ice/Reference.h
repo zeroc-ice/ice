@@ -150,8 +150,6 @@ public:
     FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const SharedContextPtr&, 
                    const std::string&, Mode, const std::vector<Ice::ConnectionIPtr>&);
 
-    const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const;
-
     virtual Type getType() const;
     virtual bool getSecure() const;
     virtual bool getPreferSecure() const;
