@@ -1,13 +1,3 @@
-XXXX- notes:
-> CLDC 1.1 not MIDP
-> Required flags for JME development.
-> Metadata comment is already added
-> It's JME, not J2ME
-> The IceJE distribution contains prebuilt jars and midlets for both
-Java SE and Java ME.
-> Rename INSTALL.J2ME and INSTALL.JDK?
-XXXX
-
 Introduction
 ============
 
