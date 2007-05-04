@@ -1,7 +1,7 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
-- Added opaque support for endpoints. For example:
+- Added support for opaque endpoints. For example:
 
   opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==
 
@@ -21,12 +21,10 @@ Changes since version 3.2.X (binary incompabible)
 
   This syntax is useful if, for example, a client that has the SSL
   plugin configured sends a proxy with an SSL endpoint to a server
-  without the SSL plugin. Prior to this version, the server simply
-  dropped the unknown SSL endpoint with a warning. As of this version,
-  the server preserves the endpoint and, when the server returns the proxy
-  back to an Ice process that understands SSL, the endpoint is functional
-  again (instead of being lost). If the server stringifies a proxy containing
-  an unknown endpoint, it stringifies it using the above opaque syntax.
+  without the SSL plugin. Prior to this version, the server would
+  drop the unknown SSL endpoint when it stringified the proxy.
+  As of this version, the server preserves the endpoint and, when the server
+  stringifies a proxy containing an unknown endpoint, it uses the above opaque syntax.
 
 - Added what() member to IceUtil::Exception, so a single catch handler
   can be used for Ice exceptions:
