@@ -75,6 +75,7 @@ def runTests(args, tests, num = 0):
 #
 tests = [ \
     "IceE/operations", \
+    "IceE/proxy", \
     "IceE/exceptions", \
     "IceE/inheritance", \
     "IceE/facets", \

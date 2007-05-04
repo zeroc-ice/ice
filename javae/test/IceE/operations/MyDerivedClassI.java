@@ -19,16 +19,14 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public
-    MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)
+    MyDerivedClassI()
     {
-        _adapter = adapter;
-        _identity = identity;
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _adapter.getCommunicator().shutdown();
+        current.adapter.getCommunicator().shutdown();
     }
 
     public void
@@ -227,8 +225,8 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
         p2.value = p1;
         p3.value = Test.MyClassPrxHelper.uncheckedCast(
-	    _adapter.createProxy(_adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
-        return Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity));
+	    current.adapter.createProxy(current.adapter.getCommunicator().stringToIdentity("noSuchIdentity")));
+        return Test.MyClassPrxHelper.uncheckedCast(current.adapter.createProxy(current.id));
     }
 
     public Test.MyEnum
@@ -428,7 +426,4 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     opDerived(Ice.Current current)
     {
     }
-
-    private Ice.ObjectAdapter _adapter;
-    private Ice.Identity _identity;
 }

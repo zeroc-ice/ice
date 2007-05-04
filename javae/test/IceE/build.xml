@@ -19,6 +19,7 @@
         <ant dir="inheritance"/>
         <ant dir="location"/>
         <ant dir="operations"/>
+        <ant dir="proxy"/>
         <ant dir="package"/>
 	<ant dir="slicing"/> 
 	<ant dir="translator"/> 
@@ -33,6 +34,7 @@
         <ant dir="inheritance" target="clean"/>
         <ant dir="location" target="clean"/>
         <ant dir="operations" target="clean"/>
+        <ant dir="proxy" target="clean"/>
         <ant dir="package" target="clean"/>
 	<ant dir="slicing" target="clean"/> 
 	<ant dir="translator" target="clean"/> 
