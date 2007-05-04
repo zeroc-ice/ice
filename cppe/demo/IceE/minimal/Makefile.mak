@@ -18,7 +18,7 @@ OBJS		= Hello.obj
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-!if "$(SMART_DEVICE)" != ""
+!if "$(EMBEDDED_DEVICE)" != ""
 
 COBJS		= WinCEClient.obj
 
@@ -53,7 +53,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 
-!if "$(SMART_DEVICE)" != ""
+!if "$(EMBEDDED_DEVICE)" != ""
 
 WinCEClient.obj: WinCEClient.cpp
 	$(CXX) /c -DICEE_PURE_CLIENT $(CPPFLAGS) $(CXXFLAGS) WinCEClient.cpp

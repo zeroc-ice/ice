@@ -37,10 +37,14 @@ CPP_COMPILER            = VC80
 #STATICLIBS             = yes
 
 #
-# If building for an WinCE embedded device with VS2005 set SMART_DEVICE.
-# Supported options are PocketPC2003 and Smartphone2003.
+# If building for an Windows CE/Mobile embedded device with VS2005 set
+# the following two settting to the desired device and OS.
 #
-#SMART_DEVICE	= PocketPC2003
+# Supported options for EMBEDDED_DEVICE are "PocketPC" and "Smartphone".
+# Supported options for EMBEDDED_OS are "WindowsCE4.2" and "WindowsMobile5.0".
+#
+#EMBEDDED_DEVICE        = PocketPC
+#EMBEDDED_OS            = WindowsCE4.2
 
 #
 # For VC80 and VC80 Express it is necessary to set the location of the

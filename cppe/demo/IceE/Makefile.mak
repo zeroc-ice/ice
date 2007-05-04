@@ -16,7 +16,7 @@ SUBDIRS		= minimal \
 		  throughput \
 		  chat
 
-!if "$(SMART_DEVICE)" == ""
+!if "$(EMBEDDED_DEVICE)" == ""
 SUBDIRS 	= $(SUBDIRS) \
 		  hello \
 		  callback \

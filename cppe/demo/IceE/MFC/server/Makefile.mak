@@ -25,7 +25,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= $(MFC_CPPFLAGS) -I. $(CPPFLAGS) -DVC_EXTRALEAN
-!if "$(SMART_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
+!if "$(EMBEDDED_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
 CPPFLAGS        = $(CPPFLAGS) -D_AFXDLL
 !endif
 
@@ -33,7 +33,7 @@ CPPFLAGS        = $(CPPFLAGS) -D_AFXDLL
 PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
-!if "$(SMART_DEVICE)" == ""
+!if "$(EMBEDDED_DEVICE)" == ""
 
 RESFILE         = HelloServer.res
 HelloServer.res: HelloServer.rc

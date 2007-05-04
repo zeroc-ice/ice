@@ -23,7 +23,7 @@ SUBDIRS		= proxy \
 		  thread \
 		  uuid
 
-!if "$(SMART_DEVICE)" == ""
+!if "$(EMBEDDED_DEVICE)" == ""
 SUBDIRS		= $(SUBDIRS) \
 		  faultTolerance \
 		  adapterDeactivation \

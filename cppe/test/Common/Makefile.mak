@@ -26,7 +26,7 @@ CPPFLAGS	= -I..\include $(CPPFLAGS) -DICE_TEST_COMMON_API_EXPORTS
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 
-!if "$(SMART_DEVICE)" != ""
+!if "$(EMBEDDED_DEVICE)" != ""
 LIBS		= $(LIBS) 
 !endif
 

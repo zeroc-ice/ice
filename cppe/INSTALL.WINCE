@@ -47,6 +47,14 @@ Installing and Configuring Microsoft Visual C++ 2005
 - Install Visual Studio 2005, making sure to include the Smart Device
   support (Language Tools->Visual C++->Smart Device Support)
 
+- If you plan on building for Windows Mobile 5.0 you will have to 
+  download the SDKs for Pocket PC and Smartphone separately at the
+  following locations:
+
+  http://www.microsoft.com/downloads/details.aspx?FamilyID=83a52af2-f524-4ec5-9155-717cbe5d25ed&DisplayLang=en
+
+  http://www.microsoft.com/downloads/details.aspx?familyid=DC6C00CB-738A-4B97-8910-5CD29AB5F8D9&displaylang=en
+
 - Add the location of the slice2cppe compiler to your "Executable
   files" list in Tools->Options->Projects and
   Solutions->VC++ Directories.
@@ -66,8 +74,8 @@ directory to IceE-@ver@. For example:
 
 Edit config\Make.rules.mak to establish your build configuration. The
 comments in the file provide more information. In particular, you
-must set CPP_COMPILER to VC80 and set SMART_DEVICE to the appropriate
-target.
+must set CPP_COMPILER to VC80 and set EMBEDDED_DEVICE  and EMBEDDED_OS
+to the appropriate target and os settings.
 
 Now you're ready to build Ice-E:
 

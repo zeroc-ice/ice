@@ -9,7 +9,7 @@
 
 top_srcdir	= ..\..\..
 
-!if "$(SMART_DEVICE)" == ""
+!if "$(EMBEDDED_DEVICE)" == ""
 CLIENT		= client.exe
 !endif
 MFCCLIENT	= mfcclient.exe
@@ -46,7 +46,7 @@ SLICE2CPPEFLAGS = -I. --ice $(SLICE2CPPEFLAGS)
 
 CPPFLAGS        = -I. $(CPPFLAGS) $(MFC_CPPFLAGS)
 !ifdef BUILD_MFC
-!if "$(SMART_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
+!if "$(EMBEDDED_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
 CPPFLAGS	= $(CPPFLAGS) -D_AFXDLL
 !endif
 !else
@@ -58,7 +58,7 @@ CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 MPDBFLAGS        = /pdb:$(MFCCLIENT:.exe=.pdb)
 !endif
 
-!if "$(SMART_DEVICE)" == ""
+!if "$(EMBEDDED_DEVICE)" == ""
 
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LDFLAGS) $(CPDBFLAGS) $(OBJS) $(COBJS) /out:$@ $(LIBS)
