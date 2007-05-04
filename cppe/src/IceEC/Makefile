@@ -24,8 +24,7 @@ TRANSPORT_OBJS	= Connector.o \
 		  TcpEndpoint.o \
 		  Transceiver.o
 
-ICE_OBJS	= Base64.o \
-		  BasicStream.o \
+ICE_OBJS	= BasicStream.o \
 		  Buffer.o \
                   BuiltinSequences.o \
 		  Communicator.o \

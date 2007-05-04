@@ -10,7 +10,6 @@
 #ifndef ICEE_ICE_H
 #define ICEE_ICE_H
 
-#include <IceE/Base64.h>
 #include <IceE/Initialize.h>
 #include <IceE/LocalException.h>
 #include <IceE/Properties.h>
