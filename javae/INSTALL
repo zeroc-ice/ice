@@ -8,7 +8,7 @@ Java Platform
 Ice-E for Java runs on a number of Java platforms:
 
 - Java Micro Edition (ME) Connected Limited Device Configuration (CLDC)
-  version 1.1 with the Mobile Information Device Profile (MIDP) 2.0.
+  version 1.1 with the Mobile Information Device Profile (MIDP) 2.0
 
 - Java Micro Edition (ME) Connected Device Configuration (CDC) version
   1.0 with the Personal Profile (PP) version 1.0
