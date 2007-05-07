@@ -1,0 +1,15 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice-E is licensed to you under the terms described in the
+# ICEE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+# The MIDlet version of the Ice-E tests use this configuration file to
+# configure proxies and endpoints. Modify the properties listed below as
+# appropriate for the network configuration for your test.
+
+Test.Proxy=test:default -h 127.0.0.1 -p 12010 -t 10000
+TestAdapter.Endpoints=default -p 12010 -t 10000
