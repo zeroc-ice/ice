@@ -89,6 +89,10 @@ ifndef mklibtargets
     endif
 endif
 
+ifeq ($(installdata),)
+    installdata         = $(INSTALL_DATA) $(1) $(2); \
+                          chmod a+r $(2)/$(notdir $(1))
+endif
 
 ifeq ($(installprogram),)
     installprogram	= $(INSTALL_PROGRAM) $(1) $(2); \
