@@ -3,14 +3,13 @@ Requirements
 ======================================================================
 
 
-Environment
------------
+Windows version
+---------------`
 
-Ice-E has been extensively tested under the following environments:
+Ice-E has been extensively tested on:
 
-- Microsoft Device Emulator 1.0
-
-- HP iPaq hx2400
+- Windows CE 4.2
+- Windows Mobile 5.0
 
 
 C++ compiler
