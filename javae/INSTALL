@@ -47,7 +47,7 @@ on Windows XP using Sun JDK 1.5.
 Slice translator
 ----------------
 
-In addition to the Ice-E for Java classes (or jar files), you also 
+In addition to the Ice-E for Java classes (or JAR files), you also 
 need the Slice-to-Embedded-Java translator. ZeroC provides translator
 binaries for a number of platforms:
 
@@ -61,14 +61,14 @@ the resulting Java files to your target platform.
 Java Tools
 ----------
 
-In order to build Ice-E for Java ME CLDC 1.1 with MIDP 2.0, you
-need the Sun Java Wireless Toolkit version 2.5. This toolkit can
-be downloaded from:
+In order to build Ice-E for Java ME CLDC 1.1 with MIDP 2.0, you need
+the Sun Java Wireless Toolkit version 2.5. This toolkit can be
+downloaded from:
 
 http://java.sun.com/products/sjwtoolkit/index.html
 
-We also recommend to install ProGuard, a free Java class file 
-optimizer that can dramatically shrink the size of your Java 
+We also recommend installing ProGuard, a free Java class file
+optimizer that can dramatically shrink the size of your Java
 applications:
 
 http://proguard.sourceforge.net
@@ -119,14 +119,14 @@ Java ME CLDC 1.1 with MIDP 2.0
 ------------------------------
 
 The Ice-E for Java tests are provided in MIDlet format suitable for
-use in a Java ME CLDC 1.1 with MIDP 2.0 runtime environment. All of 
-the tests have client and server components, and you can run either 
-component on the device (or its emulator). 
-You can also run a "collocated" version of most tests, in which the 
-client and server components are collocated in the same process.
+use in a Java ME CLDC 1.1 with MIDP 2.0 runtime environment. All of
+the tests have client and server components, and you can run either
+component on the device (or its emulator). You can also run a
+"collocated" version of most tests, in which the client and server
+components are collocated in the same process.
 
-A simple way to get started is to run the server on the Java SE 
-platform, and the client in an emulator on the same host. For example, 
+A simple way to get started is to run the server on the Java SE
+platform, and the client in an emulator on the same host. For example,
 to run the exceptions test we need to do the following:
 
 1. In a console window, change to the test directory:
@@ -167,15 +167,16 @@ Compiling the Source
 ======================================================================
 
 There is generally no need to compile Ice-E for Java because this
-distribution already contains the class and jar files for the Ice-E,
-the demos and the tests.
+distribution already contains the class and JAR files for Ice-E, the
+demos and the tests.
 
 The source tree contains two source variants:
+
  - "midp" for Java ME CLDC 1.1 with MIDP 2.0. It is also expected to
    work with Java ME CDC 1.1 with PP 1.1, although this combination
    is not supported at this time.
 
- - "jdk" for Java ME CDC 1.0 with PP 1.0, and also for Java SE
+ - "jdk" for Java ME CDC 1.0 with PP 1.0, and also for Java SE.
 
 In order to rebuild the "midp" variant, you need Sun's Java Wireless 
 Toolkit installed (see "Java ME Tools" above).
