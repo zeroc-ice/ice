@@ -30,7 +30,7 @@ Ice-E for Java is supported in the following environments:
  - IBM WebSphere EveryPlace Micro Environment 5.7.1 for PalmOS
 
 - Java ME CDC 1.0 with PP 1.0
- - CrEme 4.12 (http://www.nsicom.com) on Windows CE 4.2
+ - CrE-ME 4.12 (http://www.nsicom.com) on Windows CE 4.2
 
 - Java SE
  - JamVM 1.4.5 with GNU Classpath 0.90 (http://jamvm.sourceforge.net)
