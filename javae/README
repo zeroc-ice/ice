@@ -6,11 +6,8 @@ constrained environments while retaining many of the features that
 have made Ice such a compelling alternative for distributed
 applications.
 
-Ice-E for Java is supported in two environments: Java Platform,
-Standard Edition (Java SE), and Java Platform, Micro Edition (Java
-ME). For installation information, see the files INSTALL.JDK and
-INSTALL.JME, respectively.
-
+Ice-E for Java runs on Java Standard Edition (SE) and several
+Java Micro Edition (ME) configurations; see INSTALL for details.
 
 Comparing Ice-E and Ice
 =======================
@@ -76,15 +73,15 @@ The CLDC specification does not include java.util.Map, therefore the
 mapping for the Slice dictionary type has been changed to use
 java.util.Hashtable instead.
 
-Due to restrictions of the CLDC platform, metadata to customize the
-mapping for sequences is ignored.
+Due to restrictions of the target Java platforms, metadata to 
+customize the mapping for sequences is ignored.
 
 Property Changes
 ----------------
 
 The properties Ice.StdErr and Ice.StdOut properties are not supported,
-since JME does not provide a mechanism for reassigning the stderr and
-stdout streams.
+since Java ME does not provide a mechanism for reassigning the
+stderr and stdout streams.
 
 Other Removed Features
 ----------------------

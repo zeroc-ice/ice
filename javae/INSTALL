@@ -7,11 +7,13 @@ Java Platform
 
 Ice-E for Java runs on a number of Java platforms:
 
-- Java Standard Edition (SE) version 1.1.8 or later
-- Personal Java version 3.1
-- Java Micro Edition (ME) with the Mobile Information Device Profile 
-  (MIDP) version 2.0 and the Connected Limited Device Configuration 
-  (CLDC) version 1.1.
+- Java Micro Edition (ME) Connected Limited Device Configuration (CLDC)
+  version 1.1 with the Mobile Information Device Profile (MIDP) 2.0.
+
+- Java Micro Edition (ME) Connected Device Configuration (CDC) version
+  1.0 with the Personal Profile (PP) version 1.0
+
+- Java Standard Edition (SE) version 1.2 or later
 
 The API provided by Ice-E for Java is identical on all these Java 
 platforms.
@@ -22,6 +24,14 @@ Supported Environments
 
 Ice-E for Java is supported in the following environments:
 
+- Java ME CLDC 1.1 with MIDP 2.0
+ - Nokia Series 40 2nd Edition on Nokia phones
+ - Nokia Series 60 2nd Edition on Nokia phones
+ - IBM WebSphere EveryPlace Micro Environment 5.7.1 for PalmOS
+
+- Java ME CDC 1.0 with PP 1.0
+ - CrEme 4.12 (http://www.nsicom.com) on Windows CE 4.2
+
 - Java SE
  - JamVM 1.4.5 with GNU Classpath 0.90 (http://jamvm.sourceforge.net)
    on Gumstix Linux buildroot revision 1364
@@ -30,26 +40,16 @@ Ice-E for Java is supported in the following environments:
    Windows XP
  - Sun JDK/JRE 1.6 on Microsoft Windows Vista
   
-- Personal Java
- - CrEme 3.29 (http://www.nsicom.com) on Windows CE 4.2
-
-- Java ME with MIDP 2.0 and CLDC 1.1
- - Nokia S40 phones with the Nokia Series 40 Developer Platform 2.0 
-   SDK 1.1
- - Nokia S60 phones with the Nokia Series 60 SDK 2nd Edition
- - IBM Java WebSphere EveryPlace Micro Environment on PalmOS 5
- - Sun emulator from the Sun WTK 2.5
-
-Personal Java and Java ME development with Ice-E for Java is currently 
-supported only on Windows XP using Sun JDK 1.5.
+Java ME development with Ice-E for Java is currently supported only 
+on Windows XP using Sun JDK 1.5.
 
 
 Slice translator
 ----------------
 
-In addition to the Ice-E for Java classes, you will also need the
-Slice-to-Embedded-Java translator. ZeroC provides translator binaries 
-for a number of platforms:
+In addition to the Ice-E for Java classes (or jar files), you also 
+need the Slice-to-Embedded-Java translator. ZeroC provides translator
+binaries for a number of platforms:
 
 http://www.zeroc.com/icee/download.html
 
@@ -58,33 +58,30 @@ from source, or you can run the translator on another system and copy
 the resulting Java files to your target platform.
 
 
-Java ME Tools
--------------
+Java Tools
+----------
 
-Sun's Java Wireless Toolkit includes the MIDP and CLDC classes,
-as well as an emulator and supporting development tools:
+In order to build Ice-E for Java ME CLDC 1.1 with MIDP 2.0, you
+need the Sun Java Wireless Toolkit version 2.5. This toolkit can
+be downloaded from:
 
 http://java.sun.com/products/sjwtoolkit/index.html
 
-Nokia's Java ME developer suite and Platform SDKs include the MIDP 
-and CLDC classes as well as emulators for different phone types and
-supporting development tools:
+We also recommend to install ProGuard, a free Java class file 
+optimizer that can dramatically shrink the size of your Java 
+applications:
 
-http://forum.nokia.com/
-
-ProGuard is a free Java class file optimizer that can dramatically
-shrink the size of your Java applications:
-
-http://proguard.sourceforge.net/
+http://proguard.sourceforge.net
 
 
 Python
 ------
 
-To run the automated test suite for Java SE, you will need Python 2.2 
-or later. If you have no interest in running the test scripts, Python
-is not required. Linux distributions usually include Python. For
-Windows XP/Vista, you can download a Python distribution from:
+To run the automated test suite on Java SE system, you will need 
+Python 2.2 or later. If you have no interest in running the test 
+scripts, Python is not required. Linux distributions usually include
+Python. For Windows XP/Vista, you can download a Python distribution
+from:
 
 http://www.python.org/download
 
@@ -96,9 +93,10 @@ Tests and Demos
 Java SE Platform
 ----------------
 
-You can run the test suite provided that you have installed Python:
+You can run the test suite with the following command (provided that 
+Python is installed on your system):
 
-python allTests.py
+$ python allTests.py
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
@@ -117,12 +115,13 @@ client:
 $ java Client
 
 
-Java ME / MIDP Platform
-------------------------
+Java ME CLDC 1.1 with MIDP 2.0
+------------------------------
 
 The Ice-E for Java tests are provided in MIDlet format suitable for
-use in a Java ME / MIDP emulator. All of the tests have client and 
-server components, and you can run either component in an emulator. 
+use in a Java ME CLDC 1.1 with MIDP 2.0 runtime environment. All of 
+the tests have client and server components, and you can run either 
+component on the device (or its emulator). 
 You can also run a "collocated" version of most tests, in which the 
 client and server components are collocated in the same process.
 
@@ -167,8 +166,15 @@ There is generally no need to compile Ice-E for Java because this
 distribution already contains the class and jar files for the Ice-E,
 the demos and the tests.
 
-In order to rebuild the source code with Java ME support, you must have
-Sun's Java Wireless Toolkit installed (see "Java ME Tools" above).
+The source tree contains two source variants:
+ - "midp" for Java ME CLDC 1.1 with MIDP 2.0. It is also expected to
+   work with Java ME CDC 1.1 with PP 1.1, although this combination
+   is not supported at this time.
+
+ - "jdk" for Java ME CDC 1.0 with PP 1.0, and also for Java SE
+
+In order to rebuild the "midp" variant, you need Sun's Java Wireless 
+Toolkit installed (see "Java ME Tools" above).
 
 Follow these steps to rebuild the source:
 
@@ -186,13 +192,13 @@ Follow these steps to rebuild the source:
 
 3. Edit config/build.properties:
 
-   a. To enable Java ME support, set midp=on and change the value of WTK
+   a. To enable "midp" support, set midp=on and change the value of WTK
       to reflect your installation directory for the Wireless Toolkit.
 
    b. Review the remaining properties, which are described by comments
       in the file.
 
-4. If you have enabled Java ME support, you can optimize the sample
+4. If you have enabled midp support, you can optimize the sample
    MIDlets using ProGuard by adding proguard.jar to your CLASSPATH.
 
 5. Clean the existing source tree:
