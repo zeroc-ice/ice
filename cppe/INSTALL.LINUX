@@ -49,8 +49,7 @@ http://www.zeroc.com/icee/download.html
 
 The directory containing the translator executables must be added to
 your PATH. For example, if the translator distribution is installed
-in /opt/IceE-trans-@ver@, you must add /opt/IceE-trans-@ver@/bin to
-your PATH.
+in /opt/IceE-@ver@, you must add /opt/IceE-@ver@/bin to your PATH.
 
 
 Python
