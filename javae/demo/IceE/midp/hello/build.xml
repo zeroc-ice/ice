@@ -97,7 +97,7 @@
         </jadfile>
     </target>
 
-    <target name="server-jar" depends="compile">
+    <target name="server-jar" depends="compile" if="midp">
         <mkdir dir="tmp"/>
 	<copy overwrite="true" file="config" todir="classes"/>
 	<manifest file="SERVERMANIFEST.MF">
