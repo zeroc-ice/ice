@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceE/DisableWarnings.h>
 #include <stdafx.h>
 #include <LogI.h>
 
@@ -90,6 +89,6 @@ LogI::post(const string& data)
 {
     assert(_hwnd != 0);
     char* text = new char[data.size()+1];
-    strcpy(text, data.c_str());
+    strcpy_s(text, data.size()+1, data.c_str());
     ::PostMessage(_hwnd, WM_USER, (WPARAM)FALSE, (LPARAM)text);
 }
