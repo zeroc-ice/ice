@@ -8,7 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/Base64.h>
-#include <iostream>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif
