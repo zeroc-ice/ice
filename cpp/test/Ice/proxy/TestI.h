@@ -18,6 +18,7 @@ public:
 
     MyDerivedClassI();
 
+    virtual Ice::ObjectPrx echo(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
     virtual Ice::Context getContext(const Ice::Current&);
     virtual bool ice_isA(const std::string&, const Ice::Current&) const;

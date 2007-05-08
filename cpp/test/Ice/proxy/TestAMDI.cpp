@@ -16,6 +16,12 @@ MyDerivedClassI::MyDerivedClassI()
 }
 
 void
+MyDerivedClassI::echo_async(const Test::AMD_MyDerivedClass_echoPtr& cb, const Ice::ObjectPrx& obj, const Ice::Current&)
+{
+    cb->ice_response(obj);
+}
+
+void
 MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current& c)
 {
     c.adapter->getCommunicator()->shutdown();

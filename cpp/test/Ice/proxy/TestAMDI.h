@@ -18,13 +18,12 @@ public:
 
     MyDerivedClassI();
     
+    virtual void echo_async(const Test::AMD_MyDerivedClass_echoPtr&, const Ice::ObjectPrx&, const Ice::Current&);
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
-
     virtual void getContext_async(const Test::AMD_MyClass_getContextPtr& cb,
                                   const Ice::Current&);
     virtual bool ice_isA(const std::string&, const Ice::Current&) const;
-
 
 private:
 

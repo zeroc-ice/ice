@@ -15,6 +15,12 @@ MyDerivedClassI::MyDerivedClassI()
 {
 }
 
+Ice::ObjectPrx
+MyDerivedClassI::echo(const Ice::ObjectPrx& obj, const Ice::Current&)
+{
+    return obj;
+}
+
 void
 MyDerivedClassI::shutdown(const Ice::Current& c)
 {
