@@ -68,7 +68,8 @@
 	<copy overwrite="true" file="config" todir="${midp.class.dir}"/>
 	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.class.dir}"
 	    excludes="**/Server.class"/>
-	<jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
+        <jar destfile="tmp/${testname}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"
+            excludes="IceE-midp.jar"/>
     </target>
 
     <target name="obfuscate" depends="midlet-jar" if="hasProguardAndMIDP">
@@ -83,9 +84,9 @@
 	    <keepclasseswithmembernames>
 		<method access="native" />
 	    </keepclasseswithmembernames>
-            <keep name="Ice.**">
+            <keepnames name="Ice.**">
                 <method access="public"/>
-            </keep>
+            </keepnames>
 	</proguard>
     </target>
 

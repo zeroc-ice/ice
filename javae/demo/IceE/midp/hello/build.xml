@@ -54,8 +54,8 @@
 	      
 	<jar destfile="tmp/HelloClient.jar" manifest="CLIENTMANIFEST.MF" excludes="ServerMIDlet*.class" 
 	    basedir="classes"/>
-	<jar destfile="tmp/HelloClient.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" excludes="IceE.jar"
-	    update="true"/>
+        <jar destfile="tmp/HelloClient.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" 
+            excludes="IceE-midp.jar" update="true"/>
     </target>
 
     <target name="client-obfuscate" depends="client-jar" if="hasProguardAndMIDP">
@@ -110,7 +110,7 @@
 
         <jar destfile="tmp/HelloServer.jar" manifest="SERVERMANIFEST.MF" excludes="ClientMIDlet.class"
 	    basedir="classes"/>
-	<jar destfile="tmp/HelloServer.jar" manifest="SERVERMANIFEST.MF" basedir="${midp.lib.dir}" excludes="IceE.jar"
+        <jar destfile="tmp/HelloServer.jar" manifest="SERVERMANIFEST.MF" basedir="${midp.lib.dir}" excludes="IceE-midp.jar"
 	    update="true"/>
     </target>
 

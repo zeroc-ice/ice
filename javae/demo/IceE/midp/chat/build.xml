@@ -63,7 +63,7 @@
         </manifest>
 
 	<jar destfile="tmp/ChatDemo.jar" manifest="MANIFEST.MF" basedir="${class.dir}"/>
-        <jar destfile="tmp/ChatDemo.jar" basedir="${midp.lib.dir}" excludes="IceE.jar" update="true"/>
+        <jar destfile="tmp/ChatDemo.jar" basedir="${midp.lib.dir}" excludes="IceE-midp.jar" update="true"/>
     </target>
 
     <target name="obfuscate" depends="jar" if="hasProguardAndMIDP">

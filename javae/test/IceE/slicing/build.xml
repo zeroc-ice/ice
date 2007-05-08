@@ -113,7 +113,8 @@
 
 	<copy overwrite="true" file="config" todir="${midp.cclass.dir}"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.cclass.dir}"/>
-	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
+        <jar destfile="tmp/${testclient}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"
+            excludes="IceE-midp.jar"/>
     </target>
 
     <target name="obfuscate-client" depends="client-midlet-jar" if="hasProguardAndMIDP">
@@ -169,7 +170,8 @@
         </manifest>
 
 	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.sclass.dir}"/>
-	<jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"/>
+        <jar destfile="tmp/${testserver}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"
+            excludes="IceE-midp.jar"/>
     </target>
 
     <target name="obfuscate-server" depends="server-midlet-jar" if="hasProguardAndMIDP">
