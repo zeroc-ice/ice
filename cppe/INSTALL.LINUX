@@ -136,7 +136,7 @@ compiled tests and test suite scripts to your gumstix. From the Ice-E
 source distribution base directory, run the following commands:
 
 $ find . -name *.o | xargs rm
-$ scp -r allTests.py config lib tests <gumstix ipaddress>:<some directory>
+$ scp -r allTests.py config lib test <gumstix ipaddress>:<some directory>
 
 The first command removes the object files so you don't copy them as
 well. If you built Ice-E statically, there is no need to include "lib"
