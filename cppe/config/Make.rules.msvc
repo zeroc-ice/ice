@@ -17,7 +17,7 @@
 !if "$(EMBEDDED_DEVICE)" != ""
 !if "$(EMBEDDED_DEVICE)" != "PocketPC" & "$(EMBEDDED_DEVICE)" != "Smartphone"
 !error Invalid setting for EMBEDDED_DEVICE: "$(EMBEDDED_DEVICE)"
-!elseif "$(EMBEDDED_OS)" != "WindowsCE4.2" & "$(EMBEDDED_OS)" != "WindowsMobile5.0"
+!elseif "$(EMBEDDED_OS)" != "WindowsMobile2003" & "$(EMBEDDED_OS)" != "WindowsMobile5.0"
 !error Invalid setting for EMBEDDED_OS: "$(EMBEDDED_OS)"
 !endif
 !endif
@@ -28,7 +28,7 @@ CC		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\cl.exe"
 LINK 		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\link.exe"
 AR		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\lib.exe"
 RC		= rc.exe /i "$(VSINSTALLDIR)\VC\ce\atlmfc\include"
-!if "$(EMBEDDED_OS)" == "WindowsCE4.2"
+!if "$(EMBEDDED_OS)" == "WindowsMobile2003"
 RC		= $(RC) /d "UNDER_CE=0x420" /d "_WIN32_WCE=0x420"
 !else
 RC		= $(RC) /d "UNDER_CE=0x501" /d "_WIN32_WCE=0x501"
@@ -49,7 +49,7 @@ CPPFLAGS	= -nologo -W3 -GR -EHsc -FD -D_CONSOLE
 #
 !if "$(EMBEDDED_DEVICE)" != ""
 
-!if "$(EMBEDDED_OS)" == "WindowsCE4.2"
+!if "$(EMBEDDED_OS)" == "WindowsMobile2003"
 
 !if "$(EMBEDDED_DEVICE)" == "PocketPC"
 SDK_DIR		= $(VSINSTALLDIR)\SmartDevices\SDK\PocketPC2003
@@ -181,7 +181,7 @@ LIBSUFFIX	= _static$(LIBSUFFIX)
 
 !if "$(EMBEDDED_DEVICE)" != ""
 
-!if "$(EMBEDDED_OS)" == "WindowsCE4.2"
+!if "$(EMBEDDED_OS)" == "WindowsMobile2003"
 BASELIBS        = coredll.lib ccrtrtti.lib ws2.lib 
 !else
 BASELIBS        = coredll.lib corelibc.lib ws2.lib 
