@@ -118,7 +118,6 @@ IceInternal::UnknownEndpointI::UnknownEndpointI(const string& str)
 }
 
 IceInternal::UnknownEndpointI::UnknownEndpointI(Short type, BasicStream* s) :
-    _instance(s->instance()),
     _type(type)
 {
     s->startReadEncaps();
@@ -229,8 +228,8 @@ IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 vector<EndpointIPtr>
 IceInternal::UnknownEndpointI::expand(bool) const
 {
-    assert(false);
     vector<EndpointIPtr> ret;
+    ret.push_back(const_cast<UnknownEndpointI*>(this));
     return ret;
 }
 
