@@ -8,8 +8,8 @@ Windows version
 
 Ice-E has been extensively tested on:
 
-- Windows CE 4.2
-- Windows Mobile 5.0
+- Windows CE 4.2 (Windows Mobile 2003)
+- Windows CE 5.0 (Windows Mobile 5.0)
 
 
 C++ compiler
@@ -43,7 +43,8 @@ Installing and Configuring Microsoft Visual C++ 2005
 ======================================================================
 
 - Install Visual Studio 2005, making sure to include the Smart Device
-  support (Language Tools->Visual C++->Smart Device Support)
+  support (Language Tools->Visual C++->Smart Device Support) to include
+  the Windows Mobile 2003 SDKs.
 
 - If you plan on building for Windows Mobile 5.0 you will have to 
   download the SDKs for Pocket PC and Smartphone separately at the
