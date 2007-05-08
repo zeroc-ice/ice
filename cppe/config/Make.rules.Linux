@@ -14,14 +14,6 @@
 USE_SPARC_ASM		= irrelevant
 MACHINE			= $(shell uname -m)
 
-OPT_FLAGS		=
-ifeq ($(OPTIMIZE_SPEED),yes)
-  OPT_FLAGS		= -O3
-endif
-ifeq ($(OPTIMIZE_SIZE),yes)
-  OPT_FLAGS		= -Os
-endif
-
 #
 # Default compiler is c++ (aka g++).
 #
@@ -77,6 +69,21 @@ CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -Wall -D_REENTRANT
 
 ifeq ($(STATICLIBS),)
    CXXFLAGS		+= -fPIC
+endif
+
+OPT_FLAGS		=
+ifeq ($(OPTIMIZE_SPEED),yes)
+  OPT_FLAGS		= -O3
+endif
+ifeq ($(OPTIMIZE_SIZE),yes)
+   #
+   # -Os does not work well with GCC 3.4.6 on x86_64
+   #
+   ifeq ($(LP64),yes)
+      OPT_FLAGS	        = -O2
+   else
+      OPT_FLAGS		= -Os
+   endif
 endif
 
 ifeq ($(OPTIMIZE),yes)
