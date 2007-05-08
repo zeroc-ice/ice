@@ -141,6 +141,7 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
                 return _factories[i]->read(&bs);
             }
         }
+        return ue; // Endpoint is opaque, but we don't have a factory for its type.
     }
 
     return 0;
