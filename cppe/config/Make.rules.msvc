@@ -17,7 +17,7 @@
 !if "$(EMBEDDED_DEVICE)" != ""
 !if "$(EMBEDDED_DEVICE)" != "PocketPC" & "$(EMBEDDED_DEVICE)" != "Smartphone"
 !error Invalid setting for EMBEDDED_DEVICE: "$(EMBEDDED_DEVICE)"
-!elseif "$(EMBEDDED_OS)" != "WindowsMobile2003" & "$(EMBEDDED_OS)" != "WindowsMobile5.0"
+!elseif "$(EMBEDDED_OS)" != "WindowsMobile2003" & "$(EMBEDDED_OS)" != "WindowsMobile5.0" & "$(EMBEDDED_OS)" != "WindowsMobile6"
 !error Invalid setting for EMBEDDED_OS: "$(EMBEDDED_OS)"
 !endif
 !endif
@@ -30,8 +30,10 @@ AR		= "$(VSINSTALLDIR)\VC\ce\bin\x86_arm\lib.exe"
 RC		= rc.exe /i "$(VSINSTALLDIR)\VC\ce\atlmfc\include"
 !if "$(EMBEDDED_OS)" == "WindowsMobile2003"
 RC		= $(RC) /d "UNDER_CE=0x420" /d "_WIN32_WCE=0x420"
-!else
+!elseif "$(EMBEDDED_OS)" == "WindowsMobile5.0"
 RC		= $(RC) /d "UNDER_CE=0x501" /d "_WIN32_WCE=0x501"
+!else
+RC		= $(RC) /d "UNDER_CE=0x502" /d "_WIN32_WCE=0x502"
 !endif
 !else
 CXX		= cl.exe
@@ -62,7 +64,7 @@ LIB_SUBDIR	= \ArmV4
 CPPFLAGS	= /D "_WIN32_WCE=0x420" /D "UNDER_CE=0x420" $(CPPFLAGS)
 LDFLAGS		= /MACHINE:ARM
 
-!else
+!elseif "$(EMBEDDED_OS)" == "WindowsMobile5.0"
 
 !if "$(EMBEDDED_DEVICE)" == "PocketPC"
 SDK_DIR		= C:\Program Files\Windows CE Tools\wce500\Windows Mobile 5.0 Pocket PC SDK
@@ -73,6 +75,20 @@ SDK_DIR		= C:\Program Files\Windows CE Tools\wce500\Windows Mobile 5.0 Smartphon
 INCLUDE_SUBDIR	= \ArmV4i
 LIB_SUBDIR	= \ArmV4i
 CPPFLAGS	= /D "_WIN32_WCE=0x501" /D "UNDER_CE=0x501" $(CPPFLAGS)
+LDFLAGS		= /MACHINE:THUMB
+
+!else
+
+
+!if "$(EMBEDDED_DEVICE)" == "PocketPC"
+SDK_DIR		= C:\Program Files\Windows Mobile 6 SDK\PocketPC
+!else
+SDK_DIR		= C:\Program Files\Windows Mobile 6 SDK\Smartphone
+!endif
+
+INCLUDE_SUBDIR	= \ArmV4i
+LIB_SUBDIR	= \ArmV4i
+CPPFLAGS	= /D "_WIN32_WCE=0x502" /D "UNDER_CE=0x502" $(CPPFLAGS)
 LDFLAGS		= /MACHINE:THUMB
 
 !endif

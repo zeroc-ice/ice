@@ -8,8 +8,9 @@ Windows version
 
 Ice-E has been extensively tested on:
 
-- Windows CE 4.2 (Windows Mobile 2003)
-- Windows CE 5.0 (Windows Mobile 5.0)
+- Windows Mobile 2003 (ARMV4)
+- Windows Mobile 5.0 (ARMV4I)
+- Windows Mobile 6 (ARMV4I)
 
 
 C++ compiler
@@ -43,7 +44,7 @@ Installing and Configuring Microsoft Visual C++ 2005
 ======================================================================
 
 - Install Visual Studio 2005, making sure to include the Smart Device
-  support (Language Tools->Visual C++->Smart Device Support) to include
+  support (Language Tools->Visual C++->Smart Device Support) to install
   the Windows Mobile 2003 SDKs.
 
 - If you plan on building for Windows Mobile 5.0 you will have to 
@@ -53,6 +54,12 @@ Installing and Configuring Microsoft Visual C++ 2005
   http://www.microsoft.com/downloads/details.aspx?FamilyID=83a52af2-f524-4ec5-9155-717cbe5d25ed&DisplayLang=en
 
   http://www.microsoft.com/downloads/details.aspx?familyid=DC6C00CB-738A-4B97-8910-5CD29AB5F8D9&displaylang=en
+
+- If you plan on building for Windows Mobile 6 you will have to 
+  download the SDKs for Pocket PC, Pocket PC Phone and Smartphone at the
+  following location:
+
+  http://www.microsoft.com/downloads/details.aspx?familyid=06111A3A-A651-4745-88EF-3D48091A390B&displaylang=en
 
 - Add the location of the slice2cppe compiler to your "Executable
   files" list in Tools->Options->Projects and

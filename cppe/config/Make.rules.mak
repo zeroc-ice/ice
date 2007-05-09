@@ -40,11 +40,13 @@ CPP_COMPILER            = VC80
 # If building for an Windows CE/Mobile embedded device with VS2005 set
 # the following two settting to the desired device and OS.
 #
-# Supported options for EMBEDDED_DEVICE are "PocketPC" and "Smartphone".
-# Supported options for EMBEDDED_OS are "WindowsMobile2003" and "WindowsMobile5.0".
+# Supported options for EMBEDDED_OS are "WindowsMobile2003",
+# "WindowsMobile5.0" and "WindowsMobile6".
 #
-#EMBEDDED_DEVICE        = PocketPC
+# Supported options for EMBEDDED_DEVICE are "PocketPC" and "Smartphone"
+#
 #EMBEDDED_OS            = WindowsMobile2003
+#EMBEDDED_DEVICE        = PocketPC
 
 #
 # For VC80 and VC80 Express it is necessary to set the location of the
