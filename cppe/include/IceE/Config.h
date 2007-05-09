@@ -11,31 +11,31 @@
 #define ICEE_CONFIG_H
 
 //
-// Uncomment if you want to build with Router support.
+// Comment this out if you want to build without Router support.
 //
 #define ICEE_HAS_ROUTER
 
 //
-// Uncomment if you want to build with Locator support.
+// Comment this out if you want to build without Locator support.
 //
 #define ICEE_HAS_LOCATOR
 
 //
-// Uncomment if you want to build with batch mode on the client side.
+// Comment this out if you want to build without batch mode on the client side.
 //
 #define ICEE_HAS_BATCH
 
 //
-// Uncomment if you want to build with wstring and string converter
+// Comment this out if you want to build without wstring and string converter
 // support.
 //
 #define ICEE_HAS_WSTRING
 
 //
-// Comment this out if want the pure client library built with both
-// blocking and thread-per-connection concurrency model support.
-// If uncommented, only blocking support will be included in client
-// library.
+// Uncomment this if want the pure client library built with
+// only the blocking concurrency model.
+// If commented, both blocking and thread-per-connections support
+// will be included in client library.
 //
 //#define ICEE_PURE_BLOCKING_CLIENT
 
