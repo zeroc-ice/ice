@@ -186,12 +186,6 @@
 #       define _WIN32_WINNT 0x0400
 #   endif
 
-#ifndef _WIN32_WCE
-#   if !defined(_DLL) || !defined(_MT)
-#       error "Only multi-threaded DLL libraries can be used with Ice!"
-#   endif
-#endif
-
 #   include <windows.h>
 
 #if defined(_WIN32_WCE) && defined(_MSC_VER)
@@ -265,24 +259,24 @@ private:
 //
 // Int64 typedef
 //
-#if defined(_MSC_VER)
+#if defined(__BCPLUSPLUS__) || defined(_MSC_VER)
+//
+// On Windows, long is always 32-bit
+//
 typedef __int64 Int64;
-#else
-#   if defined(ICE_64)
+#elif defined(ICE_64)
 typedef long Int64;
-#   else
+#else
 typedef long long Int64;
-#   endif
 #endif
+
 }
 
 //
-// ICE_INT64: macro for Int64 litteral values
+// ICE_INT64: macro for Int64 literal values
 //
-#if defined(_MSC_VER)
+#if defined(__BCPLUSPLUS__) || defined(_MSC_VER)
 #   define ICE_INT64(n) n##i64
-#elif defined(__HP_aCC)
-#   define ICE_INT64(n) n
 #elif defined(ICE_64)
 #   define ICE_INT64(n) n##L
 #else
