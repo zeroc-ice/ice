@@ -113,7 +113,7 @@
 
 	<copy overwrite="true" file="config" todir="${midp.cclass.dir}"/>
 	<jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.cclass.dir}"/>
-        <jar destfile="tmp/${testclient}.jar" manifest="MANIFEST.MF" basedir="${midp.lib.dir}" update="true"
+        <jar destfile="tmp/${testclient}.jar" manifest="CLIENTMANIFEST.MF" basedir="${midp.lib.dir}" update="true"
             excludes="IceE-midp.jar"/>
     </target>
 
