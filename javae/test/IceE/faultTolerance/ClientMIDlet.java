@@ -27,6 +27,16 @@ public class ClientMIDlet extends ClientBase
         cf.append(_addr);
         cf.append(_port);
         cf.append(_serverCount);
+
+        //
+        // We enable the ok button here in this particular midlet
+        // instead of waiting for the IP address to be resolved. This
+        // works around a problem in the Nokia S40 2nd emulator where it
+        // doesn't seem to be possible to add commands to a Displayable
+        // once its been set. The workaround isn't needed on any other
+        // emulators or devices that were tested.
+        //
+        cf.enableOk();
         return cf;
     }
 
@@ -36,6 +46,15 @@ public class ClientMIDlet extends ClientBase
         properties.setProperty("Test.FirstPort", _port.getString());
         properties.setProperty("Test.ServerCount", _serverCount.getString());
         properties.setProperty("Test.Host", _addr.getString());
+    }
+
+    public void
+    setup()
+    {
+        //
+        // Nothing to do here. See comment re: S40 emulator workaround
+        // in this MIDlet's initConfigurationForm method. 
+        //
     }
 
     private TextField _serverCount;
