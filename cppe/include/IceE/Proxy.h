@@ -36,9 +36,6 @@ class Router;
 namespace IceInternal
 {
 
-ICE_API void incRef(::IceProxy::Ice::Router*);
-ICE_API void decRef(::IceProxy::Ice::Router*);
-
 class LocalExceptionWrapper;
 
 }
@@ -60,14 +57,6 @@ namespace IceProxy { namespace Ice
 class Locator;
 
 } }
-
-namespace IceInternal
-{
-
-ICE_API void incRef(::IceProxy::Ice::Locator*);
-ICE_API void decRef(::IceProxy::Ice::Locator*);
-
-}
 
 namespace Ice
 {
