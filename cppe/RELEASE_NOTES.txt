@@ -113,8 +113,8 @@ API Changes - General
   type Ice::InitializationData. This structure contains communicator
   members that may only be set during communicator initialization.
   Currently included are Properties, Logger and string converters.
-  The initializeWithXXX functions have been deprecated and the
-  setLogger() operation has been removed.
+  The initializeWithXXX functions and the setLogger() operation have
+  been removed.
 
 - Removed most specializations of the Ice::ProtocolException local
   exception to reduce code size. Only the following specializations
