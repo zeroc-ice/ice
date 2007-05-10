@@ -15,6 +15,14 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public void
+    echo_async(Test.AMD_MyDerivedClass_echo cb,
+                   Ice.ObjectPrx obj,
+                   Ice.Current c)
+    {
+        cb.ice_response(obj);
+    }
+
+    public void
     shutdown_async(Test.AMD_MyClass_shutdown cb,
                    Ice.Current c)
     {

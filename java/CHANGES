@@ -1,6 +1,31 @@
 Changes since version 3.2.0
 ---------------------------     
 
+- Added support for opaque endpoints. For example:
+
+  opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==
+
+  This is the same as:
+
+  ssl -h 127.0.0.1 -p 10001
+
+  The "opaque" protocol identifier indicates an unknown protocol.
+  Both the -t and the -v option must be present:
+
+  -t <num>:    Indicates the protocol type (TCP = 1, SSL = 2, UDP = 3).
+
+  -v <base64>: Provides the value of the opaque endpoint. The option
+               argument is the marshaled representation of the endpoint
+               (including the endpoint's enclosing encapsulation) in
+               base64 encoding.
+
+  This syntax is useful if, for example, a client that has the SSL
+  plugin configured sends a proxy with an SSL endpoint to a server
+  without the SSL plugin. Prior to this version, the server would
+  drop the unknown SSL endpoint when it stringified the proxy.
+  As of this version, the server preserves the endpoint and, when the server
+  stringifies a proxy containing an unknown endpoint, it uses the above opaque syntax.
+
 - Trailing characters past the adapter id in a stringified proxy
   will now raise a ProxyParseException.
 

@@ -424,6 +424,155 @@ public class AllTests
         test(c.equals(c2));
         System.out.println("ok");
 
+        System.out.print("testing opaque endpoints... ");
+        System.out.flush();
+
+        try
+        {
+            // Invalid -x option
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Missing -t and -v
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Repeated -t
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Repeated -v
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Missing -t
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -v abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Missing -v
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Missing arg for -t
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t -v abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Missing arg for -v
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1 -v");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Not a number for -t
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t x -v abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // < 0 for -t
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t -1 -v abc");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        try
+        {
+            // Invalid char for -v
+            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 99 -v x?c");
+            test(false);
+        }
+        catch(Ice.EndpointParseException ex)
+        {
+        }
+
+        // Legal TCP endpoint expressed as opaque endpoint
+        Ice.ObjectPrx p1 = communicator.stringToProxy("test:opaque -t 1 -v AOouAAAQJwAAAA==");
+        String pstr = communicator.proxyToString(p1);
+        test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+        
+        // Working?
+        p1.ice_ping();
+
+        // Two legal TCP endpoints expressed as opaque endpoints
+        p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
+        pstr = communicator.proxyToString(p1);
+        test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"));
+
+        // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
+        p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+        pstr = communicator.proxyToString(p1);
+        test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+
+        // Try to invoke on the SSL endpoint to verify that we get a NoEndpointException.
+        try
+        {
+            p1.ice_ping();
+            test(false);
+        }
+        catch(Ice.NoEndpointException ex)
+        {
+        }
+
+        // Test that the proxy with an SSL endpoint and a nonsense endpoint (which the server doesn't understand either)
+        // can be sent over the wire and returned by the server without losing the opaque endpoints.
+        Ice.ObjectPrx p2 = derived.echo(p1);
+        pstr = communicator.proxyToString(p2);
+        test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+
+        System.out.println("ok");
+
         return cl;
     }
 }

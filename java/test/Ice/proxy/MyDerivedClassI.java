@@ -14,6 +14,12 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     {
     }
 
+    public Ice.ObjectPrx
+    echo(Ice.ObjectPrx obj, Ice.Current c)
+    {
+        return obj;
+    }
+
     public void
     shutdown(Ice.Current c)
     {

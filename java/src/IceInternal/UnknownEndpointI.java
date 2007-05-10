@@ -12,9 +12,96 @@ package IceInternal;
 final class UnknownEndpointI extends EndpointI
 {
     public
+    UnknownEndpointI(String str)
+    {
+        int topt = 0;
+        int vopt = 0;
+
+        String[] arr = str.split("[ \t\n\r]+");
+        int i = 0;
+        while(i < arr.length)
+        {
+            if(arr[i].length() == 0)
+            {
+                i++;
+                continue;
+            }
+
+            String option = arr[i++];
+            if(option.length() != 2 || option.charAt(0) != '-')
+            {
+                throw new Ice.EndpointParseException("opaque " + str);
+            }
+
+            String argument = null;
+            if(i < arr.length && arr[i].charAt(0) != '-')
+            {
+                argument = arr[i++];
+            }
+
+            switch(option.charAt(1))
+            {
+                case 't':
+                {
+                    if(argument == null)
+                    {
+                        throw new Ice.EndpointParseException("opaque " + str);
+                    }
+
+                    int t;
+                    try
+                    {
+                        t = Integer.parseInt(argument);
+                    }
+                    catch(NumberFormatException ex)
+                    {
+                        throw new Ice.EndpointParseException("opaque " + str);
+                    }
+
+                    if(t < 0 || t > 65535)
+                    {
+                        throw new Ice.EndpointParseException("opaque " + str);
+                    }
+
+                    _type = (short)t;
+                    ++topt;
+                    break;
+                }
+
+                case 'v':
+                {
+                    if(argument == null)
+                    {
+                        throw new Ice.EndpointParseException("opaque " + str);
+                    }
+                    for(int j = 0; j < argument.length(); ++j)
+                    {
+                        if(!IceUtil.Base64.isBase64(argument.charAt(j)))
+                        {
+                            throw new Ice.EndpointParseException("opaque " + str);
+                        }
+                    }
+                    _rawBytes = IceUtil.Base64.decode(argument);
+                    ++vopt;
+                    break;
+                }
+
+                default:
+                {
+                    throw new Ice.EndpointParseException("opaque " + str);
+                }
+            }
+        }
+
+        if(topt != 1 || vopt != 1)
+        {
+            throw new Ice.EndpointParseException("opaque " + str);
+        }
+    }
+
+    public
     UnknownEndpointI(short type, BasicStream s)
     {
-        _instance = s.instance();
         _type = type;
         s.startReadEncaps();
         int sz = s.getReadEncapsSize();
@@ -41,7 +128,8 @@ final class UnknownEndpointI extends EndpointI
     public String
     _toString()
     {
-        return "";
+        String val = IceUtil.Base64.encode(_rawBytes);
+        return "opaque -t " + _type + " -v " + val;
     }
 
     //
@@ -187,8 +275,11 @@ final class UnknownEndpointI extends EndpointI
     public java.util.ArrayList
     expand(boolean server)
     {
-        assert(false);
-        return null;
+
+        java.util.ArrayList endps = new java.util.ArrayList();
+        calcHashValue();
+        endps.add(this);
+        return endps;
     }
 
     //
@@ -299,7 +390,6 @@ final class UnknownEndpointI extends EndpointI
         }
     }
 
-    private Instance _instance;
     private short _type;
     private byte[] _rawBytes;
     private int _hashCode;
