@@ -275,7 +275,6 @@ final class UnknownEndpointI extends EndpointI
     public java.util.ArrayList
     expand(boolean server)
     {
-
         java.util.ArrayList endps = new java.util.ArrayList();
         calcHashValue();
         endps.add(this);
