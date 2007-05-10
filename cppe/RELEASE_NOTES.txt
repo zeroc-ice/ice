@@ -2,21 +2,31 @@ Ice-E 1.2.0 Release Notes
 =========================
 
 
-Platform Support
-----------------
+New Supported Platforms
+-----------------------
 
-Ice-E no longer officially supports the following platforms:
-
- * Fedora Core 4
- * Windows 2000
-
-The following platforms are now officially supported:
+The following platforms are now supported for Ice-E:
 
  * Windows Vista
  * Windows Mobile 5.0
  * Windows Mobile 6
  * SuSE Enterprise 10 Linux
  * Gumstix Linux
+ * Java 5
+ * Java 6
+
+For the complete list of supported platforms, please see
+
+  http://www.zeroc.com/icee/platforms.html
+
+
+Desupported Platforms
+---------------------
+
+Ice-E no longer supports the following platforms:
+
+ * Fedora Core 4
+ * Windows 2000
 
 The following C++ compilers are no longer supported:
 
@@ -28,18 +38,32 @@ For Java, we no longer support:
 
  * JDK 1.1.8
 
-The following are now supported for Java:
-
- * Java 5
- * Java 6
-
-For the complete list of supported platforms, please see
-
-  http://www.zeroc.com/icee/platforms.html
-
 
 API Changes - General
 ---------------------
+
+- Added Communicator::propertyToProxy() which creates a proxy from
+  a set of properties. This operation allows you to set various local
+  proxy settings, such as the locator, which cannot be set using
+  stringToProxy().
+
+- Message batches are now automatically flushed when the total size of
+  the batch reaches the message size maximum. This feature can be
+  controlled using the Ice.BatchAutoFlush property, which is on by
+  default.
+
+- If a proxy does not specify a hostname (via -h HOST), the client
+  only attempts to connect to the loopback interface (127.0.0.1).
+
+- For object adapters without endpoints, Ice.Trace.Network >= 2 now
+  prints a trace message.
+
+- Added a new Slice metadata tag for operations. The ["nonmutating"]
+  tag provides backward compatibility for idempotent operations that
+  were previously declared using the deprecated 'nonmutating' keyword.
+  You can replace the 'nonmutating' keyword with '["nonmutating"]
+  idempotent' to maintain compatibility with objects implemented using
+  earlier versions.
 
 - Added the following proxy methods:
 
@@ -87,9 +111,48 @@ API Changes - General
   The initializeWithXXX functions have been deprecated and the
   setLogger() operation has been removed.
 
+- Removed most specializations of the Ice::ProtocolException local
+  exception to reduce code size. Only the following specializations
+  were kept:
+
+  Ice::CloseConnectionException
+  Ice::ForcedCloseConnectionException
+  Ice::MarshalException
+  Ice::MemoryLimitException
+
+  The reason for the protocol error is now provided in the 'reason'
+  member of Ice::ProtocolException.
+
+- Removed the communicator's support for default contexts. An
+  application that passes a context during a proxy invocation can
+  either specify the context as an explicit argument, or use the
+  ice_context proxy method to establish a default context for a proxy.
+
+- Removed support for local interfaces in Slice.
+
 
 API Changes - C++ Only
 ----------------------
+
+- Added a new Slice metadata tag for operations. The ["cpp:const"] tag
+  generates a const member function on the corresponding servant base
+  class.
+
+- All Ice exceptions now derive from std::exception, so a single catch
+  handler can be used for Ice exceptions:
+
+  try
+  {
+      // Call something that may throw an Ice exception
+  }
+  catch(const ::std::exception& ex)
+  {
+      cerr << ex.what() << endl; // Works for any ::std::exception,
+                                 // including Ice exceptions
+  }
+
+  what() is implemented in terms of toString(), so overriding
+  toString() also changes the string returned by what().
 
 - The ice_name() member function of exceptions derived from
   Ice::Exception (and, hence, IceUtil::Exception) now returns a
@@ -98,6 +161,27 @@ API Changes - C++ Only
   const ::std::string ice_name() const; // Old signature
 
   ::std::string ice_name() const; // New signature
+
+- For non-abstract Slice classes, the generated C++ code now has a
+  protected destructor. This prevents accidental allocation of
+  class instances on the stack or as static variables. For the
+  implementation of abstract Slice classes and for servant classes
+  applications can do the same thing and add a protected destructor
+  to prevent non-heap allocation.
+
+- Added ability to configure user-defined string and wstring
+  converters that are used during marshalling/unmarshalling to
+  convert between UTF8 (as required by the Ice protocol) and the
+  user's character set.
+
+  A custom narrow string converter must derive from the class
+  Ice::StringConverter, and a wide string converter must derive
+  from Ice::WstringConverter. The converter objects are supplied as
+  members of the Ice::InitializationData structure that is passed
+  to Ice::initialize().
+
+- Added support for the new Slice metadata tag ["cpp:type:wstring"],
+  which generates code to use std::wstring instead of std::string.
 
 - The signature of createProperties(argc, argv) is now:
 
@@ -130,108 +214,3 @@ API Changes - Java Only
   used to initialize the new Properties object. Ice properties
   defined on the command-line and properties defined in the Ice
   config file may override these default properties.
-
-
-Removed Features
-----------------
-
-- Removed most specializations of the Ice::ProtocolException local
-  exception to reduce code size. Only the following specializations
-  were kept:
-
-  Ice::CloseConnectionException
-  Ice::ForcedCloseConnectionException
-  Ice::MarshalException
-  Ice::MemoryLimitException
-
-  The reason for the protocol error is now provided in the 'reason'
-  member of Ice::ProtocolException.
-
-- Removed the communicator's support for default contexts. An
-  application that passes a context during a proxy invocation can
-  either specify the context as an explicit argument, or use the
-  ice_context proxy method to establish a default context for a proxy.
-
-- Removed support for local interfaces in Slice.
-
-
-New Features - General
-----------------------
-
-- Added Communicator::propertyToProxy() which creates a proxy from
-  a set of properties. This operation allows you to set various local
-  proxy settings, such as the locator, which cannot be set using
-  stringToProxy().
-
-- Message batches are now automatically flushed when the total size of
-  the batch reaches the message size maximum. This feature can be
-  controlled using the Ice.BatchAutoFlush property, which is on by
-  default.
-
-- If a proxy does not specify a hostname (via -h HOST), the client
-  only attempts to connect to the loopback interface (127.0.0.1).
-
-- For object adapters without endpoints, Ice.Trace.Network >= 2 now
-  prints a trace message.
-
-- Added a new Slice metadata tag for operations. The ["nonmutating"]
-  tag provides backward compatibility for idempotent operations that
-  were previously declared using the deprecated 'nonmutating' keyword.
-  You can replace the 'nonmutating' keyword with '["nonmutating"]
-  idempotent' to maintain compatibility with objects implemented using
-  earlier versions.
-
-
-New Features - C++ Only
------------------------
-
-- Added a new Slice metadata tag for operations. The ["cpp:const"] tag
-  generates a const member function on the corresponding servant base
-  class.
-
-- All Ice exceptions now derive from std::exception, so a single catch
-  handler can be used for Ice exceptions:
-
-  try
-  {
-      // Call something that may throw an Ice exception
-  }
-  catch(const ::std::exception& ex)
-  {
-      cerr << ex.what() << endl; // Works for any ::std::exception,
-                                 // including Ice exceptions
-  }
-
-  what() is implemented in terms of toString(), so overriding
-  toString() also changes the string returned by what().
-
-- For non-abstract Slice classes, the generated C++ code now has a
-  protected destructor. This prevents accidental allocation of
-  class instances on the stack or as static variables. For the
-  implementation of abstract Slice classes and for servant classes
-  applications can do the same thing and add a protected destructor
-  to prevent non-heap allocation.
-
-- Added ability to configure user-defined string and wstring
-  converters that are used during marshalling/unmarshalling to
-  convert between UTF8 (as required by the Ice protocol) and the
-  user's character set.
-
-  A custom narrow string converter must derive from the class
-  Ice::StringConverter, and a wide string converter must derive
-  from Ice::WstringConverter. The converter objects are supplied as
-  members of the Ice::InitializationData structure that is passed
-  to Ice::initialize().
-
-- Added support for the new Slice metadata tag ["cpp:type:wstring"],
-  which generates code to use std::wstring instead of std::string.
-
-
-Bug Fixes - C++ Only
---------------------
-
-- Fixed a bug where proxy operator< could return an incorrect result
-  for proxies of different types (e.g., direct vs. indirect proxies).
-
-- Fixed an assert that could occur when a proxy received over the
-  wire contained an unknown endpoint.
