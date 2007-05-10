@@ -43,11 +43,21 @@ CPPFLAGS	= $(CPPFLAGS) -nologo -W3 -WX -GR -EHsc -FD -D_CONSOLE
 
 !if "$(OPTIMIZE)" == "yes"
 
-CPPFLAGS	= $(CPPFLAGS) -MD -O2 -DNDEBUG
+CPPFLAGS	= $(CPPFLAGS) -O2 -DNDEBUG
+!if "$(STATICLIBS)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -MT
+!else
+CPPFLAGS	= $(CPPFLAGS) -MD
+!endif
 
 !else
 
-CPPFLAGS	= $(CPPFLAGS) -MDd -Zi -Gm -Od -D_DEBUG
+CPPFLAGS	= $(CPPFLAGS) -Zi -Gm -Od -D_DEBUG
+!if "$(STATICLIBS)" == "yes"
+CPPFLAGS	= $(CPPFLAGS) -MTd
+!else
+CPPFLAGS	= $(CPPFLAGS) -MDd
+!endif
 !if "$(CPP_COMPILER)" == "VC60" | "$(CPP_COMPILER)" == "VC71"
 CPPFLAGS        = $(CPPFLAGS) -GZ
 !else

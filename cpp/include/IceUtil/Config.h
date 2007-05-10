@@ -108,7 +108,7 @@
 #       define _WIN32_WINNT 0x0400
 #   endif
 
-#   if defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))
+#   if !defined(ICE_STATIC_LIBS) && defined(_MSC_VER) && (!defined(_DLL) || !defined(_MT))
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
