@@ -95,8 +95,8 @@ IceInternal::UnknownEndpointI::UnknownEndpointI(const string& str)
                         ex.str = "opaque " + str;
                         throw ex;
                     }
-                    const_cast<vector<Byte>&>(_rawBytes) = IceUtil::Base64::decode(argument);
                 }
+                const_cast<vector<Byte>&>(_rawBytes) = IceUtil::Base64::decode(argument);
                 ++vopt;
                 break;
             }
