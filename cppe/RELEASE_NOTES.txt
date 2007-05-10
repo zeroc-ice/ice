@@ -5,15 +5,19 @@ Ice-E 1.2.0 Release Notes
 New Supported Platforms
 -----------------------
 
-The following platforms are now supported for Ice-E:
+The following operating systems are now supported for Ice-E:
 
- * Windows Vista
  * Windows Mobile 5.0
  * Windows Mobile 6
- * SuSE Enterprise 10 Linux
+ * Windows Vista
  * Gumstix Linux
- * Java 5
- * Java 6
+ * SuSE Linux Enterprise Server 10
+
+The following Java virtual machines are now supported:
+
+ * NSIcom CrE-ME 4.12 (Java ME CDC 1.0 with PP 1.0)
+ * Sun JDK/JRE 1.5
+ * Sun JDK/JRE 1.6
 
 For the complete list of supported platforms, please see
 
@@ -23,20 +27,21 @@ For the complete list of supported platforms, please see
 Desupported Platforms
 ---------------------
 
-Ice-E no longer supports the following platforms:
+Ice-E no longer supports the following operating systems:
 
- * Fedora Core 4
+ * Fedora Core 4 Linux
  * Windows 2000
 
 The following C++ compilers are no longer supported:
 
+ * eMbedded Visual C++ 4.0
  * Visual C++ 6.0
  * Visual Studio .NET 2003
- * eMbedded Visual C++ 4.0
 
 For Java, we no longer support:
 
- * JDK 1.1.8
+ * NSIcom CrEme 3.27 (Personal Java 3.1)
+ * Sun JDK/JRE releases older than 1.4.2
 
 
 API Changes - General
@@ -171,7 +176,7 @@ API Changes - C++ Only
 
 - Added ability to configure user-defined string and wstring
   converters that are used during marshalling/unmarshalling to
-  convert between UTF8 (as required by the Ice protocol) and the
+  convert between UTF-8 (as required by the Ice protocol) and the
   user's character set.
 
   A custom narrow string converter must derive from the class
