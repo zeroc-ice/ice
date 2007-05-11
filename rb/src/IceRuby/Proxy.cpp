@@ -118,6 +118,28 @@ IceRuby_Connection_toString(VALUE self)
     return Qnil;
 }
 
+extern "C"
+VALUE
+IceRuby_Connection_equals(VALUE self, VALUE other)
+{
+    ICE_RUBY_TRY
+    {
+        if(NIL_P(other))
+        {
+            return Qfalse;
+        }
+        if(callRuby(rb_obj_is_kind_of, other, _connectionClass) != Qtrue)
+        {
+            throw RubyException(rb_eTypeError, "argument must be a connection");
+        }
+        Ice::ConnectionPtr* p1 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(self));
+        Ice::ConnectionPtr* p2 = reinterpret_cast<Ice::ConnectionPtr*>(DATA_PTR(other));
+        return *p1 == *p2 ? Qtrue : Qfalse;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
 // **********************************************************************
 // Endpoint
 // **********************************************************************
@@ -594,17 +616,7 @@ IceRuby_ObjectPrx_ice_getEndpointSelection(VALUE self)
         Ice::EndpointSelectionType type = p->ice_getEndpointSelection();
         volatile VALUE cls = callRuby(rb_path2class, "Ice::EndpointSelectionType");
         assert(!NIL_P(cls));
-        ID name = 0;
-        switch(type)
-        {
-        case Ice::Random:
-            name = rb_intern("Random");
-            break;
-        case Ice::Ordered:
-            name = rb_intern("Ordered");
-            break;
-        }
-        return callRuby(rb_funcall, cls, name, 0);
+        return callRuby(rb_funcall, cls, rb_intern("from_int"), 1, INT2NUM(static_cast<int>(type)));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1326,6 +1338,8 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_connectionClass, "toString", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "to_s", CAST_METHOD(IceRuby_Connection_toString), 0);
     rb_define_method(_connectionClass, "inspect", CAST_METHOD(IceRuby_Connection_toString), 0);
+    rb_define_method(_connectionClass, "==", CAST_METHOD(IceRuby_Connection_equals), 1);
+    rb_define_method(_connectionClass, "eql?", CAST_METHOD(IceRuby_Connection_equals), 1);
 
     //
     // Endpoint.
