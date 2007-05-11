@@ -261,7 +261,6 @@ public:
             delete oldEncaps;
         }
     }
-    void checkReadEncaps();
     Ice::Int getReadEncapsSize();
     void skipEncaps();
 

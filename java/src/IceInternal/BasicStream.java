@@ -452,18 +452,6 @@ public class BasicStream
         _readEncapsCache.reset();
     }
 
-    public void
-    checkReadEncaps()
-    {
-        assert(_readEncapsStack != null);
-        int start = _readEncapsStack.start;
-        int sz = _readEncapsStack.sz;
-        if(_buf.position() != start + sz)
-        {
-            throw new Ice.EncapsulationException();
-        }
-    }
-
     public int
     getReadEncapsSize()
     {

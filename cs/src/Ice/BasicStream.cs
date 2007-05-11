@@ -468,17 +468,6 @@ namespace IceInternal
             _readEncapsCache.reset();
         }
         
-        public virtual void checkReadEncaps()
-        {
-            Debug.Assert(_readEncapsStack != null);
-            int start = _readEncapsStack.start;
-            int sz = _readEncapsStack.sz;
-            if(_buf.position() != start + sz)
-            {
-                throw new Ice.EncapsulationException();
-            }
-        }
-        
         public virtual int getReadEncapsSize()
         {
             Debug.Assert(_readEncapsStack != null);
