@@ -55,7 +55,7 @@ import sys, os, errno, getopt
 from threading import Thread
 
 def usage():
-    print "usage: " + sys.argv[0] + " --debug --protocol protocol --compress --host host --threadPerConnection"
+    print "usage: " + sys.argv[0] + " --debug --protocol PROT --compress --host HOST --threadPerConnection"
     sys.exit(2)
 
 try:
