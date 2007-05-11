@@ -9,7 +9,7 @@
 
 package Ice;
 
-public abstract class UserException extends Exception
+public abstract class UserException extends Exception implements Cloneable
 {
     public java.lang.Object clone()
     {

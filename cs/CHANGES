@@ -1,3 +1,9 @@
+Changes since version 3.2.X (binary incompabible)
+-------------------------------------------------
+
+- Ice.LocalException and Ice.UserException now implement
+  System.ICloneable
+
 Changes since version 3.2.0
 ---------------------------
 

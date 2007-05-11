@@ -9,7 +9,7 @@
 
 package Ice;
 
-public abstract class LocalException extends RuntimeException
+public abstract class LocalException extends RuntimeException implements Cloneable
 {
     public java.lang.Object clone()
     {

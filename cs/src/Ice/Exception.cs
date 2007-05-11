@@ -12,8 +12,13 @@ using System.Diagnostics;
 namespace Ice
 {
 
-    public abstract class Exception : System.ApplicationException
+    public abstract class Exception : System.ApplicationException, System.ICloneable
     {
+        public object Clone()
+        {
+            return MemberwiseClone();
+        }
+
         public Exception() {}
         public Exception(System.Exception ex) : base("", ex) {}
         public override string ToString()
