@@ -77,7 +77,7 @@ SDIR		= $(slicedir)\IceE
 CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_API_EXPORTS -DFD_SETSIZE=1024 -DICEE_PURE_CLIENT -DWIN32_LEAN_AND_MEAN
 SLICE2CPPEFLAGS = --ice --include-dir IceE --dll-export ICE_API $(SLICE2CPPEFLAGS)
 
-!if "$(STATICLIBS)" != "yes" & "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+!if "$(STATICLIBS)" != "yes" && "$(OPTIMIZE_SPEED)" != "yes" && "$(OPTIMIZE_SIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

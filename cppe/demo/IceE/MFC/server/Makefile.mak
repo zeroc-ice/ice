@@ -25,11 +25,11 @@ SRCS		= $(OBJS:.obj=.cpp)
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS	= $(MFC_CPPFLAGS) -I. $(CPPFLAGS) -DVC_EXTRALEAN
-!if "$(EMBEDDED_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
+!if "$(STATICLIBS)" != "yes"
 CPPFLAGS        = $(CPPFLAGS) -D_AFXDLL
 !endif
 
-!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+!if "$(OPTIMIZE_SPEED)" != "yes" && "$(OPTIMIZE_SIZE)" != "yes"
 PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif
 
@@ -37,19 +37,19 @@ PDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 
 RESFILE         = HelloServer.res
 HelloServer.res: HelloServer.rc
-        $(RC) HelloServer.rc
+        $(RC) $(RCFLAGS) HelloServer.rc
 
 !else
 
 RESFILE         = HelloServerCE.res
 HelloServerCE.res: HelloServerCE.rc
-	$(RC) HelloServerCE.rc
+	$(RC) $(RCFLAGS) HelloServerCE.rc
 
 !endif
 
 
 $(SERVER): $(OBJS) $(COBJS) $(RESFILE)
-	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(PDBFLAGS) $(OBJS) $(COBJS) $(RESFILE) /out:$@ $(LIBS)
+	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(PDBFLAGS) $(OBJS) $(COBJS) $(RESFILE) /out:$@ $(MFC_LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 

@@ -45,15 +45,20 @@ SRCS		= $(OBJS:.obj=.cpp) \
 SLICE2CPPEFLAGS = -I. --ice $(SLICE2CPPEFLAGS)
 
 CPPFLAGS        = -I. $(CPPFLAGS) $(MFC_CPPFLAGS)
+
 !ifdef BUILD_MFC
-!if "$(EMBEDDED_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
+
+!if "$(STATICLIBS)" != "yes"
 CPPFLAGS	= $(CPPFLAGS) -D_AFXDLL
 !endif
+
 !else
+
 CPPFLAGS	= $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN -WX
+
 !endif
 
-!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+!if "$(OPTIMIZE_SPEED)" != "yes" && "$(OPTIMIZE_SIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 MPDBFLAGS        = /pdb:$(MFCCLIENT:.exe=.pdb)
 !endif
@@ -67,7 +72,7 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 RESFILE		= ChatClient.res
 ChatClient.res: ChatClient.rc
-	$(RC) ChatClient.rc
+	$(RC) $(RCFLAGS) ChatClient.rc
 
 !else
 
@@ -75,12 +80,12 @@ $(CLIENT)::
 
 RESFILE		= ChatClientCE.res
 ChatClientCE.res: ChatClientCE.rc
-	$(RC) ChatClientCE.rc
+	$(RC) $(RCFLAGS) ChatClientCE.rc
 
 !endif
 
 $(MFCCLIENT): $(OBJS) $(MOBJS) $(RESFILE)
-	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(MPDBFLAGS) $(OBJS) $(MOBJS) $(RESFILE) /out:$@ $(LIBS)
+	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(MPDBFLAGS) $(OBJS) $(MOBJS) $(RESFILE) /out:$@ $(MFC_LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 

@@ -22,7 +22,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS	= -I..\include $(CPPFLAGS) -DICE_TEST_COMMON_API_EXPORTS
 
-!if "$(STATICLIBS)" != "yes" & "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+!if "$(STATICLIBS)" != "yes" && "$(OPTIMIZE_SPEED)" != "yes" && "$(OPTIMIZE_SIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

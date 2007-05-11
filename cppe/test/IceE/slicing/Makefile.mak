@@ -28,11 +28,10 @@ SRCS		= $(COBJS:.obj=.cpp) \
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-ICECPPFLAGS	= -I. $(ICECPPFLAGS) -DWIN32_LEAN_AND_MEAN
+SLICE2CPPEFLAGS	= -I. $(SLICE2CPPEFLAGS)
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -WX -DWIN32_LEAN_AND_MEAN
 
-CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -WX
-
-!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+!if "$(OPTIMIZE_SPEED)" != "yes" && "$(OPTIMIZE_SIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif

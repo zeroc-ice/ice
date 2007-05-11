@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_includedir)\IceE \
-	    @echo "Creating $(install_includedir)\IceE..." & \
+	    @echo "Creating $(install_includedir)\IceE..." && \
 	    mkdir $(install_includedir)\IceE
 
 	@for %i in ( *.h ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_includedir)\IceE

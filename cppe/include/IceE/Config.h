@@ -225,13 +225,6 @@
 #endif
 
 //
-// If we use Visual C++ 6.0 or Embedded Visual C++ 4.0, we must use STLport
-//
-#if defined(_MSC_VER) && (_MSC_VER < 1300) && !defined(_STLP_BEGIN_NAMESPACE)
-#   error "IceE for Visual C++ 6.0 and Embedded Visual C++ 4.0 require STLport"
-#endif
-
-//
 // By deriving from this class, other classes are made non-copyable.
 //
 namespace IceUtil

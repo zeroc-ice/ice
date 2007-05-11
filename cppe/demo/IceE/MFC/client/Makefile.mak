@@ -23,12 +23,11 @@ SRCS		= $(OBJS:.obj=.cpp)
 !include $(top_srcdir)/config/Make.rules.mak
 
 CPPFLAGS        = $(MFC_CPPFLAGS) -I. $(CPPFLAGS) -DICEE_PURE_CLIENT -DVC_EXTRALEAN
-!if "$(EMBEDDED_DEVICE)" == "" | "$(STATICLIBS)" != "yes"
+!if "$(STATICLIBS)" != "yes"
 CPPFLAGS	= $(CPPFLAGS) -D_AFXDLL
 !endif
 
-
-!if "$(OPTIMIZE_SPEED)" != "yes" & "$(OPTIMIZE_SIZE)" != "yes"
+!if "$(OPTIMIZE_SPEED)" != "yes" && "$(OPTIMIZE_SIZE)" != "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
@@ -36,18 +35,18 @@ PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 
 RESFILE         = HelloClient.res
 HelloClient.res: HelloClient.rc
-        $(RC) HelloClient.rc
+        $(RC) $(RCFLAGS) HelloClient.rc
 
 !else
 
 RESFILE         = HelloClientCE.res
 HelloClientCE.res: HelloClientCE.rc
-        $(RC) HelloClientCE.rc
+        $(RC) $(RCFLAGS) HelloClientCE.rc
 
 !endif
 
 $(CLIENT): $(OBJS) $(COBJS) $(RESFILE)
-	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(PDBFLAGS) $(OBJS) $(COBJS) $(RESFILE) /out:$@ $(MINLIBS)
+	$(LINK) $(LDFLAGS) $(MFC_LDFLAGS) $(PDBFLAGS) $(OBJS) $(COBJS) $(RESFILE) /out:$@ $(MFC_MINLIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#2 && del /q $@.manifest
 
