@@ -575,6 +575,17 @@ Ice::StringConversionException::ice_print(ostream& out) const
 }
 
 void
+Ice::EncapsulationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: illegal encapsulation";
+    if(!reason.empty())
+    {
+        out << ":\n" << reason;
+    }
+}
+
+void
 Ice::NegativeSizeException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

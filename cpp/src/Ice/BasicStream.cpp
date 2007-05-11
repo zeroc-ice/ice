@@ -274,6 +274,18 @@ IceInternal::BasicStream::ReadEncaps::swap(ReadEncaps& other)
     std::swap(previous, other.previous);
 }
 
+void
+IceInternal::BasicStream::checkReadEncaps()
+{
+    assert(_currentReadEncaps);
+    Container::size_type start = _currentReadEncaps->start;
+    Int sz = _currentReadEncaps->sz;
+    if(i != b.begin() + start + sz)
+    {
+        throw EncapsulationException(__FILE__, __LINE__);
+    }
+}
+
 Int
 IceInternal::BasicStream::getReadEncapsSize()
 {

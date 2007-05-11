@@ -852,6 +852,16 @@ local exception StringConversionException extends MarshalException
 {
 };
 
+
+/**
+ *
+ * This exception indicates a malformed data encapsulation.
+ *
+ **/
+local exception EncapsulationException extends MarshalException
+{
+};
+
 /**
  *
  * This exception is raised if a negative size
