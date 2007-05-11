@@ -91,8 +91,7 @@ Changes since version 1.1.0
   type Ice.InitializationData. This structure contains communicator
   members that may only be set during communicator initialization.
   Currently included are Properties and Logger. The initializeWithXXX
-  functions have been deprecated and the setLogger() operation has
-  been removed.
+  setLogger() operations have been removed.
 
 - Added requestId to Current.
 

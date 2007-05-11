@@ -105,28 +105,6 @@ public final class Util
         return initialize(new InitializationData());
     }
 
-    /**
-     * @deprecated This method has been deprecated, use initialize instead.
-     **/
-    public static Communicator
-    initializeWithProperties(StringSeqHolder args, Properties properties)
-    {
-        InitializationData initData = new InitializationData();
-	initData.properties = properties;
-	return initialize(args, initData);
-    }
-
-    /**
-     * @deprecated This method has been deprecated, use initialize instead.
-     **/
-    public static Communicator
-    initializeWithProperties(String[] args, Properties properties)
-    {
-        InitializationData initData = new InitializationData();
-	initData.properties = properties;
-	return initialize(args, initData);
-    }
-
     public static IceInternal.Instance
     getInstance(Communicator communicator)
     {

@@ -100,7 +100,9 @@ class ConfigurationForm extends Form implements CommandListener, Runnable
         // for when the test is running.
         //
 
-        _communicator = Ice.Util.initializeWithProperties(new String[0], _properties);
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = _properties;
+        _communicator = Ice.Util.initialize(new String[0], initData);
         ((TestApplication)_parent).runTest(_communicator, _out);
     }
 
