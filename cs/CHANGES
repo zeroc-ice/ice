@@ -1,8 +1,6 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
-- Removed unused Ice::EncapsulationException.
-
 - Ice.LocalException and Ice.UserException now implement
   System.ICloneable
 
