@@ -46,6 +46,7 @@ def runTests(args, tests, num = 0):
 # List of all basic tests.
 #
 tests = [ \
+    "Ice/binding", \
     "Ice/checksum", \
     "Ice/exceptions", \
     "Ice/facets", \
