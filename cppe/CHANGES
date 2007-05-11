@@ -140,8 +140,7 @@ Changes since version 1.1.0
   type Ice::InitializationData. This structure contains communicator
   members that may only be set during communicator initialization.
   Currently included are Properties, Logger and string converters.
-  The initializeWithXXX functions have been deprecated and the 
-  setLogger() operation has been removed.
+  The initializeWithXXX() and setLogger() operations have been removed.
 
 - Added ability to configure user-defined string and wstring
   converters that are used during marshalling/unmarshalling to
