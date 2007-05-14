@@ -49,34 +49,32 @@ end
 def run(args, communicator)
     myClass = allTests(communicator)
 
-    print "testing server shutdown... "
-    STDOUT.flush
     myClass.shutdown()
-    begin
-        myClass.opVoid()
-        test(false)
-    rescue Ice::LocalException
-        puts "ok"
-    end
-
     return true
 end
 
 begin
+    #
+    # In this test, we need at least two threads in the
+    # client side thread pool for nested AMI.
+    #
     initData = Ice::InitializationData.new
     initData.properties = Ice.createProperties(ARGV)
-    #
-    # This is not necessary since we don't have AMI support (yet).
-    #
-    #initData.properties.setProperty('Ice.ThreadPool.Client.Size', '2')
-    #initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
 
     #
-    # We must set MessageSizeMax to an explicit values, because
-    # we run tests to check whether Ice.MemoryLimitException is
-    # raised as expected.
+    # For this test, we want to disable retries.
     #
-    initData.properties.setProperty("Ice.MessageSizeMax", "100")
+    initData.properties.setProperty('Ice.RetryIntervals', '-1')
+
+    #
+    # This test kills connections, so we don't want warnings.
+    #
+    initData.properties.setProperty('Ice.Warn.Connections', '0')
+
+    #
+    # Check for AMI timeouts every second.
+    #
+    initData.properties.setProperty("Ice.MonitorConnections", "1")
 
     communicator = Ice.initialize(ARGV, initData)
     status = run(ARGV, communicator)

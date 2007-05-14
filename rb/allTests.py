@@ -53,8 +53,10 @@ tests = [ \
     "Ice/inheritance", \
     "Ice/location", \
     "Ice/objects", \
+    "Ice/proxy", \
     "Ice/operations", \
     "Ice/retry", \
+    "Ice/timeout", \
     "Ice/slicing/exceptions", \
     "Ice/slicing/objects", \
     ]
