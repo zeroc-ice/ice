@@ -84,7 +84,7 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-SLICE2CS		= $(ICE_HOME)\bin\slice2cs
+SLICE2CS		= "$(ICE_HOME)\bin\slice2cs"
 
 EVERYTHING		= all clean install 
 

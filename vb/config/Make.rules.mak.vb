@@ -61,7 +61,7 @@ VBCFLAGS 		= $(VBCFLAGS) -debug+ -define:DEBUG=yes
 VBCFLAGS 		= $(VBCFLAGS) -optimize+
 !endif
 
-SLICE2VB		= $(ICE_HOME)\bin\slice2vb
+SLICE2VB		= "$(ICE_HOME)\bin\slice2vb"
 
 EVERYTHING		= all clean depend config
 

@@ -88,7 +88,7 @@ RUBY_LIBS		= msvcrt-ruby18.lib
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
-SLICE2RB		= $(ICE_HOME)\bin\slice2rb.exe
+SLICE2RB		= "$(ICE_HOME)\bin\slice2rb.exe"
 
 EVERYTHING		= all clean install
 
