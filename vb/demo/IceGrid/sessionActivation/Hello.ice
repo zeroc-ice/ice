@@ -16,7 +16,7 @@ module Demo
 interface Hello
 {
     idempotent void sayHello();
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

@@ -45,7 +45,7 @@ interface PhoneBook
     Contact* createContact() throws DatabaseException;
     ["cpp:const"] idempotent Contacts findContacts(string name) throws DatabaseException;
     void setEvictorSize(int size) throws DatabaseException;
-    ["cpp:const"] idempotent void shutdown();
+    void shutdown();
 };
 
 };

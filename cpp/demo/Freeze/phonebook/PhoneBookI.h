@@ -54,7 +54,7 @@ public:
     virtual Demo::ContactPrx createContact(const Ice::Current&);
     virtual Demo::Contacts findContacts(const std::string&, const Ice::Current&) const;
     virtual void setEvictorSize(Ice::Int, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&) const;
+    virtual void shutdown(const Ice::Current&);
 
 private:
 

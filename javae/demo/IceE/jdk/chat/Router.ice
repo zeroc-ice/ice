@@ -144,7 +144,7 @@ interface Admin
      * Shut down the &Glacier2; router.
      *
      **/
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

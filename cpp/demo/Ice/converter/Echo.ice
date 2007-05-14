@@ -16,7 +16,7 @@ module Demo
 interface Echo
 {
     ["cpp:const"] idempotent string echoString(string s);
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

@@ -16,7 +16,7 @@ module Demo
 class Hello
 {
     idempotent void sayHello();
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

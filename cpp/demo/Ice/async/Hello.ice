@@ -22,7 +22,7 @@ interface Hello
     ["ami", "amd"] void sayHello(int delay)
         throws RequestCanceledException;
 
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

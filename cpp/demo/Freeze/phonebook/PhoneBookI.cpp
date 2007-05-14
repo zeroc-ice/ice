@@ -159,7 +159,7 @@ PhoneBookI::setEvictorSize(Ice::Int size, const Ice::Current&)
 }
 
 void
-PhoneBookI::shutdown(const Ice::Current& c) const
+PhoneBookI::shutdown(const Ice::Current& c)
 {
     c.adapter->getCommunicator()->shutdown();
 }

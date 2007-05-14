@@ -54,7 +54,7 @@ interface Throughput
     FixedSeq recvFixedSeq();
     FixedSeq echoFixedSeq(FixedSeq seq);
 
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

@@ -54,7 +54,7 @@ interface SessionFactory
     //
     Session* create(string name);
 
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };

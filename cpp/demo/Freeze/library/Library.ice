@@ -227,7 +227,7 @@ interface Library
      * Shutdown the server.
      *
      **/
-    idempotent void shutdown();
+    void shutdown();
 };
 
 };
