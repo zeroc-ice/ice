@@ -66,7 +66,7 @@ try:
     # we run tests to check whether Ice.MemoryLimitException is
     # raised as expected.
     #
-    initData.properties.setProperty("Ice.MessageSizeMax", "100");
+    initData.properties.setProperty("Ice.MessageSizeMax", "100")
 
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)

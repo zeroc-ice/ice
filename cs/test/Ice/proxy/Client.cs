@@ -29,26 +29,6 @@ public class Client
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-
-            //
-            // We must set MessageSizeMax to an explicit values,
-            // because we run tests to check whether
-            // Ice.MemoryLimitException is raised as expected.
-            //
-            initData.properties.setProperty("Ice.MessageSizeMax", "100");
-
-            //
-            // We don't want connection warnings because of the timeout test.
-            //
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-            //
-            // Use a faster connection monitor timeout to test AMI
-            // timeouts.
-            //
-            initData.properties.setProperty("Ice.MonitorConnections", "1");
 
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);

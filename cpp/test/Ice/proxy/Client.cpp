@@ -34,26 +34,8 @@ main(int argc, char* argv[])
 
     try
     {
-        //
-        // In this test, we need at least two threads in the
-        // client side thread pool for nested AMI.
-        //
         Ice::InitializationData initData;
         initData.properties = Ice::createProperties(argc, argv);
-        initData.properties->setProperty("Ice.ThreadPool.Client.Size", "2");
-        initData.properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-
-        //
-        // We don't want connection warnings because of the timeout test.
-        //
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-
-        //
-        // Use a faster connection monitor timeout to test AMI
-        // timeouts.
-        //
-        initData.properties->setProperty("Ice.MonitorConnections", "1");
-
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator, initData);
     }

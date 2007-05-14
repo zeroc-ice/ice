@@ -60,7 +60,7 @@ def allTests(communicator, collocated):
         b1 = communicator.stringToProxy("test\\777")
         test(False)
     except Ice.IdentityParseException:
-            pass
+        pass
     b1 = communicator.stringToProxy("test\\40test")
     test(b1.ice_getIdentity().name == "test test")
 
@@ -88,7 +88,7 @@ def allTests(communicator, collocated):
         b1 = communicator.stringToProxy("id@adapter test")
         test(False)
     except Ice.ProxyParseException:
-            pass
+        pass
     b1 = communicator.stringToProxy("category/test@adapter")
     test(b1.ice_getIdentity().name == "test" and b1.ice_getIdentity().category == "category" and \
          b1.ice_getAdapterId() == "adapter")
@@ -124,12 +124,12 @@ def allTests(communicator, collocated):
         b1 = communicator.stringToProxy("id -f \"facet x")
         test(False)
     except Ice.ProxyParseException:
-            pass
+        pass
     try:
         b1 = communicator.stringToProxy("id -f \'facet x")
         test(False)
     except Ice.ProxyParseException:
-            pass
+        pass
     b1 = communicator.stringToProxy("test -f facet:tcp")
     test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
          b1.ice_getFacet() == "facet" and len(b1.ice_getAdapterId()) == 0)
@@ -149,7 +149,7 @@ def allTests(communicator, collocated):
         b1 = communicator.stringToProxy("test -f facet@test @test")
         test(False)
     except Ice.ProxyParseException:
-            pass
+        pass
     b1 = communicator.stringToProxy("test")
     test(b1.ice_isTwoway())
     b1 = communicator.stringToProxy("test -t")
@@ -171,19 +171,19 @@ def allTests(communicator, collocated):
         b1 = communicator.stringToProxy("test:tcp@adapterId")
         test(False)
     except Ice.EndpointParseException:
-            pass
+        pass
     # This is an unknown endpoint warning, not a parse exception.
     #
     #try:
     #   b1 = communicator.stringToProxy("test -f the:facet:tcp")
     #   test(False)
     #except Ice.EndpointParseException:
-    #        pass
+    #   pass
     try:
         b1 = communicator.stringToProxy("test::tcp")
         test(False)
     except Ice.EndpointParseException:
-            pass
+        pass
     print "ok"
 
     print "testing propertyToProxy... ",

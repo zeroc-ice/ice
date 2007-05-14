@@ -612,12 +612,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     pstr = communicator->proxyToString(p1);
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
-    // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
+    //
+    // Test that an SSL endpoint and a nonsense endpoint get written
+    // back out as an opaque endpoint.
+    //
     p1 = communicator->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
     pstr = communicator->proxyToString(p1);
     test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
 
-    // Try to invoke on the SSL endpoint to verify that we get a NoEndpointException.
+    //
+    // Try to invoke on the SSL endpoint to verify that we get a
+    // NoEndpointException.
+    //
     try
     {
         p1->ice_ping();
@@ -627,8 +633,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    // Test that the proxy with an SSL endpoint and a nonsense endpoint (which the server doesn't understand either)
-    // can be sent over the wire and returned by the server without losing the opaque endpoints.
+    //
+    // Test that the proxy with an SSL endpoint and a nonsense
+    // endpoint (which the server doesn't understand either) can be
+    // sent over the wire and returned by the server without losing
+    // the opaque endpoints.
+    //
     Ice::ObjectPrx p2 = derived->echo(p1);
     pstr = communicator->proxyToString(p2);
     test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");

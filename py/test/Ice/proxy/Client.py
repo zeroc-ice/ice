@@ -45,26 +45,8 @@ def run(args, communicator):
     return True
 
 try:
-    #
-    # In this test, we need at least two threads in the
-    # client side thread pool for nested AMI.
-    #
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty('Ice.ThreadPool.Client.Size', '2')
-    initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
-
-    #
-    # We don't want connection warnings because of the timeout test.
-    #
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-    #
-    # Use a faster connection monitor timeout to test AMI
-    # timeouts.
-    #
-    initData.properties.setProperty("Ice.MonitorConnections", "1");
-
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:

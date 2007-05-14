@@ -36,6 +36,11 @@ public class Server
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
+            //
+            // Its possible to have batch oneway requests dispatched
+            // after the adapter is deactivated due to thread
+            // scheduling so we supress this warning.
+            //
             initData.properties.setProperty("Ice.Warn.Dispatch", "0");
             communicator = Ice.Util.initialize(ref args, initData);
             status = run(args, communicator);

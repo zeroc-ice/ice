@@ -38,9 +38,13 @@ public class Client
         
         try
         {
+            //
+            // In this test, we need at least two threads in the
+            // client side thread pool for nested AMI.
+            //
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
             initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
             //

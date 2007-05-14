@@ -46,7 +46,6 @@ def run(args, communicator):
 try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
     communicator = Ice.initialize(sys.argv, initData)
     status = run(sys.argv, communicator)
 except:
