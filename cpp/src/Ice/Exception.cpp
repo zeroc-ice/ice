@@ -666,3 +666,10 @@ Ice::FixedProxyException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\nfixed proxy exception";
 }
+
+void
+Ice::ResponseSentException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nresponse sent exception";
+}

@@ -33,30 +33,39 @@ public class IncomingBase
     protected
     IncomingBase(IncomingBase in) // Adopts the argument. It must not be used afterwards.
     {
+        adopt(in);
+
+        //
+        // We don't change _current as it's exposed by Ice::Request
+        //
         _current = in._current;
-        in._current = null;
-
-        _servant = in._servant;
-        in._servant = null;
-
-        _locator = in._locator;
-        in._locator = null;
-
-        _cookie = in._cookie;
-        in._cookie = null;
-
-        _response = in._response;
-        in._response = false;
-
-        _compress = in._compress;
-        in._compress = 0;
-
-        _os = in._os;
-        in._os = null;
-
-        _connection = in._connection;
-        in._connection = null;
     }
+
+    protected void
+    adopt(IncomingBase other)
+    {
+        _servant = other._servant;
+        other._servant = null;
+
+        _locator = other._locator;
+        other._locator = null;
+
+        _cookie = other._cookie;
+        other._cookie = null;
+
+        _response = other._response;
+        other._response = false;
+
+        _compress = other._compress;
+        other._compress = 0;
+
+        _os = other._os;
+        other._os = null;
+
+        _connection = other._connection;
+        other._connection = null;
+    }
+
 
     //
     // These functions allow this object to be reused, rather than reallocated.
@@ -89,6 +98,8 @@ public class IncomingBase
         }
 
         _connection = connection;
+
+        _interceptorAsyncCallbackList = null;
     }
 
     public void
@@ -107,6 +118,8 @@ public class IncomingBase
         {
             _os.reset();
         }
+
+        _interceptorAsyncCallbackList = null;
     }
 
     final protected void
@@ -349,4 +362,6 @@ public class IncomingBase
     protected BasicStream _os;
 
     protected Ice.ConnectionI _connection;
+
+    protected java.util.LinkedList _interceptorAsyncCallbackList;
 }

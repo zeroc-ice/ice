@@ -88,7 +88,7 @@ Slice::JavaVisitor::~JavaVisitor()
 }
 
 vector<string>
-Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
+Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package, bool final)
 {
     vector<string> params;
 
@@ -98,6 +98,10 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
         StringList metaData = (*q)->getMetaData();
         string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
                                          metaData);
+        if(final)
+        {
+            typeString = "final " + typeString;
+        }
         params.push_back(typeString + ' ' + fixKwd((*q)->name()));
     }
 
@@ -4266,7 +4270,19 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort();
         throws.unique();
 
-        vector<string> params = getParams(op, package);
+        //
+        // Arrange exceptions into most-derived to least-derived order. If we don't
+        // do this, a base exception handler can appear before a derived exception
+        // handler, causing compiler warnings
+        //
+#if defined(__SUNPRO_CC)
+        throws.sort(Slice::derivedToBaseCompare);
+#else
+        throws.sort(Slice::DerivedToBaseCompare());
+#endif
+
+
+        vector<string> params = getParams(op, package, true);
         vector<string> args = getArgs(op);
 
         out << sp;
@@ -4280,50 +4296,97 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         else
         {
             StringList metaData = op->getMetaData();
-            out << nl << "Ice.Current __current = new Ice.Current();";
+            out << nl << "final Ice.Current __current = new Ice.Current();";
             out << nl << "__initCurrent(__current, \"" << op->name() << "\", " 
                 << sliceModeToIceMode(op->sendMode())
                 << ", __ctx);";
-            out << nl << "while(true)";
+            if(ret)
+            {
+                string resultTypeHolder = typeToString(ret, TypeModeOut, package, op->getMetaData());
+
+                out << nl << "final " << resultTypeHolder << " __result = new " << resultTypeHolder << "();";
+            }
+            
+            out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current)";
             out << sb;
-            out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
-            out << nl << "try";
+            out << nl << "public IceInternal.DispatchStatus run(Ice.Object __obj)";
             out << sb;
             out << nl << fixKwd(name) << " __servant = null;";
             out << nl << "try";
             out << sb;
-            out << nl << "__servant = (" << fixKwd(name) << ")__direct.servant();";
+            out << nl << "__servant = (" << fixKwd(name) << ")__obj;";
             out << eb;
             out << nl << "catch(ClassCastException __ex)";
             out << sb;
-            out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
-            out << nl << "__opEx.id = __current.id;";
-            out << nl << "__opEx.facet = __current.facet;";
-            out << nl << "__opEx.operation = __current.operation;";
-            out << nl << "throw __opEx;";
+            out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
             out << eb;
-            out << nl << "try";
-            out << sb;
+
+            if(!throws.empty())
+            {
+                out << nl << "try";
+                out << sb;
+            }
+
             out << nl;
             if(ret)
             {
-                out << "return ";
+                out << "__result.value = ";
             }
             out << "__servant." << opName << spar << args << "__current" << epar << ';';
-            if(!ret)
+            out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+            
+            if(!throws.empty())
             {
-                out << nl << "return;";
+                out << eb;
+                out << nl << "catch(Ice.UserException __ex)";
+                out << sb;
+                out << nl << "setUserException(__ex);";
+                out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+                out << eb;
+            }
+            out << eb;
+            out << eb;
+            out << ";";
+          
+            out << nl << "try";
+            out << sb;
+            out << nl << "IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
+            if(!throws.empty())
+            {
+                out << nl << "if(__status == IceInternal.DispatchStatus.DispatchUserException)";
+                out << sb;
+                out << nl << "try";
+                out << sb;
+                out << nl << "throw __direct.getUserException();";
+                out << eb;
+                for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+                {
+                    string exS = getAbsolute(*t, package);
+                    out << nl << "catch(" << exS << " __ex)";
+                    out << sb;
+                    out << nl << "throw __ex;";
+                    out << eb;
+                }
+                out << nl << "catch(Ice.UserException __ex)";
+                out << sb;
+                out << nl << "assert false;";
+                out << nl << "throw new Ice.UnknownUserException(__ex.toString());";
+                out << eb;
+                out << eb;
+            }
+            out << nl << "assert __status == IceInternal.DispatchStatus.DispatchOK;";
+            if(ret)
+            {
+                out << nl << "return __result.value;";
             }
             out << eb;
             out << nl << "catch(Ice.LocalException __ex)";
             out << sb;
             out << nl << "throw new IceInternal.LocalExceptionWrapper(__ex, false);";
             out << eb;
-            out << eb;
             out << nl << "finally";
             out << sb;
             out << nl << "__direct.destroy();";
-            out << eb;
             out << eb;
         }
         out << eb;
@@ -5064,6 +5127,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             out << sp << nl << "public void" << nl << "ice_response" << spar << paramsAMD << epar;
             out << sb;
             iter = 0;
+            out << nl << "if(__validateResponse(true))";
+            out << sb;
             if(ret || !outParams.empty())
             {
                 out << nl << "try";
@@ -5093,12 +5158,16 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
             }
             out << nl << "__response(true);";
             out << eb;
+            out << eb;
 
             out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
             out << sb;
             if(throws.empty())
             {
+                out << nl << "if(__validateException(ex))";
+                out << sb;
                 out << nl << "__exception(ex);";
+                out << eb;
             }
             else
             {
@@ -5112,13 +5181,19 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                     string exS = getAbsolute(*r, classPkg);
                     out << nl << "catch(" << exS << " __ex)";
                     out << sb;
+                    out << nl << "if(__validateResponse(false))";
+                    out << sb;
                     out << nl << "__os().writeUserException(__ex);";
                     out << nl << "__response(false);";
+                    out << eb;
                     out << eb;
                 }
                 out << nl << "catch(java.lang.Exception __ex)";
                 out << sb;
+                out << nl << "if(__validateException(__ex))";
+                out << sb;
                 out << nl << "__exception(__ex);";
+                out << eb;
                 out << eb;
             }
             out << eb;

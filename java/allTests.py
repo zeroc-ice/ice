@@ -96,6 +96,7 @@ tests = [ \
     "Ice/timeout", \
     "Ice/servantLocator", \
     "Ice/threads", \
+    "Ice/interceptor", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

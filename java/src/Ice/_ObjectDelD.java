@@ -12,22 +12,36 @@ package Ice;
 public class _ObjectDelD implements _ObjectDel
 {
     public boolean
-    ice_isA(String __id, java.util.Map __context)
+    ice_isA(final String __id, java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        Current __current = new Current();
+        final Current __current = new Current();
         __initCurrent(__current, "ice_isA", OperationMode.Nonmutating, __context);
-        while(true)
+        
+        final BooleanHolder __result = new BooleanHolder();
+
+        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+            {
+                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                {
+                    __result.value = __servant.ice_isA(__id, __current);
+                    return IceInternal.DispatchStatus.DispatchOK;
+                }
+            };
+        
+        try
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__current);
-            try
-            {
-                return __direct.servant().ice_isA(__id, __current);
-            }
-            finally
-            {
-                __direct.destroy();
-            }
+            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            return __result.value;
+        }
+        catch(Ice.LocalException __ex)
+        {
+            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+        }
+        finally
+        {
+            __direct.destroy();
         }
     }
 
@@ -35,20 +49,30 @@ public class _ObjectDelD implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        Current __current = new Current();
+        final Current __current = new Current();
         __initCurrent(__current, "ice_ping", OperationMode.Nonmutating, __context);
-        while(true)
+       
+        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+            {
+                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                {
+                    __servant.ice_ping(__current);
+                    return IceInternal.DispatchStatus.DispatchOK;
+                }
+            };
+                
+        try
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__current);
-            try
-            {
-                __direct.servant().ice_ping(__current);
-                return;
-            }
-            finally
-            {
-                __direct.destroy();
-            }
+            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == IceInternal.DispatchStatus.DispatchOK;
+        }
+        catch(Ice.LocalException __ex)
+        {
+            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+        }
+        finally
+        {
+            __direct.destroy();
         }
     }
 
@@ -56,19 +80,32 @@ public class _ObjectDelD implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        Current __current = new Current();
+        final Current __current = new Current();
         __initCurrent(__current, "ice_ids", OperationMode.Nonmutating, __context);
-        while(true)
+
+        final Ice.StringSeqHolder __result = new Ice.StringSeqHolder();
+
+        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+            {
+                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                {
+                    __result.value = __servant.ice_ids(__current);
+                    return IceInternal.DispatchStatus.DispatchOK;
+                }
+            };
+        try
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__current);
-            try
-            {
-                return __direct.servant().ice_ids(__current);
-            }
-            finally
-            {
-                __direct.destroy();
-            }
+            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            return __result.value;
+        }
+        catch(Ice.LocalException __ex)
+        {
+            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+        }
+        finally
+        {
+            __direct.destroy();
         }
     }
 
@@ -76,26 +113,38 @@ public class _ObjectDelD implements _ObjectDel
     ice_id(java.util.Map __context)
         throws IceInternal.LocalExceptionWrapper
     {
-        Current __current = new Current();
+        final Current __current = new Current();
         __initCurrent(__current, "ice_id", OperationMode.Nonmutating, __context);
-        while(true)
+        
+        final Ice.StringHolder __result = new Ice.StringHolder();
+
+        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+            {
+                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                {
+                    __result.value = __servant.ice_id(__current);
+                    return IceInternal.DispatchStatus.DispatchOK;
+                }
+            };
+        try
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__current);
-            try
-            {
-                return __direct.servant().ice_id(__current);
-            }
-            finally
-            {
-                __direct.destroy();
-            }
+            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            return __result.value;
+        }
+        catch(Ice.LocalException __ex)
+        {
+            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+        }
+        finally
+        {
+            __direct.destroy();
         }
     }
 
     public boolean
     ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map context)
-        throws IceInternal.LocalExceptionWrapper
     {
         throw new CollocationOptimizationException();
     }

@@ -156,6 +156,35 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
     };
 
     public IceInternal.DispatchStatus
+    ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
+    {
+        if(request.isCollocated())
+        {
+            return __collocDispatch((IceInternal.Direct)request);
+        }
+        else
+        {
+            IceInternal.Incoming in = (IceInternal.Incoming)request;
+            if(cb != null)
+            {
+                in.push(cb);
+            }
+            try
+            {
+                in.startOver(); // may raise ResponseSentException
+                return __dispatch(in, in.getCurrent());
+            }
+            finally
+            {
+                if(cb != null)
+                {
+                    in.pop();
+                }
+            }
+        }
+    }
+
+    public IceInternal.DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         int pos = java.util.Arrays.binarySearch(__all, current.operation);
@@ -187,6 +216,13 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         assert(false);
         return IceInternal.DispatchStatus.DispatchOperationNotExist;
     }
+    
+    public IceInternal.DispatchStatus
+    __collocDispatch(IceInternal.Direct request)
+    {
+        return request.run(this);
+    }
+    
 
     public void
     __write(IceInternal.BasicStream __os)

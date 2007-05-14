@@ -34,7 +34,11 @@ public interface Object
     void ice_preMarshal();
     void ice_postUnmarshal();
 
+    IceInternal.DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb);
+
     IceInternal.DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
+
+    IceInternal.DispatchStatus __collocDispatch(IceInternal.Direct request);
 
     void __write(IceInternal.BasicStream __os);
     void __read(IceInternal.BasicStream __is, boolean __rid);

@@ -9,8 +9,21 @@
 
 package IceInternal;
 
-public final class Direct
+public abstract class Direct implements Ice.Request
 {
+    public abstract DispatchStatus run(Ice.Object target);
+
+    public final boolean isCollocated()
+    {
+        return true;
+    }
+
+    public final Ice.Current getCurrent()
+    {
+        return _current;
+    }
+
+
     public
     Direct(Ice.Current current)
     {
@@ -109,8 +122,21 @@ public final class Direct
         return _servant;
     }
 
+    public Ice.UserException
+    getUserException()
+    {
+        return _userException;
+    }
+
+    public void 
+    setUserException(Ice.UserException ex)
+    {
+        _userException = ex;
+    }
+
     private final Ice.Current _current;
     private Ice.Object _servant;
+    private Ice.UserException _userException;
     private Ice.ServantLocator _locator;
     private Ice.LocalObjectHolder _cookie;
 }

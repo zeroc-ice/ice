@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-final public class Incoming extends IncomingBase
+final public class Incoming extends IncomingBase implements Ice.Request
 {
     public
     Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
@@ -21,12 +21,30 @@ final public class Incoming extends IncomingBase
     }
 
     //
+    // Request implementation
+    //
+    public boolean 
+    isCollocated()
+    {
+        return false;
+    }
+    
+    public Ice.Current
+    getCurrent()
+    {
+        return _current;
+    }
+
+    //
     // These functions allow this object to be reused, rather than reallocated.
     //
     public void
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
           int requestId)
     {
+        _controller = null;
+        _inParamPos = -1;
+            
         if(_is == null)
         {
             _is = new BasicStream(instance);
@@ -38,6 +56,9 @@ final public class Incoming extends IncomingBase
     public void
     reclaim()
     {
+        _controller = null;
+        _inParamPos = -1;
+
         if(_is != null)
         {
             _is.reset();
@@ -73,15 +94,12 @@ final public class Incoming extends IncomingBase
 
         _current.operation = _is.readString();
         _current.mode = Ice.OperationMode.convert(_is.readByte());
+        _current.ctx = new java.util.HashMap();
         int sz = _is.readSize();
         while(sz-- > 0)
         {
             String first = _is.readString();
             String second = _is.readString();
-            if(_current.ctx == null)
-            {
-                _current.ctx = new java.util.HashMap();
-            }
             _current.ctx.put(first, second);
         }
 
@@ -246,7 +264,90 @@ final public class Incoming extends IncomingBase
         return _os;
     }
 
+    public final void
+    push(Ice.DispatchInterceptorAsyncCallback cb)
+    {
+        if(_interceptorAsyncCallbackList == null)
+        {
+            _interceptorAsyncCallbackList = new java.util.LinkedList();
+        }
+        
+        _interceptorAsyncCallbackList.addFirst(cb);
+    }
+    
+    public final void
+    pop()
+    {
+        assert _interceptorAsyncCallbackList != null;
+        _interceptorAsyncCallbackList.removeFirst();
+    }
+
+
+    public final void 
+    startOver()
+    {
+        if(_inParamPos == -1)
+        {
+            //
+            // That's the first startOver, so almost nothing to do
+            //
+            _inParamPos = _is.pos() - 6; // 6 bytes for the start of the encaps
+        }
+        else
+        {
+            killAsync();
+            
+            //
+            // Let's rewind _is and clean-up _os
+            //
+            _is.endReadEncaps();
+            _is.pos(_inParamPos);
+            _is.startReadEncaps();
+
+            if(_response)
+            {
+                _os.endWriteEncaps();
+                _os.resize(Protocol.headerSize + 4, false); 
+                _os.writeByte((byte)0);
+                _os.startWriteEncaps();
+            }
+        }
+    }
+
+    public final void
+    killAsync()
+    {
+        if(_controller != null)
+        {
+            //
+            // Reclaim various IncomingBase data members;
+            // May raise ResponseSentException
+            //
+            _controller.reset(this);
+        }
+    }
+
+    final IncomingAsyncController 
+    incomingAsyncController()
+    {
+        if(_controller == null)
+        {
+            _controller = new IncomingAsyncController();
+        }
+        return _controller;
+    }
+    
+    final boolean 
+    isRetriable()
+    {
+        return _inParamPos != -1;
+    }
+
+
     public Incoming next; // For use by ConnectionI.
 
     private BasicStream _is;
+
+    private IncomingAsyncController _controller;
+    private int _inParamPos = -1;
 }
