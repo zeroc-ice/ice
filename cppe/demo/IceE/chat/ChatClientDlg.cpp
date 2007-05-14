@@ -193,6 +193,28 @@ CChatClientDlg::OnInitDialog()
 void
 CChatClientDlg::OnCancel()
 {
+    if(_chat)
+    {
+	//
+	// Clear the router.
+	//
+	assert(_router);
+    	try
+	{
+	    _router->destroySession();
+	}
+        catch(const Ice::ConnectionLostException&)
+        {
+            //
+            // Expected: the router closed the connection.
+            //
+        }
+	catch(const Ice::Exception& ex)
+	{
+	    AfxMessageBox(CString(ex.toString().c_str()), MB_OK|MB_ICONEXCLAMATION);
+	}
+    }
+
     _log->setHandle(0);
     CDialog::OnCancel();
 }
