@@ -16,7 +16,7 @@ module Test
 interface ServerManager
 {
     void startServer();
-    idempotent void shutdown();
+    void shutdown();
 };
 
 interface Hello
@@ -26,7 +26,7 @@ interface Hello
 
 interface TestIntf
 {
-    idempotent void shutdown();
+    void shutdown();
 
     idempotent Hello* getHello();
 
