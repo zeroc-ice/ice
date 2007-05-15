@@ -123,6 +123,8 @@ IcePy::ServantWrapper::ServantWrapper(PyObject* servant) :
 
 IcePy::ServantWrapper::~ServantWrapper()
 {
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
     Py_DECREF(_servant);
 }
 

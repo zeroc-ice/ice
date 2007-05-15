@@ -1,6 +1,9 @@
 Changes since version 3.2.0
 ---------------------------
 
+- Fixed a bug that caused a crash when terminating a server with a
+  signal.
+
 - Added missing requestId to Ice.Current.
 
 - All local methods on a proxy that return the "same" proxy with
