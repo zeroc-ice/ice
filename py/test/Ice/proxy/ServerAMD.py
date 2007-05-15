@@ -46,6 +46,9 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def getContext_async(self, cb, current):
         return cb.ice_response(self.ctx)
 
+    def echo_async(self, cb, obj, current):
+        return cb.ice_response(obj)
+
     def ice_isA(self, s, current):
         self.ctx = current.ctx
         return Test.MyDerivedClass.ice_isA(self, s, current)

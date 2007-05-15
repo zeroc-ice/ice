@@ -21,6 +21,9 @@ class MyDerivedClassI(Test.MyDerivedClass):
     def getContext(self, current):
         return self.ctx
 
+    def echo(self, obj, current):
+        return obj
+
     def ice_isA(self, s, current):
         self.ctx = current.ctx
         return Test.MyDerivedClass.ice_isA(self, s, current)
