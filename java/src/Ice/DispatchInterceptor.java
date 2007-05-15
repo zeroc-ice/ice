@@ -55,38 +55,4 @@ public abstract class DispatchInterceptor extends ObjectImpl
         //
         return dispatch(request);
     }
-
-
-    public IceInternal.DispatchStatus 
-    ice_dispatch(Ice.Request request, DispatchInterceptorAsyncCallback cb)
-    {
-        //
-        // A dispatch interceptor can call another interceptor (as if it was a regular servant)
-        // to create a chain of interceptors
-        //
-
-        if(request.isCollocated())
-        {
-            return __collocDispatch((IceInternal.Direct)request);
-        }
-        else
-        {
-            IceInternal.Incoming in = (IceInternal.Incoming)request;
-            if(cb != null)
-            {
-                in.push(cb);
-            }
-            try
-            {
-                return __dispatch(in, request.getCurrent());
-            }
-            finally
-            {
-                if(cb != null)
-                {
-                    in.pop();
-                }
-            }
-        }
-    }
 }

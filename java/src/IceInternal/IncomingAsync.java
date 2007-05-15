@@ -19,15 +19,14 @@ public class IncomingAsync extends IncomingBase
 
         if(_retriable)
         {
-            _controller = in.incomingAsyncController();
-            _controller.setActive(this);
+            in.setActive(this);
+            _active = true;
 
             if(in._interceptorAsyncCallbackList != null)
             {
                 //
                 // Copy, not just reference
                 //
-
                 _interceptorAsyncCallbackList = new java.util.LinkedList(in._interceptorAsyncCallbackList);
             }
         }
@@ -40,7 +39,7 @@ public class IncomingAsync extends IncomingBase
 
         synchronized(this)
         {
-            if(_controller == null)
+            if(!_active)
             {
                 //
                 // Since _deactivate can only be called on an active object,
@@ -48,7 +47,7 @@ public class IncomingAsync extends IncomingBase
                 //
                 throw new Ice.ResponseSentException();
             }
-            _controller = null;
+            _active = false;
         }
 
         in.adopt(this);
@@ -166,14 +165,10 @@ public class IncomingAsync extends IncomingBase
         // 
         
         synchronized(this)
-        {
-            //
-            // _controller != null means this is the active IncomingAsync object 
-            //
-            
-            if(_controller != null)
+        {   
+            if(_active)
             {
-                _controller = null;
+                _active = false;
                 return true;
             }
             else
@@ -218,13 +213,9 @@ public class IncomingAsync extends IncomingBase
         
         synchronized(this)
         {
-            //
-            // _controller != null means this is the active IncomingAsync object 
-            //
-            
-            if(_controller != null)
+            if(_active)
             {
-                _controller = null;
+                _active = false;
                 return true;
             }
             else
@@ -242,6 +233,6 @@ public class IncomingAsync extends IncomingBase
     }
 
     
-    private IncomingAsyncController _controller;
     private final boolean _retriable;
+    private boolean _active = false; // only meaningful when _retriable == true
 }

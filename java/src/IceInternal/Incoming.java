@@ -42,7 +42,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
     reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress,
           int requestId)
     {
-        _controller = null;
+        _cb = null;
         _inParamPos = -1;
             
         if(_is == null)
@@ -56,7 +56,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
     public void
     reclaim()
     {
-        _controller = null;
+        _cb = null;
         _inParamPos = -1;
 
         if(_is != null)
@@ -317,37 +317,36 @@ final public class Incoming extends IncomingBase implements Ice.Request
     public final void
     killAsync()
     {
-        if(_controller != null)
+        //
+        // Always runs in the dispatch thread
+        //
+        if(_cb != null)
         {
             //
-            // Reclaim various IncomingBase data members;
             // May raise ResponseSentException
             //
-            _controller.reset(this);
+            _cb.__deactivate(this);
+            _cb = null;
         }
     }
 
-    final IncomingAsyncController 
-    incomingAsyncController()
+    final void
+    setActive(IncomingAsync cb)
     {
-        if(_controller == null)
-        {
-            _controller = new IncomingAsyncController();
-        }
-        return _controller;
+        assert _cb == null;
+        _cb = cb;
     }
-    
+ 
     final boolean 
     isRetriable()
     {
         return _inParamPos != -1;
     }
 
-
     public Incoming next; // For use by ConnectionI.
 
     private BasicStream _is;
 
-    private IncomingAsyncController _controller;
+    private IncomingAsync _cb;
     private int _inParamPos = -1;
 }
