@@ -101,6 +101,7 @@ tests = [ \
     "Ice/timeout", \
     "Ice/servantLocator", \
     "Ice/threads", \
+    "Ice/interceptor", \
     "IceSSL/configuration", \
     "Freeze/dbmap", \
     "Freeze/complex", \
