@@ -511,7 +511,7 @@ def allTests(communicator, collocated):
         pass
 
     # Legal TCP endpoint expressed as opaque endpoint
-    p1 = communicator.stringToProxy("test:opaque -t 1 -v AOouAAAQJwAAAA==");
+    p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     pstr = communicator.proxyToString(p1);
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
