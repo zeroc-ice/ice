@@ -107,6 +107,7 @@ ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
 ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_in&);
 ICE_API std::string addrToString(const struct sockaddr_in&);
 
+ICE_API std::vector<std::string> getHosts(const std::string&);
 ICE_API std::vector<std::string> getLocalHosts();
 #ifdef _WIN32
 ICE_API std::vector<struct sockaddr_in> getLocalAddresses();

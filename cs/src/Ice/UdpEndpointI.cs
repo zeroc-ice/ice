@@ -540,8 +540,28 @@ namespace IceInternal
             }
             else
             {
-                calcHashValue();
-                endps.Add(this);
+                if(!server)
+                {
+                    string[] hosts = Network.getHosts(_host);
+                    if(hosts.Length > 1)
+                    {
+                        for(int i = 0; i < hosts.Length; ++i)
+                        {
+                            endps.Add(
+                                new UdpEndpointI(instance_, hosts[i], _port, _connect, _connectionId, _compress, true));
+                        }
+                    }
+                    else
+                    {
+                        calcHashValue();
+                        endps.Add(this);
+                    }
+                }
+                else
+                {
+                    calcHashValue();
+                    endps.Add(this);
+                }
             }
             return endps;
         }

@@ -327,7 +327,27 @@ IceInternal::TcpEndpointI::expand(bool server) const
     }
     else
     {
-        endps.push_back(const_cast<TcpEndpointI*>(this));
+        if(!server)
+        {
+
+            vector<string> hosts = getHosts(_host);
+            if(hosts.size() > 1)
+            {
+                for(unsigned int i = 0; i < hosts.size(); ++i)
+                {
+                    endps.push_back(
+                        new TcpEndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress, true));
+                }
+            }
+            else
+            {
+                endps.push_back(const_cast<TcpEndpointI*>(this));
+            }
+        }
+        else
+        {
+            endps.push_back(const_cast<TcpEndpointI*>(this));
+        }
     }
     return endps;
 }

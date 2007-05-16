@@ -523,8 +523,29 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            calcHashValue();
-            endps.add(this);
+            if(!server)
+            {
+                java.util.ArrayList hosts = Network.getHosts(_host);
+                if(hosts.size() > 1)
+                {
+                    java.util.Iterator iter = hosts.iterator();
+                    while(iter.hasNext())
+                    {
+                        String host = (String)iter.next();
+                        endps.add(new UdpEndpointI(_instance, host, _port, _connect, _connectionId, _compress, true));
+                    }
+                }
+                else
+                {
+                    calcHashValue();
+                    endps.add(this);
+                }
+            }
+            else
+            {
+                calcHashValue();
+                endps.add(this);
+            }
         }
         return endps;
     }

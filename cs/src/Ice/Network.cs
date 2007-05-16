@@ -824,6 +824,45 @@ namespace IceInternal
             throw dns;
         }
 
+        public static string[] getHosts(string host)
+        {
+            ArrayList hosts;
+
+            int retry = 5;
+
+        repeatGetHostByName:
+            try
+            {
+                IPHostEntry e = Dns.GetHostEntry(host);
+                hosts = new ArrayList();
+                for(int i = 0; i < e.AddressList.Length; ++i)
+                {
+                    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+                    {
+                        hosts.Add(e.AddressList[i].ToString());
+                    }
+                }
+            }
+            catch(Win32Exception ex)
+            {
+                if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
+                {
+                    goto repeatGetHostByName;
+                }
+                Ice.DNSException e = new Ice.DNSException(ex);
+                e.host = host;
+                throw e;
+            }
+            catch(System.Exception ex)
+            {
+                Ice.DNSException e = new Ice.DNSException(ex);
+                e.host = host;
+                throw e;
+            }
+
+            return (string[])hosts.ToArray(typeof(string));
+        }
+
         public static string[] getLocalHosts()
         {
             ArrayList hosts;
