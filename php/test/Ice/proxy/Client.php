@@ -494,7 +494,7 @@ function allTests()
     }
 
     // Legal TCP endpoint expressed as opaque endpoint
-    $p1 = $ICE->stringToProxy("test:opaque -t 1 -v AOouAAAQJwAAAA==");
+    $p1 = $ICE->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     $pstr = $ICE->proxyToString($p1);
     test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
