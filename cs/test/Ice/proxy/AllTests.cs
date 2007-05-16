@@ -430,7 +430,7 @@ public class AllTests
         try
         {
             // Invalid -x option
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
+            communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -440,7 +440,7 @@ public class AllTests
         try
         {
             // Missing -t and -v
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque");
+            communicator.stringToProxy("id:opaque");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -450,7 +450,7 @@ public class AllTests
         try
         {
             // Repeated -t
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
+            communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -460,7 +460,7 @@ public class AllTests
         try
         {
             // Repeated -v
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
+            communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -470,7 +470,7 @@ public class AllTests
         try
         {
             // Missing -t
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -v abc");
+            communicator.stringToProxy("id:opaque -v abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -480,7 +480,7 @@ public class AllTests
         try
         {
             // Missing -v
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1");
+            communicator.stringToProxy("id:opaque -t 1");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -490,7 +490,7 @@ public class AllTests
         try
         {
             // Missing arg for -t
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t -v abc");
+            communicator.stringToProxy("id:opaque -t -v abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -500,7 +500,7 @@ public class AllTests
         try
         {
             // Missing arg for -v
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 1 -v");
+            communicator.stringToProxy("id:opaque -t 1 -v");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -510,7 +510,7 @@ public class AllTests
         try
         {
             // Not a number for -t
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t x -v abc");
+            communicator.stringToProxy("id:opaque -t x -v abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -520,7 +520,7 @@ public class AllTests
         try
         {
             // < 0 for -t
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t -1 -v abc");
+            communicator.stringToProxy("id:opaque -t -1 -v abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -530,7 +530,7 @@ public class AllTests
         try
         {
             // Invalid char for -v
-            Ice.ObjectPrx p = communicator.stringToProxy("id:opaque -t 99 -v x?c");
+            communicator.stringToProxy("id:opaque -t 99 -v x?c");
             test(false);
         }
         catch(Ice.EndpointParseException)
