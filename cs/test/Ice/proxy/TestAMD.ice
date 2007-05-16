@@ -25,6 +25,7 @@ module Test
 
 ["ami", "amd"] class MyDerivedClass extends MyClass
 {
+    Object* echo(Object* obj);
 };
 
 };

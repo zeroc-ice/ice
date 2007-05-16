@@ -83,9 +83,51 @@ namespace IceInternal
                     if(f.protocol().Equals(protocol))
                     {
                         return f.create(s.Substring(m.Index + m.Length));
+
+                        // Code below left in place for debugging.
+
+                        /*
+                        EndpointI e = f.create(s.Substring(m.Index + m.Length));
+                        BasicStream bs = new BasicStream(instance_, true);
+                        e.streamWrite(bs);
+                        IceInternal.ByteBuffer buf = bs.prepareRead();
+                        buf.position(0);
+                        short type = bs.readShort();
+                        EndpointI ue = new IceInternal.UnknownEndpointI(type, bs);
+                        System.Console.Error.WriteLine("Normal: " + e);
+                        System.Console.Error.WriteLine("Opaque: " + ue);
+                        return e;
+                        */
                     }
                 }
-                
+
+                //
+                // If the stringified endpoint is opaque, create an unknown endpoint,
+                // then see whether the type matches one of the known endpoints.
+                //
+                if(protocol.Equals("opaque"))
+                {
+                    EndpointI ue = new UnknownEndpointI(s.Substring(m.Index + m.Length));
+                    for(int i = 0; i < _factories.Count; i++)
+                    {
+                        EndpointFactory f = (EndpointFactory)_factories[i];
+                        if(f.type() == ue.type())
+                        {
+                            //
+                            // Make a temporary stream, write the opaque endpoint data into the stream,
+                            // and ask the factory to read the endpoint data from that stream to create
+                            // the actual endpoint.
+                            //
+                            BasicStream bs = new BasicStream(instance_, true);
+                            ue.streamWrite(bs);
+                            IceInternal.ByteBuffer buf = bs.prepareRead();
+                            buf.position(0);
+                            short type = bs.readShort();
+                            return f.read(bs);
+                        }
+                    }
+                    return ue; // Endpoint is opaque, but we don't have a factory for its type.
+                }
                 return null;
             }
         }

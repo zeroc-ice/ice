@@ -14,6 +14,95 @@ namespace IceInternal
 
     sealed class UnknownEndpointI : EndpointI
     {
+        public UnknownEndpointI(string str)
+        {
+            int topt = 0;
+            int vopt = 0;
+
+            char[] separators = { ' ', '\t', '\n', '\r' };
+            string[] arr = str.Split(separators);
+
+            int i = 0;
+            while(i < arr.Length)
+            {
+                if(arr[i].Length == 0)
+                {
+                    i++;
+                    continue;
+                }
+
+                string option = arr[i++];
+                if(option.Length != 2 || option[0] != '-')
+                {
+                    throw new Ice.EndpointParseException("opaque " + str);
+                }
+
+                string argument = null;
+                if(i < arr.Length && arr[i][0] != '-')
+                {
+                    argument = arr[i++];
+                }
+
+                switch(option[1])
+                {
+                    case 't':
+                    {
+                        if(argument == null)
+                        {
+                            throw new Ice.EndpointParseException("opaque " + str);
+                        }
+
+                        int t;
+                        try
+                        {
+                            t = System.Int32.Parse(argument);
+                        }
+                        catch(System.FormatException)
+                        {
+                            throw new Ice.EndpointParseException("opaque " + str);
+                        }
+
+                        if(t < 0 || t > 65535)
+                        {
+                            throw new Ice.EndpointParseException("opaque " + str);
+                        }
+
+                        _type = (short)t;
+                        ++topt;
+                        break;
+                    }
+
+                    case 'v':
+                    {
+                        if(argument == null)
+                        {
+                            throw new Ice.EndpointParseException("opaque " + str);
+                        }
+                        for(int j = 0; j < argument.Length; ++j)
+                        {
+                            if(!IceUtil.Base64.isBase64(argument[j]))
+                            {
+                                throw new Ice.EndpointParseException("opaque " + str);
+                            }
+                        }
+                        _rawBytes = IceUtil.Base64.decode(argument);
+                        ++vopt;
+                        break;
+                    }
+
+                    default:
+                    {
+                        throw new Ice.EndpointParseException("opaque " + str);
+                    }
+                }
+            }
+
+            if(topt != 1 || vopt != 1)
+            {
+                throw new Ice.EndpointParseException("opaque " + str);
+            }
+        }
+
         public UnknownEndpointI(short type, BasicStream s)
         {
             _type = type;
@@ -41,7 +130,8 @@ namespace IceInternal
         //
         public override string ice_toString_()
         {
-            return "";
+            string val = IceUtil.Base64.encode(_rawBytes);
+            return "opaque -t " + _type + " -v " + val;
         }
         
         //
@@ -174,7 +264,10 @@ namespace IceInternal
         public override ArrayList
         expand(bool server)
         {
-            return null;
+            ArrayList endps = new ArrayList();
+            calcHashValue();
+            endps.Add(this);
+            return endps;
         }
 
         //

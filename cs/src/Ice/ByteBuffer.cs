@@ -118,6 +118,30 @@ namespace IceInternal
             return rc;
         }
 
+        public byte[] toArray(int startIndex, int length)
+        {
+            if(startIndex < 0)
+            {
+                throw new ArgumentOutOfRangeException("startIndex", startIndex, "startIndex must be non-negative");
+            }
+            if(startIndex >= _position)
+            {
+                throw new ArgumentOutOfRangeException("startIndex", startIndex,
+                                                      "startIndex must be less than position");
+            }
+            if(length < 0)
+            {
+                throw new ArgumentOutOfRangeException("length", length, "length must be non-negative");
+            }
+            if(startIndex + length > _position)
+            {
+                throw new ArgumentException("startIndex + length must not exceed end mark of buffer");
+            }
+            byte[] rc = new byte[length];
+            Buffer.BlockCopy(_bytes, startIndex, rc, 0, length);
+            return rc;
+        }
+
         public ByteBuffer put(ByteBuffer buf)
         {
             int len = buf.remaining();

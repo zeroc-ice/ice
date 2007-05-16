@@ -23,8 +23,9 @@ module Test
     Ice::Context getContext();
 };
 
-["ami"] class MyDerivedClass extends MyClass
+class MyDerivedClass extends MyClass
 {
+    Object* echo(Object* obj);
 };
 
 };

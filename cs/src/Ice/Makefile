@@ -18,6 +18,7 @@ SRCS		= Acceptor.cs \
 		  Arrays.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
+                  Base64.cs \
 		  BasicInputStream.cs \
 		  BasicOutputStream.cs \
 		  BasicStream.cs \
