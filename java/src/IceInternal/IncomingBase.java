@@ -36,6 +36,17 @@ public class IncomingBase
         adopt(in);
 
         //
+        // Deep copy
+        //
+        if(in._interceptorAsyncCallbackList != null)
+        {
+            //
+            // Copy, not just reference
+            //
+            _interceptorAsyncCallbackList = new java.util.LinkedList(in._interceptorAsyncCallbackList);
+        }
+
+        //
         // We don't change _current as it's exposed by Ice::Request
         //
         _current = in._current;

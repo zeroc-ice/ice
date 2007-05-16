@@ -47,7 +47,7 @@ class InterceptorI extends Ice.DispatchInterceptor
                 }
             }
             
-            request.getCurrent().ctx.put("retry", "no");
+            current.ctx.put("retry", "no");
         }
       
         _lastStatus = _servant.ice_dispatch(request, null);

@@ -122,10 +122,11 @@ public abstract class Direct implements Ice.Request
         return _servant;
     }
 
-    public Ice.UserException
-    getUserException()
+    public void
+    throwUserException() throws Ice.UserException
     {
-        return _userException;
+        assert _userException != null;
+        throw _userException;
     }
 
     public void 

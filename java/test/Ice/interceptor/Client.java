@@ -21,7 +21,7 @@ public class Client extends Ice.Application
     private int
     run(Test.MyObjectPrx prx, InterceptorI interceptor)
     {
-        System.out.print("testing simple interceptor... ");
+        System.out.print("testing simple interceptor...");
         System.out.flush();
         test(interceptor.getLastOperation() == null);
         test(interceptor.getLastStatus() == null);
@@ -29,13 +29,13 @@ public class Client extends Ice.Application
         test(interceptor.getLastOperation().equals("add"));
         test(interceptor.getLastStatus().equals(IceInternal.DispatchStatus.DispatchOK));
         System.out.println("ok");
-        System.out.print("testing retry... ");
+        System.out.print("testing retry...");
         System.out.flush();
         test(prx.addWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("addWithRetry"));
         test(interceptor.getLastStatus().equals(IceInternal.DispatchStatus.DispatchOK));
         System.out.println("ok");
-        System.out.print("testing user exception... ");
+        System.out.print("testing user exception...");
         System.out.flush();
         try
         {
@@ -49,7 +49,7 @@ public class Client extends Ice.Application
         test(interceptor.getLastOperation().equals("badAdd"));
         test(interceptor.getLastStatus().equals(IceInternal.DispatchStatus.DispatchUserException));
         System.out.println("ok");
-        System.out.print("testing ONE... ");
+        System.out.print("testing ONE...");
         System.out.flush();
         interceptor.clear();
         try
@@ -64,7 +64,7 @@ public class Client extends Ice.Application
         test(interceptor.getLastOperation().equals("notExistAdd"));
         test(interceptor.getLastStatus() == null);
         System.out.println("ok");
-        System.out.print("testing system exception... ");
+        System.out.print("testing system exception...");
         System.out.flush();
         interceptor.clear();
         try
@@ -85,7 +85,7 @@ public class Client extends Ice.Application
         System.out.println("ok");
         if(!prx.ice_isCollocationOptimized())
         {
-            System.out.print("testing simple AMD... ");
+            System.out.print("testing simple AMD...");
             System.out.flush();
             test(prx.amdAdd(33, 12) == 45);
             test(interceptor.getLastOperation().equals("amdAdd"));
@@ -98,7 +98,7 @@ public class Client extends Ice.Application
     private int
     runAmd(Test.MyObjectPrx prx, AMDInterceptorI interceptor)
     {
-        System.out.print("testing simple interceptor... ");
+        System.out.print("testing simple interceptor...");
         System.out.flush();
         test(interceptor.getLastOperation() == null);
         test(interceptor.getLastStatus() == null);
@@ -107,14 +107,14 @@ public class Client extends Ice.Application
         test(interceptor.getLastStatus().equals(IceInternal.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus().equals(IceInternal.DispatchStatus.DispatchOK));
         System.out.println("ok");
-        System.out.print("testing retry... ");
+        System.out.print("testing retry...");
         System.out.flush();
         test(prx.amdAddWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAddWithRetry"));
         test(interceptor.getLastStatus().equals(IceInternal.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus().equals(IceInternal.DispatchStatus.DispatchOK));
         System.out.println("ok");
-        System.out.print("testing user exception... ");
+        System.out.print("testing user exception...");
         System.out.flush();
         try
         {
@@ -129,7 +129,7 @@ public class Client extends Ice.Application
         test(interceptor.getLastStatus().equals(IceInternal.DispatchStatus.DispatchAsync));
         test(interceptor.getActualStatus().equals(IceInternal.DispatchStatus.DispatchUserException));
         System.out.println("ok");
-        System.out.print("testing ONE... ");
+        System.out.print("testing ONE...");
         System.out.flush();
         interceptor.clear();
         try
@@ -146,7 +146,7 @@ public class Client extends Ice.Application
         test(interceptor.getActualStatus() == null);
         test(interceptor.getException() instanceof Ice.ObjectNotExistException);
         System.out.println("ok");
-        System.out.print("testing system exception... ");
+        System.out.print("testing system exception...");
         System.out.flush();
         interceptor.clear();
         try

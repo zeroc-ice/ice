@@ -21,14 +21,6 @@ public class IncomingAsync extends IncomingBase
         {
             in.setActive(this);
             _active = true;
-
-            if(in._interceptorAsyncCallbackList != null)
-            {
-                //
-                // Copy, not just reference
-                //
-                _interceptorAsyncCallbackList = new java.util.LinkedList(in._interceptorAsyncCallbackList);
-            }
         }
     }
 
