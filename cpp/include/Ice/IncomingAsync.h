@@ -26,12 +26,19 @@ public:
 
     IncomingAsync(Incoming&); // Adopts the argument. It must not be used afterwards.
 
+    void __deactivate(Incoming&);
+
 protected:
 
     void __response(bool);
     void __exception(const Ice::Exception&);
     void __exception(const std::exception&);
     void __exception();
+
+    bool __validateResponse(bool);
+    bool __validateException(const std::exception&);
+    bool __validateException();
+
 
     // Inlined for speed optimization.
     BasicStream* __os() { return &_os; }
@@ -51,6 +58,9 @@ private:
     // holds a ConnectionI* for optimization.
     //
     const Ice::ConnectionIPtr _connectionCopy;
+
+    const bool _retriable;
+    bool _active;
 };
 
 }

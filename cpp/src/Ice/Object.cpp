@@ -10,6 +10,8 @@
 #include <Ice/Object.h>
 #include <Ice/Incoming.h>
 #include <Ice/IncomingAsync.h>
+#include <Ice/IncomingRequest.h>
+#include <Ice/Direct.h>
 #include <Ice/LocalException.h>
 #include <Ice/Stream.h>
 
@@ -147,6 +149,50 @@ string Ice::Object::__all[] =
     "ice_ping"
 };
 
+
+DispatchStatus
+Ice::Object::ice_dispatch(Request& request, const DispatchInterceptorAsyncCallbackPtr& cb)
+{
+    class PushCb
+    {
+    public:
+        PushCb(IceInternal::Incoming& in, const DispatchInterceptorAsyncCallbackPtr& cb) :
+            _in(in),
+            _cb(cb)
+        {
+            if(_cb != 0)
+            {
+                _in.push(_cb);
+            }
+        }
+
+        ~PushCb()
+        {
+            if(_cb != 0)
+            {
+                _in.pop();
+            }
+        }
+    private:
+        IceInternal::Incoming& _in;
+        const DispatchInterceptorAsyncCallbackPtr& _cb;
+    };
+
+
+    if(request.isCollocated())
+    {
+        return __collocDispatch(dynamic_cast<IceInternal::Direct&>(request));
+    }
+    else
+    {
+        IceInternal::Incoming& in = dynamic_cast<IceInternal::IncomingRequest&>(request)._in;
+        
+        PushCb pusbCb(in, cb);
+        in.startOver(); // may raise ResponseSentException
+        return __dispatch(in, in.getCurrent());
+    }
+}
+
 DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const Current& current)
 {
@@ -180,6 +226,12 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 
     assert(false);
     return DispatchOperationNotExist;
+}
+
+DispatchStatus
+Ice::Object::__collocDispatch(IceInternal::Direct& request)
+{
+    return request.run(this);
 }
 
 void

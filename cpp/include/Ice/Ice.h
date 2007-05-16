@@ -32,5 +32,6 @@
 #include <Ice/ImplicitContext.h>
 #include <Ice/Locator.h>
 #include <Ice/Router.h>
+#include <Ice/DispatchInterceptor.h>
 
 #endif

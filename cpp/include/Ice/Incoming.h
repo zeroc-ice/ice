@@ -15,17 +15,24 @@
 #include <Ice/ServantLocatorF.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Object.h>
 #include <Ice/Current.h>
+#include <Ice/IncomingAsyncF.h>
+#include <deque>
 
 namespace IceInternal
 {
 
 class ICE_API IncomingBase : private IceUtil::noncopyable
 {
+public:
+
+    void adopt(IncomingBase&);
+
 protected:
 
     IncomingBase(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
-    IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
+    IncomingBase(IncomingBase&); // Adopts the argument. It must not be used afterwards.
     
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
@@ -49,6 +56,8 @@ protected:
     // stack-allocated Incoming still holds it.
     //
     Ice::ConnectionI* _connection;
+
+    std::deque<Ice::DispatchInterceptorAsyncCallbackPtr> _interceptorAsyncCallbackQueue;
 };
 
 class ICE_API Incoming : public IncomingBase
@@ -56,6 +65,22 @@ class ICE_API Incoming : public IncomingBase
 public:
 
     Incoming(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte, Ice::Int);
+
+    const Ice::Current& getCurrent()
+    {
+        return _current;
+    }
+
+    void push(const Ice::DispatchInterceptorAsyncCallbackPtr&);
+    void pop();
+    void startOver();
+    void killAsync();
+    void setActive(IncomingAsync&);
+    
+    bool isRetriable()
+    {
+        return _inParamPos != 0;
+    }
 
     void invoke(const ServantManagerPtr&);
 
@@ -66,6 +91,9 @@ public:
 private:
 
     BasicStream _is;
+    
+    IncomingAsyncPtr _cb;
+    Ice::Byte* _inParamPos;
 };
 
 }

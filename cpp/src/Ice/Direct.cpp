@@ -91,6 +91,35 @@ IceInternal::Direct::Direct(const Current& current) :
     }
 }
 
+bool
+IceInternal::Direct::isCollocated()
+{
+    return true;
+}
+
+const Current&
+IceInternal::Direct::getCurrent()
+{
+    return _current;
+}
+
+void
+IceInternal::Direct::throwUserException()
+{
+    if(_userException.get() == 0)
+    {
+        assert(0); // should never happen
+        throw Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+    _userException->ice_throw();
+}
+
+void 
+IceInternal::Direct::setUserException(const Ice::UserException& ue)
+{
+    _userException.reset(dynamic_cast<Ice::UserException*>(ue.ice_clone()));
+}
+
 void
 IceInternal::Direct::destroy()
 {
@@ -123,3 +152,4 @@ IceInternal::Direct::servant()
 {
     return _servant;
 }
+

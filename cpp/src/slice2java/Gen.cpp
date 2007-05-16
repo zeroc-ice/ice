@@ -4357,7 +4357,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << sb;
                 out << nl << "try";
                 out << sb;
-                out << nl << "throw __direct.getUserException();";
+                out << nl << "__direct.throwUserException();";
                 out << eb;
                 for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
                 {

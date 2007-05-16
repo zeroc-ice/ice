@@ -8,6 +8,8 @@
 // **********************************************************************
 
 #include <Ice/Incoming.h>
+#include <Ice/IncomingAsync.h>
+#include <Ice/IncomingRequest.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/ServantManager.h>
@@ -38,16 +40,35 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ConnectionI* connect
 }
 
 IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
-    _current(in._current),
-    _servant(in._servant),
-    _locator(in._locator),
-    _cookie(in._cookie),
-    _response(in._response),
-    _compress(in._compress),
+    _current(in._current), // copy
     _os(in._os.instance()),
-    _connection(in._connection)
+    _interceptorAsyncCallbackQueue(in._interceptorAsyncCallbackQueue) // copy
 {
-    _os.swap(in._os);
+    adopt(in); // adopt everything else
+}
+
+void
+IceInternal::IncomingBase::adopt(IncomingBase& other)
+{
+    _servant = other._servant;
+    other._servant = 0;
+    
+    _locator = other._locator;
+    other._locator = 0;
+    
+    _cookie = other._cookie;
+    other._cookie = 0;
+    
+    _response = other._response;
+    other._response = false;
+    
+    _compress = other._compress;
+    other._compress = 0;
+    
+    _os.swap(other._os);
+    
+    _connection = other._connection;
+    other._connection = 0;
 }
 
 void
@@ -317,12 +338,81 @@ IceInternal::IncomingBase::__handleException()
     }
 }
 
+
 IceInternal::Incoming::Incoming(Instance* instance, ConnectionI* connection, 
                                 const ObjectAdapterPtr& adapter,
                                 bool response, Byte compress, Int requestId) :
     IncomingBase(instance, connection, adapter, response, compress, requestId),
-    _is(instance)
+    _is(instance),
+    _inParamPos(0)
 {
+}
+
+
+void 
+IceInternal::Incoming::push(const Ice::DispatchInterceptorAsyncCallbackPtr& cb)
+{
+    _interceptorAsyncCallbackQueue.push_front(cb);
+}
+
+void 
+IceInternal::Incoming::pop()
+{
+    _interceptorAsyncCallbackQueue.pop_front();
+}
+
+void 
+IceInternal::Incoming::startOver()
+{
+    if(_inParamPos == 0)
+    {
+        //
+        // That's the first startOver, so almost nothing to do
+        //
+        _inParamPos = _is.i - 6; // 6 bytes for the start of the encaps
+    }
+    else
+    {
+        killAsync();
+        
+        //
+        // Let's rewind _is and clean-up _os
+        //
+        _is.endReadEncaps();
+        _is.i = _inParamPos;
+        _is.startReadEncaps();
+        
+        if(_response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); 
+            _os.write(static_cast<Byte>(0));
+            _os.startWriteEncaps();
+        }
+    }
+}
+
+void 
+IceInternal::Incoming::killAsync()
+{
+    //
+    // Always runs in the dispatch thread
+    //
+    if(_cb != 0)
+    {
+        //
+        // May raise ResponseSentException
+        //
+        _cb->__deactivate(*this);
+        _cb = 0;
+    }
+}
+
+void
+IceInternal::Incoming::setActive(IncomingAsync& cb)
+{
+    assert(_cb == 0);
+    _cb = &cb; // acquires a ref-count
 }
 
 void
@@ -515,4 +605,17 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     {
         _connection->sendNoResponse();
     }
+}
+
+
+bool
+IceInternal::IncomingRequest::isCollocated()
+{
+    return false;
+}
+
+const Current&
+IceInternal::IncomingRequest::getCurrent()
+{
+    return _in.getCurrent();
 }

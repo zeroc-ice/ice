@@ -30,6 +30,7 @@ OBJS		= Acceptor.o \
 		  Current.o \
 		  DefaultsAndOverrides.o \
 		  Direct.o \
+                  DispatchInterceptor.o \
 		  DynamicLibrary.o \
 		  EndpointFactoryManager.o \
 		  EndpointFactory.o \

@@ -2456,6 +2456,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     vector<string> params;
     vector<string> paramsDecl;
     vector<string> args;
+    vector<string> argMembers;
 
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -2484,11 +2485,12 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         params.push_back(typeString);
         paramsDecl.push_back(typeString + ' ' + paramName);
         args.push_back(paramName);
+        argMembers.push_back("_m_" + paramName);
     }
     
     params.push_back("const ::Ice::Context*");
-    paramsDecl.push_back("const ::Ice::Context* __context");
     args.push_back("__current");
+    argMembers.push_back("_current");
     
     ContainerPtr container = p->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
@@ -2511,42 +2513,152 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl << epar;
+        C << sp << nl << retS << nl << "IceDelegateD" << scoped << spar << paramsDecl 
+          << "const ::Ice::Context* __context" << epar;
         C << sb;
-        C << nl << "::Ice::Current __current;";
-        C << nl << "__initCurrent(__current, " << p->flattenedScope() + p->name() + "_name, "
-          << operationModeToString(p->sendMode()) << ", __context);";
-        C << nl << "while(true)";
+        C << nl << "class _DirectI : public ::IceInternal::Direct";
         C << sb;
-        C << nl << "::IceInternal::Direct __direct(__current);";
+        C.dec();
+        C << nl << "public:";
+        C.inc();
+        
+        //
+        // Constructor
+        //
+        C << sp << nl << "_DirectI" << spar;
         if(ret)
         {
-            C << nl << retS << " __ret;";
+            string resultRef = outputTypeToString(ret, _useWstring, p->getMetaData());
+            C << resultRef + " __result"; 
         }
-        C << nl << "try";
+        C << paramsDecl << "const ::Ice::Current& __current" << epar << " : ";
+        C.inc();
+        C << nl << "::IceInternal::Direct(__current)";
+        
+        if(ret)
+        {
+            C << "," << nl << "_result(__result)";
+        }
+        
+        for(size_t i = 0; i < args.size(); ++i)
+        {
+            if(args[i] != "__current")
+            {
+                C << "," << nl << argMembers[i] + "(" + args[i] + ")";
+            }
+        }
+        C.dec();
         C << sb;
-        C << nl << thisPointer << " __servant = dynamic_cast< " << thisPointer << ">(__direct.servant().get());";
-        C << nl << "if(!__servant)";
-        C << sb;
-        C << nl << "::Ice::OperationNotExistException __opEx(__FILE__, __LINE__);";
-        C << nl << "__opEx.id = __current.id;";
-        C << nl << "__opEx.facet = __current.facet;";
-        C << nl << "__opEx.operation = __current.operation;";
-        C << nl << "throw __opEx;";
         C << eb;
-        C << nl << "try";
+        
+        //
+        // run
+        //
+        C << nl << nl << "virtual " << _dllExport << "::IceInternal::DispatchStatus";
+        C << nl << "run(::Ice::Object* object)";
         C << sb;
+        C << nl << thisPointer << " servant = dynamic_cast< " << thisPointer << ">(object);";
+        C << nl << "if(!servant)";
+        C << sb;
+        C << nl << "::Ice::OperationNotExistException opEx(__FILE__, __LINE__);";
+        C << nl << "opEx.id = _current.id;";
+        C << nl << "opEx.facet = _current.facet;";
+        C << nl << "opEx.operation = _current.operation;";
+        C << nl << "throw opEx;";
+        C << eb;
+        
+        ExceptionList throws = p->throws();
+        
+        if(!throws.empty())
+        {
+            C << nl << "try";
+            C << sb;
+        }
         C << nl;
         if(ret)
         {
-            C << "__ret = ";
+            C << "_result = ";
         }
-        C << "__servant->" << name << spar << args << epar << ';';
+        C << "servant->" << name << spar << argMembers << epar << ';';
+        C << nl << "return ::IceInternal::DispatchOK;";
+        
+        if(!throws.empty())
+        {
+            C << eb;
+    
+            throws.sort();
+            throws.unique();
+#if defined(__SUNPRO_CC)
+            throws.sort(derivedToBaseCompare);
+#else
+            throws.sort(Slice::DerivedToBaseCompare());
+#endif
+            
+            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            {
+                C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& e)";
+                C << sb;
+                C << nl << "setUserException(e);";
+                C << nl << "return ::IceInternal::DispatchUserException;";
+                C << eb;
+            }
+        }
+        
         C << eb;
-        C << nl << "catch(const ::Ice::LocalException& __ex)";
+        C << nl;
+       
+        C.dec();
+        C << nl << "private:";
+        C.inc();
+        C << nl;
+        if(ret)
+        {
+            string resultRef= outputTypeToString(ret, _useWstring, p->getMetaData());
+            C << nl << resultRef << " _result;"; 
+        }
+
+        for(size_t i = 0; i < argMembers.size(); ++i)
+        {
+            if(argMembers[i] != "_current")
+            {
+                C << nl << params[i] + " " + argMembers[i] << ";";
+            }
+        }
+        
+        C << eb << ";";
+        
+        C << nl << nl << "::Ice::Current __current;";
+        C << nl << "__initCurrent(__current, " << p->flattenedScope() + p->name() + "_name, "
+          << operationModeToString(p->sendMode()) << ", __context);";
+        
+        if(ret)
+        {
+            C << nl << retS << " __result;";
+        }
+
+        C << nl << "try";
         C << sb;
-        C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
-        C << eb;
+
+        C << nl << "_DirectI __direct" << spar;
+        if(ret)
+        {
+            C << "__result";
+        }
+        C << args << epar << ";";
+        
+        C << nl << "try";
+        C << sb;
+        if(!throws.empty())
+        {
+            C << nl << "if(__direct.servant()->__collocDispatch(__direct) == ::IceInternal::DispatchUserException)";
+            C << sb;
+            C << nl << "__direct.throwUserException();";
+            C << eb;
+        }
+        else
+        {
+            C << nl << "__direct.servant()->__collocDispatch(__direct);";
+        }
         C << eb;
         C << nl << "catch(...)";
         C << sb;
@@ -2554,15 +2666,16 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << nl << "throw;";
         C << eb;
         C << nl << "__direct.destroy();";
+        C << eb;
+        C << nl << "catch(const ::Ice::LocalException& __ex)";
+        C << sb;
+        C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
+        C << eb;
         if(ret)
         {
-            C << nl << "return __ret;";
+            C << nl << "return __result;";
         }
-        else
-        {
-            C << nl << "return;";
-        }
-        C << eb;
+
         C << eb;
     }
 }
@@ -4953,6 +5066,8 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name << "::ice_response("
       << paramsDecl << ')';
     C << sb;
+    C << nl << "if(__validateResponse(true))";
+    C << sb;
     if(ret || !outParams.empty())
     {
         C << nl << "try";
@@ -4976,13 +5091,17 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     }
     C << nl << "__response(true);";
     C << eb;
+    C << eb;
     
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
       << "::ice_exception(const ::Ice::Exception& ex)";
     C << sb;
     if(throws.empty())
     {
+        C << nl << "if(__validateException(ex))";
+        C << sb;
         C << nl << "__exception(ex);";
+        C << eb;
     }
     else
     {
@@ -4995,6 +5114,8 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         {
             C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
             C << sb;
+            C << nl <<"if(__validateResponse(false))";
+            C << sb;
             C << nl << "__os()->write(__ex);";
             if((*r)->usesClasses())
             {
@@ -5002,10 +5123,14 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
             }
             C << nl << "__response(false);";
             C << eb;
+            C << eb;
         }
         C << nl << "catch(const ::Ice::Exception& __ex)";
         C << sb;
+        C << nl << "if(__validateException(__ex))";
+        C << sb;
         C << nl << "__exception(__ex);";
+        C << eb;
         C << eb;
     }
     C << eb;
@@ -5013,13 +5138,19 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
       << "::ice_exception(const ::std::exception& ex)";
     C << sb;
+    C << nl << "if(__validateException(ex))";
+    C << sb;
     C << nl << "__exception(ex);";
+    C << eb;
     C << eb;
     
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
       << "::ice_exception()";
     C << sb;
+    C << nl << "if(__validateException())";
+    C << sb;
     C << nl << "__exception();";
+    C << eb;
     C << eb;
 }
 

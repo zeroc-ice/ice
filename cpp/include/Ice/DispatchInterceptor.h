@@ -1,0 +1,34 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#ifndef ICE_DISPATCH_INTERCEPTOR_H
+#define ICE_DISPATCH_INTERCEPTOR_H
+
+#include <Ice/Object.h>
+
+namespace Ice
+{
+
+class ICE_API DispatchInterceptor : public virtual Object
+{
+public:
+
+    virtual IceInternal::DispatchStatus
+    dispatch(Request&) = 0;
+
+    virtual IceInternal::DispatchStatus
+    __dispatch(IceInternal::Incoming&, const Current&);
+    
+    virtual IceInternal::DispatchStatus
+    __collocDispatch(IceInternal::Direct&);
+};
+
+}
+
+#endif

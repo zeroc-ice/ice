@@ -11,6 +11,7 @@
 #define ICE_OBJECT_H
 
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Shared.h>
 #include <Ice/GCShared.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
@@ -23,6 +24,7 @@ namespace IceInternal
 
 class Incoming;
 class BasicStream;
+class Direct;
 
 enum DispatchStatus
 {
@@ -41,6 +43,25 @@ enum DispatchStatus
 
 namespace Ice
 {
+
+class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
+{
+public:
+    
+    virtual bool response(bool) = 0;
+    virtual bool exception(const std::exception&) = 0;
+    virtual bool exception() = 0;
+};
+typedef IceUtil::Handle<DispatchInterceptorAsyncCallback> DispatchInterceptorAsyncCallbackPtr;
+
+class ICE_API Request 
+{
+public:
+
+    virtual ~Request() {}
+    virtual bool isCollocated() = 0;
+    virtual const Current& getCurrent() = 0;
+};
 
 //
 // No virtual inheritance from IceInternal::GCShared is required. This
@@ -81,7 +102,10 @@ public:
     virtual void ice_postUnmarshal();
 
     static std::string __all[];
+
+    virtual IceInternal::DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
     virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual IceInternal::DispatchStatus __collocDispatch(IceInternal::Direct&);
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*, bool);

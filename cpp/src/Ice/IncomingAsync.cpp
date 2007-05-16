@@ -15,6 +15,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
+#include <IceUtil/StaticMutex.h>
 
 using namespace std;
 using namespace Ice;
@@ -27,8 +28,34 @@ IceUtil::Shared* IceInternal::upCast(AMD_Array_Object_ice_invoke* p) { return p;
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
     _instanceCopy(_os.instance()),
-    _connectionCopy(_connection)
+    _connectionCopy(_connection),
+    _retriable(in.isRetriable()),
+    _active(true)
 {
+    if(_retriable)
+    {
+        in.setActive(*this);
+    }
+}
+
+void
+IceInternal::IncomingAsync::__deactivate(Incoming& in)
+{
+    assert(_retriable);
+    {
+        IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+        if(!_active)
+        {
+            //
+            // Since _deactivate can only be called on an active object,
+            // this means the response has already been sent (see __validateXXX below)
+            //
+            throw ResponseSentException(__FILE__, __LINE__);
+        }
+        _active = false;
+    }
+
+    in.adopt(*this);
 }
 
 void
@@ -149,6 +176,116 @@ IceInternal::IncomingAsync::__servantLocatorFinished()
     }
 }
 
+bool
+IceInternal::IncomingAsync::__validateResponse(bool ok)
+{
+    if(!_retriable)
+    {
+        return true;
+    }
+    
+    try
+    {
+        for(std::deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
+            p != _interceptorAsyncCallbackQueue.end(); ++p)
+        {
+            if((*p)->response(ok) == false)
+            {
+                return false;
+            }
+        }
+    }
+    catch(...)
+    {
+        return false;
+    }
+    
+    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+    if(_active)
+    {
+        _active = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+    
+bool 
+IceInternal::IncomingAsync::__validateException(const std::exception& ex)
+{
+    if(!_retriable)
+    {
+        return true;
+    }
+    
+    try
+    {
+        for(std::deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
+            p != _interceptorAsyncCallbackQueue.end(); ++p)
+        {
+            if((*p)->exception(ex) == false)
+            {
+                return false;
+            }
+        }
+    }
+    catch(...)
+    {
+        return false;
+    }
+    
+    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+    if(_active)
+    {
+        _active = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool 
+IceInternal::IncomingAsync::__validateException()
+{
+    if(!_retriable)
+    {
+        return true;
+    }
+    
+    try
+    {
+        for(std::deque<Ice::DispatchInterceptorAsyncCallbackPtr>::iterator p = _interceptorAsyncCallbackQueue.begin();
+            p != _interceptorAsyncCallbackQueue.end(); ++p)
+        {
+            if((*p)->exception() == false)
+            {
+                return false;
+            }
+        }
+    }
+    catch(...)
+    {
+        return false;
+    }
+    
+    IceUtil::StaticMutex::Lock lock(IceUtil::globalMutex);
+    if(_active)
+    {
+        _active = false;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+
 IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
     IncomingAsync(in)
 {
@@ -157,34 +294,46 @@ IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
 void
 IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& outParams)
 {
-    try
+    if(__validateResponse(ok))
     {
-        __os()->writeBlob(outParams);
+        try
+        {
+            __os()->writeBlob(outParams);
+        }
+        catch(const LocalException& ex)
+        {
+            __exception(ex);
+            return;
+        }
+        __response(ok);
     }
-    catch(const LocalException& ex)
-    {
-        __exception(ex);
-        return;
-    }
-    __response(ok);
 }
 
 void
 IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const Exception& ex)
 {
-    __exception(ex);
+    if(__validateException(ex))
+    {
+        __exception(ex);
+    }
 }
 
 void
 IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const std::exception& ex)
 {
-    __exception(ex);
+    if(__validateException(ex))
+    {
+        __exception(ex);
+    }
 }
 
 void
 IceAsync::Ice::AMD_Object_ice_invoke::ice_exception()
 {
-    __exception();
+    if(__validateException())
+    {
+        __exception();
+    }
 }
 
 IceAsync::Ice::AMD_Array_Object_ice_invoke::AMD_Array_Object_ice_invoke(Incoming& in) :

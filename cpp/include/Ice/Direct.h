@@ -12,24 +12,29 @@
 
 #include <Ice/ServantLocatorF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/ObjectF.h>
+#include <Ice/Object.h>
 #include <Ice/LocalObjectF.h>
 #include <Ice/Current.h>
 
 namespace IceInternal
 {
 
-class ICE_API Direct : private IceUtil::noncopyable
+class ICE_API Direct : public Ice::Request, private IceUtil::noncopyable
 {
 public:
 
     Direct(const Ice::Current&);
-    
     void destroy();
 
-    const Ice::ObjectPtr& servant();    
+    const Ice::ObjectPtr& servant();
 
-private:
+    virtual bool isCollocated();
+    virtual const Ice::Current& getCurrent();
+    virtual DispatchStatus run(Ice::Object*) { return DispatchOK; } // = 0;
+
+    void throwUserException();
+
+protected:
 
     //
     // Optimization. The current may not be deleted while a
@@ -37,9 +42,14 @@ private:
     //
     const Ice::Current& _current;
 
+    void setUserException(const Ice::UserException&);
+
+private:
+
     Ice::ObjectPtr _servant;
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
+    std::auto_ptr<Ice::UserException> _userException;
 };
 
 }
