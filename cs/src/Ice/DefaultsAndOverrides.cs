@@ -25,6 +25,10 @@ namespace IceInternal
             {
                 defaultHost = val;
             }
+            else
+            {
+                defaultHost = null;
+            }
             
             val = properties.getProperty("Ice.Override.Timeout");
             if(val.Length > 0)
