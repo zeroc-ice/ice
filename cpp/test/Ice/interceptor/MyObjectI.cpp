@@ -19,7 +19,7 @@ using namespace std;
 void
 Test::RetryException::ice_print(ostream& out) const
 {
-    Ice::Exception::ice_print(out);
+    Exception::ice_print(out);
     out << ":\nretry dispatch";
 }
 

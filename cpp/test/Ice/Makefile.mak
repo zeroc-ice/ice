@@ -30,7 +30,8 @@ SUBDIRS		= proxy \
 		  retry \
 		  timeout \
 		  servantLocator \
-		  threads
+		  threads \
+                  interceptor
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

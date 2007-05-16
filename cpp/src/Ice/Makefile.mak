@@ -29,6 +29,7 @@ OBJS		= Acceptor.obj \
 		  Current.obj \
 		  DefaultsAndOverrides.obj \
 		  Direct.obj \
+                  DispatchInterceptor.obj \
 		  DLLMain.obj \
 		  DynamicLibrary.obj \
 		  EndpointFactoryManager.obj \

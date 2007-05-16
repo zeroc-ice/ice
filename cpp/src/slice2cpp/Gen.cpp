@@ -2617,11 +2617,11 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
             C << nl << resultRef << " _result;"; 
         }
 
-        for(size_t i = 0; i < argMembers.size(); ++i)
+        for(size_t j = 0; j < argMembers.size(); ++j)
         {
-            if(argMembers[i] != "_current")
+            if(argMembers[j] != "_current")
             {
-                C << nl << params[i] + " " + argMembers[i] << ";";
+                C << nl << params[j] + " " + argMembers[j] << ";";
             }
         }
         

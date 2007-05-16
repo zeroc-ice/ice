@@ -144,7 +144,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     if(!value.empty())
     {
-        PropertyValue pv = { value, false };
+        PropertyValue pv(value, false);
         map<string, PropertyValue>::const_iterator p = _properties.find(key);
         if(p != _properties.end())
         {
@@ -294,7 +294,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
             string name = *q;
             replace(name.begin(), name.end(), '\\', '/');
 
-            PropertyValue pv = { name, true };
+            PropertyValue pv(name, true);
             _properties["Ice.ProgramName"] = pv;
         }
     }
@@ -440,6 +440,6 @@ Ice::PropertiesI::loadConfig()
         }
     }
 
-    PropertyValue pv = { value, true };
+    PropertyValue pv(value, true);
     _properties["Ice.Config"] = pv;
 }

@@ -52,6 +52,17 @@ private:
 
     struct PropertyValue
     {
+        PropertyValue() :
+            used(false)
+        {
+        }
+
+        PropertyValue(const std::string& v, bool u) :
+            value(v),
+            used(u)
+        {
+        }
+
         std::string value;
         bool used;
     };
