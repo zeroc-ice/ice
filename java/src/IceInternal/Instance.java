@@ -658,6 +658,21 @@ public final class Instance
         {
             serverThreadPool.joinWithAllThreads();
         }
+
+        if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+        {
+            java.util.List unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
+            if(unusedProperties.size() != 0)
+            {
+                String message = "The following properties were set but never read:";
+                java.util.Iterator p = unusedProperties.iterator();
+                while(p.hasNext())
+                {
+                    message += "\n    " + (String)p.next();
+                }
+                _initData.logger.warning(message);
+            }
+        }
     }
 
     private void

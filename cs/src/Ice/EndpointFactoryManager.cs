@@ -122,7 +122,7 @@ namespace IceInternal
                             ue.streamWrite(bs);
                             IceInternal.ByteBuffer buf = bs.prepareRead();
                             buf.position(0);
-                            short type = bs.readShort();
+                            bs.readShort(); // type
                             return f.read(bs);
                         }
                     }

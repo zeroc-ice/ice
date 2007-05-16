@@ -15,14 +15,28 @@ namespace Ice
 {
     sealed class PropertiesI : LocalObjectImpl, Properties
     {
+        class PropertyValue
+        {
+            public PropertyValue(string v, bool u)
+            {
+                val = v;
+                used = u;
+            }
+
+            public string val;
+            public bool used;
+        }
+
         public string getProperty(string key)
         {
             lock(this)
             {
-                string result = _properties[key];
-                if(result == null)
+                string result = "";
+                PropertyValue pv = (PropertyValue)_properties[key];
+                if(pv != null)
                 {
-                    result = "";
+                    pv.used = true;
+                    result = pv.val;
                 }
                 return result;
             }
@@ -32,10 +46,12 @@ namespace Ice
         {
             lock(this)
             {
-                string result = _properties[key];
-                if(result == null)
+                string result = val;
+                PropertyValue pv = (PropertyValue)_properties[key];
+                if(pv != null)
                 {
-                    result = val;
+                    pv.used = true;
+                    result = pv.val;
                 }
                 return result;
             }
@@ -50,18 +66,22 @@ namespace Ice
         {
             lock(this)
             {
-                string result = _properties[key];
-                if(result == null)
+                PropertyValue pv = (PropertyValue)_properties[key];
+                if(pv == null)
                 {
                     return val;
                 }
-                try
+                else
                 {
-                    return System.Int32.Parse(result);
-                }
-                catch(System.FormatException)
-                {
-                    return val;
+                    pv.used = true;
+                    try
+                    {
+                        return System.Int32.Parse(pv.val);
+                    }
+                    catch(System.FormatException)
+                    {
+                        return val;
+                    }
                 }
             }
         }
@@ -76,7 +96,9 @@ namespace Ice
                 {
                     if(prefix.Length == 0 || s.StartsWith(prefix))
                     {
-                        result[s] = _properties[s];
+                        PropertyValue pv = (PropertyValue)_properties[s];
+                        pv.used = true;
+                        result[s] = pv.val;
                     }
                 }
                 return result;
@@ -131,7 +153,16 @@ namespace Ice
                 //
                 if(val != null && val.Length > 0)
                 {
-                    _properties[key] = val;
+                    PropertyValue pv = (PropertyValue)_properties[key];
+                    if(pv != null)
+                    {
+                        pv.val = val;
+                    }
+                    else
+                    {
+                        pv = new PropertyValue(val, false);
+                    }
+                    _properties[key] = pv;
                 }
                 else
                 {
@@ -148,7 +179,7 @@ namespace Ice
                 int i = 0;
                 foreach(DictionaryEntry entry in _properties)
                 {
-                    result[i++] = "--" + entry.Key + "=" + entry.Value;
+                    result[i++] = "--" + entry.Key + "=" + ((PropertyValue)entry.Value).val;
                 }
                 return result;
             }
@@ -222,31 +253,52 @@ namespace Ice
                 return new PropertiesI(this);
             }
         }
+
+        public ArrayList getUnusedProperties()
+        {
+            lock(this)
+            {
+                ArrayList unused = new ArrayList();
+                foreach(DictionaryEntry entry in _properties)
+                {
+                    if(!((PropertyValue)entry.Value).used)
+                    {
+                        unused.Add(entry.Key);
+                    }
+                }
+                return unused;
+            }
+        }
         
         internal PropertiesI(PropertiesI p)
         {
-            _properties = (PropertyDict)p._properties.Clone();
+            _properties = (Hashtable)p._properties.Clone();
         }
 
         internal PropertiesI()
         {
-            _properties = new PropertyDict();
+            _properties = new Hashtable();
         }
         
         internal PropertiesI(ref string[] args, Properties defaults)
         {
             if(defaults == null)
             {
-                _properties = new PropertyDict();
+                _properties = new Hashtable();
             }
             else
             {
-                _properties = defaults.getPropertiesForPrefix("");
+                _properties = ((PropertiesI)defaults)._properties;
             }
             
-            if(_properties["Ice.ProgramName"] == null)
+            PropertyValue pv = (PropertyValue)_properties["Ice.ProgramName"];
+            if(pv == null)
             {
-                setProperty("Ice.ProgramName", System.AppDomain.CurrentDomain.FriendlyName);
+                _properties["Ice.ProgramName"] = new PropertyValue(System.AppDomain.CurrentDomain.FriendlyName, true);
+            }
+            else
+            {
+                pv.used = true;
             }
 
             bool loadConfigFiles = false;
@@ -378,9 +430,9 @@ namespace Ice
                 }
             }
             
-            setProperty("Ice.Config", val);
+            _properties["Ice.Config"] = new PropertyValue(val, true);
         }
         
-        private Ice.PropertyDict _properties;
+        private Hashtable _properties;
     }
 }

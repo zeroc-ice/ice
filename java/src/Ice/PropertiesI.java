@@ -11,13 +11,31 @@ package Ice;
 
 public final class PropertiesI extends LocalObjectImpl implements Properties
 {
+    class PropertyValue
+    {
+        public PropertyValue(String v, boolean u)
+        {
+            value = v;
+            used = u;
+        }
+
+        public String value;
+        public boolean used;
+    }
+
     public synchronized String
     getProperty(String key)
     {
-        String result = (String)_properties.get(key);
-        if(result == null)
+        String result = null;
+        PropertyValue pv = (PropertyValue)_properties.get(key);
+        if(pv == null)
         {
             result = System.getProperty(key);
+        }
+        else
+        {
+            pv.used = true;
+            result = pv.value;
         }
         if(result == null)
         {
@@ -29,10 +47,16 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized String
     getPropertyWithDefault(String key, String value)
     {
-        String result = (String)_properties.get(key);
-        if(result == null)
+        String result = null;
+        PropertyValue pv = (PropertyValue)_properties.get(key);
+        if(pv == null)
         {
             result = System.getProperty(key);
+        }
+        else
+        {
+            pv.used = true;
+            result = pv.value;
         }
         if(result == null)
         {
@@ -50,10 +74,16 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized int
     getPropertyAsIntWithDefault(String key, int value)
     {
-        String result = (String)_properties.get(key);
-        if(result == null)
+        String result = null;
+        PropertyValue pv = (PropertyValue)_properties.get(key);
+        if(pv == null)
         {
             result = System.getProperty(key);
+        }
+        else
+        {
+            pv.used = true;
+            result = pv.value;
         }
         if(result == null)
         {
@@ -79,10 +109,11 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
             String key = (String)entry.getKey();
-            String value = (String)entry.getValue();
             if(prefix.length() == 0 || key.startsWith(prefix))
             {
-                result.put(key, value);
+                PropertyValue pv = (PropertyValue)entry.getValue();
+                pv.used = true;
+                result.put(key, pv.value);
             }
         }
         return result;
@@ -137,7 +168,16 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             //
             if(value != null && value.length() > 0)
             {
-                _properties.put(key, value);
+                PropertyValue pv = (PropertyValue)_properties.get(key);
+                if(pv != null)
+                {
+                    pv.value = value;
+                }
+                else
+                {
+                    pv = new PropertyValue(value, false);
+                }
+                _properties.put(key, pv);
             }
             else
             {
@@ -155,7 +195,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         while(p.hasNext())
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            result[i++] = "--" + entry.getKey() + "=" + entry.getValue();
+            result[i++] = "--" + entry.getKey() + "=" + ((PropertyValue)entry.getValue()).value;
         }
         assert(i == result.length);
         return result;
@@ -229,9 +269,26 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
         return new PropertiesI(this);
     }
 
+    public synchronized java.util.List
+    getUnusedProperties()
+    {
+        java.util.List unused = new java.util.ArrayList();
+        java.util.Iterator p = _properties.entrySet().iterator();
+        while(p.hasNext())
+        {
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            PropertyValue pv = (PropertyValue)entry.getValue();
+            if(!pv.used)
+            {
+                unused.add((String)entry.getKey());
+            }
+        }
+        return unused;
+    }
+
     PropertiesI(PropertiesI p)
     {
-        _properties.putAll(p._properties);
+        _properties = new java.util.HashMap(p._properties);
     }
 
     PropertiesI()
@@ -242,7 +299,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
     {
         if(defaults != null)
         {
-            _properties.putAll(defaults.getPropertiesForPrefix(""));
+            _properties = new java.util.HashMap(((PropertiesI)defaults)._properties);
         }
         
         boolean loadConfigFiles = false;
@@ -365,7 +422,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             }
         }
 
-        setProperty("Ice.Config", value);
+        _properties.put("Ice.Config", new PropertyValue(value, true));
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();

@@ -193,6 +193,7 @@ Ice:
     Warn.Dispatch
     Warn.Endpoints
     Warn.UnknownProperties
+    Warn.UnusedProperties
     CacheMessageBuffers
 
 IceBox:

@@ -24,7 +24,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
-#include <Ice/Properties.h>
+#include <Ice/PropertiesI.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
 #include <Ice/EndpointFactoryManager.h>
@@ -33,6 +33,7 @@
 #include <Ice/DynamicLibrary.h>
 #include <Ice/PluginManagerI.h>
 #include <Ice/Initialize.h>
+#include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
 
 #include <stdio.h>
@@ -935,6 +936,20 @@ IceInternal::Instance::destroy()
     if(serverThreadPool)
     {
         serverThreadPool->joinWithAllThreads();
+    }
+
+    if(_initData.properties->getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+    {
+        set<string> unusedProperties = static_cast<PropertiesI*>(_initData.properties.get())->getUnusedProperties();
+        if(unusedProperties.size() != 0)
+        {
+            Warning out(_initData.logger);
+            out << "The following properties were set but never read:";
+            for(set<string>::const_iterator p = unusedProperties.begin(); p != unusedProperties.end(); ++p)
+            {
+                out << "\n    " << *p;
+            }
+        }
     }
     return true;
 }

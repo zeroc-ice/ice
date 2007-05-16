@@ -25,10 +25,11 @@ Ice::PropertiesI::getProperty(const string& key)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    map<string, string>::const_iterator p = _properties.find(key);
+    map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-        return p->second;
+        p->second.used = true;
+        return p->second.value;
     }
     else
     {
@@ -41,10 +42,11 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    map<string, string>::const_iterator p = _properties.find(key);
+    map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-        return p->second;
+        p->second.used = true;
+        return p->second.value;
     }
     else
     {
@@ -63,10 +65,11 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    map<string, string>::const_iterator p = _properties.find(key);
+    map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
-        istringstream v(p->second);
+        p->second.used = true;
+        istringstream v(p->second.value);
         if(!(v >> value) || !v.eof())
         {
             return 0;
@@ -82,12 +85,13 @@ Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
     IceUtil::Mutex::Lock sync(*this);
 
     PropertyDict result;
-    map<string, string>::const_iterator p;
+    map<string, PropertyValue>::iterator p;
     for(p = _properties.begin(); p != _properties.end(); ++p)
     {
         if(prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
         {
-            result.insert(*p);
+            p->second.used = true;
+            result[p->first] = p->second.value;
         }
     }
 
@@ -140,7 +144,13 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     if(!value.empty())
     {
-        _properties[key] = value;
+        PropertyValue pv = { value, false };
+        map<string, PropertyValue>::const_iterator p = _properties.find(key);
+        if(p != _properties.end())
+        {
+            pv.used = p->second.used;
+        }
+        _properties[key] = pv;
     }
     else
     {
@@ -155,10 +165,10 @@ Ice::PropertiesI::getCommandLineOptions()
 
     StringSeq result;
     result.reserve(_properties.size());
-    map<string, string>::const_iterator p;
+    map<string, PropertyValue>::const_iterator p;
     for(p = _properties.begin(); p != _properties.end(); ++p)
     {
-        result.push_back("--" + p->first + "=" + p->second);
+        result.push_back("--" + p->first + "=" + p->second.value);
     }
     return result;
 }
@@ -234,6 +244,21 @@ Ice::PropertiesI::clone()
     return new PropertiesI(this);
 }
 
+set<string>
+Ice::PropertiesI::getUnusedProperties()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    set<string> unusedProperties;
+    for(map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
+    {
+        if(!p->second.used)
+        {
+            unusedProperties.insert(p->first);
+        }
+    }
+    return unusedProperties;
+}
+
 Ice::PropertiesI::PropertiesI(const PropertiesI* p) :
     _properties(p->_properties),
     _converter(p->_converter)
@@ -250,12 +275,14 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
 {
     if(defaults != 0)
     {
-        _properties = defaults->getPropertiesForPrefix("");
+        _properties = static_cast<PropertiesI*>(defaults.get())->_properties;
     }
 
     StringSeq::iterator q = args.begin();
 
-    if(_properties.find("Ice.ProgramName") == _properties.end())
+     
+    map<string, PropertyValue>::iterator p = _properties.find("Ice.ProgramName");
+    if(p == _properties.end())
     {
         if(q != args.end())
         {
@@ -266,8 +293,14 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
             //
             string name = *q;
             replace(name.begin(), name.end(), '\\', '/');
-            setProperty("Ice.ProgramName", name);
+
+            PropertyValue pv = { name, true };
+            _properties["Ice.ProgramName"] = pv;
         }
+    }
+    else
+    {
+        p->second.used = true;
     }
 
     StringSeq tmp;
@@ -308,7 +341,6 @@ Ice::PropertiesI::PropertiesI(StringSeq& args, const PropertiesPtr& defaults, co
 
     args = parseIceCommandLineOptions(args);
 }
-
 
 void
 Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& converter)
@@ -408,5 +440,6 @@ Ice::PropertiesI::loadConfig()
         }
     }
 
-    setProperty("Ice.Config", value);
+    PropertyValue pv = { value, true };
+    _properties["Ice.Config"] = pv;
 }

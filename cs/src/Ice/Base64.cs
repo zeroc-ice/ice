@@ -179,7 +179,6 @@ decode(string str)
         }
     }
 
-    byte[] temp = retval.toArray(0, pos);
     return retval.toArray(0, pos);
 }
 

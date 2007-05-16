@@ -10,6 +10,7 @@
 namespace IceInternal
 {
 
+    using System.Collections;
     using System.Diagnostics;
 
     public sealed class Instance
@@ -648,6 +649,20 @@ namespace IceInternal
             if(serverThreadPool != null)
             {
                 serverThreadPool.joinWithAllThreads();
+            }
+
+            if(_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0)
+            {
+                ArrayList unusedProperties = ((Ice.PropertiesI)_initData.properties).getUnusedProperties();
+                if(unusedProperties.Count != 0)
+                {
+                    string message = "The following properties were set but never read:";
+                    foreach(string s in unusedProperties)
+                    {
+                        message += "\n    " + s;
+                    }
+                    _initData.logger.warning(message);
+                }
             }
 
             return true;

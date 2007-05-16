@@ -14,6 +14,8 @@
 #include <Ice/Properties.h>
 #include <Ice/StringConverter.h>
 
+#include <set>
+
 namespace Ice
 {
 
@@ -33,6 +35,8 @@ public:
     virtual void load(const std::string&);
     virtual PropertiesPtr clone();
 
+    std::set<std::string> getUnusedProperties();
+
 private:
     PropertiesI(const StringConverterPtr&);
     PropertiesI(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
@@ -42,12 +46,16 @@ private:
     friend ICE_API PropertiesPtr createProperties(StringSeq&, const PropertiesPtr&, const StringConverterPtr&);
     friend ICE_API PropertiesPtr createProperties(int&, char*[], const PropertiesPtr&, const StringConverterPtr&);
 
-
     void parseLine(const std::string&, const StringConverterPtr&);
 
     void loadConfig();
 
-    std::map<std::string, std::string> _properties;
+    struct PropertyValue
+    {
+        std::string value;
+        bool used;
+    };
+    std::map<std::string, PropertyValue> _properties;
     const StringConverterPtr _converter;
 };
 
