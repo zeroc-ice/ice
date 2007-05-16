@@ -388,70 +388,16 @@ function twoways($communicator, $p)
             }
         }
     }
-
-    {
-        $ctx = array("one" => "ONE", "two" => "TWO", "three" => "THREE");
-        {
-            $r = $p->opContext();
-            test(count($p->ice_getContext()) == 0);
-            test($r != $ctx);
-        }
-        {
-            $r = $p->opContext($ctx);
-            test(count($p->ice_getContext()) == 0);
-            test($r == $ctx);
-        }
-        {
-            $p2 = $p->ice_context($ctx)->ice_checkedCast("::Test::MyClass");
-            test($p2->ice_getContext() == $ctx);
-            $r = $p2->opContext();
-            test($r == $ctx);
-            $r = $p2->opContext($ctx);
-            test($r == $ctx);
-        }
-    }
 }
 
 function allTests()
 {
     global $ICE;
 
-    echo "testing stringToProxy... ";
-    flush();
     $ref = "test:default -p 12010 -t 2000";
     $base = $ICE->stringToProxy($ref);
-    test($base != null);
-    echo "ok\n";
-
-    echo "testing proxy methods... ";
-    flush();
-    test($ICE->identityToString($base->ice_identity($ICE->stringToIdentity("other"))->ice_getIdentity()) == "other");
-    test($base->ice_facet("facet")->ice_getFacet() == "facet");
-    test($base->ice_adapterId("id")->ice_getAdapterId() == "id");
-    test($base->ice_twoway()->ice_isTwoway());
-    test($base->ice_oneway()->ice_isOneway());
-    test($base->ice_batchOneway()->ice_isBatchOneway());
-    test($base->ice_datagram()->ice_isDatagram());
-    test($base->ice_batchDatagram()->ice_isBatchDatagram());
-    test($base->ice_secure(true)->ice_isSecure());
-    test(!$base->ice_secure(false)->ice_isSecure());
-    echo "ok\n";
-
-    echo "testing ice_getCommunicator... ";
-    flush();
-    test($base->ice_getCommunicator() === $ICE);
-    echo "ok\n";
-
-    echo "testing checked cast... ";
-    flush();
     $cl = $base->ice_checkedCast("::Test::MyClass");
-    test($cl != null);
     $derived = $cl->ice_checkedCast("::Test::MyDerivedClass");
-    test($derived != null);
-    test($cl == $base);
-    test($derived == $base);
-    test($cl == $derived);
-    echo "ok\n";
 
     echo "testing twoway operations... ";
     flush();

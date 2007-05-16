@@ -46,6 +46,7 @@ static function_entry _methods[] =
 {
     {"__construct",        PHP_FN(Ice_Communicator___construct),        0},
     {"getProperty",        PHP_FN(Ice_Communicator_getProperty),        0},
+    {"setProperty",        PHP_FN(Ice_Communicator_setProperty),        0},
     {"stringToProxy",      PHP_FN(Ice_Communicator_stringToProxy),      0},
     {"proxyToString",      PHP_FN(Ice_Communicator_proxyToString),      0},
     {"propertyToProxy",    PHP_FN(Ice_Communicator_propertyToProxy),    0},
@@ -191,6 +192,42 @@ ZEND_FUNCTION(Ice_Communicator_getProperty)
         throwException(ex TSRMLS_CC);
         RETURN_EMPTY_STRING();
     }
+}
+
+ZEND_FUNCTION(Ice_Communicator_setProperty)
+{
+    if(ZEND_NUM_ARGS() != 2)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        return;
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    char *prop;
+    int propLen;
+    char *val;
+    int valLen;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &prop, &propLen, &val, &valLen) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        (*_this)->getProperties()->setProperty(prop, val);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+    RETURN_EMPTY_STRING();
 }
 
 ZEND_FUNCTION(Ice_Communicator_stringToProxy)
