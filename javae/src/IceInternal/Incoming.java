@@ -96,14 +96,14 @@ final public class Incoming
         {
 	    if(IceUtil.Debug.ASSERT)
 	    {
-		IceUtil.Debug.Assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
+		IceUtil.Debug.Assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
 	    }
-            _os.writeByte((byte)0);
+            _os.writeByte(ReplyStatus.replyOK);
             _os.startWriteEncaps();
         }
 
-	// Initialize status to some value, to keep the compiler happy.
-	DispatchStatus status = DispatchStatus.DispatchOK;
+	byte replyStatus = ReplyStatus.replyOK;
+	Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;
 	
 	//
 	// Don't put the code above into the try block below. Exceptions
@@ -123,16 +123,20 @@ final public class Incoming
 	    {
 	        if(_servantManager != null && _servantManager.hasServant(_current.id))
 	        {
-		    status = DispatchStatus.DispatchFacetNotExist;
+		    replyStatus = ReplyStatus.replyFacetNotExist;
 	        }
 	        else
 	        {
-		    status = DispatchStatus.DispatchObjectNotExist;
+		    replyStatus = ReplyStatus.replyObjectNotExist;
 	        }
 	    }
 	    else
 	    {
-	        status = servant.__dispatch(this, _current);
+	        dispatchStatus = servant.__dispatch(this, _current);
+                if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                {
+                    replyStatus = ReplyStatus.replyUserException;
+                }
 	    }
 	}
 	catch(Ice.RequestFailedException ex)
@@ -162,18 +166,18 @@ final public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
 		if(ex instanceof Ice.ObjectNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+		    _os.writeByte(ReplyStatus.replyObjectNotExist);
 		}
 		else if(ex instanceof Ice.FacetNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+		    _os.writeByte(ReplyStatus.replyFacetNotExist);
 		}
 		else if(ex instanceof Ice.OperationNotExistException)
 		{
-		    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+		    _os.writeByte(ReplyStatus.replyOperationNotExist);
 		}
 		else
 		{
@@ -220,8 +224,8 @@ final public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownLocalException);
 		_os.writeString(ex.unknown);
 		_connection.sendResponse(_os);
 	    }
@@ -244,8 +248,8 @@ final public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownUserException);
 		_os.writeString(ex.unknown);
 		_connection.sendResponse(_os);
 	    }
@@ -268,8 +272,8 @@ final public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownException);
 		_os.writeString(ex.unknown);
 		_connection.sendResponse(_os);
 	    }
@@ -292,8 +296,8 @@ final public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownLocalException);
 		//_os.writeString(ex.toString());
 		java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
 		java.io.PrintStream pw = new java.io.PrintStream(sw);
@@ -327,8 +331,8 @@ final public class Incoming
             if(response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownException);
 		//_os.writeString(ex.toString());
 		java.io.ByteArrayOutputStream sw = new java.io.ByteArrayOutputStream();
 		java.io.PrintStream pw = new java.io.PrintStream(sw);
@@ -357,17 +361,16 @@ final public class Incoming
 	{
 	    _os.endWriteEncaps();
 	    
-	    if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
-	    {
+            if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
+            {
 		if(IceUtil.Debug.ASSERT)
 		{
-		    IceUtil.Debug.Assert(status == DispatchStatus.DispatchObjectNotExist ||
-					 status == DispatchStatus.DispatchFacetNotExist ||
-					 status == DispatchStatus.DispatchOperationNotExist);
+		    IceUtil.Debug.Assert(replyStatus == ReplyStatus.replyObjectNotExist ||
+                                         replyStatus == ReplyStatus.replyFacetNotExist);
 		}
 		
-		_os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-		_os.writeByte((byte)status.value());
+		_os.resize(Protocol.headerSize + 4, false); // Reply status position.
+		_os.writeByte(replyStatus);
 		
 		_current.id.__write(_os);
 
@@ -389,8 +392,8 @@ final public class Incoming
 	    else
 	    {
 		int save = _os.pos();
-		_os.pos(Protocol.headerSize + 4); // Dispatch status position.
-		_os.writeByte((byte)status.value());
+		_os.pos(Protocol.headerSize + 4); // Reply status position.
+		_os.writeByte(replyStatus);
 		_os.pos(save);
 	    }
 

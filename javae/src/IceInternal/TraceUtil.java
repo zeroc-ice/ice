@@ -99,42 +99,42 @@ public final class TraceUtil
             int requestId = str.readInt();
             ps.print("\nrequest id = " + requestId);
 
-            byte status = str.readByte();
-            ps.print("\nreply status = " + (int)status + ' ');
+            byte replyStatus = str.readByte();
+            ps.print("\nreply status = " + (int)replyStatus + ' ');
 
-            switch(status)
+            switch(replyStatus)
             {
-                case DispatchStatus._DispatchOK:
+                case ReplyStatus.replyOK:
                 {
                     ps.print("(ok)");
                     break;
                 }
 
-                case DispatchStatus._DispatchUserException:
+                case ReplyStatus.replyUserException:
                 {
                     ps.print("(user exception)");
                     break;
                 }
 
-                case DispatchStatus._DispatchObjectNotExist:
-                case DispatchStatus._DispatchFacetNotExist:
-                case DispatchStatus._DispatchOperationNotExist:
+                case ReplyStatus.replyObjectNotExist:
+                case ReplyStatus.replyFacetNotExist:
+                case ReplyStatus.replyOperationNotExist:
                 {
-		    switch(status)
+		    switch(replyStatus)
 		    {
-			case DispatchStatus._DispatchObjectNotExist:
+			case ReplyStatus.replyObjectNotExist:
 			{
 			    ps.print("(object not exist)");
 			    break;
 			}
 			
-			case DispatchStatus._DispatchFacetNotExist:
+			case ReplyStatus.replyFacetNotExist:
 			{
 			    ps.print("(facet not exist)");
 			    break;
 			}
 			
-			case DispatchStatus._DispatchOperationNotExist:
+			case ReplyStatus.replyOperationNotExist:
 			{
 			    ps.print("(operation not exist)");
 			    break;
@@ -154,25 +154,25 @@ public final class TraceUtil
 		    break;
                 }
 
-		case DispatchStatus._DispatchUnknownException:
-		case DispatchStatus._DispatchUnknownLocalException:
-		case DispatchStatus._DispatchUnknownUserException:
+		case ReplyStatus.replyUnknownException:
+		case ReplyStatus.replyUnknownLocalException:
+		case ReplyStatus.replyUnknownUserException:
 		{
-		    switch(status)
+		    switch(replyStatus)
 		    {
-			case DispatchStatus._DispatchUnknownException:
+			case ReplyStatus.replyUnknownException:
 			{
 			    ps.print("(unknown exception)");
 			    break;
 			}
 
-			case DispatchStatus._DispatchUnknownLocalException:
+			case ReplyStatus.replyUnknownLocalException:
 			{
 			    ps.print("(unknown local exception)");
 			    break;
 			}
 			
-			case DispatchStatus._DispatchUnknownUserException:
+			case ReplyStatus.replyUnknownUserException:
 			{
 			    ps.print("(unknown user exception)");
 			    break;

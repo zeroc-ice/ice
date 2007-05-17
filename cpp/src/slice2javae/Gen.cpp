@@ -435,7 +435,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         assert(cl);
 
         string opName = op->name();
-        out << sp << nl << "public static IceInternal.DispatchStatus" << nl << "___" << opName << '(' << name
+        out << sp << nl << "public static Ice.DispatchStatus" << nl << "___" << opName << '(' << name
             << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         out << sb;
 
@@ -562,7 +562,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         {
             writeMarshalUnmarshalCode(out, package, ret, "__ret", true, iter, false, opMetaData);
         }
-        out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+        out << nl << "return Ice.DispatchStatus.DispatchOK;";
             
         //
         // Handle user exceptions.
@@ -577,7 +577,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                 out << nl << "catch(" << exS << " ex)";
                 out << sb;
                 out << nl << "__os.writeUserException(ex);";
-                out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+                out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                 out << eb;
             }
         }
@@ -612,13 +612,13 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         out << eb << ';';
 
-        out << sp << nl << "public IceInternal.DispatchStatus" << nl
+        out << sp << nl << "public Ice.DispatchStatus" << nl
             << "__dispatch(IceInternal.Incoming in, Ice.Current __current)";
         out << sb;
         out << nl << "int pos = IceUtil.Arrays.search(__all, __current.operation);";
         out << nl << "if(pos < 0)";
         out << sb;
-        out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
+        out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
         out << eb;
         out << sp << nl << "switch(pos)";
         out << sb;
@@ -685,7 +685,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << sb;
         out << sp << nl << "IceUtil.Debug.Assert(false);";
         out << eb;
-        out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
+        out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
         out << eb;
     }
 }

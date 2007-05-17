@@ -10,6 +10,7 @@
 #include <IceE/Incoming.h>
 #include <IceE/ServantManager.h>
 #include <IceE/Object.h>
+#include <IceE/ReplyStatus.h>
 #include <IceE/Connection.h>
 #include <IceE/LocalException.h>
 #include <IceE/Instance.h>
@@ -125,13 +126,14 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 
     if(response)
     {
-	assert(_os.b.size() == headerSize + 4); // Dispatch status position.
-	_os.write(static_cast<Byte>(0));
+	assert(_os.b.size() == headerSize + 4); // Reply status position.
+	_os.write(replyOK);
 	_os.startWriteEncaps();
     }
 
-    // Initialize status to some value, to keep the compiler happy.
-    DispatchStatus status = DispatchOK;
+    
+    Byte replyStatus = replyOK;
+    DispatchStatus dispatchStatus = DispatchOK;
 
     //
     // Don't put the code above into the try block below. Exceptions
@@ -151,16 +153,20 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	{
 	    if(_servantManager && _servantManager->hasServant(_current.id))
 	    {
-	        status = DispatchFacetNotExist;
+	        replyStatus = replyFacetNotExist;
 	    }
 	    else
 	    {
-	        status = DispatchObjectNotExist;
+	        replyStatus = replyObjectNotExist;
 	    }
 	}
 	else
 	{
-	    status = servant->__dispatch(*this, _current);
+	    dispatchStatus = servant->__dispatch(*this, _current);
+            if(dispatchStatus == DispatchUserException)
+            {
+                replyStatus = replyUserException;
+            }
 	}
     }
     catch(RequestFailedException& ex)
@@ -190,18 +196,18 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.b.resize(headerSize + 4); // Reply status position.
 	    if(dynamic_cast<ObjectNotExistException*>(&ex))
 	    {
-		_os.write(static_cast<Byte>(DispatchObjectNotExist));
+		_os.write(replyObjectNotExist);
 	    }
 	    else if(dynamic_cast<FacetNotExistException*>(&ex))
 	    {
-		_os.write(static_cast<Byte>(DispatchFacetNotExist));
+		_os.write(replyFacetNotExist);
 	    }
 	    else if(dynamic_cast<OperationNotExistException*>(&ex))
 	    {
-		_os.write(static_cast<Byte>(DispatchOperationNotExist));
+		_os.write(replyOperationNotExist);
 	    }
 	    else
 	    {
@@ -245,8 +251,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownLocalException);
 	    _os.write(ex.unknown, false);
 	    _connection->sendResponse(&_os);
 	}
@@ -269,8 +275,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownUserException);
 	    _os.write(ex.unknown, false);
 	    _connection->sendResponse(&_os);
 	}
@@ -293,8 +299,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownException);
 	    _os.write(ex.unknown, false);
 	    _connection->sendResponse(&_os);
 	}
@@ -317,8 +323,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownLocalException);
 	    _os.write(ex.toString(), false);
 	    _connection->sendResponse(&_os);
 	}
@@ -341,8 +347,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownUserException);
 	    _os.write(ex.toString(), false);
 	    _connection->sendResponse(&_os);
 	}
@@ -365,8 +371,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownException);
 	    _os.write(ex.toString(), false);
 	    _connection->sendResponse(&_os);
 	}
@@ -389,8 +395,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownException);
 	    string msg = string("std::exception: ") + ex.what();
 	    _os.write(msg, false);
 	    _connection->sendResponse(&_os);
@@ -414,8 +420,8 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	if(response)
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyUnknownException);
 	    _os.write(string("unknown c++ exception"), false);
 	    _connection->sendResponse(&_os);
 	}
@@ -439,14 +445,13 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
     {
 	_os.endWriteEncaps();
 	
-	if(status != DispatchOK && status != DispatchUserException)
+	if(replyStatus != replyOK && replyStatus != replyUserException)
 	{
-	    assert(status == DispatchObjectNotExist ||
-		   status == DispatchFacetNotExist ||
-		   status == DispatchOperationNotExist);
+	    assert(replyStatus == replyObjectNotExist ||
+		   replyStatus == replyFacetNotExist);
 	    
-	    _os.b.resize(headerSize + 4); // Dispatch status position.
-	    _os.write(static_cast<Byte>(status));
+	    _os.b.resize(headerSize + 4); // Reply status position.
+	    _os.write(replyStatus);
 	    
 	    _current.id.__write(&_os);
 
@@ -466,7 +471,7 @@ IceInternal::Incoming::invoke(bool response, Int requestId)
 	}
 	else
 	{
-	    *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(status); // Dispatch status position.
+	    *(_os.b.begin() + headerSize + 4) = replyStatus; // Reply status position.
 	}
 
 	_connection->sendResponse(&_os);

@@ -59,7 +59,7 @@ public abstract class ObjectImpl implements Object
         return s.equals(__ids[0]);
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __is = __inS.is();
@@ -67,7 +67,7 @@ public abstract class ObjectImpl implements Object
         String __id = __is.readString();
         boolean __ret = __obj.ice_isA(__id, __current);
         __os.writeBool(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public void
@@ -82,11 +82,11 @@ public abstract class ObjectImpl implements Object
         // Nothing to do.
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         __obj.ice_ping(__current);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public String[]
@@ -101,13 +101,13 @@ public abstract class ObjectImpl implements Object
         return __ids;
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __os = __inS.os();
         String[] __ret = __obj.ice_ids(__current);
         __os.writeStringSeq(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public String
@@ -122,13 +122,13 @@ public abstract class ObjectImpl implements Object
         return __ids[0];
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __os = __inS.os();
         String __ret = __obj.ice_id(__current);
         __os.writeString(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public static String
@@ -145,13 +145,13 @@ public abstract class ObjectImpl implements Object
         "ice_ping"
     };
 
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         int pos = IceUtil.Arrays.search(__all, current.operation);
         if(pos < 0)
         {
-            return IceInternal.DispatchStatus.DispatchOperationNotExist;
+            throw new OperationNotExistException(current.id, current.facet, current.operation);
         }
 
         switch(pos)
@@ -178,7 +178,7 @@ public abstract class ObjectImpl implements Object
 	{
 	    IceUtil.Debug.Assert(false);
 	}
-        return IceInternal.DispatchStatus.DispatchOperationNotExist;
+        throw new OperationNotExistException(current.id, current.facet, current.operation);
     }
 
     protected void

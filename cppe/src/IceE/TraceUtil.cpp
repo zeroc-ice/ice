@@ -9,7 +9,7 @@
 
 #include <IceE/TraceUtil.h>
 #include <IceE/StringUtil.h>
-#include <IceE/DispatchStatus.h>
+#include <IceE/ReplyStatus.h>
 #include <IceE/TraceLevels.h>
 #include <IceE/Logger.h>
 #include <IceE/BasicStream.h>
@@ -283,42 +283,42 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const Logge
     stream.read(requestId);
     s += Ice::printfToString("\nrequest id = %d", requestId);
 
-    Byte status;
-    stream.read(status);
-    s += Ice::printfToString("\nreply status = %d ", static_cast<int>(status));
-    switch(static_cast<DispatchStatus>(status))
+    Byte replyStatus;
+    stream.read(replyStatus);
+    s += Ice::printfToString("\nreply status = %d ", static_cast<int>(replyStatus));
+    switch(replyStatus)
     {
-    case DispatchOK:
+    case replyOK:
     {
 	s += "(ok)";
 	break;
     }
 
-    case DispatchUserException:
+    case replyUserException:
     {
 	s += "(user exception)";
 	break;
     }
 
-    case DispatchObjectNotExist:
-    case DispatchFacetNotExist:
-    case DispatchOperationNotExist:
+    case replyObjectNotExist:
+    case replyFacetNotExist:
+    case replyOperationNotExist:
     {
-	switch(static_cast<DispatchStatus>(status))
+	switch(replyStatus)
 	{
-	case DispatchObjectNotExist:
+	case replyObjectNotExist:
 	{
 	    s += "(object not exist)";
 	    break;
 	}
 
-	case DispatchFacetNotExist:
+	case replyFacetNotExist:
 	{
 	    s += "(facet not exist)";
 	    break;
 	}
 
-	case DispatchOperationNotExist:
+	case replyOperationNotExist:
 	{
 	    s += "(operation not exist)";
 	    break;
@@ -335,25 +335,25 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const Logge
 	break;
     }
 
-    case DispatchUnknownException:
-    case DispatchUnknownLocalException:
-    case DispatchUnknownUserException:
+    case replyUnknownException:
+    case replyUnknownLocalException:
+    case replyUnknownUserException:
     {
-	switch(static_cast<DispatchStatus>(status))
+	switch(replyStatus)
 	{
-	case DispatchUnknownException:
+	case replyUnknownException:
 	{
 	    s += "(unknown exception)";
 	    break;
 	}
 
-	case DispatchUnknownLocalException:
+	case replyUnknownLocalException:
 	{
 	    s += "(unknown local exception)";
 	    break;
 	}
 
-	case DispatchUnknownUserException:
+	case replyUnknownUserException:
 	{
 	    s += "(unknown user exception)";
 	    break;

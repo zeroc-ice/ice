@@ -9,7 +9,7 @@
 
 #include <IceE/LocalException.h> // Need to be included before Outgoing.h because of std::auto_ptr<LocalException>
 #include <IceE/Outgoing.h>
-#include <IceE/DispatchStatus.h>
+#include <IceE/ReplyStatus.h>
 #include <IceE/Connection.h>
 #include <IceE/Reference.h>
 #include <IceE/Instance.h>
@@ -260,12 +260,12 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	_stream.swap(is);
     }
 
-    Byte status;
-    _stream.read(status);
+    Byte replyStatus;
+    _stream.read(replyStatus);
     
-    switch(static_cast<DispatchStatus>(status))
+    switch(replyStatus)
     {
-	case DispatchOK:
+	case replyOK:
 	{
 	    //
 	    // Input and output parameters are always sent in an
@@ -277,7 +277,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    break;
 	}
 	
-	case DispatchUserException:
+	case replyUserException:
 	{
 	    //
 	    // Input and output parameters are always sent in an
@@ -289,9 +289,9 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    break;
 	}
 	
-	case DispatchObjectNotExist:
-	case DispatchFacetNotExist:
-	case DispatchOperationNotExist:
+	case replyObjectNotExist:
+	case replyFacetNotExist:
+	case replyOperationNotExist:
 	{
 	    //
 	    // Don't read the exception members directly into the
@@ -320,21 +320,21 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    _stream.read(operation, false);
 	    
 	    RequestFailedException* ex;
-	    switch(static_cast<DispatchStatus>(status))
+	    switch(replyStatus)
 	    {
-		case DispatchObjectNotExist:
+		case replyObjectNotExist:
 		{
 		    ex = new ObjectNotExistException(__FILE__, __LINE__);
 		    break;
 		}
 		
-		case DispatchFacetNotExist:
+		case replyFacetNotExist:
 		{
 		    ex = new FacetNotExistException(__FILE__, __LINE__);
 		    break;
 		}
 		
-		case DispatchOperationNotExist:
+		case replyOperationNotExist:
 		{
 		    ex = new OperationNotExistException(__FILE__, __LINE__);
 		    break;
@@ -357,9 +357,9 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    break;
 	}
 	
-	case DispatchUnknownException:
-	case DispatchUnknownLocalException:
-	case DispatchUnknownUserException:
+	case replyUnknownException:
+	case replyUnknownLocalException:
+	case replyUnknownUserException:
 	{
 	    //
 	    // Don't read the exception members directly into the
@@ -370,21 +370,21 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    _stream.read(unknown, false);
 	    
 	    UnknownException* ex;
-	    switch(static_cast<DispatchStatus>(status))
+	    switch(replyStatus)
 	    {
-		case DispatchUnknownException:
+		case replyUnknownException:
 		{
 		    ex = new UnknownException(__FILE__, __LINE__);
 		    break;
 		}
 		
-		case DispatchUnknownLocalException:
+		case replyUnknownLocalException:
 		{
 		    ex = new UnknownLocalException(__FILE__, __LINE__);
 		    break;
 		}
 		
-		case DispatchUnknownUserException:
+		case replyUnknownUserException:
 		{
 		    ex = new UnknownUserException(__FILE__, __LINE__);
 		    break;
