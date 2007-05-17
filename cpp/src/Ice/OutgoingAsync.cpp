@@ -20,6 +20,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/Outgoing.h> // For LocalExceptionWrapper.
 #include <Ice/Protocol.h>
+#include <Ice/ReplyStatus.h>
 #include <Ice/ImplicitContextI.h>
 
 using namespace std;
@@ -47,28 +48,26 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
 
-    DispatchStatus status;
+    Ice::Byte replyStatus;
     
     try
     {
-        __is->swap(is);
-
-        Byte b;
-        __is->read(b);
-        status = static_cast<DispatchStatus>(b);
+        __is->swap(is);  
+        __is->read(replyStatus);
+     
         
-        switch(status)
+        switch(replyStatus)
         {
-            case DispatchOK:
-            case DispatchUserException:
+            case replyOK:
+            case replyUserException:
             {
                 __is->startReadEncaps();
                 break;
             }
             
-            case DispatchObjectNotExist:
-            case DispatchFacetNotExist:
-            case DispatchOperationNotExist:
+            case replyObjectNotExist:
+            case replyFacetNotExist:
+            case replyOperationNotExist:
             {
                 Identity ident;
                 ident.__read(__is);
@@ -92,21 +91,21 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                 __is->read(operation, false);
                 
                 auto_ptr<RequestFailedException> ex;
-                switch(static_cast<DispatchStatus>(status))
+                switch(replyStatus)
                 {
-                    case DispatchObjectNotExist:
+                    case replyObjectNotExist:
                     {
                         ex.reset(new ObjectNotExistException(__FILE__, __LINE__));
                         break;
                     }
                     
-                    case DispatchFacetNotExist:
+                    case replyFacetNotExist:
                     {
                         ex.reset(new FacetNotExistException(__FILE__, __LINE__));
                         break;
                     }
                     
-                    case DispatchOperationNotExist:
+                    case replyOperationNotExist:
                     {
                         ex.reset(new OperationNotExistException(__FILE__, __LINE__));
                         break;
@@ -125,29 +124,29 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
                 ex->ice_throw();
             }
             
-            case DispatchUnknownException:
-            case DispatchUnknownLocalException:
-            case DispatchUnknownUserException:
+            case replyUnknownException:
+            case replyUnknownLocalException:
+            case replyUnknownUserException:
             {
                 string unknown;
                 __is->read(unknown, false);
                 
                 auto_ptr<UnknownException> ex;
-                switch(static_cast<DispatchStatus>(status))
+                switch(replyStatus)
                 {
-                    case DispatchUnknownException:
+                    case replyUnknownException:
                     {
                         ex.reset(new UnknownException(__FILE__, __LINE__));
                         break;
                     }
                     
-                    case DispatchUnknownLocalException:
+                    case replyUnknownLocalException:
                     {
                         ex.reset(new UnknownLocalException(__FILE__, __LINE__));
                         break;
                     }
                     
-                    case DispatchUnknownUserException:
+                    case replyUnknownUserException:
                     {
                         ex.reset(new UnknownUserException(__FILE__, __LINE__));
                         break;
@@ -176,11 +175,11 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
         return;
     }
 
-    assert(status == DispatchOK || status == DispatchUserException);
+    assert(replyStatus == replyOK || replyStatus == replyUserException);
 
     try
     {
-        __response(status == DispatchOK);
+        __response(replyStatus == replyOK);
     }
     catch(const Exception& ex)
     {

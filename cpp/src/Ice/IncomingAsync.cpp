@@ -15,6 +15,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
+#include <Ice/ReplyStatus.h>
 #include <IceUtil/StaticMutex.h>
 
 using namespace std;
@@ -74,11 +75,11 @@ IceInternal::IncomingAsync::__response(bool ok)
             
             if(ok)
             {
-                *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchOK);
+                *(_os.b.begin() + headerSize + 4) = replyOK;
             }
             else
             {
-                *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(DispatchUserException);
+                *(_os.b.begin() + headerSize + 4) = replyUserException;
             }
 
             _connection->sendResponse(&_os, _compress);

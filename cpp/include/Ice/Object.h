@@ -26,23 +26,18 @@ class Incoming;
 class BasicStream;
 class Direct;
 
-enum DispatchStatus
-{
-    DispatchOK,
-    DispatchUserException,
-    DispatchObjectNotExist,
-    DispatchFacetNotExist,
-    DispatchOperationNotExist,
-    DispatchUnknownLocalException,
-    DispatchUnknownUserException,
-    DispatchUnknownException,
-    DispatchAsync // "Pseudo dispatch status", used internally only to indicate async dispatch.
-};
-
 }
 
 namespace Ice
 {
+
+enum DispatchStatus
+{
+    DispatchOK,
+    DispatchUserException,
+    DispatchAsync
+};
+
 
 class ICE_API DispatchInterceptorAsyncCallback : public virtual IceUtil::Shared
 {
@@ -81,16 +76,16 @@ public:
     virtual Int ice_hash() const;
 
     virtual bool ice_isA(const std::string&, const Current& = Current()) const;
-    IceInternal::DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
+    DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 
     virtual void ice_ping(const Current&  = Current()) const;
-    IceInternal::DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
+    DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
 
     virtual std::vector< std::string> ice_ids(const Current& = Current()) const;
-    IceInternal::DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
+    DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
 
     virtual const std::string& ice_id(const Current& = Current()) const;
-    IceInternal::DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
+    DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
     virtual Int ice_operationAttributes(const std::string&) const;
 
@@ -103,9 +98,9 @@ public:
 
     static std::string __all[];
 
-    virtual IceInternal::DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
-    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
-    virtual IceInternal::DispatchStatus __collocDispatch(IceInternal::Direct&);
+    virtual DispatchStatus ice_dispatch(Ice::Request&, const DispatchInterceptorAsyncCallbackPtr& = 0);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual DispatchStatus __collocDispatch(IceInternal::Direct&);
 
     virtual void __write(IceInternal::BasicStream*) const;
     virtual void __read(IceInternal::BasicStream*, bool);
@@ -130,7 +125,7 @@ public:
 
     // Returns true if ok, false if user exception.
     virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
-    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectArray : virtual public Object
@@ -139,7 +134,7 @@ public:
 
     // Returns true if ok, false if user exception.
     virtual bool ice_invoke(const std::pair<const Byte*, const Byte*>&, std::vector<Byte>&, const Current&) = 0;
-    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectAsync : virtual public Object
@@ -148,7 +143,7 @@ public:
 
     // Returns true if ok, false if user exception.
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
-    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectArrayAsync : virtual public Object
@@ -158,7 +153,7 @@ public:
     // Returns true if ok, false if user exception.
     virtual void ice_invoke_async(const AMD_Array_Object_ice_invokePtr&, const std::pair<const Byte*, const Byte*>&,
                                   const Current&) = 0;
-    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
+    virtual DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 ICE_API void ice_writeObject(const OutputStreamPtr&, const ObjectPtr&);

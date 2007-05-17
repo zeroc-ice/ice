@@ -14,13 +14,13 @@
 AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
     InterceptorI(servant),
     _defaultCb(new DispatchInterceptorAsyncCallbackI(*this)),
-    _actualStatus(IceInternal::DispatchAsync)
+    _actualStatus(Ice::DispatchAsync)
    
 {
 }
 
     
-IceInternal::DispatchStatus 
+Ice::DispatchStatus 
 AMDInterceptorI::dispatch(Ice::Request& request)
 {
     class CallbackI : public Ice::DispatchInterceptorAsyncCallback
@@ -69,7 +69,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         for(int i = 0; i < 10; ++i)
         {
             _lastStatus =  _servant->ice_dispatch(request, cb);
-            test(_lastStatus == IceInternal::DispatchAsync);
+            test(_lastStatus == Ice::DispatchAsync);
         }
         
         current.ctx["retry"] = "no";
@@ -80,7 +80,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 }
 
 void 
-AMDInterceptorI::setActualStatus(IceInternal::DispatchStatus status)
+AMDInterceptorI::setActualStatus(Ice::DispatchStatus status)
 {
     IceUtil::Mutex::Lock lock(_mutex);
     _actualStatus = status;
@@ -91,10 +91,10 @@ AMDInterceptorI::setActualStatus(const IceUtil::Exception& e)
 {
     IceUtil::Mutex::Lock lock(_mutex);
     _exception.reset(e.ice_clone());
-    _actualStatus = IceInternal::DispatchAsync;
+    _actualStatus = Ice::DispatchAsync;
 }
 
-IceInternal::DispatchStatus
+Ice::DispatchStatus
 AMDInterceptorI::getActualStatus() const
 {
     IceUtil::Mutex::Lock lock(_mutex);
@@ -113,7 +113,7 @@ AMDInterceptorI::clear()
 {
     InterceptorI::clear();
     IceUtil::Mutex::Lock lock(_mutex);
-    _actualStatus = IceInternal::DispatchAsync;
+    _actualStatus = Ice::DispatchAsync;
     _exception.reset();
 }
 
@@ -126,7 +126,7 @@ DispatchInterceptorAsyncCallbackI::DispatchInterceptorAsyncCallbackI(AMDIntercep
 bool 
 DispatchInterceptorAsyncCallbackI::response(bool ok)
 {
-    _interceptor.setActualStatus(ok ? IceInternal::DispatchOK : IceInternal::DispatchUserException);
+    _interceptor.setActualStatus(ok ? Ice::DispatchOK : Ice::DispatchUserException);
     return true;
 }
 

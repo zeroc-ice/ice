@@ -201,7 +201,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 
     if(r.first == r.second)
     {
-        return DispatchOperationNotExist;
+        throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
     }                                        
 
     switch(r.first - __all)
@@ -225,7 +225,7 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     }
 
     assert(false);
-    return DispatchOperationNotExist;
+    throw OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
 }
 
 DispatchStatus

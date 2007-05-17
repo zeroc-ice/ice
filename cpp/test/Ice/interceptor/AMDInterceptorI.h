@@ -19,20 +19,20 @@ public:
 
     AMDInterceptorI(const Ice::ObjectPtr&);
     
-    virtual IceInternal::DispatchStatus dispatch(Ice::Request&);
+    virtual Ice::DispatchStatus dispatch(Ice::Request&);
      
     virtual void clear();
 
-    IceInternal::DispatchStatus getActualStatus() const;
+    Ice::DispatchStatus getActualStatus() const;
     IceUtil::Exception* getException() const;
 
-    void setActualStatus(IceInternal::DispatchStatus);
+    void setActualStatus(Ice::DispatchStatus);
     void setActualStatus(const IceUtil::Exception&);
    
 private:
 
     Ice::DispatchInterceptorAsyncCallbackPtr _defaultCb;
-    IceInternal::DispatchStatus _actualStatus;
+    Ice::DispatchStatus _actualStatus;
     std::auto_ptr<IceUtil::Exception> _exception;
   
     IceUtil::Mutex _mutex;

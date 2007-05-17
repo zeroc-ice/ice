@@ -19,13 +19,13 @@ class ICE_API DispatchInterceptor : public virtual Object
 {
 public:
 
-    virtual IceInternal::DispatchStatus
+    virtual DispatchStatus
     dispatch(Request&) = 0;
 
-    virtual IceInternal::DispatchStatus
+    virtual DispatchStatus
     __dispatch(IceInternal::Incoming&, const Current&);
     
-    virtual IceInternal::DispatchStatus
+    virtual DispatchStatus
     __collocDispatch(IceInternal::Direct&);
 };
 

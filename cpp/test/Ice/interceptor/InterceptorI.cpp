@@ -13,12 +13,12 @@
 
 InterceptorI::InterceptorI(const Ice::ObjectPtr& servant) :
     _servant(servant),
-    _lastStatus(IceInternal::DispatchAsync)
+    _lastStatus(Ice::DispatchAsync)
 {
 }
 
     
-IceInternal::DispatchStatus 
+Ice::DispatchStatus 
 InterceptorI::dispatch(Ice::Request& request)
 {
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
@@ -48,7 +48,7 @@ InterceptorI::dispatch(Ice::Request& request)
     return _lastStatus;
 }
     
-IceInternal::DispatchStatus 
+Ice::DispatchStatus 
 InterceptorI::getLastStatus() const
 {
     return _lastStatus;
@@ -63,6 +63,6 @@ InterceptorI::getLastOperation() const
 void 
 InterceptorI::clear()
 {
-    _lastStatus = IceInternal::DispatchAsync;
+    _lastStatus = Ice::DispatchAsync;
     _lastOperation = "";
 }

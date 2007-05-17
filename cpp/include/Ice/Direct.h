@@ -30,7 +30,7 @@ public:
 
     virtual bool isCollocated();
     virtual const Ice::Current& getCurrent();
-    virtual DispatchStatus run(Ice::Object*) { return DispatchOK; } // = 0;
+    virtual Ice::DispatchStatus run(Ice::Object*) = 0;
 
     void throwUserException();
 

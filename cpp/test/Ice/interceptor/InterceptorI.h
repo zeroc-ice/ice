@@ -19,9 +19,9 @@ public:
 
     InterceptorI(const Ice::ObjectPtr&);
     
-    virtual IceInternal::DispatchStatus dispatch(Ice::Request& request);
+    virtual Ice::DispatchStatus dispatch(Ice::Request& request);
     
-    IceInternal::DispatchStatus getLastStatus() const;
+    Ice::DispatchStatus getLastStatus() const;
     const std::string& getLastOperation() const;
     
     virtual void clear();
@@ -29,7 +29,7 @@ public:
 protected:
     const Ice::ObjectPtr _servant;
     std::string _lastOperation;
-    IceInternal::DispatchStatus _lastStatus;
+    Ice::DispatchStatus _lastStatus;
 };
 
 typedef IceUtil::Handle<InterceptorI> InterceptorIPtr;

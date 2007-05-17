@@ -1311,16 +1311,42 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 
 bool
 IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
-{
+{ 
+    class DirectI : public Direct
+    {
+    public:
+
+        DirectI(bool& __result, const string& __id, const Current& __current) : 
+            Direct(__current),
+            _result(__result),
+            _id(__id)
+        {
+        }
+        
+        virtual ICE_API ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            _result = object->ice_isA(_id, _current);
+            return DispatchOK;
+        }
+        
+    private:
+        
+        bool& _result;
+        const string& _id;
+    };
+
     Current __current;
     __initCurrent(__current, "ice_isA", ::Ice::Nonmutating, context);
-    while(true)
+    bool __result;
+   
+    try
     {
-        Direct __direct(__current);
-        bool __ret;
+        DirectI __direct(__result, __id, __current);
+    
         try
         {
-            __ret = __direct.servant()->ice_isA(__id, __current);
+            __direct.servant()->__collocDispatch(__direct);
         }
         catch(...)
         {
@@ -1328,22 +1354,44 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
             throw;
         }
         __direct.destroy();
-        return __ret;    
     }
-    return false; // To keep the Visual C++ compiler happy.
+    catch(const LocalException& __ex)
+    {
+        throw LocalExceptionWrapper(__ex, false);
+    }
+    return __result;
 }
 
 void
 IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
 {
+    class DirectI : public Direct
+    {
+    public:
+
+        DirectI(const Current& __current) : 
+            Direct(__current)
+        {
+        }
+        
+        virtual ICE_API ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            object->ice_ping(_current);
+            return DispatchOK;
+        }
+    };
+
     Current __current;
     __initCurrent(__current, "ice_ping", ::Ice::Nonmutating, context);
-    while(true)
+   
+    try
     {
-        Direct __direct(__current);
+        DirectI __direct(__current);
+    
         try
         {
-            __direct.servant()->ice_ping(__current);
+            __direct.servant()->__collocDispatch(__direct);
         }
         catch(...)
         {
@@ -1351,22 +1399,49 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
             throw;
         }
         __direct.destroy();
-        return; 
+    }
+    catch(const LocalException& __ex)
+    {
+        throw LocalExceptionWrapper(__ex, false);
     }
 }
 
 vector<string>
 IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
 {
+    class DirectI : public Direct
+    {
+    public:
+
+        DirectI(vector<string>& __result, const Current& __current) : 
+            Direct(__current),
+            _result(__result)
+        {
+        }
+        
+        virtual ICE_API ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            _result = object->ice_ids(_current);
+            return DispatchOK;
+        }
+        
+    private:
+        
+        vector<string>& _result;
+    };
+
     Current __current;
     __initCurrent(__current, "ice_ids", ::Ice::Nonmutating, context);
-    while(true)
+    vector<string> __result;
+   
+    try
     {
-        Direct __direct(__current);
-        vector<string> __ret;
+        DirectI __direct(__result, __current);
+    
         try
         {
-            __ret = __direct.servant()->ice_ids(__current);
+            __direct.servant()->__collocDispatch(__direct);
         }
         catch(...)
         {
@@ -1374,23 +1449,50 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
             throw;
         }
         __direct.destroy();
-        return __ret;
     }
-    return vector<string>(); // To keep the Visual C++ compiler happy.
+    catch(const LocalException& __ex)
+    {
+        throw LocalExceptionWrapper(__ex, false);
+    }
+    return __result;
 }
 
 string
 IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
 {
+    class DirectI : public Direct
+    {
+    public:
+
+        DirectI(string& __result, const Current& __current) : 
+            Direct(__current),
+            _result(__result)
+        {
+        }
+        
+        virtual ICE_API ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            _result = object->ice_id(_current);
+            return DispatchOK;
+        }
+        
+    private:
+        
+        string& _result;
+    };
+
     Current __current;
     __initCurrent(__current, "ice_id", ::Ice::Nonmutating, context);
-    while(true)
+    string __result;
+   
+    try
     {
-        Direct __direct(__current);
-        string __ret;
+        DirectI __direct(__result, __current);
+    
         try
         {
-            __ret = __direct.servant()->ice_id(__current);
+            __direct.servant()->__collocDispatch(__direct);
         }
         catch(...)
         {
@@ -1398,9 +1500,12 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
             throw;
         }
         __direct.destroy();
-        return __ret;    
     }
-    return string(); // To keep the Visual C++ compiler happy.
+    catch(const LocalException& __ex)
+    {
+        throw LocalExceptionWrapper(__ex, false);
+    }
+    return __result;
 }
 
 bool

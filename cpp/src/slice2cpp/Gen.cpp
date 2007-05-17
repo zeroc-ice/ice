@@ -2554,7 +2554,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         //
         // run
         //
-        C << nl << nl << "virtual " << _dllExport << "::IceInternal::DispatchStatus";
+        C << nl << nl << "virtual " << _dllExport << "::Ice::DispatchStatus";
         C << nl << "run(::Ice::Object* object)";
         C << sb;
         C << nl << thisPointer << " servant = dynamic_cast< " << thisPointer << ">(object);";
@@ -2580,7 +2580,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
             C << "_result = ";
         }
         C << "servant->" << name << spar << argMembers << epar << ';';
-        C << nl << "return ::IceInternal::DispatchOK;";
+        C << nl << "return ::Ice::DispatchOK;";
         
         if(!throws.empty())
         {
@@ -2599,7 +2599,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
                 C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& e)";
                 C << sb;
                 C << nl << "setUserException(e);";
-                C << nl << "return ::IceInternal::DispatchUserException;";
+                C << nl << "return ::Ice::DispatchUserException;";
                 C << eb;
             }
         }
@@ -2650,7 +2650,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << sb;
         if(!throws.empty())
         {
-            C << nl << "if(__direct.servant()->__collocDispatch(__direct) == ::IceInternal::DispatchUserException)";
+            C << nl << "if(__direct.servant()->__collocDispatch(__direct) == ::Ice::DispatchUserException)";
             C << sb;
             C << nl << "__direct.throwUserException();";
             C << eb;
@@ -3103,7 +3103,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             
             H << sp;
             H << nl
-              << "virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
+              << "virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
 
             string flatName = p->flattenedScope() + p->name() + "_all";
             C << sp;
@@ -3120,7 +3120,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             }
             C << eb << ';';
             C << sp;
-            C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
+            C << nl << "::Ice::DispatchStatus" << nl << scoped.substr(2)
               << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
             C << sb;
           
@@ -3129,7 +3129,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
               << ", current.operation);";
             C << nl << "if(r.first == r.second)";
             C << sb;
-            C << nl << "return ::IceInternal::DispatchOperationNotExist;";
+            C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);";
             C << eb;
             C << sp;
             C << nl << "switch(r.first - " << flatName << ')';
@@ -3145,7 +3145,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb;
             C << sp;
             C << nl << "assert(false);";
-            C << nl << "return ::IceInternal::DispatchOperationNotExist;";
+            C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);";
             C << eb;
 
             
@@ -3564,11 +3564,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     if(!cl->isLocal())
     {
-        H << nl << "::IceInternal::DispatchStatus ___" << name
+        H << nl << "::Ice::DispatchStatus ___" << name
           << "(::IceInternal::Incoming&, const ::Ice::Current&)" << (isConst ? " const" : "") << ';';
 
         C << sp;
-        C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
+        C << nl << "::Ice::DispatchStatus" << nl << scope.substr(2) << "___" << name
           << "(::IceInternal::Incoming&";
         if(!paramList.empty() || !p->throws().empty() || ret || amd)
         {
@@ -3637,11 +3637,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
                     C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
                     C << sb;
                     C << nl << "__os->write(__ex);";
-                    C << nl << "return ::IceInternal::DispatchUserException;";
+                    C << nl << "return ::Ice::DispatchUserException;";
                     C << eb;
                 }
             }
-            C << nl << "return ::IceInternal::DispatchOK;";
+            C << nl << "return ::Ice::DispatchOK;";
         }
         else
         {
@@ -3675,7 +3675,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             C << sb;
             C << nl << "__cb->ice_exception();";
             C << eb;
-            C << nl << "return ::IceInternal::DispatchAsync;";
+            C << nl << "return ::Ice::DispatchAsync;";
         }           
         C << eb;
     }   

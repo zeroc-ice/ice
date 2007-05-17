@@ -84,12 +84,12 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
     test(interceptor->getLastOperation().empty());
     test(prx->add(33, 12) == 45);
     test(interceptor->getLastOperation() == "add");
-    test(interceptor->getLastStatus() == IceInternal::DispatchOK);
+    test(interceptor->getLastStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
     cout << "testing retry..." << flush;
     test(prx->addWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "addWithRetry");
-    test(interceptor->getLastStatus() == IceInternal::DispatchOK);
+    test(interceptor->getLastStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
     cout << "testing user exception..." << flush;
     try
@@ -102,7 +102,7 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
         // expected
     }
     test(interceptor->getLastOperation() == "badAdd");
-    test(interceptor->getLastStatus() == IceInternal::DispatchUserException);
+    test(interceptor->getLastStatus() == Ice::DispatchUserException);
     cout << "ok" << endl;
     cout << "testing ONE..." << flush;
     
@@ -140,7 +140,7 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
         cout << "testing simple AMD..." << flush;
         test(prx->amdAdd(33, 12) == 45);
         test(interceptor->getLastOperation() == "amdAdd");
-        test(interceptor->getLastStatus() == IceInternal::DispatchAsync);
+        test(interceptor->getLastStatus() == Ice::DispatchAsync);
         cout << "ok" << endl;
     }
     return 0;
@@ -153,14 +153,14 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
     test(interceptor->getLastOperation().empty());
     test(prx->amdAdd(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAdd");
-    test(interceptor->getLastStatus() == IceInternal::DispatchAsync);
-    test(interceptor->getActualStatus() == IceInternal::DispatchOK);
+    test(interceptor->getLastStatus() == Ice::DispatchAsync);
+    test(interceptor->getActualStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
     cout << "testing retry..." << flush;
     test(prx->amdAddWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAddWithRetry");
-    test(interceptor->getLastStatus() == IceInternal::DispatchAsync);
-    test(interceptor->getActualStatus() == IceInternal::DispatchOK);
+    test(interceptor->getLastStatus() == Ice::DispatchAsync);
+    test(interceptor->getActualStatus() == Ice::DispatchOK);
     cout << "ok" << endl;
     cout << "testing user exception..." << flush;
     try
@@ -173,8 +173,8 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
         // expected
     }
     test(interceptor->getLastOperation() == "amdBadAdd");
-    test(interceptor->getLastStatus() == IceInternal::DispatchAsync);
-    test(interceptor->getActualStatus() == IceInternal::DispatchUserException);
+    test(interceptor->getLastStatus() == Ice::DispatchAsync);
+    test(interceptor->getActualStatus() == Ice::DispatchUserException);
     cout << "ok" << endl;
     cout << "testing ONE..." << flush;
     interceptor->clear();
@@ -188,8 +188,8 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
         // expected
     }
     test(interceptor->getLastOperation() == "amdNotExistAdd");
-    test(interceptor->getLastStatus() == IceInternal::DispatchAsync);
-    test(interceptor->getActualStatus() == IceInternal::DispatchAsync);
+    test(interceptor->getLastStatus() == Ice::DispatchAsync);
+    test(interceptor->getActualStatus() == Ice::DispatchAsync);
     test(dynamic_cast<Ice::ObjectNotExistException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
     cout << "testing system exception..." << flush;
@@ -204,8 +204,8 @@ Client::runAmd(const Test::MyObjectPrx& prx, const AMDInterceptorIPtr& intercept
         test(!prx->ice_isCollocationOptimized());
     }
     test(interceptor->getLastOperation() == "amdBadSystemAdd");
-    test(interceptor->getLastStatus() == IceInternal::DispatchAsync);
-    test(interceptor->getActualStatus() == IceInternal::DispatchAsync);
+    test(interceptor->getLastStatus() == Ice::DispatchAsync);
+    test(interceptor->getActualStatus() == Ice::DispatchAsync);
     test(dynamic_cast<Ice::InitializationException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
     return 0;
