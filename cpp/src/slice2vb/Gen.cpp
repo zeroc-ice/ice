@@ -321,7 +321,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
         _out.inc();
         _out << nl << "ByVal obj__ As " << p->name() << "Operations_, _";
         _out << nl << "ByVal inS__ As IceInternal.Incoming, _";
-        _out << nl << "ByVal current__ As Ice.Current) As IceInternal.DispatchStatus";
+        _out << nl << "ByVal current__ As Ice.Current) As Ice.DispatchStatus";
         _out.dec();
 
         bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
@@ -449,7 +449,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
             {
                 _out << nl << "os__.writePendingObjects()";
             }
-            _out << nl << "Return IceInternal.DispatchStatus.DispatchOK";
+            _out << nl << "Return Ice.DispatchStatus.DispatchOK";
             
             //
             // Handle user exceptions.
@@ -464,7 +464,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
                     _out << nl << "Catch ex As " << exS;
                     _out.inc();
                     _out << nl << "os__.writeUserException(ex)";
-                    _out << nl << "Return IceInternal.DispatchStatus.DispatchUserException";
+                    _out << nl << "Return Ice.DispatchStatus.DispatchUserException";
                 }
                 _out.dec();
                 _out << nl << "End Try";
@@ -554,7 +554,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
             _out << nl << "cb__.ice_exception(ex)";
             _out.dec();
             _out << nl << "End Try";
-            _out << nl << "Return IceInternal.DispatchStatus.DispatchAsync";
+            _out << nl << "Return Ice.DispatchStatus.DispatchAsync";
 
             _out.dec();
             _out << nl << "End Function";
@@ -615,14 +615,14 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
         _out.inc();
         _out.inc();
         _out << nl << "ByVal inS__ As IceInternal.Incoming, _";
-        _out << nl << "ByVal current__ As Ice.Current) As IceInternal.DispatchStatus";
+        _out << nl << "ByVal current__ As Ice.Current) As Ice.DispatchStatus";
         _out.dec();
         _out << nl << "Dim pos As Integer";
         _out << nl << "pos = _System.Array.BinarySearch(all__, current__.operation, "
              << "_System.Collections.Comparer.DefaultInvariant)";
         _out << nl << "If pos < 0 Then";
         _out.inc();
-        _out << nl << "Return IceInternal.DispatchStatus.DispatchOperationNotExist";
+        _out << nl << "Throw New Ice.ObjectNotExistException(current__.id, current__.facet, current__.operation)";
         _out.dec();
         _out << nl << "End If";
         _out << nl << "Select Case pos";
@@ -684,7 +684,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
         _out.dec();
         _out << nl << "End Select";
         _out << sp << nl << "' _System.Diagnostics.Debug.Assert(false) ' Bug in VB 7.1: Diagnostics.Debug is not found";
-        _out << nl << "Return IceInternal.DispatchStatus.DispatchOperationNotExist";
+        _out << nl << "Throw New Ice.ObjectNotExistException(current__.id, current__.facet, current__.operation)";
         _out.dec();
         _out << nl << "End Function";
     }
