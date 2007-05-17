@@ -390,13 +390,13 @@ namespace IceSSL
             {
                 if(!server)
                 {
-                    string[] hosts = IceInternal.Network.getHosts(_host);
+                    string[] hosts = IceInternal.Network.getHosts(host_);
                     if(hosts.Length > 1)
                     {
                         for(int i = 0; i < hosts.Length; ++i)
                         {
                             endps.Add(
-                                new EndpointI(instance_, hosts[i], _port, _timeout, _connectionId, _compress, true));
+                                new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_, true));
                         }
                     }
                     else
