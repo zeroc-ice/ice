@@ -388,28 +388,8 @@ namespace IceSSL
             }
             else
             {
-                if(!server)
-                {
-                    string[] hosts = IceInternal.Network.getHosts(host_);
-                    if(hosts.Length > 1)
-                    {
-                        for(int i = 0; i < hosts.Length; ++i)
-                        {
-                            endps.Add(
-                                new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_, true));
-                        }
-                    }
-                    else
-                    {
-                        calcHashValue();
-                        endps.Add(this);
-                    }
-                }
-                else
-                {
-                    calcHashValue();
-                    endps.Add(this);
-                }
+                calcHashValue();
+                endps.Add(this);
             }
             return endps;
         }
