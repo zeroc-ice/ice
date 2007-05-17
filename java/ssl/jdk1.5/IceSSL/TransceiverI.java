@@ -586,22 +586,31 @@ final class TransceiverI implements IceInternal.Transceiver
                 case NEED_UNWRAP:
                 {
                     //
-                    // The engine needs to receive a message. If we don't have any
-                    // data left in _netInput, then read some more.
+                    // The engine needs more data. We might already have enough data in
+                    // the _netInput buffer to satisfy the engine. If not, the engine
+                    // responds with BUFFER_UNDERFLOW and we'll read from the socket.
                     //
                     _netInput.flip();
-                    if(!_netInput.hasRemaining())
-                    {
-                        _netInput.clear();
-                        read(timeout);
-                        _netInput.flip();
-                    }
                     result = _engine.unwrap(_netInput, _appInput);
                     _netInput.compact();
                     //
                     // FINISHED is only returned from wrap or unwrap, not from engine.getHandshakeResult().
                     //
                     status = result.getHandshakeStatus();
+                    switch(result.getStatus())
+                    {
+                    case BUFFER_OVERFLOW:
+                        assert(false);
+                        break;
+                    case BUFFER_UNDERFLOW:
+                        assert(status == javax.net.ssl.SSLEngineResult.HandshakeStatus.NEED_UNWRAP);
+                        read(timeout);
+                        break;
+                    case CLOSED:
+                        throw new Ice.ConnectionLostException();
+                    case OK:
+                        break;
+                    }
                     break;
                 }
                 case NEED_WRAP:
