@@ -2554,9 +2554,6 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         //
         // run
         //
-        // No need to dllexport run since the caller (the proxy) is always in the same
-        // DLL as this translation unit (the direct delegate).
-        //
         C << nl << nl << "virtual ::Ice::DispatchStatus";
         C << nl << "run(::Ice::Object* object)";
         C << sb;
