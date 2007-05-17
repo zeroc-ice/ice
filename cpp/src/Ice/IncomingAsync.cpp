@@ -345,32 +345,44 @@ IceAsync::Ice::AMD_Array_Object_ice_invoke::AMD_Array_Object_ice_invoke(Incoming
 void
 IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_response(bool ok, const pair<const Byte*, const Byte*>& outParams)
 {
-    try
+    if(__validateResponse(ok))
     {
-        __os()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
+        try
+        {
+            __os()->writeBlob(outParams.first, static_cast<Int>(outParams.second - outParams.first));
+        }
+        catch(const LocalException& ex)
+        {
+            __exception(ex);
+            return;
+        }
+        __response(ok);
     }
-    catch(const LocalException& ex)
-    {
-        __exception(ex);
-        return;
-    }
-    __response(ok);
 }
 
 void
 IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const Exception& ex)
 {
-    __exception(ex);
+    if(__validateException(ex))
+    {
+        __exception(ex);
+    }
 }
 
 void
 IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const std::exception& ex)
-{
-    __exception(ex);
+{ 
+    if(__validateException(ex))
+    {
+        __exception(ex);
+    }
 }
 
 void
 IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception()
 {
-    __exception();
+    if(__validateException())
+    {
+        __exception();
+    }
 }
