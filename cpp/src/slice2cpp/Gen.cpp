@@ -2554,17 +2554,14 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         //
         // run
         //
-        C << nl << nl << "virtual " << _dllExport << "::Ice::DispatchStatus";
+        // C << nl << nl << "virtual " << _dllExport << "::Ice::DispatchStatus";
+        C << nl << nl << "virtual ::Ice::DispatchStatus";
         C << nl << "run(::Ice::Object* object)";
         C << sb;
         C << nl << thisPointer << " servant = dynamic_cast< " << thisPointer << ">(object);";
         C << nl << "if(!servant)";
         C << sb;
-        C << nl << "::Ice::OperationNotExistException opEx(__FILE__, __LINE__);";
-        C << nl << "opEx.id = _current.id;";
-        C << nl << "opEx.facet = _current.facet;";
-        C << nl << "opEx.operation = _current.operation;";
-        C << nl << "throw opEx;";
+        C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);";
         C << eb;
         
         ExceptionList throws = p->throws();
