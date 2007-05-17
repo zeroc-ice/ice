@@ -271,7 +271,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         assert(cl);
 
         string opName = op->name();
-        _out << sp << nl << "public static IceInternal.DispatchStatus " << opName << "___(" << name
+        _out << sp << nl << "public static Ice.DispatchStatus " << opName << "___(" << name
              << " obj__, IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
 
@@ -404,7 +404,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             {
                 _out << nl << "os__.writePendingObjects();";
             }
-            _out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+            _out << nl << "return Ice.DispatchStatus.DispatchOK;";
             
             //
             // Handle user exceptions.
@@ -419,7 +419,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                     _out << nl << "catch(" << exS << " ex)";
                     _out << sb;
                     _out << nl << "os__.writeUserException(ex);";
-                    _out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+                    _out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                     _out << eb;
                 }
             }
@@ -510,7 +510,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             _out << sb;
             _out << nl << "cb__.ice_exception(ex);";
             _out << eb;
-            _out << nl << "return IceInternal.DispatchStatus.DispatchAsync;";
+            _out << nl << "return Ice.DispatchStatus.DispatchAsync;";
 
             _out << eb;
         }
@@ -560,14 +560,14 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << eb << ';';
 
-        _out << sp << nl << "public override IceInternal.DispatchStatus "
+        _out << sp << nl << "public override Ice.DispatchStatus "
              << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
         _out << nl << "int pos = _System.Array.BinarySearch(all__, current__.operation, "
              << "_System.Collections.Comparer.DefaultInvariant);";
         _out << nl << "if(pos < 0)";
         _out << sb;
-        _out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
+        _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
         _out << eb;
         _out << sp << nl << "switch(pos)";
         _out << sb;
@@ -627,7 +627,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << eb;
         _out << sp << nl << "_System.Diagnostics.Debug.Assert(false);";
-        _out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
+        _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
         _out << eb;
     }
 

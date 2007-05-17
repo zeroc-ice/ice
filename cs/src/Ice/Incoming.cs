@@ -152,18 +152,18 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
                     if(ex is Ice.ObjectNotExistException)
                     {
-                        os_.writeByte((byte)DispatchStatus.DispatchObjectNotExist);
+                        os_.writeByte(ReplyStatus.replyObjectNotExist);
                     }
                     else if(ex is Ice.FacetNotExistException)
                     {
-                        os_.writeByte((byte)DispatchStatus.DispatchFacetNotExist);
+                        os_.writeByte(ReplyStatus.replyFacetNotExist);
                     }
                     else if(ex is Ice.OperationNotExistException)
                     {
-                        os_.writeByte((byte)DispatchStatus.DispatchOperationNotExist);
+                        os_.writeByte(ReplyStatus.replyOperationNotExist);
                     }
                     else
                     {
@@ -206,8 +206,8 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.unknown);
                     connection_.sendResponse(os_, compress_);
                 }
@@ -229,8 +229,8 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.unknown);
                     connection_.sendResponse(os_, compress_);
                 }
@@ -252,8 +252,8 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte)DispatchStatus.DispatchUnknownException);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.unknown);
                     connection_.sendResponse(os_, compress_);
                 }
@@ -275,8 +275,8 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUnknownLocalException);
                     os_.writeString(ex.ToString());
                     connection_.sendResponse(os_, compress_);
                 }
@@ -299,8 +299,8 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUnknownUserException);
                     os_.writeString(ex.ToString());
                     connection_.sendResponse(os_, compress_);
                 }
@@ -323,8 +323,8 @@ namespace IceInternal
                 if(response_)
                 {
                     os_.endWriteEncaps();
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte) DispatchStatus.DispatchUnknownException);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(ReplyStatus.replyUnknownException);
                     os_.writeString(ex.ToString());
                     connection_.sendResponse(os_, compress_);
                 }
@@ -425,13 +425,13 @@ namespace IceInternal
             
             if(response_)
             {
-                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Dispatch status position.
+                Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
                 os_.writeByte((byte)0);
                 os_.startWriteEncaps();
             }
             
-            // Initialize status to some value, to keep the compiler happy.
-            DispatchStatus status = DispatchStatus.DispatchOK;
+            byte replyStatus = ReplyStatus.replyOK;
+            Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;
             
             //
             // Don't put the code above into the try block below. Exceptions
@@ -463,21 +463,25 @@ namespace IceInternal
                     {
                         if(servantManager != null && servantManager.hasServant(current_.id))
                         {
-                            status = DispatchStatus.DispatchFacetNotExist;
+                            replyStatus = ReplyStatus.replyFacetNotExist;
                         }
                         else
                         {
-                            status = DispatchStatus.DispatchObjectNotExist;
+                            replyStatus = ReplyStatus.replyObjectNotExist;
                         }
                     }
                     else
                     {
-                        status = servant_.dispatch__(this, current_);
+                        dispatchStatus = servant_.dispatch__(this, current_);
+                        if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                        {
+                            replyStatus = ReplyStatus.replyUserException;
+                        }
                     }           
                 }
                 finally
                 {
-                    if(locator_ != null && servant_ != null && status != DispatchStatus.DispatchAsync)
+                    if(locator_ != null && servant_ != null && dispatchStatus != Ice.DispatchStatus.DispatchAsync)
                     {
                         locator_.finished(current_, servant_, cookie_);
                     }
@@ -499,10 +503,9 @@ namespace IceInternal
             _is.endReadEncaps();
             
             //
-            // DispatchAsync is "pseudo dispatch status", used internally
-            // only to indicate async dispatch.
+            // Async dispatch
             //
-            if(status == DispatchStatus.DispatchAsync)
+            if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
             {
                 //
                 // If this was an asynchronous dispatch, we're done
@@ -515,14 +518,13 @@ namespace IceInternal
             {
                 os_.endWriteEncaps();
                 
-                if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
+                if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
                 {
-                    Debug.Assert(status == DispatchStatus.DispatchObjectNotExist ||
-                                 status == DispatchStatus.DispatchFacetNotExist ||
-                                 status == DispatchStatus.DispatchOperationNotExist);
+                    Debug.Assert(replyStatus == ReplyStatus.replyObjectNotExist ||
+                                 replyStatus == ReplyStatus.replyFacetNotExist);
                     
-                    os_.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                    os_.writeByte((byte)status);
+                    os_.resize(Protocol.headerSize + 4, false); // Reply status position.
+                    os_.writeByte(replyStatus);
                     
                     current_.id.write__(os_);
 
@@ -544,8 +546,8 @@ namespace IceInternal
                 else
                 {
                     int save = os_.pos();
-                    os_.pos(Protocol.headerSize + 4); // Dispatch status position.
-                    os_.writeByte((byte)status);
+                    os_.pos(Protocol.headerSize + 4); // Reply status position.
+                    os_.writeByte(replyStatus);
                     os_.pos(save);
                 }
 

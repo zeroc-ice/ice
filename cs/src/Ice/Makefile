@@ -70,6 +70,7 @@ SRCS		= Acceptor.cs \
 		  ReadObjectCallback.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
+                  ReplyStatus.cs \
 		  RouterInfo.cs \
 		  ServantManager.cs \
 		  Set.cs \

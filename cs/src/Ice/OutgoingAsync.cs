@@ -23,26 +23,26 @@ namespace IceInternal
         {
             lock(_monitor)
             {
-                DispatchStatus status;
+                byte replyStatus;
                 
                 try
                 {
                     is__.swap(istr);
                     
-                    status = (DispatchStatus)is__.readByte();
+                    replyStatus = is__.readByte();
                     
-                    switch(status)
+                    switch(replyStatus)
                     {
-                        case DispatchStatus.DispatchOK:
-                        case DispatchStatus.DispatchUserException:
+                        case ReplyStatus.replyOK:
+                        case ReplyStatus.replyUserException:
                         {
                             is__.startReadEncaps();
                             break;
                         }
                         
-                        case DispatchStatus.DispatchObjectNotExist:
-                        case DispatchStatus.DispatchFacetNotExist:
-                        case DispatchStatus.DispatchOperationNotExist:
+                        case ReplyStatus.replyObjectNotExist:
+                        case ReplyStatus.replyFacetNotExist:
+                        case ReplyStatus.replyOperationNotExist:
                         {
                             Ice.Identity id = new Ice.Identity();
                             id.read__(is__);
@@ -68,21 +68,21 @@ namespace IceInternal
                             string operation = is__.readString();
 
                             Ice.RequestFailedException ex = null;
-                            switch(status)
+                            switch(replyStatus)
                             {
-                                case DispatchStatus.DispatchObjectNotExist:
+                                case ReplyStatus.replyObjectNotExist:
                                 {
                                     ex = new Ice.ObjectNotExistException();
                                     break;
                                 }
                                 
-                                case DispatchStatus.DispatchFacetNotExist:
+                                case ReplyStatus.replyFacetNotExist:
                                 {
                                     ex = new Ice.FacetNotExistException();
                                     break;
                                 }
                                 
-                                case DispatchStatus.DispatchOperationNotExist:
+                                case ReplyStatus.replyOperationNotExist:
                                 {
                                     ex = new Ice.OperationNotExistException();
                                     break;
@@ -101,26 +101,26 @@ namespace IceInternal
                             throw ex;
                         }
                         
-                        case DispatchStatus.DispatchUnknownException:
-                        case DispatchStatus.DispatchUnknownLocalException:
-                        case DispatchStatus.DispatchUnknownUserException:
+                        case ReplyStatus.replyUnknownException:
+                        case ReplyStatus.replyUnknownLocalException:
+                        case ReplyStatus.replyUnknownUserException:
                         {
                             string unknown = is__.readString();
 
                             Ice.UnknownException ex = null;
-                            switch(status)
+                            switch(replyStatus)
                             {
-                                case DispatchStatus.DispatchUnknownException:
+                                case ReplyStatus.replyUnknownException:
                                 {
                                     ex = new Ice.UnknownException();
                                     break;
                                 }
-                                case DispatchStatus.DispatchUnknownLocalException:
+                                case ReplyStatus.replyUnknownLocalException:
                                 {
                                     ex = new Ice.UnknownLocalException();
                                     break;
                                 }
-                                case DispatchStatus.DispatchUnknownUserException:
+                                case ReplyStatus.replyUnknownUserException:
                                 {
                                     ex = new Ice.UnknownUserException();
                                     break;
@@ -147,11 +147,11 @@ namespace IceInternal
                     return;
                 }
                     
-                Debug.Assert(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
+                Debug.Assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
                 
                 try
                 {
-                    response__(status == DispatchStatus.DispatchOK);
+                    response__(replyStatus == ReplyStatus.replyOK);
                 }
                 catch(System.Exception ex)
                 {

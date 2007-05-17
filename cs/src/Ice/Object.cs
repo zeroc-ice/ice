@@ -10,26 +10,14 @@
 using System.Collections;
 using System.Diagnostics;
 
-namespace IceInternal
+namespace Ice
 {
-
     public enum DispatchStatus 
     {
         DispatchOK,
         DispatchUserException,
-        DispatchObjectNotExist,
-        DispatchFacetNotExist,
-        DispatchOperationNotExist,
-        DispatchUnknownLocalException,
-        DispatchUnknownUserException,
-        DispatchUnknownException,
         DispatchAsync
     };
-
-}
-
-namespace Ice
-{
 
     public interface Object : System.ICloneable
     {
@@ -50,7 +38,7 @@ namespace Ice
         void ice_preMarshal();
         void ice_postUnmarshal();
 
-        IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
+        DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
 
         void write__(IceInternal.BasicStream os__);
         void read__(IceInternal.BasicStream is__, bool rid__);
@@ -87,7 +75,7 @@ namespace Ice
             return s.Equals(ids__[0]);
         }
         
-        public static IceInternal.DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__,
+        public static DispatchStatus ice_isA___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
             IceInternal.BasicStream is__ = inS__.istr();
@@ -95,7 +83,7 @@ namespace Ice
             string __id = is__.readString();
             bool __ret = __obj.ice_isA(__id, __current);
             os__.writeBool(__ret);
-            return IceInternal.DispatchStatus.DispatchOK;
+            return DispatchStatus.DispatchOK;
         }
         
         public virtual void ice_ping()
@@ -108,11 +96,11 @@ namespace Ice
             // Nothing to do.
         }
         
-        public static IceInternal.DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__,
+        public static DispatchStatus ice_ping___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
             __obj.ice_ping(__current);
-            return IceInternal.DispatchStatus.DispatchOK;
+            return DispatchStatus.DispatchOK;
         }
         
         public virtual string[] ice_ids()
@@ -125,12 +113,12 @@ namespace Ice
             return ids__;
         }
         
-        public static IceInternal.DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__,
+        public static DispatchStatus ice_ids___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
             IceInternal.BasicStream os__ = inS__.ostr();
             os__.writeStringSeq(__obj.ice_ids(__current));
-            return IceInternal.DispatchStatus.DispatchOK;
+            return DispatchStatus.DispatchOK;
         }
         
         public virtual string ice_id()
@@ -143,13 +131,13 @@ namespace Ice
             return ids__[0];
         }
         
-        public static IceInternal.DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__,
+        public static DispatchStatus ice_id___(Ice.Object __obj, IceInternal.Incoming inS__,
             Current __current)
         {
             IceInternal.BasicStream os__ = inS__.ostr();
             string __ret = __obj.ice_id(__current);
             os__.writeString(__ret);
-            return IceInternal.DispatchStatus.DispatchOK;
+            return DispatchStatus.DispatchOK;
         }
         
         public static string ice_staticId()
@@ -170,12 +158,12 @@ namespace Ice
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
         };
         
-        public virtual IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
+        public virtual DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             int pos = System.Array.BinarySearch(all__, current.operation);
             if(pos < 0)
             {
-                return IceInternal.DispatchStatus.DispatchOperationNotExist;
+                throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
             }
             
             switch(pos)
@@ -199,7 +187,7 @@ namespace Ice
             }
             
             Debug.Assert(false);
-            return IceInternal.DispatchStatus.DispatchOperationNotExist;
+            throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
         }
         
         public virtual void write__(IceInternal.BasicStream os__)
@@ -308,7 +296,7 @@ namespace Ice
         // Returns true if ok, false if user exception.
         public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
         
-        public override IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
+        public override DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             byte[] inParams;
             byte[] outParams;
@@ -321,11 +309,11 @@ namespace Ice
             }
             if(ok)
             {
-                return IceInternal.DispatchStatus.DispatchOK;
+                return DispatchStatus.DispatchOK;
             }
             else
             {
-                return IceInternal.DispatchStatus.DispatchUserException;
+                return DispatchStatus.DispatchUserException;
             }
         }
     }
@@ -334,7 +322,7 @@ namespace Ice
     {
         public abstract void ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
         
-        public override IceInternal.DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
+        public override DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             byte[] inParams;
             int sz = inc.istr().getReadEncapsSize();
@@ -348,7 +336,7 @@ namespace Ice
             {
                 cb.ice_exception(ex);
             }
-            return IceInternal.DispatchStatus.DispatchAsync;
+            return DispatchStatus.DispatchAsync;
         }
     }
 

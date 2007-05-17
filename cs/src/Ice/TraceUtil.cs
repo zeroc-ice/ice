@@ -104,42 +104,42 @@ namespace IceInternal
                     int requestId = str.readInt();
                     s.Write("\nrequest id = " + requestId);
                     
-                    byte status = str.readByte();
-                    s.Write("\nreply status = " + (int)status + ' ');
+                    byte replyStatus = str.readByte();
+                    s.Write("\nreply status = " + (int)replyStatus + ' ');
                     
-                    switch((DispatchStatus)status)
+                    switch(replyStatus)
                     {
-                        case DispatchStatus.DispatchOK: 
+                        case ReplyStatus.replyOK: 
                         {
                             s.Write("(ok)");
                             break;
                         }
                         
-                        case DispatchStatus.DispatchUserException: 
+                        case ReplyStatus.replyUserException: 
                         {
                             s.Write("(user exception)");
                             break;
                         }
                         
-                        case DispatchStatus.DispatchObjectNotExist: 
-                        case DispatchStatus.DispatchFacetNotExist: 
-                        case DispatchStatus.DispatchOperationNotExist: 
+                        case ReplyStatus.replyObjectNotExist: 
+                        case ReplyStatus.replyFacetNotExist: 
+                        case ReplyStatus.replyOperationNotExist: 
                         {
-                            switch((DispatchStatus)status)
+                            switch(replyStatus)
                             {
-                                case DispatchStatus.DispatchObjectNotExist: 
+                                case ReplyStatus.replyObjectNotExist: 
                                 {
                                     s.Write("(object not exist)");
                                     break;
                                 }
                                 
-                                case DispatchStatus.DispatchFacetNotExist: 
+                                case ReplyStatus.replyFacetNotExist: 
                                 {
                                     s.Write("(facet not exist)");
                                     break;
                                 }
                                 
-                                case DispatchStatus.DispatchOperationNotExist: 
+                                case ReplyStatus.replyOperationNotExist: 
                                 {
                                     s.Write("(operation not exist)");
                                     break;
@@ -156,25 +156,25 @@ namespace IceInternal
                             break;
                         }
                         
-                        case DispatchStatus.DispatchUnknownException: 
-                        case DispatchStatus.DispatchUnknownLocalException: 
-                        case DispatchStatus.DispatchUnknownUserException: 
+                        case ReplyStatus.replyUnknownException: 
+                        case ReplyStatus.replyUnknownLocalException: 
+                        case ReplyStatus.replyUnknownUserException: 
                         {
-                            switch((DispatchStatus)status)
+                            switch(replyStatus)
                             {
-                                case DispatchStatus.DispatchUnknownException: 
+                                case ReplyStatus.replyUnknownException: 
                                 {
                                     s.Write("(unknown exception)");
                                     break;
                                 }
                                 
-                                case DispatchStatus.DispatchUnknownLocalException: 
+                                case ReplyStatus.replyUnknownLocalException: 
                                 {
                                     s.Write("(unknown local exception)");
                                     break;
                                 }
                                 
-                                case DispatchStatus.DispatchUnknownUserException: 
+                                case ReplyStatus.replyUnknownUserException: 
                                 {
                                     s.Write("(unknown user exception)");
                                     break;

@@ -33,15 +33,15 @@ namespace IceInternal
                     os_.endWriteEncaps();
                 
                     int save = os_.pos();
-                    os_.pos(Protocol.headerSize + 4); // Dispatch status position.
+                    os_.pos(Protocol.headerSize + 4); // Reply status position.
                 
                     if(ok)
                     {
-                        os_.writeByte((byte)DispatchStatus.DispatchOK);
+                        os_.writeByte(ReplyStatus.replyOK);
                     }
                     else
                     {
-                        os_.writeByte((byte)DispatchStatus.DispatchUserException);
+                        os_.writeByte(ReplyStatus.replyUserException);
                     }
                 
                     os_.pos(save);

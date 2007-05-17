@@ -232,11 +232,11 @@ namespace IceInternal
                 Debug.Assert(_state <= StateInProgress);
 
                 _is.swap(istr);
-                DispatchStatus status = (DispatchStatus)_is.readByte();
+                byte replyStatus = _is.readByte();
 
-                switch(status)
+                switch(replyStatus)
                 {
-                    case DispatchStatus.DispatchOK:
+                    case ReplyStatus.replyOK:
                     {
                         //
                         // Input and output parameters are always sent in an
@@ -248,7 +248,7 @@ namespace IceInternal
                         break;
                     }
                 
-                    case DispatchStatus.DispatchUserException:
+                    case ReplyStatus.replyUserException:
                     {
                         //
                         // Input and output parameters are always sent in an
@@ -260,26 +260,26 @@ namespace IceInternal
                         break;
                     }
                 
-                    case DispatchStatus.DispatchObjectNotExist:
-                    case DispatchStatus.DispatchFacetNotExist:
-                    case DispatchStatus.DispatchOperationNotExist:
+                    case ReplyStatus.replyObjectNotExist:
+                    case ReplyStatus.replyFacetNotExist:
+                    case ReplyStatus.replyOperationNotExist:
                     {
                         Ice.RequestFailedException ex = null;
-                        switch(status)
+                        switch(replyStatus)
                         {
-                            case DispatchStatus.DispatchObjectNotExist:
+                            case ReplyStatus.replyObjectNotExist:
                             {
                                 ex = new Ice.ObjectNotExistException();
                                 break;
                             }
                         
-                            case DispatchStatus.DispatchFacetNotExist:
+                            case ReplyStatus.replyFacetNotExist:
                             {
                                 ex = new Ice.FacetNotExistException();
                                 break;
                             }
                         
-                            case DispatchStatus.DispatchOperationNotExist:
+                            case ReplyStatus.replyOperationNotExist:
                             {
                                 ex = new Ice.OperationNotExistException();
                                 break;
@@ -319,26 +319,26 @@ namespace IceInternal
                         break;
                     }
                 
-                    case DispatchStatus.DispatchUnknownException:
-                    case DispatchStatus.DispatchUnknownLocalException:
-                    case DispatchStatus.DispatchUnknownUserException:
+                    case ReplyStatus.replyUnknownException:
+                    case ReplyStatus.replyUnknownLocalException:
+                    case ReplyStatus.replyUnknownUserException:
                     {
                         Ice.UnknownException ex = null;
-                        switch(status)
+                        switch(replyStatus)
                         {
-                            case DispatchStatus.DispatchUnknownException:
+                            case ReplyStatus.replyUnknownException:
                             {
                                 ex = new Ice.UnknownException();
                                 break;
                             }
                         
-                            case DispatchStatus.DispatchUnknownLocalException:
+                            case ReplyStatus.replyUnknownLocalException:
                             {
                                 ex = new Ice.UnknownLocalException();
                                 break;
                             }
                         
-                            case DispatchStatus.DispatchUnknownUserException: 
+                            case ReplyStatus.replyUnknownUserException: 
                             {
                                 ex = new Ice.UnknownUserException();
                                 break;
