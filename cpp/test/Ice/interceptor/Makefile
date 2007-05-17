@@ -14,6 +14,7 @@ CLIENT		= client
 TARGETS		= $(CLIENT)
 
 OBJS		= Test.o \
+                  TestI.o \
 		  Client.o \
 		  InterceptorI.o \
 		  AMDInterceptorI.o \

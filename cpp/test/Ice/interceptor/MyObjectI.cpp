@@ -11,17 +11,9 @@
 #include <MyObjectI.h>
 #include <TestCommon.h>
 #include <IceUtil/IceUtil.h>
-#include <iostream>
 
 using namespace IceUtil; 
 using namespace std;
-
-void
-Test::RetryException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nretry dispatch";
-}
 
 int 
 MyObjectI::add(int x, int y, const Ice::Current&)
