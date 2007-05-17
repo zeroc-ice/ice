@@ -1323,7 +1323,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
         {
         }
         
-        virtual ICE_API ::Ice::DispatchStatus
+        virtual ::Ice::DispatchStatus
         run(::Ice::Object* object)
         {
             _result = object->ice_isA(_id, _current);
@@ -1374,7 +1374,7 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
         {
         }
         
-        virtual ICE_API ::Ice::DispatchStatus
+        virtual ::Ice::DispatchStatus
         run(::Ice::Object* object)
         {
             object->ice_ping(_current);
@@ -1419,7 +1419,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
         {
         }
         
-        virtual ICE_API ::Ice::DispatchStatus
+        virtual ::Ice::DispatchStatus
         run(::Ice::Object* object)
         {
             _result = object->ice_ids(_current);
@@ -1470,7 +1470,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
         {
         }
         
-        virtual ICE_API ::Ice::DispatchStatus
+        virtual ::Ice::DispatchStatus
         run(::Ice::Object* object)
         {
             _result = object->ice_id(_current);

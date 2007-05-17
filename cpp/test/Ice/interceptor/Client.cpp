@@ -82,6 +82,15 @@ Client::run(const Test::MyObjectPrx& prx, const InterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor..." << flush;
     test(interceptor->getLastOperation().empty());
+    prx->ice_ping();
+    test(interceptor->getLastOperation() == "ice_ping");
+    test(interceptor->getLastStatus() == Ice::DispatchOK);
+    string typeId = prx->ice_id();
+    test(interceptor->getLastOperation() == "ice_id");
+    test(interceptor->getLastStatus() == Ice::DispatchOK);
+    test(prx->ice_isA(typeId));
+    test(interceptor->getLastOperation() == "ice_isA");
+    test(interceptor->getLastStatus() == Ice::DispatchOK);
     test(prx->add(33, 12) == 45);
     test(interceptor->getLastOperation() == "add");
     test(interceptor->getLastStatus() == Ice::DispatchOK);
