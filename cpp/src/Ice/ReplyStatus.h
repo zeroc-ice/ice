@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_REQUEST_STATUS_H
-#define ICE_REQUEST_STATUS_H
+#ifndef ICE_REPLY_STATUS_H
+#define ICE_REPLY_STATUS_H
 
 #include <Ice/Config.h>
 
