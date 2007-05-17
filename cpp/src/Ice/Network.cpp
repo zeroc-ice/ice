@@ -1260,38 +1260,6 @@ IceInternal::addrToString(const struct sockaddr_in& addr)
 }
 
 vector<string>
-IceInternal::getHosts(const string& host)
-{
-    vector<string> result;
-    struct hostent* he = 0;
-    int retry = 5;
-
-    do
-    {
-        he = gethostbyname(host.c_str());
-    }
-    while(he == 0 && h_errno == TRY_AGAIN && --retry >= 0);
-    
-    if(he == 0)
-    {
-        DNSException ex(__FILE__, __LINE__);
-        ex.error = h_errno;
-        ex.host = host;
-        throw ex;
-    }
-
-    char** ptr = he->h_addr_list;
-    while(*ptr)
-    {
-        struct in_addr* addr = reinterpret_cast<in_addr*>(*ptr);
-        result.push_back(inet_ntoa(*addr));
-        ptr++;
-    } 
-
-    return result;
-}
-
-vector<string>
 IceInternal::getLocalHosts()
 {
     vector<string> result;

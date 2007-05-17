@@ -327,27 +327,7 @@ IceSSL::EndpointI::expand(bool server) const
     }
     else
     {
-        if(!server)
-        {
-
-            vector<string> hosts = IceInternal::getHosts(_host);
-            if(hosts.size() > 1)
-            {
-                for(unsigned int i = 0; i < hosts.size(); ++i)
-                {
-                    endps.push_back(
-                        new EndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress, true));
-                }
-            }
-            else
-            {
-                endps.push_back(const_cast<EndpointI*>(this));
-            }
-        }
-        else
-        {
-            endps.push_back(const_cast<EndpointI*>(this));
-        }
+        endps.push_back(const_cast<EndpointI*>(this));
     }
     return endps;
 }

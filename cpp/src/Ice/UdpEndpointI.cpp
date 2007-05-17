@@ -492,27 +492,7 @@ IceInternal::UdpEndpointI::expand(bool server) const
     }
     else
     {
-        if(!server)
-        {
-
-            vector<string> hosts = getHosts(_host);
-            if(hosts.size() > 1)
-            {
-                for(unsigned int i = 0; i < hosts.size(); ++i)
-                {
-                    endps.push_back(
-                        new UdpEndpointI(_instance, hosts[i], _port, _connect, _connectionId, _compress, true));
-                }
-            }
-            else
-            {
-                endps.push_back(const_cast<UdpEndpointI*>(this));
-            }
-        }
-        else
-        {
-            endps.push_back(const_cast<UdpEndpointI*>(this));
-        }
+        endps.push_back(const_cast<UdpEndpointI*>(this));
     }
     return endps;
 }
