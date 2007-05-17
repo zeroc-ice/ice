@@ -51,6 +51,8 @@
         <ant dir="inheritance" target="clean"/>
         <ant dir="location" target="clean"/>
         <ant dir="objects" target="clean"/>
+        <ant dir="proxy" target="clean"/>
+        <ant dir="proxyAMD" target="clean"/>
         <ant dir="operations" target="clean"/>
         <ant dir="operationsAMD" target="clean"/>
         <ant dir="slicing" target="clean"/>

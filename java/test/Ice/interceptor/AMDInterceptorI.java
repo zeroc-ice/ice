@@ -18,7 +18,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         super(servant);
     }
     
-    public IceInternal.DispatchStatus
+    public Ice.DispatchStatus
     dispatch(Ice.Request request)
     {
         Ice.Current current = request.getCurrent();
@@ -44,7 +44,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
                     };
                 
                 _lastStatus = _servant.ice_dispatch(request, cb);
-                test(_lastStatus == IceInternal.DispatchStatus.DispatchAsync);
+                test(_lastStatus == Ice.DispatchStatus.DispatchAsync);
             }
             
             request.getCurrent().ctx.put("retry", "no");
@@ -57,7 +57,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
 
     public boolean response(boolean ok)
     {
-        setActualStatus(ok ? IceInternal.DispatchStatus.DispatchOK : IceInternal.DispatchStatus.DispatchUserException);
+        setActualStatus(ok ? Ice.DispatchStatus.DispatchOK : Ice.DispatchStatus.DispatchUserException);
         return true;
     }
 
@@ -80,7 +80,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
 
 
     synchronized void 
-    setActualStatus(IceInternal.DispatchStatus status)
+    setActualStatus(Ice.DispatchStatus status)
     {
         _actualStatus = status;
         _exception = null;
@@ -93,7 +93,7 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         _actualStatus = null;
     }
 
-    synchronized IceInternal.DispatchStatus 
+    synchronized Ice.DispatchStatus 
     getActualStatus()
     {
         return _actualStatus;
@@ -105,6 +105,6 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
         return _exception;
     }
 
-    private IceInternal.DispatchStatus _actualStatus;
+    private Ice.DispatchStatus _actualStatus;
     private java.lang.Exception _exception;
 }

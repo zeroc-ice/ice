@@ -11,7 +11,7 @@ package IceInternal;
 
 public abstract class Direct implements Ice.Request
 {
-    public abstract DispatchStatus run(Ice.Object target);
+    public abstract Ice.DispatchStatus run(Ice.Object target);
 
     public final boolean isCollocated()
     {

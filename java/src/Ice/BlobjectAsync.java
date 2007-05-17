@@ -14,7 +14,7 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
     public abstract void
     ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inParams, Current current);
 
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         byte[] inParams;
@@ -29,6 +29,6 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
         {
             cb.ice_exception(ex);
         }
-        return IceInternal.DispatchStatus.DispatchAsync;
+        return DispatchStatus.DispatchAsync;
     }
 }

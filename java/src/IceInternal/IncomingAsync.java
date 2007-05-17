@@ -61,15 +61,15 @@ public class IncomingAsync extends IncomingBase
                 _os.endWriteEncaps();
                 
                 int save = _os.pos();
-                _os.pos(Protocol.headerSize + 4); // Dispatch status position.
+                _os.pos(Protocol.headerSize + 4); // Reply status position.
                 
                 if(ok)
                 {
-                    _os.writeByte((byte)DispatchStatus._DispatchOK);
+                    _os.writeByte(ReplyStatus.replyOK);
                 }
                 else
                 {
-                    _os.writeByte((byte)DispatchStatus._DispatchUserException);
+                    _os.writeByte(ReplyStatus.replyUserException);
                 }
                 
                 _os.pos(save);

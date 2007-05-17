@@ -96,42 +96,42 @@ public final class TraceUtil
             int requestId = str.readInt();
             s.write("\nrequest id = " + requestId);
 
-            byte status = str.readByte();
-            s.write("\nreply status = " + (int)status + ' ');
+            byte replyStatus = str.readByte();
+            s.write("\nreply status = " + (int)replyStatus + ' ');
 
-            switch(status)
+            switch(replyStatus)
             {
-                case DispatchStatus._DispatchOK:
+                case ReplyStatus.replyOK:
                 {
                     s.write("(ok)");
                     break;
                 }
 
-                case DispatchStatus._DispatchUserException:
+                case ReplyStatus.replyUserException:
                 {
                     s.write("(user exception)");
                     break;
                 }
 
-                case DispatchStatus._DispatchObjectNotExist:
-                case DispatchStatus._DispatchFacetNotExist:
-                case DispatchStatus._DispatchOperationNotExist:
+                case ReplyStatus.replyObjectNotExist:
+                case ReplyStatus.replyFacetNotExist:
+                case ReplyStatus.replyOperationNotExist:
                 {
-                    switch(status)
+                    switch(replyStatus)
                     {
-                        case DispatchStatus._DispatchObjectNotExist:
+                        case ReplyStatus.replyObjectNotExist:
                         {
                             s.write("(object not exist)");
                             break;
                         }
                         
-                        case DispatchStatus._DispatchFacetNotExist:
+                        case ReplyStatus.replyFacetNotExist:
                         {
                             s.write("(facet not exist)");
                             break;
                         }
                         
-                        case DispatchStatus._DispatchOperationNotExist:
+                        case ReplyStatus.replyOperationNotExist:
                         {
                             s.write("(operation not exist)");
                             break;
@@ -148,25 +148,25 @@ public final class TraceUtil
                     break;
                 }
 
-                case DispatchStatus._DispatchUnknownException:
-                case DispatchStatus._DispatchUnknownLocalException:
-                case DispatchStatus._DispatchUnknownUserException:
+                case ReplyStatus.replyUnknownException:
+                case ReplyStatus.replyUnknownLocalException:
+                case ReplyStatus.replyUnknownUserException:
                 {
-                    switch(status)
+                    switch(replyStatus)
                     {
-                        case DispatchStatus._DispatchUnknownException:
+                        case ReplyStatus.replyUnknownException:
                         {
                             s.write("(unknown exception)");
                             break;
                         }
 
-                        case DispatchStatus._DispatchUnknownLocalException:
+                        case ReplyStatus.replyUnknownLocalException:
                         {
                             s.write("(unknown local exception)");
                             break;
                         }
                         
-                        case DispatchStatus._DispatchUnknownUserException:
+                        case ReplyStatus.replyUnknownUserException:
                         {
                             s.write("(unknown user exception)");
                             break;

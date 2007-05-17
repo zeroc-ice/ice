@@ -563,7 +563,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         assert(cl);
 
         string opName = op->name();
-        out << sp << nl << "public static IceInternal.DispatchStatus" << nl << "___" << opName << '(' << name
+        out << sp << nl << "public static Ice.DispatchStatus" << nl << "___" << opName << '(' << name
             << " __obj, IceInternal.Incoming __inS, Ice.Current __current)";
         out << sb;
 
@@ -702,7 +702,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             {
                 out << nl << "__os.writePendingObjects();";
             }
-            out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+            out << nl << "return Ice.DispatchStatus.DispatchOK;";
             
             //
             // Handle user exceptions.
@@ -717,7 +717,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
                     out << nl << "catch(" << exS << " ex)";
                     out << sb;
                     out << nl << "__os.writeUserException(ex);";
-                    out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+                    out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                     out << eb;
                 }
             }
@@ -800,7 +800,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
             out << sb;
             out << nl << "__cb.ice_exception(ex);";
             out << eb;
-            out << nl << "return IceInternal.DispatchStatus.DispatchAsync;";
+            out << nl << "return Ice.DispatchStatus.DispatchAsync;";
 
             out << eb;
         }
@@ -833,13 +833,13 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         out << eb << ';';
 
-        out << sp << nl << "public IceInternal.DispatchStatus" << nl
+        out << sp << nl << "public Ice.DispatchStatus" << nl
             << "__dispatch(IceInternal.Incoming in, Ice.Current __current)";
         out << sb;
         out << nl << "int pos = java.util.Arrays.binarySearch(__all, __current.operation);";
         out << nl << "if(pos < 0)";
         out << sb;
-        out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
+        out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
         out << eb;
         out << sp << nl << "switch(pos)";
         out << sb;
@@ -903,7 +903,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         }
         out << eb;
         out << sp << nl << "assert(false);";
-        out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
+        out << nl << "throw new Ice.OperationNotExistException(__current.id, __current.facet, __current.operation);";
         out << eb;
 
 
@@ -4309,7 +4309,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             
             out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current)";
             out << sb;
-            out << nl << "public IceInternal.DispatchStatus run(Ice.Object __obj)";
+            out << nl << "public Ice.DispatchStatus run(Ice.Object __obj)";
             out << sb;
             out << nl << fixKwd(name) << " __servant = null;";
             out << nl << "try";
@@ -4333,7 +4333,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << "__result.value = ";
             }
             out << "__servant." << opName << spar << args << "__current" << epar << ';';
-            out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+            out << nl << "return Ice.DispatchStatus.DispatchOK;";
             
             if(!throws.empty())
             {
@@ -4341,7 +4341,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "catch(Ice.UserException __ex)";
                 out << sb;
                 out << nl << "setUserException(__ex);";
-                out << nl << "return IceInternal.DispatchStatus.DispatchUserException;";
+                out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                 out << eb;
             }
             out << eb;
@@ -4350,10 +4350,10 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
           
             out << nl << "try";
             out << sb;
-            out << nl << "IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
+            out << nl << "Ice.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
             if(!throws.empty())
             {
-                out << nl << "if(__status == IceInternal.DispatchStatus.DispatchUserException)";
+                out << nl << "if(__status == Ice.DispatchStatus.DispatchUserException)";
                 out << sb;
                 out << nl << "try";
                 out << sb;
@@ -4374,7 +4374,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << eb;
                 out << eb;
             }
-            out << nl << "assert __status == IceInternal.DispatchStatus.DispatchOK;";
+            out << nl << "assert __status == Ice.DispatchStatus.DispatchOK;";
             if(ret)
             {
                 out << nl << "return __result.value;";

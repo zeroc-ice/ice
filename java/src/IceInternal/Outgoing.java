@@ -250,11 +250,11 @@ public final class Outgoing
         assert(_state <= StateInProgress);
         
         _is.swap(is);
-        int status = (int)_is.readByte();
+        byte replyStatus = _is.readByte();
         
-        switch(status)
+        switch(replyStatus)
         {
-            case DispatchStatus._DispatchOK:
+            case ReplyStatus.replyOK:
             {
                 //
                 // Input and output parameters are always sent in an
@@ -266,7 +266,7 @@ public final class Outgoing
                 break;
             }
             
-            case DispatchStatus._DispatchUserException:
+            case ReplyStatus.replyUserException:
             {
                 //
                 // Input and output parameters are always sent in an
@@ -278,26 +278,26 @@ public final class Outgoing
                 break;
             }
             
-            case DispatchStatus._DispatchObjectNotExist:
-            case DispatchStatus._DispatchFacetNotExist:
-            case DispatchStatus._DispatchOperationNotExist:
+            case ReplyStatus.replyObjectNotExist:
+            case ReplyStatus.replyFacetNotExist:
+            case ReplyStatus.replyOperationNotExist:
             {
                 Ice.RequestFailedException ex = null;
-                switch((int)status)
+                switch(replyStatus)
                 {
-                    case DispatchStatus._DispatchObjectNotExist:
+                    case ReplyStatus.replyObjectNotExist:
                     {
                         ex = new Ice.ObjectNotExistException();
                         break;
                     }
                     
-                    case DispatchStatus._DispatchFacetNotExist:
+                    case ReplyStatus.replyFacetNotExist:
                     {
                         ex = new Ice.FacetNotExistException();
                         break;
                     }
                     
-                    case DispatchStatus._DispatchOperationNotExist:
+                    case ReplyStatus.replyOperationNotExist:
                     {
                         ex = new Ice.OperationNotExistException();
                         break;
@@ -337,26 +337,26 @@ public final class Outgoing
                 break;
             }
             
-            case DispatchStatus._DispatchUnknownException:
-            case DispatchStatus._DispatchUnknownLocalException:
-            case DispatchStatus._DispatchUnknownUserException:
+            case ReplyStatus.replyUnknownException:
+            case ReplyStatus.replyUnknownLocalException:
+            case ReplyStatus.replyUnknownUserException:
             {
                 Ice.UnknownException ex = null;
-                switch((int)status)
+                switch(replyStatus)
                 {
-                    case DispatchStatus._DispatchUnknownException:
+                    case ReplyStatus.replyUnknownException:
                     {
                         ex = new Ice.UnknownException();
                         break;
                     }
                     
-                    case DispatchStatus._DispatchUnknownLocalException:
+                    case ReplyStatus.replyUnknownLocalException:
                     {
                         ex = new Ice.UnknownLocalException();
                         break;
                     }
                     
-                    case DispatchStatus._DispatchUnknownUserException: 
+                    case ReplyStatus.replyUnknownUserException: 
                     {
                         ex = new Ice.UnknownUserException();
                         break;

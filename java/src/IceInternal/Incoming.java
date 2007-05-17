@@ -107,14 +107,15 @@ final public class Incoming extends IncomingBase implements Ice.Request
 
         if(_response)
         {
-            assert(_os.size() == Protocol.headerSize + 4); // Dispatch status position.
-            _os.writeByte((byte)0);
+            assert(_os.size() == Protocol.headerSize + 4); // Reply status position.
+            _os.writeByte(ReplyStatus.replyOK);
             _os.startWriteEncaps();
         }
 
-        // Initialize status to some value, to keep the compiler happy.
-        DispatchStatus status = DispatchStatus.DispatchOK;
-        
+        byte replyStatus = ReplyStatus.replyOK;
+
+        Ice.DispatchStatus dispatchStatus = Ice.DispatchStatus.DispatchOK;        
+
         //
         // Don't put the code above into the try block below. Exceptions
         // in the code above are considered fatal, and must propagate to
@@ -153,21 +154,25 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 {
                     if(servantManager != null && servantManager.hasServant(_current.id))
                     {
-                        status = DispatchStatus.DispatchFacetNotExist;
+                        replyStatus = ReplyStatus.replyFacetNotExist;
                     }
                     else
                     {
-                        status = DispatchStatus.DispatchObjectNotExist;
+                        replyStatus = ReplyStatus.replyObjectNotExist;
                     }
                 }
                 else
                 {
-                    status = _servant.__dispatch(this, _current);
+                    dispatchStatus = _servant.__dispatch(this, _current);
+                    if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                    {
+                        replyStatus = ReplyStatus.replyUserException;
+                    }
                 }
             }
             finally
             {
-                if(_locator != null && _servant != null && status != DispatchStatus.DispatchAsync)
+                if(_locator != null && _servant != null && dispatchStatus != Ice.DispatchStatus.DispatchAsync)
                 {
                     _locator.finished(_current, _servant, _cookie.value);
                 }
@@ -198,7 +203,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         // DispatchAsync is "pseudo dispatch status", used internally
         // only to indicate async dispatch.
         //
-        if(status == DispatchStatus.DispatchAsync)
+        if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
         {
             //
             // If this was an asynchronous dispatch, we're done here.
@@ -210,14 +215,13 @@ final public class Incoming extends IncomingBase implements Ice.Request
         {
             _os.endWriteEncaps();
             
-            if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
+            if(replyStatus != ReplyStatus.replyOK && replyStatus != ReplyStatus.replyUserException)
             {
-                assert(status == DispatchStatus.DispatchObjectNotExist ||
-                       status == DispatchStatus.DispatchFacetNotExist ||
-                       status == DispatchStatus.DispatchOperationNotExist);
+                assert(replyStatus == ReplyStatus.replyObjectNotExist ||
+                       replyStatus == ReplyStatus.replyFacetNotExist);
                 
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)status.value());
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(replyStatus);
                 
                 _current.id.__write(_os);
 
@@ -239,8 +243,8 @@ final public class Incoming extends IncomingBase implements Ice.Request
             else
             {
                 int save = _os.pos();
-                _os.pos(Protocol.headerSize + 4); // Dispatch status position.
-                _os.writeByte((byte)status.value());
+                _os.pos(Protocol.headerSize + 4); // Reply status position.
+                _os.writeByte(replyStatus);
                 _os.pos(save);
             }
 
@@ -308,7 +312,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
             {
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); 
-                _os.writeByte((byte)0);
+                _os.writeByte(ReplyStatus.replyOK);
                 _os.startWriteEncaps();
             }
         }

@@ -54,7 +54,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         return s.equals(__ids[0]);
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_isA(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __is = __inS.is();
@@ -62,7 +62,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         String __id = __is.readString();
         boolean __ret = __obj.ice_isA(__id, __current);
         __os.writeBool(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public void
@@ -77,11 +77,11 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         // Nothing to do.
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_ping(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         __obj.ice_ping(__current);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public String[]
@@ -96,13 +96,13 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         return __ids;
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_ids(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __os = __inS.os();
         String[] __ret = __obj.ice_ids(__current);
         __os.writeStringSeq(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public String
@@ -117,13 +117,13 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         return __ids[0];
     }
 
-    public static IceInternal.DispatchStatus
+    public static DispatchStatus
     ___ice_id(Ice.Object __obj, IceInternal.Incoming __inS, Current __current)
     {
         IceInternal.BasicStream __os = __inS.os();
         String __ret = __obj.ice_id(__current);
         __os.writeString(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return DispatchStatus.DispatchOK;
     }
 
     public static String
@@ -155,7 +155,7 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         "ice_ping"
     };
 
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
     {
         if(request.isCollocated())
@@ -184,13 +184,13 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         }
     }
 
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         int pos = java.util.Arrays.binarySearch(__all, current.operation);
         if(pos < 0)
         {
-            return IceInternal.DispatchStatus.DispatchOperationNotExist;
+            throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
         }
 
         switch(pos)
@@ -214,10 +214,10 @@ public abstract class ObjectImpl implements Object, java.lang.Cloneable
         }
 
         assert(false);
-        return IceInternal.DispatchStatus.DispatchOperationNotExist;
+        throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
     }
     
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __collocDispatch(IceInternal.Direct request)
     {
         return request.run(this);

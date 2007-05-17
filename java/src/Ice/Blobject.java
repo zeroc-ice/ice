@@ -15,7 +15,7 @@ public abstract class Blobject extends Ice.ObjectImpl
     public abstract boolean
     ice_invoke(byte[] inParams, ByteSeqHolder outParams, Current current);
 
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         byte[] inParams;
@@ -29,11 +29,11 @@ public abstract class Blobject extends Ice.ObjectImpl
         }
         if(ok)
         {
-            return IceInternal.DispatchStatus.DispatchOK;
+            return DispatchStatus.DispatchOK;
         }
         else
         {
-            return IceInternal.DispatchStatus.DispatchUserException;
+            return DispatchStatus.DispatchUserException;
         }
     }
 }

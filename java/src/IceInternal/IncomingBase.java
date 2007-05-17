@@ -184,18 +184,18 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
                 if(ex instanceof Ice.ObjectNotExistException)
                 {
-                    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+                    _os.writeByte(ReplyStatus.replyObjectNotExist);
                 }
                 else if(ex instanceof Ice.FacetNotExistException)
                 {
-                    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+                    _os.writeByte(ReplyStatus.replyFacetNotExist);
                 }
                 else if(ex instanceof Ice.OperationNotExistException)
                 {
-                    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+                    _os.writeByte(ReplyStatus.replyOperationNotExist);
                 }
                 else
                 {
@@ -235,8 +235,8 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 _os.writeString(ex.unknown);
                 _connection.sendResponse(_os, _compress);
             }
@@ -255,8 +255,8 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownUserException);
                 _os.writeString(ex.unknown);
                 _connection.sendResponse(_os, _compress);
             }
@@ -275,8 +275,8 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownException);
                 _os.writeString(ex.unknown);
                 _connection.sendResponse(_os, _compress);
             }
@@ -295,8 +295,8 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownLocalException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -320,8 +320,8 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownUserException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -345,8 +345,8 @@ public class IncomingBase
             if(_response)
             {
                 _os.endWriteEncaps();
-                _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
-                _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+                _os.resize(Protocol.headerSize + 4, false); // Reply status position.
+                _os.writeByte(ReplyStatus.replyUnknownException);
                 //_os.writeString(ex.toString());
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);

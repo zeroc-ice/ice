@@ -22,17 +22,17 @@ public class _ObjectDelD implements _ObjectDel
 
         IceInternal.Direct __direct = new IceInternal.Direct(__current)
             {
-                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                public DispatchStatus run(Ice.Object __servant)
                 {
                     __result.value = __servant.ice_isA(__id, __current);
-                    return IceInternal.DispatchStatus.DispatchOK;
+                    return DispatchStatus.DispatchOK;
                 }
             };
         
         try
         {
-            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
-            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
         catch(Ice.LocalException __ex)
@@ -54,17 +54,17 @@ public class _ObjectDelD implements _ObjectDel
        
         IceInternal.Direct __direct = new IceInternal.Direct(__current)
             {
-                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                public DispatchStatus run(Ice.Object __servant)
                 {
                     __servant.ice_ping(__current);
-                    return IceInternal.DispatchStatus.DispatchOK;
+                    return DispatchStatus.DispatchOK;
                 }
             };
                 
         try
         {
-            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
-            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == DispatchStatus.DispatchOK;
         }
         catch(Ice.LocalException __ex)
         {
@@ -87,16 +87,16 @@ public class _ObjectDelD implements _ObjectDel
 
         IceInternal.Direct __direct = new IceInternal.Direct(__current)
             {
-                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                public DispatchStatus run(Ice.Object __servant)
                 {
                     __result.value = __servant.ice_ids(__current);
-                    return IceInternal.DispatchStatus.DispatchOK;
+                    return DispatchStatus.DispatchOK;
                 }
             };
         try
         {
-            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
-            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
         catch(Ice.LocalException __ex)
@@ -120,16 +120,16 @@ public class _ObjectDelD implements _ObjectDel
 
         IceInternal.Direct __direct = new IceInternal.Direct(__current)
             {
-                public IceInternal.DispatchStatus run(Ice.Object __servant)
+                public DispatchStatus run(Ice.Object __servant)
                 {
                     __result.value = __servant.ice_id(__current);
-                    return IceInternal.DispatchStatus.DispatchOK;
+                    return DispatchStatus.DispatchOK;
                 }
             };
         try
         {
-            IceInternal.DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
-            assert __status == IceInternal.DispatchStatus.DispatchOK;
+            DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
+            assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
         catch(Ice.LocalException __ex)

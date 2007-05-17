@@ -23,26 +23,26 @@ public abstract class OutgoingAsync
     {
         synchronized(_monitor)
         {
-            int status;
+            byte replyStatus;
             
             try
             {
                 __is.swap(is);
                 
-                status = (int)__is.readByte();
+                replyStatus = __is.readByte();
                 
-                switch(status)
+                switch(replyStatus)
                 {
-                    case DispatchStatus._DispatchOK:
-                    case DispatchStatus._DispatchUserException:
+                    case ReplyStatus.replyOK:
+                    case ReplyStatus.replyUserException:
                     {
                         __is.startReadEncaps();
                         break;
                     }
                     
-                    case DispatchStatus._DispatchObjectNotExist:
-                    case DispatchStatus._DispatchFacetNotExist:
-                    case DispatchStatus._DispatchOperationNotExist:
+                    case ReplyStatus.replyObjectNotExist:
+                    case ReplyStatus.replyFacetNotExist:
+                    case ReplyStatus.replyOperationNotExist:
                     {
                         Ice.Identity id = new Ice.Identity();
                         id.__read(__is);
@@ -68,21 +68,21 @@ public abstract class OutgoingAsync
                         String operation = __is.readString();
 
                         Ice.RequestFailedException ex = null;
-                        switch(status)
+                        switch(replyStatus)
                         {
-                        case DispatchStatus._DispatchObjectNotExist:
+                        case ReplyStatus.replyObjectNotExist:
                         {
                             ex = new Ice.ObjectNotExistException();
                             break;
                         }
 
-                        case DispatchStatus._DispatchFacetNotExist:
+                        case ReplyStatus.replyFacetNotExist:
                         {
                             ex = new Ice.FacetNotExistException();
                             break;
                         }
 
-                        case DispatchStatus._DispatchOperationNotExist:
+                        case ReplyStatus.replyOperationNotExist:
                         {
                             ex = new Ice.OperationNotExistException();
                             break;
@@ -101,28 +101,28 @@ public abstract class OutgoingAsync
                         throw ex;
                     }
 
-                    case DispatchStatus._DispatchUnknownException:
-                    case DispatchStatus._DispatchUnknownLocalException:
-                    case DispatchStatus._DispatchUnknownUserException:
+                    case ReplyStatus.replyUnknownException:
+                    case ReplyStatus.replyUnknownLocalException:
+                    case ReplyStatus.replyUnknownUserException:
                     {
                         String unknown = __is.readString();
 
                         Ice.UnknownException ex = null;
-                        switch(status)
+                        switch(replyStatus)
                         {
-                        case DispatchStatus._DispatchUnknownException:
+                        case ReplyStatus.replyUnknownException:
                         {
                             ex = new Ice.UnknownException();
                             break;
                         }
 
-                        case DispatchStatus._DispatchUnknownLocalException:
+                        case ReplyStatus.replyUnknownLocalException:
                         {
                             ex = new Ice.UnknownLocalException();
                             break;
                         }
 
-                        case DispatchStatus._DispatchUnknownUserException:
+                        case ReplyStatus.replyUnknownUserException:
                         {
                             ex = new Ice.UnknownUserException();
                             break;
@@ -151,11 +151,11 @@ public abstract class OutgoingAsync
                 return;
             }
                 
-            assert(status == DispatchStatus._DispatchOK || status == DispatchStatus._DispatchUserException);
+            assert(replyStatus == ReplyStatus.replyOK || replyStatus == ReplyStatus.replyUserException);
             
             try
             {
-                __response(status == DispatchStatus._DispatchOK);
+                __response(replyStatus == ReplyStatus.replyOK);
             }
             catch(java.lang.Exception ex)
             {

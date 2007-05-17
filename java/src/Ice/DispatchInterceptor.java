@@ -11,16 +11,16 @@ package Ice;
 
 public abstract class DispatchInterceptor extends ObjectImpl
 {
-    public abstract IceInternal.DispatchStatus
+    public abstract DispatchStatus
     dispatch(Request request);
    
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         try
         {
-            IceInternal.DispatchStatus status = dispatch(in);
-            if(status != IceInternal.DispatchStatus.DispatchAsync)
+            DispatchStatus status = dispatch(in);
+            if(status != DispatchStatus.DispatchAsync)
             {
                 //
                 // Make sure 'in' owns the connection etc.
@@ -31,7 +31,7 @@ public abstract class DispatchInterceptor extends ObjectImpl
         }
         catch(ResponseSentException e)
         {
-            return IceInternal.DispatchStatus.DispatchAsync;
+            return DispatchStatus.DispatchAsync;
         }
         catch(java.lang.RuntimeException e)
         {
@@ -42,12 +42,12 @@ public abstract class DispatchInterceptor extends ObjectImpl
             }
             catch(ResponseSentException rse)
             {
-                return IceInternal.DispatchStatus.DispatchAsync;
+                return DispatchStatus.DispatchAsync;
             }
         }
     }
 
-    public IceInternal.DispatchStatus
+    public DispatchStatus
     __collocDispatch(IceInternal.Direct request) 
     {
         //

@@ -24,7 +24,7 @@ class InterceptorI extends Ice.DispatchInterceptor
     }
 
     
-    public IceInternal.DispatchStatus
+    public Ice.DispatchStatus
     dispatch(Ice.Request request)
     {
         Ice.Current current = request.getCurrent();
@@ -54,7 +54,7 @@ class InterceptorI extends Ice.DispatchInterceptor
         return _lastStatus;
     }
 
-    IceInternal.DispatchStatus
+    Ice.DispatchStatus
     getLastStatus()
     {
         return _lastStatus;
@@ -75,5 +75,5 @@ class InterceptorI extends Ice.DispatchInterceptor
 
     protected final Ice.Object _servant;
     protected String _lastOperation;
-    protected IceInternal.DispatchStatus _lastStatus;
+    protected Ice.DispatchStatus _lastStatus;
 }
