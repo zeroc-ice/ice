@@ -1523,27 +1523,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter"].proxy == obj);
             
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setAdapterDirectProxy("DummyAdapter", obj);
             adptObs1->waitForUpdate(__FILE__, __LINE__);
             test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter"].proxy == obj);
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter", "DummyReplicaGroup", obj);
             adptObs1->waitForUpdate(__FILE__, __LINE__);
             test(adptObs1->adapters.find("DummyAdapter") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter"].proxy == obj);
             test(adptObs1->adapters["DummyAdapter"].replicaGroupId == "DummyReplicaGroup");
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter1", "DummyReplicaGroup", obj);
             adptObs1->waitForUpdate(__FILE__, __LINE__);
             test(adptObs1->adapters.find("DummyAdapter1") != adptObs1->adapters.end());
             test(adptObs1->adapters["DummyAdapter1"].proxy == obj);
             test(adptObs1->adapters["DummyAdapter1"].replicaGroupId == "DummyReplicaGroup");
 
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
             locatorRegistry->setReplicatedAdapterDirectProxy("DummyAdapter2", "DummyReplicaGroup", obj);
             adptObs1->waitForUpdate(__FILE__, __LINE__);
             test(adptObs1->adapters.find("DummyAdapter2") != adptObs1->adapters.end());
@@ -1607,7 +1607,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(objectObs1->objects[communicator->stringToIdentity("dummy")].type == "::Dummy");
             test(objectObs1->objects[communicator->stringToIdentity("dummy")].proxy == obj);
             
-            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h host");
+            obj = communicator->stringToProxy("dummy:tcp -p 10000 -h localhost");
             admin->updateObject(obj);
             objectObs1->waitForUpdate(__FILE__, __LINE__);
             test(objectObs1->objects.find(communicator->stringToIdentity("dummy")) != objectObs1->objects.end());
