@@ -347,11 +347,11 @@ namespace IceInternal
                             Transceiver transceiver;
                             if(transceivers.Count == size)
                             {
-                                transceiver = (Transceiver)transceivers.get_Item(j);
+                                transceiver = (Transceiver)transceivers[j];
                             }
                             else
                             {
-                                transceiver = ((Connector)connectors.get_Item(j)).connect(timeout);
+                                transceiver = ((Connector)connectors[j]).connect(timeout);
                                 Debug.Assert(transceiver != null);
                             }
 

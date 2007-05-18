@@ -333,7 +333,7 @@ namespace IceSSL
         public override ArrayList connectors()
         {
             ArrayList connectors = new ArrayList();
-            string[] hosts = Network.getHosts(host_);
+            string[] hosts = IceInternal.Network.getHosts(host_);
             if(hosts.Length > 0)
             {
                 for(int i = 0; i < hosts.Length; ++i)
