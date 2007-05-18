@@ -220,13 +220,13 @@ final class UnknownEndpointI extends EndpointI
     }
     
     //
-    // Return a client side transceiver for this endpoint, or null if a
-    // transceiver can only be created by a connector.
+    // Return client side transceivers for this endpoint, or empty list
+    // if a transceiver can only be created by a connector.
     //
-    public Transceiver
-    clientTransceiver()
+    public java.util.ArrayList
+    clientTransceivers()
     {
-        return null;
+        return new java.util.ArrayList();
     }
 
     //
@@ -244,13 +244,13 @@ final class UnknownEndpointI extends EndpointI
     }
 
     //
-    // Return a connector for this endpoint, or null if no connector
+    // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public Connector
-    connector()
+    public java.util.ArrayList
+    connectors()
     {
-        return null;
+        return new java.util.ArrayList();
     }
 
     //

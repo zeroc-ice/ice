@@ -431,7 +431,7 @@ public abstract class RoutableReference extends Reference
             // existing connection to one of the given endpoints.
             //
             return factory.create((EndpointI[])endpoints.toArray(
-                new EndpointI[endpoints.size()]), false, _threadPerConnection, compress);
+                new EndpointI[endpoints.size()]), false, _threadPerConnection, getEndpointSelection(), compress);
         }
         else
         {
@@ -452,7 +452,8 @@ public abstract class RoutableReference extends Reference
                 try
                 {
                     endpoint[0] = (EndpointI)i.next();
-                    return factory.create(endpoint, i.hasNext(), _threadPerConnection, compress);
+                    return factory.create(endpoint, i.hasNext(), _threadPerConnection, getEndpointSelection(),
+                                          compress);
                 }
                 catch(Ice.LocalException ex)
                 {

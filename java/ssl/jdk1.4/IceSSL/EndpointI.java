@@ -297,13 +297,13 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     //
-    // Return a client side transceiver for this endpoint, or null if a
-    // transceiver can only be created by a connector.
+    // Return client side transceivers for this endpoint, or empty list
+    // if a transceiver can only be created by a connector.
     //
-    public IceInternal.Transceiver
-    clientTransceiver()
+    public java.util.ArrayList
+    clientTransceivers()
     {
-        return null;
+        return new java.util.ArrayList();
     }
 
     //
@@ -321,13 +321,27 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     //
-    // Return a connector for this endpoint, or null if no connector
+    // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public IceInternal.Connector
-    connector()
+    public java.util.ArrayList
+    connectors()
     {
-        return new ConnectorI(_instance, _host, _port);
+        java.util.ArrayList connectors = new java.util.ArrayList();
+        java.util.ArrayList hosts = IceInternal.Network.getHosts(_host);
+        if(hosts.size() > 0)
+        {
+            java.util.Iterator p = hosts.iterator();
+            while(p.hasNext())
+            {
+                connectors.add(new ConnectorI(_instance, (String)p.next(), _port));
+            }
+        }
+        else
+        {
+            connectors.add(new ConnectorI(_instance, _host, _port));
+        }
+        return connectors;
     }
 
     //

@@ -654,6 +654,41 @@ public final class Network
     }
 
     public static java.util.ArrayList
+    getHosts(String host)
+    {
+        java.util.ArrayList hosts = new java.util.ArrayList();
+        try
+        {
+            java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
+            for(int i = 0; i < addrs.length; ++i)
+            {
+                if(addrs[i] instanceof java.net.Inet4Address)
+                {
+                    hosts.add(addrs[i].getHostAddress());
+                }
+            }
+        }
+        catch(java.net.UnknownHostException ex)
+        {
+            Ice.DNSException e = new Ice.DNSException();
+            e.host = host;
+            throw e;
+        }
+
+        //
+        // No Inet4Address available.
+        //
+        if(hosts.size() == 0)
+        {
+            Ice.DNSException e = new Ice.DNSException();
+            e.host = host;
+            throw e;
+        }
+
+        return hosts;
+    }
+
+    public static java.util.ArrayList
     getLocalHosts()
     {
         java.util.ArrayList hosts = new java.util.ArrayList();

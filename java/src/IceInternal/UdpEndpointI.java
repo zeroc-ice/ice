@@ -432,13 +432,27 @@ final class UdpEndpointI extends EndpointI
     }
 
     //
-    // Return a client side transceiver for this endpoint, or null if a
-    // transceiver can only be created by a connector.
+    // Return client side transceivers for this endpoint, or empty list 
+    // if a transceiver can only be created by a connector.
     //
-    public Transceiver
-    clientTransceiver()
+    public java.util.ArrayList
+    clientTransceivers()
     {
-        return new UdpTransceiver(_instance, _host, _port);
+        java.util.ArrayList transceivers = new java.util.ArrayList();
+        java.util.ArrayList hosts = Network.getHosts(_host);
+        if(hosts.size() > 0)
+        {
+            java.util.Iterator p = hosts.iterator();
+            while(p.hasNext())
+            {
+                transceivers.add(new UdpTransceiver(_instance, (String)p.next(), _port));
+            }
+        }
+        else
+        {
+            transceivers.add(new UdpTransceiver(_instance, _host, _port));
+        }
+        return transceivers;
     }
 
     //
@@ -458,13 +472,13 @@ final class UdpEndpointI extends EndpointI
     }
 
     //
-    // Return a connector for this endpoint, or null if no connector
+    // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public Connector
-    connector()
+    public java.util.ArrayList
+    connectors()
     {
-        return null;
+        return new java.util.ArrayList();
     }
 
     //

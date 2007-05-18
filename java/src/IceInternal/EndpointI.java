@@ -87,10 +87,10 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     public abstract boolean unknown();
 
     //
-    // Return a client side transceiver for this endpoint, or null if a
-    // transceiver can only be created by a connector.
+    // Return client side transceivers for this endpoint, or empty list
+    // if a transceiver can only be created by a connector.
     //
-    public abstract Transceiver clientTransceiver();
+    public abstract java.util.ArrayList clientTransceivers();
 
     //
     // Return a server side transceiver for this endpoint, or null if a
@@ -102,10 +102,10 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     public abstract Transceiver serverTransceiver(EndpointIHolder endpoint);
 
     //
-    // Return a connector for this endpoint, or null if no connector
+    // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public abstract Connector connector();
+    public abstract java.util.ArrayList connectors();
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors

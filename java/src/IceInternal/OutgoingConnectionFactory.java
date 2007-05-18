@@ -91,7 +91,8 @@ public final class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(EndpointI[] endpts, boolean hasMore, boolean threadPerConnection, Ice.BooleanHolder compress)
+    create(EndpointI[] endpts, boolean hasMore, boolean threadPerConnection, Ice.EndpointSelectionType selType,
+           Ice.BooleanHolder compress)
     {
         assert(endpts.length > 0);
         EndpointI[] endpoints = new EndpointI[endpts.length];
@@ -301,13 +302,22 @@ public final class OutgoingConnectionFactory
 
             try
             {
-                Transceiver transceiver = endpoint.clientTransceiver();
-                if(transceiver == null)
-                {
-                    Connector connector = endpoint.connector();
-                    assert(connector != null);
+                java.util.ArrayList connectors = null;
+                int size;
+                int timeout = -1;
 
-                    int timeout;
+                java.util.ArrayList transceivers = endpoint.clientTransceivers();
+                if(transceivers.size() == 0)
+                {
+                    connectors = endpoint.connectors();
+                    size = connectors.size();
+                    assert(size > 0);
+
+                    if(selType == Ice.EndpointSelectionType.Random)
+                    {
+                        java.util.Collections.shuffle(connectors);
+                    }
+
                     if(defaultsAndOverrides.overrideConnectTimeout)
                     {
                         timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -319,13 +329,56 @@ public final class OutgoingConnectionFactory
                     {
                         timeout = endpoint.timeout();
                     }
-
-                    transceiver = connector.connect(timeout);
-                    assert(transceiver != null);
                 }
-                connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null, threadPerConnection);
-                connection.start();
-                connection.validate();
+                else
+                {
+                    size = transceivers.size();
+                    if(selType == Ice.EndpointSelectionType.Random)
+                    {
+                        java.util.Collections.shuffle(transceivers);
+                    }
+                }
+
+                for(int j = 0; j < size; ++j)
+                {
+                    try
+                    {
+                        Transceiver transceiver;
+                        if(transceivers.size() == size)
+                        {
+                            transceiver = (Transceiver)transceivers.get(j);
+                        }
+                        else
+                        {
+                            transceiver = ((Connector)connectors.get(j)).connect(timeout);
+                            assert(transceiver != null);
+                        }
+                        
+                        connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null, threadPerConnection);
+                        connection.start();
+                        connection.validate();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        //
+                        // If a connection object was constructed, then validate()
+                        // must have raised the exception.
+                        //
+                        if(connection != null)
+                        {
+                            connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+                            connection = null;
+                        }
+
+                        //
+                        // Throw exception if this is last transceiver in list.
+                        //
+                        if(j == size - 1)
+                        {
+                            throw ex;
+                        }
+                    }
+                }
 
                 if(defaultsAndOverrides.overrideCompress)
                 {
@@ -340,16 +393,6 @@ public final class OutgoingConnectionFactory
             catch(Ice.LocalException ex)
             {
                 exception = ex;
-
-                //
-                // If a connection object was constructed, then validate()
-                // must have raised the exception.
-                //
-                if(connection != null)
-                {
-                    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                    connection = null;
-                }
             }
             
             TraceLevels traceLevels = _instance.traceLevels();
