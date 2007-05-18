@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- The Ice.Util.proxyIdentityCompare and proxyIdentityAndFacetCompare
+  methods are now using string.CompareOrdinal to compare the identity
+  category, name and the facet instead of string.Compare with the 
+  CultureInfo.InvariantCulture culture-specific information.
+
 - If a proxy contains a host which is multihomed, the client will now 
   try all the available ip addresses. Previously, only the first in the 
   address list returned by the DNS was used and others were ignored.

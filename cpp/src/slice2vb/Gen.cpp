@@ -212,16 +212,6 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
     ids.merge(other);
     ids.unique();
 
-    //
-    // We sort again to keep the order in the same order as the one
-    // expected by System.Collections.Comparer.DefaultInvariant.
-    //
-#if defined(__SUNPRO_CC)
-    ids.sort(cICompare);
-#else
-    ids.sort(Slice::CICompare());
-#endif
-
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
@@ -254,14 +244,14 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 
     _out << sp << nl << "Public Overloads Overrides Function ice_isA(ByVal s As String) As Boolean";
     _out.inc();
-    _out << nl << "Return _System.Array.BinarySearch(ids__, s, _System.Collections.Comparer.DefaultInvariant) >= 0";
+    _out << nl << "Return _System.Array.BinarySearch(ids__, s, IceUtil.StringUtil.OrdinalStringComparer) >= 0";
     _out.dec();
     _out << nl << "End Function";
 
     _out << sp << nl << "Public Overloads Overrides Function ice_isA(ByVal s As String, Byval current__ As Ice.Current)"
                         " As Boolean";
     _out.inc();
-    _out << nl << "Return _System.Array.BinarySearch(ids__, s, _System.Collections.Comparer.DefaultInvariant) >= 0";
+    _out << nl << "Return _System.Array.BinarySearch(ids__, s, IceUtil.StringUtil.OrdinalStringComparer) >= 0";
     _out.dec();
     _out << nl << "End Function";
 
@@ -577,17 +567,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
         allOpNames.push_back("ice_ping");
-
-        //
-        // We sort into case-insensitive order here because, at run time,
-        // the sort order must match the sort order used by System.Array.Sort().
-        // (C# has no notion of the default ASCII ordering.)
-        //
-#if defined(__SUNPRO_CC)
-        allOpNames.sort(Slice::cICompare);
-#else
-        allOpNames.sort(Slice::CICompare());
-#endif
+	allOpNames.sort();
         allOpNames.unique();
 
         StringList::const_iterator q;
@@ -619,7 +599,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
         _out.dec();
         _out << nl << "Dim pos As Integer";
         _out << nl << "pos = _System.Array.BinarySearch(all__, current__.operation, "
-             << "_System.Collections.Comparer.DefaultInvariant)";
+             << "IceUtil.StringUtil.OrdinalStringComparer)";
         _out << nl << "If pos < 0 Then";
         _out.inc();
         _out << nl << "Throw New Ice.ObjectNotExistException(current__.id, current__.facet, current__.operation)";

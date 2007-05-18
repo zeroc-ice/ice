@@ -186,16 +186,6 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     ids.merge(other);
     ids.unique();
 
-    //
-    // We sort again to keep the order in the same order as the one
-    // expected by System.Collections.Comparer.DefaultInvariant.
-    //
-#if defined(__SUNPRO_CC)
-    ids.sort(cICompare);
-#else
-    ids.sort(Slice::CICompare());
-#endif
-
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
@@ -221,12 +211,12 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
 
     _out << sp << nl << "public override bool ice_isA(string s)";
     _out << sb;
-    _out << nl << "return _System.Array.BinarySearch(ids__, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
+    _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtil.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
     _out << sp << nl << "public override bool ice_isA(string s, Ice.Current current__)";
     _out << sb;
-    _out << nl << "return _System.Array.BinarySearch(ids__, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
+    _out << nl << "return _System.Array.BinarySearch(ids__, s, IceUtil.StringUtil.OrdinalStringComparer) >= 0;";
     _out << eb;
 
     _out << sp << nl << "public override string[] ice_ids()";
@@ -532,17 +522,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
         allOpNames.push_back("ice_ping");
-
-        //
-        // We sort into case-insensitive order here because, at run time,
-        // the sort order must match the sort order used by System.Array.Sort().
-        // (C# has no notion of the default ASCII ordering.)
-        //
-#if defined(__SUNPRO_CC)
-        allOpNames.sort(Slice::cICompare);
-#else
-        allOpNames.sort(Slice::CICompare());
-#endif
+        allOpNames.sort();
         allOpNames.unique();
 
         StringList::const_iterator q;
@@ -564,7 +544,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
              << "dispatch__(IceInternal.Incoming inS__, Ice.Current current__)";
         _out << sb;
         _out << nl << "int pos = _System.Array.BinarySearch(all__, current__.operation, "
-             << "_System.Collections.Comparer.DefaultInvariant);";
+             << "IceUtil.StringUtil.OrdinalStringComparer);";
         _out << nl << "if(pos < 0)";
         _out << sb;
         _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";

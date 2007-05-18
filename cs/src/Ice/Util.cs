@@ -379,12 +379,12 @@ namespace Ice
                 Identity lhsIdentity = lhs.ice_getIdentity();
                 Identity rhsIdentity = rhs.ice_getIdentity();
                 int n;
-                n = string.Compare(lhsIdentity.name, rhsIdentity.name, false, CultureInfo.InvariantCulture);
+                n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
                 if(n != 0)
                 {
                     return n;
                 }
-                return string.Compare(lhsIdentity.category, rhsIdentity.category, false, CultureInfo.InvariantCulture);
+                return string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
             }
         }
 
@@ -407,12 +407,12 @@ namespace Ice
                 Identity lhsIdentity = lhs.ice_getIdentity();
                 Identity rhsIdentity = rhs.ice_getIdentity();
                 int n;
-                n = string.Compare(lhsIdentity.name, rhsIdentity.name, false, CultureInfo.InvariantCulture);
+                n = string.CompareOrdinal(lhsIdentity.name, rhsIdentity.name);
                 if(n != 0)
                 {
                     return n;
                 }
-                n = string.Compare(lhsIdentity.category, rhsIdentity.category, false, CultureInfo.InvariantCulture);
+                n = string.CompareOrdinal(lhsIdentity.category, rhsIdentity.category);
                 if(n != 0)
                 {
                     return n;
@@ -434,7 +434,7 @@ namespace Ice
                 }
                 else
                 {
-                    return string.Compare(lhsFacet, rhsFacet, false, CultureInfo.InvariantCulture);
+                    return string.CompareOrdinal(lhsFacet, rhsFacet);
                 }
             }
         }

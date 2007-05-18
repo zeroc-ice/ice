@@ -391,5 +391,14 @@ namespace IceUtil
             }
             return 0; // Not quoted
         }
+
+        private class OrdinalStringComparerImpl : System.Collections.IComparer
+        {
+            public int Compare(object l, object r)
+            {
+                return string.CompareOrdinal((string)l, (string)r);
+            }        
+        }
+        public static readonly System.Collections.IComparer OrdinalStringComparer = new OrdinalStringComparerImpl();
     }
 }
