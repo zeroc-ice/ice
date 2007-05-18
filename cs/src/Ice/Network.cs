@@ -826,20 +826,30 @@ namespace IceInternal
 
         public static string[] getHosts(string host)
         {
-            ArrayList hosts;
+            ArrayList hosts = new ArrayList();
 
             int retry = 5;
 
         repeatGetHostByName:
             try
             {
-                IPHostEntry e = Dns.GetHostEntry(host);
-                hosts = new ArrayList();
-                for(int i = 0; i < e.AddressList.Length; ++i)
+                //
+                // No need for lookup if already ip address.
+                //
+                try
                 {
-                    if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+                    IPAddress.Parse(host);
+                    hosts.Add(host);
+                }
+                catch (FormatException)
+                {
+                    IPHostEntry e = Dns.GetHostEntry(host);
+                    for(int i = 0; i < e.AddressList.Length; ++i)
                     {
-                        hosts.Add(e.AddressList[i].ToString());
+                        if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+                        {
+                            hosts.Add(e.AddressList[i].ToString());
+                        }
                     }
                 }
             }
