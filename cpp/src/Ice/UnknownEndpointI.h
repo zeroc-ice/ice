@@ -34,9 +34,9 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual bool unknown() const;
-    virtual TransceiverPtr clientTransceiver() const;
+    virtual std::vector<TransceiverPtr> clientTransceivers() const;
     virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const;
-    virtual ConnectorPtr connector() const;
+    virtual std::vector<ConnectorPtr> connectors() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
     virtual std::vector<EndpointIPtr> expand(bool) const;
     virtual bool publish() const;

@@ -265,10 +265,11 @@ IceSSL::EndpointI::unknown() const
     return false;
 }
 
-IceInternal::TransceiverPtr
-IceSSL::EndpointI::clientTransceiver() const
+vector<IceInternal::TransceiverPtr>
+IceSSL::EndpointI::clientTransceivers() const
 {
-    return 0;
+    vector<IceInternal::TransceiverPtr> ret;
+    return ret;
 }
 
 IceInternal::TransceiverPtr
@@ -278,10 +279,23 @@ IceSSL::EndpointI::serverTransceiver(IceInternal::EndpointIPtr& endp) const
     return 0;
 }
 
-IceInternal::ConnectorPtr
-IceSSL::EndpointI::connector() const
+vector<IceInternal::ConnectorPtr>
+IceSSL::EndpointI::connectors() const
 {
-    return new ConnectorI(_instance, _host, _port);
+    vector<IceInternal::ConnectorPtr> connectors;
+    vector<string> hosts = IceInternal::getHosts(_host);
+    if(hosts.size() > 1)
+    {
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            connectors.push_back(new ConnectorI(_instance, hosts[i], _port));
+        }
+    }
+    else
+    {
+        connectors.push_back(new ConnectorI(_instance, _host, _port));
+    }
+    return connectors;
 }
 
 IceInternal::AcceptorPtr

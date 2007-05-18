@@ -84,10 +84,10 @@ public:
     virtual bool unknown() const = 0;
 
     //
-    // Return a client side transceiver for this endpoint, or null if a
-    // transceiver can only be created by a connector.
+    // Return client side transceivers for this endpoint, or empty
+    // vector if a transceiver can only be created by a connector.
     //
-    virtual TransceiverPtr clientTransceiver() const = 0;
+    virtual std::vector<TransceiverPtr> clientTransceivers() const = 0;
 
     //
     // Return a server side transceiver for this endpoint, or null if a
@@ -99,10 +99,10 @@ public:
     virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const = 0;
 
     //
-    // Return a connector for this endpoint, or null if no connector
-    // is available.
+    // Return connectors for this endpoint, or empty vector if no 
+    // connector is available.
     //
-    virtual ConnectorPtr connector() const = 0;
+    virtual std::vector<ConnectorPtr> connectors() const = 0;
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors

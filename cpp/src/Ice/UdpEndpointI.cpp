@@ -430,10 +430,23 @@ IceInternal::UdpEndpointI::unknown() const
     return false;
 }
 
-TransceiverPtr
-IceInternal::UdpEndpointI::clientTransceiver() const
+vector<TransceiverPtr>
+IceInternal::UdpEndpointI::clientTransceivers() const
 {
-    return new UdpTransceiver(_instance, _host, _port);
+    vector<TransceiverPtr> transceivers;
+    vector<string> hosts = getHosts(_host);
+    if(hosts.size() > 1)
+    {
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            transceivers.push_back(new UdpTransceiver(_instance, hosts[i], _port));
+        }
+    }
+    else
+    {
+        transceivers.push_back(new UdpTransceiver(_instance, _host, _port));
+    }
+    return transceivers;
 }
 
 TransceiverPtr
@@ -444,10 +457,11 @@ IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
     return p;
 }
 
-ConnectorPtr
-IceInternal::UdpEndpointI::connector() const
+vector<ConnectorPtr>
+IceInternal::UdpEndpointI::connectors() const
 {
-    return 0;
+    vector<ConnectorPtr> ret;
+    return ret;
 }
 
 AcceptorPtr

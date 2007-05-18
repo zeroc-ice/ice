@@ -1242,7 +1242,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
         // Get an existing connection or create one if there's no
         // existing connection to one of the given endpoints.
         //
-        return factory->create(endpoints, false, _threadPerConnection, comp);
+        return factory->create(endpoints, false, _threadPerConnection, getEndpointSelection(), comp);
     }
     else
     {
@@ -1263,7 +1263,8 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             try
             {
                 endpoint.back() = *p;
-                return factory->create(endpoint, p + 1 == endpoints.end(), _threadPerConnection, comp);
+                return factory->create(endpoint, p + 1 == endpoints.end(), _threadPerConnection, 
+                                       getEndpointSelection(), comp);
             }
             catch(const LocalException& ex)
             {

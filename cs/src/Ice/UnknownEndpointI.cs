@@ -213,12 +213,12 @@ namespace IceInternal
         }
         
         //
-        // Return a client side transceiver for this endpoint, or null if a
-        // transceiver can only be created by a connector.
+        // Return client side transceivers for this endpoint, or empty list 
+        // if a transceiver can only be created by a connector.
         //
-        public override Transceiver clientTransceiver()
+        public override ArrayList clientTransceivers()
         {
-            return null;
+            return new ArrayList();
         }
         
         //
@@ -235,12 +235,12 @@ namespace IceInternal
         }
         
         //
-        // Return a connector for this endpoint, or null if no connector
+        // Return connectors for this endpoint, or empty list if no connector
         // is available.
         //
-        public override Connector connector()
+        public override ArrayList connectors()
         {
-            return null;
+            return new ArrayList();
         }
         
         //

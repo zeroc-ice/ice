@@ -455,12 +455,25 @@ namespace IceInternal
         }
         
         //
-        // Return a client side transceiver for this endpoint, or null if a
-        // transceiver can only be created by a connector.
+        // Return a client side transceiver for this endpoint, or empty list 
+        // if a transceiver can only be created by a connector.
         //
-        public override Transceiver clientTransceiver()
+        public override ArrayList clientTransceivers()
         {
-            return new UdpTransceiver(instance_, _host, _port);
+            ArrayList transceivers = new ArrayList();
+            string[] hosts = Network.getHosts(_host);
+            if(hosts.Length > 0)
+            {
+                for(int i = 0; i < hosts.Length; ++i)
+                {
+                    transceivers.Add(new UdpTransceiver(instance_, hosts[i], _port));
+                }
+            }
+            else
+            {
+                transceivers.Add(new UdpTransceiver(instance_, _host, _port));
+            }
+            return transceivers;
         }
         
         //
@@ -479,12 +492,12 @@ namespace IceInternal
         }
         
         //
-        // Return a connector for this endpoint, or null if no connector
+        // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public override Connector connector()
+        public override ArrayList connectors()
         {
-            return null;
+            return new ArrayList();
         }
         
         //

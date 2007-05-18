@@ -24,6 +24,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
+#include <IceUtil/Random.h>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif
@@ -34,6 +35,17 @@ using namespace IceInternal;
 
 IceUtil::Shared* IceInternal::upCast(OutgoingConnectionFactory* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
+
+namespace
+{
+struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
+{
+    ptrdiff_t operator()(ptrdiff_t d)
+    {
+        return IceUtil::random(static_cast<int>(d));
+    }
+};
+}
 
 void
 IceInternal::OutgoingConnectionFactory::destroy()
@@ -91,7 +103,8 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 
 ConnectionIPtr
 IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpts, bool moreEndpts,
-                                               bool threadPerConnection, bool& compress)
+                                               bool threadPerConnection, Ice::EndpointSelectionType selType, 
+                                               bool& compress)
 {
     assert(!endpts.empty());
     vector<EndpointIPtr> endpoints = endpts;
@@ -267,13 +280,23 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         
         try
         {
-            TransceiverPtr transceiver = endpoint->clientTransceiver();
-            if(!transceiver)
-            {
-                ConnectorPtr connector = endpoint->connector();
-                assert(connector);
+            vector<ConnectorPtr> connectors;
+            unsigned int size;
+            Int timeout;
 
-                Int timeout;
+            vector<TransceiverPtr> transceivers = endpoint->clientTransceivers();
+            if(transceivers.size() == 0)
+            {
+                connectors = endpoint->connectors();
+                size = connectors.size();
+                assert(size > 0);
+
+                if(selType == Random)
+                {
+                    RandomNumberGenerator rng;
+                    random_shuffle(connectors.begin(), connectors.end(), rng);
+                }
+
                 if(_instance->defaultsAndOverrides()->overrideConnectTimeout)
                 {
                     timeout = _instance->defaultsAndOverrides()->overrideConnectTimeoutValue;
@@ -285,14 +308,58 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
                 {
                     timeout = endpoint->timeout();
                 }
-
-                transceiver = connector->connect(timeout);
-                assert(transceiver);
             }       
-            connection = new ConnectionI(_instance, transceiver, endpoint, 0, threadPerConnection,
-                                         _instance->threadPerConnectionStackSize());
-            connection->start();
-            connection->validate();
+            else
+            {
+                size = transceivers.size();
+                if(selType == Random)
+                {
+                    RandomNumberGenerator rng;
+                    random_shuffle(transceivers.begin(), transceivers.end(), rng);
+                }
+            }
+
+            for(unsigned int i = 0; i < size; ++i)
+            {
+                try
+                {
+                    TransceiverPtr transceiver;
+                    if(transceivers.size() == size)
+                    {
+                        transceiver = transceivers[i];
+                    }
+                    else
+                    {
+                        transceiver = connectors[i]->connect(timeout);
+                        assert(transceiver);
+                    }
+
+                    connection = new ConnectionI(_instance, transceiver, endpoint, 0, threadPerConnection,
+                                                 _instance->threadPerConnectionStackSize());
+                    connection->start();
+                    connection->validate();
+                }
+                catch(const LocalException& ex)
+                {
+                    //
+                    // If a connection object was constructed, then validate()
+                    // must have raised the exception.
+                    //
+                    if(connection)
+                    {
+                        connection->waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+                        connection = 0;
+                    }
+
+                    //
+                    // Throw exception if this is last transceiver in list.
+                    //
+                    if(i == size - 1)
+                    {
+                        ex.ice_throw();
+                    }
+                }
+            }
 
             if(_instance->defaultsAndOverrides()->overrideCompress)
             {
@@ -307,16 +374,6 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointIPtr>& endpt
         catch(const LocalException& ex)
         {
             exception.reset(dynamic_cast<LocalException*>(ex.ice_clone()));
-
-            //
-            // If a connection object was constructed, then validate()
-            // must have raised the exception.
-            //
-            if(connection)
-            {
-                connection->waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                connection = 0;
-            }
         }
         
         TraceLevelsPtr traceLevels = _instance->traceLevels();

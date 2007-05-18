@@ -89,10 +89,10 @@ namespace IceInternal
         public abstract bool unknown();
 
         //
-        // Return a client side transceiver for this endpoint, or null if a
-        // transceiver can only be created by a connector.
+        // Return client side transceivers for this endpoint, or empty list 
+        // if a transceiver can only be created by a connector.
         //
-        public abstract Transceiver clientTransceiver();
+        public abstract ArrayList clientTransceivers();
 
         //
         // Return a server side transceiver for this endpoint, or null if a
@@ -104,10 +104,10 @@ namespace IceInternal
         public abstract Transceiver serverTransceiver(ref EndpointI endpoint);
 
         //
-        // Return a connector for this endpoint, or null if no connector
+        // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public abstract Connector connector();
+        public abstract ArrayList connectors();
 
         //
         // Return an acceptor for this endpoint, or null if no acceptors

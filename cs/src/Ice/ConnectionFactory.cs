@@ -80,7 +80,8 @@ namespace IceInternal
             }
         }
         
-        public Ice.ConnectionI create(EndpointI[] endpts, bool hasMore, bool threadPerConnection, out bool compress)
+        public Ice.ConnectionI create(EndpointI[] endpts, bool hasMore, bool threadPerConnection, 
+                                      Ice.EndpointSelectionType selType, out bool compress)
         {
             Debug.Assert(endpts.Length > 0);
             EndpointI[] endpoints = new EndpointI[endpts.Length];
@@ -282,13 +283,32 @@ namespace IceInternal
                 
                 try
                 {
-                    Transceiver transceiver = endpoint.clientTransceiver();
-                    if(transceiver == null)
-                    {
-                        Connector connector = endpoint.connector();
-                        Debug.Assert(connector != null);
+                    ArrayList connectors = null;
+                    int size;
+                    int timeout = -1;
 
-                        int timeout;
+                    ArrayList transceivers = endpoint.clientTransceivers();
+                    if(transceivers.Count == 0)
+                    {
+                        connectors = endpoint.connectors();
+                        size = connectors.Count;
+                        Debug.Assert(size > 0);
+
+                        if(selType == Ice.EndpointSelectionType.Random)
+                        {
+                            for(int j = 0; j < connectors.Count - 2; ++j)
+                            {
+                                int r = rand_.Next(connectors.Count - j) + j;
+                                Debug.Assert(r >= j && r < connectors.Count);
+                                if(r != j)
+                                {
+                                    object tmp = connectors[j];
+                                    connectors[j] = connectors[r];
+                                    connectors[r] = tmp;
+                                }
+                            }
+                        }
+
                         if(defaultsAndOverrides.overrideConnectTimeout)
                         {
                             timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -300,13 +320,67 @@ namespace IceInternal
                         {
                             timeout = endpoint.timeout();
                         }
-
-                        transceiver = connector.connect(timeout);
-                        Debug.Assert(transceiver != null);
                     }
-                    connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null, threadPerConnection);
-                    connection.start();
-                    connection.validate();
+                    else
+                    {
+                        size = transceivers.Count;
+                        if(selType == Ice.EndpointSelectionType.Random)
+                        {
+                            for(int j = 0; j < transceivers.Count - 2; ++j)
+                            {
+                                int r = rand_.Next(transceivers.Count - j) + j;
+                                Debug.Assert(r >= j && r < transceivers.Count);
+                                if(r != j)
+                                {
+                                    object tmp = transceivers[j];
+                                    transceivers[j] = transceivers[r];
+                                    transceivers[r] = tmp;
+                                }
+                            }
+                        }
+                    }
+
+                    for(int j = 0; j < size; ++j)
+                    {
+                        try
+                        {
+                            Transceiver transceiver;
+                            if(transceivers.Count == size)
+                            {
+                                transceiver = (Transceiver)transceivers.get_Item(j);
+                            }
+                            else
+                            {
+                                transceiver = ((Connector)connectors.get_Item(j)).connect(timeout);
+                                Debug.Assert(transceiver != null);
+                            }
+
+                            connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null, 
+                                                             threadPerConnection);
+                            connection.start();
+                            connection.validate();
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            //
+                            // If a connection object was constructed, then validate()
+                            // must have raised the exception.
+                            //
+                            if(connection != null)
+                            {
+                                connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+                                connection = null;
+                            }
+
+                            //
+                            // Throw exception if this is last transceiver in list.
+                            //
+                            if(j == size - 1)
+                            {
+                                throw ex;
+                            }
+                        }
+                    }
 
                     if(defaultsAndOverrides.overrideCompress)
                     {
@@ -321,16 +395,6 @@ namespace IceInternal
                 catch(Ice.LocalException ex)
                 {
                     exception = ex;
-
-                    //
-                    // If a connection object was constructed, then validate()
-                    // must have raised the exception.
-                    //
-                    if(connection != null)
-                    {
-                        connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                        connection = null;
-                    }
                 }
                 
                 TraceLevels traceLevels = instance_.traceLevels();
@@ -531,6 +595,7 @@ namespace IceInternal
         private bool _destroyed;
         private Hashtable _connections;
         private Set _pending;
+        private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
     }
 
     public sealed class IncomingConnectionFactory : EventHandler

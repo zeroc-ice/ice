@@ -265,10 +265,11 @@ IceInternal::TcpEndpointI::unknown() const
     return false;
 }
 
-TransceiverPtr
-IceInternal::TcpEndpointI::clientTransceiver() const
+vector<TransceiverPtr>
+IceInternal::TcpEndpointI::clientTransceivers() const
 {
-    return 0;
+    vector<TransceiverPtr> ret;
+    return ret;
 }
 
 TransceiverPtr
@@ -278,10 +279,23 @@ IceInternal::TcpEndpointI::serverTransceiver(EndpointIPtr& endp) const
     return 0;
 }
 
-ConnectorPtr
-IceInternal::TcpEndpointI::connector() const
+vector<ConnectorPtr>
+IceInternal::TcpEndpointI::connectors() const
 {
-    return new TcpConnector(_instance, _host, _port);
+    vector<ConnectorPtr> connectors;
+    vector<string> hosts = getHosts(_host);
+    if(hosts.size() > 1)
+    {
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            connectors.push_back(new TcpConnector(_instance, hosts[i], _port));
+        }
+    }
+    else
+    {
+        connectors.push_back(new TcpConnector(_instance, _host, _port));
+    }
+    return connectors;
 }
 
 AcceptorPtr

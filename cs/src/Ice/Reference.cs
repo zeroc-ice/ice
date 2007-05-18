@@ -1141,7 +1141,7 @@ namespace IceInternal
                 //
                 EndpointI[] arr = new EndpointI[endpoints.Count];
                 endpoints.CopyTo(arr);
-                return factory.create(arr, false, _threadPerConnection, out comp);
+                return factory.create(arr, false, _threadPerConnection, getEndpointSelection(), out comp);
             }
             else
             {
@@ -1161,7 +1161,7 @@ namespace IceInternal
                     {
                         endpoint[0] = e;
                         return factory.create(endpoint, e != endpoints[endpoints.Count - 1], _threadPerConnection,
-                                              out comp);
+                                              getEndpointSelection(), out comp);
                     }
                     catch(Ice.LocalException ex)
                     {

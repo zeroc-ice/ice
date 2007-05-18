@@ -305,12 +305,12 @@ namespace IceSSL
         }
 
         //
-        // Return a client side transceiver for this endpoint, or null if a
-        // transceiver can only be created by a connector.
+        // Return a client side transceiver for this endpoint, or empty list
+        // if a transceiver can only be created by a connector.
         //
-        public override IceInternal.Transceiver clientTransceiver()
+        public override ArrayList clientTransceivers()
         {
-            return null;
+            return new ArrayList();
         }
 
         //
@@ -327,12 +327,25 @@ namespace IceSSL
         }
 
         //
-        // Return a connector for this endpoint, or null if no connector
+        // Return a connector for this endpoint, or empty list if no connector
         // is available.
         //
-        public override IceInternal.Connector connector()
+        public override ArrayList connectors()
         {
-            return new ConnectorI(instance_, host_, port_);
+            ArrayList connectors = new ArrayList();
+            string[] hosts = Network.getHosts(host_);
+            if(hosts.Length > 0)
+            {
+                for(int i = 0; i < hosts.Length; ++i)
+                {
+                    connectors.Add(new ConnectorI(instance_, hosts[i], port_));
+                }
+            }
+            else
+            {
+                connectors.Add(new ConnectorI(instance_, host_, port_));
+            }
+            return connectors;
         }
 
         //

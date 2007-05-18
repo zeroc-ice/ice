@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- If a proxy contains a host which is multihomed, the client will now 
+  try all the available ip addresses. Previously, only the first in the
+  address list returned by the DNS was used and others were ignored.
+
 - Added a new property, Ice.Warn.UnusedProperties. If set to 1, when 
   the communicator is destroyed a warning will be printed listing all
   properties that were set, but never read. Default is 0.

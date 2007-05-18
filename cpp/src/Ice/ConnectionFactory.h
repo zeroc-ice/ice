@@ -18,6 +18,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/Endpoint.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/RouterInfoF.h>
@@ -44,7 +45,7 @@ public:
 
     void waitUntilFinished();
 
-    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, bool, bool&);
+    Ice::ConnectionIPtr create(const std::vector<EndpointIPtr>&, bool, bool, Ice::EndpointSelectionType, bool&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
     void flushBatchRequests();

@@ -199,10 +199,11 @@ IceInternal::UnknownEndpointI::unknown() const
     return true;
 }
 
-TransceiverPtr
-IceInternal::UnknownEndpointI::clientTransceiver() const
+vector<TransceiverPtr>
+IceInternal::UnknownEndpointI::clientTransceivers() const
 {
-    return 0;
+    vector<TransceiverPtr> ret;
+    return ret;
 }
 
 TransceiverPtr
@@ -212,10 +213,11 @@ IceInternal::UnknownEndpointI::serverTransceiver(EndpointIPtr& endp) const
     return 0;
 }
 
-ConnectorPtr
-IceInternal::UnknownEndpointI::connector() const
+vector<ConnectorPtr>
+IceInternal::UnknownEndpointI::connectors() const
 {
-    return 0;
+    vector<ConnectorPtr> ret;
+    return ret;
 }
 
 AcceptorPtr
