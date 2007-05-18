@@ -25,7 +25,7 @@ namespace IceUtil
 // the CtrlCHandler constructor raises CtrlCHandlerException if
 // you attempt to create a second CtrlCHandler.
 // On Unix/POSIX, it is essential to create the CtrlCHandler before
-// creating any thread, as the CtrlCHandler constructor masks
+// creating any thread, as the CtrlCHandler constructor masks (blocks)
 // SIGHUP, SIGINT and SIGTERM; by default, threads created later will 
 // inherit this signal mask.
 //
@@ -37,7 +37,7 @@ namespace IceUtil
 //
 // The CtrCHandler destructor "unregisters" the callback. However
 // on Unix/POSIX it does not restore the old signal mask in any
-// thread, so SIGHUP, SIGINT and SIGTERM are then ignored.
+// thread, so SIGHUP, SIGINT and SIGTERM remain blocked.
 //
 // TODO: Maybe the behavior on Windows should be the same? Now we
 // just restore the default behavior (TerminateProcess).

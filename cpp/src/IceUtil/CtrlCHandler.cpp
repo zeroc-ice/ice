@@ -174,7 +174,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         
         // We block these CTRL+C like signals in the main thread,
         // and by default all other threads will inherit this signal
-        // disposition.
+        // mask.
         
         sigset_t ctrlCLikeSignals;
         sigemptyset(&ctrlCLikeSignals);
