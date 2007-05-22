@@ -522,7 +522,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.dec();
         _out << nl << "end";
 
-        _out << sp << nl << "def " << name << "Prx.uncheckedCast(proxy, facet='')";
+        _out << sp << nl << "def " << name << "Prx.uncheckedCast(proxy, facet=nil)";
         _out.inc();
         _out << nl << "ice_uncheckedCast(proxy, facet)";
         _out.dec();
