@@ -11,6 +11,7 @@
 #include <Proxy.h>
 #include <Util.h>
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/OutputUtil.h>
 #include <IceUtil/ScopedArray.h>
 #include <Ice/LocalException.h>
 
@@ -363,15 +364,7 @@ IceRuby::PrimitiveInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHist
     case PrimitiveInfo::KindLong:
     {
         Ice::Long l = getLong(value);
-        char buf[64];
-#ifdef _WIN32
-        sprintf(buf, "%I64d", l);
-#elif defined(ICE_64)
-        sprintf(buf, "%ld", l);
-#else
-        sprintf(buf, "%lld", l);
-#endif
-        out << buf;
+        out << IceUtil::int64ToString(l);
         break;
     }
     case PrimitiveInfo::KindFloat:
