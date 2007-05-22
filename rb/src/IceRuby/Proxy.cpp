@@ -1041,43 +1041,35 @@ IceRuby_ObjectPrx_not_equals(VALUE self, VALUE other)
 }
 
 static VALUE
-checkedCastImpl(const Ice::ObjectPrx& p, const string& id, const string& facet, VALUE type)
+checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ctx, VALUE type)
 {
     Ice::ObjectPrx target;
-    if(facet.empty())
+    if(NIL_P(facet))
     {
         target = p;
     }
     else
     {
-        target = p->ice_facet(facet);
+        target = p->ice_facet(getString(facet));
     }
 
+    if(NIL_P(ctx))
     {
         if(target->ice_isA(id))
         {
             return createProxy(target, type);
         }
     }
-
-    return Qnil;
-}
-
-static VALUE
-checkedCastImpl(const Ice::ObjectPrx& p, const string& id, const string& facet, const Ice::Context& ctx, VALUE type)
-{
-    Ice::ObjectPrx target;
-    if(facet.empty())
-    {
-        target = p;
-    }
     else
     {
-        target = p->ice_facet(facet);
-    }
+        Ice::Context c;
+#ifndef NDEBUG
+        bool b =
+#endif
+        hashToContext(ctx, c);
+        assert(b);
 
-    {
-        if(target->ice_isA(id, ctx))
+        if(target->ice_isA(id, c))
         {
             return createProxy(target, type);
         }
@@ -1113,7 +1105,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
 
         Ice::ObjectPrx p = getProxy(args[0]);
 
-        string facet;
+        volatile VALUE facet = Qnil;
         volatile VALUE ctx = Qnil;
 
         if(argc == 3)
@@ -1122,7 +1114,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
             {
                 throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
             }
-            facet = getString(args[1]);
+            facet = args[1];
 
             if(!NIL_P(args[2]) && !isHash(args[2]))
             {
@@ -1134,7 +1126,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
         {
             if(isString(args[1]))
             {
-                facet = getString(args[1]);
+                facet = args[1];
             }
             else if(isHash(args[1]))
             {
@@ -1146,21 +1138,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
             }
         }
 
-        if(NIL_P(ctx))
-        {
-            return checkedCastImpl(p, "::Ice::Object", facet, Qnil);
-        }
-        else
-        {
-            Ice::Context c;
-#ifndef NDEBUG
-            bool b =
-#endif
-            hashToContext(ctx, c);
-            assert(b);
-
-            return checkedCastImpl(p, "::Ice::Object", facet, c, Qnil);
-        }
+        return checkedCastImpl(p, "::Ice::Object", facet, ctx, Qnil);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1187,17 +1165,17 @@ IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE self)
             throw RubyException(rb_eArgError, "uncheckedCast requires a proxy argument");
         }
 
-        string facet;
+        volatile VALUE facet = Qnil;
         if(argc == 2)
         {
-            facet = getString(args[1]);
+            facet = args[1];
         }
 
         Ice::ObjectPrx p = getProxy(args[0]);
 
-        if(!facet.empty())
+        if(!NIL_P(facet))
         {
-            return createProxy(p->ice_facet(facet));
+            return createProxy(p->ice_facet(getString(facet)));
         }
         else
         {
@@ -1232,10 +1210,10 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
 
         string idstr = getString(id);
 
-        string facet;
+        volatile VALUE facet = Qnil;
         if(isString(facetOrCtx))
         {
-            facet = getString(facetOrCtx);
+            facet = facetOrCtx;
         }
         else if(isHash(facetOrCtx))
         {
@@ -1255,21 +1233,7 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
             throw RubyException(rb_eArgError, "context argument to checkedCast must be a hash");
         }
 
-        if(NIL_P(ctx))
-        {
-            return checkedCastImpl(p, idstr, facet, self);
-        }
-        else
-        {
-            Ice::Context c;
-#ifndef NDEBUG
-            bool b =
-#endif
-            hashToContext(ctx, c);
-            assert(b);
-
-            return checkedCastImpl(p, idstr, facet, c, self);
-        }
+        return checkedCastImpl(p, idstr, facet, ctx, self);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1293,11 +1257,9 @@ IceRuby_ObjectPrx_ice_uncheckedCast(VALUE self, VALUE obj, VALUE facet)
 
         Ice::ObjectPrx p = getProxy(obj);
 
-        string f = getString(facet);
-
-        if(!f.empty())
+        if(!NIL_P(facet))
         {
-            return createProxy(p->ice_facet(f), self);
+            return createProxy(p->ice_facet(getString(facet)), self);
         }
         else
         {
