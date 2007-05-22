@@ -13,6 +13,7 @@
 #include <Util.h>
 
 #include <IceUtil/InputUtil.h>
+#include <IceUtil/OutputUtil.h>
 #include <IceUtil/ScopedArray.h>
 
 using namespace std;
@@ -691,13 +692,8 @@ IcePHP::PrimitiveMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TS
         //
         if(sizeof(Ice::Long) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
         {
-            char buf[64];
-#ifdef WIN32
-            sprintf(buf, "%I64d", val);
-#else
-            sprintf(buf, "%lld", val);
-#endif
-            ZVAL_STRING(zv, buf, 1);
+            string str = IceUtil::int64ToString(val);
+            ZVAL_STRINGL(zv, const_cast<char*>(str.c_str()), str.length(), 1);
         }
         else
         {
@@ -1047,13 +1043,8 @@ IcePHP::SequenceMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSR
                 //
                 if(sizeof(Ice::Long) > sizeof(long) && (*p < LONG_MIN || *p > LONG_MAX))
                 {
-                    char buf[64];
-#ifdef WIN32
-                    sprintf(buf, "%I64d", *p);
-#else
-                    sprintf(buf, "%lld", *p);
-#endif
-                    ZVAL_STRING(val, buf, 1);
+                    string str = IceUtil::int64ToString(*p);
+                    ZVAL_STRINGL(val, const_cast<char*>(str.c_str()), str.length(), 1);
                 }
                 else
                 {
