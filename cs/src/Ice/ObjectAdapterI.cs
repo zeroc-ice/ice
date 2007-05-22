@@ -1097,8 +1097,6 @@ namespace Ice
 
         private ArrayList parseEndpoints(string endpts)
         {
-            endpts = endpts.ToLower();
-
             int beg;
             int end = 0;
 

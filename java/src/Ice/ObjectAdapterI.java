@@ -1088,8 +1088,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private java.util.ArrayList
     parseEndpoints(String endpts)
     {
-        endpts = endpts.toLowerCase();
-
         int beg;
         int end = 0;
 
