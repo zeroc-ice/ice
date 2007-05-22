@@ -10,7 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-//#include <Ice/Current.ice>
+#include <Ice/Router.ice>
+#include <Ice/Locator.ice>
+#include <Ice/Current.ice>
 
 module Test
 {
@@ -19,7 +21,7 @@ module Test
 {
     void shutdown();
 
-    //Ice::Context getContext();
+    Ice::Context getContext();
 };
 
 class MyDerivedClass extends MyClass

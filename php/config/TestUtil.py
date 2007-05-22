@@ -351,7 +351,9 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     # This is a workaround for a limitation in PHP 5.1.x that prevents
     # us from specifying the directives on PHP's command line.
     #
-    # TODO: Remove this when we no longer support PHP 5.1.x.
+    # TODO: When we no longer support PHP 5.1.x, we can remove the extension
+    #       directives. We still need to generate the temporary file to
+    #       support ICE_HOME replacement.
     #
     tmpIniFile = "tmp.ini"
     testdir = os.path.join(toplevel, "test", name)
@@ -362,7 +364,13 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     cwd = os.getcwd()
     os.chdir(testdir)
 
+    #
+    # Replace all occurrences of ICE_HOME with the value of the environment variable.
+    #
     iniLines = open("php.ini", "r").readlines()
+    for i in range(0,len(iniLines)):
+        iniLines[i] = iniLines[i].replace("ICE_HOME", ice_home)
+
     iniFile = open(tmpIniFile, "w")
     iniFile.writelines(iniLines)
     iniFile.write("extension_dir=" + extensionDir + "\n")

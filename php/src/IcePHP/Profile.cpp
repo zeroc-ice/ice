@@ -38,7 +38,7 @@ namespace IcePHP
 class CodeVisitor : public Slice::ParserVisitor
 {
 public:
-    CodeVisitor(ostream&, Profile::ClassMap& TSRMLS_DC);
+    CodeVisitor(ostream&, Profile::ClassMap&, bool TSRMLS_DC);
 
     virtual void visitClassDecl(const Slice::ClassDeclPtr&);
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
@@ -58,6 +58,7 @@ private:
 
     ostream& _out;
     Profile::ClassMap& _classes;
+    bool _suppressWarnings;
 #ifdef ZTS
     TSRMLS_D;
 #endif
@@ -313,7 +314,7 @@ static const char* _coreTypes =
 // Parse the Slice files that define the types and operations available to a PHP script.
 //
 static bool
-parseSlice(const string& argStr, Slice::UnitPtr& unit TSRMLS_DC)
+parseSlice(const string& argStr, Slice::UnitPtr& unit, bool& suppressWarnings TSRMLS_DC)
 {
     vector<string> args;
     try
@@ -337,6 +338,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit TSRMLS_DC)
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "case-sensitive");
+    opts.addOpt("w");
 
     vector<string> files;
     try
@@ -389,6 +391,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit TSRMLS_DC)
     }
     debug = opts.isSet("d") || opts.isSet("debug");
     caseSensitive = opts.isSet("case-sensitive");
+    suppressWarnings = opts.isSet("w");
 
     bool ignoreRedefs = false;
     bool all = true;
@@ -472,9 +475,10 @@ createProfile(const string& name, const string& config, const string& options, c
     }
 
     Slice::UnitPtr unit;
+    bool suppressWarnings = false;
     if(!slice.empty())
     {
-        if(!parseSlice(slice, unit TSRMLS_CC))
+        if(!parseSlice(slice, unit, suppressWarnings TSRMLS_CC))
         {
             return false;
         }
@@ -551,7 +555,7 @@ createProfile(const string& name, const string& config, const string& options, c
     //
     ostringstream out;
     Profile::ClassMap classes;
-    CodeVisitor visitor(out, classes TSRMLS_CC);
+    CodeVisitor visitor(out, classes, suppressWarnings TSRMLS_CC);
     unit->visit(&visitor, false);
 
     Profile* profile = new Profile;
@@ -925,8 +929,9 @@ ZEND_FUNCTION(Ice_dumpProfile)
     PUTS(s.c_str());
 }
 
-IcePHP::CodeVisitor::CodeVisitor(ostream& out, map<string, Slice::ClassDefPtr>& classes TSRMLS_DC) :
-    _out(out), _classes(classes)
+IcePHP::CodeVisitor::CodeVisitor(ostream& out, map<string, Slice::ClassDefPtr>& classes, bool suppressWarnings
+                                 TSRMLS_DC) :
+    _out(out), _classes(classes), _suppressWarnings(suppressWarnings)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -937,7 +942,7 @@ void
 IcePHP::CodeVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
 {
     Slice::ClassDefPtr def = p->definition();
-    if(!def)
+    if(!def && !_suppressWarnings)
     {
         string scoped = p->scoped();
         php_error_docref(0 TSRMLS_CC, E_WARNING, "%s %s declared but not defined",
@@ -1128,7 +1133,7 @@ void
 IcePHP::CodeVisitor::visitDictionary(const Slice::DictionaryPtr& p)
 {
     Slice::TypePtr keyType = p->keyType();
-    if(!isNativeKey(keyType))
+    if(!isNativeKey(keyType) && !_suppressWarnings)
     {
         //
         // TODO: Generate class.

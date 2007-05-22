@@ -80,6 +80,8 @@ static void handleConnectionFreeStorage(void* TSRMLS_DC);
 static int handleConnectionCompare(zval*, zval* TSRMLS_DC);
 }
 
+static Slice::ClassDefPtr getClassDefinition(const string& TSRMLS_DC);
+
 namespace IcePHP
 {
 
@@ -183,6 +185,10 @@ static function_entry _proxyMethods[] =
     {"ice_secure",                 PHP_FN(Ice_ObjectPrx_ice_secure),                 0},
     {"ice_isPreferSecure",         PHP_FN(Ice_ObjectPrx_ice_isPreferSecure),         0},
     {"ice_preferSecure",           PHP_FN(Ice_ObjectPrx_ice_preferSecure),           0},
+    {"ice_getRouter",              PHP_FN(Ice_ObjectPrx_ice_getRouter),              0},
+    {"ice_router",                 PHP_FN(Ice_ObjectPrx_ice_router),                 0},
+    {"ice_getLocator",             PHP_FN(Ice_ObjectPrx_ice_getLocator),             0},
+    {"ice_locator",                PHP_FN(Ice_ObjectPrx_ice_locator),                0},
     {"ice_twoway",                 PHP_FN(Ice_ObjectPrx_ice_twoway),                 0},
     {"ice_isTwoway",               PHP_FN(Ice_ObjectPrx_ice_isTwoway),               0},
     {"ice_oneway",                 PHP_FN(Ice_ObjectPrx_ice_oneway),                 0},
@@ -1233,6 +1239,184 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_preferSecure)
     }
 }
 
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getRouter)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+        Ice::RouterPrx router = _this->getProxy()->ice_getRouter();
+        if(router)
+        {
+            Slice::ClassDefPtr def = getClassDefinition("Ice::Router" TSRMLS_CC);
+            if(!def)
+            {
+                RETURN_NULL();
+            }
+
+            if(!createProxy(return_value, router, def TSRMLS_CC))
+            {
+                RETURN_NULL();
+            }
+        }
+        else
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_FALSE;
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_router)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    zval* zprx;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zprx, proxyClassEntry TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::ObjectPrx proxy;
+    Slice::ClassDefPtr def;
+    if(!fetchProxy(zprx, proxy, def TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    Ice::RouterPrx router;
+    if(proxy)
+    {
+        if(!def || !def->isA("Ice::Router"))
+        {
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "ice_router requires a proxy narrowed to Ice::Router");
+            RETURN_NULL();
+        }
+        router = Ice::RouterPrx::uncheckedCast(proxy);
+    }
+
+    try
+    {
+        Ice::ObjectPrx prx = _this->getProxy()->ice_router(router);
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocator)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    try
+    {
+        Ice::LocatorPrx locator = _this->getProxy()->ice_getLocator();
+        if(locator)
+        {
+            Slice::ClassDefPtr def = getClassDefinition("Ice::Locator" TSRMLS_CC);
+            if(!def)
+            {
+                RETURN_NULL();
+            }
+
+            if(!createProxy(return_value, locator, def TSRMLS_CC))
+            {
+                RETURN_NULL();
+            }
+        }
+        else
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_FALSE;
+    }
+}
+
+ZEND_FUNCTION(Ice_ObjectPrx_ice_locator)
+{
+    if(ZEND_NUM_ARGS() != 1)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    zval* zprx;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O!", &zprx, proxyClassEntry TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::ObjectPrx proxy;
+    Slice::ClassDefPtr def;
+    if(!fetchProxy(zprx, proxy, def TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    Ice::LocatorPrx locator;
+    if(proxy)
+    {
+        if(!def || !def->isA("Ice::Locator"))
+        {
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "ice_locator requires a proxy narrowed to Ice::Locator");
+            RETURN_NULL();
+        }
+        locator = Ice::LocatorPrx::uncheckedCast(proxy);
+    }
+
+    try
+    {
+        Ice::ObjectPrx prx = _this->getProxy()->ice_locator(locator);
+        if(!createProxy(return_value, prx, _this->getClass() TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway)
 {
     if(ZEND_NUM_ARGS() != 0)
@@ -1681,32 +1865,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
     }
 }
 
-static void
-do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
+static Slice::ClassDefPtr
+getClassDefinition(const string& id TSRMLS_DC)
 {
-    //
-    // First argument is required and should be a scoped name. The second argument
-    // is optional and represents a facet name.
-    //
-    if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    char* id;
-    int idLen;
-    char* facet = 0;
-    int facetLen;
-
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &id, &idLen, &facet, &facetLen) == FAILURE)
-    {
-        RETURN_NULL();
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
     try
     {
         Slice::TypeList l;
@@ -1718,8 +1879,8 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(l.empty())
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "no Slice definition found for type %s", id);
-            RETURN_NULL();
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "no Slice definition found for type %s", id.c_str());
+            return 0;
         }
 
         //
@@ -1739,21 +1900,21 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(!decl)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id);
-            RETURN_NULL();
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id.c_str());
+            return 0;
         }
 
         if(decl->isLocal())
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is a local type", id);
-            RETURN_NULL();
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is a local type", id.c_str());
+            return 0;
         }
 
         Slice::ClassDefPtr def = decl->definition();
         if(!def)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is declared but not defined", id);
-            RETURN_NULL();
+            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is declared but not defined", id.c_str());
+            return 0;
         }
 
         string scoped = decl->scoped();
@@ -1765,6 +1926,67 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "the Slice definition for type %s has not been compiled",
                              scoped.c_str());
+            return 0;
+        }
+
+        return def;
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        return 0;
+    }
+}
+
+static void
+do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
+{
+    //
+    // First argument is required and should be a scoped name. The second and third arguments
+    // are optional and represent a facet name, a context, or a facet name followed by a context.
+    //
+    if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 3)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    char* id;
+    int idLen;
+    char* facet = 0;
+    int facetLen;
+    zval* arr = 0;
+
+    if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, "s|sa", &id, &idLen, &facet,
+                                &facetLen, &arr) == FAILURE)
+    {
+        facet = 0;
+        if(zend_parse_parameters_ex(ZEND_PARSE_PARAMS_QUIET, ZEND_NUM_ARGS() TSRMLS_CC, "s|a", &id, &idLen, &arr) ==
+                                    FAILURE)
+        {
+            php_error(E_ERROR, "%s() requires a type id followed by an optional facet and/or context",
+                      get_active_function_name(TSRMLS_C));
+            return;
+        }
+    }
+
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
+    assert(obj->ptr);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
+
+    //
+    // Populate the context.
+    //
+    Ice::Context ctx;
+    if(arr && !extractContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        Slice::ClassDefPtr def = getClassDefinition(id TSRMLS_CC);
+        if(!def)
+        {
             RETURN_NULL();
         }
 
@@ -1774,8 +1996,15 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             prx = prx->ice_facet(facet);
         }
 
+        if(arr)
+        {
+            prx = prx->ice_context(ctx);
+        }
+
         if(check)
         {
+            string scoped = def->declaration()->scoped();
+
             //
             // Verify that the object supports the requested type. We don't use id here,
             // because it might contain a proxy type (e.g., "::MyClass*").

@@ -1,5 +1,19 @@
+Changes since version 3.2.x (HEAD ONLY)
+---------------------------
+
+- Added support for an optional context argument to ice_checkedCast
+  and ice_uncheckedCast.
+
+- Added the following proxy methods:
+
+  ice_getRouter/ice_router
+  ice_getLocator/ice_locator
+
+- Added the translator option "-w" to suppress warnings during Slice
+  translation.
+
 Changes since version 3.2.0
----------------------------     
+---------------------------
 
 - Added Communicator::setProperty.
 
@@ -29,7 +43,7 @@ Changes since version 3.2.0
   using prior versions of Ice.
 
 Changes since version 3.1.1
----------------------------     
+---------------------------
 
 - This release is compatible with PHP 5.1.6, 5.2.0, and 5.2.1.
 

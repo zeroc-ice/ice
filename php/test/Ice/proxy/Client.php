@@ -100,7 +100,7 @@ function allTests()
     test($b1->ice_getIdentity()->name == "test\1114test");
 
     $b1 = $ICE->stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
-    #test($b1->ice_getIdentity()->name == "test\b\f\n\r\t\'\"\\test" && $b1->ice_getIdentity()->category == "");
+    test($b1->ice_getIdentity()->name == "test\x08\x0c\n\r\t'\"\\test" && $b1->ice_getIdentity()->category == "");
 
     $b1 = $ICE->stringToProxy("category/test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
@@ -241,12 +241,12 @@ function allTests()
 
     // These two properties don't do anything to direct proxies so
     // first we test that.
-    //$property = $propertyPrefix . ".Locator";
-    //test(!$b1->ice_getLocator());
-    //$ICE->setProperty($property, "locator:default -p 10000");
-    //$b1 = $ICE->propertyToProxy($propertyPrefix);
-    //test(!$b1->ice_getLocator());
-    //$ICE->setProperty($property, "");
+    $property = $propertyPrefix . ".Locator";
+    test(!$b1->ice_getLocator());
+    $ICE->setProperty($property, "locator:default -p 10000");
+    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    test(!$b1->ice_getLocator());
+    $ICE->setProperty($property, "");
 
     $property = $propertyPrefix . ".LocatorCacheTimeout";
     test($b1->ice_getLocatorCacheTimeout() == 0);
@@ -260,7 +260,7 @@ function allTests()
     $property = $propertyPrefix . ".Locator";
     $ICE->setProperty($property, "locator:default -p 10000");
     $b1 = $ICE->propertyToProxy($propertyPrefix);
-    //test($b1->ice_getLocator() && $b1->ice_getLocator()->ice_getIdentity()->name == "locator");
+    test($b1->ice_getLocator() && $b1->ice_getLocator()->ice_getIdentity()->name == "locator");
     $ICE->setProperty($property, "");
 
     $property = $propertyPrefix . ".LocatorCacheTimeout";
@@ -280,12 +280,12 @@ function allTests()
 
     $ICE->setProperty($propertyPrefix, "test:default -p 12010 -t 10000");
 
-    //$property = $propertyPrefix . ".Router";
-    //test(!$b1->ice_getRouter());
-    //$ICE->setProperty($property, "router:default -p 10000");
-    //$b1 = $ICE->propertyToProxy($propertyPrefix);
-    //test($b1->ice_getRouter() && $b1->ice_getRouter()->ice_getIdentity()->name == "router");
-    //$ICE->setProperty($property, "");
+    $property = $propertyPrefix . ".Router";
+    test(!$b1->ice_getRouter());
+    $ICE->setProperty($property, "router:default -p 10000");
+    $b1 = $ICE->propertyToProxy($propertyPrefix);
+    test($b1->ice_getRouter() && $b1->ice_getRouter()->ice_getIdentity()->name == "router");
+    $ICE->setProperty($property, "");
 
     $property = $propertyPrefix . ".PreferSecure";
     test(!$b1->ice_isPreferSecure());
@@ -357,29 +357,18 @@ function allTests()
     test($cl == $derived);
     echo "ok\n";
 
-    //echo "testing checked cast with context... "
-    //flush();
-    //$c = $cl->getContext();
-    //test(c.size() == 0);
+    echo "testing checked cast with context... ";
+    flush();
+    $c = $cl->getContext();
+    test(count($c) == 0);
 
-    //$c["one"] = "hello";
-    //$c["two"] = "world";
-    //$cl = Test::MyClassPrx::checkedCast($base, $c);
-    //$c2 = cl->getContext();
-    //test($c == $c2);
+    $c["one"] = "hello";
+    $c["two"] = "world";
+    $cl = $base->ice_checkedCast("::Test::MyClass", $c);
+    $c2 = $cl->getContext();
+    test($c == $c2);
 
-    //
-    // Now with alternate API
-    //
-    //$cl = checkedCast<Test::MyClassPrx>($base);
-    //$c = $cl->getContext();
-    //test($c.size() == 0);
-
-    //$cl = checkedCast<Test::MyClassPrx>($base, $c);
-    //$c2 = $cl->getContext();
-    //test($c == $c2);
-
-    //echo "ok\n";
+    echo "ok\n";
 
     echo "testing opaque endpoints... ";
 

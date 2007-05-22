@@ -46,6 +46,10 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isSecure);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_secure);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isPreferSecure);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_preferSecure);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getRouter);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_router);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocator);
+ZEND_FUNCTION(Ice_ObjectPrx_ice_locator);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isTwoway);
 ZEND_FUNCTION(Ice_ObjectPrx_ice_oneway);
@@ -107,6 +111,12 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_endpointSelection,        NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_isSecure,                 NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_secure,                   NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isPreferSecure,           NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_preferSecure,             NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getRouter,                NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_router,                   NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getLocator,               NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_locator,                  NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_twoway,                   NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_isTwoway,                 NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_oneway,                   NULL) \
@@ -120,7 +130,10 @@ ZEND_FUNCTION(Ice_Connection_toString);
     ZEND_FE(Ice_ObjectPrx_ice_compress,                 NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_timeout,                  NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_connectionId,             NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_isThreadPerConnection,    NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_threadPerConnection,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_getConnection,            NULL) \
+    ZEND_FE(Ice_ObjectPrx_ice_getCachedConnection,      NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_uncheckedCast,            NULL) \
     ZEND_FE(Ice_ObjectPrx_ice_checkedCast,              NULL)
 
