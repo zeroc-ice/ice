@@ -27,6 +27,20 @@ EndEscapes endEscapes;
 
 }
 
+string
+IceUtil::int64ToString(Int64 val)
+{
+    char buf[64];
+#ifdef WIN32
+    sprintf(buf, "%I64d", val);
+#elif defined(ICE_64)
+    sprintf(buf, "%ld", val); // Avoids a format warning from GCC.
+#else
+    sprintf(buf, "%lld", val);
+#endif
+    return string(buf);
+}
+
 // ----------------------------------------------------------------------
 // OutputBase
 // ----------------------------------------------------------------------
