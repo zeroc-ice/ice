@@ -85,15 +85,51 @@ public class AllTests
         test(db != null);
         System.out.println("ok");
 
+        System.out.print("testing unchecked cast... ");
+        System.out.flush();
+        Ice.ObjectPrx prx = Ice.ObjectPrxHelper.uncheckedCast(db);
+        test(prx.ice_getFacet().length() == 0);
+        prx = Ice.ObjectPrxHelper.uncheckedCast(db, "facetABCD");
+        test(prx.ice_getFacet() == "facetABCD");
+        Ice.ObjectPrx prx2 = Ice.ObjectPrxHelper.uncheckedCast(prx);
+        test(prx2.ice_getFacet() == "facetABCD");
+        Ice.ObjectPrx prx3 = Ice.ObjectPrxHelper.uncheckedCast(prx, "");
+        test(prx3.ice_getFacet().length() == 0);
+        DPrx d = Test.DPrxHelper.uncheckedCast(db);
+        test(d.ice_getFacet().length() == 0);
+        DPrx df = Test.DPrxHelper.uncheckedCast(db, "facetABCD");
+        test(df.ice_getFacet() == "facetABCD");
+        DPrx df2 = Test.DPrxHelper.uncheckedCast(df);
+        test(df2.ice_getFacet() == "facetABCD");
+        DPrx df3 = Test.DPrxHelper.uncheckedCast(df, "");
+        test(df3.ice_getFacet().length() == 0);
+        System.out.println("ok");
+
         System.out.print("testing checked cast... ");
         System.out.flush();
-        DPrx d = DPrxHelper.checkedCast(db);
-        test(d != null);
-        test(d.equals(db));
+        prx = Ice.ObjectPrxHelper.checkedCast(db);
+        test(prx.ice_getFacet().length() == 0);
+        prx = Ice.ObjectPrxHelper.checkedCast(db, "facetABCD");
+        test(prx.ice_getFacet() == "facetABCD");
+        prx2 = Ice.ObjectPrxHelper.checkedCast(prx);
+        test(prx2.ice_getFacet() == "facetABCD");
+        prx3 = Ice.ObjectPrxHelper.checkedCast(prx, "");
+        test(prx3.ice_getFacet().length() == 0);
+        d = Test.DPrxHelper.checkedCast(db);
+        test(d.ice_getFacet().length() == 0);
+        df = Test.DPrxHelper.checkedCast(db, "facetABCD");
+        test(df.ice_getFacet() == "facetABCD");
+        df2 = Test.DPrxHelper.checkedCast(df);
+        test(df2.ice_getFacet() == "facetABCD");
+        df3 = Test.DPrxHelper.checkedCast(df, "");
+        test(df3.ice_getFacet().length() == 0);
         System.out.println("ok");
 
         System.out.print("testing non-facets A, B, C, and D... ");
         System.out.flush();
+        d = DPrxHelper.checkedCast(db);
+        test(d != null);
+        test(d.equals(db));
         test(d.callA().equals("A"));
         test(d.callB().equals("B"));
         test(d.callC().equals("C"));
@@ -102,7 +138,7 @@ public class AllTests
 
         System.out.print("testing facets A, B, C, and D... ");
         System.out.flush();
-        DPrx df = DPrxHelper.checkedCast(d, "facetABCD");
+        df = DPrxHelper.checkedCast(d, "facetABCD");
         test(df != null);
         test(df.callA().equals("A"));
         test(df.callB().equals("B"));

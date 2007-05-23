@@ -46,7 +46,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing removeAllFacets..." << flush;
+    cout << "testing removeAllFacets... " << flush;
     Ice::ObjectPtr obj1 = new EmptyI;
     Ice::ObjectPtr obj2 = new EmptyI;
     adapter->addFacet(obj1, communicator->stringToIdentity("id1"), "f1");
@@ -82,13 +82,48 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(db);
     cout << "ok" << endl;
 
+    cout << "testing unchecked cast... " << flush;
+    Ice::ObjectPrx prx = Ice::ObjectPrx::uncheckedCast(db);
+    test(prx->ice_getFacet().empty());
+    prx = Ice::ObjectPrx::uncheckedCast(db, "facetABCD");
+    test(prx->ice_getFacet() == "facetABCD");
+    Ice::ObjectPrx prx2 = Ice::ObjectPrx::uncheckedCast(prx);
+    test(prx2->ice_getFacet() == "facetABCD");
+    Ice::ObjectPrx prx3 = Ice::ObjectPrx::uncheckedCast(prx, "");
+    test(prx3->ice_getFacet().empty());
+    DPrx d = Test::DPrx::uncheckedCast(db);
+    test(d->ice_getFacet().empty());
+    DPrx df = Test::DPrx::uncheckedCast(db, "facetABCD");
+    test(df->ice_getFacet() == "facetABCD");
+    DPrx df2 = Test::DPrx::uncheckedCast(df);
+    test(df2->ice_getFacet() == "facetABCD");
+    DPrx df3 = Test::DPrx::uncheckedCast(df, "");
+    test(df3->ice_getFacet().empty());
+    cout << "ok" << endl;
+
     cout << "testing checked cast... " << flush;
-    DPrx d = DPrx::checkedCast(db);
-    test(d);
-    test(d == db);
+    prx = Ice::ObjectPrx::checkedCast(db);
+    test(prx->ice_getFacet().empty());
+    prx = Ice::ObjectPrx::checkedCast(db, "facetABCD");
+    test(prx->ice_getFacet() == "facetABCD");
+    prx2 = Ice::ObjectPrx::checkedCast(prx);
+    test(prx2->ice_getFacet() == "facetABCD");
+    prx3 = Ice::ObjectPrx::checkedCast(prx, "");
+    test(prx3->ice_getFacet().empty());
+    d = Test::DPrx::checkedCast(db);
+    test(d->ice_getFacet().empty());
+    df = Test::DPrx::checkedCast(db, "facetABCD");
+    test(df->ice_getFacet() == "facetABCD");
+    df2 = Test::DPrx::checkedCast(df);
+    test(df2->ice_getFacet() == "facetABCD");
+    df3 = Test::DPrx::checkedCast(df, "");
+    test(df3->ice_getFacet().empty());
     cout << "ok" << endl;
 
     cout << "testing non-facets A, B, C, and D... " << flush;
+    d = DPrx::checkedCast(db);
+    test(d);
+    test(d == db);
     test(d->callA() == "A");
     test(d->callB() == "B");
     test(d->callC() == "C");
@@ -96,7 +131,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing facets A, B, C, and D... " << flush;
-    DPrx df = DPrx::checkedCast(d, "facetABCD");
+    df = DPrx::checkedCast(d, "facetABCD");
     test(df);
     test(df->callA() == "A");
     test(df->callB() == "B");
