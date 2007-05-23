@@ -32,7 +32,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
 	    Ice.ObjectPrx bb = b.ice_facet(f);
 	    try
 	    {
-		boolean ok = bb.ice_isA("::Object");
+		boolean ok = bb.ice_isA("::Ice::Object");
 		if(IceUtil.Debug.ASSERT)
 		{
 		    IceUtil.Debug.Assert(ok);
@@ -57,7 +57,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
 	    Ice.ObjectPrx bb = b.ice_facet(f);
 	    try
 	    {
-		boolean ok = bb.ice_isA("::Object", ctx);
+		boolean ok = bb.ice_isA("::Ice::Object", ctx);
 		if(IceUtil.Debug.ASSERT)
 		{
 		    IceUtil.Debug.Assert(ok);

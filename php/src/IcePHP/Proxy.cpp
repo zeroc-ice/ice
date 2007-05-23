@@ -80,7 +80,7 @@ static void handleConnectionFreeStorage(void* TSRMLS_DC);
 static int handleConnectionCompare(zval*, zval* TSRMLS_DC);
 }
 
-static Slice::ClassDefPtr getClassDefinition(const string& TSRMLS_DC);
+static bool lookupClass(const string&, Slice::ClassDefPtr& TSRMLS_DC);
 
 namespace IcePHP
 {
@@ -1255,11 +1255,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getRouter)
         Ice::RouterPrx router = _this->getProxy()->ice_getRouter();
         if(router)
         {
-            Slice::ClassDefPtr def = getClassDefinition("Ice::Router" TSRMLS_CC);
-            if(!def)
+            Slice::ClassDefPtr def;
+            if(!lookupClass("Ice::Router", def TSRMLS_CC))
             {
                 RETURN_NULL();
             }
+
+            assert(def);
 
             if(!createProxy(return_value, router, def TSRMLS_CC))
             {
@@ -1344,11 +1346,13 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getLocator)
         Ice::LocatorPrx locator = _this->getProxy()->ice_getLocator();
         if(locator)
         {
-            Slice::ClassDefPtr def = getClassDefinition("Ice::Locator" TSRMLS_CC);
-            if(!def)
+            Slice::ClassDefPtr def;
+            if(!lookupClass("Ice::Locator", def TSRMLS_CC))
             {
                 RETURN_NULL();
             }
+
+            assert(def);
 
             if(!createProxy(return_value, locator, def TSRMLS_CC))
             {
@@ -1865,77 +1869,89 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getCachedConnection)
     }
 }
 
-static Slice::ClassDefPtr
-getClassDefinition(const string& id TSRMLS_DC)
+static bool
+lookupClass(const string& id, Slice::ClassDefPtr& def TSRMLS_DC)
 {
+    def = 0;
+
     try
     {
         Slice::TypeList l;
         Profile* profile = static_cast<Profile*>(ICE_G(profile));
         if(profile)
         {
-            l = profile->unit->lookupTypeNoBuiltin(id, false);
+            l = profile->unit->lookupType(id, false);
         }
 
         if(l.empty())
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "no Slice definition found for type %s", id.c_str());
-            return 0;
+            return false;
         }
 
-        //
-        // Allow the use of "::Type" (ClassDecl) or "::Type*" (Proxy).
-        //
-        Slice::ClassDeclPtr decl;
-        Slice::TypePtr type = l.front();
-        Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
-        if(proxy)
-        {
-            decl = proxy->_class();
-        }
-        else
-        {
-            decl = Slice::ClassDeclPtr::dynamicCast(type);
-        }
-
-        if(!decl)
+        Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(l.front());
+        if(b && b->kind() != Slice::Builtin::KindObject && b->kind() != Slice::Builtin::KindObjectProxy)
         {
             php_error_docref(0 TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id.c_str());
-            return 0;
+            return false;
         }
 
-        if(decl->isLocal())
+        if(!b)
         {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is a local type", id.c_str());
-            return 0;
+            //
+            // Allow the use of "::Type" (ClassDecl) or "::Type*" (Proxy).
+            //
+            Slice::ClassDeclPtr decl;
+            Slice::TypePtr type = l.front();
+            Slice::ProxyPtr proxy = Slice::ProxyPtr::dynamicCast(type);
+            if(proxy)
+            {
+                decl = proxy->_class();
+            }
+            else
+            {
+                decl = Slice::ClassDeclPtr::dynamicCast(type);
+            }
+
+            if(!decl)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "type %s is not a class or interface", id.c_str());
+                return false;
+            }
+
+            if(decl->isLocal())
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is a local type", id.c_str());
+                return false;
+            }
+
+            def = decl->definition();
+            if(!def)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is declared but not defined", id.c_str());
+                return false;
+            }
+
+            string scoped = decl->scoped();
+
+            //
+            // Verify that the script has compiled the Slice definition for this type.
+            //
+            if(findClassScoped(scoped TSRMLS_CC) == 0)
+            {
+                php_error_docref(0 TSRMLS_CC, E_ERROR, "the Slice definition for type %s has not been compiled",
+                                 scoped.c_str());
+                return false;
+            }
         }
-
-        Slice::ClassDefPtr def = decl->definition();
-        if(!def)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "%s is declared but not defined", id.c_str());
-            return 0;
-        }
-
-        string scoped = decl->scoped();
-
-        //
-        // Verify that the script has compiled the Slice definition for this type.
-        //
-        if(findClassScoped(scoped TSRMLS_CC) == 0)
-        {
-            php_error_docref(0 TSRMLS_CC, E_ERROR, "the Slice definition for type %s has not been compiled",
-                             scoped.c_str());
-            return 0;
-        }
-
-        return def;
     }
     catch(const IceUtil::Exception& ex)
     {
         throwException(ex TSRMLS_CC);
-        return 0;
+        return false;
     }
+
+    return true;
 }
 
 static void
@@ -1984,8 +2000,8 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     try
     {
-        Slice::ClassDefPtr def = getClassDefinition(id TSRMLS_CC);
-        if(!def)
+        Slice::ClassDefPtr def;
+        if(!lookupClass(id, def TSRMLS_CC))
         {
             RETURN_NULL();
         }
@@ -2003,7 +2019,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
         if(check)
         {
-            string scoped = def->declaration()->scoped();
+            string scoped = def ? def->declaration()->scoped() : "::Ice::Object";
 
             //
             // Verify that the object supports the requested type. We don't use id here,
