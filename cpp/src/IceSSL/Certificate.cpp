@@ -41,8 +41,7 @@ CertificateReadException::ice_name() const
 Exception* 
 CertificateReadException::ice_clone() const
 {
-    throw new CertificateReadException(*this);
-    return 0; // For compiler warnings.
+    return new CertificateReadException(*this);
 }
 
 void
@@ -72,8 +71,7 @@ CertificateEncodingException::ice_name() const
 Exception* 
 CertificateEncodingException::ice_clone() const
 {
-    throw new CertificateEncodingException(*this);
-    return 0; // For compiler warnings.
+    return new CertificateEncodingException(*this);
 }
 
 void
