@@ -25,6 +25,7 @@ namespace IceInternal
             
             Socket fd = Network.createSocket(false);
             Network.setBlock(fd, false);
+            Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
             Network.doConnect(fd, _addr, timeout);
             
             if(_traceLevels.network >= 1)

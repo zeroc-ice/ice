@@ -358,15 +358,6 @@ namespace IceInternal
                 return;
             }
 
-            //
-            // Set larger send buffer size to avoid performance problems on
-            // WIN32.
-            //
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-            {
-                setSendBufferSize(socket, 64 * 1024);
-            }
-
         repeatConnect:
             try
             {
@@ -512,15 +503,6 @@ namespace IceInternal
 
         public static void doConnectAsync(Socket socket, EndPoint addr, int timeout)
         {
-            //
-            // Set larger send buffer size to avoid performance problems on
-            // WIN32.
-            //
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
-            {
-                setSendBufferSize(socket, 64 * 1024);
-            }
-
         repeatConnect:
             try
             {
@@ -617,8 +599,6 @@ namespace IceInternal
 
             setTcpNoDelay(ret);
             setKeepAlive(ret);
-            setSendBufferSize(ret, 64 * 1024);
-            
             return ret;
         }
         
@@ -951,6 +931,53 @@ namespace IceInternal
                     catch(System.Exception)
                     {
                     }
+                }
+            }
+        }
+
+        public static void
+        setTcpBufSize(Socket socket, Ice.Properties properties, Ice.Logger logger)
+        {
+	    //
+	    // By default, on Windows we use a 128KB buffer size. On Unix
+	    // platforms, we use the system defaults.
+	    //
+	    int dfltBufSize = 0;
+            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+            {
+		dfltBufSize = 128 * 1024;
+	    }
+
+            int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+            if(sizeRequested > 0)
+            {
+                //
+                // Try to set the buffer size. The kernel will silently adjust
+                // the size to an acceptable value. Then read the size back to
+                // get the size that was actually set.
+                //
+                setRecvBufferSize(socket, sizeRequested);
+                int size = getRecvBufferSize(socket);
+                if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+                {
+                    logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " +
+                                   size);
+                }
+            }
+            
+            sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+            if(sizeRequested > 0)
+            {
+                //
+                // Try to set the buffer size. The kernel will silently adjust
+                // the size to an acceptable value. Then read the size back to
+                // get the size that was actually set.
+                //
+                setSendBufferSize(socket, sizeRequested);
+                int size = getSendBufferSize(socket);
+                if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+                {
+                    logger.warning("TCP send buffer size: requested size of " + sizeRequested + " adjusted to " + size);
                 }
             }
         }

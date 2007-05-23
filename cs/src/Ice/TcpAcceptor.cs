@@ -64,6 +64,7 @@ namespace IceInternal
         {
             Socket fd = Network.doAccept(_fd, timeout);
             Network.setBlock(fd, false);
+            Network.setTcpBufSize(fd, instance_.initializationData().properties, _logger);
 
             if(_traceLevels.network >= 1)
             {
@@ -115,6 +116,7 @@ namespace IceInternal
             {
                 _fd = Network.createSocket(false);
                 Network.setBlock(_fd, false);
+                Network.setTcpBufSize(_fd, instance_.initializationData().properties, _logger);
                 _addr = Network.getAddress(host, port);
                 if(_traceLevels.network >= 2)
                 {

@@ -40,6 +40,7 @@ namespace IceSSL
 
             Socket fd = IceInternal.Network.createSocket(false);
             IceInternal.Network.setBlock(fd, true);
+            IceInternal.Network.setTcpBufSize(fd, instance_.communicator().getProperties(), logger_);
             IceInternal.Network.doConnectAsync(fd, addr_, timeout);
 
             SslStream stream = null;

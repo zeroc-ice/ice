@@ -78,6 +78,7 @@ namespace IceSSL
 
             Socket fd = IceInternal.Network.doAccept(fd_, timeout);
             IceInternal.Network.setBlock(fd, true); // SSL requires a blocking socket.
+            IceInternal.Network.setTcpBufSize(fd, instance_.communicator().getProperties(), logger_);
 
             if(instance_.networkTraceLevel() >= 1)
             {
@@ -140,6 +141,7 @@ namespace IceSSL
             {
                 fd_ = IceInternal.Network.createSocket(false);
                 IceInternal.Network.setBlock(fd_, false);
+                IceInternal.Network.setTcpBufSize(fd_, instance_.communicator().getProperties(), logger_);
                 addr_ = IceInternal.Network.getAddress(host, port);
                 if(instance_.networkTraceLevel() >= 2)
                 {

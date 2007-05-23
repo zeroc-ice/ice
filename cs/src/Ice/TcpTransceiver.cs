@@ -102,6 +102,12 @@ namespace IceInternal
             ByteBuffer buf = stream.prepareWrite();
             int remaining = buf.remaining();
             int position = buf.position();
+            int packetSize = remaining;
+            if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+            {
+                packetSize = _maxPacketSize;
+            }
+
             try
             {
                 while(remaining > 0)
@@ -113,7 +119,7 @@ namespace IceInternal
                         // Try to send first. Most of the time, this will work and
                         // avoids the cost of calling Poll().
                         //
-                        ret = _fd.Send(buf.rawBytes(), position, remaining, SocketFlags.None);
+                        ret = _fd.Send(buf.rawBytes(), position, packetSize, SocketFlags.None);
                         Debug.Assert(ret != 0);
                     }
                     catch(Win32Exception e)
@@ -141,8 +147,7 @@ namespace IceInternal
                         {
                             throw new Ice.TimeoutException();
                         }
-                        ret = _fd.Send(buf.rawBytes(), position, remaining, SocketFlags.None);
-                        Debug.Assert(ret != 0);
+                        continue;
                     }
 
                     if(_traceLevels.network >= 3)
@@ -157,6 +162,10 @@ namespace IceInternal
 
                     remaining -= ret;
                     buf.position(position += ret);
+                    if(remaining < packetSize)
+                    {
+                        packetSize = remaining;
+                    }
                 }
             }
             catch(SocketException ex)
@@ -285,6 +294,21 @@ namespace IceInternal
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
             _desc = Network.fdToString(_fd);
+
+            _maxPacketSize = 0;
+            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+            {
+		//
+		// On Windows, limiting the buffer size is important to prevent
+		// poor throughput performances when transfering large amount of
+		// data. See Microsoft KB article KB823764.
+		//
+                _maxPacketSize = Network.getSendBufferSize(fd) / 2;
+                if(_maxPacketSize < 512)
+                {
+                    _maxPacketSize = 0;
+                }
+            }
         }
         
         private Socket _fd;
@@ -292,6 +316,7 @@ namespace IceInternal
         private Ice.Logger _logger;
         private Ice.Stats _stats;
         private string _desc;
+        private int _maxPacketSize;
     }
 
 }

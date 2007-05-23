@@ -116,35 +116,48 @@ namespace IceSSL
 
             IceInternal.ByteBuffer buf = stream.prepareWrite();
             int remaining = buf.remaining();
-            int position = buf.position();
+            int packetSize = remaining;
+            if(maxPacketSize_ > 0 && packetSize > maxPacketSize_)
+            {
+                packetSize = maxPacketSize_;
+            }
+
             try
             {
-                if(timeout == -1)
+                while(remaining > 0)
                 {
-                    stream_.Write(buf.rawBytes(), position, remaining);
-                }
-                else
-                {
-                    //
-                    // We have to use an asynchronous write to support a timeout.
-                    //
-                    IAsyncResult ar = stream_.BeginWrite(buf.rawBytes(), position, remaining, null, null);
-                    if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
+                    if(timeout == -1)
                     {
-                        throw new Ice.TimeoutException();
+                        stream_.Write(buf.rawBytes(), buf.position(), packetSize);
                     }
-                    stream_.EndWrite(ar);
+                    else
+                    {
+                        //
+                        // We have to use an asynchronous write to support a timeout.
+                        //
+                        IAsyncResult ar = stream_.BeginWrite(buf.rawBytes(), buf.position(), packetSize, null, null);
+                        if(!ar.AsyncWaitHandle.WaitOne(timeout, false))
+                        {
+                            throw new Ice.TimeoutException();
+                        }
+                        stream_.EndWrite(ar);
+                    }
+                    if(instance_.networkTraceLevel() >= 3)
+                    {
+                        string s = "sent " + packetSize + " of " + packetSize + " bytes via ssl\n" + ToString();
+                        logger_.trace(instance_.networkTraceCategory(), s);
+                    }
+                    if(stats_ != null)
+                    {
+                        stats_.bytesSent(type(), packetSize);
+                    }
+                    remaining -= packetSize;
+                    buf.position(buf.position() + packetSize);
+                    if(remaining < packetSize)
+                    {
+                        packetSize = remaining;
+                    }
                 }
-                if(instance_.networkTraceLevel() >= 3)
-                {
-                    string s = "sent " + remaining + " of " + remaining + " bytes via ssl\n" + ToString();
-                    logger_.trace(instance_.networkTraceCategory(), s);
-                }
-                if(stats_ != null)
-                {
-                    stats_.bytesSent(type(), remaining);
-                }
-                buf.position(position + remaining);
             }
             catch(IOException ex)
             {
@@ -388,6 +401,21 @@ namespace IceSSL
             stats_ = instance.communicator().getStats();
             desc_ = IceInternal.Network.fdToString(fd_);
             verifyPeer_ = 0;
+
+            maxPacketSize_ = 0;
+            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            {
+		//
+		// On Windows, limiting the buffer size is important to prevent
+		// poor throughput performances when transfering large amount of
+		// data. See Microsoft KB article KB823764.
+		//
+                maxPacketSize_ = IceInternal.Network.getSendBufferSize(fd) / 2;
+                if(maxPacketSize_ < 512)
+                {
+                    maxPacketSize_ = 0;
+                }
+            }
         }
 
         //
@@ -403,7 +431,22 @@ namespace IceSSL
             logger_ = instance.communicator().getLogger();
             stats_ = instance.communicator().getStats();
             desc_ = IceInternal.Network.fdToString(fd_);
-
+            
+            maxPacketSize_ = 0;
+            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            {
+		//
+		// On Windows, limiting the buffer size is important to prevent
+		// poor throughput performances when transfering large amount of
+		// data. See Microsoft KB article KB823764.
+		//
+                maxPacketSize_ = IceInternal.Network.getSendBufferSize(fd) / 2;
+                if(maxPacketSize_ < 512)
+                {
+                    maxPacketSize_ = 0;
+                }
+            }
+            
             //
             // Determine whether a certificate is required from the peer.
             //
@@ -499,6 +542,7 @@ namespace IceSSL
         private Ice.Stats stats_;
         private string desc_;
         private int verifyPeer_;
+        private int maxPacketSize_;
     }
 
     internal class TransceiverValidationCallback
