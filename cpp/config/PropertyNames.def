@@ -185,6 +185,8 @@ Ice:
     Trace.Slicing
     UDP.RcvSize
     UDP.SndSize
+    TCP.RcvSize
+    TCP.SndSize
     UseEventLog
     UseSyslog
     Warn.AMICallback

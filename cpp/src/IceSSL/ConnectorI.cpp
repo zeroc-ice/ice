@@ -41,6 +41,7 @@ IceSSL::ConnectorI::connect(int timeout)
 
     SOCKET fd = IceInternal::createSocket(false);
     IceInternal::setBlock(fd, false);
+    IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
     IceInternal::doConnect(fd, _addr, timeout);
 
     // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.

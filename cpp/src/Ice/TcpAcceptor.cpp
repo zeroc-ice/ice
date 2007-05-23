@@ -64,6 +64,7 @@ IceInternal::TcpAcceptor::accept(int timeout)
 {
     SOCKET fd = doAccept(_fd, timeout);
     setBlock(fd, false);
+    setTcpBufSize(fd, _instance->initializationData().properties, _logger);
 
     if(_traceLevels->network >= 1)
     {
@@ -119,6 +120,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, const string&
         _fd = createSocket(false);
         setBlock(_fd, false);
         getAddress(host, port, _addr);
+        setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
         if(_traceLevels->network >= 2)
         {
             Trace out(_logger, _traceLevels->networkCat);

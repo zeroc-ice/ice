@@ -15,6 +15,8 @@
 #endif
 
 #include <Ice/Config.h>
+#include <Ice/PropertiesF.h> // For setTcpBufSize
+#include <Ice/LoggerF.h> // For setTcpBufSize
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -109,12 +111,7 @@ ICE_API std::string addrToString(const struct sockaddr_in&);
 
 ICE_API std::vector<std::string> getHosts(const std::string&);
 ICE_API std::vector<std::string> getLocalHosts();
-#ifdef _WIN32
-ICE_API std::vector<struct sockaddr_in> getLocalAddresses();
-ICE_API bool isLocalAddress(const struct sockaddr_in&);
-ICE_API bool isPeerLocal(SOCKET);
-#endif
-
+ICE_API void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 ICE_API int getSocketErrno();
 ICE_API std::string inetAddrToString(const struct in_addr&);
 

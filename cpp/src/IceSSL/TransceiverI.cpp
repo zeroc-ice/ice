@@ -87,9 +87,9 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
     //
     // Limit packet size to avoid performance problems on WIN32
     //
-    if(_isPeerLocal && packetSize > 64 * 1024)
+    if(packetSize > _maxPacketSize)
     { 
-        packetSize = 64 * 1024;
+        packetSize = _maxPacketSize;
     }
 #endif
 
@@ -541,10 +541,19 @@ IceSSL::TransceiverI::TransceiverI(const InstancePtr& instance, SSL* ssl, SOCKET
     _adapterName(adapterName),
     _incoming(incoming),
     _desc(IceInternal::fdToString(fd))
-#ifdef _WIN32
-    , _isPeerLocal(IceInternal::isPeerLocal(fd))
-#endif
 {
+#ifdef _WIN32
+    //
+    // On Windows, limiting the buffer size is important to prevent
+    // poor throughput performances when transfering large amount of
+    // data. See Microsoft KB article KB823764.
+    //
+    _maxPacketSize = IceInternal::getSendBufferSize(_fd) / 2;
+    if(_maxPacketSize < 512)
+    {
+        _maxPacketSize = 0;
+    }
+#endif
 }
 
 IceSSL::TransceiverI::~TransceiverI()

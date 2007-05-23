@@ -63,7 +63,7 @@ private:
 
     const std::string _desc;
 #ifdef _WIN32
-    const bool _isPeerLocal;
+    int _maxPacketSize;
 #endif
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;

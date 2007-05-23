@@ -77,6 +77,7 @@ IceSSL::AcceptorI::accept(int timeout)
 
     SOCKET fd = IceInternal::doAccept(_fd, timeout);
     IceInternal::setBlock(fd, false);
+    IceInternal::setTcpBufSize(fd, _instance->communicator()->getProperties(), _logger);
 
     BIO* bio = BIO_new_socket(static_cast<int>(fd), BIO_CLOSE);
     if(!bio)
@@ -155,6 +156,7 @@ IceSSL::AcceptorI::AcceptorI(const InstancePtr& instance, const string& adapterN
         _fd = IceInternal::createSocket(false);
         IceInternal::setBlock(_fd, false);
         IceInternal::getAddress(host, port, _addr);
+        IceInternal::setTcpBufSize(_fd, _instance->communicator()->getProperties(), _logger);
         if(_instance->networkTraceLevel() >= 2)
         {
             Trace out(_logger, _instance->networkTraceCategory());
