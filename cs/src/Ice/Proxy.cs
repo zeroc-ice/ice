@@ -1134,7 +1134,7 @@ namespace Ice
                 try
                 {
                     Ice.ObjectPrx bb = b.ice_facet(f);
-                    bool ok = bb.ice_isA("::Object");
+                    bool ok = bb.ice_isA("::Ice::Object");
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
                     h.copyFrom__(bb);
@@ -1155,7 +1155,7 @@ namespace Ice
                 try
                 {
                     Ice.ObjectPrx bb = b.ice_facet(f);
-                    bool ok = bb.ice_isA("::Object", ctx);
+                    bool ok = bb.ice_isA("::Ice::Object", ctx);
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
                     h.copyFrom__(bb);
