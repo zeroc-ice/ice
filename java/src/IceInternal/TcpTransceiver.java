@@ -149,6 +149,13 @@ final class TcpTransceiver implements Transceiver
         throws LocalExceptionWrapper
     {
         java.nio.ByteBuffer buf = stream.prepareWrite();
+        int size = buf.limit();
+        int packetSize = 0;
+        if(_maxPacketSize > 0 && size > _maxPacketSize)
+        {
+            packetSize = _maxPacketSize;
+            buf.limit(buf.position() + packetSize);
+        }
 
         while(buf.hasRemaining())
         {
@@ -209,6 +216,21 @@ final class TcpTransceiver implements Transceiver
                 if(_stats != null)
                 {
                     _stats.bytesSent(type(), ret);
+                }
+
+                if(packetSize > 0)
+                {
+                    assert(buf.position() == buf.limit());
+                    int position = buf.position();
+                    if(size - position > packetSize)
+                    {
+                        buf.limit(position + packetSize);
+                    }
+                    else
+                    {
+			packetSize = 0;
+                        buf.limit(size);
+                    }
                 }
             }
             catch(java.io.InterruptedIOException ex)
@@ -351,6 +373,21 @@ final class TcpTransceiver implements Transceiver
         _logger = instance.initializationData().logger;
         _stats = instance.initializationData().stats;
         _desc = Network.fdToString(_fd);
+
+        _maxPacketSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            //
+            // On Windows, limiting the buffer size is important to prevent
+            // poor throughput performances when transfering large amount of
+            // data. See Microsoft KB article KB823764.
+            //
+            _maxPacketSize = Network.getSendBufferSize(_fd) / 2;
+            if(_maxPacketSize < 512)
+            {
+                _maxPacketSize = 0;
+            }
+        }
     }
 
     protected synchronized void
@@ -369,4 +406,5 @@ final class TcpTransceiver implements Transceiver
     private String _desc;
     private java.nio.channels.Selector _readSelector;
     private java.nio.channels.Selector _writeSelector;
+    private int _maxPacketSize;
 }

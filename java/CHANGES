@@ -18,6 +18,13 @@ Changes since version 3.2.X (binary incompabible)
 Changes since version 3.2.0
 ---------------------------     
 
+- Fixed throughput performance problem on Windows that would occur
+  when sending large requests.
+
+- Added Ice.TCP.RcvSize and Ice.TCP.SndSize properties. These
+  properties control the size of the TCP receive and send buffers for
+  the TCP and SSL transports.
+
 - Added support for opaque endpoints. For example:
 
   opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==

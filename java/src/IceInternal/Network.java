@@ -463,6 +463,114 @@ public final class Network
     }
 
     public static void
+    setSendBufferSize(java.nio.channels.SocketChannel fd, int size)
+    {
+        try
+        {
+            java.net.Socket socket = fd.socket();
+            socket.setSendBufferSize(size);
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static int
+    getSendBufferSize(java.nio.channels.SocketChannel fd)
+    {
+        int size;
+        try
+        {
+            java.net.Socket socket = fd.socket();
+            size = socket.getSendBufferSize();
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+        return size;
+    }
+
+    public static void
+    setRecvBufferSize(java.nio.channels.SocketChannel fd, int size)
+    {
+        try
+        {
+            java.net.Socket socket = fd.socket();
+            socket.setReceiveBufferSize(size);
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static int
+    getRecvBufferSize(java.nio.channels.SocketChannel fd)
+    {
+        int size;
+        try
+        {
+            java.net.Socket socket = fd.socket();
+            size = socket.getReceiveBufferSize();
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+        return size;
+    }
+
+    public static void
+    setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size)
+    {
+        try
+        {
+            java.net.ServerSocket socket = fd.socket();
+            socket.setReceiveBufferSize(size);
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static int
+    getRecvBufferSize(java.nio.channels.ServerSocketChannel fd)
+    {
+        int size;
+        try
+        {
+            java.net.ServerSocket socket = fd.socket();
+            size = socket.getReceiveBufferSize();
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+        return size;
+    }
+
+    public static void
     setSendBufferSize(java.nio.channels.DatagramChannel fd, int size)
     {
         try
@@ -499,23 +607,6 @@ public final class Network
     }
 
     public static void
-    setRecvBufferSize(java.nio.channels.ServerSocketChannel fd, int size)
-    {
-        try
-        {
-            java.net.ServerSocket socket = fd.socket();
-            socket.setReceiveBufferSize(size);
-        }
-        catch(java.io.IOException ex)
-        {
-            closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-    }
-
-    public static void
     setRecvBufferSize(java.nio.channels.DatagramChannel fd, int size)
     {
         try
@@ -530,25 +621,6 @@ public final class Network
             se.initCause(ex);
             throw se;
         }
-    }
-
-    public static int
-    getRecvBufferSize(java.nio.channels.ServerSocketChannel fd)
-    {
-        int size;
-        try
-        {
-            java.net.ServerSocket socket = fd.socket();
-            size = socket.getReceiveBufferSize();
-        }
-        catch(java.io.IOException ex)
-        {
-            closeSocketNoThrow(fd);
-            Ice.SocketException se = new Ice.SocketException();
-            se.initCause(ex);
-            throw se;
-        }
-        return size;
     }
 
     public static int
@@ -798,6 +870,85 @@ public final class Network
         return fds;
     }
     
+    public static void
+    setTcpBufSize(java.nio.channels.SocketChannel socket, Ice.Properties properties, Ice.Logger logger)
+    {
+        //
+        // By default, on Windows we use a 128KB buffer size. On Unix
+        // platforms, we use the system defaults.
+        //
+        int dfltBufSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            dfltBufSize = 128 * 1024;
+        }
+
+        int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        if(sizeRequested > 0)
+        {
+            //
+            // Try to set the buffer size. The kernel will silently adjust
+            // the size to an acceptable value. Then read the size back to
+            // get the size that was actually set.
+            //
+            setRecvBufferSize(socket, sizeRequested);
+            int size = getRecvBufferSize(socket);
+            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            {
+                logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+            }
+        }
+
+        sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+        if(sizeRequested > 0)
+        {
+            //
+            // Try to set the buffer size. The kernel will silently adjust
+            // the size to an acceptable value. Then read the size back to
+            // get the size that was actually set.
+            //
+            setSendBufferSize(socket, sizeRequested);
+            int size = getSendBufferSize(socket);
+            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            {
+                logger.warning("TCP send buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+            }
+        }
+    }
+
+    public static void
+    setTcpBufSize(java.nio.channels.ServerSocketChannel socket, Ice.Properties properties, Ice.Logger logger)
+    {
+        //
+        // By default, on Windows we use a 128KB buffer size. On Unix
+        // platforms, we use the system defaults.
+        //
+        int dfltBufSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            dfltBufSize = 128 * 1024;
+        }
+
+        //
+        // Get property for buffer size.
+        //
+        int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        if(sizeRequested > 0)
+        {
+            //
+            // Try to set the buffer size. The kernel will silently adjust
+            // the size to an acceptable value. Then read the size back to
+            // get the size that was actually set.
+            //
+            setRecvBufferSize(socket, sizeRequested);
+            int size = getRecvBufferSize(socket);
+            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            {
+                logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+            }
+        }
+    }
+
     public static String
     fdToString(java.nio.channels.SelectableChannel fd)
     {

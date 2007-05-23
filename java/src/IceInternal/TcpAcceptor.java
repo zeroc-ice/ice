@@ -140,6 +140,7 @@ class TcpAcceptor implements Acceptor
         }
 
         Network.setBlock(fd, false);
+        Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
         try
         {
             java.net.Socket socket = fd.socket();
@@ -206,6 +207,7 @@ class TcpAcceptor implements Acceptor
         {
             _fd = Network.createTcpServerSocket();
             Network.setBlock(_fd, false);
+            Network.setTcpBufSize(_fd, _instance.initializationData().properties, _logger);
             _addr = new java.net.InetSocketAddress(host, port);
             if(_traceLevels.network >= 2)
             {

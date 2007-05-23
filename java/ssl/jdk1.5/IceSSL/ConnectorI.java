@@ -32,6 +32,7 @@ final class ConnectorI implements IceInternal.Connector
 
         java.nio.channels.SocketChannel fd = IceInternal.Network.createTcpSocket();
         IceInternal.Network.setBlock(fd, false);
+        IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
         IceInternal.Network.doConnect(fd, _addr, timeout);
 
         TransceiverI transceiver = null;

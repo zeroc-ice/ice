@@ -394,6 +394,21 @@ final class TransceiverI implements IceInternal.Transceiver
             // Ignore.
         }
         _desc = IceInternal.Network.fdToString(_fd);
+        _maxPacketSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            //
+            // On Windows, limiting the buffer size is important to prevent
+            // poor throughput performances when transfering large amount of
+            // data. See Microsoft KB article KB823764.
+            //
+            _maxPacketSize = IceInternal.Network.getSendBufferSize(_fd) / 2;
+            if(_maxPacketSize < 512)
+            {
+                _maxPacketSize = 0;
+            }
+        }
+
         // TODO: Buffer cache?
         _appInput = ByteBuffer.allocateDirect(engine.getSession().getApplicationBufferSize() * 2);
         _netInput = ByteBuffer.allocateDirect(engine.getSession().getPacketBufferSize() * 2);
@@ -414,6 +429,15 @@ final class TransceiverI implements IceInternal.Transceiver
     flush(int timeout)
     {
         _netOutput.flip();
+
+        int size = _netOutput.limit();
+        int packetSize = 0;
+        if(_maxPacketSize > 0 && size > _maxPacketSize)
+        {
+            packetSize = _maxPacketSize;
+            _netOutput.limit(_netOutput.position() + packetSize);
+        }
+
         while(_netOutput.hasRemaining())
         {
             try
@@ -480,6 +504,21 @@ final class TransceiverI implements IceInternal.Transceiver
                 se.initCause(ex);
                 throw se;
             }
+
+	    if(packetSize > 0)
+	    {
+		assert(_netOutput.position() == _netOutput.limit());
+		int position = _netOutput.position();
+		if(size - position > packetSize)
+		{
+		    _netOutput.limit(position + packetSize);
+		}
+		else
+		{
+		    packetSize = 0;
+		    _netOutput.limit(size);
+		}
+	    }
         }
         _netOutput.clear();
     }
@@ -803,6 +842,7 @@ final class TransceiverI implements IceInternal.Transceiver
     private Ice.Logger _logger;
     private Ice.Stats _stats;
     private String _desc;
+    private int _maxPacketSize;
     private ByteBuffer _appInput; // Holds clear-text data to be read by the application.
     private ByteBuffer _netInput; // Holds encrypted data read from the socket.
     private ByteBuffer _netOutput; // Holds encrypted data to be written to the socket.

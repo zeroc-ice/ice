@@ -193,6 +193,7 @@ final class AcceptorI implements IceInternal.Acceptor
             }
 
             IceInternal.Network.setBlock(fd, false);
+            IceInternal.Network.setTcpBufSize(fd, _instance.communicator().getProperties(), _logger);
 
             engine = _instance.createSSLEngine(true);
         }
@@ -271,6 +272,7 @@ final class AcceptorI implements IceInternal.Acceptor
         {
             _fd = IceInternal.Network.createTcpServerSocket();
             IceInternal.Network.setBlock(_fd, false);
+            IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);
             _addr = new java.net.InetSocketAddress(host, port);
             if(_instance.networkTraceLevel() >= 2)
             {
