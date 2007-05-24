@@ -117,9 +117,9 @@ cppSrcPreamble = commonPreamble + """
 javaPropertyClass = commonPreamble + """
 package IceInternal;
 
-class Property
+public class Property
 {
-    Property(String pattern, boolean deprecated, String deprecatedBy)
+    public Property(String pattern, boolean deprecated, String deprecatedBy)
     {
         _pattern = pattern;
         _deprecated = deprecated;
