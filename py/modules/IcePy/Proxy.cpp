@@ -1805,7 +1805,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 {
     PyObject* obj;
     char* facet;
-    if(!PyArg_ParseTuple(args, STRCAST("Os"), &obj, &facet))
+    if(!PyArg_ParseTuple(args, STRCAST("Oz"), &obj, &facet))
     {
         return 0;
     }
@@ -1824,7 +1824,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 
     ProxyObject* p = reinterpret_cast<ProxyObject*>(obj);
 
-    if(strlen(facet) > 0)
+    if(facet && strlen(facet) > 0)
     {
         return createProxy((*p->proxy)->ice_facet(facet), *p->communicator, type);
     }
