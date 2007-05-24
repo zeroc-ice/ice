@@ -15,6 +15,8 @@
 #endif
 
 #include <IceE/Config.h>
+#include <IceE/PropertiesF.h> // For setTcpBufSize
+#include <IceE/LoggerF.h> // For setTcpBufSize
 
 #ifdef _WIN32
 #   include <winsock2.h>
@@ -92,6 +94,9 @@ void setTimeout(SOCKET, bool, int);
 void setTcpNoDelay(SOCKET);
 void setKeepAlive(SOCKET);
 void setSendBufferSize(SOCKET, int);
+int getSendBufferSize(SOCKET);
+void setRecvBufferSize(SOCKET, int);
+int getRecvBufferSize(SOCKET);
 
 void doBind(SOCKET, struct sockaddr_in&);
 void doListen(SOCKET, int);
@@ -109,11 +114,7 @@ std::string fdToString(SOCKET);
 std::string addrToString(const struct sockaddr_in&);
 
 std::vector<std::string> getLocalHosts();
-#ifdef _WIN32
-std::vector<struct sockaddr_in> getLocalAddresses();
-bool isLocalAddress(const struct sockaddr_in&);
-bool isPeerLocal(SOCKET);
-#endif
+ void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 
 int getSocketErrno();
 

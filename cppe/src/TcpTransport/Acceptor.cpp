@@ -68,6 +68,7 @@ IceInternal::Acceptor::accept()
 #ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     setBlock(fd, true);
 #endif
+    setTcpBufSize(fd, _instance->initializationData().properties, _logger);
 
     if(_traceLevels->network >= 1)
     {
@@ -114,6 +115,7 @@ IceInternal::Acceptor::Acceptor(const InstancePtr& instance, const string& host,
     {
 	_fd = createSocket();
 	getAddress(host, port, _addr);
+        setTcpBufSize(_fd, _instance->initializationData().properties, _logger);
 	if(_traceLevels->network >= 2)
 	{
 	    Trace out(_logger, _traceLevels->networkCat);

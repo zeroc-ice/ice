@@ -113,9 +113,9 @@ IceInternal::Transceiver::writeWithTimeout(Buffer& buf, int timeout)
     //
     // Limit packet size to avoid performance problems on WIN32
     //
-    if(_isPeerLocal && packetSize > 64 * 1024)
+    if(packetSize > _maxPacketSize)
     {
-	packetSize = 64 * 1024;
+	packetSize = _maxPacketSize;
     }
 #endif
 
@@ -378,9 +378,6 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     _readTimeout(-1),
     _writeTimeout(-1),
     _desc(fdToString(fd))
-#ifdef _WIN32
-    , _isPeerLocal(isPeerLocal(fd))
-#endif
 {
 #ifdef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
 #ifdef _WIN32
@@ -429,6 +426,19 @@ IceInternal::Transceiver::Transceiver(const InstancePtr& instance, SOCKET fd) :
     FD_ZERO(&_wFdSet);
     FD_ZERO(&_rFdSet);
 #endif
+#endif
+
+#ifdef _WIN32
+    //
+    // On Windows, limiting the buffer size is important to prevent
+    // poor throughput performances when transfering large amount of
+    // data. See Microsoft KB article KB823764.
+    //
+    _maxPacketSize = getSendBufferSize(_fd) / 2;
+    if(_maxPacketSize < 512)
+    {
+        _maxPacketSize = 512; // Make sure the packet size limiter isn't too small.
+    }
 #endif
 }
 

@@ -10,6 +10,8 @@
 #include <IceE/StaticMutex.h>
 #include <IceE/Network.h>
 #include <IceE/LocalException.h>
+#include <IceE/Properties.h> // For setTcpBufSize
+#include <IceE/LoggerUtil.h> // For setTcpBufSize
 #include <IceE/SafeStdio.h>
 
 #if defined(_WIN32)
@@ -35,7 +37,7 @@ using namespace IceInternal;
 static IceUtil::StaticMutex inetMutex = ICE_STATIC_MUTEX_INITIALIZER;
 
 static string
-inetAddrToString(struct in_addr in)
+inetAddrToString(const struct in_addr& in)
 {
     //
     // inet_ntoa uses static memory on some platforms so we protect
@@ -398,11 +400,53 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
     if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
     {
-	closeSocketNoThrow(fd);
-	SocketException ex(__FILE__, __LINE__);
-	ex.error = getSocketErrno();
-	throw ex;
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
     }
+}
+
+int
+IceInternal::getSendBufferSize(SOCKET fd)
+{
+    int sz;
+    socklen_t len = sizeof(sz);
+    if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, &len) == SOCKET_ERROR || len != sizeof(sz))
+    {
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+    return sz;
+}
+
+void
+IceInternal::setRecvBufferSize(SOCKET fd, int sz)
+{
+    if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, int(sizeof(int))) == SOCKET_ERROR)
+    {
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+}
+
+int
+IceInternal::getRecvBufferSize(SOCKET fd)
+{
+    int sz;
+    socklen_t len = sizeof(sz);
+    if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, &len) == SOCKET_ERROR || len != sizeof(sz))
+    {
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+    return sz;
 }
 
 void
@@ -441,12 +485,6 @@ void
 IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
 {
 #ifdef _WIN32
-    //
-    // Set larger send buffer size to avoid performance problems on
-    // WIN32.
-    //
-    setSendBufferSize(fd, 64 * 1024);
-
     //
     // Under WinCE its not possible to find out the connection failure
     // reason with SO_ERROR, so its necessary to use the WSAEVENT
@@ -884,15 +922,6 @@ repeatAccept:
 
     setTcpNoDelay(ret);
     setKeepAlive(ret);
-
-#ifdef _WIN32
-    //
-    // Set larger send buffer size to avoid performance problems on
-    // WIN32.
-    //
-    setSendBufferSize(ret, 64 * 1024);
-#endif
-    
     return ret;
 }
 
@@ -922,10 +951,62 @@ IceInternal::getLocalHosts()
     vector<string> result;
 
 #if defined(_WIN32)
-    vector<struct sockaddr_in> addrs = getLocalAddresses();
-    for(unsigned int i = 0; i < addrs.size(); ++i)
+    try
     {
-        result.push_back(inetAddrToString(addrs[i].sin_addr));
+        SOCKET fd = createSocket();
+
+        vector<unsigned char> buffer;
+        buffer.resize(1024);
+        unsigned long len = 0;
+        DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
+        if(rs == SOCKET_ERROR)
+        {
+            //
+            // If the buffer wasn't big enough, resize it to the
+            // required length and try again.
+            //
+            if(getSocketErrno() == WSAEFAULT)
+            {
+                buffer.resize(len);
+                rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
+            }
+
+            if(rs == SOCKET_ERROR)
+            {
+                closeSocketNoThrow(fd);
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+        }
+
+        //
+        // Add the local interface addresses.
+        //
+        SOCKET_ADDRESS_LIST* addrs = reinterpret_cast<SOCKET_ADDRESS_LIST*>(&buffer[0]);
+        for (int i = 0; i < addrs->iAddressCount; ++i)
+        {
+            result.push_back(
+		inetAddrToString(reinterpret_cast<struct sockaddr_in*>(addrs->Address[i].lpSockaddr)->sin_addr));
+        }
+
+        //
+        // Add the loopback interface address.
+        //
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(addr));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(0);
+        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        result.push_back(inetAddrToString(addr.sin_addr));
+
+        closeSocket(fd);
+    }
+    catch(const Ice::LocalException&)
+    {
+        //
+        // TODO: Warning?
+        //
     }
 #elif defined(__APPLE__) || defined(__FreeBSD__)
     struct ifaddrs* ifap;
@@ -1021,106 +1102,54 @@ IceInternal::getLocalHosts()
     return result;
 }
 
+
+void
+IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
+{
+    assert(fd != INVALID_SOCKET);
+
+    //
+    // By default, on Windows we use a 128KB buffer size. On Unix
+    // platforms, we use the system defaults.
+    //
 #ifdef _WIN32
-
-vector<struct sockaddr_in>
-IceInternal::getLocalAddresses()
-{
-    vector<struct sockaddr_in> result;
-    try
-    {
-        SOCKET fd = createSocket();
-
-        vector<unsigned char> buffer;
-        buffer.resize(1024);
-        unsigned long len = 0;
-        DWORD rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
-        if(rs == SOCKET_ERROR)
-        {
-            //
-            // If the buffer wasn't big enough, resize it to the
-            // required length and try again.
-            //
-            if(getSocketErrno() == WSAEFAULT)
-            {
-                buffer.resize(len);
-                rs = WSAIoctl(fd, SIO_ADDRESS_LIST_QUERY, 0, 0, &buffer[0], buffer.size(), &len, 0, 0);
-            }
-
-            if(rs == SOCKET_ERROR)
-            {
-                closeSocketNoThrow(fd);
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-        }
-
-        //        // Add the local interface addresses.
-        //
-        SOCKET_ADDRESS_LIST* addrs = reinterpret_cast<SOCKET_ADDRESS_LIST*>(&buffer[0]);
-        for (int i = 0; i < addrs->iAddressCount; ++i)
-        {
-            result.push_back(*reinterpret_cast<struct sockaddr_in*>(addrs->Address[i].lpSockaddr));
-        }
-
-        //
-        // Add the loopback interface address.
-        //
-        struct sockaddr_in addr;
-        memset(&addr, 0, sizeof(addr));
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(0);
-        addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-        result.push_back(addr);
-
-        closeSocket(fd);
-    }
-    catch(const Ice::LocalException&)
-    {
-        //
-        // TODO: Warning?
-        //
-    }
-    return result;
-}
-
-bool
-IceInternal::isLocalAddress(const struct sockaddr_in& addr)
-{
-    struct sockaddr_in addr0 = addr;
-    addr0.sin_port = htons(0); // Local interface addresses have the port set to 0.
-    vector<struct sockaddr_in> localAddrs = getLocalAddresses();
-    for(vector<struct sockaddr_in>::const_iterator p = localAddrs.begin(); p != localAddrs.end(); ++p)
-    {
-        if(compareAddress(addr0, *p))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-bool
-IceInternal::isPeerLocal(SOCKET fd)
-{
-    socklen_t remoteLen = static_cast<socklen_t>(sizeof(struct sockaddr_in));
-    struct sockaddr_in remoteAddr;
-    if(getpeername(fd, reinterpret_cast<struct sockaddr*>(&remoteAddr), &remoteLen) == SOCKET_ERROR)
-    {
-        if(notConnected())
-        {
-            return false;
-        }
-        else
-        {
-            closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
-        }
-    }
-    return isLocalAddress(remoteAddr);
-}
-
+    const int dfltBufSize = 128 * 1024;
+#else
+    const int dfltBufSize = 0;
 #endif
+    Int sizeRequested;
+
+    sizeRequested = properties->getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+    if(sizeRequested > 0)
+    {
+        //
+        // Try to set the buffer size. The kernel will silently adjust
+        // the size to an acceptable value. Then read the size back to
+        // get the size that was actually set.
+        //
+        setRecvBufferSize(fd, sizeRequested);
+        int size = getRecvBufferSize(fd);
+        if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+        {
+            Warning out(logger);
+            out << printfToString("TCP receive buffer size: requested size of %d adjusted to %d", sizeRequested, size);
+        }
+    }
+
+    sizeRequested = properties->getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+    if(sizeRequested > 0)
+    {
+        //
+        // Try to set the buffer size. The kernel will silently adjust
+        // the size to an acceptable value. Then read the size back to
+        // get the size that was actually set.
+        //
+        setSendBufferSize(fd, sizeRequested);
+        int size = getSendBufferSize(fd);
+        if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+        {
+            Warning out(logger);
+            out << printfToString("TCP send buffer size: requested size of %d adjusted to %d", sizeRequested, size);
+        }
+    }
+}

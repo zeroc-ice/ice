@@ -32,6 +32,7 @@ Connector::connect(int timeout)
 
     SOCKET fd = createSocket();
     setBlock(fd, false);
+    setTcpBufSize(fd, _instance->initializationData().properties, _logger);
     doConnect(fd, _addr, timeout);
 #ifndef ICEE_USE_SELECT_OR_POLL_FOR_TIMEOUTS
     setBlock(fd, true);
