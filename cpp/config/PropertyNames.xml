@@ -279,7 +279,7 @@ generated from the section label.
         <property name="Registry.Client.Router" />
         <property name="Registry.Client.ThreadPerConnection" />
         <property name="Registry.Client.ThreadPerConnection.StackSize" />
-        <property name="Registry.Client.ThreadPool.Size" threadpool="true"/>
+        <property name="Registry.Client.ThreadPool" threadpool="true"/>
         <property name="Registry.CryptPasswords" />
         <property name="Registry.Data" />
         <property name="Registry.DefaultTemplates" />
