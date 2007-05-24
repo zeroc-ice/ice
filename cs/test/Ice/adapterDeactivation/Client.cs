@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using Test;
+using System.Diagnostics;
 
 public class Client
 {
@@ -22,6 +23,8 @@ public class Client
     
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         TestClient app = new TestClient();
         int result = app.main(args);
         if(result != 0)

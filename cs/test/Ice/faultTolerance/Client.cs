@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 public class Client
 {
     private static void usage()
@@ -48,6 +50,8 @@ public class Client
         int status = 0;
         Ice.Communicator communicator = null;
         
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         try
         {
             //

@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Diagnostics;
 using Test;
 
 public class Client : Ice.Application
@@ -122,6 +123,8 @@ public class Client : Ice.Application
 
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         //
         // We want to check whether the client retries for evicted
         // proxies, even with regular retries disabled.

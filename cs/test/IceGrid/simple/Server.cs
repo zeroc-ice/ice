@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 public class Server : Ice.Application
 {
     public override int run(string[] args)
@@ -28,6 +30,8 @@ public class Server : Ice.Application
 
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         Server server = new Server();
         int status = server.main(args);
         if(status != 0)

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 public class Client
 {
     private static int run(string[] args, Ice.Communicator communicator)
@@ -20,6 +22,8 @@ public class Client
         int status = 0;
         Ice.Communicator communicator = null;
         
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         try
         {
             communicator = Ice.Util.initialize(ref args);

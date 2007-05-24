@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using Test;
+using System.Diagnostics;
 
 public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
 {
@@ -47,6 +48,8 @@ class Server : Ice.Application
 
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         Server app = new Server();
         int status = app.main(args);
         if(status != 0)

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 
 public class Client
 {
@@ -21,6 +22,8 @@ public class Client
 
     public static void Main(string[] argvs)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         System.Console.Out.Write("testing string to command line arguments... ");
         System.Console.Out.Flush();
         string[] args;

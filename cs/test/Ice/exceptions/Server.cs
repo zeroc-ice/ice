@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 public sealed class DummyLogger : Ice.LocalObjectImpl, Ice.Logger
 {
     public void print(string message)
@@ -47,6 +49,8 @@ public class Server
         int status = 0;
         Ice.Communicator communicator = null;
         
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         try
         {
             //

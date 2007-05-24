@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 
 public class Client : Ice.Application
 {
@@ -50,6 +51,8 @@ public class Client : Ice.Application
 
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         Client app = new Client();
         int status = app.main(args);
         if(status != 0)

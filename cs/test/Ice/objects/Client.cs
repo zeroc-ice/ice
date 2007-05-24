@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-using System.Diagnostics;
 using Test;
+using System.Diagnostics;
 
 public class Client
 {
@@ -70,7 +70,9 @@ public class Client
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        
+
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         try
         {
             communicator = Ice.Util.initialize(ref args);

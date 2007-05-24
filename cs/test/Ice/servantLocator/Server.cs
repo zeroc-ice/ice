@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Diagnostics;
+
 public class Server
 {
     internal class TestServer : Ice.Application
@@ -29,6 +31,8 @@ public class Server
     
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         TestServer app = new TestServer();
         int result = app.main(args);
         if(result != 0)

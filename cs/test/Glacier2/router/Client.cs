@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Diagnostics;
 using Glacier2;
 using Test;
 
@@ -423,6 +424,8 @@ public class Client : Ice.Application
 
     public static void Main(string[] args)
     {
+        Debug.Listeners.Add(new ConsoleTraceListener());
+
         //
         // We must disable connection warnings, because we attempt to
         // ping the router before session establishment, as well as
