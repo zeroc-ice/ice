@@ -1656,57 +1656,36 @@ proxyIceConnection(ProxyObject* self)
 }
 
 static PyObject*
-checkedCastImpl(ProxyObject* p, const string& id, const string& facet, PyObject* type)
+checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx, PyObject* type)
 {
     Ice::ObjectPrx target;
-    if(facet.empty())
+    if(!facet || facet == Py_None)
     {
         target = *p->proxy;
     }
     else
     {
-        target = (*p->proxy)->ice_facet(facet);
+        char* facetStr = PyString_AS_STRING(facet);
+        target = (*p->proxy)->ice_facet(facetStr);
     }
 
     bool b;
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        b = target->ice_isA(id);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    if(b)
-    {
-        return createProxy(target, *p->communicator, type);
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-static PyObject*
-checkedCastImpl(ProxyObject* p, const string& id, const string& facet, const Ice::Context& ctx, PyObject* type)
-{
-    Ice::ObjectPrx target;
-    if(facet.empty())
-    {
-        target = *p->proxy;
-    }
-    else
-    {
-        target = (*p->proxy)->ice_facet(facet);
-    }
-
-    bool b;
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        b = target->ice_isA(id, ctx);
+        if(!ctx || ctx == Py_None)
+        {
+            b = target->ice_isA(id);
+        }
+        else
+        {
+            Ice::Context c;
+            if(!dictionaryToContext(ctx, c))
+            {
+                return 0;
+            }
+            b = target->ice_isA(id, c);
+        }
     }
     catch(const Ice::Exception& ex)
     {
@@ -1731,7 +1710,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
 {
     //
     // ice_checkedCast is called from generated code, therefore we always expect
-    // to receive all four arguments.
+    // to receive four arguments.
     //
     PyObject* obj;
     char* id;
@@ -1754,11 +1733,11 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
         return 0;
     }
 
-    char* facet = STRCAST("");
+    PyObject* facet = 0;
 
     if(PyString_Check(facetOrCtx))
     {
-        facet = PyString_AS_STRING(facetOrCtx);
+        facet = facetOrCtx;
     }
     else if(PyDict_Check(facetOrCtx))
     {
@@ -1781,20 +1760,7 @@ proxyIceCheckedCast(PyObject* type, PyObject* args)
         return 0;
     }
 
-    if(ctx == Py_None)
-    {
-        return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, type);
-    }
-    else
-    {
-        Ice::Context c;
-        if(!dictionaryToContext(ctx, c))
-        {
-            return 0;
-        }
-
-        return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, c, type);
-    }
+    return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), id, facet, ctx, type);
 }
 
 #ifdef WIN32
@@ -1803,8 +1769,12 @@ extern "C"
 static PyObject*
 proxyIceUncheckedCast(PyObject* type, PyObject* args)
 {
+    //
+    // ice_uncheckedCast is called from generated code, therefore we always expect
+    // to receive two arguments.
+    //
     PyObject* obj;
-    char* facet;
+    char* facet = 0;
     if(!PyArg_ParseTuple(args, STRCAST("Oz"), &obj, &facet))
     {
         return 0;
@@ -1824,7 +1794,7 @@ proxyIceUncheckedCast(PyObject* type, PyObject* args)
 
     ProxyObject* p = reinterpret_cast<ProxyObject*>(obj);
 
-    if(facet && strlen(facet) > 0)
+    if(facet)
     {
         return createProxy((*p->proxy)->ice_facet(facet), *p->communicator, type);
     }
@@ -1860,7 +1830,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
         return 0;
     }
 
-    char* facet = STRCAST("");
+    PyObject* facet = 0;
     PyObject* ctx = 0;
 
     if(arg1 != 0 && arg2 != 0)
@@ -1882,7 +1852,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
                 PyErr_Format(PyExc_ValueError, STRCAST("facet argument to checkedCast must be a string"));
                 return 0;
             }
-            facet = PyString_AS_STRING(arg1);
+            facet = arg1;
         }
 
         if(arg2 != 0 && !PyDict_Check(arg2))
@@ -1896,7 +1866,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
     {
         if(PyString_Check(arg1))
         {
-            facet = PyString_AS_STRING(arg1);
+            facet = arg1;
         }
         else if(PyDict_Check(arg1))
         {
@@ -1909,20 +1879,7 @@ proxyCheckedCast(PyObject* /*self*/, PyObject* args)
         }
     }
 
-    if(ctx == 0)
-    {
-        return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), "::Ice::Object", facet, 0);
-    }
-    else
-    {
-        Ice::Context c;
-        if(!dictionaryToContext(ctx, c))
-        {
-            return 0;
-        }
-
-        return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), "::Ice::Object", facet, c, 0);
-    }
+    return checkedCastImpl(reinterpret_cast<ProxyObject*>(obj), "::Ice::Object", facet, ctx, 0);
 }
 
 #ifdef WIN32
@@ -1933,7 +1890,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 {
     PyObject* obj;
     char* facet = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("O|s"), &obj, &facet))
+    if(!PyArg_ParseTuple(args, STRCAST("O|z"), &obj, &facet))
     {
         return 0;
     }
@@ -1952,7 +1909,7 @@ proxyUncheckedCast(PyObject* /*self*/, PyObject* args)
 
     ProxyObject* p = reinterpret_cast<ProxyObject*>(obj);
 
-    if(facet && strlen(facet) > 0)
+    if(facet)
     {
         return createProxy((*p->proxy)->ice_facet(facet), *p->communicator);
     }
