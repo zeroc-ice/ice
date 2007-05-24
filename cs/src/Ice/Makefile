@@ -61,6 +61,7 @@ SRCS		= Acceptor.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
 		  PropertiesI.cs \
+		  Property.cs \
 		  PropertyNames.cs \
 		  Protocol.cs \
 		  ProtocolPluginFacade.cs \
