@@ -668,7 +668,7 @@ def main():
     # Install signal handler so we can remove the output files if we are interrupted.
     #
     signal.signal(signal.SIGINT, handler)
-    # signal.signal(signal.SIGHUP, handler)
+    signal.signal(signal.SIGHUP, handler)
     signal.signal(signal.SIGTERM, handler)
 
     parser = make_parser()
