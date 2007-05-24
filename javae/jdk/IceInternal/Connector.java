@@ -107,6 +107,7 @@ final class Connector
 	    {
 		fd = new java.net.Socket(_addr.getAddress(), _addr.getPort());
 	    }
+            Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
 	}
         catch(java.net.ConnectException ex)
         {

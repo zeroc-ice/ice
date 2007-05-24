@@ -94,30 +94,35 @@ final public class Transceiver
 	    throw se;
 	}
 
+        int remaining = buf.remaining();
+        int packetSize = remaining;
+        if(_maxPacketSize > 0 && packetSize > _maxPacketSize)
+        {
+            packetSize = _maxPacketSize;
+        }
+
+        int pos = buf.position();
 	while(buf.hasRemaining() && !_shutdown)
 	{
-	    int pos = buf.position();
 	    try
 	    {
 		if(IceUtil.Debug.ASSERT)
 		{
 		    IceUtil.Debug.Assert(_fd != null);
 		}
-		int rem = buf.remaining();
-		_out.write(data, pos, rem);
-		buf.position(pos + rem);
+
+		_out.write(data, pos, packetSize);
+                pos += packetSize;
 
 		if(_traceLevels.network >= 3)
 		{
-		    String s = "sent " + rem + " of " + buf.limit() + " bytes via tcp\n" + toString();
+		    String s = "sent " + packetSize + " of " + buf.limit() + " bytes via tcp\n" + toString();
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
-
-		break;
 	    }
 	    catch(java.io.InterruptedIOException ex)
 	    {
-		buf.position(pos + ex.bytesTransferred);
+                pos += ex.bytesTransferred;
 	    }
 	    catch(java.io.IOException ex)
 	    {
@@ -125,7 +130,13 @@ final public class Transceiver
 		se.initCause(ex);
 		throw se;
 	    }
-	}
+
+            buf.position(pos);
+            if(buf.remaining() < packetSize)
+            {
+                packetSize = buf.remaining();
+            }
+        }
 
 	if(_shutdown && buf.hasRemaining())
 	{
@@ -237,6 +248,30 @@ final public class Transceiver
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
         _desc = Network.fdToString(_fd);
+        _maxPacketSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            //
+            // On Windows, limiting the buffer size is important to prevent
+            // poor throughput performances when transfering large amount of
+            // data. See Microsoft KB article KB823764.
+            //
+            try
+            {
+                _maxPacketSize = _fd.getSendBufferSize() / 2;
+                if(_maxPacketSize < 512)
+                {
+                    _maxPacketSize = 0;
+                }
+            }
+            catch(java.net.SocketException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
+        
 	try
 	{
 	    _in = _fd.getInputStream();
@@ -273,4 +308,5 @@ final public class Transceiver
     private java.io.InputStream _in;
     private java.io.OutputStream _out;
     private volatile boolean _shutdown;
+    private int _maxPacketSize;
 }

@@ -67,6 +67,7 @@ class Acceptor
 	    }
 	    _fd.setSoTimeout(timeout);
 	    fd = _fd.accept();
+            Network.setTcpBufSize(fd, _instance.initializationData().properties, _logger);
 	}
 	catch(java.io.InterruptedIOException ex)
 	{
@@ -140,6 +141,7 @@ class Acceptor
 	    }
 	    _fd = new java.net.ServerSocket(port, _backlog, _addr.getAddress());
 	    _addr = new InetSocketAddress(_addr.getAddress(), _fd.getLocalPort());
+            Network.setTcpBufSize(_fd, _instance.initializationData().properties, _logger);
         }
         catch(java.io.IOException ex)
         {

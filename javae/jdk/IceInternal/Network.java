@@ -168,6 +168,115 @@ public final class Network
 	return addr.getAddress();
     }
 
+    public static void
+    setTcpBufSize(java.net.Socket socket, Ice.Properties properties, Ice.Logger logger)
+    {
+        //
+        // By default, on Windows we use a 64KB buffer size. On Unix
+        // platforms, we use the system defaults.
+        //
+        int dfltBufSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            dfltBufSize = 64 * 1024;
+        }
+
+        int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        if(sizeRequested > 0)
+        {
+            //
+            // Try to set the buffer size. The kernel will silently adjust
+            // the size to an acceptable value. Then read the size back to
+            // get the size that was actually set.
+            //
+            int size;
+            try
+            {
+                socket.setReceiveBufferSize(sizeRequested);
+                size = socket.getReceiveBufferSize();
+            }
+            catch(java.net.SocketException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            {
+                logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+            }
+        }
+
+        sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.SndSize", dfltBufSize);
+        if(sizeRequested > 0)
+        {
+            //
+            // Try to set the buffer size. The kernel will silently adjust
+            // the size to an acceptable value. Then read the size back to
+            // get the size that was actually set.
+            //
+            int size;
+            try
+            {
+                socket.setSendBufferSize(sizeRequested);
+                size = socket.getSendBufferSize();
+            }
+            catch(java.net.SocketException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            {
+                logger.warning("TCP send buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+            }
+        }
+    }
+
+    public static void
+    setTcpBufSize(java.net.ServerSocket socket, Ice.Properties properties, Ice.Logger logger)
+    {
+        //
+        // By default, on Windows we use a 64KB buffer size. On Unix
+        // platforms, we use the system defaults.
+        //
+        int dfltBufSize = 0;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            dfltBufSize = 64 * 1024;
+        }
+
+        //
+        // Get property for buffer size.
+        //
+        int sizeRequested = properties.getPropertyAsIntWithDefault("Ice.TCP.RcvSize", dfltBufSize);
+        if(sizeRequested > 0)
+        {
+            //
+            // Try to set the buffer size. The kernel will silently adjust
+            // the size to an acceptable value. Then read the size back to
+            // get the size that was actually set.
+            //
+            int size;
+            try
+            {
+                socket.setReceiveBufferSize(sizeRequested);
+                size = socket.getReceiveBufferSize();
+            }
+            catch(java.net.SocketException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+            if(size < sizeRequested) // Warn if the size that was set is less than the requested size.
+            {
+                logger.warning("TCP receive buffer size: requested size of " + sizeRequested + " adjusted to " + size);
+            }
+        }
+    }
+
     public static String
     fdToString(java.net.Socket fd)
     {
