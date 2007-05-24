@@ -122,7 +122,7 @@ namespace Ice
                 string prefix = key.Substring(0, dotPos);
                 for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
                 {
-                    string pattern = IceInternal.PropertyNames.validProps[i][0];
+                    string pattern = IceInternal.PropertyNames.validProps[i][0].pattern();
                     dotPos = pattern.IndexOf('.');
                     Debug.Assert(dotPos != -1);
                     string propPrefix = pattern.Substring(1, dotPos - 2);
@@ -134,9 +134,17 @@ namespace Ice
                     bool found = false;
                     for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
                     {
-                        Regex r = new Regex(IceInternal.PropertyNames.validProps[i][j]);
+                        Regex r = new Regex(IceInternal.PropertyNames.validProps[i][j].pattern());
                         Match m = r.Match(key);
                         found = m.Success;
+                        if(found && IceInternal.PropertyNames.validProps[i][j].deprecated())
+                        {
+                            logger.warning("deprecated property: " + key);
+                            if(IceInternal.PropertyNames.validProps[i][j].deprecatedBy() != null)
+                            {
+                                key = IceInternal.PropertyNames.validProps[i][j].deprecatedBy();
+                            }
+                        }
                     }
                     if(!found)
                     {

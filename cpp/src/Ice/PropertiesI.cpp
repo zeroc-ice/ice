@@ -111,14 +111,24 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     //
     LoggerPtr logger = getProcessLogger();
     string::size_type dotPos = key.find('.');
+    string currentKey = key;
     if(dotPos != string::npos)
     {
-        string prefix = key.substr(0, dotPos);
-        for(const char* const** i = IceInternal::PropertyNames::validProps; *i != 0; ++i)
+        string prefix = currentKey.substr(0, dotPos);
+        for(int i = 0 ; IceInternal::PropertyNames::validProps[i].properties != 0; ++i)
         {
-            string pattern(*i[0]);
+            string pattern(IceInternal::PropertyNames::validProps[i].properties[0].pattern);
+            
+	    
             dotPos = pattern.find('.');
+
+	    //
+	    // Each top level prefix describes a non-empty
+	    // namespace. Having a string without a prefix followed by a
+	    // dot is an error.
+	    //
             assert(dotPos != string::npos);
+	    
             string propPrefix = pattern.substr(0, dotPos);
             if(propPrefix != prefix)
             {
@@ -126,13 +136,24 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
             }
 
             bool found = false;
-            for(const char* const* j = *i; *j != 0 && !found; ++j)
+
+            for(int j = 0; j < IceInternal::PropertyNames::validProps[i].length && !found; ++j)
             {
-                found = IceUtil::match(key, *j);
+                const IceInternal::Property& prop = IceInternal::PropertyNames::validProps[i].properties[j];
+                found = IceUtil::match(currentKey, prop.pattern);
+
+                if(found && prop.deprecated)
+                {
+                    logger->warning("deprecated property: " + currentKey);
+                    if(prop.deprecatedBy != 0)
+                    {
+                        currentKey = prop.deprecatedBy;
+                    }
+                }
             }
             if(!found)
             {
-                logger->warning("unknown property: " + key);
+                logger->warning("unknown property: " + currentKey);
             }
         }
     }
@@ -145,16 +166,16 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     if(!value.empty())
     {
         PropertyValue pv(value, false);
-        map<string, PropertyValue>::const_iterator p = _properties.find(key);
+        map<string, PropertyValue>::const_iterator p = _properties.find(currentKey);
         if(p != _properties.end())
         {
             pv.used = p->second.used;
         }
-        _properties[key] = pv;
+        _properties[currentKey] = pv;
     }
     else
     {
-        _properties.erase(key);
+        _properties.erase(currentKey);
     }
 }
 

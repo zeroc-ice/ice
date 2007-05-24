@@ -1011,6 +1011,8 @@
 		<row><td>ISUnSelfRegisterFiles</td><td>1025</td><td>ISSELFREG.DLL</td><td>ISUnSelfRegisterFiles</td><td/></row>
 		<row><td>NewCustomAction1</td><td>1394</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepackcs,icepatch2cs,icestormcs,icegridcs, iceboxcs, icesslcs) DO del /q [WindowsFolder]assembly\GAC_MSIL\%f\3.2.0.0__1f998c50fec78381\%f.pdb</td><td/></row>
 		<row><td>NewCustomAction11</td><td>1650</td><td>CMD_EXE</td><td>/c FOR %f in (glacier2cs,icecs,icepackcs,icepatch2cs,icestormcs,icegridcs, iceboxcs, icesslcs) DO del /q [WindowsFolder]assembly\GAC_MSIL\%f\3.2.0.0__1f998c50fec78381\%f.pdb</td><td/></row>
+		<row><td>NewCustomAction2</td><td>7</td><td>NewCustomAction2</td><td>ALLUSERS=[ALLUSERS] ADDLOCAL=ALL</td><td/></row>
+		<row><td>NewCustomAction3</td><td>39</td><td>{00000000-0000-0000-0000-000000000000}</td><td>ALLUSERS=[ALLUSERS] ADDLOCAL=ALL</td><td/></row>
 		<row><td>SetARPINSTALLLOCATION</td><td>51</td><td>ARPINSTALLLOCATION</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>SetAllUsersProfileNT</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%SystemRoot]\Profiles\All Users</td><td/></row>
 		<row><td>setAllUsersProfile2K</td><td>51</td><td>ALLUSERSPROFILE</td><td>[%ALLUSERSPROFILE]</td><td/></row>
@@ -1810,6 +1812,7 @@
 		<row><td>ISProjectFolder</td><td/><td/><td>1</td></row>
 		<row><td>IceAssemblyPublicKey</td><td>1f998c50fec78381</td><td/><td>2</td></row>
 		<row><td>IceAssemblyVersion</td><td>3.1.0.0</td><td/><td>2</td></row>
+		<row><td>PATH_TO_TEMP_FILES</td><td>F:\temp</td><td/><td>2</td></row>
 		<row><td>ProgramFilesFolder</td><td/><td/><td>1</td></row>
 		<row><td>SystemFolder</td><td/><td/><td>1</td></row>
 		<row><td>WindowsFolder</td><td/><td/><td>1</td></row>
@@ -1927,6 +1930,7 @@
 	<table name="ISStorages">
 		<col key="yes" def="s72">Name</col>
 		<col def="S0">ISBuildSourcePath</col>
+		<row><td>NewCustomAction2</td><td>&lt;PATH_TO_TEMP_FILES&gt;\Ice-3.2b-VC80-x64.msi</td></row>
 	</table>
 
 	<table name="ISString">
@@ -2793,20 +2797,20 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="s38">Feature_</col>
 		<col def="S72">File_Manifest</col>
 		<col def="S72">File_Application</col>
-                <col def="I2">Attributes</col>
+		<col def="I2">Attributes</col>
 	</table>
 
 	<table name="MsiAssemblyName">
 		<col key="yes" def="s72">Component_</col>
 		<col key="yes" def="s255">Name</col>
 		<col def="s255">Value</col>
-                <row><td>GAC_icecs</td><td>processorArchitecture</td><td>MSIL</td></row>
-                <row><td>GAC_icesslcs</td><td>processorArchitecture</td><td>MSIL</td></row>
-                <row><td>GAC_icegridcs</td><td>processorArchitecture</td><td>MSIL</td></row>
-                <row><td>GAC_glacier2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
-                <row><td>GAC_iceboxcs</td><td>processorArchitecture</td><td>MSIL</td></row>
-                <row><td>GAC_icestormcs</td><td>processorArchitecture</td><td>MSIL</td></row>
-                <row><td>GAC_icepatch2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_glacier2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_iceboxcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_icecs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_icegridcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_icepatch2cs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_icesslcs</td><td>processorArchitecture</td><td>MSIL</td></row>
+		<row><td>GAC_icestormcs</td><td>processorArchitecture</td><td>MSIL</td></row>
 	</table>
 
 	<table name="MsiDigitalCertificate">

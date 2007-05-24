@@ -137,7 +137,7 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
             String prefix = key.substring(0, dotPos);
             for(int i = 0; IceInternal.PropertyNames.validProps[i] != null; ++i)
             {
-                String pattern = IceInternal.PropertyNames.validProps[i][0];
+                String pattern = IceInternal.PropertyNames.validProps[i][0].pattern();
                 dotPos = pattern.indexOf('.');
                 assert(dotPos != -1);
                 String propPrefix = pattern.substring(1, dotPos - 1);
@@ -149,10 +149,19 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
                 boolean found = false;
                 for(int j = 0; IceInternal.PropertyNames.validProps[i][j] != null && !found; ++j)
                 {
-                    pattern = IceInternal.PropertyNames.validProps[i][j];
+                    pattern = IceInternal.PropertyNames.validProps[i][j].pattern();
                     java.util.regex.Pattern pComp = java.util.regex.Pattern.compile(pattern);
                     java.util.regex.Matcher m = pComp.matcher(key);
                     found = m.matches();
+
+                    if(found && IceInternal.PropertyNames.validProps[i][j].deprecated())
+                    {
+                        logger.warning("deprecated property: " + key);
+                        if(IceInternal.PropertyNames.validProps[i][j].deprecatedBy() != null)
+                        {
+                            key = IceInternal.PropertyNames.validProps[i][j].deprecatedBy();
+                        }
+                    }
                 }
                 if(!found)
                 {

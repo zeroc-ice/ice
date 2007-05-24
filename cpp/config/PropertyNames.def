@@ -1,590 +1,506 @@
-#!/usr/bin/env python
-# **********************************************************************
-#
-# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
-#
-# **********************************************************************
+<?xml version="1.0"?>
+<!--
+**********************************************************************
 
-# This file defines the valid properties that are used by the various
-# parts of Ice. It is used generate source code using the makeprops.py
-# utility, so we do not need to redundantly maintain the same property
-# definitions in several languages (and risk having them go out of
-# sync).
-#
-# Syntax:
-#
-# Empty lines (lines containing only whitespace) are ignored.
-#
-# The # character introduces a comment that extends to the end of
-# line.  Property names cannot contain a # character.
-#
-# The file is organized into labelled sections. The label for a
-# section must be an identifier followed by a colon, such as
-# "Ice:". The section label is optionally followed by a boolean
-# which is used to determine whether command line processing is
-# done on this section by default. The default is true. If set to
-# true, command line options matching the section label will be
-# parsed by PropertiesI::parseIceCommandLineOptions(). If set to
-# false, command line options matching the section label won't be
-# parsed by PropertiesI::parseIceCommandLineOptions. This is useful
-# for plugin properties that are parsed when the plugin is loaded
-# (see PluginManagerI::loadPlugins()).
-#
-# Section labels must appear on a line by themselves (possibly
-# followed by a comment). Leading and trailing whitespace is
-# ignored. Each section must occur only once in a file. "validProps"
-# is reserved and cannot be used as a section name.
-#
-# Each section contains a number of property names, one to a line. A
-# property name cannot contain the # character. Otherwise, a property
-# name is taken to be any consecutive sequence of non-whitespace
-# characters. Leading and trailing whitespace is ignored, as is a
-# trailing comment.
-#
+Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 
-# The token "<any>" is a wildcard and matches any non-empty sequence
-# of non-whitespace characters.
-#
-# Examples:
-#
-# "Ice.Foo.<any>" allows all properties with that prefix, such as
-# "Ice.Foo.Bar".
-# 
-# "Ice.Foo<any>" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
-#
-# Property definitions are translated into each language by
-# makeprops.py.  For example, consider the following definitions:
-#
-# Ice:
-#	ChangeUser
-#	Package.<any>
-#
-# IceBox:
-#	LoadOrder
-#
-# If the source file is called Properties.defs, makeprops.py generates
-# the following C++ header and source code for this:
-#
-# // Properties.h
-#
-# namespace IceInternal
-# {
-# 
-# class Properties
-# {
-# public:
-# 
-#     static const char* const IceProps[];
-#     static const char* const IceBoxProps[];
-#
-#     static const char* const* validProps[];
-# };
-# 
-# }
-#
-# // Properties.cpp
-#
-# const char* const IceInternal::Properties::IceProps[] =
-# {
-#     "Ice.ChangeUser",
-#     "Ice.Package.*",
-#     0
-# };
-# 
-# const char* const IceInternal::Properties::IceBoxProps[] =
-# {
-#     "IceBox.LoadOrder",
-#     0
-# };
-#
-# const char* const* IceInternal::Properties::validProps[] =
-# {
-#    IceProps,
-#    IceBoxProps,
-#    0
-# };
-#
-# Note that the class name ("Properties" in this example) is generated
-# from the file name, and the first component of the property name is
-# generated from the section label.
-#
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
 
-Ice:
-    ACM.Client
-    ACM.Server
-    BatchAutoFlush
-    ChangeUser
-    Compression.Level
-    Config
-    Default.CollocationOptimization
-    Default.EndpointSelection
-    Default.Host
-    Default.Locator
-    Default.Locator.EndpointSelection
-    Default.Locator.ConnectionCached
-    Default.Locator.PreferSecure
-    Default.Locator.LocatorCacheTimeout
-    Default.Locator.Locator
-    Default.Locator.Router
-    Default.Locator.CollocationOptimization
-    Default.Locator.ThreadPerConnection
-    Default.LocatorCacheTimeout
-    Default.Package
-    Default.PreferSecure
-    Default.Protocol
-    Default.Router
-    Default.Router.EndpointSelection
-    Default.Router.ConnectionCached
-    Default.Router.PreferSecure
-    Default.Router.LocatorCacheTimeout
-    Default.Router.Locator
-    Default.Router.Router
-    Default.Router.CollocationOptimization
-    Default.Router.ThreadPerConnection
-    GC.Interval
-    ImplicitContext
-    InitPlugins
-    LoggerPlugin
-    MessageSizeMax
-    MonitorConnections
-    Nohup
-    NullHandleAbort
-    Override.Compress
-    Override.ConnectTimeout
-    Override.Timeout
-    Override.Secure
-    Package.<any>
-    Plugin.<any>
-    PluginLoadOrder
-    PrintAdapterReady
-    PrintProcessId
-    ProgramName
-    RetryIntervals
-    ServerId
-    ServerIdleTime
-    StdErr
-    StdOut
-    ThreadPerConnection
-    ThreadPerConnection.StackSize
-    ThreadPool.Client.Size
-    ThreadPool.Client.SizeMax
-    ThreadPool.Client.SizeWarn
-    ThreadPool.Client.StackSize
-    ThreadPool.Server.Size
-    ThreadPool.Server.SizeMax
-    ThreadPool.Server.SizeWarn
-    ThreadPool.Server.StackSize
-    Trace.GC
-    Trace.Location
-    Trace.Network
-    Trace.Protocol
-    Trace.Retry
-    Trace.Slicing
-    UDP.RcvSize
-    UDP.SndSize
-    TCP.RcvSize
-    TCP.SndSize
-    UseEventLog
-    UseSyslog
-    Warn.AMICallback
-    Warn.Connections
-    Warn.Datagrams
-    Warn.Dispatch
-    Warn.Endpoints
-    Warn.UnknownProperties
-    Warn.UnusedProperties
-    CacheMessageBuffers
+**********************************************************************
 
-IceBox:
-    InstanceName
-    LoadOrder
-    PrintServicesReady
-    Service.<any>
-    ServiceManager.AdapterId
-    ServiceManager.Endpoints
-    ServiceManager.Locator
-    ServiceManager.PublishedEndpoints
-    ServiceManager.RegisterProcess
-    ServiceManager.ReplicaGroupId
-    ServiceManager.Router
-    ServiceManager.ThreadPerConnection
-    ServiceManager.ThreadPerConnection.StackSize
-    ServiceManager.ThreadPool.Size
-    ServiceManager.ThreadPool.SizeMax
-    ServiceManager.ThreadPool.SizeWarn
-    ServiceManager.ThreadPool.StackSize
-    UseSharedCommunicator.<any>
-    InheritProperties
+This file defines the valid properties that are used by the various parts
+of Ice. It is used generate source code using the makeprops.py utility, so
+we do not need to redundantly maintain the same property definitions in
+several languages (and risk having them go out of sync).
 
-IceGridAdmin:
-    AuthenticateUsingSSL
-    Username
-    Password
-    Replica
-    Trace.Observers
-    Trace.SaveToRegistry
+Syntax:
+Root node: properties, no attributes
 
-IceGrid:
-    InstanceName
-    Node.AdapterId
-    Node.CollocateRegistry
-    Node.Data
-    Node.DisableOnFailure
-    Node.Endpoints
-    Node.Locator
-    Node.Name
-    Node.Output
-    Node.PrintServersReady
-    Node.PropertiesOverride
-    Node.PublishedEndpoints
-    Node.RedirectErrToOut
-    Node.RegisterProcess
-    Node.ReplicaGroupId
-    Node.Router
-    Node.ThreadPerConnection
-    Node.ThreadPerConnection.StackSize
-    Node.ThreadPool.Size
-    Node.ThreadPool.SizeMax
-    Node.ThreadPool.SizeWarn
-    Node.ThreadPool.StackSize
-    Node.Trace.Activator
-    Node.Trace.Adapter
-    Node.Trace.Patch
-    Node.Trace.Replica
-    Node.Trace.Server
-    Node.UserAccounts
-    Node.UserAccountMapper
-    Node.UserAccountMapper.EndpointSelection
-    Node.UserAccountMapper.ConnectionCached
-    Node.UserAccountMapper.PreferSecure
-    Node.UserAccountMapper.LocatorCacheTimeout
-    Node.UserAccountMapper.Locator
-    Node.UserAccountMapper.Router
-    Node.UserAccountMapper.CollocationOptimization
-    Node.UserAccountMapper.ThreadPerConnection
-    Node.WaitTime
-    Registry.AdminCryptPasswords
-    Registry.AdminPermissionsVerifier
-    Registry.AdminPermissionsVerifier.EndpointSelection
-    Registry.AdminPermissionsVerifier.ConnectionCached
-    Registry.AdminPermissionsVerifier.PreferSecure
-    Registry.AdminPermissionsVerifier.LocatorCacheTimeout
-    Registry.AdminPermissionsVerifier.Locator
-    Registry.AdminPermissionsVerifier.Router
-    Registry.AdminPermissionsVerifier.CollocationOptimization
-    Registry.AdminPermissionsVerifier.ThreadPerConnection
-    Registry.AdminSSLPermissionsVerifier
-    Registry.AdminSSLPermissionsVerifier.EndpointSelection
-    Registry.AdminSSLPermissionsVerifier.ConnectionCached
-    Registry.AdminSSLPermissionsVerifier.PreferSecure
-    Registry.AdminSSLPermissionsVerifier.LocatorCacheTimeout
-    Registry.AdminSSLPermissionsVerifier.Locator
-    Registry.AdminSSLPermissionsVerifier.Router
-    Registry.AdminSSLPermissionsVerifier.CollocationOptimization
-    Registry.AdminSSLPermissionsVerifier.ThreadPerConnection
-    Registry.Client.AdapterId
-    Registry.Client.Endpoints
-    Registry.Client.Locator
-    Registry.Client.PublishedEndpoints
-    Registry.Client.RegisterProcess
-    Registry.Client.ReplicaGroupId
-    Registry.Client.Router
-    Registry.Client.ThreadPerConnection
-    Registry.Client.ThreadPerConnection.StackSize
-    Registry.Client.ThreadPool.Size
-    Registry.Client.ThreadPool.SizeMax
-    Registry.Client.ThreadPool.SizeWarn
-    Registry.Client.ThreadPool.StackSize
-    Registry.CryptPasswords
-    Registry.Data
-    Registry.DefaultTemplates
-    Registry.DynamicRegistration
-    Registry.Internal.AdapterId
-    Registry.Internal.Endpoints
-    Registry.Internal.Locator
-    Registry.Internal.PublishedEndpoints
-    Register.Internal.RegisterProcess
-    Registry.Internal.ReplicaGroupId
-    Registry.Internal.Router
-    Registry.Internal.ThreadPerConnection
-    Registry.Internal.ThreadPerConnection.StackSize
-    Registry.Internal.ThreadPool.Size
-    Registry.Internal.ThreadPool.SizeMax
-    Registry.Internal.ThreadPool.SizeWarn
-    Registry.Internal.ThreadPool.StackSize
-    Registry.NodeSessionTimeout
-    Registry.PermissionsVerifier
-    Registry.PermissionsVerifier.EndpointSelection
-    Registry.PermissionsVerifier.ConnectionCached
-    Registry.PermissionsVerifier.PreferSecure
-    Registry.PermissionsVerifier.LocatorCacheTimeout
-    Registry.PermissionsVerifier.Locator
-    Registry.PermissionsVerifier.Router
-    Registry.PermissionsVerifier.CollocationOptimization
-    Registry.PermissionsVerifier.ThreadPerConnection
-    Registry.ReplicaName
-    Registry.ReplicaSessionTimeout
-    Registry.Server.AdapterId
-    Registry.Server.Endpoints
-    Registry.Server.Locator
-    Registry.Server.PublishedEndpoints
-    Registry.Server.RegisterProcess
-    Registry.Server.ReplicaGroupId
-    Registry.Server.Router
-    Registry.Server.ThreadPerConnection
-    Registry.Server.ThreadPerConnection.StackSize
-    Registry.Server.ThreadPool.Size
-    Registry.Server.ThreadPool.SizeMax
-    Registry.Server.ThreadPool.SizeWarn
-    Registry.Server.ThreadPool.StackSize
-    Registry.SessionManager.AdapterId
-    Registry.SessionManager.Endpoints
-    Registry.SessionManager.Locator
-    Registry.SessionManager.PublishedEndpoints
-    Registry.SessionManager.RegisterProcess
-    Registry.SessionManager.ReplicaGroupId
-    Registry.SessionManager.Router
-    Registry.SessionManager.ThreadPerConnection
-    Registry.SessionManager.ThreadPerConnection.StackSize
-    Registry.SessionManager.ThreadPool.Size
-    Registry.SessionManager.ThreadPool.SizeMax
-    Registry.SessionManager.ThreadPool.SizeWarn
-    Registry.SessionManager.ThreadPool.StackSize
-    Registry.SessionTimeout
-    Registry.SSLPermissionsVerifier
-    Registry.SSLPermissionsVerifier.EndpointSelection
-    Registry.SSLPermissionsVerifier.ConnectionCached
-    Registry.SSLPermissionsVerifier.PreferSecure
-    Registry.SSLPermissionsVerifier.LocatorCacheTimeout
-    Registry.SSLPermissionsVerifier.Locator
-    Registry.SSLPermissionsVerifier.Router
-    Registry.SSLPermissionsVerifier.CollocationOptimization
-    Registry.SSLPermissionsVerifier.ThreadPerConnection
-    Registry.Trace.Application
-    Registry.Trace.Adapter
-    Registry.Trace.Locator
-    Registry.Trace.Node
-    Registry.Trace.Object
-    Registry.Trace.Patch
-    Registry.Trace.Replica
-    Registry.Trace.Server
-    Registry.Trace.Session
-    Registry.UserAccounts
+The root node has 0 or more section elements. section elements must have a
+name atttribute which defines a "section label".  section elements may also
+have a noCmdLine attribute. If noCmdLine has the value of "true", command
+line options that match the section label will not be parsed in the
+Ice::PropertiesI::parseCommandLineOptions().  If noCmdLine has a value
+other than "true" or is omitted,
+Ice::PropertiesI::parseCommandLineOptions() will process properties that
+match the resepctive section name.
+
+Each section node has 0 or more property elements. property elements must
+have a name attribute. property elements may also have a proxy attribute or
+a threadpool attribute. A proxy attribute with the value of "true" cause
+additional Ice proxy specific properties to be generated by makeprops.py.
+Similarily, a threadpool attribute with the value "true" cause additional
+thread pool specific properties to be generated by makeprops.py. See
+makeprops.py for details on the additional properties that are generated.
+The property generation triggered by the proxy and threadpool attributes
+differ slightly in that the proxy properties are generated in *addition* to
+the property specified in this file, whereas the threadpool properties
+generated do not include a property for the original property element in.
+
+property elements may also include the deprecated and deprecatedBy
+attributes. A property that has a deprecated property with the value of
+true will be marked internally as deprecated and Ice may issue warnings if
+a deprecated property is used. The deprecatedBy attribute allows the Ice
+runtime to transparently replace the deprecated property name with a
+new property name that supercedes the deprecated property.
+
+property element name attributes have some additional syntax: The token
+"<any>" (denoted in valid XML as &lt;any&gt;) is a wildcard and matches any
+non-empty sequence of non-whitespace characters.
+
+Examples:
+
+"Ice.Foo.<any>" allows all properties with that prefix, such as "Ice.Foo.Bar".
+"Ice.Foo<any>" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
+
+Property definitions are translated into each language by makeprops.py.  
+    For example, consider the following definitions:
+
+    <properties>
+        <section name="Ice">
+            <property name="ChangeUser" />
+            <property name="Package.&lt;any&gt;" />
+            <property name="QuenchRequests" deprecated="true"  />
+            <property name="Foo" deprecated="true" deprecatedBy="Bar" />
+            <property name="Bar" />
+            <property name="Default.Locator" proxy="true" />
+            <property name="ThreadPool.Client" threadpool="true" />
+        </section>
+        <section name="IceBox">
+            <property name="LoadOrder" />
+        </section>
+    </properties>
+
+If the source file is called Properties.xml, makeprops.py generates
+the code similar to the following for C++ header and source file:
+
+//
+// Properties.h
+//
+namespace IceInternal
+{
+
+//
+// ... definitions for IceInternal::Property and IceInternal::PropertyArray
+// omitted...
+
+class Properties
+{
+public:
+
+    static const PropertyArray const IceProps;
+    static const PropertyArray const IceBoxProps;
+
+    static const PropertyArray validProps[];
+};
+
+}
+
+// Properties.cpp
+const IceInternal::Property IceInternal::Properties::IcePropsData[] =
+{
+    IceInternal::Property("Ice.ChangeUser", false, 0),
+    IceInternal::Property("Ice.Package.*", false, 0),
+    IceInternal::Property("Ice.QuenchRequests", true, 0),
+    IceInternal::Property("Ice.Foo", true, "Ice.Bar"),
+    IceInternal::Property("Ice.Bar", false, 0),
+    IceInternal::Property("Ice.Default.Locator", false, 0),
+    IceInternal::Property("Ice.Default.Locator.EndpointSelection", false, 0),
+    IceInternal::Property("Ice.Default.Locator.ConnectionCached", false, 0),
+    IceInternal::Property("Ice.Default.Locator.PreferSecure", false, 0),
+    IceInternal::Property("Ice.Default.Locator.LocatorCacheTimeout", false, 0),
+    IceInternal::Property("Ice.Default.Locator.Locator", false, 0),
+    IceInternal::Property("Ice.Default.Locator.Router", false, 0),
+    IceInternal::Property("Ice.Default.Locator.CollocationOptimization", false, 0),
+    IceInternal::Property("Ice.Default.Locator.ThreadPerConnection", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.Size", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.SizeMax", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.SizeWarn", false, 0),
+    IceInternal::Property("Ice.ThreadPool.Client.StackSize", false, 0)
+};
+
+const IceInternal::PropertyArray
+    IceInternal::Properties::IceProps(IcePropsData, sizeof(IcePropsData) /
+        sizeof(IcePropsData[0]));
+
+const IceInternal::Property IceInternal::Properties::IceBoxPropsData[] =
+{
+    IceInternal::Property("IceBox.LoadOrder", false, 0)
+};
+
+const IceInternal::PropertyArray
+    IceInternal::Properties::IceBoxProps(IceBoxPropsData, sizeof(IceBoxPropsData) /
+        sizeof(IceBoxPropsData[0]));
+
+const PropertyArray IceInternal::Properties::validProps[] =
+{
+    IceProps,
+    IceBoxProps,
+    IceInternal::PropertyArray(0, 0)
+};
+
+Note that the class name ("Properties" in this example) is generated
+from the file name, and the first component of the property name is
+generated from the section label.
+
+-->
+<properties>
+    <section name="Ice">
+        <property name="ACM.Client" />
+        <property name="ACM.Server" />
+        <property name="BatchAutoFlush" />
+        <property name="ChangeUser" />
+        <property name="Compression.Level" />
+        <property name="Config" />
+        <property name="Default.CollocationOptimization" />
+        <property name="Default.EndpointSelection" />
+        <property name="Default.Host" />
+        <property name="Default.Locator" proxy="true"/>
+        <property name="Default.LocatorCacheTimeout" />
+        <property name="Default.Package" />
+        <property name="Default.PreferSecure" />
+        <property name="Default.Protocol" />
+        <property name="Default.Router" proxy="true" />
+        <property name="GC.Interval" />
+        <property name="ImplicitContext" />
+        <property name="InitPlugins" />
+        <property name="LoggerPlugin" />
+        <property name="MessageSizeMax" />
+        <property name="MonitorConnections" />
+        <property name="Nohup" />
+        <property name="NullHandleAbort" />
+        <property name="Override.Compress" />
+        <property name="Override.ConnectTimeout" />
+        <property name="Override.Timeout" />
+        <property name="Override.Secure" />
+        <property name="Package.&lt;any&gt;" />
+        <property name="Plugin.&lt;any&gt;" />
+        <property name="PluginLoadOrder" />
+        <property name="PrintAdapterReady" />
+        <property name="PrintProcessId" />
+        <property name="ProgramName" />
+        <property name="RetryIntervals" />
+        <property name="ServerId" />
+        <property name="ServerIdleTime" />
+        <property name="StdErr" />
+        <property name="StdOut" />
+        <property name="ThreadPerConnection" />
+        <property name="ThreadPerConnection.StackSize" />
+        <property name="ThreadPool.Client" threadpool="true"/>
+        <property name="ThreadPool.Server" threadpool="true"/>
+        <property name="Trace.GC" />
+        <property name="Trace.Location" />
+        <property name="Trace.Network" />
+        <property name="Trace.Protocol" />
+        <property name="Trace.Retry" />
+        <property name="Trace.Slicing" />
+        <property name="UDP.RcvSize" />
+        <property name="UDP.SndSize" />
+        <property name="TCP.RcvSize" />
+        <property name="TCP.SndSize" />
+        <property name="UseEventLog" />
+        <property name="UseSyslog" />
+        <property name="Warn.AMICallback" />
+        <property name="Warn.Connections" />
+        <property name="Warn.Datagrams" />
+        <property name="Warn.Dispatch" />
+        <property name="Warn.Endpoints" />
+        <property name="Warn.UnknownProperties" />
+        <property name="CacheMessageBuffers" />
+    </section>
+
+    <section name="IceBox">
+        <property name="InstanceName" />
+        <property name="LoadOrder" />
+        <property name="PrintServicesReady" />
+        <property name="Service.&lt;any&gt;" />
+        <property name="ServiceManager.AdapterId" />
+        <property name="ServiceManager.Endpoints" />
+        <property name="ServiceManager.Locator" />
+        <property name="ServiceManager.PublishedEndpoints" />
+        <property name="ServiceManager.RegisterProcess" />
+        <property name="ServiceManager.ReplicaGroupId" />
+        <property name="ServiceManager.Router" />
+        <property name="ServiceManager.ThreadPerConnection" />
+        <property name="ServiceManager.ThreadPerConnection.StackSize" />
+        <property name="ServiceManager.ThreadPool" threadpool="true" />
+        <property name="UseSharedCommunicator.&lt;any&gt;" />
+        <property name="InheritProperties" />
+    </section>
+
+    <section name="IceGridAdmin">
+        <property name="AuthenticateUsingSSL" />
+        <property name="Username" />
+        <property name="Password" />
+        <property name="Replica" />
+        <property name="Trace.Observers" />
+        <property name="Trace.SaveToRegistry" />
+    </section>
+
+    <section name="IceGrid">
+        <property name="InstanceName" />
+        <property name="Node.AdapterId" />
+        <property name="Node.CollocateRegistry" />
+        <property name="Node.Data" />
+        <property name="Node.DisableOnFailure" />
+        <property name="Node.Endpoints" />
+        <property name="Node.Locator" />
+        <property name="Node.Name" />
+        <property name="Node.Output" />
+        <property name="Node.PrintServersReady" />
+        <property name="Node.PropertiesOverride" />
+        <property name="Node.PublishedEndpoints" />
+        <property name="Node.RedirectErrToOut" />
+        <property name="Node.RegisterProcess" />
+        <property name="Node.ReplicaGroupId" />
+        <property name="Node.Router" />
+        <property name="Node.ThreadPerConnection" />
+        <property name="Node.ThreadPerConnection.StackSize" />
+        <property name="Node.ThreadPool" threadpool="true" />
+        <property name="Node.Trace.Activator" />
+        <property name="Node.Trace.Adapter" />
+        <property name="Node.Trace.Patch" />
+        <property name="Node.Trace.Replica" />
+        <property name="Node.Trace.Server" />
+        <property name="Node.UserAccounts" />
+        <property name="Node.UserAccountMapper" proxy="true"/>
+        <property name="Node.WaitTime" />
+        <property name="Registry.AdminCryptPasswords" />
+        <property name="Registry.AdminPermissionsVerifier" proxy="true" />
+        <property name="Registry.AdminSSLPermissionsVerifier"
+            proxy="true" />
+        <property name="Registry.Client.AdapterId" />
+        <property name="Registry.Client.Endpoints" />
+        <property name="Registry.Client.Locator" />
+        <property name="Registry.Client.PublishedEndpoints" />
+        <property name="Registry.Client.RegisterProcess" />
+        <property name="Registry.Client.ReplicaGroupId" />
+        <property name="Registry.Client.Router" />
+        <property name="Registry.Client.ThreadPerConnection" />
+        <property name="Registry.Client.ThreadPerConnection.StackSize" />
+        <property name="Registry.Client.ThreadPool.Size" threadpool="true"/>
+        <property name="Registry.CryptPasswords" />
+        <property name="Registry.Data" />
+        <property name="Registry.DefaultTemplates" />
+        <property name="Registry.DynamicRegistration" />
+        <property name="Registry.Internal.AdapterId" />
+        <property name="Registry.Internal.Endpoints" />
+        <property name="Registry.Internal.Locator" />
+        <property name="Registry.Internal.PublishedEndpoints" />
+        <property name="Register.Internal.RegisterProcess" />
+        <property name="Registry.Internal.ReplicaGroupId" />
+        <property name="Registry.Internal.Router" />
+        <property name="Registry.Internal.ThreadPerConnection" />
+        <property name="Registry.Internal.ThreadPerConnection.StackSize" />
+        <property name="Registry.Internal.ThreadPool" threadpool="true"/>
+        <property name="Registry.NodeSessionTimeout" />
+        <property name="Registry.PermissionsVerifier" proxy="true"/>
+        <property name="Registry.ReplicaName" />
+        <property name="Registry.ReplicaSessionTimeout" />
+        <property name="Registry.Server.AdapterId" />
+        <property name="Registry.Server.Endpoints" />
+        <property name="Registry.Server.Locator" />
+        <property name="Registry.Server.PublishedEndpoints" />
+        <property name="Registry.Server.RegisterProcess" />
+        <property name="Registry.Server.ReplicaGroupId" />
+        <property name="Registry.Server.Router" />
+        <property name="Registry.Server.ThreadPerConnection" />
+        <property name="Registry.Server.ThreadPerConnection.StackSize" />
+        <property name="Registry.Server.ThreadPool" threadpool="true" />
+        <property name="Registry.SessionManager.AdapterId" />
+        <property name="Registry.SessionManager.Endpoints" />
+        <property name="Registry.SessionManager.Locator" />
+        <property name="Registry.SessionManager.PublishedEndpoints" />
+        <property name="Registry.SessionManager.RegisterProcess" />
+        <property name="Registry.SessionManager.ReplicaGroupId" />
+        <property name="Registry.SessionManager.Router" />
+        <property name="Registry.SessionManager.ThreadPerConnection" />
+        <property name="Registry.SessionManager.ThreadPerConnection.StackSize" />
+        <property name="Registry.SessionManager.ThreadPool" threadpool="true" />
+        <property name="Registry.SessionTimeout" />
+        <property name="Registry.SSLPermissionsVerifier" proxy="true"/>
+        <property name="Registry.Trace.Application" />
+        <property name="Registry.Trace.Adapter" />
+        <property name="Registry.Trace.Locator" />
+        <property name="Registry.Trace.Node" />
+        <property name="Registry.Trace.Object" />
+        <property name="Registry.Trace.Patch" />
+        <property name="Registry.Trace.Replica" />
+        <property name="Registry.Trace.Server" />
+        <property name="Registry.Trace.Session" />
+        <property name="Registry.UserAccounts" />
+    </section>
     
-IcePatch2:
-    AdapterId
-    Admin.AdapterId
-    Admin.Endpoints
-    Admin.Locator
-    Admin.PublishedEndpoints
-    Admin.RegisterProcess
-    Admin.ReplicaGroupId
-    Admin.Router
-    Admin.ThreadPerConnection
-    Admin.ThreadPerConnection.StackSize
-    Admin.ThreadPool.Size
-    Admin.ThreadPool.SizeMax
-    Admin.ThreadPool.SizeWarn
-    Admin.ThreadPool.StackSize
-    ChunkSize
-    Directory
-    Endpoints
-    InstanceName
-    Locator
-    PublishedEndpoints
-    RegisterProcess
-    ReplicaGroupId
-    Remove
-    Router
-    Thorough
-    ThreadPerConnection
-    ThreadPerConnection.StackSize
-    ThreadPool.Size
-    ThreadPool.SizeMax
-    ThreadPool.SizeWarn
-    ThreadPool.StackSize
+    <section name="IcePatch2">
+        <property name="AdapterId" />
+        <property name="Admin.AdapterId" />
+        <property name="Admin.Endpoints" />
+        <property name="Admin.Locator" />
+        <property name="Admin.PublishedEndpoints" />
+        <property name="Admin.RegisterProcess" />
+        <property name="Admin.ReplicaGroupId" />
+        <property name="Admin.Router" />
+        <property name="Admin.ThreadPerConnection" />
+        <property name="Admin.ThreadPerConnection.StackSize" />
+        <property name="Admin.ThreadPool" threadpool="true"/>
+        <property name="ChunkSize" />
+        <property name="Directory" />
+        <property name="Endpoints" />
+        <property name="InstanceName" />
+        <property name="Locator" />
+        <property name="PublishedEndpoints" />
+        <property name="RegisterProcess" />
+        <property name="ReplicaGroupId" />
+        <property name="Remove" />
+        <property name="Router" />
+        <property name="Thorough" />
+        <property name="ThreadPerConnection" />
+        <property name="ThreadPerConnection.StackSize" />
+        <property name="ThreadPool" threadpool="true" />
+    </section>
 
-IceSSL:
-    Alias
-    CertAuthDir
-    CertAuthFile
-    CertFile
-    CheckCertName
-    CheckCRL
-    Ciphers
-    DefaultDir
-    DH.<any>
-    EntropyDaemon
-    FindCert.<any>
-    ImportCert.<any>
-    KeyFile
-    Keystore
-    KeystorePassword
-    KeystoreType
-    Password
-    PasswordRetryMax
-    Protocols
-    Random
-    Trace.Security
-    Truststore
-    TruststorePassword
-    TruststoreType
-    VerifyDepthMax
-    VerifyPeer
-    TrustOnly
-    TrustOnly.Client
-    TrustOnly.Server
-    TrustOnly.Server.<any>
+    <section name="IceSSL">
+        <property name="Alias" />
+        <property name="CertAuthDir" />
+        <property name="CertAuthFile" />
+        <property name="CertFile" />
+        <property name="CheckCertName" />
+        <property name="CheckCRL" />
+        <property name="Ciphers" />
+        <property name="DefaultDir" />
+        <property name="DH.&lt;any&gt;" />
+        <property name="EntropyDaemon" />
+        <property name="FindCert.&lt;any&gt;" />
+        <property name="ImportCert.&lt;any&gt;" />
+        <property name="KeyFile" />
+        <property name="Keystore" />
+        <property name="KeystorePassword" />
+        <property name="KeystoreType" />
+        <property name="Password" />
+        <property name="PasswordRetryMax" />
+        <property name="Protocols" />
+        <property name="Random" />
+        <property name="Trace.Security" />
+        <property name="Truststore" />
+        <property name="TruststorePassword" />
+        <property name="TruststoreType" />
+        <property name="VerifyDepthMax" />
+        <property name="VerifyPeer" />
+        <property name="TrustOnly" />
+        <property name="TrustOnly.Client" />
+        <property name="TrustOnly.Server" />
+        <property name="TrustOnly.Server.&lt;any&gt;" />
+    </section>
 
-IceStormAdmin:
-    TopicManager.<any>
+    <section name="IceStormAdmin">
+        <property name="TopicManager.&lt;any&gt;" />
+    </section>
 
-IceStorm:
-    Flush.Timeout
-    InstanceName
-    Publish.AdapterId
-    Publish.Endpoints
-    Publish.Locator
-    Publish.PublishedEndpoints
-    Publish.RegisterProcess
-    Publish.ReplicaGroupId
-    Publish.Router
-    Publish.ThreadPerConnection
-    Publish.ThreadPerConnection.StackSize
-    Publish.ThreadPool.Size
-    Publish.ThreadPool.SizeMax
-    Publish.ThreadPool.SizeWarn
-    Publish.ThreadPool.StackSize
-    TopicManager.AdapterId
-    TopicManager.Endpoints
-    TopicManager.Locator
-    TopicManager.Proxy
-    TopicManager.Proxy.EndpointSelection
-    TopicManager.Proxy.ConnectionCached
-    TopicManager.Proxy.PreferSecure
-    TopicManager.Proxy.LocatorCacheTimeout
-    TopicManager.Proxy.Locator
-    TopicManager.Proxy.Router
-    TopicManager.Proxy.CollocationOptimization
-    TopicManager.Proxy.ThreadPerConnection
-    TopicManager.PublishedEndpoints
-    TopicManager.RegisterProcess
-    TopicManager.ReplicaGroupId
-    TopicManager.Router
-    TopicManager.ThreadPerConnection
-    TopicManager.ThreadPerConnection.StackSize
-    TopicManager.ThreadPool.Size
-    TopicManager.ThreadPool.SizeMax
-    TopicManager.ThreadPool.SizeWarn
-    TopicManager.ThreadPool.StackSize
-    SubscriberPool.Size
-    SubscriberPool.SizeMax
-    SubscriberPool.SizeWarn
-    SubscriberPool.Timeout
-    Trace.Flush
-    Trace.Subscriber
-    Trace.SubscriberPool
-    Trace.Topic
-    Trace.TopicManager
-    Send.Timeout
-    Discard.Interval
+    <section name="IceStorm">
+        <property name="Flush.Timeout" />
+        <property name="InstanceName" />
+        <property name="Publish.AdapterId" />
+        <property name="Publish.Endpoints" />
+        <property name="Publish.Locator" />
+        <property name="Publish.PublishedEndpoints" />
+        <property name="Publish.RegisterProcess" />
+        <property name="Publish.ReplicaGroupId" />
+        <property name="Publish.Router" />
+        <property name="Publish.ThreadPerConnection" />
+        <property name="Publish.ThreadPerConnection.StackSize" />
+        <property name="Publish.ThreadPool" threadpool="true"/>
+        <property name="TopicManager.AdapterId" />
+        <property name="TopicManager.Endpoints" />
+        <property name="TopicManager.Locator" />
+        <property name="TopicManager.Proxy" proxy="true" />
+        <property name="TopicManager.PublishedEndpoints" />
+        <property name="TopicManager.RegisterProcess" />
+        <property name="TopicManager.ReplicaGroupId" />
+        <property name="TopicManager.Router" />
+        <property name="TopicManager.ThreadPerConnection" />
+        <property name="TopicManager.ThreadPerConnection.StackSize" />
+        <property name="TopicManager.ThreadPool" threadpool="true" />
+        <property name="SubscriberPool.Size" />
+        <property name="SubscriberPool.SizeMax" />
+        <property name="SubscriberPool.SizeWarn" />
+        <property name="SubscriberPool.Timeout" />
+        <property name="Trace.Flush" />
+        <property name="Trace.Subscriber" />
+        <property name="Trace.SubscriberPool" />
+        <property name="Trace.Topic" />
+        <property name="Trace.TopicManager" />
+        <property name="Send.Timeout" />
+        <property name="Discard.Interval" />
+    </section>
 
-Glacier2:
-    AddSSLContext
-    AddUserToAllowCategories
-    Admin.Endpoints
-    Admin.PublishedEndpoints
-    Admin.RegisterProcess
-    AllowCategories
-    Client.AlwaysBatch
-    Client.Buffered
-    Client.Endpoints
-    Client.ForwardContext
-    Client.PublishedEndpoints
-    Client.RegisterProcess
-    Client.SleepTime
-    Client.Trace.Override
-    Client.Trace.Reject
-    Client.Trace.Request
-    Filter.Address.Reject
-    Filter.Address.Accept
-    Filter.ProxySizeMax
-    Filter.Category.Accept
-    Filter.Category.AcceptUser
-    Filter.AdapterId.Accept
-    Filter.Identity.Accept
-    CryptPasswords
-    InstanceName
-    PermissionsVerifier
-    PermissionsVerifier.EndpointSelection
-    PermissionsVerifier.ConnectionCached
-    PermissionsVerifier.PreferSecure
-    PermissionsVerifier.LocatorCacheTimeout
-    PermissionsVerifier.Locator
-    PermissionsVerifier.Router
-    PermissionsVerifier.CollocationOptimization
-    PermissionsVerifier.ThreadPerConnection
-    ReturnClientProxy
-    SSLPermissionsVerifier
-    SSLPermissionsVerifier.EndpointSelection
-    SSLPermissionsVerifier.ConnectionCached
-    SSLPermissionsVerifier.PreferSecure
-    SSLPermissionsVerifier.LocatorCacheTimeout
-    SSLPermissionsVerifier.Locator
-    SSLPermissionsVerifier.Router
-    SSLPermissionsVerifier.CollocationOptimization
-    SSLPermissionsVerifier.ThreadPerConnection
-    RoutingTable.MaxSize
-    Server.AlwaysBatch
-    Server.Buffered
-    Server.Endpoints
-    Server.ForwardContext
-    Server.PublishedEndpoints
-    Server.RegisterProcess
-    Server.SleepTime
-    Server.Trace.Override
-    Server.Trace.Request
-    SessionManager
-    SessionManager.EndpointSelection
-    SessionManager.ConnectionCached
-    SessionManager.PreferSecure
-    SessionManager.LocatorCacheTimeout
-    SessionManager.Locator
-    SessionManager.Router
-    SessionManager.CollocationOptimization
-    SessionManager.ThreadPerConnection
-    SSLSessionManager
-    SSLSessionManager.EndpointSelection
-    SSLSessionManager.ConnectionCached
-    SSLSessionManager.PreferSecure
-    SSLSessionManager.LocatorCacheTimeout
-    SSLSessionManager.Locator
-    SSLSessionManager.Router
-    SSLSessionManager.CollocationOptimization
-    SSLSessionManager.ThreadPerConnection
-    SessionTimeout
-    Trace.RoutingTable
-    Trace.Session
+    <section name="Glacier2">
+        <property name="AddSSLContext" />
+        <property name="AddUserToAllowCategories" deprecated="true"
+            deprecatedBy="Glacier2.Filter.Category.AcceptUser" />
+        <property name="Admin.Endpoints" />
+        <property name="Admin.PublishedEndpoints" />
+        <property name="Admin.RegisterProcess" />
+        <property name="AllowCategories" deprecated="true"
+            deprecatedBy="Glacier2.Filter.Category.Accept" />
+        <property name="Client.AlwaysBatch" />
+        <property name="Client.Buffered" />
+        <property name="Client.Endpoints" />
+        <property name="Client.ForwardContext" />
+        <property name="Client.PublishedEndpoints" />
+        <property name="Client.RegisterProcess" />
+        <property name="Client.SleepTime" />
+        <property name="Client.Trace.Override" />
+        <property name="Client.Trace.Reject" />
+        <property name="Client.Trace.Request" />
+        <property name="Filter.Address.Reject" />
+        <property name="Filter.Address.Accept" />
+        <property name="Filter.ProxySizeMax" />
+        <property name="Filter.Category.Accept"  />
+        <property name="Filter.Category.AcceptUser" />
+        <property name="Filter.AdapterId.Accept" />
+        <property name="Filter.Identity.Accept" />
+        <property name="CryptPasswords" />
+        <property name="InstanceName" />
+        <property name="PermissionsVerifier" proxy="true"/>
+        <property name="ReturnClientProxy" />
+        <property name="SSLPermissionsVerifier" proxy="true"/>
+        <property name="RoutingTable.MaxSize" />
+        <property name="Server.AlwaysBatch" />
+        <property name="Server.Buffered" />
+        <property name="Server.Endpoints" />
+        <property name="Server.ForwardContext" />
+        <property name="Server.PublishedEndpoints" />
+        <property name="Server.RegisterProcess" />
+        <property name="Server.SleepTime" />
+        <property name="Server.Trace.Override" />
+        <property name="Server.Trace.Request" />
+        <property name="SessionManager" proxy="true"/>
+        <property name="SSLSessionManager" proxy="true"/>
+        <property name="SessionTimeout" />
+        <property name="Trace.RoutingTable" />
+        <property name="Trace.Session" />
+    </section>
 
-Freeze:
-    DbEnv.<any>.CheckpointPeriod
-    DbEnv.<any>.DbHome
-    DbEnv.<any>.DbPrivate
-    DbEnv.<any>.DbRecoverFatal
-    DbEnv.<any>.OldLogsAutoDelete
-    DbEnv.<any>.PeriodicCheckpointMinSize
-    Evictor.<any>.MaxTxSize
-    Evictor.<any>.SavePeriod
-    Evictor.<any>.SaveSizeTrigger
-    Evictor.<any>.StreamTimeout
-    Evictor.<any>.PopulateEmptyIndices
-    Evictor.UseNonmutating
-    Trace.DbEnv
-    Trace.Evictor
-    Trace.Map
-    Trace.Transaction
-    Warn.CloseInFinalize
-    Warn.Deadlocks
+    <section name="Freeze">
+        <property name="DbEnv.&lt;any&gt;.CheckpointPeriod" />
+        <property name="DbEnv.&lt;any&gt;.DbHome" />
+        <property name="DbEnv.&lt;any&gt;.DbPrivate" />
+        <property name="DbEnv.&lt;any&gt;.DbRecoverFatal" />
+        <property name="DbEnv.&lt;any&gt;.OldLogsAutoDelete" />
+        <property name="DbEnv.&lt;any&gt;.PeriodicCheckpointMinSize" />
+        <property name="Evictor.&lt;any&gt;.MaxTxSize" />
+        <property name="Evictor.&lt;any&gt;.SavePeriod" />
+        <property name="Evictor.&lt;any&gt;.SaveSizeTrigger" />
+        <property name="Evictor.&lt;any&gt;.StreamTimeout" />
+        <property name="Evictor.&lt;any&gt;.PopulateEmptyIndices" />
+        <property name="Evictor.UseNonmutating" />
+        <property name="Trace.DbEnv" />
+        <property name="Trace.Evictor" />
+        <property name="Trace.Map" />
+        <property name="Trace.Transaction" />
+        <property name="Warn.CloseInFinalize" />
+        <property name="Warn.Deadlocks" />
+    </section>
+
+</properties>
