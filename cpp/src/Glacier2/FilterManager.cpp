@@ -232,44 +232,16 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
                                 const bool allowAddUser)
 {
     PropertiesPtr props = communicator->getProperties();
-    //
-    // DEPRECATED PROPERTY: Glacier2.AllowCategories is to be deprecated
-    // and superseded by Glacier2.Filter.Category.Accept.
-    //
     string allow = props->getProperty("Glacier2.Filter.Category.Accept");
-    if(allow.empty())
-    {
-        allow = props->getProperty("Glacier2.AllowCategories");
-        if(!allow.empty())
-        {
-            communicator->getLogger()->warning(
-                "Glacier2.AllowCategories has been deprecated, use Glacier2.Filter.Category.Accept instead.");
-        }
-    }
-
     vector<string> allowSeq;
     stringToSeq(allow, allowSeq);
 
     if(allowAddUser)
     {
-        //
-        // DEPRECATED PROPERTY: Glacier2.AddUserToAllowCategories is to be deprecated
-        // and superseded by Glacier2.Filter.Category.AcceptUser.
-        //
         int addUserMode;
         if(!props->getProperty("Glacier2.Filter.Category.AcceptUser").empty())
         {
             addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AcceptUser");
-        }
-        else
-        {
-            if(!props->getProperty("Glacier2.AddUserToAllowCategories").empty())
-            {
-                communicator->getLogger()->warning(
-                        "Glacier2.AddUserToAllowCategories has been deprecated, \
-                         use Glacier2.Filter.Category.AcceptUser instead.");
-            }
-            addUserMode = props->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
         }
        
         if(addUserMode > 0 && !userId.empty())
