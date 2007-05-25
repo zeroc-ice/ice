@@ -61,7 +61,7 @@ public:
     Handle<Value> getIfPinned(const Key&) const;
 
     void unpin(Position);
-    bool unpin(const Key&);
+    Handle<Value> unpin(const Key&);
 
     void clear();
     size_t size() const;
@@ -112,20 +112,69 @@ Cache<Key, Value>::getIfPinned(const Key& key) const
 template<typename Key, typename Value> void
 Cache<Key, Value>::unpin(typename Cache::Position p)
 {
+    //
+    // There is no risk to erase a 'being loaded' position,
+    // since such position nevr got outside yet!
+    //
     Mutex::Lock sync(_mutex);
     _map.erase(p);
 }
 
-template<typename Key, typename Value> bool
+template<typename Key, typename Value> Handle<Value>
 Cache<Key, Value>::unpin(const Key& key)
 {
     Mutex::Lock sync(_mutex);
-    return _map.erase(key) > 0;
+
+    for(;;)
+    {
+        typename CacheMap::iterator p = _map.find(key);
+        
+        if(p == _map.end())
+        {
+            return 0;
+        }
+     
+        Handle<Value> result = p->second.obj;
+   
+        if(result != 0)
+        {
+            _map.erase(p);
+            return result;
+        }
+        else
+        {
+            //
+            // The object is being loaded so we need to wait:
+            // we can't erase 'p' while the loading thread is using it
+            //
+
+            if(p->second.latch == 0)
+            {
+                p->second.latch = new Latch;
+            }
+            
+            Latch* latch = p->second.latch;
+            ++latch->useCount;
+            sync.release();
+            latch->await();
+            sync.acquire();
+            if(--latch->useCount == 0)
+            {
+                delete latch;
+            }
+            //
+            // Try again
+            //
+        }
+    }
 }
 
 template<typename Key, typename Value> void 
 Cache<Key, Value>::clear()
 {
+    //
+    // Not safe during a pin!
+    //
     Mutex::Lock sync(_mutex);
     _map.clear();
 }
@@ -153,7 +202,6 @@ Cache<Key, Value>::pin(const Key& key, const Handle<Value>& obj)
        _map.insert(typename CacheMap::value_type(key, CacheValue(obj)));
 #endif       
 
-
     if(ir.second)
     {
         pinned(obj, ir.first);
@@ -179,7 +227,7 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
     Latch* latch = 0;
     Position p;
 
-    for(;;)
+    do
     {
         {
             Mutex::Lock sync(_mutex);
@@ -232,97 +280,104 @@ Cache<Key, Value>::pinImpl(const Key& key, const Handle<Value>& newObj)
            
             p = ir.first;          
         }
-                
+        
         if(latch != 0) 
-        { 
-            latch->await();
+        {
+            //
+            // Note: only the threads owning a "useCount" wait; upon wake-up,
+            // they loop back, release this useCount and possibly delete the latch
+            //
             
+            latch->await();
+
             // 
             // p could be stale now, e.g. some other thread pinned and unpinned the 
             // object while we were waiting. 
             // So start over. 
-            // 
-            continue;
-        } 
-        else 
-        {          
-            Handle<Value> obj;
-            try
-            {
-                obj = load(key);
-            }
-            catch(...)
-            {
+        }
+    } while(latch != 0);
+
+    
+    //
+    // Load 
+    //
+    Handle<Value> obj;
+    try
+    {
+        obj = load(key);
+    }
+    catch(...)
+    {
+        {
+            Mutex::Lock sync(_mutex);
+            latch = p->second.latch;
+            p->second.latch = 0;
+            _map.erase(p);
+        }
+        if(latch != 0)  
+        { 
+            assert(latch->getCount() == 1);
+            latch->countDown();
+        }
+        throw;
+    }
+
+    {
+        Mutex::Lock sync(_mutex);
+        
+        //
+        // p is still valid here -- nobody knows about it. See also unpin().
+        //
+        latch = p->second.latch;
+        p->second.latch = 0;
+        
+        try
+        {
+            if(obj != 0) 
+            {  
+                p->second.obj = obj;
+                pinned(obj, p);
+            } 
+            else 
+            { 
+                if(newObj == 0)
                 {
-                    Mutex::Lock sync(_mutex);
-                    latch = p->second.latch;
-                    p->second.latch = 0;
+                    //
+                    // pin() did not find the object
+                    //
+                    
+                    // 
+                    // The waiting threads will have to call load() to see by themselves. 
+                    // 
                     _map.erase(p);
                 }
-                if(latch != 0)  
-                { 
-                    assert(latch->getCount() == 1);
-                    latch->countDown();
-                }
-                throw;
-            }
-
-            {
-                Mutex::Lock sync(_mutex);
-
-                latch = p->second.latch;
-                p->second.latch = 0;
-
-                try
+                else
                 {
-                    if(obj != 0) 
-                    {  
-                        p->second.obj = obj;
-                        pinned(obj, p);
-                    } 
-                    else 
-                    { 
-                        if(newObj == 0)
-                        {
-                            //
-                            // pin() did not find the object
-                            //
-                            
-                            // 
-                            // The waiting threads will have to call load() to see by themselves. 
-                            // 
-                            _map.erase(p);
-                        }
-                        else
-                        {
-                            //
-                            // putIfAbsent() inserts key/newObj
-                            //
-                            p->second.obj = newObj;
-                            pinned(newObj, p);
-                        }
-                    }
-                }
-                catch(...)
-                {
-                    if(latch != 0)  
-                    { 
-                        assert(latch->getCount() == 1);
-                        latch->countDown();
-                    }
-                    throw;
+                    //
+                    // putIfAbsent() inserts key/newObj
+                    //
+                    p->second.obj = newObj;
+                    pinned(newObj, p);
                 }
             }
+        }
+        catch(...)
+        {
             if(latch != 0)  
             { 
                 assert(latch->getCount() == 1);
                 latch->countDown();
             }
-            return obj;
-        }  
+            throw;
+        }
     }
+    if(latch != 0)  
+    { 
+        assert(latch->getCount() == 1);
+        latch->countDown();
+    }
+    return obj;
 }
-
 
 }
 

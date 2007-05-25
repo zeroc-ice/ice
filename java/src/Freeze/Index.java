@@ -67,17 +67,16 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
     {
         EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
         deactivateController.lock();
-        
         try
         {
             com.sleepycat.db.DatabaseEntry key = new com.sleepycat.db.DatabaseEntry(k);
-            
+        
             // When we have a custom-comparison function, Berkeley DB returns
             // the key on-disk (when it finds one). We disable this behavior:
             // (ref Oracle SR 5925672.992)
             //
             key.setPartial(true);
-
+            
             com.sleepycat.db.DatabaseEntry pkey = new com.sleepycat.db.DatabaseEntry();
             com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
             //
@@ -86,95 +85,111 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             value.setPartial(true);
             
             Ice.Communicator communicator = _store.communicator();
-            _store.evictor().saveNow();
-            
-            java.util.List identities;
-            
-            try
-            {
-                for(;;)
-                {
-                    com.sleepycat.db.SecondaryCursor dbc = null;
-                    identities = new java.util.ArrayList(); 
-                    
-                    try
-                    {
-                        //
-                        // Move to the first record
-                        // 
-                        dbc = _db.openSecondaryCursor(null, null);
-                        boolean first = true;
-                        
-                        boolean found;
-                        
-                        do
-                        {
-                            com.sleepycat.db.OperationStatus status;
-                            if(first)
-                            {
-                                status = dbc.getSearchKey(key, pkey, value, null);
-                            }
-                            else
-                            {
-                                status = dbc.getNextDup(key, pkey, value, null);
-                            }
 
-                            found = status == com.sleepycat.db.OperationStatus.SUCCESS;
-                            
-                            if(found)
+            com.sleepycat.db.Transaction tx = _store.evictor().beforeQuery();
+        
+            java.util.List identities;
+        
+            for(;;)
+            {
+                com.sleepycat.db.SecondaryCursor dbc = null;
+                identities = new java.util.ArrayList(); 
+            
+                try
+                {
+                    //
+                    // Move to the first record
+                    // 
+                    dbc = _db.openSecondaryCursor(tx, null);
+                    boolean first = true;
+                
+                    boolean found;
+                
+                    do
+                    {
+                        com.sleepycat.db.OperationStatus status;
+                        if(first)
+                        {
+                            status = dbc.getSearchKey(key, pkey, value, null);
+                        }
+                        else
+                        {
+                            status = dbc.getNextDup(key, pkey, value, null);
+                        }
+                    
+                        found = status == com.sleepycat.db.OperationStatus.SUCCESS;
+                    
+                        if(found)
+                        {
+                            Ice.Identity ident = ObjectStore.unmarshalKey(pkey.getData(), communicator);
+                            identities.add(ident);
+                            first = false;
+                        }
+                    }
+                    while((firstN <= 0 || identities.size() < firstN) && found);
+                    
+                    break; // for(;;)
+                }
+                catch(com.sleepycat.db.DeadlockException dx)
+                {
+                    if(_store.evictor().deadlockWarning())
+                    {
+                        communicator.getLogger().warning("Deadlock in Freeze.Index.untypedFindFirst while " +
+                                                         "iterating over Db \"" + _store.evictor().filename() +
+                                                         "/" + _dbName + "\"");
+                    }
+                
+                    if(tx != null)
+                    {
+                        DeadlockException ex = new DeadlockException();
+                        ex.initCause(dx);
+                        ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+                        throw ex;
+                    }
+                
+                    //
+                    // Otherwise retry
+                    //
+                }
+                catch(com.sleepycat.db.DatabaseException dx)
+                {
+                    DatabaseException ex = new DatabaseException();
+                    ex.initCause(dx);
+                    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+                    throw ex;
+                }
+                finally
+                {
+                    if(dbc != null)
+                    {
+                        try
+                        {
+                            dbc.close();
+                        }
+                        catch(com.sleepycat.db.DeadlockException dx)
+                        {
+                            if(tx != null)
                             {
-                                Ice.Identity ident = ObjectStore.unmarshalKey(pkey.getData(), communicator);
-                                identities.add(ident);
-                                first = false;
+                                DeadlockException ex = new DeadlockException();
+                                ex.initCause(dx);
+                                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+                                throw ex;
                             }
                         }
-                        while((firstN <= 0 || identities.size() < firstN) && found);
-                        
-                        break; // for(;;)
-                    }
-                    catch(com.sleepycat.db.DeadlockException dx)
-                    {
-                        if(_store.evictor().deadlockWarning())
+                        catch(com.sleepycat.db.DatabaseException dx)
                         {
-                            communicator.getLogger().warning("Deadlock in Freeze.Index.untypedFindFirst while " +
-                                                             "iterating over Db \"" + _store.evictor().filename() +
-                                                             "/" + _dbName + "\"; retrying...");
-                        }
-                        
-                        //
-                        // Retry
-                        //
-                    }
-                    finally
-                    {
-                        if(dbc != null)
-                        {
-                            try
-                            {
-                                dbc.close();
-                            }
-                            catch(com.sleepycat.db.DeadlockException dx)
-                            {
-                                //
-                                // Ignored
-                                //
-                            }
+                            //
+                            // Ignored
+                            //
                         }
                     }
                 }
             }
-            catch(com.sleepycat.db.DatabaseException dx)
-            {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-                throw ex;
-            }
-            
+           
             if(identities.size() != 0)
             {
                 Ice.Identity[] result = new Ice.Identity[identities.size()];
-                return (Ice.Identity[]) identities.toArray(result);
+                return (Ice.Identity[])identities.toArray(result);
             }
             else
             {
@@ -198,79 +213,93 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
     {
         EvictorI.DeactivateController deactivateController = _store.evictor().deactivateController();
         deactivateController.lock();
-        
         try
         {
-            com.sleepycat.db.DatabaseEntry key = new com.sleepycat.db.DatabaseEntry(k);
 
+            com.sleepycat.db.DatabaseEntry key = new com.sleepycat.db.DatabaseEntry(k);
+        
             // When we have a custom-comparison function, Berkeley DB returns
             // the key on-disk (when it finds one). We disable this behavior:
             // (ref Oracle SR 5925672.992)
             //
             key.setPartial(true);
-
+        
             com.sleepycat.db.DatabaseEntry value = new com.sleepycat.db.DatabaseEntry();
             //
             // dlen is 0, so we should not retrieve any value 
             // 
             value.setPartial(true);
-            _store.evictor().saveNow();
-            
-            try
+            com.sleepycat.db.Transaction tx = _store.evictor().beforeQuery();
+        
+            for(;;)
             {
-                for(;;)
+                com.sleepycat.db.Cursor dbc = null;
+                try
                 {
-                    com.sleepycat.db.Cursor dbc = null;
-                    try
+                    dbc = _db.openCursor(tx, null);   
+                    if(dbc.getSearchKey(key, value, null) == com.sleepycat.db.OperationStatus.SUCCESS)
                     {
-                        dbc = _db.openCursor(null, null);   
-                        if(dbc.getSearchKey(key, value, null) == com.sleepycat.db.OperationStatus.SUCCESS)
-                        {
-                            return dbc.count();
-                        }
-                        else
-                        {
-                            return 0;
-                        }
+                        return dbc.count();
                     }
-                    catch(com.sleepycat.db.DeadlockException dx)
+                    else
                     {
-                        if(_store.evictor().deadlockWarning())
-                        {
-                            _store.communicator().getLogger().warning("Deadlock in Freeze.Index.untypedCount while " +
-                                                                      "iterating over Db \"" +
-                                                                      _store.evictor().filename() + "/" + _dbName +
-                                                                      "\"; retrying...");
-                        }
-                        
-                        //
-                        // Retry
-                        //
+                        return 0;
                     }
-                    finally
+                }
+                catch(com.sleepycat.db.DeadlockException dx)
+                {
+                    if(_store.evictor().deadlockWarning())
                     {
-                        if(dbc != null)
+                        _store.communicator().getLogger().warning("Deadlock in Freeze.Index.untypedCount while " +
+                                                                  "iterating over Db \"" +
+                                                                  _store.evictor().filename() + "/" + _dbName +
+                                                                  "\"");
+                    }
+
+                    if(tx != null)
+                    {
+                        DeadlockException ex = new DeadlockException();
+                        ex.initCause(dx);
+                        ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+                        throw ex;
+                    }
+                    //
+                    // Otherwise retry
+                    //
+                }
+                catch(com.sleepycat.db.DatabaseException dx)
+                {
+                    DatabaseException ex = new DatabaseException();
+                    ex.initCause(dx);
+                    ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+                    throw ex;
+                }
+                finally
+                {
+                    if(dbc != null)
+                    {
+                        try
                         {
-                            try
+                            dbc.close();
+                        }
+                        catch(com.sleepycat.db.DeadlockException dx)
+                        {
+                            if(tx != null)
                             {
-                                dbc.close();
+                                DeadlockException ex = new DeadlockException();
+                                ex.initCause(dx);
+                                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
+                                throw ex;
                             }
-                            catch(com.sleepycat.db.DeadlockException dx)
-                            {
-                                //
-                                // Ignored
-                                //
-                            }
+                        }
+                        catch(com.sleepycat.db.DatabaseException dx)
+                        {
+                            //
+                            // Ignored
+                            //
                         }
                     }
                 }
-            }
-            catch(com.sleepycat.db.DatabaseException dx)
-            {
-                DatabaseException ex = new DatabaseException();
-                ex.initCause(dx);
-                ex.message = _store.evictor().errorPrefix() + "Db.cursor: " + dx.getMessage();
-                throw ex;
             }
         }
         finally
@@ -278,7 +307,7 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             deactivateController.unlock();
         }
     }
-
+ 
     protected final Ice.Communicator
     communicator()
     {

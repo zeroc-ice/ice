@@ -16,15 +16,17 @@ LIBNAME		= $(call mklibname,Freeze)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 
-OBJS		= CatalogData.o \
+OBJS		= BackgroundSaveEvictor.o \
+                  BackgroundSaveEvictorI.o \
+                  CatalogData.o \
                   Catalog.o \
 		  ConnectionI.o \
                   Connection.o \
 		  DB.o \
 		  EvictorI.o \
                   EvictorIteratorI.o \
+                  EvictorStorage.o \
 		  Evictor.o \
-		  EvictorStorage.o \
                   Exception.o \
                   IndexI.o \
                   Index.o \
@@ -33,6 +35,9 @@ OBJS		= CatalogData.o \
 		  PingObject.o \
                   SharedDbEnv.o \
                   SharedDb.o \
+                  TransactionalEvictor.o \
+                  TransactionalEvictorI.o \
+                  TransactionalEvictorContextI.o \
                   TransactionHolder.o \
                   TransactionI.o \
                   Transaction.o \
@@ -40,7 +45,8 @@ OBJS		= CatalogData.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/DB.ice \
+SLICE_SRCS	= $(SDIR)/BackgroundSaveEvictor.ice \
+                  $(SDIR)/DB.ice \
                   $(SDIR)/CatalogData.ice \
                   $(SDIR)/Connection.ice \
                   $(SDIR)/ConnectionF.ice \
@@ -48,6 +54,7 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
 		  $(SDIR)/EvictorF.ice \
 		  $(SDIR)/EvictorStorage.ice \
 		  $(SDIR)/Evictor.ice \
+                  $(SDIR)/TransactionalEvictor.ice \
                   $(SDIR)/Transaction.ice \
 		  ../Freeze/PingObject.ice
 

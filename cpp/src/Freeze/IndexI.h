@@ -17,7 +17,7 @@
 namespace Freeze
 {
 
-class ObjectStore;
+class ObjectStoreBase;
 
 class IndexI
 {
@@ -32,7 +32,7 @@ public:
     Ice::Int untypedCount(const Key&) const;
     
     void
-    associate(ObjectStore* store, DbTxn* txn, bool createDb, bool populateIndex);
+    associate(ObjectStoreBase*, DbTxn*, bool, bool);
 
     int
     secondaryKeyCreate(Db*, const Dbt*, const Dbt*, Dbt*);
@@ -42,12 +42,10 @@ public:
     
 private:
 
-   
-
     Index& _index;
     std::string _dbName;
     std::auto_ptr<Db> _db;
-    ObjectStore* _store;
+    ObjectStoreBase* _store;
 };
 
 }

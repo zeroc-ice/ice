@@ -172,16 +172,19 @@ public class ServantI implements Test._ServantOperations
     public void
     keepInCache(Ice.Current current)
     {
-        _evictor.keep(current.id);
+        Freeze.BackgroundSaveEvictor bse = (Freeze.BackgroundSaveEvictor)_evictor;
+        bse.keep(current.id);
     }
 
     public void
     release(Ice.Current current)
         throws Test.NotRegisteredException
     {
+        Freeze.BackgroundSaveEvictor bse = (Freeze.BackgroundSaveEvictor)_evictor;
+
         try
         {
-            _evictor.release(current.id);
+            bse.release(current.id);
         }
         catch(Ice.NotRegisteredException e)
         {

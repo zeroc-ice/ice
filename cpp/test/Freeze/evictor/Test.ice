@@ -73,7 +73,7 @@ interface RemoteEvictor
 
 interface RemoteEvictorFactory
 {
-    RemoteEvictor* createEvictor(string name);
+    RemoteEvictor* createEvictor(string name, bool transactional);
     void shutdown();
 };
 

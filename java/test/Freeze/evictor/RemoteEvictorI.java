@@ -37,7 +37,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     }
 
 
-    RemoteEvictorI(Ice.ObjectAdapter adapter, String envName, String category)
+    RemoteEvictorI(Ice.ObjectAdapter adapter, String envName, String category, boolean transactional)
     {
         _adapter = adapter;
         _category = category;
@@ -50,7 +50,15 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 
         Initializer initializer = new Initializer();
 
-        _evictor = Freeze.Util.createEvictor(_evictorAdapter, envName, category, initializer, null, true);
+        if(transactional)
+        {
+            _evictor = Freeze.Util.createTransactionalEvictor(_evictorAdapter, envName, category, null, initializer, null, true);
+        }
+        else
+        {
+            _evictor = Freeze.Util.createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer, null, true);
+        }
+
         initializer.init(this, _evictor);
         
         _evictorAdapter.addServantLocator(_evictor, category);
@@ -107,7 +115,13 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     public void
     saveNow(Ice.Current current)
     {
-        _evictor.getIterator("", 1);
+        if(_evictor instanceof Freeze.BackgroundSaveEvictor)
+        {
+            _evictor.getIterator("", 1);
+        }
+        //
+        // Otherwise everything is always saved
+        //
     }
 
     public void

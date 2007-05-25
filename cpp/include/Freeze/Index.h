@@ -18,7 +18,7 @@ namespace Freeze
 {
 
 class IndexI;
-class ObjectStore;
+class ObjectStoreBase;
 
 class FREEZE_API Index : public IceUtil::Shared
 {
@@ -46,7 +46,7 @@ protected:
 private:
 
     friend class IndexI;
-    friend class ObjectStore;
+    friend class ObjectStoreBase;
     
     std::string _name;
     std::string _facet;

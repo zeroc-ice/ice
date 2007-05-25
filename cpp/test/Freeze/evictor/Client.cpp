@@ -342,6 +342,11 @@ public:
                 }
             }
         }
+        catch(const std::exception& ex)
+        {
+            cout << "Caught unexpected : " << ex.what() << endl;
+            test(false);
+        }
         catch(...)
         {
             //
@@ -357,19 +362,26 @@ private:
 };
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool transactional, bool shutdown)
 {
     string ref = "factory:default -p 12010 -t 30000";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     Test::RemoteEvictorFactoryPrx factory = Test::RemoteEvictorFactoryPrx::checkedCast(base);
 
-    cout << "testing Freeze Evictor... " << flush;
+    if(transactional)
+    {
+        cout << "testing transactional Freeze Evictor... " << flush;
+    }
+    else
+    {
+        cout << "testing background-save Freeze Evictor... " << flush;
+    }
     
     const Ice::Int size = 5;
     Ice::Int i;
     
-    Test::RemoteEvictorPrx evictor = factory->createEvictor("Test");
+    Test::RemoteEvictorPrx evictor = factory->createEvictor("Test", transactional);
     
     evictor->setSize(size);
     
@@ -453,30 +465,34 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         test(facet2);
         test(facet2->getValue() == 100 * i + 100);
     }
-    // 
-    // Test saving while busy
-    //
-    Test::AMI_Servant_setValueAsyncPtr setCB = new AMI_Servant_setValueAsyncI;
-    for(i = 0; i < size; i++)
-    {
-        //
-        // Start a mutating operation so that the object is not idle.
-        //
-        servants[i]->setValueAsync_async(setCB, i + 300);
-        
-        test(servants[i]->getValue() == i + 100);
-        //
-        // This operation modifies the object state but is not saved
-        // because the setValueAsync operation is still pending.
-        //
-        servants[i]->setValue(i + 200);
-        test(servants[i]->getValue() == i + 200);
 
+    if(!transactional)
+    {
+        // 
+        // Test saving while busy
         //
-        // Force the response to setValueAsync
-        //
-        servants[i]->releaseAsync();
-        test(servants[i]->getValue() == i + 300);
+        Test::AMI_Servant_setValueAsyncPtr setCB = new AMI_Servant_setValueAsyncI;
+        for(i = 0; i < size; i++)
+        {
+            //
+            // Start a mutating operation so that the object is not idle.
+            //
+            servants[i]->setValueAsync_async(setCB, i + 300);
+            
+            test(servants[i]->getValue() == i + 100);
+            //
+            // This operation modifies the object state but is not saved
+            // because the setValueAsync operation is still pending.
+            //
+            servants[i]->setValue(i + 200);
+            test(servants[i]->getValue() == i + 200);
+            
+            //
+            // Force the response to setValueAsync
+            //
+            servants[i]->releaseAsync();
+            test(servants[i]->getValue() == i + 300);
+        }
     }
 
     //
@@ -529,14 +545,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     evictor->setSize(0);
     evictor->setSize(size);
-
-    for(i = 0; i < size; i++)
-    {
-        test(servants[i]->getValue() == i + 300);
-
-        Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
-        test(facet1 == 0);
-    }
 
     //
     // Destroy servants and verify ObjectNotExistException.
@@ -592,83 +600,87 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         test(servants[i]->getTransientValue() == -1);
     }
-    
-    //
-    // Now with keep
-    //
-    for(i = 0; i < size; i++)
+
+    if(!transactional)
     {
-        servants[i]->keepInCache();
-        servants[i]->keepInCache();
-        servants[i]->setTransientValue(i);
-    }
-    evictor->saveNow();
-    evictor->setSize(0);
-    evictor->setSize(size);
+    
+        //
+        // Now with keep
+        //
+        for(i = 0; i < size; i++)
+        {
+            servants[i]->keepInCache();
+            servants[i]->keepInCache();
+            servants[i]->setTransientValue(i);
+        }
+        evictor->saveNow();
+        evictor->setSize(0);
+        evictor->setSize(size);
    
     
-    //
-    // Check the transient value
-    //
-    for(i = 0; i < size; i++)
-    {
-        test(servants[i]->getTransientValue() == i);
-    }
+        //
+        // Check the transient value
+        //
+        for(i = 0; i < size; i++)
+        {
+            test(servants[i]->getTransientValue() == i);
+        }
 
-    //
-    // Again, after one release
-    //
-    for(i = 0; i < size; i++)
-    {
-        servants[i]->release();
-    }
-    evictor->saveNow();
-    evictor->setSize(0);
-    evictor->setSize(size);
-    for(i = 0; i < size; i++)
-    {
-        test(servants[i]->getTransientValue() == i);
-    }
-
-    //
-    // Again, after a second release
-    //
-    for(i = 0; i < size; i++)
-    {
-        servants[i]->release();
-    }
-    evictor->saveNow();
-    evictor->setSize(0);
-    evictor->setSize(size);
-    for(i = 0; i < size; i++)
-    {
-        test(servants[i]->getTransientValue() == -1);
-    }
-
-
-    //
-    // Release one more time
-    //
-    for(i = 0; i < size; i++)
-    {
-        try
+        //
+        // Again, after one release
+        //
+        for(i = 0; i < size; i++)
         {
             servants[i]->release();
-            test(false);
         }
-        catch(const Test::NotRegisteredException&)
+        evictor->saveNow();
+        evictor->setSize(0);
+        evictor->setSize(size);
+        for(i = 0; i < size; i++)
         {
-            // Expected
+            test(servants[i]->getTransientValue() == i);
+        }
+
+        //
+        // Again, after a second release
+        //
+        for(i = 0; i < size; i++)
+        {
+            servants[i]->release();
+        }
+        evictor->saveNow();
+        evictor->setSize(0);
+        evictor->setSize(size);
+        for(i = 0; i < size; i++)
+        {
+            test(servants[i]->getTransientValue() == -1);
+        }
+
+
+        //
+        // Release one more time
+        //
+        for(i = 0; i < size; i++)
+        {
+            try
+            {
+                servants[i]->release();
+                test(false);
+            }
+            catch(const Test::NotRegisteredException&)
+            {
+                // Expected
+            }
         }
     }
 
-
+    //
     // Deactivate and recreate evictor, to ensure that servants
     // are restored properly after database close and reopen.
     //
     evictor->deactivate();
     
-    evictor = factory->createEvictor("Test");
+    evictor = factory->createEvictor("Test", transactional);
 
     evictor->setSize(size);
     for(i = 0; i < size; i++)
@@ -792,7 +804,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Resurrect
     //
-    evictor = factory->createEvictor("Test");
+    evictor = factory->createEvictor("Test", transactional);
     evictor->destroyAllServants("");
 
     //
@@ -829,13 +841,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Clean up.
     //
-    evictor = factory->createEvictor("Test");
+    evictor = factory->createEvictor("Test", transactional);
     evictor->destroyAllServants("");
     evictor->deactivate();
 
     cout << "ok" << endl;
 
-    factory->shutdown();
+    if(shutdown)
+    {
+        factory->shutdown();
+    }
     
     return EXIT_SUCCESS;
 }
@@ -849,7 +864,11 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
-        status = run(argc, argv, communicator);
+        status = run(argc, argv, communicator, false, false);
+        if(status == 0)
+        {
+            status = run(argc, argv, communicator, true, true);
+        }
     }
     catch(const Ice::Exception& ex)
     {

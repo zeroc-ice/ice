@@ -10,7 +10,7 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <Freeze/EvictorF.h>
+#include <Freeze/Evictor.h>
 #include <IceUtil/IceUtil.h>
 #include <Test.h>
 
@@ -90,7 +90,7 @@ class RemoteEvictorI : virtual public RemoteEvictor
 {
 public:
 
-    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&);
+    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&, bool);
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
@@ -118,7 +118,7 @@ public:
 
     RemoteEvictorFactoryI(const Ice::ObjectAdapterPtr&, const std::string&);
 
-    virtual ::Test::RemoteEvictorPrx createEvictor(const ::std::string&, const Ice::Current&);
+    virtual ::Test::RemoteEvictorPrx createEvictor(const ::std::string&, bool, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 

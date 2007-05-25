@@ -333,7 +333,7 @@ public class Client
 
 
     private static int
-    run(String[] args, Ice.Communicator communicator)
+    run(String[] args, Ice.Communicator communicator, boolean transactional, boolean shutdown)
         throws Test.AlreadyRegisteredException, Test.NotRegisteredException, Test.EvictorDeactivatedException
     {
         String ref = "factory:default -p 12010 -t 30000";
@@ -341,13 +341,19 @@ public class Client
         test(base != null);
         Test.RemoteEvictorFactoryPrx factory = Test.RemoteEvictorFactoryPrxHelper.checkedCast(base);
 
-     
-        System.out.print("testing Freeze Evictor... ");
+        if(transactional)
+        {
+            System.out.print("testing transactional Freeze Evictor... ");
+        }
+        else
+        {
+            System.out.print("testing background-save Freeze Evictor... ");
+        }
         System.out.flush();
 
         final int size = 5;
         
-        Test.RemoteEvictorPrx evictor = factory.createEvictor("Test");
+        Test.RemoteEvictorPrx evictor = factory.createEvictor("Test", transactional);
         evictor.setSize(size);
 
         //
@@ -442,33 +448,35 @@ public class Client
             test(facet2.getValue() == 100 * i + 100);
         }
 
-        // 
-        // Test saving while busy
-        //
-
-        AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
-        for(int i = 0; i < size; i++)
+        if(!transactional)
         {
+            // 
+            // Test saving while busy
             //
-            // Start a mutating operation so that the object is not idle.
-            //
-            servants[i].setValueAsync_async(setCB, i + 300);
             
-            test(servants[i].getValue() == i + 100);
-            //
-            // This operation modifies the object state but is not saved
-            // because the setValueAsync operation is still pending.
-            //
-            servants[i].setValue(i + 200);
-            test(servants[i].getValue() == i + 200);
-            
-            //
-            // Force the response to setValueAsync
-            //
-            servants[i].releaseAsync();
-            test(servants[i].getValue() == i + 300);
+            AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
+            for(int i = 0; i < size; i++)
+            {
+                //
+                // Start a mutating operation so that the object is not idle.
+                //
+                servants[i].setValueAsync_async(setCB, i + 300);
+                
+                test(servants[i].getValue() == i + 100);
+                //
+                // This operation modifies the object state but is not saved
+                // because the setValueAsync operation is still pending.
+                //
+                servants[i].setValue(i + 200);
+                test(servants[i].getValue() == i + 200);
+                
+                //
+                // Force the response to setValueAsync
+                //
+                servants[i].releaseAsync();
+                test(servants[i].getValue() == i + 300);
+            }
         }
-
 
         //
         // Add duplicate facet and catch corresponding exception
@@ -567,71 +575,74 @@ public class Client
             test(servants[i].getTransientValue() == -1);
         }
     
-        //
-        // Now with keep
-        //
-        for(int i = 0; i < size; i++)
+        if(!transactional)
         {
-            servants[i].keepInCache();
-            servants[i].keepInCache();
-            servants[i].setTransientValue(i);
-        }
-        evictor.saveNow();
-        evictor.setSize(0);
-        evictor.setSize(size);
-        
-        //
-        // Check the transient value
-        //
-        for(int i = 0; i < size; i++)
-        {
-            test(servants[i].getTransientValue() == i);
-        }
-        
-        //
-        // Again, after one release
-        //
-        for(int i = 0; i < size; i++)
-        {
-            servants[i].release();
-        }
-        evictor.saveNow();
-        evictor.setSize(0);
-        evictor.setSize(size);
-        for(int i = 0; i < size; i++)
-        {
-            test(servants[i].getTransientValue() == i);
-        }
-
-        //
-        // Again, after a second release
-        //
-        for(int i = 0; i < size; i++)
-        {
-            servants[i].release();
-        }
-        evictor.saveNow();
-        evictor.setSize(0);
-        evictor.setSize(size);
-        
-        for(int i = 0; i < size; i++)
-        {
-            test(servants[i].getTransientValue() == -1);
-        }
-                
-        //
-        // Release one more time
-        //
-        for(int i = 0; i < size; i++)
-        {
-            try
+            //
+            // Now with keep
+            //
+            for(int i = 0; i < size; i++)
+            {
+                servants[i].keepInCache();
+                servants[i].keepInCache();
+                servants[i].setTransientValue(i);
+            }
+            evictor.saveNow();
+            evictor.setSize(0);
+            evictor.setSize(size);
+            
+            //
+            // Check the transient value
+            //
+            for(int i = 0; i < size; i++)
+            {
+                test(servants[i].getTransientValue() == i);
+            }
+            
+            //
+            // Again, after one release
+            //
+            for(int i = 0; i < size; i++)
             {
                 servants[i].release();
-                test(false);
             }
-            catch(Test.NotRegisteredException e)
+            evictor.saveNow();
+            evictor.setSize(0);
+            evictor.setSize(size);
+            for(int i = 0; i < size; i++)
             {
-                // Expected
+                test(servants[i].getTransientValue() == i);
+            }
+            
+            //
+            // Again, after a second release
+            //
+            for(int i = 0; i < size; i++)
+            {
+                servants[i].release();
+            }
+            evictor.saveNow();
+            evictor.setSize(0);
+            evictor.setSize(size);
+            
+            for(int i = 0; i < size; i++)
+            {
+                test(servants[i].getTransientValue() == -1);
+            }
+            
+            //
+            // Release one more time
+            //
+            for(int i = 0; i < size; i++)
+            {
+                try
+                {
+                    servants[i].release();
+                    test(false);
+                }
+                catch(Test.NotRegisteredException e)
+                {
+                    // Expected
+                }
             }
         }
         
@@ -640,7 +651,7 @@ public class Client
         // are restored properly after database close and reopen.
         //
         evictor.deactivate();
-        evictor = factory.createEvictor("Test");
+        evictor = factory.createEvictor("Test", transactional);
         evictor.setSize(size);
         for(int i = 0; i < size; i++)
         {
@@ -798,7 +809,7 @@ public class Client
         //
         // Resurrect
         //
-        evictor = factory.createEvictor("Test");
+        evictor = factory.createEvictor("Test", transactional);
         evictor.destroyAllServants("");
         
         //
@@ -854,14 +865,17 @@ public class Client
         //
         // Clean up.
         //
-        evictor = factory.createEvictor("Test");
+        evictor = factory.createEvictor("Test", transactional);
         evictor.destroyAllServants("");
         evictor.deactivate();
 
 
         System.out.println("ok");
         
-        factory.shutdown();
+        if(shutdown)
+        {
+            factory.shutdown();
+        }
 
         return 0;
     }
@@ -875,7 +889,11 @@ public class Client
         try
         {
             communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+            status = run(args, communicator, false, false);
+            if(status == 0)
+            {
+                status = run(args, communicator, true, true);
+            }
         }
         catch(Ice.LocalException ex)
         {

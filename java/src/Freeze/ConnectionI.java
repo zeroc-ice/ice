@@ -88,7 +88,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
         }
         
 
-        if(_dbEnv != null)
+        if(_dbEnv != null && _ownDbEnv)
         {
             try
             {
@@ -101,11 +101,11 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
         }
     }
 
-    ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
+    ConnectionI(SharedDbEnv dbEnv)
     {
-        _communicator = communicator;
-        _dbEnv =  SharedDbEnv.get(communicator, envName, dbEnv);
-        _envName = envName;
+        _dbEnv = dbEnv;
+        _communicator = dbEnv.getCommunicator();
+        _envName = dbEnv.getEnvName();
         _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
         _txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
         
@@ -113,6 +113,13 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
         _deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
         _closeInFinalizeWarning = properties.getPropertyAsIntWithDefault("Freeze.Warn.CloseInFinalize", 1) > 0; 
     }
+
+    ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
+    {
+        this(SharedDbEnv.get(communicator, envName, dbEnv));
+        _ownDbEnv = true;
+    }
+
 
     //
     // The synchronization is only needed only during finalization
@@ -206,6 +213,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 
     private Ice.Communicator _communicator;
     private SharedDbEnv _dbEnv;
+    private boolean _ownDbEnv = false;
     private String _envName;
     private TransactionI _transaction;
     private LinkedList _mapList = new Freeze.LinkedList();

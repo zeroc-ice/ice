@@ -25,20 +25,43 @@ class DbTxn;
 namespace Freeze
 {
 
-FREEZE_API EvictorPtr createEvictor(const Ice::ObjectAdapterPtr& adapter,
-                                    const std::string& envName, 
-                                    const std::string& filename,
-                                    const ServantInitializerPtr& initializer = 0,
-                                    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
-                                    bool createDb = true);
+typedef std::map<std::string, std::string> FacetTypeMap;
 
-FREEZE_API EvictorPtr createEvictor(const Ice::ObjectAdapterPtr& adapter,
-                                    const std::string& envName,
-                                    DbEnv& dbEnv, 
-                                    const std::string& filename,
-                                    const ServantInitializerPtr& initializer = 0,
-                                    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
-                                    bool createDb = true);
+FREEZE_API Freeze::BackgroundSaveEvictorPtr 
+createBackgroundSaveEvictor(const Ice::ObjectAdapterPtr& adapter,
+                            const std::string& envName, 
+                            const std::string& filename,
+                            const ServantInitializerPtr& initializer = 0,
+                            const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
+                            bool createDb = true);
+
+FREEZE_API BackgroundSaveEvictorPtr
+createBackgroundSaveEvictor(const Ice::ObjectAdapterPtr& adapter,
+                            const std::string& envName,
+                            DbEnv& dbEnv, 
+                            const std::string& filename,
+                            const ServantInitializerPtr& initializer = 0,
+                            const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
+                            bool createDb = true);
+
+FREEZE_API TransactionalEvictorPtr 
+createTransactionalEvictor(const Ice::ObjectAdapterPtr& adapter,
+                           const std::string& envName, 
+                           const std::string& filename,
+                           const FacetTypeMap& facetTypes = FacetTypeMap(),
+                           const ServantInitializerPtr& initializer = 0,
+                           const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
+                           bool createDb = true);
+
+FREEZE_API TransactionalEvictorPtr 
+createTransactionalEvictor(const Ice::ObjectAdapterPtr& adapter,
+                           const std::string& envName,
+                           DbEnv& dbEnv, 
+                           const std::string& filename,
+                           const FacetTypeMap& facetTypes = FacetTypeMap(),
+                           const ServantInitializerPtr& initializer = 0,
+                           const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
+                           bool createDb = true);
 
 
 FREEZE_API ConnectionPtr createConnection(const Ice::CommunicatorPtr& communicator,
@@ -53,7 +76,7 @@ FREEZE_API const std::string& catalogName();
 FREEZE_API DbTxn* getTxn(const TransactionPtr&);
 
 
-typedef void (*FatalErrorCallback)(const EvictorPtr&, const Ice::CommunicatorPtr&);
+typedef void (*FatalErrorCallback)(const BackgroundSaveEvictorPtr&, const Ice::CommunicatorPtr&);
 FREEZE_API FatalErrorCallback registerFatalErrorCallback(FatalErrorCallback);
 
 }

@@ -162,7 +162,7 @@ Test::ServantI::setTransientValue(Ice::Int val, const Current& current)
 void
 Test::ServantI::keepInCache(const Current& current)
 {
-    _evictor->keep(current.id);
+    Freeze::BackgroundSaveEvictorPtr::dynamicCast(_evictor)->keep(current.id);
 }
 
 void
@@ -170,7 +170,7 @@ Test::ServantI::release(const Current& current)
 {
     try
     {
-        _evictor->release(current.id);
+        Freeze::BackgroundSaveEvictorPtr::dynamicCast(_evictor)->release(current.id);
     }
     catch(const Ice::NotRegisteredException&)
     {
@@ -243,7 +243,7 @@ private:
 
 
 Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& envName,
-                                     const string& category) :
+                                     const string& category, bool transactional) :
     _adapter(adapter),
     _category(category)
 {
@@ -252,7 +252,14 @@ Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const stri
  
     Initializer* initializer = new Initializer;
     
-    _evictor = Freeze::createEvictor(_evictorAdapter, envName, category, initializer);
+    if(transactional)
+    {
+        _evictor = Freeze::createTransactionalEvictor(_evictorAdapter, envName, category, Freeze::FacetTypeMap(), initializer);
+    }
+    else
+    {
+        _evictor = Freeze::createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer);
+    }
     initializer->init(this, _evictor);
 
     _evictorAdapter->addServantLocator(_evictor, category);
@@ -340,9 +347,9 @@ Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const ObjectAdapterPtr& adapt
 }
 
 ::Test::RemoteEvictorPrx
-Test::RemoteEvictorFactoryI::createEvictor(const string& name, const Current& current)
+Test::RemoteEvictorFactoryI::createEvictor(const string& name, bool transactional, const Current& current)
 {
-    RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(_adapter, _envName, name);  
+    RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(_adapter, _envName, name, transactional);  
     return RemoteEvictorPrx::uncheckedCast(_adapter->add(remoteEvictor, 
                                                          _adapter->getCommunicator()->stringToIdentity(name)));
 }

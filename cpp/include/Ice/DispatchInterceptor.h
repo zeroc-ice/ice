@@ -29,6 +29,8 @@ public:
     __collocDispatch(IceInternal::Direct&);
 };
 
+typedef IceInternal::Handle<DispatchInterceptor> DispatchInterceptorPtr;
+
 }
 
 #endif

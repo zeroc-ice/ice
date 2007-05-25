@@ -10,7 +10,7 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <Freeze/EvictorF.h>
+#include <Freeze/Evictor.h>
 #include <Test.h>
 #include <IceUtil/IceUtil.h>
 

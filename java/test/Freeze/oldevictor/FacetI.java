@@ -14,7 +14,7 @@ public class FacetI extends ServantI implements Test._FacetOperations
         super(tie);
     }
 
-    FacetI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.Evictor evictor, int value, String data)
+    FacetI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.BackgroundSaveEvictor evictor, int value, String data)
     {
         super(tie, remoteEvictor, evictor, value);
         ((Test.Facet)_tie).data = data;

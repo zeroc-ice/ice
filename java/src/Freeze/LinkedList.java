@@ -39,12 +39,23 @@ public class LinkedList
         return _header.next.element;
     }
 
+    public java.lang.Object
+    getLast()
+    {
+        if(_size == 0)
+        {
+            throw new java.util.NoSuchElementException();
+        }
+
+        return _header.previous.element;
+    }
+
     public void
     addFirst(java.lang.Object o)
     {
         addBefore(o, _header.next);
     }
-
+    
     public boolean
     isEmpty()
     {

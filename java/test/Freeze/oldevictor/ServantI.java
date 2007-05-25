@@ -41,7 +41,7 @@ public class ServantI implements Test._ServantOperations
         _tie = tie;
     }
 
-    ServantI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.Evictor evictor, int value)
+    ServantI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.BackgroundSaveEvictor evictor, int value)
     {
         _tie = tie;
         _remoteEvictor = remoteEvictor;
@@ -50,7 +50,7 @@ public class ServantI implements Test._ServantOperations
     }
 
     void
-    init(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor)
+    init(RemoteEvictorI remoteEvictor, Freeze.BackgroundSaveEvictor evictor)
     {   
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
@@ -190,7 +190,7 @@ public class ServantI implements Test._ServantOperations
     }
 
     protected RemoteEvictorI _remoteEvictor;
-    protected Freeze.Evictor _evictor;
+    protected Freeze.BackgroundSaveEvictor _evictor;
     protected Test.AMD_Servant_setValueAsync _setValueAsyncCB;
     protected int _setValueAsyncValue;
     protected Test.Servant _tie;

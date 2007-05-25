@@ -19,6 +19,12 @@ using namespace std;
 Freeze::TransactionPtr
 Freeze::ConnectionI::beginTransaction()
 {
+    return beginTransactionI();
+}
+
+Freeze::TransactionIPtr
+Freeze::ConnectionI::beginTransactionI()
+{
     if(_transaction != 0)
     {
         throw TransactionAlreadyInProgressException(__FILE__, __LINE__);
@@ -78,14 +84,14 @@ Freeze::ConnectionI::~ConnectionI()
     close();
 }
 
-Freeze::ConnectionI::ConnectionI(const CommunicatorPtr& communicator, 
-                                 const string& envName, DbEnv* dbEnv) :
-    _communicator(communicator),
-    _dbEnv(SharedDbEnv::get(communicator, envName, dbEnv)),
-    _envName(envName),
-    _trace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
-    _txTrace(communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
-    _deadlockWarning(communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
+
+Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
+    _communicator(dbEnv->getCommunicator()),
+    _dbEnv(dbEnv),
+    _envName(dbEnv->getEnvName()),
+    _trace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
+    _txTrace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
+    _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
 {
 }
 
@@ -116,7 +122,7 @@ Freeze::createConnection(const CommunicatorPtr& communicator,
                          const string& envName)
 {
     
-    return new ConnectionI(communicator, envName, 0);
+    return new ConnectionI(SharedDbEnv::get(communicator, envName, 0));
 }
 
 Freeze::ConnectionPtr 
@@ -124,7 +130,7 @@ Freeze::createConnection(const CommunicatorPtr& communicator,
                          const string& envName,
                          DbEnv& dbEnv)
 {
-    return new ConnectionI(communicator, envName, &dbEnv);
+    return new ConnectionI(SharedDbEnv::get(communicator, envName, &dbEnv));
 }
 
 void

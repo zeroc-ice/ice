@@ -60,6 +60,7 @@ public class LoggerI extends LocalObjectImpl implements Logger
         s.append(' ');
         s.append(_prefix);
         s.append("warning: ");
+        s.append(Thread.currentThread().getName() + ": ");
         s.append(message);
         System.err.print(s.toString() + _lineSeparator);
     }
@@ -73,6 +74,7 @@ public class LoggerI extends LocalObjectImpl implements Logger
         s.append(' ');
         s.append(_prefix);
         s.append("error: ");
+        s.append(Thread.currentThread().getName() + ": ");
         s.append(message);
         System.err.print(s.toString() + _lineSeparator);
     }

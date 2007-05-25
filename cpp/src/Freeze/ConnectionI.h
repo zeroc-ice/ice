@@ -25,58 +25,43 @@ class ConnectionI : public Connection
 {
 public:
 
-    virtual TransactionPtr
-    beginTransaction();
+    virtual TransactionPtr beginTransaction();
 
-    virtual TransactionPtr
-    currentTransaction() const;
+    virtual TransactionPtr currentTransaction() const;
 
-    virtual void
-    close();
+    virtual void close();
     
-    virtual Ice::CommunicatorPtr
-    getCommunicator() const;
+    virtual Ice::CommunicatorPtr getCommunicator() const;
 
-    virtual std::string
-    getName() const;
+    virtual std::string getName() const;
 
     virtual ~ConnectionI();
 
-    ConnectionI(const Ice::CommunicatorPtr& communicator, 
-                const std::string& envName, DbEnv*);
+    ConnectionI(const SharedDbEnvPtr&);
 
-    void
-    closeAllIterators();
+    TransactionIPtr beginTransactionI();
 
-    void
-    registerMap(MapHelperI*);
+    void closeAllIterators();
 
-    void
-    unregisterMap(MapHelperI*);
+    void registerMap(MapHelperI*);
 
-    void
-    clearTransaction();
+    void unregisterMap(MapHelperI*);
 
-    DbTxn*
-    dbTxn() const;
+    void clearTransaction();
 
-    const SharedDbEnvPtr&
-    dbEnv() const;
+    DbTxn* dbTxn() const;
+
+    const SharedDbEnvPtr& dbEnv() const;
        
-    const Ice::CommunicatorPtr&
-    communicator() const;
+    const Ice::CommunicatorPtr& communicator() const;
 
-    const std::string& 
-    envName() const;
+    const std::string&  envName() const;
     
-    Ice::Int
-    trace() const;
+    Ice::Int trace() const;
 
-    Ice::Int
-    txTrace() const;
+    Ice::Int txTrace() const;
 
-    bool
-    deadlockWarning() const;
+    bool deadlockWarning() const;
 
 private:
 

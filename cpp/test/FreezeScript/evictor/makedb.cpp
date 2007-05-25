@@ -70,7 +70,7 @@ run(const Ice::CommunicatorPtr& communicator, const string& envName, const strin
     communicator->addObjectFactory(factory, "");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
-    Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, envName, dbName);
+    Freeze::EvictorPtr evictor = Freeze::createBackgroundSaveEvictor(adapter, envName, dbName);
 
     for(int i = 0; i < 10; ++i)
     {

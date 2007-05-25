@@ -14,6 +14,7 @@
 #include <Ice/Ice.h>
 #include <Freeze/Freeze.h>
 #include <Freeze/ObjectStore.h>
+#include <Freeze/EvictorIteratorI.h>
 #include <Freeze/SharedDbEnv.h>
 #include <Freeze/Index.h>
 #include <Freeze/DB.h>
@@ -22,15 +23,15 @@
 #include <deque>
 #include <IceUtil/DisableWarnings.h>
 
+class DbTxn;
 
 namespace Freeze
 {
 
-class EvictorI;
+class EvictorIBase;
 
 //
-// Helper class to prevent deactivation while the Evictor is in use,
-// and to queue deactivate() calls.
+// Helper class to prevent deactivation while the Evictor is in use
 //
 class DeactivateController : private IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -50,7 +51,7 @@ public:
         DeactivateController& _controller;
     };
 
-    DeactivateController(EvictorI*);    
+    DeactivateController(EvictorIBase*);    
     
     //
     // Used mostly in asserts
@@ -69,87 +70,29 @@ private:
     
     friend class Guard;
 
-    EvictorI* _evictor;
+    EvictorIBase* _evictor;
     bool _deactivating;
     bool _deactivated;
     int _guardCount;
 };
 
 
-class EvictorI;
-
-//
-// The WatchDogThread is used by the saving thread to ensure the
-// streaming of some object does not take more than timeout ms.
-// We only measure the time necessary to acquire the lock on the
-// object (servant), not the streaming itself.
-//
-
-class WatchDogThread : public IceUtil::Thread, private IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-    
-    WatchDogThread(long, EvictorI&);
-    
-    void run();
-
-    void activate();
-    void deactivate();
-    void terminate();
-    
-private:
-    const IceUtil::Time _timeout;
-    EvictorI& _evictor;
-    bool _done;
-    bool _active;
-};
-
-typedef IceUtil::Handle<WatchDogThread> WatchDogThreadPtr;
-
-
-class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, public IceUtil::Thread
+class EvictorIBase : public virtual Evictor, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    EvictorI(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&, 
-             const ServantInitializerPtr&, const std::vector<IndexPtr>&, bool);
-
-    virtual ~EvictorI();
+    virtual DbTxn* beforeQuery() = 0;
 
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
    
     virtual Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::Identity&);
-    virtual Ice::ObjectPrx addFacet(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
-
     virtual Ice::ObjectPtr remove(const Ice::Identity&);
-    virtual Ice::ObjectPtr removeFacet(const Ice::Identity&, const std::string&);
-
-    virtual void keep(const Ice::Identity&);
-    virtual void keepFacet(const Ice::Identity&, const std::string&);
-
-    virtual void release(const Ice::Identity&);
-    virtual void releaseFacet(const Ice::Identity&, const std::string&);
 
     virtual bool hasObject(const Ice::Identity&);
-    virtual bool hasFacet(const Ice::Identity&, const std::string&);
-
-    virtual EvictorIteratorPtr getIterator(const std::string&, Ice::Int);
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
-    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
-    virtual void deactivate(const std::string&);
-
-    //
-    // Thread
-    //
-    virtual void run();
-
-    //
-    // Accessors for other classes
-    //
-    void saveNow();
-
+ 
     DeactivateController& deactivateController();
     const Ice::CommunicatorPtr& communicator() const;
     const SharedDbEnvPtr& dbEnv() const;
@@ -159,62 +102,33 @@ public:
     Ice::Int trace() const;
     Ice::Int txTrace() const;
 
-
     void initialize(const Ice::Identity&, const std::string&, const Ice::ObjectPtr&);
 
     
-    struct StreamedObject
-    {
-        Key key;
-        Value value;
-        Ice::Byte status;
-        ObjectStore* store;
-    };
+    static void updateStats(Statistics&, IceUtil::Int64);
 
-    
     static std::string defaultDb; 
     static std::string indexPrefix; 
 
-private:
+protected:
+    
+    EvictorIBase(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv*, const std::string&, 
+             const FacetTypeMap&, const ServantInitializerPtr&, bool);
 
-    Ice::ObjectPtr locateImpl(const Ice::Current&, Ice::LocalObjectPtr&);
-    bool hasFacetImpl(const Ice::Identity&, const std::string&);
-    bool hasAnotherFacet(const Ice::Identity&, const std::string&);
 
-    void evict();
-    void evict(const EvictorElementPtr&);
-    void addToModifiedQueue(const EvictorElementPtr&);
-    void fixEvictPosition(const EvictorElementPtr&);
-
-    void stream(const EvictorElementPtr&, Ice::Long, StreamedObject&);
-    void saveNowNoSync();
-
-    ObjectStore* findStore(const std::string&) const;
+    virtual bool hasAnotherFacet(const Ice::Identity&, const std::string&) = 0;
+    
+    virtual Ice::ObjectPtr locateImpl(const Ice::Current&, Ice::LocalObjectPtr&) = 0;
+   
+    virtual void evict() = 0;
 
     std::vector<std::string> allDbs() const;
-
     
-    typedef std::map<std::string, ObjectStore*> StoreMap;
-    StoreMap _storeMap;
+    size_t _evictorSize;
 
-    //
-    // The _evictorList contains a list of all objects we keep,
-    // with the most recently used first.
-    //
-    std::list<EvictorElementPtr> _evictorList;
-    std::list<EvictorElementPtr>::size_type _evictorSize;
-    std::list<EvictorElementPtr>::size_type _currentEvictorSize;
-
-    //
-    // The _modifiedQueue contains a queue of all modified objects
-    // Each element in the queue "owns" a usage count, to ensure the
-    // element containing the pointed element remains in the cache.
-    //
-    std::deque<EvictorElementPtr> _modifiedQueue;
+    FacetTypeMap _facetTypes;
 
     DeactivateController _deactivateController;
-    bool _savingThreadDone;
-    WatchDogThreadPtr _watchDogThread;
 
     Ice::ObjectAdapterPtr _adapter;
     Ice::CommunicatorPtr _communicator;
@@ -229,52 +143,193 @@ private:
     Ice::Int _trace;
     Ice::Int _txTrace;
 
-    //
-    // Threads that have requested a "saveNow" and are waiting for
-    // its completion
-    //
-    std::deque<IceUtil::ThreadControl> _saveNowThreads;
-
-    Ice::Int _saveSizeTrigger;
-    Ice::Int _maxTxSize;
-    IceUtil::Time _savePeriod;
-
     bool _deadlockWarning;
 
     bool _useNonmutating;
 
+private:
+
     Ice::ObjectPtr _pingObject;
+};
+
+typedef IceUtil::Handle<EvictorIBase> EvictorIBasePtr;
+
+
+template<class T>
+class EvictorI : public EvictorIBase
+{
+public:
+
+    virtual EvictorIteratorPtr 
+    getIterator(const std::string& facet, Ice::Int batchSize)
+    {
+        DeactivateController::Guard deactivateGuard(_deactivateController);
+
+        DbTxn* tx = beforeQuery();
+        return new EvictorIteratorI(findStore(facet, false), tx, batchSize);
+    }
+
+protected:
+    
+    EvictorI(const Ice::ObjectAdapterPtr& adapter, const std::string& envName, DbEnv* dbEnv,
+             const std::string& filename, const FacetTypeMap& facetTypes, 
+             const ServantInitializerPtr& initializer, const std::vector<IndexPtr>& indices, bool createDb) :
+        EvictorIBase(adapter, envName, dbEnv, filename, facetTypes, initializer, createDb)
+    {
+        std::string propertyPrefix = std::string("Freeze.Evictor.") + envName + '.' + filename; 
+        bool populateEmptyIndices = 
+            (_communicator->getProperties()->
+             getPropertyAsIntWithDefault(propertyPrefix + ".PopulateEmptyIndices", 0) != 0);
+
+        //
+        // Instantiate all Dbs in 2 steps:
+        // (1) iterate over the indices and create ObjectStore with indices
+        // (2) open ObjectStores without indices
+        //
+        std::vector<std::string> dbs = allDbs();
+        
+        //
+        // Add default db in case it's not there
+        //
+        dbs.push_back(defaultDb);
+        
+        for(std::vector<IndexPtr>::const_iterator i = indices.begin(); i != indices.end(); ++i)
+        {
+            std::string facet = (*i)->facet();
+            
+            typename StoreMap::iterator q = _storeMap.find(facet);
+            if(q == _storeMap.end())
+            {
+                //
+                // New db
+                //
+                std::vector<IndexPtr> storeIndices;
+                
+                for(std::vector<IndexPtr>::const_iterator r = i; r != indices.end(); ++r)
+                {
+                    if((*r)->facet() == facet)
+                    {
+                        storeIndices.push_back(*r);
+                    }
+                }
+                std::string facetType;
+                FacetTypeMap::const_iterator ft = facetTypes.find(facet);
+                if(ft != facetTypes.end())
+                {
+                    facetType = ft->second;
+                }
+                ObjectStore<T>* store = new ObjectStore<T>(facet, facetType,_createDb, this, storeIndices, populateEmptyIndices);
+                _storeMap.insert(typename StoreMap::value_type(facet, store));
+            }
+        }
+    
+        for(std::vector<std::string>::iterator p = dbs.begin(); p != dbs.end(); ++p)
+        {
+            std::string facet = *p;
+            if(facet == defaultDb)
+            {
+                facet = "";
+            }
+            
+            std::pair<typename StoreMap::iterator, bool> ir = 
+                _storeMap.insert(typename StoreMap::value_type(facet, 0));
+            
+            if(ir.second)
+            {
+                std::string facetType;
+                FacetTypeMap::const_iterator ft = facetTypes.find(facet);
+                if(ft != facetTypes.end())
+                {
+                    facetType = ft->second;
+                }
+
+                ir.first->second = new ObjectStore<T>(facet, facetType, _createDb, this);
+            }
+        }
+    }
+
+    ObjectStore<T>* 
+    findStore(const std::string& facet, bool createIt)
+    {
+        Lock sync(*this);
+        ObjectStore<T>* os = 0;
+
+        typename StoreMap::const_iterator p = _storeMap.find(facet);
+        if(p != _storeMap.end())
+        {
+            os = (*p).second;
+        }
+        else if(createIt)
+        {
+            std::string facetType;
+            typename FacetTypeMap::const_iterator q = _facetTypes.find(facet);
+            if(q != _facetTypes.end())
+            {
+                facetType = q->second;
+            }
+            os = new ObjectStore<T>(facet, facetType, true, this);
+            _storeMap.insert(typename StoreMap::value_type(facet, os));
+        }
+        return os;
+    }
+    
+    void
+    closeDbEnv()
+    {
+        for(typename StoreMap::iterator p = _storeMap.begin(); p != _storeMap.end(); ++p)
+        {
+            delete (*p).second;
+        }
+        
+        _dbEnv = 0;
+        _initializer = 0;
+    }
+
+    typedef std::map<std::string, ObjectStore<T>*> StoreMap;
+    StoreMap _storeMap;
 };
 
 
 inline DeactivateController&
-EvictorI::deactivateController()
+EvictorIBase::deactivateController()
 {
     return _deactivateController;
 }
 
 inline const Ice::CommunicatorPtr&
-EvictorI::communicator() const
+EvictorIBase::communicator() const
 {
     return _communicator;
 }
 
 inline const SharedDbEnvPtr&
-EvictorI::dbEnv() const
+EvictorIBase::dbEnv() const
 {
     return _dbEnv;
 }
 
 inline bool
-EvictorI::deadlockWarning() const
+EvictorIBase::deadlockWarning() const
 {
     return _deadlockWarning;
 }
 
 inline Ice::Int
-EvictorI::trace() const
+EvictorIBase::trace() const
 {
     return _trace;
+}
+
+//
+// Helper function
+//
+inline void
+checkIdentity(const Ice::Identity& ident)
+{
+    if(ident.name.size() == 0)
+    {
+        throw Ice::IllegalIdentityException(__FILE__, __LINE__, ident);
+    }
 }
 
 }

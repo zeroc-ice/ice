@@ -17,12 +17,13 @@ using namespace Freeze;
 using namespace Ice;
 
 
-Freeze::EvictorIteratorI::EvictorIteratorI(ObjectStore* store, Int batchSize) :
+Freeze::EvictorIteratorI::EvictorIteratorI(ObjectStoreBase* store, DbTxn* tx, Int batchSize) :
     _store(store),
     _batchSize(static_cast<size_t>(batchSize)),
     _key(1024),
     _more(store != 0),
-    _initialized(false)
+    _initialized(false),
+    _tx(tx)
 {
     _batchIterator = _batch.end();
 }
@@ -68,9 +69,6 @@ Freeze::EvictorIteratorI::nextBatch()
     {
         return _batch.end();
     }
-
-    vector<EvictorElementPtr> evictorElements;
-    evictorElements.reserve(_batchSize);
      
     Key firstKey = _key;
 
@@ -81,7 +79,6 @@ Freeze::EvictorIteratorI::nextBatch()
         for(;;)
         {
             _batch.clear();
-            evictorElements.clear();
             
             Dbt dbKey;
             initializeOutDbt(_key, dbKey);
@@ -111,7 +108,7 @@ Freeze::EvictorIteratorI::nextBatch()
                     dbKey.set_size(static_cast<u_int32_t>(firstKey.size()));
                 }
                 
-                _store->db()->cursor(0, &dbc, 0);
+                _store->db()->cursor(_tx, &dbc, 0);
 
                 bool done = false;
                 do
@@ -135,7 +132,7 @@ Freeze::EvictorIteratorI::nextBatch()
                                 flags = DB_NEXT;
                     
                                 Ice::Identity ident;
-                                ObjectStore::unmarshal(ident, _key, communicator);
+                                ObjectStoreBase::unmarshal(ident, _key, communicator);
                                 if(_batch.size() < _batchSize)
                                 {
                                     _batch.push_back(ident);
@@ -167,7 +164,7 @@ Freeze::EvictorIteratorI::nextBatch()
                 toClose->close();
                 break; // for (;;)
             }
-            catch(const DbDeadlockException&)
+            catch(const DbDeadlockException& dx)
             {
                 if(dbc != 0)
                 {
@@ -177,15 +174,25 @@ Freeze::EvictorIteratorI::nextBatch()
                     }
                     catch(const DbDeadlockException&)
                     {
-                        //
-                        // Ignored
-                        //
+                        if(_tx != 0)
+                        {
+                            throw;
+                        }
+                        // Else, ignored
                     }
                 }
-                _key = firstKey;
-                //
-                // Retry
-                //
+                
+                if(_tx == 0)
+                {
+                    _key = firstKey;
+                    //
+                    // Retry
+                    //
+                }
+                else
+                {
+                    throw;
+                }
             }
             catch(...)
             {
@@ -197,14 +204,20 @@ Freeze::EvictorIteratorI::nextBatch()
                     }
                     catch(const DbDeadlockException&)
                     {
-                        //
-                        // Ignored
-                        //
+                        if(_tx != 0)
+                        {
+                            throw;
+                        }
+                        // Else, ignored
                     }
                 }
                 throw;
             }
         }
+    }
+    catch(const DbDeadlockException& dx)
+    {
+        throw DeadlockException(__FILE__, __LINE__, dx.what());
     }
     catch(const DbException& dx)
     {

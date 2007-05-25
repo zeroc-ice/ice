@@ -63,7 +63,7 @@ class PhoneBookCollocated extends Ice.Application
         // stored in evictor (contacts here) must be registered before the call
         // to createEvictor().
         //
-        Freeze.Evictor evictor = Freeze.Util.createEvictor(adapter, _envName, "contacts", null, indices, true);
+        Freeze.Evictor evictor = Freeze.Util.createBackgroundSaveEvictor(adapter, _envName, "contacts", null, indices, true);
         int evictorSize = properties.getPropertyAsInt("EvictorSize");
         if(evictorSize > 0)
         {

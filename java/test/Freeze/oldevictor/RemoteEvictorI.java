@@ -26,14 +26,14 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
             }
         }
 
-        void init(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor)
+        void init(RemoteEvictorI remoteEvictor, Freeze.BackgroundSaveEvictor evictor)
         {
             _remoteEvictor = remoteEvictor;
             _evictor = evictor;
         }
 
         private RemoteEvictorI _remoteEvictor;
-        private Freeze.Evictor _evictor;
+        private Freeze.BackgroundSaveEvictor _evictor;
     }
 
 
@@ -50,7 +50,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 
         Initializer initializer = new Initializer();
 
-        _evictor = Freeze.Util.createEvictor(_evictorAdapter, envName, category, initializer, null, true);
+        _evictor = Freeze.Util.createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer, null, true);
         initializer.init(this, _evictor);
         
         _evictorAdapter.addServantLocator(_evictor, category);
@@ -135,6 +135,6 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 
     private Ice.ObjectAdapter _adapter;
     private String _category;
-    private Freeze.Evictor _evictor;
+    private Freeze.BackgroundSaveEvictor _evictor;
     private Ice.ObjectAdapter _evictorAdapter;
 }

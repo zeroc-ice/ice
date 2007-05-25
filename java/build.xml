@@ -56,6 +56,8 @@
                 <include name="Transaction.ice" />
                 <include name="Exception.ice" />
                 <include name="Evictor.ice" />
+                <include name="TransactionalEvictor.ice" />
+                <include name="BackgroundSaveEvictor.ice" />
                 <include name="EvictorStorage.ice" />
                 <include name="CatalogData.ice" />
             </fileset>

@@ -8,11 +8,12 @@
 // **********************************************************************
 
 #include <Freeze/SharedDbEnv.h>
-#include <IceUtil/StaticMutex.h>
-#include <IceUtil/Thread.h>
 #include <Freeze/Exception.h>
 #include <Freeze/Util.h>
 #include <Freeze/SharedDb.h>
+#include <Freeze/TransactionalEvictorContextI.h>
+
+#include <IceUtil/IceUtil.h>
 
 #include <cstdlib>
 #include <map>
@@ -209,10 +210,85 @@ void Freeze::SharedDbEnv::__decRef()
         }
 
         //
-        // Keep lock to prevent somebody else to re-open this DbEnv
+        // Keep lock to prevent somebody else from reopening this DbEnv
         // before it's closed.
         //
         delete this;
+    }
+}
+
+
+Freeze::TransactionalEvictorContextIPtr
+Freeze::SharedDbEnv::getOrCreateCurrent(bool& created)
+{
+    created = false;
+    
+    Freeze::TransactionalEvictorContextIPtr ctx = getCurrent();
+    if(ctx == 0)
+    {
+        ctx = new TransactionalEvictorContextI(this);
+#ifdef _WIN32
+        if(TlsSetValue(_tsdKey, ctx.get()) == 0)
+        {
+            IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
+#else
+        if(int err = pthread_setspecific(_tsdKey, ctx.get()))
+        {
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+        }
+#endif
+        created = true;
+
+        //
+        // Give one refcount to this thread!
+        //
+        ctx->__incRef();
+    }
+    return ctx;
+}
+
+
+Freeze::TransactionalEvictorContextIPtr
+Freeze::SharedDbEnv::getCurrent()
+{
+#ifdef _WIN32
+    void* val = TlsGetValue(_tsdKey);
+#else
+    void* val = pthread_getspecific(_tsdKey);
+#endif
+
+    if(val != 0)
+    {
+        return static_cast<Freeze::TransactionalEvictorContextI*>(val);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+void
+Freeze::SharedDbEnv::clearCurrent(const Freeze::TransactionalEvictorContextIPtr& oldCtx)
+{
+    if(getCurrent() == oldCtx)
+    {
+#ifdef _WIN32
+        if(TlsSetValue(_tsdKey, 0) == 0)
+        {
+            IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+        }
+#else
+        if(int err = pthread_setspecific(_tsdKey, 0))
+        {
+            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+        }
+#endif
+
+        //
+        // Release thread's refcount
+        //
+        oldCtx->__decRef();
     }
 }
 
@@ -224,6 +300,20 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     _refCount(0)
 {
     Ice::PropertiesPtr properties = _communicator->getProperties();
+
+#ifdef _WIN32
+    _tsdKey = TlsAlloc();
+    if(_tsdKey == TLS_OUT_OF_INDEXES)
+    {
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+    }
+#else
+    int err = pthread_key_create(&_tsdKey, 0);
+    if(err != 0)
+    {
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+    }
+#endif
 
     _trace = properties->getPropertyAsInt("Freeze.Trace.DbEnv");
 
@@ -274,31 +364,9 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
                 flags |= DB_PRIVATE;
             }
             
-            /*
-              
-            //
-            // Does not seem to work reliably in 4.1.25
-            //
-            
-            time_t timeStamp = properties->getPropertyAsIntWithDefault(propertyPrefix + ".TxTimestamp", 0);
-            
-            if(timeStamp != 0)
-            {
-            try
-            {
-            set_tx_timestamp(&timeStamp);
-            }
-            catch(const ::DbException& dx)
-            {
-            DatabaseException ex(__FILE__, __LINE__);
-            ex.message = dx.what();
-            throw ex;
-            }
-            }
-            */
             
             //
-            // Maybe we can deprecate this property since it can be set in the DB_CONFIG file
+            // Auto delete
             //
             bool autoDelete = (properties->getPropertyAsIntWithDefault(
                                    propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
@@ -341,7 +409,6 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     //
     // Get catalog
     //
-
     _catalog = SharedDb::openCatalog(*this);
 }
 

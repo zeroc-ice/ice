@@ -198,12 +198,57 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         _key.communicator.getLogger().error("Freeze database error in DbEnv \"" + _key.envName + "\": " + message);
     }
 
-    protected void 
-    finalize()
+
+    //
+    // EvictorContext factory/manager
+    //
+    
+
+    //
+    // Get/create an evictor context associated with the calling thread
+    //
+    synchronized TransactionalEvictorContextI
+    getOrCreateCurrent(Ice.BooleanHolder created)
     {
-        assert(_refCount == 0);
+        if(created != null)
+        {
+            created.value = false;
+        }
+
+        Object k = Thread.currentThread();
+
+        TransactionalEvictorContextI ctx = (TransactionalEvictorContextI)_ctxMap.get(k);
+        if(ctx == null)
+        {
+            ctx = new TransactionalEvictorContextI(this);
+         
+            if(created != null)
+            {
+                created.value = true;
+            }
+            _ctxMap.put(k, ctx);
+        }
+        return ctx;
     }
 
+    synchronized TransactionalEvictorContextI
+    getCurrent()
+    {
+        Object k = Thread.currentThread();
+        return (TransactionalEvictorContextI)_ctxMap.get(k);
+    }
+
+    //
+    // Clear evictor context associated with the calling thread
+    //
+    synchronized void
+    clearCurrent(TransactionalEvictorContextI oldCtx)
+    {
+        Object removedCtx = _ctxMap.remove(Thread.currentThread());
+        assert removedCtx == oldCtx;
+    }
+
+    
     private
     SharedDbEnv(MapKey key, com.sleepycat.db.Environment dbEnv)
         throws com.sleepycat.db.DatabaseException
@@ -362,6 +407,8 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     private long _checkpointPeriod = 0;
     private int _kbyte = 0;
     private Thread _thread;
+
+    private java.util.Map _ctxMap = new java.util.HashMap();
 
     //
     // Hash map of (MapKey, SharedDbEnv)

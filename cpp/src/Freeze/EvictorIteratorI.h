@@ -17,13 +17,13 @@
 namespace Freeze
 {
 
-class ObjectStore;
+class ObjectStoreBase;
 
 class EvictorIteratorI : public EvictorIterator
 {
 public:
 
-    EvictorIteratorI(ObjectStore*, Ice::Int);
+    EvictorIteratorI(ObjectStoreBase*, DbTxn*, Ice::Int);
 
     virtual bool hasNext();
     virtual Ice::Identity next();
@@ -33,7 +33,7 @@ private:
     std::vector<Ice::Identity>::const_iterator
     nextBatch();
 
-    ObjectStore* _store;
+    ObjectStoreBase* _store;
     size_t _batchSize;
     std::vector<Ice::Identity>::const_iterator _batchIterator;
 
@@ -41,6 +41,7 @@ private:
     std::vector<Ice::Identity> _batch;
     bool _more;
     bool _initialized;
+    DbTxn* _tx;
 };
 
 }

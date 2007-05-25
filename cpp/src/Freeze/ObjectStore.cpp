@@ -9,20 +9,20 @@
 
 #include <Freeze/ObjectStore.h>
 #include <Freeze/EvictorI.h>
+#include <Freeze/BackgroundSaveEvictorI.h>
 #include <Freeze/Util.h>
-#include <Freeze/IndexI.h>
 #include <Freeze/Catalog.h>
 #include <Freeze/TransactionI.h>
+#include <Freeze/IndexI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-
-Freeze::ObjectStore::ObjectStore(const string& facet, 
-                                 bool createDb,  EvictorI* evictor,  
-                                 const vector<IndexPtr>& indices,
-                                 bool populateEmptyIndices) :
+Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& facetType,
+                                         bool createDb,  EvictorIBase* evictor,  
+                                         const vector<IndexPtr>& indices,
+                                         bool populateEmptyIndices) :
     _facet(facet),
     _evictor(evictor),
     _indices(indices),
@@ -30,11 +30,25 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
 {
     if(facet == "")
     {
-        _dbName = EvictorI::defaultDb;
+        _dbName = EvictorIBase::defaultDb;
     }
     else
     {
         _dbName = facet;
+    }
+
+    if(!facetType.empty())
+    {
+        //
+        // Create a sample servant with this type
+        //
+        ObjectFactoryPtr factory = _communicator->findObjectFactory(facetType);
+        if(factory == 0)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "No object factory registered for type-id '" + facetType + "'");
+        }
+        
+        _sampleServant = factory->create(facetType);
     }
 
     ConnectionPtr catalogConnection = createConnection(_communicator, evictor->dbEnv()->getEnvName());
@@ -125,16 +139,7 @@ Freeze::ObjectStore::ObjectStore(const string& facet,
     }
 }
 
-Freeze::ObjectStore::~ObjectStore()
-{
-    if(_db.get() != 0)
-    {
-        close();
-    }
-}
-
-void
-Freeze::ObjectStore::close()
+Freeze::ObjectStoreBase::~ObjectStoreBase()
 {
     try
     {
@@ -152,11 +157,10 @@ Freeze::ObjectStore::close()
         ex.message = dx.what();
         throw ex;
     }
-    _db.reset();
 }
     
 bool
-Freeze::ObjectStore::dbHasObject(const Identity& ident) const
+Freeze::ObjectStoreBase::dbHasObject(const Identity& ident, DbTxn* tx) const
 {
     Key key;    
     marshal(ident, key, _communicator);
@@ -173,7 +177,7 @@ Freeze::ObjectStore::dbHasObject(const Identity& ident) const
     {
         try
         {
-            int err = _db->get(0, &dbKey, &dbValue, 0);
+            int err = _db->get(tx, &dbKey, &dbValue, 0);
             
             if(err == 0)
             {
@@ -189,18 +193,20 @@ Freeze::ObjectStore::dbHasObject(const Identity& ident) const
                 throw DatabaseException(__FILE__, __LINE__);
             }
         }
-        catch(const DbDeadlockException&)
+        catch(const DbDeadlockException& dx)
         {
             if(_evictor->deadlockWarning())
             {
                 Warning out(_communicator->getLogger());
-                out << "Deadlock in Freeze::ObjectStore::dbHasObject while searching \"" 
+                out << "Deadlock in Freeze::ObjectStoreBase::dbHasObject while searching \"" 
                     << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
             }
 
-            //
-            // Ignored, try again
-            //
+            if(tx != 0)
+            {
+                throw DeadlockException(__FILE__, __LINE__, dx.what());
+            }
+            // Else, try again
         }
         catch(const DbException& dx)
         {
@@ -213,18 +219,18 @@ Freeze::ObjectStore::dbHasObject(const Identity& ident) const
 }
 
 void
-Freeze::ObjectStore::save(Key& key, Value& value, Byte status, DbTxn* tx)
+Freeze::ObjectStoreBase::save(Key& key, Value& value, Byte status, DbTxn* tx)
 {
     switch(status)
     {
-        case EvictorElement::created:
-        case EvictorElement::modified:
+        case created:
+        case modified:
         {
             Dbt dbKey;
             Dbt dbValue;
             initializeInDbt(key, dbKey);
             initializeInDbt(value, dbValue);
-            u_int32_t flags = (status == EvictorElement::created) ? DB_NOOVERWRITE : 0;
+            u_int32_t flags = (status == created) ? DB_NOOVERWRITE : 0;
             int err = _db->put(tx, &dbKey, &dbValue, flags);
             if(err != 0)
             {
@@ -233,7 +239,7 @@ Freeze::ObjectStore::save(Key& key, Value& value, Byte status, DbTxn* tx)
             break;
         }
 
-        case EvictorElement::destroyed:
+        case destroyed:
         {
             Dbt dbKey;
             initializeInDbt(key, dbKey);
@@ -252,7 +258,7 @@ Freeze::ObjectStore::save(Key& key, Value& value, Byte status, DbTxn* tx)
 }
 
 void 
-Freeze::ObjectStore::marshal(const Identity& ident, Key& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::marshal(const Identity& ident, Key& bytes, const CommunicatorPtr& communicator)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
@@ -261,7 +267,7 @@ Freeze::ObjectStore::marshal(const Identity& ident, Key& bytes, const Communicat
 }
     
 void 
-Freeze::ObjectStore::unmarshal(Identity& ident, const Key& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::unmarshal(Identity& ident, const Key& bytes, const CommunicatorPtr& communicator)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
@@ -272,7 +278,7 @@ Freeze::ObjectStore::unmarshal(Identity& ident, const Key& bytes, const Communic
 }
 
 void
-Freeze::ObjectStore::marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
@@ -284,7 +290,7 @@ Freeze::ObjectStore::marshal(const ObjectRecord& v, Value& bytes, const Communic
 }
 
 void
-Freeze::ObjectStore::unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicator)
+Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicator)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
@@ -298,15 +304,205 @@ Freeze::ObjectStore::unmarshal(ObjectRecord& v, const Value& bytes, const Commun
     stream.endReadEncaps();
 }
 
+bool
+Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tx, ObjectRecord& rec)
+{
+    DbTxn* txn = tx->dbTxn();
+    
+    if(txn == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "invalid TransactionalEvictorContext");
+    }
+
+    Key key;
+    marshal(ident, key, _communicator);
+
+    Dbt dbKey;
+    initializeInDbt(key, dbKey);
+
+    const size_t defaultValueSize = 4096;
+    Value value(defaultValueSize);
+
+    Dbt dbValue;
+    initializeOutDbt(value, dbValue);
+
+    for(;;)
+    {
+        try
+        {
+            int rs =_db->get(txn, &dbKey, &dbValue, 0);
+            if(rs == DB_NOTFOUND)
+            {
+                return false;
+            }
+            else if(rs != 0)
+            {
+                assert(0);
+                throw DatabaseException(__FILE__, __LINE__);
+            }
+            break; // for(;;)
+        }
+        catch(const DbDeadlockException& dx)
+        {
+            if(_evictor->deadlockWarning())
+            {
+                Warning out(_communicator->getLogger());
+                out << "Deadlock in Freeze::ObjectStoreBase::load while searching \"" 
+                    << _evictor->filename() + "/" + _dbName << "\"";
+            }
+            throw DeadlockException(__FILE__, __LINE__, dx.what());
+        }
+        catch(const DbException& dx)
+        {
+            handleDbException(dx, value, dbValue, __FILE__, __LINE__);
+        }
+    }
+    
+    unmarshal(rec, value, _communicator);
+    _evictor->initialize(ident, _facet, rec.servant);
+    return true;
+}
+
+void
+Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, const TransactionIPtr& tx)
+{
+    DbTxn* txn = tx->dbTxn();
+    
+    if(txn == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "invalid TransactionalEvictorContext");
+    }
+
+    Key key;
+    marshal(ident, key, _communicator);
+
+    Value value;
+    marshal(rec, value, _communicator);
+
+    Dbt dbKey;
+    Dbt dbValue;
+    initializeInDbt(key, dbKey);
+    initializeInDbt(value, dbValue);
+    u_int32_t flags = 0;
+
+    try
+    {
+        _db->put(txn, &dbKey, &dbValue, flags);
+    }
+    catch(const DbDeadlockException& dx)
+    {
+        if(_evictor->deadlockWarning())
+        {
+            Warning out(_communicator->getLogger());
+            out << "Deadlock in Freeze::ObjectStoreBase::update while updating \"" 
+                << _evictor->filename() + "/" + _dbName << "\"";
+        }
+        throw DeadlockException(__FILE__, __LINE__, dx.what());
+    }
+    catch(const DbException& dx)
+    {
+        handleDbException(dx, __FILE__, __LINE__);
+    }
+}
+
+bool
+Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, DbTxn* tx)
+{
+    Key key;
+    marshal(ident, key, _communicator);
+
+    Value value;
+    marshal(rec, value, _communicator);
+
+    Dbt dbKey;
+    Dbt dbValue;
+    initializeInDbt(key, dbKey);
+    initializeInDbt(value, dbValue);
+    u_int32_t flags = DB_NOOVERWRITE;
+    if(tx == 0)
+    {
+        flags |= DB_AUTO_COMMIT;
+    }
+
+    for(;;)
+    {
+        try
+        {
+            return  _db->put(tx, &dbKey, &dbValue, flags) == 0;
+        }
+        catch(const DbDeadlockException& dx)
+        {
+            if(_evictor->deadlockWarning())
+            {
+                Warning out(_communicator->getLogger());
+                out << "Deadlock in Freeze::ObjectStoreBase::insert while updating \"" 
+                    << _evictor->filename() + "/" + _dbName << "\"";
+            }
+            if(tx != 0)
+            {
+                throw DeadlockException(__FILE__, __LINE__, dx.what());
+            }
+            //
+            // Otherwise, try again
+            //
+        }
+        catch(const DbException& dx)
+        {
+            handleDbException(dx, __FILE__, __LINE__);
+        }
+    }
+}
+
+bool
+Freeze::ObjectStoreBase::remove(const Identity& ident, DbTxn* tx)
+{
+    Key key;
+    marshal(ident, key, _communicator);
+   
+    Dbt dbKey;
+    initializeInDbt(key, dbKey);
+
+    for(;;)
+    {
+        try
+        {
+            return _db->del(tx, &dbKey, tx != 0 ? 0 : DB_AUTO_COMMIT) == 0;
+        }
+        catch(const DbDeadlockException& dx)
+        {
+            if(_evictor->deadlockWarning())
+            {
+                Warning out(_communicator->getLogger());
+                out << "Deadlock in Freeze::ObjectStoreBase::remove while updating \"" 
+                    << _evictor->filename() + "/" + _dbName << "\"";
+            }
+            if(tx != 0)
+            {
+                throw DeadlockException(__FILE__, __LINE__, dx.what());
+            }
+            //
+            // Otherwise, try again
+            //
+        }
+        catch(const DbException& dx)
+        {
+            handleDbException(dx, __FILE__, __LINE__);
+        }
+    }
+}
+
+
 const string&
-Freeze::ObjectStore::dbName() const
+Freeze::ObjectStoreBase::dbName() const
 {
     return _dbName;
 }
 
-
-Freeze::EvictorElementPtr
-Freeze::ObjectStore::load(const Identity& ident)
+//
+// Non transactional load
+//
+bool
+Freeze::ObjectStoreBase::loadImpl(const Identity& ident, ObjectRecord& rec)
 {
     Key key;
     marshal(ident, key, _communicator);
@@ -327,7 +523,7 @@ Freeze::ObjectStore::load(const Identity& ident)
             int rs = _db->get(0, &dbKey, &dbValue, 0);
             if(rs == DB_NOTFOUND)
             {
-                return 0;
+                return false;
             }
             else if(rs != 0)
             {
@@ -341,7 +537,7 @@ Freeze::ObjectStore::load(const Identity& ident)
             if(_evictor->deadlockWarning())
             {
                 Warning out(_communicator->getLogger());
-                out << "Deadlock in Freeze::ObjectStore::load while searching \"" 
+                out << "Deadlock in Freeze::ObjectStoreBase::load while searching \"" 
                     << _evictor->filename() + "/" + _dbName << "\"; retrying ...";
             }
             //
@@ -354,34 +550,7 @@ Freeze::ObjectStore::load(const Identity& ident)
         }
     }
     
-    EvictorElementPtr result = new EvictorElement(*this);
-    unmarshal(result->rec, value, _communicator);
-
-    _evictor->initialize(ident, _facet, result->rec.servant);
-    return result;
+    unmarshal(rec, value, _communicator);
+    _evictor->initialize(ident, _facet, rec.servant);
+    return true;
 }
-
-void
-Freeze::ObjectStore::pinned(const EvictorElementPtr& element, Cache::Position p)
-{
-    element->cachePosition = p;
-    element->stale = false;
-}
-
-
-
-Freeze::EvictorElement::EvictorElement(ObjectStore& s) :
-    store(s),
-    usageCount(-1),
-    keepCount(0),
-    stale(true),
-    status(clean)
-{
-}
-
-Freeze::EvictorElement::~EvictorElement()
-{
-}
-
-
-

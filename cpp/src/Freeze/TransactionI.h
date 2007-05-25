@@ -30,7 +30,6 @@ public:
     rollback();
     
     TransactionI(ConnectionI*);
-    
     ~TransactionI();
     
     DbTxn*

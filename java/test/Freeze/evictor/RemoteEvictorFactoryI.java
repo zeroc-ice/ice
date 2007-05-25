@@ -17,9 +17,9 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
 
     
     public Test.RemoteEvictorPrx
-    createEvictor(String name, Ice.Current current)
+    createEvictor(String name, boolean transactional, Ice.Current current)
     {
-        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, _envName, name);
+        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, _envName, name, transactional);
         return Test.RemoteEvictorPrxHelper.
             uncheckedCast(_adapter.add(remoteEvictor, _adapter.getCommunicator().stringToIdentity(name)));
     }

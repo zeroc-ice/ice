@@ -72,11 +72,11 @@ PhoneBookCollocated::run(int argc, char* argv[])
     //
     // When Freeze.Evictor.db.contacts.PopulateEmptyIndices is not 0
     // and the Name index is empty, Freeze will traverse the database
-    // to recreate the index during createEvictor(). Therefore the
+    // to recreate the index during createXXXEvictor(). Therefore the
     // factories for the objects stored in evictor (contacts here)
-    // must be registered before the call to createEvictor().
+    // must be registered before the call to createXXXEvictor().
     //
-    Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "contacts", 0, indices);
+    Freeze::EvictorPtr evictor = Freeze::createBackgroundSaveEvictor(adapter, _envName, "contacts", 0, indices);
     adapter->addServantLocator(evictor, "contact");
 
     Ice::Int evictorSize = properties->getPropertyAsInt("EvictorSize");
@@ -88,7 +88,7 @@ PhoneBookCollocated::run(int argc, char* argv[])
     //
     // Completes the initialization of the contact factory. Note that ContactI/
     // ContactFactoryI uses this evictor only when a Contact is destroyed,
-    // which cannot happen during createEvictor().
+    // which cannot happen during createXXXEvictor().
     //
     contactFactory->setEvictor(evictor);
     

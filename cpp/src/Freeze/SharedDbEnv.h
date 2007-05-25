@@ -27,6 +27,9 @@ typedef IceUtil::Handle<SharedDbEnv> SharedDbEnvPtr;
 class SharedDb;
 typedef IceUtil::Handle<SharedDb> SharedDbPtr;
 
+class TransactionalEvictorContextI;
+typedef IceUtil::Handle<TransactionalEvictorContextI> TransactionalEvictorContextIPtr;
+
 class SharedDbEnv
 {
 public:
@@ -38,6 +41,13 @@ public:
     void __incRef();
     void __decRef();
    
+    //
+    // EvictorContext factory/manager
+    //
+    TransactionalEvictorContextIPtr getOrCreateCurrent(bool&);
+    TransactionalEvictorContextIPtr getCurrent();
+    void clearCurrent(const TransactionalEvictorContextIPtr&);
+ 
     DbEnv* getEnv() const;
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
@@ -55,6 +65,13 @@ private:
     int _refCount;
     int _trace;
     CheckpointThreadPtr _thread;
+
+#ifdef _WIN32
+    DWORD _tsdKey;
+#else
+    pthread_key_t _tsdKey;
+#endif    
+
 };
 
 inline DbEnv*

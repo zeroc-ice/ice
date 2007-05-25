@@ -41,7 +41,7 @@ public class Server extends Ice.Application
         // static member).
         //
         Freeze.ServantInitializer init = new NodeInitializer();
-        Freeze.Evictor evictor = Freeze.Util.createEvictor(adapter, _envName, "evictorfs", init, null, true);
+        Freeze.Evictor evictor = Freeze.Util.createBackgroundSaveEvictor(adapter, _envName, "evictorfs", init, null, true);
         DirectoryI._evictor = evictor;
         FileI._evictor = evictor;
 

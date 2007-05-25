@@ -11,7 +11,8 @@
 #define FREEZE_FREEZE_H
 
 #include <Freeze/Initialize.h>
-#include <Freeze/Evictor.h>
+#include <Freeze/BackgroundSaveEvictor.h>
+#include <Freeze/TransactionalEvictor.h>
 #include <Freeze/Map.h>
 #include <Freeze/TransactionHolder.h>
 

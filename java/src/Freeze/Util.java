@@ -11,20 +11,36 @@ package Freeze;
 
 public class Util
 {
-    public static Evictor
-    createEvictor(Ice.ObjectAdapter adapter, String envName, String filename, ServantInitializer initializer,
-                  Index[] indices, boolean createDb)
+    public static BackgroundSaveEvictor
+    createBackgroundSaveEvictor(Ice.ObjectAdapter adapter, String envName, String filename, ServantInitializer initializer,
+                                Index[] indices, boolean createDb)
     {
-        return new EvictorI(adapter, envName, filename, initializer, indices, createDb);
+        return new BackgroundSaveEvictorI(adapter, envName, filename, initializer, indices, createDb);
     } 
 
-    public static Evictor
-    createEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
-                  ServantInitializer initializer, Index[] indices, boolean createDb)
+    public static BackgroundSaveEvictor
+    createBackgroundSaveEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
+                                ServantInitializer initializer, Index[] indices, boolean createDb)
     {
-        return new EvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
+        return new BackgroundSaveEvictorI(adapter, envName, dbEnv, filename, initializer, indices, createDb);
     } 
 
+
+    public static TransactionalEvictor
+    createTransactionalEvictor(Ice.ObjectAdapter adapter, String envName, String filename, java.util.Map facetTypes,
+                               ServantInitializer initializer, Index[] indices, boolean createDb)
+    {
+        return new TransactionalEvictorI(adapter, envName, filename, facetTypes, initializer, indices, createDb);
+    } 
+
+    public static TransactionalEvictor
+    createTransactionalEvictor(Ice.ObjectAdapter adapter, String envName, com.sleepycat.db.Environment dbEnv, String filename, 
+                               java.util.Map facetTypes, ServantInitializer initializer, Index[] indices, boolean createDb)
+    {
+        return new TransactionalEvictorI(adapter, envName, dbEnv, filename, facetTypes, initializer, indices, createDb);
+    }
+
+    
     public static Connection
     createConnection(Ice.Communicator communicator, String envName)
     {
@@ -63,7 +79,7 @@ public class Util
         return result;
     }
     
-    static synchronized void handleFatalError(Evictor evictor, Ice.Communicator communicator, RuntimeException ex)
+    static synchronized void handleFatalError(BackgroundSaveEvictor evictor, Ice.Communicator communicator, RuntimeException ex)
     {
         if(_fatalErrorCallback != null)
         {

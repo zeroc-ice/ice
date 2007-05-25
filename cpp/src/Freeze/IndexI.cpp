@@ -48,7 +48,6 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     //
     dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-
     Key pkey(1024);
     Dbt pdbKey;
     initializeOutDbt(pkey, pdbKey);
@@ -57,8 +56,9 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
     Ice::CommunicatorPtr communicator = _store->communicator();
-    _store->evictor()->saveNow();
 
+    DbTxn* tx = _store->evictor()->beforeQuery();
+    
     vector<Identity> identities;
 
     try
@@ -73,7 +73,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
                 //
                 // Move to the first record
                 // 
-                _db->cursor(0, &dbc, 0);
+                _db->cursor(tx, &dbc, 0);
                 u_int32_t flags = DB_SET;
 
                 bool found;
@@ -96,7 +96,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
                                 pkey.resize(pdbKey.get_size());
                                 
                                 Ice::Identity ident;
-                                ObjectStore::unmarshal(ident, pkey, communicator);
+                                ObjectStoreBase::unmarshal(ident, pkey, communicator);
                                 identities.push_back(ident);
                                 flags = DB_NEXT_DUP;
                             }
@@ -129,9 +129,11 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
                     }
                     catch(const DbDeadlockException&)
                     {
-                        //
-                        // Ignored
-                        //
+                        if(tx != 0)
+                        {
+                            throw;
+                        }
+                        // Else ignored
                     }
                 }
 
@@ -142,9 +144,11 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
                         << _store->evictor()->filename() + "/" + _dbName << "\"; retrying ...";
                 }
 
-                //
-                // Retry
-                //
+                if(tx != 0)
+                {
+                    throw;
+                }
+                // Else retry
             }
             catch(...)
             {
@@ -156,14 +160,20 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
                     }
                     catch(const DbDeadlockException&)
                     {
-                        //
-                        // Ignored
-                        //
+                        if(tx != 0)
+                        {
+                            throw;
+                        }
+                        // Else ignored
                     }
                 }
                 throw;
             }
         }
+    }
+    catch(const DbDeadlockException& dx)
+    {
+        throw DeadlockException(__FILE__, __LINE__, dx.what());
     }
     catch(const DbException& dx)
     {
@@ -198,7 +208,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    _store->evictor()->saveNow();
+    DbTxn* tx = _store->evictor()->beforeQuery();
     Int result = 0;
     
     try
@@ -212,7 +222,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
                 //
                 // Move to the first record
                 // 
-                _db->cursor(0, &dbc, 0);
+                _db->cursor(tx, &dbc, 0);
                 bool found = (dbc->get(&dbKey, &dbValue, DB_SET) == 0);
                 
                 if(found)
@@ -237,9 +247,11 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
                     }
                     catch(const DbDeadlockException&)
                     {
-                        //
-                        // Ignored
-                        //
+                        if(tx != 0)
+                        {
+                            throw;
+                        }
+                        // Else ignored
                     }
                 }
 
@@ -250,9 +262,12 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
                         << _store->evictor()->filename() + "/" + _dbName << "\"; retrying ...";
                 }
 
-                //
-                // Retry
-                //
+                if(tx != 0)
+                {
+                    throw;
+                }
+                // Else retry
+                
             }
             catch(...)
             {
@@ -264,14 +279,20 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
                     }
                     catch(const DbDeadlockException&)
                     {
-                        //
-                        // Ignored
-                        //
+                        if(tx != 0)
+                        {
+                            throw;
+                        }
+                        // Else ignored
                     }
                 }
                 throw;
             }
         }
+    }
+    catch(const DbDeadlockException& dx)
+    {
+        throw DeadlockException(__FILE__, __LINE__, dx.what());
     }
     catch(const DbException& dx)
     {
@@ -284,7 +305,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 }
 
 void
-Freeze::IndexI::associate(ObjectStore* store, DbTxn* txn, 
+Freeze::IndexI::associate(ObjectStoreBase* store, DbTxn* txn, 
                           bool createDb, bool populateIndex)
 {
     assert(txn != 0);
@@ -301,7 +322,7 @@ Freeze::IndexI::associate(ObjectStore* store, DbTxn* txn,
         flags = DB_CREATE;
     }
 
-    _dbName = EvictorI::indexPrefix + store->dbName() + "." + _index.name();
+    _dbName = EvictorIBase::indexPrefix + store->dbName() + "." + _index.name();
 
     _db->open(txn, store->evictor()->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 
@@ -322,7 +343,7 @@ Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey,
     ObjectRecord rec;
     Byte* first = static_cast<Byte*>(dbValue->get_data());
     Value value(first, first + dbValue->get_size());
-    ObjectStore::unmarshal(rec, value, communicator);
+    ObjectStoreBase::unmarshal(rec, value, communicator);
 
     Key bytes;
     if(_index.marshalKey(rec.servant, bytes))
@@ -354,9 +375,7 @@ Freeze::IndexI::close()
         }
         catch(const DbException& dx)
         {
-            DatabaseException ex(__FILE__, __LINE__);
-            ex.message = dx.what();
-            throw ex;
+            throw DatabaseException(__FILE__, __LINE__, dx.what());
         }
         _db.reset(0);   
     }

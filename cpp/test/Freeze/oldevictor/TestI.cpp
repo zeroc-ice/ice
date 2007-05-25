@@ -161,7 +161,7 @@ Test::ServantI::setTransientValue(Ice::Int val, const Current& current)
 void
 Test::ServantI::keepInCache(const Current& current)
 {
-    _evictor->keep(current.id);
+    Freeze::BackgroundSaveEvictorPtr::dynamicCast(_evictor)->keep(current.id);
 }
 
 void
@@ -169,7 +169,7 @@ Test::ServantI::release(const Current& current)
 {
     try
     {
-        _evictor->release(current.id);
+        Freeze::BackgroundSaveEvictorPtr::dynamicCast(_evictor)->release(current.id);
     }
     catch(const Ice::NotRegisteredException&)
     {
@@ -251,7 +251,7 @@ Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const stri
  
     Initializer* initializer = new Initializer;
     
-    _evictor = Freeze::createEvictor(_evictorAdapter, envName, category, initializer);
+    _evictor = Freeze::createBackgroundSaveEvictor(_evictorAdapter, envName, category, initializer);
     initializer->init(this, _evictor);
 
     _evictorAdapter->addServantLocator(_evictor, category);
