@@ -19,7 +19,7 @@ namespace Freeze
 
 class TransactionalEvictorI;
 
-struct TransactionalEvictorElement;
+class TransactionalEvictorElement;
 typedef IceUtil::Handle<TransactionalEvictorElement> TransactionalEvictorElementPtr;
 
 class TransactionalEvictorElement : public Ice::LocalObject

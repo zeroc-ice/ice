@@ -48,7 +48,11 @@ FREEZE_API TransactionalEvictorPtr
 createTransactionalEvictor(const Ice::ObjectAdapterPtr& adapter,
                            const std::string& envName, 
                            const std::string& filename,
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+                           const FacetTypeMap& facetTypes = FacetTypeMap(std::less<std::string>()),
+#else
                            const FacetTypeMap& facetTypes = FacetTypeMap(),
+#endif
                            const ServantInitializerPtr& initializer = 0,
                            const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
                            bool createDb = true);
@@ -58,7 +62,11 @@ createTransactionalEvictor(const Ice::ObjectAdapterPtr& adapter,
                            const std::string& envName,
                            DbEnv& dbEnv, 
                            const std::string& filename,
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+                           const FacetTypeMap& facetTypes = FacetTypeMap(std::less<std::string>()),
+#else
                            const FacetTypeMap& facetTypes = FacetTypeMap(),
+#endif                   
                            const ServantInitializerPtr& initializer = 0,
                            const std::vector<IndexPtr>& indices = std::vector<IndexPtr>(),
                            bool createDb = true);

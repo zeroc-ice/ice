@@ -164,7 +164,7 @@ Freeze::EvictorIteratorI::nextBatch()
                 toClose->close();
                 break; // for (;;)
             }
-            catch(const DbDeadlockException& dx)
+            catch(const DbDeadlockException&)
             {
                 if(dbc != 0)
                 {
