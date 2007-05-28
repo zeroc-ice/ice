@@ -15,6 +15,7 @@
 
 #if defined(_WIN32)
 #  include <winsock2.h>
+#  include <ws2tcpip.h>
 #elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
 #  include <ifaddrs.h>
 #else
@@ -193,6 +194,19 @@ IceInternal::recvTruncated()
     // We don't get an error under Linux if a datagram is truncated.
     return false;
 #endif
+}
+
+bool
+IceInternal::isMulticast(struct sockaddr_in& addr)
+{
+    string ip = inetAddrToString(addr.sin_addr);
+    int i;
+    istringstream p(ip.substr(0, ip.find('.')));
+    if(!(p >> i) || !p.eof() || i < 224 || i > 239)
+    {
+        return false;
+    }
+    return true;
 }
 
 SOCKET
@@ -468,10 +482,48 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 }
 
 void
-IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
+IceInternal::setMcastGroup(SOCKET fd, const struct in_addr& group, const struct in_addr& interface)
 {
-#ifndef _WIN32
-    int flag = 1;
+    struct ip_mreq mreq;
+    mreq.imr_multiaddr = group;
+    mreq.imr_interface = interface;
+    if(setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, (char*)&mreq, int(sizeof(mreq))) == SOCKET_ERROR)
+    {
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+}
+
+void
+IceInternal::setMcastInterface(SOCKET fd, const struct in_addr& interface)
+{
+    if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_IF, (char*)&interface, int(sizeof(interface))) == SOCKET_ERROR)
+    {
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+}
+
+void
+IceInternal::setMcastTtl(SOCKET fd, int ttl)
+{
+    if(setsockopt(fd, IPPROTO_IP, IP_MULTICAST_TTL, (char*)&ttl, int(sizeof(int))) == SOCKET_ERROR)
+    {
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
+    }
+}
+
+void
+IceInternal::setReuseAddress(SOCKET fd, bool reuse)
+{
+    int flag = reuse ? 1 : 0;
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
@@ -479,6 +531,13 @@ IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
         ex.error = getSocketErrno();
         throw ex;
     }
+}
+
+void
+IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
+{
+#ifndef _WIN32
+    setReuseAddress(fd, true);
 #endif
 
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
@@ -1205,6 +1264,13 @@ IceInternal::fdToString(SOCKET fd)
     struct sockaddr_in remoteAddr;
     bool peerConnected = fdToRemoteAddress(fd, remoteAddr);
 
+    return addressesToString(localAddr, remoteAddr, peerConnected);
+};
+
+std::string
+IceInternal::addressesToString(const struct sockaddr_in& localAddr, const struct sockaddr_in& remoteAddr,
+                               bool peerConnected)
+{
     ostringstream s;
     s << "local address = " << addrToString(localAddr);
     if(peerConnected)

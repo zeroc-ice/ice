@@ -14,11 +14,14 @@ final class UdpEndpointI extends EndpointI
     final static short TYPE = 3;
 
     public
-    UdpEndpointI(Instance instance, String ho, int po, boolean conn, String conId, boolean co, boolean pub)
+    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, boolean conn, String conId, boolean co,
+                 boolean pub)
     {
         _instance = instance;
         _host = ho;
         _port = po;
+        _mcastInterface = mif;
+        _mcastTtl = mttl;
         _protocolMajor = Protocol.protocolMajor;
         _protocolMinor = Protocol.protocolMinor;
         _encodingMajor = Protocol.encodingMajor;
@@ -56,7 +59,7 @@ final class UdpEndpointI extends EndpointI
             }
 
             String option = arr[i++];
-            if(option.length() != 2 || option.charAt(0) != '-')
+            if(option.charAt(0) != '-')
             {
                 throw new Ice.EndpointParseException("udp " + str);
             }
@@ -67,165 +70,179 @@ final class UdpEndpointI extends EndpointI
                 argument = arr[i++];
             }
 
-            switch(option.charAt(1))
+            if(option.equals("-v"))
             {
-                case 'v':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    int pos = argument.indexOf('.');
-                    if(pos == -1)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    String majStr = argument.substring(0, pos);
-                    String minStr = argument.substring(pos + 1, argument.length());
-                    int majVersion;
-                    int minVersion;
-                    try
-                    {
-                        majVersion = Integer.parseInt(majStr);
-                        minVersion = Integer.parseInt(minStr);
-                    }
-                    catch(NumberFormatException ex)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    if(majVersion != Protocol.protocolMajor)
-                    {
-                        Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-                        e.badMajor = majVersion < 0 ? majVersion + 255 : majVersion;
-                        e.badMinor = minVersion < 0 ? minVersion + 255 : minVersion;
-                        e.major = Protocol.protocolMajor;
-                        e.minor = Protocol.protocolMinor;
-                        throw e;
-                    }
-
-                    _protocolMajor = (byte)majVersion;
-                    _protocolMinor = (byte)minVersion;
-
-                    break;
-                }
-
-                case 'e':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    int pos = argument.indexOf('.');
-                    if(pos == -1)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    String majStr = argument.substring(0, pos);
-                    String minStr = argument.substring(pos + 1, argument.length());
-                    int majVersion;
-                    int minVersion;
-                    try
-                    {
-                        majVersion = Integer.parseInt(majStr);
-                        minVersion = Integer.parseInt(minStr);
-                    }
-                    catch(NumberFormatException ex)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    if(majVersion != Protocol.encodingMajor)
-                    {
-                        Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-                        e.badMajor = majVersion < 0 ? majVersion + 255 : majVersion;
-                        e.badMinor = minVersion < 0 ? minVersion + 255 : minVersion;
-                        e.major = Protocol.encodingMajor;
-                        e.minor = Protocol.encodingMinor;
-                        throw e;
-                    }
-
-                    _encodingMajor = (byte)majVersion;
-                    _encodingMinor = (byte)minVersion;
-
-                    break;
-                }
-
-                case 'h':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    _host = argument;
-                    break;
-                }
-
-                case 'p':
-                {
-                    if(argument == null)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    try
-                    {
-                        _port = Integer.parseInt(argument);
-                    }
-                    catch(NumberFormatException ex)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    if(_port < 0 || _port > 65535)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    break;
-                }
-
-                case 'c':
-                {
-                    if(argument != null)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    _connect = true;
-                    break;
-                }
-
-                case 'z':
-                {
-                    if(argument != null)
-                    {
-                        throw new Ice.EndpointParseException("udp " + str);
-                    }
-
-                    _compress = true;
-                    break;
-                }
-
-                default:
+                if(argument == null)
                 {
                     throw new Ice.EndpointParseException("udp " + str);
                 }
+
+                int pos = argument.indexOf('.');
+                if(pos == -1)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                String majStr = argument.substring(0, pos);
+                String minStr = argument.substring(pos + 1, argument.length());
+                int majVersion;
+                int minVersion;
+                try
+                {
+                    majVersion = Integer.parseInt(majStr);
+                    minVersion = Integer.parseInt(minStr);
+                }
+                catch(NumberFormatException ex)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                if(majVersion != Protocol.protocolMajor)
+                {
+                    Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+                    e.badMajor = majVersion < 0 ? majVersion + 255 : majVersion;
+                    e.badMinor = minVersion < 0 ? minVersion + 255 : minVersion;
+                    e.major = Protocol.protocolMajor;
+                    e.minor = Protocol.protocolMinor;
+                    throw e;
+                }
+
+                _protocolMajor = (byte)majVersion;
+                _protocolMinor = (byte)minVersion;
+            }
+            else if(option.equals("-e"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                int pos = argument.indexOf('.');
+                if(pos == -1)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                String majStr = argument.substring(0, pos);
+                String minStr = argument.substring(pos + 1, argument.length());
+                int majVersion;
+                int minVersion;
+                try
+                {
+                    majVersion = Integer.parseInt(majStr);
+                    minVersion = Integer.parseInt(minStr);
+                }
+                catch(NumberFormatException ex)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                if(majVersion != Protocol.encodingMajor)
+                {
+                    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+                    e.badMajor = majVersion < 0 ? majVersion + 255 : majVersion;
+                    e.badMinor = minVersion < 0 ? minVersion + 255 : minVersion;
+                    e.major = Protocol.encodingMajor;
+                    e.minor = Protocol.encodingMinor;
+                    throw e;
+                }
+
+                _encodingMajor = (byte)majVersion;
+                _encodingMinor = (byte)minVersion;
+            }
+            else if(option.equals("-h"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                _host = argument;
+            }
+            else if(option.equals("-p"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                try
+                {
+                    _port = Integer.parseInt(argument);
+                }
+                catch(NumberFormatException ex)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                if(_port < 0 || _port > 65535)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+            }
+            else if(option.equals("-c"))
+            {
+                if(argument != null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                _connect = true;
+                break;
+            }
+            else if(option.equals("-z"))
+            {
+                if(argument != null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                _compress = true;
+                break;
+            }
+            else if(option.equals("--interface"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                _mcastInterface = argument;
+            }
+            else if(option.equals("--ttl"))
+            {
+                if(argument == null)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                try
+                {
+                    _mcastTtl = Integer.parseInt(argument);
+                }
+                catch(NumberFormatException ex)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+
+                if(_mcastTtl < 0)
+                {
+                    throw new Ice.EndpointParseException("udp " + str);
+                }
+            }
+            else
+            {
+                throw new Ice.EndpointParseException("udp " + str);
             }
         }
     }
@@ -317,6 +334,16 @@ final class UdpEndpointI extends EndpointI
 
         s += " -h " + _host + " -p " + _port;
 
+        if(_mcastInterface.length() != 0)
+        {
+            s += " --interface " + _mcastInterface;
+        }
+
+        if(_mcastTtl != -1)
+        {
+            s += " --ttl " + _mcastTtl;
+        }
+
         if(_connect)
         {
             s += " -c";
@@ -373,7 +400,8 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _connect, _connectionId, compress, _publish);
+            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+                                    compress, _publish);
         }
     }
 
@@ -389,7 +417,8 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _connect, connectionId, _compress, _publish);
+            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId,
+                                    _compress, _publish);
         }
     }
 
@@ -445,12 +474,12 @@ final class UdpEndpointI extends EndpointI
             java.util.Iterator p = hosts.iterator();
             while(p.hasNext())
             {
-                transceivers.add(new UdpTransceiver(_instance, (String)p.next(), _port));
+                transceivers.add(new UdpTransceiver(_instance, (String)p.next(), _port, _mcastInterface, _mcastTtl));
             }
         }
         else
         {
-            transceivers.add(new UdpTransceiver(_instance, _host, _port));
+            transceivers.add(new UdpTransceiver(_instance, _host, _port, _mcastInterface, _mcastTtl));
         }
         return transceivers;
     }
@@ -465,8 +494,9 @@ final class UdpEndpointI extends EndpointI
     public Transceiver
     serverTransceiver(EndpointIHolder endpoint)
     {
-        UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _connect);
-        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _connect, _connectionId, _compress,
+        UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
+        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _mcastInterface, _mcastTtl, _connect,
+                                          _connectionId, _compress,
                                           _publish);
         return p;
     }
@@ -531,8 +561,8 @@ final class UdpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new UdpEndpointI(_instance, host, _port, _connect, _connectionId, _compress,
-                                           hosts.size() == 1 || !host.equals("127.0.0.1")));
+                endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl,  _connect,
+                                           _connectionId, _compress, hosts.size() == 1 || !host.equals("127.0.0.1")));
             }
         }
         else
@@ -680,6 +710,21 @@ final class UdpEndpointI extends EndpointI
             return 1;
         }
 
+        if(_mcastTtl < p._mcastTtl)
+        {
+            return -1;
+        }
+        else if(p._mcastTtl < _mcastTtl)
+        {
+            return 1;
+        }
+
+        int rc = _mcastInterface.compareTo(p._mcastInterface);
+        if(rc != 0)
+        {
+            return rc;
+        }
+
         if(!_host.equals(p._host))
         {
             //
@@ -752,6 +797,8 @@ final class UdpEndpointI extends EndpointI
             _hashCode = _host.hashCode();
         }
         _hashCode = 5 * _hashCode + _port;
+        _hashCode = 5 * _hashCode + _mcastInterface.hashCode();
+        _hashCode = 5 * _hashCode + _mcastTtl;
         _hashCode = 5 * _hashCode + (_connect ? 1 : 0);
         _hashCode = 5 * _hashCode + _connectionId.hashCode();
         _hashCode = 5 * _hashCode + (_compress ? 1 : 0);
@@ -760,6 +807,8 @@ final class UdpEndpointI extends EndpointI
     private Instance _instance;
     private String _host;
     private int _port;
+    private String _mcastInterface = "";
+    private int _mcastTtl = -1;
     private byte _protocolMajor;
     private byte _protocolMinor;
     private byte _encodingMajor;

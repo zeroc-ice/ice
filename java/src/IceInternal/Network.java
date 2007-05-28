@@ -206,6 +206,22 @@ public final class Network
         }
     }
 
+    public static void
+    setReuseAddress(java.nio.channels.DatagramChannel fd, boolean reuse)
+    {
+        try
+        {
+            fd.socket().setReuseAddress(reuse);
+        }
+        catch(java.io.IOException ex)
+        {
+            closeSocketNoThrow(fd);
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
     public static java.net.InetSocketAddress
     doBind(java.nio.channels.ServerSocketChannel fd, java.net.InetSocketAddress addr)
     {

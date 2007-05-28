@@ -339,7 +339,16 @@ IceInternal::UdpTransceiver::type() const
 string
 IceInternal::UdpTransceiver::toString() const
 {
-    return fdToString(_fd);
+    if(_mcastServer && _fd != INVALID_SOCKET)
+    {
+        struct sockaddr_in remoteAddr;
+        bool peerConnected = fdToRemoteAddress(_fd, remoteAddr);
+        return addressesToString(_addr, remoteAddr, peerConnected);
+    }
+    else
+    {
+        return fdToString(_fd);
+    }
 }
 
 void
@@ -375,7 +384,8 @@ IceInternal::UdpTransceiver::effectivePort() const
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port) :
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, 
+                                            const string& mcastInterface, int mcastTtl) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
@@ -392,6 +402,19 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         getAddress(host, port, _addr);
         doConnect(_fd, _addr, -1);
         _connect = false; // We're connected now
+        if(isMulticast(_addr))
+        {
+            if(mcastInterface.length() > 0)
+            {
+                struct sockaddr_in addr;
+                getAddress(mcastInterface, port, addr);
+                setMcastInterface(_fd, addr.sin_addr);
+            }
+            if(mcastTtl != -1)
+            {
+                setMcastTtl(_fd, mcastTtl);
+            }
+        }
         
         if(_traceLevels->network >= 1)
         {
@@ -411,7 +434,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 #endif
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, bool connect) :
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, 
+                                            const string& mcastInterface, bool connect) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
@@ -431,8 +455,28 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             Trace out(_logger, _traceLevels->networkCat);
             out << "attempting to bind to udp socket " << addrToString(_addr);
         }
-        doBind(_fd, _addr);
-            
+        if(isMulticast(_addr))
+        {
+            struct sockaddr_in addr;
+            getAddress("0.0.0.0", port, addr);
+            setReuseAddress(_fd, true);
+            doBind(_fd, addr);
+            if(mcastInterface.length() > 0)
+            {
+                getAddress(mcastInterface, port, addr);
+            }
+            else
+            {
+                addr.sin_addr.s_addr = INADDR_ANY;
+            }
+            setMcastGroup(_fd, _addr.sin_addr, addr.sin_addr);
+            _mcastServer = true;
+        }
+        else
+        {
+            doBind(_fd, _addr);
+        }
+        
         if(_traceLevels->network >= 1)
         {
             Trace out(_logger, _traceLevels->networkCat);

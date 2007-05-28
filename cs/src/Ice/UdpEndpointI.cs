@@ -17,11 +17,14 @@ namespace IceInternal
     {
         internal const short TYPE = 3;
         
-        public UdpEndpointI(Instance instance, string ho, int po, bool conn, string conId, bool co, bool pub)
+        public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, bool conn, string conId,
+                            bool co, bool pub)
         {
             instance_ = instance;
             _host = ho;
             _port = po;
+            _mcastInterface = mif;
+            _mcastTtl = mttl;
             _protocolMajor = Protocol.protocolMajor;
             _protocolMinor = Protocol.protocolMinor;
             _encodingMajor = Protocol.encodingMajor;
@@ -59,7 +62,7 @@ namespace IceInternal
                 }
                 
                 string option = arr[i++];
-                if(option.Length != 2 || option[0] != '-')
+                if(option[0] != '-')
                 {
                     Ice.EndpointParseException e = new Ice.EndpointParseException();
                     e.str = "udp " + str;
@@ -72,195 +75,215 @@ namespace IceInternal
                     argument = arr[i++];
                 }
                 
-                switch(option[1])
+                if(option.Equals("-v"))
                 {
-                    case 'v': 
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        int pos = argument.IndexOf((System.Char) '.');
-                        if(pos == -1)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        string majStr = argument.Substring(0, (pos) - (0));
-                        string minStr = argument.Substring(pos + 1, (argument.Length) - (pos + 1));
-                        int majVersion;
-                        int minVersion;
-                        try
-                        {
-                            majVersion = System.Int32.Parse(majStr);
-                            minVersion = System.Int32.Parse(minStr);
-                        }
-                        catch(System.FormatException ex)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        if(majVersion != Protocol.protocolMajor)
-                        {
-                            Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-                            e.badMajor = majVersion < 0?majVersion + 255:majVersion;
-                            e.badMinor = minVersion < 0?minVersion + 255:minVersion;
-                            e.major = Protocol.protocolMajor;
-                            e.minor = Protocol.protocolMinor;
-                            throw e;
-                        }
-                        
-                        _protocolMajor = (byte)majVersion;
-                        _protocolMinor = (byte)minVersion;
-                        
-                        break;
-                    }
-                    
-                    case 'e': 
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        int pos = argument.IndexOf((System.Char) '.');
-                        if(pos == -1)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        string majStr = argument.Substring(0, (pos) - (0));
-                        string minStr = argument.Substring(pos + 1, (argument.Length) - (pos + 1));
-                        int majVersion;
-                        int minVersion;
-                        try
-                        {
-                            majVersion = System.Int32.Parse(majStr);
-                            minVersion = System.Int32.Parse(minStr);
-                        }
-                        catch(System.FormatException ex)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        if(majVersion != Protocol.encodingMajor)
-                        {
-                            Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-                            e.badMajor = majVersion < 0?majVersion + 255:majVersion;
-                            e.badMinor = minVersion < 0?minVersion + 255:minVersion;
-                            e.major = Protocol.encodingMajor;
-                            e.minor = Protocol.encodingMinor;
-                            throw e;
-                        }
-                        
-                        _encodingMajor = (byte)majVersion;
-                        _encodingMinor = (byte)minVersion;
-                        
-                        break;
-                    }
-                    
-                    case 'h': 
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        _host = argument;
-                        break;
-                    }
-                    
-                    case 'p': 
-                    {
-                        if(argument == null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        try
-                        {
-                            _port = System.Int32.Parse(argument);
-                        }
-                        catch(System.FormatException ex)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-
-                        if(_port < 0 || _port > 65535)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        break;
-                    }
-                    
-                    case 'c': 
-                    {
-                        if(argument != null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        _connect = true;
-                        break;
-                    }
-                    
-                    case 'z': 
-                    {
-                        if(argument != null)
-                        {
-                            Ice.EndpointParseException e = new Ice.EndpointParseException();
-                            e.str = "udp " + str;
-                            throw e;
-                        }
-                        
-                        _compress = true;
-                        break;
-                    }
-                    
-                    default: 
+                    if(argument == null)
                     {
                         Ice.EndpointParseException e = new Ice.EndpointParseException();
                         e.str = "udp " + str;
                         throw e;
                     }
+                    
+                    int pos = argument.IndexOf((System.Char) '.');
+                    if(pos == -1)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    string majStr = argument.Substring(0, (pos) - (0));
+                    string minStr = argument.Substring(pos + 1, (argument.Length) - (pos + 1));
+                    int majVersion;
+                    int minVersion;
+                    try
+                    {
+                        majVersion = System.Int32.Parse(majStr);
+                        minVersion = System.Int32.Parse(minStr);
+                    }
+                    catch(System.FormatException ex)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    if(majVersion != Protocol.protocolMajor)
+                    {
+                        Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+                        e.badMajor = majVersion < 0?majVersion + 255:majVersion;
+                        e.badMinor = minVersion < 0?minVersion + 255:minVersion;
+                        e.major = Protocol.protocolMajor;
+                        e.minor = Protocol.protocolMinor;
+                        throw e;
+                    }
+                    
+                    _protocolMajor = (byte)majVersion;
+                    _protocolMinor = (byte)minVersion;
+                }
+                else if(option.Equals("-e"))
+                {
+                    if(argument == null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                
+                    int pos = argument.IndexOf((System.Char) '.');
+                    if(pos == -1)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    string majStr = argument.Substring(0, (pos) - (0));
+                    string minStr = argument.Substring(pos + 1, (argument.Length) - (pos + 1));
+                    int majVersion;
+                    int minVersion;
+                    try
+                    {
+                        majVersion = System.Int32.Parse(majStr);
+                        minVersion = System.Int32.Parse(minStr);
+                    }
+                    catch(System.FormatException ex)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    if(majVersion != Protocol.encodingMajor)
+                    {
+                        Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+                        e.badMajor = majVersion < 0?majVersion + 255:majVersion;
+                        e.badMinor = minVersion < 0?minVersion + 255:minVersion;
+                        e.major = Protocol.encodingMajor;
+                        e.minor = Protocol.encodingMinor;
+                        throw e;
+                    }
+                    
+                    _encodingMajor = (byte)majVersion;
+                    _encodingMinor = (byte)minVersion;
+                }
+                else if(option.Equals("-h"))
+                {
+                    if(argument == null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    _host = argument;
+                }
+                else if(option.Equals("-p"))
+                {
+                    if(argument == null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    try
+                    {
+                        _port = System.Int32.Parse(argument);
+                    }
+                    catch(System.FormatException ex)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+
+                    if(_port < 0 || _port > 65535)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                }
+                else if(option.Equals("-c"))
+                {
+                    if(argument != null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    _connect = true;
+                }
+                else if(option.Equals("-z"))
+                {
+                    if(argument != null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    _compress = true;
+                }
+                else if(option.Equals("--interface"))
+                {
+                    if(argument == null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    _mcastInterface = argument;
+                }
+                else if(option.Equals("--ttl"))
+                {
+                    if(argument == null)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                    
+                    try
+                    {
+                        _mcastTtl = System.Int32.Parse(argument);
+                    }
+                    catch(System.FormatException ex)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException(ex);
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+
+                    if(_mcastTtl < 0)
+                    {
+                        Ice.EndpointParseException e = new Ice.EndpointParseException();
+                        e.str = "udp " + str;
+                        throw e;
+                    }
+                }
+                else
+                {
+                    Ice.EndpointParseException e = new Ice.EndpointParseException();
+                    e.str = "udp " + str;
+                    throw e;
                 }
             }
         }
@@ -349,6 +372,16 @@ namespace IceInternal
 
             s += " -h " + _host + " -p " + _port;
 
+            if(_mcastInterface.Length != 0)
+            {
+                s += " --interface " + _mcastInterface;
+            }
+
+            if(_mcastTtl != -1)
+            {
+                s += " --ttl " + _mcastTtl;
+            }
+
             if(_connect)
             {
                 s += " -c";
@@ -401,7 +434,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, _host, _port, _connect, _connectionId, compress, _publish);
+                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+                                        compress, _publish);
             }
         }
 
@@ -416,7 +450,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, _host, _port, _connect, connectionId, _compress, _publish);
+                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId,
+                                        _compress, _publish);
             }
         }
         
@@ -466,12 +501,12 @@ namespace IceInternal
             {
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    transceivers.Add(new UdpTransceiver(instance_, hosts[i], _port));
+                    transceivers.Add(new UdpTransceiver(instance_, hosts[i], _port, _mcastInterface, _mcastTtl));
                 }
             }
             else
             {
-                transceivers.Add(new UdpTransceiver(instance_, _host, _port));
+                transceivers.Add(new UdpTransceiver(instance_, _host, _port, _mcastInterface, _mcastTtl));
             }
             return transceivers;
         }
@@ -485,9 +520,9 @@ namespace IceInternal
         //
         public override Transceiver serverTransceiver(ref EndpointI endpoint)
         {
-            UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _connect);
-            endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _connect, _connectionId, _compress,
-                                        _publish);
+            UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
+            endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, _connect,
+                                        _connectionId, _compress, _publish);
             return p;
         }
         
@@ -547,7 +582,8 @@ namespace IceInternal
                 string[] hosts = Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _connect, _connectionId, _compress,
+                    endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _mcastInterface, _mcastTtl, _connect, 
+                                               _connectionId, _compress,
                                                hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
                 }
             }
@@ -695,7 +731,22 @@ namespace IceInternal
             {
                 return 1;
             }
+
+            int rc = _mcastInterface.CompareTo(p._mcastInterface);
+            if(rc != 0)
+            {
+                return rc;
+            }
             
+            if(_mcastTtl < p._mcastTtl)
+            {
+                return -1;
+            }
+            else if(p._mcastTtl < _mcastTtl)
+            {
+                return 1;
+            }
+
             if(!_host.Equals(p._host))
             {
                 //
@@ -760,6 +811,8 @@ namespace IceInternal
                 _hashCode = _host.GetHashCode();
             }
             _hashCode = 5 * _hashCode + _port;
+            _hashCode = 5 * _hashCode + _mcastInterface.GetHashCode();
+            _hashCode = 5 * _hashCode + _mcastTtl.GetHashCode();
             _hashCode = 5 * _hashCode + (_connect?1:0);
             _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
             _hashCode = 5 * _hashCode + (_compress?1:0);
@@ -768,6 +821,8 @@ namespace IceInternal
         private Instance instance_;
         private string _host;
         private int _port;
+        private string _mcastInterface = "";
+        private int _mcastTtl = -1;
         private byte _protocolMajor;
         private byte _protocolMinor;
         private byte _encodingMajor;

@@ -48,8 +48,8 @@ public:
 
 private:
 
-    UdpTransceiver(const InstancePtr&, const std::string&, int);
-    UdpTransceiver(const InstancePtr&, const std::string&, int, bool);
+    UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string&, int);
+    UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string&, bool);
     virtual ~UdpTransceiver();
 
     void setBufSize(const InstancePtr&);
@@ -63,6 +63,7 @@ private:
 
     SOCKET _fd;
     struct sockaddr_in _addr;
+    bool _mcastServer;
 #ifdef _WIN32
     fd_set _rFdSet;
     fd_set _wFdSet;

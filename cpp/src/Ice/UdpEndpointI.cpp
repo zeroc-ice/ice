@@ -20,11 +20,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, bool conn,
-                                        const string& conId, bool co, bool pub) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, const string& mif, 
+                                        Int mttl, bool conn, const string& conId, bool co, bool pub) :
     _instance(instance),
     _host(ho),
     _port(po),
+    _mcastInterface(mif),
+    _mcastTtl(mttl),
     _protocolMajor(protocolMajor),
     _protocolMinor(protocolMinor),
     _encodingMajor(encodingMajor),
@@ -39,6 +41,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
+    _mcastTtl(-1),
     _protocolMajor(protocolMajor),
     _protocolMinor(protocolMinor),
     _encodingMajor(encodingMajor),
@@ -67,7 +70,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         }
 
         string option = str.substr(beg, end - beg);
-        if(option.length() != 2 || option[0] != '-')
+        if(option[0] != '-')
         {
             EndpointParseException ex(__FILE__, __LINE__);
             ex.str = "udp " + str;
@@ -87,175 +90,177 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
             argument = str.substr(beg, end - beg);
         }
 
-        switch(option[1])
+        if(option == "-v")
         {
-            case 'v':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                string::size_type pos = argument.find('.');
-                if(pos == string::npos)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-                string majorStr = argument.substr(0, pos);
-                string minorStr = argument.substr(pos + 1, string::npos);
-
-                istringstream majStr(majorStr);
-                Int majVersion;
-                if(!(majStr >> majVersion) || !majStr.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                istringstream minStr(minorStr);
-                Int minVersion;
-                if(!(minStr >> minVersion) || !minStr.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                if(majVersion != protocolMajor)
-                {
-                    UnsupportedProtocolException ex(__FILE__, __LINE__);
-                    ex.badMajor = majVersion;
-                    ex.badMinor = minVersion;
-                    ex.major = static_cast<unsigned char>(protocolMajor);
-                    ex.minor = static_cast<unsigned char>(protocolMinor);
-                    throw ex;
-                }
-
-                const_cast<Byte&>(_protocolMajor) = majVersion;
-                const_cast<Byte&>(_protocolMinor) = minVersion;
-
-                break;
-            }
-
-            case 'e':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-                string::size_type pos = argument.find('.');
-                string majorStr = argument.substr(0, pos);
-                string minorStr = argument.substr(pos + 1, string::npos);
-
-                istringstream majStr(majorStr);
-                Int majVersion;
-                if(!(majStr >> majVersion) || !majStr.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                istringstream minStr(minorStr);
-                Int minVersion;
-                if(!(minStr >> minVersion) || !minStr.eof())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-
-                if(majVersion != static_cast<unsigned char>(encodingMajor))
-                {
-                    UnsupportedEncodingException ex(__FILE__, __LINE__);
-                    ex.badMajor = majVersion;
-                    ex.badMinor = minVersion;
-                    ex.major = static_cast<unsigned char>(encodingMajor);
-                    ex.minor = static_cast<unsigned char>(encodingMinor);
-                    throw ex;
-                }
-
-                const_cast<Byte&>(_encodingMajor) = majVersion;
-                const_cast<Byte&>(_encodingMinor) = minVersion;
-
-                break;
-            }
-
-            case 'h':
-            {
-                if(argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-                const_cast<string&>(_host) = argument;
-                break;
-            }
-
-            case 'p':
-            {
-                istringstream p(argument);
-                if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-                break;
-            }
-
-            case 'c':
-            {
-                if(!argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-                const_cast<bool&>(_connect) = true;
-                break;
-            }
-
-            case 'z':
-            {
-                if(!argument.empty())
-                {
-                    EndpointParseException ex(__FILE__, __LINE__);
-                    ex.str = "udp " + str;
-                    throw ex;
-                }
-                const_cast<bool&>(_compress) = true;
-                break;
-            }
-
-            default:
+            if(argument.empty())
             {
                 EndpointParseException ex(__FILE__, __LINE__);
                 ex.str = "udp " + str;
                 throw ex;
             }
+
+            string::size_type pos = argument.find('.');
+            if(pos == string::npos)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+            string majorStr = argument.substr(0, pos);
+            string minorStr = argument.substr(pos + 1, string::npos);
+
+            istringstream majStr(majorStr);
+            Int majVersion;
+            if(!(majStr >> majVersion) || !majStr.eof())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+
+            istringstream minStr(minorStr);
+            Int minVersion;
+            if(!(minStr >> minVersion) || !minStr.eof())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+
+            if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+
+            if(majVersion != protocolMajor)
+            {
+                UnsupportedProtocolException ex(__FILE__, __LINE__);
+                ex.badMajor = majVersion;
+                ex.badMinor = minVersion;
+                ex.major = static_cast<unsigned char>(protocolMajor);
+                ex.minor = static_cast<unsigned char>(protocolMinor);
+                throw ex;
+            }
+
+            const_cast<Byte&>(_protocolMajor) = majVersion;
+            const_cast<Byte&>(_protocolMinor) = minVersion;
+        }
+        else if(option == "-e")
+        {
+            if(argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+            string::size_type pos = argument.find('.');
+            string majorStr = argument.substr(0, pos);
+            string minorStr = argument.substr(pos + 1, string::npos);
+
+            istringstream majStr(majorStr);
+            Int majVersion;
+            if(!(majStr >> majVersion) || !majStr.eof())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+
+            istringstream minStr(minorStr);
+            Int minVersion;
+            if(!(minStr >> minVersion) || !minStr.eof())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+
+            if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+
+            if(majVersion != static_cast<unsigned char>(encodingMajor))
+            {
+                UnsupportedEncodingException ex(__FILE__, __LINE__);
+                ex.badMajor = majVersion;
+                ex.badMinor = minVersion;
+                ex.major = static_cast<unsigned char>(encodingMajor);
+                ex.minor = static_cast<unsigned char>(encodingMinor);
+                throw ex;
+            }
+
+            const_cast<Byte&>(_encodingMajor) = majVersion;
+            const_cast<Byte&>(_encodingMinor) = minVersion;
+        }
+        else if(option == "-h")
+        {
+            if(argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+            const_cast<string&>(_host) = argument;
+        }
+        else if(option == "-p")
+        {
+            istringstream p(argument);
+            if(!(p >> const_cast<Int&>(_port)) || !p.eof() || _port < 0 || _port > 65535)
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+        }
+        else if(option == "-c")
+        {
+            if(!argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+            const_cast<bool&>(_connect) = true;
+        }
+        else if(option == "-z")
+        {
+            if(!argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+            const_cast<bool&>(_compress) = true;
+        }
+        else if(option == "--interface")
+        {
+            if(argument.empty())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+            const_cast<string&>(_mcastInterface) = argument;
+        }
+        else if(option == "--ttl")
+        {
+            istringstream p(argument);
+            if(!(p >> const_cast<Int&>(_mcastTtl)) || !p.eof())
+            {
+                EndpointParseException ex(__FILE__, __LINE__);
+                ex.str = "udp " + str;
+                throw ex;
+            }
+        }
+        else
+        {
+            EndpointParseException ex(__FILE__, __LINE__);
+            ex.str = "udp " + str;
         }
     }
 }
@@ -263,6 +268,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
 IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
+    _mcastTtl(-1),
     _protocolMajor(protocolMajor),
     _protocolMinor(protocolMinor),
     _encodingMajor(encodingMajor),
@@ -349,6 +355,16 @@ IceInternal::UdpEndpointI::toString() const
 
     s << " -h " << _host << " -p " << _port;
 
+    if(_mcastInterface.length() > 0)
+    {
+        s << " --interface " << _mcastInterface;
+    }
+
+    if(_mcastTtl != -1)
+    {
+        s << " --ttl " << _mcastTtl;
+    }
+
     if(_connect)
     {
         s << " -c";
@@ -389,7 +405,8 @@ IceInternal::UdpEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _connect, connectionId, _compress, _publish);
+        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId, 
+                                _compress, _publish);
     }
 }
 
@@ -408,7 +425,8 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new UdpEndpointI(_instance, _host, _port, _connect, _connectionId, compress, _publish);
+        return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId, 
+                                compress, _publish);
     }
 }
 
@@ -439,12 +457,12 @@ IceInternal::UdpEndpointI::clientTransceivers() const
     {
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            transceivers.push_back(new UdpTransceiver(_instance, hosts[i], _port));
+            transceivers.push_back(new UdpTransceiver(_instance, hosts[i], _port, _mcastInterface, _mcastTtl));
         }
     }
     else
     {
-        transceivers.push_back(new UdpTransceiver(_instance, _host, _port));
+        transceivers.push_back(new UdpTransceiver(_instance, _host, _port, _mcastInterface, _mcastTtl));
     }
     return transceivers;
 }
@@ -452,8 +470,9 @@ IceInternal::UdpEndpointI::clientTransceivers() const
 TransceiverPtr
 IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
 {
-    UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _connect);
-    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _connect, _connectionId, _compress, _publish);
+    UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
+    endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _mcastInterface, _mcastTtl, _connect, _connectionId,
+                            _compress, _publish);
     return p;
 }
 
@@ -500,8 +519,8 @@ IceInternal::UdpEndpointI::expand(bool server) const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _connect, _connectionId, _compress, 
-                                             hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+            endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _mcastInterface, _mcastTtl, _connect,
+                                             _connectionId, _compress, hosts.size() == 1 || hosts[i] != "127.0.0.1"));
         }
     }
     else
@@ -584,6 +603,16 @@ IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
     }
 
     if(_encodingMinor != p->_encodingMinor)
+    {
+        return false;
+    }
+
+    if(_mcastTtl != p->_mcastTtl)
+    {
+        return false;
+    }
+
+    if(_mcastInterface != p->_mcastInterface)
     {
         return false;
     }
@@ -699,6 +728,24 @@ IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
         return true;
     }
     else if(p->_encodingMinor < _encodingMinor)
+    {
+        return false;
+    }
+
+    if(_mcastTtl < p->_mcastTtl)
+    {
+        return true;
+    }
+    else if(p->_mcastTtl < _mcastTtl)
+    {
+        return false;
+    }
+
+    if(_mcastInterface < p->_mcastInterface)
+    {
+        return true;
+    }
+    else if(p->_mcastInterface < _mcastInterface)
     {
         return false;
     }

@@ -76,6 +76,8 @@ ICE_API bool connectionLost();
 ICE_API bool notConnected();
 ICE_API bool recvTruncated();
 
+ICE_API bool isMulticast(struct sockaddr_in&);
+
 ICE_API SOCKET createSocket(bool);
 ICE_API void closeSocket(SOCKET);
 ICE_API void closeSocketNoThrow(SOCKET);
@@ -89,6 +91,10 @@ ICE_API void setSendBufferSize(SOCKET, int);
 ICE_API int getSendBufferSize(SOCKET);
 ICE_API void setRecvBufferSize(SOCKET, int);
 ICE_API int getRecvBufferSize(SOCKET);
+ICE_API void setMcastGroup(SOCKET, const struct in_addr&, const struct in_addr&);
+ICE_API void setMcastInterface(SOCKET, const struct in_addr&);
+ICE_API void setMcastTtl(SOCKET, int);
+ICE_API void setReuseAddress(SOCKET, bool);
 
 ICE_API void doBind(SOCKET, struct sockaddr_in&);
 ICE_API void doListen(SOCKET, int);
@@ -105,6 +111,7 @@ ICE_API std::string errorToStringDNS(int);
 ICE_API std::string lastErrorToString();
 
 ICE_API std::string fdToString(SOCKET);
+ICE_API std::string addressesToString(const struct sockaddr_in&, const struct sockaddr_in&, bool);
 ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
 ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_in&);
 ICE_API std::string addrToString(const struct sockaddr_in&);

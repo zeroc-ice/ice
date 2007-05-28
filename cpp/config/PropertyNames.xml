@@ -267,8 +267,7 @@ generated from the section label.
         <property name="Node.WaitTime" />
         <property name="Registry.AdminCryptPasswords" />
         <property name="Registry.AdminPermissionsVerifier" proxy="true" />
-        <property name="Registry.AdminSSLPermissionsVerifier"
-            proxy="true" />
+        <property name="Registry.AdminSSLPermissionsVerifier" proxy="true" />
         <property name="Registry.Client.AdapterId" />
         <property name="Registry.Client.Endpoints" />
         <property name="Registry.Client.Locator" />

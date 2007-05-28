@@ -135,6 +135,26 @@ namespace IceInternal
             return ex.Message.IndexOf("period of time") >= 0;
         }
 
+        public static bool isMulticast(IPEndPoint addr)
+        {
+            string ip = addr.Address.ToString();
+            char[] splitChars = { '.' };
+            string[] arr = ip.Split(splitChars);
+            try
+            {
+                int i = System.Int32.Parse(arr[0]);
+                if(i < 223 || i > 239)
+                {
+                    return false;
+                }
+            }
+            catch(System.FormatException)
+            {
+                return false;
+            }
+            return true;
+        }
+
         public static Socket createSocket(bool udp)
         {
             Socket socket;
@@ -296,6 +316,46 @@ namespace IceInternal
                 throw new Ice.SocketException(ex);
             }
             return sz;
+        }
+
+        public static void setReuseAddress(Socket socket, bool reuse)
+        {
+            try
+            {
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, reuse ? 1 : 0);
+            }
+            catch(SocketException ex)
+            {
+                closeSocketNoThrow(socket);
+                throw new Ice.SocketException(ex);
+            }
+        }
+
+        public static void setMcastGroup(Socket socket, IPAddress group, IPAddress iface)
+        {
+            try
+            {
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, 
+                                       new MulticastOption(group, iface));
+            }
+            catch(SocketException ex)
+            {
+                closeSocketNoThrow(socket);
+                throw new Ice.SocketException(ex);
+            }
+        }
+
+        public static void setMcastTtl(Socket socket, int ttl)
+        {
+            try
+            {
+                socket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
+            }
+            catch(SocketException ex)
+            {
+                closeSocketNoThrow(socket);
+                throw new Ice.SocketException(ex);
+            }
         }
         
         public static IPEndPoint doBind(Socket socket, EndPoint addr)
@@ -1022,7 +1082,38 @@ namespace IceInternal
             {
                 return "<closed>";
             }
+            return addressesToString(getLocalAddress(socket), getRemoteAddress(socket));
+        }
 
+        public static string
+        addressesToString(IPEndPoint localEndpoint, IPEndPoint remoteEndpoint)
+        {
+            System.Text.StringBuilder s = new System.Text.StringBuilder();
+            s.Append("local address = " + localEndpoint.Address);
+            s.Append(":" + localEndpoint.Port);
+
+            if(remoteEndpoint == null)
+            {
+                s.Append("\nremote address = <not connected>");
+            }
+            else
+            {
+                s.Append("\nremote address = " + remoteEndpoint.Address);
+                s.Append(":" + remoteEndpoint.Port);
+            }
+            
+            return s.ToString();
+        }
+        
+        public static string
+        addrToString(EndPoint addr)
+        {
+            return addr.ToString();
+        }
+
+        public static IPEndPoint
+        getLocalAddress(Socket socket)
+        { 
             //
             // .Net BUG: The LocalEndPoint and RemoteEndPoint properties
             // are null for a socket that was connected in non-blocking
@@ -1030,7 +1121,6 @@ namespace IceInternal
             // the native API and use platform invoke :-(
             //
             IPEndPoint localEndpoint;
-            IPEndPoint remoteEndpoint;
             if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
             {
                 sockaddr addr = new sockaddr();
@@ -1043,14 +1133,6 @@ namespace IceInternal
                 string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
                 int port = ntohs(addr.sin_port);
                 localEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-
-                remoteEndpoint = null;
-                if(getpeername(socket.Handle, ref addr, ref addrLen) == 0)
-                { 
-                    ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
-                    port = ntohs(addr.sin_port);
-                    remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-                }
             }
             else
             {
@@ -1062,7 +1144,34 @@ namespace IceInternal
                 {
                     throw new Ice.SocketException(ex);
                 }
+            }
+            return localEndpoint;
+        }
 
+        public static IPEndPoint
+        getRemoteAddress(Socket socket)
+        { 
+            //
+            // .Net BUG: The LocalEndPoint and RemoteEndPoint properties
+            // are null for a socket that was connected in non-blocking
+            // mode. The only way to make this work is to step down to
+            // the native API and use platform invoke :-(
+            //
+            IPEndPoint remoteEndpoint = null;
+            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+            {
+                sockaddr addr = new sockaddr();
+                int addrLen = 16;
+
+                if(getpeername(socket.Handle, ref addr, ref addrLen) == 0)
+                { 
+                    string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
+                    int port = ntohs(addr.sin_port);
+                    remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
+                }
+            }
+            else
+            {
                 try
                 {
                     remoteEndpoint = (IPEndPoint)socket.RemoteEndPoint;
@@ -1072,29 +1181,7 @@ namespace IceInternal
                     remoteEndpoint = null;
                 }
             }
-
-            System.Text.StringBuilder s = new System.Text.StringBuilder();
-            s.Append("local address = " + localEndpoint.Address);
-            s.Append(":" + localEndpoint.Port);
-
-            if(remoteEndpoint == null)
-            {
-                s.Append("\nremote address = <not connected>");
-            }
-            else
-            {
-                s.Append("\nremote address = " + IPAddress.Parse(remoteEndpoint.Address.ToString()));
-                s.Append(":" + remoteEndpoint.Port.ToString());
-            }
-            
-            return s.ToString();
-        }
-        
-        public static string
-        addrToString(EndPoint addr)
-        {
-            return addr.ToString();
+            return remoteEndpoint;
         }
     }
-
 }

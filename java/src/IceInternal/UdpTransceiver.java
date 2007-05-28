@@ -287,7 +287,15 @@ final class UdpTransceiver implements Transceiver
     public String
     toString()
     {
-        return Network.fdToString(_fd);
+        if(mcastServer && _fd != null)
+        {
+            return Network.addressesToString(_addr.getAddress(), _addr.getPort(), 
+                                             _fd.socket().getInetAddress(), _fd.socket().getPort());
+        }
+        else
+        {
+            return Network.fdToString(_fd);
+        }
     }
 
     public void
@@ -320,7 +328,7 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, String host, int port)
+    UdpTransceiver(Instance instance, String host, int port, String mcastInterface, int mcastTtl)
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
@@ -337,6 +345,10 @@ final class UdpTransceiver implements Transceiver
             _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
+            if(_addr.getAddress().isMulticastAddress())
+            {
+                configureMulticast(null, mcastInterface, mcastTtl);
+            }
 
             if(_traceLevels.network >= 1)
             {
@@ -354,7 +366,7 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, String host, int port, boolean connect)
+    UdpTransceiver(Instance instance, String host, int port, String mcastInterface, boolean connect)
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
@@ -374,7 +386,17 @@ final class UdpTransceiver implements Transceiver
                 String s = "attempting to bind to udp socket " + Network.addrToString(_addr);
                 _logger.trace(_traceLevels.networkCat, s);
             }
-            _addr = Network.doBind(_fd, _addr);
+            if(_addr.getAddress().isMulticastAddress())
+            {
+                Network.setReuseAddress(_fd, true);
+                Network.doBind(_fd, Network.getAddress("0.0.0.0", port));
+                configureMulticast(_addr, mcastInterface, -1);
+                mcastServer = true;
+            }
+            else
+            {
+                _addr = Network.doBind(_fd, _addr);
+            }
 
             if(_traceLevels.network >= 1)
             {
@@ -457,6 +479,83 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    //
+    // The NIO classes do not support multicast, at least not directly. This method works around
+    // that limitation by using reflection to configure the file descriptor of a DatagramChannel for
+    // multicast operation. Specifically, an instance of java.net.PlainDatagramSocketImpl is used
+    // to (temporarily) wrap the channel's file descriptor.
+    //
+    private void
+    configureMulticast(java.net.SocketAddress group, String interfaceAddr, int ttl)
+    {
+        try
+        {
+            java.lang.reflect.Constructor c =
+                Class.forName("java.net.PlainDatagramSocketImpl").getDeclaredConstructor((Class[])null);
+            c.setAccessible(true);
+            java.net.DatagramSocketImpl socketImpl = (java.net.DatagramSocketImpl)c.newInstance((Object[])null);
+
+            java.lang.reflect.Field channelFd = 
+                Class.forName("sun.nio.ch.DatagramChannelImpl").getDeclaredField("fd");
+            channelFd.setAccessible(true);
+
+            java.lang.reflect.Field socketFd = java.net.DatagramSocketImpl.class.getDeclaredField("fd");
+            socketFd.setAccessible(true);
+            socketFd.set(socketImpl, channelFd.get(_fd));
+
+            try 
+            {
+                java.net.NetworkInterface intf = null;
+                if(interfaceAddr.length() != 0)
+                {
+                    intf = java.net.NetworkInterface.getByName(interfaceAddr);
+                    if(intf == null)
+                    {
+                        java.net.InetSocketAddress addr = Network.getAddress(interfaceAddr, 0);
+                        intf = java.net.NetworkInterface.getByInetAddress(addr.getAddress());
+                    }
+                }
+
+                if(group != null)
+                {
+                    Class[] types = new Class[]{ java.net.SocketAddress.class, java.net.NetworkInterface.class };
+                    java.lang.reflect.Method m = socketImpl.getClass().getDeclaredMethod("joinGroup", types);
+                    m.setAccessible(true);
+                    Object[] args = new Object[]{ group, intf };
+                    m.invoke(socketImpl, args);
+                }
+                else if(intf != null)
+                {
+                    Class[] types = new Class[]{ Integer.TYPE, Object.class };
+                    java.lang.reflect.Method m = socketImpl.getClass().getDeclaredMethod("setOption", types);
+                    m.setAccessible(true);
+                    Object[] args = new Object[]{ new Integer(java.net.SocketOptions.IP_MULTICAST_IF2), intf };
+                    m.invoke(socketImpl, args);
+                }
+
+                if(ttl != -1)
+                {
+                    Class[] types = new Class[]{ Integer.TYPE };
+                    java.lang.reflect.Method m = 
+                        java.net.DatagramSocketImpl.class.getDeclaredMethod("setTimeToLive", types);
+                    m.setAccessible(true);
+                    Object[] args = new Object[]{ new Integer(ttl) };
+                    m.invoke(socketImpl, args);
+                }
+            }
+            finally 
+            {
+                socketFd.set(socketImpl, null);
+            }
+        }
+        catch(Exception ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
     private void
     closeSocket()
     {
@@ -499,6 +598,7 @@ final class UdpTransceiver implements Transceiver
     private java.nio.channels.DatagramChannel _fd;
     private java.net.InetSocketAddress _addr;
     private java.nio.channels.Selector _readSelector;
+    private boolean mcastServer = false;
 
     //
     // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header

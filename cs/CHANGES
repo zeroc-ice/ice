@@ -1,6 +1,8 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- Added support for udp multicast. See manual for more information.
+
 - The Ice.Util.proxyIdentityCompare and proxyIdentityAndFacetCompare
   methods are now using string.CompareOrdinal to compare the identity
   category, name and the facet instead of string.Compare with the 

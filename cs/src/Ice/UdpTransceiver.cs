@@ -441,7 +441,14 @@ namespace IceInternal
 
         public override string ToString()
         {
-            return Network.fdToString(_fd);
+            if(mcastServer && _fd != null)
+            {
+                return Network.addressesToString(_addr, Network.getRemoteAddress(_fd));
+            }
+            else
+            {
+                return Network.fdToString(_fd);
+            }
         }
         
         public bool equivalent(string host, int port)
@@ -458,7 +465,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint
         //
-        internal UdpTransceiver(Instance instance, string host, int port)
+        internal UdpTransceiver(Instance instance, string host, int port, string mcastInterface, int mcastTtl)
         {
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
@@ -474,6 +481,20 @@ namespace IceInternal
                 _addr = Network.getAddress(host, port);
                 Network.doConnect(_fd, _addr, -1);
                 _connect = false; // We're connected now
+                if(Network.isMulticast(_addr))
+                {
+                    IPAddress addr = IPAddress.Any;
+                    if(mcastInterface.Length != 0)
+                    {
+                        addr = Network.getAddress(mcastInterface, port).Address;
+                    }
+                    Network.setMcastGroup(_fd, _addr.Address, addr);
+
+                    if(mcastTtl != -1)
+                    {
+                        Network.setMcastTtl(_fd, mcastTtl);
+                    }
+                }
                 
                 if(_traceLevels.network >= 1)
                 {
@@ -491,7 +512,7 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint
         //
-        internal UdpTransceiver(Instance instance, string host, int port, bool connect)
+        internal UdpTransceiver(Instance instance, string host, int port, string mcastInterface, bool connect)
         {
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
@@ -511,7 +532,26 @@ namespace IceInternal
                     string s = "attempting to bind to udp socket " + Network.addrToString(_addr);
                     _logger.trace(_traceLevels.networkCat, s);
                 }
-                _addr = Network.doBind(_fd, _addr);
+                if(Network.isMulticast(_addr))
+                {
+                    Network.setReuseAddress(_fd, true);
+                    Network.doBind(_fd, Network.getAddress("0.0.0.0", port));
+                    IPAddress addr;
+                    if(mcastInterface.Length != 0)
+                    {
+                        addr = Network.getAddress(mcastInterface, port).Address;
+                    }
+                    else
+                    {
+                        addr = IPAddress.Any;
+                    }
+                    Network.setMcastGroup(_fd, _addr.Address, addr);
+                    mcastServer = true;
+                }
+                else
+                {
+                    _addr = Network.doBind(_fd, _addr);
+                }
                 
                 if(_traceLevels.network >= 1)
                 {
@@ -606,6 +646,7 @@ namespace IceInternal
         private int _sndSize;
         private Socket _fd;
         private IPEndPoint _addr;
+        private bool mcastServer = false;
         
         //
         // The maximum IP datagram size is 65535. Subtract 20 bytes for the IP header and 8 bytes for the UDP header
