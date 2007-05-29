@@ -1,8 +1,13 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
-- The IceGrid node now unblocks the SIGHUP, SIGINT and SIGTERM
-  signals from forked servers.
+- Fixed a bug in the encoding of user exceptions with a class
+  attribute and returned by AMD dispatched invocations. An extra byte
+  was encoded at the end. This fix doesn't affect on the wire
+  compatibility with old Ice clients.
+
+- The IceGrid node now unblocks the SIGHUP, SIGINT and SIGTERM signals
+  from forked servers.
 
 - Added support for udp multicast. See manual for more information.
 

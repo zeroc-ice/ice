@@ -5113,10 +5113,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
             C << nl <<"if(__validateResponse(false))";
             C << sb;
             C << nl << "__os()->write(__ex);";
-            if((*r)->usesClasses())
-            {
-                C << nl << "__os()->writePendingObjects();";
-            }
             C << nl << "__response(false);";
             C << eb;
             C << eb;
