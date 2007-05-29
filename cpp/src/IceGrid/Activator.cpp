@@ -623,6 +623,16 @@ Activator::activate(const string& name,
         //
 
         //
+        // Unblock signals blocked by IceUtil::CtrlCHandler.
+        //
+        sigset_t sigs;
+        sigemptyset(&sigs);
+        sigaddset(&sigs, SIGHUP);
+        sigaddset(&sigs, SIGINT);
+        sigaddset(&sigs, SIGTERM);
+        sigprocmask(SIG_UNBLOCK, &sigs, 0);
+
+        //
         // Change the uid/gid under which the process will run.
         //
         if(setgid(gid) == -1)
