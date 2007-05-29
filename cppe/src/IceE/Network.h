@@ -97,6 +97,7 @@ void setSendBufferSize(SOCKET, int);
 int getSendBufferSize(SOCKET);
 void setRecvBufferSize(SOCKET, int);
 int getRecvBufferSize(SOCKET);
+void setReuseAddress(SOCKET, bool);
 
 void doBind(SOCKET, struct sockaddr_in&);
 void doListen(SOCKET, int);

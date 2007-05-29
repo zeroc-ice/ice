@@ -450,19 +450,21 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 }
 
 void
-IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
+IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 {
-#ifndef _WIN32
-    int flag = 1;
+    int flag = reuse ? 1 : 0;
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, int(sizeof(int))) == SOCKET_ERROR)
     {
-	closeSocketNoThrow(fd);
-	SocketException ex(__FILE__, __LINE__);
-	ex.error = getSocketErrno();
-	throw ex;
+        closeSocketNoThrow(fd);
+        SocketException ex(__FILE__, __LINE__);
+        ex.error = getSocketErrno();
+        throw ex;
     }
-#endif
+}
 
+void
+IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
+{
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
     {
 	closeSocketNoThrow(fd);
@@ -1109,11 +1111,11 @@ IceInternal::setTcpBufSize(SOCKET fd, const Ice::PropertiesPtr& properties, cons
     assert(fd != INVALID_SOCKET);
 
     //
-    // By default, on Windows we use a 128KB buffer size. On Unix
+    // By default, on Windows we use a 64KB buffer size. On Unix
     // platforms, we use the system defaults.
     //
 #ifdef _WIN32
-    const int dfltBufSize = 128 * 1024;
+    const int dfltBufSize = 64 * 1024;
 #else
     const int dfltBufSize = 0;
 #endif

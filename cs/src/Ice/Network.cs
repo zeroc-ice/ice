@@ -362,10 +362,6 @@ namespace IceInternal
         {
             try
             {
-                //
-                // Don't set ReuseAddress on Win32 -- it allows two processes to bind to the same port!
-                //
-                //socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
                 socket.Bind(addr);
                 return (IPEndPoint)socket.LocalEndPoint;
             }
