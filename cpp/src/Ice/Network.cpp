@@ -536,10 +536,6 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
 void
 IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 {
-#ifndef _WIN32
-    setReuseAddress(fd, true);
-#endif
-
     if(bind(fd, reinterpret_cast<struct sockaddr*>(&addr), int(sizeof(addr))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
