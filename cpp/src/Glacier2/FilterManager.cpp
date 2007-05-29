@@ -238,7 +238,7 @@ Glacier2::FilterManager::create(const CommunicatorPtr& communicator, const Objec
 
     if(allowAddUser)
     {
-        int addUserMode;
+        int addUserMode = 0;
         if(!props->getProperty("Glacier2.Filter.Category.AcceptUser").empty())
         {
             addUserMode = props->getPropertyAsInt("Glacier2.Filter.Category.AcceptUser");
