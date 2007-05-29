@@ -273,6 +273,23 @@ final class AcceptorI implements IceInternal.Acceptor
             _fd = IceInternal.Network.createTcpServerSocket();
             IceInternal.Network.setBlock(_fd, false);
             IceInternal.Network.setTcpBufSize(_fd, _instance.communicator().getProperties(), _logger);
+            if(!System.getProperty("os.name").startsWith("Windows"))
+            {
+                //
+                // Enable SO_REUSEADDR on Unix platforms to allow
+                // re-using the socket even if it's in the TIME_WAIT
+                // state. On Windows, this doesn't appear to be
+                // necessary and enabling SO_REUSEADDR would actually
+                // not be a good thing since it allows a second
+                // process to bind to an address even it's already
+                // bound by another process.
+                //
+                // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
+                // probably be better but it's only supported by recent
+                // Windows versions (XP SP2, Windows Server 2003).
+                //
+                IceInternal.Network.setReuseAddress(_fd, true);
+            }
             _addr = new java.net.InetSocketAddress(host, port);
             if(_instance.networkTraceLevel() >= 2)
             {
