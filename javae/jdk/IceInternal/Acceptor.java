@@ -141,6 +141,10 @@ class Acceptor
 	    }
 	    _fd = new java.net.ServerSocket(port, _backlog, _addr.getAddress());
 	    _addr = new InetSocketAddress(_addr.getAddress(), _fd.getLocalPort());
+            if(!System.getProperty("os.name").startsWith("Windows"))
+            {
+                _fd.setReuseAddress(true);
+            }
             Network.setTcpBufSize(_fd, _instance.initializationData().properties, _logger);
         }
         catch(java.io.IOException ex)
