@@ -25,16 +25,14 @@ local interface Transaction;
  **/
 local interface TransactionalEvictor extends Evictor
 {
-
     /**
      *
      * Get the transaction associated with the calling thread.
      *
-     * @return This transaction associated with the calling thread.
+     * @return The transaction associated with the calling thread.
      *
      **/
     ["cpp:const"] Transaction getCurrentTransaction();
-
 
     /**
      *
@@ -47,7 +45,6 @@ local interface TransactionalEvictor extends Evictor
 };
 
 };
-
 
 #endif
 
