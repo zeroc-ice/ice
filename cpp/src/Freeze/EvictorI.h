@@ -44,7 +44,7 @@ public:
     class Guard
     {
     public:
-        Guard(DeactivateController&);
+        Guard(const DeactivateController&);
         ~Guard();
 
     private:
@@ -81,7 +81,7 @@ class EvictorIBase : public virtual Evictor, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
 
-    virtual DbTxn* beforeQuery() = 0;
+    virtual TransactionIPtr beforeQuery() = 0;
 
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
@@ -165,7 +165,7 @@ public:
     {
         DeactivateController::Guard deactivateGuard(_deactivateController);
 
-        DbTxn* tx = beforeQuery();
+        TransactionIPtr tx = beforeQuery();
         return new EvictorIteratorI(findStore(facet, false), tx, batchSize);
     }
 

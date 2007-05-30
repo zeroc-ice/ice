@@ -25,9 +25,13 @@ Freeze::getTxn(const Freeze::TransactionPtr& tx)
 void
 Freeze::TransactionI::commit()
 {
-    assert(_txn != 0);
-
+    if(_txn == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
+    }
+    
     long txnId = 0;
+  
     try
     {
         _connection->closeAllIterators();
@@ -41,19 +45,20 @@ Freeze::TransactionI::commit()
 
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "committed transaction " << hex << txnId << dec;
         }
     }
     catch(const ::DbDeadlockException& dx)
     {
+    
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "failed to commit transaction " << hex << txnId << dec << ": " << dx.what();
         }
 
-        cleanup();
+        postCompletion(false, true);
         DeadlockException ex(__FILE__, __LINE__);
         ex.message = dx.what();
         throw ex;
@@ -62,16 +67,16 @@ Freeze::TransactionI::commit()
     {
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "failed to commit transaction " << hex << txnId << dec << ": " << dx.what();
         }
 
-        cleanup();
+        postCompletion(false, false);
         DatabaseException ex(__FILE__, __LINE__);
         ex.message = dx.what();
         throw ex;
     }
-    cleanup();
+    postCompletion(true, false);
 }
 
 void
@@ -93,7 +98,7 @@ Freeze::TransactionI::rollback()
 
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "rolled back transaction " << hex << txnId << dec;
         }
     }
@@ -101,30 +106,39 @@ Freeze::TransactionI::rollback()
     {
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
         }
 
-        cleanup();
-        DeadlockException ex(__FILE__, __LINE__);
-        ex.message = dx.what();
-        throw ex;
+        postCompletion(false, true);
+        throw DeadlockException(__FILE__, __LINE__, dx.what());
     }
     catch(const ::DbException& dx)
     {
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
         }
 
-        cleanup();
-        DatabaseException ex(__FILE__, __LINE__);
-        ex.message = dx.what();
-        throw ex;
+        postCompletion(false, false);
+        throw DatabaseException(__FILE__, __LINE__, dx.what());
     }
-    cleanup();
+    postCompletion(true, false);
 }
+
+Freeze::ConnectionPtr
+Freeze::TransactionI::getConnection() const
+{
+    return _connection;
+}
+
+void
+Freeze::TransactionI::setPostCompletionCallback(const Freeze::PostCompletionCallbackPtr& cb)
+{
+    _postCompletionCallback = cb;
+}
+
     
 Freeze::TransactionI::TransactionI(ConnectionI* connection) :
     _connection(connection),
@@ -138,7 +152,7 @@ Freeze::TransactionI::TransactionI(ConnectionI* connection) :
         if(_txTrace >= 1)
         {
             long txnId = (_txn->id() & 0x7FFFFFFF) + 0x80000000L;
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "started transaction " << hex << txnId << dec;
         }
     }
@@ -146,7 +160,7 @@ Freeze::TransactionI::TransactionI(ConnectionI* connection) :
     {
         if(_txTrace >= 1)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Map");
+            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
             out << "failed to start transaction: " << dx.what();
         }
 
@@ -165,9 +179,14 @@ Freeze::TransactionI::~TransactionI()
 }
 
 void
-Freeze::TransactionI::cleanup()
+Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
 {
     _connection->clearTransaction();
     _connection = 0;
     _txn = 0;
+ 
+    if(_postCompletionCallback != 0)
+    {
+        _postCompletionCallback->postCompletion(committed, deadlock);
+    }
 }

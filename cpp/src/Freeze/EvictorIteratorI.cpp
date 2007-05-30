@@ -17,13 +17,13 @@ using namespace Freeze;
 using namespace Ice;
 
 
-Freeze::EvictorIteratorI::EvictorIteratorI(ObjectStoreBase* store, DbTxn* tx, Int batchSize) :
+Freeze::EvictorIteratorI::EvictorIteratorI(ObjectStoreBase* store, const TransactionIPtr& tx, Int batchSize) :
     _store(store),
     _batchSize(static_cast<size_t>(batchSize)),
     _key(1024),
     _more(store != 0),
     _initialized(false),
-    _tx(tx)
+    _tx(tx == 0 ? 0 : tx->dbTxn())
 {
     _batchIterator = _batch.end();
 }

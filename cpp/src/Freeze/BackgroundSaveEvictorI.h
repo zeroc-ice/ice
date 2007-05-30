@@ -151,7 +151,7 @@ public:
     virtual ~BackgroundSaveEvictorI();
     
 
-    virtual DbTxn* beforeQuery();
+    virtual TransactionIPtr beforeQuery();
 
     //
     // Thread

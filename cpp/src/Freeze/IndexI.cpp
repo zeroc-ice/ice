@@ -57,8 +57,9 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 
     Ice::CommunicatorPtr communicator = _store->communicator();
 
-    DbTxn* tx = _store->evictor()->beforeQuery();
-    
+    TransactionIPtr transaction = _store->evictor()->beforeQuery();
+    DbTxn* tx = transaction == 0 ? 0 : transaction->dbTxn();
+
     vector<Identity> identities;
 
     try
@@ -203,12 +204,13 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
     // (ref Oracle SR 5925672.992)
     //
     dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
-
     
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    DbTxn* tx = _store->evictor()->beforeQuery();
+    TransactionIPtr transaction = _store->evictor()->beforeQuery();
+    DbTxn* tx = transaction == 0 ? 0 : transaction->dbTxn();
+
     Int result = 0;
     
     try

@@ -1366,7 +1366,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         }
     }
 
-    protected com.sleepycat.db.Transaction
+    protected TransactionI
     beforeQuery()
     {
         saveNow();

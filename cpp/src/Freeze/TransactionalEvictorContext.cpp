@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Freeze/TransactionalEvictorContextI.h>
+#include <Freeze/TransactionalEvictorContext.h>
 #include <Freeze/TransactionalEvictorI.h>
 #include <Freeze/Initialize.h>
 #include <Freeze/Util.h>
@@ -20,75 +20,69 @@ using namespace Freeze;
 using namespace Ice;
 
 
-Freeze::TransactionalEvictorContextI::TransactionalEvictorContextI(const SharedDbEnvPtr& dbEnv) :
+Freeze::TransactionalEvictorContext::TransactionalEvictorContext(const SharedDbEnvPtr& dbEnv) :
     _tx((new ConnectionI(dbEnv))->beginTransactionI()),
-    _rollbackOnly(false),
-    _dbEnv(dbEnv),
     _deadlockExceptionDetected(false)
-{
+{ 
+    _tx->setPostCompletionCallback(this);
 }
 
-Freeze::TransactionalEvictorContextI::~TransactionalEvictorContextI()
+Freeze::TransactionalEvictorContext::TransactionalEvictorContext(const TransactionIPtr& tx) :
+    _tx(tx),
+    _deadlockExceptionDetected(false)
+{ 
+    _tx->setPostCompletionCallback(this);
+}
+
+
+Freeze::TransactionalEvictorContext::~TransactionalEvictorContext()
 {
     for_each(_invalidateList.begin(), _invalidateList.end(), ToInvalidate::destroy);
 }
 
-void 
-Freeze::TransactionalEvictorContextI::rollbackOnly()
+void
+Freeze::TransactionalEvictorContext::commit()
 {
-    _rollbackOnly = true;
+    if(_tx != 0)
+    {
+        _tx->commit();
+    }
 }
 
-bool 
-Freeze::TransactionalEvictorContextI::isRollbackOnly() const
+void
+Freeze::TransactionalEvictorContext::rollback()
 {
-    return _rollbackOnly;
+    if(_tx != 0)
+    {
+        _tx->rollback();
+    }
 }
 
+
 void 
-Freeze::TransactionalEvictorContextI::complete()
+Freeze::TransactionalEvictorContext::postCompletion(bool committed, bool deadlock)
 {
     try
     {
-        if(_rollbackOnly)
+        if(committed)
         {
-            _tx->rollback();
-        }
-        else
-        {
-            if(!_stack.empty())
-            {
-                Warning out(_dbEnv->getCommunicator()->getLogger());
-                out << "Committing TransactionalEvictorContext on DbEnv '" <<
-                    _dbEnv->getEnvName() << "' with " << _stack.size() << " unsaved objects.";
-            }
-            
-            _tx->commit();
-
             //
-            // Finally, remove updated & removed objects from cache
+            // remove updated & removed objects from cache
             //
-            
             for_each(_invalidateList.begin(), _invalidateList.end(), ToInvalidate::invalidate);
             _invalidateList.clear();
-        } 
-    }
-    catch(const DeadlockException&)
-    {
-        deadlockException();
-        finalize();
-        throw;
+        }
+        finalize(deadlock);
     }
     catch(...)
     {
-        finalize();
+        finalize(deadlock);
         throw;
     }
-    finalize();
 }
 
-Freeze::TransactionalEvictorContextI::ServantHolder*
-Freeze::TransactionalEvictorContextI::findServantHolder(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store) const
+Freeze::TransactionalEvictorContext::ServantHolder*
+Freeze::TransactionalEvictorContext::findServantHolder(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store) const
 {
     for(Stack::const_iterator p = _stack.begin(); p != _stack.end(); ++p)
     {
@@ -102,20 +96,22 @@ Freeze::TransactionalEvictorContextI::findServantHolder(const Identity& ident, O
 }
 
 void
-Freeze::TransactionalEvictorContextI::finalize()
+Freeze::TransactionalEvictorContext::finalize(bool deadlock)
 {
-    if(_dbEnv != 0)
+    Lock sync(*this);
+    if(_tx != 0)
     {
-        _dbEnv->clearCurrent(this);
-
-        Lock sync(*this);
-        _dbEnv = 0;
+        if(deadlock)
+        {
+            _deadlockExceptionDetected = true;
+        }
+        _tx = 0;
         notifyAll();
     }
 }
 
 void
-Freeze::TransactionalEvictorContextI::checkDeadlockException()
+Freeze::TransactionalEvictorContext::checkDeadlockException()
 {
     if(_deadlockException.get() != 0)
     {
@@ -124,7 +120,7 @@ Freeze::TransactionalEvictorContextI::checkDeadlockException()
 }
 
 bool 
-Freeze::TransactionalEvictorContextI::response(bool)
+Freeze::TransactionalEvictorContext::response(bool)
 {
     if(_owner == IceUtil::ThreadControl())
     {
@@ -133,7 +129,7 @@ Freeze::TransactionalEvictorContextI::response(bool)
     else
     {
         Lock sync(*this);
-        while(_deadlockExceptionDetected == false && _dbEnv != 0)
+        while(_deadlockExceptionDetected == false && _tx != 0)
         {
             wait();
         }
@@ -142,7 +138,7 @@ Freeze::TransactionalEvictorContextI::response(bool)
 }
 
 bool 
-Freeze::TransactionalEvictorContextI::exception(const std::exception& ex)
+Freeze::TransactionalEvictorContext::exception(const std::exception& ex)
 {
     const DeadlockException* dx = dynamic_cast<const DeadlockException*>(&ex);
 
@@ -155,16 +151,16 @@ Freeze::TransactionalEvictorContextI::exception(const std::exception& ex)
 }
 
 bool 
-Freeze::TransactionalEvictorContextI::exception()
+Freeze::TransactionalEvictorContext::exception()
 {
     return true;
 }
 
 Ice::ObjectPtr
-Freeze::TransactionalEvictorContextI::servantRemoved(const Identity& ident, 
+Freeze::TransactionalEvictorContext::servantRemoved(const Identity& ident, 
                                                      ObjectStore<TransactionalEvictorElement>* store)
 {
-    if(!_rollbackOnly)
+    if(_tx != 0)
     {
         //
         // Lookup servant holder on stack
@@ -186,13 +182,14 @@ Freeze::TransactionalEvictorContextI::servantRemoved(const Identity& ident,
 }
 
 void 
-Freeze::TransactionalEvictorContextI::deadlockException()
+Freeze::TransactionalEvictorContext::deadlockException()
 {
-    _rollbackOnly = true;
-
-    Lock sync(*this);
-    _deadlockExceptionDetected = true;
-    notifyAll();
+    {
+        Lock sync(*this);
+        _deadlockExceptionDetected = true;
+        notifyAll();
+    }
+    rollback();
 }
 
 
@@ -200,7 +197,7 @@ Freeze::TransactionalEvictorContextI::deadlockException()
 // ServantHolder
 //
 
-Freeze::TransactionalEvictorContextI::ServantHolder::ServantHolder(const TransactionalEvictorContextIPtr& ctx, 
+Freeze::TransactionalEvictorContext::ServantHolder::ServantHolder(const TransactionalEvictorContextPtr& ctx, 
                                                                    const Current& current, 
                                                                    ObjectStore<TransactionalEvictorElement>* store,
                                                                    bool useNonmutating) :
@@ -240,11 +237,11 @@ Freeze::TransactionalEvictorContextI::ServantHolder::ServantHolder(const Transac
 }
 
 
-Freeze::TransactionalEvictorContextI::ServantHolder::~ServantHolder()
+Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder()
 {
     if(_ownServant)
     {
-        if(!_ctx->isRollbackOnly())
+        if(_ctx->_tx != 0)
         {
             if(!_readOnly && !_removed)
             {
@@ -262,7 +259,7 @@ Freeze::TransactionalEvictorContextI::ServantHolder::~ServantHolder()
 }
 
 void
-Freeze::TransactionalEvictorContextI::ServantHolder::removed()
+Freeze::TransactionalEvictorContext::ServantHolder::removed()
 {
     _removed = true;
 }
@@ -275,8 +272,8 @@ Freeze::TransactionalEvictorContextI::ServantHolder::removed()
 // When constructed in the servant holder destructor, it's protected by the dispatch() 
 // deactivate controller guard
 //
-Freeze::TransactionalEvictorContextI::ToInvalidate::ToInvalidate(const Identity& ident, 
-                                                                 ObjectStore<TransactionalEvictorElement>* store) :
+Freeze::TransactionalEvictorContext::ToInvalidate::ToInvalidate(const Identity& ident, 
+                                                                ObjectStore<TransactionalEvictorElement>* store) :
     _ident(ident),
     _store(store),
     _evictor(store->evictor()),
@@ -285,14 +282,14 @@ Freeze::TransactionalEvictorContextI::ToInvalidate::ToInvalidate(const Identity&
 }
 
 void
-Freeze::TransactionalEvictorContextI::ToInvalidate::invalidate(ToInvalidate* obj)
+Freeze::TransactionalEvictorContext::ToInvalidate::invalidate(ToInvalidate* obj)
 {
     dynamic_cast<TransactionalEvictorI*>(obj->_store->evictor())->evict(obj->_ident, obj->_store);
     delete obj;
 }
 
 void
-Freeze::TransactionalEvictorContextI::ToInvalidate::destroy(ToInvalidate* obj)
+Freeze::TransactionalEvictorContext::ToInvalidate::destroy(ToInvalidate* obj)
 {
     delete obj;
 }

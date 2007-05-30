@@ -38,12 +38,12 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
         }
     }
     
-    EvictorIteratorI(ObjectStore store, com.sleepycat.db.Transaction tx, int batchSize)
+    EvictorIteratorI(ObjectStore store, TransactionI tx, int batchSize)
     {
         _store = store;
         _more = (store != null);
         _batchSize = batchSize;
-        _tx = tx;
+        _tx = tx == null ? null : tx.dbTxn();
         
         assert batchSize > 0;
 

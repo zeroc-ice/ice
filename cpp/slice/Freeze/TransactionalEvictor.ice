@@ -15,18 +15,35 @@
 module Freeze
 {
 
-local interface TransactionalEvictorContext
-{
-    void rollbackOnly();
-    ["cpp:const"] bool isRollbackOnly();
+local interface Transaction;
 
-    void complete();
-};
-
+/**
+ * 
+ * A transactional evictor is an evictor that performs every single read-write
+ * operation within its own transaction.
+ *
+ **/
 local interface TransactionalEvictor extends Evictor
 {
-    TransactionalEvictorContext getCurrentContext();
-    TransactionalEvictorContext createCurrentContext();
+
+    /**
+     *
+     * Get the transaction associated with the calling thread.
+     *
+     * @return This transaction associated with the calling thread.
+     *
+     **/
+    ["cpp:const"] Transaction getCurrentTransaction();
+
+
+    /**
+     *
+     * Associate a transaction with the calling thread.
+     *
+     * @param tx The transaction to associate with the calling thread.
+     *
+     **/
+    void setCurrentTransaction(Transaction tx);
 };
 
 };

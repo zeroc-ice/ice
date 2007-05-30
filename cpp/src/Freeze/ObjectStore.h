@@ -40,7 +40,7 @@ public:
 
     const Ice::ObjectPtr& sampleServant() const;
 
-    bool dbHasObject(const Ice::Identity&, DbTxn*) const;
+    bool dbHasObject(const Ice::Identity&, const TransactionIPtr&) const;
     void save(Key& key, Value& value, Ice::Byte status, DbTxn* tx);
 
     static void marshal(const Ice::Identity&, Key&, const Ice::CommunicatorPtr&);
@@ -51,8 +51,8 @@ public:
     bool load(const Ice::Identity&, const TransactionIPtr&, ObjectRecord&);
     void update(const Ice::Identity&, const ObjectRecord&, const TransactionIPtr&);
 
-    bool insert(const Ice::Identity&, const ObjectRecord&, DbTxn*);
-    bool remove(const Ice::Identity&, DbTxn*);
+    bool insert(const Ice::Identity&, const ObjectRecord&, const TransactionIPtr&);
+    bool remove(const Ice::Identity&, const TransactionIPtr&);
     
     EvictorIBase* evictor() const;
 

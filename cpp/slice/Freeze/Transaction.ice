@@ -13,6 +13,9 @@
 module Freeze
 {
 
+local interface Connection;
+
+
 /**
  * 
  * A transaction. If you want to use a transaction concurrently 
@@ -26,6 +29,8 @@ local interface Transaction
      *
      * Commit this transaction. 
      *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
      **/
     void commit();
 
@@ -33,8 +38,17 @@ local interface Transaction
      *
      * Roll back this transaction. 
      *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
      **/
     void rollback();
+
+    /**
+     *
+     * Get the connection associated with this Transaction
+     *
+     **/
+    ["cpp:const"] Connection getConnection();
 }; 
 
 

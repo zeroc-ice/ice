@@ -11,7 +11,7 @@
 #include <Freeze/Exception.h>
 #include <Freeze/Util.h>
 #include <Freeze/SharedDb.h>
-#include <Freeze/TransactionalEvictorContextI.h>
+#include <Freeze/TransactionalEvictorContext.h>
 
 #include <IceUtil/IceUtil.h>
 
@@ -218,38 +218,33 @@ void Freeze::SharedDbEnv::__decRef()
 }
 
 
-Freeze::TransactionalEvictorContextIPtr
-Freeze::SharedDbEnv::getOrCreateCurrent(bool& created)
-{
-    created = false;
-    
-    Freeze::TransactionalEvictorContextIPtr ctx = getCurrent();
-    if(ctx == 0)
-    {
-        ctx = new TransactionalEvictorContextI(this);
-#ifdef _WIN32
-        if(TlsSetValue(_tsdKey, ctx.get()) == 0)
-        {
-            IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
-        }
-#else
-        if(int err = pthread_setspecific(_tsdKey, ctx.get()))
-        {
-            throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
-        }
-#endif
-        created = true;
+Freeze::TransactionalEvictorContextPtr
+Freeze::SharedDbEnv::createCurrent()
+{    
+    assert(getCurrent() == 0);
 
-        //
-        // Give one refcount to this thread!
-        //
-        ctx->__incRef();
+    Freeze::TransactionalEvictorContextPtr ctx = new TransactionalEvictorContext(this);
+#ifdef _WIN32
+    if(TlsSetValue(_tsdKey, ctx.get()) == 0)
+    {
+        IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
+#else
+    if(int err = pthread_setspecific(_tsdKey, ctx.get()))
+    {
+        throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+    }
+#endif
+    
+    //
+    // Give one refcount to this thread!
+    //
+    ctx->__incRef();
     return ctx;
 }
 
 
-Freeze::TransactionalEvictorContextIPtr
+Freeze::TransactionalEvictorContextPtr
 Freeze::SharedDbEnv::getCurrent()
 {
 #ifdef _WIN32
@@ -260,7 +255,7 @@ Freeze::SharedDbEnv::getCurrent()
 
     if(val != 0)
     {
-        return static_cast<Freeze::TransactionalEvictorContextI*>(val);
+        return static_cast<TransactionalEvictorContext*>(val);
     }
     else
     {
@@ -269,9 +264,42 @@ Freeze::SharedDbEnv::getCurrent()
 }
 
 void
-Freeze::SharedDbEnv::clearCurrent(const Freeze::TransactionalEvictorContextIPtr& oldCtx)
+Freeze::SharedDbEnv::setCurrentTransaction(const Freeze::TransactionPtr& tx)
 {
-    if(getCurrent() == oldCtx)
+    Freeze::TransactionalEvictorContextPtr ctx = getCurrent();
+
+    if(ctx != 0)
+    {
+        //
+        // Release thread's refcount
+        //
+        ctx->__decRef();    
+    }
+
+    if(tx != 0)
+    {
+        if(ctx == 0 || ctx->transaction().get() != tx.get())
+        {
+            ctx = new TransactionalEvictorContext(TransactionIPtr::dynamicCast(tx)); 
+       
+#ifdef _WIN32
+            if(TlsSetValue(_tsdKey, ctx.get()) == 0)
+            {
+                IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
+            }
+#else
+            if(int err = pthread_setspecific(_tsdKey, ctx.get()))
+            {
+                throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
+            }
+#endif
+            //
+            // Give one refcount to this thread
+            //
+            ctx->__incRef();
+        }
+    }
+    else if(ctx != 0)
     {
 #ifdef _WIN32
         if(TlsSetValue(_tsdKey, 0) == 0)
@@ -284,11 +312,6 @@ Freeze::SharedDbEnv::clearCurrent(const Freeze::TransactionalEvictorContextIPtr&
             throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
         }
 #endif
-
-        //
-        // Release thread's refcount
-        //
-        oldCtx->__decRef();
     }
 }
 

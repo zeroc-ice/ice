@@ -17,13 +17,17 @@
 namespace Freeze
 {
 
+class TransactionI;
+typedef IceUtil::Handle<TransactionI> TransactionIPtr;
+
+
 class ObjectStoreBase;
 
 class EvictorIteratorI : public EvictorIterator
 {
 public:
 
-    EvictorIteratorI(ObjectStoreBase*, DbTxn*, Ice::Int);
+    EvictorIteratorI(ObjectStoreBase*, const TransactionIPtr&, Ice::Int);
 
     virtual bool hasNext();
     virtual Ice::Identity next();

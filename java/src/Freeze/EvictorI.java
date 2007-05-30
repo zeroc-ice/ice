@@ -256,7 +256,7 @@ abstract class EvictorI extends Ice.LocalObjectImpl implements Evictor
             {
                 facet = "";
             }
-            com.sleepycat.db.Transaction tx = beforeQuery();
+            TransactionI tx = beforeQuery();
             return new EvictorIteratorI(findStore(facet, false), tx, batchSize);
         }
         finally
@@ -414,7 +414,7 @@ abstract class EvictorI extends Ice.LocalObjectImpl implements Evictor
         this(adapter, envName, null, filename, facetTypes, initializer, indices, createDb);
     }
 
-    abstract com.sleepycat.db.Transaction beforeQuery();
+    abstract TransactionI beforeQuery();
 
     static void
     updateStats(Statistics stats, long time)

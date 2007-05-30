@@ -153,8 +153,20 @@ class ObjectStore implements IceUtil.Store
     }
     
     boolean
-    dbHasObject(Ice.Identity ident, com.sleepycat.db.Transaction tx)
+    dbHasObject(Ice.Identity ident, TransactionI transaction)
     {
+        com.sleepycat.db.Transaction tx = null;
+
+        if(transaction != null)
+        {
+            tx = transaction.dbTxn();
+            if(tx == null)
+            {
+                throw new DatabaseException(_evictor.errorPrefix() + "inactive transaction");
+            }
+        }
+
+
         byte[] key = marshalKey(ident, _communicator);
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(key);
                 
@@ -421,10 +433,14 @@ class ObjectStore implements IceUtil.Store
     ObjectRecord
     load(Ice.Identity ident, TransactionI transaction)
     {
+        if(transaction == null)
+        {
+            throw new DatabaseException(_evictor.errorPrefix() + "no active transaction");
+        }
         com.sleepycat.db.Transaction tx = transaction.dbTxn();
         if(tx == null)
         {
-            throw new DatabaseException(_evictor.errorPrefix() + "invalid TransactionalEvictorContext");
+            throw new DatabaseException(_evictor.errorPrefix() + "inactive transaction");
         }
 
         byte[] key = marshalKey(ident, _communicator);
@@ -476,10 +492,14 @@ class ObjectStore implements IceUtil.Store
     void
     update(Ice.Identity ident, ObjectRecord objectRecord, TransactionI transaction)
     {
+        if(transaction == null)
+        {
+            throw new DatabaseException(_evictor.errorPrefix() + "no active transaction");
+        }
         com.sleepycat.db.Transaction tx = transaction.dbTxn();
         if(tx == null)
         {
-            throw new DatabaseException(_evictor.errorPrefix() + "invalid TransactionalEvictorContext");
+            throw new DatabaseException(_evictor.errorPrefix() + "inactive transaction");
         }
 
         if(_sampleServant != null && !objectRecord.servant.ice_id().equals(_sampleServant.ice_id()))
@@ -524,8 +544,19 @@ class ObjectStore implements IceUtil.Store
     }
 
     boolean
-    insert(Ice.Identity ident, ObjectRecord objectRecord, com.sleepycat.db.Transaction tx)
+    insert(Ice.Identity ident, ObjectRecord objectRecord, TransactionI transaction)
     {
+        com.sleepycat.db.Transaction tx = null;
+
+        if(transaction != null)
+        {
+            tx = transaction.dbTxn();
+            if(tx == null)
+            {
+                throw new DatabaseException(_evictor.errorPrefix() + "invalid transaction");
+            }
+        }
+
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(marshalKey(ident, _communicator));
         com.sleepycat.db.DatabaseEntry dbValue = new com.sleepycat.db.DatabaseEntry(marshalValue(objectRecord, _communicator));
 
@@ -573,8 +604,19 @@ class ObjectStore implements IceUtil.Store
     }
 
     boolean
-    remove(Ice.Identity ident, com.sleepycat.db.Transaction tx)
+    remove(Ice.Identity ident, TransactionI transaction)
     { 
+        com.sleepycat.db.Transaction tx = null;
+
+        if(transaction != null)
+        {
+            tx = transaction.dbTxn();
+            if(tx == null)
+            {
+                throw new DatabaseException(_evictor.errorPrefix() + "invalid transaction");
+            }
+        }
+
         com.sleepycat.db.DatabaseEntry dbKey = new com.sleepycat.db.DatabaseEntry(marshalKey(ident, _communicator));
 
         for(;;)

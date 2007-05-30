@@ -205,49 +205,49 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     
 
     //
-    // Get/create an evictor context associated with the calling thread
+    // Create an evictor context associated with the calling thread
     //
-    synchronized TransactionalEvictorContextI
-    getOrCreateCurrent(Ice.BooleanHolder created)
+    synchronized TransactionalEvictorContext
+    createCurrent()
     {
-        if(created != null)
-        {
-            created.value = false;
-        }
-
         Object k = Thread.currentThread();
 
-        TransactionalEvictorContextI ctx = (TransactionalEvictorContextI)_ctxMap.get(k);
-        if(ctx == null)
-        {
-            ctx = new TransactionalEvictorContextI(this);
-         
-            if(created != null)
-            {
-                created.value = true;
-            }
-            _ctxMap.put(k, ctx);
-        }
+        TransactionalEvictorContext ctx = (TransactionalEvictorContext)_ctxMap.get(k);
+        assert ctx == null;
+      
+        ctx = new TransactionalEvictorContext(this);
+        _refCount++; // owned by the underlying ConnectionI
+        _ctxMap.put(k, ctx);
+        
         return ctx;
     }
 
-    synchronized TransactionalEvictorContextI
+    synchronized TransactionalEvictorContext
     getCurrent()
     {
         Object k = Thread.currentThread();
-        return (TransactionalEvictorContextI)_ctxMap.get(k);
+        return (TransactionalEvictorContext)_ctxMap.get(k);
     }
 
-    //
-    // Clear evictor context associated with the calling thread
-    //
     synchronized void
-    clearCurrent(TransactionalEvictorContextI oldCtx)
+    setCurrentTransaction(Transaction tx)
     {
-        Object removedCtx = _ctxMap.remove(Thread.currentThread());
-        assert removedCtx == oldCtx;
-    }
+        Object k = Thread.currentThread();
 
+        if(tx != null)
+        {
+            TransactionalEvictorContext ctx = (TransactionalEvictorContext)_ctxMap.get(k);
+            if(ctx == null || !tx.equals(ctx.transaction()))
+            {
+                ctx = new TransactionalEvictorContext((TransactionI)tx);
+                _ctxMap.put(k, ctx);
+            }
+        }
+        else
+        {
+            _ctxMap.put(k, null);
+        }
+    }
     
     private
     SharedDbEnv(MapKey key, com.sleepycat.db.Environment dbEnv)

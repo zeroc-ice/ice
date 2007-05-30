@@ -86,8 +86,9 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             
             Ice.Communicator communicator = _store.communicator();
 
-            com.sleepycat.db.Transaction tx = _store.evictor().beforeQuery();
-        
+            TransactionI transaction = _store.evictor().beforeQuery();
+            com.sleepycat.db.Transaction tx = transaction == null ? null : transaction.dbTxn();
+
             java.util.List identities;
         
             for(;;)
@@ -229,7 +230,8 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
             // dlen is 0, so we should not retrieve any value 
             // 
             value.setPartial(true);
-            com.sleepycat.db.Transaction tx = _store.evictor().beforeQuery();
+            TransactionI transaction = _store.evictor().beforeQuery();
+            com.sleepycat.db.Transaction tx = transaction == null ? null : transaction.dbTxn();
         
             for(;;)
             {

@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- Freeze evictor update:
+  - the existing evictor was renamed BackgroundSaveEvictor
+  - added new TransactionalEvictor
+
 - Added support for udp multicast. See manual for more information.
 
 - If a proxy contains a host which is multihomed, the client will now

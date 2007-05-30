@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- Freeze evictor update:
+  - the existing evictor was renamed BackgroundSaveEvictor
+  - added new TransactionalEvictor
+
 - Fixed a bug in the encoding of user exceptions with a class
   attribute and returned by AMD dispatched invocations. An extra byte
   was encoded at the end. This fix doesn't affect on the wire

@@ -27,8 +27,11 @@ typedef IceUtil::Handle<SharedDbEnv> SharedDbEnvPtr;
 class SharedDb;
 typedef IceUtil::Handle<SharedDb> SharedDbPtr;
 
-class TransactionalEvictorContextI;
-typedef IceUtil::Handle<TransactionalEvictorContextI> TransactionalEvictorContextIPtr;
+class Transaction;
+typedef IceInternal::Handle<Transaction> TransactionPtr;
+
+class TransactionalEvictorContext;
+typedef IceUtil::Handle<TransactionalEvictorContext> TransactionalEvictorContextPtr;
 
 class SharedDbEnv
 {
@@ -44,10 +47,10 @@ public:
     //
     // EvictorContext factory/manager
     //
-    TransactionalEvictorContextIPtr getOrCreateCurrent(bool&);
-    TransactionalEvictorContextIPtr getCurrent();
-    void clearCurrent(const TransactionalEvictorContextIPtr&);
- 
+    TransactionalEvictorContextPtr createCurrent();
+    TransactionalEvictorContextPtr getCurrent();
+    void setCurrentTransaction(const TransactionPtr& tx);
+
     DbEnv* getEnv() const;
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;

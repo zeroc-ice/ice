@@ -14,43 +14,17 @@ package Freeze;
 //  and a number of servants loaded using this transaction.
 //
 
-class TransactionalEvictorContextI extends Ice.LocalObjectImpl 
-    implements TransactionalEvictorContext, Ice.DispatchInterceptorAsyncCallback
+class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallback, PostCompletionCallback
 {
     public void 
-    rollbackOnly()
-    {
-        _rollbackOnly = true;
-    }
-    
-    public boolean 
-    isRollbackOnly()
-    {
-        return _rollbackOnly;
-    }
-
-    public void 
-    complete()
-    {
+    postCompletion(boolean committed, boolean deadlock)
+    {    
         try
         {
-            if(_rollbackOnly)
+            if(committed)
             {
-                _tx.rollback();
-            }
-            else
-            {
-                if(!_stack.empty())
-                {
-                    _dbEnv.getCommunicator().getLogger().warning
-                        ("Committing TransactionalEvictorContext on DbEnv '" +  _dbEnv.getEnvName() + "' with "
-                         + _stack.size() + " unsaved objects.");
-                }
-
-                _tx.commit();
-
                 //
-                // Finally, remove updated & removed objects from cache
+                // Remove updated & removed objects from cache
                 //
                 java.util.Iterator p = _invalidateList.iterator();
                 while(p.hasNext())
@@ -58,22 +32,20 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
                     ToInvalidate ti = (ToInvalidate)p.next();
                     ti.invalidate();
                 }
+                _invalidateList.clear();
             }
-        }
-        catch(DeadlockException ex)
-        {
-            deadlockException();
-            throw ex;
         }
         finally
         {
             synchronized(this)
             {
-                if(_dbEnv != null)
+                if(_tx != null)
                 {
-                    _dbEnv.clearCurrent(this);
-                    _dbEnv = null;
-
+                    if(deadlock)
+                    {
+                        _deadlockExceptionDetected = true;
+                    }
+                    _tx = null;
                     notifyAll();
                 }
             }
@@ -95,7 +67,7 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
                 {
                     return false;
                 }
-                if(_dbEnv == null)
+                if(_tx == null)
                 {
                     return true;
                 }
@@ -163,7 +135,7 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
         {
             if(_ownServant)
             {
-                if(!_rollbackOnly)
+                if(_tx != null)
                 {
                     if(!_readOnly && !_removed)
                     {
@@ -215,12 +187,41 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
     };
 
 
-    TransactionalEvictorContextI(SharedDbEnv dbEnv)
+    TransactionalEvictorContext(SharedDbEnv dbEnv)
     {
-        _dbEnv = dbEnv;
-        _tx = (TransactionI)(new ConnectionI(_dbEnv).beginTransaction());
+        _tx = (TransactionI)(new ConnectionI(dbEnv).beginTransaction());
         _owner = Thread.currentThread();
+        _tx.adoptConnection();
+
+        _tx.setPostCompletionCallback(this);
     }
+
+    TransactionalEvictorContext(TransactionI tx)
+    {
+        _tx = tx;
+        _owner = Thread.currentThread();
+
+        _tx.setPostCompletionCallback(this);
+    }
+
+    void
+    rollback()
+    {
+        if(_tx != null)
+        {
+            _tx.rollback();
+        }
+    }
+
+    void
+    commit()
+    {
+        if(_tx != null)
+        {
+            _tx.commit();
+        }
+    }
+
 
     void
     checkDeadlockException()
@@ -247,18 +248,19 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
     void
     deadlockException()
     {
-        _rollbackOnly = true;
         synchronized(this)
         {
             _deadlockExceptionDetected = true;
             notifyAll();
         }
+
+        rollback();
     }
     
     Ice.Object
     servantRemoved(Ice.Identity ident, ObjectStore store)
     {
-        if(!_rollbackOnly)
+        if(_tx != null)
         {
             //
             // Lookup servant holder on stack
@@ -282,10 +284,10 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
     protected void 
     finalize()
     {
-        if(_dbEnv != null)
+        if(_tx != null)
         {
-            _dbEnv.getCommunicator().getLogger().warning
-                ("Finalizing incomplete TransactionalEvictorContext on DbEnv '" +  _dbEnv.getEnvName() + "'");
+            _tx.getConnectionI().communicator().getLogger().warning
+                ("Finalizing incomplete TransactionalEvictorContext on DbEnv '" +  _tx.getConnectionI().dbEnv().getEnvName() + "'");
         }
     }
 
@@ -333,14 +335,10 @@ class TransactionalEvictorContextI extends Ice.LocalObjectImpl
     //
     private final java.util.List _invalidateList = new java.util.LinkedList();
 
-    private final TransactionI _tx;
+    private TransactionI _tx;
     private final Thread _owner;
 
-    private boolean _rollbackOnly = false;
-
     private DeadlockException _deadlockException;
-
-    private SharedDbEnv _dbEnv;
 
     //
     // Protected by this

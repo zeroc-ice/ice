@@ -1229,7 +1229,7 @@ Freeze::BackgroundSaveEvictorI::run()
     }
 }
 
-DbTxn*
+Freeze::TransactionIPtr
 Freeze::BackgroundSaveEvictorI::beforeQuery()
 {
     saveNow();

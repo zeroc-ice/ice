@@ -88,7 +88,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
         }
         
 
-        if(_dbEnv != null && _ownDbEnv)
+        if(_dbEnv != null)
         {
             try
             {
@@ -117,7 +117,6 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.Environment dbEnv)
     {
         this(SharedDbEnv.get(communicator, envName, dbEnv));
-        _ownDbEnv = true;
     }
 
 
@@ -213,7 +212,6 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 
     private Ice.Communicator _communicator;
     private SharedDbEnv _dbEnv;
-    private boolean _ownDbEnv = false;
     private String _envName;
     private TransactionI _transaction;
     private LinkedList _mapList = new Freeze.LinkedList();

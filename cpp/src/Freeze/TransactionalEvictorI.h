@@ -75,8 +75,8 @@ public:
  
     virtual ~TransactionalEvictorI();
 
-    virtual TransactionalEvictorContextPtr getCurrentContext();
-    virtual TransactionalEvictorContextPtr createCurrentContext();
+    virtual TransactionPtr getCurrentTransaction() const;
+    virtual void setCurrentTransaction(const TransactionPtr&);
 
     virtual Ice::ObjectPrx addFacet(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
     virtual Ice::ObjectPtr removeFacet(const Ice::Identity&, const std::string&);
@@ -86,7 +86,7 @@ public:
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
     virtual void deactivate(const std::string&);  
 
-    virtual DbTxn* beforeQuery();
+    virtual TransactionIPtr beforeQuery();
 
     Ice::DispatchStatus dispatch(Ice::Request&);
 

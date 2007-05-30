@@ -33,15 +33,15 @@ string Freeze::EvictorIBase::indexPrefix = "$index:";
 // DeactivateController
 //
 
-Freeze::DeactivateController::Guard::Guard(DeactivateController& controller) :
-    _controller(controller)
+Freeze::DeactivateController::Guard::Guard(const DeactivateController& controller) :
+    _controller(const_cast<DeactivateController&>(controller))
 {
     Lock sync(controller);
     if(controller._deactivated || _controller._deactivating)
     {
         throw EvictorDeactivatedException(__FILE__, __LINE__);
     }
-    controller._guardCount++;
+    _controller._guardCount++;
 }
 
 Freeze::DeactivateController::Guard::~Guard()

@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_TRANSACTIONAL_EVICTOR_CONTEXT_I_H
-#define FREEZE_TRANSACTIONAL_EVICTOR_CONTEXT_I_H
+#ifndef FREEZE_TRANSACTIONAL_EVICTOR_CONTEXT_H
+#define FREEZE_TRANSACTIONAL_EVICTOR_CONTEXT_H
 
 #include <Ice/Ice.h>
 #include <Freeze/TransactionalEvictor.h>
@@ -23,8 +23,8 @@ template<class T> class ObjectStore;
 
 class TransactionalEvictorElement;
 
-class TransactionalEvictorContextI : public TransactionalEvictorContext, public Ice::DispatchInterceptorAsyncCallback,
-                                     public IceUtil::Monitor<IceUtil::Mutex>
+class TransactionalEvictorContext : public Ice::DispatchInterceptorAsyncCallback, public PostCompletionCallback,
+                                    public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -32,7 +32,7 @@ public:
     {
     public:
         
-        ServantHolder(const TransactionalEvictorContextIPtr&, const Ice::Current&, ObjectStore<TransactionalEvictorElement>*, bool);
+        ServantHolder(const TransactionalEvictorContextPtr&, const Ice::Current&, ObjectStore<TransactionalEvictorElement>*, bool);
         ~ServantHolder();
 
         void removed();
@@ -53,7 +53,7 @@ public:
         bool _ownServant;
         bool _removed;
 
-        const TransactionalEvictorContextIPtr& _ctx;
+        const TransactionalEvictorContextPtr& _ctx;
         const Ice::Current& _current;
         ObjectStore<TransactionalEvictorElement>* _store;
         ObjectRecord _rec;
@@ -78,12 +78,12 @@ public:
     };
 
 
-    TransactionalEvictorContextI(const SharedDbEnvPtr&);
-    virtual ~TransactionalEvictorContextI();
-    
-    virtual void rollbackOnly();
-    virtual bool isRollbackOnly() const;
-    virtual void complete();
+    TransactionalEvictorContext(const SharedDbEnvPtr&);
+    TransactionalEvictorContext(const TransactionIPtr&);
+
+    virtual ~TransactionalEvictorContext();
+
+    virtual void postCompletion(bool, bool);
 
     virtual bool response(bool);
     virtual bool exception(const std::exception&);
@@ -94,6 +94,9 @@ public:
     void deadlockException();
 
     void checkDeadlockException();
+
+    void commit();
+    void rollback();
 
     const TransactionIPtr& transaction() const
     {
@@ -106,7 +109,7 @@ private:
 
     ServantHolder* findServantHolder(const Ice::Identity&, ObjectStore<TransactionalEvictorElement>*) const;
 
-    void finalize();
+    void finalize(bool);
 
     //
     // Stack of ServantHolder*
@@ -126,8 +129,6 @@ private:
 
     std::auto_ptr<DeadlockException> _deadlockException;
 
-    SharedDbEnvPtr _dbEnv;
-
     //
     // Protected by this
     //
@@ -135,7 +136,7 @@ private:
 
 };
 
-typedef IceUtil::Handle<TransactionalEvictorContextI> TransactionalEvictorContextIPtr;
+typedef IceUtil::Handle<TransactionalEvictorContext> TransactionalEvictorContextPtr;
 
 }
 

@@ -14,7 +14,14 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
     public void
     commit()
     {
+        if(_txn == null)
+        {
+            throw new DatabaseException(_errorPrefix + "inactive transaction");
+        }
+
         String txnId = null;
+        boolean committed = false;
+        boolean deadlock = false;
 
         try
         {
@@ -26,18 +33,21 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
             }
 
             _txn.commit();
+            committed = true;
 
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix + "committed transaction " +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix + "committed transaction " +
                                                              txnId);
             }
         }
         catch(com.sleepycat.db.DeadlockException e)
         {
+            deadlock = true;
+
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
                                                              "failed to commit transaction " + txnId + ": " +
                                                              e.getMessage());
             }
@@ -51,7 +61,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         {
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
                                                              "failed to commit transaction " + txnId + ": " +
                                                              e.getMessage());
             }
@@ -64,15 +74,26 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         finally
         {
             _connection.clearTransaction();
+            if(_ownConnection)
+            {
+                _connection.close();
+            }
             _connection = null;
             _txn = null;
+            postCompletion(committed, deadlock);
         }
     }
 
     public void
     rollback()
     {
+        if(_txn == null)
+        {
+            throw new DatabaseException(_errorPrefix + "inactive transaction");
+        }
+
         String txnId = null;
+        boolean deadlock = false;
 
         try
         {
@@ -87,7 +108,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix + "rolled back transaction " +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix + "rolled back transaction " +
                                                              txnId);
             }
         }
@@ -95,10 +116,12 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         {
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
                                                              "failed to rollback transaction " + txnId + ": " +
                                                              e.getMessage());
             }
+
+            deadlock = true;
 
             DeadlockException ex = new DeadlockException();
             ex.initCause(e);
@@ -109,7 +132,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         {
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
                                                              "failed to rollback transaction " + txnId + ": " +
                                                              e.getMessage());
             }
@@ -122,11 +145,22 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         finally
         {
             _connection.clearTransaction();
+            if(_ownConnection)
+            {
+                _connection.close();
+            }
             _connection = null;
             _txn = null;
+            postCompletion(false, deadlock);
         }
     }
  
+    public Connection
+    getConnection()
+    {
+        return _connection;
+    }
+
     TransactionI(ConnectionI connection)
     {
         _connection = connection;
@@ -141,7 +175,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
             {
                 String txnId = Long.toHexString((_txn.getId() & 0x7FFFFFFF) + 0x80000000L); 
 
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix + "started transaction " +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix + "started transaction " +
                                                              txnId);
             }
         }
@@ -149,7 +183,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         {
             if(_txTrace >= 1)
             {
-                _connection.communicator().getLogger().trace("Freeze.Map", _errorPrefix +
+                _connection.communicator().getLogger().trace("Freeze.Transaction", _errorPrefix +
                                                              "failed to start transaction: " + e.getMessage());
             }
 
@@ -160,15 +194,46 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
         }
     }
 
+    void 
+    setPostCompletionCallback(PostCompletionCallback cb)
+    {
+        _postCompletionCallback = cb;
+    }
+
+    void 
+    adoptConnection()
+    {
+        _ownConnection = true;
+    }
+
+    ConnectionI
+    getConnectionI()
+    {
+        return _connection;
+    }
+    
     com.sleepycat.db.Transaction
     dbTxn()
     {
         return _txn;
     }
 
+
+    private void
+    postCompletion(boolean committed, boolean deadlock)
+    {
+        if(_postCompletionCallback != null)
+        {
+            _postCompletionCallback.postCompletion(committed, deadlock);
+        }
+    }
+
     private ConnectionI _connection;
     private int _txTrace;
     private com.sleepycat.db.Transaction _txn;
 
+    private PostCompletionCallback _postCompletionCallback;
+
     private String _errorPrefix;
+    private boolean _ownConnection = false;
 }

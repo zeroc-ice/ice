@@ -15,6 +15,13 @@
 module Freeze
 {
 
+/**
+ * 
+ * A background-save evictor is an evictor that saves updates 
+ * asynchronously in a background thread.
+ *
+ **/
+
 local interface BackgroundSaveEvictor extends Evictor
 {
     /**

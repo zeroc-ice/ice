@@ -160,8 +160,18 @@ Freeze::ObjectStoreBase::~ObjectStoreBase()
 }
     
 bool
-Freeze::ObjectStoreBase::dbHasObject(const Identity& ident, DbTxn* tx) const
+Freeze::ObjectStoreBase::dbHasObject(const Identity& ident, const TransactionIPtr& transaction) const
 {
+    DbTxn* tx = 0;
+    if(transaction != 0)
+    {
+        tx = transaction->dbTxn();
+        if(tx == 0)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
+        }
+    }
+
     Key key;    
     marshal(ident, key, _communicator);
     Dbt dbKey;
@@ -305,13 +315,18 @@ Freeze::ObjectStoreBase::unmarshal(ObjectRecord& v, const Value& bytes, const Co
 }
 
 bool
-Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tx, ObjectRecord& rec)
+Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& transaction, ObjectRecord& rec)
 {
-    DbTxn* txn = tx->dbTxn();
+    if(transaction == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "no active transaction");
+    }
+
+    DbTxn* txn = transaction->dbTxn();
     
     if(txn == 0)
     {
-        throw DatabaseException(__FILE__, __LINE__, "invalid TransactionalEvictorContext");
+        throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
     }
 
     Key key;
@@ -364,13 +379,18 @@ Freeze::ObjectStoreBase::load(const Identity& ident, const TransactionIPtr& tx, 
 }
 
 void
-Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, const TransactionIPtr& tx)
+Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, const TransactionIPtr& transaction)
 {
-    DbTxn* txn = tx->dbTxn();
+    if(transaction == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "no active transaction");
+    }
+
+    DbTxn* txn = transaction->dbTxn();
     
     if(txn == 0)
     {
-        throw DatabaseException(__FILE__, __LINE__, "invalid TransactionalEvictorContext");
+        throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
     }
 
     Key key;
@@ -406,8 +426,18 @@ Freeze::ObjectStoreBase::update(const Identity& ident, const ObjectRecord& rec, 
 }
 
 bool
-Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, DbTxn* tx)
+Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, const TransactionIPtr& transaction)
 {
+    DbTxn* tx = 0;
+    if(transaction != 0)
+    {
+        tx = transaction->dbTxn();
+        if(tx == 0)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
+        }
+    }
+
     Key key;
     marshal(ident, key, _communicator);
 
@@ -454,8 +484,18 @@ Freeze::ObjectStoreBase::insert(const Identity& ident, const ObjectRecord& rec, 
 }
 
 bool
-Freeze::ObjectStoreBase::remove(const Identity& ident, DbTxn* tx)
+Freeze::ObjectStoreBase::remove(const Identity& ident, const TransactionIPtr& transaction)
 {
+    DbTxn* tx = 0;
+    if(transaction != 0)
+    {
+        tx = transaction->dbTxn();
+        if(tx == 0)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
+        }
+    }
+
     Key key;
     marshal(ident, key, _communicator);
    

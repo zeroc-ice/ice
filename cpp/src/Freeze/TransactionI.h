@@ -19,16 +19,27 @@ namespace Freeze
 class ConnectionI;
 typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 
+class PostCompletionCallback : public virtual IceUtil::Shared
+{
+public:
+
+    virtual void postCompletion(bool, bool) = 0;
+};
+typedef IceUtil::Handle<PostCompletionCallback> PostCompletionCallbackPtr;
+
+
 class TransactionI : public Transaction
 {
 public:
 
-    virtual void
-    commit();
+    virtual void commit();
 
-    virtual void
-    rollback();
+    virtual void rollback();
+
+    virtual ConnectionPtr getConnection() const;
     
+    void setPostCompletionCallback(const PostCompletionCallbackPtr&);
+
     TransactionI(ConnectionI*);
     ~TransactionI();
     
@@ -38,14 +49,20 @@ public:
         return _txn;
     }
 
+    const ConnectionIPtr&
+    getConnectionI() const
+    {
+        return _connection;
+    }
+
 private:
     
-    void
-    cleanup();
+    void postCompletion(bool, bool);
 
     ConnectionIPtr _connection;
     Ice::Int _txTrace;
     DbTxn* _txn;
+    PostCompletionCallbackPtr _postCompletionCallback;
 };
 
 typedef IceUtil::Handle<TransactionI> TransactionIPtr;

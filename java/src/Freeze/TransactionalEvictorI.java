@@ -11,13 +11,13 @@ package Freeze;
 
 class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 {
-    public TransactionalEvictorContext 
-    getCurrentContext()
+    public Transaction
+    getCurrentTransaction()
     {
         _deactivateController.lock();
         try
         {
-            return _dbEnv.getCurrent();
+            return _dbEnv.getCurrent().transaction();
         }
         finally
         {
@@ -25,21 +25,13 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     }
     
-    public TransactionalEvictorContext 
-    createCurrentContext()
+    public void
+    setCurrentTransaction(Transaction tx)
     {
         _deactivateController.lock();
         try
         {
-            Ice.BooleanHolder created = new Ice.BooleanHolder();
-            TransactionalEvictorContext ctx = _dbEnv.getOrCreateCurrent(created);
-        
-            if(created.value == false)
-            {
-                throw new DatabaseException(_errorPrefix + 
-                                            "createCurrentContext: there is already a current context");
-            }
-            return ctx;
+            _dbEnv.setCurrentTransaction(tx);
         }
         finally
         {
@@ -73,7 +65,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 throw ex;
             }
        
-            com.sleepycat.db.Transaction tx = beforeQuery();
+            TransactionI tx = beforeQuery();
         
             updateStats(rec.stats, currentTime);
 
@@ -120,14 +112,14 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
             ObjectStore store = findStore(facet, false);
             if(store != null)
             {  
-                TransactionalEvictorContextI ctx = _dbEnv.getCurrent();
-                com.sleepycat.db.Transaction tx = null;
+                TransactionalEvictorContext ctx = _dbEnv.getCurrent();
+                TransactionI tx = null;
                 if(ctx != null)
                 {
-                    tx = ctx.transaction().dbTxn();
+                    tx = ctx.transaction();
                     if(tx == null)
                     {
-                        throw new DatabaseException(_errorPrefix + "invalid TransactionalEvictorContext");
+                        throw new DatabaseException(_errorPrefix + "inactive transaction");
                     }
                 }
 
@@ -202,7 +194,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 return false;
             }
 
-            com.sleepycat.db.Transaction tx = beforeQuery();
+            TransactionI tx = beforeQuery();
 
             if(tx == null)
             {  
@@ -282,7 +274,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
             //
             // Is there an existing context?
             //
-            TransactionalEvictorContextI ctx = _dbEnv.getCurrent();
+            TransactionalEvictorContext ctx = _dbEnv.getCurrent();
 
             if(ctx != null)
             {
@@ -291,7 +283,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                     //
                     // If yes, use this context; there is no retrying
                     //
-                    TransactionalEvictorContextI.ServantHolder sh = ctx.createServantHolder(current, store, _useNonmutating);
+                    TransactionalEvictorContext.ServantHolder sh = ctx.createServantHolder(current, store, _useNonmutating);
                     
                     if(sh.servant() == null)
                     {
@@ -304,7 +296,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 
                         if(dispatchStatus == Ice.DispatchStatus.DispatchUserException && _rollbackOnUserException)
                         {
-                            ctx.rollbackOnly();
+                            ctx.rollback();
                         }
                         if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
                         {
@@ -314,7 +306,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                     }
                     catch(RuntimeException ex)
                     {
-                        ctx.rollbackOnly();
+                        ctx.rollback();
                         throw ex;
                     }
                     finally
@@ -329,7 +321,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 }
                 catch(RuntimeException ex)
                 {
-                    ctx.rollbackOnly();
+                    ctx.rollback();
                     throw ex;
                 }
             }
@@ -404,13 +396,13 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 
                     do
                     {
-                        ctx = _dbEnv.getOrCreateCurrent(null);
+                        ctx = _dbEnv.createCurrent();
                     
                         try
                         {
                             try
                             {               
-                                TransactionalEvictorContextI.ServantHolder sh = ctx.createServantHolder(current, store, _useNonmutating);
+                                TransactionalEvictorContext.ServantHolder sh = ctx.createServantHolder(current, store, _useNonmutating);
                     
                                 if(sh.servant() == null)
                                 {
@@ -422,7 +414,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                     Ice.DispatchStatus dispatchStatus = sh.servant().ice_dispatch(request, ctx);
                                     if(dispatchStatus == Ice.DispatchStatus.DispatchUserException && _rollbackOnUserException)
                                     {
-                                        ctx.rollbackOnly();
+                                        ctx.rollback();
                                     }
                                     if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
                                     {
@@ -432,12 +424,13 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                 }
                                 catch(RuntimeException ex)
                                 {
-                                    ctx.rollbackOnly();
+                                    ctx.rollback();
                                     throw ex;
                                 }
                                 finally
                                 {
                                     sh.release();
+                                    ctx.commit();
                                 }
                             }
                             catch(DeadlockException ex)
@@ -445,21 +438,19 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                 ctx.deadlockException();
                                 throw ex;
                             }
-                            catch(RuntimeException ex)
-                            {
-                                ctx.rollbackOnly();
-                                throw ex;
-                            }
                             finally
                             {
-                                ctx.complete();
+                                ctx.rollback();
                             }
                         }
                         catch(DeadlockException ex)
                         {
                             tryAgain = true;
                         }
-
+                        finally
+                        {
+                            _dbEnv.setCurrentTransaction(null);
+                        }
                     } while(tryAgain);
                 }
             }
@@ -513,7 +504,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                 storeMapCopy = new java.util.HashMap(_storeMap);
             }           
             
-            com.sleepycat.db.Transaction tx = beforeQuery();
+            TransactionI tx = beforeQuery();
             
             java.util.Iterator p = storeMapCopy.entrySet().iterator();
             while(p.hasNext())
@@ -562,17 +553,17 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         }
     } 
 
-    protected com.sleepycat.db.Transaction
+    protected TransactionI
     beforeQuery()
     {
-        TransactionalEvictorContextI ctx = _dbEnv.getCurrent();
-        com.sleepycat.db.Transaction tx = null;
+        TransactionalEvictorContext ctx = _dbEnv.getCurrent();
+        TransactionI tx = null;
         if(ctx != null)
         {
-            tx = ctx.transaction().dbTxn();
+            tx = ctx.transaction();
             if(tx == null)
             {
-                throw new DatabaseException(_errorPrefix + "invalid TransactionalEvictorContext");
+                throw new DatabaseException(_errorPrefix + "inactive transaction");
             }
         }
 

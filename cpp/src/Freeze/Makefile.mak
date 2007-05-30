@@ -37,7 +37,7 @@ OBJS		= BackgroundSaveEvictor.obj \
                   SharedDb.obj \
                   TransactionalEvictor.obj \
                   TransactionalEvictorI.obj \
-                  TransactionalEvictorContextI.obj \
+                  TransactionalEvictorContext.obj \
                   TransactionHolder.obj \
                   TransactionI.obj \
                   Transaction.obj \

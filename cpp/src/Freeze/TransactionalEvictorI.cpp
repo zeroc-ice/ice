@@ -10,7 +10,7 @@
 #include <Freeze/TransactionalEvictorI.h>
 #include <Freeze/Initialize.h>
 #include <Freeze/Util.h>
-#include <Freeze/TransactionalEvictorContextI.h>
+#include <Freeze/TransactionalEvictorContext.h>
 
 #include <IceUtil/IceUtil.h>
 
@@ -91,25 +91,18 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
 }
 
 
-TransactionalEvictorContextPtr
-Freeze::TransactionalEvictorI::getCurrentContext()
+TransactionPtr
+Freeze::TransactionalEvictorI::getCurrentTransaction() const
 {
     DeactivateController::Guard deactivateGuard(_deactivateController);
-    return _dbEnv->getCurrent();
+    return _dbEnv->getCurrent()->transaction();
 }
 
-TransactionalEvictorContextPtr
-Freeze::TransactionalEvictorI::createCurrentContext()
+void
+Freeze::TransactionalEvictorI::setCurrentTransaction(const TransactionPtr& tx)
 {
     DeactivateController::Guard deactivateGuard(_deactivateController);
-    
-    bool created = false;
-    TransactionalEvictorContextPtr ctx = _dbEnv->getOrCreateCurrent(created);
-    if(!created)
-    {
-        throw DatabaseException(__FILE__, __LINE__, "createCurrentContext: there is already a current context");
-    }
-    return ctx;
+    _dbEnv->setCurrentTransaction(tx);
 }
 
 
@@ -134,7 +127,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
                                 + facet + "'");
     }
      
-    DbTxn* tx = beforeQuery();
+    TransactionIPtr tx = beforeQuery();
         
     updateStats(rec.stats, currentTime);
 
@@ -170,14 +163,14 @@ Freeze::TransactionalEvictorI::removeFacet(const Identity& ident, const string& 
    
     if(store != 0)
     {
-        TransactionalEvictorContextIPtr ctx = _dbEnv->getCurrent();
-        DbTxn* tx = 0;
+        TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
+        TransactionIPtr tx = 0;
         if(ctx != 0)
         {
-            tx = ctx->transaction()->dbTxn();
+            tx = ctx->transaction();
             if(tx == 0)
             {
-                throw DatabaseException(__FILE__, __LINE__, "invalid TransactionalEvictorContext");
+                throw DatabaseException(__FILE__, __LINE__, "inactive transaction");
             }
         }
         
@@ -239,7 +232,7 @@ Freeze::TransactionalEvictorI::hasFacet(const Identity& ident, const string& fac
         return false;
     }
 
-    DbTxn* tx = beforeQuery();
+    TransactionIPtr tx = beforeQuery();
     
     if(tx == 0)
     {
@@ -271,7 +264,7 @@ Freeze::TransactionalEvictorI::hasAnotherFacet(const Identity& ident, const stri
         storeMapCopy = _storeMap;
     }       
 
-    DbTxn* tx = beforeQuery();
+    TransactionIPtr tx = beforeQuery();
         
     for(StoreMap::iterator p = storeMapCopy.begin(); p != storeMapCopy.end(); ++p)
     {
@@ -319,34 +312,29 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
     {
     public:
 
-        CtxHolder(const TransactionalEvictorContextIPtr& ctx) :
-            _ctx(ctx)
+        CtxHolder(const TransactionalEvictorContextPtr& ctx, const SharedDbEnvPtr& dbEnv) :
+            _ctx(ctx),
+            _dbEnv(dbEnv)
         {
         }
         
         ~CtxHolder()
         {
-            bool isRollbackOnly = _ctx->isRollbackOnly();
-
             try
             {
-                _ctx->complete();
+                _ctx->commit();
             }
             catch(...)
             {
-                if(!isRollbackOnly)
-                {
-                    throw;
-                }
-                //
-                // Otherwise ignored, we could be unwinding the stack
-                //
+                _dbEnv->setCurrentTransaction(0);
+                throw;
             }
+            _dbEnv->setCurrentTransaction(0);
         }
 
     private:
-        TransactionalEvictorContextIPtr _ctx;
-
+        TransactionalEvictorContextPtr _ctx;
+        const SharedDbEnvPtr& _dbEnv;
     };
     
 
@@ -363,7 +351,7 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
     //
     // Is there an existing context?
     //
-    TransactionalEvictorContextIPtr ctx = _dbEnv->getCurrent();
+    TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
     
     if(ctx != 0)
     {
@@ -372,7 +360,7 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
             //
             // If yes, use this context; there is no retrying
             //
-            TransactionalEvictorContextI::ServantHolder servantHolder(ctx, current, store, _useNonmutating);
+            TransactionalEvictorContext::ServantHolder servantHolder(ctx, current, store, _useNonmutating);
 
             if(servantHolder.servant() == 0)
             {
@@ -385,7 +373,7 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
                 
                 if(dispatchStatus == DispatchUserException && _rollbackOnUserException)
                 {
-                    ctx->rollbackOnly();
+                    ctx->rollback();
                 }
 
                 if(dispatchStatus == DispatchAsync)
@@ -400,14 +388,14 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
             catch(...)
             {
                 //
-                // Important: this rollbackOnly() ensures that servant holder destructor won't perform
+                // Important: this rollback() ensures that servant holder destructor won't perform
                 // any database operation, and hence will not throw.
                 //
-                ctx->rollbackOnly();
+                ctx->rollback();
                 throw;
             }
             //
-            // servantHolder destructor runs here and may throw (if !rollback only)
+            // servantHolder destructor runs here and may throw (if tx was not rolled back)
             // 
         }
         catch(const DeadlockException&)
@@ -417,7 +405,7 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
         }
         catch(...)
         {
-            ctx->rollbackOnly();
+            ctx->rollback();
             throw;
         }
     }
@@ -494,14 +482,12 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
             {
                 try
                 {
-                    bool created = false;
-                    ctx = _dbEnv->getOrCreateCurrent(created);
-                    CtxHolder ctxHolder(ctx);
-                    assert(created);
+                    ctx = _dbEnv->createCurrent();
+                    CtxHolder ctxHolder(ctx, _dbEnv);
                     
                     try
                     {                   
-                        TransactionalEvictorContextI::ServantHolder servantHolder(ctx, current, store, _useNonmutating);
+                        TransactionalEvictorContext::ServantHolder servantHolder(ctx, current, store, _useNonmutating);
                         
                         if(servantHolder.servant() == 0)
                         {
@@ -513,7 +499,7 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
                             DispatchStatus dispatchStatus = servantHolder.servant()->ice_dispatch(request, ctx);
                             if(dispatchStatus == DispatchUserException && _rollbackOnUserException)
                             {
-                                ctx->rollbackOnly();
+                                ctx->rollback();
                             }
                             if(dispatchStatus == DispatchAsync)
                             {
@@ -528,14 +514,14 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
                         catch(...)
                         {
                             //
-                            // Important: this rollbackOnly() ensures that servant holder destructor won't perform
+                            // Important: this rollback() ensures that servant holder destructor won't perform
                             // any database operation, and hence will not throw.
                             //
-                            ctx->rollbackOnly();
+                            ctx->rollback();
                             throw;
                         }
                         //
-                        // servant holder destructor runs here and may throw (if !rollback only)
+                        // servant holder destructor runs here and may throw (if !rolled back)
                         // 
                     }
                     catch(const DeadlockException&)
@@ -545,12 +531,12 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
                     }
                     catch(...)
                     {
-                        ctx->rollbackOnly();
+                        ctx->rollback();
                         throw;
                     }
 
                     //
-                    // complete occurs here!
+                    // commit occurs here!
                     //
                 }
                 catch(const DeadlockException&)
@@ -600,17 +586,17 @@ Freeze::TransactionalEvictorI::~TransactionalEvictorI()
     //
 }
 
-DbTxn*
+Freeze::TransactionIPtr
 Freeze::TransactionalEvictorI::beforeQuery()
 {
-    TransactionalEvictorContextIPtr ctx = _dbEnv->getCurrent();
-    DbTxn* tx = 0;
+    TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
+    TransactionIPtr tx = 0;
     if(ctx != 0)
     {
-        tx = ctx->transaction()->dbTxn();
+        tx = ctx->transaction();
         if(tx == 0)
         {
-            throw DatabaseException(__FILE__, __LINE__,"invalid TransactionalEvictorContext");
+            throw DatabaseException(__FILE__, __LINE__,"inactive transaction");
         }
     }
     
