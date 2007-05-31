@@ -143,7 +143,7 @@ namespace IceSSL
                 IceInternal.Network.setBlock(fd_, false);
                 IceInternal.Network.setTcpBufSize(fd_, instance_.communicator().getProperties(), logger_);
                 addr_ = IceInternal.Network.getAddress(host, port);
-                if(IceInternal.AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
+                if(IceInternal.AssemblyUtil.platform_ != IceInternal.AssemblyUtil.Platform.Windows)
                 {
                     //
                     // Enable SO_REUSEADDR on Unix platforms to allow
@@ -158,7 +158,7 @@ namespace IceSSL
                     // probably be better but it's only supported by recent
                     // Windows versions (XP SP2, Windows Server 2003).
                     //
-                    IceInternal.Network.setReuseAddress(_fd, true);
+                    IceInternal.Network.setReuseAddress(fd_, true);
                 }
                 if(instance_.networkTraceLevel() >= 2)
                 {
