@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, re, signal, time, string
+import os, sys, shutil, re, signal, time, string, pprint
 
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
@@ -16,25 +16,11 @@ from xml.sax.handler import ContentHandler
 from xml.sax import saxutils
 from xml.sax import SAXException
 
+from xml.dom.minidom import parse
+
 progname = os.path.basename(sys.argv[0])
 contentHandler = None
-proxyProperties = [
-        "EndpointSelection", 
-        "ConnectionCached",
-        "PreferSecure", 
-        "LocatorCacheTimeout", 
-        "Locator", 
-        "Router", 
-        "CollocationOptimization", 
-        "ThreadPerConnection"
-        ]
-
-threadPoolProperties = [
-        "Size",
-        "SizeMax",
-        "SizeWarn",
-        "StackSize"
-        ]
+propertyClasses = {}
 
 commonPreamble = """// **********************************************************************
 //
@@ -209,6 +195,65 @@ def progError(msg):
     global progname
     print >> sys.stderr, progname + ": " + msg
 
+#
+# XXX- Currently the processing of PropertyNames.def is going to take
+# place in two parts. One is using DOM to extract the property 'classes'
+# such as 'proxy', 'objectadapter', etc. The other part uses SAX to
+# create the language mapping source code.
+# 
+
+class PropertyClass:
+    def __init__(self, type, suffixes, nestedClasses):
+        self.type = type
+        self.suffixes = suffixes
+        self.nestedClasses = nestedClasses
+
+    def __repr__(self):
+        return repr((repr(self.type), repr(self.suffixes),
+            repr(self.nestedClasses)))
+
+def expandClassLists(classTree, list):
+    expansion = []
+    for nc in list:
+        if nc[0] == None:
+            expansion.extend(classTree[nc[1]].suffixes)
+        else:
+            for s in classTree[nc[1]].suffixes:
+                expansion.append("%s.%s" % (nc[0], s))
+        expansion.extend(expandClassLists(classTree, classTree[nc[1]].nestedClasses))
+    return expansion
+
+def initPropertyClasses(filename):
+    doc = parse(filename)
+    propertyClassNodes = doc.getElementsByTagName('propertyClass')
+    propertyClassTree = {}
+    for n in propertyClassNodes:
+        className = n.attributes["name"].nodeValue
+        classType = n.attributes["type"].nodeValue
+        classValues = []
+        nestedClasses = []
+        for a in n.childNodes:
+            if a.localName == "suffix":
+                if a.attributes.has_key("value"):
+                    if a.attributes.has_key("class"):
+                        nestedClasses.append((a.attributes["value"].nodeValue, a.attributes["class"].nodeValue))
+                    else:
+                        classValues.append(a.attributes["value"].nodeValue)
+        propertyClassTree[className] = PropertyClass(classType, classValues, nestedClasses)
+
+    #
+    # resolve and expand nested property classes.
+    #
+    global propertyClasses
+    for k in propertyClassTree.keys():
+        pc = propertyClassTree[k]
+        pc.suffixes.extend(expandClassLists(propertyClassTree, pc.nestedClasses))
+        propertyClasses[k] = (pc.type, pc.suffixes)
+
+#
+# SAX part.
+#
+
 def handler(signum, frame):
     """Installed as signal handler. Should cause an files that are in
     use to be closed and removed"""
@@ -301,18 +346,15 @@ class PropertyHandler(ContentHandler):
         
         elif name == "property":
             propertyName = attrs.get("name", None)
-
-            if attrs.get("threadpool", None) == "true":
-                #
-                # expand known thread pool properties.
-                #
-                for p in threadPoolProperties:
-                    self.startElement(name, { 'name': "%s.%s" % (propertyName, p)})
-                #
-                # We don't include a property for the property entry
-                # itself 
-                #
-                return
+            if attrs.has_key("propertyClass"):
+                c = propertyClasses[attrs["propertyClass"]]
+                for p in c[1]:
+                    if propertyName == None:
+                        self.startElement(name, { 'name': "%s" %  p})
+                    else:
+                        self.startElement(name, { 'name': "%s.%s" % (propertyName, p)})
+                if c[0] == "placeholder":
+                    return
 
             #
             # != None implies deprecated == true
@@ -326,15 +368,14 @@ class PropertyHandler(ContentHandler):
             else:
                 self.handleProperty(propertyName)
 
-            if attrs.get("proxy", None) != None:
-                #
-                # expand known proxy properties.
-                #
-                for p in proxyProperties:
-                    self.startElement(name, {'name':"%s.%s" % (propertyName, p)})
-
         else:
-            raise UnknownElementException(name)
+            #
+            # XXX- temporarily disabling this feature while the 'property
+            # group' XML defintions are being worked out.
+            #
+            # raise UnknownElementException(name)
+            #
+            pass
 
     def endElement(self, name):
         if name == "properties":
@@ -388,7 +429,7 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.close()
 
     def fix(self, propertyName):
-        return string.replace(propertyName, "<any>", "*")
+        return string.replace(propertyName, "[any]", "*")
 
     def deprecatedImpl(self, propertyName):
         self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, 0),\n" % (self.currentSection, \
@@ -465,7 +506,7 @@ class JavaPropertyHandler(PropertyHandler):
         # The Java property strings are actually regexp's that will be passed to Java's regexp facitlity.
         #
         propertyName = string.replace(propertyName, ".", "\\\\.")
-        return string.replace(propertyName, "<any>", "[^\\\\s]+")
+        return string.replace(propertyName, "[any]", "[^\\\\s]+")
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", " \
@@ -538,7 +579,7 @@ class CSPropertyHandler(PropertyHandler):
 
     def fix(self, propertyName):
         propertyName = string.replace(propertyName, ".", "\\.")
-        return string.replace(propertyName, "<any>", "[^\\s]+")
+        return string.replace(propertyName, "[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection, \
@@ -668,8 +709,9 @@ def main():
     # Install signal handler so we can remove the output files if we are interrupted.
     #
     signal.signal(signal.SIGINT, handler)
-    signal.signal(signal.SIGHUP, handler)
+    # signal.signal(signal.SIGHUP, handler)
     signal.signal(signal.SIGTERM, handler)
+    initPropertyClasses(infile)
 
     parser = make_parser()
     parser.setFeature(feature_namespaces, 0)

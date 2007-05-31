@@ -44,8 +44,8 @@ a deprecated property is used. The deprecatedBy attribute allows the Ice
 run time to transparently replace the deprecated property name with a
 new property name that supercedes the deprecated property.
 
-Property element name attributes have some additional syntax: The token
-"<any>" (denoted in valid XML as &lt;any&gt;) is a wildcard and matches any
+property element name attributes have some additional syntax: The token
+"<any>" (denoted in valid XML as [any]) is a wildcard and matches any
 non-empty sequence of non-whitespace characters.
 
 Examples:
@@ -59,7 +59,7 @@ For example, consider the following definitions:
     <properties>
         <section name="Ice">
             <property name="ChangeUser" />
-            <property name="Package.&lt;any&gt;" />
+            <property name="Package.[any]" />
             <property name="QuenchRequests" deprecated="true"  />
             <property name="Foo" deprecated="true" deprecatedBy="Bar" />
             <property name="Bar" />
@@ -145,6 +145,36 @@ generated from the section label.
 
 -->
 <properties>
+    <propertyClass name="proxy" type="expand">
+        <suffix value="EndpointSelection" />
+        <suffix value="ConnectionCached" />
+        <suffix value="PreferSecure"  />
+        <suffix value="LocatorCacheTimeout"  />
+        <suffix value="Locator"  />
+        <suffix value="Router"  />
+        <suffix value="CollocationOptimization"  />
+        <suffix value="ThreadPerConnection" />
+    </propertyClass>
+
+    <propertyClass name="threadpool" type="placeholder">
+        <suffix value="Size" />
+        <suffix value="SizeMax" />
+        <suffix value="SizeWarn" />
+        <suffix value="StackSize" />
+    </propertyClass>
+
+    <propertyClass name="objectadapter" type="placeholder">
+        <suffix value="AdapterId" />
+        <suffix value="Endpoints" />
+        <suffix value="Locator" />
+        <suffix value="PublishedEndpoints" />
+        <suffix value="ReplicaGroupdId" />
+        <suffix value="Router" />
+        <suffix value="ThreadPerConnection" />
+        <suffix value="ThreadPerConnection.StackSize" />
+        <suffix value="ThreadPool" class="threadpool" />
+    </propertyClass>
+
     <section name="Ice">
         <property name="ACM.Client" />
         <property name="ACM.Server" />
@@ -155,12 +185,12 @@ generated from the section label.
         <property name="Default.CollocationOptimization" />
         <property name="Default.EndpointSelection" />
         <property name="Default.Host" />
-        <property name="Default.Locator" proxy="true"/>
+        <property name="Default.Locator" propertyClass="proxy"/>
         <property name="Default.LocatorCacheTimeout" />
         <property name="Default.Package" />
         <property name="Default.PreferSecure" />
         <property name="Default.Protocol" />
-        <property name="Default.Router" proxy="true" />
+        <property name="Default.Router" propertyClass="proxy" />
         <property name="GC.Interval" />
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
@@ -173,8 +203,8 @@ generated from the section label.
         <property name="Override.ConnectTimeout" />
         <property name="Override.Timeout" />
         <property name="Override.Secure" />
-        <property name="Package.&lt;any&gt;" />
-        <property name="Plugin.&lt;any&gt;" />
+        <property name="Package.[any]" />
+        <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
@@ -186,8 +216,8 @@ generated from the section label.
         <property name="StdOut" />
         <property name="ThreadPerConnection" />
         <property name="ThreadPerConnection.StackSize" />
-        <property name="ThreadPool.Client" threadpool="true"/>
-        <property name="ThreadPool.Server" threadpool="true"/>
+        <property name="ThreadPool.Client" propertyClass="threadpool"/>
+        <property name="ThreadPool.Server" propertyClass="threadpool"/>
         <property name="Trace.GC" />
         <property name="Trace.Location" />
         <property name="Trace.Network" />
@@ -212,7 +242,7 @@ generated from the section label.
         <property name="InstanceName" />
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
-        <property name="Service.&lt;any&gt;" />
+        <property name="Service.[any]" />
         <property name="ServiceManager.AdapterId" />
         <property name="ServiceManager.Endpoints" />
         <property name="ServiceManager.Locator" />
@@ -222,8 +252,8 @@ generated from the section label.
         <property name="ServiceManager.Router" />
         <property name="ServiceManager.ThreadPerConnection" />
         <property name="ServiceManager.ThreadPerConnection.StackSize" />
-        <property name="ServiceManager.ThreadPool" threadpool="true" />
-        <property name="UseSharedCommunicator.&lt;any&gt;" />
+        <property name="ServiceManager.ThreadPool" propertyClass="threadpool" />
+        <property name="UseSharedCommunicator.[any]" />
         <property name="InheritProperties" />
     </section>
 
@@ -255,68 +285,37 @@ generated from the section label.
         <property name="Node.Router" />
         <property name="Node.ThreadPerConnection" />
         <property name="Node.ThreadPerConnection.StackSize" />
-        <property name="Node.ThreadPool" threadpool="true" />
+        <property name="Node.ThreadPool" propertyClass="threadpool" />
         <property name="Node.Trace.Activator" />
         <property name="Node.Trace.Adapter" />
         <property name="Node.Trace.Patch" />
         <property name="Node.Trace.Replica" />
         <property name="Node.Trace.Server" />
         <property name="Node.UserAccounts" />
-        <property name="Node.UserAccountMapper" proxy="true"/>
+        <property name="Node.UserAccountMapper" propertyClass="proxy"/>
         <property name="Node.WaitTime" />
         <property name="Registry.AdminCryptPasswords" />
-        <property name="Registry.AdminPermissionsVerifier" proxy="true" />
-        <property name="Registry.AdminSSLPermissionsVerifier" proxy="true" />
-        <property name="Registry.Client.AdapterId" />
-        <property name="Registry.Client.Endpoints" />
-        <property name="Registry.Client.Locator" />
-        <property name="Registry.Client.PublishedEndpoints" />
-        <property name="Registry.Client.RegisterProcess" />
-        <property name="Registry.Client.ReplicaGroupId" />
-        <property name="Registry.Client.Router" />
-        <property name="Registry.Client.ThreadPerConnection" />
-        <property name="Registry.Client.ThreadPerConnection.StackSize" />
-        <property name="Registry.Client.ThreadPool" threadpool="true"/>
+        <property name="Registry.AdminPermissionsVerifier"
+            propertyClass="proxy" />
+        <property name="Registry.AdminSSLPermissionsVerifier"
+            propertyClass="proxy" />
+        <property name="Registry.Client" propertyClass="objectadapter" />
         <property name="Registry.CryptPasswords" />
         <property name="Registry.Data" />
         <property name="Registry.DefaultTemplates" />
         <property name="Registry.DynamicRegistration" />
-        <property name="Registry.Internal.AdapterId" />
-        <property name="Registry.Internal.Endpoints" />
-        <property name="Registry.Internal.Locator" />
-        <property name="Registry.Internal.PublishedEndpoints" />
-        <property name="Register.Internal.RegisterProcess" />
-        <property name="Registry.Internal.ReplicaGroupId" />
-        <property name="Registry.Internal.Router" />
-        <property name="Registry.Internal.ThreadPerConnection" />
-        <property name="Registry.Internal.ThreadPerConnection.StackSize" />
-        <property name="Registry.Internal.ThreadPool" threadpool="true"/>
+        <property name="Registry.Internal" propertyClass="objectadapter" />
         <property name="Registry.NodeSessionTimeout" />
-        <property name="Registry.PermissionsVerifier" proxy="true"/>
+        <property name="Registry.PermissionsVerifier"
+            propertyClass="proxy"/>
         <property name="Registry.ReplicaName" />
         <property name="Registry.ReplicaSessionTimeout" />
-        <property name="Registry.Server.AdapterId" />
-        <property name="Registry.Server.Endpoints" />
-        <property name="Registry.Server.Locator" />
-        <property name="Registry.Server.PublishedEndpoints" />
-        <property name="Registry.Server.RegisterProcess" />
-        <property name="Registry.Server.ReplicaGroupId" />
-        <property name="Registry.Server.Router" />
-        <property name="Registry.Server.ThreadPerConnection" />
-        <property name="Registry.Server.ThreadPerConnection.StackSize" />
-        <property name="Registry.Server.ThreadPool" threadpool="true" />
-        <property name="Registry.SessionManager.AdapterId" />
-        <property name="Registry.SessionManager.Endpoints" />
-        <property name="Registry.SessionManager.Locator" />
-        <property name="Registry.SessionManager.PublishedEndpoints" />
-        <property name="Registry.SessionManager.RegisterProcess" />
-        <property name="Registry.SessionManager.ReplicaGroupId" />
-        <property name="Registry.SessionManager.Router" />
-        <property name="Registry.SessionManager.ThreadPerConnection" />
-        <property name="Registry.SessionManager.ThreadPerConnection.StackSize" />
-        <property name="Registry.SessionManager.ThreadPool" threadpool="true" />
+        <property name="Registry.Server" propertyClass="objectadapter"/>
+        <property name="Registry.SessionManager"
+            propertyClass="objectadapter"/>
         <property name="Registry.SessionTimeout" />
-        <property name="Registry.SSLPermissionsVerifier" proxy="true"/>
+        <property name="Registry.SSLPermissionsVerifier"
+            propertyClass="proxy"/>
         <property name="Registry.Trace.Application" />
         <property name="Registry.Trace.Adapter" />
         <property name="Registry.Trace.Locator" />
@@ -330,31 +329,14 @@ generated from the section label.
     </section>
     
     <section name="IcePatch2">
-        <property name="AdapterId" />
-        <property name="Admin.AdapterId" />
-        <property name="Admin.Endpoints" />
-        <property name="Admin.Locator" />
-        <property name="Admin.PublishedEndpoints" />
-        <property name="Admin.RegisterProcess" />
-        <property name="Admin.ReplicaGroupId" />
-        <property name="Admin.Router" />
-        <property name="Admin.ThreadPerConnection" />
-        <property name="Admin.ThreadPerConnection.StackSize" />
-        <property name="Admin.ThreadPool" threadpool="true"/>
+        <property propertyClass="objectadapter" />
+        <property name="Admin" propertyClass="objectadapter" />
         <property name="ChunkSize" />
         <property name="Directory" />
-        <property name="Endpoints" />
         <property name="InstanceName" />
-        <property name="Locator" />
-        <property name="PublishedEndpoints" />
         <property name="RegisterProcess" />
-        <property name="ReplicaGroupId" />
         <property name="Remove" />
-        <property name="Router" />
         <property name="Thorough" />
-        <property name="ThreadPerConnection" />
-        <property name="ThreadPerConnection.StackSize" />
-        <property name="ThreadPool" threadpool="true" />
     </section>
 
     <section name="IceSSL">
@@ -366,10 +348,10 @@ generated from the section label.
         <property name="CheckCRL" />
         <property name="Ciphers" />
         <property name="DefaultDir" />
-        <property name="DH.&lt;any&gt;" />
+        <property name="DH.[any]" />
         <property name="EntropyDaemon" />
-        <property name="FindCert.&lt;any&gt;" />
-        <property name="ImportCert.&lt;any&gt;" />
+        <property name="FindCert.[any]" />
+        <property name="ImportCert.[any]" />
         <property name="KeyFile" />
         <property name="Keystore" />
         <property name="KeystorePassword" />
@@ -387,41 +369,21 @@ generated from the section label.
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />
         <property name="TrustOnly.Server" />
-        <property name="TrustOnly.Server.&lt;any&gt;" />
+        <property name="TrustOnly.Server.[any]" />
     </section>
 
     <section name="IceStormAdmin">
-        <property name="TopicManager.&lt;any&gt;" />
+        <property name="TopicManager.[any]" />
     </section>
 
     <section name="IceStorm">
         <property name="Flush.Timeout" />
         <property name="InstanceName" />
-        <property name="Publish.AdapterId" />
-        <property name="Publish.Endpoints" />
-        <property name="Publish.Locator" />
-        <property name="Publish.PublishedEndpoints" />
+        <property name="Publish" propertyClass="objectadapter" />
         <property name="Publish.RegisterProcess" />
-        <property name="Publish.ReplicaGroupId" />
-        <property name="Publish.Router" />
-        <property name="Publish.ThreadPerConnection" />
-        <property name="Publish.ThreadPerConnection.StackSize" />
-        <property name="Publish.ThreadPool" threadpool="true"/>
-        <property name="TopicManager.AdapterId" />
-        <property name="TopicManager.Endpoints" />
-        <property name="TopicManager.Locator" />
-        <property name="TopicManager.Proxy" proxy="true" />
-        <property name="TopicManager.PublishedEndpoints" />
-        <property name="TopicManager.RegisterProcess" />
-        <property name="TopicManager.ReplicaGroupId" />
-        <property name="TopicManager.Router" />
-        <property name="TopicManager.ThreadPerConnection" />
-        <property name="TopicManager.ThreadPerConnection.StackSize" />
-        <property name="TopicManager.ThreadPool" threadpool="true" />
-        <property name="SubscriberPool.Size" />
-        <property name="SubscriberPool.SizeMax" />
-        <property name="SubscriberPool.SizeWarn" />
-        <property name="SubscriberPool.Timeout" />
+        <property name="TopicManager" propertyClass="objectadapter" />
+        <property name="TopicManager.Proxy" propertyClass="proxy" />
+        <property name="SubscriberPool" propertyClass="threadpool" />
         <property name="Trace.Flush" />
         <property name="Trace.Subscriber" />
         <property name="Trace.SubscriberPool" />
@@ -459,9 +421,9 @@ generated from the section label.
         <property name="Filter.Identity.Accept" />
         <property name="CryptPasswords" />
         <property name="InstanceName" />
-        <property name="PermissionsVerifier" proxy="true"/>
+        <property name="PermissionsVerifier" propertyClass="proxy"/>
         <property name="ReturnClientProxy" />
-        <property name="SSLPermissionsVerifier" proxy="true"/>
+        <property name="SSLPermissionsVerifier" propertyClass="proxy"/>
         <property name="RoutingTable.MaxSize" />
         <property name="Server.AlwaysBatch" />
         <property name="Server.Buffered" />
@@ -472,25 +434,25 @@ generated from the section label.
         <property name="Server.SleepTime" />
         <property name="Server.Trace.Override" />
         <property name="Server.Trace.Request" />
-        <property name="SessionManager" proxy="true"/>
-        <property name="SSLSessionManager" proxy="true"/>
+        <property name="SessionManager" propertyClass="proxy"/>
+        <property name="SSLSessionManager" propertyClass="proxy"/>
         <property name="SessionTimeout" />
         <property name="Trace.RoutingTable" />
         <property name="Trace.Session" />
     </section>
 
     <section name="Freeze">
-        <property name="DbEnv.&lt;any&gt;.CheckpointPeriod" />
-        <property name="DbEnv.&lt;any&gt;.DbHome" />
-        <property name="DbEnv.&lt;any&gt;.DbPrivate" />
-        <property name="DbEnv.&lt;any&gt;.DbRecoverFatal" />
-        <property name="DbEnv.&lt;any&gt;.OldLogsAutoDelete" />
-        <property name="DbEnv.&lt;any&gt;.PeriodicCheckpointMinSize" />
-        <property name="Evictor.&lt;any&gt;.MaxTxSize" />
-        <property name="Evictor.&lt;any&gt;.SavePeriod" />
-        <property name="Evictor.&lt;any&gt;.SaveSizeTrigger" />
-        <property name="Evictor.&lt;any&gt;.StreamTimeout" />
-        <property name="Evictor.&lt;any&gt;.PopulateEmptyIndices" />
+        <property name="DbEnv.[any].CheckpointPeriod" />
+        <property name="DbEnv.[any].DbHome" />
+        <property name="DbEnv.[any].DbPrivate" />
+        <property name="DbEnv.[any].DbRecoverFatal" />
+        <property name="DbEnv.[any].OldLogsAutoDelete" />
+        <property name="DbEnv.[any].PeriodicCheckpointMinSize" />
+        <property name="Evictor.[any].MaxTxSize" />
+        <property name="Evictor.[any].SavePeriod" />
+        <property name="Evictor.[any].SaveSizeTrigger" />
+        <property name="Evictor.[any].StreamTimeout" />
+        <property name="Evictor.[any].PopulateEmptyIndices" />
         <property name="Evictor.UseNonmutating" />
         <property name="Trace.DbEnv" />
         <property name="Trace.Evictor" />
