@@ -758,9 +758,9 @@ public final class Network
     }
 
     public static java.util.ArrayList
-    getHosts(String host)
+    getAddresses(String host, int port)
     {
-        java.util.ArrayList hosts = new java.util.ArrayList();
+        java.util.ArrayList addresses = new java.util.ArrayList();
         try
         {
             java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
@@ -768,7 +768,7 @@ public final class Network
             {
                 if(addrs[i] instanceof java.net.Inet4Address)
                 {
-                    hosts.add(addrs[i].getHostAddress());
+                    addresses.add(new java.net.InetSocketAddress(addrs[i], port));
                 }
             }
         }
@@ -782,14 +782,14 @@ public final class Network
         //
         // No Inet4Address available.
         //
-        if(hosts.size() == 0)
+        if(addresses.size() == 0)
         {
             Ice.DNSException e = new Ice.DNSException();
             e.host = host;
             throw e;
         }
 
-        return hosts;
+        return addresses;
     }
 
     public static java.util.ArrayList

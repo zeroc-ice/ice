@@ -234,13 +234,12 @@ final class ConnectorI implements IceInternal.Connector
     //
     // Only for use by EndpointI
     //
-    ConnectorI(Instance instance, String host, int port)
+    ConnectorI(Instance instance, java.net.InetSocketAddress addr)
     {
         _instance = instance;
         _logger = instance.communicator().getLogger();
-
-        _host = host;
-        _addr = IceInternal.Network.getAddress(host, port);
+        _host = addr.getHostName();
+        _addr = addr;
     }
 
     private static class ConnectThread extends Thread

@@ -328,7 +328,7 @@ final class UdpTransceiver implements Transceiver
     //
     // Only for use by UdpEndpoint
     //
-    UdpTransceiver(Instance instance, String host, int port, String mcastInterface, int mcastTtl)
+    UdpTransceiver(Instance instance, java.net.InetSocketAddress addr, String mcastInterface, int mcastTtl)
     {
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
@@ -336,13 +336,13 @@ final class UdpTransceiver implements Transceiver
         _incoming = false;
         _connect = true;
         _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+        _addr = addr;
 
         try
         {
             _fd = Network.createUdpSocket();
             setBufSize(instance);
             Network.setBlock(_fd, false);
-            _addr = Network.getAddress(host, port);
             Network.doConnect(_fd, _addr, -1);
             _connect = false; // We're connected now
             if(_addr.getAddress().isMulticastAddress())

@@ -43,13 +43,12 @@ final class TcpConnector implements Connector
     //
     // Only for use by TcpEndpoint
     //
-    TcpConnector(Instance instance, String host, int port)
+    TcpConnector(Instance instance, java.net.InetSocketAddress addr)
     {
         _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.initializationData().logger;
-
-        _addr = Network.getAddress(host, port);
+        _addr = addr;
     }
 
     private Instance _instance;

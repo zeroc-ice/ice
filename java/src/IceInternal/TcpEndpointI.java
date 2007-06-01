@@ -328,18 +328,11 @@ final class TcpEndpointI extends EndpointI
     connectors()
     {
         java.util.ArrayList connectors = new java.util.ArrayList();
-        java.util.ArrayList hosts = Network.getHosts(_host);
-        if(hosts.size() > 0)
+        java.util.ArrayList addresses = Network.getAddresses(_host, _port);
+        java.util.Iterator p = addresses.iterator();
+        while(p.hasNext())
         {
-            java.util.Iterator p = hosts.iterator();
-            while(p.hasNext())
-            {
-                connectors.add(new TcpConnector(_instance, (String)p.next(), _port));
-            }
-        }
-        else
-        {
-            connectors.add(new TcpConnector(_instance, _host, _port));
+            connectors.add(new TcpConnector(_instance, (java.net.InetSocketAddress)p.next()));
         }
         return connectors;
     }

@@ -468,18 +468,12 @@ final class UdpEndpointI extends EndpointI
     clientTransceivers()
     {
         java.util.ArrayList transceivers = new java.util.ArrayList();
-        java.util.ArrayList hosts = Network.getHosts(_host);
-        if(hosts.size() > 0)
+        java.util.ArrayList addresses = Network.getAddresses(_host, _port);
+        java.util.Iterator p = addresses.iterator();
+        while(p.hasNext())
         {
-            java.util.Iterator p = hosts.iterator();
-            while(p.hasNext())
-            {
-                transceivers.add(new UdpTransceiver(_instance, (String)p.next(), _port, _mcastInterface, _mcastTtl));
-            }
-        }
-        else
-        {
-            transceivers.add(new UdpTransceiver(_instance, _host, _port, _mcastInterface, _mcastTtl));
+            transceivers.add(
+                new UdpTransceiver(_instance, (java.net.InetSocketAddress)p.next(), _mcastInterface, _mcastTtl));
         }
         return transceivers;
     }

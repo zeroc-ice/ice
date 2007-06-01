@@ -328,18 +328,11 @@ final class EndpointI extends IceInternal.EndpointI
     connectors()
     {
         java.util.ArrayList connectors = new java.util.ArrayList();
-        java.util.ArrayList hosts = IceInternal.Network.getHosts(_host);
-        if(hosts.size() > 0)
+        java.util.ArrayList addresses = IceInternal.Network.getAddresses(_host, _port);
+        java.util.Iterator p = addresses.iterator();
+        while(p.hasNext())
         {
-            java.util.Iterator p = hosts.iterator();
-            while(p.hasNext())
-            {
-                connectors.add(new ConnectorI(_instance, (String)p.next(), _port));
-            }
-        }
-        else
-        {
-            connectors.add(new ConnectorI(_instance, _host, _port));
+            connectors.add(new ConnectorI(_instance, (java.net.InetSocketAddress)p.next()));
         }
         return connectors;
     }
