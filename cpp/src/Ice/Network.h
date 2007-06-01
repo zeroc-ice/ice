@@ -76,8 +76,6 @@ ICE_API bool connectionLost();
 ICE_API bool notConnected();
 ICE_API bool recvTruncated();
 
-ICE_API bool isMulticast(struct sockaddr_in&);
-
 ICE_API SOCKET createSocket(bool);
 ICE_API void closeSocket(SOCKET);
 ICE_API void closeSocketNoThrow(SOCKET);

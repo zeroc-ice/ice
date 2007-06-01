@@ -390,10 +390,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _logger(instance->initializationData().logger),
     _stats(instance->initializationData().stats),
     _incoming(false),
+    _addr(addr),
     _connect(true),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
-    _shutdownReadWrite(false),
-    _addr(addr)
+    _shutdownReadWrite(false)
 {
     try
     {
@@ -402,7 +402,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         setBlock(_fd, false);
         doConnect(_fd, _addr, -1);
         _connect = false; // We're connected now
-        if(isMulticast(_addr))
+        if(IN_MULTICAST(ntohl(_addr.sin_addr.s_addr)))
         {
             if(mcastInterface.length() > 0)
             {
@@ -455,7 +455,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             Trace out(_logger, _traceLevels->networkCat);
             out << "attempting to bind to udp socket " << addrToString(_addr);
         }
-        if(isMulticast(_addr))
+        if(IN_MULTICAST(ntohl(_addr.sin_addr.s_addr)))
         {
             struct sockaddr_in addr;
             getAddress("0.0.0.0", port, addr);

@@ -196,19 +196,6 @@ IceInternal::recvTruncated()
 #endif
 }
 
-bool
-IceInternal::isMulticast(struct sockaddr_in& addr)
-{
-    string ip = inetAddrToString(addr.sin_addr);
-    int i;
-    istringstream p(ip.substr(0, ip.find('.')));
-    if(!(p >> i) || !p.eof() || i < 224 || i > 239)
-    {
-        return false;
-    }
-    return true;
-}
-
 SOCKET
 IceInternal::createSocket(bool udp)
 {
