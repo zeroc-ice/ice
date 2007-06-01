@@ -135,8 +135,10 @@ tests = [ \
 #
 if isCygwin() == 0:
     tests += [ \
-       
       ]
+
+if isWin32():
+    tests.insert(0, "IceUtil/condvar")
 
 def usage():
     print "usage: " + sys.argv[0] + " -l -r <regex> -R <regex> --debug --protocol tcp|ssl --compress --host host --threadPerConnection"

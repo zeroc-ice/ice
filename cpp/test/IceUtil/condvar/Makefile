@@ -7,20 +7,28 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+top_srcdir	= ../../..
+
+WQ		= workqueue
+MATCH		= match
+
+TARGETS		= $(WQ) $(MATCH)
+
+OBJS		= WorkQueue.o \
+		  Match.o
+
+SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= condvar \
-                  thread \
-		  unicode \
-		  inputUtil \
-                  uuid \
-                  ctrlCHandler
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(WQ): WorkQueue.o
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ WorkQueue.o $(BASELIBS)
+
+$(MATCH): Match.o
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ Match.o $(BASELIBS)
+
+include .depend

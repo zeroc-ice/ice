@@ -800,6 +800,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         _out << ", ";
                     }
                     _out << '(';
+                    _out << "'" << fixIdent((*t)->name()) << "', ";
                     writeMetaData((*t)->getMetaData());
                     _out << ", ";
                     writeType((*t)->type());
@@ -821,6 +822,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                         _out << ", ";
                     }
                     _out << '(';
+                    _out << "'" << fixIdent((*t)->name()) << "', ";
                     writeMetaData((*t)->getMetaData());
                     _out << ", ";
                     writeType((*t)->type());
