@@ -1402,7 +1402,7 @@ IceInternal::getAddresses(const string& host, int port)
             bool found = false;
             for(unsigned int i = 0; i < result.size(); ++i)
             {
-                if(compareAddress(result[i], addr) == 0)
+                if(compareAddress(result[i], addr))
                 {
                     found = true;
                     break;
