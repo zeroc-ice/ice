@@ -266,6 +266,28 @@ Freeze::SharedDbEnv::getCurrent()
 void
 Freeze::SharedDbEnv::setCurrentTransaction(const Freeze::TransactionPtr& tx)
 {
+    TransactionIPtr txi;
+
+    if(tx != 0)
+    {
+        txi = Freeze::TransactionIPtr::dynamicCast(tx);
+
+        //
+        // Verify it points to the good DbEnv
+        //
+        if(txi->getConnectionI() == 0 || txi->getConnectionI()->dbEnv() == 0)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "invalid transaction");
+        }
+
+        if(txi->getConnectionI()->dbEnv().get() != this)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "the given transaction is bound to environment '" +
+                                            txi->getConnectionI()->dbEnv()->_envName + "'");
+        }
+    }
+
+
     Freeze::TransactionalEvictorContextPtr ctx = getCurrent();
 
     if(ctx != 0)
@@ -278,9 +300,9 @@ Freeze::SharedDbEnv::setCurrentTransaction(const Freeze::TransactionPtr& tx)
 
     if(tx != 0)
     {
-        if(ctx == 0 || ctx->transaction().get() != tx.get())
+        if(ctx == 0 || ctx->transaction().get() != txi.get())
         {
-            ctx = new TransactionalEvictorContext(TransactionIPtr::dynamicCast(tx)); 
+            ctx = new TransactionalEvictorContext(txi); 
        
 #ifdef _WIN32
             if(TlsSetValue(_tsdKey, ctx.get()) == 0)

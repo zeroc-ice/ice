@@ -55,6 +55,7 @@ Freeze::ConnectionI::close()
             // Ignored
             //
         }
+        assert(_transaction == 0);
     }
 
     while(!_mapList.empty())

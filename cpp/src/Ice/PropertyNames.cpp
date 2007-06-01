@@ -529,6 +529,7 @@ const IceInternal::Property FreezePropsData[] =
     IceInternal::Property("Freeze.Evictor.*.SaveSizeTrigger", false, 0),
     IceInternal::Property("Freeze.Evictor.*.StreamTimeout", false, 0),
     IceInternal::Property("Freeze.Evictor.*.PopulateEmptyIndices", false, 0),
+    IceInternal::Property("Freeze.Evictor.*.RollbackOnUserException", false, 0),
     IceInternal::Property("Freeze.Evictor.UseNonmutating", false, 0),
     IceInternal::Property("Freeze.Trace.DbEnv", false, 0),
     IceInternal::Property("Freeze.Trace.Evictor", false, 0),

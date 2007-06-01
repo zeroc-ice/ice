@@ -17,7 +17,8 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
         _deactivateController.lock();
         try
         {
-            return _dbEnv.getCurrent().transaction();
+            TransactionalEvictorContext ctx = _dbEnv.getCurrent();
+            return ctx == null ? null : ctx.transaction();
         }
         finally
         {
@@ -246,6 +247,10 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                           java.util.Map facetTypes, ServantInitializer initializer, Index[] indices, boolean createDb)
     {
         super(adapter, envName, dbEnv, filename, facetTypes, initializer, indices, createDb);
+     
+        String propertyPrefix = "Freeze.Evictor." + envName + '.' + filename; 
+        _rollbackOnUserException = _communicator.getProperties().
+            getPropertyAsIntWithDefault(propertyPrefix + ".RollbackOnUserException", 0) != 0;
     }
 
     TransactionalEvictorI(Ice.ObjectAdapter adapter, String envName, String filename, 
@@ -716,5 +721,5 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
             }
         };
 
-    private final boolean _rollbackOnUserException = false;
+    private boolean _rollbackOnUserException;
 }

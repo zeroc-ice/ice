@@ -64,8 +64,7 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
                                                      const vector<IndexPtr>& indices,
                                                      bool createDb) :
     EvictorI<TransactionalEvictorElement>(adapter, envName, dbEnv, filename, facetTypes, initializer, indices, createDb),
-    _currentEvictorSize(0),
-    _rollbackOnUserException(false)
+    _currentEvictorSize(0)
 {
     
     class DipatchInterceptorAdapter : public Ice::DispatchInterceptor
@@ -88,6 +87,11 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
     };
 
     _interceptor = new DipatchInterceptorAdapter(this);
+
+    string propertyPrefix = string("Freeze.Evictor.") + envName + '.' + _filename; 
+    
+    _rollbackOnUserException = _communicator->getProperties()->
+        getPropertyAsIntWithDefault(propertyPrefix + ".RollbackOnUserException", 0) != 0;
 }
 
 
@@ -95,7 +99,16 @@ TransactionPtr
 Freeze::TransactionalEvictorI::getCurrentTransaction() const
 {
     DeactivateController::Guard deactivateGuard(_deactivateController);
-    return _dbEnv->getCurrent()->transaction();
+    
+    TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
+    if(ctx == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return ctx->transaction();
+    }
 }
 
 void

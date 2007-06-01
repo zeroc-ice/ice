@@ -216,7 +216,10 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
         assert ctx == null;
       
         ctx = new TransactionalEvictorContext(this);
-        _refCount++; // owned by the underlying ConnectionI
+        synchronized(_map)
+        {
+            _refCount++; // owned by the underlying ConnectionI
+        }
         _ctxMap.put(k, ctx);
         
         return ctx;
@@ -232,14 +235,34 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     synchronized void
     setCurrentTransaction(Transaction tx)
     {
+        TransactionI txi = (TransactionI)tx;
+
+        if(txi != null)
+        {
+            if(txi.getConnectionI() == null || txi.getConnectionI().dbEnv() == null)
+            {
+                throw new DatabaseException(errorPrefix(_key.envName) + "invalid transaction");
+            }
+
+            //
+            // Check this tx refers to this DbEnv
+            //
+            if(txi.getConnectionI().dbEnv() != this)
+            {
+                throw new DatabaseException(errorPrefix(_key.envName) + 
+                                            "the given transaction is bound to environment '" +
+                                            txi.getConnectionI().dbEnv()._key.envName + "'");
+            }
+        }
+
         Object k = Thread.currentThread();
 
-        if(tx != null)
+        if(txi != null)
         {
             TransactionalEvictorContext ctx = (TransactionalEvictorContext)_ctxMap.get(k);
             if(ctx == null || !tx.equals(ctx.transaction()))
             {
-                ctx = new TransactionalEvictorContext((TransactionI)tx);
+                ctx = new TransactionalEvictorContext(txi);
                 _ctxMap.put(k, ctx);
             }
         }
@@ -401,7 +424,7 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
     private com.sleepycat.db.Environment _dbEnv;
     private boolean _ownDbEnv;
     private SharedDb _catalog;
-    private int _refCount = 0;
+    private int _refCount = 0; // protected by _map!
     private boolean _done = false;
     private int _trace = 0;
     private long _checkpointPeriod = 0;

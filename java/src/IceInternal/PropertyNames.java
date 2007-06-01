@@ -504,6 +504,7 @@ public final class PropertyNames
         new Property("Freeze\\.Evictor\\.[^\\s]+\\.SaveSizeTrigger", false, null),
         new Property("Freeze\\.Evictor\\.[^\\s]+\\.StreamTimeout", false, null),
         new Property("Freeze\\.Evictor\\.[^\\s]+\\.PopulateEmptyIndices", false, null),
+        new Property("Freeze\\.Evictor\\.[^\\s]+\\.RollbackOnUserException", false, null),
         new Property("Freeze\\.Evictor\\.UseNonmutating", false, null),
         new Property("Freeze\\.Trace\\.DbEnv", false, null),
         new Property("Freeze\\.Trace\\.Evictor", false, null),

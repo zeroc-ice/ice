@@ -9,10 +9,62 @@
 
 #include <Freeze/Freeze.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceUtil;
+
+
+int
+Test::AccountI::getBalance(const Current&)
+{
+    return balance;
+}
+    
+void 
+Test::AccountI::deposit(int amount, const Current&)
+{
+    test(_evictor->getCurrentTransaction() != 0);
+    
+    //
+    // No need to synchronize since everything occurs within its own transaction
+    //
+    int newBalance = balance + amount;
+    if(newBalance < 0)
+    {
+        throw Test::InsufficientFundsException();
+    }
+    balance = newBalance;
+}
+
+void 
+Test::AccountI::transfer(int amount, const Test::AccountPrx& toAccount, const Current& current)
+{
+    test(_evictor->getCurrentTransaction() != 0);
+
+    toAccount->deposit(amount); // collocated call
+    deposit(-amount, current); // direct call
+}
+
+Test::AccountI::AccountI(int initialBalance, const Freeze::TransactionalEvictorPtr& evictor) :
+    Account(initialBalance),
+    _evictor(evictor)
+{
+}
+
+
+Test::AccountI::AccountI() :
+    Account(0)
+{
+}
+
+void 
+Test::AccountI::init(const Freeze::TransactionalEvictorPtr& evictor)
+{
+    test(_evictor == 0);
+    _evictor = evictor;
+}
 
 
 class DelayedResponse : public Thread
@@ -178,6 +230,82 @@ Test::ServantI::release(const Current& current)
     }
 }
 
+
+Test::AccountPrxSeq
+Test::ServantI::getAccounts(const Current& current)
+{
+    Freeze::TransactionalEvictorPtr te = Freeze::TransactionalEvictorPtr::dynamicCast(_evictor);
+
+    if(te->getCurrentTransaction() != 0)
+    {
+        if(accounts.empty())
+        {
+            for(int i = 0; i < 10; ++i)
+            {
+                Ice::Identity ident;
+                ident.name = current.id.name + "-account#" + char('0' + i);
+                ident.category = current.id.category;
+                accounts.push_back(ident);
+                _evictor->add(new AccountI(1000, te), ident);
+            }
+        }
+        else
+        {
+            te->getCurrentTransaction()->rollback(); // not need to re-write this servant
+        }
+    }
+
+    Test::AccountPrxSeq result;
+    for(size_t i = 0; i < accounts.size(); ++i)
+    {
+        result.push_back(Test::AccountPrx::uncheckedCast(current.adapter->createProxy(accounts[i])));
+    }
+    return result;
+}
+
+int
+Test::ServantI::getTotalBalance(const Current& current)
+{
+    Test::AccountPrxSeq proxies = getAccounts(current);
+
+    //
+    // Need to start a transaction to ensure a consistent result
+    //
+    Freeze::TransactionalEvictorPtr te = Freeze::TransactionalEvictorPtr::dynamicCast(_evictor);
+
+    for(;;)
+    {
+        test(te->getCurrentTransaction() == 0);
+        Freeze::ConnectionPtr con = Freeze::createConnection(current.adapter->getCommunicator(), _remoteEvictor->envName());
+        te->setCurrentTransaction(con->beginTransaction());
+        int total = 0;
+        try
+        {
+            for(size_t i = 0; i < proxies.size(); ++i)
+            {
+                total += proxies[i]->getBalance();
+            }
+            te->getCurrentTransaction()->rollback();
+            te->setCurrentTransaction(0);
+            return total;
+        }
+        catch(const Freeze::DeadlockException&)
+        {
+            te->getCurrentTransaction()->rollback();
+            te->setCurrentTransaction(0);
+            // retry
+        }
+        catch(...)
+        {
+            te->getCurrentTransaction()->rollback();
+            te->setCurrentTransaction(0);
+            throw;
+        }
+    }
+    return -1;
+}
+
+
 void
 Test::ServantI::destroy(const Current& current)
 {
@@ -232,7 +360,16 @@ public:
     initialize(const ObjectAdapterPtr& adapter, const Identity& ident, const string& facet, const ObjectPtr& servant)
     {
         Test::ServantI* servantI = dynamic_cast<Test::ServantI*>(servant.get());
-        servantI->init(_remoteEvictor, _evictor);
+        if(servantI != 0)
+        {
+            servantI->init(_remoteEvictor, _evictor);
+        }
+        else
+        {
+            Test::AccountI* account = dynamic_cast<Test::AccountI*>(servant.get());
+            test(account != 0);
+            account->init(Freeze::TransactionalEvictorPtr::dynamicCast(_evictor));
+        }
     }
 
 private:
@@ -245,6 +382,7 @@ private:
 Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& envName,
                                      const string& category, bool transactional) :
     _adapter(adapter),
+    _envName(envName),
     _category(category)
 {
     CommunicatorPtr communicator = adapter->getCommunicator();

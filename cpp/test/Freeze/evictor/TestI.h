@@ -10,7 +10,7 @@
 #ifndef TEST_I_H
 #define TEST_I_H
 
-#include <Freeze/Evictor.h>
+#include <Freeze/Freeze.h>
 #include <IceUtil/IceUtil.h>
 #include <Test.h>
 
@@ -22,6 +22,27 @@ typedef IceUtil::Handle<ServantI> ServantIPtr;
 
 class RemoteEvictorI;
 typedef IceUtil::Handle<RemoteEvictorI> RemoteEvictorIPtr;
+
+class AccountI : public Account
+{
+public:
+
+    virtual int getBalance(const Ice::Current&);
+    
+    virtual void deposit(int, const Ice::Current&);
+
+    virtual void transfer(int, const Test::AccountPrx&, const Ice::Current&);
+
+    AccountI(int, const Freeze::TransactionalEvictorPtr&);
+    AccountI();
+
+    void init(const Freeze::TransactionalEvictorPtr&);
+
+private:
+
+    Freeze::TransactionalEvictorPtr _evictor;
+};
+
 
 class ServantI : public virtual Servant, public IceUtil::AbstractMutexI<IceUtil::Monitor<IceUtil::Mutex> >
 {
@@ -59,6 +80,9 @@ public:
     virtual void setTransientValue(Ice::Int, const Ice::Current& = Ice::Current());
     virtual void keepInCache(const Ice::Current& = Ice::Current());
     virtual void release(const Ice::Current& = Ice::Current());
+
+    virtual Test::AccountPrxSeq getAccounts(const Ice::Current&);
+    virtual int getTotalBalance(const Ice::Current&);
 
     virtual void destroy(const Ice::Current& = Ice::Current());
 
@@ -104,9 +128,16 @@ public:
 
     virtual void destroyAllServants(const std::string&, const Ice::Current&);
 
+    const std::string& 
+    envName() const
+    {
+        return _envName;
+    }
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;
+    std::string _envName;
     std::string _category;
     Freeze::EvictorPtr _evictor;
     Ice::ObjectAdapterPtr _evictorAdapter;

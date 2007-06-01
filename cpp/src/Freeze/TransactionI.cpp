@@ -169,6 +169,7 @@ Freeze::TransactionI::TransactionI(ConnectionI* connection) :
         throw ex;
     }
 }
+
     
 Freeze::TransactionI::~TransactionI()
 {
@@ -181,12 +182,14 @@ Freeze::TransactionI::~TransactionI()
 void
 Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
 {
-    _connection->clearTransaction();
+    ConnectionIPtr connection = _connection;
     _connection = 0;
     _txn = 0;
- 
+
     if(_postCompletionCallback != 0)
     {
         _postCompletionCallback->postCompletion(committed, deadlock);
     }
+
+    connection->clearTransaction();
 }

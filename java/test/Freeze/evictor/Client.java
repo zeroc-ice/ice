@@ -330,6 +330,63 @@ public class Client
         private int _size;
     }
 
+    static class TransferThread extends Thread
+    {
+        TransferThread(Test.AccountPrx[] accounts, int count)
+        {
+            _accounts = accounts;
+            _random = new java.util.Random(count);
+        }
+
+        public void
+        run()
+        {
+            for(int i = 0; i < 1000; i++)
+            {
+                //
+                // Transfer 100 at random between two distinct accounts 
+                //
+                Test.AccountPrx from = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
+                
+                Test.AccountPrx to = null;
+                do
+                {
+                    to = _accounts[Math.abs(_random.nextInt() % _accounts.length)];
+                }
+                while(from == to);
+                
+                try
+                {
+                    from.transfer(100, to);
+                }
+                catch(Test.InsufficientFundsException e)
+                {
+                    //
+                    // Expected from time to time
+                    //
+                }
+                catch(Exception e)
+                {
+                    //
+                    // Unexpected
+                    //
+                    test(false);
+                }
+                
+                /*
+                if(i % 100 == 0)
+                {
+                    System.err.print(".");
+                    System.err.flush();
+                }
+                */
+            }
+        }
+
+        private final Test.AccountPrx[] _accounts;
+        private final java.util.Random _random;
+    }
+    
 
 
     private static int
@@ -574,7 +631,8 @@ public class Client
         {
             test(servants[i].getTransientValue() == -1);
         }
-    
+
+       
         if(!transactional)
         {
             //
@@ -645,6 +703,44 @@ public class Client
                 }
             }
         }
+
+        if(transactional)
+        {
+            int totalBalance = servants[0].getTotalBalance();
+            test(totalBalance == 0);
+
+            Test.AccountPrx[] accounts = servants[0].getAccounts();
+            test(accounts.length > 0);
+
+            totalBalance = servants[0].getTotalBalance();
+            test(totalBalance > 0);
+
+            int threadCount = accounts.length;
+
+            Thread[] threads = new Thread[threadCount];
+            for(int i = 0; i < threadCount; i++)
+            {
+                threads[i] = new TransferThread(accounts, i);
+                threads[i].start();
+            }
+            
+            for(int i = 0; i < threadCount; i++)
+            {
+                try
+                {
+                    threads[i].join();
+                }
+                catch(InterruptedException e)
+                {
+                    break; // for
+                }
+            }
+      
+            //
+            // Check that the total balance did not change!
+            //
+            test(totalBalance == servants[0].getTotalBalance());
+        }
         
         //
         // Deactivate and recreate evictor, to ensure that servants
@@ -684,7 +780,7 @@ public class Client
                 {
                     try
                     {
-                        threads[i].join(0);
+                        threads[i].join();
                         break;
                     }
                     catch(InterruptedException e)
@@ -705,7 +801,7 @@ public class Client
         // CreateDestroy threads
         //
         {
-            int threadCount = size;;
+            int threadCount = size;
             
             Thread[] threads = new Thread[threadCount];
             for(int i = 0; i < threadCount; i++)
@@ -720,7 +816,7 @@ public class Client
                 {
                     try
                     {
-                        threads[i].join(0);
+                        threads[i].join();
                         break;
                     }
                     catch(InterruptedException e)
@@ -796,7 +892,7 @@ public class Client
                 {
                     try
                     {
-                        threads[i].join(0);
+                        threads[i].join();
                         break;
                     }
                     catch(InterruptedException e)
@@ -851,7 +947,7 @@ public class Client
                 {
                     try
                     {
-                        threads[i].join(0);
+                        threads[i].join();
                         break;
                     }
                     catch(InterruptedException e)
@@ -868,7 +964,6 @@ public class Client
         evictor = factory.createEvictor("Test", transactional);
         evictor.destroyAllServants("");
         evictor.deactivate();
-
 
         System.out.println("ok");
         

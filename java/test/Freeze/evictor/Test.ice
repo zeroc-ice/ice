@@ -10,6 +10,8 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+#include <Ice/Identity.ice>
+
 module Test
 {
 
@@ -24,6 +26,23 @@ exception NotRegisteredException
 exception EvictorDeactivatedException
 {
 };
+
+
+exception InsufficientFundsException
+{
+};
+
+class Account
+{
+    int getBalance();
+    ["freeze:write"] void deposit(int amount) throws InsufficientFundsException;
+    ["freeze:write"] void transfer(int amount, Account* toAccount) throws InsufficientFundsException;
+
+    int balance;
+};
+
+sequence<Account*> AccountPrxSeq;
+sequence<Ice::Identity> AccountIdSeq;
 
 ["freeze:write"] class Servant
 {
@@ -43,9 +62,13 @@ exception EvictorDeactivatedException
     idempotent void keepInCache();
     void release() throws NotRegisteredException;
 
+    ["freeze:write"] AccountPrxSeq getAccounts();
+    ["freeze:read"] int getTotalBalance();
+
     void destroy();
 
     int value;
+    AccountIdSeq accounts;
 };
 
 ["freeze:write"] class Facet extends Servant
@@ -55,6 +78,7 @@ exception EvictorDeactivatedException
 
     string data;
 };
+
 
 interface RemoteEvictor
 {

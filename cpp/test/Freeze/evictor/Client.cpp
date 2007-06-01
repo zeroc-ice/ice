@@ -8,11 +8,9 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceUtil/Thread.h>
-#include <IceUtil/Time.h>
+#include <IceUtil/IceUtil.h>
 #include <TestCommon.h>
 #include <Test.h>
-
 
 using namespace std;
 using namespace IceUtil;
@@ -361,6 +359,67 @@ private:
     int _size;
 };
 
+
+class TransferThread : public Thread
+{
+public:
+    TransferThread(const Test::AccountPrxSeq& accounts) :
+        _accounts(accounts)
+    {
+    }
+    
+    void
+    run()
+    {
+        for(int i = 0; i < 1000; i++)
+        {
+            //
+            // Transfer 100 at random between two distinct accounts 
+            //
+            Test::AccountPrx from = _accounts[IceUtil::random(_accounts.size())];
+            
+            Test::AccountPrx to;
+            do
+            {
+                to = _accounts[IceUtil::random(_accounts.size())];
+            }
+            while(from == to);
+                
+            try
+            {
+                from->transfer(100, to);
+            }
+            catch(const Test::InsufficientFundsException&)
+            {
+                //
+                // Expected from time to time
+                //
+            }
+            catch(...)
+            {
+                cerr << "caught some other exception" << endl;
+                //
+                // Unexpected
+                //
+                test(false);
+            }
+
+            /*
+            if(i % 100 == 0)
+            {
+                cerr << "." << flush;
+            }
+            */
+        }
+    }
+
+private:
+
+    Test::AccountPrxSeq _accounts;
+};
+    
+
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool transactional, bool shutdown)
 {
@@ -674,6 +733,37 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
         }
     }
 
+    if(transactional)
+    {
+        int totalBalance = servants[0]->getTotalBalance();
+        test(totalBalance == 0);
+        
+        Test::AccountPrxSeq accounts = servants[0]->getAccounts();
+        test(accounts.size() > 0);
+
+        totalBalance = servants[0]->getTotalBalance();
+        test(totalBalance > 0);
+
+        int threadCount = accounts.size();
+        
+        ThreadPtr threads[threadCount];
+        for(i = 0; i < threadCount; i++)
+        {
+            threads[i] = new TransferThread(accounts);
+            threads[i]->start();
+        }
+
+        for(i = 0; i < threadCount; i++)
+        {
+            threads[i]->getThreadControl().join();
+        }
+       
+        //
+        // Check that the total balance did not change!
+        //
+        test(totalBalance == servants[0]->getTotalBalance());
+    }
+        
     //
     // Deactivate and recreate evictor, to ensure that servants
     // are restored properly after database close and reopen.

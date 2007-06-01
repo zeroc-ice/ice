@@ -9,6 +9,22 @@
 
 public class Server
 { 
+    static class AccountFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    {
+        public Ice.Object
+        create(String type)
+        {
+            assert(type.equals("::Test::Account"));
+            return new AccountI();
+        }
+
+        public void
+        destroy()
+        {
+        }
+    }
+
+
     static class ServantFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
         public Ice.Object
@@ -49,14 +65,13 @@ public class Server
         communicator.getProperties().setProperty("Evictor.Endpoints", "default -p 12010");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     
+
+        communicator.addObjectFactory(new AccountFactory(), "::Test::Account");
+        communicator.addObjectFactory(new ServantFactory(), "::Test::Servant");
+        communicator.addObjectFactory(new FacetFactory(), "::Test::Facet");
+
         RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, envName);
         adapter.add(factory, communicator.stringToIdentity("factory"));
-    
-        Ice.ObjectFactory servantFactory = new ServantFactory();
-        communicator.addObjectFactory(servantFactory, "::Test::Servant");
-
-        Ice.ObjectFactory facetFactory = new FacetFactory();
-        communicator.addObjectFactory(facetFactory, "::Test::Facet");
     
         adapter.activate();
 

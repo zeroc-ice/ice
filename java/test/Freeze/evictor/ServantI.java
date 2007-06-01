@@ -9,6 +9,16 @@
 
 public class ServantI implements Test._ServantOperations
 {
+    private static void
+    test(boolean b)
+    {
+        if(!b)
+        {
+            throw new RuntimeException();
+        }
+    }
+    
+
     static class DelayedResponse extends Thread
     {   
         DelayedResponse(Test.AMD_Servant_slowGetValue cb, int val)
@@ -60,6 +70,17 @@ public class ServantI implements Test._ServantOperations
     destroy(Ice.Current current)
     {
         _evictor.remove(current.id);
+
+        //
+        // Need to remove the accounts as well!
+        //
+        if(_tie.accounts != null)
+        {
+            for(int i = 0; i < _tie.accounts.length; ++i)
+            {
+                _evictor.remove(_tie.accounts[i]);
+            }
+        }
     }
 
     public int
@@ -189,6 +210,79 @@ public class ServantI implements Test._ServantOperations
         catch(Ice.NotRegisteredException e)
         {
             throw new Test.NotRegisteredException();
+        }
+    }
+
+    public Test.AccountPrx[]
+    getAccounts(Ice.Current current)
+    {
+        Freeze.TransactionalEvictor te = (Freeze.TransactionalEvictor)_evictor;
+        
+        if(te.getCurrentTransaction() != null)
+        {
+            if(_tie.accounts == null || _tie.accounts.length == 0)
+            {  
+                _tie.accounts = new Ice.Identity[10];
+                
+                for(int i = 0; i < _tie.accounts.length; ++i)
+                {
+                    _tie.accounts[i] = new Ice.Identity(current.id.name + "-account#" + i, current.id.category);
+                    _evictor.add(new AccountI(1000, te), _tie.accounts[i]);
+                }
+            }
+            else
+            {
+                te.getCurrentTransaction().rollback(); // not need to re-write this servant
+            }
+        }
+        
+        if(_tie.accounts == null || _tie.accounts.length == 0)
+        {
+            return new Test.AccountPrx[0];
+        }
+
+        Test.AccountPrx[] result = new Test.AccountPrx[_tie.accounts.length];
+
+        for(int i = 0; i < _tie.accounts.length; ++i)
+        {
+            result[i] = Test.AccountPrxHelper.uncheckedCast(current.adapter.createProxy(_tie.accounts[i]));
+        }
+        return result;
+    }
+
+    public int
+    getTotalBalance(Ice.Current current)
+    {
+        Test.AccountPrx[] accounts = getAccounts(current);
+
+        //
+        // Need to start a transaction to ensure a consistent result
+        //
+        Freeze.TransactionalEvictor te = (Freeze.TransactionalEvictor)_evictor;
+     
+        for(;;)
+        {
+            test(te.getCurrentTransaction() == null);
+            Freeze.Connection con = Freeze.Util.createConnection(current.adapter.getCommunicator(), _remoteEvictor.envName());
+            te.setCurrentTransaction(con.beginTransaction());
+            int total = 0;
+            try
+            {
+                for(int i = 0; i < accounts.length; ++i)
+                {
+                    total += accounts[i].getBalance();
+                }
+                return total;
+            }
+            catch(Freeze.DeadlockException e)
+            {
+                // retry
+            }
+            finally
+            {
+                con.close();
+                te.setCurrentTransaction(null);
+            }
         }
     }
 

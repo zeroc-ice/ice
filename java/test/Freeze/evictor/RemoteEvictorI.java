@@ -14,7 +14,12 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         public void
         initialize(Ice.ObjectAdapter adapter, Ice.Identity ident, String facet, Ice.Object servant)
         {
-            if(facet.length() == 0)
+            if(servant instanceof AccountI)
+            {
+                AccountI account = (AccountI)servant;
+                account.init((Freeze.TransactionalEvictor)_evictor);
+            }
+            else if(facet.length() == 0)
             {
                 ServantI servantImpl =  (ServantI) ((Test._ServantTie) servant).ice_delegate();
                 servantImpl.init(_remoteEvictor, _evictor);
@@ -40,6 +45,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     RemoteEvictorI(Ice.ObjectAdapter adapter, String envName, String category, boolean transactional)
     {
         _adapter = adapter;
+        _envName = envName;
         _category = category;
 
         //
@@ -147,7 +153,15 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         }
     }
 
+    final public String 
+    envName()
+    {
+        return _envName;
+    }    
+
+
     private Ice.ObjectAdapter _adapter;
+    private final String _envName;
     private String _category;
     private Freeze.Evictor _evictor;
     private Ice.ObjectAdapter _evictorAdapter;
