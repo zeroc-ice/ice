@@ -45,13 +45,12 @@ namespace IceInternal
         //
         // Only for use by TcpEndpoint
         //
-        internal TcpConnector(Instance instance, string host, int port)
+        internal TcpConnector(Instance instance, IPEndPoint addr)
         {
             instance_ = instance;
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
-            
-            _addr = Network.getAddress(host, port);
+            _addr = addr;
         }
         
         private Instance instance_;

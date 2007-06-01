@@ -860,9 +860,9 @@ namespace IceInternal
             throw dns;
         }
 
-        public static string[] getHosts(string host)
+        public static IPEndPoint[] getAddresses(string host, int port)
         {
-            ArrayList hosts = new ArrayList();
+            ArrayList addresses = new ArrayList();
 
             int retry = 5;
 
@@ -870,12 +870,11 @@ namespace IceInternal
             try
             {
                 //
-                // No need for lookup if already ip address.
+                // No need for lookup if host is ip address.
                 //
                 try
                 {
-                    IPAddress.Parse(host);
-                    hosts.Add(host);
+                    addresses.Add(new IPEndPoint(IPAddress.Parse(host), port));
                 }
                 catch (FormatException)
                 {
@@ -884,7 +883,7 @@ namespace IceInternal
                     {
                         if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
                         {
-                            hosts.Add(e.AddressList[i].ToString());
+                            addresses.Add(new IPEndPoint(e.AddressList[i], port));
                         }
                     }
                 }
@@ -906,7 +905,7 @@ namespace IceInternal
                 throw e;
             }
 
-            return (string[])hosts.ToArray(typeof(string));
+            return (IPEndPoint[])addresses.ToArray(typeof(IPEndPoint));
         }
 
         public static string[] getLocalHosts()

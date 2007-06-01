@@ -496,17 +496,10 @@ namespace IceInternal
         public override ArrayList clientTransceivers()
         {
             ArrayList transceivers = new ArrayList();
-            string[] hosts = Network.getHosts(_host);
-            if(hosts.Length > 0)
+            System.Net.IPEndPoint[] addresses = Network.getAddresses(_host, _port);
+            for(int i = 0; i < addresses.Length; ++i)
             {
-                for(int i = 0; i < hosts.Length; ++i)
-                {
-                    transceivers.Add(new UdpTransceiver(instance_, hosts[i], _port, _mcastInterface, _mcastTtl));
-                }
-            }
-            else
-            {
-                transceivers.Add(new UdpTransceiver(instance_, _host, _port, _mcastInterface, _mcastTtl));
+                transceivers.Add(new UdpTransceiver(instance_, addresses[i], _mcastInterface, _mcastTtl));
             }
             return transceivers;
         }

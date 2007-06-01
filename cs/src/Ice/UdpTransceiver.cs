@@ -465,30 +465,30 @@ namespace IceInternal
         //
         // Only for use by UdpEndpoint
         //
-        internal UdpTransceiver(Instance instance, string host, int port, string mcastInterface, int mcastTtl)
+        internal UdpTransceiver(Instance instance, IPEndPoint addr, string mcastInterface, int mcastTtl)
         {
             _traceLevels = instance.traceLevels();
             _logger = instance.initializationData().logger;
             _stats = instance.initializationData().stats;
             _connect = true;
             _warn = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
+            _addr = addr;
             
             try
             {
                 _fd = Network.createSocket(true);
                 setBufSize(instance);
                 Network.setBlock(_fd, false);
-                _addr = Network.getAddress(host, port);
                 Network.doConnect(_fd, _addr, -1);
                 _connect = false; // We're connected now
                 if(Network.isMulticast(_addr))
                 {
-                    IPAddress addr = IPAddress.Any;
+                    IPAddress ip = IPAddress.Any;
                     if(mcastInterface.Length != 0)
                     {
-                        addr = Network.getAddress(mcastInterface, port).Address;
+                        ip = Network.getAddress(mcastInterface, _addr.Port).Address;
                     }
-                    Network.setMcastGroup(_fd, _addr.Address, addr);
+                    Network.setMcastGroup(_fd, _addr.Address, ip);
 
                     if(mcastTtl != -1)
                     {

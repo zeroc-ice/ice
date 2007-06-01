@@ -333,17 +333,10 @@ namespace IceSSL
         public override ArrayList connectors()
         {
             ArrayList connectors = new ArrayList();
-            string[] hosts = IceInternal.Network.getHosts(host_);
-            if(hosts.Length > 0)
+            System.Net.IPEndPoint[] addresses = IceInternal.Network.getAddresses(host_, port_);
+            for(int i = 0; i < addresses.Length; ++i)
             {
-                for(int i = 0; i < hosts.Length; ++i)
-                {
-                    connectors.Add(new ConnectorI(instance_, hosts[i], port_));
-                }
-            }
-            else
-            {
-                connectors.Add(new ConnectorI(instance_, host_, port_));
+                connectors.Add(new ConnectorI(instance_, addresses[i]));
             }
             return connectors;
         }

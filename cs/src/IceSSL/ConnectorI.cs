@@ -162,12 +162,12 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, string host, int port)
+        internal ConnectorI(Instance instance, IPEndPoint addr)
         {
             instance_ = instance;
-            host_ = host;
+            host_ = addr.Address.ToString();
             logger_ = instance.communicator().getLogger();
-            addr_ = IceInternal.Network.getAddress(host, port);
+            addr_ = addr;
         }
 
         private class AuthInfo

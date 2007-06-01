@@ -334,18 +334,11 @@ namespace IceInternal
         public override ArrayList connectors()
         {
             ArrayList connectors = new ArrayList();
-            string[] hosts = Network.getHosts(_host);
-            if(hosts.Length > 0)
+            System.Net.IPEndPoint[] addresses = Network.getAddresses(_host, _port);
+            for(int i = 0; i < addresses.Length; ++i)
             {
-                for(int i = 0; i < hosts.Length; ++i)
-                {
-                    connectors.Add(new TcpConnector(instance_, hosts[i], _port));
-                }
-            }
-            else
-            {
-                connectors.Add(new TcpConnector(instance_, _host, _port));
-            }
+                connectors.Add(new TcpConnector(instance_, addresses[i]));
+             }
             return connectors;
         }
         
