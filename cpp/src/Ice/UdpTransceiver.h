@@ -48,7 +48,7 @@ public:
 
 private:
 
-    UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string&, int);
+    UdpTransceiver(const InstancePtr&, const struct sockaddr_in&, const std::string&, int);
     UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string&, bool);
     virtual ~UdpTransceiver();
 

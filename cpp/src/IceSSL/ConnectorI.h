@@ -35,7 +35,7 @@ public:
     
 private:
     
-    ConnectorI(const InstancePtr&, const std::string&, int);
+    ConnectorI(const InstancePtr&, const struct sockaddr_in&);
     virtual ~ConnectorI();
     friend class EndpointI;
 

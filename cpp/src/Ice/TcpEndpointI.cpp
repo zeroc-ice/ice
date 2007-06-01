@@ -283,17 +283,10 @@ vector<ConnectorPtr>
 IceInternal::TcpEndpointI::connectors() const
 {
     vector<ConnectorPtr> connectors;
-    vector<string> hosts = getHosts(_host);
-    if(hosts.size() > 1)
+    vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
+    for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        for(unsigned int i = 0; i < hosts.size(); ++i)
-        {
-            connectors.push_back(new TcpConnector(_instance, hosts[i], _port));
-        }
-    }
-    else
-    {
-        connectors.push_back(new TcpConnector(_instance, _host, _port));
+        connectors.push_back(new TcpConnector(_instance, addresses[i]));
     }
     return connectors;
 }

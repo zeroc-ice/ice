@@ -48,12 +48,12 @@ IceInternal::TcpConnector::toString() const
     return addrToString(_addr);
 }
 
-IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const string& host, int port) :
+IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_in& addr) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->initializationData().logger)
+    _logger(instance->initializationData().logger),
+    _addr(addr)
 {
-    getAddress(host, port, _addr);
 }
 
 IceInternal::TcpConnector::~TcpConnector()

@@ -36,7 +36,7 @@ public:
     
 private:
     
-    TcpConnector(const InstancePtr&, const std::string&, int);
+    TcpConnector(const InstancePtr&, const struct sockaddr_in&);
     virtual ~TcpConnector();
     friend class TcpEndpointI;
 

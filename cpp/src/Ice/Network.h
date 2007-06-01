@@ -116,7 +116,7 @@ ICE_API void fdToLocalAddress(SOCKET, struct sockaddr_in&);
 ICE_API bool fdToRemoteAddress(SOCKET, struct sockaddr_in&);
 ICE_API std::string addrToString(const struct sockaddr_in&);
 
-ICE_API std::vector<std::string> getHosts(const std::string&);
+ICE_API std::vector<struct sockaddr_in> getAddresses(const std::string&, int);
 ICE_API std::vector<std::string> getLocalHosts();
 ICE_API void setTcpBufSize(SOCKET, const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
 ICE_API int getSocketErrno();

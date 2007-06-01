@@ -283,17 +283,10 @@ vector<IceInternal::ConnectorPtr>
 IceSSL::EndpointI::connectors() const
 {
     vector<IceInternal::ConnectorPtr> connectors;
-    vector<string> hosts = IceInternal::getHosts(_host);
-    if(hosts.size() > 1)
+    vector<struct sockaddr_in> addresses = IceInternal::getAddresses(_host, _port);
+    for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        for(unsigned int i = 0; i < hosts.size(); ++i)
-        {
-            connectors.push_back(new ConnectorI(_instance, hosts[i], _port));
-        }
-    }
-    else
-    {
-        connectors.push_back(new ConnectorI(_instance, _host, _port));
+        connectors.push_back(new ConnectorI(_instance, addresses[i]));
     }
     return connectors;
 }

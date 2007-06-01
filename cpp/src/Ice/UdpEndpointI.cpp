@@ -452,17 +452,10 @@ vector<TransceiverPtr>
 IceInternal::UdpEndpointI::clientTransceivers() const
 {
     vector<TransceiverPtr> transceivers;
-    vector<string> hosts = getHosts(_host);
-    if(hosts.size() > 1)
+    vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
+    for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        for(unsigned int i = 0; i < hosts.size(); ++i)
-        {
-            transceivers.push_back(new UdpTransceiver(_instance, hosts[i], _port, _mcastInterface, _mcastTtl));
-        }
-    }
-    else
-    {
-        transceivers.push_back(new UdpTransceiver(_instance, _host, _port, _mcastInterface, _mcastTtl));
+        transceivers.push_back(new UdpTransceiver(_instance, addresses[i], _mcastInterface, _mcastTtl));
     }
     return transceivers;
 }

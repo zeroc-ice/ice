@@ -1323,10 +1323,15 @@ IceInternal::addrToString(const struct sockaddr_in& addr)
     return s.str();
 }
 
-vector<string>
-IceInternal::getHosts(const string& host)
+vector<struct sockaddr_in>
+IceInternal::getAddresses(const string& host, int port)
 {
-    vector<string> result;
+    vector<struct sockaddr_in> result;
+
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(struct sockaddr_in));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(port);
 
 #ifdef _WIN32
 
@@ -1357,8 +1362,8 @@ IceInternal::getHosts(const string& host)
     char** p = entry->h_addr_list;
     while(*p)
     {
-        struct in_addr* addr = reinterpret_cast<in_addr*>(*p);
-        result.push_back(inetAddrToString(*addr));
+        memcpy(&addr.sin_addr, *p, entry->h_length);
+        result.push_back(addr);
         p++;
     } 
 
@@ -1392,11 +1397,12 @@ IceInternal::getHosts(const string& host)
         struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(p->ai_addr);
         if(sin->sin_addr.s_addr != 0)
         {
-            string host = inetAddrToString((*sin).sin_addr);
+            addr.sin_addr.s_addr = sin->sin_addr.s_addr;
+
             bool found = false;
             for(unsigned int i = 0; i < result.size(); ++i)
             {
-                if(result[i] == host)
+                if(compareAddress(result[i], addr) == 0)
                 {
                     found = true;
                     break;
@@ -1404,7 +1410,8 @@ IceInternal::getHosts(const string& host)
             }
             if(!found)
             {
-                result.push_back(inetAddrToString((*sin).sin_addr));
+
+                result.push_back(addr);
             }
         }
     }

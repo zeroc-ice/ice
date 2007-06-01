@@ -178,12 +178,12 @@ IceSSL::ConnectorI::toString() const
     return IceInternal::addrToString(_addr);
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const string& host, int port) :
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_in& addr) :
     _instance(instance),
-    _host(host),
-    _logger(instance->communicator()->getLogger())
+    _host(IceInternal::inetAddrToString(addr.sin_addr)),
+    _logger(instance->communicator()->getLogger()),
+    _addr(addr)
 {
-    IceInternal::getAddress(host, port, _addr);
 }
 
 IceSSL::ConnectorI::~ConnectorI()

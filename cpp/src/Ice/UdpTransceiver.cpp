@@ -384,7 +384,7 @@ IceInternal::UdpTransceiver::effectivePort() const
     return ntohs(_addr.sin_port);
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, 
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const struct sockaddr_in& addr,
                                             const string& mcastInterface, int mcastTtl) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
@@ -392,14 +392,14 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _incoming(false),
     _connect(true),
     _warn(instance->initializationData().properties->getPropertyAsInt("Ice.Warn.Datagrams") > 0),
-    _shutdownReadWrite(false)
+    _shutdownReadWrite(false),
+    _addr(addr)
 {
     try
     {
         _fd = createSocket(true);
         setBufSize(instance);
         setBlock(_fd, false);
-        getAddress(host, port, _addr);
         doConnect(_fd, _addr, -1);
         _connect = false; // We're connected now
         if(isMulticast(_addr))
@@ -407,7 +407,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
             if(mcastInterface.length() > 0)
             {
                 struct sockaddr_in addr;
-                getAddress(mcastInterface, port, addr);
+                getAddress(mcastInterface, ntohs(_addr.sin_port), addr);
                 setMcastInterface(_fd, addr.sin_addr);
             }
             if(mcastTtl != -1)
