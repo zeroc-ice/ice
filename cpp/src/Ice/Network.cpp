@@ -1327,16 +1327,26 @@ vector<string>
 IceInternal::getHosts(const string& host)
 {
     vector<string> result;
-    struct hostent* he = 0;
+
+#ifdef _WIN32
+
+    //
+    // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
+    //
+        
+    //
+    // gethostbyname() is thread safe on Windows, with a separate hostent per thread
+    //
+    struct hostent* entry = 0;
     int retry = 5;
 
     do
     {
-        he = gethostbyname(host.c_str());
+        entry = gethostbyname(host.c_str());
     }
-    while(he == 0 && h_errno == TRY_AGAIN && --retry >= 0);
+    while(entry == 0 && h_errno == TRY_AGAIN && --retry >= 0);
     
-    if(he == 0)
+    if(entry == 0)
     {
         DNSException ex(__FILE__, __LINE__);
         ex.error = h_errno;
@@ -1344,13 +1354,64 @@ IceInternal::getHosts(const string& host)
         throw ex;
     }
 
-    char** ptr = he->h_addr_list;
-    while(*ptr)
+    char** p = entry->h_addr_list;
+    while(*p)
     {
-        struct in_addr* addr = reinterpret_cast<in_addr*>(*ptr);
-        result.push_back(inet_ntoa(*addr));
-        ptr++;
+        struct in_addr* addr = reinterpret_cast<in_addr*>(*p);
+        result.push_back(inetAddrToString(*addr));
+        p++;
     } 
+
+#else
+
+    struct addrinfo* info = 0;
+    int retry = 5;
+
+    struct addrinfo hints = { 0 };
+    hints.ai_family = PF_INET;
+        
+    int rs = 0;
+    do
+    {
+        rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
+    }
+    while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+      
+    if(rs != 0)
+    {
+        DNSException ex(__FILE__, __LINE__);
+        ex.error = rs;
+        ex.host = host;
+        throw ex;
+    }
+
+    struct addrinfo* p;
+    for(p = info; p != NULL; p = p->ai_next)
+    {
+        assert(p->ai_family == PF_INET);
+        struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(p->ai_addr);
+        if(sin->sin_addr.s_addr != 0)
+        {
+            string host = inetAddrToString((*sin).sin_addr);
+            bool found = false;
+            for(unsigned int i = 0; i < result.size(); ++i)
+            {
+                if(result[i] == host)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+            {
+                result.push_back(inetAddrToString((*sin).sin_addr));
+            }
+        }
+    }
+
+    freeaddrinfo(info);
+
+#endif
 
     return result;
 }
