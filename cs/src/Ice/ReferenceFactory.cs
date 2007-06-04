@@ -582,7 +582,16 @@ namespace IceInternal
             property = propertyPrefix + ".Router";
             if(properties.getProperty(property).Length != 0)
             {
-                @ref = @ref.changeRouter(Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+                if(propertyPrefix.EndsWith(".Router"))
+                {
+                    string s = "`" + property + "=" + properties.getProperty(property) +
+                               "': cannot set a router on a router; setting ignored";
+                    instance_.initializationData().logger.warning(s);
+                }
+                else
+                {
+                    @ref = @ref.changeRouter(Ice.RouterPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+                }
             }
 
             property = propertyPrefix + ".PreferSecure";

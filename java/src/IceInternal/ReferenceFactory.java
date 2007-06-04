@@ -569,7 +569,7 @@ public final class ReferenceFactory
         property = propertyPrefix + ".Router";
         if(properties.getProperty(property).length() != 0)
         {
-            if(propertyPrefix.endsWith(".Router))
+            if(propertyPrefix.endsWith(".Router"))
             {
                 String s = "`" + property + "=" + properties.getProperty(property) +
                            "': cannot set a router on a router; setting ignored";

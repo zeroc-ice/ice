@@ -616,8 +616,17 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
     property = propertyPrefix + ".Router";
     if(!properties->getProperty(property).empty())
     {
-        ref = ref->changeRouter(
-            RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+        if(propertyPrefix.size() > 7 && propertyPrefix.substr(propertyPrefix.size() - 7, 7) == ".Router")
+        {
+            Warning out(_instance->initializationData().logger);
+            out << "`" << property << "=" << properties->getProperty(property)
+                << "': cannot set a router on a router; setting ignored";
+        }
+        else
+        {
+            ref = ref->changeRouter(
+                RouterPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+        }
     }
 
     property = propertyPrefix + ".PreferSecure";
