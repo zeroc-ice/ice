@@ -565,6 +565,47 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         _locatorInfo = _instance.locatorManager().get(locator);
     }
 
+    public void
+    refreshPublishedEndpoints()
+    {
+        IceInternal.LocatorInfo locatorInfo = null;
+        boolean registerProcess = false;
+        java.util.ArrayList oldPublishedEndpoints;
+
+        synchronized(this)
+        {
+            checkForDeactivation();
+
+            oldPublishedEndpoints = _publishedEndpoints;
+            _publishedEndpoints = parsePublishedEndpoints();
+
+            locatorInfo = _locatorInfo;
+            if(!_noConfig)
+            {
+                registerProcess =
+                    _instance.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
+            }
+        }
+
+        try
+        {
+            Ice.Identity dummy = new Ice.Identity();
+            dummy.name = "dummy";
+            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+        }
+        catch(Ice.LocalException ex)
+        {
+            synchronized(this)
+            {
+                //
+                // Restore the old published endpoints.
+                //
+                _publishedEndpoints = oldPublishedEndpoints;
+                throw ex;
+            }
+        }
+    }
+
     public boolean
     isLocal(ObjectPrx proxy)
     {
@@ -915,33 +956,9 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 }
 
                 //
-                // Parse published endpoints. If set, these are used in proxies
-                // instead of the connection factory Endpoints.
+                // Parse the publsihed endpoints.
                 //
-                String endpts = properties.getProperty(_name + ".PublishedEndpoints");
-                _publishedEndpoints = parseEndpoints(endpts);
-                if(_publishedEndpoints.size() == 0)
-                {
-                    for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
-                    {
-                        IceInternal.IncomingConnectionFactory factory =
-                            (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-                        _publishedEndpoints.add(factory.endpoint());
-                    }
-                }
-
-                //
-                // Filter out any endpoints that are not meant to be published.
-                //
-                java.util.Iterator p = _publishedEndpoints.iterator();
-                while(p.hasNext())
-                {
-                    IceInternal.EndpointI endpoint = (IceInternal.EndpointI)p.next();
-                    if(!endpoint.publish())
-                    {
-                        p.remove();
-                    }
-                }
+                _publishedEndpoints = parsePublishedEndpoints();
             }
 
             if(properties.getProperty(_name + ".Locator").length() > 0)
@@ -1115,20 +1132,53 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
             }
 
             String s = endpts.substring(beg, end);
-            IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s);
+            IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, true);
             if(endp == null)
             {
                 Ice.EndpointParseException e = new Ice.EndpointParseException();
                 e.str = s;
                 throw e;
             }
-            java.util.ArrayList endps = endp.expand(true);
-            endpoints.addAll(endps);
+            endpoints.add(endp);
 
             ++end;
         }
 
         return endpoints;
+    }
+
+    private java.util.ArrayList
+    parsePublishedEndpoints()
+    {
+        //
+        // Parse published endpoints. If set, these are used in proxies
+        // instead of the connection factory Endpoints.
+        //
+        String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
+        java.util.ArrayList endpoints = parseEndpoints(endpts);
+        if(endpoints.size() == 0)
+        {
+            for(int i = 0; i < _incomingConnectionFactories.size(); ++i)
+            {
+                IceInternal.IncomingConnectionFactory factory =
+                    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+                endpoints.add(factory.endpoint());
+            }
+        }
+
+        //
+        // Expand any endpoints that may be listening on INADDR_ANY to
+        // include actual addresses in the published endpoints.
+        //
+        java.util.ArrayList expandedEndpoints = new java.util.ArrayList();
+        java.util.Iterator p = endpoints.iterator();
+        while(p.hasNext())
+        {
+            IceInternal.EndpointI endp = (IceInternal.EndpointI)p.next();
+            java.util.ArrayList endps = endp.expand();
+            expandedEndpoints.addAll(endps);
+        }
+        return expandedEndpoints;
     }
 
     private void

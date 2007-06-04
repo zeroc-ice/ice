@@ -554,6 +554,16 @@ local interface ObjectAdapter
      * 
      **/
     void setLocator(Locator* loc);
+
+    /**
+     * Refresh the set of published endpoints. The PublishedEndpoints
+     * property will be reread if it is set. Also the list of local
+     * interfaces will be rechecked for any endpoints configured to listen
+     * on INADDR_ANY and published endpoints will be updated with new
+     * address list.
+     *
+     **/
+    void refreshPublishedEndpoints();
 };
 
 };

@@ -425,10 +425,10 @@ public final class ReferenceFactory
                 }
                 
                 String es = s.substring(beg, end);
-                EndpointI endp = _instance.endpointFactoryManager().create(es);
+                EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                 if(endp != null)
                 {
-                    java.util.ArrayList endps = endp.expand(false);
+                    java.util.ArrayList endps = endp.expand();
                     endpoints.addAll(endps);
                 }
                 else

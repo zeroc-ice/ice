@@ -571,6 +571,46 @@ namespace Ice
             }
         }
 
+        public void refreshPublishedEndpoints()
+        {
+            IceInternal.LocatorInfo locatorInfo = null;
+            bool registerProcess = false;
+            ArrayList oldPublishedEndpoints;
+
+            lock(this)
+            {
+                checkForDeactivation();
+
+                oldPublishedEndpoints = _publishedEndpoints;
+                _publishedEndpoints = parsePublishedEndpoints();
+
+                locatorInfo = _locatorInfo;
+                if(!_noConfig)
+                {
+                    registerProcess =
+                        instance_.initializationData().properties.getPropertyAsInt(_name + ".RegisterProcess") > 0;
+                }
+            }
+
+            try
+            {
+                Ice.Identity dummy = new Ice.Identity();
+                dummy.name = "dummy";
+                updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+            }
+            catch(Ice.LocalException ex)
+            {
+                lock(this)
+                {
+                    //
+                    // Restore the old published endpoints.
+                    //
+                    _publishedEndpoints = oldPublishedEndpoints;
+                    throw ex;
+                }
+            }
+        }
+
         public bool isLocal(ObjectPrx proxy)
         {
             IceInternal.Reference r = ((ObjectPrxHelperBase)proxy).reference__();
@@ -920,31 +960,9 @@ namespace Ice
                     }
                 
                     //
-                    // Parse published endpoints. If set, these are used in proxies
-                    // instead of the connection factory endpoints.
+                    // Parse published endpoints.
                     //
-                    string endpts = properties.getProperty(_name + ".PublishedEndpoints");
-                    _publishedEndpoints = parseEndpoints(endpts);
-                    if(_publishedEndpoints.Count == 0)
-                    {
-                        foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
-                        {
-                            _publishedEndpoints.Add(factory.endpoint());
-                        }
-                    }
-
-                    //
-                    // Filter out any endpoints that are not meant to be published.
-                    //
-                    ArrayList tmp = new ArrayList();
-                    foreach(IceInternal.EndpointI endpoint in _publishedEndpoints)
-                    {
-                        if(endpoint.publish())
-                        {
-                            tmp.Add(endpoint);
-                        }
-                    }
-                    _publishedEndpoints = tmp;
+                    _publishedEndpoints = parsePublishedEndpoints();
                 }
 
                 if(properties.getProperty(_name + ".Locator").Length > 0)
@@ -1124,7 +1142,7 @@ namespace Ice
                 }
 
                 string s = endpts.Substring(beg, (end) - (beg));
-                IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s);
+                IceInternal.EndpointI endp = instance_.endpointFactoryManager().create(s, true);
                 if(endp == null)
                 {
                     if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono &&
@@ -1139,13 +1157,42 @@ namespace Ice
                     e2.str = s;
                     throw e2;
                 }
-                ArrayList endps = endp.expand(true);
-                endpoints.AddRange(endps);
+                endpoints.Add(endp);
 
                 ++end;
             }
 
             return endpoints;
+        }
+
+        ArrayList parsePublishedEndpoints()
+        {
+
+            //
+            // Parse published endpoints. If set, these are used in proxies
+            // instead of the connection factory endpoints.
+            //
+            string endpts = instance_.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
+            ArrayList endpoints = parseEndpoints(endpts);
+            if(endpoints.Count == 0)
+            {
+                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    endpoints.Add(factory.endpoint());
+                }
+            }
+
+            //
+            // Expand any endpoints that may be listening on INADDR_ANY to
+            // include actual addresses in the published endpoints.
+            //
+            ArrayList expandedEndpoints = new ArrayList();
+            foreach(IceInternal.EndpointI endp in endpoints)
+            {
+                ArrayList endps = endp.expand();
+                expandedEndpoints.AddRange(endps);
+            }
+            return expandedEndpoints;
         }
 
         private void updateLocatorRegistry(IceInternal.LocatorInfo locatorInfo, ObjectPrx proxy, bool registerProcess)

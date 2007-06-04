@@ -127,13 +127,16 @@ ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
     // We don't allow to override an existing proxy by another non
     // null proxy if the server is not inactive.
     //
-    if(prx && _proxy)
-    {
-        if(_server->getState() == Active)
-        {
-            throw AdapterActiveException();
-        }
-    }
+    // TODO: This check would fail with the new refreshPublishedEndpoints() call.
+    //       Is some protesction still needed though?
+    //
+    //if(prx && _proxy)
+    //{
+    //    if(_server->getState() == Active)
+    //    {
+    //        throw AdapterActiveException();
+    //    }
+    //}
 
     bool updated = _proxy != prx;
     _proxy = prx;

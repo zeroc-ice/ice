@@ -14,7 +14,7 @@ final class EndpointI extends IceInternal.EndpointI
     final static short TYPE = 2;
 
     public
-    EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean pub)
+    EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean oae)
     {
         _instance = instance;
         _host = ho;
@@ -22,19 +22,19 @@ final class EndpointI extends IceInternal.EndpointI
         _timeout = ti;
         _connectionId = conId;
         _compress = co;
-        _publish = pub;
+        _oaEndpoint = oae;
         calcHashValue();
     }
 
     public
-    EndpointI(Instance instance, String str)
+    EndpointI(Instance instance, String str, boolean oaEndpoint)
     {
         _instance = instance;
         _host = null;
         _port = 0;
         _timeout = -1;
         _compress = false;
-        _publish = true;
+        _oaEndpoint = oaEndpoint;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -132,6 +132,27 @@ final class EndpointI extends IceInternal.EndpointI
                 }
             }
         }
+
+        if(_host == null)
+        {
+            _host = _instance.defaultHost();
+            if(_host == null)
+            {
+                if(_oaEndpoint)
+                {
+                    _host = "0.0.0.0";
+                }
+                else
+                {
+                    _host = "127.0.0.1";
+                }
+            }
+        }
+        else if(_host.equals("*"))
+        {
+            _host = "0.0.0.0";
+        }
+        calcHashValue();
     }
 
     public
@@ -144,7 +165,7 @@ final class EndpointI extends IceInternal.EndpointI
         _timeout = s.readInt();
         _compress = s.readBool();
         s.endReadEncaps();
-        _publish = true;
+        _oaEndpoint = false;
         calcHashValue();
     }
 
@@ -221,7 +242,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+            return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
         }
     }
 
@@ -237,7 +258,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
+            return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
         }
     }
 
@@ -265,7 +286,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
+            return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
         }
     }
 
@@ -349,39 +370,18 @@ final class EndpointI extends IceInternal.EndpointI
     {
         AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
         endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress,
-                                       _publish);
+                                       _oaEndpoint);
         return p;
     }
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set. This
-    // only applies for ObjectAdapter endpoints.
+    // host if endpoint was configured with no host set.
     //
     public java.util.ArrayList
-    expand(boolean server)
+    expand()
     {
-        if(_host == null)
-        {
-            _host = _instance.defaultHost();
-            if(_host == null)
-            {
-                if(server)
-                {
-                    _host = "0.0.0.0";
-                }
-                else
-                {
-                    _host = "127.0.0.1";
-                }
-            }
-        }
-        else if(_host.equals("*"))
-        {
-            _host = "0.0.0.0";
-        }
-
-        java.util.ArrayList<EndpointI> endps = new java.util.ArrayList<EndpointI>();
+        java.util.ArrayList endps = new java.util.ArrayList();
         if(_host.equals("0.0.0.0"))
         {
             java.util.ArrayList hosts = IceInternal.Network.getLocalHosts();
@@ -389,26 +389,18 @@ final class EndpointI extends IceInternal.EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
-                                        hosts.size() == 1 || !host.equals("127.0.0.1")));
+                if(!_oaEndpoint || hosts.size() == 1 || !host.equals("127.0.0.1"))
+                {
+                    endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress, _oaEndpoint));
+                                        
+                }
             }
         }
         else
         {
-            calcHashValue();
             endps.add(this);
         }
         return endps;
-    }
-
-    //
-    // Return whether endpoint should be published in proxies
-    // created by Object Adapter.
-    //
-    public boolean
-    publish()
-    {
-        return _publish;
     }
 
     //
@@ -585,6 +577,6 @@ final class EndpointI extends IceInternal.EndpointI
     private int _timeout;
     private String _connectionId = "";
     private boolean _compress;
-    private boolean _publish;
+    private boolean _oaEndpoint;
     private int _hashCode;
 }

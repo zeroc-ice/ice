@@ -64,7 +64,7 @@ IceInternal::EndpointFactoryManager::get(Short type) const
 }
 
 EndpointIPtr
-IceInternal::EndpointFactoryManager::create(const string& str) const
+IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) const
 {
     IceUtil::Mutex::Lock sync(*this); // TODO: Necessary?
 
@@ -99,11 +99,11 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
         if(_factories[i]->protocol() == protocol)
         {
 #if 1
-            return _factories[i]->create(str.substr(end));
+            return _factories[i]->create(str.substr(end), oaEndpoint);
 #else
             // Code below left in place for debugging.
 
-            EndpointIPtr e = _factories[i]->create(str.substr(end));
+            EndpointIPtr e = _factories[i]->create(str.substr(end), oaEndpoint);
             BasicStream bs(_instance.get());
             e->streamWrite(&bs);
             bs.i = bs.b.begin();

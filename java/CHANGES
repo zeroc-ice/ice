@@ -1,6 +1,17 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- Added a new method to the ObjectAdapter interface named
+  refreshPublishedEndpoints(). This method is meant to be used to
+  update the published endpoints after change in the available local
+  interfaces or after the PublishedEndpoints object adapter property
+  has been changed by the user.
+
+- Ice now listens on INADDR_ANY for object adapter endpoints that do 
+  not contain a host name (or are set to use "-h *" or "-h 0.0.0.0").
+  Previously, Ice would only listen on the local interfaces that were
+  present when the adapter was created.
+
 - Freeze evictor update:
   - the existing evictor was renamed BackgroundSaveEvictor
   - added new TransactionalEvictor

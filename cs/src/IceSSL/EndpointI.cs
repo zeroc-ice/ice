@@ -16,7 +16,7 @@ namespace IceSSL
     {
         internal const short TYPE = 2;
 
-        internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool pub)
+        internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool oae)
         {
             instance_ = instance;
             host_ = ho;
@@ -24,18 +24,18 @@ namespace IceSSL
             timeout_ = ti;
             connectionId_ = conId;
             compress_ = co;
-            publish_ = pub;
+            oaEndpoint_ = oae;
             calcHashValue();
         }
 
-        internal EndpointI(Instance instance, string str)
+        internal EndpointI(Instance instance, string str, bool oaEndpoint)
         {
             instance_ = instance;
             host_ = null;
             port_ = 0;
             timeout_ = -1;
             compress_ = false;
-            publish_ = true;
+            oaEndpoint_ = oaEndpoint;
 
             char[] separators = { ' ', '\t', '\n', '\r' };
             string[] arr = str.Split(separators);
@@ -152,6 +152,27 @@ namespace IceSSL
                     }
                 }
             }
+
+            if(host_ == null)
+            {
+                host_ = instance_.defaultHost();
+                if(host_ == null)
+                {
+                    if(oaEndpoint_)
+                    {
+                        host_ = "0.0.0.0";
+                    }
+                    else
+                    {
+                        host_ = "127.0.0.1";
+                    }
+                }
+            }
+            else if(host_.Equals("*"))
+            {
+                host_ = "0.0.0.0";
+            }
+            calcHashValue();
         }
 
         internal EndpointI(Instance instance, IceInternal.BasicStream s)
@@ -163,7 +184,7 @@ namespace IceSSL
             timeout_ = s.readInt();
             compress_ = s.readBool();
             s.endReadEncaps();
-            publish_ = true;
+            oaEndpoint_ = false;
             calcHashValue();
         }
 
@@ -235,7 +256,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(instance_, host_, port_, timeout, connectionId_, compress_, publish_);
+                return new EndpointI(instance_, host_, port_, timeout, connectionId_, compress_, oaEndpoint_);
             }
         }
 
@@ -250,7 +271,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(instance_, host_, port_, timeout_, connectionId, compress_, publish_);
+                return new EndpointI(instance_, host_, port_, timeout_, connectionId, compress_, oaEndpoint_);
             }
         }
 
@@ -276,7 +297,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(instance_, host_, port_, timeout_, connectionId_, compress, publish_);
+                return new EndpointI(instance_, host_, port_, timeout_, connectionId_, compress, oaEndpoint_);
             }
         }
 
@@ -351,62 +372,35 @@ namespace IceSSL
         public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
         {
             AcceptorI p = new AcceptorI(instance_, adapterName, host_, port_);
-            endpoint = new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_, compress_, publish_);
+            endpoint = 
+                new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_, compress_, oaEndpoint_);
             return p;
         }
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set. This
-        // only applies for ObjectAdapter endpoints.
+        // host if endpoint was configured with no host set.
         //
-        public override ArrayList expand(bool server)
+        public override ArrayList expand()
         {
-            if(host_ == null)
-            {
-                host_ = instance_.defaultHost();
-                if(host_ == null)
-                {
-                    if(server)
-                    {
-                        host_ = "0.0.0.0";
-                    }
-                    else
-                    {
-                        host_ = "127.0.0.1";
-                    }
-                }
-            }
-            else if(host_.Equals("*"))
-            {
-                host_ = "0.0.0.0";
-            }
-
             ArrayList endps = new ArrayList();
             if(host_.Equals("0.0.0.0"))
             {
                 string[] hosts = IceInternal.Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
-                                            hosts.Length == 1 || !hosts[i].Equals("127.0.0.1")));
+                    if(!oaEndpoint_ || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+                    {
+                        endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
+                                                oaEndpoint_);
+                    }
                 }
             }
             else
             {
-                calcHashValue();
                 endps.Add(this);
             }
             return endps;
-        }
-
-        //
-        // Return whether endpoint should be published in proxies
-        // created by Object Adapter.
-        //
-        public override bool publish()
-        {
-            return publish_;
         }
 
         //
@@ -575,7 +569,7 @@ namespace IceSSL
         private int timeout_;
         private string connectionId_ = "";
         private bool compress_;
-        private bool publish_;
+        private bool oaEndpoint_;
         private int hashCode_;
     }
 
@@ -596,9 +590,9 @@ namespace IceSSL
             return "ssl";
         }
 
-        public IceInternal.EndpointI create(string str)
+        public IceInternal.EndpointI create(string str, bool oaEndpoint)
         {
-            return new EndpointI(instance_, str);
+            return new EndpointI(instance_, str, oaEndpoint);
         }
 
         public IceInternal.EndpointI read(IceInternal.BasicStream s)

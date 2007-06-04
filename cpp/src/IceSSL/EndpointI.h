@@ -24,7 +24,7 @@ class EndpointI : public IceInternal::EndpointI
 public:
 
     EndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool, bool);
-    EndpointI(const InstancePtr&, const std::string&);
+    EndpointI(const InstancePtr&, const std::string&, bool);
     EndpointI(const InstancePtr&, IceInternal::BasicStream*);
 
     virtual void streamWrite(IceInternal::BasicStream*) const;
@@ -42,8 +42,7 @@ public:
     virtual IceInternal::TransceiverPtr serverTransceiver(IceInternal::EndpointIPtr&) const;
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
-    virtual std::vector<IceInternal::EndpointIPtr> expand(bool) const;
-    virtual bool publish() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::TransceiverPtr&) const;
     virtual bool equivalent(const IceInternal::AcceptorPtr&) const;
 
@@ -72,7 +71,7 @@ private:
     const Ice::Int _timeout;
     const std::string _connectionId;
     const bool _compress;
-    const bool _publish;
+    const bool _oaEndpoint;
 };
 
 class EndpointFactoryI : public IceInternal::EndpointFactory
@@ -83,7 +82,7 @@ public:
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
-    virtual IceInternal::EndpointIPtr create(const std::string&) const;
+    virtual IceInternal::EndpointIPtr create(const std::string&, bool) const;
     virtual IceInternal::EndpointIPtr read(IceInternal::BasicStream*) const;
     virtual void destroy();
 

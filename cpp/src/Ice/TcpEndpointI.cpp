@@ -22,23 +22,23 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti,
-                                        const string& conId, bool co, bool pub) :
+                                        const string& conId, bool co, bool oae) :
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
     _connectionId(conId),
     _compress(co),
-    _publish(pub)
+    _oaEndpoint(oae)
 {
 }
 
-IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str) :
+IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
     _instance(instance),
     _port(0),
     _timeout(-1),
     _compress(false),
-    _publish(true)
+    _oaEndpoint(oaEndpoint)
 {
     const string delim = " \t\n\r";
 
@@ -138,6 +138,26 @@ IceInternal::TcpEndpointI::TcpEndpointI(const InstancePtr& instance, const strin
             }
         }
     }
+
+    if(_host.empty())
+    {
+        const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
+        if(_host.empty())
+        {
+            if(oaEndpoint)
+            {
+                const_cast<string&>(_host) = "0.0.0.0";
+            }
+            else
+            {
+                const_cast<string&>(_host) = "127.0.0.1";
+            }
+        }
+    }
+    else if(_host == "*")
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
 }
 
 IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :
@@ -145,7 +165,7 @@ IceInternal::TcpEndpointI::TcpEndpointI(BasicStream* s) :
     _port(0),
     _timeout(-1),
     _compress(false),
-    _publish(true)
+    _oaEndpoint(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host), false);
@@ -211,7 +231,7 @@ IceInternal::TcpEndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+        return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
     }
 }
 
@@ -224,7 +244,7 @@ IceInternal::TcpEndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
+        return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
     }
 }
 
@@ -243,7 +263,7 @@ IceInternal::TcpEndpointI::compress(bool compress) const
     }
     else
     {
-        return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
+        return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
     }
 }
 
@@ -295,54 +315,32 @@ AcceptorPtr
 IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 {
     TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
-    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _publish);
+    endp = new TcpEndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _oaEndpoint);
     return p;
 }
 
-vector<EndpointIPtr>
-IceInternal::TcpEndpointI::expand(bool server) const
-{
-    if(_host.empty())
-    {
-        const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
-        if(_host.empty())
-        {
-            if(server)
-            {
-                const_cast<string&>(_host) = "0.0.0.0";
-            }
-            else
-            {
-                const_cast<string&>(_host) = "127.0.0.1";
-            }
-        }
-    }
-    else if(_host == "*")
-    {
-        const_cast<string&>(_host) = "0.0.0.0";
-    }
 
+vector<EndpointIPtr>
+IceInternal::TcpEndpointI::expand() const
+{
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
     {
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress,
-                                             hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+            if(!_oaEndpoint || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+            {
+                endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress, 
+                                                 _oaEndpoint));
+            }
         }
     }
     else
     {
         endps.push_back(const_cast<TcpEndpointI*>(this));
-    }
+    }   
     return endps;
-}
-
-bool
-IceInternal::TcpEndpointI::publish() const
-{
-    return _publish;
 }
 
 bool
@@ -533,9 +531,9 @@ IceInternal::TcpEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceInternal::TcpEndpointFactory::create(const std::string& str) const
+IceInternal::TcpEndpointFactory::create(const std::string& str, bool oaEndpoint) const
 {
-    return new TcpEndpointI(_instance, str);
+    return new TcpEndpointI(_instance, str, oaEndpoint);
 }
 
 EndpointIPtr

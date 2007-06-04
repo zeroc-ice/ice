@@ -14,7 +14,7 @@ final class TcpEndpointI extends EndpointI
     final static short TYPE = 1;
 
     public
-    TcpEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean pub)
+    TcpEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean oae)
     {
         _instance = instance;
         _host = ho;
@@ -22,19 +22,19 @@ final class TcpEndpointI extends EndpointI
         _timeout = ti;
         _connectionId = conId;
         _compress = co;
-        _publish = pub;
+        _oaEndpoint = oae;
         calcHashValue();
     }
 
     public
-    TcpEndpointI(Instance instance, String str)
+    TcpEndpointI(Instance instance, String str, boolean oaEndpoint)
     {
         _instance = instance;
         _host = null;
         _port = 0;
         _timeout = -1;
         _compress = false;
-        _publish = true;
+        _oaEndpoint = oaEndpoint;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -132,6 +132,27 @@ final class TcpEndpointI extends EndpointI
                 }
             }
         }
+
+        if(_host == null)
+        {
+            _host = _instance.defaultsAndOverrides().defaultHost;
+            if(_host == null)
+            {
+                if(_oaEndpoint)
+                {
+                    _host = "0.0.0.0";
+                }
+                else
+                {
+                    _host = "127.0.0.1";
+                }
+            }
+        }
+        else if(_host.equals("*"))
+        {
+            _host = "0.0.0.0";
+        }
+        calcHashValue();
     }
 
     public
@@ -144,7 +165,7 @@ final class TcpEndpointI extends EndpointI
         _timeout = s.readInt();
         _compress = s.readBool();
         s.endReadEncaps();
-        _publish = true;
+        _oaEndpoint = false;
         calcHashValue();
     }
 
@@ -221,7 +242,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+            return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
         }
     }
 
@@ -237,7 +258,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
         }
     }
 
@@ -265,7 +286,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
         }
     }
 
@@ -349,38 +370,17 @@ final class TcpEndpointI extends EndpointI
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
         endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId,
-                                          _compress, _publish);
+                                          _compress, _oaEndpoint);
         return p;
     }
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set. This
-    // only applies for ObjectAdapter endpoints.
+    // host if endpoint was configured with no host set. 
     //
     public java.util.ArrayList
-    expand(boolean server)
+    expand()
     {
-        if(_host == null)
-        {
-            _host = _instance.defaultsAndOverrides().defaultHost;
-            if(_host == null)
-            {
-                if(server)
-                {
-                    _host = "0.0.0.0";
-                }
-                else
-                {
-                    _host = "127.0.0.1";
-                }
-            }
-        }
-        else if(_host.equals("*"))
-        {
-            _host = "0.0.0.0";
-        }
-
         java.util.ArrayList endps = new java.util.ArrayList();
         if(_host.equals("0.0.0.0"))
         {
@@ -389,26 +389,18 @@ final class TcpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
-                                           hosts.size() == 1 || !host.equals("127.0.0.1")));
+                if(!_oaEndpoint || hosts.size() == 1 || !host.equals("127.0.0.1"))
+                {
+                    endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
+                                               _oaEndpoint));
+                }
             }
         }
         else
         {
-            calcHashValue();
             endps.add(this);
         }
         return endps;
-    }
-
-    //
-    // Return whether endpoint should be published in proxies
-    // created by Object Adapter.
-    //
-    public boolean
-    publish()
-    {
-        return _publish;
     }
 
     //
@@ -585,6 +577,6 @@ final class TcpEndpointI extends EndpointI
     private int _timeout;
     private String _connectionId = "";
     private boolean _compress;
-    private boolean _publish;
+    private boolean _oaEndpoint;
     private int _hashCode;
 }

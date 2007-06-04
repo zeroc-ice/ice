@@ -567,6 +567,47 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
     _locatorInfo = _instance->locatorManager()->get(locator);
 }
 
+void
+Ice::ObjectAdapterI::refreshPublishedEndpoints()
+{
+    LocatorInfoPtr locatorInfo;
+    bool registerProcess = false;
+    vector<EndpointIPtr> oldPublishedEndpoints;
+
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+        checkForDeactivation();
+
+        oldPublishedEndpoints = _publishedEndpoints;
+        _publishedEndpoints = parsePublishedEndpoints();
+
+        locatorInfo = _locatorInfo;
+        if(!_noConfig)
+        {
+            registerProcess =
+                _instance->initializationData().properties->getPropertyAsInt(_name + ".RegisterProcess") > 0;
+        }
+    }
+
+    try
+    {
+        Ice::Identity dummy;
+        dummy.name = "dummy";
+        updateLocatorRegistry(locatorInfo, createDirectProxy(dummy), registerProcess);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+        //
+        // Restore the old published endpoints.
+        //
+        _publishedEndpoints = oldPublishedEndpoints;
+        ex.ice_throw();
+    }
+}
+
 bool
 Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 {
@@ -899,22 +940,9 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             }
 
             //
-            // Parse published endpoints. If set, these are used in proxies
-            // instead of the connection factory endpoints. 
+            // Parse the published endpoints.
             //
-            string endpts = properties->getProperty(_name + ".PublishedEndpoints");
-            _publishedEndpoints = parseEndpoints(endpts);
-            if(_publishedEndpoints.empty())
-            {
-                transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
-                          back_inserter(_publishedEndpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
-            }
-
-            //
-            // Filter out any endpoints that are not meant to be published.
-            //
-            _publishedEndpoints.erase(remove_if(_publishedEndpoints.begin(), _publishedEndpoints.end(),
-                                      not1(Ice::constMemFun(&EndpointI::publish))), _publishedEndpoints.end());
+            _publishedEndpoints = parsePublishedEndpoints();
         }
 
         if(!properties->getProperty(_name + ".Locator").empty())
@@ -1070,20 +1098,47 @@ Ice::ObjectAdapterI::parseEndpoints(const string& endpts) const
         }
         
         string s = endpts.substr(beg, end - beg);
-        EndpointIPtr endp = _instance->endpointFactoryManager()->create(s);
+        EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, true);
         if(endp == 0)
         {
             EndpointParseException ex(__FILE__, __LINE__);
             ex.str = s;
             throw ex;
         }
-        vector<EndpointIPtr> endps = endp->expand(true);
-        endpoints.insert(endpoints.end(), endps.begin(), endps.end());
+        endpoints.push_back(endp);
 
         ++end;
     }
 
     return endpoints;
+}
+
+std::vector<EndpointIPtr>
+ObjectAdapterI::parsePublishedEndpoints()
+{
+    //
+    // Parse published endpoints. If set, these are used in proxies
+    // instead of the connection factory endpoints. 
+    //
+    string endpts = _communicator->getProperties()->getProperty(_name + ".PublishedEndpoints");
+    vector<EndpointIPtr> endpoints = parseEndpoints(endpts);
+    if(endpoints.empty())
+    {
+        transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), 
+                  back_inserter(endpoints), Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+    }
+
+    //
+    // Expand any endpoints that may be listening on INADDR_ANY to 
+    // include actual addresses in the published endpoints.
+    //
+    vector<EndpointIPtr> expandedEndpoints;
+    for(unsigned int i = 0; i < endpoints.size(); ++i)
+    {
+        vector<EndpointIPtr> endps = endpoints[i]->expand();
+        expandedEndpoints.insert(expandedEndpoints.end(), endps.begin(), endps.end());
+    }
+    return expandedEndpoints;
 }
 
 void

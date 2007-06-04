@@ -22,23 +22,23 @@ using namespace Ice;
 using namespace IceSSL;
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& ho, Int po, Int ti, const string& conId,
-                             bool co, bool pub) :
+                             bool co, bool oae) :
     _instance(instance),
     _host(ho),
     _port(po),
     _timeout(ti),
     _connectionId(conId),
     _compress(co),
-    _publish(pub)
+    _oaEndpoint(oae)
 {
 }
 
-IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str) :
+IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
     _instance(instance),
     _port(0),
     _timeout(-1),
     _compress(false),
-    _publish(true)
+    _oaEndpoint(oaEndpoint)
 {
     const string delim = " \t\n\r";
 
@@ -138,6 +138,26 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, const string& str) :
             }
         }
     }
+
+    if(_host.empty())
+    {
+        const_cast<string&>(_host) = _instance->defaultHost();
+        if(_host.empty())
+        {
+            if(_oaEndpoint)
+            {
+                const_cast<string&>(_host) = "0.0.0.0";
+            }
+            else
+            {
+                const_cast<string&>(_host) = "127.0.0.1";
+            }
+        }
+    }
+    else if(_host == "*")
+    {
+        const_cast<string&>(_host) = "0.0.0.0";
+    }
 }
 
 IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStream* s) :
@@ -145,7 +165,7 @@ IceSSL::EndpointI::EndpointI(const InstancePtr& instance, IceInternal::BasicStre
     _port(0),
     _timeout(-1),
     _compress(false),
-    _publish(true)
+    _oaEndpoint(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host), false);
@@ -211,7 +231,7 @@ IceSSL::EndpointI::timeout(Int timeout) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _publish);
+        return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
     }
 }
 
@@ -224,7 +244,7 @@ IceSSL::EndpointI::connectionId(const string& connectionId) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _publish);
+        return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
     }
 }
 
@@ -243,7 +263,7 @@ IceSSL::EndpointI::compress(bool compress) const
     }
     else
     {
-        return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _publish);
+        return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
     }
 }
 
@@ -295,41 +315,24 @@ IceInternal::AcceptorPtr
 IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapterName) const
 {
     AcceptorI* p = new AcceptorI(_instance, adapterName, _host, _port);
-    endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _publish);
+    endp = new EndpointI(_instance, _host, p->effectivePort(), _timeout, _connectionId, _compress, _oaEndpoint);
     return p;
 }
 
 vector<IceInternal::EndpointIPtr>
-IceSSL::EndpointI::expand(bool server) const
+IceSSL::EndpointI::expand() const
 {
-    if(_host.empty())
-    {
-        const_cast<string&>(_host) = _instance->defaultHost();
-        if(_host.empty())
-        {
-            if(server)
-            {
-                const_cast<string&>(_host) = "0.0.0.0";
-            }
-            else
-            {
-                const_cast<string&>(_host) = "127.0.0.1";
-            }
-        }
-    }
-    else if(_host == "*")
-    {
-        const_cast<string&>(_host) = "0.0.0.0";
-    }
-
     vector<IceInternal::EndpointIPtr> endps;
     if(_host == "0.0.0.0")
     {
         vector<string> hosts = IceInternal::getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            endps.push_back(new EndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress,
-                                          hosts.size() == 1 || hosts[i] != "127.0.0.1"));
+            if(!_oaEndpoint || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+            {
+                endps.push_back(new EndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress, 
+                                              _oaEndpoint));
+            }
         }
     }
     else
@@ -337,12 +340,6 @@ IceSSL::EndpointI::expand(bool server) const
         endps.push_back(const_cast<EndpointI*>(this));
     }
     return endps;
-}
-
-bool
-IceSSL::EndpointI::publish() const
-{
-    return _publish;
 }
 
 bool
@@ -533,9 +530,9 @@ IceSSL::EndpointFactoryI::protocol() const
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::create(const string& str) const
+IceSSL::EndpointFactoryI::create(const string& str, bool oaEndpoint) const
 {
-    return new EndpointI(_instance, str);
+    return new EndpointI(_instance, str, oaEndpoint);
 }
 
 IceInternal::EndpointIPtr

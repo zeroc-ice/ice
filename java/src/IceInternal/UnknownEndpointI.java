@@ -269,26 +269,15 @@ final class UnknownEndpointI extends EndpointI
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set. This
-    // only applies for ObjectAdapter endpoints.
+    // host if endpoint was configured with no host set.
     //
     public java.util.ArrayList
-    expand(boolean server)
+    expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         calcHashValue();
         endps.add(this);
         return endps;
-    }
-
-    //
-    // Return whether endpoint should be published in proxies
-    // created by Object Adapter.
-    //
-    public boolean
-    publish()
-    {
-        return false;
     }
 
     //

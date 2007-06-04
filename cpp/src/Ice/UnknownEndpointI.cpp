@@ -228,17 +228,10 @@ IceInternal::UnknownEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 }
 
 vector<EndpointIPtr>
-IceInternal::UnknownEndpointI::expand(bool) const
+IceInternal::UnknownEndpointI::expand() const
 {
-    vector<EndpointIPtr> ret;
-    ret.push_back(const_cast<UnknownEndpointI*>(this));
-    return ret;
-}
-
-bool
-IceInternal::UnknownEndpointI::publish() const
-{
-    return false;
+    vector<EndpointIPtr> endps;
+    return endps;
 }
 
 bool

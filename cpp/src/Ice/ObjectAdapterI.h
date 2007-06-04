@@ -73,6 +73,7 @@ public:
     virtual ObjectPrx createReverseProxy(const Identity&) const;
 
     virtual void setLocator(const LocatorPrx&);
+    virtual void refreshPublishedEndpoints();
     
     bool isLocal(const ObjectPrx&) const;
 
@@ -100,6 +101,7 @@ private:
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
     std::vector<IceInternal::EndpointIPtr> parseEndpoints(const std::string&) const;
+    std::vector<IceInternal::EndpointIPtr> parsePublishedEndpoints();
     void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const Ice::ObjectPrx&, bool);
     bool filterProperties(Ice::StringSeq&);
 

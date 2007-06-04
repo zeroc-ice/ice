@@ -122,14 +122,8 @@ namespace IceInternal
         // Expand endpoint out in to separate endpoints for each local
         // host if endpoint was configured with no host set.
         //
-        public abstract ArrayList expand(bool server);
+        public abstract ArrayList expand();
  
-        //
-        // Return whether the endpoint should be published in proxies
-        // created by the Object Adapter.
-        //
-        public abstract bool publish();
-
         //
         // Check whether the endpoint is equivalent to a specific
         // Transceiver or Acceptor.

@@ -101,6 +101,7 @@ namespace IceInternal
             {
                 throw new Ice.EndpointParseException("opaque " + str);
             }
+            calcHashValue();
         }
 
         public UnknownEndpointI(short type, BasicStream s)
@@ -258,26 +259,14 @@ namespace IceInternal
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set. This
-        // only applies for ObjectAdapter endpoints.
+        // host if endpoint was configured with no host set.
         //
         public override ArrayList
-        expand(bool server)
+        expand()
         {
             ArrayList endps = new ArrayList();
-            calcHashValue();
             endps.Add(this);
             return endps;
-        }
-
-        //
-        // Return whether endpoint should be published in proxies
-        // created by Object Adapter.
-        //
-        public override bool
-        publish()
-        {
-            return false;
         }
         
         //

@@ -38,8 +38,7 @@ public:
     virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
-    virtual std::vector<EndpointIPtr> expand(bool) const;
-    virtual bool publish() const;
+    virtual std::vector<EndpointIPtr> expand() const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 

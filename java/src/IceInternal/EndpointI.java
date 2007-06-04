@@ -120,13 +120,7 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     // Expand endpoint out in to separate endpoints for each local
     // host if endpoint was configured with no host set.
     //
-    public abstract java.util.ArrayList expand(boolean server);
-
-    //
-    // Return whether endpoint should be published in proxies
-    // created by Object Adapter.
-    //
-    public abstract boolean publish();
+    public abstract java.util.ArrayList expand();
 
     //
     // Check whether the endpoint is equivalent to a specific

@@ -24,7 +24,7 @@ public:
 
     UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, Ice::Int, bool,
                  const std::string&, bool, bool);
-    UdpEndpointI(const InstancePtr&, const std::string&);
+    UdpEndpointI(const InstancePtr&, const std::string&, bool);
     UdpEndpointI(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
@@ -42,8 +42,7 @@ public:
     virtual TransceiverPtr serverTransceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
-    virtual std::vector<EndpointIPtr> expand(bool) const;
-    virtual bool publish() const;
+    virtual std::vector<EndpointIPtr> expand() const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -78,7 +77,7 @@ private:
     const bool _connect;
     const std::string _connectionId;
     const bool _compress;
-    const bool _publish;
+    const bool _oaEndpoint;
 };
 
 class UdpEndpointFactory : public EndpointFactory
@@ -89,7 +88,7 @@ public:
 
     virtual Ice::Short type() const;
     virtual std::string protocol() const;
-    virtual EndpointIPtr create(const std::string&) const;
+    virtual EndpointIPtr create(const std::string&, bool) const;
     virtual EndpointIPtr read(BasicStream*) const;
     virtual void destroy();
 

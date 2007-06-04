@@ -54,7 +54,7 @@ namespace IceInternal
             }
         }
         
-        public EndpointI create(string str)
+        public EndpointI create(string str, bool oaEndpoint)
         {
             lock(this)
             {
@@ -82,12 +82,12 @@ namespace IceInternal
                     EndpointFactory f = (EndpointFactory)_factories[i];
                     if(f.protocol().Equals(protocol))
                     {
-                        return f.create(s.Substring(m.Index + m.Length));
+                        return f.create(s.Substring(m.Index + m.Length), oaEndpoint);
 
                         // Code below left in place for debugging.
 
                         /*
-                        EndpointI e = f.create(s.Substring(m.Index + m.Length));
+                        EndpointI e = f.create(s.Substring(m.Index + m.Length), oaEndpoint);
                         BasicStream bs = new BasicStream(instance_, true);
                         e.streamWrite(bs);
                         IceInternal.ByteBuffer buf = bs.prepareRead();

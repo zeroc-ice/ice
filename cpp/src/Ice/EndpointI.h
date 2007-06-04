@@ -115,15 +115,9 @@ public:
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set.
+    // host if listening on INADDR_ANY.
     //
-    virtual std::vector<EndpointIPtr> expand(bool) const = 0;
-
-    //
-    // Return whether the endpoint should be published in proxies
-    // created by the Object Adapter.
-    //
-    virtual bool publish() const = 0;
+    virtual std::vector<EndpointIPtr> expand() const = 0;
 
     //
     // Check whether the endpoint is equivalent to a specific
