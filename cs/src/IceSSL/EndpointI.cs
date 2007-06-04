@@ -392,7 +392,7 @@ namespace IceSSL
                     if(!oaEndpoint_ || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
                     {
                         endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
-                                                oaEndpoint_);
+                                                oaEndpoint_));
                     }
                 }
             }
