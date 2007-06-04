@@ -593,12 +593,24 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
     {
         ref = ref->changeLocator(
             LocatorPrx::uncheckedCast(_communicator->propertyToProxy(property)));
+        if(ref->getType() == Reference::TypeDirect)
+        {
+            Warning out(_instance->initializationData().logger);
+            out << "`" << property << "=" << properties->getProperty(property)
+                << "': cannot set a locator on a direct reference; setting ignored";
+        }
     }
 
     property = propertyPrefix + ".LocatorCacheTimeout";
     if(!properties->getProperty(property).empty())
     {
         ref = ref->changeLocatorCacheTimeout(properties->getPropertyAsInt(property));
+        if(ref->getType() == Reference::TypeDirect)
+        {
+            Warning out(_instance->initializationData().logger);
+            out << "`" << property << "=" << properties->getProperty(property)
+                << "': cannot set a locator cache timeout on a direct reference; setting ignored";
+        }
     }
 
     property = propertyPrefix + ".Router";

@@ -546,28 +546,24 @@ public final class ReferenceFactory
         if(properties.getProperty(property).length() != 0)
         {
             ref = ref.changeLocator(Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
-            /*
-            if(ref.getType() == Reference::TypeDirect)
+            if(ref instanceof DirectReference)
             {
                 String s = "`" + property + "=" + properties.getProperty(property) +
                            "': cannot set a locator on a direct reference; setting ignored";
                 _instance.initializationData().logger.warning(s);
             }
-            */
         }
 
         property = propertyPrefix + ".LocatorCacheTimeout";
         if(properties.getProperty(property).length() != 0)
         {
             ref = ref.changeLocatorCacheTimeout(properties.getPropertyAsInt(property));
-            /*
-            if(ref.getType() == Reference::TypeDirect)
+            if(ref instanceof DirectReference)
             {
                 String s = "`" + property + "=" + properties.getProperty(property) +
                            "': cannot set a locator cache timeout on a direct reference; setting ignored";
                 _instance.initializationData().logger.warning(s);
             }
-            */
         }
 
         property = propertyPrefix + ".Router";
