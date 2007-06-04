@@ -1376,6 +1376,28 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
     return Py_None;
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+adapterRefreshPublishedEndpoints(ObjectAdapterObject* self)
+{
+    assert(self->adapter);
+    try
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        (*self->adapter)->refreshPublishedEndpoints();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef AdapterMethods[] =
 {
     { STRCAST("getName"), reinterpret_cast<PyCFunction>(adapterGetName), METH_NOARGS,
@@ -1432,6 +1454,8 @@ static PyMethodDef AdapterMethods[] =
         PyDoc_STR(STRCAST("createReverseProxy(identity) -> Ice.ObjectPrx")) },
     { STRCAST("setLocator"), reinterpret_cast<PyCFunction>(adapterSetLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("setLocator(proxy) -> None")) },
+    { STRCAST("refreshPublishedEndpoints"), reinterpret_cast<PyCFunction>(adapterRefreshPublishedEndpoints), METH_NOARGS,
+        PyDoc_STR(STRCAST("refreshPublishedEndpoints() -> None")) },
     { 0, 0 } /* sentinel */
 };
 

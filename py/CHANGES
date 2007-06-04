@@ -1,6 +1,12 @@
 Changes since version 3.2.0
 ---------------------------
 
+- Added a new method to the ObjectAdapter interface named
+  refreshPublishedEndpoints(). This method is meant to be used to
+  update the published endpoints after change in the available local
+  interfaces or after the PublishedEndpoints object adapter property
+  has been changed by the user.
+
 - Fixed a bug that caused a crash when terminating a server with a
   signal.
 

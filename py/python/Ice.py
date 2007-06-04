@@ -422,6 +422,9 @@ class ObjectAdapterI(ObjectAdapter):
     def setLocator(self, loc):
         self._impl.setLocator(loc)
 
+    def refreshPublishedEndpoints(self):
+        self._impl.refreshPublishedEndpoints()
+
 #
 # Logger wrapper.
 #
