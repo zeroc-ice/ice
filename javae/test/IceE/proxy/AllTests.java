@@ -233,8 +233,14 @@ public class AllTests
         test(b1.ice_getIdentity().name.equals("test") && b1.ice_getIdentity().category.length() == 0 &&
              b1.ice_getAdapterId().length() == 0 && b1.ice_getFacet().length() == 0);
 
+        String property;
+
         // These two properties don't do anything to direct proxies so
         // first we test that.
+        /*
+         * Commented out because setting a locator or locator cache
+         * timeout on a direct proxy causes warning.
+         *
         String property = propertyPrefix + ".Locator";
         test(b1.ice_getLocator() == null);
         prop.setProperty(property, "locator:default -p 10000");
@@ -242,14 +248,13 @@ public class AllTests
         test(b1.ice_getLocator() == null);
         prop.setProperty(property, "");
 
-/*
         property = propertyPrefix + ".LocatorCacheTimeout";
         test(b1.ice_getLocatorCacheTimeout() == 0);
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getLocatorCacheTimeout() == 0);
         prop.setProperty(property, "");
-*/
+        */
 
         // Now retest with an indirect proxy.
         prop.setProperty(propertyPrefix, "test");
