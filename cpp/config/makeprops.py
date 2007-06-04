@@ -86,8 +86,8 @@ public:
 """
 
 cppHeaderPostamble = """
-    static const PropertyArray IceInternal::%(classname)s::validProps[];
-    static const char * IceInternal::%(classname)s::clPropNames[];
+    static const PropertyArray validProps[];
+    static const char * clPropNames[];
 };
 
 }
@@ -661,7 +661,12 @@ def main():
 
     infile = None
     lang = None
+    toplevel = '..'
 
+    #
+    # TODO: Why does determining the top level directory depend on which
+    # arguments are used?
+    #
     if len(sys.argv) == 1:
         #
         # Find where the root of the tree is.

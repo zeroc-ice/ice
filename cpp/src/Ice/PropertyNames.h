@@ -68,8 +68,8 @@ public:
     static const PropertyArray Glacier2Props;
     static const PropertyArray FreezeProps;
 
-    static const PropertyArray IceInternal::PropertyNames::validProps[];
-    static const char * IceInternal::PropertyNames::clPropNames[];
+    static const PropertyArray validProps[];
+    static const char * clPropNames[];
 };
 
 }
