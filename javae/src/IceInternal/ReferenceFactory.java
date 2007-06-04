@@ -509,6 +509,12 @@ public final class ReferenceFactory
         if(properties.getProperty(property).length() != 0)
         {
             ref = ref.changeLocator(Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property)));
+            if(ref instanceof DirectReference)
+            {
+                String s = "`" + property + "=" + properties.getProperty(property) +
+                           "': cannot set a locator on a direct reference; setting ignored";
+                _instance.initializationData().logger.warning(s);
+            }
         }
 
         property = propertyPrefix + ".Router";
