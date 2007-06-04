@@ -9,7 +9,7 @@
 
 using System.Diagnostics;
 
-class ObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+class ObjectFactory : Ice.ObjectFactory
 {
     public virtual Ice.Object create(string type)
     {

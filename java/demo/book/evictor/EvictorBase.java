@@ -18,7 +18,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     add(Ice.Current c, Ice.LocalObjectHolder cookie);
 
     public abstract void
-    evict(Ice.Object servant, Ice.LocalObject cookie);
+    evict(Ice.Object servant, java.lang.Object cookie);
 
     synchronized public final Ice.Object
     locate(Ice.Current c, Ice.LocalObjectHolder cookie)
@@ -67,7 +67,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     }
 
     synchronized public final void
-    finished(Ice.Current c, Ice.Object o, Ice.LocalObject cookie)
+    finished(Ice.Current c, Ice.Object o, java.lang.Object cookie)
     {
         EvictorEntry entry = (EvictorEntry)cookie;
 
@@ -89,7 +89,7 @@ public abstract class EvictorBase extends Ice.LocalObjectImpl implements Ice.Ser
     private class EvictorEntry extends Ice.LocalObjectImpl
     {
         Ice.Object servant;
-        Ice.LocalObject userCookie;
+        java.lang.Object userCookie;
         java.util.Iterator queuePos;
         int useCount;
     }

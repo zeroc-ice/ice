@@ -111,7 +111,7 @@ namespace IceInternal
         private Ice.Current _current;
         private Ice.Object _servant;
         private Ice.ServantLocator _locator;
-        private Ice.LocalObject _cookie;
+        private System.Object _cookie;
     }
 
 }

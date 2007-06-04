@@ -12,7 +12,7 @@ package Ice;
 //
 // The base class for all ImplicitContext implementations
 //
-public abstract class ImplicitContextI extends LocalObjectImpl implements ImplicitContext
+public abstract class ImplicitContextI implements ImplicitContext
 {
     public static ImplicitContextI create(String kind)
     {

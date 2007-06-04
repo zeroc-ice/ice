@@ -1,6 +1,12 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- LocalObject is now mapped to java.lang.Object; an out LocalObject
+  parameter is still mapped to an Ice.LocalObjectHolder object.
+  Ice.LocalObjectHolder now holds a java.lang.Object. The interface 
+  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now 
+  deprecated.
+
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to
   update the published endpoints after change in the available local

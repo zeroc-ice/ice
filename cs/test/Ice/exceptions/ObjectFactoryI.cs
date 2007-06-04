@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public sealed class ObjectFactoryI : Ice.LocalObjectImpl, Ice.ObjectFactory
+public sealed class ObjectFactoryI : Ice.ObjectFactory
 {
     public Ice.Object create(string s)
     {

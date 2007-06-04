@@ -1771,7 +1771,7 @@ namespace IceInternal
             }
         }
         
-        private sealed class DynamicObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+        private sealed class DynamicObjectFactory : Ice.ObjectFactory
         {
             internal DynamicObjectFactory(Type c)
             {
@@ -1851,7 +1851,7 @@ namespace IceInternal
             return factory;
         }
         
-        private sealed class DynamicUserExceptionFactory : Ice.LocalObjectImpl, UserExceptionFactory
+        private sealed class DynamicUserExceptionFactory : UserExceptionFactory
         {
             internal DynamicUserExceptionFactory(Type c)
             {

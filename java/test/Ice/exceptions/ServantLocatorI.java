@@ -14,7 +14,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
         return null;
     }
 
-    public void finished(Ice.Current curr, Ice.Object servant, Ice.LocalObject cookie)
+    public void finished(Ice.Current curr, Ice.Object servant, java.lang.Object cookie)
     {
     }
 

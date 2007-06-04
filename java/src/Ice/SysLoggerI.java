@@ -14,7 +14,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.io.IOException;
 
-public final class SysLoggerI extends LocalObjectImpl implements Logger
+public final class SysLoggerI implements Logger
 {
     public 
     SysLoggerI(String ident)

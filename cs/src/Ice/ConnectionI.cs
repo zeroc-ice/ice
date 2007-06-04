@@ -16,16 +16,6 @@ namespace Ice
 
     public sealed class ConnectionI : IceInternal.EventHandler, Connection
     {
-        public int ice_hash() // From LocalObject.
-        {
-            return GetHashCode();
-        }
-
-        public object Clone() // From LocalObject.
-        {
-            return MemberwiseClone();
-        }
-
         public void validate()
         {
             if(!endpoint().datagram()) // Datagram connections are always implicitly validated.

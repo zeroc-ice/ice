@@ -22,7 +22,7 @@ namespace Ice
         Logger create(Communicator communicator, string[] args);
     }
 
-    public sealed class PluginManagerI : LocalObjectImpl, PluginManager
+    public sealed class PluginManagerI : PluginManager
     {
         private static string _kindOfObject = "plugin";
 

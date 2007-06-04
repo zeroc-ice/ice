@@ -1261,18 +1261,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "public interface " << fixId(name) << " : ";
         if(p->isLocal())
         {
-            _out << "Ice.LocalObject";
+            _out << name << "OperationsNC_";
         }
         else
         {
-            _out << "Ice.Object";
+            _out << "Ice.Object, ";
+            _out << name << "Operations_, " << name << "OperationsNC_";
         }
-        _out << ", " << name;
-        if(!p->isLocal())
-        {
-            _out << "Operations_, " << name;
-        }
-        _out << "OperationsNC_";
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -1290,37 +1285,57 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << "abstract ";
         }
-        _out << "class " << fixId(name) << " : ";
+        _out << "class " << fixId(name);
+
+        bool baseWritten = false;
 
         if(!hasBaseClass)
         {
-            if(p->isLocal())
+            if(!p->isLocal())
             {
-                _out << "Ice.LocalObjectImpl";
-            }
-            else
-            {
-                _out << "Ice.ObjectImpl";
+                _out << " : Ice.ObjectImpl";
+                baseWritten = true;
             }
         }
         else
         {
-            _out << fixId(bases.front()->scoped());
+            _out << " : " << fixId(bases.front()->scoped());
+            baseWritten = true;
             bases.pop_front();
         }
         if(p->isAbstract())
         {
+            if(baseWritten)
+            {
+                _out << ", ";
+            }
+            else
+            {
+                _out << " : ";
+                baseWritten = true;
+            }
+
             if(!p->isLocal())
             {
-                _out << ", " << name << "Operations_";
+                _out << name << "Operations_, ";
             }
-            _out << ", " << name << "OperationsNC_";
+            _out << name << "OperationsNC_";
         }
         for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
         {
             if((*q)->isAbstract())
             {
-                _out << ", " << fixId((*q)->scoped());
+                if(baseWritten)
+                {
+                    _out << ", ";
+                }
+                else
+                {
+                    _out << " : ";
+                    baseWritten = true;
+                }
+
+                _out << fixId((*q)->scoped());
             }
         }
     }
@@ -5138,7 +5153,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            _out << " : Ice.LocalObjectImpl, " << fixId(name);
+            _out << " : " << fixId(name);
         }
         else
         {

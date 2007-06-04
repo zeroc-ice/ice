@@ -9,7 +9,7 @@
 
 package Freeze;
 
-class ConnectionI extends Ice.LocalObjectImpl implements Connection
+class ConnectionI implements Connection
 {
 
     public Transaction

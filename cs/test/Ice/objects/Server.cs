@@ -11,7 +11,7 @@ using System.Diagnostics;
 
 public class Server
 {
-    private class MyObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+    private class MyObjectFactory : Ice.ObjectFactory
     {
         public Ice.Object create(string type)
         {

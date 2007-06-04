@@ -50,7 +50,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     }
 
     public void
-    finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
+    finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie)
     {
         synchronized(this)
         {

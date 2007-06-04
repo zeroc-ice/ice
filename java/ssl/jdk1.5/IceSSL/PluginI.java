@@ -9,7 +9,7 @@
 
 package IceSSL;
 
-class PluginI extends Ice.LocalObjectImpl implements Plugin
+class PluginI implements Plugin
 {
     public
     PluginI(Ice.Communicator communicator)

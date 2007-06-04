@@ -17,10 +17,10 @@ public final class LocalObjectHolder
     }
 
     public
-    LocalObjectHolder(LocalObject value)
+    LocalObjectHolder(java.lang.Object value)
     {
         this.value = value;
     }
 
-    public LocalObject value;
+    public java.lang.Object value;
 }

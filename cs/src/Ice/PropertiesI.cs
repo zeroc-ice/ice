@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace Ice
 {
-    sealed class PropertiesI : LocalObjectImpl, Properties
+    sealed class PropertiesI :  Properties
     {
         class PropertyValue
         {

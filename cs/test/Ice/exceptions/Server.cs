@@ -9,7 +9,7 @@
 
 using System.Diagnostics;
 
-public sealed class DummyLogger : Ice.LocalObjectImpl, Ice.Logger
+public sealed class DummyLogger : Ice.Logger
 {
     public void print(string message)
     {

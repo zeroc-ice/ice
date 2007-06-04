@@ -24,7 +24,7 @@ namespace IceSSL
         bool verify(ConnectionInfo info);
     }
 
-    abstract public class Plugin : Ice.LocalObjectImpl, Ice.Plugin
+    abstract public class Plugin : Ice.Plugin
     {
         //
         // From Ice.Plugin.

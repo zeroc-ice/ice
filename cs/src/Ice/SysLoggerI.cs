@@ -12,7 +12,7 @@ using System.Net.Sockets;
 namespace Ice
 {
 
-    public sealed class SysLoggerI : LocalObjectImpl, Logger
+    public sealed class SysLoggerI :  Logger
     {
         public SysLoggerI(string ident)
         {

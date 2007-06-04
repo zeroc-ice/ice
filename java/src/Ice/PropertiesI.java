@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class PropertiesI extends LocalObjectImpl implements Properties
+public final class PropertiesI implements Properties
 {
     class PropertyValue
     {

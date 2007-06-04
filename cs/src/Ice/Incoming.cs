@@ -340,7 +340,7 @@ namespace IceInternal
         protected internal Ice.Current current_;
         protected internal Ice.Object servant_;
         protected internal Ice.ServantLocator locator_;
-        protected internal Ice.LocalObject cookie_;
+        protected internal System.Object cookie_;
         
         protected internal bool response_;
         protected internal byte compress_;

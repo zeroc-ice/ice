@@ -1,6 +1,6 @@
 namespace Evictor
 {
-    public abstract class EvictorBase : Ice.LocalObjectImpl, Ice.ServantLocator
+    public abstract class EvictorBase : Ice.ServantLocator
     {
 
         public EvictorBase()
@@ -13,11 +13,11 @@ namespace Evictor
             _size = size < 0 ? 1000 : size;
         }
 
-        protected abstract Ice.Object add(Ice.Current c, out Ice.LocalObject cookie);
+        protected abstract Ice.Object add(Ice.Current c, out System.Object cookie);
 
-        protected abstract void evict(Ice.Object servant, Ice.LocalObject cookie);
+        protected abstract void evict(Ice.Object servant, out System.Object xcookie);
 
-        public Ice.Object locate(Ice.Current c, out Ice.LocalObject cookie)
+        public Ice.Object locate(Ice.Current c, out System.Object cookie)
         {
             lock(this)
             {
@@ -65,7 +65,7 @@ namespace Evictor
             }
         }
 
-        public void finished(Ice.Current c, Ice.Object o, Ice.LocalObject cookie)
+        public void finished(Ice.Current c, Ice.Object o, System.Object cookie)
         {
             lock(this)
             {
@@ -89,10 +89,10 @@ namespace Evictor
             }
         }
 
-        private class EvictorEntry : Ice.LocalObjectImpl
+        private class EvictorEntry
         {
             internal Ice.Object servant;
-            internal Ice.LocalObject userCookie;
+            internal System.Object userCookie;
             internal LinkedList.Enumerator queuePos;
             internal int useCount;
         }

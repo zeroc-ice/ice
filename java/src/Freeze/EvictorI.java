@@ -9,7 +9,7 @@
 
 package Freeze;
 
-abstract class EvictorI extends Ice.LocalObjectImpl implements Evictor
+abstract class EvictorI implements Evictor
 {
     //
     // The deactivate controller is used by the implementation of all public

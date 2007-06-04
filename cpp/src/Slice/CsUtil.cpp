@@ -149,7 +149,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
         "string",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Ice.LocalObject"
+        "System.Object"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

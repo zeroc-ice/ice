@@ -417,7 +417,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         "String",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Ice.LocalObject"
+        "java.lang.Object"
     };
     static const char* builtinHolderTable[] =
     {
@@ -611,7 +611,7 @@ Slice::JavaGenerator::typeToObjectString(const TypePtr& type,
         "java.lang.String",
         "Ice.Object",
         "Ice.ObjectPrx",
-        "Ice.LocalObject"
+        "java.lang.Object"
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);

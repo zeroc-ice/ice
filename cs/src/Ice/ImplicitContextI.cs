@@ -15,7 +15,7 @@ namespace Ice
     //
     // The base class for all ImplicitContext implementations
     //
-    public abstract class ImplicitContextI : LocalObjectImpl, ImplicitContext
+    public abstract class ImplicitContextI : ImplicitContext
     {
         public static ImplicitContextI create(string kind)
         {

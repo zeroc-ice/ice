@@ -9,7 +9,7 @@
 
 package Freeze;
 
-class EvictorElement extends Ice.LocalObjectImpl
+class EvictorElement
 {
     //
     // Clean object; can become modified or destroyed

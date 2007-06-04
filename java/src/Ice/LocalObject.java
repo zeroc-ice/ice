@@ -9,11 +9,14 @@
 
 package Ice;
 
+ /**
+  * @deprecated This interface is deprecated; you should use a plain java.lang.Object
+  **/
 public interface LocalObject
 {
-    // boolean equals(java.lang.Object rhs);
+    boolean equals(java.lang.Object rhs);
 
-    // java.lang.Object clone() throws java.lang.CloneNotSupportedException;
+    java.lang.Object clone() throws java.lang.CloneNotSupportedException;
 
-    // int ice_hash();
+    int ice_hash();
 }

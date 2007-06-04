@@ -9,7 +9,7 @@
 
 package Freeze;
 
-class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
+class EvictorIteratorI implements EvictorIterator
 {
     public boolean
     hasNext()

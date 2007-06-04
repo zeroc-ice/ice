@@ -9,7 +9,7 @@
 
 package Ice;
 
-public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
+public final class ObjectAdapterI implements ObjectAdapter
 {
     public String
     getName()

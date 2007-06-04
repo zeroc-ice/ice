@@ -38,9 +38,9 @@ public class Server extends Ice.Application
                     return helloServant;
                 }
 
-                public void finished(Ice.Current curr, Ice.Object servant, Ice.LocalObject cookie)
+                public void finished(Ice.Current curr, Ice.Object servant, java.lang.Object cookie)
                 {
-                    // nothin
+                    // nothing
                 }
 
                 public void deactivate(String category)

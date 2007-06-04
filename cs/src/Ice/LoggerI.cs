@@ -12,7 +12,7 @@ namespace Ice
 
     using System.Globalization;
 
-    public sealed class LoggerI : LocalObjectImpl, Logger
+    public sealed class LoggerI :  Logger
     {
         public LoggerI(string prefix)
         {

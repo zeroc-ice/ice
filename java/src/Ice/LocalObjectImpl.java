@@ -9,11 +9,13 @@
 
 package Ice;
 
+ /**
+  * @deprecated This class is deprecated; you should use a plain java.lang.Object
+  **/
 public abstract class LocalObjectImpl implements LocalObject, java.lang.Cloneable
 {
     public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
+    clone() throws java.lang.CloneNotSupportedException
     {
         return super.clone();
     }

@@ -9,7 +9,7 @@
 
 package Freeze;
 
-class TransactionI extends Ice.LocalObjectImpl implements Transaction
+class TransactionI implements Transaction
 {
     public void
     commit()

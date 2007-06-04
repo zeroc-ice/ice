@@ -9,7 +9,7 @@
 
 package Ice;
 
-public class LoggerI extends LocalObjectImpl implements Logger
+public class LoggerI implements Logger
 {
     public 
     LoggerI(String prefix)

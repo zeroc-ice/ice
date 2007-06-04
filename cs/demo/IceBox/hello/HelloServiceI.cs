@@ -9,7 +9,7 @@
 
 using IceBox;
 
-class HelloServiceI : Ice.LocalObjectImpl, IceBox.Service
+class HelloServiceI : IceBox.Service
 {
     public void start(string name, Ice.Communicator communicator, string[] args)
     {

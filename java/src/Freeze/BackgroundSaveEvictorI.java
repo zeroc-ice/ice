@@ -845,7 +845,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
     }
 
     public void
-    finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
+    finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie)
     {
         _deactivateController.lock();
         try
@@ -1475,7 +1475,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
         return obj;
     }
     
-    static private class EvictorElement extends Ice.LocalObjectImpl
+    static private class EvictorElement
     {
         EvictorElement(Ice.Identity identity, ObjectStore store)
         {

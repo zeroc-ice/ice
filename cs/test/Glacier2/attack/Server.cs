@@ -10,20 +10,20 @@
 using Test;
 using System.Diagnostics;
 
-public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
+public sealed class ServantLocatorI : Ice.ServantLocator
 {
     public ServantLocatorI()
     {
         _backend = new BackendI();
     }
 
-    public Ice.Object locate(Ice.Current curr, out Ice.LocalObject cookie)
+    public Ice.Object locate(Ice.Current curr, out System.Object cookie)
     {
         cookie = null;
         return _backend;
     }
 
-    public void finished(Ice.Current curr, Ice.Object servant, Ice.LocalObject cookie)
+    public void finished(Ice.Current curr, Ice.Object servant, System.Object cookie)
     {
     }
 

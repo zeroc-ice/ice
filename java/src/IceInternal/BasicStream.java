@@ -1968,7 +1968,7 @@ public class BasicStream
         }
     }
 
-    private static final class DynamicObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    private static final class DynamicObjectFactory implements Ice.ObjectFactory
     {
         DynamicObjectFactory(Class c)
         {
@@ -2047,7 +2047,7 @@ public class BasicStream
         return factory;
     }
 
-    private static final class DynamicUserExceptionFactory extends Ice.LocalObjectImpl
+    private static final class DynamicUserExceptionFactory
         implements UserExceptionFactory
     {
         DynamicUserExceptionFactory(Class c)

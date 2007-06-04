@@ -12,7 +12,7 @@ using System.Diagnostics;
 
 public class Client
 {
-    private class MyObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+    private class MyObjectFactory : Ice.ObjectFactory
     {
         public Ice.Object create(string type)
         {

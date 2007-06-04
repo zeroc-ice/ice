@@ -1690,21 +1690,15 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.useCurrentPosAsIndent();
         if(p->isLocal())
         {
-            out << "Ice.LocalObject";
+            out << "_" << name << "OperationsNC";
         }
         else
         {
             out << "Ice.Object";
-        }
-        out << "," << nl << '_' << name;
-        if(!p->isLocal())
-        {
+            out << "," << nl << '_' << name;
             out << "Operations, _" << name << "OperationsNC";
         }
-        else
-        {
-            out << "OperationsNC";
-        }
+      
         if(!bases.empty())
         {
             ClassList::const_iterator q = bases.begin();
@@ -1725,11 +1719,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
+        bool implementsOnNewLine = true;
         if(bases.empty() || bases.front()->isInterface())
         {
             if(p->isLocal())
             {
-                out << " extends Ice.LocalObjectImpl";
+                implementsOnNewLine = false;
             }
             else
             {
@@ -1767,7 +1762,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(!implements.empty())
         {
-            out << nl << " implements ";
+            if(implementsOnNewLine)
+            {
+                out << nl;
+            }
+
+            out << " implements ";
             out.useCurrentPosAsIndent();
 
             StringList::const_iterator q = implements.begin();
@@ -1842,7 +1842,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(!p->isAbstract() && !p->isLocal())
     {
         out << sp;
-        out << nl << "private static class __F extends Ice.LocalObjectImpl implements Ice.ObjectFactory";
+        out << nl << "private static class __F implements Ice.ObjectFactory";
         out << sb;
         out << nl << "public Ice.Object" << nl << "create(String type)";
         out << sb;
@@ -4714,7 +4714,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            out << " extends Ice.LocalObjectImpl implements " << fixKwd(name);
+            out << " implements " << fixKwd(name);
         }
         else
         {

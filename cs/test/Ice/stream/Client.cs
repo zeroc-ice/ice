@@ -93,7 +93,7 @@ public class Client
     {
     }
 
-    private class MyInterfaceFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+    private class MyInterfaceFactory : Ice.ObjectFactory
     {
         public Ice.Object create(string type)
         {
@@ -106,7 +106,7 @@ public class Client
         }
     }
 
-    private class TestObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
+    private class TestObjectFactory : Ice.ObjectFactory
     {
         public Ice.Object create(string type)
         {
@@ -129,7 +129,7 @@ public class Client
         internal Ice.Object obj;
     }
 
-    public class MyClassFactoryWrapper : Ice.LocalObjectImpl, Ice.ObjectFactory
+    public class MyClassFactoryWrapper : Ice.ObjectFactory
     {
         public MyClassFactoryWrapper()
         {

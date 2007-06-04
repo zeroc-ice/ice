@@ -220,7 +220,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
     
     
     public void
-    finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookieObj)
+    finished(Ice.Current current, Ice.Object servant, java.lang.Object cookieObj)
     {        
         //
         // Nothing to do

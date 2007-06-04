@@ -13,7 +13,7 @@ namespace Ice
     using System.Collections;
     using System.Diagnostics;
 
-    public sealed class ObjectAdapterI : LocalObjectImpl, ObjectAdapter
+    public sealed class ObjectAdapterI : ObjectAdapter
     {
         public string getName()
         {

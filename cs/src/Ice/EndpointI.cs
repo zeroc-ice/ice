@@ -13,17 +13,7 @@ namespace IceInternal
     using System.Collections;
 
     public abstract class EndpointI : Ice.Endpoint, System.IComparable
-    {
-        public int ice_hash() // From LocalObject.
-        {
-            return GetHashCode();
-        }
-
-        public object Clone() // From LocalObject.
-        {
-            return MemberwiseClone();
-        }
-
+    {    
         public override string ToString()
         {
             return ice_toString_();

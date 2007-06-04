@@ -10,7 +10,7 @@
 namespace Ice
 {
         
-    sealed class CommunicatorI : LocalObjectImpl, Communicator
+    sealed class CommunicatorI : Communicator
     {
         public void destroy()
         {

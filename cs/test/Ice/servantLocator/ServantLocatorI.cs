@@ -11,7 +11,7 @@ using System;
 using Test;
 using Ice;
 
-public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
+public sealed class ServantLocatorI : Ice.ServantLocator
 {
     public ServantLocatorI(String category)
     {
@@ -35,7 +35,7 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
         }
     }
     
-    public Ice.Object locate(Ice.Current current, out Ice.LocalObject cookie)
+    public Ice.Object locate(Ice.Current current, out System.Object cookie)
     {
         lock(this)
         {
@@ -61,7 +61,7 @@ public sealed class ServantLocatorI : Ice.LocalObjectImpl, Ice.ServantLocator
         return new TestI();
     }
     
-    public void finished(Ice.Current current, Ice.Object servant, Ice.LocalObject cookie)
+    public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
     {
         lock(this)
         {
