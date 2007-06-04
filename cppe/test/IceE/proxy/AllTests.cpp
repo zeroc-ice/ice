@@ -234,8 +234,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category.empty() &&
          b1->ice_getFacet().empty());
 
+    string property;
+
     // These two properties don't do anything to direct proxies so
     // first we test that.
+    /*
+     * Commented out because setting a locator or locator cache
+     * timeout on a direct proxy causes warning.
+     *
 #ifdef ICEE_HAS_LOCATOR
     string property = propertyPrefix + ".Locator";
     test(!b1->ice_getLocator());
@@ -245,7 +251,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
     prop->setProperty(property, "");
 #endif
 
-/*
     property = propertyPrefix + ".LocatorCacheTimeout";
     test(b1->ice_getLocatorCacheTimeout() == 0);
     prop->setProperty(property, "1");
