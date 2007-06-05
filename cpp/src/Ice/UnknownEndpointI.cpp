@@ -231,6 +231,7 @@ vector<EndpointIPtr>
 IceInternal::UnknownEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
+    endps.push_back(const_cast<UnknownEndpointI*>(this));
     return endps;
 }
 
