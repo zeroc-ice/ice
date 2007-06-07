@@ -470,7 +470,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 	    Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
 	    if(num < 1)
 	    {
-		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore stupid values.
+		const_cast<size_t&>(_messageSizeMax) = defaultMessageSizeMax * 1024; // Ignore non-sensical values.
 	    }
 	    else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
 	    {
