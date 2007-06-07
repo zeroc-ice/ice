@@ -20,6 +20,8 @@ namespace IceSSL
 
     sealed class ConnectorI : IceInternal.Connector
     {
+        internal const short TYPE = 2;
+
         public IceInternal.Transceiver connect(int timeout)
         {
             //
@@ -154,6 +156,11 @@ namespace IceSSL
             return new TransceiverI(instance_, fd, stream, connInfo);
         }
 
+        public short type()
+        {
+            return TYPE;
+        }
+
         public override string ToString()
         {
             return IceInternal.Network.addrToString(addr_);
@@ -162,12 +169,74 @@ namespace IceSSL
         //
         // Only for use by EndpointI.
         //
-        internal ConnectorI(Instance instance, IPEndPoint addr)
+        internal ConnectorI(Instance instance, IPEndPoint addr, int timeout, string connectionId)
         {
             instance_ = instance;
             host_ = addr.Address.ToString();
             logger_ = instance.communicator().getLogger();
             addr_ = addr;
+            _timeout = timeout;
+            _connectionId = connectionId;
+
+            _hashCode = _addr.GetHashCode();
+            _hashCode = 5 * _hashCode + _timeout;
+            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
+        }
+
+        public override int GetHashCode()
+        {
+            return _hashCode;
+        }
+
+        //
+        // Compare endpoints for sorting purposes
+        //
+        public override bool Equals(object obj)
+        {
+            return CompareTo(obj) == 0;
+        }
+
+        public int CompareTo(object obj)
+        {
+            TcpConnector p = null;
+
+            try
+            {
+                p = (TcpConnector)obj;
+            }
+            catch(System.InvalidCastException)
+            {
+                try
+                {
+                    IceInternal.Connector e = (IceInternal.Connector)obj;
+                    return type() < e.type() ? -1 : 1;
+                }
+                catch(System.InvalidCastException)
+                {
+                    Debug.Assert(false);
+                }
+            }
+
+            if(this == p)
+            {
+                return 0;
+            }
+
+            if(_timeout < p._timeout)
+            {
+                return -1;
+            }
+            else if(p._timeout < _timeout)
+            {
+                return 1;
+            }
+
+            if(!_connectionId.Equals(p._connectionId))
+            {
+                return _connectionId.CompareTo(p._connectionId);
+            }
+
+            return Network.compareAddress(_addr, p._addr);
         }
 
         private class AuthInfo
@@ -244,6 +313,9 @@ namespace IceSSL
         private string host_;
         private Ice.Logger logger_;
         private IPEndPoint addr_;
+        private int _timeout;
+        private string _connectionId;
+        private int _hashCode;
     }
 
     internal class ConnectorValidationCallback
