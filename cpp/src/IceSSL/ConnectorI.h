@@ -34,9 +34,9 @@ public:
     virtual Ice::Short type() const;
     virtual std::string toString() const;
 
-    virtual bool operator==(const Connector&) const;
-    virtual bool operator!=(const Connector&) const;
-    virtual bool operator<(const Connector&) const;
+    virtual bool operator==(const IceInternal::Connector&) const;
+    virtual bool operator!=(const IceInternal::Connector&) const;
+    virtual bool operator<(const IceInternal::Connector&) const;
     
 private:
     
