@@ -97,6 +97,7 @@ final class UnknownEndpointI extends EndpointI
         {
             throw new Ice.EndpointParseException("opaque " + str);
         }
+        calcHashValue();
     }
 
     public
@@ -220,16 +221,6 @@ final class UnknownEndpointI extends EndpointI
     }
     
     //
-    // Return client side transceivers for this endpoint, or empty list
-    // if a transceiver can only be created by a connector.
-    //
-    public java.util.ArrayList
-    clientTransceivers()
-    {
-        return new java.util.ArrayList();
-    }
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
     // transceiver is created, this operation also returns a new
@@ -237,7 +228,7 @@ final class UnknownEndpointI extends EndpointI
     // for example, if a dynamic port number is assigned.
     //
     public Transceiver
-    serverTransceiver(EndpointIHolder endpoint)
+    transceiver(EndpointIHolder endpoint)
     {
         endpoint.value = null;
         return null;
@@ -275,7 +266,6 @@ final class UnknownEndpointI extends EndpointI
     expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
-        calcHashValue();
         endps.add(this);
         return endps;
     }

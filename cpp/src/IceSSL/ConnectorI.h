@@ -31,18 +31,25 @@ class ConnectorI : public IceInternal::Connector
 public:
     
     virtual IceInternal::TransceiverPtr connect(int);
+    virtual Ice::Short type() const;
     virtual std::string toString() const;
+
+    virtual bool operator==(const Connector&) const;
+    virtual bool operator!=(const Connector&) const;
+    virtual bool operator<(const Connector&) const;
     
 private:
     
-    ConnectorI(const InstancePtr&, const struct sockaddr_in&);
+    ConnectorI(const InstancePtr&, const struct sockaddr_in&, Ice::Int, const std::string&);
     virtual ~ConnectorI();
     friend class EndpointI;
 
-    InstancePtr _instance;
-    std::string _host;
-    Ice::LoggerPtr _logger;
+    const InstancePtr _instance;
+    const std::string _host;
+    const Ice::LoggerPtr _logger;
     struct sockaddr_in _addr;
+    const Ice::Int _timeout;
+    const std::string _connectionId;
 };
 
 }

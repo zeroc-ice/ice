@@ -9,6 +9,7 @@
 
 #include <Ice/TcpConnector.h>
 #include <Ice/TcpTransceiver.h>
+#include <Ice/TcpEndpointI.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
@@ -42,17 +43,89 @@ IceInternal::TcpConnector::connect(int timeout)
     return new TcpTransceiver(_instance, fd);
 }
 
+Short
+IceInternal::TcpConnector::type() const
+{
+    return TcpEndpointType;
+}
+
 string
 IceInternal::TcpConnector::toString() const
 {
     return addrToString(_addr);
 }
 
-IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_in& addr) :
+bool
+IceInternal::TcpConnector::operator==(const Connector& r) const
+{
+    const TcpConnector* p = dynamic_cast<const TcpConnector*>(&r);
+    if(!p)
+    {
+        return false;
+    }
+
+    if(compareAddress(_addr, p->_addr) != 0)
+    {
+        return false;
+    }
+
+    if(_timeout != p->_timeout)
+    {
+        return false;
+    }
+
+    if(_connectionId != p->_connectionId)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool
+IceInternal::TcpConnector::operator!=(const Connector& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceInternal::TcpConnector::operator<(const Connector& r) const
+{
+    const TcpConnector* p = dynamic_cast<const TcpConnector*>(&r);
+    if(!p)
+    {
+        return type() < r.type();
+    }
+
+    if(_timeout < p->_timeout)
+    {
+        return true;
+    }
+    else if(p->_timeout < _timeout)
+    {
+        return false;
+    }
+
+    if(_connectionId < p->_connectionId)
+    {
+        return true;
+    }
+    else if(p->_connectionId < _connectionId)
+    {
+        return false;
+    }
+
+    return compareAddress(_addr, p->_addr) == -1;
+}
+
+IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,
+                                        const string& connectionId) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->initializationData().logger),
-    _addr(addr)
+    _addr(addr),
+    _timeout(timeout),
+    _connectionId(connectionId)
 {
 }
 

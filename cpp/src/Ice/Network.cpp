@@ -898,12 +898,37 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
     }
 }
 
-bool
+int
 IceInternal::compareAddress(const struct sockaddr_in& addr1, const struct sockaddr_in& addr2)
 {
-    return (addr1.sin_family == addr2.sin_family) &&
-           (addr1.sin_port == addr2.sin_port) &&
-           (addr1.sin_addr.s_addr == addr2.sin_addr.s_addr);
+    if(addr1.sin_family < addr2.sin_family)
+    {
+        return -1;
+    }
+    else if(addr2.sin_family < addr1.sin_family)
+    {
+        return 1;
+    }
+
+    if(addr1.sin_port < addr2.sin_port)
+    {
+        return -1;
+    }
+    else if(addr2.sin_port < addr1.sin_port)
+    {
+        return 1;
+    }
+
+    if(addr1.sin_addr.s_addr < addr2.sin_addr.s_addr)
+    {
+        return -1;
+    }
+    else if(addr2.sin_addr.s_addr < addr1.sin_addr.s_addr)
+    {
+        return 1;
+    }
+
+    return 0;
 }
 
 void
@@ -1389,7 +1414,7 @@ IceInternal::getAddresses(const string& host, int port)
             bool found = false;
             for(unsigned int i = 0; i < result.size(); ++i)
             {
-                if(compareAddress(result[i], addr))
+                if(compareAddress(result[i], addr) == 0)
                 {
                     found = true;
                     break;

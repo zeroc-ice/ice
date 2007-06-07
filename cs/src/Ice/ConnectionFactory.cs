@@ -80,16 +80,24 @@ namespace IceInternal
             }
         }
         
+        private class ConnectorEndpointPair
+        {
+            public ConnectorEndpointPair(Connector c, EndpointI e)
+            {
+                connector = c;
+                endpoint = e;
+            }
+
+            public Connector connector;
+            public EndpointI endpoint;
+        }
+
         public Ice.ConnectionI create(EndpointI[] endpts, bool hasMore, bool threadPerConnection, 
                                       Ice.EndpointSelectionType selType, out bool compress)
         {
             Debug.Assert(endpts.Length > 0);
-            EndpointI[] endpoints = new EndpointI[endpts.Length];
+            ArrayList connectors = new ArrayList();
 
-            for(int i = 0; i < endpoints.Length; ++i)
-            {
-                endpoints[i] = endpts[i];
-            }
             DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
             
             compress = false;
@@ -104,12 +112,12 @@ namespace IceInternal
                 //
                 // TODO: Remove when we no longer support SSL for .NET 1.1.
                 //
-                for(int i = 0; i < endpoints.Length; i++)
+                for(int i = 0; i < endpts.Length; i++)
                 {
-                    if(!threadPerConnection && endpoints[i].requiresThreadPerConnection())
+                    if(!threadPerConnection && endpts[i].requiresThreadPerConnection())
                     {
                         Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
-                        ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endpoints[i].ToString();
+                        ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endpts[i].ToString();
                         throw ex;
                     }
                 }
@@ -142,6 +150,11 @@ namespace IceInternal
                 //
                 // Modify endpoints with overrides.
                 //
+                EndpointI[] endpoints = new EndpointI[endpts.Length];
+                for(int i = 0; i < endpoints.Length; ++i)
+                {
+                    endpoints[i] = endpts[i];
+                }
                 for(int i = 0; i < endpoints.Length; i++)
                 {
                     if(defaultsAndOverrides.overrideTimeout)
@@ -150,25 +163,41 @@ namespace IceInternal
                     }
 
                     //
-                    // The Connection object does not take the
-                    // compression flag of endpoints into account, but
-                    // instead gets the information about whether
-                    // messages should be compressed or not from other
-                    // sources. In order to allow connection sharing
-                    // for endpoints that differ in the value of the
-                    // compression flag only, we always set the
-                    // compression flag to false here in this
-                    // connection factory.
+                    // Create connectors for the endpoint.
                     //
-                    endpoints[i] = endpoints[i].compress(false);
+                    ArrayList cons = endpoints[i].connectors();
+                    Debug.Assert(cons.Count > 0);
+
+                    //
+                    // Shuffle connectors is endpoint selection type is Random.
+                    //
+                    if(selType == Ice.EndpointSelectionType.Random)
+                    {
+                        for(int j = 0; j < cons.Count - 2; ++j)
+                        {
+                            int r = rand_.Next(cons.Count - j) + j;
+                            Debug.Assert(r >= j && r < cons.Count);
+                            if(r != j)
+                            {
+                                object tmp = cons[j];
+                                cons[j] = cons[r];
+                                cons[r] = tmp;
+                            }
+                        }
+                    }
+
+                    foreach(Connector con in cons)
+                    {
+                        connectors.Add(new ConnectorEndpointPair(con, endpoints[i]));
+                    }
                 }
-                
+
                 //
                 // Search for existing connections.
                 //
-                for(int i = 0; i < endpoints.Length; i++)
+                foreach(ConnectorEndpointPair cep in connectors)
                 {
-                    LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
+                    LinkedList connectionList = (LinkedList)_connections[cep.connector];
                     if(connectionList != null)
                     {
                         foreach(Ice.ConnectionI conn in connectionList)
@@ -186,7 +215,7 @@ namespace IceInternal
                                 }
                                 else
                                 {
-                                    compress = endpts[i].compress();
+                                    compress = cep.endpoint.compress();
                                 }
                                 return conn;
                             }
@@ -202,16 +231,17 @@ namespace IceInternal
                 bool searchAgain = false;
                 while(!_destroyed)
                 {
-                    int i;
-                    for(i = 0; i < endpoints.Length; i++)
+                    bool found = false;
+                    foreach(ConnectorEndpointPair cep in connectors)
                     {
-                        if(_pending.Contains(endpoints[i]))
+                        if(_pending.Contains(cep.connector))
                         {
+                            found = true;
                             break;
                         }
                     }
                     
-                    if(i == endpoints.Length)
+                    if(!found)
                     {
                         break;
                     }
@@ -233,9 +263,9 @@ namespace IceInternal
                 //
                 if(searchAgain)
                 {
-                    for(int i = 0; i < endpoints.Length; i++)
+                    foreach(ConnectorEndpointPair cep in connectors)
                     {
-                        LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
+                        LinkedList connectionList = (LinkedList)_connections[cep.connector];
                         if(connectionList != null)
                         {
                             foreach(Ice.ConnectionI conn in connectionList)
@@ -253,7 +283,7 @@ namespace IceInternal
                                     }
                                     else
                                     {
-                                        compress = endpts[i].compress();
+                                        compress = cep.endpoint.compress();
                                     }
                                     return conn;
                                 }
@@ -268,119 +298,44 @@ namespace IceInternal
                 // threads try to create connections to the same
                 // endpoints, we add our endpoints to _pending.
                 //
-                foreach(EndpointI e in endpoints)
+                foreach(ConnectorEndpointPair cep in connectors)
                 {
-                    _pending.Add(e);
+                    _pending.Add(cep.connector);
                 }
             }
             
+            Connector connector = null;
             Ice.ConnectionI connection = null;
             Ice.LocalException exception = null;
             
-            for(int i = 0; i < endpoints.Length; i++)
+            for(int i = 0; i < connectors.Count; ++i)
             {
-                EndpointI endpoint = endpoints[i];
+                ConnectorEndpointPair cep = (ConnectorEndpointPair)connectors[i];
+                connector = cep.connector;
+                EndpointI endpoint = cep.endpoint;
                 
                 try
                 {
-                    ArrayList connectors = null;
-                    int size;
                     int timeout = -1;
-
-                    ArrayList transceivers = endpoint.clientTransceivers();
-                    if(transceivers.Count == 0)
+                    if(defaultsAndOverrides.overrideConnectTimeout)
                     {
-                        connectors = endpoint.connectors();
-                        size = connectors.Count;
-                        Debug.Assert(size > 0);
-
-                        if(selType == Ice.EndpointSelectionType.Random)
-                        {
-                            for(int j = 0; j < connectors.Count - 2; ++j)
-                            {
-                                int r = rand_.Next(connectors.Count - j) + j;
-                                Debug.Assert(r >= j && r < connectors.Count);
-                                if(r != j)
-                                {
-                                    object tmp = connectors[j];
-                                    connectors[j] = connectors[r];
-                                    connectors[r] = tmp;
-                                }
-                            }
-                        }
-
-                        if(defaultsAndOverrides.overrideConnectTimeout)
-                        {
-                            timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-                        }
-                        // It is not necessary to check for overrideTimeout,
-                        // the endpoint has already been modified with this
-                        // override, if set.
-                        else
-                        {
-                            timeout = endpoint.timeout();
-                        }
+                        timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
                     }
+                    // It is not necessary to check for overrideTimeout,
+                    // the endpoint has already been modified with this
+                    // override, if set.
                     else
                     {
-                        size = transceivers.Count;
-                        if(selType == Ice.EndpointSelectionType.Random)
-                        {
-                            for(int j = 0; j < transceivers.Count - 2; ++j)
-                            {
-                                int r = rand_.Next(transceivers.Count - j) + j;
-                                Debug.Assert(r >= j && r < transceivers.Count);
-                                if(r != j)
-                                {
-                                    object tmp = transceivers[j];
-                                    transceivers[j] = transceivers[r];
-                                    transceivers[r] = tmp;
-                                }
-                            }
-                        }
+                        timeout = endpoint.timeout();
                     }
 
-                    for(int j = 0; j < size; ++j)
-                    {
-                        try
-                        {
-                            Transceiver transceiver;
-                            if(transceivers.Count == size)
-                            {
-                                transceiver = (Transceiver)transceivers[j];
-                            }
-                            else
-                            {
-                                transceiver = ((Connector)connectors[j]).connect(timeout);
-                                Debug.Assert(transceiver != null);
-                            }
+                    Transceiver transceiver = connector.connect(timeout);
+                    Debug.Assert(transceiver != null);
 
-                            connection = new Ice.ConnectionI(instance_, transceiver, endpoint, null, 
-                                                             threadPerConnection);
-                            connection.start();
-                            connection.validate();
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            //
-                            // If a connection object was constructed, then validate()
-                            // must have raised the exception.
-                            //
-                            if(connection != null)
-                            {
-                                connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                                connection = null;
-                            }
-
-                            //
-                            // Throw exception if this is last transceiver in list.
-                            //
-                            if(j == size - 1)
-                            {
-                                throw ex;
-                            }
-                        }
-                    }
+                    connection = new Ice.ConnectionI(instance_, transceiver, endpoint.compress(false), null, 
+                                                     threadPerConnection);
+                    connection.start();
+                    connection.validate();
 
                     if(defaultsAndOverrides.overrideCompress)
                     {
@@ -395,6 +350,16 @@ namespace IceInternal
                 catch(Ice.LocalException ex)
                 {
                     exception = ex;
+
+                    //
+                    // If a connection object was constructed, then validate()
+                    // must have raised the exception.
+                    //
+                    if(connection != null)
+                    {
+                        connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+                        connection = null;
+                    }
                 }
                 
                 TraceLevels traceLevels = instance_.traceLevels();
@@ -402,7 +367,7 @@ namespace IceInternal
                 {
                     System.Text.StringBuilder s = new System.Text.StringBuilder();
                     s.Append("connection to endpoint failed");
-                    if(hasMore || i < endpoints.Length - 1)
+                    if(hasMore || i < connectors.Count - 1)
                     {
                         s.Append(", trying next endpoint\n");
                     }
@@ -421,9 +386,9 @@ namespace IceInternal
                 // Signal other threads that we are done with trying to
                 // establish connections to our endpoints.
                 //
-                for(int i = 0; i < endpoints.Length; i++)
+                foreach(ConnectorEndpointPair cep in connectors)
                 {
-                    _pending.Remove(endpoints[i]);
+                    _pending.Remove(cep.connector);
                 }
                 System.Threading.Monitor.PulseAll(this);
                 
@@ -434,11 +399,11 @@ namespace IceInternal
                 }
                 else
                 {
-                    LinkedList connectionList = (LinkedList)_connections[connection.endpoint()];
+                    LinkedList connectionList = (LinkedList)_connections[connector];
                     if(connectionList == null)
                     {
                         connectionList = new LinkedList();
-                        _connections[connection.endpoint()] = connectionList;
+                        _connections[connector] = connectionList;
                     }
                     connectionList.Add(connection);
                     
@@ -500,20 +465,22 @@ namespace IceInternal
                     //
                     endpoint = endpoint.compress(false);
                     
-                    LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
-                    if(connectionList != null)
+                    foreach(LinkedList connections in _connections.Values)
                     {
-                        foreach(Ice.ConnectionI connection in connectionList)
+                        foreach(Ice.ConnectionI connection in connections)
                         {
-                            try
+                            if(connection.endpoint().Equals(endpoint))
                             {
-                                connection.setAdapter(adapter);
-                            }
-                            catch(Ice.LocalException)
-                            {
-                                //
-                                // Ignore, the connection is being closed or closed.
-                                //
+                                try
+                                {
+                                    connection.setAdapter(adapter);
+                                }
+                                catch(Ice.LocalException)
+                                {
+                                    //
+                                    // Ignore, the connection is being closed or closed.
+                                    //
+                                }
                             }
                         }
                     }
@@ -965,7 +932,7 @@ namespace IceInternal
             try
             {
                 EndpointI h = _endpoint;
-                _transceiver = _endpoint.serverTransceiver(ref h);
+                _transceiver = _endpoint.transceiver(ref h);
 
                 if(_transceiver != null)
                 {

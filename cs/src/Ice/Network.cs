@@ -818,6 +818,35 @@ namespace IceInternal
             dns.host = host;
             throw dns;
         }
+
+        public static int compareAddress(IPEndPoint addr1, IPEndPoint addr2)
+        {
+            if(addr1.Port < addr2.Port)
+            {
+                return -1;
+            }
+            else if(addr2.Port < addr1.Port)
+            {
+                return 1;
+            }
+
+            byte[] larr = addr1.Address.GetAddressBytes();
+            byte[] rarr = addr2.Address.GetAddressBytes();
+            Debug.Assert(larr.Length == rarr.Length);
+            for(int i = 0; i < larr.Length; i++)
+            {
+                if(larr[i] < rarr[i])
+                {
+                    return -1;
+                }
+                else if(rarr[i] < larr[i])
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
+        }
         
         public static string getNumericHost(string hostname)
         {

@@ -38,8 +38,7 @@ public:
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual bool unknown() const;
-    virtual std::vector<IceInternal::TransceiverPtr> clientTransceivers() const;
-    virtual IceInternal::TransceiverPtr serverTransceiver(IceInternal::EndpointIPtr&) const;
+    virtual IceInternal::TransceiverPtr transceiver(IceInternal::EndpointIPtr&) const;
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;

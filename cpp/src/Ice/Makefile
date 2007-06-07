@@ -98,6 +98,7 @@ OBJS		= Acceptor.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Transceiver.o \
+		  UdpConnector.o \
 		  UdpEndpointI.o \
 		  UdpTransceiver.o \
 		  UnknownEndpointI.o

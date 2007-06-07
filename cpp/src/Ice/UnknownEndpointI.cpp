@@ -199,15 +199,8 @@ IceInternal::UnknownEndpointI::unknown() const
     return true;
 }
 
-vector<TransceiverPtr>
-IceInternal::UnknownEndpointI::clientTransceivers() const
-{
-    vector<TransceiverPtr> ret;
-    return ret;
-}
-
 TransceiverPtr
-IceInternal::UnknownEndpointI::serverTransceiver(EndpointIPtr& endp) const
+IceInternal::UnknownEndpointI::transceiver(EndpointIPtr& endp) const
 {
     endp = const_cast<UnknownEndpointI*>(this);
     return 0;

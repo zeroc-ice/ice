@@ -10,6 +10,7 @@
 #include <IceSSL/ConnectorI.h>
 #include <IceSSL/Instance.h>
 #include <IceSSL/TransceiverI.h>
+#include <IceSSL/EndpointI.h>
 #include <IceSSL/Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
@@ -172,17 +173,89 @@ IceSSL::ConnectorI::connect(int timeout)
     return new TransceiverI(_instance, ssl, fd, false);
 }
 
+Short
+IceSSL::ConnectorI::type() const
+{
+    return IceSSL::EndpointType;
+}
+
 string
 IceSSL::ConnectorI::toString() const
 {
     return IceInternal::addrToString(_addr);
 }
 
-IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_in& addr) :
+bool
+IceSSL::ConnectorI::operator==(const IceInternal::Connector& r) const
+{
+    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    if(!p)
+    {
+        return false;
+    }
+
+    if(IceInternal::compareAddress(_addr, p->_addr) != 0)
+    {
+        return false;
+    }
+
+    if(_timeout != p->_timeout)
+    {
+        return false;
+    }
+
+    if(_connectionId != p->_connectionId)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+bool
+IceSSL::ConnectorI::operator!=(const IceInternal::Connector& r) const
+{
+    return !operator==(r);
+}
+
+bool
+IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
+{
+    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    if(!p)
+    {
+        return type() < r.type();
+    }
+
+    if(_timeout < p->_timeout)
+    {
+        return true;
+    }
+    else if(p->_timeout < _timeout)
+    {
+        return false;
+    }
+
+    if(_connectionId < p->_connectionId)
+    {
+        return true;
+    }
+    else if(p->_connectionId < _connectionId)
+    {
+        return false;
+    }
+
+    return IceInternal::compareAddress(_addr, p->_addr) == -1;
+}
+
+IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,
+                               const string& connectionId) :
     _instance(instance),
     _host(IceInternal::inetAddrToString(addr.sin_addr)),
     _logger(instance->communicator()->getLogger()),
-    _addr(addr)
+    _addr(addr),
+    _timeout(timeout),
+    _connectionId(connectionId)
 {
 }
 

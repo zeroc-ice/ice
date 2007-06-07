@@ -95,7 +95,7 @@ IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
     getAddress(host, port, addr);
-    return compareAddress(addr, _addr);
+    return compareAddress(addr, _addr) == 0;
 }
 
 int

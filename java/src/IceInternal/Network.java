@@ -703,6 +703,36 @@ public final class Network
         throw e;
     }
 
+    public static int
+    compareAddress(java.net.InetSocketAddress addr1, java.net.InetSocketAddress addr2)
+    {
+        if(addr1.getPort() < addr2.getPort())
+        {
+            return -1;
+        }
+        else if(addr2.getPort() < addr1.getPort())
+        {
+            return 1;
+        }
+
+        byte[] larr = addr1.getAddress().getAddress();
+        byte[] rarr = addr2.getAddress().getAddress();
+        assert(larr.length == rarr.length);
+        for(int i = 0; i < larr.length; i++)
+        {
+            if(larr[i] < rarr[i])
+            {
+                return -1;
+            }
+            else if(rarr[i] < larr[i])
+            {
+                return 1;
+            }
+        }
+
+        return 0;
+    }
+
     public static java.net.InetAddress
     getLocalAddress()
     {

@@ -88,6 +88,7 @@ SRCS		= Acceptor.cs \
 		  TraceUtil.cs \
 		  Transceiver.cs \
 		  UdpEndpointI.cs \
+		  UdpConnector.cs \
 		  UdpTransceiver.cs \
 		  UnknownEndpointI.cs \
 		  UserExceptionFactory.cs \

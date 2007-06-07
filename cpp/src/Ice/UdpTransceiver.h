@@ -55,6 +55,7 @@ private:
     void setBufSize(const InstancePtr&);
 
     friend class UdpEndpointI;
+    friend class UdpConnector;
 
     const TraceLevelsPtr _traceLevels;
     const Ice::LoggerPtr _logger;

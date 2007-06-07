@@ -327,22 +327,13 @@ namespace IceInternal
         }
         
         //
-        // Return a client side transceiver for this endpoint, or empty list 
-        // if a transceiver can only be created by a connector.
-        //
-        public override ArrayList clientTransceivers()
-        {
-            return new ArrayList();
-        }
-        
-        //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor. In case a
         // transceiver is created, this operation also returns a new
         // "effective" endpoint, which might differ from this endpoint,
         // for example, if a dynamic port number is assigned.
         //
-        public override Transceiver serverTransceiver(ref EndpointI endpoint)
+        public override Transceiver transceiver(ref EndpointI endpoint)
         {
             endpoint = this;
             return null;
@@ -358,7 +349,7 @@ namespace IceInternal
             System.Net.IPEndPoint[] addresses = Network.getAddresses(_host, _port);
             for(int i = 0; i < addresses.Length; ++i)
             {
-                connectors.Add(new TcpConnector(instance_, addresses[i]));
+                connectors.Add(new TcpConnector(instance_, addresses[i], _timeout, _connectionId));
              }
             return connectors;
         }
@@ -456,7 +447,15 @@ namespace IceInternal
             }
             catch(System.InvalidCastException)
             {
-                return 1;
+                try
+                {
+                    EndpointI e = (EndpointI)obj;
+                    return type() < e.type() ? -1 : 1;
+                }
+                catch(System.InvalidCastException)
+                {
+                    Debug.Assert(false);
+                }
             }
             
             if(this == p)
@@ -496,57 +495,7 @@ namespace IceInternal
                 return 1;
             }
             
-            if(!_host.Equals(p._host))
-            {
-                //
-                // We do the most time-consuming part of the comparison last.
-                //
-                System.Net.IPEndPoint laddr = null;
-                try
-                {
-                    laddr = Network.getAddress(_host, _port);
-                }
-                catch(Ice.DNSException)
-                {
-                }
-                
-                System.Net.IPEndPoint raddr = null;
-                try
-                {
-                    raddr = Network.getAddress(p._host, p._port);
-                }
-                catch(Ice.DNSException)
-                {
-                }
-                
-                if(laddr == null && raddr != null)
-                {
-                    return -1;
-                }
-                else if(raddr == null && laddr != null)
-                {
-                    return 1;
-                }
-                else if(laddr != null && raddr != null)
-                {
-                    byte[] larr = laddr.Address.GetAddressBytes();
-                    byte[] rarr = raddr.Address.GetAddressBytes();
-                    Debug.Assert(larr.Length == rarr.Length);
-                    for(int i = 0; i < larr.Length; i++)
-                    {
-                        if(larr[i] < rarr[i])
-                        {
-                            return -1;
-                        }
-                        else if(rarr[i] < larr[i])
-                        {
-                            return 1;
-                        }
-                    }
-                }
-            }
-            
-            return 0;
+            return _host.CompareTo(p._host);
         }
         
         private void calcHashValue()

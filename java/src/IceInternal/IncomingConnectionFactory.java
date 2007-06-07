@@ -391,7 +391,7 @@ public final class IncomingConnectionFactory extends EventHandler
         {
             EndpointIHolder h = new EndpointIHolder();
             h.value = _endpoint;
-            _transceiver = _endpoint.serverTransceiver(h);
+            _transceiver = _endpoint.transceiver(h);
 
             if(_transceiver != null)
             {

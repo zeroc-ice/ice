@@ -79,19 +79,13 @@ namespace IceInternal
         public abstract bool unknown();
 
         //
-        // Return client side transceivers for this endpoint, or empty list 
-        // if a transceiver can only be created by a connector.
-        //
-        public abstract ArrayList clientTransceivers();
-
-        //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor. In case a
         // transceiver is created, this operation also returns a new
         // "effective" endpoint, which might differ from this endpoint,
         // for example, if a dynamic port number is assigned.
         //
-        public abstract Transceiver serverTransceiver(ref EndpointI endpoint);
+        public abstract Transceiver transceiver(ref EndpointI endpoint);
 
         //
         // Return a connector for this endpoint, or empty list if no connector

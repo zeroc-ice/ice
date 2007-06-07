@@ -7,13 +7,11 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_CONNECTOR_H
-#define ICE_TCP_CONNECTOR_H
+#ifndef ICE_UDP_CONNECTOR_H
+#define ICE_UDP_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/TraceLevelsF.h>
-#include <Ice/LoggerF.h>
 #include <Ice/Connector.h>
 
 #ifdef _WIN32
@@ -25,7 +23,7 @@
 namespace IceInternal
 {
 
-class TcpConnector : public Connector
+class UdpConnector : public Connector
 {
 public:
     
@@ -39,15 +37,19 @@ public:
     
 private:
     
-    TcpConnector(const InstancePtr&, const struct sockaddr_in&, Ice::Int, const std::string&);
-    virtual ~TcpConnector();
-    friend class TcpEndpointI;
+    UdpConnector(const InstancePtr&, const struct sockaddr_in&, const std::string&, int, Ice::Byte, Ice::Byte, 
+                 Ice::Byte, Ice::Byte, const std::string&);
+    virtual ~UdpConnector();
+    friend class UdpEndpointI;
 
     const InstancePtr _instance;
-    const TraceLevelsPtr _traceLevels;
-    const ::Ice::LoggerPtr _logger;
     struct sockaddr_in _addr;
-    const Ice::Int _timeout;
+    const std::string _mcastInterface;
+    const int _mcastTtl;
+    const Ice::Byte _protocolMajor;
+    const Ice::Byte _protocolMinor;
+    const Ice::Byte _encodingMajor;
+    const Ice::Byte _encodingMinor;
     const std::string _connectionId;
 };
 

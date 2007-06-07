@@ -9,6 +9,7 @@
 
 #include <Ice/UdpEndpointI.h>
 #include <Ice/Network.h>
+#include <Ice/UdpConnector.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
@@ -468,20 +469,8 @@ IceInternal::UdpEndpointI::unknown() const
     return false;
 }
 
-vector<TransceiverPtr>
-IceInternal::UdpEndpointI::clientTransceivers() const
-{
-    vector<TransceiverPtr> transceivers;
-    vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
-    for(unsigned int i = 0; i < addresses.size(); ++i)
-    {
-        transceivers.push_back(new UdpTransceiver(_instance, addresses[i], _mcastInterface, _mcastTtl));
-    }
-    return transceivers;
-}
-
 TransceiverPtr
-IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
+IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
     endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _mcastInterface, _mcastTtl, _connect, _connectionId,
@@ -492,8 +481,14 @@ IceInternal::UdpEndpointI::serverTransceiver(EndpointIPtr& endp) const
 vector<ConnectorPtr>
 IceInternal::UdpEndpointI::connectors() const
 {
-    vector<ConnectorPtr> ret;
-    return ret;
+    vector<ConnectorPtr> connectors;
+    vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
+    for(unsigned int i = 0; i < addresses.size(); ++i)
+    {
+        connectors.push_back(new UdpConnector(_instance, addresses[i], _mcastInterface, _mcastTtl, _protocolMajor,
+                                              _protocolMinor, _encodingMajor, _encodingMinor, _connectionId));
+    }
+    return connectors;
 }
 
 AcceptorPtr
@@ -557,6 +552,11 @@ IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
         return true;
     }
 
+    if(_host != p->_host)
+    {
+        return false;
+    }
+
     if(_port != p->_port)
     {
         return false;
@@ -607,26 +607,6 @@ IceInternal::UdpEndpointI::operator==(const EndpointI& r) const
         return false;
     }
 
-    if(_host != p->_host)
-    {
-        //
-        // We do the most time-consuming part of the comparison last.
-        //
-        struct sockaddr_in laddr;
-        struct sockaddr_in raddr;
-        try
-        {
-            getAddress(_host, _port, laddr);
-            getAddress(p->_host, p->_port, raddr);
-        }
-        catch(const DNSException&)
-        {
-            return false;
-        }
-
-        return compareAddress(laddr, raddr);
-    }
-
     return true;
 }
 
@@ -646,6 +626,15 @@ IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
     }
 
     if(this == p)
+    {
+        return false;
+    }
+
+    if(_host < p->_host)
+    {
+        return true;
+    }
+    else if (p->_host < _host)
     {
         return false;
     }
@@ -738,39 +727,6 @@ IceInternal::UdpEndpointI::operator<(const EndpointI& r) const
     else if(p->_mcastInterface < _mcastInterface)
     {
         return false;
-    }
-
-    if(_host != p->_host)
-    {
-        //
-        // We do the most time-consuming part of the comparison last.
-        //
-        struct sockaddr_in laddr;
-        try
-        {
-            getAddress(_host, _port, laddr);
-        }
-        catch(const DNSException&)
-        {
-        }
-
-        struct sockaddr_in raddr;
-        try
-        {
-            getAddress(p->_host, p->_port, raddr);
-        }
-        catch(const DNSException&)
-        {
-        }
-
-        if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-        {
-            return true;
-        }
-        else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-        {
-            return false;
-        }
     }
 
     return false;

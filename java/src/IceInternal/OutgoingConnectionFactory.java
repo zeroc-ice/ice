@@ -11,6 +11,7 @@ package IceInternal;
 
 public final class OutgoingConnectionFactory
 {
+
     public synchronized void
     destroy()
     {
@@ -94,9 +95,20 @@ public final class OutgoingConnectionFactory
     create(EndpointI[] endpts, boolean hasMore, boolean threadPerConnection, Ice.EndpointSelectionType selType,
            Ice.BooleanHolder compress)
     {
+        class ConnectorEndpointPair
+        {
+             public ConnectorEndpointPair(Connector c, EndpointI e)
+             {
+                 connector = c;
+                 endpoint = e;
+             }
+
+             public Connector connector;
+             public EndpointI endpoint;
+        }
+
         assert(endpts.length > 0);
-        EndpointI[] endpoints = new EndpointI[endpts.length];
-        System.arraycopy(endpts, 0, endpoints, 0, endpts.length);
+        java.util.ArrayList connectors = new java.util.ArrayList();
 
         DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
@@ -110,12 +122,12 @@ public final class OutgoingConnectionFactory
             //
             // TODO: Remove when we no longer support SSL for JDK 1.4.
             //
-            for(int i = 0; i < endpoints.length; i++)
+            for(int i = 0; i < endpts.length; i++)
             {
-                if(!threadPerConnection && endpoints[i].requiresThreadPerConnection())
+                if(!threadPerConnection && endpts[i].requiresThreadPerConnection())
                 {
                     Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
-                    ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endpoints[i].toString();
+                    ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endpts[i].toString();
                     throw ex;
                 }
             }
@@ -144,34 +156,50 @@ public final class OutgoingConnectionFactory
                 }
             }
 
-            //
-            // Modify endpoints with overrides.
-            //
+            EndpointI[] endpoints = new EndpointI[endpts.length];
+            System.arraycopy(endpts, 0, endpoints, 0, endpts.length);
             for(int i = 0; i < endpoints.length; i++)
             {
+                //
+                // Modify endpoints with overrides.
+                //
                 if(defaultsAndOverrides.overrideTimeout)
                 {
                     endpoints[i] = endpoints[i].timeout(defaultsAndOverrides.overrideTimeoutValue);
                 }
 
                 //
-                // The Connection object does not take the compression flag of
-                // endpoints into account, but instead gets the information
-                // about whether messages should be compressed or not from
-                // other sources. In order to allow connection sharing for
-                // endpoints that differ in the value of the compression flag
-                // only, we always set the compression flag to false here in
-                // this connection factory.
+                // Create connectors for the endpoint.
                 //
-                endpoints[i] = endpoints[i].compress(false);
+                java.util.ArrayList cons = endpoints[i].connectors();
+                assert(cons.size() > 0);
+
+                //
+                // Shuffle connectors is endpoint selection type is Random.
+                //
+                if(selType == Ice.EndpointSelectionType.Random)
+                {
+                    java.util.Collections.shuffle(cons);
+                }
+
+                p = cons.iterator();
+                while(p.hasNext())
+                {
+                    connectors.add(new ConnectorEndpointPair((Connector)p.next(), endpoints[i]));
+                }
+
             }
 
             //
             // Search for existing connections.
             //
-            for(int i = 0; i < endpoints.length; i++)
+            p = connectors.iterator();
+            while(p.hasNext())
             {
-                java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+                ConnectorEndpointPair cep = (ConnectorEndpointPair)p.next();
+
+
+                java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(cep.connector);
                 if(connectionList != null)
                 {
                     java.util.Iterator q = connectionList.iterator();
@@ -193,7 +221,7 @@ public final class OutgoingConnectionFactory
                             }
                             else
                             {
-                                compress.value = endpts[i].compress();
+                                compress.value = cep.endpoint.compress();
                             }
 
                             return connection;
@@ -210,16 +238,19 @@ public final class OutgoingConnectionFactory
             boolean searchAgain = false;
             while(!_destroyed)
             {
-                int i;
-                for(i = 0; i < endpoints.length; i++)
+                boolean found = false;
+                p = connectors.iterator();
+                while(p.hasNext())
                 {
-                    if(_pending.contains(endpoints[i]))
-                    {
+                    ConnectorEndpointPair cep = (ConnectorEndpointPair)p.next();
+                    if(_pending.contains(cep.connector))
+                    { 
+                        found = true;
                         break;
                     }
                 }
                 
-                if(i == endpoints.length)
+                if(!found)
                 {
                     break;
                 }
@@ -247,9 +278,12 @@ public final class OutgoingConnectionFactory
             //
             if(searchAgain)
             {
-                for(int i = 0; i < endpoints.length; i++)
+                p = connectors.iterator();
+                while(p.hasNext())
                 {
-                    java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+                    ConnectorEndpointPair cep = (ConnectorEndpointPair)p.next();
+
+                    java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(cep.connector);
                     if(connectionList != null)
                     {
                         java.util.Iterator q = connectionList.iterator();
@@ -271,7 +305,7 @@ public final class OutgoingConnectionFactory
                                 }
                                 else
                                 {
-                                    compress.value = endpts[i].compress();
+                                    compress.value = cep.endpoint.compress();
                                 }
 
                                 return connection;
@@ -287,98 +321,47 @@ public final class OutgoingConnectionFactory
             // to create connections to the same endpoints, we add our
             // endpoints to _pending.
             //
-            for(int i = 0; i < endpoints.length; i++)
+            p = connectors.iterator();
+            while(p.hasNext())
             {
-                _pending.add(endpoints[i]);
+                ConnectorEndpointPair cep = (ConnectorEndpointPair)p.next();
+                _pending.add(cep.connector);
             }
         }
 
+        Connector connector = null;
         Ice.ConnectionI connection = null;
         Ice.LocalException exception = null;
 
-        for(int i = 0; i < endpoints.length; i++)
+        java.util.Iterator p = connectors.iterator();
+        while(p.hasNext())
         {
-            EndpointI endpoint = endpoints[i];
+            ConnectorEndpointPair cep = (ConnectorEndpointPair)p.next();
+            connector = cep.connector;
+            EndpointI endpoint = cep.endpoint;
 
             try
             {
-                java.util.ArrayList connectors = null;
-                int size;
-                int timeout = -1;
-
-                java.util.ArrayList transceivers = endpoint.clientTransceivers();
-                if(transceivers.size() == 0)
+                int timeout;
+                if(defaultsAndOverrides.overrideConnectTimeout)
                 {
-                    connectors = endpoint.connectors();
-                    size = connectors.size();
-                    assert(size > 0);
-
-                    if(selType == Ice.EndpointSelectionType.Random)
-                    {
-                        java.util.Collections.shuffle(connectors);
-                    }
-
-                    if(defaultsAndOverrides.overrideConnectTimeout)
-                    {
-                        timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-                    }
-                    // It is not necessary to check for overrideTimeout,
-                    // the endpoint has already been modified with this
-                    // override, if set.
-                    else
-                    {
-                        timeout = endpoint.timeout();
-                    }
+                    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
                 }
+                // It is not necessary to check for overrideTimeout,
+                // the endpoint has already been modified with this
+                // override, if set.
                 else
                 {
-                    size = transceivers.size();
-                    if(selType == Ice.EndpointSelectionType.Random)
-                    {
-                        java.util.Collections.shuffle(transceivers);
-                    }
+                    timeout = endpoint.timeout();
                 }
 
-                for(int j = 0; j < size; ++j)
-                {
-                    try
-                    {
-                        Transceiver transceiver;
-                        if(transceivers.size() == size)
-                        {
-                            transceiver = (Transceiver)transceivers.get(j);
-                        }
-                        else
-                        {
-                            transceiver = ((Connector)connectors.get(j)).connect(timeout);
-                            assert(transceiver != null);
-                        }
-                        
-                        connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null, threadPerConnection);
-                        connection.start();
-                        connection.validate();
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        //
-                        // If a connection object was constructed, then validate()
-                        // must have raised the exception.
-                        //
-                        if(connection != null)
-                        {
-                            connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
-                            connection = null;
-                        }
-
-                        //
-                        // Throw exception if this is last transceiver in list.
-                        //
-                        if(j == size - 1)
-                        {
-                            throw ex;
-                        }
-                    }
-                }
+                Transceiver transceiver = connector.connect(timeout);
+                assert(transceiver != null);
+                
+                connection =
+                    new Ice.ConnectionI(_instance, transceiver, endpoint.compress(false), null, threadPerConnection);
+                connection.start();
+                connection.validate();
 
                 if(defaultsAndOverrides.overrideCompress)
                 {
@@ -386,13 +369,23 @@ public final class OutgoingConnectionFactory
                 }
                 else
                 {
-                    compress.value = endpts[i].compress();
+                    compress.value = endpoint.compress();
                 }
                 break;
             }
             catch(Ice.LocalException ex)
             {
                 exception = ex;
+
+                //
+                // If a connection object was constructed, then validate()
+                // must have raised the exception.
+                //
+                if(connection != null)
+                {
+                    connection.waitUntilFinished(); // We must call waitUntilFinished() for cleanup.
+                    connection = null;
+                }
             }
             
             TraceLevels traceLevels = _instance.traceLevels();
@@ -400,7 +393,7 @@ public final class OutgoingConnectionFactory
             {
                 StringBuffer s = new StringBuffer();
                 s.append("connection to endpoint failed");
-                if(hasMore || i < endpoints.length - 1)
+                if(hasMore || p.hasNext())
                 {
                     s.append(", trying next endpoint\n");
                 }
@@ -419,9 +412,11 @@ public final class OutgoingConnectionFactory
             // Signal other threads that we are done with trying to
             // establish connections to our endpoints.
             //
-            for(int i = 0; i < endpoints.length; i++)
+            p = connectors.iterator();
+            while(p.hasNext())
             {
-                _pending.remove(endpoints[i]);
+                ConnectorEndpointPair cep = (ConnectorEndpointPair)p.next();
+                _pending.remove(cep.connector);
             }
             notifyAll();
             
@@ -432,11 +427,11 @@ public final class OutgoingConnectionFactory
             }
             else
             {
-                java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(connection.endpoint());
+                java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(connector);
                 if(connectionList == null)
                 {
                     connectionList = new java.util.LinkedList();
-                    _connections.put(connection.endpoint(), connectionList);
+                    _connections.put(connector, connectionList);
                 }
                 connectionList.add(connection);
 
@@ -498,23 +493,27 @@ public final class OutgoingConnectionFactory
             //
             endpoint = endpoint.compress(false);
 
-            java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
-            if(connectionList != null)
+            java.util.Iterator p = _connections.values().iterator();
+            while(p.hasNext())
             {
-                java.util.Iterator p = connectionList.iterator();
-
-                while(p.hasNext())
+                java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+                
+                java.util.Iterator q = connectionList.iterator();
+                while(q.hasNext())
                 {
-                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
-                    try
+                    Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
+                    if(connection.endpoint() == endpoint)
                     {
-                        connection.setAdapter(adapter);
-                    }
-                    catch(Ice.LocalException ex)
-                    {
-                        //
-                        // Ignore, the connection is being closed or closed.
-                        //
+                        try
+                        {
+                            connection.setAdapter(adapter);
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            //
+                            // Ignore, the connection is being closed or closed.
+                            //
+                        }
                     }
                 }
             }

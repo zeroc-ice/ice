@@ -87,6 +87,7 @@ SRCS		= Acceptor.cs \
 		  TraceLevels.cs \
 		  TraceUtil.cs \
 		  Transceiver.cs \
+		  UdpConnector.cs \
 		  UdpEndpointI.cs \
 		  UdpTransceiver.cs \
 		  UnknownEndpointI.cs \

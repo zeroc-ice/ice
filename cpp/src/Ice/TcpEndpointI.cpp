@@ -285,15 +285,8 @@ IceInternal::TcpEndpointI::unknown() const
     return false;
 }
 
-vector<TransceiverPtr>
-IceInternal::TcpEndpointI::clientTransceivers() const
-{
-    vector<TransceiverPtr> ret;
-    return ret;
-}
-
 TransceiverPtr
-IceInternal::TcpEndpointI::serverTransceiver(EndpointIPtr& endp) const
+IceInternal::TcpEndpointI::transceiver(EndpointIPtr& endp) const
 {
     endp = const_cast<TcpEndpointI*>(this);
     return 0;
@@ -306,7 +299,7 @@ IceInternal::TcpEndpointI::connectors() const
     vector<struct sockaddr_in> addresses = getAddresses(_host, _port);
     for(unsigned int i = 0; i < addresses.size(); ++i)
     {
-        connectors.push_back(new TcpConnector(_instance, addresses[i]));
+        connectors.push_back(new TcpConnector(_instance, addresses[i], _timeout, _connectionId));
     }
     return connectors;
 }
@@ -374,6 +367,11 @@ IceInternal::TcpEndpointI::operator==(const EndpointI& r) const
         return true;
     }
 
+    if(_host != p->_host)
+    {
+        return false;
+    }
+
     if(_port != p->_port)
     {
         return false;
@@ -392,26 +390,6 @@ IceInternal::TcpEndpointI::operator==(const EndpointI& r) const
     if(_compress != p->_compress)
     {
         return false;
-    }
-
-    if(_host != p->_host)
-    {
-        //
-        // We do the most time-consuming part of the comparison last.
-        //
-        struct sockaddr_in laddr;
-        struct sockaddr_in raddr;
-        try
-        {
-            getAddress(_host, _port, laddr);
-            getAddress(p->_host, p->_port, raddr);
-        }
-        catch(const DNSException&)
-        {
-            return false;
-        }
-
-        return compareAddress(laddr, raddr);
     }
 
     return true;
@@ -433,6 +411,15 @@ IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
     }
 
     if(this == p)
+    {
+        return false;
+    }
+
+    if(_host < p->_host)
+    {
+        return true;
+    }
+    else if (p->_host < _host)
     {
         return false;
     }
@@ -471,39 +458,6 @@ IceInternal::TcpEndpointI::operator<(const EndpointI& r) const
     else if(p->_compress < _compress)
     {
         return false;
-    }
-
-    if(_host != p->_host)
-    {
-        //
-        // We do the most time-consuming part of the comparison last.
-        //
-        struct sockaddr_in laddr;
-        try
-        {
-            getAddress(_host, _port, laddr);
-        }
-        catch(const DNSException&)
-        {
-        }
-
-        struct sockaddr_in raddr;
-        try
-        {
-            getAddress(p->_host, p->_port, raddr);
-        }
-        catch(const DNSException&)
-        {
-        }
-
-        if(laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-        {
-            return true;
-        }
-        else if(raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-        {
-            return false;
-        }
     }
 
     return false;

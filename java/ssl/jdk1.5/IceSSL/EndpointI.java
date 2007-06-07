@@ -318,16 +318,6 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     //
-    // Return client side transceivers for this endpoint, or empty list
-    // if a transceiver can only be created by a connector.
-    //
-    public java.util.ArrayList
-    clientTransceivers()
-    {
-        return new java.util.ArrayList();
-    }
-
-    //
     // Return a server side transceiver for this endpoint, or null if a
     // transceiver can only be created by an acceptor. In case a
     // transceiver is created, this operation also returns a new
@@ -335,7 +325,7 @@ final class EndpointI extends IceInternal.EndpointI
     // for example, if a dynamic port number is assigned.
     //
     public IceInternal.Transceiver
-    serverTransceiver(IceInternal.EndpointIHolder endpoint)
+    transceiver(IceInternal.EndpointIHolder endpoint)
     {
         endpoint.value = this;
         return null;
@@ -353,7 +343,7 @@ final class EndpointI extends IceInternal.EndpointI
         java.util.Iterator p = addresses.iterator();
         while(p.hasNext())
         {
-            connectors.add(new ConnectorI(_instance, (java.net.InetSocketAddress)p.next()));
+            connectors.add(new ConnectorI(_instance, (java.net.InetSocketAddress)p.next(), _timeout, _connectionId));
         }
         return connectors;
     }
@@ -454,7 +444,15 @@ final class EndpointI extends IceInternal.EndpointI
         }
         catch(ClassCastException ex)
         {
-            return 1;
+            try
+            {
+                IceInternal.EndpointI e = (IceInternal.EndpointI)obj;
+                return type() < e.type() ? -1 : 1;
+            }
+            catch(ClassCastException ee)
+            {
+                assert(false);
+            }
         }
 
         if(this == p)
@@ -494,57 +492,7 @@ final class EndpointI extends IceInternal.EndpointI
             return 1;
         }
 
-        if(!_host.equals(p._host))
-        {
-            //
-            // We do the most time-consuming part of the comparison last.
-            //
-            java.net.InetSocketAddress laddr = null;
-            try
-            {
-                laddr = IceInternal.Network.getAddress(_host, _port);
-            }
-            catch(Ice.DNSException ex)
-            {
-            }
-
-            java.net.InetSocketAddress raddr = null;
-            try
-            {
-                raddr = IceInternal.Network.getAddress(p._host, p._port);
-            }
-            catch(Ice.DNSException ex)
-            {
-            }
-
-            if(laddr == null && raddr != null)
-            {
-                return -1;
-            }
-            else if(raddr == null && laddr != null)
-            {
-                return 1;
-            }
-            else if(laddr != null && raddr != null)
-            {
-                byte[] larr = laddr.getAddress().getAddress();
-                byte[] rarr = raddr.getAddress().getAddress();
-                assert(larr.length == rarr.length);
-                for(int i = 0; i < larr.length; i++)
-                {
-                    if(larr[i] < rarr[i])
-                    {
-                        return -1;
-                    }
-                    else if(rarr[i] < larr[i])
-                    {
-                        return 1;
-                    }
-                }
-            }
-        }
-
-        return 0;
+        return _host.compareTo(p._host);
     }
 
     public boolean

@@ -19,6 +19,7 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointIF.h>
 #include <Ice/Endpoint.h>
+#include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/RouterInfoF.h>
@@ -58,8 +59,8 @@ private:
 
     const InstancePtr _instance;
     bool _destroyed;
-    std::multimap<EndpointIPtr, Ice::ConnectionIPtr> _connections;
-    std::set<EndpointIPtr> _pending; // Endpoints for which connection establishment is pending.
+    std::multimap<ConnectorPtr, Ice::ConnectionIPtr> _connections;
+    std::set<ConnectorPtr> _pending; // Connectors for which connection establishment is pending.
 };
 
 class IncomingConnectionFactory : public EventHandler, public IceUtil::Monitor<IceUtil::Mutex>
