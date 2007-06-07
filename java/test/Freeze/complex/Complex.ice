@@ -12,7 +12,7 @@ module Complex
 
 //
 // The database key (the expression and the result). Naturally, this
-// is a stupid key - but this is only a test :)
+// is not a very good key - but this is only a test :)
 //
 struct Key
 {

@@ -99,7 +99,7 @@ namespace IceInternal
                     // Ugly work-around for broken CollectionBase implementation:
                     //
                     // CollectionBase provides implementations of the IList.Add method
-                    // and indexer. However, stupidly, these implementations do not permit
+                    // and indexer. However, these implementations do not permit
                     // null to be added or assigned even though, according to the doc, this should work.
                     // (Attempts to put a null into the collection raise ArgumentNullException.)
                     // That's why the above code grows the sequence by adding a dummy object.
