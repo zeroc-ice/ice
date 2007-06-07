@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_slicedir)\IceGrid \
-	    @echo "Creating $(install_slicedir)\IceGrid..." & \
+	    @echo "Creating $(install_slicedir)\IceGrid..." && \
 	    mkdir $(install_slicedir)\IceGrid
 
 	@for %i in ( *.ice ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_slicedir)\IceGrid

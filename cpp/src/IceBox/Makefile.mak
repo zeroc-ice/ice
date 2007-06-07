@@ -54,7 +54,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DICE_BOX_API_EXPORTS
 
 SLICE2CPPFLAGS	= --checksum --ice --dll-export ICE_BOX_API --include-dir IceBox $(SLICE2CPPFLAGS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)

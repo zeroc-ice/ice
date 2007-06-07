@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_slicedir)\IceSSL \
-	    @echo "Creating $(install_slicedir)\IceSSL..." & \
+	    @echo "Creating $(install_slicedir)\IceSSL..." && \
 	    mkdir $(install_slicedir)\IceSSL
 
 	@for %i in ( *.ice ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_slicedir)\IceSSL

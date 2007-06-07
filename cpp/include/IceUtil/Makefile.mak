@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_includedir)\IceUtil \
-	    @echo "Creating $(install_includedir)\IceUtil..." & \
+	    @echo "Creating $(install_includedir)\IceUtil..." && \
 	    mkdir $(install_includedir)\IceUtil
 
 	@for %i in ( *.h ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_includedir)\IceUtil

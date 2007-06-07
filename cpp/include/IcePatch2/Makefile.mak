@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_includedir)\IcePatch2 \
-	    @echo "Creating $(install_includedir)\IcePatch2..." & \
+	    @echo "Creating $(install_includedir)\IcePatch2..." && \
 	    mkdir $(install_includedir)\IcePatch2
 
 	@for %i in ( *.h ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_includedir)\IcePatch2

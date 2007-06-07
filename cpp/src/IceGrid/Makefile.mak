@@ -143,7 +143,7 @@ CPPFLAGS        = -I.. -DICE_GRID_API_EXPORTS $(CPPFLAGS)
 
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 APDBFLAGS       = /pdb:$(ADMIN:.exe=.pdb)
 RPDBFLAGS       = /pdb:$(REGISTRY_SERVER:.exe=.pdb)
@@ -172,7 +172,7 @@ $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
 $(NODE_SERVER): $(NODE_SVR_OBJS)
 	$(LINK) $(LD_EXEFLAGS) $(NPDBFLAGS) $(NODE_SVR_OBJS) $(SETARGV) $(PREOUT)$@ $(PRELIBS)$(NLINKWITH)
 	@if exist $@.manifest \
-	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 & del /q $@.manifest
+	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 StringApplicationInfoDict.h StringApplicationInfoDict.cpp: $(SLICE2FREEZE)
 	del /q StringApplicationInfoDict.h StringApplicationInfoDict.cpp

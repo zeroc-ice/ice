@@ -37,7 +37,7 @@ SLICE_SRCS	= Item.ice ItemInfo.ice
 
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)

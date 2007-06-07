@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_includedir)\IceGrid \
-	    @echo "Creating $(install_includedir)\IceGrid..." & \
+	    @echo "Creating $(install_includedir)\IceGrid..." && \
 	    mkdir $(install_includedir)\IceGrid
 
 	@for %i in ( *.h ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_includedir)\IceGrid

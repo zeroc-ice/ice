@@ -38,7 +38,7 @@ LINKWITH        = $(OPENSSL_LIBS) $(LIBS)
 LINKWITH	= $(LINKWITH) ws2_32.lib
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

@@ -13,6 +13,6 @@ top_srcdir	= ..
 
 install::
 	@if not exist $(prefix)\config \
-	    @echo "Creating $(prefix)\config..." & \
+	    @echo "Creating $(prefix)\config..." && \
 	    mkdir $(prefix)\config
 	copy Make.rules.mak.cs $(prefix)\config

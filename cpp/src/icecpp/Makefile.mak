@@ -25,7 +25,7 @@ CFLAGS = $(CFLAGS) -I. -I../../include -DWIN32_LEAN_AND_MEAN
 LINKWITH	= advapi32.lib
 !endif
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(NAME:.exe=.pdb)
 !endif
 
@@ -43,7 +43,7 @@ $(NAME): $(OBJS)
 install:: all
 	copy $(NAME) $(install_bindir)
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 
 install:: all
 	copy $(NAME:.exe=.pdb) $(install_bindir)

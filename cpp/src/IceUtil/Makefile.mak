@@ -44,7 +44,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 CPPFLAGS        = $(CPPFLAGS) -DICE_UTIL_API_EXPORTS -I.. -DWIN32_LEAN_AND_MEAN
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS	= /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

@@ -38,7 +38,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= $(LIBS) icebox$(LIBSUFFIX).lib
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS       = /pdb:$(SERVER:.exe=.pdb)

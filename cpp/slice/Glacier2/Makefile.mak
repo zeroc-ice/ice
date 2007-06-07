@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_slicedir)\Glacier2 \
-	    @echo "Creating $(install_slicedir)\Glacier2..." & \
+	    @echo "Creating $(install_slicedir)\Glacier2..." && \
 	    mkdir $(install_slicedir)\Glacier2
 
 	@for %i in ( *.ice ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_slicedir)\Glacier2

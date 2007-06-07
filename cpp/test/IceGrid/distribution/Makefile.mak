@@ -30,7 +30,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS)
 LINKWITH	= $(LIBS) icegrid$(LIBSUFFIX).lib glacier2$(LIBSUFFIX).lib
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif

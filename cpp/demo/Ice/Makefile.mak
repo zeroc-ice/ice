@@ -24,11 +24,11 @@ SUBDIRS		= minimal \
 		  converter \
 		  async
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(CPP_COMPILER)" != "VC80_EXPRESS"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
 SUBDIRS		= $(SUBDIRS) MFC
 !endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" & \
-	    cmd /c "cd %i & $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1

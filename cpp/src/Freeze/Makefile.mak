@@ -54,7 +54,7 @@ CPPFLAGS	= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS -DWIN32_LEAN_AND_MEAN
 SLICE2CPPFLAGS	= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 LINKWITH	= $(LIBS) $(DB_LIBS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 !endif
 

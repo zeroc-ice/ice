@@ -20,5 +20,5 @@ SUBDIRS		= router \
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" & \
-	    cmd /c "cd %i & $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1

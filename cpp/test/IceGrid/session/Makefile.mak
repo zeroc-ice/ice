@@ -31,7 +31,7 @@ SRCS		= $(COBJS:.obj=.cpp) \
 CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= $(LIBS) glacier2$(LIBSUFFIX).lib
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 VPDBFLAGS        = /pdb:$(VERIFIER:.exe=.pdb)

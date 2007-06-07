@@ -45,7 +45,7 @@ ORACLE_LIBS     = -LIBPATH:"$(ORACLE_HOME)\precomp\lib" orasql10.lib
 .pc.cpp:
 	proc threads=yes parse=none lines=yes code=cpp cpp_suffix=cpp close_on_commit=yes $<
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 CPDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 !endif

@@ -17,18 +17,18 @@ INSTALL_SUBDIRS = $(install_libdir) $(install_pythondir)
 
 install::
 	@if not exist $(prefix) \
-	    @echo "Creating $(prefix)..." & \
+	    @echo "Creating $(prefix)..." && \
 	    mkdir $(prefix)
 
 	@for %i in ( $(INSTALL_SUBDIRS) ) do \
 	    @if not exist %i \
-	        @echo "Creating %i..." & \
+	        @echo "Creating %i..." && \
 		mkdir %i
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" & \
-	    cmd /c "cd %i & $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
 
 install::
 	copy ICE_LICENSE $(prefix)

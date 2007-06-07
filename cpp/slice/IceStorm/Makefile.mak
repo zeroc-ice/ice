@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_slicedir)\IceStorm \
-	    @echo "Creating $(install_slicedir)\IceStorm..." & \
+	    @echo "Creating $(install_slicedir)\IceStorm..." && \
 	    mkdir $(install_slicedir)\IceStorm
 
 	@for %i in ( *.ice ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_slicedir)\IceStorm

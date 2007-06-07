@@ -17,5 +17,5 @@ CA_FILES =  iceca \
 
 install::
 	@for %i in ( $(CA_FILES) ) do \
-	    @echo "Installing %i" & \
+	    @echo "Installing %i" && \
 	    copy %i $(install_bindir)

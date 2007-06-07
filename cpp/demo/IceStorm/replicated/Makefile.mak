@@ -30,7 +30,7 @@ SRCS		= $(OBJS:.obj=.cpp) \
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LIBS		= $(libdir)\icestorm$(LIBSUFFIX).lib $(libdir)\icegrid$(LIBSUFFIX).lib $(LIBS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PPDBFLAGS        = /pdb:$(PUBLISHER:.exe=.pdb)
 SPDBFLAGS        = /pdb:$(SUBSCRIBER:.exe=.pdb)
 !endif

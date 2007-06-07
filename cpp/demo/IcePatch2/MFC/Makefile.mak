@@ -24,7 +24,7 @@ SRCS		= $(OBJS:.obj=.cpp)
 CPPFLAGS	= -I. $(CPPFLAGS) -D_AFXDLL -DVC_EXTRALEAN -D_UNICODE
 LINKWITH	= icepatch2$(LIBSUFFIX).lib $(LIBS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 

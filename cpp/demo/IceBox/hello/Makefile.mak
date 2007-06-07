@@ -34,7 +34,7 @@ SLICE_SRCS	= Hello.ice
 CPPFLAGS	= -I. $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= $(LIBS) icebox$(LIBSUFFIX).lib
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(DLLNAME:.dll=.pdb)
 CPDBFLAGS       = /pdb:$(CLIENT:.exe=.pdb)
 !endif

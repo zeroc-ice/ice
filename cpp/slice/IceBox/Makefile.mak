@@ -13,9 +13,9 @@ top_srcdir	= ..\..
 
 install::
 	@if not exist $(install_slicedir)\IceBox \
-	    @echo "Creating $(install_slicedir)\IceBox..." & \
+	    @echo "Creating $(install_slicedir)\IceBox..." && \
 	    mkdir $(install_slicedir)\IceBox
 
 	@for %i in ( *.ice ) do \
-	    @echo Installing %i & \
+	    @echo Installing %i && \
 	    copy %i $(install_slicedir)\IceBox

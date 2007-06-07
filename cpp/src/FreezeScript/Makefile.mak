@@ -42,7 +42,7 @@ HDIR		= $(includedir)\FreezeScript
 CPPFLAGS	= -I.. -Idummyinclude $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
 LINKWITH	= slice$(LIBSUFFIX).lib icexml$(LIBSUFFIX).lib freeze$(LIBSUFFIX).lib $(LIBS) $(DB_LIBS)
 
-!if "$(CPP_COMPILER)" != "BCC2006" & "$(OPTIMIZE)" != "yes"
+!if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 TPDBFLAGS        = /pdb:$(TRANSFORMDB:.exe=.pdb)
 DPDBFLAGS        = /pdb:$(DUMPDB:.exe=.pdb)
 !endif
