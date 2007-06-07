@@ -1,4 +1,5 @@
-SLICEFILES = ..\slice\Freeze\CatalogData.ice \
+SLICEFILES = ..\slice\Freeze\BackgroundSaveEvictor.ice \
+             ..\slice\Freeze\CatalogData.ice \
              ..\slice\Freeze\Connection.ice \
              ..\slice\Freeze\ConnectionF.ice \
              ..\slice\Freeze\DB.ice \
@@ -7,6 +8,7 @@ SLICEFILES = ..\slice\Freeze\CatalogData.ice \
              ..\slice\Freeze\EvictorStorage.ice \
              ..\slice\Freeze\Exception.ice \
              ..\slice\Freeze\Transaction.ice \
+             ..\slice\Freeze\TransactionalEvictor.ice \
              ..\slice\Glacier2\PermissionsVerifier.ice \
              ..\slice\Glacier2\PermissionsVerifierF.ice \
              ..\slice\Glacier2\Router.ice \

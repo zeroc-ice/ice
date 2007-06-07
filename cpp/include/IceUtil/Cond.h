@@ -185,7 +185,13 @@ private:
     Semaphore _queue;
     mutable long _blocked;
     mutable long _unblocked;
-    mutable long _toUnblock;
+    enum State
+    {
+        StateIdle,
+        StateSignal,
+        StateBroadcast
+    };
+    mutable State _state;
 #else
     mutable pthread_cond_t _cond;
 #endif

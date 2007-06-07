@@ -80,10 +80,7 @@ IceUtil::Semaphore::post(int count) const
 // because _blocked is protected by the _gate, whereas _unblocked is
 // protected by the _internal mutex. There is an assumption here about
 // memory visibility since postWait does not itself acquire the _gate
-// semaphore (note that the _gate must be held if _toUnblock != 0).
-//
-// _toUnblock is a tri-state variable. 0 is no signal/broadcast
-// pending. -1 is signal pending. 1 is a broadcast pending.
+// semaphore (note that the _gate must be held if _state != StateIdle).
 //
 // Threads timing out present a particular issue because they may have
 // woken without a corresponding notification and its easy to leave
@@ -96,7 +93,7 @@ IceUtil::Cond::Cond() :
     _gate(1),
     _blocked(0),
     _unblocked(0),
-    _toUnblock(0)
+    _state(IceUtil::Cond::StateIdle)
 {
 }
 
@@ -140,9 +137,8 @@ IceUtil::Cond::wake(bool broadcast)
     }
 
     //
-    // If there are blocked threads then we set _toUnblock to the
-    // number of waiting threads if broadcast was called, or 1 if
-    // signal is called.
+    // If there are waiting threads then we enter a signal or
+    // broadcast state.
     //
     if(_blocked > 0)
     {
@@ -150,8 +146,8 @@ IceUtil::Cond::wake(bool broadcast)
         // Unblock some number of waiters. We use -1 for the signal
         // case.
         //
-        assert(_toUnblock == 0);
-        _toUnblock = (broadcast) ? 1 : -1;
+        assert(_state == StateIdle);
+        _state = (broadcast) ? StateBroadcast : StateSignal;
         //
         // Posting the queue wakes a single waiting thread. After this
         // occurs the waiting thread will wake and then either post on
@@ -201,10 +197,10 @@ IceUtil::Cond::postWait(bool timedOutOrFailed) const
     _unblocked++;
 
     //
-    // If _toUnblock is 0 then this must be a timeout, otherwise its a
+    // If _state is StateIdle then this must be a timeout, otherwise its a
     // spurious wakeup which is incorrect.
     //
-    if(_toUnblock == 0)
+    if(_state == StateIdle)
     {
         assert(timedOutOrFailed);
         return;
@@ -219,7 +215,7 @@ IceUtil::Cond::postWait(bool timedOutOrFailed) const
         //
         if(_blocked == _unblocked)
         {
-            _toUnblock = 0;
+            _state = StateIdle;
             //
             // Consume the queue post to prevent spurious wakeup. Note
             // that although the internal mutex could be released
@@ -243,9 +239,9 @@ IceUtil::Cond::postWait(bool timedOutOrFailed) const
         // At this point, the thread must have been woken up because
         // of a signal/broadcast.
         //
-        if(_toUnblock == -1 || _blocked == _unblocked) // Signal or broadcast and no more blocked threads
+        if(_state == StateSignal || _blocked == _unblocked) // Signal or no more blocked threads
         {
-            _toUnblock = 0;
+            _state = StateIdle;
             // Release before posting to avoid potential immediate
             // context switch due to the mutex being locked.
             sync.release();

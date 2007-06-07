@@ -744,9 +744,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, bool trans
         totalBalance = servants[0]->getTotalBalance();
         test(totalBalance > 0);
 
-        int threadCount = accounts.size();
+        const int threadCount = accounts.size();
         
-        ThreadPtr threads[threadCount];
+        vector<ThreadPtr> threads(threadCount);
         for(i = 0; i < threadCount; i++)
         {
             threads[i] = new TransferThread(accounts);

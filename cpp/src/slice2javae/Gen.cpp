@@ -19,7 +19,7 @@ using namespace std;
 using namespace Slice;
 
 //
-// Don't use "using namespace IceUtil", or stupid VC++ 6.0 complains
+// Don't use "using namespace IceUtil", or VC++ 6.0 complains
 // about ambigious symbols for constructs like
 // "IceUtil::constMemFun(&Slice::Exception::isLocal)".
 //
