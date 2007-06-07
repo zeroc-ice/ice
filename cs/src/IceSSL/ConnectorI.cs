@@ -10,6 +10,7 @@
 namespace IceSSL
 {
     using System;
+    using System.Diagnostics;
     using System.IO;
     using System.Net;
     using System.Net.Security;
@@ -175,17 +176,17 @@ namespace IceSSL
             host_ = addr.Address.ToString();
             logger_ = instance.communicator().getLogger();
             addr_ = addr;
-            _timeout = timeout;
-            _connectionId = connectionId;
+            timeout_ = timeout;
+            connectionId_ = connectionId;
 
-            _hashCode = _addr.GetHashCode();
-            _hashCode = 5 * _hashCode + _timeout;
-            _hashCode = 5 * _hashCode + _connectionId.GetHashCode();
+            hashCode_ = addr_.GetHashCode();
+            hashCode_ = 5 * hashCode_ + timeout_;
+            hashCode_ = 5 * hashCode_ + connectionId_.GetHashCode();
         }
 
         public override int GetHashCode()
         {
-            return _hashCode;
+            return hashCode_;
         }
 
         //
@@ -198,11 +199,11 @@ namespace IceSSL
 
         public int CompareTo(object obj)
         {
-            TcpConnector p = null;
+            ConnectorI p = null;
 
             try
             {
-                p = (TcpConnector)obj;
+                p = (ConnectorI)obj;
             }
             catch(System.InvalidCastException)
             {
@@ -222,21 +223,21 @@ namespace IceSSL
                 return 0;
             }
 
-            if(_timeout < p._timeout)
+            if(timeout_ < p.timeout_)
             {
                 return -1;
             }
-            else if(p._timeout < _timeout)
+            else if(p.timeout_ < timeout_)
             {
                 return 1;
             }
 
-            if(!_connectionId.Equals(p._connectionId))
+            if(!connectionId_.Equals(p.connectionId_))
             {
-                return _connectionId.CompareTo(p._connectionId);
+                return connectionId_.CompareTo(p.connectionId_);
             }
 
-            return Network.compareAddress(_addr, p._addr);
+            return IceInternal.Network.compareAddress(addr_, p.addr_);
         }
 
         private class AuthInfo
@@ -313,9 +314,9 @@ namespace IceSSL
         private string host_;
         private Ice.Logger logger_;
         private IPEndPoint addr_;
-        private int _timeout;
-        private string _connectionId;
-        private int _hashCode;
+        private int timeout_;
+        private string connectionId_;
+        private int hashCode_;
     }
 
     internal class ConnectorValidationCallback

@@ -348,7 +348,7 @@ namespace IceSSL
             System.Net.IPEndPoint[] addresses = IceInternal.Network.getAddresses(host_, port_);
             for(int i = 0; i < addresses.Length; ++i)
             {
-                connectors.Add(new ConnectorI(instance_, addresses[i]));
+                connectors.Add(new ConnectorI(instance_, addresses[i], timeout_, connectionId_));
             }
             return connectors;
         }
@@ -493,7 +493,7 @@ namespace IceSSL
                 return 1;
             }
 
-            return _host.CompareTo(p._host);
+            return host_.CompareTo(p.host_);
         }
 
         private void calcHashValue()
