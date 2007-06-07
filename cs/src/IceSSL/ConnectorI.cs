@@ -18,7 +18,7 @@ namespace IceSSL
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
 
-    sealed class ConnectorI : IceInternal.Connector
+    sealed class ConnectorI : IceInternal.Connector, System.IComparable
     {
         internal const short TYPE = 2;
 

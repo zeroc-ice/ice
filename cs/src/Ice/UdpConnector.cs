@@ -12,7 +12,7 @@ namespace IceInternal
     using System.Diagnostics;
     using System.Net;
 
-    sealed class UdpConnector : Connector
+    sealed class UdpConnector : Connector, System.IComparable
     {
         internal const short TYPE = 3;
         
