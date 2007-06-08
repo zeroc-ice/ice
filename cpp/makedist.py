@@ -195,7 +195,7 @@ def fixVersion(files, version, mmversion):
 #
 # Check arguments
 #
-tag = "-rHEAD"
+tag = "HEAD"
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
@@ -209,7 +209,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -218,17 +218,19 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.chdir(distdir)
+os.mkdir(os.path.join(distdir, "ice"))
 
 #
-# Export sources from CVS.
+# Export sources from git.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out " + tag + "..."
 if verbose:
-    quiet = ""
+    quiet = "-v"
 else:
-    quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " ice")
+    quiet = ""
+os.system("git archive " + quiet + " " + tag + " . | (cd dist/ice && tar xf -)")
+
+os.chdir(distdir)
 
 #
 # Get Ice version.

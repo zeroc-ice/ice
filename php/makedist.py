@@ -18,6 +18,7 @@ def usage():
     print
     print "Options:"
     print "-h    Show this message."
+    print "-v    Be verbose."
     print
     print "If no tag is specified, HEAD is used."
 
@@ -53,7 +54,7 @@ def fixVersion(files, version):
 #
 # Check arguments
 #
-tag = "-rHEAD"
+tag = "HEAD"
 for x in sys.argv[1:]:
     if x == "-h":
         usage()
@@ -64,7 +65,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -73,12 +74,18 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.chdir(distdir)
+os.mkdir(os.path.join(distdir, "icephp"))
+os.mkdir(os.path.join(distdir, "ice"))
 
 #
-# Export sources from CVS.
+# Export sources from git.
 #
-os.system("cvs -d cvs.zeroc.com:/home/cvsroot export " + tag + " icephp ice/config ice/include/IceUtil/Config.h")
+os.system("git archive " + tag + " . | (cd dist/icephp && tar xf -)")
+os.chdir(os.path.join("..", "cpp"))
+os.system("git archive " + tag + " . | (cd ../php/dist/ice && tar xf -)")
+os.chdir(os.path.join("..", "php"))
+
+os.chdir(distdir)
 
 
 #

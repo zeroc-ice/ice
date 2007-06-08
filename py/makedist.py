@@ -59,7 +59,7 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 #
 # Check arguments
 #
-tag = "-rHEAD"
+tag = "HEAD"
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
@@ -73,7 +73,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -82,20 +82,25 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.chdir(distdir)
+os.mkdir(os.path.join(distdir, "icepy"))
+os.mkdir(os.path.join(distdir, "ice"))
 
 #
-# Export Python and C++ sources from CVS.
+# Export Python and C++ sources from git.
 #
 # NOTE: Assumes that the C++ and Python trees will use the same tag.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out sources " + tag + "..."
 if verbose:
-    quiet = ""
+    quiet = "-v"
 else:
-    quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icepy ice/config")
+    quiet = ""
+os.system("git archive " + tag + " . | (cd dist/icepy && tar xf -)")
+os.chdir(os.path.join("..", "cpp"))
+os.system("git archive " + tag + " . | (cd ../py/dist/ice && tar xf -)")
+os.chdir(os.path.join("..", "py"))
+
+os.chdir(distdir)
 
 print "Copying Make.rules.* files from ice..."
 for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):

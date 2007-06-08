@@ -83,7 +83,7 @@ win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 #
 # Check arguments
 #
-tag = "-rHEAD"
+tag = "HEAD"
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
@@ -97,7 +97,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 if win32 and not skipDocs:
     print sys.argv[0] + ": the documentation cannot be built on Windows."
@@ -110,20 +110,25 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.chdir(distdir)
+os.mkdir(os.path.join(distdir, "icevb"))
+os.mkdir(os.path.join(distdir, "icecs"))
 
 #
-# Export VB and C++ sources from CVS.
+# Export VB and C++ sources from git.
 #
-# NOTE: Assumes that the C++ and C# trees will use the same tag.
+# NOTE: Assumes that the C++ and VB trees will use the same tag.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out " + tag + "..."
 if verbose:
-    quiet = ""
+    quiet = "-v"
 else:
-    quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icevb icecs/src/Ice/AssemblyInfo.cs")
+    quiet = ""
+os.system("git archive " + quiet + " " + tag + " . | (cd dist/icevb && tar xf -)")
+os.chdir(os.path.join("..", "cs"))
+os.system("git archive " + quiet + " " + tag + " . | (cd ../vb/dist/icecs && tar xf -)")
+os.chdir(os.path.join("..", "vb"))
+
+os.chdir(distdir)
 
 #
 # Remove files.

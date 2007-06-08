@@ -66,7 +66,7 @@ else:
 #
 # Check arguments
 #
-tag = "-rHEAD"
+tag = "HEAD"
 verbose = 0
 antArgs = ""
 for x in sys.argv[1:]:
@@ -83,7 +83,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 
 #
@@ -93,17 +93,19 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.chdir(distdir)
+os.mkdir(os.path.join(distdir, "iceje"))
 
 #
-# Export IceEJ sources from CVS.
+# Export IceEJ sources from git.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out sources " + tag + "..."
 if verbose:
-    quiet = ""
+    quiet = "-v"
 else:
-    quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag + " iceje")
+    quiet = ""
+os.system("git archive " + quiet + " " + tag + " . | (cd dist/iceje && tar xf -)")
+
+os.chdir(distdir)
 
 #
 # Remove files.

@@ -87,7 +87,7 @@ if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
 #
 # Check arguments
 #
-tag = "-rHEAD"
+tag = "HEAD"
 skipTranslators = False 
 verbose = False 
 keepGoing = False
@@ -108,7 +108,7 @@ for x in sys.argv[1:]:
         usage()
         sys.exit(1)
     else:
-        tag = "-r" + x
+        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -118,20 +118,25 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.chdir(distdir)
+os.mkdir(os.path.join(distdir, "icej"))
+os.mkdir(os.path.join(distdir, "ice"))
 
 #
-# Export Java and C++ sources from CVS.
+# Export Java and C++ sources from git.
 #
 # NOTE: Assumes that the C++ and Java trees will use the same tag.
 #
-print "Checking out CVS tag " + tag + "..."
+print "Checking out " + tag + "..."
 if verbose:
-    quiet = ""
+    quiet = "-v"
 else:
-    quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.zeroc.com:/home/cvsroot export " + tag +
-          " icej ice/bin ice/config ice/include ice/lib ice/slice ice/src")
+    quiet = ""
+os.system("git archive " + quiet + " " + tag + " . | (cd dist/icej && tar xf -)")
+os.chdir(os.path.join("..", "cpp"))
+os.system("git archive " + quiet + " " + tag + " . | (cd ../java/dist/ice && tar xf -)")
+os.chdir(os.path.join("..", "java"))
+
+os.chdir(distdir)
 
 #
 # Check known preconditions for proper distribution building. Failed
