@@ -42,6 +42,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
 clean::
+	-rm -f build.txt
 	-rm -rf db/node db/registry
 
 include .depend

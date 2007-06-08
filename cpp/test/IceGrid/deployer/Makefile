@@ -53,6 +53,7 @@ $(SVCFILENAME): $(OBJS) $(SERVICE_OBJS)
 	$(call mkshlib,$@,$(SVCSONAME),$(OBJS) $(SERVICE_OBJS), $(DB_RPATH_LINK) -lFreeze $(LINKWITH))
 
 clean::
+	-rm -f build.txt
 	-rm -rf db/node db/registry
 
 include .depend

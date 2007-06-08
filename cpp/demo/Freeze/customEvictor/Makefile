@@ -49,10 +49,8 @@ Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
 	rm -f Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
-cleandb:
+clean::
 	-rm -rf db/__* db/items db/log*
-
-clean:: cleandb
 	-rm -f Database.h Database.cpp
 
 include .depend

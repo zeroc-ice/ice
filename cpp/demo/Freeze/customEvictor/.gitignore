@@ -4,3 +4,5 @@ Item.cpp
 ItemInfo.cpp
 Item.h
 ItemInfo.h
+Database.h
+Database.cpp
