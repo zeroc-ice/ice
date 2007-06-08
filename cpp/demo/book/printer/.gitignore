@@ -2,12 +2,3 @@ client
 server
 Printer.cpp
 Printer.h
-Printer.cpp
-Printer.h
-r
-Debug
-Release
-*.opt
-*.plg
-*.ncb
-*.vcproj

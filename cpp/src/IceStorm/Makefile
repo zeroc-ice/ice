@@ -99,13 +99,11 @@ PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(sliced
 	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,Ice::Identity,IceStorm::LinkRecordSeq \
 	PersistentTopicMap ../IceStorm/LinkRecord.ice
 
-clean::
-	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
-
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h
 
 clean::
+	-rm -f PersistentTopicMap.h PersistentTopicMap.cpp
 	-rm -f Grammar.cpp Grammar.h
 	-rm -f Scanner.cpp
 

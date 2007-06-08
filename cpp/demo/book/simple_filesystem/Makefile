@@ -46,8 +46,4 @@ $(SLICE_GEN): $(SLICE_SRCS) $(SLICE2CPP)
 
 test::
 
-clean::
-	rm -f $(SLICE_GEN)
-	rm -fr Debug Release *.opt *.plg *.ncb *.vcproj
-
 include .depend

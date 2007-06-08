@@ -36,7 +36,7 @@ reference/index.html: $(SLICEFILES)
 	cp $(JAVASCRIPT) reference
 
 clean::
-	rm -rf reference
+	-rm -rf reference/*
 
 install::
 	@if test -f reference/index.html ; \

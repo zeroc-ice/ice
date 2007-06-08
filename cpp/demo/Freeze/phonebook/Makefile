@@ -66,11 +66,9 @@ NameIndex.h NameIndex.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	$(SLICE2FREEZE) $(ICECPPFLAGS) --index NameIndex,Demo::Contact,name,case-insensitive NameIndex PhoneBook.ice
 
 clean::
-	rm -f NameIndex.h NameIndex.cpp
-
-clean::
-	rm -f Grammar.cpp Grammar.h
-	rm -f Scanner.cpp
-	rm -f db/contacts db/log*
+	-rm -f NameIndex.h NameIndex.cpp
+	-rm -f Grammar.cpp Grammar.h
+	-rm -f Scanner.cpp
+	-rm -f db/*
 
 include .depend

@@ -32,4 +32,4 @@ install:: all
 	$(call installprogram,$(NAME),$(install_bindir))
 
 clean::
-	rm -f cexp.c
+	-rm -f cexp.c

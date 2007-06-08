@@ -62,6 +62,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(ORACLE_LIBS) $(LIBS)
 
 clean::
-	rm -f $(GENERATED_PROC_FILES)
+	-rm -f $(GENERATED_PROC_FILES)
 
 include .depend

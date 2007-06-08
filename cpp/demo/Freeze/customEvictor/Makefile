@@ -45,15 +45,14 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
-
 Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
 	rm -f Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
 cleandb:
-	rm -f db/log.* db/__catalog db/items
+	-rm -rf db/__* db/items db/log*
 
 clean:: cleandb
-	rm -f Database.h Database.cpp
+	-rm -f Database.h Database.cpp
 
 include .depend

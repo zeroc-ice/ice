@@ -76,8 +76,7 @@ $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 	mv Catalog.h $(HDIR)/Catalog.h
 
 clean::
-	rm -f  $(HDIR)/Catalog.h Catalog.cpp
-
+	-rm -f $(HDIR)/Catalog.h Catalog.cpp
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

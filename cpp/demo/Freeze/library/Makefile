@@ -66,10 +66,9 @@ LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
 	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 
 clean::
-	rm -f LibraryTypes.h LibraryTypes.cpp
-
-clean::
-	rm -f Grammar.cpp Grammar.h
-	rm -f Scanner.cpp
+	-rm -f db/*
+	-rm -f LibraryTypes.h LibraryTypes.cpp
+	-rm -f Grammar.cpp Grammar.h
+	-rm -f Scanner.cpp
 
 include .depend

@@ -34,9 +34,7 @@ IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
 	$(SLICE2FREEZE) --dict IntSMap,int,::Test::S IntSMap TestOld.ice
 
 clean::
-	rm -f IntSMap.h IntSMap.cpp
-
-clean::
-	rm -f db/*.db db/log.* db/__catalog
+	-rm -f IntSMap.h IntSMap.cpp
+	-rm -f db/*
 
 include .depend

@@ -31,6 +31,6 @@ $(CLIENT): $(OBJS) $(COBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
 clean::
-	rm -f seed
+	-rm -f seed
 
 include .depend

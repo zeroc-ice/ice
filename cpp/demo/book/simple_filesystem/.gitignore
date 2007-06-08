@@ -2,12 +2,3 @@ client
 server
 Filesystem.cpp
 Filesystem.h
-Filesystem.cpp
-Filesystem.h
-r
-Debug
-Release
-*.opt
-*.plg
-*.ncb
-*.vcproj

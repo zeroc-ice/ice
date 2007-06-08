@@ -60,8 +60,8 @@ endif
 .NOTPARALLEL:
 
 clean::
-	rm -f Grammar.cpp Grammar.h
-	rm -f Scanner.cpp
+	-rm -f Grammar.cpp Grammar.h
+	-rm -f Scanner.cpp
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))

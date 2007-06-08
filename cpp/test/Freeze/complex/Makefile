@@ -37,13 +37,9 @@ ComplexDict.h ComplexDict.cpp: Complex.ice $(SLICE2FREEZE)
 	$(SLICE2FREEZE) -I$(slicedir) --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice
 
 clean::
-	rm -f ComplexDict.h ComplexDict.cpp
-
-clean::
-	rm -f Grammar.cpp Grammar.h
-	rm -f Scanner.cpp
-
-clean::
-	rm -f db/test db/log.*
+	-rm -f ComplexDict.h ComplexDict.cpp
+	-rm -f Grammar.cpp Grammar.h
+	-rm -f Scanner.cpp
+	-rm -f db/*
 
 include .depend
