@@ -1,0 +1,12 @@
+client
+server
+serveramd
+collocated
+Test.cpp
+TestAMD.cpp
+Wstring.cpp
+WstringAMD.cpp
+Test.h
+TestAMD.h
+Wstring.h
+WstringAMD.h

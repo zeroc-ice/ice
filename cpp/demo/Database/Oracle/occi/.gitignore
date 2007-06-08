@@ -1,0 +1,9 @@
+client
+server
+HR.cpp
+HR.h
+DbTypes.h
+DbTypes.cpp
+DbTypesMap.h
+DbTypesMap.cpp
+DbTypesOut.typ

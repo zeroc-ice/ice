@@ -1,0 +1,26 @@
+# Ignore objects and archives.
+*.[oa]
+*.obj
+*.dll
+*.ilk
+*.so
+*.sl
+*.dylib
+*.pyc
+*.class
+*.exe
+*.mdb
+*.pdb
+*.bak
+core
+/*/dist
+generated
+cgenerated
+sgenerated
+java/depcache
+java/lib
+*#
+.#*
+*~
+*.lib
+*.idb
