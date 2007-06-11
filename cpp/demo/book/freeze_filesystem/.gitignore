@@ -4,6 +4,7 @@ Filesystem.cpp
 PersistentFilesystem.cpp
 Filesystem.h
 PersistentFilesystem.h
+db/*
 Grammar.cpp
 Grammar.h
 Scanner.cpp

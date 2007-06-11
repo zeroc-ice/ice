@@ -46,11 +46,18 @@ def createGitIgnore(filename, gitIgnoreFiles):
         for f in files:
             if f in ignore:
                 continue
-            k = os.path.join(cwd, os.path.dirname(f), ".gitignore")
+
+            if f.startswith(".."):
+                k = os.path.join(cwd, os.path.dirname(f), ".gitignore")
+                v = os.path.basename(f) + "\n"
+            else:
+                k = os.path.join(cwd, ".gitignore")
+                v = f + "\n"
+
             k = os.path.normpath(k)
             if not gitIgnoreFiles.has_key(k):
                 gitIgnoreFiles[k] = [ ]
-            gitIgnoreFiles[k].append(os.path.basename(f) + "\n")
+            gitIgnoreFiles[k].append(v)
 
     file.close()
 

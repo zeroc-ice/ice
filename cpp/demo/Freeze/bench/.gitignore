@@ -1,5 +1,6 @@
 client
 Test.cpp
 Test.h
+db/*
 BenchTypes.h
 BenchTypes.cpp

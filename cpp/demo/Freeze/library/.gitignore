@@ -3,6 +3,7 @@ server
 collocated
 Library.cpp
 Library.h
+db/*
 LibraryTypes.h
 LibraryTypes.cpp
 Grammar.cpp

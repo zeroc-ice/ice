@@ -1,3 +1,4 @@
 makedb
 TestOld.cpp
 TestOld.h
+db/*

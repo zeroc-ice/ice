@@ -3,3 +3,4 @@ subscriber
 Event.cpp
 Event.h
 build.txt
+db/*
