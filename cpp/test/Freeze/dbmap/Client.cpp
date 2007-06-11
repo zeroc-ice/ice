@@ -205,12 +205,25 @@ run(const CommunicatorPtr& communicator, const string& envName)
 {
     const string dbName = "binary";
     Freeze::ConnectionPtr connection = createConnection(communicator, envName);
-    ByteIntMap m(connection, dbName);
+    ByteIntMap m1(connection, dbName);
     
     //
     // Populate the database with the alphabet
     //
-    populateDB(connection, m);
+    populateDB(connection, m1);
+
+    //
+    // Test ==, swap and communicator()
+    //
+    ByteIntMap m(connection, dbName + "-tmp");
+    test(!(m == m1));
+    test(m != m1);
+    m.swap(m1);
+    test(!(m == m1));
+    test(m != m1);
+    test(m1.size() == 0);
+    test(m.communicator() == m1.communicator() == communicator);
+
 
     vector<Byte>::const_iterator j;
     ByteIntMap::iterator p;
