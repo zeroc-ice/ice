@@ -224,8 +224,8 @@ class Nodes extends ListTreeNode
                 NodeDescriptor nodeDescriptor = new NodeDescriptor(update.variables,
                                                                    update.serverInstances,
                                                                    update.servers,
-                                                                   update.loadFactor.value,
-                                                                   update.description.value,
+                                                                   update.loadFactor == null ? "" : update.loadFactor.value,
+                                                                   update.description == null ? "" : update.description.value,
                                                                    new java.util.HashMap());
                 _descriptors.put(update.name, nodeDescriptor);
                 node = new Node(false, this, update.name, nodeDescriptor);

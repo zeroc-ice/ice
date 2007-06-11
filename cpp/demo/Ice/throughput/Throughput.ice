@@ -38,6 +38,8 @@ const int FixedSeqSize = 50000;
 
 interface Throughput
 {
+    bool needsWarmup();
+    void startWarmup();
     void endWarmup();
 
     void sendByteSeq(["cpp:array"] ByteSeq seq);

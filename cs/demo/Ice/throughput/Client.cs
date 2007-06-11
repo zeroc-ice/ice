@@ -71,9 +71,10 @@ public class Client : Ice.Application
         }
 
         //
-        // A method needs to be invoked thousands of times before the JIT compiler
-        // will convert it to native code. To ensure an accurate throughput measurement,
-        // we need to "warm up" the JIT compiler.
+        // A method needs to be invoked thousands of times before the
+        // JIT compiler will convert it to native code. To ensure an
+        // accurate throughput measurement, we need to "warm up" the
+        // JIT compiler.
         //
         {
             byte[] emptyBytes = new byte[1];
@@ -82,10 +83,11 @@ public class Client : Ice.Application
             emptyStructs[0] = new StringDouble();
             Fixed[] emptyFixed = new Fixed[1];
 
-            int reps = 10000;
-            Console.Error.Write("warming up the JIT compiler...");
+            throughput.startWarmup();
+
+            Console.Error.Write("warming up the client/server...");
             Console.Error.Flush();
-            for(int i = 0; i < reps; i++)
+            for(int i = 0; i < 10000; i++)
             {
                 throughput.sendByteSeq(emptyBytes);
                 throughput.sendStringSeq(emptyStrings);
@@ -103,6 +105,7 @@ public class Client : Ice.Application
                 throughput.echoFixedSeq(emptyFixed);
             }
             throughput.endWarmup();
+
             Console.Error.WriteLine("ok");
         }
         

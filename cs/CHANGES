@@ -37,6 +37,9 @@ Changes since version 3.2.X (binary incompabible)
 Changes since version 3.2.0
 ---------------------------
 
+- Changed to the throughput demo to better support cross-language
+  testing.
+
 - Fixed throughput performance problem on Windows that would occur
   when sending large requests.
 

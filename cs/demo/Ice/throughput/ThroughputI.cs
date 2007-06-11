@@ -13,8 +13,6 @@ public sealed class ThroughputI : ThroughputDisp_
 {
     public ThroughputI()
     {
-        _warmup = true;
-
         _byteSeq = new byte[ByteSeqSize.value];
         _stringSeq = new string[StringSeqSize.value];
         for(int i = 0; i < StringSeqSize.value; ++i)
@@ -37,9 +35,21 @@ public sealed class ThroughputI : ThroughputDisp_
         }
     }
 
+    public override bool needsWarmup(Ice.Current current)
+    {
+        _warmup = false;
+        return _needsWarmup;
+    }
+
+    public override void startWarmup(Ice.Current current)
+    {
+        _warmup = true;
+    }
+
     public override void endWarmup(Ice.Current current)
     {
         _warmup = false;
+        _needsWarmup = false;
     }
 
     public override void sendByteSeq(byte[] seq, Ice.Current current)
@@ -141,5 +151,6 @@ public sealed class ThroughputI : ThroughputDisp_
     private StringDouble[] _emptyStructSeq = new StringDouble[0];
     private Fixed[] _emptyFixedSeq = new Fixed[0];
 
-    private bool _warmup;
+    private bool _needsWarmup = true;
+    private bool _warmup = false;
 }

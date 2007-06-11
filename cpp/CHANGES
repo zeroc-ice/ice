@@ -56,6 +56,9 @@ Changes since version 3.2.X (binary incompabible)
 Changes since version 3.2.0
 ---------------------------
 
+- Changed to the throughput demo to better support cross-language
+  testing.
+
 - Fixed bug with IceUtil::Cond under Windows which could cause a
   deadlock if signal was used in conjunction multiple waiting threads
   where at least one thread is using timedWait. Note that this bug

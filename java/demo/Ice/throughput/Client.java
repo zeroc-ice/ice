@@ -96,9 +96,10 @@ public class Client extends Ice.Application
         }
 
         //
-        // A method needs to be invoked thousands of times before the JIT compiler
-        // will convert it to native code. To ensure an accurate throughput measurement,
-        // we need to "warm up" the JIT compiler.
+        // A method needs to be invoked thousands of times before the
+        // JIT compiler will convert it to native code. To ensure an
+        // accurate throughput measurement, we need to "warm up" the
+        // JIT compiler.
         //
         {
             byte[] emptyBytes= new byte[1];
@@ -108,10 +109,11 @@ public class Client extends Ice.Application
             Fixed[] emptyFixed = new Fixed[1];
             emptyFixed[0] = new Fixed();
 
-            final int repetitions = 10000;
-            System.out.print("warming up the JIT compiler...");
+            throughput.startWarmup();
+
+            System.out.print("warming up the client/server...");
             System.out.flush();
-            for(int i = 0; i < repetitions; i++)
+            for(int i = 0; i < 10000; i++)
             {
                 throughput.sendByteSeq(emptyBytes);
                 throughput.sendStringSeq(emptyStrings);
@@ -128,12 +130,10 @@ public class Client extends Ice.Application
                 throughput.echoStructSeq(emptyStructs);
                 throughput.echoFixedSeq(emptyFixed);
             }
-
             throughput.endWarmup();
             
             System.out.println(" ok");
         }
-
 
         menu();
 

@@ -18,6 +18,8 @@ public:
 
     ThroughputI();
 
+    virtual bool needsWarmup(const Ice::Current&);
+    virtual void startWarmup(const Ice::Current&);
     virtual void endWarmup(const Ice::Current&);
     virtual void sendByteSeq(const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&);
     virtual Demo::ByteSeq recvByteSeq(const Ice::Current&);

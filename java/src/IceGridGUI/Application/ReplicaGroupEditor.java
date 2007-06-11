@@ -229,7 +229,7 @@ class ReplicaGroupEditor extends Editor
 
         descriptor.id = _id.getText().trim();
         descriptor.description = _description.getText();
-        descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
+        descriptor.objects = _objectList;
         
         Object loadBalancing = _loadBalancing.getSelectedItem();
         if(loadBalancing == ORDERED)
@@ -316,6 +316,16 @@ class ReplicaGroupEditor extends Editor
 
     protected boolean validate()
     {
+        //
+        // First validate stringified identities
+        //
+        _objectList = mapToObjectDescriptorSeq(_objects.get());
+        
+        if(_objectList == null)
+        {
+            return false;
+        }
+
         return check(new String[]{"Replica Group ID", _id.getText().trim()});
     }
 
@@ -419,19 +429,39 @@ class ReplicaGroupEditor extends Editor
     
     private java.util.LinkedList mapToObjectDescriptorSeq(java.util.Map map)
     {
+        String badIdentities = "";
         java.util.LinkedList result = new java.util.LinkedList();
         java.util.Iterator p = map.entrySet().iterator();
+        
         while(p.hasNext())
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            Ice.Identity id = 
-                Ice.Util.stringToIdentity((String)entry.getKey());
-            String type = (String)entry.getValue();
-            result.add(new ObjectDescriptor(id, type));
+            try
+            {
+                Ice.Identity id = Ice.Util.stringToIdentity((String)entry.getKey());
+                String type = (String)entry.getValue();
+                result.add(new ObjectDescriptor(id, type));
+            }
+            catch(Ice.IdentityParseException ex)
+            {
+                badIdentities += "- " + (String)entry.getKey() + "\n";
+            }
         }
-        return result;
-    }
+        if(!badIdentities.equals(""))
+        {
+            JOptionPane.showMessageDialog(
+                _target.getCoordinator().getMainFrame(),
+                "The following identities could not be parsed properly:\n" + badIdentities,
+                "Validation failed",
+                JOptionPane.ERROR_MESSAGE);
 
+            return null;
+        }
+        else
+        {
+            return result;
+        }
+    }
 
     static private String ORDERED = "Ordered";
     static private String RANDOM = "Random";
@@ -451,4 +481,5 @@ class ReplicaGroupEditor extends Editor
         {"1", "5", "15"});
     
     private MapField _objects;
+    private java.util.LinkedList _objectList;
 }
