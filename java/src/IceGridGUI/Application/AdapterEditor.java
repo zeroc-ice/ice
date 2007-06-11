@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -194,8 +195,8 @@ class AdapterEditor extends CommunicatorChildEditor
         descriptor.priority = _priority.getText().trim();
         descriptor.registerProcess = _registerProcess.isSelected();
         descriptor.serverLifetime = _serverLifetime.isSelected();
-        descriptor.objects = mapToObjectDescriptorSeq(_objects.get());
-        descriptor.allocatables = mapToObjectDescriptorSeq(_allocatables.get());
+        descriptor.objects = _objectList;
+        descriptor.allocatables = _allocatableList;
     }       
     
     boolean isSimpleUpdate()
@@ -413,6 +414,23 @@ class AdapterEditor extends CommunicatorChildEditor
 
     protected boolean validate()
     {
+        //
+        // First validate stringified identities
+        //
+        _objectList = mapToObjectDescriptorSeq(_objects.get());
+        
+        if(_objectList == null)
+        {
+            return false;
+        }
+
+        _allocatableList = mapToObjectDescriptorSeq(_allocatables.get());
+
+        if(_allocatableList == null)
+        {
+            return false;
+        }
+        
         return check(new String[]{
             "Adapter Name", _name.getText().trim(),
             "Adapter ID", getIdAsString(),
@@ -560,17 +578,39 @@ class AdapterEditor extends CommunicatorChildEditor
     
     private java.util.LinkedList mapToObjectDescriptorSeq(java.util.Map map)
     {
+        String badIdentities = "";
         java.util.LinkedList result = new java.util.LinkedList();
         java.util.Iterator p = map.entrySet().iterator();
+     
         while(p.hasNext())
         {
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            Ice.Identity id = 
-                Ice.Util.stringToIdentity((String)entry.getKey());
-            String[] val = (String[])entry.getValue();
-            result.add(new ObjectDescriptor(id, val[0]));
+            try
+            {
+                Ice.Identity id = Ice.Util.stringToIdentity((String)entry.getKey());
+                String[] val = (String[])entry.getValue();
+                result.add(new ObjectDescriptor(id, val[0]));
+            }
+            catch(Ice.IdentityParseException ex)
+            {
+                badIdentities += "- " + (String)entry.getKey() + "\n";
+            }
         }
-        return result;
+
+        if(!badIdentities.equals(""))
+        {
+            JOptionPane.showMessageDialog(
+                _target.getCoordinator().getMainFrame(),
+                "The following identities could not be parsed properly:\n" + badIdentities,
+                "Validation failed",
+                JOptionPane.ERROR_MESSAGE);
+
+            return null;
+        }
+        else
+        {
+            return result;
+        }
     }
 
     private String _defaultAdapterId = "";
@@ -605,7 +645,9 @@ class AdapterEditor extends CommunicatorChildEditor
     private JCheckBox _serverLifetime;
 
     private MapField _objects;
+    private java.util.LinkedList _objectList;
     private MapField _allocatables;
+    private java.util.LinkedList _allocatableList;
 
     static private final Object PUBLISH_ACTUAL = new Object()
         {
