@@ -60,6 +60,8 @@ all::
 !endif
 
 clean::
+	del /q build.txt
 	del /q db\topicmanager db\log.*
+	del /q db2\topicmanager db2\log.*
 
 !include .depend

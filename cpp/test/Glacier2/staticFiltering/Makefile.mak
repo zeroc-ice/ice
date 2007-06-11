@@ -47,4 +47,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Backend.cpp Backend.h
 
+clean::
+	del /q attack.cfg router.cfg server.cfg
+
 !include .depend

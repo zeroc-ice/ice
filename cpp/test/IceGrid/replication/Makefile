@@ -43,6 +43,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 clean::
 	-rm -f build.txt
-	-rm -rf db/node db/registry
+	-rm -rf db/node db/registry db/replica-*
 
 include .depend
