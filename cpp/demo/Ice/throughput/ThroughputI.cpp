@@ -15,7 +15,7 @@ ThroughputI::ThroughputI() :
     _stringSeq(Demo::StringSeqSize, "hello"),
     _structSeq(Demo::StringDoubleSeqSize),
     _fixedSeq(Demo::FixedSeqSize),
-    _warmup(true)
+    _warmup(false)
 {
     int i;
     for(i = 0; i < Demo::StringDoubleSeqSize; ++i)
@@ -29,6 +29,19 @@ ThroughputI::ThroughputI() :
         _fixedSeq[i].j = 0;
         _fixedSeq[i].d = 0;
     }
+}
+
+bool
+ThroughputI::needsWarmup(const Ice::Current&)
+{
+    _warmup = false;
+    return false;
+}
+
+void
+ThroughputI::startWarmup(const Ice::Current&)
+{
+    _warmup = true;
 }
 
 void

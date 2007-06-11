@@ -75,9 +75,47 @@ class Client < Ice::Application
         fixed.d = 0.0
         fixedSeq = Array.new(Demo::FixedSeqSize, fixed)
 
-        menu()
+        #
+        # To allow cross-language tests we may need to "warm up" the
+        # server. The warm up is to ensure that any JIT compiler will
+        # have converted any hotspots to native code. This ensures an
+        # accurate throughput measurement.
+        #
+        if throughput.needsWarmup()
+            throughput.startWarmup()
 
-        throughput.endWarmup() # Initial ping to setup the connection.
+            emptyBytes = "\x00"
+            emptyStrings = Array.new(1, "hello")
+            emptyStructs = Array.new(1, Demo::StringDouble.new)
+            emptyFixed = Array.new(1, Demo::Fixed.new)
+
+            print "warming up the server..."
+            STDOUT.flush
+            for i in (0..10000)
+                throughput.sendByteSeq(emptyBytes)
+                throughput.sendStringSeq(emptyStrings)
+                throughput.sendStructSeq(emptyStructs)
+                throughput.sendFixedSeq(emptyFixed)
+
+                throughput.recvByteSeq()
+                throughput.recvStringSeq()
+                throughput.recvStructSeq()
+                throughput.recvFixedSeq()
+
+                throughput.echoByteSeq(emptyBytes)
+                throughput.echoStringSeq(emptyStrings)
+                throughput.echoStructSeq(emptyStructs)
+                throughput.echoFixedSeq(emptyFixed)
+            end
+
+            throughput.endWarmup()
+
+            print " ok\n"
+        else
+            throughput.ice_ping() # Initial ping to setup the connection.
+        end
+
+        menu()
 
         currentType = '1'
         seqSize = Demo::ByteSeqSize

@@ -14,8 +14,6 @@ public final class ThroughputI extends _ThroughputDisp
     public
     ThroughputI()
     {
-        _warmup = true; 
-
         _byteSeq = new byte[ByteSeqSize.value];
 
         _stringSeq = new String[StringSeqSize.value];
@@ -42,10 +40,24 @@ public final class ThroughputI extends _ThroughputDisp
         }
     }
 
+    public boolean
+    needsWarmup(Ice.Current current)
+    {
+        _warmup = false;
+        return _needsWarmup;
+    }
+
+    public void
+    startWarmup(Ice.Current current)
+    {
+        _warmup = true;
+    }
+
     public void
     endWarmup(Ice.Current current)
     {
         _warmup = false;
+        _needsWarmup = false;
     }
 
     public void
@@ -160,5 +172,6 @@ public final class ThroughputI extends _ThroughputDisp
     private StringDouble[] _emptyStructSeq = new StringDouble[0];
     private Fixed[] _emptyFixedSeq = new Fixed[0];
 
-    private boolean _warmup;
+    private boolean _needsWarmup = true;
+    private boolean _warmup = false;
 }

@@ -15,7 +15,7 @@ import Demo
 
 class ThroughputI(Demo.Throughput):
     def __init__(self):
-        warmup = True
+        warmup = False
         
         bytes = []
         bytes[0:Demo.ByteSeqSize] = range(0, Demo.ByteSeqSize)
@@ -40,6 +40,13 @@ class ThroughputI(Demo.Throughput):
             self.fixedSeq[i].i = 0
             self.fixedSeq[i].j = 0
             self.fixedSeq[i].d = 0.0
+
+    def needsWarmup(self, current=None):
+        self.warmup = False
+        return False
+
+    def startWarmup(self, current=None):
+        self.warmup = True
 
     def endWarmup(self, current=None):
         self.warmup = False

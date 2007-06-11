@@ -50,6 +50,7 @@ ThroughputClient::run(int argc, char* argv[])
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
+
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
     ByteSeq byteSeq(ByteSeqSize);
@@ -75,9 +76,61 @@ ThroughputClient::run(int argc, char* argv[])
         fixedSeq[i].d = 0;
     }
 
-    menu();
 
-    throughput->endWarmup(); // Initial ping to setup the connection.
+    //
+    // To allow cross-language tests we may need to "warm up" the
+    // server. The warm up is to ensure that any JIT compiler will
+    // have converted any hotspots to native code. This ensures an
+    // accurate throughput measurement.
+    //
+    if(throughput->needsWarmup())
+    {
+        throughput->startWarmup();
+
+        ByteSeq emptyBytesBuf(1);
+        emptyBytesBuf.resize(1);
+        pair<const Ice::Byte*, const Ice::Byte*> emptyBytes;
+        emptyBytes.first = &emptyBytesBuf[0];
+        emptyBytes.second = emptyBytes.first + emptyBytesBuf.size();
+
+        StringSeq emptyStrings(1);
+        emptyStrings.resize(1);
+
+        StringDoubleSeq emptyStructs(1);
+        emptyStructs.resize(1);
+
+        FixedSeq emptyFixed(1);
+        emptyFixed.resize(1);
+
+        cout << "warming up the server... " << flush;
+        for(int i = 0; i < 10000; i++)
+        {
+            throughput->sendByteSeq(emptyBytes);
+            throughput->sendStringSeq(emptyStrings);
+            throughput->sendStructSeq(emptyStructs);
+            throughput->sendFixedSeq(emptyFixed);
+
+            throughput->recvByteSeq();
+            throughput->recvStringSeq();
+            throughput->recvStructSeq();
+            throughput->recvFixedSeq();
+
+            throughput->echoByteSeq(emptyBytesBuf);
+            throughput->echoStringSeq(emptyStrings);
+            throughput->echoStructSeq(emptyStructs);
+            throughput->echoFixedSeq(emptyFixed);
+        }
+
+        throughput->endWarmup();
+
+        cout << " ok" << endl;
+    }
+    else
+    {
+        throughput->ice_ping(); // Initial ping to setup the connection.
+    }
+
+    menu();
 
     //
     // By default use byte sequence.
@@ -182,7 +235,6 @@ ThroughputClient::run(int argc, char* argv[])
                     }
                 }
                 cout << " sequences of size " << seqSize;
-
 
                 if(c == 'o')
                 {
