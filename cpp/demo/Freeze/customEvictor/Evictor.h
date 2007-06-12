@@ -16,7 +16,6 @@
 #include <ItemI.h>
 #include <list>
 
-
 struct EvictorEntry;
 typedef IceUtil::Handle<EvictorEntry> EvictorEntryPtr;
 
@@ -62,13 +61,11 @@ struct EvictorEntry : public Ice::LocalObject
     bool stale; // stale is true when the entry is no longer (or not yet) in the Cache map
 };
 
-
 class Evictor : public Ice::ServantLocator
 {
 public:
     
     Evictor(CurrentDatabase&, int);
-
     
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);

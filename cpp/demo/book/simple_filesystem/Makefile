@@ -16,11 +16,12 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_SRCS	= Filesystem.ice
 
-OBJS		= $(SLICE_SRCS:.ice=.o)
+OBJS		= Filesystem.o
 
 COBJS		= Client.o
 
-SOBJS		= Server.o FilesystemI.o
+SOBJS		= Server.o \
+		  FilesystemI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

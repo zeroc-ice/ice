@@ -29,6 +29,6 @@ $(CLIENT): $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 clean::
-	-rm -f db/*
+	-rm -rf db/* db_tmp db_check
 
 include .depend

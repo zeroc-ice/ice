@@ -50,6 +50,6 @@ $(VERIFIER): $(VOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(VOBJS) -lGlacier2 $(LIBS)
 
 clean::
-	-rm -rf db/node db/registry db/node-1 db/node-2
+	-rm -rf db/node db/registry db/node-1 db/node-2 db/replica-*
 
 include .depend

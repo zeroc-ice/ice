@@ -43,7 +43,6 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 !endif
 
-
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
@@ -53,7 +52,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(LINK) $(LD_EXEFLAGS) $(SPDBFLAGS) $(SETARGV) $(OBJS) $(SOBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS) freeze$(LIBSUFFIX).lib
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
-
 
 Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
 	del /q Database.h Database.cpp
@@ -66,5 +64,7 @@ clean:: cleandb
 	del /q Item.h Item.cpp
 	del /q ItemInfo.h ItemInfo.cpp
 	del /q Database.h Database.cpp
+	del /q Item.cpp Item.h
+	del /q ItemInfo.cpp ItemInfo.h
 
 include .depend

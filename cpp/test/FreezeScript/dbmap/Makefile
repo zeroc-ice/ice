@@ -35,6 +35,6 @@ IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
 
 clean::
 	-rm -f IntSMap.h IntSMap.cpp
-	-rm -f db/*
+	-rm -rf db/* db_init db_check db_tmp
 
 include .depend

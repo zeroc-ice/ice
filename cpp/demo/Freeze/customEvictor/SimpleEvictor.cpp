@@ -61,7 +61,7 @@ SimpleEvictor::add(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 }
 
 void 
-SimpleEvictor::evict(const Ice::ObjectPtr& current, const Ice::LocalObjectPtr&)
+SimpleEvictor::evict(const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
 {
     //
     // Nothing to do

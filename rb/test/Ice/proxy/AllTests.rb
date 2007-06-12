@@ -192,19 +192,23 @@ def allTests(communicator)
 
     # These two properties don't do anything to direct proxies so
     # first we test that.
-    property = propertyPrefix + ".Locator"
-    test(!b1.ice_getLocator())
-    prop.setProperty(property, "locator:default -p 10000")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(!b1.ice_getLocator())
-    prop.setProperty(property, "")
+    #
+    # Commented out because setting a locator or locator cache
+    # timeout on a direct proxy causes warning.
+    #
+    # property = propertyPrefix + ".Locator"
+    # test(!b1.ice_getLocator())
+    # prop.setProperty(property, "locator:default -p 10000")
+    # b1 = communicator.propertyToProxy(propertyPrefix)
+    # test(!b1.ice_getLocator())
+    # prop.setProperty(property, "")
 
-    property = propertyPrefix + ".LocatorCacheTimeout"
-    test(b1.ice_getLocatorCacheTimeout() == 0)
-    prop.setProperty(property, "1")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(b1.ice_getLocatorCacheTimeout() == 0)
-    prop.setProperty(property, "")
+    # property = propertyPrefix + ".LocatorCacheTimeout"
+    # test(b1.ice_getLocatorCacheTimeout() == 0)
+    # prop.setProperty(property, "1")
+    # b1 = communicator.propertyToProxy(propertyPrefix)
+    # test(b1.ice_getLocatorCacheTimeout() == 0)
+    # prop.setProperty(property, "")
 
     # Now retest with an indirect proxy.
     prop.setProperty(propertyPrefix, "test")
@@ -274,6 +278,8 @@ def allTests(communicator)
     #prop.setProperty(property, "")
 
     property = propertyPrefix + ".ThreadPerConnection"
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
     test(!b1.ice_isThreadPerConnection())
     prop.setProperty(property, "1")
     b1 = communicator.propertyToProxy(propertyPrefix)

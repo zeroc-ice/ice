@@ -319,6 +319,8 @@ public class AllTests
         prop.setProperty(property, "");
 
         property = propertyPrefix + ".ThreadPerConnection";
+        prop.setProperty(property, "0");
+        b1 = communicator.propertyToProxy(propertyPrefix);
         test(!b1.ice_isThreadPerConnection());
         prop.setProperty(property, "1");
         b1 = communicator.propertyToProxy(propertyPrefix);
