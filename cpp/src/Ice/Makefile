@@ -144,6 +144,10 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
 
+# We have to create a dummy 
+depend::
+	-touch EventLoggerMsg.h
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS $(BZIP2_FLAGS)
@@ -165,5 +169,8 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+
+clean::
+	-rm -f EventLoggerMsg.h
 
 include .depend
