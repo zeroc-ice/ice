@@ -32,6 +32,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const std::string _envName;
     const std::string _dbName;
+    IceUtil::Mutex _dbListMutex;
     std::list<Database*> _dbList;
 };
 
