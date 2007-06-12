@@ -36,17 +36,25 @@ ifeq ($(CXX),CC)
     #
     CCVERSION		    = $(filter 5.%, $(shell CC -V 2>&1))
 
-    ifeq ($(MACHINE_TYPE),sun4u)
+    ifeq ($(CCVERSION),5.9)
         ifeq ($(LP64),yes)
-            CXXARCHFLAGS    = -xarch=v9
-        else
-            CXXARCHFLAGS    = -xarch=v8plus
+	    CXXARCHFLAGS	= -m64
+	else
+	    CXXARCHFLAGS	= -m32
+	endif
+    else
+        ifeq ($(MACHINE_TYPE),sun4u)
+            ifeq ($(LP64),yes)
+                CXXARCHFLAGS    = -xarch=v9
+            else
+                CXXARCHFLAGS    = -xarch=v8plus
+            endif
         endif
-    endif
 
-    ifeq ($(MACHINE_TYPE),i86pc)
-        ifeq ($(LP64),yes)
-            CXXARCHFLAGS    = -xarch=amd64
+        ifeq ($(MACHINE_TYPE),i86pc)
+            ifeq ($(LP64),yes)
+                CXXARCHFLAGS    = -xarch=amd64
+            endif
         endif
     endif
 
