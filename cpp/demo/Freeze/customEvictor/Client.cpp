@@ -160,13 +160,13 @@ WarehouseClient::run(int argc, char* argv[])
         rt[i] = new ReaderThread(anItem);
         rt[i]->start();
     }
-   
+
     wt->getThreadControl().join();
     for(i = 0; i < readerCount; ++i)
     {
         rt[i]->getThreadControl().join(); 
     }
-   
+
     //
     // Display results:
     //
@@ -183,7 +183,7 @@ WarehouseClient::run(int argc, char* argv[])
         if(rpt > 0)
         {
             cout << "Reader " << i << ": " << rpt << " requests per second (" << 1000.0 / rpt
-                 << " ms per request)" << endl;
+		 << " ms per request)" << endl;
         }
     }
     
