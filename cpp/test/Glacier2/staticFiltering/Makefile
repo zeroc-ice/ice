@@ -39,4 +39,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
+clean::
+	-rm -f attack.cfg router.cfg server.cfg
+
 include .depend

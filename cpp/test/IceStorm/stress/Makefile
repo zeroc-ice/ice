@@ -41,6 +41,6 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 
 clean::
 	-rm -f build.txt
-	-rm -f db/*
+	-rm -f db/* db2/*
 
 include .depend

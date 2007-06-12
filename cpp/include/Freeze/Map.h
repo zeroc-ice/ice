@@ -856,7 +856,7 @@ public:
         // equality is not necessarily correct in the context of a
         // transaction.
         //
-        if(count() != rhs.count())
+        if(size() != rhs.size())
         {
             return false;
         }
@@ -1144,7 +1144,7 @@ public:
     const Ice::CommunicatorPtr&
     communicator() const
     {
-        return _communicator();
+        return _communicator;
     }
 
 protected:
@@ -1155,7 +1155,7 @@ protected:
     }
 
     std::auto_ptr<MapHelper> _helper;
-    const Ice::CommunicatorPtr _communicator;
+    Ice::CommunicatorPtr _communicator;
 };
 
 

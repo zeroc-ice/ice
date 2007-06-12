@@ -48,4 +48,9 @@ $(SERVER): $(SOBJS)
 clean::
 	del /q Test.cpp Test.h
 
+clean::
+	if exist db\node rmdir /s /q db\node 
+	if exist db\registry rmdir /s /q db\registry 
+	if exist db\replica-1 rmdir /s /q db\replica-1
+
 !include .depend
