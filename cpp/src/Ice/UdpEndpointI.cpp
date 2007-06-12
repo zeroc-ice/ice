@@ -22,7 +22,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& ho, Int po, const string& mif, 
-                                        Int mttl, bool conn, const string& conId, bool co, bool oae) :
+                                        Int mttl, bool conn, const string& conId, bool co) :
     _instance(instance),
     _host(ho),
     _port(po),
@@ -34,12 +34,11 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
     _encodingMinor(encodingMinor),
     _connect(conn),
     _connectionId(conId),
-    _compress(co),
-    _oaEndpoint(oae)
+    _compress(co)
 {
 }
 
-IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool oaEndpoint) :
+IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const string& str, bool server) :
     _instance(instance),
     _port(0),
     _mcastTtl(-1),
@@ -48,8 +47,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
     _encodingMajor(encodingMajor),
     _encodingMinor(encodingMinor),
     _connect(false),
-    _compress(false),
-    _oaEndpoint(oaEndpoint)
+    _compress(false)
 {
     const string delim = " \t\n\r";
 
@@ -270,7 +268,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(const InstancePtr& instance, const strin
         const_cast<string&>(_host) = _instance->defaultsAndOverrides()->defaultHost;
         if(_host.empty())
         {
-            if(_oaEndpoint)
+            if(server)
             {
                 const_cast<string&>(_host) = "0.0.0.0";
             }
@@ -295,8 +293,7 @@ IceInternal::UdpEndpointI::UdpEndpointI(BasicStream* s) :
     _encodingMajor(encodingMajor),
     _encodingMinor(encodingMinor),
     _connect(false),
-    _compress(false),
-    _oaEndpoint(false)
+    _compress(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host), false);
@@ -427,7 +424,7 @@ IceInternal::UdpEndpointI::connectionId(const string& connectionId) const
     else
     {
         return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId, 
-                                _compress, _oaEndpoint);
+                                _compress);
     }
 }
 
@@ -447,7 +444,7 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     else
     {
         return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId, 
-                                compress, _oaEndpoint);
+                                compress);
     }
 }
 
@@ -474,7 +471,7 @@ IceInternal::UdpEndpointI::transceiver(EndpointIPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
     endp = new UdpEndpointI(_instance, _host, p->effectivePort(), _mcastInterface, _mcastTtl, _connect, _connectionId,
-                            _compress, _oaEndpoint);
+                            _compress);
     return p;
 }
 
@@ -499,7 +496,7 @@ IceInternal::UdpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 }
 
 vector<EndpointIPtr>
-IceInternal::UdpEndpointI::expand() const
+IceInternal::UdpEndpointI::expand(bool includeLoopback) const
 {
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
@@ -507,10 +504,10 @@ IceInternal::UdpEndpointI::expand() const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            if(!_oaEndpoint || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+            if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
             {
                 endps.push_back(new UdpEndpointI(_instance, hosts[i], _port, _mcastInterface, _mcastTtl, _connect,
-                                                 _connectionId, _compress, _oaEndpoint));
+                                                 _connectionId, _compress));
             }
         }
     }
@@ -754,9 +751,9 @@ IceInternal::UdpEndpointFactory::protocol() const
 }
 
 EndpointIPtr
-IceInternal::UdpEndpointFactory::create(const std::string& str, bool oaEndpoint) const
+IceInternal::UdpEndpointFactory::create(const std::string& str, bool server) const
 {
-    return new UdpEndpointI(_instance, str, oaEndpoint);
+    return new UdpEndpointI(_instance, str, server);
 }
 
 EndpointIPtr

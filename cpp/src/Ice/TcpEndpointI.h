@@ -22,7 +22,7 @@ class TcpEndpointI : public EndpointI
 {
 public:
 
-    TcpEndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool, bool);
+    TcpEndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
     TcpEndpointI(const InstancePtr&, const std::string&, bool);
     TcpEndpointI(BasicStream*);
 
@@ -40,7 +40,7 @@ public:
     virtual TransceiverPtr transceiver(EndpointIPtr&) const;
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
-    virtual std::vector<EndpointIPtr> expand() const;
+    virtual std::vector<EndpointIPtr> expand(bool) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -69,7 +69,6 @@ private:
     const Ice::Int _timeout;
     const std::string _connectionId;
     const bool _compress;
-    const bool _oaEndpoint;
 };
 
 class TcpEndpointFactory : public EndpointFactory

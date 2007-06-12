@@ -1175,7 +1175,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         while(p.hasNext())
         {
             IceInternal.EndpointI endp = (IceInternal.EndpointI)p.next();
-            java.util.ArrayList endps = endp.expand();
+            java.util.ArrayList endps = endp.expand(false);
             expandedEndpoints.addAll(endps);
         }
         return expandedEndpoints;

@@ -263,7 +263,7 @@ final class UnknownEndpointI extends EndpointI
     // host if endpoint was configured with no host set.
     //
     public java.util.ArrayList
-    expand()
+    expand(boolean includeLoopback)
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         endps.add(this);

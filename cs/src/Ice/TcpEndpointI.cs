@@ -17,7 +17,7 @@ namespace IceInternal
     {
         internal const short TYPE = 1;
         
-        public TcpEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool oae)
+        public TcpEndpointI(Instance instance, string ho, int po, int ti, string conId, bool co)
         {
             instance_ = instance;
             _host = ho;
@@ -25,18 +25,16 @@ namespace IceInternal
             _timeout = ti;
             _connectionId = conId;
             _compress = co;
-            _oaEndpoint = oae;
             calcHashValue();
         }
         
-        public TcpEndpointI(Instance instance, string str, bool oaEndpoint)
+        public TcpEndpointI(Instance instance, string str, bool server)
         {
             instance_ = instance;
             _host = null;
             _port = 0;
             _timeout = -1;
             _compress = false;
-            _oaEndpoint = oaEndpoint;
             
             char[] separators = { ' ', '\t', '\n', '\r' };
             string[] arr = str.Split(separators);
@@ -159,7 +157,7 @@ namespace IceInternal
                 _host = instance_.defaultsAndOverrides().defaultHost;
                 if(_host == null)
                 {
-                    if(_oaEndpoint)
+                    if(server)
                     {
                         _host = "0.0.0.0";
                     }
@@ -185,7 +183,6 @@ namespace IceInternal
             _timeout = s.readInt();
             _compress = s.readBool();
             s.endReadEncaps();
-            _oaEndpoint = false;
             calcHashValue();
         }
         
@@ -257,7 +254,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
+                return new TcpEndpointI(instance_, _host, _port, timeout, _connectionId, _compress);
             }
         }
 
@@ -272,7 +269,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
+                return new TcpEndpointI(instance_, _host, _port, _timeout, connectionId, _compress);
             }
         }
         
@@ -298,7 +295,7 @@ namespace IceInternal
             }
             else
             {
-                return new TcpEndpointI(instance_, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
+                return new TcpEndpointI(instance_, _host, _port, _timeout, _connectionId, compress);
             }
         }
         
@@ -364,8 +361,7 @@ namespace IceInternal
         public override Acceptor acceptor(ref EndpointI endpoint, string adapterName)
         {
             TcpAcceptor p = new TcpAcceptor(instance_, _host, _port);
-            endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _connectionId,
-                                        _compress, _oaEndpoint);
+            endpoint = new TcpEndpointI(instance_, _host, p.effectivePort(), _timeout, _connectionId, _compress);
             return p;
         }
 
@@ -374,7 +370,7 @@ namespace IceInternal
         // host if endpoint was configured with no host set.
         //
         public override ArrayList
-        expand()
+        expand(bool includeLoopback)
         {
             ArrayList endps = new ArrayList();
             if(_host.Equals("0.0.0.0"))
@@ -382,10 +378,9 @@ namespace IceInternal
                 string[] hosts = Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    if(!_oaEndpoint || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+                    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
                     {
-                        endps.Add(new TcpEndpointI(instance_, hosts[i], _port, _timeout, _connectionId, _compress,
-                                                   _oaEndpoint));
+                        endps.Add(new TcpEndpointI(instance_, hosts[i], _port, _timeout, _connectionId, _compress));
                     }
                 }
             }
@@ -520,7 +515,6 @@ namespace IceInternal
         private int _timeout;
         private string _connectionId = "";
         private bool _compress;
-        private bool _oaEndpoint;
         private int _hashCode;
     }
 
@@ -541,9 +535,9 @@ namespace IceInternal
             return "tcp";
         }
         
-        public EndpointI create(string str, bool oaEndpoint)
+        public EndpointI create(string str, bool server)
         {
-            return new TcpEndpointI(instance_, str, oaEndpoint);
+            return new TcpEndpointI(instance_, str, server);
         }
         
         public EndpointI read(BasicStream s)

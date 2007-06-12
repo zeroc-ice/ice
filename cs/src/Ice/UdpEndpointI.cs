@@ -18,7 +18,7 @@ namespace IceInternal
         internal const short TYPE = 3;
         
         public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, bool conn, string conId,
-                            bool co, bool oae)
+                            bool co)
         {
             instance_ = instance;
             _host = ho;
@@ -32,11 +32,10 @@ namespace IceInternal
             _connect = conn;
             _connectionId = conId;
             _compress = co;
-            _oaEndpoint = oae;
             calcHashValue();
         }
         
-        public UdpEndpointI(Instance instance, string str, bool oaEndpoint)
+        public UdpEndpointI(Instance instance, string str, bool server)
         {
             instance_ = instance;
             _host = null;
@@ -47,7 +46,6 @@ namespace IceInternal
             _encodingMinor = Protocol.encodingMinor;
             _connect = false;
             _compress = false;
-            _oaEndpoint = true;
             
             char[] splitChars = { ' ', '\t', '\n', '\r' };
             string[] arr = str.Split(splitChars);
@@ -292,7 +290,7 @@ namespace IceInternal
                 _host = instance_.defaultsAndOverrides().defaultHost;
                 if(_host == null)
                 {
-                    if(_oaEndpoint)
+                    if(server)
                     {
                         _host = "0.0.0.0";
                     }
@@ -342,7 +340,6 @@ namespace IceInternal
             _connect = false;
             _compress = s.readBool();
             s.endReadEncaps();
-            _oaEndpoint = false;
             calcHashValue();
         }
         
@@ -456,7 +453,7 @@ namespace IceInternal
             else
             {
                 return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
-                                        compress, _oaEndpoint);
+                                        compress);
             }
         }
 
@@ -472,7 +469,7 @@ namespace IceInternal
             else
             {
                 return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId,
-                                        _compress, _oaEndpoint);
+                                        _compress);
             }
         }
         
@@ -521,7 +518,7 @@ namespace IceInternal
         {
             UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
             endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, _connect,
-                                        _connectionId, _compress, _oaEndpoint);
+                                        _connectionId, _compress);
             return p;
         }
         
@@ -559,7 +556,7 @@ namespace IceInternal
         // host if endpoint was configured with no host set.
         //
         public override ArrayList
-        expand()
+        expand(bool includeLoopback)
         {
             ArrayList endps = new ArrayList();
             if(_host.Equals("0.0.0.0"))
@@ -567,10 +564,10 @@ namespace IceInternal
                 string[] hosts = Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    if(!_oaEndpoint || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+                    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
                     {
                         endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _mcastInterface, _mcastTtl, _connect, 
-                                                   _connectionId, _compress, _oaEndpoint));
+                                                   _connectionId, _compress));
                     }
                 }
             }
@@ -764,7 +761,6 @@ namespace IceInternal
         private bool _connect;
         private string _connectionId = "";
         private bool _compress;
-        private bool _oaEndpoint;
         private int _hashCode;
     }
 
@@ -785,9 +781,9 @@ namespace IceInternal
             return "udp";
         }
         
-        public EndpointI create(string str, bool oaEndpoint)
+        public EndpointI create(string str, bool server)
         {
-            return new UdpEndpointI(instance_, str, oaEndpoint);
+            return new UdpEndpointI(instance_, str, server);
         }
         
         public EndpointI read(BasicStream s)

@@ -106,7 +106,7 @@ namespace IceInternal
         // Expand endpoint out in to separate endpoints for each local
         // host if endpoint was configured with no host set.
         //
-        public abstract ArrayList expand();
+        public abstract ArrayList expand(bool includeLoopback);
  
         //
         // Check whether the endpoint is equivalent to a specific

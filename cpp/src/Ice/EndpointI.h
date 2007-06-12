@@ -111,7 +111,7 @@ public:
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    virtual std::vector<EndpointIPtr> expand() const = 0;
+    virtual std::vector<EndpointIPtr> expand(bool) const = 0;
 
     //
     // Check whether the endpoint is equivalent to a specific

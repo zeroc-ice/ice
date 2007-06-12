@@ -253,7 +253,7 @@ namespace IceInternal
         // host if endpoint was configured with no host set.
         //
         public override ArrayList
-        expand()
+        expand(bool includeLoopback)
         {
             ArrayList endps = new ArrayList();
             endps.Add(this);
