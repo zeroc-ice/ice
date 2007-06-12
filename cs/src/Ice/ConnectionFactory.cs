@@ -109,9 +109,6 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                //
-                // TODO: Remove when we no longer support SSL for .NET 1.1.
-                //
                 for(int i = 0; i < endpts.Length; i++)
                 {
                     if(!threadPerConnection && endpts[i].requiresThreadPerConnection())

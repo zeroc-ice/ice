@@ -118,8 +118,6 @@ namespace IceInternal
         //
         // Returns true if the endpoint's transport requires thread-per-connection.
         //
-        // TODO: Remove this when we no longer support SSL for .NET 1.1.
-        //
         public abstract bool requiresThreadPerConnection();
     }
 

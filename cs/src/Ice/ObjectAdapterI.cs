@@ -934,12 +934,8 @@ namespace Ice
                     {
                         endpoints = parseEndpoints(endpointInfo);
                     }
-                    for(int i = 0; i < endpoints.Count; ++i)
+                    foreach(IceInternal.EndpointI endp in endpoints)
                     {
-                        IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
-                        //
-                        // TODO: Remove when we no longer support SSL for .NET 1.1.
-                        //
                         if(!_threadPerConnection && endp.requiresThreadPerConnection())
                         {
                             Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
