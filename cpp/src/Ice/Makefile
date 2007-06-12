@@ -103,7 +103,9 @@ OBJS		= Acceptor.o \
 		  UdpTransceiver.o \
 		  UnknownEndpointI.o
 
-SRCS		= $(OBJS:.o=.cpp)
+SRCS		= $(OBJS:.o=.cpp) \
+		  DLLMain.cpp \
+		  EventLoggerI.cpp
 
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/CommunicatorF.ice \

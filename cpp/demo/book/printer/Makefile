@@ -16,7 +16,7 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 SLICE_SRCS	= Printer.ice
 
-OBJS		= $(SLICE_SRCS:.ice=.o)
+OBJS		= Printer.o
 
 COBJS		= Client.o
 
