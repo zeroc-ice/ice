@@ -57,12 +57,10 @@ public:
 
     typedef typename std::map<Key, CacheValue>::iterator Position;
 
-
-    Handle<Value> getIfPinned(const Key&) const;
+    Handle<Value> getIfPinned(const Key&, bool = false) const;
 
     void unpin(Position);
-    Handle<Value> unpin(const Key&);
-
+  
     void clear();
     size_t size() const;
 
@@ -95,62 +93,28 @@ private:
 
 
 template<typename Key, typename Value> Handle<Value> 
-Cache<Key, Value>::getIfPinned(const Key& key) const
-{
-    Mutex::Lock sync(_mutex);
-    typename CacheMap::const_iterator p = _map.find(key);
-    if(p != _map.end())
-    {
-        return (*p).second.obj;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-template<typename Key, typename Value> void
-Cache<Key, Value>::unpin(typename Cache::Position p)
-{
-    //
-    // There is no risk to erase a 'being loaded' position,
-    // since such position nevr got outside yet!
-    //
-    Mutex::Lock sync(_mutex);
-    _map.erase(p);
-}
-
-template<typename Key, typename Value> Handle<Value>
-Cache<Key, Value>::unpin(const Key& key)
+Cache<Key, Value>::getIfPinned(const Key& key, bool wait) const
 {
     Mutex::Lock sync(_mutex);
 
     for(;;)
     {
-        typename CacheMap::iterator p = _map.find(key);
-        
-        if(p == _map.end())
+        typename CacheMap::const_iterator p = _map.find(key);
+        if(p != _map.end())
         {
-            return 0;
-        }
-     
-        Handle<Value> result = p->second.obj;
-   
-        if(result != 0)
-        {
-            _map.erase(p);
-            return result;
-        }
-        else
-        {
+            Handle<Value> result = (*p).second.obj;
+            if(result != 0 || wait == false)
+            {
+                return result;
+            }
+            
             //
-            // The object is being loaded so we need to wait:
-            // we can't erase 'p' while the loading thread is using it
+            // The object is being loaded: we wait
             //
 
             if(p->second.latch == 0)
             {
-                p->second.latch = new Latch;
+                const_cast<CacheValue&>(p->second).latch = new Latch;
             }
             
             Latch* latch = p->second.latch;
@@ -166,7 +130,22 @@ Cache<Key, Value>::unpin(const Key& key)
             // Try again
             //
         }
+        else
+        {
+            return 0;
+        }
     }
+}
+
+template<typename Key, typename Value> void
+Cache<Key, Value>::unpin(typename Cache::Position p)
+{
+    //
+    // There is no risk to erase a 'being loaded' position,
+    // since such position nevr got outside yet!
+    //
+    Mutex::Lock sync(_mutex);
+    _map.erase(p);
 }
 
 template<typename Key, typename Value> void 

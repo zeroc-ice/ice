@@ -628,7 +628,7 @@ Freeze::TransactionalEvictorI::evict()
         //
         // Evict, no matter what!
         //
-        evict(*_evictorList.rbegin(), true);
+        evict(*_evictorList.rbegin());
     }
 }
 
@@ -667,44 +667,38 @@ Freeze::TransactionalEvictorI::loadCachedServant(const Identity& ident, ObjectSt
 Ice::ObjectPtr
 Freeze::TransactionalEvictorI::evict(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store)
 {
-    Lock sync(*this);
-    TransactionalEvictorElementPtr element = store->unpin(ident);
-
+    //
+    // Important: we can't wait for the DB (even indirectly) with 'this' locked
+    //
+    TransactionalEvictorElementPtr element = store->getIfPinned(ident, true);
+    
     if(element != 0)
     {
-        evict(element, false);
-        return element->servant();
+        Lock sync(*this);
+        if(!element->_stale)
+        {
+            evict(element);
+            return element->servant();
+        }
     }
     return 0;
 }
 
 void 
-Freeze::TransactionalEvictorI::evict(const TransactionalEvictorElementPtr& element, bool unpin)
+Freeze::TransactionalEvictorI::evict(const TransactionalEvictorElementPtr& element)
 {
     //
     // Must be called with this locked!
     //
     assert(!element->_stale);
     element->_stale = true;
-
-    if(unpin)
-    {
-        element->_store.unpin(element->_cachePosition);
-    }
-
+    element->_store.unpin(element->_cachePosition);
+  
     if(element->_inEvictor)
     {
         element->_inEvictor = false;
         _evictorList.erase(element->_evictPosition);
         _currentEvictorSize--;
-    }
-    else
-    {
-        //
-        // This object was removed before it had time to make it into
-        // the evictor
-        //
-        assert(!unpin);
     }
 }
 
