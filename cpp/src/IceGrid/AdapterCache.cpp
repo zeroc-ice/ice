@@ -93,7 +93,11 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const ServerEntryP
     if(!desc.replicaGroupId.empty())
     {
         ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(getImpl(desc.replicaGroupId));
-        assert(repEntry);
+        if(!repEntry)
+        {
+            Ice::Error out(_communicator->getLogger());
+            out << "can't add adapter `" << desc.id << "' to unknown replica group `" << desc.replicaGroupId << "'";
+        }
         repEntry->addReplica(desc.id, entry);
     }
 }
@@ -142,7 +146,11 @@ AdapterCache::removeServerAdapter(const string& id)
     if(!replicaGroupId.empty())
     {
         ReplicaGroupEntryPtr repEntry = ReplicaGroupEntryPtr::dynamicCast(getImpl(replicaGroupId));
-        assert(repEntry);
+        if(!repEntry)
+        {
+            Ice::Error out(_communicator->getLogger());
+            out << "can't remove adapter `" << id << "' from unknown replica group `" << replicaGroupId << "'";
+        }
         repEntry->removeReplica(id);
     }
 }
@@ -483,6 +491,10 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
 AdapterInfoSeq
 ReplicaGroupEntry::getAdapterInfo() const
 {
+    //
+    // This method is called with the database locked so we're sure
+    // that no new adapters will be added or removed concurrently.
+    //
     vector<ServerAdapterEntryPtr> replicas;
     {
         Lock sync(*this);
@@ -497,4 +509,24 @@ ReplicaGroupEntry::getAdapterInfo() const
         infos.push_back(infs[0]);
     }
     return infos;
+}
+
+bool 
+ReplicaGroupEntry::hasAdaptersFromOtherApplications() const
+{
+    vector<ServerAdapterEntryPtr> replicas;
+    {
+        Lock sync(*this);
+        replicas = _replicas;
+    }
+
+    AdapterInfoSeq infos;
+    for(vector<ServerAdapterEntryPtr>::const_iterator p = replicas.begin(); p != replicas.end(); ++p)
+    {
+        if((*p)->getApplication() != _application)
+        {
+            return true;
+        }
+    }
+    return false;
 }

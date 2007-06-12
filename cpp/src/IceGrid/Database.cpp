@@ -487,13 +487,21 @@ Database::removeApplication(const string& name, AdminSessionI* session)
             throw ApplicationNotExistException(name);
         }
 
+        bool init = false;
         try
         {
             ApplicationHelper helper(_communicator, p->second.descriptor);
+            init = true;
+            checkForRemove(helper);
             unload(helper, entries);
         }
         catch(const DeploymentException&)
         {
+            if(init)
+            {
+                throw;
+            }
+
             //
             // For some reasons the application became invalid. If
             // it's invalid, it's most likely not loaded either. So we
@@ -1216,6 +1224,11 @@ Database::checkForAddition(const ApplicationHelper& app)
     for_each(serverIds.begin(), serverIds.end(), objFunc(*this, &Database::checkServerForAddition));
     for_each(adapterIds.begin(), adapterIds.end(), objFunc(*this, &Database::checkAdapterForAddition));
     for_each(objectIds.begin(), objectIds.end(), objFunc(*this, &Database::checkObjectForAddition)); 
+
+    set<string> repGrps;
+    set<string> adptRepGrps;
+    app.getReplicaGroups(repGrps, adptRepGrps);
+    for_each(adptRepGrps.begin(), adptRepGrps.end(), objFunc(*this, &Database::checkReplicaGroupExists));
 }
      
 void
@@ -1233,12 +1246,45 @@ Database::checkForUpdate(const ApplicationHelper& origApp, const ApplicationHelp
     for_each(addedSvrs.begin(), addedSvrs.end(), objFunc(*this, &Database::checkServerForAddition));
 
     Ice::StringSeq addedAdpts;
-    set_difference(newAdpts.begin(), newAdpts.end(), oldAdpts.begin(), oldAdpts.end(), set_inserter(addedAdpts));
+    set_difference(newAdpts.begin(), newAdpts.end(), oldAdpts.begin(), oldAdpts.end(), back_inserter(addedAdpts));
     for_each(addedAdpts.begin(), addedAdpts.end(), objFunc(*this, &Database::checkAdapterForAddition));
 
     vector<Ice::Identity> addedObjs;
-    set_difference(newObjs.begin(), newObjs.end(), oldObjs.begin(), oldObjs.end(), set_inserter(addedObjs));
+    set_difference(newObjs.begin(), newObjs.end(), oldObjs.begin(), oldObjs.end(), back_inserter(addedObjs));
     for_each(addedObjs.begin(), addedObjs.end(), objFunc(*this, &Database::checkObjectForAddition));
+
+    set<string> oldRepGrps, newRepGrps;
+    set<string> oldAdptRepGrps, newAdptRepGrps;
+    origApp.getReplicaGroups(oldRepGrps, oldAdptRepGrps);
+    newApp.getReplicaGroups(newRepGrps, newAdptRepGrps);
+    
+    set<string> rmRepGrps;
+    set_difference(oldRepGrps.begin(), oldRepGrps.end(), newRepGrps.begin(),newRepGrps.end(), set_inserter(rmRepGrps));
+    for_each(rmRepGrps.begin(), rmRepGrps.end(), objFunc(*this, &Database::checkReplicaGroupForRemove));
+
+    set<string> addedAdptRepGrps;
+    set_difference(newAdptRepGrps.begin(),newAdptRepGrps.end(), oldAdptRepGrps.begin(), oldAdptRepGrps.end(),
+                   set_inserter(addedAdptRepGrps));
+    for_each(addedAdptRepGrps.begin(), addedAdptRepGrps.end(), objFunc(*this, &Database::checkReplicaGroupExists));
+
+    vector<string> invalidAdptRepGrps;
+    set_intersection(rmRepGrps.begin(), rmRepGrps.end(), newAdptRepGrps.begin(), newAdptRepGrps.end(), 
+                     back_inserter(invalidAdptRepGrps));
+    if(!invalidAdptRepGrps.empty())
+    {
+        DeploymentException ex;
+        ex.reason = "couldn't find replica group `" + invalidAdptRepGrps.front() + "'";
+        throw ex;
+    }
+}
+
+void
+Database::checkForRemove(const ApplicationHelper& app)
+{
+    set<string> replicaGroups;
+    set<string> adapterReplicaGroups;
+    app.getReplicaGroups(replicaGroups, adapterReplicaGroups);
+    for_each(replicaGroups.begin(), replicaGroups.end(), objFunc(*this, &Database::checkReplicaGroupForRemove));
 }
 
 void
@@ -1274,6 +1320,57 @@ Database::checkObjectForAddition(const Ice::Identity& objectId)
     {
         DeploymentException ex;
         ex.reason = "object `" + _communicator->identityToString(objectId) + "' is already registered"; 
+        throw ex;
+    }
+}
+
+void
+Database::checkReplicaGroupExists(const string& replicaGroup)
+{
+    ReplicaGroupEntryPtr entry;
+    try
+    {
+        entry = ReplicaGroupEntryPtr::dynamicCast(_adapterCache.get(replicaGroup));
+    }
+    catch(const AdapterNotExistException&)
+    {
+    }
+
+    if(!entry)
+    {
+        DeploymentException ex;
+        ex.reason = "couldn't find replica group `" + replicaGroup + "'";
+        throw ex;
+    }
+}
+
+void
+Database::checkReplicaGroupForRemove(const string& replicaGroup)
+{
+    ReplicaGroupEntryPtr entry;
+    try
+    {
+        entry = ReplicaGroupEntryPtr::dynamicCast(_adapterCache.get(replicaGroup));
+    }
+    catch(const AdapterNotExistException&)
+    {
+    }
+
+    if(!entry)
+    {
+        //
+        // This would indicate an inconsistency with the cache and
+        // database. We don't print an error, it will be printed 
+        // when the application is actually removed.
+        //
+        return;
+    }
+    
+    if(entry->hasAdaptersFromOtherApplications())
+    {
+        DeploymentException ex;
+        ex.reason = "couldn't remove application because the replica group `" + replicaGroup + 
+            "' is used by object adapters from other applications.";
         throw ex;
     }
 }

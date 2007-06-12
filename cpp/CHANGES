@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- IceGrid now allows defining an object adapter with a replica group
+  from an other IceGrid application than the one where the object
+  adapter is defined.
+
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to 
   update the published endpoints after change in the available local
@@ -2752,3 +2756,4 @@ Changes since version 1.0.0
 - Several other changes that make Ice for C++ more portable.
 
 - Updated SSL test certificates. The old ones have expired.
+

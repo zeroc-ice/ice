@@ -90,6 +90,7 @@ public:
     bool operator!=(const CommunicatorHelper&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
+    virtual void getReplicaGroups(std::set<std::string>&) const;
     
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
 
@@ -184,6 +185,7 @@ public:
 
     ServiceInstanceDescriptor instantiate(const Resolver&, const PropertySetDescriptorDict&) const;
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
+    void getReplicaGroups(std::set<std::string>&) const;
 
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
 
@@ -208,6 +210,7 @@ public:
                                             const PropertySetDescriptorDict&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
+    virtual void getReplicaGroups(std::set<std::string>&) const;
 
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&) const;
     void print(const Ice::CommunicatorPtr&, IceUtil::Output&, const ServerInfo&) const;
@@ -243,6 +246,7 @@ public:
     ServerDescriptorPtr getServerInstance() const;
 
     void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
+    void getReplicaGroups(std::set<std::string>&) const;
 
 private:
 
@@ -270,6 +274,7 @@ public:
     NodeDescriptor update(const NodeUpdateDescriptor&, const Resolver&) const;
 
     void getIds(std::multiset<std::string>&, std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
+    void getReplicaGroups(std::set<std::string>&) const;
     const NodeDescriptor& getDefinition() const;
     const NodeDescriptor& getInstance() const;
     void getServerInfos(const std::string&, const std::string&, int, std::map<std::string, ServerInfo>&) const;
@@ -304,6 +309,7 @@ public:
     ApplicationDescriptor instantiateServer(const std::string&, const ServerInstanceDescriptor&) const;
 
     void getIds(std::set<std::string>&, std::set<std::string>&, std::set<Ice::Identity>&) const;
+    void getReplicaGroups(std::set<std::string>&, std::set<std::string>&) const;
     const ApplicationDescriptor& getDefinition() const;
     const ApplicationDescriptor& getInstance() const;
     void getDistributions(DistributionDescriptor&, std::vector<std::string>&,const std::string& = std::string()) const;
