@@ -33,43 +33,13 @@ main(int argc, char* argv[])
     return app.main(argc, argv, "config.client");
 }
 
-class StopWatch
-{
-public:
-
-    void
-    start()
-    {
-        _stopped = false;
-        _start = IceUtil::Time::now();
-    }
-
-    IceUtil::Time
-    stop()
-    {
-        if(!_stopped)
-        {
-            _stopped = true;
-            _stop = IceUtil::Time::now();
-        }
-
-        return _stop - _start;
-    }
-
-private:
-
-    bool _stopped;
-    IceUtil::Time _start;
-    IceUtil::Time _stop;
-};
-
 class ReaderThread : public IceUtil::Thread
 {
 public:
 
-    ReaderThread(ItemPrx anItem)
-        : _anItem(anItem),
-          _requestsPerSecond(-1)
+    ReaderThread(const ItemPrx& anItem) :
+        _anItem(anItem),
+        _requestsPerSecond(-1)
     {
     }
 
@@ -78,8 +48,7 @@ public:
         //
         // Measures how long it takes to read 'readCount' items at random
         //
-        StopWatch stopWatch;
-        stopWatch.start();
+        IceUtil::Time start = IceUtil::Time::now();
         
         try
         {
@@ -95,7 +64,7 @@ public:
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
                 item->getDescription();
             }
-            _requestsPerSecond = static_cast<int>(readCount / stopWatch.stop().toSecondsDouble());  
+            _requestsPerSecond = static_cast<int>(readCount / (IceUtil::Time::now() - start).toSecondsDouble());  
         }
         catch(const IceUtil::Exception& e)
         {
@@ -110,20 +79,18 @@ public:
 
 private:
     
-    ItemPrx _anItem;
+    const ItemPrx _anItem;
     int _requestsPerSecond;
 };
-
 typedef IceUtil::Handle<ReaderThread> ReaderThreadPtr;
-
 
 class WriterThread : public IceUtil::Thread
 {
 public:
 
-    WriterThread(ItemPrx anItem)
-        : _anItem(anItem),
-          _requestsPerSecond(-1)
+    WriterThread(const ItemPrx& anItem) :
+        _anItem(anItem),
+        _requestsPerSecond(-1)
     {
     }
 
@@ -132,8 +99,7 @@ public:
         //
         // Measure how long it takes to write 'writeCount' items at random
         //
-        StopWatch stopWatch;
-        stopWatch.start();
+        IceUtil::Time start = IceUtil::Time::now();
         
         try
         {
@@ -151,7 +117,7 @@ public:
                 
                 item->adjustStock(1);
             }
-            _requestsPerSecond = static_cast<int>(writeCount / stopWatch.stop().toSecondsDouble());  
+            _requestsPerSecond = static_cast<int>(writeCount / (IceUtil::Time::now() - start).toSecondsDouble());  
         }
         catch(const IceUtil::Exception& e)
         {
@@ -166,12 +132,10 @@ public:
 
 private:
     
-    ItemPrx _anItem;
+    const ItemPrx _anItem;
     int _requestsPerSecond;
 };
-
 typedef IceUtil::Handle<WriterThread> WriterThreadPtr;
-
 
 int
 WarehouseClient::run(int argc, char* argv[])
@@ -189,7 +153,6 @@ WarehouseClient::run(int argc, char* argv[])
 
     const int readerCount = 5;
 
-
     ReaderThreadPtr rt[readerCount];
     int i;
     for(i = 0; i < readerCount; ++i)
@@ -197,36 +160,32 @@ WarehouseClient::run(int argc, char* argv[])
         rt[i] = new ReaderThread(anItem);
         rt[i]->start();
     }
-   
 
     wt->getThreadControl().join();
-
     for(i = 0; i < readerCount; ++i)
     {
         rt[i]->getThreadControl().join(); 
     }
-   
+
     //
     // Display results:
     //
-    
     cout.precision(3);
     int rpt = wt->getRequestsPerSecond();
     if(rpt > 0)
     {
         cout << "Writer: " << rpt << " requests per second (" << 1000.0 / rpt << " ms per request)" << endl;
     }
-   
+
     for(i = 0; i < readerCount; ++i)
     {
         rpt = rt[i]->getRequestsPerSecond();
         if(rpt > 0)
         {
-            cout << "Reader " << i << ": " << rt[i]->getRequestsPerSecond() 
-                 << " requests per second (" << 1000.0 / rpt << " ms per request)" << endl;
+            cout << "Reader " << i << ": " << rpt << " requests per second (" << 1000.0 / rpt
+		 << " ms per request)" << endl;
         }
     }
     
     return EXIT_SUCCESS;
 }
-

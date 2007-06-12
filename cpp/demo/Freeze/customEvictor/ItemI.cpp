@@ -11,11 +11,11 @@
 
 using namespace std;
 using namespace IceUtil;
+using namespace Warehouse;
 
-
-ItemI::ItemI(CurrentDatabase& currentDb, const Warehouse::ItemInfo& info) 
-    : _currentDb(currentDb),
-      _cachedInfo(info)
+ItemI::ItemI(CurrentDatabase& currentDb, const ItemInfo& info) :
+    _currentDb(currentDb),
+    _cachedInfo(info)
 {
 } 
 
@@ -63,7 +63,7 @@ ItemI::adjustStock(int value, const Ice::Current& current)
     int newQuantity = _cachedInfo.quantityInStock + value;
     if(newQuantity < 0)
     {
-        throw Warehouse::OutOfStock();
+        throw OutOfStock();
     }
     _cachedInfo.quantityInStock = newQuantity;
     save(current);

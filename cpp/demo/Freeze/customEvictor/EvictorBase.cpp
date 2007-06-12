@@ -1,7 +1,16 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
 #include <EvictorBase.h>
 
-EvictorBase::EvictorBase(Ice::Int size)
-    : _size(size)
+EvictorBase::EvictorBase(Ice::Int size) :
+    _size(size)
 {
     if (_size < 0)
     {

@@ -20,9 +20,8 @@ int cacheMisses = 0;
 //
 // Cache
 //
-
-EvictorCache::EvictorCache(CurrentDatabase& currentDb)
-    : _currentDb(currentDb)
+EvictorCache::EvictorCache(CurrentDatabase& currentDb) :
+    _currentDb(currentDb)
 {
 }
 
@@ -63,12 +62,13 @@ EvictorCache::load(const Ice::Identity& itemId)
 }
 
 //
-// Finish to initialize the entry after it has been inserted in the Cache map,
-// but before any other thread can find it.
-// pinned() is called while IceUtil::Cache's internal mutex is locked, so
-// we must be careful with lock acquisition order. For example we cannot acquire
-// the Evictor mutex here, since we also call IceUtil::Cache with the Evictor mutex
-// locked.
+// Finish to initialize the entry after it has been inserted in the
+// Cache map, but before any other thread can find it.
+//
+// pinned() is called while IceUtil::Cache's internal mutex is locked,
+// so we must be careful with lock acquisition order. For example we
+// cannot acquire the Evictor mutex here, since we also call
+// IceUtil::Cache with the Evictor mutex locked.
 //
 void 
 EvictorCache::pinned(const EvictorEntryPtr& entry, EvictorCache::Position cp)
@@ -77,15 +77,14 @@ EvictorCache::pinned(const EvictorEntryPtr& entry, EvictorCache::Position cp)
     entry->cachePosition = cp;
 }
 
-
 //
 // EvictorEntry
 //
 
-EvictorEntry::EvictorEntry(const ItemIPtr& item)
-    : servant(item),
-      useCount(-1),
-      stale(true)
+EvictorEntry::EvictorEntry(const ItemIPtr& item) :
+    servant(item),
+    useCount(-1),
+    stale(true)
 {
 }
 
@@ -93,10 +92,10 @@ EvictorEntry::EvictorEntry(const ItemIPtr& item)
 // Evictor
 //
 
-Evictor::Evictor(CurrentDatabase& currentDb, int size)
-    : _cache(currentDb),
-      _queueSize(0),
-      _size(size)
+Evictor::Evictor(CurrentDatabase& currentDb, int size) :
+    _cache(currentDb),
+    _queueSize(0),
+    _size(size)
 {
 }
 
@@ -179,7 +178,6 @@ Evictor::finished(const Ice::Current& current, const Ice::ObjectPtr& servant,
         evict();
     }       
 }
-
 
 void 
 Evictor::deactivate(const string& category)
