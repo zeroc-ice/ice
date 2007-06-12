@@ -241,19 +241,23 @@ function allTests()
 
     // These two properties don't do anything to direct proxies so
     // first we test that.
-    $property = $propertyPrefix . ".Locator";
-    test(!$b1->ice_getLocator());
-    $ICE->setProperty($property, "locator:default -p 10000");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
-    test(!$b1->ice_getLocator());
-    $ICE->setProperty($property, "");
+    //
+    // Commented out because setting a locator or locator cache
+    // timeout on a direct proxy causes warning.
+    //
+    // $property = $propertyPrefix . ".Locator";
+    // test(!$b1->ice_getLocator());
+    // $ICE->setProperty($property, "locator:default -p 10000");
+    // $b1 = $ICE->propertyToProxy($propertyPrefix);
+    // test(!$b1->ice_getLocator());
+    // $ICE->setProperty($property, "");
 
-    $property = $propertyPrefix . ".LocatorCacheTimeout";
-    test($b1->ice_getLocatorCacheTimeout() == 0);
-    $ICE->setProperty($property, "1");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
-    test($b1->ice_getLocatorCacheTimeout() == 0);
-    $ICE->setProperty($property, "");
+    // $property = $propertyPrefix . ".LocatorCacheTimeout";
+    // test($b1->ice_getLocatorCacheTimeout() == 0);
+    // $ICE->setProperty($property, "1");
+    // $b1 = $ICE->propertyToProxy($propertyPrefix);
+    // test($b1->ice_getLocatorCacheTimeout() == 0);
+    // $ICE->setProperty($property, "");
 
     // Now retest with an indirect proxy.
     $ICE->setProperty($propertyPrefix, "test");
@@ -319,6 +323,8 @@ function allTests()
     //$ICE->setProperty($property, "");
 
     $property = $propertyPrefix . ".ThreadPerConnection";
+    $ICE->setProperty($property, "0");
+    $b1 = $ICE->propertyToProxy($propertyPrefix);
     test(!$b1->ice_isThreadPerConnection());
     $ICE->setProperty($property, "1");
     $b1 = $ICE->propertyToProxy($propertyPrefix);
