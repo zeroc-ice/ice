@@ -41,4 +41,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(IS_LIBS)
 
+clean::
+	-rm -f db/*
+
 include .depend

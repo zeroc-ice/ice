@@ -51,4 +51,7 @@ clean::
 	del /q Filesystem.cpp Filesystem.h
 	del /q PersistentFilesystem.cpp PersistentFilesystem.h
 
+clean::
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
 !include .depend

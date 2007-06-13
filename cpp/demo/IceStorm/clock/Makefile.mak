@@ -48,4 +48,7 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 clean::
 	del /q Clock.cpp Clock.h
 
+clean::
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
 !include .depend

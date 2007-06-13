@@ -32,4 +32,7 @@ client.exe: $(C_SRCS) $(GEN_SRCS)
 server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(subst /,$(DSEP),$^)
 
+clean::
+	-rm -rf db/node/* db/registry/*
+
 include .depend

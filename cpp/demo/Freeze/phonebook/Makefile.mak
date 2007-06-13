@@ -86,13 +86,12 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	del /q NameIndex.h NameIndex.cpp
-
-clean::
 	del /q PhoneBook.cpp PhoneBook.h
 
 clean::
+	del /q NameIndex.h NameIndex.cpp
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend
