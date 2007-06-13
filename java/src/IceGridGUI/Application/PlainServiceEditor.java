@@ -84,6 +84,10 @@ class PlainServiceEditor extends CommunicatorChildEditor
         _applyButton.setEnabled(service.isEphemeral());
         _discardButton.setEnabled(service.isEphemeral());         
         detectUpdates(true);
+        if(service.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private ServiceSubEditor _subEditor;

@@ -243,6 +243,10 @@ class PropertySetEditor extends Editor
         _applyButton.setEnabled(nps.isEphemeral());
         _discardButton.setEnabled(nps.isEphemeral());     
         detectUpdates(true);
+        if(nps.isEphemeral())
+        {
+            updated();
+        }
     }
 
     protected JComponent getIdComponent()

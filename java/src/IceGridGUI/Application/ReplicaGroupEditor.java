@@ -407,6 +407,10 @@ class ReplicaGroupEditor extends Editor
         _applyButton.setEnabled(replicaGroup.isEphemeral());
         _discardButton.setEnabled(replicaGroup.isEphemeral());    
         detectUpdates(true);
+        if(replicaGroup.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private ReplicaGroup getReplicaGroup()

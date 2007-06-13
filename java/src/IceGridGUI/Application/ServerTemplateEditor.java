@@ -58,6 +58,10 @@ class ServerTemplateEditor extends TemplateEditor
         _applyButton.setEnabled(t.isEphemeral());
         _discardButton.setEnabled(t.isEphemeral());       
         detectUpdates(true);
+        if(t.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private ServerSubEditor _subEditor;

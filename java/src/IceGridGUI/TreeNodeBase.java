@@ -303,15 +303,12 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
 
     protected void childrenChanged(java.util.List children, DefaultTreeModel treeModel)
     {
-        int[] indices = new int[children.size()];
-        int i = 0;
         java.util.Iterator p = children.iterator();
         while(p.hasNext())
         {
             TreeNodeBase child = (TreeNodeBase)p.next();
-            indices[i++] = getIndex(child);
+            treeModel.nodeStructureChanged(child);
         }
-        treeModel.nodesChanged(this, indices);
     }
     
     public int[] resize(int[] array, int size)

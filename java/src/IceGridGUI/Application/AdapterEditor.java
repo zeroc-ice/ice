@@ -555,6 +555,11 @@ class AdapterEditor extends CommunicatorChildEditor
         _applyButton.setEnabled(adapter.isEphemeral());
         _discardButton.setEnabled(adapter.isEphemeral());         
         detectUpdates(true);
+
+        if(adapter.isEphemeral())
+        {
+            updated();
+        }
     }
 
     Adapter getAdapter()

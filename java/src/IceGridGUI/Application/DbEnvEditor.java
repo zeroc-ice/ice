@@ -152,6 +152,11 @@ class DbEnvEditor extends CommunicatorChildEditor
         _applyButton.setEnabled(dbEnv.isEphemeral());
         _discardButton.setEnabled(dbEnv.isEphemeral());   
         detectUpdates(true);
+
+        if(dbEnv.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private DbEnv getDbEnv()

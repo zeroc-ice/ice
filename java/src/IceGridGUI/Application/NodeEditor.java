@@ -258,6 +258,10 @@ class NodeEditor extends Editor
         _applyButton.setEnabled(node.isEphemeral());
         _discardButton.setEnabled(node.isEphemeral());
         detectUpdates(true);
+        if(node.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private JTextField _name = new JTextField(20);
