@@ -552,7 +552,7 @@ public class AllTests
         test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
         
         // Working?
-        boolean ssl = communicator.getProperties()->getProperty("Ice.Default.Protocol").equals("ssl");
+        boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
         if(!ssl)
         {
             p1.ice_ping();
@@ -569,7 +569,7 @@ public class AllTests
         //
         p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
         pstr = communicator.proxyToString(p1);
-        if(!sll)
+        if(!ssl)
         {
             test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
         }
