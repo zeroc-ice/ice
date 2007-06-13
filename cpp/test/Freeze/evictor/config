@@ -9,3 +9,4 @@ Ice.ThreadPool.Server.SizeWarn=0
 
 Freeze.Evictor.db.Test.RollbackOnUserException=1
 
+#Freeze.Warn.Deadlocks=1

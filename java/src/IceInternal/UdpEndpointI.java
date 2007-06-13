@@ -14,8 +14,7 @@ final class UdpEndpointI extends EndpointI
     final static short TYPE = 3;
 
     public
-    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, boolean conn, String conId, boolean co,
-                 boolean oae)
+    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, boolean conn, String conId, boolean co)
     {
         _instance = instance;
         _host = ho;
@@ -29,12 +28,11 @@ final class UdpEndpointI extends EndpointI
         _connect = conn;
         _connectionId = conId;
         _compress = co;
-        _oaEndpoint = oae;
         calcHashValue();
     }
 
     public
-    UdpEndpointI(Instance instance, String str, boolean oaEndpoint)
+    UdpEndpointI(Instance instance, String str, boolean server)
     {
         _instance = instance;
         _host = null;
@@ -45,7 +43,6 @@ final class UdpEndpointI extends EndpointI
         _encodingMinor = Protocol.encodingMinor;
         _connect = false;
         _compress = false;
-        _oaEndpoint = oaEndpoint;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -251,7 +248,7 @@ final class UdpEndpointI extends EndpointI
             _host = _instance.defaultsAndOverrides().defaultHost;
             if(_host == null)
             {
-                if(_oaEndpoint)
+                if(server)
                 {
                     _host = "0.0.0.0";
                 }
@@ -302,7 +299,6 @@ final class UdpEndpointI extends EndpointI
         _connect = false;
         _compress = s.readBool();
         s.endReadEncaps();
-        _oaEndpoint = false;
         calcHashValue();
     }
 
@@ -422,7 +418,7 @@ final class UdpEndpointI extends EndpointI
         else
         {
             return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
-                                    compress, _oaEndpoint);
+                                    compress);
         }
     }
 
@@ -439,7 +435,7 @@ final class UdpEndpointI extends EndpointI
         else
         {
             return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId,
-                                    _compress, _oaEndpoint);
+                                    _compress);
         }
     }
 
@@ -493,7 +489,7 @@ final class UdpEndpointI extends EndpointI
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
         endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _mcastInterface, _mcastTtl, _connect,
-                                          _connectionId, _compress, _oaEndpoint);
+                                          _connectionId, _compress);
         return p;
     }
 
@@ -535,7 +531,7 @@ final class UdpEndpointI extends EndpointI
     // host if endpoint was configured with no host set. 
     //
     public java.util.ArrayList
-    expand()
+    expand(boolean includeLoopback)
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         if(_host.equals("0.0.0.0"))
@@ -545,10 +541,10 @@ final class UdpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                if(!_oaEndpoint || hosts.size() == 1 || !host.equals("127.0.0.1"))
+                if(includeLoopback || hosts.size() == 1 || !host.equals("127.0.0.1"))
                 {
                     endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl,  _connect,
-                                               _connectionId, _compress, _oaEndpoint));
+                                               _connectionId, _compress));
                 }
             }
         }
@@ -750,6 +746,5 @@ final class UdpEndpointI extends EndpointI
     private boolean _connect;
     private String _connectionId = "";
     private boolean _compress;
-    private boolean _oaEndpoint;
     private int _hashCode;
 }

@@ -483,10 +483,5 @@ def collocatedTest(name):
     collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
-
-    files = os.listdir(path)
-
-    for filename in files:
-        if filename != "CVS" and filename != ".dummy":
-            fullpath = os.path.join(path, filename);
-            os.remove(fullpath)
+    for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore"]:
+	os.remove(filename)

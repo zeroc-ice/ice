@@ -494,7 +494,11 @@ function allTests()
     test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     // Working?
-    $p1->ice_ping();
+    $ssl = $ICE->getProperty("Ice.Default.Protocol") == "ssl";
+    if(!$ssl)
+    {
+        $p1->ice_ping();
+    }
 
     // Two legal TCP endpoints expressed as opaque endpoints
     $p1 = $ICE->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -507,18 +511,26 @@ function allTests()
     //
     $p1 = $ICE->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
     $pstr = $ICE->proxyToString($p1);
-    test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if(!$ssl)
+    {
+        test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    }
+    else
+    {
+        test($pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    }
 
     //
     // Try to invoke on the SSL endpoint to verify that we get a
-    // NoEndpointException.
+    // NoEndpointException (or ConnectionRefusedException when
+    // running with SSL).
     //
     try
     {
         $p1->ice_ping();
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_NoEndpointException $ex)
+    catch(Ice_UnknownLocalException $ex)
     {
     }
 
@@ -530,7 +542,14 @@ function allTests()
     //
     $p2 = $derived->_echo($p1);
     $pstr = $ICE->proxyToString($p2);
-    test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if(!$ssl)
+    {
+        test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    }
+    else
+    {
+        test($pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    }
 
     echo "ok\n";
 

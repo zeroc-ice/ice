@@ -120,7 +120,7 @@ filesToRemove = [ \
     os.path.join("icerb", "makebindist.py"), \
     os.path.join("icerb", "makewindist.py"), \
     ]
-filesToRemove.extend(find("icerb", ".dummy"))
+filesToRemove.extend(find("icerb", ".gitignore"))
 for x in filesToRemove:
     os.remove(x)
 

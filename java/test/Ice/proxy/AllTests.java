@@ -552,7 +552,11 @@ public class AllTests
         test(pstr.equals("test -t:tcp -h 127.0.0.1 -p 12010 -t 10000"));
         
         // Working?
-        p1.ice_ping();
+        boolean ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl");
+        if(!ssl)
+        {
+            p1.ice_ping();
+        }
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -565,11 +569,19 @@ public class AllTests
         //
         p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
         pstr = communicator.proxyToString(p1);
-        test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+        if(!ssl)
+        {
+            test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+        }
+        else
+        {
+            test(pstr.equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+        }
 
         //
         // Try to invoke on the SSL endpoint to verify that we get a
-        // NoEndpointException.
+        // NoEndpointException (or ConnectionRefusedException when
+        // running with SSL).
         //
         try
         {
@@ -578,6 +590,11 @@ public class AllTests
         }
         catch(Ice.NoEndpointException ex)
         {
+            test(!ssl);
+        }
+        catch(Ice.ConnectionRefusedException ex)
+        {
+            test(ssl);
         }
 
         //
@@ -588,7 +605,14 @@ public class AllTests
         //
         Ice.ObjectPrx p2 = derived.echo(p1);
         pstr = communicator.proxyToString(p2);
-        test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+        if(!ssl)
+        {
+            test(pstr.equals("test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch"));
+        }
+        else
+        {
+            test(pstr.equals("test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch"));
+        }
 
         System.out.println("ok");
 

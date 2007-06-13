@@ -16,7 +16,7 @@ namespace IceSSL
     {
         internal const short TYPE = 2;
 
-        internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co, bool oae)
+        internal EndpointI(Instance instance, string ho, int po, int ti, string conId, bool co)
         {
             instance_ = instance;
             host_ = ho;
@@ -24,18 +24,16 @@ namespace IceSSL
             timeout_ = ti;
             connectionId_ = conId;
             compress_ = co;
-            oaEndpoint_ = oae;
             calcHashValue();
         }
 
-        internal EndpointI(Instance instance, string str, bool oaEndpoint)
+        internal EndpointI(Instance instance, string str, bool server)
         {
             instance_ = instance;
             host_ = null;
             port_ = 0;
             timeout_ = -1;
             compress_ = false;
-            oaEndpoint_ = oaEndpoint;
 
             char[] separators = { ' ', '\t', '\n', '\r' };
             string[] arr = str.Split(separators);
@@ -158,7 +156,7 @@ namespace IceSSL
                 host_ = instance_.defaultHost();
                 if(host_ == null)
                 {
-                    if(oaEndpoint_)
+                    if(server)
                     {
                         host_ = "0.0.0.0";
                     }
@@ -184,7 +182,6 @@ namespace IceSSL
             timeout_ = s.readInt();
             compress_ = s.readBool();
             s.endReadEncaps();
-            oaEndpoint_ = false;
             calcHashValue();
         }
 
@@ -256,7 +253,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(instance_, host_, port_, timeout, connectionId_, compress_, oaEndpoint_);
+                return new EndpointI(instance_, host_, port_, timeout, connectionId_, compress_);
             }
         }
 
@@ -271,7 +268,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(instance_, host_, port_, timeout_, connectionId, compress_, oaEndpoint_);
+                return new EndpointI(instance_, host_, port_, timeout_, connectionId, compress_);
             }
         }
 
@@ -297,7 +294,7 @@ namespace IceSSL
             }
             else
             {
-                return new EndpointI(instance_, host_, port_, timeout_, connectionId_, compress, oaEndpoint_);
+                return new EndpointI(instance_, host_, port_, timeout_, connectionId_, compress);
             }
         }
 
@@ -363,8 +360,7 @@ namespace IceSSL
         public override IceInternal.Acceptor acceptor(ref IceInternal.EndpointI endpoint, string adapterName)
         {
             AcceptorI p = new AcceptorI(instance_, adapterName, host_, port_);
-            endpoint = 
-                new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_, compress_, oaEndpoint_);
+            endpoint = new EndpointI(instance_, host_, p.effectivePort(), timeout_, connectionId_, compress_);
             return p;
         }
 
@@ -372,7 +368,7 @@ namespace IceSSL
         // Expand endpoint out in to separate endpoints for each local
         // host if endpoint was configured with no host set.
         //
-        public override ArrayList expand()
+        public override ArrayList expand(bool includeLoopback)
         {
             ArrayList endps = new ArrayList();
             if(host_.Equals("0.0.0.0"))
@@ -380,10 +376,9 @@ namespace IceSSL
                 string[] hosts = IceInternal.Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    if(!oaEndpoint_ || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+                    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
                     {
-                        endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_,
-                                                oaEndpoint_));
+                        endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_));
                     }
                 }
             }
@@ -518,7 +513,6 @@ namespace IceSSL
         private int timeout_;
         private string connectionId_ = "";
         private bool compress_;
-        private bool oaEndpoint_;
         private int hashCode_;
     }
 
@@ -539,9 +533,9 @@ namespace IceSSL
             return "ssl";
         }
 
-        public IceInternal.EndpointI create(string str, bool oaEndpoint)
+        public IceInternal.EndpointI create(string str, bool server)
         {
-            return new EndpointI(instance_, str, oaEndpoint);
+            return new EndpointI(instance_, str, server);
         }
 
         public IceInternal.EndpointI read(IceInternal.BasicStream s)

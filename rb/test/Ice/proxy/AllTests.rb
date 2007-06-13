@@ -433,7 +433,10 @@ def allTests(communicator)
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     # Working?
-    p1.ice_ping();
+    ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
+    if !ssl
+        p1.ice_ping();
+    end
 
     # Two legal TCP endpoints expressed as opaque endpoints
     p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -446,16 +449,22 @@ def allTests(communicator)
     #
     p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
     pstr = communicator.proxyToString(p1);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if !ssl
+        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    else
+        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    end
 
     #
     # Try to invoke on the SSL endpoint to verify that we get a
-    # NoEndpointException.
+    # NoEndpointException (or ConnectionRefusedException when
+    # running with SSL).
     #
     begin
         p1.ice_ping();
         test(false);
     rescue Ice::NoEndpointException
+    rescue Ice::ConnectionRefusedException
     end
 
     #
@@ -466,7 +475,11 @@ def allTests(communicator)
     #
     p2 = derived.echo(p1);
     pstr = communicator.proxyToString(p2);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if !ssl
+        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    else
+        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    end
 
     puts "ok"
 
