@@ -115,7 +115,7 @@ filesToRemove = [ \
     os.path.join("icepy", "makedist.py"), \
     os.path.join("icepy", "makebindist.py"), \
     ]
-filesToRemove.extend(find("icepy", ".dummy"))
+filesToRemove.extend(find("icepy", ".gitignore"))
 for x in filesToRemove:
     os.remove(x)
 
