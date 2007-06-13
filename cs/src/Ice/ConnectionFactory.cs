@@ -677,17 +677,6 @@ namespace IceInternal
             return _endpoint;
         }
         
-        public bool equivalent(EndpointI endp)
-        {
-            if(_transceiver != null)
-            {
-                return endp.equivalent(_transceiver);
-            }
-            
-            Debug.Assert(_acceptor != null);
-            return endp.equivalent(_acceptor);
-        }
-        
         public Ice.ConnectionI[] connections()
         {
             lock(this)

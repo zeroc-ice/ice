@@ -229,13 +229,7 @@ IceInternal::UnknownEndpointI::expand(bool) const
 }
 
 bool
-IceInternal::UnknownEndpointI::equivalent(const TransceiverPtr&) const
-{
-    return false;
-}
-
-bool
-IceInternal::UnknownEndpointI::equivalent(const AcceptorPtr&) const
+IceInternal::UnknownEndpointI::equivalent(const ConnectorPtr&) const
 {
     return false;
 }

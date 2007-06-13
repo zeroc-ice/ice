@@ -118,6 +118,14 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
     return compareAddress(_addr, p->_addr) == -1;
 }
 
+bool
+IceInternal::TcpConnector::equivalent(const string& host, int port) const
+{
+    struct sockaddr_in addr;
+    getAddress(host, port, addr);
+    return compareAddress(addr, _addr) == 0;
+}
+
 IceInternal::TcpConnector::TcpConnector(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,
                                         const string& connectionId) :
     _instance(instance),

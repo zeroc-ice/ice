@@ -389,28 +389,21 @@ final class TcpEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Connector
     //
     public boolean
-    equivalent(Transceiver transceiver)
+    equivalent(Connector connector)
     {
-        return false;
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
-    {
-        TcpAcceptor tcpAcceptor = null;
+        TcpConnector tcpConnector = null;
         try
         {
-            tcpAcceptor = (TcpAcceptor)acceptor;
+            tcpConnector = (TcpConnector)connector;
         }
         catch(ClassCastException ex)
         {
             return false;
         }
-        return tcpAcceptor.equivalent(_host, _port);
+        return tcpConnector.equivalent(_host, _port);
     }
 
     public int

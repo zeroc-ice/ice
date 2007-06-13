@@ -88,12 +88,6 @@ namespace IceInternal
             return Network.addrToString(_addr);
         }
         
-        internal bool equivalent(string host, int port)
-        {
-            EndPoint addr = Network.getAddress(host, port);
-            return addr.Equals(_addr);
-        }
-        
         internal virtual int effectivePort()
         {
             return _addr.Port;

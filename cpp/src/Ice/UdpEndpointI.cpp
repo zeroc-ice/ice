@@ -519,20 +519,14 @@ IceInternal::UdpEndpointI::expand(bool includeLoopback) const
 }
 
 bool
-IceInternal::UdpEndpointI::equivalent(const TransceiverPtr& transceiver) const
+IceInternal::UdpEndpointI::equivalent(const ConnectorPtr& connector) const
 {
-    const UdpTransceiver* udpTransceiver = dynamic_cast<const UdpTransceiver*>(transceiver.get());
-    if(!udpTransceiver)
+    const UdpConnector* udpConnector = dynamic_cast<const UdpConnector*>(connector.get());
+    if(!udpConnector)
     {
         return false;
     }
-    return udpTransceiver->equivalent(_host, _port);
-}
-
-bool
-IceInternal::UdpEndpointI::equivalent(const AcceptorPtr&) const
-{
-    return false;
+    return udpConnector->equivalent(_host, _port);
 }
 
 bool

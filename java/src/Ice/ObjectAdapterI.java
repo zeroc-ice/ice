@@ -370,6 +370,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             _routerInfo = null;
             _publishedEndpoints = null;
             _locatorInfo = null;
+            _connectors = null;
 
             objectAdapterFactory = _objectAdapterFactory;
             _objectAdapterFactory = null;
@@ -579,6 +580,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             oldPublishedEndpoints = _publishedEndpoints;
             _publishedEndpoints = parsePublishedEndpoints();
 
+            _connectors.clear();
+            java.util.Iterator p = _incomingConnectionFactories.iterator();
+            while(p.hasNext())
+            {
+                IceInternal.IncomingConnectionFactory factory = (IceInternal.IncomingConnectionFactory)p.next();
+                _connectors.addAll(factory.endpoint().connectors());
+            }
+
             locatorInfo = _locatorInfo;
             if(!_noConfig)
             {
@@ -650,12 +659,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             for(int i = 0; i < endpoints.length; ++i)
             {
-                final int sz = _incomingConnectionFactories.size();
+                final int sz = _connectors.size();
                 for(int j = 0; j < sz; j++)
                 {
-                    IceInternal.IncomingConnectionFactory factory =
-                        (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(j);
-                    if(factory.equivalent(endpoints[i]))
+                    IceInternal.Connector connector = (IceInternal.Connector)_connectors.get(j);
+                    if(endpoints[i].equivalent(connector))
                     {
                         return true;
                     }
@@ -942,8 +950,11 @@ public final class ObjectAdapterI implements ObjectAdapter
                         ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endp.toString();
                         throw ex;
                     }
-                    _incomingConnectionFactories.add(
-                        new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
+                    IceInternal.IncomingConnectionFactory factory = 
+                        new IceInternal.IncomingConnectionFactory(instance, endp, this, _name);
+                    _incomingConnectionFactories.add(factory);
+
+                    _connectors.addAll(factory.endpoint().connectors());
                 }
                 if(endpoints.size() == 0)
                 {
@@ -1385,6 +1396,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     final private String _id;
     final private String _replicaGroupId;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
+    private java.util.ArrayList _connectors = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private IceInternal.RouterInfo _routerInfo = null;
     private java.util.ArrayList _publishedEndpoints = new java.util.ArrayList();

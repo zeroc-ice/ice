@@ -41,8 +41,7 @@ public:
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
     virtual std::vector<EndpointIPtr> expand(bool) const;
-    virtual bool equivalent(const TransceiverPtr&) const;
-    virtual bool equivalent(const AcceptorPtr&) const;
+    virtual bool equivalent(const ConnectorPtr&) const;
 
     virtual bool operator==(const EndpointI&) const;
     virtual bool operator!=(const EndpointI&) const;

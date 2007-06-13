@@ -35,7 +35,6 @@ public:
     virtual void connectToSelf();
     virtual std::string toString() const;
 
-    bool equivalent(const std::string&, int) const;
     int effectivePort();
 
 private:

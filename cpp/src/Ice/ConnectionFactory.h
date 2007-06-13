@@ -75,7 +75,6 @@ public:
     void waitUntilFinished();
 
     EndpointIPtr endpoint() const;
-    bool equivalent(const EndpointIPtr&) const;
     std::list<Ice::ConnectionIPtr> connections() const;
     void flushBatchRequests();
 

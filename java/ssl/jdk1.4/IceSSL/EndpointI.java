@@ -390,28 +390,21 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Connector.
     //
     public boolean
-    equivalent(IceInternal.Transceiver transceiver)
+    equivalent(IceInternal.Connector connector)
     {
-        return false;
-    }
-
-    public boolean
-    equivalent(IceInternal.Acceptor acceptor)
-    {
-        AcceptorI sslAcceptor = null;
+        ConnectorI sslConnector = null;
         try
         {
-            sslAcceptor = (AcceptorI)acceptor;
+            sslConnector = (ConnectorI)connector;
         }
         catch(ClassCastException ex)
         {
             return false;
         }
-        return sslAcceptor.equivalent(_host, _port);
+        return sslConnector.equivalent(_host, _port);
     }
 
     public int

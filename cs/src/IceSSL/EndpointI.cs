@@ -390,26 +390,20 @@ namespace IceSSL
         }
 
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public override bool equivalent(IceInternal.Transceiver transceiver)
+        public override bool equivalent(IceInternal.Connector Connector)
         {
-            return false;
-        }
-
-        public override bool equivalent(IceInternal.Acceptor acceptor)
-        {
-            AcceptorI sslAcceptor = null;
+            ConnectorI sslConnector = null;
             try
             {
-                sslAcceptor = (AcceptorI)acceptor;
+                sslConnector = (ConnectorI)Connector;
             }
             catch(System.InvalidCastException)
             {
                 return false;
             }
-            return sslAcceptor.equivalent(host_, port_);
+            return sslConnector.equivalent(host_, port_);
         }
 
         public override bool requiresThreadPerConnection()

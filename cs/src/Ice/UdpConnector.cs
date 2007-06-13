@@ -31,6 +31,12 @@ namespace IceInternal
             return Network.addrToString(_addr);
         }
 
+        internal bool equivalent(string host, int port)
+        {
+            IPEndPoint addr = Network.getAddress(host, port);
+            return addr.Equals(_addr);
+        }
+
         //
         // Only for use by TcpEndpoint
         //

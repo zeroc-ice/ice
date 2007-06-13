@@ -102,12 +102,6 @@ namespace IceSSL
             return IceInternal.Network.addrToString(addr_);
         }
         
-        internal bool equivalent(string host, int port)
-        {
-            EndPoint addr = IceInternal.Network.getAddress(host, port);
-            return addr.Equals(addr_);
-        }
-
         internal virtual int effectivePort()
         {
             return addr_.Port;

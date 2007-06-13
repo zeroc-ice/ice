@@ -114,11 +114,9 @@ public:
     virtual std::vector<EndpointIPtr> expand(bool) const = 0;
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor.
+    // Check whether the endpoint is equivalent to a specific Connector.
     //
-    virtual bool equivalent(const TransceiverPtr&) const = 0;
-    virtual bool equivalent(const AcceptorPtr&) const = 0;
+    virtual bool equivalent(const ConnectorPtr&) const = 0;
 
     //
     // Compare endpoints for sorting purposes.

@@ -117,11 +117,9 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
     public abstract java.util.ArrayList expand(boolean includeLoopback);
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor.
+    // Check whether the endpoint is equivalent to a specific Connector.
     //
-    public abstract boolean equivalent(Transceiver transceiver);
-    public abstract boolean equivalent(Acceptor acceptor);
+    public abstract boolean equivalent(Connector connector);
 
     //
     // Compare endpoints for sorting purposes.

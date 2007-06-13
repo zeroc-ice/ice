@@ -248,6 +248,14 @@ IceSSL::ConnectorI::operator<(const IceInternal::Connector& r) const
     return IceInternal::compareAddress(_addr, p->_addr) == -1;
 }
 
+bool
+IceSSL::ConnectorI::equivalent(const string& host, int port) const
+{
+    struct sockaddr_in addr;
+    IceInternal::getAddress(host, port, addr);
+    return IceInternal::compareAddress(_addr, addr) == 0;
+}
+
 IceSSL::ConnectorI::ConnectorI(const InstancePtr& instance, const struct sockaddr_in& addr, Ice::Int timeout,
                                const string& connectionId) :
     _instance(instance),

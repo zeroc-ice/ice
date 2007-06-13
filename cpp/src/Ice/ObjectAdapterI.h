@@ -23,6 +23,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/EndpointIF.h>
+#include <Ice/ConnectorF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Exception.h>
@@ -116,6 +117,7 @@ private:
     const std::string _id;
     const std::string _replicaGroupId;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
+    std::vector<IceInternal::ConnectorPtr> _connectors;
     std::vector<IceInternal::EndpointIPtr> _routerEndpoints;
     IceInternal::RouterInfoPtr _routerInfo;
     std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;

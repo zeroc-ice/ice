@@ -579,26 +579,20 @@ namespace IceInternal
         }
 
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public override bool equivalent(Transceiver transceiver)
+        public override bool equivalent(Connector connector)
         {
-            UdpTransceiver udpTransceiver = null;
+            UdpConnector udpConnector = null;
             try
             {
-                udpTransceiver = (UdpTransceiver) transceiver;
+                udpConnector = (UdpConnector)connector;
             }
             catch(System.InvalidCastException)
             {
                 return false;
             }
-            return udpTransceiver.equivalent(_host, _port);
-        }
-        
-        public override bool equivalent(Acceptor acceptor)
-        {
-            return false;
+            return udpConnector.equivalent(_host, _port);
         }
 
         public override bool requiresThreadPerConnection()

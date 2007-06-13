@@ -893,45 +893,56 @@ namespace IceInternal
         {
             ArrayList addresses = new ArrayList();
 
-            int retry = 5;
-
-        repeatGetHostByName:
-            try
+            if(host.Equals("0.0.0.0"))
             {
-                //
-                // No need for lookup if host is ip address.
-                //
+                string[] hosts = getLocalHosts();
+                for(int i = 0; i < hosts.Length; ++i)
+                {
+                    addresses.Add(getAddress(hosts[i], port));
+                }
+            }
+            else
+            {
+                int retry = 5;
+
+            repeatGetHostByName:
                 try
                 {
-                    addresses.Add(new IPEndPoint(IPAddress.Parse(host), port));
-                }
-                catch (FormatException)
-                {
-                    IPHostEntry e = Dns.GetHostEntry(host);
-                    for(int i = 0; i < e.AddressList.Length; ++i)
+                    //
+                    // No need for lookup if host is ip address.
+                    //
+                    try
                     {
-                        if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+                        addresses.Add(new IPEndPoint(IPAddress.Parse(host), port));
+                    }
+                    catch (FormatException)
+                    {
+                        IPHostEntry e = Dns.GetHostEntry(host);
+                        for(int i = 0; i < e.AddressList.Length; ++i)
                         {
-                            addresses.Add(new IPEndPoint(e.AddressList[i], port));
+                            if(e.AddressList[i].AddressFamily != AddressFamily.InterNetworkV6)
+                            {
+                                addresses.Add(new IPEndPoint(e.AddressList[i], port));
+                            }
                         }
                     }
                 }
-            }
-            catch(Win32Exception ex)
-            {
-                if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
+                catch(Win32Exception ex)
                 {
-                    goto repeatGetHostByName;
+                    if(ex.NativeErrorCode == WSATRY_AGAIN && --retry >= 0)
+                    {
+                        goto repeatGetHostByName;
+                    }
+                    Ice.DNSException e = new Ice.DNSException(ex);
+                    e.host = host;
+                    throw e;
                 }
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
-            }
-            catch(System.Exception ex)
-            {
-                Ice.DNSException e = new Ice.DNSException(ex);
-                e.host = host;
-                throw e;
+                catch(System.Exception ex)
+                {
+                    Ice.DNSException e = new Ice.DNSException(ex);
+                    e.host = host;
+                    throw e;
+                }
             }
 
             return (IPEndPoint[])addresses.ToArray(typeof(IPEndPoint));

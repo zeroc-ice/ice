@@ -271,17 +271,10 @@ final class UnknownEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Conenctor.
     //
     public boolean
-    equivalent(Transceiver transceiver)
-    {
-        return false;
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
+    equivalent(Connector connector)
     {
         return false;
     }

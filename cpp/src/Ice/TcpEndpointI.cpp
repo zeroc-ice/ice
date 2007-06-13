@@ -333,20 +333,14 @@ IceInternal::TcpEndpointI::expand(bool includeLoopback) const
 }
 
 bool
-IceInternal::TcpEndpointI::equivalent(const TransceiverPtr&) const
+IceInternal::TcpEndpointI::equivalent(const ConnectorPtr& connector) const
 {
-    return false;
-}
-
-bool
-IceInternal::TcpEndpointI::equivalent(const AcceptorPtr& acceptor) const
-{
-    const TcpAcceptor* tcpAcceptor = dynamic_cast<const TcpAcceptor*>(acceptor.get());
-    if(!tcpAcceptor)
+    const TcpConnector* tcpConnector = dynamic_cast<const TcpConnector*>(connector.get());
+    if(!tcpConnector)
     {
         return false;
     }
-    return tcpAcceptor->equivalent(_host, _port);
+    return tcpConnector->equivalent(_host, _port);
 }
 
 bool

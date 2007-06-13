@@ -261,15 +261,9 @@ namespace IceInternal
         }
         
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public override bool equivalent(Transceiver transceiver)
-        {
-            return false;
-        }
-        
-        public override bool equivalent(Acceptor acceptor)
+        public override bool equivalent(Connector connector)
         {
             return false;
         }

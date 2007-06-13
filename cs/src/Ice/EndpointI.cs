@@ -109,11 +109,9 @@ namespace IceInternal
         public abstract ArrayList expand(bool includeLoopback);
  
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor.
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public abstract bool equivalent(Transceiver transceiver);
-        public abstract bool equivalent(Acceptor acceptor);
+        public abstract bool equivalent(Connector connector);
 
         //
         // Returns true if the endpoint's transport requires thread-per-connection.

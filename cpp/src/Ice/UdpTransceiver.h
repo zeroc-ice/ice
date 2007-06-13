@@ -43,7 +43,6 @@ public:
     virtual void initialize(int);
     virtual void checkSendSize(const Buffer&, size_t);
 
-    bool equivalent(const std::string&, int) const;
     int effectivePort() const;
 
 private:

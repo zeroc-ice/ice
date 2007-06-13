@@ -37,6 +37,13 @@ final class UdpConnector implements Connector, java.lang.Comparable
         return _hashCode;
     }
 
+    final public boolean
+    equivalent(String host, int port)
+    {
+        java.net.InetSocketAddress addr = Network.getAddress(host, port);
+        return addr.equals(_addr);
+    }
+
     //
     // Only for use by TcpEndpoint
     //

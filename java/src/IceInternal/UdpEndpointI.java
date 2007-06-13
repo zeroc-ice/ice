@@ -556,28 +556,21 @@ final class UdpEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Conenctor.
     //
     public boolean
-    equivalent(Transceiver transceiver)
+    equivalent(Connector connector)
     {
-        UdpTransceiver udpTransceiver = null;
+        UdpConnector udpConnector = null;
         try
         {
-            udpTransceiver = (UdpTransceiver)transceiver;
+            udpConnector = (UdpConnector)connector;
         }
         catch(ClassCastException ex)
         {
             return false;
         }
-        return udpTransceiver.equivalent(_host, _port);
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
-    {
-        return false;
+        return udpConnector.equivalent(_host, _port);
     }
 
     public int

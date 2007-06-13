@@ -1340,97 +1340,109 @@ IceInternal::getAddresses(const string& host, int port)
 {
     vector<struct sockaddr_in> result;
 
-    struct sockaddr_in addr;
-    memset(&addr, 0, sizeof(struct sockaddr_in));
-    addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);
+    if(host == "0.0.0.0")
+    {
+        vector<string> hosts = getLocalHosts();
+        for(unsigned int i = 0; i < hosts.size(); ++i)
+        {
+            struct sockaddr_in addr;
+            getAddress(hosts[i], port, addr);
+            result.push_back(addr);
+        }
+    }
+    else
+    {
+        struct sockaddr_in addr;
+        memset(&addr, 0, sizeof(struct sockaddr_in));
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(port);
 
 #ifdef _WIN32
 
-    //
-    // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
-    //
+        //
+        // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
+        //
         
-    //
-    // gethostbyname() is thread safe on Windows, with a separate hostent per thread
-    //
-    struct hostent* entry = 0;
-    int retry = 5;
+        //
+        // gethostbyname() is thread safe on Windows, with a separate hostent per thread
+        //
+        struct hostent* entry = 0;
+        int retry = 5;
 
-    do
-    {
-        entry = gethostbyname(host.c_str());
-    }
-    while(entry == 0 && h_errno == TRY_AGAIN && --retry >= 0);
+        do
+        {
+            entry = gethostbyname(host.c_str());
+        }
+        while(entry == 0 && h_errno == TRY_AGAIN && --retry >= 0);
     
-    if(entry == 0)
-    {
-        DNSException ex(__FILE__, __LINE__);
-        ex.error = h_errno;
-        ex.host = host;
-        throw ex;
-    }
+        if(entry == 0)
+        {
+            DNSException ex(__FILE__, __LINE__);
+            ex.error = h_errno;
+            ex.host = host;
+            throw ex;
+        }
 
-    char** p = entry->h_addr_list;
-    while(*p)
-    {
-        memcpy(&addr.sin_addr, *p, entry->h_length);
-        result.push_back(addr);
-        p++;
-    } 
+        char** p = entry->h_addr_list;
+        while(*p)
+        {
+            memcpy(&addr.sin_addr, *p, entry->h_length);
+            result.push_back(addr);
+            p++;
+        } 
 
 #else
 
-    struct addrinfo* info = 0;
-    int retry = 5;
+        struct addrinfo* info = 0;
+        int retry = 5;
 
-    struct addrinfo hints = { 0 };
-    hints.ai_family = PF_INET;
+        struct addrinfo hints = { 0 };
+        hints.ai_family = PF_INET;
         
-    int rs = 0;
-    do
-    {
-        rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
-    }
-    while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
-      
-    if(rs != 0)
-    {
-        DNSException ex(__FILE__, __LINE__);
-        ex.error = rs;
-        ex.host = host;
-        throw ex;
-    }
-
-    struct addrinfo* p;
-    for(p = info; p != NULL; p = p->ai_next)
-    {
-        assert(p->ai_family == PF_INET);
-        struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(p->ai_addr);
-        if(sin->sin_addr.s_addr != 0)
+        int rs = 0;
+        do
         {
-            addr.sin_addr.s_addr = sin->sin_addr.s_addr;
+            rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
+        }
+        while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+      
+        if(rs != 0)
+        {
+            DNSException ex(__FILE__, __LINE__);
+            ex.error = rs;
+            ex.host = host;
+            throw ex;
+        }
 
-            bool found = false;
-            for(unsigned int i = 0; i < result.size(); ++i)
+        struct addrinfo* p;
+        for(p = info; p != NULL; p = p->ai_next)
+        {
+            assert(p->ai_family == PF_INET);
+            struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(p->ai_addr);
+            if(sin->sin_addr.s_addr != 0)
             {
-                if(compareAddress(result[i], addr) == 0)
+                addr.sin_addr.s_addr = sin->sin_addr.s_addr;
+
+                bool found = false;
+                for(unsigned int i = 0; i < result.size(); ++i)
                 {
-                    found = true;
-                    break;
+                    if(compareAddress(result[i], addr) == 0)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found)
+                {
+                    result.push_back(addr);
                 }
             }
-            if(!found)
-            {
-
-                result.push_back(addr);
-            }
         }
-    }
 
-    freeaddrinfo(info);
+        freeaddrinfo(info);
 
 #endif
+    }
 
     return result;
 }

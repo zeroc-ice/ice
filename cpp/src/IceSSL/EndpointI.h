@@ -42,8 +42,7 @@ public:
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand(bool) const;
-    virtual bool equivalent(const IceInternal::TransceiverPtr&) const;
-    virtual bool equivalent(const IceInternal::AcceptorPtr&) const;
+    virtual bool equivalent(const IceInternal::ConnectorPtr&) const;
 
     virtual bool operator==(const IceInternal::EndpointI&) const;
     virtual bool operator!=(const IceInternal::EndpointI&) const;

@@ -312,13 +312,6 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
-    public final boolean
-    equivalent(String host, int port)
-    {
-        java.net.InetSocketAddress addr = Network.getAddress(host, port);
-        return addr.equals(_addr);
-    }
-
     public final int
     effectivePort()
     {

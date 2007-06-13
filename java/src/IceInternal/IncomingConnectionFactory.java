@@ -145,18 +145,6 @@ public final class IncomingConnectionFactory extends EventHandler
         return _endpoint;
     }
 
-    public boolean
-    equivalent(EndpointI endp)
-    {
-        if(_transceiver != null)
-        {
-            return endp.equivalent(_transceiver);
-        }
-
-        assert(_acceptor != null);
-        return endp.equivalent(_acceptor);
-    }
-
     public synchronized Ice.ConnectionI[]
     connections()
     {

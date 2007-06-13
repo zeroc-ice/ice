@@ -54,6 +54,13 @@ final class TcpConnector implements Connector, java.lang.Comparable
         return _hashCode;
     }
 
+    public final boolean
+    equivalent(String host, int port)
+    {
+        java.net.InetSocketAddress addr = Network.getAddress(host, port);
+        return addr.equals(_addr);
+    }
+
     //
     // Only for use by TcpEndpoint
     //

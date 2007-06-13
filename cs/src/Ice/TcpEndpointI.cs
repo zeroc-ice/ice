@@ -392,26 +392,20 @@ namespace IceInternal
         }
         
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public override bool equivalent(Transceiver transceiver)
+        public override bool equivalent(Connector connector)
         {
-            return false;
-        }
-        
-        public override bool equivalent(Acceptor acceptor)
-        {
-            TcpAcceptor tcpAcceptor = null;
+            TcpConnector tcpConnector = null;
             try
             {
-                tcpAcceptor = (TcpAcceptor)acceptor;
+                tcpConnector = (TcpConnector)connector;
             }
             catch(System.InvalidCastException)
             {
                 return false;
             }
-            return tcpAcceptor.equivalent(_host, _port);
+            return tcpConnector.equivalent(_host, _port);
         }
 
         public override bool requiresThreadPerConnection()

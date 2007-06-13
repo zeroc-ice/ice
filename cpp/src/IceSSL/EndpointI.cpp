@@ -332,20 +332,14 @@ IceSSL::EndpointI::expand(bool includeLoopback) const
 }
 
 bool
-IceSSL::EndpointI::equivalent(const IceInternal::TransceiverPtr&) const
+IceSSL::EndpointI::equivalent(const IceInternal::ConnectorPtr& connector) const
 {
-    return false;
-}
-
-bool
-IceSSL::EndpointI::equivalent(const IceInternal::AcceptorPtr& acceptor) const
-{
-    const AcceptorI* sslAcceptor = dynamic_cast<const AcceptorI*>(acceptor.get());
-    if(!sslAcceptor)
+    const ConnectorI* sslConnector = dynamic_cast<const ConnectorI*>(connector.get());
+    if(!sslConnector)
     {
         return false;
     }
-    return sslAcceptor->equivalent(_host, _port);
+    return sslConnector->equivalent(_host, _port);
 }
 
 bool
