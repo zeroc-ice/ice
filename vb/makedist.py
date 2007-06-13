@@ -137,7 +137,7 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icevb", "makedist.py"), \
     ]
-filesToRemove.extend(find("icevb", ".dummy"))
+filesToRemove.extend(find("icevb", ".gitignore"))
 for x in filesToRemove:
     os.remove(x)
 

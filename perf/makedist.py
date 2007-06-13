@@ -178,7 +178,7 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("ice", "makedist.py"), \
     ]
-filesToRemove.extend(find("iceperf", ".dummy"))
+filesToRemove.extend(find("iceperf", ".gitignore"))
 for x in filesToRemove:
     if os.path.exists(x):
         os.remove(x)

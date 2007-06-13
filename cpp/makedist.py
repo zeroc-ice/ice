@@ -275,7 +275,7 @@ filesToRemove = [ \
     os.path.join("ice", "src", "IceUtil", "iceutile.dsp"), \
     os.path.join("ice", "src", "Slice", "slicee.dsp"), \
     ]
-filesToRemove.extend(find("ice", ".dummy"))
+filesToRemove.extend(find("ice", ".gitignore"))
 for x in filesToRemove:
     if os.path.exists(x):
         os.remove(x)

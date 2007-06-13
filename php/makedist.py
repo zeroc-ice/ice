@@ -103,7 +103,7 @@ shutil.copyfile(os.path.join("ice", "config", "Make.rules.msvc"),
 filesToRemove = [ \
     os.path.join("icephp", "makedist.py"), \
     ]
-filesToRemove.extend(find("icephp", ".dummy"))
+filesToRemove.extend(find("icephp", ".gitignore"))
 for x in filesToRemove:
     os.remove(x)
 
