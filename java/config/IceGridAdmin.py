@@ -261,18 +261,14 @@ def iceGridClientServerTest(name, additionalClientOptions, additionalServerOptio
         sys.exit(1)
 
 def cleanDbDir(path):
-    
-    files = os.listdir(path)
-    for filename in files:
-        if filename != "CVS" and filename != ".dummy":
-            fullpath = os.path.join(path, filename);
-            if os.path.isdir(fullpath):
-                cleanDbDir(fullpath)
-                try:
-                    os.rmdir(fullpath)
-                except OSError:
-                    # This might fail if the directory is empty (because it itself is
-                    # a CVS directory).
-                    pass
-            else:
-                os.remove(fullpath)
+    for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore"]:
+        if os.path.isdir(filename):
+            cleanDbDir(filename)
+            try:
+                os.rmdir(filename)
+            except OSError:
+                # This might fail if the directory is empty (because
+                # it itself contains a .gitignore file.
+                pass
+        else:
+            os.remove(filename)

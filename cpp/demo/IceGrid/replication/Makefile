@@ -40,4 +40,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
+clean::
+	-rm -rf db/master/* db/node1/* db/node2/* db/replica1/* db/replica2/*
+
 include .depend

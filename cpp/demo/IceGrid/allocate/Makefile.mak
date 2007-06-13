@@ -46,6 +46,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q Hello.cpp Hello.h
+	-del /q Hello.cpp Hello.h
 
 !include .depend
