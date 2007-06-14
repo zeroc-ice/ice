@@ -85,7 +85,7 @@ def createGitIgnore(filename, gitIgnoreFiles):
 # Find where the root of the tree is.
 #
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
+    toplevel = os.path.abspath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "makegitignore.py")):
         break
 else:
@@ -109,7 +109,12 @@ for i in makefiles:
     
 os.chdir(cwd)
 
+excludePath = [ os.path.join(toplevel, "bin"), os.path.join(toplevel, "lib") ]
+print excludePath
 for (path, files) in gitIgnoreFiles.iteritems():
+    if os.path.dirname(path) in excludePath:
+        continue
+    
     gitIgnore = open(path, "w")
     gitIgnore.write(preamble);
     gitIgnore.writelines(files)
