@@ -1237,9 +1237,12 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     {
         try
         {
-            ProcessPtr servant = new ProcessI(_communicator);
-            Ice::ObjectPrx process = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
-            locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(process));
+            if(_processId.name == "")
+            {
+                ProcessPtr servant = new ProcessI(_communicator);
+                _processId = addWithUUID(servant)->ice_getIdentity();
+            }
+            locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(createDirectProxy(_processId)));
         }
         catch(const ServerNotFoundException&)
         {

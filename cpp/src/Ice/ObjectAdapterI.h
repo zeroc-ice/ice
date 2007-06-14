@@ -129,6 +129,7 @@ private:
     bool _noConfig;
     bool _threadPerConnection;
     size_t _threadPerConnectionStackSize;
+    Identity _processId;
 
     class ProcessI : public Process
     {

@@ -791,6 +791,7 @@ namespace Ice
             _directCount = 0;
             _waitForActivate = false;
             _noConfig = noConfig;
+            _processId = null;
             
             if(_noConfig)
             {
@@ -1283,9 +1284,13 @@ namespace Ice
             {
                 try
                 {
-                    Process servant = new ProcessI(_communicator);
-                    Ice.ObjectPrx process = createDirectProxy(addWithUUID(servant).ice_getIdentity());
-                    locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(process));
+                    if(_processId == null)
+                    {
+                        Process servant = new ProcessI(_communicator);
+                        _processId = addWithUUID(servant).ice_getIdentity();
+                    }
+                    locatorRegistry.setServerProcessProxy(serverId,
+                                                ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
                 }
                 catch(ServerNotFoundException)
                 {
@@ -1410,5 +1415,6 @@ namespace Ice
         private bool _destroyed;
         private bool _noConfig;
         private bool _threadPerConnection;
+        private Identity _processId;
     }
 }

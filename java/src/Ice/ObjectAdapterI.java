@@ -1275,9 +1275,13 @@ public final class ObjectAdapterI implements ObjectAdapter
         {
             try
             {
-                Process servant = new ProcessI(_communicator);
-                Ice.ObjectPrx process = createDirectProxy(addWithUUID(servant).ice_getIdentity());
-                locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(process));
+                if(_processId == null)
+                {
+                    Process servant = new ProcessI(_communicator);
+                    _processId = addWithUUID(servant).ice_getIdentity();
+                }
+                locatorRegistry.setServerProcessProxy(serverId, 
+                                        ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
             }
             catch(ServerNotFoundException ex)
             {
@@ -1407,4 +1411,5 @@ public final class ObjectAdapterI implements ObjectAdapter
     private boolean _destroyed;
     private boolean _noConfig;
     private boolean _threadPerConnection;
+    private Identity _processId = null;
 }
