@@ -362,10 +362,10 @@ final class TcpEndpointI extends EndpointI
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set. 
+    // host if listening on INADDR_ANY.
     //
     public java.util.ArrayList
-    expand(boolean includeLoopback)
+    expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         if(_host.equals("0.0.0.0"))
@@ -375,7 +375,7 @@ final class TcpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                if(includeLoopback || hosts.size() == 1 || !host.equals("127.0.0.1"))
+                if(hosts.size() == 1 || !host.equals("127.0.0.1"))
                 {
                     endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress));
                 }

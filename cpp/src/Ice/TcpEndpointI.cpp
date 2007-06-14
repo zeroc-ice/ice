@@ -311,7 +311,7 @@ IceInternal::TcpEndpointI::acceptor(EndpointIPtr& endp, const string&) const
 
 
 vector<EndpointIPtr>
-IceInternal::TcpEndpointI::expand(bool includeLoopback) const
+IceInternal::TcpEndpointI::expand() const
 {
     vector<EndpointIPtr> endps;
     if(_host == "0.0.0.0")
@@ -319,7 +319,7 @@ IceInternal::TcpEndpointI::expand(bool includeLoopback) const
         vector<string> hosts = getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+            if(hosts.size() == 1 || hosts[i] != "127.0.0.1")
             {
                 endps.push_back(new TcpEndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress));
             }

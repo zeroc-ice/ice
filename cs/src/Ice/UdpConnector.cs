@@ -33,7 +33,15 @@ namespace IceInternal
 
         internal bool equivalent(string host, int port)
         {
-            IPEndPoint addr = Network.getAddress(host, port);
+            IPEndPoint addr; 
+            try
+            {
+                addr = Network.getAddress(host, port);
+            }
+            catch(Ice.DNSException)
+            {
+                return false;
+            } 
             return addr.Equals(_addr);
         }
 

@@ -122,7 +122,14 @@ bool
 IceInternal::TcpConnector::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
-    getAddress(host, port, addr);
+    try
+    {
+        getAddress(host, port, addr);
+    }
+    catch(const DNSException&)
+    {
+        return false;
+    }
     return compareAddress(addr, _addr) == 0;
 }
 

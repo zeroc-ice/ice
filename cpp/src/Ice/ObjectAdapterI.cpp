@@ -1147,7 +1147,7 @@ ObjectAdapterI::parsePublishedEndpoints()
     vector<EndpointIPtr> expandedEndpoints;
     for(unsigned int i = 0; i < endpoints.size(); ++i)
     {
-        vector<EndpointIPtr> endps = endpoints[i]->expand(false);
+        vector<EndpointIPtr> endps = endpoints[i]->expand();
         expandedEndpoints.insert(expandedEndpoints.end(), endps.begin(), endps.end());
     }
     return expandedEndpoints;

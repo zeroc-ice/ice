@@ -11,6 +11,7 @@
 #include <Ice/UdpTransceiver.h>
 #include <Ice/UdpEndpointI.h>
 #include <Ice/Network.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -171,8 +172,15 @@ bool
 IceInternal::UdpConnector::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
-    getAddress(host, port, addr);
-    return compareAddress(_addr, addr) == 0;
+    try
+    {
+        getAddress(host, port, addr);
+    }
+    catch(const DNSException&)
+    {
+        return false;
+    }
+    return compareAddress(addr, _addr) == 0;
 }
 
 IceInternal::UdpConnector::UdpConnector(const InstancePtr& instance, const struct sockaddr_in& addr, 

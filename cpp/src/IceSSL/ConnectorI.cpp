@@ -252,7 +252,14 @@ bool
 IceSSL::ConnectorI::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
-    IceInternal::getAddress(host, port, addr);
+    try
+    {
+        IceInternal::getAddress(host, port, addr);
+    }
+    catch(const DNSException&)
+    {
+        return false;
+    }
     return IceInternal::compareAddress(_addr, addr) == 0;
 }
 

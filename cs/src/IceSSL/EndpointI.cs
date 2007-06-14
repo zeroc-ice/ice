@@ -366,9 +366,9 @@ namespace IceSSL
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set.
+        // host if listening on INADDR_ANY.
         //
-        public override ArrayList expand(bool includeLoopback)
+        public override ArrayList expand()
         {
             ArrayList endps = new ArrayList();
             if(host_.Equals("0.0.0.0"))
@@ -376,7 +376,7 @@ namespace IceSSL
                 string[] hosts = IceInternal.Network.getLocalHosts();
                 for(int i = 0; i < hosts.Length; ++i)
                 {
-                    if(includeLoopback || hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
+                    if(hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
                     {
                         endps.Add(new EndpointI(instance_, hosts[i], port_, timeout_, connectionId_, compress_));
                     }

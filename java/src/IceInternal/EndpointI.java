@@ -112,9 +112,9 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set.
+    // host if listening on INADDR_NAY.
     //
-    public abstract java.util.ArrayList expand(boolean includeLoopback);
+    public abstract java.util.ArrayList expand();
 
     //
     // Check whether the endpoint is equivalent to a specific Connector.

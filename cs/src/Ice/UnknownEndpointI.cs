@@ -250,10 +250,10 @@ namespace IceInternal
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set.
+        // host if listening on INADDR_ANY.
         //
         public override ArrayList
-        expand(bool includeLoopback)
+        expand()
         {
             ArrayList endps = new ArrayList();
             endps.Add(this);

@@ -41,7 +41,7 @@ public:
     virtual IceInternal::TransceiverPtr transceiver(IceInternal::EndpointIPtr&) const;
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
-    virtual std::vector<IceInternal::EndpointIPtr> expand(bool) const;
+    virtual std::vector<IceInternal::EndpointIPtr> expand() const;
     virtual bool equivalent(const IceInternal::ConnectorPtr&) const;
 
     virtual bool operator==(const IceInternal::EndpointI&) const;

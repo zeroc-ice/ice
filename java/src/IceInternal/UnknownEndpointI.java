@@ -260,10 +260,10 @@ final class UnknownEndpointI extends EndpointI
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set.
+    // host if listening on INADDR_ANY.
     //
     public java.util.ArrayList
-    expand(boolean includeLoopback)
+    expand()
     {
         java.util.ArrayList endps = new java.util.ArrayList();
         endps.add(this);

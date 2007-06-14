@@ -310,7 +310,7 @@ IceSSL::EndpointI::acceptor(IceInternal::EndpointIPtr& endp, const string& adapt
 }
 
 vector<IceInternal::EndpointIPtr>
-IceSSL::EndpointI::expand(bool includeLoopback) const
+IceSSL::EndpointI::expand() const
 {
     vector<IceInternal::EndpointIPtr> endps;
     if(_host == "0.0.0.0")
@@ -318,7 +318,7 @@ IceSSL::EndpointI::expand(bool includeLoopback) const
         vector<string> hosts = IceInternal::getLocalHosts();
         for(unsigned int i = 0; i < hosts.size(); ++i)
         {
-            if(includeLoopback || hosts.size() == 1 || hosts[i] != "127.0.0.1")
+            if(hosts.size() == 1 || hosts[i] != "127.0.0.1")
             {
                 endps.push_back(new EndpointI(_instance, hosts[i], _port, _timeout, _connectionId, _compress));
             }

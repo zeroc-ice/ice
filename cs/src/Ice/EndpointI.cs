@@ -104,9 +104,9 @@ namespace IceInternal
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set.
+        // host if listening on INADDR_ANY.
         //
-        public abstract ArrayList expand(bool includeLoopback);
+        public abstract ArrayList expand();
  
         //
         // Check whether the endpoint is equivalent to a specific Connector.

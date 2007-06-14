@@ -57,7 +57,15 @@ final class TcpConnector implements Connector, java.lang.Comparable
     public final boolean
     equivalent(String host, int port)
     {
-        java.net.InetSocketAddress addr = Network.getAddress(host, port);
+        java.net.InetSocketAddress addr;
+        try
+        {
+            addr = Network.getAddress(host, port);
+        }
+        catch(Ice.DNSException ex)
+        {
+            return false;
+        }
         return addr.equals(_addr);
     }
 

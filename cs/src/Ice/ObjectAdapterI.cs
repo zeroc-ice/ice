@@ -1194,7 +1194,7 @@ namespace Ice
             ArrayList expandedEndpoints = new ArrayList();
             foreach(IceInternal.EndpointI endp in endpoints)
             {
-                ArrayList endps = endp.expand(false);
+                ArrayList endps = endp.expand();
                 expandedEndpoints.AddRange(endps);
             }
             return expandedEndpoints;

@@ -21,6 +21,7 @@ sgenerated
 /java/lib
 /cpp/bin
 /cpp/lib
+/cpp/seed
 *#
 .#*
 *~
