@@ -57,14 +57,10 @@ Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
 	del /q Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
-cleandb:
-	del /q db\log.* db\__catalog db\items
-
-clean:: cleandb
+clean::
 	del /q Item.h Item.cpp
 	del /q ItemInfo.h ItemInfo.cpp
 	del /q Database.h Database.cpp
-	del /q Item.cpp Item.h
-	del /q ItemInfo.cpp ItemInfo.h
+	for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
 include .depend
