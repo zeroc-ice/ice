@@ -22,6 +22,10 @@ sgenerated
 /cpp/bin
 /cpp/lib
 /cpp/seed
+/javae/jdk/lib
+/javae/midp/lib
+/cppe/bin
+/cppe/lib
 *#
 .#*
 *~

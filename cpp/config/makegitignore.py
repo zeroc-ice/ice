@@ -86,13 +86,14 @@ def createGitIgnore(filename, gitIgnoreFiles):
 #
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.abspath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "config", "makegitignore.py")):
+    if os.path.exists(os.path.join(toplevel, "cpp", "config", "makegitignore.py")):
         break
 else:
     print("cannot find top-level directory")
     sys.exit(1)
 
-makefiles = find(toplevel, "Makefile")
+makefiles = find(os.path.join(toplevel, "cpp"), "Makefile")
+makefiles = makefiles + find(os.path.join(toplevel, "cppe"), "Makefile")
 cwd = os.getcwd()
 gitIgnoreFiles = { }
 for i in makefiles:
@@ -109,7 +110,8 @@ for i in makefiles:
     
 os.chdir(cwd)
 
-excludePath = [ os.path.join(toplevel, "bin"), os.path.join(toplevel, "lib") ]
+excludePath = [ os.path.join(toplevel, "cpp", "bin"), os.path.join(toplevel, "cpp", "lib"), \
+                os.path.join(toplevel, "cppe", "bin"), os.path.join(toplevel, "cppe", "lib") ]
 print excludePath
 for (path, files) in gitIgnoreFiles.iteritems():
     if os.path.dirname(path) in excludePath:
