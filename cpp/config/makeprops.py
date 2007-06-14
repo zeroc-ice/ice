@@ -527,8 +527,8 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    };\n\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".java", os.path.join(location, "..", "icej", "src", "IceInternal"))
-        shutil.move("Property.java", os.path.join(location, "..", "icej", "src", "IceInternal"))
+        shutil.move(self.className + ".java", os.path.join(location, "..", "java", "src", "IceInternal"))
+        shutil.move("Property.java", os.path.join(location, "..", "java", "src", "IceInternal"))
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -597,8 +597,8 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".cs", os.path.join(location, "..", "icecs", "src", "Ice"))
-        shutil.move("Property.cs", os.path.join(location, "..", "icecs", "src", "Ice"))
+        shutil.move(self.className + ".cs", os.path.join(location, "..", "cs", "src", "Ice"))
+        shutil.move("Property.cs", os.path.join(location, "..", "cs", "src", "Ice"))
 
 class MultiHandler(PropertyHandler):
     def __init__(self, inputfile, c):

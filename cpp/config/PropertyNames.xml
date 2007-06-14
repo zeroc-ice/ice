@@ -269,6 +269,7 @@ generated from the section label.
     <section name="IceGrid">
         <property name="InstanceName" />
         <property name="Node.AdapterId" />
+        <property name="Node.AllowRunningServersAsRoot" />
         <property name="Node.CollocateRegistry" />
         <property name="Node.Data" />
         <property name="Node.DisableOnFailure" />
