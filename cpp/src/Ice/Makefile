@@ -144,10 +144,6 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
 
-# We have to create a dummy 
-depend::
-	-touch EventLoggerMsg.h
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_API_EXPORTS $(BZIP2_FLAGS)
@@ -172,5 +168,12 @@ install:: all
 
 clean::
 	-rm -f EventLoggerMsg.h
+
+# The dummy EventLoggerMsg.h is necessary to get correct dependencies
+# for windows
+EventLoggerI.cpp: EventLoggerMsg.h
+
+EventLoggerMsg.h:
+	-touch EventLoggerMsg.h
 
 include .depend
