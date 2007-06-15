@@ -256,6 +256,12 @@ public:
 int
 MyApplication::run(int argc, char* argv[])
 {
+    if(argc < 2 || argc > 3)
+    {
+        cerr << "usage: " << argv[0] << " [testoptions] seedfile [seed]" << endl;
+        return EXIT_FAILURE;
+    }
+
     cout << "testing single instance... " << flush;
     {
         NPtr n = new N;
@@ -607,10 +613,17 @@ MyApplication::run(int argc, char* argv[])
 #endif   
 
     cout << "testing for race conditions... " << flush;
+    string seedfile = argv[1];
+    ofstream file(seedfile.c_str());
+    if(!file)
+    {
+        cerr << argv[0] << ": cannot open `" << seedfile << "' for writing" << endl;
+        return EXIT_FAILURE;
+    }
     ::IceUtil::Time t = ::IceUtil::Time::now();
-    int seed = argc > 1 ? atoi(argv[1]) : static_cast<int>(t.toMilliSeconds());
-    ofstream file("seed");
+    int seed = argc > 2 ? atoi(argv[2]) : static_cast<int>(t.toMilliSeconds());
     file << seed << "\n";
+    file.close();
     srand(seed);
 
     typedef ::IceUtil::Handle<GarbageProducer> GarbageThreadPtr;
