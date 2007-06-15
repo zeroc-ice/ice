@@ -63,7 +63,7 @@
 
     <!-- Figure out file locations -->
     <path id="ice.dir.path">
-	<pathelement location="${top.dir}/../ice"/>
+	<pathelement location="${top.dir}/../cpp"/>
     </path>
 
     <pathconvert property="ice.top.dir" refid="ice.dir.path">
@@ -89,7 +89,7 @@
 
     <condition property="ice.dir" value="${ice.top.dir}">
 	<and>
-	    <available file="${top.dir}/../ice/slice"/>
+	    <available file="${top.dir}/../cpp/slice"/>
             <not>
                 <isset property="ice.dir"/>
             </not>

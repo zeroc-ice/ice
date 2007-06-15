@@ -102,84 +102,11 @@ cppSrcPreamble = commonPreamble + """
 
 """
 
-javaPropertyClass = commonPreamble + """
-package IceInternal;
-
-public class Property
-{
-    public Property(String pattern, boolean deprecated, String deprecatedBy)
-    {
-        _pattern = pattern;
-        _deprecated = deprecated;
-        _deprecatedBy = deprecatedBy;
-    }
-
-    public String
-    pattern()
-    {
-        return _pattern;
-    }
-
-    public boolean
-    deprecated()
-    {
-        return _deprecated;
-    }
-
-    public String
-    deprecatedBy()
-    {
-        return _deprecatedBy;
-    }
-
-    private String _pattern;
-    private boolean _deprecated;
-    private String _deprecatedBy;
-}
-"""
-
 javaPreamble = commonPreamble + """
 package IceInternal;
 
 public final class %(classname)s
 {
-"""
-
-csPropertyClass = commonPreamble + """
-namespace IceInternal
-{
-    public sealed class Property
-    {
-        public Property(string pattern, bool deprecated, string deprecatedBy)
-        {
-            _pattern = pattern;
-            _deprecated = deprecated;
-            _deprecatedBy = deprecatedBy;
-        }
-
-        public string
-        pattern()
-        {
-            return _pattern;
-        }
-
-        public bool
-        deprecated()
-        {
-            return _deprecated;
-        }
-
-        public string
-        deprecatedBy()
-        {
-            return _deprecatedBy;
-        }
-
-        private string _pattern;
-        private bool _deprecated;
-        private string _deprecatedBy;
-    }
-}
 """
 
 csPreamble = commonPreamble + """
@@ -465,15 +392,10 @@ class JavaPropertyHandler(PropertyHandler):
             self.srcFile.close()
             if os.path.exists(self.className + ".java"):
                 os.remove(self.className + ".java")
-        if os.path.exists("Property.java"):
-            os.remove("Property.java")
 
     def startFiles(self):
         self.srcFile = file(self.className + ".java", "w")
         self.srcFile.write(javaPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        propertyClassFile = file("Property.java", "w")
-        propertyClassFile.write(javaPropertyClass)
-        propertyClassFile.close()
 
     def closeFiles(self):
         self.srcFile.write("\n   public static final Property[] validProps[] = \n" % \
@@ -528,7 +450,6 @@ class JavaPropertyHandler(PropertyHandler):
 
     def moveFiles(self, location):
         shutil.move(self.className + ".java", os.path.join(location, "..", "java", "src", "IceInternal"))
-        shutil.move("Property.java", os.path.join(location, "..", "java", "src", "IceInternal"))
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -540,15 +461,10 @@ class CSPropertyHandler(PropertyHandler):
             self.srcFile.close()
             if os.path.exists(self.className + ".cs"):
                 os.remove(self.className + ".cs")
-        if os.path.exists("Property.cs"):
-            os.remove("Property.cs")
 
     def startFiles(self):
         self.srcFile = file(self.className + ".cs", "w")
         self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        propertyClassFile = file("Property.cs", "w")
-        propertyClassFile.write(csPropertyClass)
-        propertyClassFile.close()
 
     def closeFiles(self):
         self.srcFile.write("        public static Property[][] validProps = \n" % \
@@ -598,7 +514,6 @@ class CSPropertyHandler(PropertyHandler):
 
     def moveFiles(self, location):
         shutil.move(self.className + ".cs", os.path.join(location, "..", "cs", "src", "Ice"))
-        shutil.move("Property.cs", os.path.join(location, "..", "cs", "src", "Ice"))
 
 class MultiHandler(PropertyHandler):
     def __init__(self, inputfile, c):
