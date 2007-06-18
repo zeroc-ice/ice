@@ -3406,7 +3406,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sp;
             out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
             out << sb;
-            out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "null" << epar << ';';
+            out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
+            out << eb;
+
+            out << sp;
+            out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
+            out << sb;
+            out << nl << opName << "_async" << spar << argsAMI << "__ctx" << "true" << epar << ';';
             out << eb;
 
             out << sp;
@@ -3421,10 +3427,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "@SuppressWarnings(\"unchecked\")";
             }
-            out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI 
-                << contextParam << epar;
+            out << nl << "private void" << nl << opName << "_async" << spar << paramsAMI
+                << contextParam << explicitContextParam << epar;
             out << sb;
-            out << nl << "if( __ctx == null)";
+            out << nl << "if(__explicitCtx &&  __ctx == null)";
             out << sb;
             out << nl << "__ctx = _emptyContext;";
             out << eb;
