@@ -14,17 +14,18 @@ final class UdpEndpointI extends EndpointI
     final static short TYPE = 3;
 
     public
-    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, boolean conn, String conId, boolean co)
+    UdpEndpointI(Instance instance, String ho, int po, String mif, int mttl, byte pma, byte pmi, byte ema, byte emi,
+                 boolean conn, String conId, boolean co)
     {
         _instance = instance;
         _host = ho;
         _port = po;
         _mcastInterface = mif;
         _mcastTtl = mttl;
-        _protocolMajor = Protocol.protocolMajor;
-        _protocolMinor = Protocol.protocolMinor;
-        _encodingMajor = Protocol.encodingMajor;
-        _encodingMinor = Protocol.encodingMinor;
+        _protocolMajor = pma;
+        _protocolMinor = pmi;
+        _encodingMajor = ema;
+        _encodingMinor = emi;
         _connect = conn;
         _connectionId = conId;
         _compress = co;
@@ -417,7 +418,8 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
+                                    _protocolMinor, _encodingMajor, _encodingMinor, _connect, _connectionId,
                                     compress);
         }
     }
@@ -434,7 +436,8 @@ final class UdpEndpointI extends EndpointI
         }
         else
         {
-            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId,
+            return new UdpEndpointI(_instance, _host, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
+                                    _protocolMinor, _encodingMajor, _encodingMinor, _connect, connectionId,
                                     _compress);
         }
     }
@@ -488,7 +491,8 @@ final class UdpEndpointI extends EndpointI
     transceiver(EndpointIHolder endpoint)
     {
         UdpTransceiver p = new UdpTransceiver(_instance, _host, _port, _mcastInterface, _connect);
-        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _mcastInterface, _mcastTtl, _connect,
+        endpoint.value = new UdpEndpointI(_instance, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
+                                          _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor, _connect,
                                           _connectionId, _compress);
         return p;
     }
@@ -543,7 +547,8 @@ final class UdpEndpointI extends EndpointI
                 String host = (String)iter.next();
                 if(hosts.size() == 1 || !host.equals("127.0.0.1"))
                 {
-                    endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl,  _connect,
+                    endps.add(new UdpEndpointI(_instance, host, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
+                                               _protocolMinor, _encodingMajor, _encodingMinor, _connect,
                                                _connectionId, _compress));
                 }
             }

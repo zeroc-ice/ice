@@ -17,18 +17,18 @@ namespace IceInternal
     {
         internal const short TYPE = 3;
         
-        public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, bool conn, string conId,
-                            bool co)
+        public UdpEndpointI(Instance instance, string ho, int po, string mif, int mttl, byte pma, byte pmi, byte ema,
+                            byte emi, bool conn, string conId, bool co)
         {
             instance_ = instance;
             _host = ho;
             _port = po;
             _mcastInterface = mif;
             _mcastTtl = mttl;
-            _protocolMajor = Protocol.protocolMajor;
-            _protocolMinor = Protocol.protocolMinor;
-            _encodingMajor = Protocol.encodingMajor;
-            _encodingMinor = Protocol.encodingMinor;
+            _protocolMajor = pma;
+            _protocolMinor = pmi;
+            _encodingMajor = ema;
+            _encodingMinor = emi;
             _connect = conn;
             _connectionId = conId;
             _compress = co;
@@ -452,7 +452,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, _connectionId,
+                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
+                                        _protocolMinor, _encodingMajor, _encodingMinor, _connect, _connectionId,
                                         compress);
             }
         }
@@ -468,7 +469,8 @@ namespace IceInternal
             }
             else
             {
-                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _connect, connectionId,
+                return new UdpEndpointI(instance_, _host, _port, _mcastInterface, _mcastTtl, _protocolMajor, 
+                                        _protocolMinor, _encodingMajor, _encodingMinor, _connect, connectionId,
                                         _compress);
             }
         }
@@ -517,7 +519,8 @@ namespace IceInternal
         public override Transceiver transceiver(ref EndpointI endpoint)
         {
             UdpTransceiver p = new UdpTransceiver(instance_, _host, _port, _mcastInterface, _connect);
-            endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, _connect,
+            endpoint = new UdpEndpointI(instance_, _host, p.effectivePort(), _mcastInterface, _mcastTtl, 
+                                        _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor, _connect,
                                         _connectionId, _compress);
             return p;
         }
@@ -566,8 +569,9 @@ namespace IceInternal
                 {
                     if(hosts.Length == 1 || !hosts[i].Equals("127.0.0.1"))
                     {
-                        endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _mcastInterface, _mcastTtl, _connect, 
-                                                   _connectionId, _compress));
+                        endps.Add(new UdpEndpointI(instance_, hosts[i], _port, _mcastInterface, _mcastTtl, 
+                                                   _protocolMajor, _protocolMinor, _encodingMajor, _encodingMinor,
+                                                   _connect, _connectionId, _compress));
                     }
                 }
             }
