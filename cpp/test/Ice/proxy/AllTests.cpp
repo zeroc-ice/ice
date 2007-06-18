@@ -306,7 +306,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getEndpointSelection() == Ice::Ordered);
     prop->setProperty(property, "");
 
-    property = propertyPrefix + ".CollocationOptimization";
+    property = propertyPrefix + ".CollocationOptimized";
     test(b1->ice_isCollocationOptimized());
     prop->setProperty(property, "0");
     b1 = communicator->propertyToProxy(propertyPrefix);

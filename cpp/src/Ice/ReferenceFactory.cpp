@@ -660,7 +660,7 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
         }
     }
 
-    property = propertyPrefix + ".CollocationOptimization";
+    property = propertyPrefix + ".CollocationOptimized";
     if(!properties->getProperty(property).empty())
     {
         ref = ref->changeCollocationOptimization(properties->getPropertyAsInt(property) > 0);
@@ -808,7 +808,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimization",
+        "CollocationOptimized",
         "ThreadPerConnection"
     };
 

@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- Ice.Default.CollocationOptimization and the <any>.CollocationOptimization
+  proxy property have been deprecated and replaced by 
+  Ice.Default.CollocationOptimized and <any>.CollocationOptimized
+  respectively.
+
 - IceGrid now allows defining an object adapter with a replica group
   from an other IceGrid application than the one where the object
   adapter is defined.

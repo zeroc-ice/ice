@@ -311,7 +311,7 @@ public class AllTests
         test(b1.ice_getEndpointSelection() == Ice.EndpointSelectionType.Ordered);
         prop.setProperty(property, "");
 
-        property = propertyPrefix + ".CollocationOptimization";
+        property = propertyPrefix + ".CollocationOptimized";
         test(b1.ice_isCollocationOptimized());
         prop.setProperty(property, "0");
         b1 = communicator.propertyToProxy(propertyPrefix);

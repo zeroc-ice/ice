@@ -274,7 +274,7 @@ def allTests(communicator, collocated):
     # isCollocationOptimized is not implemented because the
     # collocation optimization is permanently disabled with IcePy.
     #
-    #property = propertyPrefix + ".CollocationOptimization"
+    #property = propertyPrefix + ".CollocationOptimized"
     #test(b1.ice_isCollocationOptimized())
     #prop.setProperty(property, "0")
     #b1 = communicator.propertyToProxy(propertyPrefix)

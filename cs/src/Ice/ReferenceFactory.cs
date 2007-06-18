@@ -625,7 +625,7 @@ namespace IceInternal
                 }
             }
 
-            property = propertyPrefix + ".CollocationOptimization";
+            property = propertyPrefix + ".CollocationOptimized";
             if(properties.getProperty(property).Length != 0)
             {
                 @ref = @ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
@@ -799,7 +799,7 @@ namespace IceInternal
             "LocatorCacheTimeout",
             "Locator",
             "Router",
-            "CollocationOptimization",
+            "CollocationOptimized",
             "ThreadPerConnection"
         };
 

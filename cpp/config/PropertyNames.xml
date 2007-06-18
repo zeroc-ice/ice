@@ -152,7 +152,9 @@ generated from the section label.
         <suffix value="LocatorCacheTimeout"  />
         <suffix value="Locator"  />
         <suffix value="Router"  />
-        <suffix value="CollocationOptimization"  />
+        <suffix value="CollocationOptimization" deprecated="true"
+            deprecatedBy="CollocationOptimized" />
+        <suffix value="CollocationOptimized" />
         <suffix value="ThreadPerConnection" />
     </propertyClass>
 
@@ -182,7 +184,9 @@ generated from the section label.
         <property name="ChangeUser" />
         <property name="Compression.Level" />
         <property name="Config" />
-        <property name="Default.CollocationOptimization" />
+        <property name="Default.CollocationOptimization" depreacted="true" 
+            deprecatedBy="Ice.Default.CollocationOptimized" />
+        <property name="Default.CollocationOptimized" />
         <property name="Default.EndpointSelection" />
         <property name="Default.Host" />
         <property name="Default.Locator" propertyClass="proxy"/>
@@ -190,7 +194,7 @@ generated from the section label.
         <property name="Default.Package" />
         <property name="Default.PreferSecure" />
         <property name="Default.Protocol" />
-        <property name="Default.Router" propertyClass="proxy" />
+        <property name="Default.Router" propertyClass="proxy" deprecated="true"/>
         <property name="GC.Interval" />
         <property name="ImplicitContext" />
         <property name="InitPlugins" />

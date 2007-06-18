@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompabible)
 -------------------------------------------------
 
+- Ice.Default.CollocationOptimization and the <any>.CollocationOptimization
+  proxy property have been deprecated and replaced by
+  Ice.Default.CollocationOptimized and <any>.CollocationOptimized
+  respectively.
+
 - LocalObject is now mapped to System.Object. The interface 
   Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now 
   deprecated.

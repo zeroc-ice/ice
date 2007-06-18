@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Ice.Default.CollocationOptimization and the <any>.CollocationOptimization
+  proxy property have been deprecated and replaced by
+  Ice.Default.CollocationOptimized and <any>.CollocationOptimized
+  respectively.
+
 - LocalObject is now mapped to java.lang.Object; an out LocalObject
   parameter is still mapped to an Ice.LocalObjectHolder object.
   Ice.LocalObjectHolder now holds a java.lang.Object. The interface 

@@ -315,7 +315,7 @@ function allTests()
     test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Ordered);
     $ICE->setProperty($property, "");
 
-    //$property = $propertyPrefix . ".CollocationOptimization";
+    //$property = $propertyPrefix . ".CollocationOptimized";
     //test($b1->ice_isCollocationOptimized());
     //$ICE->setProperty($property, "0");
     //$b1 = $ICE->propertyToProxy($propertyPrefix);
