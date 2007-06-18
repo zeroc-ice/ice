@@ -93,7 +93,17 @@ namespace IceSSL
         {
             Socket fd = IceInternal.Network.createSocket(false);
             IceInternal.Network.setBlock(fd, false);
-            IceInternal.Network.doConnect(fd, addr_, -1);
+            //
+            // .Net does not allow connecting to 0.0.0.0
+            //
+            if(addr_.Address.ToString().Equals("0.0.0.0"))
+            {
+                IceInternal.Network.doConnect(fd, IceInternal.Network.getAddress("127.0.0.1", addr_.Port), -1);
+            }
+            else
+            {
+                IceInternal.Network.doConnect(fd, addr_, -1);
+            }
             IceInternal.Network.closeSocket(fd);
         }
 
