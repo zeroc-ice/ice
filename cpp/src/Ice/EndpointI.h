@@ -133,7 +133,6 @@ private:
     // hidding these operators.
     //
     using LocalObject::operator==;
-    using LocalObject::operator!=;
     using LocalObject::operator<;
 #endif
 };
