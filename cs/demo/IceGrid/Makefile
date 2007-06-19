@@ -11,9 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= simple \
-		  sessionActivation \
-		  allocate
+SUBDIRS		= simple
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
