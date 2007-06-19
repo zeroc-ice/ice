@@ -125,59 +125,44 @@ def progError(msg):
     print >> sys.stderr, progname + ": " + msg
 
 #
-# Currently the processing of PropertyNames.def is going to take place
+# Currently the processing of PropertyNames.xml is going to take place
 # in two parts. One is using DOM to extract the property 'classes' such
 # as 'proxy', 'objectadapter', etc. The other part uses SAX to create
 # the language mapping source code.
 # 
 
 class PropertyClass:
-    def __init__(self, type, suffixes, nestedClasses):
-        self.type = type
-        self.suffixes = suffixes
-        self.nestedClasses = nestedClasses
+    def __init__(self, prefixOnly , childProperties):
+        self.prefixOnly = prefixOnly 
+        self.childProperties = childProperties
+
+    def getChildren(self):
+        return self.childProperties
+
+    def isPrefixOnly(self):
+        return self.prefixOnly
 
     def __repr__(self):
-        return repr((repr(self.type), repr(self.suffixes),
-            repr(self.nestedClasses)))
-
-def expandClassLists(classTree, list):
-    expansion = []
-    for nc in list:
-        if nc[0] == None:
-            expansion.extend(classTree[nc[1]].suffixes)
-        else:
-            for s in classTree[nc[1]].suffixes:
-                expansion.append("%s.%s" % (nc[0], s))
-        expansion.extend(expandClassLists(classTree, classTree[nc[1]].nestedClasses))
-    return expansion
+        return repr((repr(self.preifxOnly), repr(self.childProperties)))
 
 def initPropertyClasses(filename):
     doc = parse(filename)
-    propertyClassNodes = doc.getElementsByTagName('propertyClass')
-    propertyClassTree = {}
+    propertyClassNodes = doc.getElementsByTagName("class")
+    global propertyClasses
+    propertyClasses = {}
     for n in propertyClassNodes:
         className = n.attributes["name"].nodeValue
-        classType = n.attributes["type"].nodeValue
-        classValues = []
-        nestedClasses = []
+        classType = n.attributes["prefix-only"].nodeValue
+        properties = []
         for a in n.childNodes:
-            if a.localName == "suffix":
-                if a.attributes.has_key("value"):
-                    if a.attributes.has_key("class"):
-                        nestedClasses.append((a.attributes["value"].nodeValue, a.attributes["class"].nodeValue))
-                    else:
-                        classValues.append(a.attributes["value"].nodeValue)
-        propertyClassTree[className] = PropertyClass(classType, classValues, nestedClasses)
+            if a.localName == "suffix" and a.hasAttributes():
+                """Convert minidom maps to hashtables """
+                attmap = {}
+                for i in range(0, a.attributes.length):
+                    attmap[a.attributes.item(i).name] = a.attributes.item(i).value
+                properties.append(attmap)
 
-    #
-    # resolve and expand nested property classes.
-    #
-    global propertyClasses
-    for k in propertyClassTree.keys():
-        pc = propertyClassTree[k]
-        pc.suffixes.extend(expandClassLists(propertyClassTree, pc.nestedClasses))
-        propertyClasses[k] = (pc.type, pc.suffixes)
+        propertyClasses[className] = PropertyClass(classType.lower() == "true", properties)
 
 #
 # SAX part.
@@ -276,14 +261,16 @@ class PropertyHandler(ContentHandler):
         
         elif name == "property":
             propertyName = attrs.get("name", None)
-            if attrs.has_key("propertyClass"):
-                c = propertyClasses[attrs["propertyClass"]]
-                for p in c[1]:
+            if attrs.has_key("class"):
+                c = propertyClasses[attrs["class"]]
+                for p in c.getChildren():
                     if propertyName == None:
-                        self.startElement(name, { 'name': "%s" %  p})
+                        self.startElement(name, p)
                     else:
-                        self.startElement(name, { 'name': "%s.%s" % (propertyName, p)})
-                if c[0] == "placeholder":
+                        t = dict(p) 
+                        t['name'] =  "%s.%s" % (propertyName, p['name'])
+                        self.startElement(name, t) 
+                if c.isPrefixOnly():
                     return
 
             #
@@ -549,7 +536,7 @@ class MultiHandler(PropertyHandler):
         
     def handleDeprecated(self, propertyName):
         for f in self.handlers:
-            f.handleDeprecated(sectionName, cmdLine)
+            f.handleDeprecated(propertyName)
         
     def handleDeprecatedWithReplacement(self, propertyName, deprecatedBy):
         for f in self.handlers:
