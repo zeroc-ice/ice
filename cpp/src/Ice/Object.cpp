@@ -28,12 +28,6 @@ Ice::Object::operator==(const Object& r) const
 }
 
 bool
-Ice::Object::operator!=(const Object& r) const
-{
-    return this != &r;
-}
-
-bool
 Ice::Object::operator<(const Object& r) const
 {
     return this < &r;

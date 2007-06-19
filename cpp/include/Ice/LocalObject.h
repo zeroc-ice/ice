@@ -28,7 +28,6 @@ class ICE_API LocalObject : virtual public ::IceUtil::Shared
 public:
 
     virtual bool operator==(const LocalObject&) const;
-    virtual bool operator!=(const LocalObject&) const;
     virtual bool operator<(const LocalObject&) const;
     virtual ::Ice::Int ice_hash() const;
 };
