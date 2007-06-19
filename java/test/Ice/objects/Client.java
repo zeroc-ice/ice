@@ -28,6 +28,14 @@ public class Client
             {
                 return new DI();
             }
+            else if(type.equals("::Test::E"))
+            {
+                return new EI();
+            }
+            else if(type.equals("::Test::F"))
+            {
+                return new FI();
+            }
             else if(type.equals("::Test::I"))
             {
                 return new II();
@@ -59,6 +67,8 @@ public class Client
         communicator.addObjectFactory(factory, "::Test::B");
         communicator.addObjectFactory(factory, "::Test::C");
         communicator.addObjectFactory(factory, "::Test::D");
+        communicator.addObjectFactory(factory, "::Test::E");
+        communicator.addObjectFactory(factory, "::Test::F");
         communicator.addObjectFactory(factory, "::Test::I");
         communicator.addObjectFactory(factory, "::Test::J");
         communicator.addObjectFactory(factory, "::Test::H");

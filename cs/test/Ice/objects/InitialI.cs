@@ -18,6 +18,8 @@ public sealed class InitialI : Initial
         _b2 = new BI();
         _c = new CI();
         _d = new DI();
+        _e = new EI();
+        _f = new FI(_e);
         
         _b1.theA = _b2; // Cyclic reference to another B
         _b1.theB = _b1; // Self reference.
@@ -56,10 +58,20 @@ public sealed class InitialI : Initial
     {
         return _c;
     }
-    
+
     public override D getD(Ice.Current current)
     {
         return _d;
+    }
+
+    public override E getE(Ice.Current current)
+    {
+        return _e;
+    }
+
+    public override F getF(Ice.Current current)
+    {
+        return _f;
     }
     
     public override I getI(Ice.Current current)
@@ -91,4 +103,6 @@ public sealed class InitialI : Initial
     private B _b2;
     private C _c;
     private D _d;
+    private E _e;
+    private F _f;
 }

@@ -129,6 +129,22 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
 
+        Console.Out.Write("testing protected members... ");
+        Console.Out.Flush();
+        E e = initial.getE();
+        test(e.checkValues());
+        System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
+                                               System.Reflection.BindingFlags.Public |
+                                               System.Reflection.BindingFlags.Instance;
+        test(!typeof(E).GetField("i", flags).IsPublic && !typeof(E).GetField("i", flags).IsPrivate);
+        test(!typeof(E).GetField("s", flags).IsPublic && !typeof(E).GetField("s", flags).IsPrivate);
+        F f = initial.getF();
+        test(f.checkValues());
+        test(f.e2.checkValues());
+        test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
+        test(typeof(F).GetField("e2", flags).IsPublic && !typeof(F).GetField("e2", flags).IsPrivate);
+        Console.Out.WriteLine("ok");
+
         Console.Out.Write("getting I, J and H... ");
         Console.Out.Flush();
         I i = initial.getI();

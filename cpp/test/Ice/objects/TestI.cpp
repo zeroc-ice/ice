@@ -81,12 +81,40 @@ DI::ice_postUnmarshal()
     _postUnmarshalInvoked = true;
 }
 
+EI::EI() :
+    E(1, "hello")
+{
+}
+
+bool
+EI::checkValues(const Ice::Current&)
+{
+    return i == 1 && s == "hello";
+}
+
+FI::FI()
+{
+}
+
+FI::FI(const EPtr& e) :
+    F(e, e)
+{
+}
+
+bool
+FI::checkValues(const Ice::Current&)
+{
+    return e1 && e1 == e2;
+}
+
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
     _b1(new BI),
     _b2(new BI),
     _c(new CI),
-    _d(new DI)
+    _d(new DI),
+    _e(new EI),
+    _f(new FI(_e))
 {
     _b1->theA = _b2; // Cyclic reference to another B
     _b1->theB = _b1; // Self reference.
@@ -144,6 +172,18 @@ InitialI::getD(const Ice::Current&)
     _c->preMarshalInvoked = false;
     _d->preMarshalInvoked = false;
     return _d;
+}
+
+EPtr
+InitialI::getE(const Ice::Current&)
+{
+    return _e;
+}
+
+FPtr
+InitialI::getF(const Ice::Current&)
+{
+    return _f;
 }
 
 void

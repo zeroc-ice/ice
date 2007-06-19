@@ -138,6 +138,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     cout << "ok" << endl;
 
+    cout << "testing protected members... " << flush;
+    EPtr e = initial->getE();
+    test(e->checkValues());
+    FPtr f = initial->getF();
+    test(f->checkValues());
+    test(f->e2->checkValues());
+    cout << "ok" << endl;
+
     cout << "getting I, J and H... " << flush;
     IPtr i = initial->getI();
     test(i);

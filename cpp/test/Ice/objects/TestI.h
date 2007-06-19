@@ -60,6 +60,25 @@ private:
     bool _postUnmarshalInvoked;
 };
 
+class EI : public Test::E
+{
+public:
+
+    EI();
+
+    virtual bool checkValues(const Ice::Current&);
+};
+
+class FI : public Test::F
+{
+public:
+
+    FI();
+    FI(const Test::EPtr&);
+
+    virtual bool checkValues(const Ice::Current&);
+};
+
 class II : public Test::I
 {
 };
@@ -83,6 +102,8 @@ public:
     virtual Test::BPtr getB2(const Ice::Current&);
     virtual Test::CPtr getC(const Ice::Current&);
     virtual Test::DPtr getD(const Ice::Current&);
+    virtual Test::EPtr getE(const Ice::Current&);
+    virtual Test::FPtr getF(const Ice::Current&);
     virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
     virtual Test::IPtr getI(const Ice::Current&);
     virtual Test::IPtr getJ(const Ice::Current&);
@@ -97,6 +118,8 @@ private:
     Test::BPtr _b2;
     Test::CPtr _c;
     Test::DPtr _d;
+    Test::EPtr _e;
+    Test::FPtr _f;
 };
 
 class UnexpectedObjectExceptionTestI : public Ice::Blobject

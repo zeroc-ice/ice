@@ -2596,7 +2596,20 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << " * @deprecated " << deprecateReason;
         out << nl << " **/";
     }
-    out << nl << "public " << s << ' ' << name << ';';
+
+    //
+    // Access visibility for class data members can be controlled by metadata.
+    // If none is specified, the default is public.
+    //
+    if(contained->containedType() == Contained::ContainedTypeClass &&
+       (p->hasMetaData("protected") || contained->hasMetaData("protected")))
+    {
+        out << nl << "protected " << s << ' ' << name << ';';
+    }
+    else
+    {
+        out << nl << "public " << s << ' ' << name << ';';
+    }
 
     //
     // Getter/Setter.

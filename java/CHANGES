@@ -1,10 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
-- Ice.Default.CollocationOptimization and the <any>.CollocationOptimization
-  proxy property have been deprecated and replaced by
-  Ice.Default.CollocationOptimized and <any>.CollocationOptimized
-  respectively.
+- The property Ice.Default.CollocationOptimization and the
+  proxy property <any>.CollocationOptimization have been deprecated
+  and replaced by Ice.Default.CollocationOptimized and
+  <any>.CollocationOptimized, respectively.
 
 - LocalObject is now mapped to java.lang.Object; an out LocalObject
   parameter is still mapped to an Ice.LocalObjectHolder object.
@@ -14,7 +14,7 @@ Changes since version 3.2.X (binary incompatible)
 
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to
-  update the published endpoints after change in the available local
+  update the published endpoints after a change in the available local
   interfaces or after the PublishedEndpoints object adapter property
   has been changed by the user.
 
@@ -27,11 +27,12 @@ Changes since version 3.2.X (binary incompatible)
   - the existing evictor was renamed BackgroundSaveEvictor
   - added new TransactionalEvictor
 
-- Added support for udp multicast. See manual for more information.
+- Added support for UDP multicast. See manual for more information.
 
-- If a proxy contains a host which is multihomed, the client will now
-  try all the available ip addresses. Previously, only the first in the
-  address list returned by the DNS was used and others were ignored.
+- If a proxy contains a host that is multihomed, the client will now 
+  try all the available IP addresses. Previously, only the first in
+  the address list returned by the DNS was used and others were
+  ignored.
 
 - Fixed a bug in IceSSL for JDK 1.5 that could cause a hang during
   the SSL handshake.
@@ -46,7 +47,11 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------     
 
-- Changed to the throughput demo to better support cross-language
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- Changed the throughput demo to better support cross-language
   testing.
 
 - Fixed throughput performance problem on Windows that would occur

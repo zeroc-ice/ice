@@ -353,14 +353,39 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     if(!members.empty())
     {
+        bool prot = p->hasMetaData("protected");
+        DataMemberList protectedMembers;
+        DataMemberList::iterator q;
+
         _out << sp << nl << "attr_accessor ";
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for(q = members.begin(); q != members.end(); ++q)
         {
             if(q != members.begin())
             {
                 _out << ", ";
             }
             _out << ":" << fixIdent((*q)->name(), IdentNormal);
+            if(prot || (*q)->hasMetaData("protected"))
+            {
+                protectedMembers.push_back(*q);
+            }
+        }
+
+        if(!protectedMembers.empty())
+        {
+            _out << nl << "protected ";
+            for(q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
+            {
+                if(q != protectedMembers.begin())
+                {
+                    _out << ", ";
+                }
+                //
+                // We need to list the symbols of the reader and the writer (e.g., ":member" and ":member=").
+                //
+                _out << ":" << fixIdent((*q)->name(), IdentNormal) << ", :"
+                     << fixIdent((*q)->name(), IdentNormal) << '=';
+            }
         }
     }
 
