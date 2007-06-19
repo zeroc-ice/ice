@@ -171,7 +171,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     // a collocated servant results in a CollocationOptimizationException
     // (because Python uses the blobject API).
     //
-    data.properties->setProperty("Ice.Default.CollocationOptimization", "0");
+    data.properties->setProperty("Ice.Default.CollocationOptimized", "0");
    
     //
     // Remaining command line options are passed to the communicator
