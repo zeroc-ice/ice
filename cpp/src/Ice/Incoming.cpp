@@ -92,11 +92,11 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 }
 
 void
-IceInternal::IncomingBase::__handleException(const Ice::Exception& ex)
+IceInternal::IncomingBase::__handleException(const std::exception& ex)
 {
     try
     {
-        ex.ice_throw();
+        throw ex;
     }
     catch(RequestFailedException& ex)
     {
@@ -290,30 +290,28 @@ IceInternal::IncomingBase::__handleException(const Ice::Exception& ex)
             _connection->sendNoResponse();
         }
     }
-}
-
-void
-IceInternal::IncomingBase::__handleException(const std::exception& ex)
-{
-    if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+    catch(const std::exception& ex)
     {
-        __warning(string("std::exception: ") + ex.what());
-    }
+        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        {
+            __warning(string("std::exception: ") + ex.what());
+        }
     
-    if(_response)
-    {
-        _os.endWriteEncaps();
-        _os.b.resize(headerSize + 4); // Reply status position.
-        _os.write(replyUnknownException);
-        ostringstream str;
-        str << "std::exception: " << ex.what();
-        _os.write(str.str(), false);
-        _connection->sendResponse(&_os, _compress);
+        if(_response)
+        {
+            _os.endWriteEncaps();
+            _os.b.resize(headerSize + 4); // Reply status position.
+            _os.write(replyUnknownException);
+            ostringstream str;
+            str << "std::exception: " << ex.what();
+            _os.write(str.str(), false);
+            _connection->sendResponse(&_os, _compress);
+        }
+        else
+        {
+            _connection->sendNoResponse();
+        }    
     }
-    else
-    {
-        _connection->sendNoResponse();
-    }    
 }
 
 void
@@ -532,12 +530,6 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
         {
             _locator->finished(_current, _servant, _cookie);
         }
-    }
-    catch(const Exception& ex)
-    {
-        _is.endReadEncaps();
-        __handleException(ex);
-        return;
     }
     catch(const std::exception& ex)
     {

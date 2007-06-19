@@ -3659,10 +3659,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             C << sb;
             C << nl << name << "_async" << argsAMD << ';';
             C << eb;
-            C << nl << "catch(const ::Ice::Exception& __ex)";
-            C << sb;
-            C << nl << "__cb->ice_exception(__ex);";
-            C << eb;
             C << nl << "catch(const ::std::exception& __ex)";
             C << sb;
             C << nl << "__cb->ice_exception(__ex);";
@@ -4887,7 +4883,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H.inc();
         H << sp;
         H << nl << "virtual void ice_response" << spar << paramsAMD << epar << " = 0;";
-        H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
         H << nl << "virtual void ice_exception(const ::std::exception&) = 0;";
         H << nl << "virtual void ice_exception() = 0;";
         H << eb << ';';
@@ -5046,7 +5041,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     
     H << sp;
     H << nl << "virtual void ice_response(" << params << ");";
-    H << nl << "virtual void ice_exception(const ::Ice::Exception&);";
     H << nl << "virtual void ice_exception(const ::std::exception&);";
     H << nl << "virtual void ice_exception();";
     H << eb << ';';
@@ -5090,7 +5084,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::Ice::Exception& ex)";
+      << "::ice_exception(const ::std::exception& ex)";
     C << sb;
     if(throws.empty())
     {
@@ -5103,7 +5097,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     {
         C << nl << "try";
         C << sb;
-        C << nl << "ex.ice_throw();";
+        C << nl << "throw ex;";
         C << eb;
         ExceptionList::const_iterator r;
         for(r = throws.begin(); r != throws.end(); ++r)
@@ -5117,7 +5111,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
             C << eb;
             C << eb;
         }
-        C << nl << "catch(const ::Ice::Exception& __ex)";
+        C << nl << "catch(const ::std::exception& __ex)";
         C << sb;
         C << nl << "if(__validateException(__ex))";
         C << sb;
@@ -5125,15 +5119,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << eb;
     }
-    C << eb;
-    
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::std::exception& ex)";
-    C << sb;
-    C << nl << "if(__validateException(ex))";
-    C << sb;
-    C << nl << "__exception(ex);";
-    C << eb;
     C << eb;
     
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name

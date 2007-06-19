@@ -1061,16 +1061,10 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     {
         promote = _pool->run();
     }
-    catch(const Exception& ex)
-    {   
-        Error out(_pool->_instance->initializationData().logger);
-        out << "exception in `" << _pool->_prefix << "':\n" << ex; 
-        promote = true;
-    }
     catch(const std::exception& ex)
     {
         Error out(_pool->_instance->initializationData().logger);
-        out << "std::exception in `" << _pool->_prefix << "':\n" << ex.what();
+        out << "exception in `" << _pool->_prefix << "':\n" << ex.what();
         promote = true;
     }
     catch(...)

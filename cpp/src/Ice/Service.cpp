@@ -775,16 +775,10 @@ Ice::Service::run(int& argc, char* argv[], const InitializationData& initData)
             }
         }
     }
-    catch(const IceUtil::Exception& ex)
-    {
-        ostringstream ostr;
-        ostr << "service caught unhandled Ice exception:\n" << ex;
-        error(ostr.str());
-    }
     catch(const std::exception& ex)
     {
         ostringstream ostr;
-        ostr << "service caught unhandled std::exception:\n" << ex.what();
+        ostr << "service caught unhandled exception:\n" << ex.what();
         error(ostr.str());
     }
     catch(const std::string& msg)

@@ -396,10 +396,6 @@ Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
     {
         ice_invoke_async(cb, inParams, current);
     }
-    catch(const Exception& ex)
-    {
-        cb->ice_exception(ex);
-    }
     catch(const ::std::exception& ex)
     {
         cb->ice_exception(ex);
@@ -422,10 +418,6 @@ Ice::BlobjectArrayAsync::__dispatch(Incoming& in, const Current& current)
     try
     {
         ice_invoke_async(cb, inParams, current);
-    }
-    catch(const Exception& ex)
-    {
-        cb->ice_exception(ex);
     }
     catch(const ::std::exception& ex)
     {

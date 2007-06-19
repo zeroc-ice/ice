@@ -121,11 +121,6 @@ destroyOnInterruptCallback(int signal)
     {
         _communicator->destroy();
     }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << _appName << " (while destroying in response to signal " << signal 
-             << "): " << ex << endl;
-    }
     catch(const std::exception& ex)
     {
         cerr << _appName << " (while destroying in response to signal " << signal 
@@ -181,11 +176,6 @@ shutdownOnInterruptCallback(int signal)
     {
         _communicator->shutdown();
     }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << _appName << " (while shutting down in response to signal " << signal 
-             << "): " << ex << endl;
-    }
     catch(const std::exception& ex)
     {
         cerr << _appName << " (while shutting down in response to signal " << signal 
@@ -237,11 +227,6 @@ callbackOnInterruptCallback(int signal)
     try
     {
         _application->interruptCallback(signal);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        cerr << _appName << " (while interrupting in response to signal " << signal 
-             << "): " << ex << endl;
     }
     catch(const std::exception& ex)
     {
@@ -301,14 +286,9 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
             initData.properties = createProperties();
             initData.properties->load(configFile);
         }
-        catch(const IceUtil::Exception& ex)
-        {
-            cerr << argv[0] << ": " << ex << endl;
-            return EXIT_FAILURE;
-        }
         catch(const std::exception& ex)
         {
-            cerr << argv[0] << ": std::exception: " << ex.what() << endl;
+            cerr << argv[0] << ": " << ex.what() << endl;
             return EXIT_FAILURE;
         }
         catch(...)
@@ -365,14 +345,9 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
             destroyOnInterrupt();
             status = run(argc, argv);
         }
-        catch(const IceUtil::Exception& ex)
-        {
-            cerr << _appName << ": " << ex << endl;
-            status = EXIT_FAILURE;
-        }
         catch(const std::exception& ex)
         {
-            cerr << _appName << ": std::exception: " << ex.what() << endl;
+            cerr << _appName << ex.what() << endl;
             status = EXIT_FAILURE;
         }
         catch(const std::string& msg)
@@ -426,14 +401,9 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
             {
                 _communicator->destroy();
             }
-            catch(const IceUtil::Exception& ex)
-            {
-                cerr << _appName << ": " << ex << endl;
-                status = EXIT_FAILURE;
-            }
             catch(const std::exception& ex)
             {
-                cerr << _appName << ": std::exception: " << ex.what() << endl;
+                cerr << _appName << ex.what() << endl;
                 status = EXIT_FAILURE;
             }
             catch(...)
@@ -469,14 +439,9 @@ Ice::Application::main(int argc, char* argv[], const char* configFile, const Ice
             initData.properties = createProperties();
             initData.properties->load(configFile);
         }
-        catch(const IceUtil::Exception& ex)
-        {
-            cerr << argv[0] << ": " << ex << endl;
-            return EXIT_FAILURE;
-        }
         catch(const std::exception& ex)
         {
-            cerr << argv[0] << ": std::exception: " << ex.what() << endl;
+            cerr << argv[0] << ex.what() << endl;
             return EXIT_FAILURE;
         }
         catch(...)
