@@ -1247,12 +1247,25 @@ IcePHP::MemberMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSRML
         return false;
     }
 
-    if(add_property_zval(zv, const_cast<char*>(_name.c_str()), val) == FAILURE)
+    //
+    // The add_property_zval function fails if the data member has protected visibility.
+    // As a workaround, before calling the function we change the current scope to be that
+    // of the object.
+    //
+    zend_class_entry *oldScope = EG(scope);
+    EG(scope) = Z_OBJCE_P(zv);
+
+    int status = add_property_zval(zv, const_cast<char*>(_name.c_str()), val);
+
+    EG(scope) = oldScope; // Restore the previous scope.
+
+    if(status == FAILURE)
     {
         php_error_docref(0 TSRMLS_CC, E_ERROR, "unable to set member `%s'", _name.c_str());
         return false;
     }
-    zval_ptr_dtor(&val); // add_property_zval increments the refcount
+
+    zval_ptr_dtor(&val); // add_property_zval increments the refcount.
 
     return true;
 }

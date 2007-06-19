@@ -3345,6 +3345,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
     }
 
+    bool inProtected = false;
+
     if(!p->isAbstract())
     {
         //
@@ -3359,6 +3361,42 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             H << sp << nl << "friend class " << p->name() << "__staticInit;";
         }
+
+        inProtected = true;
+    }
+
+    //
+    // Emit data members. Access visibility may be specified by metadata.
+    //
+    DataMemberList dataMembers = p->dataMembers();
+    DataMemberList::const_iterator q;
+    bool prot = p->hasMetaData("protected");
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        if(prot || (*q)->hasMetaData("protected"))
+        {
+            if(!inProtected)
+            {
+                H.dec();
+                H << sp << nl << "protected:";
+                H.inc();
+                inProtected = true;
+            }
+        }
+        else
+        {
+            if(inProtected)
+            {
+                H.dec();
+                H << sp << nl << "public:";
+                H.inc();
+                inProtected = false;
+            }
+        }
+
+        string name = fixKwd((*q)->name());
+        string s = typeToString((*q)->type(), _useWstring, (*q)->getMetaData());
+        H << sp << nl << s << ' ' << name << ';';
     }
 
     H << eb << ';';
@@ -3369,6 +3407,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // We need an instance here to trigger initialization if the implementation is in a shared library.
         // But we do this only once per source file, because a single instance is sufficient to initialize
         // all of the globals in a shared library.
+        //
         // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
         // Foo instance directly because Foo has a protected destructor.
         //
@@ -3675,14 +3714,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         }           
         C << eb;
     }   
-}
-
-void
-Slice::Gen::ObjectVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    string name = fixKwd(p->name());
-    string s = typeToString(p->type(), _useWstring, p->getMetaData());
-    H << nl << s << ' ' << name << ';';
 }
 
 void

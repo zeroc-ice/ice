@@ -62,6 +62,36 @@ class DI extends Test_D
     var $_postUnmarshalInvoked = false;
 }
 
+class EI extends Test_E
+{
+    function construct()
+    {
+        echo "In EI constructor...\n";
+        $this->i = 1;
+        $this->s = "hello";
+        echo "Finished with EI constructor.\n";
+    }
+
+    function checkValues()
+    {
+        return $this->i == 1 && $this->s == "hello";
+    }
+}
+
+class FI extends Test_F
+{
+    function construct($e=null)
+    {
+        $this->e1 = $e;
+        $this->e2 = $e;
+    }
+
+    function checkValues()
+    {
+        return $this->e1 != null && $this->e1 === $this->e2;
+    }
+}
+
 class II extends Ice_ObjectImpl implements Test_I
 {
 }
@@ -89,6 +119,14 @@ class MyObjectFactory implements Ice_ObjectFactory
         else if($id == "::Test::D")
         {
             return new DI();
+        }
+        else if($id == "::Test::E")
+        {
+            return new EI();
+        }
+        else if($id == "::Test::F")
+        {
+            return new FI();
         }
 	else if($id == "::Test::I")
         {
@@ -264,6 +302,23 @@ function allTests()
     $d->theA = null;
     $d->theB = null;
 
+    echo "testing protected members... ";
+    flush();
+    $e = $initial->getE();
+    test($e->checkValues());
+    $prop = new ReflectionProperty("Test_E", "i");
+    test($prop->isProtected());
+    $prop = new ReflectionProperty("Test_E", "s");
+    test($prop->isProtected());
+    $f = $initial->getF();
+    test($f->checkValues());
+    test($f->e2->checkValues());
+    $prop = new ReflectionProperty("Test_F", "e1");
+    test($prop->isProtected());
+    $prop = new ReflectionProperty("Test_F", "e2");
+    test($prop->isPublic());
+    echo "ok\n";
+
     echo "getting I, J and H... ";
     flush();
     $i = $initial->getI();
@@ -311,6 +366,8 @@ $factory = new MyObjectFactory();
 $ICE->addObjectFactory($factory, "::Test::B");
 $ICE->addObjectFactory($factory, "::Test::C");
 $ICE->addObjectFactory($factory, "::Test::D");
+$ICE->addObjectFactory($factory, "::Test::E");
+$ICE->addObjectFactory($factory, "::Test::F");
 $ICE->addObjectFactory($factory, "::Test::I");
 $ICE->addObjectFactory($factory, "::Test::J");
 $ICE->addObjectFactory($factory, "::Test::H");

@@ -1126,7 +1126,16 @@ IcePHP::CodeVisitor::visitOperation(const Slice::OperationPtr& p)
 void
 IcePHP::CodeVisitor::visitDataMember(const Slice::DataMemberPtr& p)
 {
-    _out << "public $" << fixIdent(p->name()) << ';' << endl;
+    Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(p->container());
+    assert(cont);
+    if(Slice::ClassDefPtr::dynamicCast(cont) && (cont->hasMetaData("protected") || p->hasMetaData("protected")))
+    {
+        _out << "protected $" << fixIdent(p->name()) << ';' << endl;
+    }
+    else
+    {
+        _out << "public $" << fixIdent(p->name()) << ';' << endl;
+    }
 }
 
 void
