@@ -28,6 +28,12 @@
 #   include <signal.h>
 #else
 #   include <direct.h> // For _getcwd
+#ifndef SIGKILL
+#   define SIGKILL 9
+#endif
+#ifndef SIGTERM
+#   define SIGTERM 15
+#endif
 #endif
 
 using namespace std;
@@ -97,12 +103,12 @@ reportChildError(int err, int fd, const char* cannot, const char* name)
 
 #endif
 
-#ifndef _WIN32
 string
 signalToString(int signal)
 {
     switch(signal)
     {
+#ifndef _WIN32
         case SIGHUP:
         {
             return ICE_STRING(SIGHUP);
@@ -135,10 +141,6 @@ signalToString(int signal)
         {
             return ICE_STRING(SIGFPE);
         }
-        case SIGKILL:
-        {
-            return ICE_STRING(SIGKILL);
-        }
         case SIGUSR1:
         {
             return ICE_STRING(SIGUSR1);
@@ -155,6 +157,11 @@ signalToString(int signal)
         {
             return ICE_STRING(SIGALRM);
         }
+#endif
+        case SIGKILL:
+        {
+            return ICE_STRING(SIGKILL);
+        }
         case SIGTERM:
         {
             return ICE_STRING(SIGTERM);
@@ -166,16 +173,12 @@ signalToString(int signal)
             return os.str();
         }
     }
-#endif
 }
 
 int
 stringToSignal(const string& str)
 {
-#ifdef _WIN32
-    throw BadSignalException("signals are not supported on Windows");
-#else
-
+#ifndef _WIN32
     if(str == ICE_STRING(SIGHUP))
     {
         return SIGHUP;
@@ -208,10 +211,6 @@ stringToSignal(const string& str)
     {
         return SIGFPE;
     }
-    else if(str == ICE_STRING(SIGKILL))
-    {
-        return SIGKILL;
-    }
     else if(str == ICE_STRING(SIGUSR1))
     {
         return SIGUSR1;
@@ -232,6 +231,12 @@ stringToSignal(const string& str)
     {
         return SIGALRM;
     }
+    else
+#endif
+	if(str == ICE_STRING(SIGKILL))
+    {
+        return SIGKILL;
+    }
     else if(str == ICE_STRING(SIGTERM))
     {
         return SIGTERM;
@@ -244,14 +249,20 @@ stringToSignal(const string& str)
             long int signal = strtol(str.c_str(), &end, 10);
             if(*end == '\0' && signal > 0 && signal < 64)
             {
+#ifdef _WIN32
+		if(signal == SIGKILL || signal == SIGTERM)
+		{
+		    return static_cast<int>(signal);
+		}
+#else
                 return static_cast<int>(signal);
+#endif
             }
         }
         throw BadSignalException("unknown signal `" + str + "'");
         return SIGTERM; // Keep the compiler happy.
     }
 }
-#endif
 
 }
 
@@ -769,67 +780,16 @@ Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
         out << "no process proxy, deactivating `" << name << "' using signal";
     }
 
-#ifdef _WIN32
-    //
-    // Generate a Ctrl+Break event on the child.
-    //
-    if(GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid))
-    {
-        if(_traceLevels->activator > 1)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
-        }
-    }
-    else if(GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
-    {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
-    }
-#else
     //
     // Send a SIGTERM to the process.
     //
     sendSignal(name, SIGTERM);
-    
-#endif
 }
 
 void
 Activator::kill(const string& name)
 {
-#ifdef _WIN32
-    Ice::Int pid = getServerPid(name);
-    if(pid == 0)
-    {
-        //
-        // Server is already deactivated.
-        //
-        return;
-    }
-
-    HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
-    if(hnd == NULL)
-    {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
-    }
-
-    TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
-
-    CloseHandle(hnd);
-
-    if(_traceLevels->activator > 1)
-    {
-        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "terminating server `" << name << "' (pid = " << pid << ")";
-    }
-
-#else
     sendSignal(name, SIGKILL);
-#endif
 }
 
 
@@ -842,13 +802,6 @@ Activator::sendSignal(const string& name, const string& signal)
 void
 Activator::sendSignal(const string& name, int signal)
 {
-#ifdef _WIN32
-    //
-    // TODO: Win32 implementation?
-    //
-    throw BadSignalException("signals are not supported on Windows");
-
-#else
     Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
@@ -858,6 +811,52 @@ Activator::sendSignal(const string& name, int signal)
         return;
     }
 
+#ifdef _WIN32
+    if(signal == SIGTERM)
+    {
+        //
+        // Generate a Ctrl+Break event on the child.
+        //
+        if(GenerateConsoleCtrlEvent(CTRL_BREAK_EVENT, pid))
+        {
+            if(_traceLevels->activator > 1)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+                out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
+            }
+        }
+        else if(GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+    }
+    else if(signal == SIGKILL)
+    {
+        HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
+        if(hnd == NULL)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+        
+        TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
+        
+        CloseHandle(hnd);
+        
+        if(_traceLevels->activator > 1)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+            out << "terminated server `" << name << "' (pid = " << pid << ")";
+        }        
+    }
+    else
+    {
+        throw BadSignalException("signal not supported on Windows");
+    }
+#else
     int ret = ::kill(static_cast<pid_t>(pid), signal);
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
