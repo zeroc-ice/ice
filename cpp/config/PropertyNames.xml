@@ -190,8 +190,7 @@ generated from the section label.
         <property name="Default.Package" />
         <property name="Default.PreferSecure" />
         <property name="Default.Protocol" />
-        <property name="Default.Router" class="proxy"
-            deprecated="false" />
+        <property name="Default.Router" class="proxy" />
         <property name="GC.Interval" />
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
