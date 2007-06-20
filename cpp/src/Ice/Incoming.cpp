@@ -92,47 +92,46 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 }
 
 void
-IceInternal::IncomingBase::__handleException(const std::exception& ex)
+IceInternal::IncomingBase::__handleException(const std::exception& exc)
 {
-    try
+    if(dynamic_cast<const RequestFailedException*>(&exc))
     {
-        throw ex;
-    }
-    catch(RequestFailedException& ex)
-    {
-        if(ex.id.name.empty())
+        RequestFailedException* rfe =
+            const_cast<RequestFailedException*>(dynamic_cast<const RequestFailedException*>(&exc));
+
+        if(rfe->id.name.empty())
         {
-            ex.id = _current.id;
+            rfe->id = _current.id;
         }
         
-        if(ex.facet.empty() && !_current.facet.empty())
+        if(rfe->facet.empty() && !_current.facet.empty())
         {
-            ex.facet = _current.facet;
+            rfe->facet = _current.facet;
         }
         
-        if(ex.operation.empty() && !_current.operation.empty())
+        if(rfe->operation.empty() && !_current.operation.empty())
         {
-            ex.operation = _current.operation;
+            rfe->operation = _current.operation;
         }
 
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
         {
-            __warning(ex);
+            __warning(*rfe);
         }
 
         if(_response)
         {
             _os.endWriteEncaps();
             _os.b.resize(headerSize + 4); // Reply status position.
-            if(dynamic_cast<ObjectNotExistException*>(&ex))
+            if(dynamic_cast<ObjectNotExistException*>(rfe))
             {
                 _os.write(replyObjectNotExist);
             }
-            else if(dynamic_cast<FacetNotExistException*>(&ex))
+            else if(dynamic_cast<FacetNotExistException*>(rfe))
             {
                 _os.write(replyFacetNotExist);
             }
-            else if(dynamic_cast<OperationNotExistException*>(&ex))
+            else if(dynamic_cast<OperationNotExistException*>(rfe))
             {
                 _os.write(replyOperationNotExist);
             }
@@ -141,21 +140,21 @@ IceInternal::IncomingBase::__handleException(const std::exception& ex)
                 assert(false);
             }
 
-            ex.id.__write(&_os);
+            rfe->id.__write(&_os);
 
             //
             // For compatibility with the old FacetPath.
             //
-            if(ex.facet.empty())
+            if(rfe->facet.empty())
             {
                 _os.write(static_cast<string*>(0), static_cast<string*>(0));
             }
             else
             {
-                _os.write(&ex.facet, &ex.facet + 1);
+                _os.write(&rfe->facet, &rfe->facet + 1);
             }
 
-            _os.write(ex.operation, false);
+            _os.write(rfe->operation, false);
             
             _connection->sendResponse(&_os, _compress);
         }
@@ -164,19 +163,54 @@ IceInternal::IncomingBase::__handleException(const std::exception& ex)
             _connection->sendNoResponse();
         }
     }
-    catch(const UnknownLocalException& ex)
+    else if(const Exception* ex = dynamic_cast<const Exception*>(&exc)) 
     {
+        
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
-            __warning(ex);
+            __warning(*ex);
         }
 
         if(_response)
         {
             _os.endWriteEncaps();
             _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUnknownLocalException);
-            _os.write(ex.unknown, false);
+            if(const UnknownLocalException* ule = dynamic_cast<const UnknownLocalException*>(&exc))
+            {
+                _os.write(replyUnknownLocalException);
+                _os.write(ule->unknown, false);
+            }
+            else if(const UnknownUserException* uue = dynamic_cast<const UnknownUserException*>(&exc))
+            {
+                _os.write(replyUnknownUserException);
+                _os.write(uue->unknown, false);
+            }
+            else if(const UnknownException* ue = dynamic_cast<const UnknownException*>(&exc))
+            {
+                _os.write(replyUnknownException);
+                _os.write(ue->unknown, false);
+            }
+            else if(const LocalException* le = dynamic_cast<const LocalException*>(&exc))
+            {
+                _os.write(replyUnknownLocalException);
+                ostringstream str;
+                str << *le;
+                _os.write(str.str(), false);
+            }
+            else if(const UserException* ue = dynamic_cast<const UserException*>(&exc))
+            {
+                _os.write(replyUnknownUserException);
+                ostringstream str;
+                str << *ue;
+                _os.write(str.str(), false);
+            }
+            else
+            {
+                _os.write(replyUnknownException);
+                ostringstream str;
+                str << *ex;
+                _os.write(str.str(), false);
+            }
             _connection->sendResponse(&_os, _compress);
         }
         else
@@ -184,117 +218,11 @@ IceInternal::IncomingBase::__handleException(const std::exception& ex)
             _connection->sendNoResponse();
         }
     }
-    catch(const UnknownUserException& ex)
+    else
     {
         if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
         {
-            __warning(ex);
-        }
-
-        if(_response)
-        {
-            _os.endWriteEncaps();
-            _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUnknownUserException);
-            _os.write(ex.unknown, false);
-            _connection->sendResponse(&_os, _compress);
-        }
-        else
-        {
-            _connection->sendNoResponse();
-        }
-    }
-    catch(const UnknownException& ex)
-    {
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-        {
-            __warning(ex);
-        }
-
-        if(_response)
-        {
-            _os.endWriteEncaps();
-            _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUnknownException);
-            _os.write(ex.unknown, false);
-            _connection->sendResponse(&_os, _compress);
-        }
-        else
-        {
-            _connection->sendNoResponse();
-        }
-    }
-    catch(const LocalException& ex)
-    {
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-        {
-            __warning(ex);
-        }
-
-        if(_response)
-        {
-            _os.endWriteEncaps();
-            _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUnknownLocalException);
-            ostringstream str;
-            str << ex;
-            _os.write(str.str(), false);
-            _connection->sendResponse(&_os, _compress);
-        }
-        else
-        {
-            _connection->sendNoResponse();
-        }
-    }
-    catch(const UserException& ex)
-    {
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-        {
-            __warning(ex);
-        }
-
-        if(_response)
-        {
-            _os.endWriteEncaps();
-            _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUnknownUserException);
-            ostringstream str;
-            str << ex;
-            _os.write(str.str(), false);
-            _connection->sendResponse(&_os, _compress);
-        }
-        else
-        {
-            _connection->sendNoResponse();
-        }
-    }
-    catch(const Exception& ex)
-    {
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-        {
-            __warning(ex);
-        }
-
-        if(_response)
-        {
-            _os.endWriteEncaps();
-            _os.b.resize(headerSize + 4); // Reply status position.
-            _os.write(replyUnknownException);
-            ostringstream str;
-            str << ex;
-            _os.write(str.str(), false);
-            _connection->sendResponse(&_os, _compress);
-        }
-        else
-        {
-            _connection->sendNoResponse();
-        }
-    }
-    catch(const std::exception& ex)
-    {
-        if(_os.instance()->initializationData().properties->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-        {
-            __warning(string("std::exception: ") + ex.what());
+            __warning(string("std::exception: ") + exc.what());
         }
     
         if(_response)
@@ -303,7 +231,7 @@ IceInternal::IncomingBase::__handleException(const std::exception& ex)
             _os.b.resize(headerSize + 4); // Reply status position.
             _os.write(replyUnknownException);
             ostringstream str;
-            str << "std::exception: " << ex.what();
+            str << "std::exception: " << exc.what();
             _os.write(str.str(), false);
             _connection->sendResponse(&_os, _compress);
         }

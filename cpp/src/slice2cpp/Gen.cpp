@@ -5126,27 +5126,29 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << nl << "try";
-        C << sb;
-        C << nl << "throw ex;";
-        C << eb;
         ExceptionList::const_iterator r;
         for(r = throws.begin(); r != throws.end(); ++r)
         {
-            C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
+            C << nl;
+            if(r != throws.begin())
+            {
+                 C << "else ";
+            }
+            C << "if(const " << fixKwd((*r)->scoped()) << "* __ex = dynamic_cast<const " << fixKwd((*r)->scoped()) 
+              << "*>(&ex))";
             C << sb;
             C << nl <<"if(__validateResponse(false))";
             C << sb;
-            C << nl << "__os()->write(__ex);";
+            C << nl << "__os()->write(*__ex);";
             C << nl << "__response(false);";
             C << eb;
             C << eb;
         }
-        C << nl << "catch(const ::std::exception& __ex)";
+        C << nl << "else";
         C << sb;
-        C << nl << "if(__validateException(__ex))";
+        C << nl << "if(__validateException(ex))";
         C << sb;
-        C << nl << "__exception(__ex);";
+        C << nl << "__exception(ex);";
         C << eb;
         C << eb;
     }

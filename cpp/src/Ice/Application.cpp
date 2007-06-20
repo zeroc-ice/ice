@@ -124,7 +124,7 @@ destroyOnInterruptCallback(int signal)
     catch(const std::exception& ex)
     {
         cerr << _appName << " (while destroying in response to signal " << signal 
-             << "): std::exception: " << ex.what() << endl;
+             << "): " << ex.what() << endl;
     }
     catch(const std::string& msg)
     {
