@@ -16,7 +16,7 @@ public final class TraceLevels
         networkCat = "Network";
         protocolCat = "Protocol";
         retryCat = "Retry";
-        locationCat = "Location";
+        locationCat = "Locator";
         slicingCat = "Slicing";
 
         final String keyBase = "Ice.Trace.";

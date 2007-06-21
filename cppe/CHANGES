@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- The property Ice.Trace.Location has been replaced by new property
+  Ice.Trace.Locator.
+
 - Fixed throughput performance problem on Windows that would occur
   when sending large requests.
 

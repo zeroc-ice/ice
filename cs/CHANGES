@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The property Ice.Trace.Location has been deprecated and replaced
+  by Ice.Trace.Locator.
+
 - The property Ice.Default.CollocationOptimization and the
   proxy property <any>.CollocationOptimization have been deprecated
   and replaced by Ice.Default.CollocationOptimized and
