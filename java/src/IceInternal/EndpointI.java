@@ -11,19 +11,6 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
 {
-    public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
-    {
-        return super.clone();
-    }
-
-    public int
-    ice_hash()
-    {
-        return hashCode();
-    }
-
     public String
     toString()
     {

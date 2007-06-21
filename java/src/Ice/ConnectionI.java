@@ -11,19 +11,6 @@ package Ice;
 
 public final class ConnectionI extends IceInternal.EventHandler implements Connection
 {
-    public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
-    {
-        return super.clone();
-    }
-
-    public int
-    ice_hash()
-    {
-        return hashCode();
-    }
-
     public void
     validate()
     {
