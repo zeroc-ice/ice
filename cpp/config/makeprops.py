@@ -268,6 +268,13 @@ class PropertyHandler(ContentHandler):
                         self.startElement(name, p)
                     else:
                         t = dict(p) 
+
+                        # deprecatedBy properties in property classes
+                        # are special. deprecatedBy attributes are
+                        # usually absolute or 'raw', but in the case of
+                        # a property class, they need to be expanded.
+                        if t.has_key("deprecatedBy"):
+                            t["deprecatedBy"] = "%s.%s.%s" % (self.currentSection, propertyName, t["deprecatedBy"])
                         t['name'] =  "%s.%s" % (propertyName, p['name'])
                         self.startElement(name, t) 
                 if c.isPrefixOnly():
@@ -279,7 +286,6 @@ class PropertyHandler(ContentHandler):
             deprecatedBy = attrs.get("deprecatedBy", None)
             if deprecatedBy != None:
                 self.handleDeprecatedWithReplacement(propertyName, deprecatedBy)
-                pass
             elif attrs.get("deprecated", "false").lower() == "true" :
                 self.handleDeprecated(propertyName)
             else:
@@ -545,6 +551,10 @@ class MultiHandler(PropertyHandler):
     def handleProperty(self, propertyName):
         for f in self.handlers:
             f.handleProperty(propertyName)
+
+    def startElement(self, name, attrs):
+        for f in self.handlers:
+            f.startElement(name, attrs)
 
     def moveFiles(self, location):
         for f in self.handlers:

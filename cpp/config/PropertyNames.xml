@@ -44,6 +44,37 @@ a deprecated property is used. The deprecatedBy attribute allows the Ice
 run time to transparently replace the deprecated property name with a
 new property name that supercedes the deprecated property.
 
+The "deprecatedBy" attribute is currently treated differently when used in a
+property class. In the regular property list, deprecatedBy is treated as an
+absolute property name and does not prepend the section name or substring of
+the property being deprecated. This is not useful for property classes. When
+using deprecatedBy in property classes, the deprecatedBy value is appended to
+a string constructed from the current section name and the name attribute in
+the property list containing the class attributed. For example:
+
+<class name="proxy">
+    ...
+    <suffix name="CollocationOptimization" deprecatedBy="CollocationOptimized"/>
+    <suffix name="CollocationOptimized" />
+</class>
+
+<properties>
+    <section name="Ice">
+        <property name="Default.Locator" class="proxy" />
+        ...
+    </section>
+</properties>
+
+Will be treated the same as:
+<properties>
+    <section name="Ice">
+        <property name="DefaultLocator.CollocationOptimization"
+            deprecatedBy="Ice.DefaultLocator.CollocationOptimized" />
+        <property name="DefaultLocator.CollocationOptimized" />
+        ...
+    </section>
+</properties>
+
 property element name attributes have some additional syntax: The token
 "<any>" (denoted in valid XML as [any]) is a wildcard and matches any
 non-empty sequence of non-whitespace characters.
