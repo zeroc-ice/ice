@@ -397,7 +397,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            _out << "Ice.LocalObject";
+            _out << "object";
         }
         else
         {

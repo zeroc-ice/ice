@@ -51,7 +51,7 @@ module Ice
     #
     # LocalObject.
     #
-    T_LocalObject = Ice.__declareClass('::Ice::LocalObject')
+    T_LocalObject = Ice.__declareLocalClass('::Ice::LocalObject')
     T_LocalObject.defineClass(nil, true, nil, [], [])
 
     #

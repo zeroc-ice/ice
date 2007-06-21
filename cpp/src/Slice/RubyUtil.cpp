@@ -182,9 +182,13 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
         _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
         _out.inc();
-        _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
-        if(!p->isLocal())
+        if(p->isLocal())
         {
+            _out << nl << name << " = ::Ice::__declareLocalClass('" << scoped << "')";
+        }
+        else
+        {
+            _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
             _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
         }
         _out.dec();
@@ -562,9 +566,13 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
     _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-    if(!p->isLocal())
+    if(p->isLocal())
     {
+        _out << nl << "T_" << name << " = ::Ice::__declareLocalClass('" << scoped << "')";
+    }
+    else
+    {
+        _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
         _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
     }
     _out.dec();

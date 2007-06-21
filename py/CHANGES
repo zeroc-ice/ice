@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- LocalObject is now mapped to the Python base 'object' type. The
+  class Ice.LocalObject is now deprecated.
+
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to
   update the published endpoints after change in the available local

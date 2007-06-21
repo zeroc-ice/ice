@@ -67,6 +67,9 @@ class Object(object):
     #def ice_postUnmarshal(self):
     #    pass
 
+#
+# LocalObject is deprecated; use the Python base 'object' type instead.
+#
 class LocalObject(object):
     pass
 
@@ -924,8 +927,7 @@ Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, Oper
 Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), _t_StringSeq, ())
 Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), IcePy._t_string, ())
 
-IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', LocalObject, (), False, None, (), ())
-LocalObject.ice_type = IcePy._t_LocalObject
+IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, (), False, None, (), ())
 
 #
 # Annotate Ice::Identity.
