@@ -408,9 +408,10 @@ static PyObject*
 communicatorIsShutdown(CommunicatorObject* self)
 {
     assert(self->communicator);
+    bool isShutdown;
     try
     {
-        (*self->communicator)->isShutdown();
+        isShutdown = (*self->communicator)->isShutdown();
     }
     catch(const Ice::Exception& ex)
     {
@@ -418,8 +419,14 @@ communicatorIsShutdown(CommunicatorObject* self)
         return 0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    if(isShutdown)
+    {
+        PyRETURN_TRUE;
+    }
+    else
+    {
+        PyRETURN_FALSE;
+    }
 }
 
 #ifdef WIN32
