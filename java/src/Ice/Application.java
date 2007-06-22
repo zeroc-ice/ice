@@ -16,6 +16,12 @@ public abstract class Application
     {
     }
 
+    public
+    Application(boolean useCtrlCHandler)
+    {
+        _useCtrlCHandler = useCtrlCHandler;
+    }
+
     //
     // This main() must be called by the global main(). main()
     // initializes the Communicator, calls run(), and destroys
@@ -109,7 +115,10 @@ public abstract class Application
             //
             // The default is to destroy when a signal is received.
             //
-            destroyOnInterrupt();
+            if(_useCtrlCHandler)
+            {
+                destroyOnInterrupt();
+            }
 
             status = run(argHolder.value);
         }
@@ -136,7 +145,10 @@ public abstract class Application
         }
 
         // This clears any set interrupt.
-        defaultInterrupt();
+        if(_useCtrlCHandler)
+        {
+            defaultInterrupt();
+        }
 
         synchronized(_mutex)
         {
@@ -227,48 +239,64 @@ public abstract class Application
     public static void
     destroyOnInterrupt()
     {
-        synchronized(_mutex)
+        if(_useCtrlCHandler)
         {
-            //
-            // As soon as the destroy hook ends all the threads are
-            // terminated. So the destroy hook will join the current
-            // thread before to end.
-            //
-            try
+            synchronized(_mutex)
             {
-                changeHook(new DestroyHook());
-            }
-            catch(java.lang.IllegalStateException ex)
-            {
-                if(_communicator != null)
+                //
+                // As soon as the destroy hook ends all the threads are
+                // terminated. So the destroy hook will join the current
+                // thread before to end.
+                //
+                try
                 {
-                    _communicator.destroy();
+                    changeHook(new DestroyHook());
+                }
+                catch(java.lang.IllegalStateException ex)
+                {
+                    if(_communicator != null)
+                    {
+                        _communicator.destroy();
+                    }
                 }
             }
+        }
+        else
+        {
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
     public static void
     shutdownOnInterrupt()
     {
-        synchronized(_mutex)
+        if(_useCtrlCHandler)
         {
-            //
-            // As soon as the shutdown hook ends all the threads are
-            // terminated. So the shutdown hook will join the current
-            // thread before to end.
-            //
-            try
+            synchronized(_mutex)
             {
-                changeHook(new ShutdownHook());
-            }
-            catch(java.lang.IllegalStateException ex)
-            {
-                if(_communicator != null)
+                //
+                // As soon as the shutdown hook ends all the threads are
+                // terminated. So the shutdown hook will join the current
+                // thread before to end.
+                //
+                try
                 {
-                    _communicator.shutdown();
+                    changeHook(new ShutdownHook());
+                }
+                catch(java.lang.IllegalStateException ex)
+                {
+                    if(_communicator != null)
+                    {
+                        _communicator.shutdown();
+                    }
                 }
             }
+        }
+        else
+        {
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
 
@@ -284,13 +312,21 @@ public abstract class Application
     public static void
     setInterruptHook(java.lang.Thread newHook) // Pun intended.
     {
-        try
+        if(_useCtrlCHandler)
         {
-            changeHook(new CustomHook(newHook));
+            try
+            {
+                changeHook(new CustomHook(newHook));
+            }
+            catch(java.lang.IllegalStateException ex)
+            {
+                // Ignore.
+            }
         }
-        catch(java.lang.IllegalStateException ex)
+        else
         {
-            // Ignore.
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
@@ -300,7 +336,15 @@ public abstract class Application
     public static void
     defaultInterrupt()
     {
-        changeHook(null);
+        if(_useCtrlCHandler)
+        {
+            changeHook(null);
+        }
+        else
+        {
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
+        }
     }
 
     public static boolean
@@ -502,4 +546,5 @@ public abstract class Application
     private static boolean _callbackInProgress = false;
     private static boolean _destroyed = false;
     private static boolean _interrupted = false;
+    private static boolean _useCtrlCHandler = true;
 }

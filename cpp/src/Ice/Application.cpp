@@ -45,6 +45,7 @@ static Application* _application;
 static CommunicatorPtr _communicator;
 static CtrlCHandler* _ctrlCHandler = 0;
 static bool _nohup = false;
+static bool _useCtrlCHandler = true;
 
 #ifdef _WIN32
 const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
@@ -257,8 +258,9 @@ callbackOnInterruptCallback(int signal)
 }
 
 
-Ice::Application::Application()
+Ice::Application::Application(bool useCtrlCHandler)
 {
+    _useCtrlCHandler = useCtrlCHandler;
 }
 
 Ice::Application::~Application()
@@ -311,118 +313,33 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
     }
     int status;
 
-    try
+    if(_useCtrlCHandler)
     {
-        //
-        // The ctrlCHandler must be created before starting any thread, in particular
-        // before initializing the communicator.
-        //
-        CtrlCHandler ctrCHandler;
-        _ctrlCHandler = &ctrCHandler;
-
         try
         {
-            if(_condVar.get() == 0)
-            {
-                _condVar.reset(new Cond);
-            }
+            //
+            // The ctrlCHandler must be created before starting any thread, in particular
+            // before initializing the communicator.
+            //
+            CtrlCHandler ctrCHandler;
+            _ctrlCHandler = &ctrCHandler;
 
-            _interrupted = false;
-            _appName = argv[0];
-                
-            _application = this;
-            _communicator = initialize(argc, argv, initData);
-            _destroyed = false;
+            status = mainInternal(argc, argv, initData);
 
             //
-            // Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
-            //
-            _nohup = (_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
-        
-            //
-            // The default is to destroy when a signal is received.
-            //
-            destroyOnInterrupt();
-            status = run(argc, argv);
+            // Set _ctrlCHandler to 0 only once communicator->destroy() has completed.
+            // 
+            _ctrlCHandler = 0;
         }
-        catch(const std::exception& ex)
+        catch(const CtrlCHandlerException&)
         {
-            cerr << _appName << ex.what() << endl;
+            cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
             status = EXIT_FAILURE;
         }
-        catch(const std::string& msg)
-        {
-            cerr << _appName << ": " << msg << endl;
-            status = EXIT_FAILURE;
-        }
-        catch(const char* msg)
-        {
-            cerr << _appName << ": " << msg << endl;
-            status = EXIT_FAILURE;
-        }
-        catch(...)
-        {
-            cerr << _appName << ": unknown exception" << endl;
-            status = EXIT_FAILURE;
-        }
-
-        //
-        // Don't want any new interrupt and at this point (post-run),
-        // it would not make sense to release a held signal to run
-        // shutdown or destroy.
-        //
-        ignoreInterrupt();
-
-        {
-            StaticMutex::Lock lock(_mutex);
-            while(_callbackInProgress)
-            {
-                _condVar->wait(lock);
-            }
-            if(_destroyed)
-            {
-                _communicator = 0;
-            }
-            else
-            {
-                _destroyed = true;
-                //
-                // And _communicator != 0, meaning will be destroyed
-                // next, _destroyed = true also ensures that any
-                // remaining callback won't do anything
-                //
-            }
-            _application = 0;
-        }
-
-        if(_communicator != 0)
-        {  
-            try
-            {
-                _communicator->destroy();
-            }
-            catch(const std::exception& ex)
-            {
-                cerr << _appName << ex.what() << endl;
-                status = EXIT_FAILURE;
-            }
-            catch(...)
-            {
-                cerr << _appName << ": unknown exception" << endl;
-                status = EXIT_FAILURE;
-            }
-            _communicator = 0;
-        }
-
-        //
-        // Set _ctrlCHandler to 0 only once communicator->destroy() has completed.
-        // 
-        _ctrlCHandler = 0;
     }
-    catch(const CtrlCHandlerException&)
+    else
     {
-        cerr << argv[0] << ": only one instance of the Application class can be used" << endl;
-        status = EXIT_FAILURE;
+        status = mainInternal(argc, argv, initData);
     }
    
     return status;
@@ -495,102 +412,147 @@ Ice::Application::communicator()
 void
 Ice::Application::destroyOnInterrupt()
 {
-    //
-    // if _ctrlCHandler == 0, it's really a bug in the caller
-    //
-    if(_ctrlCHandler != 0)
+    if(_useCtrlCHandler)
     {
-        StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
-        if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+        if(_ctrlCHandler != 0)
         {
-            _released = true;
-            _condVar->signal();
+            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+            {
+                _released = true;
+                _condVar->signal();
+            }
+            _ctrlCHandler->setCallback(destroyOnInterruptCallback);
         }
-        _ctrlCHandler->setCallback(destroyOnInterruptCallback);
+    }
+    else
+    {
+        cerr << _appName << ": warning: interrupt method called on Application configured to not handle interrupts." 
+             << endl;
     }
 }
 
 void
 Ice::Application::shutdownOnInterrupt()
 {
-    if(_ctrlCHandler != 0)
+    if(_useCtrlCHandler)
     {
-        StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
-        if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+        if(_ctrlCHandler != 0)
         {
-            _released = true;
-            _condVar->signal();
+            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+            {
+                _released = true;
+                _condVar->signal();
+            }
+            _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
         }
-        _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
+    }
+    else
+    {
+        cerr << _appName << ": warning: interrupt method called on Application configured to not handle interrupts." 
+             << endl;
     }
 }
 
 void
 Ice::Application::ignoreInterrupt()
 {
-    if(_ctrlCHandler != 0)
+    if(_useCtrlCHandler)
     {
-        StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
-        if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+        if(_ctrlCHandler != 0)
         {
-            _released = true;
-            _condVar->signal();
+            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+            {
+                _released = true;
+                _condVar->signal();
+            }
+            _ctrlCHandler->setCallback(0);
         }
-        _ctrlCHandler->setCallback(0);
+    }
+    else
+    {
+        cerr << _appName << ": warning: interrupt method called on Application configured to not handle interrupts." 
+             << endl;
     }
 }
 
 void
 Ice::Application::callbackOnInterrupt()
 {
-    if(_ctrlCHandler != 0)
+    if(_useCtrlCHandler)
     {
-        StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
-        if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+        if(_ctrlCHandler != 0)
         {
-            _released = true;
-            _condVar->signal();
+            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+            {
+                _released = true;
+                _condVar->signal();
+            }
+            _ctrlCHandler->setCallback(callbackOnInterruptCallback);
         }
-        _ctrlCHandler->setCallback(callbackOnInterruptCallback);
+    }
+    else
+    {
+        cerr << _appName << ": warning: interrupt method called on Application configured to not handle interrupts." 
+             << endl;
     }
 }
 
 void
 Ice::Application::holdInterrupt()
 {
-    if(_ctrlCHandler != 0)
+    if(_useCtrlCHandler)
     {
-        StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
-        if(_ctrlCHandler->getCallback() != holdInterruptCallback)
+        if(_ctrlCHandler != 0)
         {
-            _previousCallback = _ctrlCHandler->getCallback();
-            _released = false;
-            _ctrlCHandler->setCallback(holdInterruptCallback);
+            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            if(_ctrlCHandler->getCallback() != holdInterruptCallback)
+            {
+                _previousCallback = _ctrlCHandler->getCallback();
+                _released = false;
+                _ctrlCHandler->setCallback(holdInterruptCallback);
+            }
+            // else, we were already holding signals
         }
-        // else, we were already holding signals
+    }
+    else
+    {
+        cerr << _appName << ": warning: interrupt method called on Application configured to not handle interrupts." 
+             << endl;
     }
 }
 
 void
 Ice::Application::releaseInterrupt()
 {
-    if(_ctrlCHandler != 0)
+    if(_useCtrlCHandler)
     {
-        StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
-        if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+        if(_ctrlCHandler != 0)
         {
-            //
-            // Note that it's very possible no signal is held;
-            // in this case the callback is just replaced and
-            // setting _released to true and signalling _condVar
-            // do no harm.
-            //
+            StaticMutex::Lock lock(_mutex); // we serialize all the interrupt-setting
+            if(_ctrlCHandler->getCallback() == holdInterruptCallback)
+            {
+                //
+                // Note that it's very possible no signal is held;
+                // in this case the callback is just replaced and
+                // setting _released to true and signalling _condVar
+                // do no harm.
+                //
             
-            _released = true;
-            _ctrlCHandler->setCallback(_previousCallback);
-            _condVar->signal();
+                _released = true;
+                _ctrlCHandler->setCallback(_previousCallback);
+                _condVar->signal();
+            }
+            // Else nothing to release.
         }
-        // Else nothing to release.
+    }
+    else
+    {
+        cerr << _appName << ": warning: interrupt method called on Application configured to not handle interrupts." 
+             << endl;
     }
 }
 
@@ -599,4 +561,106 @@ Ice::Application::interrupted()
 {
     StaticMutex::Lock lock(_mutex);
     return _interrupted;
+}
+
+int
+Ice::Application::mainInternal(int argc, char* argv[], const InitializationData& initData)
+{
+    int status;
+
+    try
+    {
+        if(_condVar.get() == 0)
+        {
+            _condVar.reset(new Cond);
+        }
+
+        _interrupted = false;
+        _appName = argv[0];
+            
+        _application = this;
+        _communicator = initialize(argc, argv, initData);
+        _destroyed = false;
+
+        //
+        // Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
+        //
+        _nohup = (_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
+    
+        //
+        // The default is to destroy when a signal is received.
+        //
+        destroyOnInterrupt();
+        status = run(argc, argv);
+    }
+    catch(const std::exception& ex)
+    {
+        cerr << _appName << ex.what() << endl;
+        status = EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+        cerr << _appName << ": " << msg << endl;
+        status = EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+        cerr << _appName << ": " << msg << endl;
+        status = EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        cerr << _appName << ": unknown exception" << endl;
+        status = EXIT_FAILURE;
+    }
+
+    //
+    // Don't want any new interrupt and at this point (post-run),
+    // it would not make sense to release a held signal to run
+    // shutdown or destroy.
+    //
+    ignoreInterrupt();
+
+    {
+        StaticMutex::Lock lock(_mutex);
+        while(_callbackInProgress)
+        {
+            _condVar->wait(lock);
+        }
+        if(_destroyed)
+        {
+            _communicator = 0;
+        }
+        else
+        {
+            _destroyed = true;
+            //
+            // And _communicator != 0, meaning will be destroyed
+            // next, _destroyed = true also ensures that any
+            // remaining callback won't do anything
+            //
+        }
+        _application = 0;
+    }
+
+    if(_communicator != 0)
+    {  
+        try
+        {
+            _communicator->destroy();
+        }
+        catch(const std::exception& ex)
+        {
+            cerr << _appName << ex.what() << endl;
+            status = EXIT_FAILURE;
+        }
+        catch(...)
+        {
+            cerr << _appName << ": unknown exception" << endl;
+            status = EXIT_FAILURE;
+        }
+        _communicator = 0;
+    }
+
+    return status;
 }
