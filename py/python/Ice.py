@@ -641,9 +641,10 @@ class CtrlCHandler(threading.Thread):
 import signal, traceback
 class Application(object):
 
-    def __init__(self):
+    def __init__(self, useCtrlCHandler=True):
         if type(self) == Application:
             raise RuntimeError("Ice.Application is an abstract class")
+        Application._useCtrlCHandler = useCtrlCHandler
 
     def main(self, args, configFile=None, initData=None):
         if Application._communicator:
@@ -679,7 +680,8 @@ class Application(object):
             #
             # The default is to destroy when a signal is received.
             #
-            Application.destroyOnInterrupt()
+            if Application._useCtrlCHandler:
+                Application.destroyOnInterrupt()
 
             status = self.run(args)
         except:
@@ -691,7 +693,8 @@ class Application(object):
         # it would not make sense to release a held signal to run
         # shutdown or destroy.
         #
-        Application.ignoreInterrupt()
+        if Application._useCtrlCHandler:
+            Application.ignoreInterrupt()
 
         Application._condVar.acquire()
         while Application._callbackInProgress:
@@ -741,65 +744,89 @@ class Application(object):
     communicator = classmethod(communicator)
 
     def destroyOnInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
-        self._condVar.release()
+        if Application._useCtrlCHandler:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
     def shutdownOnInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
-        self._condVar.release()
+        if Application._useCtrlCHandler:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
     def ignoreInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(None)
-        self._condVar.release()
+        if Application._useCtrlCHandler:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(None)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
     def callbackOnInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
-        self._condVar.release()
+        if Application._useCtrlCHandler:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
-            self._previousCallback = self._ctrlCHandler.getCallback()
-            self._released = False
-            self._ctrlCHandler.setCallback(self.holdInterruptCallback)
-        # else, we were already holding signals
-        self._condVar.release()
+        if Application._useCtrlCHandler:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
+                self._previousCallback = self._ctrlCHandler.getCallback()
+                self._released = False
+                self._ctrlCHandler.setCallback(self.holdInterruptCallback)
+            # else, we were already holding signals
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     holdInterrupt = classmethod(holdInterrupt)
 
     def releaseInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            #
-            # Note that it's very possible no signal is held;
-            # in this case the callback is just replaced and
-            # setting _released to true and signalling _condVar
-            # do no harm.
-            #
-            self._released = True
-            self._ctrlCHandler.setCallback(self._previousCallback)
-            self._condVar.notify()
-        # Else nothing to release.
-        self._condVar.release()
+        if Application._useCtrlCHandler:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                #
+                # Note that it's very possible no signal is held;
+                # in this case the callback is just replaced and
+                # setting _released to true and signalling _condVar
+                # do no harm.
+                #
+                self._released = True
+                self._ctrlCHandler.setCallback(self._previousCallback)
+                self._condVar.notify()
+            # Else nothing to release.
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     releaseInterrupt = classmethod(releaseInterrupt)
 
     def interrupted(self):
@@ -914,6 +941,7 @@ class Application(object):
     _destroyed = False
     _callbackInProgress = False
     _condVar = threading.Condition()
+    _useCtrlCHandler = True
 
 #
 # Define Ice::Object and Ice::ObjectPrx.
