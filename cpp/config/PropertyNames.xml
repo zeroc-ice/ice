@@ -201,7 +201,8 @@ generated from the section label.
         <suffix name="Endpoints" />
         <suffix name="Locator" />
         <suffix name="PublishedEndpoints" />
-        <suffix name="ReplicaGroupdId" />
+        <suffix name="RegisterProcess" />
+        <suffix name="ReplicaGroupId" />
         <suffix name="Router" />
         <suffix name="ThreadPerConnection" />
         <suffix name="ThreadPerConnection.StackSize" />
@@ -279,16 +280,7 @@ generated from the section label.
         <property name="LoadOrder" />
         <property name="PrintServicesReady" />
         <property name="Service.[any]" />
-        <property name="ServiceManager.AdapterId" />
-        <property name="ServiceManager.Endpoints" />
-        <property name="ServiceManager.Locator" />
-        <property name="ServiceManager.PublishedEndpoints" />
-        <property name="ServiceManager.RegisterProcess" />
-        <property name="ServiceManager.ReplicaGroupId" />
-        <property name="ServiceManager.Router" />
-        <property name="ServiceManager.ThreadPerConnection" />
-        <property name="ServiceManager.ThreadPerConnection.StackSize" />
-        <property name="ServiceManager.ThreadPool" class="threadpool" />
+        <property name="ServiceManager" class="objectadapter" />
         <property name="UseSharedCommunicator.[any]" />
         <property name="InheritProperties" />
     </section>
@@ -304,25 +296,16 @@ generated from the section label.
 
     <section name="IceGrid">
         <property name="InstanceName" />
-        <property name="Node.AdapterId" />
+        <property name="Node" class="objectadapter"/>
         <property name="Node.AllowRunningServersAsRoot" />
         <property name="Node.CollocateRegistry" />
         <property name="Node.Data" />
         <property name="Node.DisableOnFailure" />
-        <property name="Node.Endpoints" />
-        <property name="Node.Locator" />
         <property name="Node.Name" />
         <property name="Node.Output" />
         <property name="Node.PrintServersReady" />
         <property name="Node.PropertiesOverride" />
-        <property name="Node.PublishedEndpoints" />
         <property name="Node.RedirectErrToOut" />
-        <property name="Node.RegisterProcess" />
-        <property name="Node.ReplicaGroupId" />
-        <property name="Node.Router" />
-        <property name="Node.ThreadPerConnection" />
-        <property name="Node.ThreadPerConnection.StackSize" />
-        <property name="Node.ThreadPool" class="threadpool" />
         <property name="Node.Trace.Activator" />
         <property name="Node.Trace.Adapter" />
         <property name="Node.Trace.Patch" />
@@ -371,7 +354,6 @@ generated from the section label.
         <property name="ChunkSize" />
         <property name="Directory" />
         <property name="InstanceName" />
-        <property name="RegisterProcess" />
         <property name="Remove" />
         <property name="Thorough" />
     </section>
@@ -417,7 +399,6 @@ generated from the section label.
         <property name="Flush.Timeout" />
         <property name="InstanceName" />
         <property name="Publish" class="objectadapter" />
-        <property name="Publish.RegisterProcess" />
         <property name="TopicManager" class="objectadapter" />
         <property name="TopicManager.Proxy" class="proxy" />
         <property name="SubscriberPool" class="threadpool" />
