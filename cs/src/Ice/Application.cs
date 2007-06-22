@@ -37,6 +37,19 @@ namespace Ice
             Debug.Assert(rc);
 #endif
         }
+
+        public Application(bool useCtrlCHandler)
+        {
+            _useCtrlCHandler = useCtrlCHandler;
+
+#if !__MonoCS__
+            if(__useCtrlCHandler)
+            {
+                bool rc = SetConsoleCtrlHandler(_handler, true); 
+                Debug.Assert(rc);
+            }
+#endif
+        }
         
         //
         // This main() must be called by the global Main(). main()
@@ -122,7 +135,10 @@ namespace Ice
                 //
                 // The default is to destroy when a signal is received.
                 //
-                destroyOnInterrupt();
+                if(_useCtrlCHandler)
+                {
+                    destroyOnInterrupt();
+                }
                 
                 status = run(args);
             }
@@ -142,7 +158,10 @@ namespace Ice
             // (post-run), it would not make sense to release a held
             // signal to run shutdown or destroy.
             //
-            ignoreInterrupt();
+            if(_useCtrlCHandler)
+            {
+                ignoreInterrupt();
+            }
 
             Monitor.Enter(sync);
             while(_callbackInProgress)
@@ -209,92 +228,140 @@ namespace Ice
         
         public static void destroyOnInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_useCtrlCHandler)
             {
-                _callback = _destroyCallback;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = _destroyCallback;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = _destroyCallback;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = _destroyCallback;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
         
         public static void shutdownOnInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_useCtrlCHandler)
             {
-                _callback = _shutdownCallback;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = _shutdownCallback;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = _shutdownCallback;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = _shutdownCallback;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
         
         public static void ignoreInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_useCtrlCHandler)
             {
-                _callback = null;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = null;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = null;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = null;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
 
         public static void callbackOnInterrupt()
         {   
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_useCtrlCHandler)
             {
-                _released = true;
-                _callback = _userCallback;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _released = true;
+                    _callback = _userCallback;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = _userCallback;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = _userCallback;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
         
         public static void holdInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback != _holdCallback)
+            if(_useCtrlCHandler)
             {
-                _previousCallback = _callback;
-                _callback = _holdCallback;
-                _released = false;
+                Monitor.Enter(sync);
+                if(_callback != _holdCallback)
+                {
+                    _previousCallback = _callback;
+                    _callback = _holdCallback;
+                    _released = false;
+                }
+                // else, we were already holding signals
+                Monitor.Exit(sync);
             }
-            // else, we were already holding signals
-            Monitor.Exit(sync);
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
         }
         
         public static void releaseInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_useCtrlCHandler)
             {
-                _callback = _previousCallback;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = _previousCallback;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                // Else nothing to release.
+                Monitor.Exit(sync);
             }
-            // Else nothing to release.
-            Monitor.Exit(sync);
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
         }
 
         public static bool interrupted()
@@ -501,6 +568,7 @@ namespace Ice
         private static bool _interrupted = false;
         private static bool _released = false;
         private static bool _nohup = false;
+        private static bool _useCtrlCHandler = true;
 
         private delegate Boolean EventHandler(int sig);
 #if !__MonoCS__
