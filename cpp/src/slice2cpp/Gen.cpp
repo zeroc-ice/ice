@@ -1763,6 +1763,16 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:";
     H.inc();
 
+    if(_dllExport != "")
+    {
+	//
+	// To export the virtual table
+	//
+	C << nl << "#ifdef __SUNPRO_CC";
+	C << nl << "class " << _dllExport << "IceProxy" << scoped << ";";
+	C << nl << "#endif";
+    }
+
     return true;
 }
 
