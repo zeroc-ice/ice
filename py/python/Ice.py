@@ -212,7 +212,7 @@ class CommunicatorI(Communicator):
             pass
 
     def isShutdown(self):
-        self._impl.isShutdown()
+        return self._impl.isShutdown()
 
     def stringToProxy(self, str):
         return self._impl.stringToProxy(str)
