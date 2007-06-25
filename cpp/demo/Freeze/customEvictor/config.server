@@ -1,6 +1,6 @@
 #
-# The server creates one single object adapter with the name
-# "Warehouse". The following line sets the endpoints for this adapter.
+# The server creates an object adapter with the name "Warehouse". The
+# following line sets the endpoints for this adapter.
 #
 Warehouse.Endpoints=tcp -p 10000
 
@@ -10,4 +10,3 @@ Warehouse.Endpoints=tcp -p 10000
 #
 Ice.ThreadPool.Server.Size=10
 Ice.ThreadPool.Server.SizeWarn=-1
-

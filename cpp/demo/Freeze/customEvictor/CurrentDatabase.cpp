@@ -14,7 +14,7 @@ using namespace std;
 using namespace IceUtil;
 
 //
-// This implementation is very simple but not restartable, i.e.  you
+// This implementation is very simple but not restartable, i.e., you
 // can only create and destroy one CurrentDatabase per process run.
 //
 
@@ -26,9 +26,8 @@ namespace
 {
 
 //
-// We keep a db on each thread
+// We keep a db on each thread.
 //
-
 __thread Database* db = 0;
 
 }
@@ -47,7 +46,6 @@ CurrentDatabase::~CurrentDatabase()
         delete *p;
     }
 }
-
 
 Database&
 CurrentDatabase::get()

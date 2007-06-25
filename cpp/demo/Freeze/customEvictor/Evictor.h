@@ -20,7 +20,7 @@ struct EvictorEntry;
 typedef IceUtil::Handle<EvictorEntry> EvictorEntryPtr;
 
 //
-// A map that does not lock-out lookups during loading from storage
+// A map that allows lookups while loading from storage.
 //
 class EvictorCache : public IceUtil::Cache<Ice::Identity, EvictorEntry>
 {
@@ -39,7 +39,7 @@ private:
 };
 
 //
-// We'll keep our entries in a queue
+// We'll keep our entries in a queue.
 //
 typedef std::list<EvictorEntryPtr> EvictorQueue;
 
@@ -48,13 +48,13 @@ struct EvictorEntry : public Ice::LocalObject
     EvictorEntry(const ItemIPtr&);
 
     //
-    // Immutable after initialization / insertion into the Cache map
+    // Immutable after initialization / insertion into the Cache map.
     //
     const Ice::ObjectPtr servant;
     EvictorCache::Position cachePosition;
    
     //
-    // Protected by the Evictor mutex
+    // Protected by the Evictor mutex.
     //
     EvictorQueue::iterator queuePosition;
     int useCount;

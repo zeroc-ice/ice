@@ -15,9 +15,8 @@
 #include <list>
 
 //
-// Provides a Database object for each thread
+// Provides a Database object for each thread.
 //
-
 class CurrentDatabase
 {
 public:
