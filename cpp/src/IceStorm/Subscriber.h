@@ -25,7 +25,7 @@ class Subscriber : public IceUtil::Shared
 {
 public:
 
-    static SubscriberPtr create(const InstancePtr&, const Ice::ObjectPrx&, const IceStorm::QoS&);
+    static SubscriberPtr create(const InstancePtr&, const std::string&, const Ice::ObjectPrx&, const IceStorm::QoS&);
     static SubscriberPtr create(const InstancePtr&, const TopicLinkPrx&, int);
 
     ~Subscriber();

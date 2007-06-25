@@ -295,7 +295,8 @@ public:
     bool isA(const ClassInfoPtr&);
 
     std::string id;
-    bool isIceObject; // Is this the ClassInfo for Ice::Object?
+    bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
+    bool isLocal;
     bool isAbstract;
     ClassInfoPtr base;
     ClassInfoList interfaces;

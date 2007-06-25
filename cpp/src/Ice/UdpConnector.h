@@ -34,6 +34,8 @@ public:
     virtual bool operator==(const Connector&) const;
     virtual bool operator!=(const Connector&) const;
     virtual bool operator<(const Connector&) const;
+
+    bool equivalent(const std::string&, int) const;
     
 private:
     

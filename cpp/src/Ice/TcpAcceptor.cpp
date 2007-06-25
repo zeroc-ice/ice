@@ -90,14 +90,6 @@ IceInternal::TcpAcceptor::toString() const
     return addrToString(_addr);
 }
 
-bool
-IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
-{
-    struct sockaddr_in addr;
-    getAddress(host, port, addr);
-    return compareAddress(addr, _addr) == 0;
-}
-
 int
 IceInternal::TcpAcceptor::effectivePort()
 {

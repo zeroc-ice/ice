@@ -125,4 +125,16 @@ module MetadataTest
         opObjectList2AMD(["java:type:{java.util.ArrayList}"] ObjectList inArg,
                       out ["java:type:Test.CustomList"] ObjectList outArg);
     };
+
+    ["protected", "java:getset"] class C2
+    {
+        IntSeq intSeqMember;
+        ["java:type:{java.util.ArrayList}"] IntSeq modifiedIntSeqMember;
+    };
+
+    class C3
+    {
+        ["protected"] IntSeq intSeqMember;
+        ["protected", "java:type:{java.util.ArrayList}"] IntSeq modifiedIntSeqMember;
+    };
 };

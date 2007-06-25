@@ -30,11 +30,27 @@ namespace Ice
         {
         }
 
+        public const int HandleSignals = 0;
+        public const int NoSignalHandling = 1;
+
         public Application()
         {
 #if !__MonoCS__
             bool rc = SetConsoleCtrlHandler(_handler, true); 
             Debug.Assert(rc);
+#endif
+        }
+
+        public Application(int signalPolicy)
+        {
+            _signalPolicy = signalPolicy;
+
+#if !__MonoCS__
+            if(_signalPolicy)
+            {
+                bool rc = SetConsoleCtrlHandler(_handler, true); 
+                Debug.Assert(rc);
+            }
 #endif
         }
         
@@ -122,7 +138,10 @@ namespace Ice
                 //
                 // The default is to destroy when a signal is received.
                 //
-                destroyOnInterrupt();
+                if(_signalPolicy == HandleSignals)
+                {
+                    destroyOnInterrupt();
+                }
                 
                 status = run(args);
             }
@@ -142,7 +161,10 @@ namespace Ice
             // (post-run), it would not make sense to release a held
             // signal to run shutdown or destroy.
             //
-            ignoreInterrupt();
+            if(_signalPolicy == HandleSignals)
+            {
+                ignoreInterrupt();
+            }
 
             Monitor.Enter(sync);
             while(_callbackInProgress)
@@ -209,92 +231,140 @@ namespace Ice
         
         public static void destroyOnInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_signalPolicy == HandleSignals)
             {
-                _callback = _destroyCallback;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = _destroyCallback;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = _destroyCallback;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = _destroyCallback;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
         
         public static void shutdownOnInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_signalPolicy == HandleSignals)
             {
-                _callback = _shutdownCallback;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = _shutdownCallback;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = _shutdownCallback;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = _shutdownCallback;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
         
         public static void ignoreInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_signalPolicy == HandleSignals)
             {
-                _callback = null;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = null;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = null;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = null;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
 
         public static void callbackOnInterrupt()
         {   
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_signalPolicy == HandleSignals)
             {
-                _released = true;
-                _callback = _userCallback;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _released = true;
+                    _callback = _userCallback;
+                    Monitor.Pulse(sync);
+                }
+                else
+                {
+                    _callback = _userCallback;
+                }
+                Monitor.Exit(sync);
             }
             else
             {
-                _callback = _userCallback;
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
             }
-            Monitor.Exit(sync);
         }
         
         public static void holdInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback != _holdCallback)
+            if(_signalPolicy == HandleSignals)
             {
-                _previousCallback = _callback;
-                _callback = _holdCallback;
-                _released = false;
+                Monitor.Enter(sync);
+                if(_callback != _holdCallback)
+                {
+                    _previousCallback = _callback;
+                    _callback = _holdCallback;
+                    _released = false;
+                }
+                // else, we were already holding signals
+                Monitor.Exit(sync);
             }
-            // else, we were already holding signals
-            Monitor.Exit(sync);
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
         }
         
         public static void releaseInterrupt()
         {
-            Monitor.Enter(sync);
-            if(_callback == _holdCallback)
+            if(_signalPolicy == HandleSignals)
             {
-                _callback = _previousCallback;
-                _released = true;
-                Monitor.Pulse(sync);
+                Monitor.Enter(sync);
+                if(_callback == _holdCallback)
+                {
+                    _callback = _previousCallback;
+                    _released = true;
+                    Monitor.Pulse(sync);
+                }
+                // Else nothing to release.
+                Monitor.Exit(sync);
             }
-            // Else nothing to release.
-            Monitor.Exit(sync);
+            else
+            {
+                Console.Error.WriteLine(_appName +
+                            ": warning: interrupt method called on Application configured to not handle interrupts.");
+            }
         }
 
         public static bool interrupted()
@@ -501,6 +571,7 @@ namespace Ice
         private static bool _interrupted = false;
         private static bool _released = false;
         private static bool _nohup = false;
+        private static int _signalPolicy = HandleSignals;
 
         private delegate Boolean EventHandler(int sig);
 #if !__MonoCS__

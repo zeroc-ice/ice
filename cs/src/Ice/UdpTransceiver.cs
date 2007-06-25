@@ -451,12 +451,6 @@ namespace IceInternal
             }
         }
         
-        public bool equivalent(string host, int port)
-        {
-            IPEndPoint addr = ((IPEndPoint)Network.getAddress(host, port));
-            return addr.Equals(_addr);
-        }
-        
         public int effectivePort()
         {
             return _addr.Port;

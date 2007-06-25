@@ -126,14 +126,6 @@ IceSSL::AcceptorI::toString() const
     return IceInternal::addrToString(_addr);
 }
 
-bool
-IceSSL::AcceptorI::equivalent(const string& host, int port) const
-{
-    struct sockaddr_in addr;
-    IceInternal::getAddress(host, port, addr);
-    return IceInternal::compareAddress(addr, _addr) == 0;
-}
-
 int
 IceSSL::AcceptorI::effectivePort()
 {

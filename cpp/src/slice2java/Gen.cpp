@@ -2596,7 +2596,20 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << " * @deprecated " << deprecateReason;
         out << nl << " **/";
     }
-    out << nl << "public " << s << ' ' << name << ';';
+
+    //
+    // Access visibility for class data members can be controlled by metadata.
+    // If none is specified, the default is public.
+    //
+    if(contained->containedType() == Contained::ContainedTypeClass &&
+       (p->hasMetaData("protected") || contained->hasMetaData("protected")))
+    {
+        out << nl << "protected " << s << ' ' << name << ';';
+    }
+    else
+    {
+        out << nl << "public " << s << ' ' << name << ';';
+    }
 
     //
     // Getter/Setter.
@@ -3406,7 +3419,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sp;
             out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
             out << sb;
-            out << nl << "__cb.__invoke" << spar << "this" << argsAMI << "null" << epar << ';';
+            out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
+            out << eb;
+
+            out << sp;
+            out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << contextParam << epar;
+            out << sb;
+            out << nl << opName << "_async" << spar << argsAMI << "__ctx" << "true" << epar << ';';
             out << eb;
 
             out << sp;
@@ -3421,10 +3440,10 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "@SuppressWarnings(\"unchecked\")";
             }
-            out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI 
-                << contextParam << epar;
+            out << nl << "private void" << nl << opName << "_async" << spar << paramsAMI
+                << contextParam << explicitContextParam << epar;
             out << sb;
-            out << nl << "if( __ctx == null)";
+            out << nl << "if(__explicitCtx &&  __ctx == null)";
             out << sb;
             out << nl << "__ctx = _emptyContext;";
             out << eb;

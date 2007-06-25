@@ -260,7 +260,7 @@ final class UnknownEndpointI extends EndpointI
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set.
+    // host if listening on INADDR_ANY.
     //
     public java.util.ArrayList
     expand()
@@ -271,17 +271,10 @@ final class UnknownEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Conenctor.
     //
     public boolean
-    equivalent(Transceiver transceiver)
-    {
-        return false;
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
+    equivalent(Connector connector)
     {
         return false;
     }

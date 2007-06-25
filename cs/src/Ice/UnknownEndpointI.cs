@@ -250,7 +250,7 @@ namespace IceInternal
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set.
+        // host if listening on INADDR_ANY.
         //
         public override ArrayList
         expand()
@@ -261,15 +261,9 @@ namespace IceInternal
         }
         
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public override bool equivalent(Transceiver transceiver)
-        {
-            return false;
-        }
-        
-        public override bool equivalent(Acceptor acceptor)
+        public override bool equivalent(Connector connector)
         {
             return false;
         }

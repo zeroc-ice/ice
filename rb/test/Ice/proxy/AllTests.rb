@@ -192,19 +192,23 @@ def allTests(communicator)
 
     # These two properties don't do anything to direct proxies so
     # first we test that.
-    property = propertyPrefix + ".Locator"
-    test(!b1.ice_getLocator())
-    prop.setProperty(property, "locator:default -p 10000")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(!b1.ice_getLocator())
-    prop.setProperty(property, "")
+    #
+    # Commented out because setting a locator or locator cache
+    # timeout on a direct proxy causes warning.
+    #
+    # property = propertyPrefix + ".Locator"
+    # test(!b1.ice_getLocator())
+    # prop.setProperty(property, "locator:default -p 10000")
+    # b1 = communicator.propertyToProxy(propertyPrefix)
+    # test(!b1.ice_getLocator())
+    # prop.setProperty(property, "")
 
-    property = propertyPrefix + ".LocatorCacheTimeout"
-    test(b1.ice_getLocatorCacheTimeout() == 0)
-    prop.setProperty(property, "1")
-    b1 = communicator.propertyToProxy(propertyPrefix)
-    test(b1.ice_getLocatorCacheTimeout() == 0)
-    prop.setProperty(property, "")
+    # property = propertyPrefix + ".LocatorCacheTimeout"
+    # test(b1.ice_getLocatorCacheTimeout() == 0)
+    # prop.setProperty(property, "1")
+    # b1 = communicator.propertyToProxy(propertyPrefix)
+    # test(b1.ice_getLocatorCacheTimeout() == 0)
+    # prop.setProperty(property, "")
 
     # Now retest with an indirect proxy.
     prop.setProperty(propertyPrefix, "test")
@@ -266,7 +270,7 @@ def allTests(communicator)
     # isCollocationOptimized is not implemented because the
     # collocation optimization is permanently disabled with IcePy.
     #
-    #property = propertyPrefix + ".CollocationOptimization"
+    #property = propertyPrefix + ".CollocationOptimized"
     #test(b1.ice_isCollocationOptimized())
     #prop.setProperty(property, "0")
     #b1 = communicator.propertyToProxy(propertyPrefix)
@@ -274,6 +278,8 @@ def allTests(communicator)
     #prop.setProperty(property, "")
 
     property = propertyPrefix + ".ThreadPerConnection"
+    prop.setProperty(property, "0")
+    b1 = communicator.propertyToProxy(propertyPrefix)
     test(!b1.ice_isThreadPerConnection())
     prop.setProperty(property, "1")
     b1 = communicator.propertyToProxy(propertyPrefix)
@@ -427,7 +433,10 @@ def allTests(communicator)
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     # Working?
-    p1.ice_ping();
+    ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl";
+    if !ssl
+        p1.ice_ping();
+    end
 
     # Two legal TCP endpoints expressed as opaque endpoints
     p1 = communicator.stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -440,16 +449,22 @@ def allTests(communicator)
     #
     p1 = communicator.stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
     pstr = communicator.proxyToString(p1);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if !ssl
+        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    else
+        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    end
 
     #
     # Try to invoke on the SSL endpoint to verify that we get a
-    # NoEndpointException.
+    # NoEndpointException (or ConnectionRefusedException when
+    # running with SSL).
     #
     begin
         p1.ice_ping();
         test(false);
     rescue Ice::NoEndpointException
+    rescue Ice::ConnectionRefusedException
     end
 
     #
@@ -460,7 +475,11 @@ def allTests(communicator)
     #
     p2 = derived.echo(p1);
     pstr = communicator.proxyToString(p2);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if !ssl
+        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    else
+        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    end
 
     puts "ok"
 

@@ -19,7 +19,9 @@ class ICE_API Application : private IceUtil::noncopyable
 {
 public:
 
-    Application();
+    enum SignalPolicy { HandleSignals, NoSignalHandling } ;
+
+    Application(SignalPolicy = HandleSignals);
     virtual ~Application();
 
     //
@@ -95,15 +97,18 @@ public:
     //
     static bool interrupted();
 
+private:
+
+    int mainInternal(int, char*[], const Ice::InitializationData&);
+
 #if defined(__SUNPRO_CC)
 //
 // Sun C++ 5.x does not like classes with no data members 
 //
-private:
     char _dummy;
 #endif
-
 };
+
 }
 
 #endif

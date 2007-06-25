@@ -109,9 +109,6 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
 
-                //
-                // TODO: Remove when we no longer support SSL for .NET 1.1.
-                //
                 for(int i = 0; i < endpts.Length; i++)
                 {
                     if(!threadPerConnection && endpts[i].requiresThreadPerConnection())
@@ -678,17 +675,6 @@ namespace IceInternal
         {
             // No mutex protection necessary, _endpoint is immutable.
             return _endpoint;
-        }
-        
-        public bool equivalent(EndpointI endp)
-        {
-            if(_transceiver != null)
-            {
-                return endp.equivalent(_transceiver);
-            }
-            
-            Debug.Assert(_acceptor != null);
-            return endp.equivalent(_acceptor);
         }
         
         public Ice.ConnectionI[] connections()

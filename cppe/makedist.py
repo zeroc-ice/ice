@@ -239,7 +239,7 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icee", "makedist.py"), \
     ]
-filesToRemove.extend(find("icee", ".dummy"))
+filesToRemove.extend(find("icee", ".gitignore"))
 for x in filesToRemove:
     os.remove(x)
 

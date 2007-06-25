@@ -22,12 +22,6 @@ Ice::LocalObject::operator==(const LocalObject& r) const
 }
 
 bool
-Ice::LocalObject::operator!=(const LocalObject& r) const
-{
-    return this != &r;
-}
-
-bool
 Ice::LocalObject::operator<(const LocalObject& r) const
 {
     return this < &r;

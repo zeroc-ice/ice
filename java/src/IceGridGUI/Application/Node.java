@@ -670,6 +670,7 @@ class Node extends TreeNode implements PropertySetParent
             update.variables = _descriptor.variables;
             update.removeVariables = new String[0];
             update.loadFactor = new IceGrid.BoxedString(_descriptor.loadFactor);
+            update.description = new IceGrid.BoxedString(_descriptor.description);
         }
         else
         {

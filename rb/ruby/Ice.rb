@@ -51,7 +51,7 @@ module Ice
     #
     # LocalObject.
     #
-    T_LocalObject = Ice.__declareClass('::Ice::LocalObject')
+    T_LocalObject = Ice.__declareLocalClass('::Ice::LocalObject')
     T_LocalObject.defineClass(nil, true, nil, [], [])
 
     #
@@ -185,13 +185,18 @@ module Ice
     # Ice::Application.
     #
     class Application
+        def initialize(signalPolicy=HandleSignals)
+            @@_signalPolicy = signalPolicy
+        end
         
         def main(args, configFile=nil, initData=nil)
             if @@_communicator
                 print $0 + ": only one instance of the Application class can be used"
                 return false
             end
-            @@_ctrlCHandler = CtrlCHandler.new
+            if @@_signalPolicy == HandleSignals
+                @@_ctrlCHandler = CtrlCHandler.new
+            end
 
             @@_interrupted = false
             @@_appName = $0
@@ -218,7 +223,9 @@ module Ice
                 #
                 # The default is to destroy when a signal is received.
                 #
-                Application::destroyOnInterrupt
+                if @@_signalPolicy == HandleSignals
+                    Application::destroyOnInterrupt
+                end
 
                 status = run(args)
             rescue => ex
@@ -232,7 +239,9 @@ module Ice
             # it would not make sense to release a held signal to run
             # shutdown or destroy.
             #
-            Application::ignoreInterrupt
+            if @@_signalPolicy == HandleSignals
+                Application::ignoreInterrupt
+            end
 
             @@_mutex.synchronize {
                 while @@_callbackInProgress
@@ -263,8 +272,10 @@ module Ice
                 @@_communicator = nil
             end
 
-            @@_ctrlCHandler.destroy()
-            @@_ctrlCHandler = nil
+            if @@_signalPolicy == HandleSignals
+                @@_ctrlCHandler.destroy()
+                @@_ctrlCHandler = nil
+            end
 
             return status
         end
@@ -281,13 +292,17 @@ module Ice
         end
 
         def Application.destroyOnInterrupt
-            @@_mutex.synchronize {
-                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-                    @@_released = true
-                    @@_condVar.signal
-                end
-                @@_ctrlCHandler.setCallback(@@_destroyOnInterruptCallbackProc)
-            }
+            if @@_signalPolicy == HandleSignals
+                @@_mutex.synchronize {
+                    if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                        @@_released = true
+                        @@_condVar.signal
+                    end
+                    @@_ctrlCHandler.setCallback(@@_destroyOnInterruptCallbackProc)
+                }
+            else
+                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+            end
         end
 
         # No support for this since no server side in Ice for ruby.
@@ -295,51 +310,67 @@ module Ice
         #end
 
         def Application.ignoreInterrupt
-            @@_mutex.synchronize {
-                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-                    @@_released = true
-                    @@_condVar.signal
-                end
-                @@_ctrlCHandler.setCallback(nil)
-            }
+            if @@_signalPolicy == HandleSignals
+                @@_mutex.synchronize {
+                    if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                        @@_released = true
+                        @@_condVar.signal
+                    end
+                    @@_ctrlCHandler.setCallback(nil)
+                }
+            else
+                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+            end
         end
 
         def Application.callbackOnInterrupt()
-            @@_mutex.synchronize {
-                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-                    @@_released = true
-                    @@_condVar.signal
-                end
-                @@_ctrlCHandler.setCallback(@@_callbackOnInterruptCallbackProc)
-            }
+            if @@_signalPolicy == HandleSignals
+                @@_mutex.synchronize {
+                    if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                        @@_released = true
+                        @@_condVar.signal
+                    end
+                    @@_ctrlCHandler.setCallback(@@_callbackOnInterruptCallbackProc)
+                }
+            else
+                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+            end
         end
 
         def Application.holdInterrupt
-            @@_mutex.synchronize {
-                if @@_ctrlCHandler.getCallback != @@_holdInterruptCallbackProc
-                    @@_previousCallback = @@_ctrlCHandler.getCallback
-                    @@_released = false
-                    @@_ctrlCHandler.setCallback(@@_holdInterruptCallbackProc)
-                end
-                # else, we were already holding signals
-            }
+            if @@_signalPolicy == HandleSignals
+                @@_mutex.synchronize {
+                    if @@_ctrlCHandler.getCallback != @@_holdInterruptCallbackProc
+                        @@_previousCallback = @@_ctrlCHandler.getCallback
+                        @@_released = false
+                        @@_ctrlCHandler.setCallback(@@_holdInterruptCallbackProc)
+                    end
+                    # else, we were already holding signals
+                }
+            else
+                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+            end
         end
 
         def Application.releaseInterrupt
-            @@_mutex.synchronize {
-                if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
-                    #
-                    # Note that it's very possible no signal is held;
-                    # in this case the callback is just replaced and
-                    # setting _released to true and signalling _condVar
-                    # do no harm.
-                    #
-                    @@_released = true
-                    @@_ctrlCHandler.setCallback(@@_previousCallback)
-                    @@_condVar.signal
-                end
-                # Else nothing to release.
-            }
+            if @@_signalPolicy == HandleSignals
+                @@_mutex.synchronize {
+                    if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
+                        #
+                        # Note that it's very possible no signal is held;
+                        # in this case the callback is just replaced and
+                        # setting _released to true and signalling _condVar
+                        # do no harm.
+                        #
+                        @@_released = true
+                        @@_ctrlCHandler.setCallback(@@_previousCallback)
+                        @@_condVar.signal
+                    end
+                    # Else nothing to release.
+                }
+            else
+                puts @@_appName + ": warning: interrupt method called on Application configured to not handle interrupts."
+            end
         end
 
         def Application.interrupted
@@ -417,6 +448,9 @@ module Ice
             }
         end
 
+        HandleSignals = 0
+        NoSignalHandling = 1
+
         @@_appName = nil
         @@_communicator = nil
         @@_application = nil
@@ -431,6 +465,7 @@ module Ice
         @@_holdInterruptCallbackProc = Proc.new { |sig| Application::holdInterruptCallback(sig) }
         @@_destroyOnInterruptCallbackProc = Proc.new { |sig| Application::destroyOnInterruptCallback(sig) }
         @@_callbackOnInterruptCallbackProc = Proc.new { |sig| Application::callbackOnInterruptCallback(sig) }
+        @@_signalPolicy = HandleSignals
     end
 
     #

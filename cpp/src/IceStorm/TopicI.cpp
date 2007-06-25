@@ -281,7 +281,7 @@ TopicI::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, const Ice::Curr
         _subscribers.erase(p);
     }
 
-    SubscriberPtr subscriber = Subscriber::create(_instance, newObj, qos);
+    SubscriberPtr subscriber = Subscriber::create(_instance, _name, newObj, qos);
     _subscribers.push_back(subscriber);
     _instance->subscriberPool()->add(subscriber);
 }
@@ -316,7 +316,7 @@ TopicI::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj, cons
         throw AlreadySubscribed();
     }
 
-    SubscriberPtr subscriber = Subscriber::create(_instance, obj, qos);
+    SubscriberPtr subscriber = Subscriber::create(_instance, _name, obj, qos);
     _subscribers.push_back(subscriber);
     _instance->subscriberPool()->add(subscriber);
 

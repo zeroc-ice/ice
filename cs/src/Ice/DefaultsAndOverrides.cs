@@ -84,7 +84,7 @@ namespace IceInternal
             }
 
             defaultCollocationOptimization =
-                properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
+                properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
 
             val = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
             if(val.Equals("Random"))

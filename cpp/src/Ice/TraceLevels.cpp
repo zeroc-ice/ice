@@ -24,7 +24,7 @@ IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
     retry(0),
     retryCat("Retry"),
     location(0),
-    locationCat("Location"),
+    locationCat("Locator"),
     slicing(0),
     slicingCat("Slicing"),
     gc(0),

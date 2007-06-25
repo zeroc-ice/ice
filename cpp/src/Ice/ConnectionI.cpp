@@ -2723,15 +2723,10 @@ Ice::ConnectionI::ThreadPerConnection::run()
     {
         _connection->run();
     }
-    catch(const Exception& ex)
-    {   
-        Error out(_connection->_logger);
-        out << "exception in thread per connection:\n" << _connection->toString() << ex; 
-    }
     catch(const std::exception& ex)
     {
         Error out(_connection->_logger);
-        out << "std::exception in thread per connection:\n" << _connection->toString() << ex.what();
+        out << "exception in thread per connection:\n" << _connection->toString() << ex.what();
     }
     catch(...)
     {

@@ -1,5 +1,8 @@
-Changes since version 3.2.0
----------------------------
+Changes since version 3.2.X (binary incompatible)
+-------------------------------------------------
+
+- LocalObject is now mapped to the Python base 'object' type. The
+  class Ice.LocalObject is now deprecated.
 
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to
@@ -7,7 +10,16 @@ Changes since version 3.2.0
   interfaces or after the PublishedEndpoints object adapter property
   has been changed by the user.
 
-- Changed to the throughput demo to better support cross-language
+Changes since version 3.2.0
+---------------------------
+
+- Fixed Communicator.isShutdown, which always returned None.
+
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- Changed the throughput demo to better support cross-language
   testing.
 
 - Fixed a bug that caused a crash when terminating a server with a

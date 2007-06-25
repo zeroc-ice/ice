@@ -107,6 +107,12 @@ To build a C++ demo, start Visual Studio 2005 and open the solution
 demo\demo.sln. Right click on the desired demo in the Solution Explorer
 window and select "Build".
 
+Note that if you are using Visual C++ 2005 Express Edition the Ice demos
+that require MFC (demo/Ice/MFC and demo/IcePatch2/MFC) will not compile
+since only the Professional edition contains MFC support. You can
+either ignore any compile errors these demos generate or just remove the
+projects from the solution entirely.
+
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
 

@@ -12,6 +12,8 @@
 
 #include <IceUtil/Config.h>
 
+#include <exception>
+
 namespace IceUtil
 {
 

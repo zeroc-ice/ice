@@ -102,84 +102,11 @@ cppSrcPreamble = commonPreamble + """
 
 """
 
-javaPropertyClass = commonPreamble + """
-package IceInternal;
-
-public class Property
-{
-    public Property(String pattern, boolean deprecated, String deprecatedBy)
-    {
-        _pattern = pattern;
-        _deprecated = deprecated;
-        _deprecatedBy = deprecatedBy;
-    }
-
-    public String
-    pattern()
-    {
-        return _pattern;
-    }
-
-    public boolean
-    deprecated()
-    {
-        return _deprecated;
-    }
-
-    public String
-    deprecatedBy()
-    {
-        return _deprecatedBy;
-    }
-
-    private String _pattern;
-    private boolean _deprecated;
-    private String _deprecatedBy;
-}
-"""
-
 javaPreamble = commonPreamble + """
 package IceInternal;
 
 public final class %(classname)s
 {
-"""
-
-csPropertyClass = commonPreamble + """
-namespace IceInternal
-{
-    public sealed class Property
-    {
-        public Property(string pattern, bool deprecated, string deprecatedBy)
-        {
-            _pattern = pattern;
-            _deprecated = deprecated;
-            _deprecatedBy = deprecatedBy;
-        }
-
-        public string
-        pattern()
-        {
-            return _pattern;
-        }
-
-        public bool
-        deprecated()
-        {
-            return _deprecated;
-        }
-
-        public string
-        deprecatedBy()
-        {
-            return _deprecatedBy;
-        }
-
-        private string _pattern;
-        private bool _deprecated;
-        private string _deprecatedBy;
-    }
-}
 """
 
 csPreamble = commonPreamble + """
@@ -198,59 +125,44 @@ def progError(msg):
     print >> sys.stderr, progname + ": " + msg
 
 #
-# Currently the processing of PropertyNames.def is going to take place
+# Currently the processing of PropertyNames.xml is going to take place
 # in two parts. One is using DOM to extract the property 'classes' such
 # as 'proxy', 'objectadapter', etc. The other part uses SAX to create
 # the language mapping source code.
 # 
 
 class PropertyClass:
-    def __init__(self, type, suffixes, nestedClasses):
-        self.type = type
-        self.suffixes = suffixes
-        self.nestedClasses = nestedClasses
+    def __init__(self, prefixOnly , childProperties):
+        self.prefixOnly = prefixOnly 
+        self.childProperties = childProperties
+
+    def getChildren(self):
+        return self.childProperties
+
+    def isPrefixOnly(self):
+        return self.prefixOnly
 
     def __repr__(self):
-        return repr((repr(self.type), repr(self.suffixes),
-            repr(self.nestedClasses)))
-
-def expandClassLists(classTree, list):
-    expansion = []
-    for nc in list:
-        if nc[0] == None:
-            expansion.extend(classTree[nc[1]].suffixes)
-        else:
-            for s in classTree[nc[1]].suffixes:
-                expansion.append("%s.%s" % (nc[0], s))
-        expansion.extend(expandClassLists(classTree, classTree[nc[1]].nestedClasses))
-    return expansion
+        return repr((repr(self.preifxOnly), repr(self.childProperties)))
 
 def initPropertyClasses(filename):
     doc = parse(filename)
-    propertyClassNodes = doc.getElementsByTagName('propertyClass')
-    propertyClassTree = {}
+    propertyClassNodes = doc.getElementsByTagName("class")
+    global propertyClasses
+    propertyClasses = {}
     for n in propertyClassNodes:
         className = n.attributes["name"].nodeValue
-        classType = n.attributes["type"].nodeValue
-        classValues = []
-        nestedClasses = []
+        classType = n.attributes["prefix-only"].nodeValue
+        properties = []
         for a in n.childNodes:
-            if a.localName == "suffix":
-                if a.attributes.has_key("value"):
-                    if a.attributes.has_key("class"):
-                        nestedClasses.append((a.attributes["value"].nodeValue, a.attributes["class"].nodeValue))
-                    else:
-                        classValues.append(a.attributes["value"].nodeValue)
-        propertyClassTree[className] = PropertyClass(classType, classValues, nestedClasses)
+            if a.localName == "suffix" and a.hasAttributes():
+                """Convert minidom maps to hashtables """
+                attmap = {}
+                for i in range(0, a.attributes.length):
+                    attmap[a.attributes.item(i).name] = a.attributes.item(i).value
+                properties.append(attmap)
 
-    #
-    # resolve and expand nested property classes.
-    #
-    global propertyClasses
-    for k in propertyClassTree.keys():
-        pc = propertyClassTree[k]
-        pc.suffixes.extend(expandClassLists(propertyClassTree, pc.nestedClasses))
-        propertyClasses[k] = (pc.type, pc.suffixes)
+        propertyClasses[className] = PropertyClass(classType.lower() == "true", properties)
 
 #
 # SAX part.
@@ -349,14 +261,23 @@ class PropertyHandler(ContentHandler):
         
         elif name == "property":
             propertyName = attrs.get("name", None)
-            if attrs.has_key("propertyClass"):
-                c = propertyClasses[attrs["propertyClass"]]
-                for p in c[1]:
+            if attrs.has_key("class"):
+                c = propertyClasses[attrs["class"]]
+                for p in c.getChildren():
                     if propertyName == None:
-                        self.startElement(name, { 'name': "%s" %  p})
+                        self.startElement(name, p)
                     else:
-                        self.startElement(name, { 'name': "%s.%s" % (propertyName, p)})
-                if c[0] == "placeholder":
+                        t = dict(p) 
+
+                        # deprecatedBy properties in property classes
+                        # are special. deprecatedBy attributes are
+                        # usually absolute or 'raw', but in the case of
+                        # a property class, they need to be expanded.
+                        if t.has_key("deprecatedBy"):
+                            t["deprecatedBy"] = "%s.%s.%s" % (self.currentSection, propertyName, t["deprecatedBy"])
+                        t['name'] =  "%s.%s" % (propertyName, p['name'])
+                        self.startElement(name, t) 
+                if c.isPrefixOnly():
                     return
 
             #
@@ -365,7 +286,6 @@ class PropertyHandler(ContentHandler):
             deprecatedBy = attrs.get("deprecatedBy", None)
             if deprecatedBy != None:
                 self.handleDeprecatedWithReplacement(propertyName, deprecatedBy)
-                pass
             elif attrs.get("deprecated", "false").lower() == "true" :
                 self.handleDeprecated(propertyName)
             else:
@@ -465,15 +385,10 @@ class JavaPropertyHandler(PropertyHandler):
             self.srcFile.close()
             if os.path.exists(self.className + ".java"):
                 os.remove(self.className + ".java")
-        if os.path.exists("Property.java"):
-            os.remove("Property.java")
 
     def startFiles(self):
         self.srcFile = file(self.className + ".java", "w")
         self.srcFile.write(javaPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        propertyClassFile = file("Property.java", "w")
-        propertyClassFile.write(javaPropertyClass)
-        propertyClassFile.close()
 
     def closeFiles(self):
         self.srcFile.write("\n   public static final Property[] validProps[] = \n" % \
@@ -527,8 +442,7 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    };\n\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".java", os.path.join(location, "..", "icej", "src", "IceInternal"))
-        shutil.move("Property.java", os.path.join(location, "..", "icej", "src", "IceInternal"))
+        shutil.move(self.className + ".java", os.path.join(location, "..", "java", "src", "IceInternal"))
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -540,15 +454,10 @@ class CSPropertyHandler(PropertyHandler):
             self.srcFile.close()
             if os.path.exists(self.className + ".cs"):
                 os.remove(self.className + ".cs")
-        if os.path.exists("Property.cs"):
-            os.remove("Property.cs")
 
     def startFiles(self):
         self.srcFile = file(self.className + ".cs", "w")
         self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        propertyClassFile = file("Property.cs", "w")
-        propertyClassFile.write(csPropertyClass)
-        propertyClassFile.close()
 
     def closeFiles(self):
         self.srcFile.write("        public static Property[][] validProps = \n" % \
@@ -597,8 +506,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("\n")
 
     def moveFiles(self, location):
-        shutil.move(self.className + ".cs", os.path.join(location, "..", "icecs", "src", "Ice"))
-        shutil.move("Property.cs", os.path.join(location, "..", "icecs", "src", "Ice"))
+        shutil.move(self.className + ".cs", os.path.join(location, "..", "cs", "src", "Ice"))
 
 class MultiHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -634,7 +542,7 @@ class MultiHandler(PropertyHandler):
         
     def handleDeprecated(self, propertyName):
         for f in self.handlers:
-            f.handleDeprecated(sectionName, cmdLine)
+            f.handleDeprecated(propertyName)
         
     def handleDeprecatedWithReplacement(self, propertyName, deprecatedBy):
         for f in self.handlers:
@@ -643,6 +551,10 @@ class MultiHandler(PropertyHandler):
     def handleProperty(self, propertyName):
         for f in self.handlers:
             f.handleProperty(propertyName)
+
+    def startElement(self, name, attrs):
+        for f in self.handlers:
+            f.startElement(name, attrs)
 
     def moveFiles(self, location):
         for f in self.handlers:

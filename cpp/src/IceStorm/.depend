@@ -18,8 +18,6 @@ Parser$(OBJEXT): Parser.cpp ../../include/IceUtil/DisableWarnings.h ../../includ
 IceStorm.cpp: ../../slice/IceStorm/IceStorm.ice ../../slice/Ice/SliceChecksumDict.ice ../../slice/Ice/Identity.ice
 IceStormInternal.cpp: ../IceStorm/IceStormInternal.ice ../../slice/IceStorm/IceStorm.ice ../../slice/Ice/SliceChecksumDict.ice ../../slice/Ice/Identity.ice ../../slice/Ice/Current.ice ../../slice/Ice/ObjectAdapterF.ice ../../slice/Ice/ConnectionF.ice ../../slice/Ice/BuiltinSequences.ice
 LinkRecord.cpp: ../IceStorm/LinkRecord.ice ../../slice/Ice/Identity.ice
-Event.cpp: ../IceStorm/Event.ice ../../slice/Ice/Current.ice ../../slice/Ice/ObjectAdapterF.ice ../../slice/Ice/ConnectionF.ice ../../slice/Ice/Identity.ice ../../slice/Ice/BuiltinSequences.ice
 ../../slice/IceStorm/IceStorm.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../IceStorm/IceStormInternal.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
 ../IceStorm/LinkRecord.ice: $(SLICE2CPP) $(SLICEPARSERLIB)
-../IceStorm/Event.ice: $(SLICE2CPP) $(SLICEPARSERLIB)

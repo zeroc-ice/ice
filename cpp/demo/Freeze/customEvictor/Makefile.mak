@@ -43,7 +43,6 @@ SPDBFLAGS        = /pdb:$(SERVER:.exe=.pdb)
 COPDBFLAGS       = /pdb:$(COLLOCATED:.exe=.pdb)
 !endif
 
-
 $(CLIENT): $(OBJS) $(COBJS)
 	$(LINK) $(LD_EXEFLAGS) $(CPDBFLAGS) $(SETARGV) $(OBJS) $(COBJS) $(PREOUT)$@ $(PRELIBS)$(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
@@ -54,17 +53,14 @@ $(SERVER): $(OBJS) $(SOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-
 Database.h Database.cpp: ItemInfo.ice $(SLICE2FREEZE)
 	del /q Database.h Database.cpp
 	$(SLICE2FREEZE) -I$(slicedir) --dict Database,string,Warehouse::ItemInfo Database ItemInfo.ice
 
-cleandb:
-	del /q db\log.* db\__catalog db\items
-
-clean:: cleandb
+clean::
 	del /q Item.h Item.cpp
 	del /q ItemInfo.h ItemInfo.cpp
 	del /q Database.h Database.cpp
+	for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
 include .depend

@@ -43,9 +43,9 @@
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
-        <delete quiet="true">
+        <delete quiet="true" includeEmptyDirs="true">
 	    <fileset dir="db/node"/>
-            <fileset dir="db/registry"/>
+	    <fileset dir="db/registry"/>
         </delete>
     </target>
 

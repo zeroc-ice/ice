@@ -460,8 +460,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 EndpointIPtr endp = _instance->endpointFactoryManager()->create(es, false);
                 if(endp != 0)
                 {
-                    vector<EndpointIPtr> endps = endp->expand();
-                    endpoints.insert(endpoints.end(), endps.begin(), endps.end());
+                    endpoints.push_back(endp);
                 }
                 else
                 {
@@ -661,7 +660,7 @@ IceInternal::ReferenceFactory::createFromProperties(const string& propertyPrefix
         }
     }
 
-    property = propertyPrefix + ".CollocationOptimization";
+    property = propertyPrefix + ".CollocationOptimized";
     if(!properties->getProperty(property).empty())
     {
         ref = ref->changeCollocationOptimization(properties->getPropertyAsInt(property) > 0);
@@ -809,7 +808,7 @@ IceInternal::ReferenceFactory::checkForUnknownProperties(const string& prefix)
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimization",
+        "CollocationOptimized",
         "ThreadPerConnection"
     };
 

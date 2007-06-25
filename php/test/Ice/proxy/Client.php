@@ -241,19 +241,23 @@ function allTests()
 
     // These two properties don't do anything to direct proxies so
     // first we test that.
-    $property = $propertyPrefix . ".Locator";
-    test(!$b1->ice_getLocator());
-    $ICE->setProperty($property, "locator:default -p 10000");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
-    test(!$b1->ice_getLocator());
-    $ICE->setProperty($property, "");
+    //
+    // Commented out because setting a locator or locator cache
+    // timeout on a direct proxy causes warning.
+    //
+    // $property = $propertyPrefix . ".Locator";
+    // test(!$b1->ice_getLocator());
+    // $ICE->setProperty($property, "locator:default -p 10000");
+    // $b1 = $ICE->propertyToProxy($propertyPrefix);
+    // test(!$b1->ice_getLocator());
+    // $ICE->setProperty($property, "");
 
-    $property = $propertyPrefix . ".LocatorCacheTimeout";
-    test($b1->ice_getLocatorCacheTimeout() == 0);
-    $ICE->setProperty($property, "1");
-    $b1 = $ICE->propertyToProxy($propertyPrefix);
-    test($b1->ice_getLocatorCacheTimeout() == 0);
-    $ICE->setProperty($property, "");
+    // $property = $propertyPrefix . ".LocatorCacheTimeout";
+    // test($b1->ice_getLocatorCacheTimeout() == 0);
+    // $ICE->setProperty($property, "1");
+    // $b1 = $ICE->propertyToProxy($propertyPrefix);
+    // test($b1->ice_getLocatorCacheTimeout() == 0);
+    // $ICE->setProperty($property, "");
 
     // Now retest with an indirect proxy.
     $ICE->setProperty($propertyPrefix, "test");
@@ -311,7 +315,7 @@ function allTests()
     test($b1->ice_getEndpointSelection() == Ice_EndpointSelectionType::Ordered);
     $ICE->setProperty($property, "");
 
-    //$property = $propertyPrefix . ".CollocationOptimization";
+    //$property = $propertyPrefix . ".CollocationOptimized";
     //test($b1->ice_isCollocationOptimized());
     //$ICE->setProperty($property, "0");
     //$b1 = $ICE->propertyToProxy($propertyPrefix);
@@ -319,6 +323,8 @@ function allTests()
     //$ICE->setProperty($property, "");
 
     $property = $propertyPrefix . ".ThreadPerConnection";
+    $ICE->setProperty($property, "0");
+    $b1 = $ICE->propertyToProxy($propertyPrefix);
     test(!$b1->ice_isThreadPerConnection());
     $ICE->setProperty($property, "1");
     $b1 = $ICE->propertyToProxy($propertyPrefix);
@@ -488,7 +494,11 @@ function allTests()
     test($pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     // Working?
-    $p1->ice_ping();
+    $ssl = $ICE->getProperty("Ice.Default.Protocol") == "ssl";
+    if(!$ssl)
+    {
+        $p1->ice_ping();
+    }
 
     // Two legal TCP endpoints expressed as opaque endpoints
     $p1 = $ICE->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -501,18 +511,26 @@ function allTests()
     //
     $p1 = $ICE->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
     $pstr = $ICE->proxyToString($p1);
-    test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if(!$ssl)
+    {
+        test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    }
+    else
+    {
+        test($pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    }
 
     //
     // Try to invoke on the SSL endpoint to verify that we get a
-    // NoEndpointException.
+    // NoEndpointException (or ConnectionRefusedException when
+    // running with SSL).
     //
     try
     {
         $p1->ice_ping();
         test(false);
     }
-    catch(Ice_UnknownLocalException $ex) //catch(Ice_NoEndpointException $ex)
+    catch(Ice_UnknownLocalException $ex)
     {
     }
 
@@ -524,7 +542,14 @@ function allTests()
     //
     $p2 = $derived->_echo($p1);
     $pstr = $ICE->proxyToString($p2);
-    test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if(!$ssl)
+    {
+        test($pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    }
+    else
+    {
+        test($pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    }
 
     echo "ok\n";
 

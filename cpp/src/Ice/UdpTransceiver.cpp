@@ -370,14 +370,6 @@ IceInternal::UdpTransceiver::checkSendSize(const Buffer& buf, size_t messageSize
     }
 }
 
-bool
-IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
-{
-    struct sockaddr_in addr;
-    getAddress(host, port, addr);
-    return compareAddress(addr, _addr) == 0;
-}
-
 int
 IceInternal::UdpTransceiver::effectivePort() const
 {
@@ -457,10 +449,19 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
         }
         if(IN_MULTICAST(ntohl(_addr.sin_addr.s_addr)))
         {
-            struct sockaddr_in addr;
-            getAddress("0.0.0.0", port, addr);
             setReuseAddress(_fd, true);
+            struct sockaddr_in addr;
+
+            //
+            // Windows does not allow binding to the mcast address itself
+            // so we bind to INADDR_ANY (0.0.0.0) instead.
+            //
+#ifdef _WIN32
+            getAddress("0.0.0.0", port, addr);
             doBind(_fd, addr);
+#else
+            doBind(_fd, _addr);
+#endif
             if(mcastInterface.length() > 0)
             {
                 getAddress(mcastInterface, port, addr);

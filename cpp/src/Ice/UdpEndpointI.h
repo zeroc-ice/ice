@@ -22,8 +22,8 @@ class UdpEndpointI : public EndpointI
 {
 public:
 
-    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, Ice::Int, bool,
-                 const std::string&, bool, bool);
+    UdpEndpointI(const InstancePtr&, const std::string&, Ice::Int, const std::string&, Ice::Int, Ice::Byte, Ice::Byte,
+                 Ice::Byte, Ice::Byte, bool, const std::string&, bool);
     UdpEndpointI(const InstancePtr&, const std::string&, bool);
     UdpEndpointI(BasicStream*);
 
@@ -42,8 +42,7 @@ public:
     virtual std::vector<ConnectorPtr> connectors() const;
     virtual AcceptorPtr acceptor(EndpointIPtr&, const std::string&) const;
     virtual std::vector<EndpointIPtr> expand() const;
-    virtual bool equivalent(const TransceiverPtr&) const;
-    virtual bool equivalent(const AcceptorPtr&) const;
+    virtual bool equivalent(const ConnectorPtr&) const;
 
     virtual bool operator==(const EndpointI&) const;
     virtual bool operator!=(const EndpointI&) const;
@@ -57,7 +56,6 @@ private:
     // hidding these operators.
     //
     using LocalObject::operator==;
-    using LocalObject::operator!=;
     using LocalObject::operator<;
 #endif
 
@@ -76,7 +74,6 @@ private:
     const bool _connect;
     const std::string _connectionId;
     const bool _compress;
-    const bool _oaEndpoint;
 };
 
 class UdpEndpointFactory : public EndpointFactory

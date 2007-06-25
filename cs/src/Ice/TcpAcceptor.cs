@@ -79,19 +79,23 @@ namespace IceInternal
         {
             Socket fd = Network.createSocket(false);
             Network.setBlock(fd, false);
-            Network.doConnect(fd, _addr, -1);
+            //
+            // .Net does not allow connecting to 0.0.0.0
+            //
+            if(_addr.Address.ToString().Equals("0.0.0.0"))
+            {
+                Network.doConnect(fd, Network.getAddress("127.0.0.1", _addr.Port), -1);
+            }
+            else
+            {
+                Network.doConnect(fd, _addr, -1);
+            }
             Network.closeSocket(fd);
         }
 
         public override string ToString()
         {
             return Network.addrToString(_addr);
-        }
-        
-        internal bool equivalent(string host, int port)
-        {
-            EndPoint addr = Network.getAddress(host, port);
-            return addr.Equals(_addr);
         }
         
         internal virtual int effectivePort()

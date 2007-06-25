@@ -37,6 +37,8 @@ public:
     virtual bool operator==(const IceInternal::Connector&) const;
     virtual bool operator!=(const IceInternal::Connector&) const;
     virtual bool operator<(const IceInternal::Connector&) const;
+
+    bool equivalent(const std::string&, int) const;
     
 private:
     

@@ -1,15 +1,19 @@
-Changes since version 3.2.X (binary incompabible)
+Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
 Changes since version 3.2.0
 ---------------------------     
 
-- Changed to the throughput demo to better support cross-language
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- Changed the throughput demo to better support cross-language
   testing.
 
-- Added timeout, proxy and binding test.
+- Added timeout, proxy and binding tests.
 
-- Ice::ObjectPrx::ice_getEndpointSelection now returns correct
+- Ice::ObjectPrx::ice_getEndpointSelection now returns the correct
   endpoint enumeration value.
 
 - Trailing characters past the adapter id in a stringified proxy

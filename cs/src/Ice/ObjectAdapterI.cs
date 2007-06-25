@@ -348,11 +348,11 @@ namespace Ice
                 instance_ = null;
                 _threadPool = null;
                 _communicator = null;
-                _incomingConnectionFactories = null;
                 _routerEndpoints = null;
                 _routerInfo = null;
                 _publishedEndpoints = null;
                 _locatorInfo = null;
+                _connectors = null;
 
                 objectAdapterFactory = _objectAdapterFactory;
                 _objectAdapterFactory = null;
@@ -584,6 +584,12 @@ namespace Ice
                 oldPublishedEndpoints = _publishedEndpoints;
                 _publishedEndpoints = parsePublishedEndpoints();
 
+                _connectors.Clear();
+                foreach(IceInternal.IncomingConnectionFactory factory in _incomingConnectionFactories)
+                {
+                    _connectors.AddRange(factory.endpoint().connectors());
+                }
+
                 locatorInfo = _locatorInfo;
                 if(!_noConfig)
                 {
@@ -654,12 +660,11 @@ namespace Ice
                 //
                 for(int i = 0; i < endpoints.Length; ++i)
                 {
-                    int sz = _incomingConnectionFactories.Count;
+                    int sz = _connectors.Count;
                     for(int j = 0; j < sz; j++)
                     {
-                        IceInternal.IncomingConnectionFactory factory
-                            = (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[j];
-                        if(factory.equivalent(endpoints[i]))
+                        IceInternal.Connector connector = (IceInternal.Connector)_connectors[j];
+                        if(endpoints[i].equivalent(connector))
                         {
                             return true;
                         }
@@ -779,12 +784,14 @@ namespace Ice
             _activateOneOffDone = false;
             _name = name;
             _incomingConnectionFactories = new ArrayList();
+            _connectors = new ArrayList();
             _publishedEndpoints = new ArrayList();
             _routerEndpoints = new ArrayList();
             _routerInfo = null;
             _directCount = 0;
             _waitForActivate = false;
             _noConfig = noConfig;
+            _processId = null;
             
             if(_noConfig)
             {
@@ -934,20 +941,19 @@ namespace Ice
                     {
                         endpoints = parseEndpoints(endpointInfo);
                     }
-                    for(int i = 0; i < endpoints.Count; ++i)
+                    foreach(IceInternal.EndpointI endp in endpoints)
                     {
-                        IceInternal.EndpointI endp = (IceInternal.EndpointI)endpoints[i];
-                        //
-                        // TODO: Remove when we no longer support SSL for .NET 1.1.
-                        //
                         if(!_threadPerConnection && endp.requiresThreadPerConnection())
                         {
                             Ice.FeatureNotSupportedException ex = new Ice.FeatureNotSupportedException();
                             ex.unsupportedFeature = "endpoint requires thread-per-connection:\n" + endp.ToString();
                             throw ex;
                         }
-                        _incomingConnectionFactories.Add(
-                            new IceInternal.IncomingConnectionFactory(instance, endp, this, _name));
+                        IceInternal.IncomingConnectionFactory factory =
+                            new IceInternal.IncomingConnectionFactory(instance, endp, this, _name);
+                        _incomingConnectionFactories.Add(factory);
+
+                        _connectors.AddRange(factory.endpoint().connectors());
                     }
                     if(endpoints.Count == 0)
                     {
@@ -1278,9 +1284,13 @@ namespace Ice
             {
                 try
                 {
-                    Process servant = new ProcessI(_communicator);
-                    Ice.ObjectPrx process = createDirectProxy(addWithUUID(servant).ice_getIdentity());
-                    locatorRegistry.setServerProcessProxy(serverId, ProcessPrxHelper.uncheckedCast(process));
+                    if(_processId == null)
+                    {
+                        Process servant = new ProcessI(_communicator);
+                        _processId = addWithUUID(servant).ice_getIdentity();
+                    }
+                    locatorRegistry.setServerProcessProxy(serverId,
+                                                ProcessPrxHelper.uncheckedCast(createDirectProxy(_processId)));
                 }
                 catch(ServerNotFoundException)
                 {
@@ -1394,6 +1404,7 @@ namespace Ice
         private readonly string _id;
         private readonly string _replicaGroupId;
         private ArrayList _incomingConnectionFactories;
+        private ArrayList _connectors;
         private ArrayList _routerEndpoints;
         private IceInternal.RouterInfo _routerInfo;
         private ArrayList _publishedEndpoints;
@@ -1404,5 +1415,6 @@ namespace Ice
         private bool _destroyed;
         private bool _noConfig;
         private bool _threadPerConnection;
+        private Identity _processId;
     }
 }

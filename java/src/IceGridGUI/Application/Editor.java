@@ -87,6 +87,8 @@ public class Editor extends EditorBase
 
     protected void discardUpdate()
     {
+        Root root = _target.getRoot();
+
         if(_target.isEphemeral())
         {
             _target.delete();
@@ -95,6 +97,7 @@ public class Editor extends EditorBase
         {
             _target.getCoordinator().getCurrentTab().showNode(_target);
         }
+        root.cancelEdit();
     }
 
     protected void appendProperties(DefaultFormBuilder builder)

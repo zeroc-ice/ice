@@ -442,8 +442,7 @@ namespace IceInternal
                     EndpointI endp = instance_.endpointFactoryManager().create(es, false);
                     if(endp != null)
                     {
-                        ArrayList endps = endp.expand();
-                        endpoints.AddRange(endps);
+                        endpoints.Add(endp);
                     }
                     else
                     {
@@ -626,7 +625,7 @@ namespace IceInternal
                 }
             }
 
-            property = propertyPrefix + ".CollocationOptimization";
+            property = propertyPrefix + ".CollocationOptimized";
             if(properties.getProperty(property).Length != 0)
             {
                 @ref = @ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
@@ -800,7 +799,7 @@ namespace IceInternal
             "LocatorCacheTimeout",
             "Locator",
             "Router",
-            "CollocationOptimization",
+            "CollocationOptimized",
             "ThreadPerConnection"
         };
 

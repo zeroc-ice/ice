@@ -11,19 +11,6 @@ package IceInternal;
 
 abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
 {
-    public java.lang.Object
-    clone()
-        throws java.lang.CloneNotSupportedException
-    {
-        return super.clone();
-    }
-
-    public int
-    ice_hash()
-    {
-        return hashCode();
-    }
-
     public String
     toString()
     {
@@ -112,16 +99,14 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set.
+    // host if listening on INADDR_NAY.
     //
     public abstract java.util.ArrayList expand();
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor.
+    // Check whether the endpoint is equivalent to a specific Connector.
     //
-    public abstract boolean equivalent(Transceiver transceiver);
-    public abstract boolean equivalent(Acceptor acceptor);
+    public abstract boolean equivalent(Connector connector);
 
     //
     // Compare endpoints for sorting purposes.

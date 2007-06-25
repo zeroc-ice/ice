@@ -3031,6 +3031,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     bool isClass = false;
     bool propertyMapping = false;
     bool isValue = false;
+    bool isProtected = false;
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
     assert(cont);
     if(StructPtr::dynamicCast(cont))
@@ -3057,6 +3058,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         {
             propertyMapping = true;
         }
+        isProtected = cont->hasMetaData("protected") || p->hasMetaData("protected");
     }
 
     _out << sp;
@@ -3072,14 +3074,28 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     {
         dataMemberName += "_prop";
     }
-    _out << nl << (propertyMapping ? "private" : "public") << ' ' << type << ' ' << dataMemberName << ';';
+
+    _out << nl;
+    if(propertyMapping)
+    {
+        _out << "private";
+    }
+    else if(isProtected)
+    {
+        _out << "protected";
+    }
+    else
+    {
+        _out << "public";
+    }
+    _out << ' ' << type << ' ' << dataMemberName << ';';
 
     if(!propertyMapping)
     {
         return;
     }
 
-    _out << nl << "public";
+    _out << nl << (isProtected ? "protected" : "public");
     if(!isValue)
     {
         _out << " virtual";
@@ -3501,12 +3517,20 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp;
             _out << nl << "public void " << opName << "_async" << spar << paramsAMI << epar;
             _out << sb;
-            _out << nl << "cb__.invoke__" << spar << "this" << argsAMI << "null" << epar << ';';
+            _out << nl << opName << "_async" << spar << argsAMI << "null" << "false" << epar << ';';
             _out << eb;
 
+            _out << sp;
             _out << nl << "public void " << opName << "_async" << spar << paramsAMI << "Ice.Context ctx__" << epar;
             _out << sb;
-            _out << nl << "if(ctx__ == null)";
+            _out << nl << opName << "_async" << spar << argsAMI << "ctx__" << "true" << epar << ';';
+            _out << eb;
+
+            _out << sp;
+            _out << nl << "public void " << opName << "_async" << spar << paramsAMI << "Ice.Context ctx__"
+                 << "bool explicitContext__" << epar;
+            _out << sb;
+            _out << nl << "if(explicitContext__ && ctx__ == null)";
             _out << sb;
             _out << nl << "ctx__ = emptyContext_;";
             _out << eb;

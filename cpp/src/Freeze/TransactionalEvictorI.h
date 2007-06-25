@@ -104,7 +104,7 @@ private:
 
     Ice::ObjectPtr loadCachedServant(const Ice::Identity&, ObjectStore<TransactionalEvictorElement>*);
 
-    void evict(const TransactionalEvictorElementPtr&, bool);
+    void evict(const TransactionalEvictorElementPtr&);
     void fixEvictPosition(const TransactionalEvictorElementPtr&);
 
     void servantNotFound(const char*, int, const Ice::Current&);

@@ -33,6 +33,6 @@ server.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) -r:$(bindir)/glacier2cs.dll $(subst /,$(DSEP),$^)
 
 clean::
-	rm -rf db/node db/registry
+	-rm -rf db/node db/registry db/replica-*
 
 include .depend

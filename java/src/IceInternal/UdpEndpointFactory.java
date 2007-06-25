@@ -29,9 +29,9 @@ final class UdpEndpointFactory implements EndpointFactory
     }
 
     public EndpointI
-    create(String str, boolean oaEndpoint)
+    create(String str, boolean server)
     {
-        return new UdpEndpointI(_instance, str, oaEndpoint);
+        return new UdpEndpointI(_instance, str, server);
     }
 
     public EndpointI

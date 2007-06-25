@@ -45,9 +45,6 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
-clean::
-	del /q Event.cpp Event.h
-
 !if "$(OPTIMIZE)" == "yes"
 
 all::
@@ -61,7 +58,8 @@ all::
 
 clean::
 	del /q build.txt
-	del /q db\topicmanager db\log.*
-	del /q db2\topicmanager db2\log.*
+	del /q Event.cpp Event.h
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	for %f in (db2\*) do if not %f == db2\.gitignore del /q %f
 
 !include .depend

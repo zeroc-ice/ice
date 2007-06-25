@@ -365,6 +365,7 @@ Ice::ObjectAdapterI::destroy()
         _routerInfo = 0;
         _publishedEndpoints.clear();
         _locatorInfo = 0;
+        _connectors.clear();
 
         objectAdapterFactory = _objectAdapterFactory;
         _objectAdapterFactory = 0;
@@ -582,6 +583,14 @@ Ice::ObjectAdapterI::refreshPublishedEndpoints()
         oldPublishedEndpoints = _publishedEndpoints;
         _publishedEndpoints = parsePublishedEndpoints();
 
+        _connectors.clear();
+        vector<IncomingConnectionFactoryPtr>::const_iterator p;
+        for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
+        {
+            vector<ConnectorPtr> cons = (*p)->endpoint()->connectors();
+            _connectors.insert(_connectors.end(), cons.begin(), cons.end());
+        }
+
         locatorInfo = _locatorInfo;
         if(!_noConfig)
         {
@@ -651,15 +660,14 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 
     //
     // Proxies which have at least one endpoint in common with the
-    // endpoints used by this object adapter's incoming connection
-    // factories are considered local.
+    // endpoints used by this object adapter are considered local.
     //
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
     {
-        vector<IncomingConnectionFactoryPtr>::const_iterator q;
-        for(q = _incomingConnectionFactories.begin(); q != _incomingConnectionFactories.end(); ++q)
+        vector<ConnectorPtr>::const_iterator q;
+        for(q = _connectors.begin(); q != _connectors.end(); ++q)
         {
-            if((*q)->equivalent(*p))
+            if((*p)->equivalent(*q))
             {
                 return true;
             }
@@ -927,7 +935,11 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
             }
             for(vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
             {
-                _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this, _name));
+                IncomingConnectionFactoryPtr factory = new IncomingConnectionFactory(instance, *p, this, _name);
+                _incomingConnectionFactories.push_back(factory);
+
+                vector<ConnectorPtr> cons = factory->endpoint()->connectors();
+                _connectors.insert(_connectors.end(), cons.begin(), cons.end());
             }
             if(endpoints.empty())
             {
@@ -1225,9 +1237,12 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     {
         try
         {
-            ProcessPtr servant = new ProcessI(_communicator);
-            Ice::ObjectPrx process = createDirectProxy(addWithUUID(servant)->ice_getIdentity());
-            locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(process));
+            if(_processId.name == "")
+            {
+                ProcessPtr servant = new ProcessI(_communicator);
+                _processId = addWithUUID(servant)->ice_getIdentity();
+            }
+            locatorRegistry->setServerProcessProxy(serverId, ProcessPrx::uncheckedCast(createDirectProxy(_processId)));
         }
         catch(const ServerNotFoundException&)
         {

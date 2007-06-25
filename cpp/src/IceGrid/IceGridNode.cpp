@@ -742,7 +742,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     // collocation optimization
     //
     initData.properties->setProperty("Ice.ThreadPerConnection", "");
-    initData.properties->setProperty("Ice.Default.CollocationOptimization", "0");
+    initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

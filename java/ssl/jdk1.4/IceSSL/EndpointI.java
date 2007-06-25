@@ -14,7 +14,7 @@ final class EndpointI extends IceInternal.EndpointI
     final static short TYPE = 2;
 
     public
-    EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean oae)
+    EndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co)
     {
         _instance = instance;
         _host = ho;
@@ -22,19 +22,17 @@ final class EndpointI extends IceInternal.EndpointI
         _timeout = ti;
         _connectionId = conId;
         _compress = co;
-        _oaEndpoint = oae;
         calcHashValue();
     }
 
     public
-    EndpointI(Instance instance, String str, boolean oaEndpoint)
+    EndpointI(Instance instance, String str, boolean server)
     {
         _instance = instance;
         _host = null;
         _port = 0;
         _timeout = -1;
         _compress = false;
-        _oaEndpoint = oaEndpoint;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -138,7 +136,7 @@ final class EndpointI extends IceInternal.EndpointI
             _host = _instance.defaultHost();
             if(_host == null)
             {
-                if(_oaEndpoint)
+                if(server)
                 {
                     _host = "0.0.0.0";
                 }
@@ -165,7 +163,6 @@ final class EndpointI extends IceInternal.EndpointI
         _timeout = s.readInt();
         _compress = s.readBool();
         s.endReadEncaps();
-        _oaEndpoint = false;
         calcHashValue();
     }
 
@@ -242,7 +239,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
+            return new EndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
         }
     }
 
@@ -258,7 +255,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
+            return new EndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
         }
     }
 
@@ -286,7 +283,7 @@ final class EndpointI extends IceInternal.EndpointI
         }
         else
         {
-            return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
+            return new EndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
         }
     }
 
@@ -359,14 +356,13 @@ final class EndpointI extends IceInternal.EndpointI
     acceptor(IceInternal.EndpointIHolder endpoint, String adapterName)
     {
         AcceptorI p = new AcceptorI(_instance, adapterName, _host, _port);
-        endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress,
-                                       _oaEndpoint);
+        endpoint.value = new EndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
         return p;
     }
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set.
+    // host if listening on INADDR_ANY.
     //
     public java.util.ArrayList
     expand()
@@ -379,9 +375,9 @@ final class EndpointI extends IceInternal.EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                if(!_oaEndpoint || hosts.size() == 1 || !host.equals("127.0.0.1"))
+                if(hosts.size() == 1 || !host.equals("127.0.0.1"))
                 {
-                    endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress, _oaEndpoint));
+                    endps.add(new EndpointI(_instance, host, _port, _timeout, _connectionId, _compress));
                                         
                 }
             }
@@ -394,28 +390,21 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Connector.
     //
     public boolean
-    equivalent(IceInternal.Transceiver transceiver)
+    equivalent(IceInternal.Connector connector)
     {
-        return false;
-    }
-
-    public boolean
-    equivalent(IceInternal.Acceptor acceptor)
-    {
-        AcceptorI sslAcceptor = null;
+        ConnectorI sslConnector = null;
         try
         {
-            sslAcceptor = (AcceptorI)acceptor;
+            sslConnector = (ConnectorI)connector;
         }
         catch(ClassCastException ex)
         {
             return false;
         }
-        return sslAcceptor.equivalent(_host, _port);
+        return sslConnector.equivalent(_host, _port);
     }
 
     public int
@@ -525,6 +514,5 @@ final class EndpointI extends IceInternal.EndpointI
     private int _timeout;
     private String _connectionId = "";
     private boolean _compress;
-    private boolean _oaEndpoint;
     private int _hashCode;
 }

@@ -167,6 +167,20 @@ namespace IceSSL
             return IceInternal.Network.addrToString(addr_);
         }
 
+        internal bool equivalent(string host, int port)
+        {
+            IPEndPoint addr; 
+            try
+            {
+                addr = IceInternal.Network.getAddress(host, port);
+            }
+            catch(Ice.DNSException)
+            {
+                return false;
+            }
+            return addr.Equals(addr_);
+        }
+
         //
         // Only for use by EndpointI.
         //

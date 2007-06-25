@@ -791,32 +791,44 @@ public final class Network
     getAddresses(String host, int port)
     {
         java.util.ArrayList addresses = new java.util.ArrayList();
-        try
+        if(host.equals("0.0.0.0"))
         {
-            java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
-            for(int i = 0; i < addrs.length; ++i)
+            java.util.ArrayList hosts = getLocalHosts();
+            java.util.Iterator p = hosts.iterator();
+            while(p.hasNext())
             {
-                if(addrs[i] instanceof java.net.Inet4Address)
-                {
-                    addresses.add(new java.net.InetSocketAddress(addrs[i], port));
-                }
+                addresses.add(getAddress((String)p.next(), port));
             }
         }
-        catch(java.net.UnknownHostException ex)
+        else
         {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            throw e;
-        }
+            try
+            {
+                java.net.InetAddress[] addrs = java.net.InetAddress.getAllByName(host);
+                for(int i = 0; i < addrs.length; ++i)
+                {
+                    if(addrs[i] instanceof java.net.Inet4Address)
+                    {
+                        addresses.add(new java.net.InetSocketAddress(addrs[i], port));
+                    }
+                }
+            }
+            catch(java.net.UnknownHostException ex)
+            {
+                Ice.DNSException e = new Ice.DNSException();
+                e.host = host;
+                throw e;
+            }
 
-        //
-        // No Inet4Address available.
-        //
-        if(addresses.size() == 0)
-        {
-            Ice.DNSException e = new Ice.DNSException();
-            e.host = host;
-            throw e;
+            //
+            // No Inet4Address available.
+            //
+            if(addresses.size() == 0)
+            {
+                Ice.DNSException e = new Ice.DNSException();
+                e.host = host;
+                throw e;
+            }
         }
 
         return addresses;

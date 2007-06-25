@@ -428,8 +428,7 @@ public final class ReferenceFactory
                 EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                 if(endp != null)
                 {
-                    java.util.ArrayList endps = endp.expand();
-                    endpoints.addAll(endps);
+                    endpoints.add(endp);
                 }
                 else
                 {
@@ -613,7 +612,7 @@ public final class ReferenceFactory
             }
         }
 
-        property = propertyPrefix + ".CollocationOptimization";
+        property = propertyPrefix + ".CollocationOptimized";
         if(properties.getProperty(property).length() != 0)
         {
             ref = ref.changeCollocationOptimization(properties.getPropertyAsInt(property) > 0);
@@ -789,7 +788,7 @@ public final class ReferenceFactory
         "LocatorCacheTimeout",
         "Locator",
         "Router",
-        "CollocationOptimization",
+        "CollocationOptimized",
         "ThreadPerConnection"
     };
 

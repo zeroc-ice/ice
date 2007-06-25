@@ -245,6 +245,21 @@ final class ConnectorI implements IceInternal.Connector, java.lang.Comparable
         return _hashCode;
     }
 
+    final boolean
+    equivalent(String host, int port)
+    {
+        java.net.InetSocketAddress addr;
+        try
+        {
+            addr = IceInternal.Network.getAddress(host, port);
+        }
+        catch(Ice.DNSException ex)
+        {
+            return false;
+        }
+        return addr.equals(_addr);
+    }
+
     //
     // Only for use by EndpointI
     //

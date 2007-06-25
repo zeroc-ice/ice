@@ -73,7 +73,8 @@ private:
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
 void
-instantiateServer(const AdminPrx& admin, const string& templ, const string& node, const map<string, string>& params)
+instantiateServer(const AdminPrx& admin, const string& templ, const string& node, const map<string, string>& params,
+                  const string& application = string("Test"))
 {
     ServerInstanceDescriptor desc;
     desc._cpp_template = templ;
@@ -82,15 +83,20 @@ instantiateServer(const AdminPrx& admin, const string& templ, const string& node
     nodeUpdate.name = node;
     nodeUpdate.serverInstances.push_back(desc);
     ApplicationUpdateDescriptor update;
-    update.name = "Test";
+    update.name = application;
     update.nodes.push_back(nodeUpdate);
     try
     {
         admin->updateApplication(update);
     }
-    catch(DeploymentException& ex)
+    catch(const DeploymentException& ex)
     {
         cerr << ex.reason << endl;
+        test(false);
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
         test(false);
     }
 }
@@ -114,11 +120,13 @@ removeServer(const AdminPrx& admin, const string& id)
         test(false);
     }
 
+    ServerInfo info = admin->getServerInfo(id);
+
     NodeUpdateDescriptor nodeUpdate;
-    nodeUpdate.name = "localnode";
+    nodeUpdate.name = info.node;
     nodeUpdate.removeServers.push_back(id);
     ApplicationUpdateDescriptor update;
-    update.name = "Test";
+    update.name = info.application;
     update.nodes.push_back(nodeUpdate);
     try
     {
@@ -590,6 +598,139 @@ allTests(const Ice::CommunicatorPtr& comm)
         test(svcReplicaIds.find(obj->getReplicaId()) != svcReplicaIds.end());
         removeServer(admin, "IceBox1");
         removeServer(admin, "Server1");
+    };
+    cout << "ok" << endl;
+
+    cout << "testing replica group from different applications... " << flush;
+    {
+        map<string, string> params;
+        params["replicaGroup"] = "Random";
+        params["id"] = "Server1";
+        instantiateServer(admin, "Server", "localnode", params);
+
+        ApplicationUpdateDescriptor update;
+        update.name = "Test";
+        update.removeReplicaGroups.push_back("Random");
+        try
+        {
+            admin->updateApplication(update);
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // The Random replica goup is used by Server1!
+        }
+
+        //
+        // Add an application Test1 without replica groups and a
+        // server that uses the Random replica group.
+        //
+        ApplicationInfo app = admin->getApplicationInfo("Test");
+        app.descriptor.name = "Test1";
+        app.descriptor.replicaGroups.clear();
+        app.descriptor.nodes.clear();
+        try
+        {
+            admin->addApplication(app.descriptor);
+        }
+        catch(const DeploymentException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+        params["id"] = "Server2";
+        instantiateServer(admin, "Server", "localnode", params, "Test1");
+
+        try
+        {
+            admin->removeApplication("Test");
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // Test has a replica group referenced by the Test1 application.
+        }
+
+        TestIntfPrx obj = TestIntfPrx::uncheckedCast(comm->stringToProxy("Random"));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_locatorCacheTimeout(0));
+        obj = TestIntfPrx::uncheckedCast(obj->ice_connectionCached(false));
+        set<string> replicaIds;
+        replicaIds.insert("Server1.ReplicatedAdapter");
+        replicaIds.insert("Server2.ReplicatedAdapter");
+        while(!replicaIds.empty())
+        {
+            try
+            {
+                replicaIds.erase(obj->getReplicaId());
+            }
+            catch(const Ice::LocalException& ex)
+            {
+                cerr << ex << endl;
+                test(false);
+            }
+        }
+        
+        removeServer(admin, "Server2");
+        removeServer(admin, "Server1");
+
+        ReplicaGroupDescriptor replicaGroup;
+        replicaGroup.id = "ReplicatedAdapterFromTest1";
+        replicaGroup.loadBalancing = new RandomLoadBalancingPolicy();
+        replicaGroup.loadBalancing->nReplicas = "0";
+        update = ApplicationUpdateDescriptor();
+        update.name = "Test1";
+        update.replicaGroups.push_back(replicaGroup);
+
+        try
+        {
+            admin->updateApplication(update);
+        }
+        catch(const DeploymentException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
+        }
+
+        params["replicaGroup"] = "ReplicatedAdapterFromTest1";
+        params["id"] = "Server1";
+        instantiateServer(admin, "Server", "localnode", params);
+
+        try
+        {
+            admin->removeApplication("Test1");
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // ReplicatedAdapterFromTest1 used by server from Test
+        }
+
+        update = ApplicationUpdateDescriptor();
+        update.name = "Test1";
+        update.removeReplicaGroups.push_back("ReplicatedAdapterFromTest1");
+        try
+        {
+            admin->updateApplication(update);
+            test(false);
+        }
+        catch(const DeploymentException&)
+        {
+            // ReplicatedAdapterFromTest1 used by server from Test
+        }
+
+        removeServer(admin, "Server1");
+
+        try
+        {
+            admin->updateApplication(update);
+        }
+        catch(const DeploymentException& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
+
+        admin->removeApplication("Test1");
     };
     cout << "ok" << endl;
 

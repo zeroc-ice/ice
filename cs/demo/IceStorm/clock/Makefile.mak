@@ -32,4 +32,7 @@ publisher.exe: $(C_SRCS) $(GEN_SRCS)
 subscriber.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll -r:$(bindir)\icestormcs.dll $(S_SRCS) $(GEN_SRCS)
 
+clean::
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
 !include .depend

@@ -306,7 +306,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(b1->ice_getEndpointSelection() == Ice::Ordered);
     prop->setProperty(property, "");
 
-    property = propertyPrefix + ".CollocationOptimization";
+    property = propertyPrefix + ".CollocationOptimized";
     test(b1->ice_isCollocationOptimized());
     prop->setProperty(property, "0");
     b1 = communicator->propertyToProxy(propertyPrefix);
@@ -314,6 +314,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     prop->setProperty(property, "");
 
     property = propertyPrefix + ".ThreadPerConnection";
+    prop->setProperty(property, "0");
+    b1 = communicator->propertyToProxy(propertyPrefix);
     test(!b1->ice_isThreadPerConnection());
     prop->setProperty(property, "1");
     b1 = communicator->propertyToProxy(propertyPrefix);
@@ -612,7 +614,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(pstr == "test -t:tcp -h 127.0.0.1 -p 12010 -t 10000");
     
     // Working?
-    p1->ice_ping();
+    bool ssl = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
+    if(!ssl)
+    {
+        p1->ice_ping();
+    }
 
     // Two legal TCP endpoints expressed as opaque endpoints
     p1 = communicator->stringToProxy("test:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -625,11 +631,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     p1 = communicator->stringToProxy("test:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
     pstr = communicator->proxyToString(p1);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if(!ssl)
+    {
+        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    }
+    else
+    {
+        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    }
 
     //
     // Try to invoke on the SSL endpoint to verify that we get a
-    // NoEndpointException.
+    // NoEndpointException (or ConnectionRefusedException when
+    // running with SSL).
     //
     try
     {
@@ -638,6 +652,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     catch(const Ice::NoEndpointException&)
     {
+        test(!ssl);
+    }
+    catch(const Ice::ConnectionRefusedException&)
+    {
+        test(ssl);
     }
 
     //
@@ -648,7 +667,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     Ice::ObjectPrx p2 = derived->echo(p1);
     pstr = communicator->proxyToString(p2);
-    test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    if(!ssl)
+    {
+        test(pstr == "test -t:opaque -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -v abch");
+    }
+    else
+    {
+        test(pstr == "test -t:ssl -h 127.0.0.1 -p 10001:opaque -t 99 -v abch");
+    }
 
     cout << "ok" << endl;
 

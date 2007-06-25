@@ -48,6 +48,22 @@ class D
     bool postUnmarshalInvoked();
 };
 
+["protected"] class E
+{
+    int i;
+    string s;
+
+    bool checkValues();
+};
+
+class F
+{
+    ["protected"] E e1;
+    E e2;
+
+    bool checkValues();
+};
+
 interface I
 {
 };
@@ -67,6 +83,8 @@ class Initial
     B getB2();
     C getC();
     D getD();
+    E getE();
+    F getF();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 

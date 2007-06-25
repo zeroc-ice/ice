@@ -124,10 +124,13 @@ private:
 
     void checkForAddition(const ApplicationHelper&);
     void checkForUpdate(const ApplicationHelper&, const ApplicationHelper&);
+    void checkForRemove(const ApplicationHelper&);
 
     void checkServerForAddition(const std::string&);
     void checkAdapterForAddition(const std::string&);
     void checkObjectForAddition(const Ice::Identity&);
+    void checkReplicaGroupExists(const std::string&);
+    void checkReplicaGroupForRemove(const std::string&);
 
     void load(const ApplicationHelper&, ServerEntrySeq&, const std::string&, int);
     void unload(const ApplicationHelper&, ServerEntrySeq&);

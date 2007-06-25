@@ -171,7 +171,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     // a collocated servant results in a CollocationOptimizationException
     // (because Python uses the blobject API).
     //
-    data.properties->setProperty("Ice.Default.CollocationOptimization", "0");
+    data.properties->setProperty("Ice.Default.CollocationOptimized", "0");
    
     //
     // Remaining command line options are passed to the communicator
@@ -408,9 +408,10 @@ static PyObject*
 communicatorIsShutdown(CommunicatorObject* self)
 {
     assert(self->communicator);
+    bool isShutdown;
     try
     {
-        (*self->communicator)->isShutdown();
+        isShutdown = (*self->communicator)->isShutdown();
     }
     catch(const Ice::Exception& ex)
     {
@@ -418,8 +419,14 @@ communicatorIsShutdown(CommunicatorObject* self)
         return 0;
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    if(isShutdown)
+    {
+        PyRETURN_TRUE;
+    }
+    else
+    {
+        PyRETURN_FALSE;
+    }
 }
 
 #ifdef WIN32

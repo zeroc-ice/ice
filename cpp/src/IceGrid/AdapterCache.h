@@ -97,6 +97,7 @@ public:
     void removeReplica(const std::string&);
 
     void update(const LoadBalancingPolicyPtr&);
+    bool hasAdaptersFromOtherApplications() const;
 
 private:
 

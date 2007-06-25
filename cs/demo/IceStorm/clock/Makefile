@@ -32,4 +32,7 @@ publisher.exe: $(C_SRCS) $(GEN_SRCS)
 subscriber.exe: $(S_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ $(call ref,icecs) $(call ref,icestormcs) $(subst /,$(DSEP),$^)
 
+clean::
+	-rm -f db/*
+
 include .depend

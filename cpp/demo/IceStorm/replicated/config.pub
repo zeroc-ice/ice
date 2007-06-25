@@ -1,12 +1,12 @@
 #
 # The Default Locator
 #
-Ice.Default.Locator=DemoIceGrid/Locator:default -p 12000
+Ice.Default.Locator=DemoIceGrid/Locator:default -p 4061
 
 #
-# Location Tracing
+# Locator Tracing
 #
-#Ice.Trace.Location=1
+#Ice.Trace.Locator=1
 
 #
 # Network Tracing

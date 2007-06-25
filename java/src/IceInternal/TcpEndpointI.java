@@ -14,7 +14,7 @@ final class TcpEndpointI extends EndpointI
     final static short TYPE = 1;
 
     public
-    TcpEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co, boolean oae)
+    TcpEndpointI(Instance instance, String ho, int po, int ti, String conId, boolean co)
     {
         _instance = instance;
         _host = ho;
@@ -22,19 +22,17 @@ final class TcpEndpointI extends EndpointI
         _timeout = ti;
         _connectionId = conId;
         _compress = co;
-        _oaEndpoint = oae;
         calcHashValue();
     }
 
     public
-    TcpEndpointI(Instance instance, String str, boolean oaEndpoint)
+    TcpEndpointI(Instance instance, String str, boolean server)
     {
         _instance = instance;
         _host = null;
         _port = 0;
         _timeout = -1;
         _compress = false;
-        _oaEndpoint = oaEndpoint;
 
         String[] arr = str.split("[ \t\n\r]+");
 
@@ -138,7 +136,7 @@ final class TcpEndpointI extends EndpointI
             _host = _instance.defaultsAndOverrides().defaultHost;
             if(_host == null)
             {
-                if(_oaEndpoint)
+                if(server)
                 {
                     _host = "0.0.0.0";
                 }
@@ -165,7 +163,6 @@ final class TcpEndpointI extends EndpointI
         _timeout = s.readInt();
         _compress = s.readBool();
         s.endReadEncaps();
-        _oaEndpoint = false;
         calcHashValue();
     }
 
@@ -242,7 +239,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress, _oaEndpoint);
+            return new TcpEndpointI(_instance, _host, _port, timeout, _connectionId, _compress);
         }
     }
 
@@ -258,7 +255,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress, _oaEndpoint);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, connectionId, _compress);
         }
     }
 
@@ -286,7 +283,7 @@ final class TcpEndpointI extends EndpointI
         }
         else
         {
-            return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress, _oaEndpoint);
+            return new TcpEndpointI(_instance, _host, _port, _timeout, _connectionId, compress);
         }
     }
 
@@ -359,14 +356,13 @@ final class TcpEndpointI extends EndpointI
     acceptor(EndpointIHolder endpoint, String adapterName)
     {
         TcpAcceptor p = new TcpAcceptor(_instance, _host, _port);
-        endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId,
-                                          _compress, _oaEndpoint);
+        endpoint.value = new TcpEndpointI(_instance, _host, p.effectivePort(), _timeout, _connectionId, _compress);
         return p;
     }
 
     //
     // Expand endpoint out in to separate endpoints for each local
-    // host if endpoint was configured with no host set. 
+    // host if listening on INADDR_ANY.
     //
     public java.util.ArrayList
     expand()
@@ -379,10 +375,9 @@ final class TcpEndpointI extends EndpointI
             while(iter.hasNext())
             {
                 String host = (String)iter.next();
-                if(!_oaEndpoint || hosts.size() == 1 || !host.equals("127.0.0.1"))
+                if(hosts.size() == 1 || !host.equals("127.0.0.1"))
                 {
-                    endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress,
-                                               _oaEndpoint));
+                    endps.add(new TcpEndpointI(_instance, host, _port, _timeout, _connectionId, _compress));
                 }
             }
         }
@@ -394,28 +389,21 @@ final class TcpEndpointI extends EndpointI
     }
 
     //
-    // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Check whether the endpoint is equivalent to a specific Connector
     //
     public boolean
-    equivalent(Transceiver transceiver)
+    equivalent(Connector connector)
     {
-        return false;
-    }
-
-    public boolean
-    equivalent(Acceptor acceptor)
-    {
-        TcpAcceptor tcpAcceptor = null;
+        TcpConnector tcpConnector = null;
         try
         {
-            tcpAcceptor = (TcpAcceptor)acceptor;
+            tcpConnector = (TcpConnector)connector;
         }
         catch(ClassCastException ex)
         {
             return false;
         }
-        return tcpAcceptor.equivalent(_host, _port);
+        return tcpConnector.equivalent(_host, _port);
     }
 
     public int
@@ -525,6 +513,5 @@ final class TcpEndpointI extends EndpointI
     private int _timeout;
     private String _connectionId = "";
     private boolean _compress;
-    private boolean _oaEndpoint;
     private int _hashCode;
 }

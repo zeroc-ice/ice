@@ -16,6 +16,7 @@
 #include <SimpleEvictor.h>
 
 using namespace std;
+using namespace Warehouse;
 
 const int objectCount = 10000;
 const int evictorSize = 8000;
@@ -33,7 +34,6 @@ main(int argc, char* argv[])
     WarehouseServer app;
     return app.main(argc, argv, "config.server");
 }
-
 
 int
 WarehouseServer::run(int argc, char* argv[])
@@ -67,7 +67,7 @@ WarehouseServer::run(int argc, char* argv[])
             //
             // Populate database with objectCount entries
             //
-            Warehouse::ItemInfo info;
+            ItemInfo info;
             
             connection->beginTransaction();
             

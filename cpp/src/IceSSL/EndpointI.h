@@ -23,7 +23,7 @@ class EndpointI : public IceInternal::EndpointI
 {
 public:
 
-    EndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool, bool);
+    EndpointI(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, const std::string&, bool);
     EndpointI(const InstancePtr&, const std::string&, bool);
     EndpointI(const InstancePtr&, IceInternal::BasicStream*);
 
@@ -42,8 +42,7 @@ public:
     virtual std::vector<IceInternal::ConnectorPtr> connectors() const;
     virtual IceInternal::AcceptorPtr acceptor(IceInternal::EndpointIPtr&, const std::string&) const;
     virtual std::vector<IceInternal::EndpointIPtr> expand() const;
-    virtual bool equivalent(const IceInternal::TransceiverPtr&) const;
-    virtual bool equivalent(const IceInternal::AcceptorPtr&) const;
+    virtual bool equivalent(const IceInternal::ConnectorPtr&) const;
 
     virtual bool operator==(const IceInternal::EndpointI&) const;
     virtual bool operator!=(const IceInternal::EndpointI&) const;
@@ -57,7 +56,6 @@ private:
     // hidding these operators.
     //
     using LocalObject::operator==;
-    using LocalObject::operator!=;
     using LocalObject::operator<;
 #endif
 
@@ -70,7 +68,6 @@ private:
     const Ice::Int _timeout;
     const std::string _connectionId;
     const bool _compress;
-    const bool _oaEndpoint;
 };
 
 class EndpointFactoryI : public IceInternal::EndpointFactory

@@ -13,7 +13,7 @@ public interface EndpointFactory
 {
     short type();
     String protocol();
-    EndpointI create(String str, boolean oaEndpoint);
+    EndpointI create(String str, boolean server);
     EndpointI read(BasicStream s);
     void destroy();
 }

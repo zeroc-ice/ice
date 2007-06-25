@@ -26,7 +26,8 @@ testdir = os.path.join(toplevel, "test", name)
 client = os.path.join(testdir, "client")
 
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " 2>&1")
+seedfile = testdir + "/seed"
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + seedfile + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
@@ -35,5 +36,7 @@ clientStatus = TestUtil.closePipe(clientPipe)
 
 if clientStatus:
     sys.exit(1)
+
+os.remove(seedfile)
 
 sys.exit(0)

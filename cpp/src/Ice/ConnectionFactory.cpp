@@ -630,18 +630,6 @@ IceInternal::IncomingConnectionFactory::endpoint() const
     return _endpoint;
 }
 
-bool
-IceInternal::IncomingConnectionFactory::equivalent(const EndpointIPtr& endp) const
-{
-    if(_transceiver)
-    {
-        return endp->equivalent(_transceiver);
-    }
-    
-    assert(_acceptor);
-    return endp->equivalent(_acceptor);
-}
-
 list<ConnectionIPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {
@@ -1203,15 +1191,10 @@ IceInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::run(
     {
         _factory->run();
     }
-    catch(const Exception& ex)
-    {   
-        Error out(_factory->_instance->initializationData().logger);
-        out << "exception in thread per incoming connection factory:\n" << _factory->toString() << ex; 
-    }
     catch(const std::exception& ex)
     {
         Error out(_factory->_instance->initializationData().logger);
-        out << "std::exception in thread per incoming connection factory:\n" << _factory->toString() << ex.what();
+        out << "exception in thread per incoming connection factory:\n" << _factory->toString() << ex.what();
     }
     catch(...)
     {

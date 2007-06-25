@@ -82,7 +82,7 @@ public final class DefaultsAndOverrides
         }
 
         defaultCollocationOptimization =
-            properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimization", 1) > 0;
+            properties.getPropertyAsIntWithDefault("Ice.Default.CollocationOptimized", 1) > 0;
 
         value = properties.getPropertyWithDefault("Ice.Default.EndpointSelection", "Random");
         if(value.equals("Random"))

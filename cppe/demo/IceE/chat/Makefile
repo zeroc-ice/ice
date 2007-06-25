@@ -35,4 +35,8 @@ $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
 
+# Needed for proper generation of .gitignore for all platforms.
+clean::
+	rm -f ChatClient.RES
+
 include .depend

@@ -28,6 +28,10 @@ class MyObjectFactory
         #
         #elsif type == '::Test::D'
         #      return DI.new
+        elsif type == '::Test::E'
+              return EI.new
+        elsif type == '::Test::F'
+              return FI.new
         end
         fail "unknown type"
     end
@@ -49,6 +53,8 @@ def allTests(communicator)
     communicator.addObjectFactory(factory, '::Test::B')
     communicator.addObjectFactory(factory, '::Test::C')
     #communicator.addObjectFactory(factory, '::Test::D')
+    communicator.addObjectFactory(factory, '::Test::E')
+    communicator.addObjectFactory(factory, '::Test::F')
 
     print "testing stringToProxy... "
     STDOUT.flush
@@ -149,6 +155,33 @@ def allTests(communicator)
     test(d.theB.postUnmarshalInvoked())
     test(d.theB.theC.preMarshalInvoked)
     test(d.theB.theC.postUnmarshalInvoked())
+    puts "ok"
+
+    print "testing protected members... "
+    STDOUT.flush
+    e = initial.getE()
+    test(e.checkValues())
+    begin
+        e.i # Test that i is not accessible
+        test(false)
+    rescue NoMethodError
+        # Expected
+    end
+    begin
+        e.s # Test that s is not accessible
+        test(false)
+    rescue NoMethodError
+        # Expected
+    end
+    f = initial.getF()
+    test(f.checkValues())
+    test(f.e2.checkValues())
+    begin
+        f.e1 # Test that e1 is not accessible
+        test(false)
+    rescue NoMethodError
+        # Expected
+    end
     puts "ok"
 
     print "getting I, J, H... "

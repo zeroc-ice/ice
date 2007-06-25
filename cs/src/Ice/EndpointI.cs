@@ -104,21 +104,17 @@ namespace IceInternal
 
         //
         // Expand endpoint out in to separate endpoints for each local
-        // host if endpoint was configured with no host set.
+        // host if listening on INADDR_ANY.
         //
         public abstract ArrayList expand();
  
         //
-        // Check whether the endpoint is equivalent to a specific
-        // Transceiver or Acceptor.
+        // Check whether the endpoint is equivalent to a specific Connector.
         //
-        public abstract bool equivalent(Transceiver transceiver);
-        public abstract bool equivalent(Acceptor acceptor);
+        public abstract bool equivalent(Connector connector);
 
         //
         // Returns true if the endpoint's transport requires thread-per-connection.
-        //
-        // TODO: Remove this when we no longer support SSL for .NET 1.1.
         //
         public abstract bool requiresThreadPerConnection();
     }

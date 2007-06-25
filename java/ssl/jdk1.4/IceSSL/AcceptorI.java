@@ -258,13 +258,6 @@ class AcceptorI implements IceInternal.Acceptor
         return IceInternal.Network.addrToString(_addr);
     }
 
-    final boolean
-    equivalent(String host, int port)
-    {
-        java.net.InetSocketAddress addr = IceInternal.Network.getAddress(host, port);
-        return addr.equals(_addr);
-    }
-
     int
     effectivePort()
     {

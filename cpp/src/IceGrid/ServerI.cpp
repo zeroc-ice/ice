@@ -1934,10 +1934,12 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             throw "node has insufficient privileges to load server under user account `" + user + "'";
         }
 
-        if(pw->pw_uid == 0) // Don't allow running proccesses as "root"
-        {
-            throw "running server as `root' is not allowed";
-        }
+
+	if(pw->pw_uid == 0 &&
+	   _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") == 0)
+	{
+	    throw "running server as `root' is not allowed";
+	}
 
         newUser = _uid != pw->pw_uid || _gid != pw->pw_gid;
         _uid = pw->pw_uid;

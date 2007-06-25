@@ -181,10 +181,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     {
         __response(replyStatus == replyOK);
     }
-    catch(const Exception& ex)
-    {
-        warning(ex);
-    }
     catch(const std::exception& ex)
     {
         warning(ex);
@@ -234,10 +230,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
     try
     {
         ice_exception(exc);
-    }
-    catch(const Exception& ex)
-    {
-        warning(ex);
     }
     catch(const std::exception& ex)
     {
@@ -382,7 +374,7 @@ IceInternal::OutgoingAsync::__send()
 }
 
 void
-IceInternal::OutgoingAsync::warning(const Exception& ex) const
+IceInternal::OutgoingAsync::warning(const std::exception& exc) const
 {
     if(__os) // Don't print anything if cleanup() was already called.
     {
@@ -391,22 +383,15 @@ IceInternal::OutgoingAsync::warning(const Exception& ex) const
                 getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
         {
             Warning out(ref->getInstance()->initializationData().logger);
-            out << "Ice::Exception raised by AMI callback:\n" << ex;
-        }
-    }
-}
-
-void
-IceInternal::OutgoingAsync::warning(const std::exception& ex) const
-{
-    if(__os) // Don't print anything if cleanup() was already called.
-    {
-        ReferencePtr ref = _proxy->__reference();
-        if(ref->getInstance()->initializationData().properties->
-                getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-        {
-            Warning out(ref->getInstance()->initializationData().logger);
-            out << "std::exception raised by AMI callback:\n" << ex.what();
+            const Exception* ex = dynamic_cast<const ObjectNotExistException*>(&exc);
+            if(ex)
+            {
+                out << "Ice::Exception raised by AMI callback:\n" << ex;
+            }
+            else
+            {
+                out << "std::exception raised by AMI callback:\n" << exc.what();
+            }
         }
     }
 }

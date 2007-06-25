@@ -50,7 +50,6 @@ protected:
 
 private:
 
-    void warning(const Ice::Exception&) const;
     void warning(const std::exception&) const;
     void warning() const;
 

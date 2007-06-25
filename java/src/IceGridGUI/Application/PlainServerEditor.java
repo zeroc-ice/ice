@@ -70,6 +70,10 @@ class PlainServerEditor extends AbstractServerEditor
         _applyButton.setEnabled(server.isEphemeral());
         _discardButton.setEnabled(server.isEphemeral());          
         detectUpdates(true);
+        if(server.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private ServerSubEditor _subEditor;

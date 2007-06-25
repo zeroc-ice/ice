@@ -11,9 +11,18 @@ package Ice;
 
 public abstract class Application
 {
+    public final static int HandleSignals = 0;
+    public final static int NoSignalHandling = 1;
+
     public
     Application()
     {
+    }
+
+    public
+    Application(int signalPolicy)
+    {
+        _signalPolicy = signalPolicy;
     }
 
     //
@@ -109,7 +118,10 @@ public abstract class Application
             //
             // The default is to destroy when a signal is received.
             //
-            destroyOnInterrupt();
+            if(_signalPolicy == HandleSignals)
+            {
+                destroyOnInterrupt();
+            }
 
             status = run(argHolder.value);
         }
@@ -136,7 +148,10 @@ public abstract class Application
         }
 
         // This clears any set interrupt.
-        defaultInterrupt();
+        if(_signalPolicy == HandleSignals)
+        {
+            defaultInterrupt();
+        }
 
         synchronized(_mutex)
         {
@@ -227,48 +242,64 @@ public abstract class Application
     public static void
     destroyOnInterrupt()
     {
-        synchronized(_mutex)
+        if(_signalPolicy == HandleSignals)
         {
-            //
-            // As soon as the destroy hook ends all the threads are
-            // terminated. So the destroy hook will join the current
-            // thread before to end.
-            //
-            try
+            synchronized(_mutex)
             {
-                changeHook(new DestroyHook());
-            }
-            catch(java.lang.IllegalStateException ex)
-            {
-                if(_communicator != null)
+                //
+                // As soon as the destroy hook ends all the threads are
+                // terminated. So the destroy hook will join the current
+                // thread before to end.
+                //
+                try
                 {
-                    _communicator.destroy();
+                    changeHook(new DestroyHook());
+                }
+                catch(java.lang.IllegalStateException ex)
+                {
+                    if(_communicator != null)
+                    {
+                        _communicator.destroy();
+                    }
                 }
             }
+        }
+        else
+        {
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
     public static void
     shutdownOnInterrupt()
     {
-        synchronized(_mutex)
+        if(_signalPolicy == HandleSignals)
         {
-            //
-            // As soon as the shutdown hook ends all the threads are
-            // terminated. So the shutdown hook will join the current
-            // thread before to end.
-            //
-            try
+            synchronized(_mutex)
             {
-                changeHook(new ShutdownHook());
-            }
-            catch(java.lang.IllegalStateException ex)
-            {
-                if(_communicator != null)
+                //
+                // As soon as the shutdown hook ends all the threads are
+                // terminated. So the shutdown hook will join the current
+                // thread before to end.
+                //
+                try
                 {
-                    _communicator.shutdown();
+                    changeHook(new ShutdownHook());
+                }
+                catch(java.lang.IllegalStateException ex)
+                {
+                    if(_communicator != null)
+                    {
+                        _communicator.shutdown();
+                    }
                 }
             }
+        }
+        else
+        {
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
 
@@ -284,13 +315,21 @@ public abstract class Application
     public static void
     setInterruptHook(java.lang.Thread newHook) // Pun intended.
     {
-        try
+        if(_signalPolicy == HandleSignals)
         {
-            changeHook(new CustomHook(newHook));
+            try
+            {
+                changeHook(new CustomHook(newHook));
+            }
+            catch(java.lang.IllegalStateException ex)
+            {
+                // Ignore.
+            }
         }
-        catch(java.lang.IllegalStateException ex)
+        else
         {
-            // Ignore.
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
         }
     }
     
@@ -300,7 +339,15 @@ public abstract class Application
     public static void
     defaultInterrupt()
     {
-        changeHook(null);
+        if(_signalPolicy == HandleSignals)
+        {
+            changeHook(null);
+        }
+        else
+        {
+            System.err.println(_appName + 
+                        ": warning: interrupt method called on Application configured to not handle interrupts.");
+        }
     }
 
     public static boolean
@@ -502,4 +549,5 @@ public abstract class Application
     private static boolean _callbackInProgress = false;
     private static boolean _destroyed = false;
     private static boolean _interrupted = false;
+    private static int _signalPolicy = HandleSignals;
 }

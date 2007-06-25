@@ -87,13 +87,12 @@ Grammar.cpp Grammar.h: Grammar.y
 	del /q Grammar.output
 
 clean::
-	del /q LibraryTypes.h LibraryTypes.cpp
-
-clean::
 	del /q Library.cpp Library.h
 
 clean::
+	del /q LibraryTypes.h LibraryTypes.cpp
 	del /q Grammar.cpp Grammar.h
 	del /q Scanner.cpp
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

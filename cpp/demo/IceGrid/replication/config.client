@@ -9,7 +9,7 @@ Ice.Override.Timeout=10000
 # Trace properties.
 #
 #Ice.Trace.Network=1
-#Ice.Trace.Location=1
+#Ice.Trace.Locator=1
 
 #
 # IceGrid admin properties to allow running IceGrid admin clients.

@@ -18,7 +18,7 @@ class SimpleEvictor : public EvictorBase
 {
 public:
 
-    SimpleEvictor(CurrentDatabase& db, int size);
+    SimpleEvictor(CurrentDatabase&, int);
 
 protected:
     
@@ -28,7 +28,6 @@ protected:
 private:
 
     CurrentDatabase& _currentDb;
-    int _size;
 };
 
 #endif

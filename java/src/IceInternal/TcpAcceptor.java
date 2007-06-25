@@ -178,13 +178,6 @@ class TcpAcceptor implements Acceptor
         return Network.addrToString(_addr);
     }
 
-    final boolean
-    equivalent(String host, int port)
-    {
-        java.net.InetSocketAddress addr = Network.getAddress(host, port);
-        return addr.equals(_addr);
-    }
-
     int
     effectivePort()
     {

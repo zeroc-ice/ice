@@ -217,6 +217,10 @@ class ServerInstanceEditor extends AbstractServerEditor
         _applyButton.setEnabled(server.isEphemeral());
         _discardButton.setEnabled(server.isEphemeral());          
         detectUpdates(true);
+        if(server.isEphemeral())
+        {
+            updated();
+        }
     }
 
     private JComboBox _template = new JComboBox();

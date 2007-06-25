@@ -46,8 +46,6 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 clean::
 	del /q Test.cpp Test.h
-
-clean::
-	del /q db\Test db\log.*
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

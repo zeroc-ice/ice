@@ -29,9 +29,9 @@ final class EndpointFactoryI implements IceInternal.EndpointFactory
     }
 
     public IceInternal.EndpointI
-    create(String str, boolean oaEndpoint)
+    create(String str, boolean server)
     {
-        return new EndpointI(_instance, str, oaEndpoint);
+        return new EndpointI(_instance, str, server);
     }
 
     public IceInternal.EndpointI

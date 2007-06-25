@@ -1174,7 +1174,11 @@ public class Root extends ListTreeNode
                 boolean ok = update(d);
                 assert ok;
             }
-            _concurrentUpdates.clear();
+            if(!_concurrentUpdates.isEmpty())
+            {
+                _applicationPane.refresh();
+                _concurrentUpdates.clear();
+            }
 
             _coordinator.getSaveAction().setEnabled(false);
             _coordinator.getDiscardUpdatesAction().setEnabled(false);

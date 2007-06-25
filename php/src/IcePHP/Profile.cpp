@@ -303,7 +303,7 @@ static const char* _coreTypes =
     "    }\n"
     "}\n"
     "\n"
-    "interface Ice_ObjectFactory extends Ice_LocalObject\n"
+    "interface Ice_ObjectFactory\n"
     "{\n"
     "    function create($id);\n"
     "    function destroy();\n"
@@ -961,9 +961,10 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 
     if(p->isInterface())
     {
-        _out << "interface " << flat << " extends ";
+        _out << "interface " << flat;
         if(!bases.empty())
         {
+            _out << " extends ";
             for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q)
             {
                 if(q != bases.begin())
@@ -973,13 +974,9 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
                 _out << flatten((*q)->scoped());
             }
         }
-        else if(p->isLocal())
+        else if(!p->isLocal())
         {
-            _out << "Ice_LocalObject";
-        }
-        else
-        {
-            _out << "Ice_Object";
+            _out << " extends Ice_Object";
         }
     }
     else
@@ -988,19 +985,15 @@ IcePHP::CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
         {
             _out << "abstract ";
         }
-        _out << "class " << flat << " extends ";
+        _out << "class " << flat;
         if(!bases.empty() && !bases.front()->isInterface())
         {
-            _out << flatten(bases.front()->scoped());
+            _out << " extends " << flatten(bases.front()->scoped());
             bases.pop_front();
         }
-        else if(p->isLocal())
+        else if(!p->isLocal())
         {
-            _out << "Ice_LocalObjectImpl";
-        }
-        else
-        {
-            _out << "Ice_ObjectImpl";
+            _out << " extends Ice_ObjectImpl";
         }
         if(!bases.empty())
         {
@@ -1126,7 +1119,16 @@ IcePHP::CodeVisitor::visitOperation(const Slice::OperationPtr& p)
 void
 IcePHP::CodeVisitor::visitDataMember(const Slice::DataMemberPtr& p)
 {
-    _out << "public $" << fixIdent(p->name()) << ';' << endl;
+    Slice::ContainedPtr cont = Slice::ContainedPtr::dynamicCast(p->container());
+    assert(cont);
+    if(Slice::ClassDefPtr::dynamicCast(cont) && (cont->hasMetaData("protected") || p->hasMetaData("protected")))
+    {
+        _out << "protected $" << fixIdent(p->name()) << ';' << endl;
+    }
+    else
+    {
+        _out << "public $" << fixIdent(p->name()) << ';' << endl;
+    }
 }
 
 void

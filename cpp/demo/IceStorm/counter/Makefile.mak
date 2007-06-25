@@ -50,4 +50,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 clean::
 	del /q Counter.cpp Counter.h
 
+clean::
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+
 !include .depend

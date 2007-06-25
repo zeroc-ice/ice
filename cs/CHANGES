@@ -1,13 +1,21 @@
-Changes since version 3.2.X (binary incompabible)
+Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The property Ice.Trace.Location has been deprecated and replaced
+  by Ice.Trace.Locator.
+
+- The property Ice.Default.CollocationOptimization and the
+  proxy property <any>.CollocationOptimization have been deprecated
+  and replaced by Ice.Default.CollocationOptimized and
+  <any>.CollocationOptimized, respectively.
+
 - LocalObject is now mapped to System.Object. The interface 
-  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now 
+  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now
   deprecated.
 
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to
-  update the published endpoints after change in the available local
+  update the published endpoints after a change in the available local
   interfaces or after the PublishedEndpoints object adapter property
   has been changed by the user.
 
@@ -16,28 +24,33 @@ Changes since version 3.2.X (binary incompabible)
   Previously, Ice would only listen on the local interfaces that were
   present when the adapter was created.
 
-- Added support for udp multicast. See manual for more information.
+- Added support for UDP multicast. See manual for more information.
 
 - The Ice.Util.proxyIdentityCompare and proxyIdentityAndFacetCompare
   methods are now using string.CompareOrdinal to compare the identity
   category, name and the facet instead of string.Compare with the 
   CultureInfo.InvariantCulture culture-specific information.
 
-- If a proxy contains a host which is multihomed, the client will now 
-  try all the available ip addresses. Previously, only the first in the 
-  address list returned by the DNS was used and others were ignored.
+- If a proxy contains a host that is multihomed, the client will now 
+  try all the available IP addresses. Previously, only the first in
+  the address list returned by the DNS was used and others were
+  ignored.
 
 - Added a new property, Ice.Warn.UnusedProperties. If set to 1, when
   the communicator is destroyed a warning will be printed listing all
   properties that were set, but never read. Default is 0.
 
 - Ice.LocalException and Ice.UserException now implement
-  System.ICloneable
+  System.ICloneable.
 
 Changes since version 3.2.0
 ---------------------------
 
-- Changed to the throughput demo to better support cross-language
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- Changed the throughput demo to better support cross-language
   testing.
 
 - Fixed throughput performance problem on Windows that would occur

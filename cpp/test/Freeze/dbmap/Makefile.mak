@@ -56,9 +56,11 @@ WstringWstringMap.h WstringWstringMap.cpp: $(SLICE2FREEZE)
 	$(SLICE2FREEZE) --dict Test::WstringWstringMap,[\"cpp:type:wstring\"]string,[\"cpp:type:wstring\"]string --dict-index Test::WstringWstringMap WstringWstringMap
 
 clean::
-	del /q ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp SortedMap.h SortedMap.cpp WstringWstringMap.h WstringWstringMap.cpp
 
 clean::
-	del /q db\binary db\binary.* db\intIdentity db\intIdentity.* db\__catalog db\log.*
+	del /q ByteIntMap.h ByteIntMap.cpp IntIdentityMap.h IntIdentityMap.cpp
+	del /q IntIdentityMapWithIndex.h IntIdentityMapWithIndex.cpp SortedMap.h SortedMap.cpp
+	del /q WstringWstringMap.h WstringWstringMap.cpp
+	for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend
