@@ -50,6 +50,8 @@ if(isset($_POST["submitted"]))
             }
         }
 
+        $delay = 0;
+
         if(isset($_POST["secure"]) and $_POST["secure"] == "yes")
         {
             $p = $p->ice_secure(true);
@@ -57,6 +59,10 @@ if(isset($_POST["submitted"]))
         if(isset($_POST["timeout"]) and $_POST["timeout"] == "yes")
         {
             $p = $p->ice_timeout(2000);
+        }
+        if(isset($_POST["delay"]) and $_POST["delay"] == "yes")
+        {
+            $delay = 2500;
         }
 
         if($p->ice_isTwoway())
@@ -70,7 +76,7 @@ if(isset($_POST["submitted"]))
 
         if(isset($_POST["sayHello"]))
         {
-            $hello->sayHello(0);
+            $hello->sayHello($delay);
         }
         elseif(isset($_POST["shutdown"]))
         {
@@ -111,6 +117,9 @@ if(isset($_POST["submitted"]))
         <INPUT type="checkbox" name="timeout" value="yes"
             <?php if(isset($_POST["timeout"]) and $_POST["timeout"] == "yes") echo " checked "; ?>
         > Timeout
+        <INPUT type="checkbox" name="delay" value="yes"
+            <?php if(isset($_POST["delay"]) and $_POST["delay"] == "yes") echo " checked "; ?>
+        > Delay
         </P>
         <P>
         <INPUT type="hidden" name="submitted" value="yes">
