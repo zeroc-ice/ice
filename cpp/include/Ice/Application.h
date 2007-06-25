@@ -19,7 +19,9 @@ class ICE_API Application : private IceUtil::noncopyable
 {
 public:
 
-    Application(bool useCtrlCHandler = true);
+    enum SignalPolicy { HandleSignals, NoSignalHandling } ;
+
+    Application(SignalPolicy = HandleSignals);
     virtual ~Application();
 
     //

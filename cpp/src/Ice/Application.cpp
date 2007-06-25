@@ -45,7 +45,7 @@ static Application* _application;
 static CommunicatorPtr _communicator;
 static CtrlCHandler* _ctrlCHandler = 0;
 static bool _nohup = false;
-static bool _useCtrlCHandler = true;
+static Application::SignalPolicy _signalPolicy = Application::HandleSignals;
 
 #ifdef _WIN32
 const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
@@ -258,9 +258,9 @@ callbackOnInterruptCallback(int signal)
 }
 
 
-Ice::Application::Application(bool useCtrlCHandler)
+Ice::Application::Application(SignalPolicy signalPolicy)
 {
-    _useCtrlCHandler = useCtrlCHandler;
+    _signalPolicy = signalPolicy;
 }
 
 Ice::Application::~Application()
@@ -313,7 +313,7 @@ Ice::Application::main(int argc, char* argv[], const InitializationData& initDat
     }
     int status;
 
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         try
         {
@@ -412,7 +412,7 @@ Ice::Application::communicator()
 void
 Ice::Application::destroyOnInterrupt()
 {
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -435,7 +435,7 @@ Ice::Application::destroyOnInterrupt()
 void
 Ice::Application::shutdownOnInterrupt()
 {
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -458,7 +458,7 @@ Ice::Application::shutdownOnInterrupt()
 void
 Ice::Application::ignoreInterrupt()
 {
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -481,7 +481,7 @@ Ice::Application::ignoreInterrupt()
 void
 Ice::Application::callbackOnInterrupt()
 {
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -504,7 +504,7 @@ Ice::Application::callbackOnInterrupt()
 void
 Ice::Application::holdInterrupt()
 {
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {
@@ -528,7 +528,7 @@ Ice::Application::holdInterrupt()
 void
 Ice::Application::releaseInterrupt()
 {
-    if(_useCtrlCHandler)
+    if(_signalPolicy == HandleSignals)
     {
         if(_ctrlCHandler != 0)
         {

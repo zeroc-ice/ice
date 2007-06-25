@@ -11,15 +11,18 @@ package Ice;
 
 public abstract class Application
 {
+    public final static int HandleSignals = 0;
+    public final static int NoSignalHandling = 1;
+
     public
     Application()
     {
     }
 
     public
-    Application(boolean useCtrlCHandler)
+    Application(int signalPolicy)
     {
-        _useCtrlCHandler = useCtrlCHandler;
+        _signalPolicy = signalPolicy;
     }
 
     //
@@ -115,7 +118,7 @@ public abstract class Application
             //
             // The default is to destroy when a signal is received.
             //
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 destroyOnInterrupt();
             }
@@ -145,7 +148,7 @@ public abstract class Application
         }
 
         // This clears any set interrupt.
-        if(_useCtrlCHandler)
+        if(_signalPolicy == HandleSignals)
         {
             defaultInterrupt();
         }
@@ -239,7 +242,7 @@ public abstract class Application
     public static void
     destroyOnInterrupt()
     {
-        if(_useCtrlCHandler)
+        if(_signalPolicy == HandleSignals)
         {
             synchronized(_mutex)
             {
@@ -271,7 +274,7 @@ public abstract class Application
     public static void
     shutdownOnInterrupt()
     {
-        if(_useCtrlCHandler)
+        if(_signalPolicy == HandleSignals)
         {
             synchronized(_mutex)
             {
@@ -312,7 +315,7 @@ public abstract class Application
     public static void
     setInterruptHook(java.lang.Thread newHook) // Pun intended.
     {
-        if(_useCtrlCHandler)
+        if(_signalPolicy == HandleSignals)
         {
             try
             {
@@ -336,7 +339,7 @@ public abstract class Application
     public static void
     defaultInterrupt()
     {
-        if(_useCtrlCHandler)
+        if(_signalPolicy == HandleSignals)
         {
             changeHook(null);
         }
@@ -546,5 +549,5 @@ public abstract class Application
     private static boolean _callbackInProgress = false;
     private static boolean _destroyed = false;
     private static boolean _interrupted = false;
-    private static boolean _useCtrlCHandler = true;
+    private static int _signalPolicy = HandleSignals;
 }

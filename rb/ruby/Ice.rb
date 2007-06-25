@@ -185,8 +185,8 @@ module Ice
     # Ice::Application.
     #
     class Application
-        def initialize(useCtrlCHandler=true)
-            @@_useCtrlCHandler = useCtrlCHandler
+        def initialize(signalPolicy=HandleSignals)
+            @@_signalPolicy = signalPolicy
         end
         
         def main(args, configFile=nil, initData=nil)
@@ -194,7 +194,7 @@ module Ice
                 print $0 + ": only one instance of the Application class can be used"
                 return false
             end
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_ctrlCHandler = CtrlCHandler.new
             end
 
@@ -223,7 +223,7 @@ module Ice
                 #
                 # The default is to destroy when a signal is received.
                 #
-                if @@_useCtrlCHandler
+                if @@_signalPolicy == HandleSignals
                     Application::destroyOnInterrupt
                 end
 
@@ -239,7 +239,7 @@ module Ice
             # it would not make sense to release a held signal to run
             # shutdown or destroy.
             #
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 Application::ignoreInterrupt
             end
 
@@ -272,7 +272,7 @@ module Ice
                 @@_communicator = nil
             end
 
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_ctrlCHandler.destroy()
                 @@_ctrlCHandler = nil
             end
@@ -292,7 +292,7 @@ module Ice
         end
 
         def Application.destroyOnInterrupt
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_mutex.synchronize {
                     if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
                         @@_released = true
@@ -310,7 +310,7 @@ module Ice
         #end
 
         def Application.ignoreInterrupt
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_mutex.synchronize {
                     if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
                         @@_released = true
@@ -324,7 +324,7 @@ module Ice
         end
 
         def Application.callbackOnInterrupt()
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_mutex.synchronize {
                     if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
                         @@_released = true
@@ -338,7 +338,7 @@ module Ice
         end
 
         def Application.holdInterrupt
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_mutex.synchronize {
                     if @@_ctrlCHandler.getCallback != @@_holdInterruptCallbackProc
                         @@_previousCallback = @@_ctrlCHandler.getCallback
@@ -353,7 +353,7 @@ module Ice
         end
 
         def Application.releaseInterrupt
-            if @@_useCtrlCHandler
+            if @@_signalPolicy == HandleSignals
                 @@_mutex.synchronize {
                     if @@_ctrlCHandler.getCallback == @@_holdInterruptCallbackProc
                         #
@@ -448,6 +448,9 @@ module Ice
             }
         end
 
+        HandleSignals = 0
+        NoSignalHandling = 1
+
         @@_appName = nil
         @@_communicator = nil
         @@_application = nil
@@ -462,7 +465,7 @@ module Ice
         @@_holdInterruptCallbackProc = Proc.new { |sig| Application::holdInterruptCallback(sig) }
         @@_destroyOnInterruptCallbackProc = Proc.new { |sig| Application::destroyOnInterruptCallback(sig) }
         @@_callbackOnInterruptCallbackProc = Proc.new { |sig| Application::callbackOnInterruptCallback(sig) }
-        @@_useCtrlCHandler = true
+        @@_signalPolicy = HandleSignals
     end
 
     #

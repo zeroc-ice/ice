@@ -30,6 +30,9 @@ namespace Ice
         {
         }
 
+        public const int HandleSignals = 0;
+        public const int NoSignalHandling = 1;
+
         public Application()
         {
 #if !__MonoCS__
@@ -38,12 +41,12 @@ namespace Ice
 #endif
         }
 
-        public Application(bool useCtrlCHandler)
+        public Application(int signalPolicy)
         {
-            _useCtrlCHandler = useCtrlCHandler;
+            _signalPolicy = signalPolicy;
 
 #if !__MonoCS__
-            if(__useCtrlCHandler)
+            if(_signalPolicy)
             {
                 bool rc = SetConsoleCtrlHandler(_handler, true); 
                 Debug.Assert(rc);
@@ -135,7 +138,7 @@ namespace Ice
                 //
                 // The default is to destroy when a signal is received.
                 //
-                if(_useCtrlCHandler)
+                if(_signalPolicy == HandleSignals)
                 {
                     destroyOnInterrupt();
                 }
@@ -158,7 +161,7 @@ namespace Ice
             // (post-run), it would not make sense to release a held
             // signal to run shutdown or destroy.
             //
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 ignoreInterrupt();
             }
@@ -228,7 +231,7 @@ namespace Ice
         
         public static void destroyOnInterrupt()
         {
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -252,7 +255,7 @@ namespace Ice
         
         public static void shutdownOnInterrupt()
         {
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -276,7 +279,7 @@ namespace Ice
         
         public static void ignoreInterrupt()
         {
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -300,7 +303,7 @@ namespace Ice
 
         public static void callbackOnInterrupt()
         {   
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -324,7 +327,7 @@ namespace Ice
         
         public static void holdInterrupt()
         {
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback != _holdCallback)
@@ -345,7 +348,7 @@ namespace Ice
         
         public static void releaseInterrupt()
         {
-            if(_useCtrlCHandler)
+            if(_signalPolicy == HandleSignals)
             {
                 Monitor.Enter(sync);
                 if(_callback == _holdCallback)
@@ -568,7 +571,7 @@ namespace Ice
         private static bool _interrupted = false;
         private static bool _released = false;
         private static bool _nohup = false;
-        private static bool _useCtrlCHandler = true;
+        private static int _signalPolicy = HandleSignals;
 
         private delegate Boolean EventHandler(int sig);
 #if !__MonoCS__

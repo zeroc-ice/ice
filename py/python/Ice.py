@@ -641,10 +641,10 @@ class CtrlCHandler(threading.Thread):
 import signal, traceback
 class Application(object):
 
-    def __init__(self, useCtrlCHandler=True):
+    def __init__(self, signalPolicy=0): # HandleSignals=0
         if type(self) == Application:
             raise RuntimeError("Ice.Application is an abstract class")
-        Application._useCtrlCHandler = useCtrlCHandler
+        Application._signalPolicy = signalPolicy
 
     def main(self, args, configFile=None, initData=None):
         if Application._communicator:
@@ -680,7 +680,7 @@ class Application(object):
             #
             # The default is to destroy when a signal is received.
             #
-            if Application._useCtrlCHandler:
+            if Application._signalPolicy == Application.HandleSignals:
                 Application.destroyOnInterrupt()
 
             status = self.run(args)
@@ -693,7 +693,7 @@ class Application(object):
         # it would not make sense to release a held signal to run
         # shutdown or destroy.
         #
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             Application.ignoreInterrupt()
 
         Application._condVar.acquire()
@@ -744,7 +744,7 @@ class Application(object):
     communicator = classmethod(communicator)
 
     def destroyOnInterrupt(self):
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
             if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
                 self._released = True
@@ -757,7 +757,7 @@ class Application(object):
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
     def shutdownOnInterrupt(self):
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
             if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
                 self._released = True
@@ -770,7 +770,7 @@ class Application(object):
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
     def ignoreInterrupt(self):
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
             if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
                 self._released = True
@@ -783,7 +783,7 @@ class Application(object):
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
     def callbackOnInterrupt(self):
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
             if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
                 self._released = True
@@ -796,7 +796,7 @@ class Application(object):
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
             if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
                 self._previousCallback = self._ctrlCHandler.getCallback()
@@ -810,7 +810,7 @@ class Application(object):
     holdInterrupt = classmethod(holdInterrupt)
 
     def releaseInterrupt(self):
-        if Application._useCtrlCHandler:
+        if Application._signalPolicy == Application.HandleSignals:
             self._condVar.acquire()
             if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
                 #
@@ -931,6 +931,9 @@ class Application(object):
 
     callbackOnInterruptCallback = classmethod(callbackOnInterruptCallback)
 
+    HandleSignals = 0
+    NoSignalHandling = 1
+
     _appName = None
     _communicator = None
     _application = None
@@ -941,7 +944,7 @@ class Application(object):
     _destroyed = False
     _callbackInProgress = False
     _condVar = threading.Condition()
-    _useCtrlCHandler = True
+    _signalPolicy = HandleSignals
 
 #
 # Define Ice::Object and Ice::ObjectPrx.
