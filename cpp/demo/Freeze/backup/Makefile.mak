@@ -35,12 +35,12 @@ IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE)
 	$(SLICE2FREEZE) -I$(slicedir) --dict IntLongMap,int,long IntLongMap
 
 clean::
-	del /q IntLongMap.h IntLongMap.cpp
-	del /q oldlogs.txt
-        if exist hotbackup rmdir /q /s hotbackup
-        if exist hotbackup.1 rmdir /q /s hotbackup.1
-        del /q  db\__*.*
-	for %f in (db\data\*) do if not %f == db\data\.gitignore del /q %f
-	for %f in (db\logs\*) do if not %f == db\logs\.gitignore del /q %f
+	-del /q IntLongMap.h IntLongMap.cpp
+	-del /q oldlogs.txt
+	if exist hotbackup rmdir /q /s hotbackup
+	if exist hotbackup.1 rmdir /q /s hotbackup.1
+	-del /q  db\__*.*
+	-for %f in (db\data\*) do if not %f == db\data\.gitignore del /q %f
+	-for %f in (db\logs\*) do if not %f == db\logs\.gitignore del /q %f
 
 !include .depend

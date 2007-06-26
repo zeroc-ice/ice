@@ -48,10 +48,10 @@ $(SERVER): $(OBJS) $(SOBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q Filesystem.cpp Filesystem.h
-	del /q PersistentFilesystem.cpp PersistentFilesystem.h
+	-del /q Filesystem.cpp Filesystem.h
+	-del /q PersistentFilesystem.cpp PersistentFilesystem.h
 
 clean::
-	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend
