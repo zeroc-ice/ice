@@ -20,6 +20,17 @@ using namespace Slice;
 extern FILE* slice_in;
 extern int slice_debug;
 
+//
+// Operation attributes
+//
+// read + supports must be 0 (the default)
+//
+
+static string readWriteAttribute[] = { "read", "write" };
+static string txAttribute[] = { "supports", "mandatory", "required", "never" };
+enum { Supports, Mandatory, Required, Never };
+
+
 namespace Slice
 {
 
@@ -4564,6 +4575,95 @@ Slice::Operation::returnsData() const
     }
     return false;
 }
+
+int
+Slice::Operation::attributes() const
+{
+    string freezeMD;
+
+    if(!findMetaData("freeze:", freezeMD))
+    {
+        ClassDefPtr classDef = ClassDefPtr::dynamicCast(container());
+        assert(classDef != 0);
+        classDef->findMetaData("freeze:", freezeMD);
+    }
+    
+    if(freezeMD != "")
+    {
+        int result = 0;
+
+        freezeMD = freezeMD.substr(strlen("freeze:"));
+                    
+        int i = 0;
+        while(i < 2)
+        {
+            if(freezeMD.find(readWriteAttribute[i]) == 0)
+            {
+                result = i;
+                freezeMD = freezeMD.substr(readWriteAttribute[i].size());
+                break; // while
+            }
+            i++;
+        }
+        if(i == 2)
+        {
+            cout << definitionContext()->filename() << ":" << line()
+                 << ": warning: invalid freeze metadata for operation" << endl;
+        }
+        else
+        {
+            if(freezeMD.size() == 0)
+            {
+                freezeMD = (result == 0) ? ":supports" : ":required";
+            }
+            
+            //
+            // Remove ":"
+            //
+            freezeMD = freezeMD.substr(1);
+            
+            int i = 0;
+            while(i < 4)
+            {
+                if(freezeMD.find(txAttribute[i]) == 0)
+                {
+                    if(result != 0 && (i == int(Supports) || i == int(Never)))
+                    {
+                        cout << definitionContext()->filename() << ":" << line()
+                             << ": warning: invalid freeze metadata for operation" << endl;
+                    }
+                    else
+                    {
+                        result |= (i << 1);
+                    }
+                    freezeMD = freezeMD.substr(txAttribute[i].size());
+                    break; // while
+                }
+                i++;
+            }
+            
+            if(i == 4)
+            {
+                cout << definitionContext()->filename() << ":" << line()
+                     << ": warning: invalid freeze metadata for operation" << endl;
+
+                //
+                // Set default
+                //
+                if(result != 0)
+                {
+                    result |= (int(Required) << 1);
+                }
+            }
+        }
+        return result;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
 
 string
 Slice::Operation::kindOf() const

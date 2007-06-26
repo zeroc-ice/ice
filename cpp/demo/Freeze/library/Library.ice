@@ -91,7 +91,7 @@ class Book
      * database system.
      *
      **/
-    ["freeze:write"] void destroy()
+    ["freeze:write:required"] void destroy()
         throws DatabaseException;
 
     /**
@@ -104,7 +104,7 @@ class Book
      * rented.
      *
      **/
-    ["freeze:write"] void rentBook(string name)
+    ["freeze:write:mandatory"] void rentBook(string name)
         throws BookRentedException;
 
     /**
@@ -128,7 +128,7 @@ class Book
      * currently rented.
      *
      **/
-    ["freeze:write"] void returnBook()
+    ["freeze:read:never"] void returnBook()
         throws BookNotRentedException;
 
     /**

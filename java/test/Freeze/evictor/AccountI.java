@@ -18,8 +18,6 @@ public class AccountI extends Test.Account
     public void
     deposit(int amount, Ice.Current current) throws Test.InsufficientFundsException
     {
-        test(_evictor.getCurrentTransaction() != null);
-
         //
         // No need to synchronize since everything occurs within its own transaction
         //

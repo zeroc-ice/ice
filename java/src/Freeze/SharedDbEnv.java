@@ -262,7 +262,7 @@ class SharedDbEnv implements com.sleepycat.db.ErrorHandler, Runnable
             TransactionalEvictorContext ctx = (TransactionalEvictorContext)_ctxMap.get(k);
             if(ctx == null || !tx.equals(ctx.transaction()))
             {
-                ctx = new TransactionalEvictorContext(txi);
+                ctx = new TransactionalEvictorContext(txi, getCommunicator());
                 _ctxMap.put(k, ctx);
             }
         }

@@ -910,42 +910,50 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         //
         // Check if we need to generate ice_operationAttributes()
         //
-        
-        StringList freezeWriteOpNames;
+    
+        map<string, int> attributesMap;
         for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
         {
-            ClassDefPtr classDef = ClassDefPtr::dynamicCast((*r)->container());
-            assert(classDef != 0);
-            
-            if((*r)->hasMetaData("freeze:write") || 
-               (classDef->hasMetaData("freeze:write") && !(*r)->hasMetaData("freeze:read")))
+            int attributes = (*r)->attributes();
+            if(attributes != 0)
             {
-                freezeWriteOpNames.push_back((*r)->name());
+                attributesMap.insert(map<string, int>::value_type((*r)->name(), attributes));
             }
         }
-
-        if(!freezeWriteOpNames.empty())
+        
+        if(!attributesMap.empty())
         {
-            freezeWriteOpNames.sort();
-            
-            StringList::iterator q;
-
-            out << sp << nl << "private final static String[] __freezeWriteOperations =";
+            out << sp << nl << "private final static int[] __operationAttributes =";
             out << sb;
-            q = freezeWriteOpNames.begin();
-            while(q != freezeWriteOpNames.end())
+
+            q = allOpNames.begin();
+            while(q != allOpNames.end())
             {
-                out << nl << '"' << *q << '"';
-                if(++q != freezeWriteOpNames.end())
+                int attributes = 0;
+                string opName = *q;
+                map<string, int>::iterator it = attributesMap.find(opName);
+                if(it != attributesMap.end())
+                {
+                    attributes = it->second;
+                }
+                out << nl << attributes;
+                if(++q != allOpNames.end())
                 {
                     out << ',';
                 }
-            }
+                out  << " // " << opName;
+            }            
             out << eb << ';';
 
-            out << sp << nl << "public int ice_operationAttributes(String operation)";
+            out << sp << nl << "public int";
+            out << nl << "ice_operationAttributes(String operation)";
             out << sb;
-            out << nl << "return (java.util.Arrays.binarySearch(__freezeWriteOperations, operation) >= 0) ? 1 : 0;";
+            out << nl << "int pos = java.util.Arrays.binarySearch(__all, operation);";
+            out << nl << "if(pos < 0)";
+            out << sb;
+            out << nl << "return -1;";
+            out << eb;
+            out << sp << nl << "return __operationAttributes[pos];";
             out << eb;
         }
     }

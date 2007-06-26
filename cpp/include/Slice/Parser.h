@@ -560,6 +560,7 @@ public:
     bool sendsClasses() const;
     bool returnsClasses() const;
     bool returnsData() const;
+    int attributes() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 

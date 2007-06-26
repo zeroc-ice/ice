@@ -1,0 +1,15 @@
+Casino.Endpoints=default -p 10000
+
+Ice.ThreadPool.Server.Size=10
+
+Freeze.Warn.Deadlocks=1
+#Freeze.Trace.Evictor=3
+
+#
+# The bank can have more chances of winning than regular players.
+# must be >= 1
+# 1 : like 1 players
+# 2 : like 2 players
+# etc
+#
+Bank.Edge=2
