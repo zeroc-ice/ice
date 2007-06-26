@@ -12,12 +12,14 @@
 <project name="demo_Freeze" default="all" basedir=".">
 
     <target name="all">
+        <ant dir="casino"/>
         <ant dir="phonebook"/>
         <ant dir="library"/>
         <ant dir="bench"/>
     </target>
 
     <target name="clean">
+        <ant dir="casino" target="clean"/>
         <ant dir="phonebook" target="clean"/>
         <ant dir="library" target="clean"/>
         <ant dir="bench" target="clean"/>

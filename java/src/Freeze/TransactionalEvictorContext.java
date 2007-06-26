@@ -97,17 +97,25 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
    
     class ServantHolder
     {
-        ServantHolder(Ice.Current current, ObjectStore store, boolean useNonmutating)
+        ServantHolder(Ice.Current current, ObjectStore store)
         {
             _current = current;
             _store = store;
-
+            
             ServantHolder sh = findServantHolder(_current.id, _store);
             if(sh != null)
             {
                 if(!sh._removed)
                 {
                     _rec = sh._rec;
+                    _readOnly = sh._readOnly;
+
+                    if(_trace >= 3)
+                    {
+                        _communicator.getLogger().trace("Freeze.Evictor", "found \"" 
+                                                        + _communicator.identityToString(_current.id) +"\" with facet \"" + _store.facet() 
+                                                        + "\" in current context");
+                    }
                 }
             }
             else
@@ -118,14 +126,31 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
                 _rec = store.load(current.id, _tx);
                 if(_rec != null)
                 {
+                    if(_trace >= 3)
+                    {
+                        _communicator.getLogger().trace("Freeze.Evictor", "loaded \"" 
+                                                        + _communicator.identityToString(_current.id) +"\" with facet \"" + _store.facet() 
+                                                        + "\" into current context");
+                    }
+
                     _stack.push(this);
                     _ownServant = true;
-                    
-                    //
-                    // Compute readonly properly
-                    //
-                    _readOnly = (useNonmutating && current.mode == Ice.OperationMode.Nonmutating) ||
-                        (!useNonmutating && (_rec.servant.ice_operationAttributes(current.operation) & 0x1) == 0);
+                }
+            }
+        }
+
+        void 
+        markReadWrite()
+        {
+            if(_ownServant)
+            {
+                _readOnly = false;
+            }
+            else
+            {
+                if(_readOnly)
+                {
+                    throw new DatabaseException("freeze:write operation called from freeze:read operation");
                 }
             }
         }
@@ -141,6 +166,13 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
                     {
                         EvictorI.updateStats(_rec.stats, System.currentTimeMillis());
                         _store.update(_current.id, _rec, _tx);
+
+                        if(_trace >= 3)
+                        {
+                            _communicator.getLogger().trace("Freeze.Evictor", "updated \"" 
+                                                            + _communicator.identityToString(_current.id) +"\" with facet \"" + _store.facet() 
+                                                            + "\" within transaction");
+                        }
                     }
                     
                     if(!_readOnly || _removed)
@@ -176,10 +208,10 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
         {
             _removed = true;
         }
-
-        private boolean _readOnly = false;
+     
         private boolean _ownServant = false;
         private boolean _removed = false;
+        private boolean _readOnly = true;
 
         private final Ice.Current _current;
         private final ObjectStore _store;
@@ -189,6 +221,8 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
 
     TransactionalEvictorContext(SharedDbEnv dbEnv)
     {
+        _communicator = dbEnv.getCommunicator();
+        _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
         _tx = (TransactionI)(new ConnectionI(dbEnv).beginTransaction());
         _owner = Thread.currentThread();
         _tx.adoptConnection();
@@ -196,12 +230,21 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
         _tx.setPostCompletionCallback(this);
     }
 
-    TransactionalEvictorContext(TransactionI tx)
+    TransactionalEvictorContext(TransactionI tx, Ice.Communicator communicator)
     {
+        _communicator = communicator;
+        _trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
         _tx = tx;
         _owner = Thread.currentThread();
 
         _tx.setPostCompletionCallback(this);
+    }
+
+    Ice.Object
+    findServant(Ice.Identity ident, ObjectStore store)
+    {
+        ServantHolder sh = findServantHolder(ident, store);
+        return sh != null ? sh.servant() : null;
     }
 
     void
@@ -240,9 +283,9 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
     }
 
     ServantHolder
-    createServantHolder(Ice.Current current, ObjectStore store, boolean useNonmutating)
+    createServantHolder(Ice.Current current, ObjectStore store)
     {
-        return new ServantHolder(current, store, useNonmutating);
+        return new ServantHolder(current, store);
     }
     
     void
@@ -344,4 +387,7 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
     // Protected by this
     //
     private boolean _deadlockExceptionDetected = false;
+
+    private final int _trace;
+    private final Ice.Communicator _communicator;
 }

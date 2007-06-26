@@ -3158,41 +3158,47 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             //
             // Check if we need to generate ice_operationAttributes()
             //
-            
-            StringList freezeWriteOpNames;
+            map<string, int> attributesMap;
             for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
             {
-                ClassDefPtr classDef = ClassDefPtr::dynamicCast((*r)->container());
-                assert(classDef != 0);
-                
-                if((*r)->hasMetaData("freeze:write") || 
-                   (classDef->hasMetaData("freeze:write") && !(*r)->hasMetaData("freeze:read")))
+                int attributes = (*r)->attributes();
+                if(attributes != 0)
                 {
-                    freezeWriteOpNames.push_back((*r)->name());
+                    attributesMap.insert(map<string, int>::value_type((*r)->name(), attributes));
                 }
             }
 
-            if(!freezeWriteOpNames.empty())
+            if(!attributesMap.empty())
             {
-                freezeWriteOpNames.sort();
-
                 H << sp;
                 H << nl
                   << "virtual ::Ice::Int ice_operationAttributes(const ::std::string&) const;";
                 
-                flatName = p->flattenedScope() + p->name() + "_freezeWriteOperations";
+                string opAttrFlatName = p->flattenedScope() + p->name() + "_operationAttributes";
+
                 C << sp;
-                C << nl << "static ::std::string " << flatName << "[] =";
+                C << nl << "static int " << opAttrFlatName << "[] = ";
                 C << sb;
-                q = freezeWriteOpNames.begin();
-                while(q != freezeWriteOpNames.end())
+               
+                q = allOpNames.begin();
+                while(q != allOpNames.end())
                 {
-                    C << nl << '"' << *q << '"';
-                    if(++q != freezeWriteOpNames.end())
+                    int attributes = 0;
+                    string opName = *q;
+                    map<string, int>::iterator it = attributesMap.find(opName);
+                    if(it != attributesMap.end())
+                    {
+                        attributes = it->second;
+                    }
+                    C << nl << attributes;
+                   
+                    if(++q != allOpNames.end())
                     {
                         C << ',';
                     }
+                    C << " // " << opName;
                 }
+                
                 C << eb << ';';
                 C << sp;
 
@@ -3200,10 +3206,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
                   << "::ice_operationAttributes(const ::std::string& opName) const";
                 C << sb;
                 
-                C << nl << "::std::string* end = " << flatName << " + " << freezeWriteOpNames.size() << ";";
-                C << nl << "::std::string* r = ::std::find(" << flatName << ", end, opName);";
-
-                C << nl << "return r == end ? 0 : 1;";
+                C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
+                  << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size()
+                  << ", opName);";
+                C << nl << "if(r.first == r.second)";
+                C << sb;
+                C << nl << "return -1;";
+                C << eb;
+              
+                C << nl << "return " << opAttrFlatName << "[r.first - " << flatName << "];";
                 C << eb;
             }
         }
