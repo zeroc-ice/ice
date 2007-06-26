@@ -50,6 +50,9 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------     
 
+- Fixed a bug in IceSSL that could cause a NullPointerException when
+  using TrustOnly properties.
+
 - Added support for protected class data members using the new
   metadata tag ["protected"]. The tag can be applied to a Slice class
   or to individual data members.

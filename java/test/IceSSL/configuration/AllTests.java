@@ -1224,6 +1224,34 @@ public class AllTests
             fact.destroyServer(server);
             comm.destroy();
         }
+        {
+            //
+            // Test rejection when client does not supply a certificate.
+            //
+            Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+            initData = createClientProps(defaultDir, defaultHost, threadPool);
+            initData.properties.setProperty("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+            test(fact != null);
+            java.util.Map d = createServerProps(defaultDir, defaultHost, threadPool);
+            d.put("IceSSL.TrustOnly",
+                  "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+            d.put("IceSSL.Ciphers", "NONE (.*DH_anon.*)");
+            d.put("IceSSL.VerifyPeer", "0");
+            Test.ServerPrx server = fact.createServer(d);
+            try
+            {
+                server.ice_ping();
+                test(false);
+            }
+            catch(Ice.LocalException ex)
+            {
+            }
+            fact.destroyServer(server);
+            comm.destroy();
+        }
         System.out.println("ok");
 
         System.out.print("testing IceSSL.TrustOnly.Client... ");

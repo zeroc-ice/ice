@@ -1273,6 +1273,36 @@ allTests(const CommunicatorPtr& communicator, const string& testDir)
         fact->destroyServer(server);
         comm->destroy();
     }
+    {
+        //
+        // Test rejection when client does not supply a certificate.
+        //
+        InitializationData initData;
+        initData.properties = createClientProps(defaultDir, defaultHost);
+        CommunicatorPtr comm = initialize(initData);
+        initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+        initData.properties->setProperty("IceSSL.VerifyPeer", "0");
+        IceSSL::PluginPtr plugin = IceSSL::PluginPtr::dynamicCast(comm->getPluginManager()->getPlugin("IceSSL"));
+        test(plugin);
+
+        Test::ServerFactoryPrx fact = Test::ServerFactoryPrx::checkedCast(comm->stringToProxy(factoryRef));
+        test(fact);
+        Test::Properties d = createServerProps(defaultDir, defaultHost);
+        d["IceSSL.TrustOnly"] = "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
+        d["IceSSL.Ciphers"] = "ADH";
+        d["IceSSL.VerifyPeer"] = "0";
+        Test::ServerPrx server = fact->createServer(d);
+        try
+        {
+            server->ice_ping();
+            test(false);
+        }
+        catch(const LocalException&)
+        {
+        }
+        fact->destroyServer(server);
+        comm->destroy();
+    }
     cout << "ok" << endl;
 
     cout << "testing IceSSL.TrustOnly.Client... " << flush;

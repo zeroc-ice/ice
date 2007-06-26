@@ -87,7 +87,7 @@ class TrustManager
         //
         // If there is no certificate then we match false.
         //
-        if(info.certs.length != 0)
+        if(info.certs != null && info.certs.length > 0)
         {
             javax.security.auth.x500.X500Principal subjectDN = (javax.security.auth.x500.X500Principal)
                 ((java.security.cert.X509Certificate)info.certs[0]).getSubjectX500Principal();

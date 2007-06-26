@@ -90,7 +90,7 @@ namespace IceSSL
             //
             // If there is no certificate then we match false.
             //
-            if(info.certs.Length != 0)
+            if(info.certs != null && info.certs.Length > 0)
             {
                 X500DistinguishedName subjectDN = info.certs[0].SubjectName;
                 string subjectName = subjectDN.Name;
