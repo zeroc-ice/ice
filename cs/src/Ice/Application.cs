@@ -46,7 +46,7 @@ namespace Ice
             _signalPolicy = signalPolicy;
 
 #if !__MonoCS__
-            if(_signalPolicy)
+            if(_signalPolicy == HandleSignals)
             {
                 bool rc = SetConsoleCtrlHandler(_handler, true); 
                 Debug.Assert(rc);
