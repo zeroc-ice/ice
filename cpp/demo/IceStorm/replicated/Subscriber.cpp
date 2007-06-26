@@ -89,7 +89,7 @@ public:
                                     {
                                         topic->subscribeAndGetPublisher(IceStorm::QoS(), _clock);
                                     }
-                                    catch(const IceStorm::AlreadySubscribed& ex)
+                                    catch(const IceStorm::AlreadySubscribed&)
                                     {
                                         // Ignore
                                     }
