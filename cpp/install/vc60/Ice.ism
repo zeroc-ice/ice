@@ -1276,7 +1276,6 @@
 		<row><td>ice_dev_cpp</td><td>ice_runtime_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_php</td><td>ice_runtime_php</td><td>##ID_STRING22##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_dev_ruby</td><td>ice_runtime_ruby</td><td>##ID_STRING25##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>0</td><td/><td/><td/><td/></row>
-		<row><td>ice_doc</td><td/><td>##ID_STRING16##</td><td/><td>12</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_cpp</td><td/><td>##ID_STRING20##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_runtime_php</td><td/><td>##ID_STRING21##</td><td/><td>14</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
