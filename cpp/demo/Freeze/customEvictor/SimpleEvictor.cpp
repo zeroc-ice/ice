@@ -24,7 +24,6 @@ SimpleEvictor::SimpleEvictor(CurrentDatabase& currentDb, int size) :
 {
 }
     
-
 Ice::ObjectPtr 
 SimpleEvictor::add(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
@@ -40,13 +39,12 @@ SimpleEvictor::add(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
     }
     
     //
-    // You can simulate more expensing cache-misses by adding a sleep here:
+    // You can simulate more expensive cache-misses by adding a sleep here:
     //
     // ThreadControl::sleep(Time::milliSeconds(1));
 
     //
-    // Use a const Database& to avoid starting a transaction 
-    // (just an optimization)
+    // Use a const Database& to avoid starting a transaction (just an optimization).
     //
     const Database& cdb = _currentDb.get();
     Database::const_iterator p = cdb.find(current.id.name);
@@ -64,6 +62,6 @@ void
 SimpleEvictor::evict(const Ice::ObjectPtr&, const Ice::LocalObjectPtr&)
 {
     //
-    // Nothing to do
+    // Nothing to do.
     //
 }

@@ -1763,6 +1763,16 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:";
     H.inc();
 
+    if(_dllExport != "")
+    {
+	//
+	// To export the virtual table
+	//
+	C << nl << "#ifdef __SUNPRO_CC";
+	C << nl << "class " << _dllExport << "IceProxy" << scoped << ";";
+	C << nl << "#endif";
+    }
+
     return true;
 }
 
@@ -3356,6 +3366,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
     }
 
+    bool inProtected = false;
+
     if(!p->isAbstract())
     {
         //
@@ -3370,6 +3382,42 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             H << sp << nl << "friend class " << p->name() << "__staticInit;";
         }
+
+        inProtected = true;
+    }
+
+    //
+    // Emit data members. Access visibility may be specified by metadata.
+    //
+    DataMemberList dataMembers = p->dataMembers();
+    DataMemberList::const_iterator q;
+    bool prot = p->hasMetaData("protected");
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        if(prot || (*q)->hasMetaData("protected"))
+        {
+            if(!inProtected)
+            {
+                H.dec();
+                H << sp << nl << "protected:";
+                H.inc();
+                inProtected = true;
+            }
+        }
+        else
+        {
+            if(inProtected)
+            {
+                H.dec();
+                H << sp << nl << "public:";
+                H.inc();
+                inProtected = false;
+            }
+        }
+
+        string name = fixKwd((*q)->name());
+        string s = typeToString((*q)->type(), _useWstring, (*q)->getMetaData());
+        H << sp << nl << s << ' ' << name << ';';
     }
 
     H << eb << ';';
@@ -3380,6 +3428,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         // We need an instance here to trigger initialization if the implementation is in a shared library.
         // But we do this only once per source file, because a single instance is sufficient to initialize
         // all of the globals in a shared library.
+        //
         // For a Slice class Foo, we instantiate a dummy class Foo__staticInit instead of using a static
         // Foo instance directly because Foo has a protected destructor.
         //
@@ -3670,10 +3719,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             C << sb;
             C << nl << name << "_async" << argsAMD << ';';
             C << eb;
-            C << nl << "catch(const ::Ice::Exception& __ex)";
-            C << sb;
-            C << nl << "__cb->ice_exception(__ex);";
-            C << eb;
             C << nl << "catch(const ::std::exception& __ex)";
             C << sb;
             C << nl << "__cb->ice_exception(__ex);";
@@ -3686,14 +3731,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         }           
         C << eb;
     }   
-}
-
-void
-Slice::Gen::ObjectVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    string name = fixKwd(p->name());
-    string s = typeToString(p->type(), _useWstring, p->getMetaData());
-    H << nl << s << ' ' << name << ';';
 }
 
 void
@@ -4898,7 +4935,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         H.inc();
         H << sp;
         H << nl << "virtual void ice_response" << spar << paramsAMD << epar << " = 0;";
-        H << nl << "virtual void ice_exception(const ::Ice::Exception&) = 0;";
         H << nl << "virtual void ice_exception(const ::std::exception&) = 0;";
         H << nl << "virtual void ice_exception() = 0;";
         H << eb << ';';
@@ -5057,7 +5093,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     
     H << sp;
     H << nl << "virtual void ice_response(" << params << ");";
-    H << nl << "virtual void ice_exception(const ::Ice::Exception&);";
     H << nl << "virtual void ice_exception(const ::std::exception&);";
     H << nl << "virtual void ice_exception();";
     H << eb << ';';
@@ -5101,7 +5136,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::Ice::Exception& ex)";
+      << "::ice_exception(const ::std::exception& ex)";
     C << sb;
     if(throws.empty())
     {
@@ -5112,39 +5147,32 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        C << nl << "try";
-        C << sb;
-        C << nl << "ex.ice_throw();";
-        C << eb;
         ExceptionList::const_iterator r;
         for(r = throws.begin(); r != throws.end(); ++r)
         {
-            C << nl << "catch(const " << fixKwd((*r)->scoped()) << "& __ex)";
+            C << nl;
+            if(r != throws.begin())
+            {
+                 C << "else ";
+            }
+            C << "if(const " << fixKwd((*r)->scoped()) << "* __ex = dynamic_cast<const " << fixKwd((*r)->scoped()) 
+              << "*>(&ex))";
             C << sb;
             C << nl <<"if(__validateResponse(false))";
             C << sb;
-            C << nl << "__os()->write(__ex);";
+            C << nl << "__os()->write(*__ex);";
             C << nl << "__response(false);";
             C << eb;
             C << eb;
         }
-        C << nl << "catch(const ::Ice::Exception& __ex)";
+        C << nl << "else";
         C << sb;
-        C << nl << "if(__validateException(__ex))";
+        C << nl << "if(__validateException(ex))";
         C << sb;
-        C << nl << "__exception(__ex);";
+        C << nl << "__exception(ex);";
         C << eb;
         C << eb;
     }
-    C << eb;
-    
-    C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name
-      << "::ice_exception(const ::std::exception& ex)";
-    C << sb;
-    C << nl << "if(__validateException(ex))";
-    C << sb;
-    C << nl << "__exception(ex);";
-    C << eb;
     C << eb;
     
     C << sp << nl << "void" << nl << "IceAsync" << classScopedAMD << '_' << name

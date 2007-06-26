@@ -107,9 +107,7 @@ BookI::returnBook(const Ice::Current&)
     rentalCustomerName.clear();;
 }
 
-// Needs to be extern for the Sun C++ 5.4 compiler
-//
-extern Ice::Identity
+Ice::Identity
 createBookIdentity(const string& isbn)
 {
     //
@@ -157,17 +155,7 @@ LibraryI::createBook(const Demo::BookDescription& description, const Ice::Curren
 {
     IceUtil::Mutex::Lock lock(*this);
 
-#if defined(__SUNPRO_CC)
-    //
-    // Strange CC bug (only when optimizing and raising BookExistsException)
-    //
-    BookPrx book;
-    {
-        book = IsbnToBook(c.adapter)(description.isbn);
-    }
-#else
     BookPrx book = IsbnToBook(c.adapter)(description.isbn);
-#endif
     try
     {
         book->ice_ping();

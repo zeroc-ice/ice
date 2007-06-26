@@ -139,6 +139,33 @@ public class AllTests
         }
         System.out.println("ok");
 
+        System.out.print("testing protected members... ");
+        System.out.flush();
+        E e = initial.getE();
+        test(e.checkValues());
+        try
+        {
+            test((E.class.getDeclaredField("i").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
+            test((E.class.getDeclaredField("s").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
+        }
+        catch(Exception ex)
+        {
+            test(false);
+        }
+        F f = initial.getF();
+        test(f.checkValues());
+        test(f.e2.checkValues());
+        try
+        {
+            test((F.class.getDeclaredField("e1").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
+            test((F.class.getDeclaredField("e2").getModifiers() & java.lang.reflect.Modifier.PROTECTED) == 0);
+        }
+        catch(Exception ex)
+        {
+            test(false);
+        }
+        System.out.println("ok");
+
         System.out.print("getting I, J and H... ");
         System.out.flush();
         I i = initial.getI();

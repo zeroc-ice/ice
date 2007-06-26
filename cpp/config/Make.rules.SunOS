@@ -17,7 +17,7 @@
 # comment it out and define CXX=<desired-compiler> in your environment.
 # If CXX is not defined anywhere, the default (from gmake) is g++. 
 #
-CXX  ?= CC
+CXX = CC
 
 # This variable is used to determine the machine type.
 # For SUN UltraSPARC machines: sun4u

@@ -96,24 +96,6 @@ IceInternal::IncomingAsync::__response(bool ok)
 }
 
 void
-IceInternal::IncomingAsync::__exception(const Exception& exc)
-{
-    try
-    {
-        if(!__servantLocatorFinished())
-        {
-            return;
-        }
-
-        __handleException(exc);
-    }
-    catch(const LocalException& ex)
-    {
-        _connection->invokeException(ex, 1);  // Fatal invocation exception
-    }
-}
-
-void
 IceInternal::IncomingAsync::__exception(const std::exception& exc)
 {
     try
@@ -159,11 +141,6 @@ IceInternal::IncomingAsync::__servantLocatorFinished()
             _locator->finished(_current, _servant, _cookie);
         }
         return true;
-    }
-    catch(const Exception& ex)
-    {
-        __handleException(ex);
-        return false;
     }
     catch(const std::exception& ex)
     {
@@ -311,15 +288,6 @@ IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& 
 }
 
 void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const Exception& ex)
-{
-    if(__validateException(ex))
-    {
-        __exception(ex);
-    }
-}
-
-void
 IceAsync::Ice::AMD_Object_ice_invoke::ice_exception(const std::exception& ex)
 {
     if(__validateException(ex))
@@ -357,15 +325,6 @@ IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_response(bool ok, const pair<con
             return;
         }
         __response(ok);
-    }
-}
-
-void
-IceAsync::Ice::AMD_Array_Object_ice_invoke::ice_exception(const Exception& ex)
-{
-    if(__validateException(ex))
-    {
-        __exception(ex);
     }
 }
 

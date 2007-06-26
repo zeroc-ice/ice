@@ -19,6 +19,8 @@ public final class InitialI extends Initial
         _b2 = new BI();
         _c = new CI();
         _d = new DI();
+        _e = new EI();
+        _f = new FI(_e);
 
         _b1.theA = _b2; // Cyclic reference to another B
         _b1.theB = _b1; // Self reference.
@@ -85,6 +87,18 @@ public final class InitialI extends Initial
         return _d;
     }
 
+    public E
+    getE(Ice.Current current)
+    {
+        return _e;
+    }
+
+    public F
+    getF(Ice.Current current)
+    {
+        return _f;
+    }
+
     public I
     getI(Ice.Current current)
     {
@@ -119,4 +133,6 @@ public final class InitialI extends Initial
     private B _b2;
     private C _c;
     private D _d;
+    private E _e;
+    private F _f;
 }

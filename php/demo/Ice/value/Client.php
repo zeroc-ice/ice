@@ -31,7 +31,7 @@ class DerivedPrinterI extends Demo_DerivedPrinter
     }
 }
 
-class ObjectFactory extends Ice_LocalObjectImpl implements Ice_ObjectFactory
+class ObjectFactory implements Ice_ObjectFactory
 {
     function create($type)
     {

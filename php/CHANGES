@@ -1,6 +1,10 @@
 Changes since version 3.2.x (HEAD ONLY)
 ---------------------------
 
+- LocalObject is now mapped to PHP's base object type. The interface
+  Ice.LocalObject and the abstract class Ice.LocalObjectImpl are now
+  deprecated.
+
 - Added support for an optional context argument to ice_checkedCast
   and ice_uncheckedCast.
 
@@ -14,6 +18,10 @@ Changes since version 3.2.x (HEAD ONLY)
 
 Changes since version 3.2.0
 ---------------------------
+
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
 
 - Added Communicator::setProperty.
 

@@ -1206,17 +1206,10 @@ Freeze::BackgroundSaveEvictorI::run()
             }
         }
     }
-    catch(const IceUtil::Exception& ex)
-    {
-        Error out(_communicator->getLogger());
-        out << "Saving thread killed by exception: " << ex;
-        out.flush();
-        handleFatalError(this, _communicator);
-    }
     catch(const std::exception& ex)
     {
         Error out(_communicator->getLogger());
-        out << "Saving thread killed by std::exception: " << ex.what();
+        out << "Saving thread killed by exception: " << ex.what();
         out.flush();
         handleFatalError(this, _communicator);
     }

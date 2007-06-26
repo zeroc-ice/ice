@@ -31,7 +31,6 @@ public:
 protected:
 
     void __response(bool);
-    void __exception(const Ice::Exception&);
     void __exception(const std::exception&);
     void __exception();
 
@@ -73,7 +72,6 @@ class ICE_API AMD_Object_ice_invoke : virtual public IceUtil::Shared
 public:
     
     virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
-    virtual void ice_exception(const IceUtil::Exception&) = 0;
     virtual void ice_exception(const std::exception&) = 0;
     virtual void ice_exception() = 0;
 };
@@ -83,7 +81,6 @@ class ICE_API AMD_Array_Object_ice_invoke : virtual public IceUtil::Shared
 public:
     
     virtual void ice_response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&) = 0;
-    virtual void ice_exception(const IceUtil::Exception&) = 0;
     virtual void ice_exception(const std::exception&) = 0;
     virtual void ice_exception() = 0;
 };
@@ -103,7 +100,6 @@ public:
     AMD_Object_ice_invoke(IceInternal::Incoming&);
     
     virtual void ice_response(bool, const std::vector< ::Ice::Byte>&);
-    virtual void ice_exception(const IceUtil::Exception&);
     virtual void ice_exception(const std::exception&);
     virtual void ice_exception();
 };
@@ -116,7 +112,6 @@ public:
     AMD_Array_Object_ice_invoke(IceInternal::Incoming&);
     
     virtual void ice_response(bool, const std::pair<const ::Ice::Byte*, const ::Ice::Byte*>&);
-    virtual void ice_exception(const IceUtil::Exception&);
     virtual void ice_exception(const std::exception&);
     virtual void ice_exception();
 };

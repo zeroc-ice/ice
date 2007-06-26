@@ -7,20 +7,16 @@
 //
 // **********************************************************************
 
-import Demo.*;
+using Test;
 
-public class HelloI extends _HelloDisp
+public sealed class EI : E
 {
-    public HelloI(String name)
+    public EI() : base(1, "hello")
     {
-        _name = name;
     }
 
-    public void
-    sayHello(Ice.Current current)
+    public override bool checkValues(Ice.Current current)
     {
-        System.out.println(_name + " says Hello World!");
+        return i == 1 && s.Equals("hello");
     }
-
-    private final String _name;
 }

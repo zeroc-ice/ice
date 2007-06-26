@@ -24,6 +24,10 @@ class MyObjectFactory(Ice.ObjectFactory):
             return TestI.CI()
         elif type == '::Test::D':
             return TestI.DI()
+        elif type == '::Test::E':
+            return TestI.EI()
+        elif type == '::Test::F':
+            return TestI.FI()
         elif type == '::Test::I':
             return TestI.II()
         elif type == '::Test::J':
@@ -45,43 +49,56 @@ def allTests(communicator, collocated):
     communicator.addObjectFactory(factory, '::Test::B')
     communicator.addObjectFactory(factory, '::Test::C')
     communicator.addObjectFactory(factory, '::Test::D')
+    communicator.addObjectFactory(factory, '::Test::E')
+    communicator.addObjectFactory(factory, '::Test::F')
     communicator.addObjectFactory(factory, '::Test::I')
     communicator.addObjectFactory(factory, '::Test::J')
     communicator.addObjectFactory(factory, '::Test::H')
 
-    print "testing stringToProxy... ",
+    print "testing stringToProxy...",
     ref = "initial:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"
 
-    print "testing checked cast... ",
+    print "testing checked cast...",
     initial = Test.InitialPrx.checkedCast(base)
     test(initial)
     test(initial == base)
     print "ok"
 
-    print "getting B1... ",
+    print "getting B1...",
     b1 = initial.getB1()
     test(b1)
     print "ok"
     
-    print "getting B2... ",
+    print "getting B2...",
     b2 = initial.getB2()
     test(b2)
     print "ok"
     
-    print "getting C... ",
+    print "getting C...",
     c = initial.getC()
     test(c)
     print "ok"
     
-    print "getting D... ",
+    print "getting D...",
     d = initial.getD()
     test(d)
     print "ok"
+
+    print "testing protected members...",
+    e = initial.getE()
+    test(e.checkValues())
+    test(e._i == 1)
+    test(e._s == "hello")
+    f = initial.getF()
+    test(f.checkValues())
+    test(f.e2.checkValues())
+    test(f._e1.checkValues())
+    print "ok"
     
-    print "getting I, J, H... ",
+    print "getting I, J, H...",
     i = initial.getI()
     test(i)
     j = initial.getJ()
@@ -90,13 +107,13 @@ def allTests(communicator, collocated):
     test(isinstance(h, Test.H))
     print "ok"
 
-    print "setting I... ",
+    print "setting I...",
     initial.setI(TestI.II())
     initial.setI(TestI.JI())
     initial.setI(TestI.HI())
     print "ok"
     
-    print "checking consistency... ",
+    print "checking consistency...",
     test(b1 != b2)
     test(b1 != c)
     test(b1 != d)
@@ -121,7 +138,7 @@ def allTests(communicator, collocated):
     test(d.theC == None)
     print "ok"
 
-    print "getting B1, B2, C, and D all at once... ",
+    print "getting B1, B2, C, and D all at once...",
     b1, b2, c, d = initial.getAll()
     test(b1)
     test(b2)
@@ -129,7 +146,7 @@ def allTests(communicator, collocated):
     test(d)
     print "ok"
     
-    print "checking consistency... ",
+    print "checking consistency...",
     test(b1 != b2)
     test(b1 != c)
     test(b1 != d)
@@ -157,7 +174,7 @@ def allTests(communicator, collocated):
     print "ok"
 
     if not collocated:
-        print "testing UnexpectedObjectException... ",
+        print "testing UnexpectedObjectException...",
         ref = "uoet:default -p 12010 -t 10000"
         base = communicator.stringToProxy(ref)
         test(base)

@@ -744,11 +744,16 @@ SubscriberLink::offline(const Ice::Exception& e)
 SubscriberPtr
 Subscriber::create(
     const InstancePtr& instance,
+    const string& topicName,
     const Ice::ObjectPrx& obj,
     const IceStorm::QoS& qos)
 {
     PerSubscriberPublisherIPtr per = new PerSubscriberPublisherI(instance);
-    Ice::ObjectPrx proxy = instance->objectAdapter()->addWithUUID(per);
+    Ice::Identity perId;
+    perId.category = instance->instanceName();
+    perId.name = "topic." + topicName + ".publish." +
+                 instance->communicator()->identityToString(obj->ice_getIdentity());
+    Ice::ObjectPrx proxy = instance->objectAdapter()->add(per, perId);
     TraceLevelsPtr traceLevels = instance->traceLevels();
     SubscriberPtr subscriber;
 

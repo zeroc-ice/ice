@@ -49,7 +49,7 @@ public:
         // Measures how long it takes to read 'readCount' items at random
         //
         IceUtil::Time start = IceUtil::Time::now();
-        
+
         try
         {
             for(int i = 0; i < readCount; ++i)
@@ -58,7 +58,7 @@ public:
                 ostringstream os;
                 os << "P/N " << id;
                 string name = os.str();
-                
+
                 Ice::Identity identity;
                 identity.name = name;
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
@@ -78,7 +78,7 @@ public:
     }
 
 private:
-    
+
     const ItemPrx _anItem;
     int _requestsPerSecond;
 };
@@ -97,16 +97,16 @@ public:
     virtual void run()
     {
         //
-        // Measure how long it takes to write 'writeCount' items at random
+        // Measure how long it takes to write 'writeCount' items at random.
         //
         IceUtil::Time start = IceUtil::Time::now();
-        
+
         try
         {
             for(int i = 0; i < writeCount; ++i)
             {
                 int id = IceUtil::random(objectCount);
-                    
+
                 ostringstream os;
                 os << "P/N " << id;
                 string name = os.str();
@@ -114,7 +114,7 @@ public:
                 Ice::Identity identity;
                 identity.name = name;
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
-                
+
                 item->adjustStock(1);
             }
             _requestsPerSecond = static_cast<int>(writeCount / (IceUtil::Time::now() - start).toSecondsDouble());  
@@ -124,14 +124,14 @@ public:
             cerr << "Unexpected exception in WriterThread: " << e << endl;
         }   
     }
-    
+
     int getRequestsPerSecond() const
     {
         return _requestsPerSecond;
     }
 
 private:
-    
+
     const ItemPrx _anItem;
     int _requestsPerSecond;
 };
@@ -141,12 +141,12 @@ int
 WarehouseClient::run(int argc, char* argv[])
 {
     //
-    // Retrieve a proxy to one item (any item will do)
+    // Retrieve a proxy to one item (any item will do).
     //
     ItemPrx anItem = ItemPrx::checkedCast(communicator()->propertyToProxy("Item.Proxy"));
 
     //
-    // Start 1 writer and 5 readers
+    // Start 1 writer and 5 readers.
     //
     WriterThreadPtr wt = new WriterThread(anItem);
     wt->start();
@@ -168,7 +168,7 @@ WarehouseClient::run(int argc, char* argv[])
     }
 
     //
-    // Display results:
+    // Display results.
     //
     cout.precision(3);
     int rpt = wt->getRequestsPerSecond();
@@ -186,6 +186,6 @@ WarehouseClient::run(int argc, char* argv[])
 		 << " ms per request)" << endl;
         }
     }
-    
+
     return EXIT_SUCCESS;
 }

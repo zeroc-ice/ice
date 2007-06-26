@@ -7,17 +7,24 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
+import Test.*;
 
-module Demo
+public final class FI extends F
 {
+    public
+    FI()
+    {
+    }
 
-interface Hello
-{
-    idempotent void sayHello();
-};
+    public
+    FI(E e)
+    {
+        super(e, e);
+    }
 
-};
-
-#endif
+    public boolean
+    checkValues(Ice.Current current)
+    {
+        return e1 != null && e1 == e2;
+    }
+}

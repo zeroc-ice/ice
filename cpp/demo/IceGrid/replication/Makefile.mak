@@ -49,10 +49,10 @@ clean::
 	del /q Hello.cpp Hello.h
 
 clean::
-	for %d in (master replica1 replica2) do \
+	-for %d in (master replica1 replica2) do \
 	  for %f in (db\%d\*) do if not %f == db\%d\.gitignore del /q %f
-        for %d in (node1 node2) do \
+	-for %d in (node1 node2) do \
 	  for %f in (db\%d\*) do if not %f == db\%d\.gitignore del /q %f
-	  for %f in (distrib servers tmp) do if exist db\%d\%f rmdir /s /q db\%d\%f
+	-for %f in (distrib servers tmp) do if exist db\%d\%f rmdir /s /q db\%d\%f
 
 !include .depend

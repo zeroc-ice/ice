@@ -182,9 +182,13 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
         _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
         _out.inc();
-        _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
-        if(!p->isLocal())
+        if(p->isLocal())
         {
+            _out << nl << name << " = ::Ice::__declareLocalClass('" << scoped << "')";
+        }
+        else
+        {
+            _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
             _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
         }
         _out.dec();
@@ -353,14 +357,39 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList members = p->dataMembers();
     if(!members.empty())
     {
+        bool prot = p->hasMetaData("protected");
+        DataMemberList protectedMembers;
+        DataMemberList::iterator q;
+
         _out << sp << nl << "attr_accessor ";
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for(q = members.begin(); q != members.end(); ++q)
         {
             if(q != members.begin())
             {
                 _out << ", ";
             }
             _out << ":" << fixIdent((*q)->name(), IdentNormal);
+            if(prot || (*q)->hasMetaData("protected"))
+            {
+                protectedMembers.push_back(*q);
+            }
+        }
+
+        if(!protectedMembers.empty())
+        {
+            _out << nl << "protected ";
+            for(q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
+            {
+                if(q != protectedMembers.begin())
+                {
+                    _out << ", ";
+                }
+                //
+                // We need to list the symbols of the reader and the writer (e.g., ":member" and ":member=").
+                //
+                _out << ":" << fixIdent((*q)->name(), IdentNormal) << ", :"
+                     << fixIdent((*q)->name(), IdentNormal) << '=';
+            }
         }
     }
 
@@ -537,9 +566,13 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
     _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-    if(!p->isLocal())
+    if(p->isLocal())
     {
+        _out << nl << "T_" << name << " = ::Ice::__declareLocalClass('" << scoped << "')";
+    }
+    else
+    {
+        _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
         _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
     }
     _out.dec();

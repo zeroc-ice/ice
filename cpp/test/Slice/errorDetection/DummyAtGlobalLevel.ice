@@ -7,20 +7,21 @@
 //
 // **********************************************************************
 
-using System;
-using Demo;
-
-public class HelloI : HelloDisp_
+interface Foo
 {
-    public HelloI(string name)
-    {
-        _name = name;
-    }
+    void op() throws UndefinedException;
+    void op2() throws class;
+};
 
-    public override void sayHello(Ice.Current current)
-    {
-        Console.WriteLine(_name + " says Hello World!");
-    }
+sequence<int> IntSeq;
 
-    private string _name;
-}
+struct S
+{
+    int i;
+};
+
+dictionary<string, string> StringDict;
+
+enum E { red };
+
+const int x = 1;

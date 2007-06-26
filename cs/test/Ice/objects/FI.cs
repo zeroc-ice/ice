@@ -7,17 +7,20 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
+using Test;
 
-module Demo
+public sealed class FI : F
 {
+    public FI()
+    {
+    }
 
-interface Hello
-{
-    idempotent void sayHello();
-};
+    public FI(E e) : base(e, e)
+    {
+    }
 
-};
-
-#endif
+    public override bool checkValues(Ice.Current current)
+    {
+        return e1 != null && e1 == e2;
+    }
+}

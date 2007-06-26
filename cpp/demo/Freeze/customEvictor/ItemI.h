@@ -38,7 +38,6 @@ private:
     Warehouse::ItemInfo _cachedInfo;
     IceUtil::Mutex _mutex;
 };
-
 typedef IceUtil::Handle<ItemI> ItemIPtr;
 
 #endif

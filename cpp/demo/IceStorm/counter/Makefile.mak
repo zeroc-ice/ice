@@ -48,9 +48,9 @@ $(SERVER): $(OBJS) $(SOBJS)
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 
 clean::
-	del /q Counter.cpp Counter.h
+	-del /q Counter.cpp Counter.h
 
 clean::
-	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

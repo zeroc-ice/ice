@@ -18,7 +18,7 @@ int cacheMisses = 0;
 }
 
 //
-// Cache
+// EvictorCache
 //
 EvictorCache::EvictorCache(CurrentDatabase& currentDb) :
     _currentDb(currentDb)
@@ -26,7 +26,7 @@ EvictorCache::EvictorCache(CurrentDatabase& currentDb) :
 }
 
 //
-// Just returns 0 if object is not found
+// Returns 0 if object is not found.
 //
 EvictorEntryPtr
 EvictorCache::load(const Ice::Identity& itemId)
@@ -39,15 +39,14 @@ EvictorCache::load(const Ice::Identity& itemId)
             cout << cacheMisses << " cache misses" << endl;
         }
     }
-  
+
     //
-    // You can simulate more expensing cache-misses by adding a sleep here:
+    // You can simulate more expensive cache-misses by adding a sleep here:
     //
     // ThreadControl::sleep(Time::milliSeconds(1));
 
     //
-    // Use a const Database& to avoid starting a transaction 
-    // (just an optimization)
+    // Use a const Database& to avoid starting a transaction (just an optimization).
     //
     const Database& cdb = _currentDb.get();
     Database::const_iterator p = cdb.find(itemId.name);
@@ -62,7 +61,7 @@ EvictorCache::load(const Ice::Identity& itemId)
 }
 
 //
-// Finish to initialize the entry after it has been inserted in the
+// Finish initializing the entry after it has been inserted in the
 // Cache map, but before any other thread can find it.
 //
 // pinned() is called while IceUtil::Cache's internal mutex is locked,
@@ -80,7 +79,6 @@ EvictorCache::pinned(const EvictorEntryPtr& entry, EvictorCache::Position cp)
 //
 // EvictorEntry
 //
-
 EvictorEntry::EvictorEntry(const ItemIPtr& item) :
     servant(item),
     useCount(-1),
@@ -91,7 +89,6 @@ EvictorEntry::EvictorEntry(const ItemIPtr& item) :
 //
 // Evictor
 //
-
 Evictor::Evictor(CurrentDatabase& currentDb, int size) :
     _cache(currentDb),
     _queueSize(0),
@@ -103,20 +100,21 @@ Ice::ObjectPtr
 Evictor::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
     cookie = 0;
-   
+
     //
     // Lookup the cookie (EvictorEntry) in the cache; this will call load() 
     // if the entry is not yet in there.
-    // If we get an entry that was just evicted (stale == true), we try again
+    //
+    // If we get an entry that was just evicted (stale == true), we try again.
     //
     for(;;)
     {
         EvictorEntryPtr entry = _cache.pin(current.id);
-    
+
         if(entry == 0)
         {
             //
-            // Will raise ObjectNotExistException
+            // Will raise ObjectNotExistException.
             //
             return 0;
         }
@@ -124,20 +122,20 @@ Evictor::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
         {
             {
                 //
-                // Lock _mutex when reading/writing useCount, stale and queuePosition 
+                // Lock _mutex when reading/writing useCount, stale and queuePosition.
                 //
                 Mutex::Lock lock(_mutex);
-                
+
                 if(entry->stale)
                 {
                     //
-                    // Another thread just evicted this entry: try again
+                    // Another thread just evicted this entry; try again.
                     //
                     continue;
                 }
-                
+
                 cookie = entry;
-                    
+
                 if(entry->useCount < 0)
                 {
                     entry->useCount = 0;
@@ -147,20 +145,20 @@ Evictor::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
                 {
                     _queue.erase(entry->queuePosition);
                 }
-                
+
                 _queue.push_front(entry);
                 entry->queuePosition = _queue.begin();
                 entry->useCount++;
             }
         }
-        
+
         //
-        // We have at least one useCount, and servant is immutable
+        // We have at least one useCount, and servant is immutable.
         //
         return entry->servant;
     }
 }
- 
+
 void 
 Evictor::finished(const Ice::Current& current, const Ice::ObjectPtr& servant, 
                   const Ice::LocalObjectPtr& cookie)
@@ -168,7 +166,7 @@ Evictor::finished(const Ice::Current& current, const Ice::ObjectPtr& servant,
     if(cookie != 0)
     {
         Mutex::Lock lock(_mutex);
-        
+
         EvictorEntryPtr entry = EvictorEntryPtr::dynamicCast(cookie);
         assert(entry != 0);
 
@@ -191,13 +189,12 @@ void
 Evictor::evict()
 {
     //
-    // Called with _mutex locked
-    // Try to erase the excess entries
+    // Called with _mutex locked; try to erase the excess entries.
     //
     EvictorQueue::reverse_iterator p = _queue.rbegin();
 
     int toErase = (_queueSize - _size);
- 
+
     while(toErase > 0 && p != _queue.rend())
     {
         //
@@ -207,14 +204,14 @@ Evictor::evict()
         {
             ++p;
         }
-       
+
         if(p != _queue.rend())
         {
             EvictorEntryPtr& entry = *p;
             assert(!entry->stale);
             entry->stale = true;
             _cache.unpin(entry->cachePosition);
-            
+
             //
             // Erase returns a normal iterator to the item after the erased item;
             // and then reverse_iterator() makes q point to the item before it.
@@ -225,4 +222,3 @@ Evictor::evict()
         }
     }
 }
-

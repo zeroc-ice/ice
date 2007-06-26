@@ -1247,11 +1247,29 @@ IceRuby::ClassInfo::validate(VALUE val)
     // an ICE_TYPE constant that refers to this class, or a subclass of this class.
     //
     volatile VALUE cls = CLASS_OF(val);
-    volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-    if(NIL_P(type))
+    volatile VALUE type = Qnil;
+    try
     {
-        return false;
+        type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
     }
+    catch(const RubyException& ex)
+    {
+        if(callRuby(rb_obj_is_instance_of, ex.ex, rb_eNameError) == Qtrue)
+        {
+            //
+            // The ICE_TYPE constant will be missing from an instance of LocalObject
+            // if it does not implement a user-defined type. This means the user
+            // could potentially pass any kind of object; there isn't much we can do
+            // since LocalObject maps to the base object type.
+            //
+            return id == "::Ice::LocalObject";
+        }
+        else
+        {
+            throw;
+        }
+    }
+    assert(!NIL_P(type));
     ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(type));
     assert(info);
     return info->isA(this);
@@ -1342,8 +1360,39 @@ IceRuby::ClassInfo::print(VALUE value, IceUtil::Output& out, PrintObjectHistory*
         else
         {
             volatile VALUE cls = CLASS_OF(value);
-            volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
-            ClassInfoPtr info = ClassInfoPtr::dynamicCast(getType(type));
+            volatile VALUE type = Qnil;
+            ClassInfoPtr info;
+            try
+            {
+                type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
+                info = ClassInfoPtr::dynamicCast(getType(type));
+                assert(info);
+            }
+            catch(const RubyException& ex)
+            {
+                if(callRuby(rb_obj_is_instance_of, ex.ex, rb_eNameError) == Qtrue)
+                {
+                    //
+                    // The ICE_TYPE constant will be missing from an instance of LocalObject
+                    // if it does not implement a user-defined type. This means the user
+                    // could potentially pass any kind of object; there isn't much we can do
+                    // since LocalObject maps to the base object type.
+                    //
+                    if(id == "::Ice::LocalObject")
+                    {
+                        info = this;
+                    }
+                    else
+                    {
+                        out << "<invalid value - expected " << id << ">";
+                        return;
+                    }
+                }
+                else
+                {
+                    throw;
+                }
+            }
             assert(info);
             out << "object #" << history->index << " (" << info->id << ')';
             history->objects.insert(map<VALUE, int>::value_type(value, history->index));
@@ -1401,7 +1450,7 @@ IceRuby::ClassInfo::isA(const ClassInfoPtr& info)
     //
     // Return true if this class has an is-a relationship with info.
     //
-    if(info->isIceObject)
+    if(info->isBase && isLocal == info->isLocal)
     {
         return true;
     }
@@ -1936,7 +1985,34 @@ IceRuby_declareClass(VALUE /*self*/, VALUE id)
         {
             info = new ClassInfo;
             info->id = idstr;
-            info->isIceObject = idstr == "::Ice::Object";
+            info->isBase = idstr == "::Ice::Object";
+            info->isLocal = false;
+            info->rubyClass = Qnil;
+            info->typeObj = createType(info);
+            info->defined = false;
+            addClassInfo(idstr, info);
+        }
+
+        return info->typeObj;
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_declareLocalClass(VALUE /*self*/, VALUE id)
+{
+    ICE_RUBY_TRY
+    {
+        string idstr = getString(id);
+        ClassInfoPtr info = lookupClassInfo(idstr);
+        if(!info)
+        {
+            info = new ClassInfo;
+            info->id = idstr;
+            info->isBase = idstr == "::Ice::LocalObject";
+            info->isLocal = true;
             info->rubyClass = Qnil;
             info->typeObj = createType(info);
             info->defined = false;
@@ -2157,6 +2233,7 @@ IceRuby::initTypes(VALUE iceModule)
     rb_define_module_function(iceModule, "__defineDictionary", CAST_METHOD(IceRuby_defineDictionary), 3);
     rb_define_module_function(iceModule, "__declareProxy", CAST_METHOD(IceRuby_declareProxy), 1);
     rb_define_module_function(iceModule, "__declareClass", CAST_METHOD(IceRuby_declareClass), 1);
+    rb_define_module_function(iceModule, "__declareLocalClass", CAST_METHOD(IceRuby_declareLocalClass), 1);
     rb_define_module_function(iceModule, "__defineException", CAST_METHOD(IceRuby_defineException), 4);
 
     rb_define_method(_typeInfoClass, "defineClass", CAST_METHOD(IceRuby_TypeInfo_defineClass), 5);

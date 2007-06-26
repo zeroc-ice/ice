@@ -266,7 +266,7 @@ exception_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = $2;
+    $$ = $2; // Dummy
 }
 ;
 
@@ -378,7 +378,7 @@ struct_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     unit->error("keyword `" + ident->v + "' cannot be used as struct name");
-    $$ = $2;
+    $$ = $2; // Dummy
 }
 ;
 
@@ -388,7 +388,7 @@ struct_decl
 : local_qualifier struct_id
 {
     unit->error("structs cannot be forward declared");
-    $$ = 0;
+    $$ = 0; // Dummy
 }
 ;
 
@@ -423,7 +423,7 @@ struct_def
     assert(st);
     if(st->dataMembers().empty())
     {
-    	unit->error("struct `" + st->name() + "' must have at least one member");
+    	unit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
 ;
@@ -469,7 +469,7 @@ class_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     unit->error("keyword `" + ident->v + "' cannot be used as class name");
-    $$ = $2;
+    $$ = $2; // Dummy
 }
 ;
 
@@ -639,17 +639,17 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-	$$ = cl->createDataMember(name, type);
+	$$ = cl->createDataMember(name, type); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-	$$ = st->createDataMember(name, type);
+	$$ = st->createDataMember(name, type); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-	$$ = ex->createDataMember(name, type);
+	$$ = ex->createDataMember(name, type); // Dummy
     }
     assert($$);
     unit->error("keyword `" + name + "' cannot be used as data member name");
@@ -660,17 +660,17 @@ data_member
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if(cl)
     {
-        $$ = cl->createDataMember(IceUtil::generateUUID(), type);
+        $$ = cl->createDataMember(IceUtil::generateUUID(), type); // Dummy
     }
     StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
     if(st)
     {
-	$$ = st->createDataMember(IceUtil::generateUUID(), type);
+	$$ = st->createDataMember(IceUtil::generateUUID(), type); // Dummy
     }
     ExceptionPtr ex = ExceptionPtr::dynamicCast(unit->currentContainer());
     if(ex)
     {
-	$$ = ex->createDataMember(IceUtil::generateUUID(), type);
+	$$ = ex->createDataMember(IceUtil::generateUUID(), type); // Dummy
     }
     assert($$);
     unit->error("missing data member name");
@@ -791,7 +791,7 @@ operation_preamble
 	{
 	    unit->pushContainer(op);
 	    unit->error("keyword `" + name + "' cannot be used as operation name");
-	    $$ = op;
+	    $$ = op; // Dummy
 	}
 	else
 	{
@@ -815,7 +815,7 @@ operation_preamble
 	{
 	    unit->pushContainer(op);
 	    unit->error("keyword `" + name + "' cannot be used as operation name");
-	    $$ = op;
+	    $$ = op; // Dummy
 	}
 	else
 	{
@@ -839,7 +839,7 @@ operation_preamble
 	{
 	    unit->pushContainer(op);
 	    unit->error("keyword `" + name + "' cannot be used as operation name");
-	    $$ = op;
+	    $$ = op; // Dummy
 	}
 	else
 	{
@@ -893,7 +893,7 @@ throws
     assert(el);
     if(op)
     {
-        op->setExceptionList(el->v);
+        op->setExceptionList(el->v); // Dummy
     }
 }
 ;
@@ -916,7 +916,7 @@ interface_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     unit->error("keyword `" + ident->v + "' cannot be used as interface name");
-    $$ = $2;
+    $$ = $2; // Dummy
 }
 ;
 
@@ -1021,7 +1021,7 @@ interface_list
 	    string msg = "`";
 	    msg += scoped->v;
 	    msg += "' is not an interface";
-	    unit->error(msg);
+	    unit->error(msg); // $$ is a dummy
 	}
 	else
 	{
@@ -1031,7 +1031,7 @@ interface_list
 		string msg = "`";
 		msg += scoped->v;
 		msg += "' has been declared but not defined";
-		unit->error(msg);
+		unit->error(msg); // $$ is a dummy
 	    }
 	    else
 	    {
@@ -1045,7 +1045,7 @@ interface_list
 | ICE_OBJECT
 {
     unit->error("illegal inheritance from type Object");
-    $$ = new ClassListTok;
+    $$ = new ClassListTok; // Dummy
 }
 ;
 
@@ -1121,7 +1121,7 @@ exception
     ExceptionPtr exception = cont->lookupException(scoped->v);
     if(!exception)
     {
-	exception = cont->createException(IceUtil::generateUUID(), 0, false);
+	exception = cont->createException(IceUtil::generateUUID(), 0, false, Dummy); // Dummy
     }
     cont->checkIntroduced(scoped->v, exception);
     $$ = exception;
@@ -1130,7 +1130,7 @@ exception
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     unit->error("keyword `" + ident->v + "' cannot be used as exception name");
-    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, false);
+    $$ = unit->currentContainer()->createException(IceUtil::generateUUID(), 0, false, Dummy); // Dummy
 }
 ;
 
@@ -1153,7 +1153,7 @@ sequence_def
     StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
     TypePtr type = TypePtr::dynamicCast($5);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createSequence(ident->v, type, metaData->v, local->v);
+    $$ = cont->createSequence(ident->v, type, metaData->v, local->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as sequence name");
 }
 ;
@@ -1181,7 +1181,7 @@ dictionary_def
     StringListTokPtr valueMetaData = StringListTokPtr::dynamicCast($7);
     TypePtr valueType = TypePtr::dynamicCast($8);
     ContainerPtr cont = unit->currentContainer();
-    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v, local->v);
+    $$ = cont->createDictionary(ident->v, keyType, keyMetaData->v, valueType, valueMetaData->v, local->v); // Dummy
     unit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
 }
 ;
@@ -1197,7 +1197,7 @@ enum_id
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     unit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
-    $$ = $2;
+    $$ = $2; // Dummy
 }
 ;
 
@@ -1223,9 +1223,20 @@ enum_def
 	{
 	    unit->error("enum `" + en->name() + "' must have at least one enumerator");
 	}
-	en->setEnumerators(enumerators->v);
+	en->setEnumerators(enumerators->v); // Dummy
     }
     $$ = $3;
+}
+|
+local_qualifier ICE_ENUM '{' enumerator_list '}'
+{
+    unit->error("missing enumeration name");
+    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
+    ContainerPtr cont = unit->currentContainer();
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy); // Dummy
+    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($4);
+    en->setEnumerators(enumerators->v); // Dummy
+    $$ = en;
 }
 ;
 
@@ -1262,13 +1273,13 @@ enumerator
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     unit->error("keyword `" + ident->v + "' cannot be used as enumerator");
-    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    EnumeratorListTokPtr ens = new EnumeratorListTok; // Dummy
     $$ = ens;
 }
 |
 {
     EnumeratorListTokPtr ens = new EnumeratorListTok;
-    $$ = ens;
+    $$ = ens; // Dummy
 }
 ;
 
@@ -1339,7 +1350,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(ident->v, type, isOutParam->v);
+	op->createParamDecl(ident->v, type, isOutParam->v); // Dummy
 	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -1351,7 +1362,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(ident->v, type, isOutParam->v);
+	op->createParamDecl(ident->v, type, isOutParam->v); // Dummy
 	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -1362,7 +1373,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
+	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v); // Dummy
 	unit->error("missing parameter name");
     }
 }
@@ -1373,7 +1384,7 @@ parameters
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
-	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v);
+	op->createParamDecl(IceUtil::generateUUID(), type, isOutParam->v); // Dummy
 	unit->error("missing parameter name");
     }
 }
@@ -1505,7 +1516,7 @@ type
 	    cont->checkIntroduced(scoped->v);
 	    if(cl->isLocal())
 	    {
-		unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'");
+		unit->error("cannot create proxy for " + cl->kindOf() + " `" + cl->name() + "'"); // $$ is dummy
 	    }
 	    *p = new Proxy(cl);
 	}
@@ -1613,7 +1624,7 @@ const_initializer
 	    	msg += "n";
 	    }
 	    msg += " " + kindOf;
-	    unit->error(msg);
+	    unit->error(msg); // $$ is dummy
 	}
 	unit->currentContainer()->checkIntroduced(scoped->v, enumerator);
 	basestring->v = pair<SyntaxTreeBasePtr,string>(enumerator, scoped->v);
@@ -1664,7 +1675,7 @@ const_def
     SyntaxTreeBaseStringTokPtr value = SyntaxTreeBaseStringTokPtr::dynamicCast($5);
     unit->error("missing constant name");
     $$ = unit->currentContainer()->createConst(IceUtil::generateUUID(), const_type, metaData->v, value->v.first,
-    					       value->v.second);
+    					       value->v.second, Dummy); // Dummy
 }
 ;
 

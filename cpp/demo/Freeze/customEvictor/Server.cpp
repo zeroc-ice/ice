@@ -39,7 +39,7 @@ int
 WarehouseServer::run(int argc, char* argv[])
 {
     bool useSimpleEvictor = argc > 1 && string(argv[1]) == "simple";
-    
+
     if(useSimpleEvictor)
     {
         cout << "Using SimpleEvictor" << endl;
@@ -56,21 +56,22 @@ WarehouseServer::run(int argc, char* argv[])
 
     {
         //
-        // Open our database, a Freeze dictionay
+        // Open our database, a Freeze dictionary.
         //
         Freeze::ConnectionPtr connection = Freeze::createConnection(communicator(), envName);
         Database db(connection, dbName);
-        
+
         if(db.empty())
         {
             cout << "Creating new database..." << flush;
+
             //
-            // Populate database with objectCount entries
+            // Populate database with objectCount entries.
             //
             ItemInfo info;
-            
+
             connection->beginTransaction();
-            
+
             for(int i = 0; i < objectCount; ++i)
             {
                 ostringstream os;
@@ -80,7 +81,7 @@ WarehouseServer::run(int argc, char* argv[])
                 info.unitPrice = i + 0.95f;
                 info.quantityInStock = i;
                 info.filler = string(5000, 'x');
-                
+
                 db.put(Database::value_type(name, info));
             }
             connection->currentTransaction()->commit();
@@ -91,7 +92,7 @@ WarehouseServer::run(int argc, char* argv[])
     CurrentDatabase currentDb(communicator(), envName, dbName);
 
     //
-    // This servant locator (evictor) will intercept all categories
+    // This servant locator (evictor) will intercept all categories.
     //
     if(useSimpleEvictor)
     {

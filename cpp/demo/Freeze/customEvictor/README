@@ -34,7 +34,7 @@ with two possible servant locator implementations:
    underlying map. In particular, any lookup will block while an
    object is being retrieved from the database.
 
-To use the Evictor, run server with no argument:
+To use the Evictor, run the server with no arguments:
 
 $ server
 
@@ -50,10 +50,11 @@ the access pattern is random.
 Client
 ------
 
-The client starts six threads, five threads that, in a loop, randomly read
-items provided by the server, and one thread that writes these items at
-random, also in a loop. After a large number of iterations, the client displays
-the average number of requests per second for each thread.
+The client starts six threads: five threads that, in a loop, randomly
+read items provided by the server, and one thread that writes these
+items at random, also in a loop. After a large number of iterations,
+the client displays the average number of requests per second for each
+thread.
 
 With the default configuration, cache misses are reasonably costly,
 so you should see a performance advantage when using the
@@ -75,8 +76,8 @@ cache misses become fairly cheap.
 
 Use db/DB_CONFIG to set the Berkeley DB environment cache size.
 
-The default cache is is 256KB; with a cache size of 128KB, the
+The default cache size is 256KB; with a cache size of 128KB, the
 performance difference between Evictor and EvictorBase increases,
-since the larger number of cache misses requires more data to be
-read from disk. With a cache size of 100MB, the performance
-difference between the two evictor implementations becomes very small.
+since the larger number of cache misses requires more data to be read
+from disk. With a cache size of 100MB, the performance difference
+between the two evictor implementations becomes very small.

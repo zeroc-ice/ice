@@ -13,9 +13,9 @@
 module Demo
 {
 
-class Hello
+interface Hello
 {
-    idempotent void sayHello();
+    idempotent void sayHello(int delay);
     void shutdown();
 };
 

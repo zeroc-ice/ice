@@ -64,6 +64,12 @@ SLICE_API enum FeatureProfile
     IceE
 };
 
+SLICE_API enum NodeType
+{
+    Dummy,
+    Real
+};
+
 class GrammarBase;
 class SyntaxTreeBase;
 class Type;
@@ -392,15 +398,15 @@ public:
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, bool, const ClassList&, bool);
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
-    ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool);
-    StructPtr createStruct(const std::string&, bool);
-    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool);
+    ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool, NodeType = Real);
+    StructPtr createStruct(const std::string&, bool, NodeType = Real);
+    SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool, NodeType = Real);
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const StringList&, const TypePtr&,
-                                   const StringList&, bool);
-    EnumPtr createEnum(const std::string&, bool);
+                                   const StringList&, bool, NodeType = Real);
+    EnumPtr createEnum(const std::string&, bool, NodeType = Real);
     EnumeratorPtr createEnumerator(const std::string&);
     ConstPtr createConst(const std::string, const TypePtr&, const StringList&, const SyntaxTreeBasePtr&,
-                         const std::string&);
+                         const std::string&, NodeType = Real);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);

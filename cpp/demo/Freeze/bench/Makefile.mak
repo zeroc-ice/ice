@@ -44,8 +44,8 @@ BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
         BenchTypes Test.ice
 
 clean::
-	del /q BenchTypes.h BenchTypes.cpp
-	del /q Test.cpp Test.h
-	for %f in (db\*) do if not %f == db\.gitignore del /q %f
+	-del /q BenchTypes.h BenchTypes.cpp
+	-del /q Test.cpp Test.h
+	-for %f in (db\*) do if not %f == db\.gitignore del /q %f
 
 !include .depend

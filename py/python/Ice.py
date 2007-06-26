@@ -67,6 +67,9 @@ class Object(object):
     #def ice_postUnmarshal(self):
     #    pass
 
+#
+# LocalObject is deprecated; use the Python base 'object' type instead.
+#
 class LocalObject(object):
     pass
 
@@ -209,7 +212,7 @@ class CommunicatorI(Communicator):
             pass
 
     def isShutdown(self):
-        self._impl.isShutdown()
+        return self._impl.isShutdown()
 
     def stringToProxy(self, str):
         return self._impl.stringToProxy(str)
@@ -638,9 +641,10 @@ class CtrlCHandler(threading.Thread):
 import signal, traceback
 class Application(object):
 
-    def __init__(self):
+    def __init__(self, signalPolicy=0): # HandleSignals=0
         if type(self) == Application:
             raise RuntimeError("Ice.Application is an abstract class")
+        Application._signalPolicy = signalPolicy
 
     def main(self, args, configFile=None, initData=None):
         if Application._communicator:
@@ -676,7 +680,8 @@ class Application(object):
             #
             # The default is to destroy when a signal is received.
             #
-            Application.destroyOnInterrupt()
+            if Application._signalPolicy == Application.HandleSignals:
+                Application.destroyOnInterrupt()
 
             status = self.run(args)
         except:
@@ -688,7 +693,8 @@ class Application(object):
         # it would not make sense to release a held signal to run
         # shutdown or destroy.
         #
-        Application.ignoreInterrupt()
+        if Application._signalPolicy == Application.HandleSignals:
+            Application.ignoreInterrupt()
 
         Application._condVar.acquire()
         while Application._callbackInProgress:
@@ -738,65 +744,89 @@ class Application(object):
     communicator = classmethod(communicator)
 
     def destroyOnInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
-        self._condVar.release()
+        if Application._signalPolicy == Application.HandleSignals:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(self.destroyOnInterruptCallback)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     destroyOnInterrupt = classmethod(destroyOnInterrupt)
 
     def shutdownOnInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
-        self._condVar.release()
+        if Application._signalPolicy == Application.HandleSignals:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(self.shutdownOnInterruptCallback)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     shutdownOnInterrupt = classmethod(shutdownOnInterrupt)
 
     def ignoreInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(None)
-        self._condVar.release()
+        if Application._signalPolicy == Application.HandleSignals:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(None)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     ignoreInterrupt = classmethod(ignoreInterrupt)
 
     def callbackOnInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            self._released = True
-            self._condVar.notify()
-        self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
-        self._condVar.release()
+        if Application._signalPolicy == Application.HandleSignals:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                self._released = True
+                self._condVar.notify()
+            self._ctrlCHandler.setCallback(self.callbackOnInterruptCallback)
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     callbackOnInterrupt = classmethod(callbackOnInterrupt)
 
     def holdInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
-            self._previousCallback = self._ctrlCHandler.getCallback()
-            self._released = False
-            self._ctrlCHandler.setCallback(self.holdInterruptCallback)
-        # else, we were already holding signals
-        self._condVar.release()
+        if Application._signalPolicy == Application.HandleSignals:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() != self.holdInterruptCallback:
+                self._previousCallback = self._ctrlCHandler.getCallback()
+                self._released = False
+                self._ctrlCHandler.setCallback(self.holdInterruptCallback)
+            # else, we were already holding signals
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     holdInterrupt = classmethod(holdInterrupt)
 
     def releaseInterrupt(self):
-        self._condVar.acquire()
-        if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
-            #
-            # Note that it's very possible no signal is held;
-            # in this case the callback is just replaced and
-            # setting _released to true and signalling _condVar
-            # do no harm.
-            #
-            self._released = True
-            self._ctrlCHandler.setCallback(self._previousCallback)
-            self._condVar.notify()
-        # Else nothing to release.
-        self._condVar.release()
+        if Application._signalPolicy == Application.HandleSignals:
+            self._condVar.acquire()
+            if self._ctrlCHandler.getCallback() == self.holdInterruptCallback:
+                #
+                # Note that it's very possible no signal is held;
+                # in this case the callback is just replaced and
+                # setting _released to true and signalling _condVar
+                # do no harm.
+                #
+                self._released = True
+                self._ctrlCHandler.setCallback(self._previousCallback)
+                self._condVar.notify()
+            # Else nothing to release.
+            self._condVar.release()
+        else:
+            print Application._appName + \
+                ": warning: interrupt method called on Application configured to not handle interrupts."
     releaseInterrupt = classmethod(releaseInterrupt)
 
     def interrupted(self):
@@ -901,6 +931,9 @@ class Application(object):
 
     callbackOnInterruptCallback = classmethod(callbackOnInterruptCallback)
 
+    HandleSignals = 0
+    NoSignalHandling = 1
+
     _appName = None
     _communicator = None
     _application = None
@@ -911,6 +944,7 @@ class Application(object):
     _destroyed = False
     _callbackInProgress = False
     _condVar = threading.Condition()
+    _signalPolicy = HandleSignals
 
 #
 # Define Ice::Object and Ice::ObjectPrx.
@@ -924,8 +958,7 @@ Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Idempotent, Oper
 Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), _t_StringSeq, ())
 Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Idempotent, OperationMode.Nonmutating, False, (), (), (), IcePy._t_string, ())
 
-IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', LocalObject, (), False, None, (), ())
-LocalObject.ice_type = IcePy._t_LocalObject
+IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', object, (), False, None, (), ())
 
 #
 # Annotate Ice::Identity.

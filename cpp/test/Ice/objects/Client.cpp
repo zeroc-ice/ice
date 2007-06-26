@@ -32,6 +32,14 @@ public:
         {
             return new DI;
         }
+        else if(type == "::Test::E")
+        {
+            return new EI;
+        }
+        else if(type == "::Test::F")
+        {
+            return new FI;
+        }
         else if(type == "::Test::I")
         {
             return new II;
@@ -62,6 +70,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(factory, "::Test::B");
     communicator->addObjectFactory(factory, "::Test::C");
     communicator->addObjectFactory(factory, "::Test::D");
+    communicator->addObjectFactory(factory, "::Test::E");
+    communicator->addObjectFactory(factory, "::Test::F");
     communicator->addObjectFactory(factory, "::Test::I");
     communicator->addObjectFactory(factory, "::Test::J");
     communicator->addObjectFactory(factory, "::Test::H");

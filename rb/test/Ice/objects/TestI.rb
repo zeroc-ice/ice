@@ -68,3 +68,22 @@ class Test::D
     end
 end
 
+class EI < Test::E
+    def initialize
+        super(1, "hello")
+    end
+
+    def checkValues(current=nil)
+        return i == 1 && s == "hello"
+    end
+end
+
+class FI < Test::F
+    def initialize(e=nil)
+        super(e, e)
+    end
+
+    def checkValues(current=nil)
+        return e1 != nil && e1 == e2
+    end
+end

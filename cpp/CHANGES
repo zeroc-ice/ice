@@ -1,18 +1,17 @@
-Changes since version 3.2.X (binary incompabible)
+Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
-- Ice.Default.CollocationOptimization and the <any>.CollocationOptimization
-  proxy property have been deprecated and replaced by 
-  Ice.Default.CollocationOptimized and <any>.CollocationOptimized
-  respectively.
+- The property Ice.Trace.Location has been deprecated and replaced
+  by Ice.Trace.Locator.
 
-- IceGrid now allows defining an object adapter with a replica group
-  from an other IceGrid application than the one where the object
-  adapter is defined.
+- The property Ice.Default.CollocationOptimization and the
+  proxy property <any>.CollocationOptimization have been deprecated
+  and replaced by Ice.Default.CollocationOptimized and
+  <any>.CollocationOptimized, respectively.
 
 - Added a new method to the ObjectAdapter interface named
   refreshPublishedEndpoints(). This method is meant to be used to 
-  update the published endpoints after change in the available local
+  update the published endpoints after a change in the available local
   interfaces or after the PublishedEndpoints object adapter property
   has been changed by the user.
 
@@ -33,11 +32,12 @@ Changes since version 3.2.X (binary incompabible)
 - The IceGrid node now unblocks the SIGHUP, SIGINT and SIGTERM signals
   from forked servers.
 
-- Added support for udp multicast. See manual for more information.
+- Added support for UDP multicast. See manual for more information.
 
-- If a proxy contains a host which is multihomed, the client will now 
-  try all the available ip addresses. Previously, only the first in the
-  address list returned by the DNS was used and others were ignored.
+- If a proxy contains a host that is multihomed, the client will now 
+  try all the available IP addresses. Previously, only the first in
+  the address list returned by the DNS was used and others were
+  ignored.
 
 - Added a new property, Ice.Warn.UnusedProperties. If set to 1, when 
   the communicator is destroyed a warning will be printed listing all
@@ -56,8 +56,8 @@ Changes since version 3.2.X (binary incompabible)
                                  // including Ice exceptions
   }
 
-  what() is implemented in terms of ice_print(), so overriding ice_print()
-  also changes the string returned by what().
+  what() is implemented in terms of ice_print(), so overriding
+  ice_print() also changes the string returned by what().
 
 - The IceGrid node now prints a warning if it can't reach the IceGrid
   registry when it starts. This warning can be disabled with --nowarn.
@@ -65,13 +65,20 @@ Changes since version 3.2.X (binary incompabible)
 Changes since version 3.2.0
 ---------------------------
 
-- Changed to the throughput demo to better support cross-language
+- Added support for protected class data members using the new
+  metadata tag ["protected"]. The tag can be applied to a Slice class
+  or to individual data members.
+
+- IceGrid now allows you to define an object adapter with a replica
+  group from a different IceGrid application.
+
+- Changed the throughput demo to better support cross-language
   testing.
 
-- Fixed bug with IceUtil::Cond under Windows which could cause a
-  deadlock if signal was used in conjunction multiple waiting threads
-  where at least one thread is using timedWait. Note that this bug
-  also affects IceUtil::Monitor since this uses IceUtil::Cond.
+- Fixed a bug in IceUtil::Cond under Windows that could cause a
+  deadlock if a signal was used in conjunction with multiple waiting
+  threads where at least one thread is using timedWait. Note that this
+  bug also affects IceUtil::Monitor since this uses IceUtil::Cond.
 
 - Fixed throughput performance problem on Windows that would occur
   when sending large requests.

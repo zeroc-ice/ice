@@ -706,7 +706,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local)
+Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local, NodeType nt)
 {
     checkPrefix(name);
 
@@ -738,7 +738,10 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 
     nameIsLegal(name, "exception"); // Don't return here -- we create the exception anyway
 
-    checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
+    if(nt == Real)
+    {
+        checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
+    }
 
     //
     // If this definition is non-local, base cannot be local.
@@ -754,7 +757,7 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 }
 
 StructPtr
-Slice::Container::createStruct(const string& name, bool local)
+Slice::Container::createStruct(const string& name, bool local, NodeType nt)
 {
     checkPrefix(name);
 
@@ -786,7 +789,10 @@ Slice::Container::createStruct(const string& name, bool local)
 
     nameIsLegal(name, "structure"); // Don't return here -- we create the struct anyway.
 
-    checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
+    if(nt == Real)
+    {
+        checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
+    }
 
     StructPtr p = new Struct(this, name, local);
     _contents.push_back(p);
@@ -794,7 +800,8 @@ Slice::Container::createStruct(const string& name, bool local)
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local)
+Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local,
+                                 NodeType nt)
 {
     checkPrefix(name);
 
@@ -837,7 +844,10 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
 
     nameIsLegal(name, "sequence"); // Don't return here -- we create the sequence anyway.
 
-    checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
+    if(nt == Real)
+    {
+        checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
+    }
 
     //
     // If sequence is non-local, element type cannot be local.
@@ -855,7 +865,8 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
 
 DictionaryPtr
 Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const StringList& keyMetaData,
-                                   const TypePtr& valueType, const StringList& valueMetaData, bool local)
+                                   const TypePtr& valueType, const StringList& valueMetaData, bool local,
+                                   NodeType nt)
 {
     checkPrefix(name);
 
@@ -898,9 +909,12 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
     
     nameIsLegal(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
 
-    checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+    if(nt == Real)
+    {
+        checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+    }
 
-    if(!Dictionary::legalKeyType(keyType))
+    if(nt == Real && !Dictionary::legalKeyType(keyType))
     {
         _unit->error("dictionary `" + name + "' uses an illegal key type");
         return 0;
@@ -926,7 +940,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name, bool local)
+Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 {
     checkPrefix(name);
 
@@ -958,7 +972,10 @@ Slice::Container::createEnum(const string& name, bool local)
 
     nameIsLegal(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
 
-    checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+    if(nt == Real)
+    {
+        checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+    }
 
     EnumPtr p = new Enum(this, name, local);
     _contents.push_back(p);
@@ -1005,7 +1022,7 @@ Slice::Container::createEnumerator(const string& name)
 
 ConstPtr
 Slice::Container::createConst(const string name, const TypePtr& constType, const StringList& metaData,
-                              const SyntaxTreeBasePtr& literalType, const string& value)
+                              const SyntaxTreeBasePtr& literalType, const string& value, NodeType nt)
 {
     checkPrefix(name);
 
@@ -1037,12 +1054,15 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
 
     nameIsLegal(name, "constant"); // Don't return here -- we create the constant anyway.
 
-    checkForGlobalDef(name, "constant"); // Don't return here -- we create the constant anyway.
+    if(nt == Real)
+    {
+        checkForGlobalDef(name, "constant"); // Don't return here -- we create the constant anyway.
+    }
 
     //
     // Check that the constant type is legal.
     //
-    if(!Const::isLegalType(name, constType, _unit))
+    if(nt == Real && !Const::isLegalType(name, constType, _unit))
     {
         return 0;
     }
@@ -1050,7 +1070,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
     //
     // Check that the type of the constant is compatible with the type of the initializer.
     //
-    if(!Const::typesAreCompatible(name, constType, literalType, value, _unit))
+    if(nt == Real && !Const::typesAreCompatible(name, constType, literalType, value, _unit))
     {
         return 0;
     }
@@ -1058,7 +1078,7 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
     //
     // Check that the initializer is in range.
     //
-    if(!Const::isInRange(name, constType, value, _unit))
+    if(nt == Real && !Const::isInRange(name, constType, value, _unit))
     {
         return 0;
     }
