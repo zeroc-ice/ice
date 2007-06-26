@@ -11,11 +11,6 @@ import Demo.*;
 
 public class Client extends Ice.Application
 {
-    Client()
-    {
-        super(false);
-    }
-
     class ShutdownHook extends Thread
     {
         public void
