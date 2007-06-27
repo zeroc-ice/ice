@@ -9,18 +9,18 @@ ICE_LICENSE file included in this distribution.
 
 **********************************************************************
 
-This file defines the valid properties that are used by the various parts
-of Ice. It is used generate source code using the makeprops.py utility, so
-we do not need to redundantly maintain the same property definitions in
-several languages (and risk having them go out of sync).
+This file defines the valid properties that are used by various Ice
+components. It is used to generate source code using the makeprops.py
+utility, so we do not need to redundantly maintain the same property
+definitions in several languages (and risk having them go out of sync).
 
-The root node has zero or more section elements. Section elements must have a
-name attribute which defines a "section label". Section elements may also
-have a noCmdLine attribute. If noCmdLine has the value "true", command
-line options that match the section label are not parsed by
+The root node has zero or more section elements. Section elements must
+have a name attribute that defines a "section label". Section elements
+may also have a noCmdLine attribute. If noCmdLine has the value "true",
+command line options that match the section label are not parsed by
 Ice::PropertiesI::parseCommandLineOptions(). If noCmdLine has a value
 other than "true" or is omitted, Ice::PropertiesI::parseCommandLineOptions()
-processes properties that match the resepctive section name.
+processes properties that match the respective section name.
 
 Each root node may also have zero or more class elements. A class
 element has a name attribute, a prefix-only attribute and zero or more
@@ -34,13 +34,13 @@ list of properties that are repeatedly defined for different property
 categories. Here's how it works:
  
  - Define a property class with the list of property suffixes common to
- that class.
+   that class.
 
  - Include the class attribute in a property declaration.
 
 The generated code will take each property that has a class attribute
 and expand it by creating new properties for each suffix in the
-specifiied class. The new property names are constructed as follows: 
+specified class. The new property names are constructed as follows: 
 
 generated property name = 
     relevant section name + 
@@ -66,10 +66,10 @@ classes:
     .
     .
     <section name="Ice">
-        <property name="Default.Locator" class="proxy"/>
+        <property name="Default.Locator" class="proxy" />
     </section>
 
-Is the same as:
+This definition is equivalent to the following:
 
     <section name="Ice">
         <property name="Default.Locator" />
@@ -85,14 +85,14 @@ Is the same as:
         <property name="Default.Locator.ThreadPerConnection" />
     </section>
 
-The benefit is that several categories have the same
-properties because they are the same `type' of property. Without a
-property class, changes to a supported type of property requires
-modifying the file in several locations, e.g.:
+The benefit is that several categories have the same properties because
+they are the same `type' of property. Without a property class, changes
+to a supported type of property require modifying the file in several
+locations, e.g.:
 
     <section name="Ice">
         <property name="Default.Router" class="proxy" />
-        <property name="Default.Locator" class="proxy"/>
+        <property name="Default.Locator" class="proxy" />
     </section>
 
 Notice the `prefix-only' attribute on the property class node. If
@@ -103,23 +103,24 @@ described above `in addition to' the property containing the property
 class.
 
 Property elements may also include the deprecated and deprecatedBy
-attributes. A property that has a deprecated property with the value 
-"true" will be marked internally as deprecated and Ice may issue warnings if
-a deprecated property is used. The deprecatedBy attribute allows the Ice
-run time to transparently replace the deprecated property name with a
-new property name that supercedes the deprecated property.
+attributes. A property that has a deprecated attribute with the value 
+"true" will be marked internally as deprecated and Ice may issue warnings
+if a deprecated property is used. The deprecatedBy attribute allows the
+Ice run time to transparently replace the deprecated property name with a
+new property name that supersedes the deprecated property.
 
-The "deprecatedBy" attribute is currently treated differently when used in a
-property class. In the regular property list, deprecatedBy is treated as an
-absolute property name and does not prepend the section name or substring of
-the property being deprecated. This is not useful for property classes. When
-using deprecatedBy in property classes, the deprecatedBy value is appended to
-a string constructed from the current section name and the name attribute in
-the property list containing the class attributed. For example:
+The "deprecatedBy" attribute is currently treated differently when used
+in a property class. In the regular property list, deprecatedBy is treated
+as an absolute property name and does not prepend the section name or
+substring of the property being deprecated. This is not useful for property
+classes. When using deprecatedBy in property classes, the deprecatedBy value
+is appended to a string constructed from the current section name and the
+name attribute in the property list containing the class attributed. For
+example:
 
 <class name="proxy">
     ...
-    <suffix name="CollocationOptimization" deprecatedBy="CollocationOptimized"/>
+    <suffix name="CollocationOptimization" deprecatedBy="CollocationOptimized" />
     <suffix name="CollocationOptimized" />
 </class>
 
@@ -130,7 +131,8 @@ the property list containing the class attributed. For example:
     </section>
 </properties>
 
-Will be treated the same as:
+This definition is equivalent to the following:
+
 <properties>
     <section name="Ice">
         <property name="DefaultLocator.CollocationOptimization"
@@ -140,7 +142,7 @@ Will be treated the same as:
     </section>
 </properties>
 
-property element name attributes have some additional syntax: The token
+Property element name attributes have some additional syntax: The token
 "<any>" (denoted in valid XML as [any]) is a wildcard and matches any
 non-empty sequence of non-whitespace characters.
 
@@ -248,8 +250,7 @@ generated from the section label.
         <suffix name="LocatorCacheTimeout"  />
         <suffix name="Locator"  />
         <suffix name="Router"  />
-        <suffix name="CollocationOptimization" deprecated="true"
-            deprecatedBy="CollocationOptimized" />
+        <suffix name="CollocationOptimization" deprecated="true" deprecatedBy="CollocationOptimized" />
         <suffix name="CollocationOptimized" />
         <suffix name="ThreadPerConnection" />
     </class>
@@ -286,7 +287,7 @@ generated from the section label.
         <property name="Default.CollocationOptimized" />
         <property name="Default.EndpointSelection" />
         <property name="Default.Host" />
-        <property name="Default.Locator" class="proxy"/>
+        <property name="Default.Locator" class="proxy" />
         <property name="Default.LocatorCacheTimeout" />
         <property name="Default.Package" />
         <property name="Default.PreferSecure" />
@@ -317,8 +318,8 @@ generated from the section label.
         <property name="StdOut" />
         <property name="ThreadPerConnection" />
         <property name="ThreadPerConnection.StackSize" />
-        <property name="ThreadPool.Client" class="threadpool"/>
-        <property name="ThreadPool.Server" class="threadpool"/>
+        <property name="ThreadPool.Client" class="threadpool" />
+        <property name="ThreadPool.Server" class="threadpool" />
         <property name="Trace.GC" />
         <property name="Trace.Location" deprecated="true" deprecatedBy="Ice.Trace.Locator" />
         <property name="Trace.Locator" />
@@ -361,7 +362,7 @@ generated from the section label.
 
     <section name="IceGrid">
         <property name="InstanceName" />
-        <property name="Node" class="objectadapter"/>
+        <property name="Node" class="objectadapter" />
         <property name="Node.AllowRunningServersAsRoot" />
         <property name="Node.CollocateRegistry" />
         <property name="Node.Data" />
@@ -377,13 +378,11 @@ generated from the section label.
         <property name="Node.Trace.Replica" />
         <property name="Node.Trace.Server" />
         <property name="Node.UserAccounts" />
-        <property name="Node.UserAccountMapper" class="proxy"/>
+        <property name="Node.UserAccountMapper" class="proxy" />
         <property name="Node.WaitTime" />
         <property name="Registry.AdminCryptPasswords" />
-        <property name="Registry.AdminPermissionsVerifier"
-            class="proxy" />
-        <property name="Registry.AdminSSLPermissionsVerifier"
-            class="proxy" />
+        <property name="Registry.AdminPermissionsVerifier" class="proxy" />
+        <property name="Registry.AdminSSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Client" class="objectadapter" />
         <property name="Registry.CryptPasswords" />
         <property name="Registry.Data" />
@@ -391,16 +390,13 @@ generated from the section label.
         <property name="Registry.DynamicRegistration" />
         <property name="Registry.Internal" class="objectadapter" />
         <property name="Registry.NodeSessionTimeout" />
-        <property name="Registry.PermissionsVerifier"
-            class="proxy"/>
+        <property name="Registry.PermissionsVerifier" class="proxy" />
         <property name="Registry.ReplicaName" />
         <property name="Registry.ReplicaSessionTimeout" />
-        <property name="Registry.Server" class="objectadapter"/>
-        <property name="Registry.SessionManager"
-            class="objectadapter"/>
+        <property name="Registry.Server" class="objectadapter" />
+        <property name="Registry.SessionManager" class="objectadapter" />
         <property name="Registry.SessionTimeout" />
-        <property name="Registry.SSLPermissionsVerifier"
-            class="proxy"/>
+        <property name="Registry.SSLPermissionsVerifier" class="proxy" />
         <property name="Registry.Trace.Application" />
         <property name="Registry.Trace.Adapter" />
         <property name="Registry.Trace.Locator" />
@@ -483,8 +479,7 @@ generated from the section label.
         <property name="Admin.Endpoints" />
         <property name="Admin.PublishedEndpoints" />
         <property name="Admin.RegisterProcess" />
-        <property name="AllowCategories" deprecated="true"
-            deprecatedBy="Glacier2.Filter.Category.Accept" />
+        <property name="AllowCategories" deprecated="true" deprecatedBy="Glacier2.Filter.Category.Accept" />
         <property name="Client.AlwaysBatch" />
         <property name="Client.Buffered" />
         <property name="Client.Endpoints" />
@@ -504,9 +499,9 @@ generated from the section label.
         <property name="Filter.Identity.Accept" />
         <property name="CryptPasswords" />
         <property name="InstanceName" />
-        <property name="PermissionsVerifier" class="proxy"/>
+        <property name="PermissionsVerifier" class="proxy" />
         <property name="ReturnClientProxy" />
-        <property name="SSLPermissionsVerifier" class="proxy"/>
+        <property name="SSLPermissionsVerifier" class="proxy" />
         <property name="RoutingTable.MaxSize" />
         <property name="Server.AlwaysBatch" />
         <property name="Server.Buffered" />
@@ -517,8 +512,8 @@ generated from the section label.
         <property name="Server.SleepTime" />
         <property name="Server.Trace.Override" />
         <property name="Server.Trace.Request" />
-        <property name="SessionManager" class="proxy"/>
-        <property name="SSLSessionManager" class="proxy"/>
+        <property name="SessionManager" class="proxy" />
+        <property name="SSLSessionManager" class="proxy" />
         <property name="SessionTimeout" />
         <property name="Trace.RoutingTable" />
         <property name="Trace.Session" />
