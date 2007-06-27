@@ -393,7 +393,7 @@ Glacier2::RouterService::start(int argc, char* argv[])
             ostringstream ostr;
             ostr << ex;
             error("ssl session manager `" + sslSessionManagerPropertyValue + "' is invalid:\n" + ostr.str());
-            return false
+            return false;
         }
         try
         {
