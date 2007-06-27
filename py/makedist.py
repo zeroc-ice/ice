@@ -127,23 +127,14 @@ for x in filesToRemove:
 #
 def isHpUx():
 
-   if sys.platform == "hp-ux11":
-        return 1
-   else:
-        return 0
+   return sys.platform == "hp-ux11"
 
 def isDarwin():
 
-   if sys.platform == "darwin":
-        return 1
-   else:
-        return 0
+   return sys.platform == "darwin"
 
 def isAIX():
-   if sys.platform in ['aix4', 'aix5']:
-        return 1
-   else:
-        return 0
+   return sys.platform in ['aix4', 'aix5']
 
 
 #

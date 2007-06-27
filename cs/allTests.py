@@ -22,22 +22,13 @@ def isCygwin():
 
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
-    if sys.platform[:6] == "cygwin":
-        return 1
-    else:
-        return 0
+    return sys.platform[:6] == "cygwin"
 
 def isWin32():
-    if sys.platform == "win32" or isCygwin():
-        return 1
-    else:
-        return 0
+    return sys.platform == "win32" or isCygwin()
 
 def isVista():
-    if isWin32() and sys.getwindowsversion()[0] == 6:
-        return 1
-    else:
-        return 0
+    return isWin32() and sys.getwindowsversion()[0] == 6
 
 def runTests(args, tests, num = 0):
 

@@ -97,54 +97,34 @@ def isCygwin():
 
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
-    if sys.platform[:6] == "cygwin":
-        return 1
-    else:
-        return 0
+    return sys.platform[:6] == "cygwin"
 
 def isWin32():
 
-    if sys.platform == "win32" or isCygwin():
-        return 1
-    else:
-        return 0
+    return sys.platform == "win32" or isCygwin()
 
 
 def isWin9x():
 
     if isWin32():
-        if os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT":
-           return 0
-        return 1
+        return not (os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT")
     else:
         return 0
 
 def isSolaris():
 
-    if sys.platform == "sunos5":
-        return 1
-    else:
-        return 0
+    return sys.platform == "sunos5"
        
 def isHpUx():
 
-   if sys.platform == "hp-ux11":
-        return 1
-   else:
-        return 0
+   return sys.platform == "hp-ux11"
 
 def isAIX():
-   if sys.platform in ['aix4', 'aix5']:
-        return 1
-   else:
-        return 0
+   return sys.platform in ['aix4', 'aix5']
   
 def isDarwin():
 
-   if sys.platform == "darwin":
-        return 1
-   else:
-        return 0
+   return sys.platform == "darwin"
 
 def closePipe(pipe):
     try:

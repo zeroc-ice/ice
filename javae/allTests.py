@@ -22,24 +22,16 @@ def isCygwin():
 
     # The substring on sys.platform is required because some cygwin
     # versions return variations like "cygwin_nt-4.01".
-    if sys.platform[:6] == "cygwin":
-        return 1
-    else:
-        return 0
+    return sys.platform[:6] == "cygwin"
 
 def isWin32():
 
-    if sys.platform == "win32" or isCygwin():
-        return 1
-    else:
-        return 0
+    return sys.platform == "win32" or isCygwin()
 
 def isWin9x():
 
     if isWin32():
-        if os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT":
-           return 0
-        return 1
+        return not (os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT")
     else:
         return 0
 
