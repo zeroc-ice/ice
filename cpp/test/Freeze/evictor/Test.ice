@@ -35,8 +35,12 @@ exception InsufficientFundsException
 class Account
 {
     int getBalance();
-    ["freeze:write"] void deposit(int amount) throws InsufficientFundsException;
     ["freeze:write"] void transfer(int amount, Account* toAccount) throws InsufficientFundsException;
+
+    //
+    // "Internal" operation
+    //
+    ["freeze:write:mandatory"] void deposit(int amount) throws InsufficientFundsException;
 
     int balance;
 };

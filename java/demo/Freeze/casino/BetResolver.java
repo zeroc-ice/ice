@@ -71,7 +71,7 @@ class BetResolver
         }
     }
 
-    int
+    synchronized int
     getBetCount()
     {
         return _betCount;

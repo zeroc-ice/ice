@@ -24,9 +24,7 @@ Test::AccountI::getBalance(const Current&)
     
 void 
 Test::AccountI::deposit(int amount, const Current&)
-{
-    test(_evictor->getCurrentTransaction() != 0);
-    
+{ 
     //
     // No need to synchronize since everything occurs within its own transaction
     //

@@ -81,15 +81,15 @@ Freeze::TransactionalEvictorContext::postCompletion(bool committed, bool deadloc
     }
 }
 
-Freeze::TransactionalEvictorContext::ServantHolder*
-Freeze::TransactionalEvictorContext::findServantHolder(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store) const
+Freeze::TransactionalEvictorContext::ServantHolder::Body*
+Freeze::TransactionalEvictorContext::findServantHolderBody(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store) const
 {
     for(Stack::const_iterator p = _stack.begin(); p != _stack.end(); ++p)
     {
-        ServantHolder* sh = *p;
-        if(sh->matches(ident, store))
+        ServantHolder::Body* b = *p;
+        if(b->matches(ident, store))
         {
-            return sh;
+            return b;
         }
     }
     return 0;
@@ -165,11 +165,11 @@ Freeze::TransactionalEvictorContext::servantRemoved(const Identity& ident,
         //
         // Lookup servant holder on stack
         //
-        ServantHolder* sh = findServantHolder(ident, store);
-        if(sh != 0)
+        ServantHolder::Body* body = findServantHolderBody(ident, store);
+        if(body != 0)
         {
-            sh->removed();
-            return sh->servant();
+            body->removed = true;
+            return body->rec.servant;
         }
         else
         {
@@ -197,24 +197,55 @@ Freeze::TransactionalEvictorContext::deadlockException()
 // ServantHolder
 //
 
-Freeze::TransactionalEvictorContext::ServantHolder::ServantHolder(const TransactionalEvictorContextPtr& ctx, 
-                                                                   const Current& current, 
-                                                                   ObjectStore<TransactionalEvictorElement>* store,
-                                                                   bool useNonmutating) :
-    _readOnly(false),
-    _ownServant(false),
-    _removed(false),
-    _ctx(ctx),
-    _current(current),
-    _store(store)
+Freeze::TransactionalEvictorContext::ServantHolder::ServantHolder() :
+    _ownBody(true)
 {
-    ServantHolder* sh = ctx->findServantHolder(_current.id, _store);
+}
 
-    if(sh != 0)
+
+Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder()
+{
+    if(_ownBody && _body.ownServant)
     {
-        if(!sh->_removed)
+        const TransactionalEvictorContextPtr& ctx = *(_body.ctx);
+
+        if(ctx->_tx != 0)
         {
-            _rec = sh->_rec;
+            if(!_body.readOnly && !_body.removed)
+            {
+                EvictorIBase::updateStats(_body.rec.stats, IceUtil::Time::now().toMilliSeconds());
+                _body.store->update(_body.current->id, _body.rec, ctx->_tx);
+            }
+        
+            if(!_body.readOnly || _body.removed)
+            {
+                ctx->_invalidateList.push_back(new ToInvalidate(_body.current->id, _body.store));
+            }
+        }
+        ctx->_stack.pop_front();
+    }
+}
+
+
+void
+Freeze::TransactionalEvictorContext::ServantHolder::init(const TransactionalEvictorContextPtr& ctx, 
+                                                         const Current& current, 
+                                                         ObjectStore<TransactionalEvictorElement>* store)
+{
+    assert(_ownBody && _body.ctx == 0);
+  
+    _body.ctx = &ctx;
+    _body.current = &current;
+    _body.store = store;
+    
+    ServantHolder::Body* body = ctx->findServantHolderBody(current.id, store);
+
+    if(body != 0)
+    {
+        if(!body->removed)
+        {
+            _body.rec = body->rec;
+            _body.readOnly = body->readOnly;
         }
     }
     else
@@ -222,46 +253,49 @@ Freeze::TransactionalEvictorContext::ServantHolder::ServantHolder(const Transact
         //
         // Let's load this servant
         //
-        if(store->load(current.id, ctx->_tx, _rec))
+        if(store->load(current.id, ctx->_tx, _body.rec))
         {
-            _ctx->_stack.push_front(this);
-            _ownServant = true;
-       
-            //
-            // Compute readonly properly
-            //
-            _readOnly = (useNonmutating && current.mode == Nonmutating) ||
-                (!useNonmutating && (_rec.servant->ice_operationAttributes(current.operation) & 0x1) == 0);
+            ctx->_stack.push_front(&_body);
+            _body.ownServant = true;
         }
-    }
-}
-
-
-Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder()
-{
-    if(_ownServant)
-    {
-        if(_ctx->_tx != 0)
-        {
-            if(!_readOnly && !_removed)
-            {
-                EvictorIBase::updateStats(_rec.stats, IceUtil::Time::now().toMilliSeconds());
-                _store->update(_current.id, _rec, _ctx->_tx);
-            }
-        
-            if(!_readOnly || _removed)
-            {
-                _ctx->_invalidateList.push_back(new ToInvalidate(_current.id, _store));
-            }
-        }
-        _ctx->_stack.pop_front();
     }
 }
 
 void
-Freeze::TransactionalEvictorContext::ServantHolder::removed()
+Freeze::TransactionalEvictorContext::ServantHolder::adopt(ServantHolder& other)
 {
-    _removed = true;
+    assert(_ownBody && _body.ctx == 0);
+
+    _body = other._body;
+    other._ownBody = false;
+}
+
+void
+Freeze::TransactionalEvictorContext::ServantHolder::markReadWrite()
+{
+    assert(_ownBody);
+
+    if(_body.ownServant)
+    {
+        _body.readOnly = false;
+    }
+    else
+    {
+        if(_body.readOnly)
+        {
+            throw DatabaseException(__FILE__, __LINE__, "freeze:write operation called from freeze:read operation");
+        }
+    }
+}
+
+Freeze::TransactionalEvictorContext::ServantHolder::Body::Body() :
+    readOnly(true),
+    removed(false),
+    ownServant(false),
+    ctx(0),
+    current(0),
+    store(0)
+{
 }
 
 //

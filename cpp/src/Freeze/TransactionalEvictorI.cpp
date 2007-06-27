@@ -20,6 +20,19 @@ using namespace std;
 using namespace Freeze;
 using namespace Ice;
 
+namespace
+{
+
+//
+// Must be in sync with Parser.cpp
+//
+
+const int supports = 0;
+const int mandatory = 1;
+const int required = 2;
+const int never = 3;
+}
+
 
 //
 // createEvictor functions
@@ -76,7 +89,7 @@ Freeze::TransactionalEvictorI::TransactionalEvictorI(const ObjectAdapterPtr& ada
         {
         }
 
-        virtual Ice::DispatchStatus dispatch(Ice::Request& request)
+        virtual DispatchStatus dispatch(Request& request)
         {
             return _evictor->dispatch(request);
         }
@@ -119,7 +132,7 @@ Freeze::TransactionalEvictorI::setCurrentTransaction(const TransactionPtr& tx)
 }
 
 
-Ice::ObjectPrx
+ObjectPrx
 Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
@@ -146,7 +159,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
 
     if(!store->insert(ident, rec, tx))
     {
-        Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
+        AlreadyRegisteredException ex(__FILE__, __LINE__);
         ex.kindOfObject = "servant";
         ex.id = _communicator->identityToString(ident);
         if(!facet.empty())
@@ -164,7 +177,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
     return obj;
 }
 
-Ice::ObjectPtr
+ObjectPtr
 Freeze::TransactionalEvictorI::removeFacet(const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
@@ -318,14 +331,15 @@ Freeze::TransactionalEvictorI::finished(const Current&, const ObjectPtr&, const 
     //
 }
 
-Ice::DispatchStatus
-Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
+DispatchStatus
+Freeze::TransactionalEvictorI::dispatch(Request& request)
 {
     class CtxHolder
     {
     public:
 
-        CtxHolder(const TransactionalEvictorContextPtr& ctx, const SharedDbEnvPtr& dbEnv) :
+        CtxHolder(bool ownCtx, const TransactionalEvictorContextPtr& ctx, const SharedDbEnvPtr& dbEnv) :
+            _ownCtx(ownCtx),
             _ctx(ctx),
             _dbEnv(dbEnv)
         {
@@ -333,20 +347,24 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
         
         ~CtxHolder()
         {
-            try
+            if(_ownCtx)
             {
-                _ctx->commit();
-            }
-            catch(...)
-            {
+                try
+                {
+                    _ctx->commit();
+                }
+                catch(...)
+                {
+                    _dbEnv->setCurrentTransaction(0);
+                    throw;
+                }
                 _dbEnv->setCurrentTransaction(0);
-                throw;
             }
-            _dbEnv->setCurrentTransaction(0);
         }
 
     private:
-        TransactionalEvictorContextPtr _ctx;
+        const bool _ownCtx;
+        const TransactionalEvictorContextPtr _ctx;
         const SharedDbEnvPtr& _dbEnv;
     };
     
@@ -360,205 +378,219 @@ Freeze::TransactionalEvictorI::dispatch(Ice::Request& request)
     {
         servantNotFound(__FILE__, __LINE__, current);
     }
-    
-    //
-    // Is there an existing context?
-    //
+
     TransactionalEvictorContextPtr ctx = _dbEnv->getCurrent();
-    
-    if(ctx != 0)
+
+    ObjectPtr sample = store->sampleServant();
+    ObjectPtr cachedServant = 0;
+
+    TransactionalEvictorContext::ServantHolder servantHolder;
+  
+    if(sample == 0)
     {
-        try
+        if(ctx != 0)
+        { 
+            try
+            {
+                servantHolder.init(ctx, current, store);
+            }                    
+            catch(const DeadlockException&)
+            {
+                ctx->deadlockException();
+                throw;
+            }
+            sample = servantHolder.servant();
+        }
+        else
         {
             //
-            // If yes, use this context; there is no retrying
+            // find / load read-only servant
             //
-            TransactionalEvictorContext::ServantHolder servantHolder(ctx, current, store, _useNonmutating);
-
-            if(servantHolder.servant() == 0)
+            
+            cachedServant = loadCachedServant(current.id, store);
+            
+            if(cachedServant == 0)
             {
                 servantNotFound(__FILE__, __LINE__, current);
             }
-            
-            try
-            {
-                DispatchStatus dispatchStatus = servantHolder.servant()->ice_dispatch(request, ctx);
-                
-                if(dispatchStatus == DispatchUserException && _rollbackOnUserException)
-                {
-                    ctx->rollback();
-                }
+            sample = cachedServant;
+        }
+    }
 
-                if(dispatchStatus == DispatchAsync)
-                {
-                    //
-                    // May throw DeadlockException
-                    //
-                    ctx->checkDeadlockException();
-                }
-                return dispatchStatus;
-            }
-            catch(...)
+    assert(sample != 0);
+
+    int operationAttributes = sample->ice_operationAttributes(current.operation);
+                
+    bool readOnly = (_useNonmutating && current.mode == Nonmutating) 
+        || (!_useNonmutating && (operationAttributes & 0x1) == 0);
+                
+    int txMode = (operationAttributes & 0x6) >> 1;
+                
+    bool ownCtx = false;
+
+    //
+    // Establish the proper context
+    //
+    switch(txMode)
+    {
+        case never:
+        {
+            assert(readOnly);
+            if(ctx != 0)
             {
-                //
-                // Important: this rollback() ensures that servant holder destructor won't perform
-                // any database operation, and hence will not throw.
-                //
-                ctx->rollback();
-                throw;
+                throw DatabaseException(__FILE__, __LINE__, "transaction rejected by 'never' metadata");
             }
-            //
-            // servantHolder destructor runs here and may throw (if tx was not rolled back)
-            // 
+            break;
         }
-        catch(const DeadlockException&)
+        case supports:
         {
-            ctx->deadlockException();
-            throw;
+            assert(readOnly);
+            break;
         }
-        catch(...)
+        case mandatory:
         {
-            ctx->rollback();
-            throw;
+            if(ctx == 0)
+            {
+                throw DatabaseException(__FILE__, __LINE__, "operation with a mandatory transaction");
+            }
+            break;
         }
+        case required:
+        {
+            if(ctx == 0)
+            {
+                ownCtx = true;
+            }
+            break;
+        }
+        default:
+        {
+            assert(0);
+        }
+    }
+    
+    if(ctx == 0 && !ownCtx)
+    {
+        //
+        // Read-only dispatch
+        //
+        assert(readOnly);
+        if(cachedServant == 0)
+        {
+            cachedServant = loadCachedServant(current.id, store);
+            
+            if(cachedServant == 0)
+            {
+                servantNotFound(__FILE__, __LINE__, current);
+            }
+        }
+        return cachedServant->ice_dispatch(request);
     }
     else
     {
-        ObjectPtr servant = 0;
-
         //
-        // Otherwise, first figure out if it's a read or write operation
+        // Create a new transaction; retry on DeadlockException
         //
-        bool readOnly = true;
         
-        if(_useNonmutating)
-        {
-            readOnly = (current.mode == Ice::Nonmutating);
-        }
-        else
-        {
-            //
-            // Is there a sample-servant associated with this store?
-            //
-            
-            ObjectPtr sample = store->sampleServant();
-            if(sample != 0)
-            {
-                readOnly = (sample->ice_operationAttributes(current.operation) & 0x1) == 0;
-            }
-            else
-            {
-                //
-                // Otherwise find / load read-only servant
-                //
-                servant = loadCachedServant(current.id, store);
-                if(servant == 0)
-                {
-                    servantNotFound(__FILE__, __LINE__, current);
-                }
-                else
-                {
-                    readOnly = (servant->ice_operationAttributes(current.operation) & 0x1) == 0;
-                }
-            }
-        }
+        bool tryAgain = false;
         
-        //
-        // readOnly is now set properly
-        //
-        if(readOnly)
+        do
         {
-            if(servant == 0)
+            try
             {
-                servant = loadCachedServant(current.id, store);
-                if(servant == 0)
-                {
-                    servantNotFound(__FILE__, __LINE__, current);
-                }
-            }
-            // otherwise reuse servant loaded above
-            
-            //
-            // Non-transactional, read-only dispatch
-            //
-            return servant->ice_dispatch(request);
-        }
-        else
-        {
-            //
-            // Create a new transaction; retry on DeadlockException
-            //
-            
-            bool tryAgain = false;
-            
-            do
-            {
-                try
+                if(ownCtx)
                 {
                     ctx = _dbEnv->createCurrent();
-                    CtxHolder ctxHolder(ctx, _dbEnv);
-                    
-                    try
-                    {                   
-                        TransactionalEvictorContext::ServantHolder servantHolder(ctx, current, store, _useNonmutating);
-                        
-                        if(servantHolder.servant() == 0)
-                        {
-                            servantNotFound(__FILE__, __LINE__, current);
-                        }
-                               
-                        try
-                        {
-                            DispatchStatus dispatchStatus = servantHolder.servant()->ice_dispatch(request, ctx);
-                            if(dispatchStatus == DispatchUserException && _rollbackOnUserException)
-                            {
-                                ctx->rollback();
-                            }
-                            if(dispatchStatus == DispatchAsync)
-                            {
-                                //
-                                // May throw DeadlockException
-                                //
-                                ctx->checkDeadlockException();
-                            }
-
-                            return dispatchStatus;
-                        }
-                        catch(...)
-                        {
-                            //
-                            // Important: this rollback() ensures that servant holder destructor won't perform
-                            // any database operation, and hence will not throw.
-                            //
-                            ctx->rollback();
-                            throw;
-                        }
-                        //
-                        // servant holder destructor runs here and may throw (if !rolled back)
-                        // 
-                    }
-                    catch(const DeadlockException&)
+                }
+                
+                CtxHolder ctxHolder(ownCtx, ctx, _dbEnv);
+                
+                try
+                {                   
+                    TransactionalEvictorContext::ServantHolder sh;
+                    if(servantHolder.initialized())
                     {
-                        ctx->deadlockException();
-                        throw;
+                        //
+                        // Adopt it
+                        //
+                        sh.adopt(servantHolder);
+                    }
+                    else
+                    {
+                        sh.init(ctx, current, store);
+                    }
+   
+                    if(sh.servant() == 0)
+                    {
+                        servantNotFound(__FILE__, __LINE__, current);
+                    }
+
+                    if(!readOnly)
+                    {
+                        sh.markReadWrite();
+                    }
+                               
+                    try
+                    {
+                        DispatchStatus dispatchStatus = sh.servant()->ice_dispatch(request, ctx);
+                        if(dispatchStatus == DispatchUserException && _rollbackOnUserException)
+                        {
+                            ctx->rollback();
+                        }
+                        if(dispatchStatus == DispatchAsync)
+                        {
+                            //
+                            // May throw DeadlockException
+                            //
+                            ctx->checkDeadlockException();
+                        }
+                        
+                        return dispatchStatus;
                     }
                     catch(...)
                     {
+                        //
+                        // Important: this rollback() ensures that servant holder destructor won't perform
+                        // any database operation, and hence will not throw.
+                        //
                         ctx->rollback();
                         throw;
                     }
-
                     //
-                    // commit occurs here!
-                    //
+                    // servant holder destructor runs here and may throw (if !rolled back)
+                    // 
                 }
                 catch(const DeadlockException&)
                 {
-                    tryAgain = true;
+                    ctx->deadlockException();
+                    throw;
+                }
+                catch(...)
+                {
+                    if(ownCtx)
+                    {
+                        ctx->rollback();
+                    }
+                    throw;
                 }
                 
-            } while(tryAgain);
-        }
+                //
+                // commit occurs here (when ownCtx)
+                //
+            }
+            catch(const DeadlockException&)
+            {
+                if(ownCtx)
+                {
+                    tryAgain = true;
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            
+        } while(tryAgain);
     }
 
     //
@@ -633,7 +665,7 @@ Freeze::TransactionalEvictorI::evict()
 }
 
 
-Ice::ObjectPtr
+ObjectPtr
 Freeze::TransactionalEvictorI::loadCachedServant(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store)
 {
     for(;;)
@@ -664,7 +696,7 @@ Freeze::TransactionalEvictorI::loadCachedServant(const Identity& ident, ObjectSt
     }
 }
 
-Ice::ObjectPtr
+ObjectPtr
 Freeze::TransactionalEvictorI::evict(const Identity& ident, ObjectStore<TransactionalEvictorElement>* store)
 {
     //

@@ -32,31 +32,48 @@ public:
     {
     public:
         
-        ServantHolder(const TransactionalEvictorContextPtr&, const Ice::Current&, ObjectStore<TransactionalEvictorElement>*, bool);
+        ServantHolder();
         ~ServantHolder();
 
-        void removed();
+        void init(const TransactionalEvictorContextPtr&, const Ice::Current&, ObjectStore<TransactionalEvictorElement>*);
+
+        void adopt(ServantHolder&);
+
+        void markReadWrite();
+
+        bool initialized() const
+        {
+            return _ownBody && _body.ctx != 0;
+        }
 
         const Ice::ObjectPtr& servant() const
         {
-            return _rec.servant;
+            return _body.rec.servant;
         }
 
-        bool matches(const Ice::Identity& ident, ObjectStore<TransactionalEvictorElement>* store)
+        struct Body
         {
-            return _current.id == ident && _store == store;
-        }
+            Body();
+
+            bool matches(const Ice::Identity& ident, ObjectStore<TransactionalEvictorElement>* s) const
+            {
+                return current->id == ident && store == s;
+            }
+
+            bool readOnly;
+            bool removed;
+            bool ownServant;
+
+            const TransactionalEvictorContextPtr* ctx;
+            const Ice::Current* current;
+            ObjectStore<TransactionalEvictorElement>* store;
+            ObjectRecord rec;
+        };
 
     private:
-        
-        bool _readOnly;
-        bool _ownServant;
-        bool _removed;
 
-        const TransactionalEvictorContextPtr& _ctx;
-        const Ice::Current& _current;
-        ObjectStore<TransactionalEvictorElement>* _store;
-        ObjectRecord _rec;
+        Body _body;
+        bool _ownBody;
     };
 
 
@@ -107,14 +124,14 @@ private:
     
     friend class ServantHolder;
 
-    ServantHolder* findServantHolder(const Ice::Identity&, ObjectStore<TransactionalEvictorElement>*) const;
+    ServantHolder::Body* findServantHolderBody(const Ice::Identity&, ObjectStore<TransactionalEvictorElement>*) const;
 
     void finalize(bool);
 
     //
-    // Stack of ServantHolder*
+    // Stack of ServantHolder::Body*
     //
-    typedef std::deque<ServantHolder*> Stack;
+    typedef std::deque<ServantHolder::Body*> Stack;
     Stack _stack;
     
     //
