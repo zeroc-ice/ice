@@ -65,6 +65,11 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------
 
+- If the glacier2router can not contact the permissions verifier or
+  session manager on startup it now prints a warning and continues
+  rather than exiting. These warnings are disabled if the router is
+  started with the --nowarn command line option.
+
 - Added support for protected class data members using the new
   metadata tag ["protected"]. The tag can be applied to a Slice class
   or to individual data members.

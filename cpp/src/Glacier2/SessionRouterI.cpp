@@ -804,7 +804,7 @@ Glacier2::SessionRouterI::createSessionInternal(const string& userId, bool allow
         {
             if(_sessionTraceLevel >= 1)
             {
-                Trace out(_logger, "Glacier2");
+                Warning out(_logger);
                 out << "exception while verifying password:\n" << ex;
             }
             

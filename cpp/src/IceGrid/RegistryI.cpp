@@ -958,6 +958,12 @@ RegistryI::getPermissionsVerifier(const ObjectAdapterPtr& adapter,
         try
         {
             verifier = _communicator->propertyToProxy(verifierProperty);
+            if(!verifier)
+            {
+                Error out(_communicator->getLogger());
+                out << "permissions verifier `" + verifierPropertyValue + "' is invalid";
+                return 0;
+            }
             assert(_nullPermissionsVerifier);
             if(verifier->ice_getIdentity() == _nullPermissionsVerifier->ice_getIdentity())
             {
@@ -1057,6 +1063,12 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
         try
         {
             verifier = _communicator->propertyToProxy(verifierProperty);
+            if(!verifier)
+            {
+                Error out(_communicator->getLogger());
+                out << "ssl permissions verifier `" + verifierPropertyValue + "' is invalid";
+                return 0;
+            }
             assert(_nullSSLPermissionsVerifier);
             if(verifier->ice_getIdentity() == _nullSSLPermissionsVerifier->ice_getIdentity())
             {
@@ -1066,7 +1078,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
         catch(const LocalException& ex)
         {
             Error out(_communicator->getLogger());
-            out << "permissions verifier `" + verifierPropertyValue + "' is invalid:\n" << ex;
+            out << "ssl permissions verifier `" + verifierPropertyValue + "' is invalid:\n" << ex;
             return 0;
         }
     }
@@ -1088,7 +1100,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
         if(!verifierPrx)
         {
             Error out(_communicator->getLogger());
-            out << "permissions verifier `" + verifierProperty + "' is invalid";
+            out << "ssl permissions verifier `" + verifierProperty + "' is invalid";
             return 0;
         }    
     }
@@ -1097,7 +1109,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
         if(!nowarn)
         {
             Warning out(_communicator->getLogger());
-            out << "couldn't contact permissions verifier `" + verifierProperty + "':\n" << ex; 
+            out << "couldn't contact ssl permissions verifier `" + verifierProperty + "':\n" << ex; 
         }
         verifierPrx = Glacier2::SSLPermissionsVerifierPrx::uncheckedCast(verifier->ice_locator(locator));
     }
