@@ -166,7 +166,7 @@ Client::main(int argc, char* argv[])
 
         try
         {
-            run(argc, argv);
+            status = run(argc, argv);
         }
         catch(const Ice::CommunicatorDestroyedException&)
         {
