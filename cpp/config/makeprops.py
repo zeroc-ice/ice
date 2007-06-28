@@ -226,10 +226,10 @@ class PropertyHandler(ContentHandler):
         """Needs to be overridden in derived class"""
         pass
 
-    def handleNewSection(self, sectionName, cmdLine):
+    def handleNewSection(self, sectionName, noCmdLine):
         self.currentSection = sectionName
         self.sectionPropertyCount = 0
-        if cmdLine == "true":
+        if noCmdLine == "false":
             self.cmdLineOptions.append(sectionName)
         self.sections.append(sectionName)
         self.newSection()
@@ -256,7 +256,7 @@ class PropertyHandler(ContentHandler):
             return
         
         if name == "section":
-            noCmdLine = attrs.get("noCmdLine", None)
+            noCmdLine = attrs.get("noCmdLine", "false")
             self.handleNewSection(attrs.get("name"), noCmdLine)
         
         elif name == "property":
@@ -335,7 +335,7 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("\nconst char* IceInternal::%(classname)s::clPropNames[] =\n" % \
                 {'classname' : self.className})
         self.cppFile.write("{\n")
-        for s in self.sections:
+        for s in self.cmdLineOptions:
             self.cppFile.write("    \"%s\",\n" % s)
         self.cppFile.write("    0\n")
         self.cppFile.write("};\n\n")
@@ -403,7 +403,7 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("\n   public static final String clPropNames[] =\n" % \
                 {'classname' : self.className})
         self.srcFile.write("    {\n")
-        for s in self.sections:
+        for s in self.cmdLineOptions:
             self.srcFile.write("        \"%s\",\n" % s)
         self.srcFile.write("        null\n")
         self.srcFile.write("    };\n\n")
@@ -472,7 +472,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("        public static string[] clPropNames =\n" % \
                 {'classname' : self.className})
         self.srcFile.write("        {\n")
-        for s in self.sections:
+        for s in self.cmdLineOptions:
             self.srcFile.write("            \"%s\",\n" % s)
         self.srcFile.write("            null\n")
         self.srcFile.write("        };\n")
