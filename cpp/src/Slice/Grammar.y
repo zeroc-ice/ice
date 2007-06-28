@@ -538,7 +538,7 @@ class_extends
     if(!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl)
+	if(!cl || cl->isInterface())
 	{
 	    string msg = "`";
 	    msg += scoped->v;
