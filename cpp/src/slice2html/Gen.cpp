@@ -1843,9 +1843,9 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     {
         _symbols.push_back(c);
     }
-    else if(ClassDeclPtr cdecl = ClassDeclPtr::dynamicCast(c))
+    else if(ClassDeclPtr::dynamicCast(c))
     {
-        ContainedPtr definition = cdecl->definition();
+        ContainedPtr definition = ClassDeclPtr::dynamicCast(c)->definition();
         if(definition)
         {
             _symbols.push_back(definition);
