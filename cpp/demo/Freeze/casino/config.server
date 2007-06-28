@@ -9,6 +9,8 @@ Freeze.Evictor.db.bank.RollbackOnUserException=1
 Freeze.Evictor.db.bet.RollbackOnUserException=1
 Freeze.Evictor.db.player.RollbackOnUserException=1
 
+#Freeze.Trace.Transaction=1
+
 #
 # The bank can have more chances of winning than regular players.
 # must be >= 1

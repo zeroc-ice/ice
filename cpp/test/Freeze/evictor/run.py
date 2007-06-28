@@ -28,5 +28,6 @@ TestUtil.cleanDbDir(dbdir)
 
 testOptions = " --Freeze.DbEnv.db.DbHome=" + testdir + "/db" + " --Ice.Config=" + testdir + "/config ";
 
+print testOptions
 TestUtil.clientServerTestWithOptions(name, testOptions, testOptions)
 sys.exit(0)

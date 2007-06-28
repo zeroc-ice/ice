@@ -75,7 +75,8 @@ BankI::checkAllChips(const Ice::Current& current) const
     int playerTotal = 0;
 
     Casino::PlayerPrxSeq players = getPlayers(current);
-    for(size_t i = 0; i < players.size(); ++i)
+    size_t i;
+    for(i = 0; i < players.size(); ++i)
     {
         playerTotal += players[i]->getChips();
     }
@@ -85,7 +86,7 @@ BankI::checkAllChips(const Ice::Current& current) const
     int betTotal = 0;
 
     vector<CasinoStore::PersistentBetPrx> bets = getBets(current.adapter);
-    for(size_t i = 0; i < bets.size(); ++i)
+    for(i = 0; i < bets.size(); ++i)
     {
         betTotal += bets[i]->getChipsInPlay();
     }
@@ -100,7 +101,14 @@ BankI::checkAllChips(const Ice::Current& current) const
 Casino::BetPrx
 BankI::createBet(int amount, int lifetime, const Ice::Current&)
 {
-    Ice::Identity ident = {IceUtil::generateUUID(), "bet"};
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    Ice::Identity ident;
+    ident.name =  IceUtil::generateUUID();
+    ident.category = "bet";
+#else
+    Ice::Identity ident = { IceUtil::generateUUID(), "bet" };
+#endif
+
     Ice::Long closeTime = IceUtil::Time::now().toMilliSeconds() + lifetime;
 
     outstandingChips += amount;

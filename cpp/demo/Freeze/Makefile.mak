@@ -13,6 +13,7 @@ top_srcdir	= ..\..
 
 SUBDIRS		= bench \
                   backup \
+                  casino \
                   customEvictor \
 		  library \
 		  phonebook

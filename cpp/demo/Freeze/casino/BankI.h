@@ -54,6 +54,14 @@ private:
     
     std::vector<CasinoStore::PersistentBetPrx> getBets(const Ice::ObjectAdapterPtr&) const;
     
+
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+//
+// Some compilers don't let local classes access private data members
+//
+public:
+#endif
+
     CasinoStore::PersistentBankPrx _prx;
     Freeze::TransactionalEvictorPtr _evictor;
     Freeze::TransactionalEvictorPtr _playerEvictor;

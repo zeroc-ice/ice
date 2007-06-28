@@ -67,7 +67,8 @@ CasinoClient::run(int argc, char* argv[])
             
     cout << "Create 500 10-chips bets... " << flush;
 
-    for(int b = 0; b < 500; ++b)
+    int b;
+    for(b = 0; b < 500; ++b)
     {
         Casino::BetPrx bet = bank->createBet(10, 200 + IceUtil::random(4000));
         for(size_t i = 0; i < players.size(); ++i)
@@ -128,7 +129,7 @@ CasinoClient::run(int argc, char* argv[])
 
     cout << "Create 100 10-chips bets... " << flush;
 
-    for(int b = 0; b < 100; ++b)
+    for(b = 0; b < 100; ++b)
     {
         Casino::BetPrx bet = bank->createBet(10, 200 + IceUtil::random(4000));
         for(size_t i = 0; i < players.size(); ++i)

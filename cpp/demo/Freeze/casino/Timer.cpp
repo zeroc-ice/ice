@@ -43,27 +43,39 @@ Timer::cancel()
 void 
 Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& time)
 {
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    Entry entry;
+    entry.task = task;
+    entry.time = time;
+#else
     Entry entry = { task, time };
+#endif
 
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+
+    // cout << "Scheduling task for " << time.toDateTime() << endl;
 
     bool notify = _queue.empty();
 
     //
     // Insert it at the proper position
     //
+    bool inserted = false;
     deque<Entry>::iterator p = _queue.begin();
-    while(p != _queue.end())
+    while(!inserted && p != _queue.end())
     {
         if(time < p->time)
         {
             _queue.insert(p, entry);
-            break;
+            inserted = true;
         }
-        ++p;
+        else
+        {
+            ++p;
+        }
     }
 
-    if(p == _queue.end())
+    if(!inserted)
     {
         _queue.push_back(entry);
     }
@@ -103,10 +115,11 @@ Timer::run()
             IceUtil::Time now = IceUtil::Time::now();
 
             ready = (entry.time <= now);
-
             if(!ready)
             {
-                ready == (_monitor.timedWait(now - entry.time) == false);
+                // cout << "Waiting for " << (entry.time - now).toDuration() << endl;
+
+                ready = (_monitor.timedWait(entry.time - now) == false);
             }
         } while(!_canceled && !ready);
 
