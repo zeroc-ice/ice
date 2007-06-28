@@ -862,7 +862,7 @@ public final class Network
                 while(addrs.hasMoreElements())
                 {
                     java.net.InetAddress addr = (java.net.InetAddress)addrs.nextElement();
-                    if(!(addr instanceof java.net.Inet6Address))
+                    if(addr instanceof java.net.Inet4Address)
                     {
                         result.add(addr);
                     }
