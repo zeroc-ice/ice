@@ -535,5 +535,5 @@ def collocatedTest(name):
     collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
-    for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore"]:
+    for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
 	os.remove(filename)
