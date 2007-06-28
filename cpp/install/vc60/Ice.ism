@@ -341,6 +341,7 @@
 		<row><td>BerkeleyDBDebugDLL</td><td>{4AFE3857-AA3D-4C50-AC1D-7E255BFCA13B}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Bzip2DebugDLL</td><td>{188B2FE5-4BB1-4F53-9688-0D8A6F4C2423}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>DummyComponent</td><td>{7F73549A-1CDC-4CB8-AC1D-3F62E15B37F2}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISRegistryComponent</td><td>{55F320C1-D099-4A78-978F-70B93820A653}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppDemo</td><td>{6A1F9184-8C80-46C0-8835-3CF5AE6290B3}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppDev</td><td>{7BF2EA6B-007C-4C93-8FFF-5621DC754087}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppRuntime</td><td>{1ADAF629-4ABE-4F59-A64D-DDAC46DFFBE7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -960,6 +961,7 @@
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
 		<row><td>INSTALLDIR</td><td>DummyComponent</td></row>
+		<row><td>INSTALLDIR</td><td>ISRegistryComponent</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -1292,6 +1294,7 @@
 		<row><td>ice_dev_php</td><td>IcePHPDemo</td></row>
 		<row><td>ice_dev_ruby</td><td>IceRubyDemo</td></row>
 		<row><td>ice_dev_ruby</td><td>IceRubyDev</td></row>
+		<row><td>ice_runtime</td><td>ISRegistryComponent</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>DummyComponent</td></row>
@@ -1470,6 +1473,7 @@
 		<row><td>BerkeleyDBDebugDLL</td><td/><td/><td>_6096165E_CE0C_4870_81D8_F111BF49122D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Bzip2DebugDLL</td><td/><td/><td>_84A8CEAD_7B2D_4610_94DB_E94FC30A0AD5_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>DummyComponent</td><td/><td/><td>_55630A01_8001_4F86_9F12_636310987A2B_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ISRegistryComponent</td><td/><td/><td>_CBD582FD_ACFB_4F12_B858_C319B0BF971A_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppDemo</td><td/><td/><td>_FC69CAF8_66AC_4793_A8ED_AFD7D168B544_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
@@ -2854,6 +2858,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\ZeroC</td><td/><td/><td>ISRegistryComponent</td><td>1</td></row>
+		<row><td>Registry2</td><td>2</td><td>SOFTWARE\ZeroC\[ProductName]</td><td>InstallDir</td><td>"[INSTALLDIR]"</td><td>ISRegistryComponent</td><td>0</td></row>
 	</table>
 
 	<table name="RemoveFile">

@@ -344,6 +344,7 @@
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
 		<row><td>BerkeleyDBDebugDLL</td><td>{94256F2A-D7C9-403E-A895-4A6094A81E4C}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>Bzip2DebugDLL</td><td>{918FC3B6-DD57-4FEE-BDB2-43C7AE4B9BD8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>ISRegistryComponent</td><td>{E0B97316-AA68-4841-8E7E-0D1203B31F37}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppDemo</td><td>{C1392163-339E-452B-A401-D0B4E27F0600}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -958,6 +959,7 @@
 	<table name="CreateFolder">
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
+		<row><td>INSTALLDIR</td><td>ISRegistryComponent</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -1287,6 +1289,7 @@
 		<col key="yes" def="s72">Component_</col>
 		<row><td>ice_dev_cpp</td><td>IceCppDemo</td></row>
 		<row><td>ice_dev_cpp</td><td>IceCppDev</td></row>
+		<row><td>ice_runtime</td><td>ISRegistryComponent</td></row>
 		<row><td>ice_runtime</td><td>IceCppRuntime</td></row>
 		<row><td>ice_runtime</td><td>IceDoc</td></row>
 		<row><td>ice_runtime_cpp</td><td>IceCppRuntime</td></row>
@@ -1461,6 +1464,7 @@
 		<col def="S0">Miscellaneous</col>
 		<row><td>BerkeleyDBDebugDLL</td><td/><td/><td>_66F3A2FC_271B_4155_822E_25F167AD2B70_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>Bzip2DebugDLL</td><td/><td/><td>_31A2A105_ADDA_48D5_9052_8FE30BD4D852_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>ISRegistryComponent</td><td/><td/><td>_0E85C186_ACC5_4878_B45B_0B8616AE8602_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppDemo</td><td/><td/><td>_FC69CAF8_66AC_4793_A8ED_AFD7D168B544_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
@@ -2853,6 +2857,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\ZeroC\[ProductName]</td><td>InstallDir</td><td>"[INSTALLDIR]"</td><td>ISRegistryComponent</td><td>0</td></row>
 	</table>
 
 	<table name="RemoveFile">

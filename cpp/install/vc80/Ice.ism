@@ -2990,6 +2990,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\ZeroC\[ProductName]</td><td>InstallDir</td><td>"[INSTALLDIR]"</td><td>ISRegistryComponent</td><td>0</td></row>
 		<row><td>Registry6</td><td>2</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders\Ice Assemblies</td><td/><td>[INSTALLDIR]bin</td><td>ISRegistryComponent</td><td>0</td></row>
 		<row><td>Registry7</td><td>2</td><td>SOFTWARE\Microsoft\.NETFramework\AssemblyFolders</td><td/><td/><td>ISRegistryComponent</td><td>1</td></row>
 	</table>
