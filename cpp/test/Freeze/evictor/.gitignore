@@ -5,5 +5,6 @@ client
 server
 Test.cpp
 Test.h
-db/{__catalog,Test}
+db/__catalog
+db/Test
 db/log.*

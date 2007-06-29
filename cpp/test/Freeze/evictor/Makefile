@@ -40,7 +40,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(DB_RPATH_LINK) -lFreeze $(LIBS)
 
 clean::
-	-rm -f db/{__catalog,Test}
+	-rm -f db/__catalog db/Test
 	-rm -f db/log.*
 
 include .depend

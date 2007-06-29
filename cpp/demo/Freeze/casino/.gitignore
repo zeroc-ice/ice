@@ -7,5 +7,8 @@ Casino.cpp
 CasinoStore.cpp
 Casino.h
 CasinoStore.h
-db/{__catalog,bet,bank,player}
+db/__catalog
+db/bet
+db/bank
+db/player
 db/log.*

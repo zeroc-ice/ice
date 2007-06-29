@@ -52,7 +52,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 
 clean::
 	del /q Casino.cpp Casino.h
-        del /q CasinoStore.cpp CasinoStore.h
+	del /q CasinoStore.cpp CasinoStore.h
 	-for %f in (db\*) do if not %f == db\DB_CONFIG del /q %f
 
 !include .depend
