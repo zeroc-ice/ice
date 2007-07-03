@@ -13,6 +13,8 @@
 *.pdb
 *.tds
 *.bak
+*.ncb
+*.opt
 core
 /*/dist
 generated
