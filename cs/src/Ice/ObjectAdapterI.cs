@@ -637,7 +637,14 @@ namespace Ice
                 if(info != null)
                 {
                     bool isCached;
-                    endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), out isCached);
+                    try
+                    {
+                        endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), out isCached);
+                    }
+                    catch(Ice.LocalException)
+                    {
+                        return false;
+                    }
                 }
                 else
                 {

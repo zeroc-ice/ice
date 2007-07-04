@@ -635,7 +635,14 @@ public final class ObjectAdapterI implements ObjectAdapter
             IceInternal.LocatorInfo info = ir.getLocatorInfo();
             if(info != null)
             {
-                endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), new Ice.BooleanHolder());
+                try
+                {
+                    endpoints = info.getEndpoints(ir, ir.getLocatorCacheTimeout(), new Ice.BooleanHolder());
+                }
+                catch(Ice.LocalException ex)
+                {
+                    return false;
+                }
             }
             else
             {

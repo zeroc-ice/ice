@@ -14,8 +14,7 @@ public final class ObjectAdapterFactory
     public void
     shutdown()
     {
-        Ice.ObjectAdapter[] adapters;
-
+        java.util.HashMap adapters;
         synchronized(this)
         {
             //
@@ -27,10 +26,10 @@ public final class ObjectAdapterFactory
                 return;
             }
 
-            adapters = (Ice.ObjectAdapter[])_adapters.values().toArray(new Ice.ObjectAdapter[0]);
-
             _instance = null;
             _communicator = null;
+
+            adapters = _adapters;
         
             notifyAll();
         }
@@ -39,15 +38,21 @@ public final class ObjectAdapterFactory
         // Deactivate outside the thread synchronization, to avoid
         // deadlocks.
         //
-        for(int i = 0; i < adapters.length; ++i)
+        if(adapters != null)
         {
-            adapters[i].deactivate();
+            java.util.Iterator i = adapters.values().iterator();
+            while(i.hasNext())
+            {
+                Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+                adapter.deactivate();
+            }
         }
     }
 
     public void
     waitForShutdown()
     {
+        java.util.HashMap adapters;
         synchronized(this)
         {
             //
@@ -79,14 +84,15 @@ public final class ObjectAdapterFactory
                 }
             }
             _waitForShutdown = true;
+            adapters = _adapters;
         }
         
         //
         // Now we wait for deactivation of each object adapter.
         //
-        if(_adapters != null)
+        if(adapters != null)
         {
-            java.util.Iterator i = _adapters.values().iterator();
+            java.util.Iterator i = adapters.values().iterator();
             while(i.hasNext())
             {
                 Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
@@ -118,11 +124,10 @@ public final class ObjectAdapterFactory
         //
         waitForShutdown();
 
-        Ice.ObjectAdapter[] adapters;
-
+        java.util.HashMap adapters;
         synchronized(this)
         {
-            adapters = (Ice.ObjectAdapter[])_adapters.values().toArray(new Ice.ObjectAdapter[0]);
+            adapters = _adapters;
 
             //
             // For consistency with C#, we set _adapters to null
@@ -135,9 +140,14 @@ public final class ObjectAdapterFactory
         //
         // Now we destroy each object adapter.
         //
-        for(int i = 0; i < adapters.length; ++i)
+        if(adapters != null)
         {
-            adapters[i].destroy();
+            java.util.Iterator i = adapters.values().iterator();
+            while(i.hasNext())
+            {
+                Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
+                adapter.destroy();
+            }
         }
     }
     
@@ -176,20 +186,26 @@ public final class ObjectAdapterFactory
         return adapter;
     }
 
-    public synchronized Ice.ObjectAdapter
+    public Ice.ObjectAdapter
     findObjectAdapter(Ice.ObjectPrx proxy)
     {
-        if(_instance == null)
+        java.util.ArrayList adapters;
+        synchronized(this)
         {
-            return null;
+            if(_instance == null)
+            {
+                return null;
+            }
+
+            adapters = new java.util.ArrayList(_adapters.values());
         }
 
-        java.util.Iterator i = _adapters.values().iterator();
-        while(i.hasNext())
+        java.util.Iterator p = adapters.iterator();
+        while(p.hasNext())
         {
-            Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)i.next();
             try
             {
+                Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)p.next();
                 if(adapter.isLocal(proxy))
                 {
                     return adapter;
@@ -207,7 +223,7 @@ public final class ObjectAdapterFactory
     public synchronized void
     removeObjectAdapter(String name)
     {
-        if(_waitForShutdown || _adapters == null)
+        if(_instance == null)
         {
             return;
         }
@@ -218,16 +234,18 @@ public final class ObjectAdapterFactory
     public void
     flushBatchRequests()
     {
-        java.util.LinkedList a = new java.util.LinkedList();
+        java.util.ArrayList adapters;
         synchronized(this)
         {
-            java.util.Iterator i = _adapters.values().iterator();
-            while(i.hasNext())
+            if(_adapters == null)
             {
-                a.add(i.next());
+                return;
             }
+
+            adapters = new java.util.ArrayList(_adapters.values());
         }
-        java.util.Iterator p = a.iterator();
+
+        java.util.Iterator p = adapters.iterator();
         while(p.hasNext())
         {
             ((Ice.ObjectAdapterI)p.next()).flushBatchRequests();
