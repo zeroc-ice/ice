@@ -65,6 +65,10 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------
 
+- Fixed object adapter activation deadlock. The deadlock could occur
+  when the adapter register its endpoints with the locator registry
+  and if another thread invokes concurrently on the locator.
+  
 - If the glacier2router can not contact the permissions verifier or
   session manager on startup it now prints a warning and continues
   rather than exiting. These warnings are disabled if the router is
