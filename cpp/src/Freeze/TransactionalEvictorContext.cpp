@@ -119,11 +119,23 @@ Freeze::TransactionalEvictorContext::checkDeadlockException()
     }
 }
 
+bool
+Freeze::TransactionalEvictorContext::clearUserException()
+{
+    bool result = _userExceptionDetected;
+    _userExceptionDetected = false;
+    return result;
+}
+
 bool 
-Freeze::TransactionalEvictorContext::response(bool)
+Freeze::TransactionalEvictorContext::response(bool ok)
 {
     if(_owner == IceUtil::ThreadControl())
     {
+        if(!ok)
+        {
+            _userExceptionDetected = true;
+        }
         return true;
     }
     else

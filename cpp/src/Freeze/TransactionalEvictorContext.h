@@ -112,6 +112,8 @@ public:
 
     void checkDeadlockException();
 
+    bool clearUserException();
+
     void commit();
     void rollback();
 
@@ -145,12 +147,16 @@ private:
     bool _rollbackOnly;
 
     std::auto_ptr<DeadlockException> _deadlockException;
-
+  
     //
     // Protected by this
     //
     bool _deadlockExceptionDetected;
 
+    //
+    // Not protected (used only by dispatch thread)
+    //
+    bool _userExceptionDetected;
 };
 
 typedef IceUtil::Handle<TransactionalEvictorContext> TransactionalEvictorContextPtr;

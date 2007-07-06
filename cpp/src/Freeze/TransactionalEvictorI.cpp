@@ -543,6 +543,11 @@ Freeze::TransactionalEvictorI::dispatch(Request& request)
                             // May throw DeadlockException
                             //
                             ctx->checkDeadlockException();
+
+                            if(ctx->clearUserException() && _rollbackOnUserException)
+                            {
+                                ctx->rollback();
+                            }
                         }
                         
                         return dispatchStatus;

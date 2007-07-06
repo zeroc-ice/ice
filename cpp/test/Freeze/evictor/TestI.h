@@ -33,6 +33,10 @@ public:
 
     virtual void transfer(int, const Test::AccountPrx&, const Ice::Current&);
 
+    virtual void transfer2_async(const AMD_Account_transfer2Ptr&, int, const Test::AccountPrx&, const Ice::Current&);
+
+    virtual void transfer3_async(const AMD_Account_transfer3Ptr&, int, const Test::AccountPrx&, const Ice::Current&);
+
     AccountI(int, const Freeze::TransactionalEvictorPtr&);
     AccountI();
 

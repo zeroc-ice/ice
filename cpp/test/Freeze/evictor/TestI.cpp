@@ -45,6 +45,125 @@ Test::AccountI::transfer(int amount, const Test::AccountPrx& toAccount, const Cu
     deposit(-amount, current); // direct call
 }
 
+void 
+Test::AccountI::transfer2_async(const AMD_Account_transfer2Ptr& cb, int amount, const Test::AccountPrx& toAccount, const Current& current)
+{
+    //
+    // Here the dispatch thread does everything
+    //
+    test(_evictor->getCurrentTransaction() != 0);
+
+    try
+    {
+        toAccount->deposit(amount); // collocated call
+        deposit(-amount, current); // direct call
+    }
+    catch(const InsufficientFundsException& ex)
+    {
+        cb->ice_exception(ex);
+        return;
+    }
+    
+    cb->ice_response();
+}
+
+
+class ResponseThread : public IceUtil::Thread, private IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+        
+    ResponseThread(const Test::AMD_Account_transfer3Ptr& cb) :
+        _cb(cb),
+        _response(false)
+    {
+    }
+
+    void response()
+    {
+        Lock sync(*this);
+        _response = true;
+        notify();
+    }
+
+    void exception(const Ice::UserException& e)
+    {
+        Lock sync(*this);
+        _exception.reset(dynamic_cast<Ice::UserException*>(e.ice_clone()));
+        notify();
+    }
+
+
+    virtual void run()
+    {
+        Lock sync(*this);
+
+        bool timedOut = false;
+
+        while(!timedOut && _response == false && _exception.get() == 0)
+        {
+            timedOut = !timedWait(IceUtil::Time::seconds(1));
+        }
+
+        if(timedOut)
+        {
+            return;
+        }
+
+        if(_response)
+        {
+            _cb->ice_response();
+        }
+        else if(_exception.get() != 0)
+        {
+            _cb->ice_exception(*_exception.get());
+        }
+        else
+        {
+            _cb->ice_exception(Ice::TimeoutException(__FILE__, __LINE__));
+        }
+    }
+        
+private:
+    Test::AMD_Account_transfer3Ptr _cb;
+    bool _response;
+    std::auto_ptr<Ice::UserException> _exception;
+};
+typedef IceUtil::Handle<ResponseThread> ResponseThreadPtr;
+
+
+void 
+Test::AccountI::transfer3_async(const AMD_Account_transfer3Ptr& cb, int amount, const Test::AccountPrx& toAccount, const Current& current)
+{
+    //
+    // Here the dispatch thread does the actual work, but a separate thread sends the response
+    //
+
+    ResponseThreadPtr thread = new ResponseThread(cb);
+    thread->start(33000).detach();
+ 
+    test(_evictor->getCurrentTransaction() != 0);
+
+    try
+    {
+        toAccount->deposit(amount); // collocated call
+        deposit(-amount, current); // direct call
+    }
+    catch(const Ice::UserException& e)
+    {
+        //
+        // Need to rollback here -- "rollback on user exception" does not work
+        // when the dispatch commits before it gets any response!
+        //
+        _evictor->getCurrentTransaction()->rollback();
+        
+        thread->exception(e);
+        return;
+    }
+
+    thread->response();
+}
+
+
 Test::AccountI::AccountI(int initialBalance, const Freeze::TransactionalEvictorPtr& evictor) :
     Account(initialBalance),
     _evictor(evictor)

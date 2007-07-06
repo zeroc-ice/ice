@@ -54,6 +54,7 @@ public class AccountI extends Test.Account
         catch(Test.InsufficientFundsException ex)
         {
             cb.ice_exception(ex);
+            return;
         }
 
         cb.ice_response();
@@ -68,11 +69,6 @@ public class AccountI extends Test.Account
 
         class ResponseThread extends Thread
         {
-            ResponseThread(Test.AMD_Account_transfer3 cb)
-            {
-                _cb = cb;
-            }
-
             synchronized void response()
             {
                 _response = true;
@@ -127,12 +123,11 @@ public class AccountI extends Test.Account
                 }
             }
 
-            private Test.AMD_Account_transfer3 _cb;
             private boolean _response = false;
             private Ice.UserException _exception;
         };
 
-        ResponseThread thread = new ResponseThread(cb);
+        ResponseThread thread = new ResponseThread();
         thread.setDaemon(true);
         thread.start();
 
@@ -152,6 +147,7 @@ public class AccountI extends Test.Account
             _evictor.getCurrentTransaction().rollback();
 
             thread.exception(e);
+            return;
         }
 
         thread.response();
