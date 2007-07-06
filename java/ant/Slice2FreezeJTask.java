@@ -355,13 +355,18 @@ public class Slice2FreezeJTask extends SliceTask
         String translator;
         if(_translator == null)
         {
-            if(getIceHome() == null)
+            //
+            // If the location of the Ice install is not known, we
+            // rely on a path search to find the translator.
+            //
+            String iceInstall = getIceHome();
+            if(iceInstall == null)
             {
                 translator = "slice2freezej";
             }
             else
             {
-                translator = new File(getIceHome() + File.separator + "bin" + File.separator + "slice2freezej").toString();
+                translator = new File(iceInstall + File.separator + "bin" + File.separator + "slice2freezej").toString();
             }
         }
         else

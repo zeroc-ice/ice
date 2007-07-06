@@ -114,7 +114,8 @@
 	</and>
     </condition>
 
-    <condition property="ice.bin.dir" value="${ice.dir}">
+    <!-- We set ice.home if we know that the translators are in ice.dir. --> 
+    <condition property="ice.home" value="${ice.dir}">
 	<or>
 	    <available file="${ice.dir}/bin/slice2java"/>
 	    <available file="${ice.dir}/bin/slice2java.exe"/>
