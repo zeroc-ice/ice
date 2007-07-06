@@ -308,39 +308,42 @@ public class SliceTask extends org.apache.tools.ant.Task
         return dependencies;
 
     }
-    
+   
+    //
+    // Query for the location of the Ice install. The Ice install
+    // location may be indicated in one of two ways:
+    //
+    //  1. Through the ice.home property
+    //  2. Through the ICE_HOME environment variable.
+    //
+    //  If both the property and environment variable is specified, the
+    //  property takes precedence. If neither is available, getIceHome()
+    //  returns null.
+    //
     protected String
     getIceHome()
     {
-        //
-        // _iceHome used to be set in the constructor. It appears that the
-        // current project isn't available at that point and consequently, the
-        // properties that allow us to find the ice translators based on the
-        // contents the 'ice.dir' property in the ant projects aren't available
-        // yet.
-        //
         if(_iceHome == null)
         {
-            //
-            // Check for the presence of the ICE_HOME environment variable.
-            //
-            java.util.Vector env = Execute.getProcEnvironment();
-            java.util.Enumeration e = env.elements();
-            while(e.hasMoreElements())
+            if(getProject().getProperties().containsKey("ice.home"))
             {
-                String entry = (String)e.nextElement();
-                if(entry.startsWith("ICE_HOME="))
-                {
-                    _iceHome = entry.substring(entry.indexOf('=') + 1);
-                    break;
-                }
+                _iceHome = (String)getProject().getProperties().get("ice.home");
             }
-
-            if(_iceHome == null)
+            else 
             {
-                if(getProject().getProperties().containsKey("ice.bin.dir"))
+                //
+                // Check for the presence of the ICE_HOME environment variable.
+                //
+                java.util.Vector env = Execute.getProcEnvironment();
+                java.util.Enumeration e = env.elements();
+                while(e.hasMoreElements())
                 {
-                    _iceHome = (String)getProject().getProperties().get("ice.bin.dir");
+                    String entry = (String)e.nextElement();
+                    if(entry.startsWith("ICE_HOME="))
+                    {
+                        _iceHome = entry.substring(entry.indexOf('=') + 1);
+                        break;
+                    }
                 }
             }
         }
