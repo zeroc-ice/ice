@@ -453,6 +453,11 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
                                     if(dispatchStatus == Ice.DispatchStatus.DispatchAsync)
                                     {
                                         ctx.checkDeadlockException();
+
+                                        if(ctx.clearUserException() && _rollbackOnUserException)
+                                        {
+                                            ctx.rollback();
+                                        }
                                     }
                                     return dispatchStatus;
                                 }

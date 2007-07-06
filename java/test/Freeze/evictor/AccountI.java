@@ -38,6 +38,125 @@ public class AccountI extends Test.Account
         deposit(-amount, current); // direct call
     }
 
+    public void
+    transfer2_async(Test.AMD_Account_transfer2 cb, int amount, Test.AccountPrx toAccount, Ice.Current current)
+    {
+        //
+        // Here the dispatch thread does everything
+        //
+        test(_evictor.getCurrentTransaction() != null);
+
+        try
+        {
+            toAccount.deposit(amount); // collocated call
+            deposit(-amount, current); // direct call
+        }
+        catch(Test.InsufficientFundsException ex)
+        {
+            cb.ice_exception(ex);
+        }
+
+        cb.ice_response();
+    }
+
+    public void
+    transfer3_async(final Test.AMD_Account_transfer3 cb, int amount, Test.AccountPrx toAccount, Ice.Current current)
+    {
+        //
+        // Here the dispatch thread does the actual work, but a separate thread sends the response
+        //
+
+        class ResponseThread extends Thread
+        {
+            ResponseThread(Test.AMD_Account_transfer3 cb)
+            {
+                _cb = cb;
+            }
+
+            synchronized void response()
+            {
+                _response = true;
+                notify();
+            }
+
+            synchronized void exception(Ice.UserException e)
+            {
+                _exception = e;
+                notify();
+            }
+
+
+            public synchronized void run()
+            {
+                if(_response == false && _exception == null)
+                {
+                    try
+                    {
+                        wait(1000);
+                    }
+                    catch(InterruptedException e)
+                    {
+                    }
+                }
+                try
+                {
+                    test(_evictor.getCurrentTransaction() == null);
+                }
+                catch(Freeze.EvictorDeactivatedException ex)
+                {
+                    //
+                    // Clearly nobody is waiting for a response!
+                    //
+                    return;
+                }
+
+                if(_response)
+                {
+                    cb.ice_response();
+                }
+                else if(_exception != null)
+                {
+                    cb.ice_exception(_exception);
+                }
+                else
+                {
+                    //
+                    // We don't wait forever!
+                    //
+                    cb.ice_exception(new Ice.TimeoutException());
+                }
+            }
+
+            private Test.AMD_Account_transfer3 _cb;
+            private boolean _response = false;
+            private Ice.UserException _exception;
+        };
+
+        ResponseThread thread = new ResponseThread(cb);
+        thread.setDaemon(true);
+        thread.start();
+
+        test(_evictor.getCurrentTransaction() != null);
+
+        try
+        {
+            toAccount.deposit(amount); // collocated call
+            deposit(-amount, current); // direct call
+        }
+        catch(Ice.UserException e)
+        {
+            //
+            // Need to rollback here -- "rollback on user exception" does not work
+            // when the dispatch commits before it gets any response!
+            //
+            _evictor.getCurrentTransaction().rollback();
+
+            thread.exception(e);
+        }
+
+        thread.response();
+    }
+
     public AccountI(int initialBalance, Freeze.TransactionalEvictor evictor)
     {
         super(initialBalance);

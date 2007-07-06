@@ -38,6 +38,12 @@ class Account
     ["freeze:write"] void transfer(int amount, Account* toAccount) throws InsufficientFundsException;
 
     //
+    // Other implementations of transfer that we want to test as well
+    //
+    ["freeze:write", "amd"] void transfer2(int amount, Account* toAccount) throws InsufficientFundsException;
+    ["freeze:write", "amd"] void transfer3(int amount, Account* toAccount) throws InsufficientFundsException;
+
+    //
     // "Internal" operation
     //
     ["freeze:write:mandatory"] void deposit(int amount) throws InsufficientFundsException;

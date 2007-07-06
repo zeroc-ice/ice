@@ -341,6 +341,8 @@ public class Client
         public void
         run()
         {
+            int transferOp = 0;
+
             for(int i = 0; i < 1000; i++)
             {
                 //
@@ -357,7 +359,33 @@ public class Client
                 
                 try
                 {
-                    from.transfer(100, to);
+                    //
+                    // Alternate between transfer methods
+                    //
+                    switch(transferOp)
+                    {
+                        case 0:
+                        {
+                            from.transfer(100, to);
+                            break;
+                        }
+                        case 1:
+                        {
+                            from.transfer2(100, to);
+                            break;
+                        }
+                        case 2:
+                        {
+                            from.transfer3(100, to);
+                            break;
+                        }
+                        default:
+                        {
+                            test(false);
+                        }
+                    }
+                    transferOp++;
+                    transferOp = transferOp % 3;
                 }
                 catch(Test.InsufficientFundsException e)
                 {

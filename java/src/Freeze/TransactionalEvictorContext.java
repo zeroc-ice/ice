@@ -57,6 +57,11 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
     {
         if(Thread.currentThread().equals(_owner))
         {
+            if(!ok)
+            {
+                _userExceptionDetected = true;
+            }
+
             return true;
         }
         else
@@ -274,6 +279,18 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
             throw _deadlockException;
         }
     }
+
+    boolean
+    clearUserException()
+    {
+        //
+        // No need to synchronize; _userExceptionDetected is only read/written by the 
+        // dispatch thread
+        //
+        boolean result = _userExceptionDetected;
+        _userExceptionDetected = false;
+        return result;
+    }
     
   
     TransactionI 
@@ -387,6 +404,12 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
     // Protected by this
     //
     private boolean _deadlockExceptionDetected = false;
+
+    
+    //
+    // Only updated by the dispatch thread
+    //
+    private boolean _userExceptionDetected = false;
 
     private final int _trace;
     private final Ice.Communicator _communicator;
