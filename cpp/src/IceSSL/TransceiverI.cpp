@@ -41,9 +41,13 @@ IceSSL::TransceiverI::close()
 
     shutdown();
 
-    assert(_fd != INVALID_SOCKET);
+    //
+    // Only one thread calls close(), so synchronization is not necessary here.
+    //
     SSL_free(_ssl);
     _ssl = 0;
+
+    assert(_fd != INVALID_SOCKET);
     _fd = INVALID_SOCKET;
 }
 
@@ -97,11 +101,19 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
     {
         ERR_clear_error(); // Clear any spurious errors.
         assert(_fd != INVALID_SOCKET);
-        int ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
+        int ret, err;
+        bool wantRead, wantWrite;
+        {
+            IceUtil::Mutex::Lock sync(_sslMutex);
+            ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
+            err = SSL_get_error(_ssl, ret);
+            wantRead = SSL_want_read(_ssl);
+            wantWrite = SSL_want_write(_ssl);
+        }
 
         if(ret <= 0)
         {
-            switch(SSL_get_error(_ssl, ret))
+            switch(err)
             {
             case SSL_ERROR_NONE:
                 assert(false);
@@ -145,14 +157,14 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 
                     if(IceInternal::wouldBlock())
                     {
-                        if(SSL_want_read(_ssl))
+                        if(wantRead)
                         {
                             if(!selectRead(_fd, timeout))
                             {
                                 throw TimeoutException(__FILE__, __LINE__);
                             }
                         }
-                        else if(SSL_want_write(_ssl))
+                        else if(wantWrite)
                         {
                             if(!selectWrite(_fd, timeout))
                             {
@@ -214,18 +226,26 @@ IceSSL::TransceiverI::write(IceInternal::Buffer& buf, int timeout)
 void
 IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
 {
-    // Its impossible for the packetSize to be more than an Int.
+    // It's impossible for the packetSize to be more than an Int.
     int packetSize = static_cast<int>(buf.b.end() - buf.i);
     
     while(buf.i != buf.b.end())
     {
         ERR_clear_error(); // Clear any spurious errors.
         assert(_fd != INVALID_SOCKET);
-        int ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), packetSize);
+        int ret, err;
+        bool wantRead, wantWrite;
+        {
+            IceUtil::Mutex::Lock sync(_sslMutex);
+            ret = SSL_read(_ssl, reinterpret_cast<void*>(&*buf.i), packetSize);
+            err = SSL_get_error(_ssl, ret);
+            wantRead = SSL_want_read(_ssl);
+            wantWrite = SSL_want_write(_ssl);
+        }
 
         if(ret <= 0)
         {
-            switch(SSL_get_error(_ssl, ret))
+            switch(err)
             {
             case SSL_ERROR_NONE:
                 assert(false);
@@ -280,14 +300,14 @@ IceSSL::TransceiverI::read(IceInternal::Buffer& buf, int timeout)
 
                     if(IceInternal::wouldBlock())
                     {
-                        if(SSL_want_read(_ssl))
+                        if(wantRead)
                         {
                             if(!selectRead(_fd, timeout))
                             {
                                 throw TimeoutException(__FILE__, __LINE__);
                             }
                         }
-                        else if(SSL_want_write(_ssl))
+                        else if(wantWrite)
                         {
                             if(!selectWrite(_fd, timeout))
                             {
@@ -404,6 +424,9 @@ IceSSL::TransceiverI::initialize(int timeout)
 
         do
         {
+            //
+            // Only one thread calls initialize(), so synchronization is not necessary here.
+            //
             int ret = SSL_accept(_ssl);
             switch(SSL_get_error(_ssl, ret))
             {
@@ -525,7 +548,7 @@ ConnectionInfo
 IceSSL::TransceiverI::getConnectionInfo() const
 {
     //
-    // This can only be called on a open transceiver.
+    // This can only be called on an open transceiver.
     //
     assert(_fd != INVALID_SOCKET);
     return populateConnectionInfo(_ssl, _fd, _adapterName, _incoming);
@@ -564,6 +587,8 @@ IceSSL::TransceiverI::~TransceiverI()
 void
 IceSSL::TransceiverI::shutdown()
 {
+    IceUtil::Mutex::Lock sync(_sslMutex);
+
     int err = SSL_shutdown(_ssl);
 
     //

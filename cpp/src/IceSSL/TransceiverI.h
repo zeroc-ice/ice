@@ -17,6 +17,8 @@
 #include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 
+#include <IceUtil/Mutex.h>
+
 typedef struct ssl_st SSL;
 
 namespace IceSSL
@@ -56,6 +58,8 @@ private:
     const Ice::StatsPtr _stats;
     
     SSL* _ssl;
+    IceUtil::Mutex _sslMutex; // Access to the SSL data structure must be synchronized.
+
     SOCKET _fd;
 
     const std::string _adapterName;
