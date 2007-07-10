@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The thread stack size specified with the IceUtil::Thread::start()
+  method parameter is now adjusted to PTHREAD_STACK_MIN if it's
+  inferior to it. On Mac OS X, it's also adjusted to the next closest
+  multiple of the page size (4KB).
+
 - The property Ice.Trace.Location has been deprecated and replaced
   by Ice.Trace.Locator.
 

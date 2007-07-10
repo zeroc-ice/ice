@@ -406,6 +406,16 @@ IceUtil::Thread::start(size_t stackSize)
             __decRef();
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
+        if(stackSize < PTHREAD_STACK_MIN)
+        {
+            stackSize = PTHREAD_STACK_MIN;
+        }
+#ifdef __APPLE__
+        if(stackSize % 4096 > 0)
+        {
+            stackSize = stackSize / 4096 * 4096 + 4096;
+        }
+#endif
         rc = pthread_attr_setstacksize(&attr, stackSize);
         if(rc != 0)
         {
