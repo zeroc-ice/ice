@@ -52,17 +52,19 @@ public:
     virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&);
 
     const std::string& getId() const { return _id; }
-
+    bool useFilters() const { return _filters; }
+    
 protected:
 
     virtual void destroyImpl(bool);
 
-    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&);
+    BaseSessionI(const std::string&, const std::string&, const DatabasePtr&, bool);
 
     const std::string _id;
     const std::string _prefix;
     const TraceLevelsPtr _traceLevels;
     const DatabasePtr _database;
+    const bool _filters;
     SessionServantLocatorIPtr _servantLocator;
     Ice::ObjectAdapterPtr _adapter;
     Ice::Identity _identity;
@@ -79,8 +81,8 @@ class SessionI : public BaseSessionI, public Session
 {
 public:
 
-    SessionI(const std::string&, const DatabasePtr&, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
-    SessionI(const std::string&, const DatabasePtr&, const WaitQueuePtr&, const Ice::ConnectionPtr&);
+    SessionI(const std::string&, const DatabasePtr&, bool, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
+    SessionI(const std::string&, const DatabasePtr&, bool, const WaitQueuePtr&, const Ice::ConnectionPtr&);
     virtual ~SessionI();
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
@@ -131,6 +133,7 @@ private:
     const DatabasePtr _database;
     const WaitQueuePtr _waitQueue;
     const ReapThreadPtr _reaper;
+    const bool _filters;
 };
 typedef IceUtil::Handle<ClientSessionFactory> ClientSessionFactoryPtr;
 

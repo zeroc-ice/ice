@@ -54,8 +54,9 @@ FileIteratorI::destroy(const Ice::Current& current)
     _session->removeFileIterator(current.id, current);
 }
 
-AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, int timeout, const string& replicaName) :
-    BaseSessionI(id, "admin", db),
+AdminSessionI::AdminSessionI(const string& id, const DatabasePtr& db, bool filters, int timeout,
+                             const string& replicaName) :
+    BaseSessionI(id, "admin", db, filters),
     _timeout(timeout),
     _replicaName(replicaName)
 {
@@ -475,8 +476,15 @@ AdminSessionFactory::AdminSessionFactory(const Ice::ObjectAdapterPtr& adapter,
     _database(database), 
     _timeout(registry->getSessionTimeout()),
     _reaper(reaper),
-    _registry(registry)
+    _registry(registry),
+    _filters(false)
 {
+    if(_adapter) // Not set if Glacier2 session manager adapter not enabled
+    {
+        Ice::PropertiesPtr properties = adapter->getCommunicator()->getProperties();
+        const_cast<bool&>(_filters) = 
+            properties->getPropertyAsIntWithDefault("IceGrid.Registry.AdminSessionFilters", 1) > 0;
+    }
 }
 
 Glacier2::SessionPrx
@@ -499,14 +507,17 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
     int timeout = 0;
     if(ctl)
     {
-        try
+        if(_filters)
         {
-            ctl->identities()->add(ids);
-        }
-        catch(const Ice::LocalException&)
-        {
-            session->destroy(Ice::Current());
-            return 0;
+            try
+            {
+                ctl->identities()->add(ids);
+            }
+            catch(const Ice::LocalException&)
+            {
+                session->destroy(Ice::Current());
+                return 0;
+            }
         }
         timeout = ctl->getSessionTimeout();
     }
@@ -522,7 +533,7 @@ AdminSessionFactory::createGlacier2Session(const string& sessionId, const Glacie
 AdminSessionIPtr
 AdminSessionFactory::createSessionServant(const string& id)
 {
-    return new AdminSessionI(id, _database, _timeout, _registry->getName());
+    return new AdminSessionI(id, _database, _filters, _timeout, _registry->getName());
 }
 
 const TraceLevelsPtr&

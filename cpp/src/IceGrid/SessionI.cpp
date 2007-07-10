@@ -66,11 +66,13 @@ newAllocateObject(const SessionIPtr& session, const IceUtil::Handle<T>& cb)
 
 BaseSessionI::BaseSessionI(const string& id, 
                            const string& prefix, 
-                           const DatabasePtr& database) :
+                           const DatabasePtr& database, 
+                           bool filters) :
     _id(id), 
     _prefix(prefix),
     _traceLevels(database->getTraceLevels()),
     _database(database),
+    _filters(filters),
     _destroyed(false),
     _timestamp(IceUtil::Time::now())
 {
@@ -181,9 +183,10 @@ BaseSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
 
 SessionI::SessionI(const string& id, 
                    const DatabasePtr& database, 
+                   bool filters,
                    const WaitQueuePtr& waitQueue,
                    const Glacier2::SessionControlPrx& sessionControl) :
-    BaseSessionI(id, "client", database),
+    BaseSessionI(id, "client", database, filters),
     _waitQueue(waitQueue),
     _sessionControl(sessionControl),
     _allocationTimeout(-1)
@@ -318,8 +321,14 @@ ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
     _adapter(adapter),
     _database(database), 
     _waitQueue(waitQueue),
-    _reaper(reaper)
+    _reaper(reaper),
+    _filters(false)
 {
+    if(_adapter) // Not set if Glacier2 session manager adapter not enabled
+    {
+        Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
+        const_cast<bool&>(_filters) = properties->getPropertyAsIntWithDefault("IceGrid.Registry.SessionFilters", 1) > 0;
+    }
 }
 
 Glacier2::SessionPrx
@@ -341,14 +350,17 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
     int timeout = 0;
     if(ctl)
     {
-        try
+        if(_filters)
         {
-            ctl->identities()->add(ids);
-        }
-        catch(const Ice::LocalException&)
-        {
-            session->destroy(Ice::Current());
-            return 0;
+            try
+            {
+                ctl->identities()->add(ids);
+            }
+            catch(const Ice::LocalException&)
+            {
+                session->destroy(Ice::Current());
+                return 0;
+            }
         }
         timeout = ctl->getSessionTimeout();
     }
@@ -364,7 +376,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 SessionIPtr
 ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
-    return new SessionI(userId, _database, _waitQueue, ctl);
+    return new SessionI(userId, _database, _filters, _waitQueue, ctl);
 }
 
 const TraceLevelsPtr&
