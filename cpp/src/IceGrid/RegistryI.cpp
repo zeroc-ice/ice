@@ -258,7 +258,6 @@ RegistryI::start(bool nowarn)
     }
     
     properties->setProperty("Freeze.DbEnv.Registry.DbHome", dbPath);
-    properties->setProperty("Freeze.DbEnv.Registry.DbPrivate", "0");
 
     //
     // Create the reaper thread.
