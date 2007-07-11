@@ -651,30 +651,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "occiC"=".\Database\Oracle\occi\occiC.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "occiS"=".\Database\Oracle\occi\occiS.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
 Project: "phonebookC"=".\freeze\phonebook\phonebookC.dsp" - Package Owner=<4>
 
 Package=<5>
@@ -724,30 +700,6 @@ Package=<4>
 ###############################################################################
 
 Project: "printerS"=".\book\printer\printerS.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "procC"=".\Database\Oracle\proc\procC.dsp" - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-}}}
-
-###############################################################################
-
-Project: "procS"=".\Database\Oracle\proc\procS.dsp" - Package Owner=<4>
 
 Package=<5>
 {{{

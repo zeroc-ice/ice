@@ -109,6 +109,11 @@ window, type 'client' to start the client.
 Some demo directories contain README files if additional requirements
 are necessary.
 
+The Ice demo source code archive and Windows installers for Visual
+Studio .NET 2003 and Visual Studio 2005 include examples for integrating
+Ice with databases other than BerkeleyDB. These demos are not supported
+for Visual C++ 6.0 and are not included in this distribution.
+
 
 Running the Ruby demos
 ----------------------
