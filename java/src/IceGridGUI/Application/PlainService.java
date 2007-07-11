@@ -62,7 +62,7 @@ class PlainService extends Communicator implements Service, Cloneable
         Object clipboard = getCoordinator().getClipboard();
         if(clipboard != null && 
            (clipboard instanceof ServiceInstanceDescriptor 
-            || clipboard instanceof AdapterDescriptor
+            || clipboard instanceof Adapter.AdapterCopy
             || clipboard instanceof DbEnvDescriptor))
         {
             actions[PASTE] = true;

@@ -61,7 +61,7 @@ class DbEnv extends TreeNode implements DescriptorHolder
 
         Object clipboard = getCoordinator().getClipboard();
         actions[PASTE] = clipboard != null && 
-            (clipboard instanceof AdapterDescriptor
+            (clipboard instanceof Adapter.AdapterCopy
              || clipboard instanceof DbEnvDescriptor);
         actions[DELETE] = true;
         

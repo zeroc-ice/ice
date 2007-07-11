@@ -158,10 +158,10 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
     {
         Object descriptor =  getCoordinator().getClipboard();
 
-        if(descriptor instanceof AdapterDescriptor)
+        if(descriptor instanceof Adapter.AdapterCopy)
         {
-            AdapterDescriptor d = (AdapterDescriptor)descriptor;
-            _adapters.newAdapter(Adapter.copyDescriptor(d));
+            Adapter.AdapterCopy copy  = (Adapter.AdapterCopy)descriptor;
+            _adapters.newAdapter(Adapter.copyDescriptor(copy.descriptor), new java.util.HashMap(copy.parentProperties));
         }
         else if(descriptor instanceof DbEnvDescriptor)
         {
@@ -503,20 +503,44 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                 new java.util.LinkedList()
                 );   
    
-            newAdapter(descriptor);
+            newAdapter(descriptor, null);
         }
 
         TreeNode createChild(Object descriptor)
         {
             AdapterDescriptor ad = (AdapterDescriptor)descriptor;
             String name = Utils.substitute(ad.name, getResolver());
-            return new Adapter(Communicator.this, name, ad, false);
+            return new Adapter(Communicator.this, name, ad, null, false);
         }
         
-        private void newAdapter(AdapterDescriptor descriptor)
+        private void newAdapter(AdapterDescriptor descriptor, java.util.Map parentProperties)
         {
-            descriptor.name = makeNewChildId(descriptor.name);
-            Adapter adapter = new Adapter(Communicator.this, descriptor.name, descriptor, true);
+            String newName = makeNewChildId(descriptor.name);
+
+            if(!newName.equals(descriptor.name) && parentProperties != null)
+            {
+                //
+                // Adjust Endpoints and PublishedEnpoints
+                //
+
+                String key = descriptor.name + ".Endpoints";
+                String val = (String)parentProperties.remove(key);
+                if(val != null)
+                {
+                    parentProperties.put(newName + ".Endpoints", val);
+                }
+
+                key = descriptor.name + ".PublishedEndpoints";
+                val = (String)parentProperties.remove(key);
+                if(val != null)
+                {
+                    parentProperties.put(newName + ".PublishedEndpoints", val);
+                }
+            }
+
+            descriptor.name = newName;
+
+            Adapter adapter = new Adapter(Communicator.this, descriptor.name, descriptor, parentProperties, true);
             try
             {
                 addChild(adapter, true);
@@ -527,7 +551,6 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             }
             getRoot().setSelectedNode(adapter);
         }
-
     }
 
     class DbEnvs extends ChildList
@@ -918,6 +941,20 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                 p.remove();
             }
         }
+    }
+
+    java.util.Map propertiesMap()
+    {
+        java.util.Map result = new java.util.HashMap();
+
+        CommunicatorDescriptor descriptor = getCommunicatorDescriptor();
+        java.util.Iterator p = descriptor.propertySet.properties.iterator();
+        while(p.hasNext())
+        {
+            PropertyDescriptor pd = (PropertyDescriptor)p.next();
+            result.put(pd.name, pd.value);
+        }
+        return result;
     }
     
     //

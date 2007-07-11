@@ -515,13 +515,15 @@ class AdapterEditor extends CommunicatorChildEditor
         _priority.setText(Utils.substitute(descriptor.priority, resolver));
         _priority.setEditable(isEditable);
         
-        if(adapter.isEphemeral())
+        String endpoints = Utils.substitute(adapter.getProperty(oaPrefix + "Endpoints"), resolver);
+        
+        if(adapter.isEphemeral() && (endpoints == null || endpoints.equals("")))
         {
             _endpoints.setText("default");
         }
         else
         {
-            _endpoints.setText(Utils.substitute(adapter.getProperty(oaPrefix + "Endpoints"), resolver));
+            _endpoints.setText(endpoints);
         }
         _endpoints.setEditable(isEditable);
         

@@ -69,7 +69,7 @@ class ServiceTemplate extends Communicator
         {
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] = clipboard != null && 
-                (clipboard instanceof AdapterDescriptor
+                (clipboard instanceof Adapter.AdapterCopy
                  || clipboard instanceof DbEnvDescriptor);
         }
 

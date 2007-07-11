@@ -125,7 +125,7 @@ class PlainServer extends Communicator implements Server
            (clipboard instanceof ServerDescriptor
             || clipboard instanceof ServerInstanceDescriptor 
             || (isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-            || (!isIceBox() && (clipboard instanceof AdapterDescriptor
+            || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy
                                 || clipboard instanceof DbEnvDescriptor))))
         {
             actions[PASTE] = true;

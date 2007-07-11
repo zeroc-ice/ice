@@ -17,6 +17,12 @@ import IceGridGUI.*;
 
 class Adapter extends TreeNode implements DescriptorHolder
 {
+    static class AdapterCopy
+    {
+        AdapterDescriptor descriptor;
+        java.util.Map parentProperties;
+    }
+
     static public AdapterDescriptor copyDescriptor(AdapterDescriptor d)
     {
         return (AdapterDescriptor)d.clone();
@@ -44,7 +50,7 @@ class Adapter extends TreeNode implements DescriptorHolder
         
         Object clipboard = getCoordinator().getClipboard();
         actions[PASTE] = clipboard != null && 
-            (clipboard instanceof AdapterDescriptor
+            (clipboard instanceof AdapterCopy
              || clipboard instanceof DbEnvDescriptor);
         
         actions[DELETE] = true;
@@ -60,7 +66,11 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     public void copy()
     {
-        getCoordinator().setClipboard(copyDescriptor(_descriptor));
+        AdapterCopy copy = new AdapterCopy();
+        copy.descriptor = copyDescriptor(_descriptor);
+        copy.parentProperties = ((Communicator)_parent).propertiesMap();
+
+        getCoordinator().setClipboard(copy);
         getCoordinator().getActionsForMenu().get(PASTE).setEnabled(true);
     }
 
@@ -135,11 +145,12 @@ class Adapter extends TreeNode implements DescriptorHolder
     }
     
     Adapter(Communicator parent, String adapterName, AdapterDescriptor descriptor, 
-            boolean ephemeral)
+            java.util.Map parentProperties, boolean ephemeral)
     {
         super(parent, adapterName);
         _descriptor = descriptor;
         _ephemeral = ephemeral;
+        _parentProperties = parentProperties;
     }
 
    
@@ -198,11 +209,34 @@ class Adapter extends TreeNode implements DescriptorHolder
 
     String getProperty(String property)
     {
-        return ((Communicator)_parent).getProperty(property);
+        if(_parentProperties != null)
+        {
+            return (String)_parentProperties.get(property);
+        }
+        else
+        {
+            return ((Communicator)_parent).getProperty(property);
+        }
     }
     String lookupPropertyValue(String val)
     {
-        return ((Communicator)_parent).lookupPropertyValue(val);
+        if(_parentProperties != null)
+        {
+            java.util.Iterator p = _parentProperties.entrySet().iterator();
+            while(p.hasNext())
+            {
+                java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+                if(entry.getValue().equals(val))
+                {
+                    return (String)entry.getKey();
+                }
+            }
+            return "";
+        }
+        else
+        {
+            return ((Communicator)_parent).lookupPropertyValue(val);
+        }
     }
     void setProperty(String property, String newValue)
     {
@@ -230,6 +264,7 @@ class Adapter extends TreeNode implements DescriptorHolder
     }
 
     private final boolean _ephemeral;
+    private final java.util.Map _parentProperties; // set only when ephemeral == true;
     private AdapterDescriptor _descriptor;
     private AdapterEditor _editor;
 

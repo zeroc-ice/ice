@@ -102,7 +102,7 @@ class ServerTemplate extends Communicator
             Object clipboard = getCoordinator().getClipboard();
             actions[PASTE] = clipboard != null && 
                 ((isIceBox() && (clipboard instanceof ServiceInstanceDescriptor))
-                 || (!isIceBox() && (clipboard instanceof AdapterDescriptor
+                 || (!isIceBox() && (clipboard instanceof Adapter.AdapterCopy
                                      || clipboard instanceof DbEnvDescriptor)));
         }
 
