@@ -280,7 +280,8 @@ Windows Firewall
 
 Your choice of user account also determines whether you receive any
 notification when the Windows Firewall blocks the ports that are used
-by your service.
+by your service. For example, if you use 'Local Service' as 
+recommended above, you will not see any Windows Security Alert dialog.
 
 See the following Microsoft article for details:
 
@@ -301,3 +302,7 @@ the steps below to unblock the ports of a Glacier2 router service:
 Note that adding an exception for a program unblocks all ports on
 which the program listens. Review the endpoint configurations of your
 services carefully to ensure that no unnecessary ports are opened.
+
+For services listening on one or a few fixed ports, you could also
+create port exceptions in your Windows Firewall. Please refer to the 
+Windows Firewall documentation for details.
