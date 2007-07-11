@@ -70,6 +70,15 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------
 
+- Added two new IceGrid properties:
+
+    IceGrid.Registry.SessionFilters
+    IceGrid.Registry.AdminSessionFilters 
+
+  These properties allow disabling the setup of Glacier2 filters for
+  IceGrid client and administrative sessions created through
+  Glacier2. See the Ice manual for more information.
+
 - Fixed object adapter activation deadlock. The deadlock could occur
   when the adapter register its endpoints with the locator registry
   and if another thread invokes concurrently on the locator.
