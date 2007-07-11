@@ -35,7 +35,6 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     bool _destroy;
-    Ice::Int _num;
     std::set<Demo::CallbackReceiverPrx> _clients;
 
     //

@@ -27,7 +27,6 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
         threading.Thread.__init__(self)
         self._communicator = communicator
         self._destroy = False
-        self._num = 0
         self._clients = []
         self._cond = threading.Condition()
 
@@ -55,25 +54,36 @@ class CallbackSenderI(Demo.CallbackSender, threading.Thread):
         self._cond.release()
 
     def run(self):
-        self._cond.acquire()
+        num = 0
 
-        try:
-            while not self._destroy:
+        while True:
+
+            self._cond.acquire()
+            try:
                 self._cond.wait(2)
+                if self._destroy:
+                    break
+                clients = self._clients[:]
+            finally:
+                self._cond.release()
 
-                if not self._destroy and len(self._clients) > 0:
-                    self._num = self._num + 1
+            if len(clients) > 0:
+                num = num + 1
+                
+                for p in clients:
+                    try:
+                        p.callback(num)
+                    except:
+                        print "removing client `" + self._communicator.identityToString(p.ice_getIdentity()) + "':"
+                        traceback.print_exc()
 
-                    for p in self._clients[:]: # Iterate over a copy so we can modify the original list.
+                        self._cond.acquire()
                         try:
-                            p.callback(self._num)
-                        except:
-                            print "removing client `" + self._communicator.identityToString(p.ice_getIdentity()) + "':"
-                            traceback.print_exc()
                             self._clients.remove(p)
-        finally:
-            self._cond.release()
+                        finally:
+                            self._cond.release()
 
+                        
 class Server(Ice.Application):
     def run(self, args):
         adapter = self.communicator().createObjectAdapter("Callback.Server")

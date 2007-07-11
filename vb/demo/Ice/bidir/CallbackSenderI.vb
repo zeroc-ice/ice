@@ -15,7 +15,6 @@ Class CallbackSenderI
 
     Public Sub New()
         _destroy = False
-        _num = 0
         _clients = New ArrayList
     End Sub
 
@@ -39,32 +38,34 @@ Class CallbackSenderI
     End Sub
 
     Public Sub Run()
-        SyncLock Me
-            While Not _destroy
-                System.Threading.Monitor.Wait(Me, 2000)
-
-                If Not _destroy AndAlso _clients.Count <> 0 Then
-
-                    _num += 1
-
-                    Dim toRemove As ArrayList = New ArrayList
-                    For Each c As CallbackReceiverPrx In _clients
-                        Try
-                            c.callback(_num)
-                        Catch ex As Ice.LocalException
-                            toRemove.Add(c)
-                        End Try
-                    Next
-                    For Each c As CallbackReceiverPrx In toRemove
-                        _clients.Remove(c)
-                    Next
+        Dim num As Integer = 0
+        While True
+            Dim clients As ArrayList
+            SyncLock Me
+                System.Threading.Monitor.Wait(Me, 2)
+                If _destroy Then
+                    Exit While
                 End If
-            End While
-        End SyncLock
+                clients = New ArrayList(_clients)
+            End SyncLock
+
+            If clients.Count > 0 Then
+                num += 1
+
+                For Each c As CallbackReceiverPrx In clients
+                    Try
+                        c.callback(num)
+                    Catch ex As Ice.LocalException
+                        SyncLock Me
+                            _clients.Remove(c)
+                        End SyncLock
+                    End Try
+                Next
+            End If
+        End While
     End Sub
 
     Private _destroy As Boolean
-    Private _num As Integer
     Private _clients As ArrayList
 
 End Class

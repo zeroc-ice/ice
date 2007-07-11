@@ -37,7 +37,7 @@ libdir			= $(top_srcdir)\lib
 !if exist ($(ICE_HOME)\bin\icecs.dll)
 csbindir	 	= $(ICE_HOME)\bin
 !else
-csbindir 		= $(top_srcdir)\..\icecs\bin
+csbindir 		= $(top_srcdir)\..\cs\bin
 !endif
 
 #

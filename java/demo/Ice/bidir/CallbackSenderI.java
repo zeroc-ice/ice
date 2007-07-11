@@ -35,36 +35,54 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
         _clients.addElement(client);
     }
 
-    synchronized public void
+    public void
     run()
     {
-        while(!_destroy)
+        int num = 0;
+        while(true)
         {
-            try
+            java.util.Vector clients;
+            synchronized(this)
             {
-                this.wait(2000);
-            }
-            catch(java.lang.InterruptedException ex)
-            {
+                try
+                {
+                    this.wait(2000);
+                }
+                catch(java.lang.InterruptedException ex)
+                {
+                }
+                
+                if(_destroy)
+                {
+                    break;
+                }
+                
+                
+                clients = new java.util.Vector(_clients);
             }
 
-            if(!_destroy && !_clients.isEmpty())
+            if(!clients.isEmpty())
             {
-                ++_num;
+                ++num;
 
-                java.util.Iterator p = _clients.iterator();
+                java.util.Iterator p = clients.iterator();
                 while(p.hasNext())
                 {
                     CallbackReceiverPrx r = (CallbackReceiverPrx)p.next();
                     try
                     {
-                        r.callback(_num);
+                        r.callback(num);
                     }
                     catch(Exception ex)
                     {
-                        System.out.println("removing client `" + _communicator.identityToString(r.ice_getIdentity()) + "':");
+                        System.out.println("removing client `" + _communicator.identityToString(r.ice_getIdentity()) + 
+                                           "':");
                         ex.printStackTrace();
-                        p.remove();
+
+                        synchronized(this)
+                        {
+                            _clients.remove(r);
+                        }
                     }
                 }
             }
@@ -73,6 +91,5 @@ class CallbackSenderI extends _CallbackSenderDisp implements java.lang.Runnable
 
     private Ice.Communicator _communicator;
     private boolean _destroy = false;
-    private int _num = 0;
     private java.util.Vector _clients = new java.util.Vector();
 }

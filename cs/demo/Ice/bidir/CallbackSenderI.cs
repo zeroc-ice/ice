@@ -17,7 +17,6 @@ class CallbackSenderI : CallbackSenderDisp_
     {
         _communicator = communicator;
         _destroy = false;
-        _num = 0;
         _clients = new ArrayList();
     }
 
@@ -46,33 +45,39 @@ class CallbackSenderI : CallbackSenderDisp_
 
     public void Run()
     {
-        lock(this)
+        int num = 0;
+        while(true)
         {
-            while(!_destroy)
+            ArrayList clients;
+            lock(this)
             {
                 System.Threading.Monitor.Wait(this, 2000);
-                
-                if(!_destroy && _clients.Count != 0)
+                if(_destroy)
                 {
-                    ++_num;
+                    break;
+                }
 
-                    ArrayList toRemove = new ArrayList();
-                    foreach(CallbackReceiverPrx c in _clients)
+                clients = new ArrayList(_clients);
+            }
+
+            if(clients.Count > 0)
+            {
+                ++num;
+                foreach(CallbackReceiverPrx c in clients)
+                {
+                    try
                     {
-                        try
-                        {
-                            c.callback(_num);
-                        }
-                        catch(Ice.LocalException ex)
-                        {
-                            Console.Error.WriteLine("removing client `" +
-                                                    _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
-                            toRemove.Add(c);
-                        }
+                        c.callback(num);
                     }
-                    foreach(CallbackReceiverPrx c in toRemove)
+                    catch(Ice.LocalException ex)
                     {
-                        _clients.Remove(c);
+                        Console.Error.WriteLine("removing client `" +
+                                                _communicator.identityToString(c.ice_getIdentity()) + "':\n" + ex);
+
+                        lock(this)
+                        {
+                            _clients.Remove(c);
+                        }
                     }
                 }
             }
@@ -81,6 +86,5 @@ class CallbackSenderI : CallbackSenderDisp_
 
     private Ice.Communicator _communicator;
     private bool _destroy;
-    private int _num;
     private ArrayList _clients;
 }

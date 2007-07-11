@@ -17,7 +17,6 @@ using namespace Demo;
 CallbackSenderI::CallbackSenderI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _destroy(false),
-    _num(0),
     _callbackSenderThread(new CallbackSenderThread(this))
 {
 }
@@ -62,29 +61,38 @@ CallbackSenderI::start()
 void
 CallbackSenderI::run()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-
-    while(!_destroy)
+    int num = 0;
+    while(true)
     {
-        timedWait(IceUtil::Time::seconds(2));
-
-        if(!_destroy && !_clients.empty())
+        std::set<Demo::CallbackReceiverPrx> clients;
         {
-            ++_num;
-            
-            set<CallbackReceiverPrx>::iterator p = _clients.begin();
-            while(p != _clients.end())
+            IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+            timedWait(IceUtil::Time::seconds(2));
+
+            if(_destroy)
+            {
+                break;
+            }
+
+            clients = _clients;
+        }
+
+        if(!clients.empty())
+        {
+            ++num;
+            for(set<CallbackReceiverPrx>::iterator p = clients.begin(); p != clients.end(); ++p)
             {
                 try
                 {
-                    (*p)->callback(_num);
-                    ++p;
+                    (*p)->callback(num);
                 }
                 catch(const Exception& ex)
                 {
                     cerr << "removing client `" << _communicator->identityToString((*p)->ice_getIdentity()) << "':\n"
                          << ex << endl;
-                    _clients.erase(p++);
+
+                    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+                    _clients.erase(*p);
                 }
             }
         }
