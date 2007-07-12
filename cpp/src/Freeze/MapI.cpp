@@ -241,14 +241,7 @@ Freeze::IteratorHelperI::find(const Key& key) const
     {
         try
         {
-            if(_dbc->get(&dbKey, &dbValue, DB_SET) == 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return _dbc->get(&dbKey, &dbValue, DB_SET) == 0;  
         }
         catch(const ::DbDeadlockException& dx)
         {

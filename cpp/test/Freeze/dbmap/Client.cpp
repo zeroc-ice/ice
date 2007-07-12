@@ -508,6 +508,9 @@ run(const CommunicatorPtr& communicator, const string& envName)
     m.clear();
     populateDB(connection, m);
 
+    //
+    // Exact match
+    //
     size_t length = alphabet.size();
     for(size_t k = 0; k < length; ++k)
     {
@@ -555,6 +558,30 @@ run(const CommunicatorPtr& communicator, const string& envName)
     test(++p == m.end());
     test(m.valueCount(17) == 1);
 
+    m.put(ByteIntMap::value_type(alphabet[21], static_cast<Int>(17)));
+
+    //
+    // Non-exact match
+    //
+    p = m.findByValue(21);
+    test(p == m.end());
+
+    test(m.valueCount(21) == 0);
+
+    p = m.findByValue(21, false);
+    test(p == m.end());
+
+    p = m.findByValue(22, false);
+    int previous = 21;
+    int count = 0;
+    while(p != m.end())
+    {
+        test(p->second > previous);
+        previous = p->second;
+        ++p;
+        count++;
+    }
+    test(count == 4);
     cout << "ok " << endl;
 
     cout << "testing concurrent access... " << flush;

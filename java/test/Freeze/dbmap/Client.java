@@ -441,15 +441,16 @@ public class Client
             }
 
             //
-            // Non-existent index value
-            //
-            p = typedM.findByValue(100);
-            test(!p.hasNext());
-
-            //
             // 2 items at 17
             // 
             m.put(new Byte((byte)alphabet.charAt(21)), new Integer(17));
+
+            //
+            // Non-existent index value
+            //
+            p = typedM.findByValue(21);
+            test(!p.hasNext());
+
             
             p = typedM.findByValue(17);
             
@@ -500,6 +501,35 @@ public class Client
             v = ((Byte)e.getKey()).byteValue();
             test(v == (byte)alphabet.charAt(17) || v == (byte)alphabet.charAt(21));
             test(typedM.valueCount(17) == 1);
+
+            m.put(new Byte((byte)alphabet.charAt(21)), new Integer(17));
+            
+             //
+            // Non-exact match
+            //
+            p = typedM.findByValue(21);
+            test(!p.hasNext());
+
+            test(typedM.valueCount(21) == 0);
+
+            p = typedM.findByValue(21, false);
+            test(!p.hasNext());
+
+            p = typedM.findByValue(22, false);
+            int previous = 21;
+            int count = 0;
+            while(p.hasNext())
+            {
+                e = (java.util.Map.Entry)p.next();
+
+                int val = ((Integer)e.getValue()).intValue();
+                
+                test(val > previous);
+                previous = val;
+                count++;
+            }
+            test(count == 4);
+            
             System.out.println("ok");
         }
 

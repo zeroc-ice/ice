@@ -37,7 +37,7 @@ $(CLIENT): $(OBJS)
 
 ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
 	del /q ByteIntMap.h ByteIntMap.cpp
-	$(SLICE2FREEZE) --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
+	$(SLICE2FREEZE) --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap,sort ByteIntMap
 
 IntIdentityMap.h IntIdentityMap.cpp: $(SLICE2FREEZE)
 	del /q IntIdentityMap.h IntIdentityMap.cpp
