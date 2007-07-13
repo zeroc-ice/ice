@@ -91,14 +91,14 @@ runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    LibraryPrx phoneBook = LibraryPrx::checkedCast(communicator->propertyToProxy("Library.Proxy"));
-    if(!phoneBook)
+    LibraryPrx library = LibraryPrx::checkedCast(communicator->propertyToProxy("Library.Proxy"));
+    if(!library)
     {
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
 
-    ParserPtr p = Parser::createParser(phoneBook);
+    ParserPtr p = Parser::createParser(library);
     int status = EXIT_SUCCESS;
 
     if(argc < 2) // No files given
