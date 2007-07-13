@@ -71,7 +71,10 @@ def gitarchive(archiveArgs = [], haltOnError = True):
     cmdString = "git archive " 
     for a in archiveArgs:
         cmdString = cmdString + " " + a
-    runprog(cmdString + " | (cd %s && tar xf -)" % cwd)
+    if getPlatform() == 'solaris':
+	runprog(cmdString + " | (cd %s && gtar xf -)" % cwd)
+    else:
+	runprog(cmdString + " | (cd %s && tar xf -)" % cwd)
     os.chdir(cwd)
 
 def runprog(commandstring, haltOnError = True):
