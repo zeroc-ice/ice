@@ -24,6 +24,9 @@ import os, sys, shutil, re, string, getopt, glob, logging, fileinput
 #     makebindist.py doesn't know how to create them both.
 #
 
+#
+# TODO: We need a solid way to get the location of the git repository.
+#
 repoDir = os.getcwd()
     
 def initDirectory(d):
@@ -955,6 +958,7 @@ def main():
             clean = False
         elif o == '--nobuild':
             build = False
+            clean = False # Cleaning doesn't make much sense if we aren't building either.
         elif o == '--stlporthome':
             buildEnvironment['STLPORT_HOME'] = a
         elif o == '--bzip2home':
