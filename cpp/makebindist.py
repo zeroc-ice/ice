@@ -1092,7 +1092,7 @@ def main():
 
         if getPlatform() == 'linux':
             sourceTarBalls.append(('cs','IceCS-' + version, 'cs'))
-            if os.system('which ruby 2>/dev/null') == 0:
+            if os.system('which ruby > /dev/null 2>&1') == 0:
                 sourceTarBalls.append(('rb', 'IceRuby-%s' % version, 'rb'))
         
         os.environ['ICE_HOME'] = os.path.join(buildDir, "Ice-" + version)
