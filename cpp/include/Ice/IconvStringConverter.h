@@ -260,7 +260,7 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 #ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);
 #else
-    char* inbuf = reinterpret_cast<const char*>(const_cast<Ice::Byte*>(sourceStart));
+    char* inbuf = reinterpret_cast<char*>(const_cast<Ice::Byte*>(sourceStart));
 #endif
     size_t inbytesleft = sourceEnd - sourceStart;
 

@@ -69,6 +69,9 @@ LIBS			= -lIce $(BASELIBS)
 ICEUTIL_OS_LIBS         = -lpthread
 ICE_OS_LIBS             = -ldl
 
+ICONV_LIB               = -liconv
+
+
 PLATFORM_HAS_READLINE   := no
 
 export DYLD_LIBRARY_PATH := $(libdir):$(DYLD_LIBRARY_PATH)
