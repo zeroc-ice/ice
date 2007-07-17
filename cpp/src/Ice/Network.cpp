@@ -7,6 +7,16 @@
 //
 // **********************************************************************
 
+//
+// The following is required on HP-UX in order to bring in
+// the definition for the ip_mreq structure.
+//
+#ifdef __hpux
+#undef _XOPEN_SOURCE_EXTENDED
+#define _XOPEN_SOURCE
+#include <netinet/in.h>
+#endif
+
 #include <IceUtil/StaticMutex.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
