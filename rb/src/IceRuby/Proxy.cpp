@@ -1013,13 +1013,13 @@ IceRuby_ObjectPrx_ice_getCachedConnection(VALUE self)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
+IceRuby_ObjectPrx_cmp(VALUE self, VALUE other)
 {
     ICE_RUBY_TRY
     {
         if(NIL_P(other))
         {
-            return Qfalse;
+            return 1;
         }
         if(!checkProxy(other))
         {
@@ -1027,7 +1027,18 @@ IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
         }
         Ice::ObjectPrx p1 = getProxy(self);
         Ice::ObjectPrx p2 = getProxy(other);
-        return p1 == p2 ? Qtrue : Qfalse;
+        if(p1 < p2)
+        {
+            return INT2NUM(-1);
+        }
+        else if(p1 == p2)
+        {
+            return INT2NUM(0);
+        }
+        else
+        {
+            return INT2NUM(1);
+        }
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1035,9 +1046,9 @@ IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_not_equals(VALUE self, VALUE other)
+IceRuby_ObjectPrx_equals(VALUE self, VALUE other)
 {
-    return IceRuby_ObjectPrx_equals(self, other) == Qtrue ? Qfalse : Qtrue;
+    return IceRuby_ObjectPrx_cmp(self, other) == INT2NUM(0) ? Qtrue : Qfalse;
 }
 
 static VALUE
@@ -1378,9 +1389,9 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "hash", CAST_METHOD(IceRuby_ObjectPrx_ice_getHash), 0);
     rb_define_method(_proxyClass, "to_s", CAST_METHOD(IceRuby_ObjectPrx_ice_toString), 0);
     rb_define_method(_proxyClass, "inspect", CAST_METHOD(IceRuby_ObjectPrx_ice_toString), 0);
+    rb_define_method(_proxyClass, "<=>", CAST_METHOD(IceRuby_ObjectPrx_cmp), 1);
     rb_define_method(_proxyClass, "==", CAST_METHOD(IceRuby_ObjectPrx_equals), 1);
     rb_define_method(_proxyClass, "eql?", CAST_METHOD(IceRuby_ObjectPrx_equals), 1);
-    rb_define_method(_proxyClass, "!=", CAST_METHOD(IceRuby_ObjectPrx_not_equals), 1);
 
     //
     // Static methods.

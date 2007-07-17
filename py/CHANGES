@@ -13,6 +13,12 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------
 
+- Added the methods Ice.proxyIdentityCompare and
+  Ice.proxyIdentityAndFacetCompare.
+
+- Implemented __hash__ in proxies, which allows proxies to be used as
+  keys in Python's dictionary type.
+
 - Fixed Communicator.isShutdown, which always returned None.
 
 - Added support for protected class data members using the new

@@ -87,6 +87,20 @@ require 'Ice/Router.rb'
 
 module Ice
     #
+    # Reopen Identity to add the <=> method.
+    #
+    class Identity
+        def <=>(other)
+            n = self.name <=> other.name
+            if n == 0
+                return self.category <=> other.category
+            else
+                return n
+            end
+        end
+    end
+
+    #
     # Note the interface is the same as the C++ CtrlCHandler
     # implementation, however, the implementation is different.
     #
@@ -471,34 +485,35 @@ module Ice
     #
     # Proxy comparison functions.
     #
-    def Ice.proxyIdentityEqual(lhs, rhs)
+    def Ice.proxyIdentityCompare(lhs, rhs)
         if (lhs && !lhs.is_a?(ObjectPrx)) || (rhs && !rhs.is_a?(ObjectPrx))
             raise TypeError, 'argument is not a proxy'
         end
         if lhs.nil? && rhs.nil?
-            return true
+            return 0
         elsif lhs.nil? && rhs
-            return false
+            return -1
         elsif lhs && rhs.nil?
-            return false
+            return 1
         else
-            return lhs.ice_getIdentity() == rhs.ice_getIdentity()
+            return lhs.ice_getIdentity() <=> rhs.ice_getIdentity()
         end
     end
 
+    def Ice.proxyIdentityEqual(lhs, rhs)
+        return proxyIdentityCompare(lhs, rhs) == 0
+    end
+
+    def Ice.proxyIdentityAndFacetCompare(lhs, rhs)
+        n = proxyIdentityCompare(lhs, rhs)
+        if n == 0
+            n = lhs.ice_getFacet() <=> rhs.ice_getFacet()
+        end
+        return n
+    end
+
     def Ice.proxyIdentityAndFacetEqual(lhs, rhs)
-        if (lhs && !lhs.is_a?(ObjectPrx)) || (rhs && !rhs.is_a?(ObjectPrx))
-            raise TypeError, 'argument is not a proxy'
-        end
-        if lhs.nil? && rhs.nil?
-            return true
-        elsif lhs.nil? && rhs
-            return false
-        elsif lhs && rhs.nil?
-            return false
-        else
-            return lhs.ice_getIdentity() == rhs.ice_getIdentity() && lhs.ice_getFacet() == rhs.ice_getFacet()
-        end
+        return proxyIdentityAndFacetCompare(lhs, rhs) == 0
     end
 end
 
