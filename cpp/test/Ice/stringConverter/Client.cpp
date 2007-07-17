@@ -53,6 +53,11 @@ main(int argc, char* argv[])
     Client app;
     
     Ice::InitializationData initData;
+
+#if defined(__hpux)
+    initData.stringConverter = new Ice::IconvStringConverter<char>("iso815");
+    initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("ucs4");  
+#else   
     initData.stringConverter = new Ice::IconvStringConverter<char>("ISO-8859-15");
     if(sizeof(wchar_t) == 4)
     {
@@ -62,6 +67,7 @@ main(int argc, char* argv[])
     {
         initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-16");
     }
+#endif
     return app.main(argc, argv, initData);
 }
 
