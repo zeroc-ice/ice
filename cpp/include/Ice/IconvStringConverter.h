@@ -154,7 +154,7 @@ IconvStringConverter<charT>::createDescriptors() const
     {
 	throw Ice::StringConversionException(
 	    __FILE__, __LINE__,
-	    std::string("iconv can convert from ") 
+	    std::string("iconv cannot convert from ") 
 	    + externalCode + " to " + _internalCode);			   
     }
     
@@ -165,7 +165,7 @@ IconvStringConverter<charT>::createDescriptors() const
 
 	throw Ice::StringConversionException(
             __FILE__, __LINE__,
-            std::string("iconv can convert from ") + _internalCode + " to " + externalCode);
+            std::string("iconv cannot convert from ") + _internalCode + " to " + externalCode);
 					   
     }
     return cdp;
