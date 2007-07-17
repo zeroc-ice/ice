@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <iconv.h>
 
-#ifdef _LIBICONV_VERSION
+#if defined(_LIBICONV_VERSION) || (defined(__sun) && !defined(_XPG6))
 //
 // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
 //
@@ -67,6 +67,16 @@ private:
 // Implementation
 //
 
+#ifdef __SUNPRO_CC
+
+extern "C"
+{
+    typedef void (*IcePthreadKeyDestructor)(void*);
+}
+#endif
+
+
+
 template<typename charT>
 IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
     _internalCode(internalCode)
@@ -93,7 +103,12 @@ IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 #else
+    #ifdef __SUNPRO_CC
+    int rs = pthread_key_create(&_key, reinterpret_cast<IcePthreadKeyDestructor>(&cleanupKey));
+    #else
     int rs = pthread_key_create(&_key, &cleanupKey);
+    #endif
+
     if(rs != 0)
     {
 	throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
