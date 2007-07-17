@@ -15,6 +15,13 @@
 #include <algorithm>
 #include <iconv.h>
 
+#ifdef _LIBICONV_VERSION
+//
+// See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
+//
+#define ICE_CONST_ICONV_INBUF 1
+#endif
+
 namespace Ice
 {
 
@@ -211,7 +218,11 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
     int rs = iconv(cd, 0, 0, 0, 0);
     assert(rs == 0);
 
+#ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);
+#else
+    char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
+#endif
     size_t inbytesleft = (sourceEnd - sourceStart) * sizeof(charT);
     Ice::Byte* outbuf  = 0;
   
@@ -246,7 +257,11 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
     int rs = iconv(cd, 0, 0, 0, 0);
     assert(rs == 0);
 
+#ifdef ICE_CONST_ICONV_INBUF
     const char* inbuf = reinterpret_cast<const char*>(sourceStart);
+#else
+    char* inbuf = reinterpret_cast<const char*>(const_cast<Ice::Byte*>(sourceStart));
+#endif
     size_t inbytesleft = sourceEnd - sourceStart;
 
     //
