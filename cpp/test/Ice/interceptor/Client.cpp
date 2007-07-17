@@ -41,11 +41,8 @@ Client::run(int, char*[])
 {
     //
     // Create OA and servants  
-    //
-    
-    communicator()->getProperties()->setProperty("MyOA.AdapterId", "myOA");
-    
-    Ice::ObjectAdapterPtr oa = communicator()->createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
+    //  
+    Ice::ObjectAdapterPtr oa = communicator()->createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
     
     Ice::ObjectPtr servant = new MyObjectI;
     InterceptorIPtr interceptor = new InterceptorI(servant);
