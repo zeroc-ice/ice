@@ -260,7 +260,7 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 #ifdef ICE_NO_ERRNO
     } while(count == size_t(-1));
 #else
-    } while(count == size_t(-1) && _errno == E2BIG);
+    } while(count == size_t(-1) && errno == E2BIG);
 #endif
 
     if(count == size_t(-1))
@@ -326,7 +326,7 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 #ifdef ICE_NO_ERRNO
     } while(count == size_t(-1));
 #else
-    } while(count == size_t(-1) && _errno == E2BIG);
+    } while(count == size_t(-1) && errno == E2BIG);
 #endif
 
     if(count == size_t(-1))
