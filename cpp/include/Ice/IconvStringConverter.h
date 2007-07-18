@@ -15,6 +15,10 @@
 #include <algorithm>
 #include <iconv.h>
 
+#ifndef _WIN32
+#include <langinfo.h>
+#endif
+
 #if defined(_LIBICONV_VERSION) || (defined(__sun) && !defined(_XPG6))
     //
     // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
@@ -44,14 +48,17 @@ class IconvStringConverter : public Ice::BasicStringConverter<charT>
 {
 public:
 
-    IconvStringConverter(const char* internalCode);
+#ifdef _WIN32
+    IconvStringConverter(const char*);
+#else
+    IconvStringConverter(const char* = nl_langinfo(CODESET));
+#endif
 
     virtual ~IconvStringConverter();
 
-    virtual Ice::Byte* toUTF8(const charT* sourceStart, const charT* sourceEnd, Ice::UTF8Buffer& buf) const;
+    virtual Ice::Byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
     
-    virtual void fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
-			  std::basic_string<charT>& target) const;
+    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::basic_string<charT>&) const;
     
 private:
 
@@ -66,7 +73,6 @@ private:
 #else    
     mutable pthread_key_t _key;
 #endif
-
     const char* _internalCode;
 };
 

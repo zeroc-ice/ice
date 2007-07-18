@@ -12,6 +12,7 @@
 #include <Test.h>
 #include <Ice/IconvStringConverter.h>
 #include <iostream>
+#include <locale.h>
 
 using namespace std;
 
@@ -51,14 +52,27 @@ int
 main(int argc, char* argv[])
 {
     Client app;
-    
+
+    //
+    // Switch to French locale
+    // (we just used the codeset for as default internal code for 
+    // initData.stringConverter below)
+    //
+    setlocale(LC_ALL, "fr_FR.ISO8859-15");
+      
     Ice::InitializationData initData;
 
 #if defined(__hpux)
     initData.stringConverter = new Ice::IconvStringConverter<char>("iso815");
     initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("ucs4");  
-#else   
-    initData.stringConverter = new Ice::IconvStringConverter<char>("ISO-8859-15");
+#else
+
+#ifdef _WIN32
+    initData.stringConverter = new Ice::IconvStringConverter<char>("ISO8859-15");
+#else      
+    initData.stringConverter = new Ice::IconvStringConverter<char>;
+#endif
+
     if(sizeof(wchar_t) == 4)
     {
 #ifdef ICE_BIG_ENDIAN
