@@ -82,7 +82,9 @@ main(int argc, char* argv[])
     
     if(useLocale)
     {
+#ifndef _WIN32
 	initData.stringConverter = new Ice::IconvStringConverter<char>;
+#endif
     }
     else
     {
