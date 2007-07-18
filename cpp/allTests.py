@@ -129,6 +129,9 @@ if isCygwin() == 0:
     tests += [ \
       ]
 
+if not isWin32() or os.getenv("ICONV_HOME") != None:
+    tests.insert(0, "Ice/stringConverter")
+
 if isWin32():
     tests.insert(0, "IceUtil/condvar")
 

@@ -16,11 +16,18 @@
 #include <iconv.h>
 
 #if defined(_LIBICONV_VERSION) || (defined(__sun) && !defined(_XPG6))
-//
-// See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
-//
-#define ICE_CONST_ICONV_INBUF 1
+    //
+    // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
+    //
+#   define ICE_CONST_ICONV_INBUF 1
 #endif
+
+//
+// On Windows, you must be very careful with mixing errno and mixing C runtime libraries
+// If you're using different C runtime libraries for your main program and the libiconv DLL,
+// you're using different errno ... a not-so-good work-around is to ignore errno altogether,
+// by defining ICE_NO_ERRNO
+//
 
 namespace Ice
 {
@@ -123,7 +130,7 @@ IconvStringConverter<charT>::~IconvStringConverter()
     void* val = TlsGetValue(_key);
     if(val != 0)
     {
-        clearnupKey(val);
+        cleanupKey(val);
     }
     if(TlsFree(_key) == 0)
     {
@@ -242,7 +249,6 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
     Ice::Byte* outbuf  = 0;
   
     size_t count = 0; 
-
     //
     // Loop while we need more buffer space
     //
@@ -251,8 +257,12 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 	size_t howMany = std::max(inbytesleft, size_t(4));
 	outbuf = buf.getMoreBytes(howMany, outbuf);
 	count = iconv(cd, &inbuf, &inbytesleft, reinterpret_cast<char**>(&outbuf), &howMany);
-    } while(count == size_t(-1) && errno == E2BIG);
-      
+#ifdef ICE_NO_ERRNO
+    } while(count == size_t(-1));
+#else
+    } while(count == size_t(-1) && _errno == E2BIG);
+#endif
+
     if(count == size_t(-1))
     {
 	throw Ice::StringConversionException(__FILE__, __LINE__);
@@ -313,7 +323,11 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
         buf = newbuf;
 	
 	count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-    } while(count == size_t(-1) && errno == E2BIG);
+#ifdef ICE_NO_ERRNO
+    } while(count == size_t(-1));
+#else
+    } while(count == size_t(-1) && _errno == E2BIG);
+#endif
 
     if(count == size_t(-1))
     {

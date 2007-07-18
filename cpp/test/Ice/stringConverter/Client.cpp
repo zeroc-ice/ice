@@ -61,11 +61,19 @@ main(int argc, char* argv[])
     initData.stringConverter = new Ice::IconvStringConverter<char>("ISO-8859-15");
     if(sizeof(wchar_t) == 4)
     {
-        initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-32");
+#ifdef ICE_BIG_ENDIAN
+        initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-32BE");
+#else
+        initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-32LE");
+#endif
     }
     else
     {
-        initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-16");
+#ifdef ICE_BIG_ENDIAN
+        initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-16BE");
+#else
+        initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("UTF-16LE");
+#endif
     }
 #endif
     return app.main(argc, argv, initData);
@@ -90,12 +98,12 @@ Client::run(int, char*[])
     Test::MyObjectPrx clientPrx = 
         Test::MyObjectPrx::uncheckedCast(communicator()->stringToProxy(serverPrx->ice_toString()));
 
-    char oe = char(0xBD); // A single character in ISO Latin 9
+    char oe =  char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";
-    
     cout << "testing iconv string converter..." << flush;
     wstring wmsg = clientPrx->widen(msg);
     test(clientPrx->narrow(wmsg) == msg);
+    test(wmsg.size() == msg.size());
     cout << "ok" << endl;
 
     //

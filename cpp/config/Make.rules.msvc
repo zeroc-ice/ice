@@ -88,3 +88,4 @@ LIBS		= ice$(LIBSUFFIX).lib $(BASELIBS)
 
 BZIP2_LIBS      = libbz2$(LIBSUFFIX).lib
 DB_LIBS         = libdb45$(LIBSUFFIX).lib
+ICONV_LIB       = libiconv.lib
