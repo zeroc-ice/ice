@@ -32,9 +32,7 @@ SUBDIRS		= proxy \
 		  servantLocator \
 		  threads \
                   interceptor \
-!if "$(ICONV_HOME)" != ""
                   stringConverter
-!endif
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

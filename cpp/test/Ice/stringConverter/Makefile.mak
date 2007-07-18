@@ -19,14 +19,18 @@ SRCS		= $(OBJS:.obj=.cpp)
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-CPPFLAGS	= -I. -I../../include -I$(ICONV_HOME)/include $(CPPFLAGS) -DICE_NO_ERRNO -DWIN32_LEAN_AND_MEAN
+CPPFLAGS	= -I. -I../../include $(CPPFLAGS) -DWIN32_LEAN_AND_MEAN
+!if "$(ICONV_HOME)" != ""
+CPPFLAGS	=  $(CPPFLAGS) -I$(ICONV_HOME)\include -DICONV_ON_WINDOWS -DICE_NO_ERRNO
+LIBS            =  $(LIBS) -LIBPATH:$(ICONV_HOME)\lib $(ICONV_LIB)
+!endif
 
 !if "$(CPP_COMPILER)" != "BCC2006" && "$(OPTIMIZE)" != "yes"
 PDBFLAGS        = /pdb:$(CLIENT:.exe=.pdb)
 !endif
 
 $(CLIENT): $(OBJS)
-	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS) /LIBPATH:$(ICONV_HOME)\lib $(ICONV_LIB)
+	$(LINK) $(LD_EXEFLAGS) $(PDBFLAGS) $(SETARGV) $(OBJS) $(PREOUT)$@ $(PRELIBS)$(LIBNAME) $(LIBS)
 	@if exist $@.manifest echo ^ ^ ^ Embedding manifest using $(MT) && \
 	    $(MT) -nologo -manifest $@.manifest -outputresource:$@;#1 && del /q $@.manifest
 

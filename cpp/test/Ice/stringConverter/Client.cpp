@@ -10,7 +10,14 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+
+#if defined(ICONV_ON_WINDOWS)
+//
+// On Windows, Ice/IcongStringConverter.h is not included by Ice/Ice.h
+//
 #include <Ice/IconvStringConverter.h>
+#endif
+
 #include <iostream>
 #include <locale.h>
 
@@ -49,26 +56,34 @@ public:
 };
 
 static bool useLocale = false;
+static bool useIconv = true;
 
 int
 main(int argc, char* argv[])
 {
     Client app;
 
+#ifndef _WIN32
     //
     // Switch to French locale
     // (we just used the codeset for as default internal code for 
     // initData.stringConverter below)
     //
-   
-#ifndef _WIN32
+
     useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0
                  || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
 #endif
    
     Ice::InitializationData initData;
 
-#if defined(__hpux)
+#if defined(_WIN32) && !defined(ICONV_ON_WINDOWS)
+    //
+    // 28605 == ISO 8859-15 codepage
+    //
+    initData.stringConverter = new Ice::WindowsStringConverter(28605);
+    useIconv = false;
+
+#elif defined(__hpux)
     if(useLocale)
     {
 	initData.stringConverter = new Ice::IconvStringConverter<char>;
@@ -132,10 +147,14 @@ Client::run(int, char*[])
 
     char oe =  char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";
-    cout << "testing iconv string converter";
+    cout << "testing string converter";
     if(useLocale)
     {
         cout << " (using locale)";
+    }
+    if(useIconv)
+    {
+        cout << " (using iconv)";
     }
     cout << "..." << flush;
     wstring wmsg = clientPrx->widen(msg);

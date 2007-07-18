@@ -34,4 +34,8 @@
 #include <Ice/Router.h>
 #include <Ice/DispatchInterceptor.h>
 
+#ifndef _WIN32
+#include <Ice/IconvStringConverter.h>
+#endif
+
 #endif
