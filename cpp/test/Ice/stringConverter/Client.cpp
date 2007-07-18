@@ -48,6 +48,8 @@ public:
     }
 };
 
+static bool useLocale = false;
+
 int
 main(int argc, char* argv[])
 {
@@ -58,16 +60,11 @@ main(int argc, char* argv[])
     // (we just used the codeset for as default internal code for 
     // initData.stringConverter below)
     //
-    bool useLocale = false;
+   
 #ifndef _WIN32
     useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0);
 #endif
-
-    if(useLocale)
-    {
-	cout << "using locale..." << flush;
-    }
-      
+   
     Ice::InitializationData initData;
 
 #if defined(__hpux)
@@ -132,7 +129,12 @@ Client::run(int, char*[])
 
     char oe =  char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";
-    cout << "testing iconv string converter..." << flush;
+    cout << "testing iconv string converter";
+    if(useLocale)
+    {
+        cout << " (using locale)";
+    }
+    cout << "..." << flush;
     wstring wmsg = clientPrx->widen(msg);
     test(clientPrx->narrow(wmsg) == msg);
     test(wmsg.size() == msg.size());
