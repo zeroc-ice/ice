@@ -62,7 +62,8 @@ main(int argc, char* argv[])
     //
    
 #ifndef _WIN32
-    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0);
+    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0
+                 || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
 #endif
    
     Ice::InitializationData initData;
