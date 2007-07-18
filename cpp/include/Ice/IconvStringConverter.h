@@ -27,10 +27,10 @@
 #endif
 
 //
-// On Windows, you must be very careful with mixing errno and mixing C runtime libraries
-// If you're using different C runtime libraries for your main program and the libiconv DLL,
-// you're using different errno ... a not-so-good work-around is to ignore errno altogether,
-// by defining ICE_NO_ERRNO
+// On Windows, we need to be very careful with errno: if we use different C 
+// runtime libraries for the main program and the libiconv DLL, we end up with
+// two different errnos ... a not-so-good work-around is to ignore errno 
+// altogether, by defining ICE_NO_ERRNO
 //
 
 namespace Ice
@@ -81,14 +81,11 @@ private:
 //
 
 #ifdef __SUNPRO_CC
-
 extern "C"
 {
     typedef void (*IcePthreadKeyDestructor)(void*);
 }
 #endif
-
-
 
 template<typename charT>
 IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
@@ -178,8 +175,7 @@ IconvStringConverter<charT>::createDescriptors() const
 
 	throw Ice::StringConversionException(
             __FILE__, __LINE__,
-            std::string("iconv cannot convert from ") + _internalCode + " to " + externalCode);
-					   
+            std::string("iconv cannot convert from ") + _internalCode + " to " + externalCode);			   
     }
     return cdp;
 }
