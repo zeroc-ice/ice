@@ -58,20 +58,38 @@ main(int argc, char* argv[])
     // (we just used the codeset for as default internal code for 
     // initData.stringConverter below)
     //
-    setlocale(LC_ALL, "fr_FR.ISO8859-15");
+    bool useLocale = false;
+#ifndef _WIN32
+    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0);
+#endif
+
+    if(useLocale)
+    {
+	cout << "using locale..." << flush;
+    }
       
     Ice::InitializationData initData;
 
 #if defined(__hpux)
-    initData.stringConverter = new Ice::IconvStringConverter<char>("iso815");
+    if(useLocale)
+    {
+	initData.stringConverter = new Ice::IconvStringConverter<char>;
+    }
+    else
+    {
+	initData.stringConverter = new Ice::IconvStringConverter<char>("iso815");
+    }
     initData.wstringConverter = new Ice::IconvStringConverter<wchar_t>("ucs4");  
 #else
-
-#ifdef _WIN32
-    initData.stringConverter = new Ice::IconvStringConverter<char>("ISO8859-15");
-#else      
-    initData.stringConverter = new Ice::IconvStringConverter<char>;
-#endif
+    
+    if(useLocale)
+    {
+	initData.stringConverter = new Ice::IconvStringConverter<char>;
+    }
+    else
+    {
+	initData.stringConverter = new Ice::IconvStringConverter<char>("ISO8859-15");
+    }
 
     if(sizeof(wchar_t) == 4)
     {
