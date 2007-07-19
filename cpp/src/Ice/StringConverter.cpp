@@ -141,7 +141,10 @@ WindowsStringConverter::toUTF8(const char* sourceStart,
     // First convert to UTF-16
     //
     int sourceSize = sourceEnd - sourceStart;
-    assert(sourceSize > 0);
+    if(sourceSize == 0)
+    {
+        return buffer.getMoreBytes(1, 0);
+    }
 
     size_t size = 0;
     int writtenWchar = 0;
