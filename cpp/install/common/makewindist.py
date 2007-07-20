@@ -265,9 +265,9 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), False)
         f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         for l in f:
-            i = l.find("icecs") 
+            i = l.find("\\cs\\") 
             if i <> -1:
-                print l.rstrip('\n').replace("icecs", "IceCS-%s" % sourcesVersion)
+                print l.rstrip('\n').replace("\\cs\\", "\\IceCS-%s\\" % sourcesVersion)
             else:
                 print l.rstrip('\n')
 
@@ -292,9 +292,9 @@ def buildIceDists(stageDir, sourcesDir, sourcesVersion, installVersion):
         setOptimize(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         f = fileinput.input(os.path.join(os.getcwd(), "config", "Make.rules.mak.vb"), True)
         for l in f:
-            i = l.find("icecs") 
+            i = l.find("\\cs\\") 
             if i <> -1:
-                print l.rstrip('\n').replace("icecs", "IceCS-%s" % sourcesVersion)
+                print l.rstrip('\n').replace("\\cs\\", "\\IceCS-%s\\" % sourcesVersion)
             else:
                 print l.rstrip('\n')
 

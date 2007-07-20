@@ -541,7 +541,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 throw ex;
             }
 
-            if(_instance->initializationData().stringConverter)
+            if(_instance->initializationData().stringConverter && !adapter.empty())
             {
                 string tmpAdapter;
                 _instance->initializationData().stringConverter->fromUTF8(

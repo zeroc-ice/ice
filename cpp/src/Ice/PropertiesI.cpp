@@ -413,13 +413,16 @@ Ice::PropertiesI::parseLine(const string& line, const StringConverterPtr& conver
     if(converter)
     {
         string tmp;
-        converter->fromUTF8(reinterpret_cast<const Byte*>(key.data()), 
+        converter->fromUTF8(reinterpret_cast<const Byte*>(key.data()),
                             reinterpret_cast<const Byte*>(key.data() + key.size()), tmp);
         key.swap(tmp);
 
-        converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()), 
-                            reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
-        value.swap(tmp);
+        if(!value.empty())
+        {
+            converter->fromUTF8(reinterpret_cast<const Byte*>(value.data()),
+                                reinterpret_cast<const Byte*>(value.data() + value.size()), tmp);
+            value.swap(tmp);
+        }
     }
     
     setProperty(key, value);

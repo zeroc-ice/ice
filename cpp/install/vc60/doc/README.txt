@@ -375,6 +375,20 @@ compiled against the <x>.<y>.<z> run time will automatically use the
 <x>.<y>.<z or z+n> assemblies.
 
 
+Ice and the Windows Registry
+----------------------------
+
+The Ice installer adds information to the Windows registry to indicate
+where it was installed. Developers can use this information to locate
+the Ice files in their applications.
+
+The registration key used by this installer is:
+
+HKEY_LOCAL_MACHINE\Software\ZeroC\Ice @ver@ for Visual Studio 6.0
+
+To install location is stored as a string value named 'InstallDir'.
+
+
 Acknowledgments
 ---------------
 
