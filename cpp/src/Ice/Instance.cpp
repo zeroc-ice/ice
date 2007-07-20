@@ -409,15 +409,22 @@ IceInternal::Instance::stringToIdentity(const string& s) const
     if(_initData.stringConverter)
     {
         string tmpString;
-        _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.name.data()),
-                                            reinterpret_cast<const Byte*>(ident.name.data() + ident.name.size()),
-                                            tmpString);
-        ident.name = tmpString;
+        if(!ident.name.empty())
+        {
+            _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.name.data()),
+                                                reinterpret_cast<const Byte*>(ident.name.data() + ident.name.size()),
+                                                tmpString);
+            ident.name = tmpString;
+        }
 
-        _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.category.data()),
-                                           reinterpret_cast<const Byte*>(ident.category.data() + ident.category.size()),
-                                           tmpString);
-        ident.category = tmpString;
+        if(!ident.category.empty())
+        {
+            _initData.stringConverter->fromUTF8(reinterpret_cast<const Byte*>(ident.category.data()),
+                                                reinterpret_cast<const Byte*>(ident.category.data() +
+                                                                             ident.category.size()),
+                                                tmpString);
+            ident.category = tmpString;
+        }
     }
 
     return ident;
@@ -431,14 +438,21 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     if(_initData.stringConverter)
     {
         UTF8BufferI buffer;
-        Byte* last = _initData.stringConverter->toUTF8(ident.name.data(), ident.name.data() + ident.name.size(),
-                                                       buffer);
-        name = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        Byte* last;
+        if(!ident.name.empty())
+        {
+            last = _initData.stringConverter->toUTF8(ident.name.data(), ident.name.data() + ident.name.size(),
+                                                           buffer);
+            name = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        }
 
         buffer.reset();
-        last = _initData.stringConverter->toUTF8(ident.category.data(), ident.category.data() + ident.category.size(),
-                                                 buffer);
-        category = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        if(!ident.category.empty())
+        {
+            last = _initData.stringConverter->toUTF8(ident.category.data(),
+                                                     ident.category.data() + ident.category.size(), buffer);
+            category = string(reinterpret_cast<const char*>(buffer.getBuffer()), last - buffer.getBuffer());
+        }
     }
 
     if(category.empty())
