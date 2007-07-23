@@ -876,6 +876,12 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             servicesStr += s->name + " ";
         }
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
+
+	if(iceBox->adapters.empty() && 
+	   getProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess") != "0")
+	{
+  	    server->processRegistered = true;
+	}
     }
 
     //
