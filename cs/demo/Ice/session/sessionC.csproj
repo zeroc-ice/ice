@@ -104,7 +104,10 @@
   <Target Name="CompileSlice"
           Inputs="Session.ice"
           Outputs="generated\Session.cs">
-    <Exec Command="..\..\..\bin\slice2cs.exe --output-dir generated Session.ice"/>
+    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Session.ice"/>
+  </Target>
+  <Target Name="AfterClean">
+    <Delete Files="generated\Session.cs"/>
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

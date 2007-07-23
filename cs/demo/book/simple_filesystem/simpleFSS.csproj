@@ -110,7 +110,10 @@
   <Target Name="CompileSlice"
           Inputs="Filesystem.ice"
           Outputs="generated\Filesystem.cs">
-    <Exec Command="..\..\..\bin\slice2cs.exe --output-dir generated Filesystem.ice"/>
+    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Filesystem.ice"/>
+  </Target>
+  <Target Name="AfterClean">
+    <Delete Files="generated\Filesystem.cs"/>
   </Target>
   <PropertyGroup>
     <CompileDependsOn>

@@ -102,7 +102,10 @@
     </PostBuildEvent>
   </PropertyGroup>
   <Target Name="CompileSlice" Inputs="Printer.ice" Outputs="generated\Printer.cs">
-    <Exec Command="..\..\..\bin\slice2cs.exe --stream --output-dir generated Printer.ice" />
+    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --stream --output-dir generated Printer.ice" />
+  </Target>
+  <Target Name="AfterClean">
+    <Delete Files="generated\Printer.cs"/>
   </Target>
   <PropertyGroup>
     <CompileDependsOn>
