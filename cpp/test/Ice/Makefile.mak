@@ -31,7 +31,8 @@ SUBDIRS		= proxy \
 		  timeout \
 		  servantLocator \
 		  threads \
-                  interceptor
+                  interceptor \
+                  stringConverter
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

@@ -747,6 +747,8 @@ allTestsWithTarget(const Ice::CommunicatorPtr& comm)
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox3-Service1@IceBox3.Service1.Service1"));
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox3-Service3@IceBox3.Service3.Service3"));
 
+    obj = TestIntfPrx::checkedCast(comm->stringToProxy("IceBox3-Service4@IceBox3.Service4.Service4"));
+
     obj = TestIntfPrx::checkedCast(comm->stringToProxy("Server3@Server3.Server"));
     test(obj->getProperty("TargetProp") == "1");
 

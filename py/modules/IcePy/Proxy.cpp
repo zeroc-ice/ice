@@ -189,6 +189,15 @@ proxyRepr(ProxyObject* self)
 #ifdef WIN32
 extern "C"
 #endif
+static long
+proxyHash(ProxyObject* self)
+{
+    return static_cast<long>((*self->proxy)->ice_getHash());
+}
+
+#ifdef WIN32
+extern "C"
+#endif
 static PyObject*
 proxyIceCommunicator(ProxyObject* self)
 {
@@ -2119,7 +2128,7 @@ PyTypeObject ProxyType =
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */
     0,                               /* tp_as_mapping */
-    0,                               /* tp_hash */
+    (hashfunc)proxyHash,             /* tp_hash */
     0,                               /* tp_call */
     0,                               /* tp_str */
     0,                               /* tp_getattro */

@@ -1036,25 +1036,33 @@ del ConnectionLostException__str__
 # Proxy comparison functions.
 #
 def proxyIdentityEqual(lhs, rhs):
+    return proxyIdentityCompare(lhs, rhs) == 0
+
+def proxyIdentityCompare(lhs, rhs):
     if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError('argument is not a proxy')
     if not lhs and not rhs:
         return True
     elif not lhs and rhs:
-        return False
+        return -1
     elif lhs and not rhs:
-        return False
+        return 1
     else:
-        return lhs.ice_getIdentity() == rhs.ice_getIdentity()
+        return cmp(lhs.ice_getIdentity(), rhs.ice_getIdentity())
 
 def proxyIdentityAndFacetEqual(lhs, rhs):
+    return proxyIdentityAndFacetCompare(lhs, rhs) == 0
+
+def proxyIdentityAndFacetCompare(lhs, rhs):
     if (lhs and not isinstance(lhs, ObjectPrx)) or (rhs and not isinstance(rhs, ObjectPrx)):
         raise ValueError('argument is not a proxy')
     if not lhs and not rhs:
         return True
     elif not lhs and rhs:
-        return False
+        return -1
     elif lhs and not rhs:
-        return False
+        return 1
+    elif lhs.ice_getIdentity() != rhs.ice_getIdentity():
+        return cmp(lhs.ice_getIdentity(), rhs.ice_getIdentity())
     else:
-        return lhs.ice_getIdentity() == rhs.ice_getIdentity() and lhs.ice_getFacet() == rhs.ice_getFacet()
+        return cmp(lhs.ice_getFacet(), rhs.ice_getFacet())

@@ -10,17 +10,28 @@
 #ifndef ICE_ICONV_STRING_CONVERTER
 #define ICE_ICONV_STRING_CONVERTER
 
-#include <Ice/Ice.h>
+#include <Ice/StringConverter.h>
 
 #include <algorithm>
 #include <iconv.h>
 
-#ifdef _LIBICONV_VERSION
-//
-// See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
-//
-#define ICE_CONST_ICONV_INBUF 1
+#ifndef _WIN32
+#include <langinfo.h>
 #endif
+
+#if defined(_LIBICONV_VERSION) || (defined(__sun) && !defined(_XPG6))
+    //
+    // See http://sourceware.org/bugzilla/show_bug.cgi?id=2962
+    //
+#   define ICE_CONST_ICONV_INBUF 1
+#endif
+
+//
+// On Windows, we need to be very careful with errno: if we use different C 
+// runtime libraries for the main program and the libiconv DLL, we end up with
+// two different errnos ... a not-so-good work-around is to ignore errno 
+// altogether, by defining ICE_NO_ERRNO
+//
 
 namespace Ice
 {
@@ -37,14 +48,17 @@ class IconvStringConverter : public Ice::BasicStringConverter<charT>
 {
 public:
 
-    IconvStringConverter(const char* internalCode);
+#ifdef _WIN32
+    IconvStringConverter(const char*);
+#else
+    IconvStringConverter(const char* = nl_langinfo(CODESET));
+#endif
 
     virtual ~IconvStringConverter();
 
-    virtual Ice::Byte* toUTF8(const charT* sourceStart, const charT* sourceEnd, Ice::UTF8Buffer& buf) const;
+    virtual Ice::Byte* toUTF8(const charT*, const charT*, Ice::UTF8Buffer&) const;
     
-    virtual void fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
-			  std::basic_string<charT>& target) const;
+    virtual void fromUTF8(const Ice::Byte*, const Ice::Byte*, std::basic_string<charT>&) const;
     
 private:
 
@@ -59,13 +73,19 @@ private:
 #else    
     mutable pthread_key_t _key;
 #endif
-
     const char* _internalCode;
 };
 
 //
 // Implementation
 //
+
+#ifdef __SUNPRO_CC
+extern "C"
+{
+    typedef void (*IcePthreadKeyDestructor)(void*);
+}
+#endif
 
 template<typename charT>
 IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
@@ -93,7 +113,12 @@ IconvStringConverter<charT>::IconvStringConverter(const char* internalCode) :
         throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 #else
+    #ifdef __SUNPRO_CC
+    int rs = pthread_key_create(&_key, reinterpret_cast<IcePthreadKeyDestructor>(&cleanupKey));
+    #else
     int rs = pthread_key_create(&_key, &cleanupKey);
+    #endif
+
     if(rs != 0)
     {
 	throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, rs);
@@ -108,7 +133,7 @@ IconvStringConverter<charT>::~IconvStringConverter()
     void* val = TlsGetValue(_key);
     if(val != 0)
     {
-        clearnupKey(val);
+        cleanupKey(val);
     }
     if(TlsFree(_key) == 0)
     {
@@ -139,7 +164,7 @@ IconvStringConverter<charT>::createDescriptors() const
     {
 	throw Ice::StringConversionException(
 	    __FILE__, __LINE__,
-	    std::string("iconv can convert from ") 
+	    std::string("iconv cannot convert from ") 
 	    + externalCode + " to " + _internalCode);			   
     }
     
@@ -150,8 +175,7 @@ IconvStringConverter<charT>::createDescriptors() const
 
 	throw Ice::StringConversionException(
             __FILE__, __LINE__,
-            std::string("iconv can convert from ") + _internalCode + " to " + externalCode);
-					   
+            std::string("iconv cannot convert from ") + _internalCode + " to " + externalCode);			   
     }
     return cdp;
 }
@@ -227,7 +251,6 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
     Ice::Byte* outbuf  = 0;
   
     size_t count = 0; 
-
     //
     // Loop while we need more buffer space
     //
@@ -236,8 +259,12 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart, const charT* sourc
 	size_t howMany = std::max(inbytesleft, size_t(4));
 	outbuf = buf.getMoreBytes(howMany, outbuf);
 	count = iconv(cd, &inbuf, &inbytesleft, reinterpret_cast<char**>(&outbuf), &howMany);
+#ifdef ICE_NO_ERRNO
+    } while(count == size_t(-1));
+#else
     } while(count == size_t(-1) && errno == E2BIG);
-      
+#endif
+
     if(count == size_t(-1))
     {
 	throw Ice::StringConversionException(__FILE__, __LINE__);
@@ -298,7 +325,11 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
         buf = newbuf;
 	
 	count = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+#ifdef ICE_NO_ERRNO
+    } while(count == size_t(-1));
+#else
     } while(count == size_t(-1) && errno == E2BIG);
+#endif
 
     if(count == size_t(-1))
     {

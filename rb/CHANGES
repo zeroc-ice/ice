@@ -4,6 +4,11 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------     
 
+- Added the methods Ice::proxyIdentityCompare and
+  Ice::proxyIdentityAndFacetCompare.
+
+- Implemented <=> in proxies.
+
 - Added support for protected class data members using the new
   metadata tag ["protected"]. The tag can be applied to a Slice class
   or to individual data members.

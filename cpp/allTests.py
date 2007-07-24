@@ -94,6 +94,7 @@ tests = [ \
     "Ice/servantLocator", \
     "Ice/threads", \
     "Ice/interceptor", \
+    "Ice/stringConverter", \
     "IceSSL/configuration", \
     "Freeze/dbmap", \
     "Freeze/complex", \

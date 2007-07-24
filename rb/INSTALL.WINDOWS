@@ -9,7 +9,7 @@ Requirements
 ------------
 
 - Ice @ver@
-- Visual C++ 6.0 SP5 with STLport 4.5 (or later)*
+- Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)*
 - Ruby 1.8.4 or 1.8.5
 
 * Ruby requires Visual C++ 6.0, therefore it is the only compiler

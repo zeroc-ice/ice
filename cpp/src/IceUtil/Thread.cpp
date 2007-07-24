@@ -7,6 +7,15 @@
 //
 // **********************************************************************
 
+#ifdef __sun //
+// Solaris 10 bug: it's supposed to be defined in pthread.h
+//
+#ifndef __EXTENSIONS__
+#define __EXTENSIONS__
+#endif
+#include <limits.h>
+#endif
+
 #include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>

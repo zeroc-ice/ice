@@ -70,11 +70,32 @@ class ICE_API UnicodeWstringConverter : public WstringConverter
 {
 public:
 
-    virtual Byte* toUTF8(const wchar_t* sourceStart, const wchar_t* sourceEnd,
-                         UTF8Buffer&) const;
+    virtual Byte* toUTF8(const wchar_t*, const wchar_t*, UTF8Buffer&) const;
 
-    virtual void fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
-                          std::wstring& target) const;
+    virtual void fromUTF8(const Byte*, const Byte*, std::wstring&) const;
 };
+
+#ifdef _WIN32
+
+//
+// Converts to/from UTF-8 using MultiByteToWideChar and WideCharToMultiByte
+//
+
+class ICE_API WindowsStringConverter : public StringConverter
+{
+public:
+
+    explicit WindowsStringConverter(unsigned int);
+
+    virtual Byte* toUTF8(const char*, const char*, UTF8Buffer&) const;
+
+    virtual void fromUTF8(const Byte*, const Byte*, std::string& target) const;
+
+private:
+    unsigned int _cp;
+    UnicodeWstringConverter _unicodeWstringConverter;
+};
+#endif
+
 }
 #endif

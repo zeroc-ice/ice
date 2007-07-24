@@ -1153,7 +1153,13 @@ ServerI::adapterDeactivated(const string& id)
     ServerCommandPtr command;
     {
         Lock sync(*this);
-        if(_state == Active && _serverLifetimeAdapters.find(id) != _serverLifetimeAdapters.end())
+        while(_state == ServerI::Activating)
+        {
+	    wait(); // Wait for activate() to set the state to WaitForActivation
+        }
+
+        if((_state == Active || _state == WaitForActivation) &&
+           _serverLifetimeAdapters.find(id) != _serverLifetimeAdapters.end())
         {
             setStateNoSync(Deactivating);
         }
@@ -1440,11 +1446,12 @@ ServerI::deactivate()
     Ice::ProcessPrx process;
     {
         Lock sync(*this);
-        assert(_desc);
         if(_state != Deactivating && _state != DeactivatingWaitForProcess)
         {
             return;
         }
+
+        assert(_desc);
 
         //
         // If a process object is supposed to be registered and it's

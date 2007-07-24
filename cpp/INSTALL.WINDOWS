@@ -40,7 +40,7 @@ The following C++ compilers are supported:
 
 - Microsoft Visual C++ .NET 2003 SP1 (aka VC++ 7.1)
 
-- Microsoft Visual C++ 6.0 SP5 with STLport 4.5 (or later)
+- Microsoft Visual C++ 6.0 SP5 with STLport 4.6.2 (or later)
 
   The Standard Template Library included with Visual C++ 6.0 is not 
   supported. STLPort is included in the Ice third-party package
@@ -97,7 +97,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- STLport 4.5 or later (only for Visual C++ 6.0)
+- STLport 4.6.2 or later (only for Visual C++ 6.0)
 - Berkeley DB 4.5.20
 - expat 2.0
 - OpenSSL 0.9.7 or later (OpenSSL 0.9.8 or later recommended)

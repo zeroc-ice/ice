@@ -103,8 +103,22 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>"$(SolutionDir)."\..\bin\generatecs.exe "$(SolutionDir)." "$(ProjectDir)." $(ProjectName)</PreBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
     <PostBuildEvent>
     </PostBuildEvent>
+  </PropertyGroup>
+  <Target Name="CompileSlice"
+          Inputs="Hello.ice"
+          Outputs="generated\Hello.cs">
+    <Exec Command="$(ICE_HOME)\bin\slice2cs.exe --output-dir generated Hello.ice"/>
+  </Target>
+  <Target Name="AfterClean">
+    <Delete Files="generated\Hello.cs"/>
+  </Target>
+  <PropertyGroup>
+    <CompileDependsOn>
+      CompileSlice;$(CompileDependsOn)
+    </CompileDependsOn>
   </PropertyGroup>
 </Project>
