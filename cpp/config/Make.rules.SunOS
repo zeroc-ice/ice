@@ -155,9 +155,11 @@ ICE_OS_LIBS		    = -ldl -lsocket
 
 ifeq ($(MACHINE_TYPE),sun4u)
    lp64suffix		    = /sparcv9
+   lp64binsuffix	    = /sparcv9
 endif
 ifeq ($(MACHINE_TYPE),i86pc)
     lp64suffix		    = /amd64
+    lp64binsuffix	    = /amd64
 endif
 
 ifeq ($(LP64),yes)

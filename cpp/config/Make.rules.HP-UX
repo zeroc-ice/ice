@@ -76,6 +76,7 @@ ICEUTIL_OS_LIBS         = -lpthread -lrt
 ICE_OS_LIBS             =
 
 lp64suffix              = /pa20_64
+lp64binsuffix           = /pa20_64
 
 ifeq ($(LP64),yes)
     export LD_LIBRARY_PATH := $(libdir):$(LD_LIBRARY_PATH)

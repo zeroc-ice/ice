@@ -122,8 +122,6 @@ libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
 slicedir		= $(top_srcdir)/slice
 
-install_bindir		= $(prefix)/bin
-
 install_includedir	= $(prefix)/include
 install_slicedir	= $(prefix)/slice
 install_schemadir	= $(prefix)/schema
@@ -144,9 +142,11 @@ UNAME			:= $(shell uname)
 include	 $(top_srcdir)/config/Make.rules.$(UNAME)
 
 ifeq ($(LP64),yes)
+    install_bindir	  := $(prefix)/bin$(lp64binsuffix)
     install_libdir	  := $(prefix)/lib$(lp64suffix)
     libsubdir		  := lib$(lp64suffix)
 else
+    install_bindir	  := $(prefix)/bin
     install_libdir	  := $(prefix)/lib
     libsubdir		  := lib
 endif
