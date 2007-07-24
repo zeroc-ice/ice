@@ -4,6 +4,12 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------     
 
+- Fixed bug where ObjectPrx.ice_getCachedConnection() would never
+  return a valid connection object.
+
+- Fixed bug with the ObjectPrx == method where on some platforms
+  comparison to a nil object would be incorrect.
+
 - Added the methods Ice::proxyIdentityCompare and
   Ice::proxyIdentityAndFacetCompare.
 
