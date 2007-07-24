@@ -322,4 +322,6 @@ IceSSL::getConnectionInfo(const ConnectionPtr& connection)
         os << "couldn't get connection information:\n" << ex << endl;
         throw ConnectionInvalidException(__FILE__, __LINE__, os.str());
     }
+
+    return ConnectionInfo(); // Required to prevent compiler warning on Solaris.
 }
