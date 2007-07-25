@@ -13,6 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= printer \
 		  simple_filesystem \
+		  lifecycle \
 		  freeze_filesystem
 
 $(EVERYTHING)::
