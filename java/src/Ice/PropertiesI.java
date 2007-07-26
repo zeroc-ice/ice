@@ -96,7 +96,9 @@ public final class PropertiesI implements Properties
         }
         catch(NumberFormatException ex)
         {
-            return 0;
+            Ice.Util.getProcessLogger().warning("numeric property " + key + 
+                                                " set to non-numeric value, defaulting to " + value);
+            return value;
         }
     }
 
