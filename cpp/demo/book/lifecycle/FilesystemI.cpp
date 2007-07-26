@@ -239,17 +239,16 @@ FilesystemI::DirectoryI::destroy(const Current& c)
         {
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
+        if(!_contents.empty())
+        {
+            throw PermissionDenied("Cannot destroy non-empty directory");
+        }
         _destroyed = true;
     }
 
     IceUtil::Mutex::Lock lock(_lcMutex);
 
     reap();
-
-    if(!_contents.empty())
-    {
-        throw PermissionDenied("Cannot destroy non-empty directory");
-    }
 
     c.adapter->remove(id());
     _parent->addReapEntry(_name);
@@ -272,13 +271,15 @@ FilesystemI::DirectoryI::DirectoryI(const ObjectAdapterPtr& a, const string& nam
     a->add(this, _id);
 }
 
+// Add the passed name-node pair to the _contents map.
+
 void
 FilesystemI::DirectoryI::addChild(const string& name, const NodeIPtr& node)
 {
     _contents[name] = node;
 }
 
-// Add a directory and the name of a deleted entry in that directory to the reap map.
+// Add this directory and the name of a deleted entry to the reap map.
 
 void
 FilesystemI::DirectoryI::addReapEntry(const string& name)

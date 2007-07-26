@@ -20,6 +20,7 @@
     <target name="clean">
         <ant dir="printer" target="clean"/>
         <ant dir="simple_filesystem" target="clean"/>
+        <ant dir="lifecycle" target="clean"/>
         <ant dir="freeze_filesystem" target="clean"/>
     </target>
 

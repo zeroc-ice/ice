@@ -33,14 +33,14 @@ Parser::usage()
     cout <<
         "help                    Print this message.\n"
         "pwd                     Print current directory (/ = root).\n"
-        "cd DIR                  Change directory (/ = root, .. = parent).\n"
+        "cd [DIR]                Change directory (/ or empty = root).\n"
         "ls                      List current directory.\n"
         "lr                      Recursively list current directory.\n"
         "mkdir DIR [DIR...]      Create directories DIR in current directory.\n"
         "mkfile FILE [FILE...]   Create files FILE in current directory.\n"
         "rm NAME [NAME...]       Delete directory or file NAME (rm * to delete all).\n"
         "cat FILE                List the contents of FILE.\n"
-        "write FILE [STRINGS]    Write STRINGS into FILE.\n"
+        "write FILE [STRING...]  Write STRING to FILE.\n"
         "exit, quit              Exit this program.\n";
 }
 
@@ -52,7 +52,7 @@ Parser::usage()
 void
 Parser::list(bool recursive)
 {
-    return list(_dirs.front(), recursive, 0);
+    list(_dirs.front(), recursive, 0);
 }
 
 void
@@ -64,16 +64,12 @@ Parser::list(const DirectoryPrx& dir, bool recursive, int depth)
 
     for(NodeDescSeq::const_iterator i = contents.begin(); i != contents.end(); ++i)
     {
-        DirectoryPrx dir = DirectoryPrx::checkedCast(i->proxy);
-        FilePrx file = FilePrx::uncheckedCast(i->proxy);
-        cout << indent << i->name << (dir ? " (directory)" : " (file)");
-        if(dir && recursive)
+        DirectoryPrx d = i->type == DirType ? DirectoryPrx::uncheckedCast(i->proxy) : 0;
+        cout << indent << i->name << (d ? " (directory)" : " (file)");
+        if(d && recursive)
         {
-            if(recursive)
-            {
-                cout << ":" << endl;
-                list(dir, true, depth);
-            }
+            cout << ":" << endl;
+            list(d, true, depth);
         }
         else
         {
@@ -115,7 +111,7 @@ Parser::createDir(const std::list<string>& names)
     {
         if(*i == "..")
         {
-            cout << "Cannot create a file named `.'" << endl;
+            cout << "Cannot create a directory named `.'" << endl;
             continue;
         }
 
@@ -221,10 +217,11 @@ Parser::cat(const string& name)
 }
 
 void
-Parser::write(const std::list<string>& args)
+Parser::write(std::list<string>& args)
 {
     DirectoryPrx dir = _dirs.front();
     string name = args.front();
+    args.pop_front();
     NodeDesc d;
     try
     {
@@ -243,8 +240,7 @@ Parser::write(const std::list<string>& args)
     FilePrx f = FilePrx::uncheckedCast(d.proxy);
 
     Lines l;
-    std::list<string>::const_iterator i = args.begin();
-    while(++i != args.end())
+    for(std::list<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
         l.push_back(*i);
     }
