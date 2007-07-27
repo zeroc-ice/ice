@@ -14,6 +14,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/PropertyNames.h>
 #include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <fstream>
 
 using namespace std;
@@ -68,11 +69,14 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if(p != _properties.end())
     {
+        Int val = value;
         p->second.used = true;
         istringstream v(p->second.value);
         if(!(v >> value) || !v.eof())
         {
-            return 0;
+            Warning out(getProcessLogger());
+            out << "numeric property " << key << " set to non-numeric value, defaulting to " << val;
+            return val;
         }
     }
 

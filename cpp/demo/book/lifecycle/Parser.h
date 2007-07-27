@@ -66,7 +66,7 @@ public:
     void pwd();
     void cd(const ::std::string&);
     void cat(const ::std::string&);
-    void write(const ::std::list< ::std::string>&);
+    void write(::std::list< ::std::string>&);
     void destroy(const ::std::list< ::std::string>&);
 
     void getInput(char*, int&, int);

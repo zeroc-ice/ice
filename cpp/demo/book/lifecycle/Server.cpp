@@ -16,7 +16,7 @@ using namespace FilesystemI;
 
 class FilesystemApp : virtual public Ice::Application {
 public:
-    virtual int run(int, char * []) {
+    virtual int run(int, char* []) {
         // Terminate cleanly on receipt of a signal
         //
         shutdownOnInterrupt();
@@ -35,12 +35,12 @@ public:
         //
         adapter->activate();
 
-        // Wait until we are done
+        // Wait until we are done.
         //
         communicator()->waitForShutdown();
-        if (interrupted()) {
-            cerr << appName()
-                 << ": received signal, shutting down" << endl;
+        if(interrupted())
+        {
+            cerr << appName() << ": received signal, shutting down" << endl;
         }
 
         return 0;

@@ -99,9 +99,17 @@ command
 {
     parser->pwd();
 }
+| TOK_CD
+{
+    parser->cd("/");
+}
 | TOK_CD TOK_STRING
 {
     parser->cd($2.front());
+}
+| TOK_CD strings
+{
+    parser->error("usage: cd [DIR]");
 }
 | TOK_CAT TOK_STRING
 {

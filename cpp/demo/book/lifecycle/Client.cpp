@@ -18,21 +18,25 @@ class FilesystemClient : virtual public Ice::Application
 {
 public:
     virtual int run(int, char * []) {
-        // Terminate cleanly on receipt of a signal
+        // Terminate cleanly on receipt of a signal.
         //
         shutdownOnInterrupt();
 
         // Create a proxy for the root directory
         //
         Ice::ObjectPrx base = communicator()->stringToProxy("RootDir:default -p 10000");
-        if (!base)
+        if(!base)
+        {
             throw "Could not create proxy";
+        }
 
-        // Down-cast the proxy to a Directory proxy
+        // Down-cast the proxy to a Directory proxy.
         //
         DirectoryPrx rootDir = DirectoryPrx::checkedCast(base);
-        if (!rootDir)
+        if(!rootDir)
+        {
             throw "Invalid proxy";
+        }
 
         ParserPtr p = new Parser(rootDir);
         return p->parse();

@@ -80,6 +80,8 @@ namespace Ice
                     }
                     catch(System.FormatException)
                     {
+                        Ice.Util.getProcessLogger().warning("numeric property " + key + 
+                                                            " set to non-numeric value, defaulting to " + val);
                         return val;
                     }
                 }
