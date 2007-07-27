@@ -203,6 +203,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name customevictS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lifecyclefsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name lifecyclefsS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -616,6 +622,30 @@ Package=<4>
 ###############################################################################
 
 Project: "libraryS"=.\freeze\library\libraryS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "lifecyclefsC"=.\book\lifecycle\lifecyclefsC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "lifecyclefsS"=.\book\lifecycle\lifecyclefsS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
