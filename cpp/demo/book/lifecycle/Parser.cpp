@@ -64,7 +64,7 @@ Parser::list(const DirectoryPrx& dir, bool recursive, int depth)
 
     for(NodeDescSeq::const_iterator i = contents.begin(); i != contents.end(); ++i)
     {
-        DirectoryPrx d = i->type == DirType ? DirectoryPrx::uncheckedCast(i->proxy) : 0;
+        DirectoryPrx d = i->type == DirType ? DirectoryPrx::uncheckedCast(i->proxy) : (DirectoryPrx)0;
         cout << indent << i->name << (d ? " (directory)" : " (file)");
         if(d && recursive)
         {
