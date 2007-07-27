@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= printer simple_filesystem
+SUBDIRS		= printer lifecycle simple_filesystem
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

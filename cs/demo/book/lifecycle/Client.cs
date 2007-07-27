@@ -6,13 +6,12 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+using System;
+using Filesystem;
 
-import Filesystem.*;
-
-public class Client extends Ice.Application
+public class Client : Ice.Application
 {
-    public int
-    run(String[] args)
+    public override int run(String[] args)
     {
         // Terminate cleanly on receipt of a signal.
         //
@@ -20,15 +19,15 @@ public class Client extends Ice.Application
 
         // Create a proxy for the root directory
         //
-        Ice.ObjectPrx base = communicator().stringToProxy("RootDir:default -p 10000");
-        if(base == null)
+        Ice.ObjectPrx @base = communicator().stringToProxy("RootDir:default -p 10000");
+        if(@base == null)
         {
             throw new Error("Could not create proxy");
         }
 
         // Down-cast the proxy to a Directory proxy.
         //
-        DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(base);
+        DirectoryPrx rootDir = DirectoryPrxHelper.checkedCast(@base);
         if(rootDir == null)
         {
             throw new Error("Invalid proxy");
@@ -38,19 +37,17 @@ public class Client extends Ice.Application
         return p.parse();
     }
 
-    static public void
-    main(String[] args)
+    static public void Main(String[] args)
     {
         Client app = new Client();
-        app.main("demo.book.lifecycle.Client", args);
+        app.main(args);
     }
 
-    static private class Error extends RuntimeException
+    private class Error : SystemException
     {
         public Error(String msg)
+            : base(msg)
         {
-            super(msg);
         }
     }
-
 }
