@@ -17,7 +17,6 @@ class FilesystemApp : Ice.Application
         // Terminate cleanly on receipt of a signal.
         //
         shutdownOnInterrupt();
-        Ice.Properties properties = communicator().getProperties();
 
         // Create an object adapter
         //

@@ -11,8 +11,8 @@ top_srcdir	= ../../..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= Client.cs Parser.cs Grammer.cs Scanner.cs Token.cs
-S_SRCS		= DirectoryI.cs FileI.cs NodeI Server.cs
+C_SRCS		= Client.cs Parser.cs Grammar.cs Scanner.cs Token.cs
+S_SRCS		= DirectoryI.cs FileI.cs NodeI.cs Server.cs
 
 SLICE_SRCS	= $(SDIR)/Filesystem.ice
 
