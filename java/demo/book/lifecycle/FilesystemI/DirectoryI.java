@@ -166,19 +166,20 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
             {
                 throw new ObjectNotExistException();
             }
-            if(_contents.size() != 0)
+
+            synchronized(_lcMutex)
             {
-                throw new PermissionDenied("Cannot destroy non-empty directory");
+                reap();
+
+                if(_contents.size() != 0)
+                {
+                    throw new PermissionDenied("Cannot destroy non-empty directory");
+                }
+
+                c.adapter.remove(id());
+                _parent.addReapEntry(_name);
+                _destroyed = true;
             }
-            _destroyed = true;
-        }
-
-        synchronized(_lcMutex)
-        {
-            reap();
-
-            c.adapter.remove(id());
-            _parent.addReapEntry(_name);
         }
     }
 
@@ -193,7 +194,6 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
 
     public DirectoryI(ObjectAdapter a, String name, DirectoryI parent)
     {
-        _lcMutex = new java.lang.Object();
         _name = name;
         _parent = parent;
         _id = new Identity();
@@ -257,7 +257,7 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
         _reapMap.clear();
     }
 
-    public java.lang.Object _lcMutex;
+    public static java.lang.Object _lcMutex = new java.lang.Object();
 
     private String _name;       // Immutable
     private DirectoryI _parent; // Immutable

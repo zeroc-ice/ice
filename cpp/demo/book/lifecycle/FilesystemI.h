@@ -67,7 +67,7 @@ namespace FilesystemI
 
         void addReapEntry(const ::std::string&);
 
-        IceUtil::Mutex _lcMutex;
+        static IceUtil::StaticMutex _lcMutex;
 
     private:
         typedef ::std::map< ::std::string, NodeIPtr> Contents;

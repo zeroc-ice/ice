@@ -71,7 +71,7 @@ namespace FilesystemI
                 _destroyed = true;
             }
 
-            lock(_parent._lcMutex)
+            lock(DirectoryI._lcMutex)
             {
                 c.adapter.remove(id());
                 _parent.addReapEntry(_name);

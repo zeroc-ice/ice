@@ -163,19 +163,20 @@ namespace FilesystemI
                 {
                     throw new ObjectNotExistException();
                 }
-                if(_contents.Count != 0)
+
+                lock(_lcMutex)
                 {
-                    throw new PermissionDenied("Cannot destroy non-empty directory");
+                    reap();
+
+                    if(_contents.Count != 0)
+                    {
+                        throw new PermissionDenied("Cannot destroy non-empty directory");
+                    }
+
+                    c.adapter.remove(id());
+                    _parent.addReapEntry(_name);
+                    _destroyed = true;
                 }
-                _destroyed = true;
-            }
-
-            lock(_lcMutex)
-            {
-                reap();
-
-                c.adapter.remove(id());
-                _parent.addReapEntry(_name);
             }
         }
 
@@ -249,7 +250,7 @@ namespace FilesystemI
             _reapMap.Clear();
         }
 
-        public System.Object _lcMutex;
+        public static System.Object _lcMutex = new System.Object();
 
         private string _name; // Immutable
         private DirectoryI _parent; // Immutable

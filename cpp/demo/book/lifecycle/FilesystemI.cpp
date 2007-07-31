@@ -15,6 +15,7 @@ using namespace Ice;
 using namespace Filesystem;
 using namespace FilesystemI;
 
+IceUtil::StaticMutex FilesystemI::DirectoryI::_lcMutex = ICE_STATIC_MUTEX_INITIALIZER;
 FilesystemI::DirectoryI::ReapMap FilesystemI::DirectoryI::_reapMap;
 
 // Slice Node::name() operation.
@@ -90,7 +91,7 @@ FilesystemI::FileI::destroy(const Current& c)
         _destroyed = true;
     }
 
-    IceUtil::Mutex::Lock lock(_parent->_lcMutex);
+    IceUtil::StaticMutex::Lock lock(DirectoryI::_lcMutex);
 
     c.adapter->remove(id());
     _parent->addReapEntry(_name);
@@ -120,7 +121,7 @@ FilesystemI::DirectoryI::list(const Current& c)
         }
     }
 
-    IceUtil::Mutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lock(_lcMutex);
 
     reap();
 
@@ -150,7 +151,7 @@ FilesystemI::DirectoryI::find(const string& name, const Current& c)
         }
     }
 
-    IceUtil::Mutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lock(_lcMutex);
 
     reap();
 
@@ -182,7 +183,7 @@ FilesystemI::DirectoryI::createFile(const string& name, const Current& c)
         }
     }
 
-    IceUtil::Mutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lock(_lcMutex);
 
     reap();
 
@@ -209,7 +210,7 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
         }
     }
 
-    IceUtil::Mutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lock(_lcMutex);
 
     reap();
 
@@ -227,31 +228,31 @@ FilesystemI::DirectoryI::createDirectory(const string& name, const Current& c)
 void
 FilesystemI::DirectoryI::destroy(const Current& c)
 {
+
     if(!_parent)
     {
         throw PermissionDenied("Cannot destroy root directory");
     }
 
-    {
-        IceUtil::Mutex::Lock lock(_m);
+    IceUtil::Mutex::Lock lock(_m);
 
-        if(_destroyed)
-        {
-            throw ObjectNotExistException(__FILE__, __LINE__);
-        }
-        if(!_contents.empty())
-        {
-            throw PermissionDenied("Cannot destroy non-empty directory");
-        }
-        _destroyed = true;
+    if(_destroyed)
+    {
+        throw ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    IceUtil::Mutex::Lock lock(_lcMutex);
+    IceUtil::StaticMutex::Lock lcLock(_lcMutex);
 
     reap();
 
+    if(!_contents.empty())
+    {
+        throw PermissionDenied("Cannot destroy non-empty directory");
+    }
+
     c.adapter->remove(id());
     _parent->addReapEntry(_name);
+    _destroyed = true;
 }
 
 // DirectoryI constructor.
@@ -278,6 +279,7 @@ FilesystemI::DirectoryI::addChild(const string& name, const NodeIPtr& node)
 {
     _contents[name] = node;
 }
+
 
 // Add this directory and the name of a deleted entry to the reap map.
 
