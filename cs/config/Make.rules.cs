@@ -81,6 +81,12 @@ $(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME locatio
     endif
 endif
 
+ifeq ($(LP64),yes)
+    export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
+else
+    export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
+endif
+
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 
