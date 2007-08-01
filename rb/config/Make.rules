@@ -65,21 +65,6 @@ endif
 RUBY_FLAGS		= -I$(RUBY_INCLUDE_DIR)
 RUBY_LIBS		= -L$(RUBY_LIB_DIR) $(RUBY_LIB)
 
-ifneq ($(ICE_HOME),)
-    ifeq ($(LP64),yes)
-       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib
-    else 
-       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib
-    endif
-endif
-
-ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
-
-ifneq ($(ICE_HOME),)
-    ICE_FLAGS		= -I$(ICE_HOME)/include
-endif
-
-
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
@@ -118,6 +103,20 @@ else
     configdir		= $(ICE_HOME)/config
 endif
 include	 $(configdir)/Make.rules.$(UNAME)
+
+ifneq ($(ICE_HOME),)
+    ifeq ($(LP64),yes)
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib64 -L$(ICE_HOME)/lib
+    else 
+       ICE_LIB_DIRS	= -L$(ICE_HOME)/lib
+    endif
+endif
+
+ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
+
+ifneq ($(ICE_HOME),)
+    ICE_FLAGS		= -I$(ICE_HOME)/include
+endif
 
 install_libdir	        = $(prefix)/ruby
 
