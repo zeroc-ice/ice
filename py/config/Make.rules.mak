@@ -76,6 +76,11 @@ install_pythondir	= $(prefix)\python
 
 THIRDPARTY_HOME		= $(STLPORT_HOME)
 
+!if "$(CPP_COMPILER)" != "VC60" && "$(CPP_COMPILER)" != "VC71" && \
+    "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
+!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
+!endif
+
 !if exist ($(top_srcdir)\config\Make.rules.msvc)
 !include $(top_srcdir)\config\Make.rules.msvc
 !else
