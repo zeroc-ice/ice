@@ -50,6 +50,8 @@ else
 endif
 
 SHELL			= /bin/sh
+VERSION_MAJOR		= 3
+VERSION_MINOR		= 2
 VERSION			= 3.2.0
 
 #
