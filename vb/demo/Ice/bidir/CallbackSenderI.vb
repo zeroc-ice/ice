@@ -42,7 +42,7 @@ Class CallbackSenderI
         While True
             Dim clients As ArrayList
             SyncLock Me
-                System.Threading.Monitor.Wait(Me, 2)
+                System.Threading.Monitor.Wait(Me, 2000)
                 If _destroy Then
                     Exit While
                 End If
