@@ -105,7 +105,7 @@ command
 }
 | TOK_CD strings
 {
-    parser->error($2.front());
+    parser->cd($2.front());
 }
 | TOK_CAT TOK_STRING
 {
