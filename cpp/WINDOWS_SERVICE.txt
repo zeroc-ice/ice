@@ -65,8 +65,7 @@ Follow these steps to install a Glacier2 router as a service:
 
 1. In a command window, execute the following line:
 
-   > glacier2router --install Glacier2Router \
-     --Ice.Config=<ice-home>\config\glacier2router.cfg
+   > glacier2router --install Glacier2Router --Ice.Config=<ice-home>\config\glacier2router.cfg
 
    Installing the service on Windows Vista with UAC enabled requires
    administrator privileges. In this case, run the command shell as
@@ -114,11 +113,9 @@ services:
 
 1. In a command window, execute the following lines:
 
-   > icegridnode --install IceGridNode \
-     --Ice.Config=<ice-home>\config\icegridnode.cfg
+   > icegridnode --install IceGridNode --Ice.Config=<ice-home>\config\icegridnode.cfg
 
-   > icegridregistry --install IceGridRegistry \
-     --Ice.Config=<ice-home>\config\icegridregistry.cfg
+   > icegridregistry --install IceGridRegistry --Ice.Config=<ice-home>\config\icegridregistry.cfg
 
    Installing a service on Windows Vista with UAC enabled requires
    administrator privileges. In this case, run the command shell as

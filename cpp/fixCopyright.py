@@ -215,7 +215,7 @@ for x in sys.argv[1:]:
         sys.exit(0)
     elif x == "-e":
         patchIceE = True
-        path = "../icee"
+        path = "../cppe"
     elif x.startswith("-"):
         print sys.argv[0] + ": unknown option `" + x + "'"
         print
