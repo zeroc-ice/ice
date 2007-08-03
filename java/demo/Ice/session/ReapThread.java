@@ -21,7 +21,7 @@ class ReapThread extends Thread
 
         Demo.SessionPrx proxy;
         SessionI session;
-    };
+    }
 
     synchronized public void
     run()
@@ -30,7 +30,7 @@ class ReapThread extends Thread
         {
             try
             {
-                wait(_timeout);
+                wait(1000);
             }
             catch(InterruptedException e)
             {

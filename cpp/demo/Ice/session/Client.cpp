@@ -11,6 +11,12 @@
 #include <Ice/Ice.h>
 #include <Session.h>
 
+#ifdef _WIN32
+const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
+#else
+#   include <csignal>
+#endif
+
 using namespace std;
 using namespace Demo;
 
@@ -192,12 +198,6 @@ SessionClient::run(int argc, char* argv[])
             }
         }
 
-        //
-        // The refresher thread must be terminated before destroy is
-        // called, otherwise it might get ObjectNotExistException. refresh
-        // is set to 0 so that if session->destroy() raises an exception
-        // the thread will not be re-terminated and re-joined.
-        //
         cleanup(destroy);
         if(shutdown)
         {
@@ -220,8 +220,18 @@ SessionClient::run(int argc, char* argv[])
 }
 
 void
-SessionClient::interruptCallback(int)
+SessionClient::interruptCallback(int sig)
 {
+    //
+    // Workaround for older Linux platforms where SIGHUP is received
+    // when the process has a controlling terminal (such as under
+    // expect).
+    //
+    if(sig == SIGHUP)
+    {
+        return;
+    }
+
     //
     // Terminate the refresh thread, destroy the session and then
     // destroy the communicator, followed by an exit. We have to call
@@ -249,6 +259,13 @@ void
 SessionClient::cleanup(bool destroy)
 {
     IceUtil::Mutex::Lock sync(_mutex);
+
+    //
+    // The refresher thread must be terminated before destroy is
+    // called, otherwise it might get ObjectNotExistException. refresh
+    // is set to 0 so that if session->destroy() raises an exception
+    // the thread will not be re-terminated and re-joined.
+    //
     if(_refresh)
     {
         _refresh->terminate();
@@ -259,8 +276,8 @@ SessionClient::cleanup(bool destroy)
     if(destroy && _session)
     {
         _session->destroy();
-        _session = 0;
     }
+    _session = 0;
 }
 
 void
