@@ -52,7 +52,7 @@ command-line option shown below:
 
   java -Djava.security.egd=file:/dev/urandom MyClass ...
 
-On SuSE Linux Enterprise Server, you may experience occasional hangs 
+On systems with IPv6 enabled, you may experience occasional hangs 
 the first time an Ice object adapter is activated within a JVM. A 
 work-around is to disable IPv6 support by setting the Java property 
 java.net.preferIPv4Stack to true. For example:
@@ -82,13 +82,20 @@ Berkeley DB
 Freeze for Java uses Berkeley DB as its underlying database. It
 requires Berkeley DB 4.5.20.
 
-Even though Berkeley DB is included with many Linux distributions, the
-Java files for Berkeley DB are usually not available, which requires
-you to build Berkeley DB yourself.
+ZeroC provides Berkeley DB binary distributions (with Java support)
+for many platforms: 
 
-You can download the Berkeley DB source distribution from:
+  http://www.zeroc.com/download.html
+
+Alternatively, you can build Berkeley DB yourself; the Berkeley DB 
+source distribution is available at
 
   http://www.oracle.com/database/berkeley-db/index.html
+
+This source distribution, plus a number of patches, is also available
+at
+
+  http://www.zeroc.com/download.html#src_third_party
 
 When you build Berkeley DB, make sure to configure Berkeley DB with
 Java support. For Linux, this is done by specifying the --enable-java
@@ -101,9 +108,6 @@ this can be achieved by adding <Berkeley DB home>/lib to your
 LD_LIBRARY_PATH, for example:
 
 $ export LD_LIBRARY_PATH=/opt/db45/lib:$LD_LIBRARY_PATH
-
-Note that the Ice for Java distribution is compiled against Berkeley
-DB 4.5.20.
 
 
 bzip2
@@ -154,7 +158,7 @@ Python
 To run the automated test suite, you will need Python 2.2 or later. 
 If you have no interest in running the test scripts, Python is not 
 required. Linux distributions usually include Python. For Windows 
-2000/XP, you can download a Python distribution from:
+XP/Vista, you can download a Python distribution from:
 
   http://www.python.org/download
 

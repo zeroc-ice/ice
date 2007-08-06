@@ -50,6 +50,8 @@ else
 endif
 
 SHELL			= /bin/sh
+VERSION_MAJOR		= 3
+VERSION_MINOR		= 2
 VERSION			= 3.2.0
 
 #
@@ -77,6 +79,12 @@ else
     ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
 $(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
     endif
+endif
+
+ifeq ($(LP64),yes)
+    export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
+else
+    export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
 endif
 
 bindir			= $(top_srcdir)/bin

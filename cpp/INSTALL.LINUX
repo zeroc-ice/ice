@@ -10,10 +10,12 @@ Ice is expected to build and run properly on any recent Linux
 distribution for x86 and x86_64. However, Ice is officially supported
 only on:
 
- - Red Hat Enterprise Linux Advanced Server 4 Update 4 for x86 or
+ - Red Hat Enterprise Linux Advanced Server 4 Update 4 for i386 or
    x86_64 (RHEL 4.4)
 
- - Novell SuSE Linux Enterprise Server 10 for x86 or x86_64 (SLES 10)
+ - Red Hat Enterprise Linux 5 for i386 or x86_64 (RHEL 5)
+
+ - Novell SuSE Linux Enterprise Server 10 for i586 or x86_64 (SLES 10)
 
 
 C++ compiler
@@ -23,6 +25,7 @@ Ice is expected to build properly with GCC 3.3 or later. However, only
 the following compilers are officially supported:
 
  - GCC 3.4.6 on RHEL 4.4
+ - GCC 4.1.1 on RHEL 5
  - GCC 4.1.x on SLES 10
 
 
@@ -31,7 +34,7 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.3.29 or 4.5.20 configured with --enable-cxx.
+- Berkeley DB 4.5.20 configured with --enable-cxx.
 
   If you intend to use Ice for Java with Berkeley DB, you must also
   include the option --enable-java.
@@ -51,7 +54,8 @@ expat          http://sourceforge.net/projects/expat/
 OpenSSL        http://www.openssl.org
 bzip2          http://sources.redhat.com/bzip2
 
-RHEL 4.4 RPMs for Berkeley DB 4.5.20 are available from:
+RPMs for Berkeley DB 4.5.20 on RHEL 4.4, RHEL 5 and SLES 10 are 
+available from:
 
 http://www.zeroc.com/download.html 
 

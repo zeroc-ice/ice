@@ -92,6 +92,10 @@ OBJEXT			= .obj
 #
 # Verify valid embedded settings
 #
+!if "$(CPP_COMPILER)" != "VC80" && "$(CPP_COMPILER)" != "VC80_EXPRESS"
+!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
+!endif
+
 !if "$(EMBEDDED_DEVICE)" != ""
 !if "$(EMBEDDED_DEVICE)" != "PocketPC" && "$(EMBEDDED_DEVICE)" != "Smartphone"
 !error Invalid setting for EMBEDDED_DEVICE: "$(EMBEDDED_DEVICE)"

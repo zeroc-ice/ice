@@ -60,6 +60,10 @@ install_rubydir		= $(prefix)\ruby
 
 THIRDPARTY_HOME         = $(STLPORT_HOME)
 
+!if "$(CPP_COMPILER)" != "VC60"
+!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
+!endif
+
 !if exist ($(top_srcdir)\config\Make.rules.msvc)
 !include $(top_srcdir)\config\Make.rules.msvc
 !else

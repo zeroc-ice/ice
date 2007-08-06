@@ -25,7 +25,7 @@ ReapThread::run()
 
     while(!_terminated)
     {
-        timedWait(_timeout);
+        timedWait(IceUtil::Time::seconds(1));
 
         if(!_terminated)
         {

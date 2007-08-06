@@ -60,7 +60,7 @@ public class Client : Ice.Application
         private SessionPrx _session;
         private int _timeout;
         private bool _terminated;
-    };
+    }
 
     public override int run(string[] args)
     {

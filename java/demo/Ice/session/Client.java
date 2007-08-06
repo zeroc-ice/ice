@@ -16,7 +16,6 @@ public class Client extends Ice.Application
         public void
         run()
         {
-            System.out.println("Hi");
             cleanup(true);
             try
             {
@@ -170,7 +169,7 @@ public class Client extends Ice.Application
                     }
                     else
                     {
-                        System.out.println("index is too high. " + hellos.size() + " exist so far. " +
+                        System.out.println("Index is too high. " + hellos.size() + " exist so far. " +
                                            "Use 'c' to create a new hello object.");
                     }
                 }
@@ -249,8 +248,8 @@ public class Client extends Ice.Application
         if(destroy && _session != null)
         {
             _session.destroy();
-            _session = null;
         }
+        _session = null;
     }
 
     public static void

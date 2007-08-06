@@ -104,8 +104,11 @@ SETARGV			= setargv.obj
 
 !if "$(CPP_COMPILER)" == "BCC2006"
 !include 	$(top_srcdir)/config/Make.rules.bcc
-!else
-!include 	$(top_srcdir)/config/Make.rules.msvc
+!elseif "$(CPP_COMPILER)" == "VC60" || "$(CPP_COMPILER)" == "VC71" || \
+        "$(CPP_COMPILER)" == "VC80" || "$(CPP_COMPILER)" == "VC80_EXPRESS"
+!include        $(top_srcdir)/config/Make.rules.msvc
+! else
+!error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
 install_libdir	  = $(prefix)\lib
