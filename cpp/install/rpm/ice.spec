@@ -183,6 +183,7 @@ done
 #
 # RPM-support files
 #
+cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT/SOURCES
@@ -263,24 +264,25 @@ mkdir -p $RPM_BUILD_ROOT/usr
 mv $RPM_BUILD_ROOT/include ${RPM_BUILD_ROOT}%{_includedir}
 
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/python
+mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
 
 mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
 mv $RPM_BUILD_ROOT/help ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/README
-mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/ICE_LICENSE
-mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/LICENSE
-mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/THIRD_PARTY_LICENSE
-mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/SOURCES
+mv $RPM_BUILD_ROOT/RELEASE_NOTES.txt ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
-mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/ant
-mv $RPM_BUILD_ROOT/usr/lib/IceGridGUI.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/IceGridGUI.jar
+mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
+mv $RPM_BUILD_ROOT/usr/lib/IceGridGUI.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 %endif
 
 %if %{ruby_included}
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/ruby ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/ruby
+mv $RPM_BUILD_ROOT/ruby ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}
 %endif
 
 %ifarch noarch
