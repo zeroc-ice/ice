@@ -7,7 +7,7 @@
 %define core_arches %{ix86} x86_64
 Summary: The Ice base runtime and services
 Name: ice
-Version: 3.2.0
+Version: 3.2.1
 Release: 1%{?dist}
 License: GPL
 Group:System Environment/Libraries
