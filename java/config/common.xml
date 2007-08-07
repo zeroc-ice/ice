@@ -98,7 +98,7 @@
 
     <condition property="ice.dir" value="/usr">
 	<and>
-	    <available file="/usr/share/Ice-${ice.version}/slice"/>
+	    <available file="/usr/share/Ice-${ice.version.patch}/slice"/>
             <not>
                 <isset property="ice.dir"/>
             </not>
@@ -150,7 +150,7 @@
     <!-- RPM -->
     <condition property="icej.dir" value="/usr">
 	<and>
-	    <available file="/usr/lib/Ice-${ice.version}/Ice.jar"/>
+	    <available file="/usr/lib/Ice-${ice.version.patch}/Ice.jar"/>
 	    <not>
 		<isset property="icej.dir"/>
 	    </not>
@@ -201,12 +201,12 @@
 	<!-- In C++, RPM installs have precedence over installs in the default Ice location 
 	     (i.e. /opt/Ice-${ice.version}) so the same will be done here. -->
 	<condition property="lib.dir" 
-	    value="/usr/lib/Ice-${ice.version}"
+	    value="/usr/lib/Ice-${ice.version.patch}"
 	    else="${icej.dir}/lib">
 	    <isset property="with-rpm"/>
 	</condition>
 
-	<condition property="slice.dir" value="/usr/share/Ice-${ice.version}/slice" else="${ice.dir}/slice">
+	<condition property="slice.dir" value="/usr/share/Ice-${ice.version.patch}/slice" else="${ice.dir}/slice">
 	    <isset property="with-rpm"/>
 	</condition>
 

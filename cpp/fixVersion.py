@@ -261,7 +261,9 @@ if not patchIceE:
     icej_home = findSourceTree("icej", os.path.join("src", "IceUtil", "Version.java"))
     if icej_home:
         fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
-                            [("ice\.version[\t\s]*= " + vpatMatch, version)])
+                            [("ice\.version[\t\s]*= " + vpatMatch, \
+                              majorVersion(version) + "." + minorVersion(version)), \
+                             ("ice\.version\.patch[\t\s]*= " + vpatMatch, version)])
          
         fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
                             [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
