@@ -65,6 +65,13 @@ the kernel or Mono.
 Running the tests
 -----------------
 
+Some of the Ice for C# tests employ applications that are part of the
+Ice for C++ distribution. You need to set the ICE_HOME environment
+variable to the path where these applications are installed for these
+tests to run properly:
+
+$ export ICE_HOME=/opt/Ice-@ver@
+
 You must add IceCS-@ver@/bin to your MONO_PATH. (Don't forget to export
 MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
 directory) in the Global Assembly Cache (GAC), using gacutil -i
@@ -120,12 +127,16 @@ Finally, you could also copy the necessary libraries into the
 directory that contains the .exe for your application.
 
 
-Known Issues
-------------
+Binary compatibility
+--------------------
 
-- Binary compatibility: Mono currently has issues with forwarding
-  requests to load a particular version of the runtime to a different
-  version. Until this is resolved in Mono, you cannot run applications
-  compiled with previous minor versions of Ice against a newer version
-  of the assemblies. For example, an application compiled with version
-  x.y.0 of Ice cannot run with the x.y.1 Ice assemblies.
+Patch releases of Ice are binary compatible. For example, version
+<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
+compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
+recompile.
+
+A patch release includes policy assemblies in IceCS-@ver@/bin that
+supply the Mono run time with the required compatibility information.
+To upgrade an existing application to a new patch release, the policy
+assemblies must be present in your MONO_PATH, or they must be
+installed into the GAC as described in the previous section.

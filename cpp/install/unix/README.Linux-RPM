@@ -22,9 +22,8 @@ About this distribution
 ======================================================================
 
 This distribution is an RPM release of the Ice @ver@ run time for
-Linux and includes executables for the Ice services, HTML
-documentation, Slice files, the C++ runtime libraries and sample
-/etc/init.d scripts.
+Linux and includes executables for the Ice services, Slice files, the 
+C++ runtime libraries and sample /etc/init.d scripts.
 
 Additional Ice components are provided in separate RPM packages:
 
@@ -272,7 +271,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos and documentation
+Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -282,9 +281,6 @@ which can be downloaded from the ZeroC web site at
 
 Please refer to the README.DEMOS file included in that package for
 more information.
-
-See doc/README.html for information on the documentation included with
-this distribution.
 
 
 ======================================================================
@@ -300,10 +296,3 @@ With the binary installers, simply uninstall the previous version of
 Ice and install the new one. Already deployed applications that were
 compiled against the <x>.<y>.0 runtime will automatically use the
 <x>.<y>.1 runtime.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you
-      cannot run applications compiled with previous minor versions of
-      Ice against a newer version of the Ice assemblies. For example,
-      an application compiled with version <x>.<y>.0 of Ice cannot run
-      with the <x>.<y>.1 Ice assemblies.
