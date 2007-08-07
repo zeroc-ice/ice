@@ -363,7 +363,7 @@ ifeq ($(ICE_HOME),)
             ICE_DIR = $(NEXTDIR)
         endif
     else
-        NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR))
+        NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
         ifeq ($(shell test -f $(NEXTDIR)/bin/icestormadmin && echo 0),0)
            $(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
         endif
