@@ -24,8 +24,8 @@ About this distribution
 This distribution is a binary release of Ice @ver@ for Linux and
 includes the following components:
 
-- The Ice runtime, including executables for the Ice services, HTML
-  documentation, and Slice files.
+- The Ice runtime, including executables for the Ice services and 
+  Slice files.
 
 - Run time libraries for C++, Java, Python, C# (Mono) and PHP. These
   libraries enable you to execute Ice applications.
@@ -280,7 +280,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos and documentation
+Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -290,9 +290,6 @@ which can be downloaded from the ZeroC web site at
 
 Please refer to the README.DEMOS file included in that package for
 more information.
-
-See doc/index.html for information on the documentation included with
-this distribution.
 
 
 ======================================================================

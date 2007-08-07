@@ -22,9 +22,8 @@ About this distribution
 ======================================================================
 
 This distribution is an RPM release of the Ice @ver@ run time for
-Linux and includes executables for the Ice services, HTML
-documentation, Slice files, the C++ runtime libraries and sample
-/etc/init.d scripts.
+Linux and includes executables for the Ice services, Slice files, the 
+C++ runtime libraries and sample /etc/init.d scripts.
 
 Additional Ice components are provided in separate RPM packages:
 
@@ -272,7 +271,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos and documentation
+Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -282,9 +281,6 @@ which can be downloaded from the ZeroC web site at
 
 Please refer to the README.DEMOS file included in that package for
 more information.
-
-See doc/README.html for information on the documentation included with
-this distribution.
 
 
 ======================================================================
