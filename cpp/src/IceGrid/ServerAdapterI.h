@@ -48,6 +48,7 @@ private:
 
     Ice::ObjectPrx _proxy;
     std::vector<AMD_Adapter_activatePtr> _activateCB;
+    bool _activateAfterDeactivating;
 };
 typedef IceUtil::Handle<ServerAdapterI> ServerAdapterIPtr;
 

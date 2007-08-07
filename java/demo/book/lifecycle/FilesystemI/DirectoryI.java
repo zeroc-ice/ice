@@ -240,7 +240,8 @@ public class DirectoryI extends _DirectoryDisp implements NodeI, _DirectoryOpera
 
     // Remove all names in the reap map from the corresponding directory contents.
 
-    private static void reap()
+    private static void
+    reap()
     {
         java.util.Iterator i = _reapMap.entrySet().iterator();
         while(i.hasNext())

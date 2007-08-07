@@ -109,7 +109,7 @@ class ReapThread(threading.Thread):
         self._cond.acquire()
         try:
             while not self._terminated:
-                self._cond.wait(self._timeout)
+                self._cond.wait(1)
                 if not self._terminated:
                     for p in self._sessions:
                         try:

@@ -50,7 +50,7 @@ public class FileI extends _FileDisp implements NodeI, _FileOperations
             throw new ObjectNotExistException();
         }
 
-        _lines = text.clone();
+        _lines = (String[])text.clone();
     }
 
     public void

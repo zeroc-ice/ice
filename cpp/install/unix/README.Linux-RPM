@@ -95,7 +95,7 @@ command-line option shown below:
 
 $ java -Djava.security.egd=file:/dev/urandom MyClass ...
 
-On SuSE Linux Enterprise Server, you may experience occasional hangs 
+On Linux systems with IPv6 enabled, you may experience occasional hangs 
 the first time an Ice object adapter is activated within a JVM. A 
 work-around is to disable IPv6 support by setting the Java property 
 java.net.preferIPv4Stack to true. For example:

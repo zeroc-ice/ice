@@ -1,4 +1,4 @@
-%if "%{_target_cpu}" != "noarch" && "%{dist}" == ".rhel4"
+%if "%{_target_cpu}" != "noarch" && "%{dist}" != ".sles10"
 %define ruby_included 1
 %else
 %define ruby_included 0
@@ -58,6 +58,14 @@ BuildRequires: ruby >= 1.8.1
 BuildRequires: ruby-devel >= 1.8.1
 BuildRequires: php >= 5.1.4
 BuildRequires: php-devel >= 5.1.4
+%endif
+%if "%{dist}" == ".rhel5"
+BuildRequires: bzip2-devel >= 1.0.3
+BuildRequires: expat-devel >= 1.95.8
+BuildRequires: ruby >= 1.8.5
+BuildRequires: ruby-devel >= 1.8.5
+BuildRequires: php >= 5.1.6
+BuildRequires: php-devel >= 5.1.6
 %endif
 %if "%{dist}" == ".sles10"
 BuildRequires: php5 >= 5.1.2
@@ -183,6 +191,7 @@ done
 #
 # RPM-support files
 #
+cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT/SOURCES
@@ -241,7 +250,7 @@ fi
 # Move ice.ini and IcePHP.so to distribution-dependent directories
 #
 
-%if "%{dist}" == ".rhel4"
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
 mkdir -p $RPM_BUILD_ROOT/etc/php.d
 mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php.d
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php/modules
@@ -267,11 +276,12 @@ mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/python
 
 mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
 mv $RPM_BUILD_ROOT/help ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/README
-mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/ICE_LICENSE
-mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/LICENSE
-mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/THIRD_PARTY_LICENSE
-mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/SOURCES
+mv $RPM_BUILD_ROOT/RELEASE_NOTES.txt ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/ant
@@ -320,6 +330,12 @@ mv $RPM_BUILD_ROOT/bin $RPM_BUILD_ROOT/usr/bin
 rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
+* Fri Jul 27 2007 Bernard Normier
+- Updated for Ice 3.2.1 release
+
+* Wed Jun 13 2007 Bernard Normier
+- Added patch with new IceGrid.Node.AllowRunningServersAsRoot property.
+
 * Fri Dec 6 2006 ZeroC Staff
 - See source distributions or the ZeroC website for more information
   about the changes in this release
@@ -472,6 +488,9 @@ Group: System Environment/Libraries
 %if "%{dist}" == ".rhel4"
 Requires: ice = %{version}, php >= 5.1.4
 %endif
+%if "%{dist}" == ".rhel5"
+Requires: ice = %{version}, php >= 5.1.6
+%endif
 %if "%{dist}" == ".sles10"
 Requires: ice-%{_target_cpu}, php5 >= 5.1.2
 %endif
@@ -581,6 +600,14 @@ firewall solution, and much more.
 %attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.py
 %attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.py
 %attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.py
+%if "%{dist}" == ".rhel5"
+%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.pyc
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.pyc
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyc
+%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.pyo
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.pyo
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyo
+%endif
 %{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
 %attr(755, root, root) /etc/init.d/icegridregistry
 %attr(755, root, root) /etc/init.d/icegridnode
@@ -737,7 +764,7 @@ pklibdir="lib64"
 %files php
 %defattr(644, root, root, 755)
 
-%if "%{dist}" == ".rhel4"
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
 %attr(755, root, root) %{_libdir}/php/modules
 /etc/php.d/ice.ini
 %endif
