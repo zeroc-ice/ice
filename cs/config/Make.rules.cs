@@ -50,8 +50,6 @@ else
 endif
 
 SHELL			= /bin/sh
-VERSION_MAJOR		= 3
-VERSION_MINOR		= 2
 VERSION			= 3.2.0
 
 #
@@ -62,14 +60,14 @@ VERSION			= 3.2.0
 ifeq ($(ICE_HOME),)
     ICE_DIR = /usr
     ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-	NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+	NEXTDIR = /opt/Ice-$(VERSION)
 	ifneq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
 $(error Unable to locate Ice distribution, please set ICE_HOME!)
 	else
 	    ICE_DIR = $(NEXTDIR)
 	endif
     else
-	NEXTDIR = /opt/IceCS-$(VERSION_MAJOR).$(VERSION_MINOR)
+	NEXTDIR = /opt/IceCS-$(VERSION)
 	ifeq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
 $(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
 	endif
