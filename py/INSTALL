@@ -140,17 +140,18 @@ Windows:
 Running the Tests
 =========================================================================
 
-The test subdirectory contains Python implementations of the core Ice
-test suite.
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
 
-To run all of the tests, do the following:
-
-$ python allTests.py
+  > python allTests.py
 
 You can also run tests individually by changing to the test directory
 and running this command:
 
-$ python run.py
+  > python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
 
 =========================================================================

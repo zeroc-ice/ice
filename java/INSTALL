@@ -167,10 +167,30 @@ XP/Vista, you can download a Python distribution from:
 Tests and Demos
 ======================================================================
 
-You can run the Ice for Java test suite, provided that you have
-installed Python:
+Some of the Ice for Java tests employ applications that are part of the
+Ice for C++ distribution. You need to set the ICE_HOME environment
+variable to the path where these applications are installed for these
+tests to run properly:
 
-python allTests.py
+  # On Unix.
+  $ export ICE_HOME=/opt/Ice-@ver@
+
+  # On Windows
+  > set ICE_HOME=c:\Ice-@ver@
+
+Python is required to run the test suite:
+
+  http://www.python.org/download
+
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
+
+  > python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+  > python run.py
 
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
@@ -181,12 +201,12 @@ directory and follow the instructions in the README file. If no README
 file is present, the demo can be run by entering the following command
 to start the server:
 
-$ java Server
+  $ java Server
 
 Then in a separate window enter the following command to start the
 client:
 
-$ java Client
+  $ java Client
 
 
 ======================================================================

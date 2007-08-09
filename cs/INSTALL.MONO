@@ -79,15 +79,22 @@ directory) in the Global Assembly Cache (GAC), using gacutil -i
 
 $ gacutil -i icecs.dll
 
-To run the tests, you will need Python:
+Python is required to run the test suite:
 
   http://www.python.org/download
 
-Run "python allTests.py" from the top-level directory to run all of the
-tests, or "python allTests.py -l" to run the tests in an endless loop.
+To run the tests, open a command window and change to the top-level
+directory. At the command prompt, execute:
 
-You can also run individual tests in the various test directories with
-"python run.py".
+  > python allTests.py
+
+You can also run tests individually by changing to the test directory
+and running this command:
+
+  > python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
 
 Running the demos
