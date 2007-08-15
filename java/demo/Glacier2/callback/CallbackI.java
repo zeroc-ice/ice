@@ -14,7 +14,7 @@ public final class CallbackI extends _CallbackDisp
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
-        System.out.println("initiating callback");
+        System.out.println("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy));
         try
         {
             proxy.callback(current.ctx);

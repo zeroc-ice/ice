@@ -14,7 +14,7 @@ public sealed class CallbackI : CallbackDisp_
 {
     public override void initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
-        Console.WriteLine("initiating callback");
+        Console.WriteLine("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy));
         try
         {
             proxy.callback(current.ctx);

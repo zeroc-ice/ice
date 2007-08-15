@@ -130,7 +130,7 @@ public class Client extends Ice.Application
         readline(in);
 
         Printer derivedAsBase = initial.getDerivedPrinter();
-        System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
+        System.out.println("==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
         assert(derivedAsBase.ice_id().equals("::Demo::Printer"));
 
         System.out.println();
@@ -146,7 +146,7 @@ public class Client extends Ice.Application
         DerivedPrinter derived = (Demo.DerivedPrinter)derivedAsBase;
 
         System.out.println("==> class cast to derived object succeded");
-        System.out.println("The type ID of the received object is \"" + derived.ice_id() + "\"");
+        System.out.println("==> The type ID of the received object is \"" + derived.ice_id() + "\"");
 
         System.out.println();
         System.out.println("Let's print the message contained in the derived object, and");

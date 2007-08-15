@@ -802,7 +802,7 @@ TestApp::run(int argc, char* argv[])
     IntIntMapReadTest<IntIntMap>("IntIntMap");
 #endif
 
-    cout <<"IntIntMap with index(read test)" << endl;
+    cout <<"IntIntMap with index (read test)" << endl;
 #if defined(_MSC_VER) && (_MSC_VER < 1310)  
     {
         IndexedIntIntMap* dummy = 0;

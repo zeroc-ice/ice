@@ -43,7 +43,7 @@ public class Client extends Ice.Application
         {
             if(ex instanceof Demo.RequestCanceledException)
             {
-                System.out.println("Request canceled");
+                System.out.println("Demo.RequestCanceledException");
             }
             else
             {

@@ -22,7 +22,7 @@ public class Client : Ice.Application
         {
             if(ex is RequestCanceledException)
             {
-                Console.Error.WriteLine("Request canceled");
+                Console.Error.WriteLine("RequestCanceledException");
             }
             else
             {

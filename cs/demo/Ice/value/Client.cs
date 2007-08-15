@@ -92,7 +92,7 @@ public class Client : Ice.Application
         Console.In.ReadLine();
         
         Printer derivedAsBase = initial.getDerivedPrinter();
-        Console.Out.WriteLine("The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
+        Console.Out.WriteLine("==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\"");
         Debug.Assert(derivedAsBase.ice_id().Equals("::Demo::Printer"));
         
         Console.Out.WriteLine();
@@ -108,7 +108,7 @@ public class Client : Ice.Application
         DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
         
         Console.Out.WriteLine("==> class cast to derived object succeded");
-        Console.Out.WriteLine("The type ID of the received object is \"" + derived.ice_id() + "\"");
+        Console.Out.WriteLine("==> The type ID of the received object is \"" + derived.ice_id() + "\"");
         
         Console.Out.WriteLine();
         Console.Out.WriteLine("Let's print the message contained in the derived object, and");

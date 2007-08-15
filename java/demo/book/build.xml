@@ -15,6 +15,7 @@
         <ant dir="printer"/>
         <ant dir="simple_filesystem"/>
         <ant dir="freeze_filesystem"/>
+        <ant dir="lifecycle"/>
     </target>
 
     <target name="clean">
@@ -22,6 +23,7 @@
         <ant dir="simple_filesystem" target="clean"/>
         <ant dir="lifecycle" target="clean"/>
         <ant dir="freeze_filesystem" target="clean"/>
+        <ant dir="lifecycle" target="clean"/>
     </target>
 
 </project>
