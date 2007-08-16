@@ -43,7 +43,7 @@ PYTHON_HOME		= C:\Python25
 # STLPort is required if using MSVC++ 6.0. Change if STLPort
 # is located in a different location.
 #
-!if "$(CPP_COMPILER)" == "VC60"
+!if "$(CPP_COMPILER)" == "VC60" && "$(STLPORT_HOME)" == ""
 STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 !endif
 

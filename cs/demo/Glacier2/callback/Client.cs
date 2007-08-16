@@ -205,6 +205,17 @@ public class Client : Ice.Application
         }
         while(!line.Equals("x"));
 
+        try
+        {
+            router.destroySession();
+        }
+        catch(Ice.ConnectionLostException)
+        {
+            //
+            // Expected: the router closed the connection.
+            //
+        }
+
         return 0;
     }
 

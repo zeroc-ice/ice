@@ -133,6 +133,12 @@ class Client(Ice.Application):
             except EOFError:
                 break
 
+        try:
+            router.destroySession()
+        except Ice.ConnectionLostException:
+            # Expected: the router closed the connection.
+            pass
+
         return 0
 
 app = Client()
