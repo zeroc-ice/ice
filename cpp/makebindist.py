@@ -700,14 +700,19 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
             logging.info('PYTHON_HOME is not set, figuring it out and trying that')
             pyHome = sys.exec_prefix
             os.environ['PYTHON_HOME'] = pyHome
-            
+
+    if getPlatform() == 'macosx':
+        make = "make"
+    else:
+        make = "gmake"
+        
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
     try:
-        runprog('gmake NOGAC=yes OPTIMIZE=yes prefix=%s embedded_runpath_prefix=/opt/Ice-%s install' % (installDir, mmVersion))
+        runprog(make + ' NOGAC=yes OPTIMIZE=yes prefix=%s embedded_runpath_prefix=/opt/Ice-%s install' % (installDir, mmVersion))
     except ExtProgramError:
-        print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version, mmVersion) 
+        print make + " failed for makeInstall(%s, %s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version, mmVersion) 
         raise
 
     runprog('rm -rf /opt/Ice-%s' % (mmVersion), False)
