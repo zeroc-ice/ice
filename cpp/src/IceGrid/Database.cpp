@@ -183,7 +183,7 @@ Database::unlock(AdminSessionI* session)
 void
 Database::syncApplications(const ApplicationInfoSeq& applications)
 {
-    int serial;
+    int serial = 0; // Initialize to prevent warning.
     {
         Lock sync(*this);
     

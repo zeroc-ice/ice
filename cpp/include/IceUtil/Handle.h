@@ -98,10 +98,10 @@ inline bool operator==(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
     {
         return *l == *r;
     }
-    else
-    {
-        return !l && !r;
-    }   
+
+    // Note: don't use if { } else { }. This causes lots warnings when
+    // compiling with GCC and optimization enabled. See bug 2330.
+    return !l && !r;
 }
 
 template<typename T, typename U>
@@ -119,10 +119,10 @@ inline bool operator<(const HandleBase<T>& lhs, const HandleBase<U>& rhs)
     {
         return *l < *r;
     }
-    else
-    {
-        return !l && r;
-    }
+
+    // Note: don't use if { } else { }. This causes lots warnings when
+    // compiling with GCC and optimization enabled. See bug 2330.
+    return !l && r;
 }
 
 template<typename T, typename U>
