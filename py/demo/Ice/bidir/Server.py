@@ -16,6 +16,8 @@ if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
 if len(slice_dir) == 0 or not os.path.exists(os.path.join(slice_dir, 'slice')):
     slice_dir = os.path.join('/', 'usr', 'share', 'Ice-3.2.0')
 if not os.path.exists(os.path.join(slice_dir, 'slice')):
+    slice_dir = os.path.join('/', 'opt', 'Ice-3.2.0')
+if not os.path.exists(os.path.join(slice_dir, 'slice')):
     print sys.argv[0] + ': Slice directory not found. Define ICEPY_HOME or ICE_HOME.'
     sys.exit(1)
 
