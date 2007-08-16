@@ -209,7 +209,6 @@ class CasinoServer extends Ice.Application
            shutdownOnInterrupt();
            communicator().waitForShutdown();
            defaultInterrupt();
-           
        }
        finally
        {
