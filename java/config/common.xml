@@ -62,13 +62,6 @@
     <property name="generated.dir" value="generated"/>
 
     <!-- Figure out file locations -->
-    <path id="ice.dir.path">
-	<pathelement location="${top.dir}/../cpp"/>
-    </path>
-
-    <pathconvert property="ice.top.dir" refid="ice.dir.path">
-    </pathconvert>
-
     <condition property="ice.dir" value="${env.ICE_HOME}">
 	<and>
 	     <available file="${env.ICE_HOME}/slice" />
@@ -78,18 +71,31 @@
 	</and>
     </condition>
 
-    <condition property="ice.dir" value="${top.dir}">
+    <pathconvert property="ice.top.dir.distrib">
+        <!-- We use the path location attribute to ensure that the
+             resulting ice.dir directory will be relative to the
+             project base directory. --> 
+        <path location="${top.dir}"/>
+    </pathconvert>
+    <condition property="ice.dir" value="${ice.top.dir.distrib}">
 	<and>
-            <available file="${top.dir}/slice"/>
+	    <available file="${ice.top.dir.distrib}/slice"/>
             <not>
                 <isset property="ice.dir"/>
             </not>
 	</and>
     </condition>
 
-    <condition property="ice.dir" value="${ice.top.dir}">
+
+    <pathconvert property="ice.top.dir.repository">
+        <!-- We use the path location attribute to ensure that the
+             resulting ice.dir directory will be relative to the
+             project base directory. --> 
+	<path location="${top.dir}/../cpp"/>
+    </pathconvert>
+    <condition property="ice.dir" value="${ice.top.dir.repository}">
 	<and>
-	    <available file="${top.dir}/../cpp/slice"/>
+	    <available file="${ice.top.dir.repository}/slice"/>
             <not>
                 <isset property="ice.dir"/>
             </not>
@@ -130,7 +136,7 @@
 	<or>
 	    <available file="${top.dir}/makedist.py"/>
 	    <available file="${top.dir}/slice"/>
-	    <equals arg1="${ice.dir}" arg2="${ice.top.dir}"/>
+	    <equals arg1="${ice.dir}" arg2="${ice.top.dir.repository}"/>
 	</or>
     </condition>
 
