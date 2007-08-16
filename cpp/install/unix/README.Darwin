@@ -101,8 +101,8 @@ you can do one of the following:
    $ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
 
 If you run applications that load the IceSSL plug-in (such as the Ice
-demos), you need to set the DYLD_LIBRARY_PATH environment variable as
-shown above.
+demos) or the IceStorm service, you need to set the DYLD_LIBRARY_PATH
+environment variable as shown above.
 
 On Intel platforms, you also need to set DYLD_BIND_AT_LAUNCH to
 prevent random crashes at runtime in the dynamic linker binding code:
