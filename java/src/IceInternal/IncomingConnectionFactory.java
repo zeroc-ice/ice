@@ -251,7 +251,7 @@ public final class IncomingConnectionFactory extends EventHandler
                 }
                 catch(Ice.SocketException ex)
                 {
-                    // Ignore timeouts.
+                    // Ignore socket exceptions.
                     return;
                 }
                 catch(Ice.TimeoutException ex)
