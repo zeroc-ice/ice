@@ -391,23 +391,21 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write(javaPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
-        self.srcFile.write("\n   public static final Property[] validProps[] = \n" % \
-                {'classname' : self.className})
+        self.srcFile.write("\n    public static final Property[] validProps[] =\n")
 
         self.srcFile.write("    {\n")
         for s in self.sections:
             self.srcFile.write("        %sProps,\n" % s)
         self.srcFile.write("        null\n")
-        self.srcFile.write("    };\n\n")
+        self.srcFile.write("    };\n")
 
-        self.srcFile.write("\n   public static final String clPropNames[] =\n" % \
-                {'classname' : self.className})
+        self.srcFile.write("\n    public static final String clPropNames[] =\n")
         self.srcFile.write("    {\n")
         for s in self.cmdLineOptions:
             self.srcFile.write("        \"%s\",\n" % s)
         self.srcFile.write("        null\n")
-        self.srcFile.write("    };\n\n")
-        self.srcFile.write("};\n\n")
+        self.srcFile.write("    };\n")
+        self.srcFile.write("}\n")
         self.srcFile.close()
 
     def fix(self, propertyName):
@@ -460,8 +458,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
-        self.srcFile.write("        public static Property[][] validProps = \n" % \
-                {'classname' : self.className})
+        self.srcFile.write("        public static Property[][] validProps =\n")
 
         self.srcFile.write("        {\n")
         for s in self.sections:
@@ -469,8 +466,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.write("            null\n")
         self.srcFile.write("        };\n\n")
 
-        self.srcFile.write("        public static string[] clPropNames =\n" % \
-                {'classname' : self.className})
+        self.srcFile.write("        public static string[] clPropNames =\n")
         self.srcFile.write("        {\n")
         for s in self.cmdLineOptions:
             self.srcFile.write("            \"%s\",\n" % s)
@@ -567,24 +563,19 @@ def main():
 
     infile = None
     lang = None
-    toplevel = '..'
 
     #
-    # TODO: Why does determining the top level directory depend on which
-    # arguments are used?
+    # Find the root of the tree.
     #
+    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+        toplevel = os.path.normpath(toplevel)
+        if os.path.exists(os.path.join(toplevel, "config", "makeprops.py")):
+            break
+    else:
+        progError("cannot find top-level directory")
+        sys.exit(1)
+
     if len(sys.argv) == 1:
-        #
-        # Find where the root of the tree is.
-        #
-        for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-            toplevel = os.path.normpath(toplevel)
-            if os.path.exists(os.path.join(toplevel, "config", "makeprops.py")):
-                break
-        else:
-            progError("cannot find top-level directory")
-            sys.exit(1)
-
         infile = os.path.join(toplevel, "config", "PropertyNames.xml")
     else:
         option = sys.argv[1]
