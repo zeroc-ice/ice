@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Collections.Generic;
+
 namespace Test
 {
     public sealed class ChecksumI : ChecksumDisp_
@@ -16,7 +18,7 @@ namespace Test
             _adapter = adapter;
         }
 
-        public override Ice.SliceChecksumDict getSliceChecksums(Ice.Current __current)
+        public override Dictionary<string, string> getSliceChecksums(Ice.Current __current)
         {
             return Ice.SliceChecksums.checksums;
         }

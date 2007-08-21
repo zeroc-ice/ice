@@ -11,6 +11,7 @@ namespace IceInternal
 {
 
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
     public sealed class Instance
@@ -235,7 +236,7 @@ namespace IceInternal
             return _serverACM;
         }
         
-        public void setDefaultContext(Ice.Context ctx)
+        public void setDefaultContext(Dictionary<string, string> ctx)
         {
             lock(this)
             {
@@ -250,12 +251,12 @@ namespace IceInternal
                 }
                 else
                 {
-                    _defaultContext = (Ice.Context)ctx.Clone();
+                    _defaultContext = new Dictionary<string, string>(ctx);
                 }
             }
         }
 
-        public Ice.Context getDefaultContext()
+        public Dictionary<string, string> getDefaultContext()
         {
             lock(this)
             {
@@ -264,7 +265,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
-                return (Ice.Context)_defaultContext.Clone();
+                return new Dictionary<string, string>(_defaultContext);
             }
         }
 
@@ -692,8 +693,8 @@ namespace IceInternal
         private bool _threadPerConnection;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;
-        private Ice.Context _defaultContext;
-        private static Ice.Context _emptyContext = new Ice.Context();
+        private Dictionary<string, string> _defaultContext;
+        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
         private static bool _printProcessIdDone = false;
 
         private static bool _oneOffDone = false;

@@ -1518,27 +1518,6 @@ Slice::Container::hasNonLocalSequences() const
 }
 
 bool
-Slice::Container::hasNonLocalDictionaries() const
-{
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
-    {
-        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
-        if(d && !d->isLocal())
-        {
-            return true;
-        }
-
-        ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasNonLocalDictionaries())
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
 Slice::Container::hasNonLocalExceptions() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1577,6 +1556,61 @@ Slice::Container::hasClassDecls() const
     }
 
     return false;
+}
+
+bool
+Slice::Container::hasDictionaries() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
+        if(d)
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasDictionaries())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasOnlyDictionaries(DictionaryList& dicts) const
+{
+    bool ret = true;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ModulePtr m = ModulePtr::dynamicCast(*p);
+        if(m)
+        {
+            bool subret = m->hasOnlyDictionaries(dicts);
+            if(!subret && ret)
+            {
+                ret = false;
+            }
+        }
+        DictionaryPtr d = DictionaryPtr::dynamicCast(*p);
+        if(d && ret)
+        {
+            dicts.push_back(d);
+        }
+        else
+        {
+            ret = false;
+        }
+    }
+
+    if(!ret)
+    {
+        dicts.clear();
+    }
+
+    return ret;
 }
 
 bool

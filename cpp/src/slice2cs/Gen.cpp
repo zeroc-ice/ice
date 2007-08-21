@@ -996,8 +996,8 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
 
     _out << nl << "// Generated from file `" << fileBase << ".ice'";
 
-    _out << sp << nl << "using _System = System;";
-    _out << nl << "using _Microsoft = Microsoft;";
+    _out << sp << nl << "using _System = global::System;";
+    _out << nl << "using _Microsoft = global::Microsoft;";
 
     if(impl || implTie)
     {
@@ -1194,6 +1194,30 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceUtil::Output& out, bool stream)
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
+    DictionaryList dicts;
+    if(p->hasOnlyDictionaries(dicts))
+    {
+        //
+        // If this module contains only dictionaries and they
+        // all use the new dictionary mapping, we don't need to generate
+        // anything for the dictionary types. The early return prevents
+        // an empty namespace from being emitted--the namespace will
+        // be emitted later by the dictionary helper (which is generated
+        // for both old and new dictionaries).
+        //
+        bool foundOld = false;
+        for(DictionaryList::const_iterator i = dicts.begin(); i != dicts.end() && !foundOld; ++i)
+        {
+            if((*i)->hasMetaData("clr:DictionaryBase"))
+            {
+                foundOld = true;
+            }
+        }
+        if(!foundOld)
+        {
+            return false;
+        }
+    }
 
     string name = fixId(p->name());
     _out << sp;
@@ -1805,12 +1829,27 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "int hash = 0;";
     _out << nl << "for(int i = 0; i < Count; ++i)";
     _out << sb;
+    _out << nl;
+    if(isValue)
+    {
+        _out << s;
+    }
+    else
+    {
+        _out << "object";
+    }
+   _out << " v__ = ";
+    if(isValue)
+    {
+       _out << "(" << s << ")";
+    }
+    _out << "InnerList[i];";
     if(!isValue)
     {
-        _out << nl << "if((object)InnerList[i] != null)";
+        _out << nl << "if(v__ != null)";
         _out << sb;
     }
-    _out << nl << "hash = 5 * hash + InnerList[i].GetHashCode();";
+    _out << nl << "hash = 5 * hash + v__.GetHashCode();";
     if(!isValue)
     {
         _out << eb;
@@ -2656,6 +2695,11 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if(!p->hasMetaData("clr:DictionaryBase"))
+    {
+        return;
+    }
+
     string name = fixId(p->name());
     string ks = typeToString(p->keyType());
     string vs = typeToString(p->valueType());
@@ -2815,79 +2859,11 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public override bool Equals(object other)";
     _out << sb;
-    _out << nl << "if(object.ReferenceEquals(this, other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
     _out << nl << "if(!(other is " << name << "))";
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
-    _out << nl << "if(Count != ((" << name << ")other).Count)";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << ks << "[] klhs__ = new " << ks << "[Count];";
-    _out << nl << "Keys.CopyTo(klhs__, 0);";
-    _out << nl << "_System.Array.Sort(klhs__);";
-    _out << nl << ks << "[] krhs__ = new " << ks << "[((" << name << ")other).Count];";
-    _out << nl << "((" << name << ")other).Keys.CopyTo(krhs__, 0);";
-    _out << nl << "_System.Array.Sort(krhs__);";
-    _out << nl << "for(int i = 0; i < Count; ++i)";
-    _out << sb;
-    _out << nl << "if(!klhs__[i].Equals(krhs__[i]))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-    SequencePtr seq = SequencePtr::dynamicCast(p->valueType());
-    bool valueIsArray = seq && !seq->hasMetaData("clr:collection");
-    if(valueIsArray)
-    {
-        _out << nl << vs << "[] vlhs__ = new " << toArrayAlloc(vs + "[]", "Count") << ';';
-    }
-    else
-    {
-        _out << nl << vs << "[] vlhs__ = new " << vs << "[Count];";
-    }
-    _out << nl << "Values.CopyTo(vlhs__, 0);";
-    _out << nl << "_System.Array.Sort(vlhs__);";
-    string vrhsCount = "((" + name + ")other).Count";
-    if(valueIsArray)
-    {
-        _out << nl << vs << "[] vrhs__ = new " << toArrayAlloc(vs + "[]", vrhsCount) << ';';
-    }
-    else
-    {
-        _out << nl << vs << "[] vrhs__ = new " << vs << '[' << vrhsCount << "];";
-    }
-    _out << nl << "((" << name << ")other).Values.CopyTo(vrhs__, 0);";
-    _out << nl << "_System.Array.Sort(vrhs__);";
-    _out << nl << "for(int i = 0; i < Count; ++i)";
-    _out << sb;
-    if(!valueIsValue)
-    {
-        _out << nl << "if(vlhs__[i] == null)";
-        _out << sb;
-        _out << nl << "if(vrhs__[i] != null)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << eb;
-        _out << nl << "else if(!vlhs__[i].Equals(vrhs__[i]))";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-    }
-    else
-    {
-        _out << nl << "if(!vlhs__[i].Equals(vrhs__[i]))";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-    }
-    _out << eb;
-    _out << nl << "return true;";
+    _out << nl << "return Ice.Comparer.ValueEquals(this, (" << name << ")other);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Object members
@@ -3211,7 +3187,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
     }
     _out << nl << typeToString(p->returnType()) << " " << name
-         << spar << params << "Ice.Context context__" << epar << ';'; 
+         << spar << params << "_System.Collections.Generic.Dictionary<string, string> context__" << epar << ';';
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
@@ -3231,7 +3207,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         {
             _out << nl << "[System.Obsolete(\"" << deprecateReason << "\")]";
         }
-        _out << nl << "void " << p->name() << "_async" << spar << paramsAMI << "Ice.Context ctx__" << epar << ';';
+        _out << nl << "void " << p->name() << "_async" << spar << paramsAMI
+             << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar << ';';
     }
 }
 
@@ -3368,7 +3345,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtil::Output& out, bool stream)
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() && !p->hasNonLocalSequences() && !p->hasNonLocalDictionaries())
+    if(!p->hasNonLocalClassDecls() && !p->hasNonLocalSequences() && !p->hasDictionaries())
     {
         return false;
     }
@@ -3425,7 +3402,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << sp << nl << "public " << retS << " " << opName << spar << params 
-             << "Ice.Context context__" << epar;
+             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
         _out << sb;
         _out << nl;
         if(ret)
@@ -3436,7 +3413,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << sp << nl << "private " << retS << " " << opName << spar << params 
-             << "Ice.Context context__" << "bool explicitContext__" << epar;
+             << "_System.Collections.Generic.Dictionary<string, string> context__"
+             << "bool explicitContext__" << epar;
         _out << sb;
 
         _out << nl << "if(explicitContext__ && context__ == null)";
@@ -3521,13 +3499,15 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << eb;
 
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI << "Ice.Context ctx__" << epar;
+            _out << nl << "public void " << opName << "_async" << spar << paramsAMI
+                 << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
             _out << sb;
             _out << nl << opName << "_async" << spar << argsAMI << "ctx__" << "true" << epar << ';';
             _out << eb;
 
             _out << sp;
-            _out << nl << "public void " << opName << "_async" << spar << paramsAMI << "Ice.Context ctx__"
+            _out << nl << "public void " << opName << "_async" << spar << paramsAMI
+                 << "_System.Collections.Generic.Dictionary<string, string> ctx__"
                  << "bool explicitContext__" << epar;
             _out << sb;
             _out << nl << "if(explicitContext__ && ctx__ == null)";
@@ -3565,7 +3545,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx b, Ice.Context ctx)";
+    _out << sp << nl << "public static " << name
+         << "Prx checkedCast(Ice.ObjectPrx b, _System.Collections.Generic.Dictionary<string, string> ctx)";
     _out << sb;
     _out << nl << "if(b == null)";
     _out << sb;
@@ -3606,7 +3587,9 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
-    _out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx b, string f, Ice.Context ctx)";
+    _out << sp << nl << "public static " << name
+         << "Prx checkedCast(Ice.ObjectPrx b, string f, "
+         << "_System.Collections.Generic.Dictionary<string, string> ctx)";
     _out << sb;
     _out << nl << "if(b == null)";
     _out << sb;
@@ -3716,21 +3699,119 @@ Slice::Gen::HelperVisitor::visitClassDefEnd(const ClassDefPtr&)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    //
-    // Don't generate helper for a sequence of a local type
-    //
-    if(p->isLocal())
+    bool seqIsArray = !p->hasMetaData("clr:collection");
+    if(p->isLocal() && !seqIsArray)
     {
         return;
     }
 
     string name = fixId(p->name());
     string typeS = typeToString(p);
+    string typeE = typeToString(p->type());
 
     _out << sp << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
-    _out << nl << "public static void write(IceInternal.BasicStream os__, " << typeS << " v__)";
+#if 0
+    if(seqIsArray)
+    {
+        _out << nl << "public static bool ValueEquals(" << typeS << " v1__, " << typeS << " v2__)";
+        _out << sb;
+        _out << nl << "if(object.ReferenceEquals(v1__, v2__))";
+        _out << sb;
+        _out << nl << "return true;";
+        _out << eb;
+        _out << nl << "if(v1__ == null || v2__ == null)";
+        _out << sb;
+        _out << nl << "return false;";
+        _out << eb;
+        _out << nl << "if(v1__.Length != v2__.Length)";
+        _out << sb;
+        _out << nl << "return false;";
+        _out << eb;
+        _out << nl << "_System.Collections.IEnumerator en2__ = v2__.GetEnumerator();";
+        _out << nl << "foreach(" << typeE << " e1__ in v1__)";
+        _out << sb;
+        _out << nl << "en2__.MoveNext();";
+
+        bool elmtIsValue = isValueType(p->type());
+        DictionaryPtr d = DictionaryPtr::dynamicCast(p->type());
+        SequencePtr seq = SequencePtr::dynamicCast(p->type());
+        if(d)
+        {
+            if(!d->hasMetaData("clr:DictionaryBase"))
+            {
+                _out << nl << "if(!" << d->name() << "Helper.ValueEquals(e1__, en2__.Current))";
+                _out << sb;
+                _out << nl << "return false;";
+                _out << eb;
+            }
+            else
+            {
+                _out << nl << "if(e1__ == null)";
+                _out << sb;
+                _out << nl << "if(en2__.Current != null;";
+                _out << sb;
+                _out << nl << "return false;";
+                _out << eb;
+                _out << eb;
+                _out << nl << "else";
+                _out << sb;
+                _out << nl << "if(!e1__.Equals(en2__.Current))";
+                _out << sb;
+                _out << nl << "return false;";
+                _out << eb;
+                _out << eb;
+            }
+        }
+        else if(seq)
+        {
+            if(!seq->hasMetaData("clr:collection"))
+            {
+            }
+            else
+            {
+            }
+        }
+        else
+        {
+            if(!elmtIsValue)
+            {
+                _out << nl << "if(e1__ == null)";
+                _out << sb;
+                _out << nl << "if(en2__.Current != null)";
+                _out << sb;
+                _out << nl << "return false;";
+                _out << eb;
+                _out << eb;
+                _out << nl << "else";
+                _out << sb;
+            }
+            _out << nl << "if(!e1__.Equals(en2__.Current))";
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+            if(!elmtIsValue)
+            {
+                _out << eb;
+            }
+        }
+        _out << eb;
+        _out << nl << "return true;";
+        _out << eb;
+    }
+#endif
+
+    //
+    // Don't generate marshaling helpers for a sequence of a local type
+    //
+    if(p->isLocal())
+    {
+        _out << eb;
+        return;
+    }
+
+    _out << sp << nl << "public static void write(IceInternal.BasicStream os__, " << typeS << " v__)";
     _out << sb;
     writeSequenceMarshalUnmarshalCode(_out, p, "v__", true, false);
     _out << eb;
@@ -3763,25 +3844,131 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    //
-    // Don't generate helper for a dictionary containing a local type
-    //
-    if(p->isLocal())
-    {
-        return;
-    }
-
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
-    string name = fixId(p->name());
+    bool isNewMapping = !p->hasMetaData("clr:DictionaryBase");
+
     string keyS = typeToString(key);
     string valueS = typeToString(value);
+    string name = isNewMapping
+                    ? "_System.Collections.Generic.Dictionary<" + keyS + ", " + valueS + ">"
+                    : fixId(p->name());
 
-    _out << sp << nl << "public sealed class " << name << "Helper";
+    _out << sp << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;
 
-    _out << nl << "public static void write(IceInternal.BasicStream os__, " << name << " v__)";
+    if(isNewMapping)
+    {
+        _out << nl << "public static bool ValueEquals(";
+        _out.useCurrentPosAsIndent();
+        _out << "_System.Collections.Generic.Dictionary<" + keyS + ", " + valueS + "> d1__,";
+        _out << nl << "_System.Collections.Generic.Dictionary<" + keyS + ", " + valueS + "> d2__)";
+        _out.restoreIndent();
+        _out << sb;
+        _out << nl << "return Ice.Comparer.ValueEquals(d1__, d2__);";
+#if 0
+        _out << nl << "if(object.ReferenceEquals(d1__, d2__))";
+        _out << sb;
+        _out << nl << "return true;";
+        _out << eb;
+        _out << nl << "if(d1__ == null || d2__ == null)";
+        _out << sb;
+        _out << nl << "return false;";
+        _out << eb;
+        _out << nl << "if(d1__.Count != d2__.Count)";
+        _out << sb;
+        _out << nl << "return false;";
+        _out << eb;
+        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS << ">.KeyCollection keys1__";
+        _out.inc();
+        _out << nl << "= d1__.Keys;";
+        _out.dec();
+        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS
+             << ">.KeyCollection.Enumerator ke2__";
+        _out.inc();
+        _out << nl << "= d2__.Keys.GetEnumerator();";
+        _out.dec();
+        _out << nl << "foreach(" << keyS << " k1__ in keys1__)";
+        _out << sb;
+        _out << nl << "ke2__.MoveNext();";
+        _out << nl << "if(!ke2__.Current.Equals(k1__))";
+        _out << sb;
+        _out << nl << "return false;";
+        _out << eb;
+        _out << eb;
+        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS << ">.ValueCollection values1__";
+        _out.inc();
+        _out << nl << "= d1__.Values;";
+        _out.dec();
+        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS
+             << ">.ValueCollection.Enumerator ve2__";
+        _out.inc();
+        _out << nl << "= d2__.Values.GetEnumerator();";
+        _out.dec();
+        _out << nl << "foreach(" << valueS << " v1__ in values1__)";
+        _out << sb;
+       _out << nl << "ve2__.MoveNext();";
+        if(isValueType(p->valueType()))
+        {
+            _out << nl << "if(!ve2__.Current.Equals(v1__))";
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+        }
+        else
+        {
+            _out << nl << valueS << " v2__ = ve2__.Current;";
+            _out << nl << "if(v1__ == null)";
+            _out << sb;
+            _out << nl << "if(v2__ != null)";
+            _out << sb;
+            _out << nl << "return false;";
+            _out << eb;
+            _out << eb;
+            _out << nl << "else";
+            _out << sb;
+            DictionaryPtr d = DictionaryPtr::dynamicCast(value);
+            if(d)
+            {
+                if(!d->hasMetaData("clr:DictionaryBase"))
+                {
+                    _out << nl << "if(!" << fixId(d->scoped()) << "Helper.ValueEquals(v1__, v2__))";
+                }
+                else
+                {
+                    _out << nl << "if(!v1__.Equals(v2__))";
+                }
+           }
+           else
+           {
+               _out << nl << "if(!v1__.Equals(v2__))";
+           }
+           _out << sb;
+           _out << nl << "return false;";
+           _out << eb;
+           _out << eb;
+        }
+        _out << eb;
+        _out << nl << "return true;";
+    #endif
+        _out << eb;
+    }
+
+    //
+    // Don't generate marshaling helpers for a dictionary containing a local type
+    //
+    if(p->isLocal())
+    {
+        _out << eb;
+        return;
+    }
+
+    _out << sp << nl << "public static void write(";
+    _out.useCurrentPosAsIndent();
+    _out << "IceInternal.BasicStream os__,";
+    _out << nl << name << " v__)";
+    _out.restoreIndent();
     _out << sb;
     _out << nl << "if(v__ == null)";
     _out << sb;
@@ -3790,11 +3977,20 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "else";
     _out << sb;
     _out << nl << "os__.writeSize(v__.Count);";
-    _out << nl << "foreach(_System.Collections.DictionaryEntry e__ in v__)";
+    _out << nl << "foreach(_System.Collections.";
+    if(isNewMapping)
+    {
+        _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
+    }
+    else
+    {
+        _out << "DictionaryEntry";
+    }
+    _out << " e__ in v__)";
     _out << sb;
-    string keyArg = "((" + keyS + ")e__.Key)";
+    string keyArg = isNewMapping ? "e__.Key" : "((" + keyS + ")e__.Key)";
     writeMarshalUnmarshalCode(_out, key, keyArg, true, false, false);
-    string valueArg = "((" + valueS + ")e__.Value)";
+    string valueArg = isNewMapping ? "e__.Value" : "((" + valueS + ")e__.Value)";
     writeMarshalUnmarshalCode(_out, value, valueArg, true, false, false);
     _out << eb;
     _out << eb;
@@ -3865,7 +4061,16 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _out << nl << "else";
         _out << sb;
         _out << nl << "outS__.writeSize(v__.Count);";
-        _out << nl << "foreach(_System.Collections.DictionaryEntry e__ in v__)";
+        _out << nl << "foreach(_System.Collections.";
+        if(isNewMapping)
+        {
+            _out << nl << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
+        }
+        else
+        {
+            _out << nl << "DictionaryEntry";
+        }
+        _out << " e__ in v__)";
         _out << sb;
         writeMarshalUnmarshalCode(_out, key, keyArg, true, true, false);
         writeMarshalUnmarshalCode(_out, value, valueArg, true, true, false);
@@ -3966,7 +4171,8 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         string retS = typeToString(ret);
         vector<string> params = getParams(op);
 
-        _out << sp << nl << retS << ' ' << opName << spar << params << "Ice.Context context__" << epar << ';';
+        _out << sp << nl << retS << ' ' << opName << spar << params
+             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar << ';';
     }
 
     return true;
@@ -4061,7 +4267,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         vector<string> params = getParams(op);
 
-        _out << sp << nl << "public " << retS << ' ' << opName << spar << params << "Ice.Context context__" << epar;
+        _out << sp << nl << "public " << retS << ' ' << opName << spar << params
+             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
         _out << sb;
 
         _out << nl << "IceInternal.Outgoing og__ = getOutgoing(\"" << op->name() << "\", " 
@@ -4253,7 +4460,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         vector<string> args = getArgs(op);
 
         _out << sp;
-        _out << nl << "public " << retS << ' ' << opName << spar << params << "Ice.Context context__" << epar;
+        _out << nl << "public " << retS << ' ' << opName << spar << params
+             << "_System.Collections.Generic.Dictionary<string, string> context__" << epar;
         _out << sb;
         if(containingClass->hasMetaData("amd") || op->hasMetaData("amd"))
         {
@@ -4513,7 +4721,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         _out << nl << "public abstract void ice_response" << spar << params << epar << ';';
         
         _out << sp << nl << "public void invoke__" << spar << "Ice.ObjectPrx prx__"
-            << paramsInvoke << "Ice.Context ctx__" << epar;
+             << paramsInvoke << "_System.Collections.Generic.Dictionary<string, string> ctx__" << epar;
         _out << sb;
         _out << nl << "try";
         _out << sb;

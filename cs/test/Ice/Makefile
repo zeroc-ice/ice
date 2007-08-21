@@ -29,7 +29,8 @@ SUBDIRS		= application \
 		  retry \
 		  timeout \
 		  servantLocator \
-		  threads
+		  threads \
+                  dictMapping
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

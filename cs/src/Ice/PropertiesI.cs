@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
@@ -88,11 +89,11 @@ namespace Ice
             }
         }
         
-        public Ice.PropertyDict getPropertiesForPrefix(string prefix)
+        public Dictionary<string, string> getPropertiesForPrefix(string prefix)
         {
             lock(this)
             {
-                Ice.PropertyDict result = new Ice.PropertyDict();
+                Dictionary<string, string> result = new Dictionary<string, string>();
 
                 foreach(string s in _properties.Keys)
                 {

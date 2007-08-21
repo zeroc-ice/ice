@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Test;
@@ -569,10 +570,10 @@ public class AllTests
     
     private class AMI_Test_dictionaryTestI : AMI_TestIntf_dictionaryTest
     {
-        public override void ice_response(BDict r, BDict bout)
+        public override void ice_response(Dictionary<int, B> r, Dictionary<int, B> bout)
         {
-            this.r = r;
-            this.bout = bout;
+            this.r = (Dictionary<int, B>)r;
+            this.bout = (Dictionary<int, B>)bout;
             callback.called();
         }
         
@@ -588,8 +589,8 @@ public class AllTests
         
         private Callback callback = new Callback();
         
-        public BDict  r;
-        public BDict bout;
+        public Dictionary<int, B>  r;
+        public Dictionary<int, B> bout;
     }
     
     private class AMI_Test_throwBaseAsBaseI : AMI_TestIntf_throwBaseAsBase
@@ -1830,9 +1831,9 @@ public class AllTests
         {
             try
             {
-                BDict bin = new BDict();
-                BDict bout;
-                BDict ret;
+                Dictionary<int, B> bin = new Dictionary<int, B>();
+                Dictionary<int, B> bout;
+                Dictionary<int, B> ret;
                 int i;
                 for(i = 0; i < 10; ++i)
                 {
@@ -1883,9 +1884,9 @@ public class AllTests
         Console.Out.Write("dictionary slicing (AMI)... ");
         Console.Out.Flush();
         {
-            BDict bin = new BDict();
-            BDict bout;
-            BDict rv;
+            Dictionary<int, B> bin = new Dictionary<int, B>();
+            Dictionary<int, B> bout;
+            Dictionary<int, B> rv;
             int i;
             for(i = 0; i < 10; ++i)
             {

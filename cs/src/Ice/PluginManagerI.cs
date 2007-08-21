@@ -10,6 +10,7 @@
 namespace Ice
 {
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
     public interface PluginFactory
@@ -159,7 +160,7 @@ namespace Ice
             //
             string prefix = "Ice.Plugin.";
             Properties properties = _communicator.getProperties();
-            PropertyDict plugins = properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> plugins = properties.getPropertiesForPrefix(prefix);
 
             string loadOrder = properties.getProperty("Ice.PluginLoadOrder");
             if(loadOrder.Length > 0)
@@ -181,7 +182,7 @@ namespace Ice
                     }
 
                     string key = "Ice.Plugin." + names[i];
-                    if(plugins.Contains(key))
+                    if(plugins.ContainsKey(key))
                     {
                         string value = (string)plugins[key];
                         loadPlugin(names[i], value, ref cmdArgs, false);
@@ -199,10 +200,10 @@ namespace Ice
             //
             // Load any remaining plugins that weren't specified in PluginLoadOrder.
             //
-            foreach(DictionaryEntry entry in plugins)
+            foreach(KeyValuePair<string, string> entry in plugins)
             {
-                string name = ((string)entry.Key).Substring(prefix.Length);
-                string val = (string)entry.Value;
+                string name = entry.Key.Substring(prefix.Length);
+                string val = entry.Value;
                 loadPlugin(name, val, ref cmdArgs, false);
             }
 

@@ -170,6 +170,16 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
         return typeToString(seq->type()) + "[]";
     }
 
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        if(!d->hasMetaData("clr:DictionaryBase"))
+        {
+            return "_System.Collections.Generic.Dictionary<"
+                   + typeToString(d->keyType()) + ", " + typeToString(d->valueType()) + ">";
+        }
+    }
+
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
@@ -529,7 +539,23 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     }
 
     assert(ConstructedPtr::dynamicCast(type));
-    string typeS = typeToString(type);
+    string typeS;
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        if(!d->hasMetaData("clr:DictionaryBase"))
+        {
+            typeS = fixId(d->scoped());
+        }
+        else
+        {
+            typeS = typeToString(type);
+        }
+    }
+    else
+    {
+        typeS = typeToString(type);
+    }
     if(marshal)
     {
         out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
@@ -1218,6 +1244,13 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 if(ClassDefPtr::dynamicCast(cont))
                 {
                     if(s.substr(prefix.size()) == "property")
+                    {
+                        continue;
+                    }
+                }
+                if(DictionaryPtr::dynamicCast(cont))
+                {
+                    if(s.substr(prefix.size()) == "DictionaryBase")
                     {
                         continue;
                     }

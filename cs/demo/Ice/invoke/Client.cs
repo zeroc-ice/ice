@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using Demo;
 
 public class Client : Ice.Application
@@ -95,7 +96,7 @@ public class Client : Ice.Application
                     // Marshal the in parameter.
                     //
                     Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator());
-                    StringDict dict = new StringDict();
+                    Dictionary<string, string> dict = new Dictionary<string, string>();
                     dict["The"] = "streaming";
                     dict["API"] = "works!";
                     Demo.StringDictHelper.write(outStream, dict);

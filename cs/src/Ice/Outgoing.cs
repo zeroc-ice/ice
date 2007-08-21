@@ -10,13 +10,13 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
     public class Outgoing
     {
         public Outgoing(Ice.ConnectionI connection, Reference r, string operation, Ice.OperationMode mode,
-                        Ice.Context context, bool compress)
+                        Dictionary<string, string> context, bool compress)
         {
             _connection = connection;
             _reference = r;
@@ -31,7 +31,8 @@ namespace IceInternal
         //
         // These functions allow this object to be reused, rather than reallocated.
         //
-        public void reset(Reference r, string operation, Ice.OperationMode mode, Ice.Context context, bool compress)
+        public void reset(Reference r, string operation, Ice.OperationMode mode,
+                          Dictionary<string, string> context, bool compress)
         {
             _reference = r;
             _state = StateUnsent;
@@ -394,7 +395,7 @@ namespace IceInternal
             return _os;
         }
         
-        private void writeHeader(string operation, Ice.OperationMode mode, Ice.Context context)
+        private void writeHeader(string operation, Ice.OperationMode mode, Dictionary<string, string> context)
         {
             switch(_reference.getMode())
             {
@@ -451,7 +452,7 @@ namespace IceInternal
                     Ice.ImplicitContextI implicitContext =
                         _reference.getInstance().getImplicitContext();
                     
-                    Ice.Context prxContext = _reference.getContext();
+                    Dictionary<string, string> prxContext = _reference.getContext();
                     
                     if(implicitContext == null)
                     {

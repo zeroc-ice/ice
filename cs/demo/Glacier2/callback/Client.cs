@@ -9,7 +9,7 @@
 
 using Demo;
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class Client : Ice.Application
 {
@@ -113,7 +113,7 @@ public class Client : Ice.Application
                 }
                 if(line.Equals("t"))
                 {
-                    Ice.Context context = new Ice.Context();
+                    Dictionary<string, string> context = new Dictionary<string, string>();
                     context["_fwd"] = "t";
                     if(@override != null)
                     {
@@ -123,7 +123,7 @@ public class Client : Ice.Application
                 }
                 else if(line.Equals("o"))
                 {
-                    Ice.Context context = new Ice.Context();
+                    Dictionary<string, string> context = new Dictionary<string, string>();
                     context["_fwd"] = "o";
                     if(@override != null)
                     {
@@ -133,7 +133,7 @@ public class Client : Ice.Application
                 }
                 else if(line.Equals("O"))
                 {
-                    Ice.Context context = new Ice.Context();
+                    Dictionary<string, string> context = new Dictionary<string, string>();
                     context["_fwd"] = "O";
                     if(@override != null)
                     {

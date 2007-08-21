@@ -12,11 +12,12 @@ namespace Ice
 
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Reflection;
 
     public sealed class SliceChecksums
     {
-        public readonly static SliceChecksumDict checksums = new SliceChecksumDict();
+        public readonly static Dictionary<string, string> checksums = new Dictionary<string, string>();
 
         static SliceChecksums()
         {

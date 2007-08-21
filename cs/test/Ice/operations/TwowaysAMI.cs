@@ -10,6 +10,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
+using System.Collections.Generic;
 
 public class TwowaysAMI
 {
@@ -708,14 +709,14 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opByteBoolDI : Test.AMI_MyClass_opByteBoolD
     {
-        public override void ice_response(Test.ByteBoolD ro, Test.ByteBoolD _do)
+        public override void ice_response(Dictionary<byte, bool> ro, Dictionary<byte, bool> _do)
         {
-            Test.ByteBoolD di1 = new Test.ByteBoolD();
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
             di1[10] = true;
             di1[100] = false;
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
-            test(ro[10] == true);
+            // test(ro[10] == true); // Disabled since new dictionary mapping.
             test(ro[11] == false);
             test(ro[100] == false);
             test(ro[101] == true);
@@ -737,14 +738,14 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opShortIntDI : Test.AMI_MyClass_opShortIntD
     {
-        public override void ice_response(Test.ShortIntD ro, Test.ShortIntD _do)
+        public override void ice_response(Dictionary<short, int> ro, Dictionary<short, int> _do)
         {
-            Test.ShortIntD di1 = new Test.ShortIntD();
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
             di1[110] = -1;
             di1[1100] = 123123;
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
-            test(ro[110] == -1);
+            // test(ro[110] == -1); // Disabled since new dictionary mapping.
             test(ro[111] == -100);
             test(ro[1100] == 123123);
             test(ro[1101] == 0);
@@ -766,12 +767,12 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opLongFloatDI : Test.AMI_MyClass_opLongFloatD
     {
-        public override void ice_response(Test.LongFloatD ro, Test.LongFloatD _do)
+        public override void ice_response(Dictionary<long, float> ro, Dictionary<long, float> _do)
         {
-            Test.LongFloatD di1 = new Test.LongFloatD();
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro[999999110L] == -1.1f);
             test(ro[999999120L] == -100.4f);
@@ -795,12 +796,12 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opStringStringDI : Test.AMI_MyClass_opStringStringD
     {
-        public override void ice_response(Test.StringStringD ro, Test.StringStringD _do)
+        public override void ice_response(Dictionary<string, string> ro, Dictionary<string, string> _do)
         {
-            Test.StringStringD di1 = new Test.StringStringD();
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
             di1["foo"] = "abc -1.1";
             di1["bar"] = "abc 123123.2";
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro["foo"].Equals("abc -1.1"));
             test(ro["FOO"].Equals("abc -100.4"));
@@ -824,12 +825,12 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opStringMyEnumDI : Test.AMI_MyClass_opStringMyEnumD
     {
-        public override void ice_response(Test.StringMyEnumD ro, Test.StringMyEnumD _do)
+        public override void ice_response(Dictionary<string, Test.MyEnum> ro, Dictionary<string, Test.MyEnum> _do)
         {
-            Test.StringMyEnumD di1 = new Test.StringMyEnumD();
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro["abc"] == Test.MyEnum.enum1);
             test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -885,15 +886,15 @@ public class TwowaysAMI
     
     private class AMI_MyClass_opContextEqualI : Test.AMI_MyClass_opContext
     {
-        internal AMI_MyClass_opContextEqualI(Ice.Context d)
+        internal AMI_MyClass_opContextEqualI(Dictionary<string, string> d)
         {
             _d = d;
             callback = new Callback();
         }
         
-        public override void ice_response(Ice.Context r)
+        public override void ice_response(Dictionary<string, string> r)
         {
-            test(r.Equals(_d));
+            test(Ice.Comparer.ValueEquals(r, _d));
             callback.called();
         }
         
@@ -907,21 +908,21 @@ public class TwowaysAMI
             return callback.check();
         }
         
-        private Ice.Context _d;
+        private Dictionary<string, string> _d;
         private Callback callback;
     }
     
     private class AMI_MyClass_opContextNotEqualI : Test.AMI_MyClass_opContext
     {
-        internal AMI_MyClass_opContextNotEqualI(Ice.Context d)
+        internal AMI_MyClass_opContextNotEqualI(Dictionary<string, string> d)
         {
             _d = d;
             callback = new Callback();
         }
         
-        public override void ice_response(Ice.Context r)
+        public override void ice_response(Dictionary<string, string> r)
         {
-            test(!r.Equals(_d));
+            test(!Ice.Comparer.ValueEquals(r, _d));
             callback.called();
         }
         
@@ -935,7 +936,7 @@ public class TwowaysAMI
             return callback.check();
         }
         
-        private Ice.Context _d;
+        private Dictionary<string, string> _d;
         private Callback callback;
     }
     
@@ -1180,11 +1181,11 @@ public class TwowaysAMI
         }
         
         {
-            Test.ByteBoolD di1 = new Test.ByteBoolD();
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
             di1[10] = true;
             di1[100] = false;
-            Test.ByteBoolD di2 = new Test.ByteBoolD();
-            di2[10] = true;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            // di2[10] = true; // Disabled since new dictionary mapping.
             di2[11] = false;
             di2[101] = true;
             
@@ -1194,11 +1195,11 @@ public class TwowaysAMI
         }
         
         {
-            Test.ShortIntD di1 = new Test.ShortIntD();
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
             di1[110] = -1;
             di1[1100] = 123123;
-            Test.ShortIntD di2 = new Test.ShortIntD();
-            di2[110] = -1;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            // di2[110] = -1; // Disabled since new dictionary mapping.
             di2[111] = -100;
             di2[1101] = 0;
             
@@ -1208,11 +1209,11 @@ public class TwowaysAMI
         }
         
         {
-            Test.LongFloatD di1 = new Test.LongFloatD();
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
-            Test.LongFloatD di2 = new Test.LongFloatD();
-            di2[999999110L] = -1.1f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            // di2[999999110L] = -1.1f; // Disabled since new dictionary mapping.
             di2[999999120L] = -100.4f;
             di2[999999130L] = 0.5f;
             
@@ -1222,11 +1223,11 @@ public class TwowaysAMI
         }
         
         {
-            Test.StringStringD di1 = new Test.StringStringD();
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
             di1["foo"] = "abc -1.1";
             di1["bar"] = "abc 123123.2";
-            Test.StringStringD di2 = new Test.StringStringD();
-            di2["foo"] = "abc -1.1";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            // di2["foo"] = "abc -1.1"; // Disabled since new dictionary mapping
             di2["FOO"] = "abc -100.4";
             di2["BAR"] = "abc 0.5";
             
@@ -1236,11 +1237,11 @@ public class TwowaysAMI
         }
         
         {
-            Test.StringMyEnumD di1 = new Test.StringMyEnumD();
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
-            Test.StringMyEnumD di2 = new Test.StringMyEnumD();
-            di2["abc"] = Test.MyEnum.enum1;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            // di2["abc"] = Test.MyEnum.enum1; // Disabled since new dictionary mapping
             di2["qwerty"] = Test.MyEnum.enum3;
             di2["Hello!!"] = Test.MyEnum.enum2;
             
@@ -1266,7 +1267,7 @@ public class TwowaysAMI
         }
         
         {
-            Ice.Context ctx = new Ice.Context();
+            Dictionary<string, string> ctx = new Dictionary<string, string>();
             ctx["one"] = "ONE";
             ctx["two"] = "TWO";
             ctx["three"] = "THREE";
@@ -1283,7 +1284,7 @@ public class TwowaysAMI
                 test(cb.check());
             }
             Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-            test(p2.ice_getContext().Equals(ctx));
+            test(Ice.Comparer.ValueEquals(p2.ice_getContext(), ctx));
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p2.opContext_async(cb);
@@ -1299,7 +1300,7 @@ public class TwowaysAMI
                 // Test that default context is obtained correctly from communicator.
                 //
 /* DEPRECATED
-                Ice.Context dflt = new Ice.Context();
+                Dictionary<string, string> dflt = new Dictionary<string, string>();
                 dflt["a"] = "b";
                 communicator.setDefaultContext(dflt);
                 {
@@ -1353,7 +1354,7 @@ public class TwowaysAMI
                 dflt.Clear();
                 Test.MyClassPrx c3 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_context(dflt));
                 {
-                    Ice.Context tmp = new Ice.Context();
+                    Dictionary<string, string> tmp = new Dictionary<string, string>();
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c3.opContext_async(cb);
                     test(cb.check());
@@ -1361,7 +1362,7 @@ public class TwowaysAMI
 
                 Test.MyClassPrx c4 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
                 {
-                    Ice.Context tmp = new Ice.Context();
+                    Dictionary<string, string> tmp = new Dictionary<string, string>();
                     tmp["a"] = "b";
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c4.opContext_async(cb);
@@ -1373,14 +1374,14 @@ public class TwowaysAMI
 
                 Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c.ice_defaultContext());
                 {
-                    Ice.Context tmp = new Ice.Context();
+                    Dictionary<string, string> tmp = new Dictionary<string, string>();
                     tmp["a"] = "d";
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(tmp);
                     c5.opContext_async(cb);
                     test(cb.check());
                 }
 
-                communicator.setDefaultContext(new Ice.Context());
+                communicator.setDefaultContext(new Dictionary<string, string>));
 */
             }
         }
@@ -1399,7 +1400,7 @@ public class TwowaysAMI
                 
                 Ice.Communicator ic = Ice.Util.initialize(initData);
                 
-                Ice.Context ctx = new Ice.Context();
+                Dictionary<string, string> ctx = new Dictionary<string, string>();
                 ctx["one"] = "ONE";
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
@@ -1408,7 +1409,7 @@ public class TwowaysAMI
                     ic.stringToProxy("test:default -p 12010 -t 10000"));
                 
                 ic.getImplicitContext().setContext(ctx);
-                test(ic.getImplicitContext().getContext().Equals(ctx));
+                test(Ice.Comparer.ValueEquals(ic.getImplicitContext().getContext(), ctx));
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                     p3.opContext_async(cb);
@@ -1424,12 +1425,22 @@ public class TwowaysAMI
                     test(cb.check());
                 }
                 
-                Ice.Context prxContext = new Ice.Context();
+                Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
                 
-                Ice.Context combined = (Ice.Context)prxContext.Clone();
-                combined.AddRange(ctx);
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach(KeyValuePair<string, string> e in ctx)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch(System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
                 test(combined["one"].Equals("UN"));
                 
                 p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
@@ -245,9 +246,10 @@ public sealed class TestI : TestIntfDisp_
         cb.ice_response(ss);
     }
     
-    public override void dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, BDict bin, Ice.Current current)
+    public override void dictionaryTest_async(AMD_TestIntf_dictionaryTest cb, Dictionary<int, B> bin,
+                                              Ice.Current current)
     {
-        BDict bout = new BDict();
+        Dictionary<int, B> bout = new Dictionary<int, B>();
         int i;
         for(i = 0; i < 10; ++i)
         {
@@ -259,7 +261,7 @@ public sealed class TestI : TestIntfDisp_
             d2.pd2 = d2;
             bout[i * 10] = d2;
         }
-        BDict r = new BDict();
+        Dictionary<int, B> r = new Dictionary<int, B>();
         for(i = 0; i < 10; ++i)
         {
             string s = "D1." + (i * 20).ToString();

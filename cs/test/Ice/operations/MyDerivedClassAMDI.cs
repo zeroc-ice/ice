@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
@@ -102,7 +103,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3);
     }
     
-    public override void opBoolSS_async(Test.AMD_MyClass_opBoolSS cb, Test.BoolSS p1, Test.BoolSS p2, Ice.Current current)
+    public override void opBoolSS_async(Test.AMD_MyClass_opBoolSS cb, Test.BoolSS p1, Test.BoolSS p2,
+                                        Ice.Current current)
     {
         Test.BoolSS p3 = new Test.BoolSS();
         p3.AddRange(p1);
@@ -121,13 +123,19 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(p1, (byte)(p1 ^ p2));
     }
     
-    public override void opByteBoolD_async(Test.AMD_MyClass_opByteBoolD cb, Test.ByteBoolD p1, Test.ByteBoolD p2,
-                                  Ice.Current current)
+    public override void opByteBoolD_async(Test.AMD_MyClass_opByteBoolD cb, Dictionary<byte, bool> p1,
+                                           Dictionary<byte, bool> p2, Ice.Current current)
     {
-        Test.ByteBoolD p3 = p1;
-        Test.ByteBoolD r = new Test.ByteBoolD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        Dictionary<byte, bool> p3 = (Dictionary<byte, bool>)p1;
+        Dictionary<byte, bool> r = new Dictionary<byte, bool>();
+        foreach(KeyValuePair<byte, bool> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<byte, bool> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         cb.ice_response(r, p3);
     }
     
@@ -145,7 +153,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3);
     }
     
-    public override void opByteSS_async(Test.AMD_MyClass_opByteSS cb, Test.ByteSS p1, Test.ByteSS p2, Ice.Current current)
+    public override void opByteSS_async(Test.AMD_MyClass_opByteSS cb, Test.ByteSS p1, Test.ByteSS p2,
+                                        Ice.Current current)
     {
         Test.ByteSS p3 = new Test.ByteSS();
         for(int i = 0; i < p1.Count; i++)
@@ -159,12 +168,14 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3);
     }
     
-    public override void opFloatDouble_async(Test.AMD_MyClass_opFloatDouble cb, float p1, double p2, Ice.Current current)
+    public override void opFloatDouble_async(Test.AMD_MyClass_opFloatDouble cb, float p1, double p2,
+                                             Ice.Current current)
     {
         cb.ice_response(p2, p1, p2);
     }
     
-    public override void opFloatDoubleS_async(Test.AMD_MyClass_opFloatDoubleS cb, Test.FloatS p1, Test.DoubleS p2, Ice.Current current)
+    public override void opFloatDoubleS_async(Test.AMD_MyClass_opFloatDoubleS cb, Test.FloatS p1, Test.DoubleS p2,
+                                              Ice.Current current)
     {
         Test.FloatS p3 = p1;
         Test.DoubleS p4 = new Test.DoubleS();
@@ -181,7 +192,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3, p4);
     }
     
-    public override void opFloatDoubleSS_async(Test.AMD_MyClass_opFloatDoubleSS cb, Test.FloatSS p1, Test.DoubleSS p2, Ice.Current current)
+    public override void opFloatDoubleSS_async(Test.AMD_MyClass_opFloatDoubleSS cb, Test.FloatSS p1, Test.DoubleSS p2,
+                                               Ice.Current current)
     {
         Test.FloatSS p3 = p1;
         Test.DoubleSS p4 = new Test.DoubleSS();
@@ -195,13 +207,19 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3, p4);
     }
     
-    public override void opLongFloatD_async(Test.AMD_MyClass_opLongFloatD cb, Test.LongFloatD p1, Test.LongFloatD p2,
-                                   Ice.Current current)
+    public override void opLongFloatD_async(Test.AMD_MyClass_opLongFloatD cb, Dictionary<long, float> p1,
+                                            Dictionary<long, float> p2, Ice.Current current)
     {
-        Test.LongFloatD p3 = p1;
-        Test.LongFloatD r = new Test.LongFloatD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        Dictionary<long, float> p3 = (Dictionary<long, float>)p1;
+        Dictionary<long, float> r = new Dictionary<long, float>();
+        foreach(KeyValuePair<long, float> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<long, float> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         cb.ice_response(r, p3);
     }
     
@@ -218,22 +236,30 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(Test.MyEnum.enum3, p1);
     }
     
-    public override void opShortIntD_async(Test.AMD_MyClass_opShortIntD cb, Test.ShortIntD p1, Test.ShortIntD p2,
-                                  Ice.Current current)
+    public override void opShortIntD_async(Test.AMD_MyClass_opShortIntD cb, Dictionary<short, int> p1,
+                                           Dictionary<short, int> p2, Ice.Current current)
     {
-        Test.ShortIntD p3 = p1;
-        Test.ShortIntD r = new Test.ShortIntD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        Dictionary<short, int> p3 = (Dictionary<short, int>)p1;
+        Dictionary<short, int> r = new Dictionary<short, int>();
+        foreach(KeyValuePair<short, int> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<short, int> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         cb.ice_response(r, p3);
     }
     
-    public override void opShortIntLong_async(Test.AMD_MyClass_opShortIntLong cb, short p1, int p2, long p3, Ice.Current current)
+    public override void opShortIntLong_async(Test.AMD_MyClass_opShortIntLong cb, short p1, int p2, long p3,
+                                              Ice.Current current)
     {
         cb.ice_response(p3, p1, p2, p3);
     }
     
-    public override void opShortIntLongS_async(Test.AMD_MyClass_opShortIntLongS cb, Test.ShortS p1, Test.IntS p2, Test.LongS p3, Ice.Current current)
+    public override void opShortIntLongS_async(Test.AMD_MyClass_opShortIntLongS cb, Test.ShortS p1, Test.IntS p2,
+                                               Test.LongS p3, Ice.Current current)
     {
         Test.ShortS p4 = p1;
         Test.IntS p5 = new Test.IntS();
@@ -247,7 +273,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(p3, p4, p5, p6);
     }
     
-    public override void opShortIntLongSS_async(Test.AMD_MyClass_opShortIntLongSS cb, Test.ShortSS p1, Test.IntSS p2, Test.LongSS p3, Ice.Current current)
+    public override void opShortIntLongSS_async(Test.AMD_MyClass_opShortIntLongSS cb, Test.ShortSS p1,
+                                                Test.IntSS p2, Test.LongSS p3, Ice.Current current)
     {
         Test.ShortSS p4 = p1;
         Test.IntSS p5 = new Test.IntSS();
@@ -266,13 +293,19 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(p1 + " " + p2, p2 + " " + p1);
     }
     
-    public override void opStringMyEnumD_async(Test.AMD_MyClass_opStringMyEnumD cb, Test.StringMyEnumD p1, Test.StringMyEnumD p2,
-                                      Ice.Current current)
+    public override void opStringMyEnumD_async(Test.AMD_MyClass_opStringMyEnumD cb, Dictionary<string, Test.MyEnum> p1,
+                                               Dictionary<string, Test.MyEnum> p2, Ice.Current current)
     {
-        Test.StringMyEnumD p3 = p1;
-        Test.StringMyEnumD r = new Test.StringMyEnumD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        Dictionary<string, Test.MyEnum> p3 = (Dictionary<string, Test.MyEnum>)p1;
+        Dictionary<string, Test.MyEnum> r = new Dictionary<string, Test.MyEnum>();
+        foreach(KeyValuePair<string, Test.MyEnum> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<string, Test.MyEnum> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         cb.ice_response(r, p3);
     }
     
@@ -308,7 +341,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response();
     }
 
-    public override void opStringS_async(Test.AMD_MyClass_opStringS cb, Test.StringS p1, Test.StringS p2, Ice.Current current)
+    public override void opStringS_async(Test.AMD_MyClass_opStringS cb, Test.StringS p1, Test.StringS p2,
+                                         Ice.Current current)
     {
         Test.StringS p3 = new Test.StringS();
         p3.AddRange(p1);
@@ -322,7 +356,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3);
     }
     
-    public override void opStringSS_async(Test.AMD_MyClass_opStringSS cb, Test.StringSS p1, Test.StringSS p2, Ice.Current current)
+    public override void opStringSS_async(Test.AMD_MyClass_opStringSS cb, Test.StringSS p1, Test.StringSS p2,
+                                          Ice.Current current)
     {
         Test.StringSS p3 = new Test.StringSS();
         p3.AddRange(p1);
@@ -336,7 +371,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3);
     }
     
-    public override void opStringSSS_async(Test.AMD_MyClass_opStringSSS cb, Test.StringSS[] p1, Test.StringSS[] p2, Ice.Current current)
+    public override void opStringSSS_async(Test.AMD_MyClass_opStringSSS cb, Test.StringSS[] p1, Test.StringSS[] p2,
+                                           Ice.Current current)
     {
         Test.StringSS[] p3 = new Test.StringSS[p1.Length + p2.Length];
         Array.Copy(p1, 0, p3, 0, p1.Length);
@@ -350,16 +386,24 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         cb.ice_response(r, p3);
     }
     
-    public override void opStringStringD_async(Test.AMD_MyClass_opStringStringD cb, Test.StringStringD p1, Test.StringStringD p2, Ice.Current current)
+    public override void opStringStringD_async(Test.AMD_MyClass_opStringStringD cb, Dictionary<string, string> p1,
+                                               Dictionary<string, string> p2, Ice.Current current)
     {
-        Test.StringStringD p3 = p1;
-        Test.StringStringD r = new Test.StringStringD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        Dictionary<string, string> p3 = (Dictionary<string, string>)p1;
+        Dictionary<string, string> r = new Dictionary<string, string>();
+        foreach(KeyValuePair<string, string> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<string, string> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         cb.ice_response(r, p3);
     }
     
-    public override void opStruct_async(Test.AMD_MyClass_opStruct cb, Test.Structure p1, Test.Structure p2, Ice.Current current)
+    public override void opStruct_async(Test.AMD_MyClass_opStruct cb, Test.Structure p1, Test.Structure p2,
+                                        Ice.Current current)
     {
         Test.Structure p3 = p1;
         p3.s.s = "a new string";

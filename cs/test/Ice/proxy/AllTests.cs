@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 public class AllTests
@@ -422,15 +423,15 @@ public class AllTests
         Console.Out.Write("testing checked cast with context... ");
         Console.Out.Flush();
 
-        Ice.Context c = cl.getContext();
+        Dictionary<string, string> c = cl.getContext();
         test(c == null || c.Count == 0);
 
-        c = new Ice.Context();
+        c = new Dictionary<string, string>();
         c["one"] = "hello";
         c["two"] = "world";
         cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
-        Ice.Context c2 = cl.getContext();
-        test(c.Equals(c2));
+        Dictionary<string, string> c2 = cl.getContext();
+        test(Ice.Comparer.ValueEquals(c, c2));
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing opaque endpoints... ");

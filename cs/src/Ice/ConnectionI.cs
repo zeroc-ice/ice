@@ -11,6 +11,7 @@ namespace Ice
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
 
@@ -2446,7 +2447,7 @@ namespace Ice
         }
 
         public IceInternal.Outgoing getOutgoing(IceInternal.Reference reference, string operation, OperationMode mode,
-                                                Context context, bool compress)
+                                                Dictionary<string, string> context, bool compress)
         {
             IceInternal.Outgoing outg = null;
 

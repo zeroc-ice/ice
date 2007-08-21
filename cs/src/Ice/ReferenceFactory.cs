@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace IceInternal
 {
@@ -17,7 +18,7 @@ namespace IceInternal
     {
         public Reference
         create(Ice.Identity ident,
-               Ice.Context context,
+               Dictionary<string, string> context,
                string facet,
                Reference.Mode mode,
                bool secure,
@@ -53,7 +54,7 @@ namespace IceInternal
         }
 
         public Reference create(Ice.Identity ident,
-                                Ice.Context context,
+                                Dictionary<string, string> context,
                                 string facet,
                                 Reference.Mode mode,
                                 bool secure,
@@ -92,7 +93,7 @@ namespace IceInternal
         }
 
         public Reference create(Ice.Identity ident,
-                                Ice.Context context,
+                                Dictionary<string, string> context,
                                 string facet,
                                 Reference.Mode mode,
                                 Ice.ConnectionI[] fixedConnections)
@@ -818,7 +819,8 @@ namespace IceInternal
             }
 
             ArrayList unknownProps = new ArrayList();
-            Ice.PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+            Dictionary<string, string> props
+                = instance_.initializationData().properties.getPropertiesForPrefix(prefix + ".");
             foreach(String prop in props.Keys)
             {
                 bool valid = false;

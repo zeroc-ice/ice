@@ -3763,7 +3763,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtil::Output& out, bool stream)
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() && !p->hasNonLocalSequences() && !p->hasNonLocalDictionaries())
+    if(!p->hasNonLocalClassDecls() && !p->hasNonLocalSequences() && !p->hasDictionaries())
     {
         return false;
     }

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class AllTests
 {
@@ -36,9 +36,9 @@ public class AllTests
         //
         Console.Out.Write("testing checksums... ");
         Console.Out.Flush();
-        foreach(DictionaryEntry entry in Ice.SliceChecksums.checksums)
+        foreach(KeyValuePair<string, string> entry in Ice.SliceChecksums.checksums)
         {
-            string key = (string)entry.Key;
+            string key = entry.Key;
             int pos = key.IndexOf("Local");
             test(pos == -1);
         }
@@ -46,7 +46,7 @@ public class AllTests
         //
         // Get server's Slice checksums.
         //
-        Ice.SliceChecksumDict d = checksum.getSliceChecksums();
+        Dictionary<string, string> d = checksum.getSliceChecksums();
 
         //
         // Compare the checksums. For a type FooN whose name ends in an integer N,
@@ -54,9 +54,9 @@ public class AllTests
         // change for N > 1.
         //
         char[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
-        foreach(DictionaryEntry entry in d)
+        foreach(KeyValuePair<string, string> entry in d)
         {
-            string key = (string)entry.Key;
+            string key = entry.Key;
             int start = key.IndexOfAny(digits);
             if(start != -1)
             {

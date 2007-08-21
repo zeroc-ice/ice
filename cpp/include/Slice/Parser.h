@@ -422,8 +422,9 @@ public:
     bool hasNonLocalClassDecls() const;
     bool hasNonLocalClassDefs() const;
     bool hasNonLocalSequences() const;
-    bool hasNonLocalDictionaries() const;
     bool hasNonLocalExceptions() const;
+    bool hasDictionaries() const;
+    bool hasOnlyDictionaries(DictionaryList&) const;
     bool hasClassDecls() const;
     bool hasClassDefs() const;
     bool hasAbstractClassDefs() const;

@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 //
 // NOTE: the class isn't final on purpose to allow users to eventually
@@ -22,7 +23,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
         _argv = args;
     }
 
-    public override Ice.SliceChecksumDict
+    public override Dictionary<string, string>
     getSliceChecksums(Ice.Current current)
     {
         return Ice.SliceChecksums.checksums;
@@ -154,7 +155,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
             // then load any remaining services.
             //
             string prefix = "IceBox.Service.";
-            Ice.PropertyDict services = properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
             if(loadOrder != null)
             {
                 for(int i = 0; i < loadOrder.Length; ++i)
@@ -175,10 +176,10 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
                 }
             }
 
-            foreach(DictionaryEntry entry in services)
+            foreach(KeyValuePair<string, string> entry in services)
             {
-                string name = ((string)entry.Key).Substring(prefix.Length);
-                string value = (string)entry.Value;
+                string name = entry.Key.Substring(prefix.Length);
+                string value = entry.Value;
                 load(name, value);
             }
 
@@ -420,7 +421,7 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
                     //
                     // Erase properties in 'properties'
                     //
-                    Ice.PropertyDict allProps = properties.getPropertiesForPrefix("");
+                    Dictionary<string, string> allProps = properties.getPropertiesForPrefix("");
                     foreach(string key in allProps.Keys)
                     {
                         if(serviceProperties.getProperty(key).Length == 0)

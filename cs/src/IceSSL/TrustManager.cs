@@ -11,6 +11,7 @@ namespace IceSSL
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Security.Cryptography.X509Certificates;
 
@@ -31,12 +32,12 @@ namespace IceSSL
                 client_ = parse(properties.getProperty(key));
                 key = "IceSSL.TrustOnly.Server";
                 allServer_ = parse(properties.getProperty(key));
-                Ice.PropertyDict dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
-                foreach (DictionaryEntry entry in dict)
+                Dictionary<string, string> dict = properties.getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
+                foreach(KeyValuePair<string, string> entry in dict)
                 {
-                    string dkey = (string)entry.Key;
+                    string dkey = entry.Key;
                     string dname = dkey.Substring("IceSSL.TrustOnly.Server.".Length);
-                    server_[dname] = parse((string)entry.Value);
+                    server_[dname] = parse(entry.Value);
                 }
             }
             catch(RFC2253.ParseException e)

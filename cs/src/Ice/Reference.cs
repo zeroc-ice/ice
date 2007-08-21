@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -45,7 +46,7 @@ namespace IceInternal
             return instance_;
         }
 
-        public Ice.Context getContext()
+        public Dictionary<string, string> getContext()
         {
             return context_;
         }
@@ -87,7 +88,7 @@ namespace IceInternal
         // a new reference based on the existing one, with the
         // corresponding value changed.
         //
-        public Reference changeContext(Ice.Context newContext)
+        public Reference changeContext(Dictionary<string, string> newContext)
         {
             if(newContext == null)
             {
@@ -100,7 +101,7 @@ namespace IceInternal
             }
             else
             {
-                r.context_ = (Ice.Context)newContext.Clone();
+                r.context_ = new Dictionary<string, string>(newContext);
             }
             return r;
         }
@@ -338,7 +339,7 @@ namespace IceInternal
                 return false;
             }
 
-            if(!context_.Equals(r.context_))
+            if(!Ice.Comparer.ValueEquals(context_, r.context_))
             {
                 return false;
             }
@@ -363,8 +364,8 @@ namespace IceInternal
         private Ice.Communicator communicator_;
         private Mode mode_;
         private Ice.Identity identity_;
-        private Ice.Context context_;
-        private static Ice.Context _emptyContext = new Ice.Context();
+        private Dictionary<string, string> context_;
+        private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();
         private string facet_;
 
         protected int hashValue_;
@@ -373,7 +374,7 @@ namespace IceInternal
         protected Reference(Instance inst,
                             Ice.Communicator com,
                             Ice.Identity ident,
-                            Ice.Context ctx,
+                            Dictionary<string, string> ctx,
                             string fac,
                             Mode md)
         {
@@ -401,7 +402,7 @@ namespace IceInternal
         public FixedReference(Instance inst,
                               Ice.Communicator com,
                               Ice.Identity ident,
-                              Ice.Context ctx,
+                              Dictionary<string, string> ctx,
                               string fs,
                               Reference.Mode md,
                               Ice.ConnectionI[] fixedConns)
@@ -962,7 +963,7 @@ namespace IceInternal
         protected RoutableReference(Instance inst,
                                     Ice.Communicator com,
                                     Ice.Identity ident,
-                                    Ice.Context ctx,
+                                    Dictionary<string, string> ctx,
                                     string fac,
                                     Reference.Mode md,
                                     bool sec,
@@ -1240,7 +1241,7 @@ namespace IceInternal
         public DirectReference(Instance inst,
                                Ice.Communicator com,
                                Ice.Identity ident,
-                               Ice.Context ctx,
+                               Dictionary<string, string> ctx,
                                string fs,
                                Reference.Mode md,
                                bool sec,
@@ -1455,7 +1456,7 @@ namespace IceInternal
         public IndirectReference(Instance inst,
                                  Ice.Communicator com,
                                  Ice.Identity ident,
-                                 Ice.Context ctx,
+                                 Dictionary<string, string> ctx,
                                  string fs,
                                  Reference.Mode md,
                                  bool sec,

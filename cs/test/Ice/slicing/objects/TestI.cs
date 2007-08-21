@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using Test;
 
 public sealed class TestI : TestIntfDisp_
@@ -221,9 +222,10 @@ public sealed class TestI : TestIntfDisp_
         return ss;
     }
     
-    public override BDict dictionaryTest(BDict bin, out BDict bout, Ice.Current current)
+    public override Dictionary<int, B> dictionaryTest(Dictionary<int, B> bin, out Dictionary<int, B> bout,
+                                                      Ice.Current current)
     {
-        bout = new BDict();
+        bout = new Dictionary<int, B>();
         int i;
         for(i = 0; i < 10; ++i)
         {
@@ -235,7 +237,7 @@ public sealed class TestI : TestIntfDisp_
             d2.pd2 = d2;
             bout[i * 10] = d2;
         }
-        BDict r = new BDict();
+        Dictionary<int, B> r = new Dictionary<int, B>();
         for(i = 0; i < 10; ++i)
         {
             string s = "D1." + (i * 20).ToString();

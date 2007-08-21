@@ -1,6 +1,22 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added a new mapping for Slice dictionaries to use C# 2.0
+  generics:
+
+  // Slice
+  dictionary<string, int>;
+
+  maps to:
+
+  // C#
+  System.Collections.Generic.Dictionary<string, int>;
+
+  The previous mapping to the .NET 1.1 DictionaryBase class
+  is still supported with the "clr:DictionaryBase" metadata
+  directive. Please see the manual for more details.
+
+
 - The property Ice.Trace.Location has been deprecated and replaced
   by Ice.Trace.Locator.
 

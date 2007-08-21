@@ -11,7 +11,7 @@ namespace IceInternal
 {
 
     using System;
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Threading;
 
@@ -232,7 +232,8 @@ namespace IceInternal
             }
         }
 
-        protected void prepare__(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode, Ice.Context context)
+        protected void prepare__(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode,
+                                 Dictionary<string, string> context)
         {
             lock(_monitor)
             {
@@ -300,7 +301,7 @@ namespace IceInternal
                         Ice.ImplicitContextI implicitContext = 
                             rf.getInstance().getImplicitContext();
                         
-                        Ice.Context prxContext = rf.getContext();
+                        Dictionary<string, string> prxContext = rf.getContext();
                         
                         if(implicitContext == null)
                         {
@@ -418,6 +419,7 @@ namespace IceInternal
 
 namespace Ice
 {
+    using System.Collections.Generic;
 
     public abstract class AMI_Object_ice_invoke : IceInternal.OutgoingAsync
     {
@@ -425,7 +427,7 @@ namespace Ice
         public abstract override void ice_exception(Ice.Exception ex);
 
         public void invoke__(Ice.ObjectPrx prx, string operation, OperationMode mode,
-            byte[] inParams, Ice.Context context)
+            byte[] inParams, Dictionary<string, string> context)
         {
             try
             {

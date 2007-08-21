@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 
 class Twoways
 {
@@ -455,18 +456,18 @@ class Twoways
         }
 
         {
-            Test.ByteBoolD di1 = new Test.ByteBoolD();
+            Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
             di1[10] = true;
             di1[100] = false;
-            Test.ByteBoolD di2 = new Test.ByteBoolD();
-            di2[10] = true;
+            Dictionary<byte, bool> di2 = new Dictionary<byte, bool>();
+            // di2[10] = true; // Disabled since new dictionary mapping.
             di2[11] = false;
             di2[101] = true;
             
-            Test.ByteBoolD _do;
-            Test.ByteBoolD ro = p.opByteBoolD(di1, di2, out _do);
+            Dictionary<byte, bool> _do;
+            Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out _do);
             
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro[10] == true);
             test(ro[11] == false);
@@ -475,18 +476,18 @@ class Twoways
         }
         
         {
-            Test.ShortIntD di1 = new Test.ShortIntD();
+            Dictionary<short, int> di1 = new Dictionary<short, int>();
             di1[110] = -1;
             di1[1100] = 123123;
-            Test.ShortIntD di2 = new Test.ShortIntD();
-            di2[110] = 1;
+            Dictionary<short, int> di2 = new Dictionary<short, int>();
+            //di2[110] = 1; // Disabled since new dictionary mapping.
             di2[111] = -100;
             di2[1101] = 0;
             
-            Test.ShortIntD _do;
-            Test.ShortIntD ro = p.opShortIntD(di1, di2, out _do);
+            Dictionary<short, int> _do;
+            Dictionary<short, int> ro = p.opShortIntD(di1, di2, out _do);
             
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro[110] == -1);
             test(ro[111] == -100);
@@ -495,18 +496,18 @@ class Twoways
         }
         
         {
-            Test.LongFloatD di1 = new Test.LongFloatD();
+            Dictionary<long, float> di1 = new Dictionary<long, float>();
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
-            Test.LongFloatD di2 = new Test.LongFloatD();
-            di2[999999110L] = -1.1f;
+            Dictionary<long, float> di2 = new Dictionary<long, float>();
+            //di2[999999110L] = -1.1f; // Disabled since new dictionary mapping.
             di2[999999120L] = -100.4f;
             di2[999999130L] = 0.5f;
             
-            Test.LongFloatD _do;
-            Test.LongFloatD ro = p.opLongFloatD(di1, di2, out _do);
+            Dictionary<long, float> _do;
+            Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out _do);
             
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro[999999110L] == -1.1f);
             test(ro[999999120L] == -100.4f);
@@ -515,18 +516,18 @@ class Twoways
         }
         
         {
-            Test.StringStringD di1 = new Test.StringStringD();
+            Dictionary<string, string> di1 = new Dictionary<string, string>();
             di1["foo"] = "abc -1.1";
             di1["bar"] = "abc 123123.2";
-            Test.StringStringD di2 = new Test.StringStringD();
-            di2["foo"] = "abc -1.1";
+            Dictionary<string, string> di2 = new Dictionary<string, string>();
+            // di2["foo"] = "abc -1.1"; // Disabled since new dictionary mapping.
             di2["FOO"] = "abc -100.4";
             di2["BAR"] = "abc 0.5";
             
-            Test.StringStringD _do;
-            Test.StringStringD ro = p.opStringStringD(di1, di2, out _do);
+            Dictionary<string, string> _do;
+            Dictionary<string, string> ro = p.opStringStringD(di1, di2, out _do);
             
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro["foo"].Equals("abc -1.1"));
             test(ro["FOO"].Equals("abc -100.4"));
@@ -535,18 +536,18 @@ class Twoways
         }
         
         {
-            Test.StringMyEnumD di1 = new Test.StringMyEnumD();
+            Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
-            Test.StringMyEnumD di2 = new Test.StringMyEnumD();
-            di2["abc"] = Test.MyEnum.enum1;
+            Dictionary<string, Test.MyEnum> di2 = new Dictionary<string, Test.MyEnum>();
+            // di2["abc"] = Test.MyEnum.enum1; // Disabled since new dictionary mapping.
             di2["qwerty"] = Test.MyEnum.enum3;
             di2["Hello!!"] = Test.MyEnum.enum2;
             
-            Test.StringMyEnumD _do;
-            Test.StringMyEnumD ro = p.opStringMyEnumD(di1, di2, out _do);
+            Dictionary<string, Test.MyEnum> _do;
+            Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out _do);
             
-            test(_do.Equals(di1));
+            test(Ice.Comparer.ValueEquals(_do, di1));
             test(ro.Count == 4);
             test(ro["abc"] == Test.MyEnum.enum1);
             test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -574,34 +575,34 @@ class Twoways
         }
 
         {
-            Ice.Context ctx = new Ice.Context();
+            Dictionary<string, string> ctx = new Dictionary<string, string>();
             ctx["one"] = "ONE";
             ctx["two"] = "TWO";
             ctx["three"] = "THREE";
             {
                 test(p.ice_getContext().Count == 0);
-                Ice.Context r = p.opContext();
+                Dictionary<string, string> r = p.opContext();
                 test(!r.Equals(ctx));
             }
             {
-                Ice.Context r = p.opContext(ctx);
+                Dictionary<string, string> r = p.opContext(ctx);
                 test(p.ice_getContext().Count == 0);
-                test(r.Equals(ctx));
+                test(Ice.Comparer.ValueEquals(r, ctx));
             }
             {
                 Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                test(p2.ice_getContext().Equals(ctx));
-                Ice.Context r = p2.opContext();
-                test(r.Equals(ctx));
+                test(Ice.Comparer.ValueEquals(p2.ice_getContext(), ctx));
+                Dictionary<string, string> r = p2.opContext();
+                test(Ice.Comparer.ValueEquals(r, ctx));
                 r = p2.opContext(ctx);
-                test(r.Equals(ctx));
+                test(Ice.Comparer.ValueEquals(r, ctx));
             }
             {
                 //
                 // Test that default context is obtained correctly from communicator.
                 //
 /* DEPRECATED
-                Ice.Context dflt = new Ice.Context();
+                Dictionary<string, string> dflt = new Dictionary<string, string>();
                 dflt["a"] = "b";
                 communicator.setDefaultContext(dflt);
                 test(!p.opContext().Equals(dflt));
@@ -612,7 +613,7 @@ class Twoways
                 p2 = Test.MyClassPrxHelper.uncheckedCast(p.ice_defaultContext());
                 test(p2.opContext().Equals(dflt));
 
-                communicator.setDefaultContext(new Ice.Context());
+                communicator.setDefaultContext(new Dictionary<string, string>());
                 test(p2.opContext().Count != 0);
 
                 communicator.setDefaultContext(dflt);
@@ -637,7 +638,7 @@ class Twoways
                 Test.MyClassPrx c5 = Test.MyClassPrxHelper.uncheckedCast(c2.ice_defaultContext());
                 test(c5.opContext()["a"].Equals("d"));
 
-                communicator.setDefaultContext(new Ice.Context());
+                communicator.setDefaultContext(new Dictionary<string, string>());
 */
             }
         }
@@ -655,7 +656,7 @@ class Twoways
                 
                 Ice.Communicator ic = Ice.Util.initialize(initData);
                 
-                Ice.Context ctx = new Ice.Context();
+                Dictionary<string, string> ctx = new Dictionary<string, string>();
                 ctx["one"] = "ONE";
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
@@ -664,8 +665,8 @@ class Twoways
                     ic.stringToProxy("test:default -p 12010 -t 10000"));
 
                 ic.getImplicitContext().setContext(ctx);
-                test(ic.getImplicitContext().getContext().Equals(ctx));
-                test(p3.opContext().Equals(ctx));
+                test(Ice.Comparer.ValueEquals(ic.getImplicitContext().getContext(), ctx));
+                test(Ice.Comparer.ValueEquals(p3.opContext(), ctx));
                 
                 test(ic.getImplicitContext().containsKey("zero") == false);
                 String r = ic.getImplicitContext().put("zero", "ZERO");
@@ -673,23 +674,33 @@ class Twoways
                 test(ic.getImplicitContext().get("zero").Equals("ZERO"));
                 
                 ctx = ic.getImplicitContext().getContext();
-                test(p3.opContext().Equals(ctx));
+                test(Ice.Comparer.ValueEquals(p3.opContext(), ctx));
                 
-                Ice.Context prxContext = new Ice.Context();
+                Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
                 prxContext["four"] = "QUATRE";
                 
-                Ice.Context combined = (Ice.Context)prxContext.Clone();
-                combined.AddRange(ctx);
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach(KeyValuePair<string, string> e in ctx)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch(System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
                 test(combined["one"].Equals("UN"));
                 
                 p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
                 
                 ic.getImplicitContext().setContext(null);
-                test(p3.opContext().Equals(prxContext));
+                test(Ice.Comparer.ValueEquals(p3.opContext(), prxContext));
                 
                 ic.getImplicitContext().setContext(ctx);
-                test(p3.opContext().Equals(combined));
+                test(Ice.Comparer.ValueEquals(p3.opContext(), combined));
                 
                 test(ic.getImplicitContext().remove("one").Equals("ONE"));
 

@@ -10,6 +10,7 @@
 using Test;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 
 internal sealed class ServerI : ServerDisp_
 {
@@ -88,7 +89,7 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         }
     }
 
-    public override ServerPrx createServer(Properties props, Ice.Current current)
+    public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();

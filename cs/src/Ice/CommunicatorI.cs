@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+using System.Collections.Generic;
+
 namespace Ice
 {
         
@@ -121,12 +123,12 @@ namespace Ice
             instance_.referenceFactory().setDefaultLocator(locator);
         }
         
-        public Ice.Context getDefaultContext()
+        public Dictionary<string, string> getDefaultContext()
         {
             return instance_.getDefaultContext();
         }
         
-        public void setDefaultContext(Ice.Context ctx)
+        public void setDefaultContext(Dictionary<string, string> ctx)
         {
             instance_.setDefaultContext(ctx);
         }

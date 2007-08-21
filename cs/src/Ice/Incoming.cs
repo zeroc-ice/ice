@@ -10,7 +10,7 @@
 namespace IceInternal
 {
 
-    using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
 
@@ -416,7 +416,7 @@ namespace IceInternal
                 string second = _is.readString();
                 if(current_.ctx == null)
                 {
-                    current_.ctx = new Ice.Context();
+                    current_.ctx = new Dictionary<string, string>();
                 }
                 current_.ctx[first] = second;
             }

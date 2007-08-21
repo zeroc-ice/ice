@@ -11,6 +11,7 @@ namespace Ice
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
     public sealed class ObjectAdapterI : ObjectAdapter
@@ -420,7 +421,7 @@ namespace Ice
             }
         }
 
-        public FacetMap removeAllFacets(Identity ident)
+        public Dictionary<string, Ice.Object> removeAllFacets(Identity ident)
         {
             lock(this)
             {
@@ -447,7 +448,7 @@ namespace Ice
             }
         }
 
-        public FacetMap findAllFacets(Identity ident)
+        public Dictionary<string, Ice.Object> findAllFacets(Identity ident)
         {
             lock(this)
             {
@@ -1344,7 +1345,7 @@ namespace Ice
             }
 
             bool noProps = true;
-            PropertyDict props = instance_.initializationData().properties.getPropertiesForPrefix(prefix);
+            Dictionary<string, string> props = instance_.initializationData().properties.getPropertiesForPrefix(prefix);
             foreach(String prop in props.Keys)
             {
                 bool valid = false;

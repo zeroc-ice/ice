@@ -9,6 +9,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using IceUtil;
 
@@ -27,35 +28,35 @@ namespace Ice
         string ice_toString();
 
         bool ice_isA(string id__);
-        bool ice_isA(string id__, Context context__);
+        bool ice_isA(string id__, Dictionary<string, string> context__);
 
         void ice_ping();
-        void ice_ping(Context context__);
+        void ice_ping(Dictionary<string, string> context__);
 
         string[] ice_ids();
-        string[] ice_ids(Context context__);
+        string[] ice_ids(Dictionary<string, string> context__);
 
         string ice_id();
-        string ice_id(Context context__);
+        string ice_id(Dictionary<string, string> context__);
 
         // Returns true if ok, false if user exception.
         bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams);
         bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-            Context context__);
+            Dictionary<string, string> context__);
 
         void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
         void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
-            Context context);
+            Dictionary<string, string> context);
 
         Identity ice_getIdentity();
         [Obsolete("This method is deprecated, use ice_identity instead.")]
         ObjectPrx ice_newIdentity(Identity newIdentity);
         ObjectPrx ice_identity(Identity newIdentity);
         
-        Context ice_getContext();
+        Dictionary<string, string> ice_getContext();
         [Obsolete("This method is deprecated, use ice_context instead.")]
-        ObjectPrx ice_newContext(Context newContext);
-        ObjectPrx ice_context(Context newContext);
+        ObjectPrx ice_newContext(Dictionary<string, string> newContext);
+        ObjectPrx ice_context(Dictionary<string, string> newContext);
         [Obsolete("This method is deprecated.")]
         ObjectPrx ice_defaultContext();
         
@@ -166,12 +167,13 @@ namespace Ice
             return ice_isA(id__, null, false);
         }
 
-        public bool ice_isA(string id__, Context context__)
+        public bool ice_isA(string id__, Dictionary<string, string> context__)
         {
             return ice_isA(id__, context__, true);
         }
 
-        private bool ice_isA(string id__, Context context__, bool explicitContext__)
+        private bool ice_isA(string id__, Dictionary<string, string> context__,
+                             bool explicitContext__)
         {
             if(explicitContext__ && context__ == null)
             {
@@ -204,12 +206,12 @@ namespace Ice
             ice_ping(null, false);
         }
 
-        public void ice_ping(Context context__)
+        public void ice_ping(Dictionary<string, string> context__)
         {
             ice_ping(context__, true);
         }
 
-        private void ice_ping(Context context__, bool explicitContext__)
+        private void ice_ping(Dictionary<string, string> context__, bool explicitContext__)
         {
             if(explicitContext__ && context__ == null)
             {
@@ -242,12 +244,12 @@ namespace Ice
             return ice_ids(null, false);
         }
 
-        public string[] ice_ids(Context context__)
+        public string[] ice_ids(Dictionary<string, string> context__)
         {
             return ice_ids(context__, true);
         }
 
-        private string[] ice_ids(Context context__, bool explicitContext__)
+        private string[] ice_ids(Dictionary<string, string> context__, bool explicitContext__)
         {
             if(explicitContext__ && context__ == null)
             {
@@ -279,12 +281,12 @@ namespace Ice
             return ice_id(null, false);
         }
 
-        public string ice_id(Context context__)
+        public string ice_id(Dictionary<string, string> context__)
         {
              return ice_id(context__, true);
         }
 
-        private string ice_id(Context context__, bool explicitContext__)
+        private string ice_id(Dictionary<string, string> context__, bool explicitContext__)
         {
             if(explicitContext__ && context__ == null)
             {
@@ -317,13 +319,13 @@ namespace Ice
         }
 
         public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-            Context context)
+                               Dictionary<string, string> context)
         {
             return ice_invoke(operation, mode, inParams, out outParams, context, true);
         }
             
         private bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-                                Context context,  bool explicitContext)
+                                Dictionary<string, string> context,  bool explicitContext)
         {
             if(explicitContext && context == null)
             {
@@ -364,7 +366,7 @@ namespace Ice
         }
 
         public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
-                                     Context context)
+                                     Dictionary<string, string> context)
         {
             if(context == null)
             {
@@ -402,19 +404,19 @@ namespace Ice
             return ice_identity(newIdentity);
         }
 
-        public Context ice_getContext()
+        public Dictionary<string, string> ice_getContext()
         {
             return _reference.getContext();
         }
 
-        public ObjectPrx ice_context(Context newContext)
+        public ObjectPrx ice_context(Dictionary<string, string> newContext)
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
             proxy.setup(_reference.changeContext(newContext));
             return proxy;
         }
 
-        public ObjectPrx ice_newContext(Context newContext)
+        public ObjectPrx ice_newContext(Dictionary<string, string> newContext)
         {
             return ice_context(newContext);
         }
@@ -1109,7 +1111,7 @@ namespace Ice
             _reference = @ref;
         }
 
-        protected static Ice.Context emptyContext_ = new Ice.Context();
+        protected static Dictionary<string, string> emptyContext_ = new Dictionary<string, string>();
         private IceInternal.Reference _reference;
         private ObjectDel_ _delegate;
     }
@@ -1121,7 +1123,7 @@ namespace Ice
             return b;
         }
 
-        public static ObjectPrx checkedCast(Ice.ObjectPrx b, Ice.Context ctx)
+        public static ObjectPrx checkedCast(Ice.ObjectPrx b, Dictionary<string, string> ctx)
         {
             return b;
         }
@@ -1147,7 +1149,7 @@ namespace Ice
             return d;
         }
 
-        public static ObjectPrx checkedCast(Ice.ObjectPrx b, string f, Ice.Context ctx)
+        public static ObjectPrx checkedCast(Ice.ObjectPrx b, string f, Dictionary<string, string> ctx)
         {
             ObjectPrx d = null;
             if(b != null)
@@ -1189,19 +1191,19 @@ namespace Ice
 
     public interface ObjectDel_
     {
-        bool ice_isA(string id, Ice.Context context);
-        void ice_ping(Ice.Context context);
-        string[] ice_ids(Ice.Context context);
-        string ice_id(Ice.Context context);
+        bool ice_isA(string id, Dictionary<string, string> context);
+        void ice_ping(Dictionary<string, string> context);
+        string[] ice_ids(Dictionary<string, string> context);
+        string ice_id(Dictionary<string, string> context);
         bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams, out byte[] outParams,
-                        Ice.Context context);
+                        Dictionary<string, string> context);
 
         ConnectionI getConnection__(out bool compress);
     }
 
     public class ObjectDelD_ : ObjectDel_
     {
-        public virtual bool ice_isA(string id__, Ice.Context context__)
+        public virtual bool ice_isA(string id__, Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_isA", OperationMode.Nonmutating, context__);
@@ -1219,7 +1221,7 @@ namespace Ice
             }
         }
         
-        public virtual void ice_ping(Ice.Context context__)
+        public virtual void ice_ping(Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_ping", OperationMode.Nonmutating, context__);
@@ -1238,7 +1240,7 @@ namespace Ice
             }
         }
         
-        public virtual string[] ice_ids(Ice.Context context__)
+        public virtual string[] ice_ids(Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_ids", OperationMode.Nonmutating, context__);
@@ -1256,7 +1258,7 @@ namespace Ice
             }
         }
         
-        public virtual string ice_id(Ice.Context context__)
+        public virtual string ice_id(Dictionary<string, string> context__)
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_id", OperationMode.Nonmutating, context__);
@@ -1275,7 +1277,7 @@ namespace Ice
         }
         
         public virtual bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams,
-            out byte[] outParams, Ice.Context context)
+                                       out byte[] outParams, Dictionary<string, string> context)
         {
             throw new CollocationOptimizationException();
         }
@@ -1311,7 +1313,7 @@ namespace Ice
         protected internal Ice.ObjectAdapter adapter__;
         
         protected internal void initCurrent__(ref Current current, string op, Ice.OperationMode mode,
-                                              Ice.Context context)
+                                              Dictionary<string, string> context)
         {
             current.adapter = adapter__;
             current.id = reference__.getIdentity();
@@ -1331,11 +1333,11 @@ namespace Ice
                 ImplicitContextI implicitContext =
                     reference__.getInstance().getImplicitContext();
             
-                Context prxContext = reference__.getContext();
+                Dictionary<string, string> prxContext = reference__.getContext();
                 
                 if(implicitContext == null)
                 {
-                    current.ctx = (Context)prxContext.Clone();
+                    current.ctx = new Dictionary<string, string>(prxContext);
                 }
                 else
                 {
@@ -1363,7 +1365,7 @@ namespace Ice
             
     public class ObjectDelM_ : ObjectDel_
     {
-        public virtual bool ice_isA(string id__, Ice.Context context__)
+        public virtual bool ice_isA(string id__, Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = getOutgoing("ice_isA", OperationMode.Nonmutating, context__);
             try
@@ -1405,7 +1407,7 @@ namespace Ice
             }
         }
         
-        public virtual void ice_ping(Ice.Context context__)
+        public virtual void ice_ping(Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = getOutgoing("ice_ping", OperationMode.Nonmutating, context__);
             try
@@ -1437,7 +1439,7 @@ namespace Ice
             }
         }
         
-        public virtual string[] ice_ids(Ice.Context context__)
+        public virtual string[] ice_ids(Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = getOutgoing("ice_ids", OperationMode.Nonmutating, context__);
             try
@@ -1470,7 +1472,7 @@ namespace Ice
             }
         }
         
-        public virtual string ice_id(Ice.Context context__)
+        public virtual string ice_id(Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = getOutgoing("ice_id", OperationMode.Nonmutating, context__);
             try
@@ -1504,7 +1506,7 @@ namespace Ice
         }
         
         public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
-                                       Ice.Context context__)
+                                       Dictionary<string, string> context__)
         {
             IceInternal.Outgoing og__ = getOutgoing(operation, mode, context__);
             try
@@ -1588,7 +1590,8 @@ namespace Ice
             connection__ = reference__.getConnection(out compress__);
         }
         
-        protected IceInternal.Outgoing getOutgoing(string operation, OperationMode mode, Ice.Context context)
+        protected IceInternal.Outgoing getOutgoing(string operation, OperationMode mode,
+                                                   Dictionary<string, string> context)
         {
             return connection__.getOutgoing(reference__, operation, mode, context, compress__);
         }

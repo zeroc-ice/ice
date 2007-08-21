@@ -11,6 +11,7 @@ namespace IceSSL
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.IO;
     using System.Security.Authentication;
     using System.Security.Cryptography;
@@ -54,11 +55,11 @@ namespace IceSSL
             //
             // Process IceSSL.ImportCert.* properties.
             //
-            Ice.PropertyDict certs = properties.getPropertiesForPrefix(prefix + "ImportCert.");
-            foreach(DictionaryEntry entry in certs)
+            Dictionary<string, string> certs = properties.getPropertiesForPrefix(prefix + "ImportCert.");
+            foreach(KeyValuePair<string, string> entry in certs)
             {
-                string name = (string)entry.Key;
-                string val = (string)entry.Value;
+                string name = entry.Key;
+                string val = entry.Value;
                 if(val.Length > 0)
                 {
                     importCertificate(name, val);
@@ -129,13 +130,13 @@ namespace IceSSL
                 //
                 // TODO: tracing?
                 const string findPrefix = prefix + "FindCert.";
-                Ice.PropertyDict certProps = properties.getPropertiesForPrefix(findPrefix);
+                Dictionary<string, string> certProps = properties.getPropertiesForPrefix(findPrefix);
                 if(certProps.Count > 0)
                 {
-                    foreach(DictionaryEntry entry in certProps)
+                    foreach(KeyValuePair<string, string> entry in certProps)
                     {
-                        string name = (string)entry.Key;
-                        string val = (string)entry.Value;
+                        string name = entry.Key;
+                        string val = entry.Value;
                         if(val.Length > 0)
                         {
                             string storeSpec = name.Substring(findPrefix.Length);

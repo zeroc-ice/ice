@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
@@ -66,13 +67,20 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         return p1;
     }
     
-    public override Test.ByteBoolD opByteBoolD(Test.ByteBoolD p1, Test.ByteBoolD p2, out Test.ByteBoolD p3,
-                                               Ice.Current current)
+    public override Dictionary<byte, bool> opByteBoolD(Dictionary<byte, bool> p1, Dictionary<byte, bool> p2,
+                                                       out Dictionary<byte, bool> p3,
+                                                       Ice.Current current)
     {
-        p3 = p1;
-        Test.ByteBoolD r = new Test.ByteBoolD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        p3 = (Dictionary<byte, bool>)p1;
+        Dictionary<byte, bool> r = new Dictionary<byte, bool>();
+        foreach(KeyValuePair<byte, bool> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<byte, bool> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         return r;
     }
     
@@ -145,13 +153,20 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         return r;
     }
     
-    public override Test.LongFloatD opLongFloatD(Test.LongFloatD p1, Test.LongFloatD p2, out Test.LongFloatD p3,
+    public override Dictionary<long, float> opLongFloatD(Dictionary<long, float> p1, Dictionary<long, float> p2,
+                                                         out Dictionary<long, float> p3,
                                                  Ice.Current current)
     {
-        p3 = p1;
-        Test.LongFloatD r = new Test.LongFloatD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        p3 = (Dictionary<long, float>)p1;
+        Dictionary<long, float> r = new Dictionary<long, float>();
+        foreach(KeyValuePair<long, float> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<long, float> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         return r;
     }
     
@@ -170,13 +185,19 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         return Test.MyEnum.enum3;
     }
     
-    public override Test.ShortIntD opShortIntD(Test.ShortIntD p1, Test.ShortIntD p2, out Test.ShortIntD p3,
-                                               Ice.Current current)
+    public override Dictionary<short, int> opShortIntD(Dictionary<short, int> p1, Dictionary<short, int> p2,
+                                                       out Dictionary<short, int> p3, Ice.Current current)
     {
-        p3 = p1;
-        Test.ShortIntD r = new Test.ShortIntD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        p3 = (Dictionary<short, int>)p1;
+        Dictionary<short, int> r = new Dictionary<short, int>();
+        foreach(KeyValuePair<short, int> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<short, int> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         return r;
     }
     
@@ -227,13 +248,21 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         return p1 + " " + p2;
     }
     
-    public override Test.StringMyEnumD opStringMyEnumD(Test.StringMyEnumD p1, Test.StringMyEnumD p2,
-                                                       out Test.StringMyEnumD p3, Ice.Current current)
+    public override Dictionary<string, Test.MyEnum> opStringMyEnumD(Dictionary<string, Test.MyEnum> p1,
+                                                                    Dictionary<string, Test.MyEnum> p2,
+                                                                    out Dictionary<string, Test.MyEnum> p3,
+                                                                    Ice.Current current)
     {
-        p3 = p1;
-        Test.StringMyEnumD r = new Test.StringMyEnumD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        p3 = (Dictionary<string, Test.MyEnum>)p1;
+        Dictionary<string, Test.MyEnum> r = new Dictionary<string, Test.MyEnum>();
+        foreach(KeyValuePair<string, Test.MyEnum> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<string, Test.MyEnum> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         return r;
     }
     
@@ -251,9 +280,9 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     {
     }
 
-    public override Ice.Context opContext(Ice.Current current)
+    public override Dictionary<string, string> opContext(Ice.Current current)
     {
-        return current.ctx == null ? new Ice.Context() : (Ice.Context)current.ctx.Clone();
+        return current.ctx == null ? new Dictionary<string, string>() : new Dictionary<string, string>(current.ctx);
     }
     
     public override void opDoubleMarshaling(double p1, Test.DoubleS p2, Ice.Current current)
@@ -310,13 +339,21 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         return r;
     }
      
-    public override Test.StringStringD opStringStringD(Test.StringStringD p1, Test.StringStringD p2,
-                                                       out Test.StringStringD p3, Ice.Current current)
+    public override Dictionary<string, string> opStringStringD(Dictionary<string, string> p1,
+                                                               Dictionary<string, string> p2,
+                                                               out Dictionary<string, string> p3,
+                                                               Ice.Current current)
     {
-        p3 = p1;
-        Test.StringStringD r = new Test.StringStringD();
-        r.AddRange(p1);
-        r.AddRange(p2);
+        p3 = (Dictionary<string, string>)p1;
+        Dictionary<string, string> r = new Dictionary<string, string>();
+        foreach(KeyValuePair<string, string> e in p1)
+        {
+            r.Add(e.Key, e.Value);
+        }
+        foreach(KeyValuePair<string, string> e in p2)
+        {
+            r.Add(e.Key, e.Value);
+        }
         return r;
     }
     

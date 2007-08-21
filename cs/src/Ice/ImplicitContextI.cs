@@ -10,6 +10,7 @@
 namespace Ice
 {
     using System.Collections;
+    using System.Collections.Generic;
     using System.Threading;
 
     //
@@ -38,35 +39,36 @@ namespace Ice
             }
         }
         
-        public abstract Context getContext();
-        public abstract void setContext(Context newContext);
+        public abstract Dictionary<string, string> getContext();
+        public abstract void setContext(Dictionary<string, string> newContext);
         public abstract bool containsKey(string key);    
         public abstract string get(string key);
         public abstract string put(string key, string value);
         public abstract string remove(string key);
 
-        abstract public void write(Context prxContext, IceInternal.BasicStream os);
-        abstract internal Context combine(Context prxContext);
+        abstract public void write(Dictionary<string, string> prxContext,
+                                   IceInternal.BasicStream os);
+        abstract internal Dictionary<string, string> combine(Dictionary<string, string> prxContext);
     }
         
         
     internal class SharedImplicitContext : ImplicitContextI
     {
-        public override Context getContext()
+        public override Dictionary<string, string> getContext()
         {
             lock(this)
             {
-                return (Context)_context.Clone();
+                return new Dictionary<string, string>(_context);
             }
         }
             
-        public override void setContext(Context context)
+        public override void setContext(Dictionary<string, string> context)
         {
             lock(this)
             {
                 if(context != null && context.Count != 0)
                 {
-                    _context = (Context)context.Clone();
+                    _context = new Dictionary<string, string>(context);
                 }
                 else
                 {
@@ -84,7 +86,7 @@ namespace Ice
                     key = "";
                 }
                 
-                return _context.Contains(key);
+                return _context.ContainsKey(key);
             }
         }
 
@@ -120,7 +122,8 @@ namespace Ice
                     value = "";
                 }
 
-                string oldVal = _context[key];
+                string oldVal;
+                _context.TryGetValue(key, out oldVal);
                 if(oldVal == null)
                 {
                     oldVal = "";
@@ -155,7 +158,7 @@ namespace Ice
             }
         }
             
-        public override void write(Context prxContext, IceInternal.BasicStream os)
+        public override void write(Dictionary<string, string> prxContext, IceInternal.BasicStream os)
         {
             if(prxContext.Count == 0)
             {
@@ -166,7 +169,7 @@ namespace Ice
             }
             else 
             {
-                Context ctx = null;
+                Dictionary<string, string> ctx = null;
                 lock(this)
                 {
                     ctx = _context.Count == 0 ? prxContext :combine(prxContext); 
@@ -175,37 +178,47 @@ namespace Ice
             }
         }
 
-        internal override Context combine(Context prxContext)
+        internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
         {
             lock(this)
             {
-                Context combined = (Context)prxContext.Clone();
-                combined.AddRange(_context);
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach(KeyValuePair<string, string> e in _context)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch(System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
                 return combined;
             }
         }
 
-        private Context _context = new Context();
+        private Dictionary<string, string> _context = new Dictionary<string, string>();
     }
 
     internal class PerThreadImplicitContext : ImplicitContextI
     {
-        public override Context getContext()
+        public override Dictionary<string, string> getContext()
         {
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[Thread.CurrentThread];
+                threadContext = (Dictionary<string, string>)_map[Thread.CurrentThread];
             }
 
             if(threadContext == null)
             {
-                threadContext = new Context();
+                threadContext = new Dictionary<string, string>();
             }
             return threadContext;
         }
 
-        public override void setContext(Context context)
+        public override void setContext(Dictionary<string, string> context)
         {
             if(context == null || context.Count == 0)
             {
@@ -216,7 +229,7 @@ namespace Ice
             }
             else
             {
-                Context threadContext = (Context)context.Clone();
+                Dictionary<string, string> threadContext = new Dictionary<string, string>(context);
                 
                 lock(this)
                 {
@@ -232,10 +245,10 @@ namespace Ice
                 key = "";
             }
 
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[Thread.CurrentThread];
+                threadContext = (Dictionary<string, string>)_map[Thread.CurrentThread];
             }
 
             if(threadContext == null)
@@ -243,7 +256,7 @@ namespace Ice
                 return false;
             }
 
-            return threadContext.Contains(key);
+            return threadContext.ContainsKey(key);
         }
 
         public override string get(string key)
@@ -253,10 +266,10 @@ namespace Ice
                 key = "";
             }
 
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[Thread.CurrentThread];
+                threadContext = (Dictionary<string, string>)_map[Thread.CurrentThread];
             }
 
             if(threadContext == null)
@@ -284,22 +297,23 @@ namespace Ice
 
             Thread currentThread = Thread.CurrentThread;
             
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[currentThread];
+                threadContext = (Dictionary<string, string>)_map[currentThread];
             }
            
             if(threadContext == null)
             {
-                threadContext = new Context();
+                threadContext = new Dictionary<string, string>();
                 lock(this)
                 {
                     _map.Add(currentThread, threadContext);
                 }
             }
             
-            string oldVal = threadContext[key];
+            string oldVal;
+            threadContext.TryGetValue(key, out oldVal);
             if(oldVal == null)
             {
                 oldVal = "";
@@ -316,10 +330,10 @@ namespace Ice
                 key = "";
             }
 
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[Thread.CurrentThread];
+                threadContext = (Dictionary<string, string>)_map[Thread.CurrentThread];
             }
 
             if(threadContext == null)
@@ -340,12 +354,13 @@ namespace Ice
             return val;
         }
 
-        public override void write(Context prxContext, IceInternal.BasicStream os)
+        public override void write(Dictionary<string, string> prxContext,
+                                   IceInternal.BasicStream os)
         {
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[Thread.CurrentThread];
+                threadContext = (Dictionary<string, string>)_map[Thread.CurrentThread];
             }
             
             if(threadContext == null || threadContext.Count == 0)
@@ -358,22 +373,35 @@ namespace Ice
             }
             else
             {
-                Context combined = (Context)prxContext.Clone();
-                combined.AddRange(threadContext);
+                Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+                foreach(KeyValuePair<string, string> e in threadContext)
+                {
+                    try
+                    {
+                        combined.Add(e.Key, e.Value);
+                    }
+                    catch(System.ArgumentException)
+                    {
+                        // Ignore.
+                    }
+                }
                 ContextHelper.write(os, combined);
             }
         }
 
-        internal override Context combine(Context prxContext)
+        internal override Dictionary<string, string> combine(Dictionary<string, string> prxContext)
         {
-            Context threadContext = null;
+            Dictionary<string, string> threadContext = null;
             lock(this)
             {
-                threadContext = (Context)_map[Thread.CurrentThread];
+                threadContext = (Dictionary<string, string>)_map[Thread.CurrentThread];
             }
 
-            Context combined = (Context)prxContext.Clone();
-            combined.AddRange(threadContext);
+            Dictionary<string, string> combined = new Dictionary<string, string>(prxContext);
+            foreach(KeyValuePair<string, string> e in threadContext)
+            {
+                combined.Add(e.Key, e.Value);
+            }
             return combined;
         }
 

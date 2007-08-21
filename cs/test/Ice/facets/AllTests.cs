@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using Test;
 
 public class AllTests
@@ -56,7 +57,8 @@ public class AllTests
         adapter.addFacet(obj1, communicator.stringToIdentity("id2"), "f1");
         adapter.addFacet(obj2, communicator.stringToIdentity("id2"), "f2");
         adapter.addFacet(obj3, communicator.stringToIdentity("id2"), "");
-        Ice.FacetMap fm = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
+        Dictionary<string, Ice.Object> fm
+            = adapter.removeAllFacets(communicator.stringToIdentity("id1"));
         test(fm.Count == 2);
         test(fm["f1"] == obj1);
         test(fm["f2"] == obj2);

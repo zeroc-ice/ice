@@ -8,7 +8,7 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 
 public class PrinterI : Ice.Blobject
 {
@@ -49,18 +49,18 @@ public class PrinterI : Ice.Blobject
         }
         else if(current.operation.Equals("printDictionary"))
         {
-            Demo.StringDict dict = Demo.StringDictHelper.read(inStream);
+            Dictionary<string, string> dict = Demo.StringDictHelper.read(inStream);
             inStream.destroy();
             Console.Write("Printing dictionary {");
             bool first = true;
-            foreach(DictionaryEntry e in dict)
+            foreach(KeyValuePair<string, string> e in dict)
             {
                 if(!first)
                 {
                     Console.Write(", ");
                 }
                 first = false;
-                Console.Write(e.Key.ToString() + "=" + e.Value.ToString());
+                Console.Write(e.Key + "=" + e.Value);
             }
             Console.WriteLine("}");
             return true;

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Glacier2;
 using Test;
@@ -210,7 +211,7 @@ public class Client : Ice.Application
             Console.Out.Flush();
             CallbackPrx oneway = CallbackPrxHelper.uncheckedCast(twoway.ice_oneway());
             CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] =  "o";
             oneway.initiateCallback(onewayR, context);
             test(callbackReceiverImpl.callbackOK());
@@ -220,7 +221,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("testing twoway callback... ");
             Console.Out.Flush();
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] = "t";
             twoway.initiateCallback(twowayR, context);
             test(callbackReceiverImpl.callbackOK());
@@ -230,7 +231,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("ditto, but with user exception... ");
             Console.Out.Flush();
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] = "t";
             try
             {
@@ -249,7 +250,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("trying twoway callback with fake category... ");
             Console.Out.Flush();
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] = "t";
             try
             {
@@ -265,7 +266,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("testing whether other allowed category is accepted... ");
             Console.Out.Flush();
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] =  "t";
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                 twoway.ice_identity(communicator().stringToIdentity("c2/callback")));
@@ -277,7 +278,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("testing whether disallowed category gets rejected... ");
             Console.Out.Flush();
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] = "t";
             try
             {
@@ -295,7 +296,7 @@ public class Client : Ice.Application
         {
             Console.Out.Write("testing whether user-id as category is accepted... ");
             Console.Out.Flush();
-            Ice.Context context = new Ice.Context();
+            Dictionary<string, string> context = new Dictionary<string, string>();
             context["_fwd"] = "t";
             CallbackPrx otherCategoryTwoway = CallbackPrxHelper.uncheckedCast(
                 twoway.ice_identity(communicator().stringToIdentity("_userid/callback")));

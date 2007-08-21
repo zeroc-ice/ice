@@ -8,7 +8,7 @@
 // **********************************************************************
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using Demo;
 
 public class Subscriber : Ice.Application
@@ -114,7 +114,7 @@ public class Subscriber : Ice.Application
         //
         Ice.ObjectPrx subscriber = adapter.addWithUUID(new ClockI());
 
-        IceStorm.QoS qos = new IceStorm.QoS();
+        Dictionary<string, string> qos = new Dictionary<string, string>();
 
         //
         // Set up the proxy.

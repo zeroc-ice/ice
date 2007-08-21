@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System;
+using System.Collections.Generic;
 
 public sealed class MyDerivedClassI : Test.MyDerivedClass
 {
@@ -39,5 +40,5 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
         return base.ice_isA(s, current);
     }
 
-    private Ice.Context _ctx;
+    private Dictionary<string, string> _ctx;
 }

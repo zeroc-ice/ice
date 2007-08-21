@@ -468,7 +468,7 @@ public class Client
                 arr[i].seq8 = new String[] { "string1", "string2", "string3", "string4" };
                 arr[i].seq9 = new Test.MyEnum[] { Test.MyEnum.enum3, Test.MyEnum.enum2, Test.MyEnum.enum1 };
                 arr[i].seq10 = new Test.MyClass[4]; // null elements.
-                arr[i].d = new Test.StringMyClassD();
+                arr[i].d = new System.Collections.Generic.Dictionary<string, Test.MyClass>();
                 arr[i].d["hi"] = arr[i];
             }
             @out = Ice.Util.createOutputStream(communicator);
