@@ -21,7 +21,8 @@ namespace Ice
                 _prefix = prefix + ": ";
             }
             
-            _date = "G";
+            _date = "d";
+            _time = "HH:mm:ss:fff";
         }
         
         public void print(string message)
@@ -35,7 +36,9 @@ namespace Ice
         public void trace(string category, string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder("[ ");
-            s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+            s.Append(System.DateTime.Now.ToString(_date));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time));
             s.Append(' ');
             s.Append(_prefix);
             s.Append(category);
@@ -53,7 +56,9 @@ namespace Ice
         public void warning(string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
-            s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+            s.Append(System.DateTime.Now.ToString(_date));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time));
             s.Append(' ');
             s.Append(_prefix);
             s.Append("warning: ");
@@ -68,7 +73,9 @@ namespace Ice
         public void error(string message)
         {
             System.Text.StringBuilder s = new System.Text.StringBuilder();
-            s.Append(System.DateTime.Now.ToString(_date, DateTimeFormatInfo.InvariantInfo));
+            s.Append(System.DateTime.Now.ToString(_date));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time));
             s.Append(' ');
             s.Append(_prefix);
             s.Append("error: ");
@@ -83,6 +90,7 @@ namespace Ice
         internal string _prefix = "";
         internal static object _globalMutex;
         internal string _date = null;
+        internal string _time = null;
         static LoggerI()
         {
             _globalMutex = new object();
