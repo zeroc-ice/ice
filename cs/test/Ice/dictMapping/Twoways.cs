@@ -31,8 +31,8 @@ class Twoways
             Dictionary<int, int> r;
             r = p.opNV(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
@@ -44,8 +44,8 @@ class Twoways
             Dictionary<string, string> r;
             r = p.opNR(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
@@ -60,8 +60,11 @@ class Twoways
             Dictionary<string, Dictionary<int, int>> r;
             r = p.opNDV(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
         }
 
         {
@@ -76,8 +79,11 @@ class Twoways
             Dictionary<string, Dictionary<string, string>> r;
             r = p.opNDR(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
         }
 
         {
@@ -153,8 +159,8 @@ class Twoways
             Dictionary<string, ODV> r;
             r = p.opNODV(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
@@ -172,8 +178,8 @@ class Twoways
             Dictionary<string, ODR> r;
             r = p.opNODR(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
         }
 
         {
@@ -192,8 +198,14 @@ class Twoways
             ONDV r;
             r = p.opONDV(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            foreach(string key in i.Keys)
+            {
+                foreach(string s in i[key].Keys)
+                {
+                    test(Ice.CollectionComparer.Equals(i[key][s], o[key][s]));
+                    test(Ice.CollectionComparer.Equals(i[key][s], r[key][s]));
+                }
+            }
         }
 
         {
@@ -212,8 +224,228 @@ class Twoways
             ONDR r;
             r = p.opONDR(i, out o);
 
-            test(Ice.Comparer.ValueEquals(i, o));
-            test(Ice.Comparer.ValueEquals(i, r));
+            foreach(string key in i.Keys)
+            {
+                foreach(string s in i[key].Keys)
+                {
+                    test(Ice.CollectionComparer.Equals(i[key][s], o[key][s]));
+                    test(Ice.CollectionComparer.Equals(i[key][s], r[key][s]));
+                }
+            }
+        }
+
+        {
+            int[] ii = new int[] { 1, 2 };
+            Dictionary<string, int[]> i = new Dictionary<string, int[]>();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            Dictionary<string, int[]> o;
+            Dictionary<string, int[]> r;
+            r = p.opNDAIS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            CIS ii = new CIS();
+            ii.Add(1);
+            ii.Add(2);
+            Dictionary<string, CIS> i = new Dictionary<string, CIS>();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            Dictionary<string, CIS> o;
+            Dictionary<string, CIS> r;
+            r = p.opNDCIS(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            List<int> ii = new List<int>();
+            ii.Add(1);
+            ii.Add(2);
+            Dictionary<string, List<int>> i = new Dictionary<string, List<int>>();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            Dictionary<string, List<int>> o;
+            Dictionary<string, List<int>> r;
+            r = p.opNDGIS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            string[] ii = new string[] { "a", "b" };
+            Dictionary<string, string[]> i = new Dictionary<string, string[]>();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            Dictionary<string, string[]> o;
+            Dictionary<string, string[]> r;
+            r = p.opNDASS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            CSS ii = new CSS();
+            ii.Add("a");
+            ii.Add("b");
+            Dictionary<string, CSS> i = new Dictionary<string, CSS>();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            Dictionary<string, CSS> o;
+            Dictionary<string, CSS> r;
+            r = p.opNDCSS(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            List<string> ii = new List<string>();
+            ii.Add("a");
+            ii.Add("b");
+            Dictionary<string, List<string>> i = new Dictionary<string, List<string>>();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            Dictionary<string, List<string>> o;
+            Dictionary<string, List<string>> r;
+            r = p.opNDGSS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            int[] ii = new int[] { 1, 2 };
+            ODAIS i = new ODAIS();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            ODAIS o;
+            ODAIS r;
+            r = p.opODAIS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            CIS ii = new CIS();
+            ii.Add(1);
+            ii.Add(2);
+            ODCIS i = new ODCIS();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            ODCIS o;
+            ODCIS r;
+            r = p.opODCIS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            List<int> ii = new List<int>();
+            ii.Add(1);
+            ii.Add(2);
+            ODGIS i = new ODGIS();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            ODGIS o;
+            ODGIS r;
+            r = p.opODGIS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            string[] ii = new string[] { "a", "b" };
+            ODASS i = new ODASS();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            ODASS o;
+            ODASS r;
+            r = p.opODASS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            CSS ii = new CSS();
+            ii.Add("a");
+            ii.Add("b");
+            ODCSS i = new ODCSS();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            ODCSS o;
+            ODCSS r;
+            r = p.opODCSS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
+        }
+
+        {
+            List<string> ii = new List<string>();
+            ii.Add("a");
+            ii.Add("b");
+            ODGSS i = new ODGSS();
+            i["a"] = ii;
+            i["b"] = ii;
+
+            ODGSS o;
+            ODGSS r;
+            r = p.opODGSS(i, out o);
+
+            foreach(string key in i.Keys)
+            {
+                test(Ice.CollectionComparer.Equals(i[key], o[key]));
+                test(Ice.CollectionComparer.Equals(i[key], r[key]));
+            }
         }
     }
 }

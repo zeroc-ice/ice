@@ -2863,7 +2863,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sb;
     _out << nl << "return false;";
     _out << eb;
-    _out << nl << "return Ice.Comparer.ValueEquals(this, (" << name << ")other);";
+    _out << nl << "return Ice.CollectionComparer.Equals(this, (" << name << ")other);";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Object members
@@ -3712,96 +3712,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     _out << sp << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
-#if 0
-    if(seqIsArray)
-    {
-        _out << nl << "public static bool ValueEquals(" << typeS << " v1__, " << typeS << " v2__)";
-        _out << sb;
-        _out << nl << "if(object.ReferenceEquals(v1__, v2__))";
-        _out << sb;
-        _out << nl << "return true;";
-        _out << eb;
-        _out << nl << "if(v1__ == null || v2__ == null)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << nl << "if(v1__.Length != v2__.Length)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << nl << "_System.Collections.IEnumerator en2__ = v2__.GetEnumerator();";
-        _out << nl << "foreach(" << typeE << " e1__ in v1__)";
-        _out << sb;
-        _out << nl << "en2__.MoveNext();";
-
-        bool elmtIsValue = isValueType(p->type());
-        DictionaryPtr d = DictionaryPtr::dynamicCast(p->type());
-        SequencePtr seq = SequencePtr::dynamicCast(p->type());
-        if(d)
-        {
-            if(!d->hasMetaData("clr:DictionaryBase"))
-            {
-                _out << nl << "if(!" << d->name() << "Helper.ValueEquals(e1__, en2__.Current))";
-                _out << sb;
-                _out << nl << "return false;";
-                _out << eb;
-            }
-            else
-            {
-                _out << nl << "if(e1__ == null)";
-                _out << sb;
-                _out << nl << "if(en2__.Current != null;";
-                _out << sb;
-                _out << nl << "return false;";
-                _out << eb;
-                _out << eb;
-                _out << nl << "else";
-                _out << sb;
-                _out << nl << "if(!e1__.Equals(en2__.Current))";
-                _out << sb;
-                _out << nl << "return false;";
-                _out << eb;
-                _out << eb;
-            }
-        }
-        else if(seq)
-        {
-            if(!seq->hasMetaData("clr:collection"))
-            {
-            }
-            else
-            {
-            }
-        }
-        else
-        {
-            if(!elmtIsValue)
-            {
-                _out << nl << "if(e1__ == null)";
-                _out << sb;
-                _out << nl << "if(en2__.Current != null)";
-                _out << sb;
-                _out << nl << "return false;";
-                _out << eb;
-                _out << eb;
-                _out << nl << "else";
-                _out << sb;
-            }
-            _out << nl << "if(!e1__.Equals(en2__.Current))";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            if(!elmtIsValue)
-            {
-                _out << eb;
-            }
-        }
-        _out << eb;
-        _out << nl << "return true;";
-        _out << eb;
-    }
-#endif
-
     //
     // Don't generate marshaling helpers for a sequence of a local type
     //
@@ -3844,6 +3754,14 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    //
+    // Don't generate helper for a dictionary containing a local type
+    //
+    if(p->isLocal())
+    {
+        return;
+    }
+
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
@@ -3857,112 +3775,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;
-
-    if(isNewMapping)
-    {
-        _out << nl << "public static bool ValueEquals(";
-        _out.useCurrentPosAsIndent();
-        _out << "_System.Collections.Generic.Dictionary<" + keyS + ", " + valueS + "> d1__,";
-        _out << nl << "_System.Collections.Generic.Dictionary<" + keyS + ", " + valueS + "> d2__)";
-        _out.restoreIndent();
-        _out << sb;
-        _out << nl << "return Ice.Comparer.ValueEquals(d1__, d2__);";
-#if 0
-        _out << nl << "if(object.ReferenceEquals(d1__, d2__))";
-        _out << sb;
-        _out << nl << "return true;";
-        _out << eb;
-        _out << nl << "if(d1__ == null || d2__ == null)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << nl << "if(d1__.Count != d2__.Count)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS << ">.KeyCollection keys1__";
-        _out.inc();
-        _out << nl << "= d1__.Keys;";
-        _out.dec();
-        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS
-             << ">.KeyCollection.Enumerator ke2__";
-        _out.inc();
-        _out << nl << "= d2__.Keys.GetEnumerator();";
-        _out.dec();
-        _out << nl << "foreach(" << keyS << " k1__ in keys1__)";
-        _out << sb;
-        _out << nl << "ke2__.MoveNext();";
-        _out << nl << "if(!ke2__.Current.Equals(k1__))";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << eb;
-        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS << ">.ValueCollection values1__";
-        _out.inc();
-        _out << nl << "= d1__.Values;";
-        _out.dec();
-        _out << nl << "_System.Collections.Generic.Dictionary<" << keyS << ", " << valueS
-             << ">.ValueCollection.Enumerator ve2__";
-        _out.inc();
-        _out << nl << "= d2__.Values.GetEnumerator();";
-        _out.dec();
-        _out << nl << "foreach(" << valueS << " v1__ in values1__)";
-        _out << sb;
-       _out << nl << "ve2__.MoveNext();";
-        if(isValueType(p->valueType()))
-        {
-            _out << nl << "if(!ve2__.Current.Equals(v1__))";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-        }
-        else
-        {
-            _out << nl << valueS << " v2__ = ve2__.Current;";
-            _out << nl << "if(v1__ == null)";
-            _out << sb;
-            _out << nl << "if(v2__ != null)";
-            _out << sb;
-            _out << nl << "return false;";
-            _out << eb;
-            _out << eb;
-            _out << nl << "else";
-            _out << sb;
-            DictionaryPtr d = DictionaryPtr::dynamicCast(value);
-            if(d)
-            {
-                if(!d->hasMetaData("clr:DictionaryBase"))
-                {
-                    _out << nl << "if(!" << fixId(d->scoped()) << "Helper.ValueEquals(v1__, v2__))";
-                }
-                else
-                {
-                    _out << nl << "if(!v1__.Equals(v2__))";
-                }
-           }
-           else
-           {
-               _out << nl << "if(!v1__.Equals(v2__))";
-           }
-           _out << sb;
-           _out << nl << "return false;";
-           _out << eb;
-           _out << eb;
-        }
-        _out << eb;
-        _out << nl << "return true;";
-    #endif
-        _out << eb;
-    }
-
-    //
-    // Don't generate marshaling helpers for a dictionary containing a local type
-    //
-    if(p->isLocal())
-    {
-        _out << eb;
-        return;
-    }
 
     _out << sp << nl << "public static void write(";
     _out.useCurrentPosAsIndent();

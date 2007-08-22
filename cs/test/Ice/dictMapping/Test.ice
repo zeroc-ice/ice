@@ -32,21 +32,27 @@ dictionary<string, ODR> NODR;
 
 sequence<int> AIS;
 ["clr:collection"] sequence<int> CIS;
+["clr:generic:List"] sequence<int> GIS;
 
 sequence<string> ASS;
 ["clr:collection"] sequence<string> CSS;
+["clr:generic:List"] sequence<string> GSS;
 
 dictionary<string, AIS> NDAIS;
+dictionary<string, CIS> NDCIS;
+dictionary<string, GIS> NDGIS;
+
 dictionary<string, ASS> NDASS;
+dictionary<string, CSS> NDCSS;
+dictionary<string, GSS> NDGSS;
 
 ["clr:DictionaryBase"] dictionary<string, AIS> ODAIS;
+["clr:DictionaryBase"] dictionary<string, CIS> ODCIS;
+["clr:DictionaryBase"] dictionary<string, GIS> ODGIS;
+
 ["clr:DictionaryBase"] dictionary<string, ASS> ODASS;
-
-sequence<NV> ANVS;
-["clr:collection"] sequence<NV> CNVS;
-
-sequence<OV> AOVS;
-["clr:collection"] sequence<OV> COVS;
+["clr:DictionaryBase"] dictionary<string, CSS> ODCSS;
+["clr:DictionaryBase"] dictionary<string, GSS> ODGSS;
 
 ["ami"] class MyClass
 {
@@ -67,6 +73,22 @@ sequence<OV> AOVS;
 
     ONDV opONDV(ONDV i, out ONDV o);
     ONDR opONDR(ONDR i, out ONDR o);
+
+    NDAIS opNDAIS(NDAIS i, out NDAIS o);
+    NDCIS opNDCIS(NDCIS i, out NDCIS o);
+    NDGIS opNDGIS(NDGIS i, out NDGIS o);
+
+    NDASS opNDASS(NDASS i, out NDASS o);
+    NDCSS opNDCSS(NDCSS i, out NDCSS o);
+    NDGSS opNDGSS(NDGSS i, out NDGSS o);
+
+    ODAIS opODAIS(ODAIS i, out ODAIS o);
+    ODCIS opODCIS(ODCIS i, out ODCIS o);
+    ODGIS opODGIS(ODGIS i, out ODGIS o);
+
+    ODASS opODASS(ODASS i, out ODASS o);
+    ODCSS opODCSS(ODCSS i, out ODCSS o);
+    ODGSS opODGSS(ODGSS i, out ODGSS o);
 };
 
 };

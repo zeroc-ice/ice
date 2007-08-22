@@ -714,7 +714,7 @@ public class TwowaysAMI
             Dictionary<byte, bool> di1 = new Dictionary<byte, bool>();
             di1[10] = true;
             di1[100] = false;
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             // test(ro[10] == true); // Disabled since new dictionary mapping.
             test(ro[11] == false);
@@ -743,7 +743,7 @@ public class TwowaysAMI
             Dictionary<short, int> di1 = new Dictionary<short, int>();
             di1[110] = -1;
             di1[1100] = 123123;
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             // test(ro[110] == -1); // Disabled since new dictionary mapping.
             test(ro[111] == -100);
@@ -772,7 +772,7 @@ public class TwowaysAMI
             Dictionary<long, float> di1 = new Dictionary<long, float>();
             di1[999999110L] = -1.1f;
             di1[999999111L] = 123123.2f;
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro[999999110L] == -1.1f);
             test(ro[999999120L] == -100.4f);
@@ -801,7 +801,7 @@ public class TwowaysAMI
             Dictionary<string, string> di1 = new Dictionary<string, string>();
             di1["foo"] = "abc -1.1";
             di1["bar"] = "abc 123123.2";
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro["foo"].Equals("abc -1.1"));
             test(ro["FOO"].Equals("abc -100.4"));
@@ -830,7 +830,7 @@ public class TwowaysAMI
             Dictionary<string, Test.MyEnum> di1 = new Dictionary<string, Test.MyEnum>();
             di1["abc"] = Test.MyEnum.enum1;
             di1[""] = Test.MyEnum.enum2;
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro["abc"] == Test.MyEnum.enum1);
             test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -894,7 +894,7 @@ public class TwowaysAMI
         
         public override void ice_response(Dictionary<string, string> r)
         {
-            test(Ice.Comparer.ValueEquals(r, _d));
+            test(Ice.CollectionComparer.Equals(r, _d));
             callback.called();
         }
         
@@ -922,7 +922,7 @@ public class TwowaysAMI
         
         public override void ice_response(Dictionary<string, string> r)
         {
-            test(!Ice.Comparer.ValueEquals(r, _d));
+            test(!Ice.CollectionComparer.Equals(r, _d));
             callback.called();
         }
         
@@ -1284,7 +1284,7 @@ public class TwowaysAMI
                 test(cb.check());
             }
             Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-            test(Ice.Comparer.ValueEquals(p2.ice_getContext(), ctx));
+            test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
             {
                 AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                 p2.opContext_async(cb);
@@ -1409,7 +1409,7 @@ public class TwowaysAMI
                     ic.stringToProxy("test:default -p 12010 -t 10000"));
                 
                 ic.getImplicitContext().setContext(ctx);
-                test(Ice.Comparer.ValueEquals(ic.getImplicitContext().getContext(), ctx));
+                test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
                 {
                     AMI_MyClass_opContextEqualI cb = new AMI_MyClass_opContextEqualI(ctx);
                     p3.opContext_async(cb);

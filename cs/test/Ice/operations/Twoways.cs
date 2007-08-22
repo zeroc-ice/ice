@@ -467,7 +467,7 @@ class Twoways
             Dictionary<byte, bool> _do;
             Dictionary<byte, bool> ro = p.opByteBoolD(di1, di2, out _do);
             
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro[10] == true);
             test(ro[11] == false);
@@ -487,7 +487,7 @@ class Twoways
             Dictionary<short, int> _do;
             Dictionary<short, int> ro = p.opShortIntD(di1, di2, out _do);
             
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro[110] == -1);
             test(ro[111] == -100);
@@ -507,7 +507,7 @@ class Twoways
             Dictionary<long, float> _do;
             Dictionary<long, float> ro = p.opLongFloatD(di1, di2, out _do);
             
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro[999999110L] == -1.1f);
             test(ro[999999120L] == -100.4f);
@@ -527,7 +527,7 @@ class Twoways
             Dictionary<string, string> _do;
             Dictionary<string, string> ro = p.opStringStringD(di1, di2, out _do);
             
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro["foo"].Equals("abc -1.1"));
             test(ro["FOO"].Equals("abc -100.4"));
@@ -547,7 +547,7 @@ class Twoways
             Dictionary<string, Test.MyEnum> _do;
             Dictionary<string, Test.MyEnum> ro = p.opStringMyEnumD(di1, di2, out _do);
             
-            test(Ice.Comparer.ValueEquals(_do, di1));
+            test(Ice.CollectionComparer.Equals(_do, di1));
             test(ro.Count == 4);
             test(ro["abc"] == Test.MyEnum.enum1);
             test(ro["qwerty"] == Test.MyEnum.enum3);
@@ -587,15 +587,15 @@ class Twoways
             {
                 Dictionary<string, string> r = p.opContext(ctx);
                 test(p.ice_getContext().Count == 0);
-                test(Ice.Comparer.ValueEquals(r, ctx));
+                test(Ice.CollectionComparer.Equals(r, ctx));
             }
             {
                 Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_context(ctx));
-                test(Ice.Comparer.ValueEquals(p2.ice_getContext(), ctx));
+                test(Ice.CollectionComparer.Equals(p2.ice_getContext(), ctx));
                 Dictionary<string, string> r = p2.opContext();
-                test(Ice.Comparer.ValueEquals(r, ctx));
+                test(Ice.CollectionComparer.Equals(r, ctx));
                 r = p2.opContext(ctx);
-                test(Ice.Comparer.ValueEquals(r, ctx));
+                test(Ice.CollectionComparer.Equals(r, ctx));
             }
             {
                 //
@@ -665,8 +665,8 @@ class Twoways
                     ic.stringToProxy("test:default -p 12010 -t 10000"));
 
                 ic.getImplicitContext().setContext(ctx);
-                test(Ice.Comparer.ValueEquals(ic.getImplicitContext().getContext(), ctx));
-                test(Ice.Comparer.ValueEquals(p3.opContext(), ctx));
+                test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
+                test(Ice.CollectionComparer.Equals(p3.opContext(), ctx));
                 
                 test(ic.getImplicitContext().containsKey("zero") == false);
                 String r = ic.getImplicitContext().put("zero", "ZERO");
@@ -674,7 +674,7 @@ class Twoways
                 test(ic.getImplicitContext().get("zero").Equals("ZERO"));
                 
                 ctx = ic.getImplicitContext().getContext();
-                test(Ice.Comparer.ValueEquals(p3.opContext(), ctx));
+                test(Ice.CollectionComparer.Equals(p3.opContext(), ctx));
                 
                 Dictionary<string, string> prxContext = new Dictionary<string, string>();
                 prxContext["one"] = "UN";
@@ -697,10 +697,10 @@ class Twoways
                 p3 = Test.MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
                 
                 ic.getImplicitContext().setContext(null);
-                test(Ice.Comparer.ValueEquals(p3.opContext(), prxContext));
+                test(Ice.CollectionComparer.Equals(p3.opContext(), prxContext));
                 
                 ic.getImplicitContext().setContext(ctx);
-                test(Ice.Comparer.ValueEquals(p3.opContext(), combined));
+                test(Ice.CollectionComparer.Equals(p3.opContext(), combined));
                 
                 test(ic.getImplicitContext().remove("one").Equals("ONE"));
 

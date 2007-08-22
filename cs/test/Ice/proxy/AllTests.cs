@@ -431,7 +431,7 @@ public class AllTests
         c["two"] = "world";
         cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
         Dictionary<string, string> c2 = cl.getContext();
-        test(Ice.Comparer.ValueEquals(c, c2));
+        test(Ice.CollectionComparer.Equals(c, c2));
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing opaque endpoints... ");

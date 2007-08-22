@@ -165,8 +165,21 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
     }
 
     SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq && !seq->hasMetaData("clr:collection"))
+    if(seq)
     {
+        if(seq->hasMetaData("clr:collection"))
+        {
+            return fixId(seq->scoped());
+        }
+
+        string prefix = "clr:generic:";
+        string meta;
+        if(seq->findMetaData(prefix, meta))
+        {
+            string type = meta.substr(prefix.size());
+            return "_System.Collections.Generic." + type + "<" + typeToString(seq->type()) + ">";
+        }
+
         return typeToString(seq->type()) + "[]";
     }
 
@@ -586,7 +599,14 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     TypePtr type = seq->type();
     string typeS = typeToString(type);
 
-    bool isArray = !seq->hasMetaData("clr:collection");
+    string genericPrefix = "clr:generic:";
+    string genericType;
+    bool isGeneric = seq->findMetaData(genericPrefix, genericType);
+    if(isGeneric)
+    {
+        genericType = genericType.substr(genericPrefix.size());
+    }
+    bool isArray = !isGeneric && !seq->hasMetaData("clr:collection");
     string limitID = isArray ? "Length" : "Count";
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -699,14 +719,20 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    if(!isArray)
+                    if(isArray)
                     {
-                        out << nl << param << " = new " << fixId(seq->scoped())
-                            << '(' << stream << ".read" << typeS << "Seq());";
+                        out << nl << param << " = " << stream << ".read" << typeS << "Seq();";
+                    }
+                    else if(isGeneric)
+                    {
+                        // TODO: this won't work for nested sequences.
+                        out << nl << param << " = new _System.Collections.Generic." << genericType
+                            << "<" << typeToString(seq->type()) << ">(" << stream << ".read" << typeS << "Seq());";
                     }
                     else
                     {
-                        out << nl << param << " = " << stream << ".read" << typeS << "Seq();";
+                        out << nl << param << " = new " << fixId(seq->scoped())
+                            << '(' << stream << ".read" << typeS << "Seq());";
                     }
                 }
                 break;
@@ -986,6 +1012,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         {
             out << toArrayAlloc(typeS + "[]", "szx__");
         }
+        else if(isGeneric)
+        {
+            out << "_System.Collections.Generic." << genericType << "<" << typeToString(seq->type()) << ">()";
+        }
         else
         {
             out << fixId(seq->scoped()) << "(szx__)";
@@ -1188,36 +1218,6 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     {
         string s = *p;
 
-        if(s.find("cs:") == 0) // TODO: remove this statement once "cs:" is a hard error.
-        {
-            if(SequencePtr::dynamicCast(cont))
-            {
-                if(s.substr(3) == "collection")
-                {
-                    cout << file << ":" << cont->line() << ": warning: `cs:' metadata prefix is deprecated; "
-                         << "use `clr:' instead" << endl;
-                    cont->addMetaData("clr:collection");
-                }
-            }
-            else if(StructPtr::dynamicCast(cont))
-            {
-                if(s.substr(3) == "class")
-                {
-                    cout << file << ":" << cont->line() << ": warning: `cs:' metadata prefix is deprecated; "
-                         << "use `clr:' instead" << endl;
-                    cont->addMetaData("clr:class");
-                }
-            }
-            else if(s.find("cs:attribute:") == 0)
-            {
-                ; // Do nothing, "cs:attribute:" is OK
-            }
-            else
-            {
-                cout << file << ":" << cont->line() << ": warning: ignoring invalid metadata `" << s << "'" << endl;
-            }
-        } // End TODO
-
         string prefix = "clr:";
         if(_history.count(s) == 0)
         {
@@ -1229,8 +1229,15 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     {
                         continue;
                     }
+                    if(s.substr(prefix.size(), 8) == "generic:")
+                    {
+                        if(!s.substr(prefix.size() + 8).empty())
+                        {
+                            continue;
+                        }
+                    }
                 }
-                if(StructPtr::dynamicCast(cont))
+                else if(StructPtr::dynamicCast(cont))
                 {
                     if(s.substr(prefix.size()) == "class")
                     {
@@ -1241,14 +1248,14 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                         continue;
                     }
                 }
-                if(ClassDefPtr::dynamicCast(cont))
+                else if(ClassDefPtr::dynamicCast(cont))
                 {
                     if(s.substr(prefix.size()) == "property")
                     {
                         continue;
                     }
                 }
-                if(DictionaryPtr::dynamicCast(cont))
+                else if(DictionaryPtr::dynamicCast(cont))
                 {
                     if(s.substr(prefix.size()) == "DictionaryBase")
                     {

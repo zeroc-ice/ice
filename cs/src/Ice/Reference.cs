@@ -339,7 +339,7 @@ namespace IceInternal
                 return false;
             }
 
-            if(!Ice.Comparer.ValueEquals(context_, r.context_))
+            if(!Ice.CollectionComparer.Equals(context_, r.context_))
             {
                 return false;
             }

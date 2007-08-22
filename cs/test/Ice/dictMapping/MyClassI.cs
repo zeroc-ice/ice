@@ -98,4 +98,88 @@ public sealed class MyClassI : Test.MyClass
         o = i;
         return i;
     }
+
+    public override Dictionary<string, int[]> opNDAIS(Dictionary<string, int[]> i,
+                                                      out Dictionary<string, int[]> o,
+                                                      Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Dictionary<string, CIS> opNDCIS(Dictionary<string, CIS> i,
+                                                    out Dictionary<string, CIS> o,
+                                                    Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Dictionary<string, List<int>> opNDGIS(Dictionary<string, List<int>> i,
+                                                          out Dictionary<string, List<int>> o,
+                                                          Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Dictionary<string, string[]> opNDASS(Dictionary<string, string[]> i,
+                                                         out Dictionary<string, string[]> o,
+                                                         Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Dictionary<string, CSS> opNDCSS(Dictionary<string, CSS> i,
+                                                    out Dictionary<string, CSS> o,
+                                                    Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Dictionary<string, List<string>> opNDGSS(Dictionary<string, List<string>> i,
+                                                             out Dictionary<string, List<string>> o,
+                                                             Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override ODAIS opODAIS(ODAIS i, out ODAIS o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override ODCIS opODCIS(ODCIS i, out ODCIS o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override ODGIS opODGIS(ODGIS i, out ODGIS o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override ODASS opODASS(ODASS i, out ODASS o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override ODCSS opODCSS(ODCSS i, out ODCSS o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override ODGSS opODGSS(ODGSS i, out ODGSS o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
 }

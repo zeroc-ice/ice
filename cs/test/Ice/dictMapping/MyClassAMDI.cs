@@ -80,4 +80,64 @@ public sealed class MyClassI : MyClass
     {
         cb.ice_response(i, i);
     }
+
+    public override void opNDAIS_async(AMD_MyClass_opNDAIS cb, Dictionary<string, int[]> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opNDCIS_async(AMD_MyClass_opNDCIS cb, Dictionary<string, CIS> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opNDGIS_async(AMD_MyClass_opNDGIS cb, Dictionary<string, List<int>> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opNDASS_async(AMD_MyClass_opNDASS cb, Dictionary<string, string[]> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opNDCSS_async(AMD_MyClass_opNDCSS cb, Dictionary<string, CSS> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opNDGSS_async(AMD_MyClass_opNDGSS cb, Dictionary<string, List<string>> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opODAIS_async(AMD_MyClass_opODAIS cb, ODAIS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opODCIS_async(AMD_MyClass_opODCIS cb, ODCIS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opODGIS_async(AMD_MyClass_opODGIS cb, ODGIS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opODASS_async(AMD_MyClass_opODASS cb, ODASS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opODCSS_async(AMD_MyClass_opODCSS cb, ODCSS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opODGSS_async(AMD_MyClass_opODGSS cb, ODGSS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
 }

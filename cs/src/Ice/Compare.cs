@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace Ice
 {
-    public class Comparer
+    public class CollectionComparer
     {
         //
         // Try to compare two collections efficiently, by doing a reference
@@ -51,9 +51,9 @@ namespace Ice
         }
 
         //
-        // Compare two dictionaries for equality.
+        // Compare two dictionaries for value equality (as implemented by the Equals() method of its elements).
         //
-        public static bool ValueEquals(System.Collections.IDictionary d1, System.Collections.IDictionary d2)
+        public static bool Equals(System.Collections.IDictionary d1, System.Collections.IDictionary d2)
         {
             bool result;
             if(cheapComparison(d1, d2, out result))
@@ -99,30 +99,9 @@ namespace Ice
                 }
                 else
                 {
-                    System.Collections.IDictionary vl = null;
-                    System.Collections.IDictionary vr = null;
-                    try
+                    if(!v1.Equals(v2))
                     {
-                        vl = (System.Collections.IDictionary)v1;
-                        vr = (System.Collections.IDictionary)v2;
-                    }
-                    catch(InvalidCastException)
-                    {
-                       // Ignore
-                    }
-                    if(vl != null)
-                    {
-                        if(!ValueEquals(vl, vr))
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        if(!v1.Equals(v2))
-                        {
-                            return false;
-                        }
+                        return false;
                     }
                 }
             }
@@ -132,7 +111,7 @@ namespace Ice
         //
         // Compare two collections for equality.
         //
-        public static bool Foo(System.Collections.ICollection c1, System.Collections.ICollection c2)
+        public static bool Equals(System.Collections.ICollection c1, System.Collections.ICollection c2)
         {
             bool result;
             if(cheapComparison(c1, c2, out result))

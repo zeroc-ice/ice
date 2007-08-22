@@ -1,16 +1,33 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
-- Added a new mapping for Slice dictionaries to use C# 2.0
+- The metadata directive "cs:collection" is no longer valid.
+  Use ["clr:collection"] instead.
+
+- Added a new mapping for Slice sequences to use C# 2.0
   generics:
 
   // Slice
-  dictionary<string, int>;
+  ["clr:generic:List"] sequence<int> S;
 
   maps to:
 
   // C#
-  System.Collections.Generic.Dictionary<string, int>;
+  System.Collections.Generic.List<int> S;
+
+  This also works for types other than List. Please see
+  the manual for more details.
+
+- Added a new mapping for Slice dictionaries to use C# 2.0
+  generics:
+
+  // Slice
+  dictionary<string, int> D;
+
+  maps to:
+
+  // C#
+  System.Collections.Generic.Dictionary<string, int> D;
 
   The previous mapping to the .NET 1.1 DictionaryBase class
   is still supported with the "clr:DictionaryBase" metadata
