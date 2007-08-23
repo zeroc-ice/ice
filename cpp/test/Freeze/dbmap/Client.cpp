@@ -584,6 +584,31 @@ run(const CommunicatorPtr& communicator, const string& envName)
     test(count == 4);
     cout << "ok " << endl;
 
+    cout << "Testing unreferenced connection+transaction... " << flush;
+    {
+        Freeze::ConnectionPtr c2 = createConnection(communicator, envName);
+        ByteIntMap m2(c2, dbName);
+
+        TransactionPtr tx = c2->beginTransaction();
+
+        p = m2.findByValue(17);
+        test(p != m2.end());
+
+        m2.put(ByteIntMap::value_type(alphabet[21], static_cast<Int>(99)));
+
+        p = m2.findByValue(17);
+        test(p == m2.end());
+
+        test(c2->currentTransaction() != 0);
+        test(tx->getConnection() != 0);
+    }
+    //
+    // Should roll back here
+    //
+    p = m.findByValue(17);
+    test(p != m.end());
+    cout << "ok " << endl;
+
     cout << "testing concurrent access... " << flush;
     m.clear();
     populateDB(connection, m);
@@ -601,6 +626,7 @@ run(const CommunicatorPtr& communicator, const string& envName)
         q->join();
     }
     cout << "ok" << endl;
+
 
     cout << "testing index creation... " << flush;
     

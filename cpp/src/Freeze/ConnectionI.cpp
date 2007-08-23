@@ -31,6 +31,7 @@ Freeze::ConnectionI::beginTransactionI()
     }
     closeAllIterators();
     _transaction = new TransactionI(this);
+    _transaction->internalIncRef();
     return _transaction;
 }
 
@@ -49,7 +50,7 @@ Freeze::ConnectionI::close()
         {
             _transaction->rollback();
         }
-        catch(const  DatabaseException&)
+        catch(const DatabaseException&)
         {
             //
             // Ignored
@@ -90,6 +91,7 @@ Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
     _communicator(dbEnv->getCommunicator()),
     _dbEnv(dbEnv),
     _envName(dbEnv->getEnvName()),
+    _transaction(0),
     _trace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
     _txTrace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
     _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
