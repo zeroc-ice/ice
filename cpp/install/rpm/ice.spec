@@ -455,7 +455,7 @@ firewall solution, and much more.
 
 %if %{ruby_included}
 %package ruby-devel
-Summary: Tools for developing Ice applications in Python
+Summary: Tools for developing Ice applications in Ruby
 Group: Development/Tools
 Requires: ice-ruby = %{version}
 Requires: ice-ruby-%{_target_cpu}
@@ -521,7 +521,7 @@ firewall solution, and much more.
 
 %ifarch noarch
 %package dotnet
-Summary: The Ice runtime for C# applications
+Summary: The Ice runtime for .NET applications
 Group: System Environment/Libraries
 Requires: ice = %{version}, mono-core >= 1.2.2
 %description dotnet
@@ -601,12 +601,12 @@ firewall solution, and much more.
 %attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyo
 %endif
 %{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
-%attr(755, root, root) /etc/init.d/icegridregistry
-%attr(755, root, root) /etc/init.d/icegridnode
-%attr(755, root, root) /etc/init.d/glacier2router
-/etc/icegridregistry.conf
-/etc/icegridnode.conf
-/etc/glacier2router.conf
+%config %attr(755, root, root) /etc/init.d/icegridregistry
+%config %attr(755, root, root) /etc/init.d/icegridnode
+%config %attr(755, root, root) /etc/init.d/glacier2router
+%config /etc/icegridregistry.conf
+%config /etc/icegridnode.conf
+%config /etc/glacier2router.conf
 
 %post
 %postun
