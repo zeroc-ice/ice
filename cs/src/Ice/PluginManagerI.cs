@@ -146,7 +146,7 @@ namespace Ice
             // with the prefix "Ice.Plugin.". These properties should
             // have the following format:
             //
-            // Ice.Plugin.name=entry_point [args]
+            // Ice.Plugin.name[.<language>]=entry_point [args]
             //
             // The code below is different from the Java/C++ algorithm
             // because C# must support full assembly names such as:
@@ -180,8 +180,19 @@ namespace Ice
                         throw e;
                     }
 
-                    string key = "Ice.Plugin." + names[i];
-                    if(plugins.Contains(key))
+                    string key = "Ice.Plugin." + names[i] + ".clr";
+                    bool hasKey = plugins.Contains(key);
+                    if(hasKey)
+                    {
+                        plugins.Remove("Ice.Plugin." + names[i]);
+                    }
+                    else
+                    {
+                        key = "Ice.Plugin." + names[i];
+                        hasKey = plugins.Contains(key);
+                    }
+
+                    if(hasKey)
                     {
                         string value = (string)plugins[key];
                         loadPlugin(names[i], value, ref cmdArgs, false);
@@ -199,6 +210,16 @@ namespace Ice
             //
             // Load any remaining plugins that weren't specified in PluginLoadOrder.
             //
+            while(plugins.Count > 0)
+            {
+                
+                
+
+
+
+            }
+
+
             foreach(DictionaryEntry entry in plugins)
             {
                 string name = ((string)entry.Key).Substring(prefix.Length);
@@ -209,7 +230,11 @@ namespace Ice
             //
             // Check for a Logger Plugin
             //
-            string loggerStr = properties.getProperty("Ice.LoggerPlugin");
+            string loggerStr = properties.getProperty("Ice.LoggerPlugin.clr");
+            if(loggetStr.Length == 0)
+            {
+                loggerStr = properties.getProperty("Ice.LoggerPlugin");
+            }
             if(loggerStr.Length != 0)
             {
                 loadPlugin("Logger", loggerStr, ref cmdArgs, true);

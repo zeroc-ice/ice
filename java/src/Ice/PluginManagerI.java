@@ -133,7 +133,7 @@ public final class PluginManagerI implements PluginManager
         // with the prefix "Ice.Plugin.". These properties should
         // have the following format:
         //
-        // Ice.Plugin.name=entry_point [args]
+        // Ice.Plugin.name[.<language>]=entry_point [args]
         //
         // If the Ice.PluginLoadOrder property is defined, load the
         // specified plugins in the specified order, then load any
@@ -156,8 +156,19 @@ public final class PluginManagerI implements PluginManager
                     throw ex;
                 }
 
-                final String key = "Ice.Plugin." + names[i];
-                if(plugins.containsKey(key))
+                String key = "Ice.Plugin." + names[i] + ".java";
+                boolean hasKey = plugins.containsKey(key);
+                if(hasKey)
+                {
+                    plugins.remove("Ice.Plugin." + names[i]);
+                }
+                else
+                {
+                    key = "Ice.Plugin." + names[i];
+                    hasKey = plugins.containsKey(key);
+                }
+                
+                if(hasKey)
                 {
                     final String value = (String)plugins.get(key);
                     loadPlugin(names[i], value, cmdArgs, false);
@@ -175,19 +186,63 @@ public final class PluginManagerI implements PluginManager
         //
         // Load any remaining plugins that weren't specified in PluginLoadOrder.
         //
-        java.util.Iterator p = plugins.entrySet().iterator();
-        while(p.hasNext())
+        while(!plugins.isEmpty())
         {
+            java.util.Iterator p = plugins.entrySet().iterator();
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            
             String name = ((String)entry.getKey()).substring(prefix.length());
-            String value = (String)entry.getValue();
-            loadPlugin(name, value, cmdArgs, false);
+
+            int dotPos = name.lastIndexOf('.');
+            if(dotPos != -1)
+            {
+                String suffix = name.substring(dotPos + 1);
+                if(suffix.equals("cpp") || suffix.equals("clr"))
+                {
+                    //
+                    // Ignored
+                    //
+                    p.remove();
+                }
+                else if(suffix.equals("java"))
+                {
+                    name = name.substring(0, dotPos);
+                    String value = (String)entry.getValue();
+                    loadPlugin(name, value, cmdArgs, false);
+                }
+                else
+                {
+                    //
+                    // Name is just a regular name that happens to contain a dot
+                    //
+                    dotPos = -1;
+                }
+            }
+            
+            if(dotPos == -1)
+            {
+                //
+                // Is there a .java entry?
+                //
+                String value = (String)plugins.erase("Ice.Plugin." + name + ".java");
+                if(value == null)
+                {
+                    value = (String)entry.getValue();
+                }
+                
+                loadPlugin(name, value, cmdArgs, false);
+                p.remove();
+            }
         }
 
         //
         // Check for a Logger Plugin
         //
-        String loggerStr = properties.getProperty("Ice.LoggerPlugin");
+        String loggerStr = properties.getProperty("Ice.LoggerPlugin.java");
+        if(loggerStr.length() == 0)
+        {
+            loggerStr = properties.getProperty("Ice.LoggerPlugin");
+        }
         if(loggerStr.length() != 0)
         {
             loadPlugin("Logger", loggerStr, cmdArgs, true);
