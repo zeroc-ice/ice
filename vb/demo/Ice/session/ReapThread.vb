@@ -33,7 +33,7 @@ Public Class ReapThread
     Public Sub run()
         SyncLock Me
             While Not _terminated
-                System.Threading.Monitor.Wait(Me, _timeout)
+                System.Threading.Monitor.Wait(Me, System.TimeSpan.FromSeconds(1))
                 If Not _terminated Then
                     Dim tmp As ArrayList = New ArrayList
                     For Each p As SessionProxyPair In _sessions

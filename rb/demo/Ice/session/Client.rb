@@ -179,8 +179,8 @@ class Client < Ice::Application
 
             if destroy && @session
                 @session.destroy
-                @session = nil
             end
+            @session = nil
         }
     end
 

@@ -566,9 +566,8 @@ public class Root extends ListArrayTreeNode
             for(i = 0; i < _slaves.size(); ++i)
             {
                 String otherName = _slaves.get(i).toString();
-                if(info.name.compareTo(otherName) > 0)
+                if(info.name.compareTo(otherName) < 0)
                 {
-                    i++;
                     break;
                 }
             }
@@ -1044,12 +1043,12 @@ public class Root extends ListArrayTreeNode
         for(i = 0; i < _nodes.size(); ++i)
         {
             String otherNodeName = _nodes.get(i).toString();
-            if(nodeName.compareTo(otherNodeName) > 0)
+            if(nodeName.compareTo(otherNodeName) < 0)
             {
-                i++;
                 break;
             }
         }
+
         _nodes.add(i, node);
         _treeModel.nodesWereInserted(this, new int[]{_slaves.size() + i});
     }

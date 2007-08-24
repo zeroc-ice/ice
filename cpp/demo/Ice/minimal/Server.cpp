@@ -20,7 +20,16 @@ onCtrlC(int)
 {
     if(communicator)
     {
-        communicator->shutdown();
+        try
+        {
+            communicator->shutdown();
+        }
+        catch(const Ice::CommunicatorDestroyedException&)
+        {
+            //
+            // This might occur if we receive more than one signal.
+            //
+        }
     }
 }
 

@@ -24,8 +24,8 @@ About this distribution
 This distribution is a binary release of Ice @ver@ for Linux and
 includes the following components:
 
-- The Ice runtime, including executables for the Ice services, HTML
-  documentation, and Slice files.
+- The Ice runtime, including executables for the Ice services and 
+  Slice files.
 
 - Run time libraries for C++, Java, Python, C# (Mono), Ruby and PHP.
   These libraries enable you to execute Ice applications.
@@ -184,6 +184,34 @@ In addition, the JVM requires that the directory containing the
 Berkeley DB libraries be listed in java.library.path, therefore you
 must add this directory to your LD_LIBRARY_PATH.
 
+In addition, the JVM requires that the directory containing the
+Berkeley DB libraries be listed in java.library.path, therefore you
+must add this directory to your LD_LIBRARY_PATH.
+
+When using the Ice for Java SSL plugin (IceSSL), you may experience
+occasional hangs. The most likely reason is that your system's entropy
+pool is empty. If you have sufficient system privileges, you can solve
+this issue by editing the following file
+
+<java.home>/jre/lib/security/java.security
+
+and changing it to use /dev/urandom instead of /dev/random. If you do
+not have permission to modify the security file, you can also use the
+command line option shown below:
+
+$ java -Djava.security.egd=file:/dev/urandom MyClass ...
+
+On Linux systems with IPv6 enabled, you may experience occasional hangs
+the first time an Ice object adapter is activated within a JVM. A
+work-around is to disable IPv6 support by setting the Java property
+java.net.preferIPv4Stack to true. For example:
+
+$ java -Djava.net.preferIPv4Stack=true MyClass ...
+
+For more information on this issue, refer to Sun's bug database:
+
+  http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6483406
+
 
 Python
 ------
@@ -314,7 +342,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos and documentation
+Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -325,27 +353,15 @@ which can be downloaded from the ZeroC web site at
 Please refer to the README.DEMOS file included in that package for
 more information.
 
-See doc/index.html for information on the documentation included with
-this distribution.
-
 
 ======================================================================
 Binary compatibility
 ======================================================================
 
-Patch releases of Ice are binary compatible. For example, version
-<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
-compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
-recompile.
+Ice patch releases are binary compatible. For example, Ice version 
+<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
+built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
+having to recompile or relink this application.
 
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the <x>.<y>.0 runtime will automatically use the
-<x>.<y>.1 runtime.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you
-      cannot run applications compiled with previous minor versions of
-      Ice against a newer version of the Ice assemblies. For example,
-      an application compiled with version <x>.<y>.0 of Ice cannot run
-      with the <x>.<y>.1 Ice assemblies.
+Please refer to the RELEASE_NOTES.txt file included in this
+distribution for detailed upgrade instructions.

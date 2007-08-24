@@ -42,13 +42,13 @@ ObserverTopic::~ObserverTopic()
 {
 }
 
-void
+int
 ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
 {
     Lock sync(*this);
     if(!_topic)
     {
-        return;
+        return -1;
     }
 
     assert(obsv);
@@ -68,8 +68,9 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& obsv, const string& name)
         assert(_syncSubscribers.find(name) == _syncSubscribers.end());
         _syncSubscribers.insert(name);
         addExpectedUpdate(_serial, name);
-        waitForSyncedSubscribersNoSync(_serial, name);
+        return _serial;
     }
+    return -1;
 }
 
 void
@@ -183,9 +184,9 @@ ObserverTopic::waitForSyncedSubscribersNoSync(int serial, const string& name)
     }
 
     //
-    // Wait until all the updates are received.
+    // Wait until all the updates are received or the service shutdown.
     //
-    while(true)
+    while(_topic)
     {
         map<int, set<string> >::const_iterator p = _waitForUpdates.find(serial);
         if(p == _waitForUpdates.end())

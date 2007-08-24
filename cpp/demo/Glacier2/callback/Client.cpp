@@ -213,6 +213,21 @@ CallbackClient::run(int argc, char* argv[])
     }
     while(cin.good() && c != 'x');
 
+    try
+    {
+        router->destroySession();
+    }
+    catch(const Glacier2::SessionNotExistException& ex)
+    {
+        cerr << ex << endl;
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
+        //
+        // Expected: the router closed the connection.
+        //
+    }
+
     return EXIT_SUCCESS;
 }
 

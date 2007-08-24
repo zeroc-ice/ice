@@ -48,8 +48,8 @@ public:
     IceUtil::Time timestamp() const;
     void shutdown();
 
-    virtual Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&);
-    virtual Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&);
+    Ice::ObjectPrx registerWithServantLocator(const SessionServantLocatorIPtr&, const Ice::ConnectionPtr&);
+    Ice::ObjectPrx registerWithObjectAdapter(const Ice::ObjectAdapterPtr&);
 
     const std::string& getId() const { return _id; }
     bool useFilters() const { return _filters; }

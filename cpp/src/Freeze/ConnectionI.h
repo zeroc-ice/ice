@@ -68,7 +68,7 @@ private:
     Ice::CommunicatorPtr _communicator;
     SharedDbEnvPtr _dbEnv;
     std::string _envName;
-    TransactionIPtr _transaction;
+    TransactionI* _transaction;
     std::list<MapHelperI*> _mapList;
     Ice::Int _trace;
     Ice::Int _txTrace;
@@ -78,7 +78,9 @@ private:
 inline void
 ConnectionI::clearTransaction()
 {
+    TransactionI* tx = _transaction;
     _transaction = 0;
+    tx->internalDecRef();
 }
 
 inline DbTxn*

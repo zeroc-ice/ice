@@ -214,9 +214,12 @@ be available in your PATH.
 
 To run all of the tests, do the following:
 
-$ python allTests.py
+  > python allTests.py
 
 You can also run tests individually by changing to the test directory
 and running this command:
 
-$ python run.py
+  > python run.py
+
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".

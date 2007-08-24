@@ -57,14 +57,13 @@ more information.
 Binary compatibility
 --------------------
 
-Patch releases of Ice are binary compatible. For example, version <x>.<y>.1
-is compatible with <x>.<y>.0, so you can run applications compiled with
-<x>.<y>.0 with <x>.<y>.1 (or later) assemblies without having to recompile.
+Ice patch releases are binary compatible. For example, Ice version 
+<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
+built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without having 
+to recompile or relink this application.
 
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the <x>.<y>.<z> run time will automatically use the
-<x>.<y>.<z or z+n> assemblies.
+Please refer to the RELEASE_NOTES.txt file included in this
+distribution for detailed upgrade instructions.
 
 
 Acknowledgements

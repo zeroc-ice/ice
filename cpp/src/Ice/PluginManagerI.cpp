@@ -152,7 +152,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     // with the prefix "Ice.Plugin.". These properties should
     // have the following format:
     //
-    // Ice.Plugin.name=entry_point [args]
+    // Ice.Plugin.name[.<language>]=entry_point [args]
     //
     // If the Ice.PluginLoadOrder property is defined, load the
     // specified plugins in the specified order, then load any
@@ -191,7 +191,16 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
                 throw ex;
             }
 
-            PropertyDict::iterator q = plugins.find("Ice.Plugin." + name);
+            PropertyDict::iterator q = plugins.find("Ice.Plugin." + name + ".cpp");
+            if(q == plugins.end())
+            {
+                q = plugins.find("Ice.Plugin." + name);
+            }
+            else
+            {
+                plugins.erase("Ice.Plugin." + name);
+            }
+
             if(q != plugins.end())
             {
                 loadPlugin(name, q->second, cmdArgs, false);
@@ -209,15 +218,62 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
     //
     // Load any remaining plugins that weren't specified in PluginLoadOrder.
     //
-    PropertyDict::const_iterator p;
-    for(p = plugins.begin(); p != plugins.end(); ++p)
+   
+    while(!plugins.empty())
     {
+        PropertyDict::iterator p = plugins.begin();
+
         string name = p->first.substr(prefix.size());
-        loadPlugin(name, p->second, cmdArgs, false);
+
+        size_t dotPos = name.find_last_of('.');
+        if(dotPos != string::npos)
+        {
+            string suffix = name.substr(dotPos + 1);
+            if(suffix == "java" || suffix == "clr")
+            {
+                //
+                // Ignored
+                //
+                plugins.erase(p);
+            }
+            else if(suffix == "cpp")
+            {
+                name = name.substr(0, dotPos);
+                loadPlugin(name, p->second, cmdArgs, false);
+                plugins.erase(p);
+            }
+            else
+            {
+                //
+                // Name is just a regular name that happens to contain a dot
+                //
+                dotPos = string::npos;
+            }
+        }
+       
+        if(dotPos == string::npos)
+        {
+            //
+            // Is there a .cpp entry?
+            //
+            PropertyDict::iterator q = plugins.find("Ice.Plugin." + name + ".cpp");
+            if(q != plugins.end())
+            {
+                plugins.erase(p);
+                p = q;
+            }
+
+            loadPlugin(name, p->second, cmdArgs, false);
+            plugins.erase(p);
+        }
     }
 
-    string loggerStr = properties->getProperty("Ice.LoggerPlugin");
-    if(loggerStr.length() != 0)
+    string loggerStr = properties->getProperty("Ice.LoggerPlugin.cpp");
+    if(loggerStr.empty())
+    {
+        loggerStr = properties->getProperty("Ice.LoggerPlugin");
+    }
+    if(!loggerStr.empty())
     {
         loadPlugin("Logger", loggerStr, cmdArgs, true);
     }

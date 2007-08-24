@@ -39,7 +39,7 @@ public class ReapThread
         {
             while(!_terminated)
             {
-                System.Threading.Monitor.Wait(this, _timeout);
+                System.Threading.Monitor.Wait(this, System.TimeSpan.FromSeconds(1));
                 if(!_terminated)
                 {
                     ArrayList tmp = new ArrayList();

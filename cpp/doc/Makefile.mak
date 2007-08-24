@@ -35,5 +35,5 @@ clean::
 	-rd /s /q reference
 
 install:: reference\index.html 
-	copy reference\index.html $(install_docdir)
+	copy reference\index.html $(install_docdir)\reference
 	xcopy /i /s /y reference $(install_docdir)\reference

@@ -14,4 +14,8 @@ Demos in this directory:
 - simple_filesystem
 
   An implementation of the simple (non-persistent, non-life-cycle)
-  version of the filesystem example.
+  version of the file system example.
+
+- lifecycle
+
+  An implementation of the file system that supports life cycle operations.

@@ -82,56 +82,103 @@ Freeze::TransactionI::commit()
 void
 Freeze::TransactionI::rollback()
 {
-    assert(_txn != 0);
-
-    long txnId = 0;
-    try
+    if(_txn != 0)
     {
-        _connection->closeAllIterators();
-
-        if(_txTrace >= 1)
+        long txnId = 0;
+        try
         {
-            txnId = (_txn->id() & 0x7FFFFFFF) + 0x80000000L;
+            _connection->closeAllIterators();
+            
+            if(_txTrace >= 1)
+            {
+                txnId = (_txn->id() & 0x7FFFFFFF) + 0x80000000L;
+            }
+            
+            _txn->abort();
+            
+            if(_txTrace >= 1)
+            {
+                Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
+                out << "rolled back transaction " << hex << txnId << dec;
+            }
         }
-
-        _txn->abort();
-
-        if(_txTrace >= 1)
+        catch(const ::DbDeadlockException& dx)
         {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
-            out << "rolled back transaction " << hex << txnId << dec;
+            if(_txTrace >= 1)
+            {
+                Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
+                out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
+            }
+            
+            postCompletion(false, true);
+            throw DeadlockException(__FILE__, __LINE__, dx.what());
         }
+        catch(const ::DbException& dx)
+        {
+            if(_txTrace >= 1)
+            {
+                Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
+                out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
+            }
+            
+            postCompletion(false, false);
+            throw DatabaseException(__FILE__, __LINE__, dx.what());
+        }
+        postCompletion(true, false);
     }
-    catch(const ::DbDeadlockException& dx)
-    {
-        if(_txTrace >= 1)
-        {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
-            out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
-        }
-
-        postCompletion(false, true);
-        throw DeadlockException(__FILE__, __LINE__, dx.what());
-    }
-    catch(const ::DbException& dx)
-    {
-        if(_txTrace >= 1)
-        {
-            Trace out(_connection->communicator()->getLogger(), "Freeze.Transaction");
-            out << "failed to rollback transaction " << hex << txnId << dec << ": " << dx.what();
-        }
-
-        postCompletion(false, false);
-        throw DatabaseException(__FILE__, __LINE__, dx.what());
-    }
-    postCompletion(true, false);
 }
 
 Freeze::ConnectionPtr
 Freeze::TransactionI::getConnection() const
 {
-    return _connection;
+    if(_txn != 0)
+    {
+        return _connection;
+    }
+    else
+    {
+        return 0;
+    }
 }
+
+//
+// External refcount operations, from code holding a Transaction[I]Ptr
+//
+void
+Freeze::TransactionI::__incRef()
+{
+    Shared::__incRef();
+    if(_txn != 0)
+    {
+         _connection->__incRef();
+    }
+}
+
+void
+Freeze::TransactionI::__decRef()
+{
+    if(_txn != 0)
+    {
+         _connection->__decRef();
+    }
+    Shared::__decRef();
+}
+
+//
+// The refcount on transaction held by the associated ConnectionI object
+//
+void
+Freeze::TransactionI::internalIncRef()
+{
+    Shared::__incRef();
+}
+
+void
+Freeze::TransactionI::internalDecRef()
+{
+    Shared::__incRef();
+}
+
 
 void
 Freeze::TransactionI::setPostCompletionCallback(const Freeze::PostCompletionCallbackPtr& cb)
@@ -175,15 +222,21 @@ Freeze::TransactionI::~TransactionI()
 {
     if(_txn != 0)
     {
-        rollback();
+        try
+        {
+            rollback();
+        }
+        catch(const IceUtil::Exception& e)
+        {
+            Error error(_connection->communicator()->getLogger());
+            error << "transaction rollback raised :" << e;
+        }
     }
 }
 
 void
 Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
 {
-    ConnectionIPtr connection = _connection;
-    _connection = 0;
     _txn = 0;
 
     if(_postCompletionCallback != 0)
@@ -191,5 +244,5 @@ Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
         _postCompletionCallback->postCompletion(committed, deadlock);
     }
 
-    connection->clearTransaction();
+    _connection->clearTransaction(); // will release the internal refcount
 }

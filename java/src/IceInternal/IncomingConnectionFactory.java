@@ -249,6 +249,11 @@ public final class IncomingConnectionFactory extends EventHandler
                 {
                     transceiver = _acceptor.accept(0);
                 }
+                catch(Ice.SocketException ex)
+                {
+                    // Ignore socket exceptions.
+                    return;
+                }
                 catch(Ice.TimeoutException ex)
                 {
                     // Ignore timeouts.

@@ -1,0 +1,55 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+import FilesystemI.*;
+
+class FilesystemApp extends Ice.Application
+{
+    public int
+    run(String[] args)
+    {
+        // Terminate cleanly on receipt of a signal.
+        //
+        shutdownOnInterrupt();
+        Ice.Properties properties = communicator().getProperties();
+
+        // Create an object adapter
+        //
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapterWithEndpoints(
+                                                        "LifecycleFilesystem", "default -p 10000");
+
+        // Create the root directory.
+        //
+        new DirectoryI(adapter);
+
+        // All objects are created, allow client requests now.
+        //
+        adapter.activate();
+
+        //
+        // Wait until we are done.
+        communicator().waitForShutdown();
+        if(interrupted())
+        {
+            System.err.println(appName() + ": received signal, shutting down");
+        }
+
+        return 0;
+    }
+}
+
+public class Server
+{
+    static public void
+    main(String[] args)
+    {
+        FilesystemApp app = new FilesystemApp();
+        app.main("demo.book.lifecycle.Server", args);
+    }
+}

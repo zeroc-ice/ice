@@ -17,7 +17,7 @@ MONO = yes
 # if it does not exist.
 #
 
-prefix			= /opt/IceCS-$(VERSION)
+prefix			?= /opt/IceCS-$(VERSION)
 
 #
 # The default behavior of 'make install' attempts to add the Ice for C#
@@ -60,14 +60,14 @@ VERSION			= 3.2.0
 ifeq ($(ICE_HOME),)
     ICE_DIR = /usr
     ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-	NEXTDIR = /opt/Ice-$(VERSION_MAJOR).$(VERSION_MINOR)
+	NEXTDIR = /opt/Ice-$(VERSION)
 	ifneq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
 $(error Unable to locate Ice distribution, please set ICE_HOME!)
 	else
 	    ICE_DIR = $(NEXTDIR)
 	endif
     else
-	NEXTDIR = /opt/IceCS-$(VERSION_MAJOR).$(VERSION_MINOR)
+	NEXTDIR = /opt/IceCS-$(VERSION)
 	ifeq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
 $(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
 	endif
@@ -77,6 +77,12 @@ else
     ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
 $(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
     endif
+endif
+
+ifeq ($(LP64),yes)
+    export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
+else
+    export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
 endif
 
 bindir			= $(top_srcdir)/bin

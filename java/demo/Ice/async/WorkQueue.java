@@ -68,15 +68,12 @@ public class WorkQueue extends Thread
         //
         // Throw exception for any outstanding requests.
         //
-
-        /*
         java.util.Iterator p = _callbacks.iterator();
         while(p.hasNext())
         {
             CallbackEntry entry = (CallbackEntry)p.next();
             entry.cb.ice_exception(new RequestCanceledException());
         }
-        */
     }
 
     public synchronized void

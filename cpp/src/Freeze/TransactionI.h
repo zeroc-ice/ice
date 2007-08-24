@@ -38,6 +38,12 @@ public:
 
     virtual ConnectionPtr getConnection() const;
     
+    //
+    // Custom refcounting implementation
+    //
+    virtual void __incRef();
+    virtual void __decRef();
+
     void setPostCompletionCallback(const PostCompletionCallbackPtr&);
 
     TransactionI(ConnectionI*);
@@ -49,17 +55,22 @@ public:
         return _txn;
     }
 
-    const ConnectionIPtr&
+    const ConnectionI*
     getConnectionI() const
     {
         return _connection;
     }
 
 private:
+
+    friend class ConnectionI;
+    
+    void internalIncRef();
+    void internalDecRef();
     
     void postCompletion(bool, bool);
 
-    ConnectionIPtr _connection;
+    ConnectionI* const _connection;
     Ice::Int _txTrace;
     DbTxn* _txn;
     PostCompletionCallbackPtr _postCompletionCallback;

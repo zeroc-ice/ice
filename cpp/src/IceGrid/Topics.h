@@ -29,7 +29,7 @@ public:
     ObserverTopic(const IceStorm::TopicManagerPrx&, const std::string&);
     virtual ~ObserverTopic();
 
-    void subscribe(const Ice::ObjectPrx&, const std::string& = std::string());
+    int subscribe(const Ice::ObjectPrx&, const std::string& = std::string());
     void unsubscribe(const Ice::ObjectPrx&, const std::string& = std::string());
     void destroy();
 

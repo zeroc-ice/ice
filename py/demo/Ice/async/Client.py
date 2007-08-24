@@ -19,7 +19,7 @@ class AMI_Hello_sayHelloI:
 
     def ice_exception(self, ex):
         if isinstance(ex, Demo.RequestCanceledException):
-            print "Request canceled"
+            print "Demo.RequestCanceledException"
         else:
             print "sayHello AMI call failed:"
             print ex

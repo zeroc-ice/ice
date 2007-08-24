@@ -1,4 +1,4 @@
-%if "%{_target_cpu}" != "noarch" && "%{dist}" == ".rhel4"
+%if "%{_target_cpu}" != "noarch" && "%{dist}" != ".sles10"
 %define ruby_included 1
 %else
 %define ruby_included 0
@@ -7,7 +7,7 @@
 %define core_arches %{ix86} x86_64
 Summary: The Ice base runtime and services
 Name: ice
-Version: 3.2.0
+Version: 3.2.1
 Release: 1%{?dist}
 License: GPL
 Group:System Environment/Libraries
@@ -27,7 +27,8 @@ Source7:IceRuby-%{version}.tar.gz
 BuildRoot: /var/tmp/Ice-%{version}-1-buildroot
 
 %define soversion 32
-%define dotnetversion 3.2.0
+%define dotnetversion 3.2.1
+%define dotnetmainversion 3.2
 
 %ifarch x86_64
 %define icelibdir lib64
@@ -58,6 +59,14 @@ BuildRequires: ruby >= 1.8.1
 BuildRequires: ruby-devel >= 1.8.1
 BuildRequires: php >= 5.1.4
 BuildRequires: php-devel >= 5.1.4
+%endif
+%if "%{dist}" == ".rhel5"
+BuildRequires: bzip2-devel >= 1.0.3
+BuildRequires: expat-devel >= 1.95.8
+BuildRequires: ruby >= 1.8.5
+BuildRequires: ruby-devel >= 1.8.5
+BuildRequires: php >= 5.1.6
+BuildRequires: php-devel >= 5.1.6
 %endif
 %if "%{dist}" == ".sles10"
 BuildRequires: php5 >= 5.1.2
@@ -183,6 +192,7 @@ done
 #
 # RPM-support files
 #
+cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/RELEASE_NOTES.txt $RPM_BUILD_ROOT
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/README.Linux-RPM $RPM_BUILD_ROOT/README
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/THIRD_PARTY_LICENSE.Linux $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE
 cp $RPM_BUILD_DIR/Ice-rpmbuild-%{version}/SOURCES.Linux $RPM_BUILD_ROOT/SOURCES
@@ -218,6 +228,7 @@ make NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} prefix=$RPM_BUILD_ROOT ins
 for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
 do 
     cp $RPM_BUILD_DIR/IceCS-%{version}/bin/$f.dll $RPM_BUILD_ROOT/bin
+    cp $RPM_BUILD_DIR/IceCS-%{version}/bin/policy.%{dotnetmainversion}.$f $RPM_BUILD_DIR/IceCS-%{version}/bin/policy.%{dotnetmainversion}.$f.dll  $RPM_BUILD_ROOT/bin
 done
 %endif
 
@@ -241,7 +252,7 @@ fi
 # Move ice.ini and IcePHP.so to distribution-dependent directories
 #
 
-%if "%{dist}" == ".rhel4"
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
 mkdir -p $RPM_BUILD_ROOT/etc/php.d
 mv $RPM_BUILD_ROOT/ice.ini $RPM_BUILD_ROOT/etc/php.d
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/php/modules
@@ -267,11 +278,12 @@ mv $RPM_BUILD_ROOT/python ${RPM_BUILD_ROOT}%{_libdir}/Ice-%{version}/python
 
 mkdir -p ${RPM_BUILD_ROOT}%{_defaultdocdir}
 mv $RPM_BUILD_ROOT/help ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
-mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/README
-mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/ICE_LICENSE
-mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/LICENSE
-mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/THIRD_PARTY_LICENSE
-mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}/SOURCES
+mv $RPM_BUILD_ROOT/RELEASE_NOTES.txt ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/README ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/ICE_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/THIRD_PARTY_LICENSE ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
+mv $RPM_BUILD_ROOT/SOURCES ${RPM_BUILD_ROOT}%{_defaultdocdir}/Ice-%{version}
 
 mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 mv $RPM_BUILD_ROOT/ant $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/ant
@@ -288,23 +300,13 @@ mkdir -p $RPM_BUILD_ROOT/usr/lib/Ice-%{version}
 mv $RPM_BUILD_ROOT/usr/lib/Ice.jar $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/Ice.jar
 mv $RPM_BUILD_ROOT/usr/lib/java2 $RPM_BUILD_ROOT/usr/lib/Ice-%{version}/java2
 
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381
-mv $RPM_BUILD_ROOT/bin/icecs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381/icecs.dll
-
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381
-mv $RPM_BUILD_ROOT/bin/glacier2cs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381/glacier2cs.dll
-
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381
-mv $RPM_BUILD_ROOT/bin/iceboxcs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381/iceboxcs.dll
-
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381
-mv $RPM_BUILD_ROOT/bin/icegridcs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381/icegridcs.dll
-
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381
-mv $RPM_BUILD_ROOT/bin/icepatch2cs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381/icepatch2cs.dll
-
-mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381
-mv $RPM_BUILD_ROOT/bin/icestormcs.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381/icestormcs.dll
+for f in icecs glacier2cs iceboxcs icegridcs icepatch2cs icestormcs; 
+do 
+   mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/$f/%{dotnetversion}.0__1f998c50fec78381
+   mv $RPM_BUILD_ROOT/bin/$f.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/$f/%{dotnetversion}.0__1f998c50fec78381
+   mkdir -p $RPM_BUILD_ROOT/usr/lib/mono/gac/policy.%{dotnetmainversion}.$f/0.0.0.0__1f998c50fec78381
+   mv $RPM_BUILD_ROOT/bin/policy.%{dotnetmainversion}.$f $RPM_BUILD_ROOT/bin/policy.%{dotnetmainversion}.$f.dll $RPM_BUILD_ROOT/usr/lib/mono/gac/policy.%{dotnetmainversion}.$f/0.0.0.0__1f998c50fec78381
+done
 
 #
 # Cleanup extra files
@@ -320,6 +322,12 @@ mv $RPM_BUILD_ROOT/bin $RPM_BUILD_ROOT/usr/bin
 rm -rf ${RPM_BUILD_ROOT}
 
 %changelog
+* Fri Jul 27 2007 Bernard Normier
+- Updated for Ice 3.2.1 release
+
+* Wed Jun 13 2007 Bernard Normier
+- Added patch with new IceGrid.Node.AllowRunningServersAsRoot property.
+
 * Fri Dec 6 2006 ZeroC Staff
 - See source distributions or the ZeroC website for more information
   about the changes in this release
@@ -447,7 +455,7 @@ firewall solution, and much more.
 
 %if %{ruby_included}
 %package ruby-devel
-Summary: Tools for developing Ice applications in Python
+Summary: Tools for developing Ice applications in Ruby
 Group: Development/Tools
 Requires: ice-ruby = %{version}
 Requires: ice-ruby-%{_target_cpu}
@@ -471,6 +479,9 @@ Summary: The Ice runtime for PHP applications
 Group: System Environment/Libraries
 %if "%{dist}" == ".rhel4"
 Requires: ice = %{version}, php >= 5.1.4
+%endif
+%if "%{dist}" == ".rhel5"
+Requires: ice = %{version}, php >= 5.1.6
 %endif
 %if "%{dist}" == ".sles10"
 Requires: ice-%{_target_cpu}, php5 >= 5.1.2
@@ -510,7 +521,7 @@ firewall solution, and much more.
 
 %ifarch noarch
 %package dotnet
-Summary: The Ice runtime for C# applications
+Summary: The Ice runtime for .NET applications
 Group: System Environment/Libraries
 Requires: ice = %{version}, mono-core >= 1.2.2
 %description dotnet
@@ -581,13 +592,21 @@ firewall solution, and much more.
 %attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.py
 %attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.py
 %attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.py
+%if "%{dist}" == ".rhel5"
+%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.pyc
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.pyc
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyc
+%attr(755, root, root) %{_datadir}/Ice-%{version}/convertssl.pyo
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicegrid.pyo
+%attr(755, root, root) %{_datadir}/Ice-%{version}/upgradeicestorm.pyo
+%endif
 %{_datadir}/Ice-%{version}/icegrid-slice.3.1.ice.gz
-%attr(755, root, root) /etc/init.d/icegridregistry
-%attr(755, root, root) /etc/init.d/icegridnode
-%attr(755, root, root) /etc/init.d/glacier2router
-/etc/icegridregistry.conf
-/etc/icegridnode.conf
-/etc/glacier2router.conf
+%config %attr(755, root, root) /etc/init.d/icegridregistry
+%config %attr(755, root, root) /etc/init.d/icegridnode
+%config %attr(755, root, root) /etc/init.d/glacier2router
+%config /etc/icegridregistry.conf
+%config /etc/icegridnode.conf
+%config /etc/glacier2router.conf
 
 %post
 %postun
@@ -737,7 +756,7 @@ pklibdir="lib64"
 %files php
 %defattr(644, root, root, 755)
 
-%if "%{dist}" == ".rhel4"
+%if "%{dist}" == ".rhel4" || "%{dist}" == ".rhel5"
 %attr(755, root, root) %{_libdir}/php/modules
 /etc/php.d/ice.ini
 %endif
@@ -776,23 +795,35 @@ pklibdir="lib64"
 %defattr(644, root, root, 755)
 
 %dir /usr/lib/mono/gac/glacier2cs
-%dir /usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381
-/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381/glacier2cs.dll
+/usr/lib/mono/gac/glacier2cs/%{dotnetversion}.0__1f998c50fec78381
+%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.glacier2cs
+/usr/lib/mono/gac/policy.%{dotnetmainversion}.glacier2cs/0.0.0.0__1f998c50fec78381
+
 %dir /usr/lib/mono/gac/icecs
-%dir /usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381
-/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381/icecs.dll
+/usr/lib/mono/gac/icecs/%{dotnetversion}.0__1f998c50fec78381
+%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icecs
+/usr/lib/mono/gac/policy.%{dotnetmainversion}.icecs/0.0.0.0__1f998c50fec78381
+
 %dir /usr/lib/mono/gac/iceboxcs
-%dir /usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381
-/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381/iceboxcs.dll
+/usr/lib/mono/gac/iceboxcs/%{dotnetversion}.0__1f998c50fec78381
+%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.iceboxcs
+/usr/lib/mono/gac/policy.%{dotnetmainversion}.iceboxcs/0.0.0.0__1f998c50fec78381
+
 %dir /usr/lib/mono/gac/icegridcs
-%dir /usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381
-/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381/icegridcs.dll
+/usr/lib/mono/gac/icegridcs/%{dotnetversion}.0__1f998c50fec78381
+%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icegridcs
+/usr/lib/mono/gac/policy.%{dotnetmainversion}.icegridcs/0.0.0.0__1f998c50fec78381
+
 %dir /usr/lib/mono/gac/icepatch2cs
-%dir /usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381
-/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381/icepatch2cs.dll
+/usr/lib/mono/gac/icepatch2cs/%{dotnetversion}.0__1f998c50fec78381
+%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icepatch2cs
+/usr/lib/mono/gac/policy.%{dotnetmainversion}.icepatch2cs/0.0.0.0__1f998c50fec78381
+
 %dir /usr/lib/mono/gac/icestormcs
-%dir /usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381
-/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381/icestormcs.dll
+/usr/lib/mono/gac/icestormcs/%{dotnetversion}.0__1f998c50fec78381
+%dir /usr/lib/mono/gac/policy.%{dotnetmainversion}.icestormcs
+/usr/lib/mono/gac/policy.%{dotnetmainversion}.icestormcs/0.0.0.0__1f998c50fec78381
+
 %attr(755, root, root) /usr/bin/iceboxnet.exe
 
 

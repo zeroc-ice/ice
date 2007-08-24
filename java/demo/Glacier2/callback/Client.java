@@ -240,6 +240,21 @@ public class Client extends Ice.Application
         }
         while(!line.equals("x"));
 
+        try
+        {
+            router.destroySession();
+        }
+        catch(Glacier2.SessionNotExistException ex)
+        {
+            ex.printStackTrace();
+        }
+        catch(Ice.ConnectionLostException ex)
+        {
+            //
+            // Expected: the router closed the connection.
+            //
+        }
+
         return 0;
     }
 

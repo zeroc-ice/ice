@@ -205,6 +205,21 @@ public class Client : Ice.Application
         }
         while(!line.Equals("x"));
 
+        try
+        {
+            router.destroySession();
+        }
+        catch(Glacier2.SessionNotExistException ex)
+        {
+            Console.Error.WriteLine(ex);
+        }
+        catch(Ice.ConnectionLostException)
+        {
+            //
+            // Expected: the router closed the connection.
+            //
+        }
+
         return 0;
     }
 

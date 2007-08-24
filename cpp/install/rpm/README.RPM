@@ -8,7 +8,7 @@ To create the Ice source RPM on Red Hat Linux, copy all the Ice
 source distributions (.tar.gz files) to /usr/src/redhat/SOURCES,
 including Ice-rpmbuild-@ver@.tar.gz, and then run:
 
-$ rmpbuild -bs --sign ice.spec
+$ rpmbuild -bs --sign ice.spec
 
 Remove the --sign option if you do not want to sign the RPMs,
 or you do not have a GNU PG key setup.

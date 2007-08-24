@@ -66,7 +66,7 @@ public final class Properties
 	}
 	catch(NumberFormatException ex)
 	{
-	    return 0;
+	    return value;
 	}
     }
 

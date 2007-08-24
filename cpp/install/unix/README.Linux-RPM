@@ -22,9 +22,8 @@ About this distribution
 ======================================================================
 
 This distribution is an RPM release of the Ice @ver@ run time for
-Linux and includes executables for the Ice services, HTML
-documentation, Slice files, the C++ runtime libraries and sample
-/etc/init.d scripts.
+Linux and includes executables for the Ice services, Slice files, the 
+C++ runtime libraries and sample /etc/init.d scripts.
 
 Additional Ice components are provided in separate RPM packages:
 
@@ -95,7 +94,7 @@ command-line option shown below:
 
 $ java -Djava.security.egd=file:/dev/urandom MyClass ...
 
-On SuSE Linux Enterprise Server, you may experience occasional hangs 
+On Linux systems with IPv6 enabled, you may experience occasional hangs 
 the first time an Ice object adapter is activated within a JVM. A 
 work-around is to disable IPv6 support by setting the Java property 
 java.net.preferIPv4Stack to true. For example:
@@ -272,7 +271,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos and documentation
+Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -283,27 +282,15 @@ which can be downloaded from the ZeroC web site at
 Please refer to the README.DEMOS file included in that package for
 more information.
 
-See doc/README.html for information on the documentation included with
-this distribution.
-
 
 ======================================================================
 Binary compatibility
 ======================================================================
 
-Patch releases of Ice are binary compatible. For example, version
-<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
-compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
-recompile.
+Ice patch releases are binary compatible. For example, Ice version 
+<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
+built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
+having to recompile or relink this application.
 
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the <x>.<y>.0 runtime will automatically use the
-<x>.<y>.1 runtime.
-
-Note: Under Mono, binary compatibility currently does not work due to
-      issues with Mono. Until this problem in Mono is fixed, you
-      cannot run applications compiled with previous minor versions of
-      Ice against a newer version of the Ice assemblies. For example,
-      an application compiled with version <x>.<y>.0 of Ice cannot run
-      with the <x>.<y>.1 Ice assemblies.
+Please refer to the RELEASE_NOTES.txt file included in this
+distribution for detailed upgrade instructions.

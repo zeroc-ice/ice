@@ -779,6 +779,11 @@ namespace IceInternal
                     {
                         transceiver = _acceptor.accept(0);
                     }
+                    catch(Ice.SocketException)
+                    {
+                        // Ignore socket exceptions.
+                        return;
+                    }
                     catch(Ice.TimeoutException)
                     {
                         // Ignore timeouts.
@@ -1168,6 +1173,11 @@ namespace IceInternal
                 try
                 {
                     transceiver = _acceptor.accept(-1);
+                }
+                catch(Ice.SocketException)
+                {
+                    // Ignore socket exceptions.
+                    return;
                 }
                 catch(Ice.TimeoutException)
                 {

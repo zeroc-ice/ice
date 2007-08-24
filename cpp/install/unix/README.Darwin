@@ -24,8 +24,8 @@ About this distribution
 This distribution is a binary release of Ice @ver@ for Mac OS X and
 includes the following components:
 
-- The Ice runtime, including executables for the Ice services, HTML
-  documentation and Slice files.
+- The Ice runtime, including executables for the Ice services, and 
+  Slice files.
 
 - Run time libraries for C++, Java, and Python. These libraries enable
   you to execute Ice applications.
@@ -87,9 +87,9 @@ below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
 
-Ice shared libraries and executables in this distribution contain 
-/opt/Ice-@mmver@/lib as the embedded runpath. In order to run Ice
-services and tools, you can do one of the following:
+The install name of Ice shared libraries in this distribution contain
+the /opt/Ice-@mmver@/lib path. In order to run Ice services and tools,
+you can do one of the following:
 
  - Create a symbolic link /opt/Ice-@mmver@ that points to your Ice
    installation:
@@ -99,6 +99,10 @@ services and tools, you can do one of the following:
  - Add $ICE_HOME/lib to your DYLD_LIBRARY_PATH environment variable:
 
    $ export DYLD_LIBRARY_PATH=$ICE_HOME/lib:$DYLD_LIBRARY_PATH
+
+If you run applications that load the IceSSL plug-in (such as the Ice
+demos) or the IceStorm service, you need to set the DYLD_LIBRARY_PATH
+environment variable as shown above.
 
 On Intel platforms, you also need to set DYLD_BIND_AT_LAUNCH to
 prevent random crashes at runtime in the dynamic linker binding code:
@@ -170,7 +174,7 @@ $ java -jar IceGridGUI.jar
 
 
 ======================================================================
-Demos and documentation
+Demos
 ======================================================================
 
 Sample programs are provided in the Ice-@ver@-demos.tar.gz package,
@@ -181,20 +185,15 @@ which can be downloaded from the ZeroC web site at
 Please refer to the README.DEMOS file included in that package for
 more information.
 
-See doc/index.html for information on the documentation included with
-this distribution.
-
 
 ======================================================================
 Binary compatibility
 ======================================================================
 
-Patch releases of Ice are binary compatible. For example, version
-<x>.<y>.1 is compatible with <x>.<y>.0, so you can run applications
-compiled with <x>.<y>.0 with the <x>.<y>.1 runtime without having to
-recompile.
+Ice patch releases are binary compatible. For example, Ice version 
+<x>.<y>.1 is compatible with <x>.<y>.0: you can run an application 
+built against Ice <x>.<y>.0 with Ice <x>.<y>.1 (or later) without 
+having to recompile or relink this application.
 
-With the binary installers, simply uninstall the previous version of
-Ice and install the new one. Already deployed applications that were
-compiled against the <x>.<y>.0 runtime will automatically use the
-<x>.<y>.1 runtime.
+Please refer to the RELEASE_NOTES.txt file included in this
+distribution for detailed upgrade instructions.

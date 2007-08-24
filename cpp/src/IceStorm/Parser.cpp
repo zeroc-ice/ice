@@ -319,7 +319,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
             }
         }
     }
-    else if(isatty(fileno(yyin)))
+    else
     {
 #ifdef HAVE_READLINE
 
@@ -390,21 +390,6 @@ Parser::getInput(char* buf, int& result, int maxSize)
 
 #endif
     }
-    else
-    {
-        if(((result = (int) fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
-        {
-            error("input in flex scanner failed");
-            buf[0] = EOF;
-            result = 1;
-        }
-    }
-}
-
-void
-Parser::nextLine()
-{
-    _currentLine++;
 }
 
 void
@@ -416,7 +401,7 @@ Parser::continueLine()
 const char*
 Parser::getPrompt()
 {
-    assert(_commands.empty() && isatty(fileno(yyin)));
+    assert(_commands.empty());
 
     if(_continue)
     {
@@ -430,60 +415,9 @@ Parser::getPrompt()
 }
 
 void
-Parser::scanPosition(const char* s)
-{
-    string line(s);
-    string::size_type idx;
-
-    idx = line.find("line");
-    if(idx != string::npos)
-    {
-        line.erase(0, idx + 4);
-    }
-
-    idx = line.find_first_not_of(" \t\r#");
-    if(idx != string::npos)
-    {
-        line.erase(0, idx);
-    }
-
-    _currentLine = atoi(line.c_str()) - 1;
-
-    idx = line.find_first_of(" \t\r");
-    if(idx != string::npos)
-    {
-        line.erase(0, idx);
-    }
-
-    idx = line.find_first_not_of(" \t\r\"");
-    if(idx != string::npos)
-    {
-        line.erase(0, idx);
-
-        idx = line.find_first_of(" \t\r\"");
-        if(idx != string::npos)
-        {
-            _currentFile = line.substr(0, idx);
-            line.erase(0, idx + 1);
-        }
-        else
-        {
-            _currentFile = line;
-        }
-    }
-}
-
-void
 Parser::error(const char* s)
 {
-    if(_commands.empty() && !isatty(fileno(yyin)))
-    {
-        cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
-    }
-    else
-    {
-        cerr << "error: " << s << endl;
-    }
+    cerr << "error: " << s << endl;
     _errors++;
 }
 
@@ -496,14 +430,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    if(_commands.empty() && !isatty(fileno(yyin)))
-    {
-        cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
-    }
-    else
-    {
-        cerr << "warning: " << s << endl;
-    }
+    cerr << "warning: " << s << endl;
 }
 
 void
@@ -531,10 +458,7 @@ Parser::parse(FILE* file, bool debug)
     yyin = file;
     assert(yyin);
 
-    _currentFile = "";
-    _currentLine = 0;
     _continue = false;
-    nextLine();
 
     int status = yyparse();
     if(_errors)
@@ -559,10 +483,7 @@ Parser::parse(const std::string& commands, bool debug)
     assert(!_commands.empty());
     yyin = 0;
 
-    _currentFile = "";
-    _currentLine = 0;
     _continue = false;
-    nextLine();
 
     int status = yyparse();
     if(_errors)

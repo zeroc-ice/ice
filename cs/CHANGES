@@ -46,6 +46,8 @@ Changes since version 3.2.X (binary incompatible)
 Changes since version 3.2.0
 ---------------------------
 
+- Added demo book/lifecycle.
+
 - Fixed object adapter activation deadlock. The deadlock could occur
   when the adapter register its endpoints with the locator registry
   and if another thread invokes concurrently on the locator.

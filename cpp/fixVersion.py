@@ -212,7 +212,7 @@ if not patchIceE:
     #
     # Fix version in Ice sources
     #
-    ice_home = findSourceTree("ice", os.path.join("include", "IceUtil", "Config.h"))
+    ice_home = findSourceTree("cpp", os.path.join("include", "IceUtil", "Config.h"))
     if ice_home:
         fileMatchAndReplace(os.path.join(ice_home, "include", "IceUtil", "Config.h"),
                             [("ICE_STRING_VERSION \"" + vpatMatch + "\"", version), \
@@ -258,10 +258,12 @@ if not patchIceE:
     #
     # Fix version in IceJ sources
     #
-    icej_home = findSourceTree("icej", os.path.join("src", "IceUtil", "Version.java"))
+    icej_home = findSourceTree("java", os.path.join("src", "IceUtil", "Version.java"))
     if icej_home:
         fileMatchAndReplace(os.path.join(icej_home, "config", "build.properties"),
-                            [("ice\.version[\t\s]*= " + vpatMatch, version)])
+                            [("ice\.version[\t\s]*= " + vpatMatch, \
+                              majorVersion(version) + "." + minorVersion(version)), \
+                             ("ice\.version\.patch[\t\s]*= " + vpatMatch, version)])
          
         fileMatchAndReplace(os.path.join(icej_home, "src", "IceUtil", "Version.java"),
                             [("ICE_STRING_VERSION = \"" + vpatMatch +"\"", version), \
@@ -273,7 +275,7 @@ if not patchIceE:
     #
     # Fix version in IceCS sources
     #
-    icecs_home = findSourceTree("icecs", os.path.join("src", "Ice", "AssemblyInfo.cs"))
+    icecs_home = findSourceTree("cs", os.path.join("src", "Ice", "AssemblyInfo.cs"))
     if icecs_home:
         for f in find(icecs_home, "AssemblyInfo.cs"):
             if f.find("generate") < 0 and f.find("ConsoleApplication") < 0:
@@ -312,7 +314,7 @@ if not patchIceE:
     #
     # Fix version in IceVB sources
     #
-    icevb_home = findSourceTree("icevb", os.path.join("generate", "Generate.vb"))
+    icevb_home = findSourceTree("vb", os.path.join("generate", "Generate.vb"))
     if icevb_home:
         fileMatchAndReplace(os.path.join(icevb_home, "config", "Make.rules.mak.vb"),
                             [("VERSION[\t\s]*= " + vpatMatch, version)])
@@ -334,7 +336,7 @@ if not patchIceE:
     #
     # Fix version in IcePHP
     #
-    icephp_home = findSourceTree("icephp", os.path.join("src", "IcePHP", "Profile.h"))
+    icephp_home = findSourceTree("php", os.path.join("src", "IcePHP", "Profile.h"))
     if icephp_home:
         fileMatchAndReplace(os.path.join(icephp_home, "config", "Make.rules"),
                             [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
@@ -351,7 +353,7 @@ if not patchIceE:
     #
     # Fix version in IcePy
     #
-    icepy_home = findSourceTree("icepy", os.path.join("modules", "IcePy", "Config.h"))
+    icepy_home = findSourceTree("py", os.path.join("modules", "IcePy", "Config.h"))
     if icepy_home:
         fileMatchAndReplace(os.path.join(icepy_home, "config", "Make.rules"),
                             [("VERSION_MAJOR[\t\s]*= ([0-9]*)", majorVersion(version)),
@@ -375,7 +377,7 @@ if not patchIceE:
     #
     # Fix version in IceRuby
     #
-    icerb_home = findSourceTree("icerb", os.path.join("src", "IceRuby", "Config.h"))
+    icerb_home = findSourceTree("rb", os.path.join("src", "IceRuby", "Config.h"))
     if icerb_home:
         fileMatchAndReplace(os.path.join(icerb_home, "config", "Make.rules"),
                             [("VERSION[\t\s]*= " + vpatMatch, version),
@@ -398,7 +400,7 @@ if not patchIceE:
 #
 # Fix version in Ice-E sources
 #
-icee_home = findSourceTree("icee", os.path.join("include", "IceE", "Config.h"))
+icee_home = findSourceTree("cppe", os.path.join("include", "IceE", "Config.h"))
 if icee_home:
     fileMatchAndReplace(os.path.join(icee_home, "include", "IceE", "Config.h"),
                         [("ICEE_STRING_VERSION \"([0-9]*\.[0-9]*\.[0-9]*)\"", version), \
@@ -418,7 +420,7 @@ if icee_home:
 #
 # Fix version in IceJ sources
 #
-iceje_home = findSourceTree("iceje", os.path.join("src", "IceUtil", "Version.java"))
+iceje_home = findSourceTree("javae", os.path.join("src", "IceUtil", "Version.java"))
 if iceje_home:
     fileMatchAndReplace(os.path.join(iceje_home, "src", "IceUtil", "Version.java"),
                         [("ICEE_STRING_VERSION = \"([0-9]*\.[0-9]*\.[0-9]*)\"", version), \

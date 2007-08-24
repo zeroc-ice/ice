@@ -97,15 +97,30 @@ ReplicaSessionI::getTimeout(const Ice::Current& current) const
 void
 ReplicaSessionI::setDatabaseObserver(const DatabaseObserverPrx& observer, const Ice::Current& current)
 {
-    Lock sync(*this);
-    if(_destroy)
+    int serialApplicationObserver;
+    int serialAdapterObserver;
+    int serialObjectObserver;
+
+    const ObserverTopicPtr applicationObserver = _database->getObserverTopic(ApplicationObserverTopicName);
+    const ObserverTopicPtr adapterObserver = _database->getObserverTopic(AdapterObserverTopicName);
+    const ObserverTopicPtr objectObserver = _database->getObserverTopic(ObjectObserverTopicName);
+
     {
-        throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-    }   
-    _observer = observer;
-    _database->getObserverTopic(ApplicationObserverTopicName)->subscribe(_observer, _info->name);
-    _database->getObserverTopic(AdapterObserverTopicName)->subscribe(_observer, _info->name);
-    _database->getObserverTopic(ObjectObserverTopicName)->subscribe(_observer, _info->name);
+        Lock sync(*this);
+        if(_destroy)
+        {
+            throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+        }   
+        _observer = observer;
+
+        serialApplicationObserver = applicationObserver->subscribe(_observer, _info->name);
+        serialAdapterObserver = adapterObserver->subscribe(_observer, _info->name);
+        serialObjectObserver = objectObserver->subscribe(_observer, _info->name);
+    }
+
+    applicationObserver->waitForSyncedSubscribers(serialApplicationObserver, _info->name);
+    adapterObserver->waitForSyncedSubscribers(serialAdapterObserver, _info->name);
+    objectObserver->waitForSyncedSubscribers(serialObjectObserver, _info->name);
 }
 
 void

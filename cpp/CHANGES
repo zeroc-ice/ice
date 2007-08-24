@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- It is no longer possible to provide input files on the 
+  command line for icestormadmin nor icegridadmin.
+
 - The thread stack size specified with the IceUtil::Thread::start()
   method parameter is now adjusted to PTHREAD_STACK_MIN if it's
   inferior to it. On Mac OS X, it's also adjusted to the next closest
@@ -69,6 +72,8 @@ Changes since version 3.2.X (binary incompatible)
 
 Changes since version 3.2.0
 ---------------------------
+
+- Added demo book/lifecycle.
 
 - Added two new IceGrid properties:
 
