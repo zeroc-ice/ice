@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,10 +23,11 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C#"
 import demoscript.IceGrid.simple
 
-if demoscript.Util.isWin32():
-    demoscript.IceGrid.simple.run('%sclient.exe' % (demoscript.Util.mono()))
-else:
+if demoscript.Util.isMono():
     print "Not supported yet with mono!"
+else:
+    demoscript.IceGrid.simple.run('client.exe')
 

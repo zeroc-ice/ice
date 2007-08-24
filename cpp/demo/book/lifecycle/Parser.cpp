@@ -297,92 +297,74 @@ Parser::destroy(const std::list<string>& names)
 void
 Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if(isatty(fileno(yyin)))
-    {
 #ifdef HAVE_READLINE
 
-        const char* prompt = parser->getPrompt();
-        char* line = readline(const_cast<char*>(prompt));
-        if(!line)
+    const char* prompt = parser->getPrompt();
+    char* line = readline(const_cast<char*>(prompt));
+    if(!line)
+    {
+        result = 0;
+    }
+    else
+    {
+        if(*line)
         {
+            add_history(line);
+        }
+
+        result = strlen(line) + 1;
+        if(result > maxSize)
+        {
+            free(line);
+            error("input line too long");
             result = 0;
         }
         else
         {
-            if(*line)
-            {
-                add_history(line);
-            }
-
-            result = strlen(line) + 1;
-            if(result > maxSize)
-            {
-                free(line);
-                error("input line too long");
-                result = 0;
-            }
-            else
-            {
-                strcpy(buf, line);
-                strcat(buf, "\n");
-                free(line);
-            }
+            strcpy(buf, line);
+            strcat(buf, "\n");
+            free(line);
         }
+    }
 
 #else
 
-        cout << parser->getPrompt() << flush;
+    cout << parser->getPrompt() << flush;
 
-        string line;
-        while(true)
+    string line;
+    while(true)
+    {
+        char c = static_cast<char>(getc(yyin));
+        if(c == EOF)
         {
-            char c = static_cast<char>(getc(yyin));
-            if(c == EOF)
+            if(line.size())
             {
-                if(line.size())
-                {
-                    line += '\n';
-                }
-                break;
+                line += '\n';
             }
-
-            line += c;
-
-            if(c == '\n')
-            {
-                break;
-            }
+            break;
         }
-        
-        result = static_cast<int>(line.length());
-        if(result > maxSize)
+
+        line += c;
+
+        if(c == '\n')
         {
-            error("input line too long");
-            buf[0] = EOF;
-            result = 1;
+            break;
         }
-        else
-        {
-            strcpy(buf, line.c_str());
-        }
+    }
 
-#endif
+    result = static_cast<int>(line.length());
+    if(result > maxSize)
+    {
+        error("input line too long");
+        buf[0] = EOF;
+        result = 1;
     }
     else
     {
-        if(((result = static_cast<int>(fread(buf, 1, maxSize, yyin))) == 0) && ferror(yyin))
-        {
-            error("input in flex scanner failed");
-            buf[0] = EOF;
-            result = 1;
-        }
+        strcpy(buf, line.c_str());
     }
-}
 
-void
-Parser::nextLine()
-{
-    _currentLine++;
+#endif
 }
 
 void
@@ -394,8 +376,6 @@ Parser::continueLine()
 const char*
 Parser::getPrompt()
 {
-    assert(isatty(fileno(yyin)));
-
     if(_continue)
     {
         _continue = false;
@@ -410,15 +390,8 @@ Parser::getPrompt()
 void
 Parser::error(const char* s)
 {
-    if(!isatty(fileno(yyin)))
-    {
-        cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
-        _errors++;
-    }
-    else
-    {
-        cerr << "error: " << s << endl;
-    }
+    cerr << "error: " << s << endl;
+    _errors++;
 }
 
 void
@@ -430,14 +403,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    if(!isatty(fileno(yyin)))
-    {
-        cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
-    }
-    else
-    {
-        cerr << "warning: " << s << endl;
-    }
+    cerr << "warning: " << s << endl;
 }
 
 void
@@ -459,13 +425,7 @@ Parser::parse(bool debug)
     yyin = stdin;
     assert(yyin);
 
-    _currentFile = "";
-    _currentLine = 0;
     _continue = false;
-    nextLine();
-
-    //_foundBooks.clear();
-    //_current = _foundBooks.end();
 
     int status = yyparse();
     if(_errors)

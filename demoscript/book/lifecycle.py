@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys, signal
 
 def run(client, server):
     print "testing...",
@@ -162,6 +162,8 @@ def run(client, server):
     client.expect('ls\r{1,2}\n>')
 
     client.sendline('exit')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()
+
+    server.kill(signal.SIGINT)
+    server.waitTestSuccess()
     print "ok"

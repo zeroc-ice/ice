@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
+import demoscript.pexpect as pexpect
 
 def runtests(client, server, secure):
     print "testing twoway",
@@ -66,9 +67,7 @@ def run(client, server):
     runtests(client, server, True)
 
     client.sendline('s')
-    server.expect(pexpect.EOF)
-    assert server.wait() == 0
+    server.waitTestSuccess()
 
     client.sendline('x')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()

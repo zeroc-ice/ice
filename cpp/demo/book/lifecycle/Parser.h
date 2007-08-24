@@ -15,16 +15,6 @@
 #include <list>
 #include <stdio.h>
 
-#ifdef _WIN32
-#   include <io.h>
-#   ifdef _MSC_VER
-#     define isatty _isatty
-#     define fileno _fileno
-// '_isatty' : inconsistent dll linkage.  dllexport assumed.
-#       pragma warning( disable : 4273 )
-#   endif
-#endif
-
 //
 // Stuff for flex and bison
 //
@@ -70,7 +60,6 @@ public:
     void destroy(const ::std::list< ::std::string>&);
 
     void getInput(char*, int&, int);
-    void nextLine();
     void continueLine();
     const char* getPrompt();
 
@@ -87,8 +76,6 @@ private:
 
     bool _continue;
     int _errors;
-    int _currentLine;
-    std::string _currentFile;
 };
 
 extern Parser* parser; // The current parser for bison/flex

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, demoscript
+import sys, demoscript
 
 def run(clientStr, server):
     client = demoscript.Util.spawn(clientStr)
@@ -24,8 +24,7 @@ def run(clientStr, server):
     client.sendline('1')
     client.expect('Index is too high')
     client.sendline('x')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()
     server.expect("The session foo is now destroyed.")
     print "ok"
 
@@ -37,8 +36,7 @@ def run(clientStr, server):
     server.expect('The session foo is now created.')
     client.sendline('c')
     client.sendline('t')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()
     server.expect("The session foo is now destroyed.\r{1,2}\n.*The session foo has timed out.", timeout=25)
     print "ok"
 
@@ -47,9 +45,7 @@ def run(clientStr, server):
     client.sendline('foo')
     server.expect('The session foo is now created.')
     client.sendline('s')
-    server.expect(pexpect.EOF)
-    assert server.wait() == 0
+    server.waitTestSuccess()
 
     client.sendline('x')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()

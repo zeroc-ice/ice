@@ -217,6 +217,10 @@ CallbackClient::run(int argc, char* argv[])
     {
         router->destroySession();
     }
+    catch(const Glacier2::SessionNotExistException& ex)
+    {
+        cerr << ex << endl;
+    }
     catch(const Ice::ConnectionLostException&)
     {
         //

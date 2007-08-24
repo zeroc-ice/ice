@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
 
 def run(client, server, ruby = False):
     print "testing...",
@@ -42,7 +42,5 @@ def run(client, server, ruby = False):
     client.expect('==> a derived message 4 u\r{1,2}\n==> A DERIVED MESSAGE 4 U')
     print "ok"
 
-    server.expect(pexpect.EOF)
-    assert server.wait() == 0
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    server.waitTestSuccess()
+    client.waitTestSuccess()

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Java"
 
 server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
 server.expect('.* ready')
@@ -30,6 +31,10 @@ server.expect('.* ready')
 print "testing...",
 sys.stdout.flush()
 client = demoscript.Util.spawn('java Client')
-client.expect(pexpect.EOF)
+client.waitTestSuccess()
 server.expect('Hello World!')
 print "ok"
+
+import signal
+server.kill(signal.SIGINT)
+server.waitTestSuccess()

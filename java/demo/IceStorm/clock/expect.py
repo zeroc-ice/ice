@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Java"
 import demoscript.IceStorm.clock
 
 demoscript.IceStorm.clock.run('java Subscriber', 'java Publisher')

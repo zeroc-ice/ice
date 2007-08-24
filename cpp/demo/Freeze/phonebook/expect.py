@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 import demoscript.Freeze.phonebook
 
 print "cleaning databases...",
@@ -37,12 +38,6 @@ client.expect('>>> ')
 
 demoscript.Freeze.phonebook.run(client, server)
 
-client.sendline('shutdown')
-server.expect(pexpect.EOF)
-
-client.sendline('exit')
-client.expect(pexpect.EOF)
-
 print "running with collocated server"
 
 print "cleaning databases...",
@@ -54,6 +49,3 @@ server = demoscript.Util.spawn('./collocated --Freeze.Trace.Evictor=0 --Freeze.T
 server.expect('>>> ')
 
 demoscript.Freeze.phonebook.run(server, server)
-
-server.sendline('exit')
-server.expect(pexpect.EOF)

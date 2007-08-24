@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C#"
 import demoscript.IceBox.hello
 
 if demoscript.Util.defaultHost:
@@ -31,20 +32,19 @@ else:
     args = ''
 
 iceboxnet = "iceboxnet.exe"
-if len(demoscript.Util.mono()) > 0:
-    prefix = [ "../../..", "/usr" ]
-    if os.environ.has_key("ICE_HOME"):
-        prefix.append(os.environ["ICE_HOME"])
-    for p in prefix:
-        path = os.path.join(p, "bin", iceboxnet)
-        if os.path.exists(path):
-            iceboxnet = path
-            break
+prefix = [ "../../..", "/usr" ]
+if os.environ.has_key("ICE_HOME"):
+    prefix.append(os.environ["ICE_HOME"])
+for p in prefix:
+    path = os.path.join(p, "bin", iceboxnet)
+    if os.path.exists(path):
+        iceboxnet = path
+        break
+
 # TODO: This doesn't setup LD_LIBRARY_PATH
-server = demoscript.Util.spawn('%s%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (
-        demoscript.Util.mono(), iceboxnet, args))
+server = demoscript.Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (iceboxnet, args))
 server.expect('.* ready')
-client = demoscript.Util.spawn('%sclient.exe' % (demoscript.Util.mono()))
+client = demoscript.Util.spawn('client.exe')
 client.expect('.*==>')
 
 demoscript.IceBox.hello.run(client, server)

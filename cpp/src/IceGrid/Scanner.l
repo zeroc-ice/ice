@@ -50,32 +50,12 @@ keyword [[:alpha:]]*
 
 %%
 
-^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]*$ {
-    parser->scanPosition(yytext);
-}
-
-^"#"[[:blank:]]*[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    parser->scanPosition(yytext);
-}
-
-^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]*$ {
-    parser->scanPosition(yytext);
-}
-
-^"#"[[:blank:]]*"line"[[:blank:]]+[[:digit:]]+[[:blank:]]+"\""[^\"]*"\"".*$ {
-    parser->scanPosition(yytext);
-}
-
 "//" {
     // C++-style comment
     int c;
     do
     {
 	c = yyinput();
-	if(c == '\n')
-	{
-	    parser->nextLine();
-	}
     }
     while(c != '\n' && c != EOF);
 }
@@ -85,11 +65,7 @@ keyword [[:alpha:]]*
     while(true)
     {
 	int c = yyinput();
-	if(c == '\n')
-	{
-	    parser->nextLine();
-	}
-	else if(c == '*')
+	if(c == '*')
 	{
 	    int next = yyinput();
 	    if(next == '/')
@@ -117,22 +93,10 @@ keyword [[:alpha:]]*
 	{
 	    parser->continueLine();
 	}
-	else if(yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
     }
 }
 
 {NL}|; {
-    size_t len = strlen(yytext);
-    for(size_t i = 0; i < len; ++i)
-    {
-	if(yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
-    }
     return ';';
 }
 
@@ -150,11 +114,6 @@ keyword [[:alpha:]]*
 	{
 	    parser->warning("EOF in string");
 	    break;
-	}
-	else if(c == '\n')
-	{
-	    s += c;
-	    parser->nextLine();
 	}
 	else if(c == '\\')
 	{
@@ -229,11 +188,6 @@ keyword [[:alpha:]]*
 	{
 	    parser->warning("EOF in string");
 	    break;
-	}
-	else if(c == '\n')
-	{
-	    s += c;
-	    parser->nextLine();
 	}
 	else
 	{

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,8 +23,20 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
-
+demoscript.Util.defaultLanguage = "C++"
 import time, signal
+
+desc = 'application.xml'
+if demoscript.Util.mode == 'debug':
+    fi = open(desc, "r")
+    desc = 'tmp_application.xml'
+    fo = open(desc, "w")
+    for l in fi:
+        if l.find('exe="icebox"'):
+            l = l.replace('exe="icebox"', 'exe="iceboxd.exe"')
+        fo.write(l)
+    fi.close()
+    fo.close()
 
 print "cleaning databases...",
 sys.stdout.flush()
@@ -47,7 +59,7 @@ print "deploying application...",
 sys.stdout.flush()
 admin = demoscript.Util.spawn('icegridadmin --Ice.Config=config.grid')
 admin.expect('>>>')
-admin.sendline("application add \'application.xml\'")
+admin.sendline("application add \'%s\'" %(desc))
 admin.expect('>>>')
 print "ok"
 
@@ -89,18 +101,15 @@ admin.sendline('server stop DemoIceStorm-3')
 admin.expect('>>>')
 
 pub.expect('Ice::NoEndpointException')
-pub.expect(pexpect.EOF)
-assert pub.wait() != 0
+pub.waitTestSuccess(1)
 
 sub.kill(signal.SIGINT)
-sub.expect('NoEndpointException')
-sub.expect(pexpect.EOF)
-assert sub.wait() != 0
+if not demoscript.Util.isCygwin():
+    sub.expect('NoEndpointException')
+pub.waitTestSuccess(1)
 print "ok"
 
 admin.sendline('registry shutdown Master')
 admin.sendline('exit')
-admin.expect(pexpect.EOF)
-assert admin.wait() == 0
-node.expect(pexpect.EOF)
-assert node.wait() == 0
+admin.waitTestSuccess()
+node.waitTestSuccess()

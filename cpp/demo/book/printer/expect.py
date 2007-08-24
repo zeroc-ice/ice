@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 import signal
 
 server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
@@ -31,11 +32,9 @@ server.expect('.* ready')
 print "testing...",
 sys.stdout.flush()
 client = demoscript.Util.spawn('./client')
-client.expect(pexpect.EOF)
-assert client.wait() == 0
+client.waitTestSuccess()
 server.expect('Hello World!')
+server.kill(signal.SIGTERM)
+server.wait()
+server.signalstatus == signal.SIGTERM
 print "ok"
-server.kill(signal.SIGINT)
-server.expect(pexpect.EOF)
-# This server doesn't exit with a non-zero exit status.
-assert server.wait() != 0

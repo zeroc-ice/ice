@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys, demoscript
+import sys, demoscript
+import demoscript.pexpect as pexpect
 
 def run(clientCmd):
     print "cleaning databases...",
@@ -58,8 +59,7 @@ def run(clientCmd):
     node.expect('says Hello World!')
     client2.expect(pexpect.TIMEOUT, timeout = 0)
     client1.sendline('x')
-    client1.expect(pexpect.EOF, timeout=1)
-    assert client1.wait() == 0
+    client1.waitTestSuccess(timeout=1)
 
     client2.expect('==>')
     client2.sendline('t')
@@ -67,8 +67,7 @@ def run(clientCmd):
     client2.sendline('s')
     node.expect('detected termination of server')
     client2.sendline('x')
-    client2.expect(pexpect.EOF, timeout=1)
-    assert client2.wait() == 0
+    client2.waitTestSuccess(timeout=1)
     print "ok"
 
     print "deploying multiple...", 
@@ -109,8 +108,7 @@ def run(clientCmd):
     client3.expect(pexpect.TIMEOUT, timeout = 0)
 
     client1.sendline('x')
-    client1.expect(pexpect.EOF, timeout=1)
-    assert client1.wait() == 0
+    client1.waitTestSuccess(timeout=1)
 
     client3.expect('==>')
     client3.sendline('t')
@@ -121,20 +119,16 @@ def run(clientCmd):
     client2.sendline('s')
     node.expect('detected termination of server')
     client2.sendline('x')
-    client2.expect(pexpect.EOF, timeout=1)
-    assert client2.wait() == 0
+    client2.waitTestSuccess(timeout=1)
 
     client3.sendline('s')
     node.expect('detected termination of server')
     client3.sendline('x')
-    client3.expect(pexpect.EOF, timeout=1)
-    assert client3.wait() == 0
+    client3.waitTestSuccess(timeout=1)
 
     print "ok"
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')
-    admin.expect(pexpect.EOF)
-    assert admin.wait() == 0
-    node.expect(pexpect.EOF)
-    assert node.wait() == 0
+    admin.waitTestSuccess()
+    node.waitTestSuccess()

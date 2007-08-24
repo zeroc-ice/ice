@@ -16,16 +16,6 @@
 #include <list>
 #include <stdio.h>
 
-#ifdef _WIN32
-#   include <io.h>
-#   ifdef _MSC_VER
-#     define isatty _isatty
-#     define fileno _fileno
-// '_isatty' : inconsistent dll linkage.  dllexport assumed.
-#       pragma warning( disable : 4273 )
-#   endif
-#endif
-
 //
 // Stuff for flex and bison
 //
@@ -129,10 +119,8 @@ public:
     void showWarranty();
 
     void getInput(char*, int&, int);
-    void nextLine();
     void continueLine();
     const char* getPrompt();
-    void scanPosition(const char*);
 
     void invalidCommand(const char*);
     void invalidCommand(const std::string&);
@@ -162,8 +150,6 @@ private:
     bool _continue;
     bool _interrupted;
     int _errors;
-    int _currentLine;
-    std::string _currentFile;
     bool _interactive;
     std::map< std::string, std::map<std::string, std::string> > _helpCommands;
 };

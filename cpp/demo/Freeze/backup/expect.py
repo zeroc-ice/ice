@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,7 +23,9 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 import signal, time
+import demoscript.pexpect as pexpect
 
 print "cleaning databases...",
 sys.stdout.flush()
@@ -49,8 +51,7 @@ print "performing full backup...",
 sys.stdout.flush()
 backup = demoscript.Util.spawn('./backup full')
 backup.expect('hot backup started', timeout=30)
-backup.expect(pexpect.EOF, timeout=30)
-assert backup.wait() == 0
+backup.waitTestSuccess(timeout=30)
 print "ok"
 
 print "sleeping 5s...",
@@ -62,7 +63,7 @@ print "performing incremental backup...",
 sys.stdout.flush()
 backup = demoscript.Util.spawn('./backup incremental')
 backup.expect('hot backup started', timeout=30)
-backup.expect(pexpect.EOF, timeout=30)
+backup.waitTestSuccess(timeout=30)
 print "ok"
 
 print "sleeping 30s...",
@@ -76,7 +77,8 @@ print "killing client with SIGTERM...",
 sys.stdout.flush()
 client.kill(signal.SIGTERM)
 client.expect(pexpect.EOF, timeout=30)
-assert client.wait() != 0
+client.wait()
+assert client.signalstatus == signal.SIGTERM
 print "ok"
 
 print "Client output: ",
@@ -88,9 +90,9 @@ os.system('rm -fr db/data/* db/logs/* db/__*')
 os.system('cp -Rp hotbackup/* db')
 sys.stdout.flush()
 
-rclient = demoscript.Util.spawn('./client')
-rclient.expect('(.*)Updating map', timeout=60)
-assert rclient.match.group(1).find('Creating new map') == -1
+client = demoscript.Util.spawn('./client')
+client.expect('(.*)Updating map', timeout=60)
+assert client.match.group(1).find('Creating new map') == -1
 print "ok"
 
 print "sleeping 5s...",
@@ -99,10 +101,11 @@ time.sleep(5)
 print "ok"
 
 print "killing client with SIGTERM...",
-rclient.kill(signal.SIGTERM)
-rclient.expect(pexpect.EOF, timeout=30)
-assert rclient.wait() != 0
+client.kill(signal.SIGTERM)
+client.expect(pexpect.EOF, timeout=30)
+client.wait()
+assert client.signalstatus == signal.SIGTERM
 print "ok"
 
 print "Restarted client output:",
-print "%s " % (rclient.before)
+print "%s " % (client.before)

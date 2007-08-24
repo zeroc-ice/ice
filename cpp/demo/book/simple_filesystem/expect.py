@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 import signal
 
 server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
@@ -32,9 +33,7 @@ print "testing...",
 sys.stdout.flush()
 client = demoscript.Util.spawn('./client')
 client.expect('Contents of root directory:\r{1,2}\n.*Down to a sunless sea.')
-client.expect(pexpect.EOF)
-assert client.wait() == 0
-print "ok"
+client.waitTestSuccess()
 server.kill(signal.SIGINT)
-server.expect(pexpect.EOF)
-assert server.wait() == 0
+server.waitTestSuccess()
+print "ok"

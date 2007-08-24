@@ -209,6 +209,10 @@ public class Client : Ice.Application
         {
             router.destroySession();
         }
+        catch(Glacier2.SessionNotExistException ex)
+        {
+            Console.Error.WriteLine(ex);
+        }
         catch(Ice.ConnectionLostException)
         {
             //

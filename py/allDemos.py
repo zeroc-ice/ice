@@ -15,6 +15,10 @@ def isCygwin():
     # versions return variations like "cygwin_nt-4.01".
     return sys.platform[:6] == "cygwin"
 
+if sys.platform == "win32":
+    print "allDemos.py only supports cygwin python under Windows (use /usr/bin/python allDemos.py)"
+    sys.exit(1)
+
 def runDemos(args, demos, num = 0):
     rootPath = "demo"
     if not os.path.exists(rootPath):
@@ -38,7 +42,10 @@ def runDemos(args, demos, num = 0):
         print "*** running demo in " + dir,
         print
 
-	status = os.system("cd %s ; %s %s" % (dir, "./expect.py", args))
+        if isCygwin():
+            status = os.system("cd %s ; %s %s" % (dir, "/usr/bin/python expect.py", args))
+        else:
+            status = os.system("cd %s ; %s %s" % (dir, "./expect.py", args))
 
         if status:
             if(num > 0):
@@ -70,11 +77,11 @@ if isCygwin() == 0:
     demos += [ ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " --fast --trace --start=<demo> -l -r <regex> -R <regex> --debug --host host"
+    print "usage: " + sys.argv[0] + " --mode=debug|release --fast --trace --start=<demo> -l -r <regex> -R <regex> --debug --host host"
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lr:R:", ["start=", "fast", "trace", "debug", "host="])
+    opts, args = getopt.getopt(sys.argv[1:], "lr:R:", ["start=", "fast", "trace", "debug", "host=", "mode="])
 except getopt.GetoptError:
     usage()
 
@@ -94,6 +101,8 @@ for o, a in opts:
         else:
             def rematch(x): return not regexp.search(x)
         demos = filter(rematch, demos)
+    if o == "--mode":
+        args += ' --mode ' + a
     if o == "--protocol":
         if a not in ( "ssl", "tcp"):
             usage()

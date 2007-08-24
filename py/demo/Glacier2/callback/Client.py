@@ -135,6 +135,8 @@ class Client(Ice.Application):
 
         try:
             router.destroySession()
+        except Glacier2.SessionNotExistException, ex:
+            print ex
         except Ice.ConnectionLostException:
             # Expected: the router closed the connection.
             pass

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys, signal
 
 def run(client, server):
     print "testing...",
@@ -26,6 +26,8 @@ def run(client, server):
     j = client.expect(['Destroying Coleridge', 'Destroying README'])
     assert i != j
     server.expect('removed object')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()
     print "ok"
+
+    server.kill(signal.SIGINT)
+    server.waitTestSuccess()

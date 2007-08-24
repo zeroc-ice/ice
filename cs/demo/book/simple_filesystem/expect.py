@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,13 +23,17 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C#"
+import signal
 
-server = demoscript.Util.spawn('%sserver.exe --Ice.PrintAdapterReady' % (demoscript.Util.mono()))
+server = demoscript.Util.spawn('server.exe --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
 print "testing...",
 sys.stdout.flush()
-client = demoscript.Util.spawn('%sclient.exe' % (demoscript.Util.mono()))
+client = demoscript.Util.spawn('client.exe')
 client.expect('Contents of root directory:\r{1,2}\n.*Down to a sunless sea.')
-client.expect(pexpect.EOF)
+client.waitTestSuccess()
+server.kill(signal.SIGINT)
+server.waitTestSuccess()
 print "ok"

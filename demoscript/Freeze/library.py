@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
+import demoscript.pexpect as pexpect
 
 def dequote(s):
     cur = 0
@@ -146,4 +147,11 @@ def run(client, server):
     client.sendline('remove')
     #server.expect(['locate could not find', 'locate found.*but it was dead or destroyed'])
     client.expect('current book no longer exists')
+
+    client.sendline('shutdown')
+    if client != server:
+        server.waitTestSuccess()
+    client.sendline('exit')
+    client.waitTestSuccess()
+
     print "ok"

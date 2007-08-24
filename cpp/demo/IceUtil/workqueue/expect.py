@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 import demoscript.Ice.hello
 
 server = demoscript.Util.spawn('./workqueue')
@@ -35,6 +36,5 @@ server.expect('work item: item2')
 server.expect('work item: item3')
 server.expect('work item: item4')
 server.expect('work item: item5')
-server.expect(pexpect.EOF, timeout=10)
-assert server.wait() == 0
+server.waitTestSuccess(timeout=10)
 print "ok"

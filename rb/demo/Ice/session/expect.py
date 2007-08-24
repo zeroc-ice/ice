@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -31,11 +31,12 @@ else:
     sys.exit(1)
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Ruby"
 import demoscript.Ice.session
 
 cwd = os.getcwd()
 os.chdir('%s/demo/Ice/session' % (iceHome))
-server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
+server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady', language="C++")
 server.expect('.* ready')
 os.chdir(cwd)
 
