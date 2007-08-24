@@ -190,7 +190,7 @@ public final class PluginManagerI implements PluginManager
         {
             java.util.Iterator p = plugins.entrySet().iterator();
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            
+
             String name = ((String)entry.getKey()).substring(prefix.length());
 
             int dotPos = name.lastIndexOf('.');
@@ -209,6 +209,7 @@ public final class PluginManagerI implements PluginManager
                     name = name.substring(0, dotPos);
                     String value = (String)entry.getValue();
                     loadPlugin(name, value, cmdArgs, false);
+                    p.remove();
                 }
                 else
                 {
@@ -224,14 +225,16 @@ public final class PluginManagerI implements PluginManager
                 //
                 // Is there a .java entry?
                 //
-                String value = (String)plugins.erase("Ice.Plugin." + name + ".java");
-                if(value == null)
+                String value = (String)entry.getValue();
+                p.remove();
+
+                String javaValue = (String)plugins.remove("Ice.Plugin." + name + ".java");
+                if(javaValue != null)
                 {
-                    value = (String)entry.getValue();
+                    value = javaValue;
                 }
                 
                 loadPlugin(name, value, cmdArgs, false);
-                p.remove();
             }
         }
 

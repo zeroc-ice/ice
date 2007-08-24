@@ -212,26 +212,63 @@ namespace Ice
             //
             while(plugins.Count > 0)
             {
+                IDictionaryEnumerator p = plugins.GetEnumerator();
+                p.MoveNext();
+                DictionaryEntry entry = p.Entry;
                 
-                
-
-
-
-            }
-
-
-            foreach(DictionaryEntry entry in plugins)
-            {
                 string name = ((string)entry.Key).Substring(prefix.Length);
-                string val = (string)entry.Value;
-                loadPlugin(name, val, ref cmdArgs, false);
+
+                int dotPos = name.LastIndexOf('.');
+                if(dotPos != -1)
+                {
+                    string suffix = name.Substring(dotPos + 1);
+                    if(suffix.Equals("cpp") || suffix.Equals("java"))
+                    {
+                        //
+                        // Ignored
+                        //
+                        plugins.Remove((string)entry.Key);
+                    }
+                    else if(suffix.Equals("clr"))
+                    {
+                        name = name.Substring(0, dotPos);
+                        string value = (string)entry.Value;
+                        loadPlugin(name, value, ref cmdArgs, false);
+                        plugins.Remove((string)entry.Key);
+                    }
+                    else
+                    {
+                        //
+                        // Name is just a regular name that happens to contain a dot
+                        //
+                        dotPos = -1;
+                    }
+                }
+            
+                if(dotPos == -1)
+                {
+                    string value = (string)entry.Value;
+                    plugins.Remove((string)entry.Key);
+
+                    //
+                    // Is there a .clr entry?
+                    //
+                    string clrKey = "Ice.Plugin." + name + ".clr";
+                    string clrValue = plugins[clrKey];
+                    if(clrValue != null)
+                    {
+                        plugins.Remove(clrKey);
+                        value = clrValue;
+                    } 
+                    loadPlugin(name, value, ref cmdArgs, false);
+                }
             }
 
             //
             // Check for a Logger Plugin
             //
             string loggerStr = properties.getProperty("Ice.LoggerPlugin.clr");
-            if(loggetStr.Length == 0)
+            if(loggerStr.Length == 0)
             {
                 loggerStr = properties.getProperty("Ice.LoggerPlugin");
             }
