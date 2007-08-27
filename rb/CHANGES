@@ -1,6 +1,12 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+Changes since version 3.2.1
+---------------------------
+
+- Fixed bug where marshaling a plain object proxy fails with a
+  uninitialized constant exception
+
 Changes since version 3.2.0
 ---------------------------     
 
