@@ -119,7 +119,7 @@ def run(client, server):
         client.expect('a \(file\)')
     else:
         client.expect('b \(directory\)')
-	client.expect('\tc \(directory\):')
+	client.expect('c \(directory\):')
 
     client.sendline('mkfile c')
     client.expect('mkfile c\r{1,2}\n>')
