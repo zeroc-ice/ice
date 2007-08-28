@@ -47,5 +47,6 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
+#include <IceUtil/Timer.h>
 
 #endif
