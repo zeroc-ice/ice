@@ -36,6 +36,7 @@ OBJS		= ArgVector.o \
 		  Thread.o \
 		  ThreadException.o \
 		  Time.o \
+		  Timer.o \
 		  UUID.o \
 		  Unicode.o
 
