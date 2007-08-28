@@ -10,6 +10,12 @@ Changes since version 3.2.X (binary incompatible)
   interfaces or after the PublishedEndpoints object adapter property
   has been changed by the user.
 
+Changes since version 3.2.1
+---------------------------
+
+- Fixed a bug in Ice.initialize that would cause a crash if the
+  configuration file specified by --Ice.Config was not found.
+
 Changes since version 3.2.0
 ---------------------------
 
