@@ -15,24 +15,24 @@ def runseries(client):
     client.sendline('t')
     client.expect('t')
 
-    client.expect('==> ', timeout=1000)
+    client.expect('==> ', timeout=2000)
     print "twoway: %s " % (client.before)
     if not demoscript.Util.fast:
         client.sendline('o')
 
         client.expect('o')
-        client.expect('==> ', timeout=1000)
+        client.expect('==> ', timeout=2000)
         print "oneway: %s " % (client.before)
 
         client.sendline('r')
         client.expect('r')
 
-        client.expect('==> ', timeout=1000)
+        client.expect('==> ', timeout=2000)
         print "receive: %s" % (client.before)
         client.sendline('e')
         client.expect('e')
 
-        client.expect('==> ', timeout=1000)
+        client.expect('==> ', timeout=2000)
         print "echo: %s" % (client.before)
 
 def run(client, server):
