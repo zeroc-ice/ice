@@ -16,7 +16,8 @@ SUBDIRS		= condvar \
 		  unicode \
 		  inputUtil \
                   uuid \
-                  ctrlCHandler
+                  ctrlCHandler \
+		  timer
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

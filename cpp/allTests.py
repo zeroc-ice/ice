@@ -71,6 +71,7 @@ tests = [ \
     "IceUtil/unicode", \
     "IceUtil/inputUtil", \
     "IceUtil/uuid", \
+    "IceUtil/timer", \
     "Slice/errorDetection", \
     "Ice/proxy", \
     "Ice/operations", \
