@@ -13,14 +13,14 @@
 using namespace std;
 using namespace IceUtil;
 
-::Timer::Timer() :
+Timer::Timer() :
     _canceled(false)
 {
     start();
 }
 
 void
-::Timer::cancel()
+Timer::cancel()
 {
     bool join = false;
     {
@@ -41,7 +41,7 @@ void
 
 
 void 
-::Timer::schedule(const ::TimerTaskPtr& task, const IceUtil::Time& time)
+Timer::schedule(const ::TimerTaskPtr& task, const IceUtil::Time& time)
 {
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
     Entry entry;
@@ -87,7 +87,7 @@ void
 }
 
 void
-::Timer::run()
+Timer::run()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
 
