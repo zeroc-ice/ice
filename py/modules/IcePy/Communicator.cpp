@@ -161,11 +161,18 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         {
             data.threadHook = new ThreadNotificationWrapper(threadHook.get());
         }
-
     }
 
-    data.properties = Ice::createProperties(seq, data.properties);
-  
+    try
+    {
+        data.properties = Ice::createProperties(seq, data.properties);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return -1;
+    }
+
     //
     // Disable collocation optimization, otherwise a Python invocation on
     // a collocated servant results in a CollocationOptimizationException
@@ -200,7 +207,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
     catch(const Ice::Exception& ex)
     {
-        for(i = 0; i < argc + 1; ++i)
+        for(i = 0; i < argc; ++i)
         {
             free(argv[i]);
         }
@@ -224,7 +231,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         }
     }
 
-    for(i = 0; i < argc + 1; ++i)
+    for(i = 0; i < argc; ++i)
     {
         free(argv[i]);
     }
