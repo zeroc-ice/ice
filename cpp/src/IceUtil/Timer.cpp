@@ -100,16 +100,16 @@ Timer::cancel(const TimerTaskPtr& task)
     {
         return false;
     }
-    _tasks.erase(p);
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
     Token token;
     token.scheduledTime = p->second;
-    token.task = task = p->first;
+    token.task = p->first;
 #else
     Token token = { p->second, IceUtil::Time(), p->first };
 #endif
     _tokens.erase(token);
+    _tasks.erase(p);
     return true;
 }
 

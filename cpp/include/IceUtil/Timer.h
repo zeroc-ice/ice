@@ -28,7 +28,7 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 // Extend the TimerTask class and override the run() method to execute
 // code at a specific time or repeatedly.
 //
-class TimerTask : public IceUtil::Shared
+class ICE_UTIL_API TimerTask : public IceUtil::Shared
 {
 public:
 
@@ -45,7 +45,7 @@ typedef IceUtil::Handle<TimerTask> TimerTaskPtr;
 // repeated execution. Tasks are executed by the dedicated timer thread 
 // sequentially.
 //
-class Timer : public virtual IceUtil::Shared, private virtual IceUtil::Thread
+class ICE_UTIL_API Timer : public virtual IceUtil::Shared, private virtual IceUtil::Thread
 {
 public:
 

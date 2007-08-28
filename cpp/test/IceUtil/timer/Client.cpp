@@ -19,11 +19,11 @@ class TestTask : public IceUtil::TimerTask, IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    TestTask()
+    TestTask() : _count(0)
     {
     }
 
-    TestTask(const IceUtil::Time& scheduledTime) : _scheduledTime(scheduledTime)
+    TestTask(const IceUtil::Time& scheduledTime) : _scheduledTime(scheduledTime), _count(0)
     {
     }
     
@@ -123,12 +123,13 @@ int main(int argc, char* argv[])
 
             random_shuffle(tasks.begin(), tasks.end());
             
-            for(vector<TestTaskPtr>::const_iterator p = tasks.begin(); p != tasks.end(); ++p)
+	    vector<TestTaskPtr>::const_iterator p;
+            for(p = tasks.begin(); p != tasks.end(); ++p)
             {
                 timer->schedule(*p, (*p)->getScheduledTime());
             }
 
-            for(vector<TestTaskPtr>::const_iterator p = tasks.begin(); p != tasks.end(); ++p)
+            for(p = tasks.begin(); p != tasks.end(); ++p)
             {
                 (*p)->waitForRun();
             }            
@@ -136,7 +137,7 @@ int main(int argc, char* argv[])
             test(IceUtil::Time::now() - start > IceUtil::Time::milliSeconds(99));
 
             sort(tasks.begin(), tasks.end());
-            for(vector<TestTaskPtr>::const_iterator p = tasks.begin(); p + 1 != tasks.end(); ++p)
+            for(p = tasks.begin(); p + 1 != tasks.end(); ++p)
             {
                 if((*p)->getRunTime() > (*(p + 1))->getRunTime())
                 {
@@ -149,7 +150,9 @@ int main(int argc, char* argv[])
             TestTaskPtr task = new TestTask();
             timer->scheduleRepeated(task, IceUtil::Time::milliSeconds(20));
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
-            test(task->hasRun() && task->getCount() > 15 && task->getCount() < 26);
+            test(task->hasRun());
+	    test(task->getCount() > 15);
+	    test(task->getCount() < 26);
             test(timer->cancel(task));
             int count = task->getCount();
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
