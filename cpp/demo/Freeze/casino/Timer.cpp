@@ -41,7 +41,7 @@ Timer::cancel()
 
 
 void 
-Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& time)
+Timer::schedule(const ::TimerTaskPtr& task, const IceUtil::Time& time)
 {
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
     Entry entry;
