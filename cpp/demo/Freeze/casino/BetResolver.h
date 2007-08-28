@@ -30,7 +30,7 @@ public:
     
     int getBetCount() const;
 
-#if !defined(_MSC_VER) || (_MSC_VER >= 1300)
+#if !defined(__hpux) && (!defined(_MSC_VER) || (_MSC_VER >= 1300))
 //
 // Some compilers don't let local classes access private members
 //
