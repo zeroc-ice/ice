@@ -100,6 +100,16 @@ int main(int argc, char* argv[])
         {
             TestTaskPtr task = new TestTask();
             timer->schedule(task, IceUtil::Time::now());
+            try
+            {
+                timer->schedule(task, IceUtil::Time::now());
+                test(false);
+            }
+            catch(const IceUtil::IllegalArgumentException&)
+            {
+            }
+            task->waitForRun();
+            timer->schedule(task, IceUtil::Time::now());
             task->waitForRun();
         }
 
