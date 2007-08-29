@@ -372,7 +372,10 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
 
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     assert(constructed);
+    out << nl << "if(" << name << " != null)";
+    out << sb;
     out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+    out << eb;
 }
 
 void
