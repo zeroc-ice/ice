@@ -22,7 +22,6 @@ using namespace IceInternal;
 const char * const Ice::PluginManagerI::_kindOfObject = "plugin";
 
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const CommunicatorPtr&, const string&, const StringSeq&);
-typedef Ice::Logger* (*LOGGER_FACTORY)(const CommunicatorPtr&, const StringSeq&);
 
 void
 Ice::PluginManagerI::initializePlugins()
@@ -203,7 +202,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
 
             if(q != plugins.end())
             {
-                loadPlugin(name, q->second, cmdArgs, false);
+                loadPlugin(name, q->second, cmdArgs);
                 plugins.erase(q);
             }
             else
@@ -239,7 +238,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
             else if(suffix == "cpp")
             {
                 name = name.substr(0, dotPos);
-                loadPlugin(name, p->second, cmdArgs, false);
+                loadPlugin(name, p->second, cmdArgs);
                 plugins.erase(p);
             }
             else
@@ -263,19 +262,9 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
                 p = q;
             }
 
-            loadPlugin(name, p->second, cmdArgs, false);
+            loadPlugin(name, p->second, cmdArgs);
             plugins.erase(p);
         }
-    }
-
-    string loggerStr = properties->getProperty("Ice.LoggerPlugin.cpp");
-    if(loggerStr.empty())
-    {
-        loggerStr = properties->getProperty("Ice.LoggerPlugin");
-    }
-    if(!loggerStr.empty())
-    {
-        loadPlugin("Logger", loggerStr, cmdArgs, true);
     }
 
     stringSeqToArgs(cmdArgs, argc, argv);
@@ -292,7 +281,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
 }
 
 void
-Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs, bool isLogger)
+Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs)
 {
     assert(_communicator);
 
@@ -360,35 +349,34 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     // Invoke the factory function. No exceptions can be raised
     // by the factory function because it's declared extern "C".
     //
-    if(isLogger)
+    PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
+    plugin = factory(_communicator, name, args);
+    if(!plugin)
     {
-        LOGGER_FACTORY factory = (LOGGER_FACTORY)sym;
-        _logger = factory(_communicator, args);
-        if(!_logger)
-        {
-            PluginInitializationException e(__FILE__, __LINE__);
-            ostringstream out;
-            out << "failure in entry point `" << entryPoint << "'";
-            e.reason = out.str();
-            throw e;
-        }
+        PluginInitializationException e(__FILE__, __LINE__);
+        ostringstream out;
+        out << "failure in entry point `" << entryPoint << "'";
+        e.reason = out.str();
+        throw e;
     }
-    else
-    {
-        PLUGIN_FACTORY factory = (PLUGIN_FACTORY)sym;
-        plugin = factory(_communicator, name, args);
-        if(!plugin)
-        {
-            PluginInitializationException e(__FILE__, __LINE__);
-            ostringstream out;
-            out << "failure in entry point `" << entryPoint << "'";
-            e.reason = out.str();
-            throw e;
-        }
 
-        _plugins[name] = plugin;
-        _initOrder.push_back(plugin);
+    if(name == "Logger")
+    {
+        LoggerPluginPtr loggerPlugin = dynamic_cast<LoggerPlugin*>(plugin.get());
+        if(!loggerPlugin)
+        {
+            PluginInitializationException e(__FILE__, __LINE__);
+            ostringstream out;
+            out << "Ice.Plugin.Logger does not implement an Ice::LoggerPlugin";
+            e.reason = out.str();
+            throw e;
+        }
+        _logger = loggerPlugin->getLogger();
     }
+
+    _plugins[name] = plugin;
+    _initOrder.push_back(plugin);
+
     _libraries->add(library);
 }
 

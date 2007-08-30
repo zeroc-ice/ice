@@ -1,6 +1,10 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- The property Ice.Plugin.Logger is now reserved to allow setting
+  of the communicator's logger from properties. This plugin must
+  implement a LoggerPlugin. See manual for more details.
+
 - It is no longer possible to provide input files on the 
   command line for icestormadmin nor icegridadmin.
 

@@ -37,7 +37,7 @@ private:
     friend class IceInternal::Instance;
 
     void loadPlugins(int&, char*[]);
-    void loadPlugin(const std::string&, const std::string&, StringSeq&, bool);
+    void loadPlugin(const std::string&, const std::string&, StringSeq&);
     LoggerPtr getLogger() const;
 
     CommunicatorPtr _communicator;
