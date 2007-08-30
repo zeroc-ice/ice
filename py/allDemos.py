@@ -68,6 +68,8 @@ demos = [ "Ice/async",
           "IceStorm/clock",
           "IceGrid/simple",
           "Glacier2/callback",
+          "book/printer",
+          "book/simple_filesystem"
           ]
 
 #
