@@ -99,7 +99,6 @@ private:
     const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
     const int _timeout;
-    const WaitQueuePtr _waitQueue;
     const ReapThreadPtr _reaper;
     const RegistryIPtr _registry;
     const bool _filters;

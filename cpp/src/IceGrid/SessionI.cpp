@@ -184,10 +184,10 @@ BaseSessionI::registerWithObjectAdapter(const Ice::ObjectAdapterPtr& adapter)
 SessionI::SessionI(const string& id, 
                    const DatabasePtr& database, 
                    bool filters,
-                   const WaitQueuePtr& waitQueue,
+                   const IceUtil::TimerPtr& timer,
                    const Glacier2::SessionControlPrx& sessionControl) :
     BaseSessionI(id, "client", database, filters),
-    _waitQueue(waitQueue),
+    _timer(timer),
     _sessionControl(sessionControl),
     _allocationTimeout(-1)
 {
@@ -316,11 +316,11 @@ SessionI::destroyImpl(bool shutdown)
 
 ClientSessionFactory::ClientSessionFactory(const Ice::ObjectAdapterPtr& adapter,
                                            const DatabasePtr& database, 
-                                           const WaitQueuePtr& waitQueue,
+                                           const IceUtil::TimerPtr& timer,
                                            const ReapThreadPtr& reaper) :
     _adapter(adapter),
     _database(database), 
-    _waitQueue(waitQueue),
+    _timer(timer),
     _reaper(reaper),
     _filters(false)
 {
@@ -376,7 +376,7 @@ ClientSessionFactory::createGlacier2Session(const string& sessionId, const Glaci
 SessionIPtr
 ClientSessionFactory::createSessionServant(const string& userId, const Glacier2::SessionControlPrx& ctl)
 {
-    return new SessionI(userId, _database, _filters, _waitQueue, ctl);
+    return new SessionI(userId, _database, _filters, _timer, ctl);
 }
 
 const TraceLevelsPtr&

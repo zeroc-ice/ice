@@ -22,23 +22,17 @@ IceUtil::Shared* IceInternal::upCast(ConnectionMonitor* p) { return p; }
 void
 IceInternal::ConnectionMonitor::destroy()
 {
-    {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
         
-        assert(_instance);
-        _instance = 0;
-        _connections.clear();
-        
-        notify();
-    }
-
-    getThreadControl().join();
+    assert(_instance);
+    _instance = 0;
+    _connections.clear();
 }
 
 void
 IceInternal::ConnectionMonitor::add(const ConnectionIPtr& connection)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     assert(_instance);
     _connections.insert(connection);
 }
@@ -46,17 +40,26 @@ IceInternal::ConnectionMonitor::add(const ConnectionIPtr& connection)
 void
 IceInternal::ConnectionMonitor::remove(const ConnectionIPtr& connection)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    IceUtil::Mutex::Lock sync(*this);
     assert(_instance);
     _connections.erase(connection);
 }
 
 IceInternal::ConnectionMonitor::ConnectionMonitor(const InstancePtr& instance, int interval) :
-    _instance(instance),
-    _interval(IceUtil::Time::seconds(interval))
+    _instance(instance)
 {
     assert(interval > 0);
-    start();
+    __setNoDelete(true);
+    try
+    {
+        instance->timer()->scheduleRepeated(this, IceUtil::Time::seconds(interval));
+    }
+    catch(...)
+    {
+        __setNoDelete(false);
+        throw;
+    }
+    __setNoDelete(false);
 }
 
 IceInternal::ConnectionMonitor::~ConnectionMonitor()
@@ -68,55 +71,50 @@ IceInternal::ConnectionMonitor::~ConnectionMonitor()
 void
 IceInternal::ConnectionMonitor::run()
 {
-    while(true)
+    set<ConnectionIPtr> connections;
+    
     {
-        set<ConnectionIPtr> connections;
-        
+        IceUtil::Mutex::Lock sync(*this);
+        if(!_instance)
         {
-            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-            if(_instance && !timedWait(_interval))
-            {
-                connections = _connections;
-            }
+            return;
+        }
 
+        connections = _connections;
+    }
+
+        
+    //
+    // Monitor connections outside the thread synchronization, so
+    // that connections can be added or removed during monitoring.
+    //
+    for(set<ConnectionIPtr>::const_iterator p = connections.begin(); p != connections.end(); ++p)
+    {
+        try
+        {          
+            (*p)->monitor();
+        }
+        catch(const Exception& ex)
+        {   
+            IceUtil::Mutex::Lock sync(*this);
             if(!_instance)
             {
                 return;
             }
+
+            Error out(_instance->initializationData().logger);
+            out << "exception in connection monitor:\n" << ex;
         }
-        
-        //
-        // Monitor connections outside the thread synchronization, so
-        // that connections can be added or removed during monitoring.
-        //
-        for(set<ConnectionIPtr>::const_iterator p = connections.begin(); p != connections.end(); ++p)
+        catch(...)
         {
-            try
-            {          
-                (*p)->monitor();
-            }
-            catch(const Exception& ex)
-            {   
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-                if(!_instance)
-                {
-                    return;
-                }
-
-                Error out(_instance->initializationData().logger);
-                out << "exception in connection monitor:\n" << ex;
-            }
-            catch(...)
+            IceUtil::Mutex::Lock sync(*this);
+            if(!_instance)
             {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-                if(!_instance)
-                {
-                    return;
-                }
-
-                Error out(_instance->initializationData().logger);
-                out << "unknown exception in connection monitor";
+                return;
             }
+
+            Error out(_instance->initializationData().logger);
+            out << "unknown exception in connection monitor";
         }
     }
 }

@@ -10,6 +10,7 @@
 #ifndef ICE_GRID_REGISTRYI_H
 #define ICE_GRID_REGISTRYI_H
 
+#include <IceUtil/Timer.h>
 #include <IceGrid/Registry.h>
 #include <IceGrid/Query.h>
 #include <IceGrid/Locator.h>
@@ -33,9 +34,6 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
 class ReapThread;
 typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
-
-class WaitQueue;
-typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;    
 
 class SessionServantLocatorI;
 typedef IceUtil::Handle<SessionServantLocatorI> SessionServantLocatorIPtr;    
@@ -105,7 +103,7 @@ private:
     bool _master;
     std::string _replicaName;
     ReapThreadPtr _reaper;
-    WaitQueuePtr _waitQueue;
+    IceUtil::TimerPtr _timer;
     SessionServantLocatorIPtr _sessionServantLocator;
     int _sessionTimeout;
     ReplicaSessionManager _session;

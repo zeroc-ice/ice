@@ -12,7 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/Thread.h>
+#include <IceUtil/Timer.h>
 #include <Ice/ConnectionMonitorF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
@@ -21,7 +21,7 @@
 namespace IceInternal
 {
 
-class ConnectionMonitor : public ::IceUtil::Thread, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class ConnectionMonitor : public IceUtil::TimerTask, public ::IceUtil::Mutex
 {
 public:
 
@@ -39,7 +39,6 @@ private:
     virtual void run();
 
     InstancePtr _instance;
-    const IceUtil::Time _interval;
     std::set<Ice::ConnectionIPtr> _connections;
 };
 

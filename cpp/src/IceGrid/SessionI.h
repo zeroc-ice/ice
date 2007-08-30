@@ -11,6 +11,7 @@
 #define ICEGRID_SESSIONI_H
 
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Timer.h>
 #include <IceGrid/ReapThread.h>
 #include <IceGrid/Session.h>
 #include <IceGrid/SessionServantLocatorI.h>
@@ -30,9 +31,6 @@ typedef IceUtil::Handle<AllocationRequest> AllocationRequestPtr;
 
 class Allocatable;
 typedef IceUtil::Handle<Allocatable> AllocatablePtr;
-
-class WaitQueue;
-typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
 class SessionI;
 typedef IceUtil::Handle<SessionI> SessionIPtr;
@@ -81,8 +79,9 @@ class SessionI : public BaseSessionI, public Session
 {
 public:
 
-    SessionI(const std::string&, const DatabasePtr&, bool, const WaitQueuePtr&, const Glacier2::SessionControlPrx&);
-    SessionI(const std::string&, const DatabasePtr&, bool, const WaitQueuePtr&, const Ice::ConnectionPtr&);
+    SessionI(const std::string&, const DatabasePtr&, bool, const IceUtil::TimerPtr&,
+             const Glacier2::SessionControlPrx&);
+    SessionI(const std::string&, const DatabasePtr&, bool, const IceUtil::TimerPtr&, const Ice::ConnectionPtr&);
     virtual ~SessionI();
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
@@ -96,7 +95,7 @@ public:
     virtual void destroy(const Ice::Current&);
 
     int getAllocationTimeout() const;
-    const WaitQueuePtr& getWaitQueue() const { return _waitQueue; }
+    const IceUtil::TimerPtr& getTimer() const { return _timer; }
     Glacier2::SessionControlPrx getSessionControl() const { return _sessionControl; }
 
     bool addAllocationRequest(const AllocationRequestPtr&);
@@ -108,7 +107,7 @@ protected:
 
     virtual void destroyImpl(bool);
 
-    const WaitQueuePtr _waitQueue;
+    const IceUtil::TimerPtr _timer;
     const Glacier2::SessionControlPrx _sessionControl;
     const Ice::ConnectionPtr _connection;
     int _allocationTimeout;
@@ -120,7 +119,8 @@ class ClientSessionFactory : virtual public IceUtil::Shared
 {
 public:
 
-    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const WaitQueuePtr&, const ReapThreadPtr&);
+    ClientSessionFactory(const Ice::ObjectAdapterPtr&, const DatabasePtr&, const IceUtil::TimerPtr&,
+                         const ReapThreadPtr&);
 
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     SessionIPtr createSessionServant(const std::string&, const Glacier2::SessionControlPrx&);
@@ -131,7 +131,7 @@ private:
 
     const Ice::ObjectAdapterPtr _adapter;
     const DatabasePtr _database;
-    const WaitQueuePtr _waitQueue;
+    const IceUtil::TimerPtr _timer;
     const ReapThreadPtr _reaper;
     const bool _filters;
 };

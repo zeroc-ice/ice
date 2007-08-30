@@ -64,7 +64,7 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& time)
     }
     _tokens.insert(token);
 
-    if(token.scheduledTime <= _tokens.begin()->scheduledTime)
+    if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
     {
         _monitor.notify();
     }
@@ -95,7 +95,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
     }
     _tokens.insert(token); 
    
-    if(token.scheduledTime <= _tokens.begin()->scheduledTime)
+    if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
     {
         _monitor.notify();
     }
@@ -118,6 +118,7 @@ Timer::cancel(const TimerTaskPtr& task)
 #else
     Token token = { p->second, IceUtil::Time(), p->first };
 #endif
+
     _tokens.erase(token);
     _tasks.erase(p);
     return true;
@@ -152,6 +153,7 @@ Timer::run()
 
                 if(_tokens.empty())
                 {
+                    _wakeUpTime = IceUtil::Time();
                     _monitor.wait();
                 }
             }
@@ -175,7 +177,8 @@ Timer::run()
                     }
                     break;
                 }
-
+                
+                _wakeUpTime = first.scheduledTime;
                 _monitor.timedWait(first.scheduledTime - now);
             }
 

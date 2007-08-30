@@ -10,10 +10,10 @@
 #ifndef CASINO_BET_RESOLVER_H
 #define CASINO_BET_RESOLVER_H
 
+#include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <Casino.h>
 #include <CasinoStore.h>
-#include <Timer.h>
 
 
 class BetResolver
@@ -26,7 +26,7 @@ public:
    
     void add(const CasinoStore::PersistentBetPrx&, Ice::Long);
     
-    void cancel();
+    void destroy();
     
     int getBetCount() const;
 
@@ -43,7 +43,7 @@ private:
 
     int _betCount;
     IceUtil::Mutex _mutex;
-    std::vector<TimerPtr> _timers;
+    std::vector<IceUtil::TimerPtr> _timers;
 };
 
 #endif

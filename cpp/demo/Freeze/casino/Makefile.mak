@@ -23,7 +23,6 @@ SOBJS		= CasinoStore.obj \
                   BetI.obj \
                   PlayerI.obj \
                   BetResolver.obj \
-                  Timer.obj \
 		  Server.obj
 
 SRCS		= $(OBJS:.obj=.cpp) \

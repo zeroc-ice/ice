@@ -8,11 +8,11 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
+#include <IceUtil/Timer.h>
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
-#include <IceGrid/WaitQueue.h>
 #include <IceGrid/RegistryI.h>
 #include <IceGrid/FileUserAccountMapperI.h>
 #include <IceGrid/NodeI.h>
@@ -84,7 +84,7 @@ private:
     string trim(const string&);
 
     ActivatorPtr _activator;
-    WaitQueuePtr _waitQueue;
+    IceUtil::TimerPtr _timer;
     RegistryIPtr _registry;
     NodeIPtr _node;
     NodeSessionManager _sessions;
@@ -429,10 +429,9 @@ NodeService::start(int argc, char* argv[])
     }
 
     //
-    // Create the wait queue.
+    // Create a new timer to handle server activation/deactivation timeouts.
     //
-    _waitQueue = new WaitQueue();
-    _waitQueue->start();
+    _timer = new IceUtil::Timer();
 
     //
     // The IceGrid instance name.
@@ -446,7 +445,7 @@ NodeService::start(int argc, char* argv[])
     //
     Identity id = communicator()->stringToIdentity(instanceName + "/Node-" + name);
     NodePrx nodeProxy = NodePrx::uncheckedCast(_adapter->createProxy(id));
-    _node = new NodeI(_adapter, _sessions, _activator, _waitQueue, traceLevels, nodeProxy, name, mapper);
+    _node = new NodeI(_adapter, _sessions, _activator, _timer, traceLevels, nodeProxy, name, mapper);
     _adapter->add(_node, nodeProxy->ice_getIdentity());
 
     //
@@ -657,13 +656,12 @@ NodeService::stop()
     }
 
     //
-    // The wait queue must be destroyed after the activator and before
-    // the communicator is shutdown.
+    // The timer must be destroyed after the activator and before the
+    // communicator is shutdown.
     //
     try
     {
-        _waitQueue->destroy();
-        _waitQueue = 0;
+        _timer->destroy();
     }
     catch(...)
     {

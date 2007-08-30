@@ -11,9 +11,9 @@
 #define ICE_GRID_SERVER_I_H
 
 #include <IceUtil/Mutex.h>
+#include <IceUtil/Timer.h>
 #include <Freeze/EvictorF.h>
 #include <IceGrid/Activator.h>
-#include <IceGrid/WaitQueue.h>
 #include <IceGrid/Internal.h>
 #include <set>
 
@@ -100,8 +100,7 @@ public:
 
     void adapterActivated(const std::string&);
     void adapterDeactivated(const std::string&);
-    void activationFailed(bool);
-    void deactivationFailed();
+    void activationTimedOut();
 
     void activate();
     void kill();
@@ -154,7 +153,7 @@ private:
     std::set<std::string> _activatedAdapters;
     IceUtil::Time _failureTime;
     ServerActivation _previousActivation;
-    WaitItemPtr _timer;
+    IceUtil::TimerTaskPtr _timerTask;
     bool _waitForReplication;
     std::string _stdErrFile;
     std::string _stdOutFile;
@@ -191,16 +190,16 @@ class TimedServerCommand : public ServerCommand
 {
 public:
 
-    TimedServerCommand(const ServerIPtr&, const WaitQueuePtr&, int);
-    virtual void timeout(bool) = 0;
+    TimedServerCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int);
+    virtual void timeout() = 0;
 
     void startTimer();
     void stopTimer();
 
 private:
 
-    WaitQueuePtr _waitQueue;
-    WaitItemPtr _timer;
+    IceUtil::TimerPtr _timer;
+    IceUtil::TimerTaskPtr _timerTask;
     int _timeout;
 };
 typedef IceUtil::Handle<TimedServerCommand> TimedServerCommandPtr;
@@ -229,14 +228,14 @@ class StopCommand : public TimedServerCommand
 {
 public:
 
-    StopCommand(const ServerIPtr&, const WaitQueuePtr&, int);
+    StopCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int);
 
     static bool isStopped(ServerI::InternalServerState);
 
     bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
-    void timeout(bool destroyed);
+    void timeout();
 
     void addCallback(const AMD_Server_stopPtr&);
     void failed(const std::string& reason);
@@ -251,12 +250,12 @@ class StartCommand : public TimedServerCommand
 {
 public:
 
-    StartCommand(const ServerIPtr&, const WaitQueuePtr&, int);
+    StartCommand(const ServerIPtr&, const IceUtil::TimerPtr&, int);
 
     bool canExecute(ServerI::InternalServerState);
     ServerI::InternalServerState nextState();
     void execute();
-    void timeout(bool destroyed);
+    void timeout();
 
     void addCallback(const AMD_Server_startPtr&);
     void failed(const std::string& reason);

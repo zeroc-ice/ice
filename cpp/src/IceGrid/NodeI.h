@@ -10,10 +10,9 @@
 #ifndef ICE_GRID_NODE_I_H
 #define ICE_GRID_NODE_I_H
 
+#include <IceUtil/Timer.h>
 #include <IcePatch2/FileServer.h>
-
 #include <IceGrid/Internal.h>
-#include <IceGrid/WaitQueue.h>
 #include <IceGrid/PlatformInfo.h>
 #include <IceGrid/UserAccountMapper.h>
 #include <IceGrid/FileCache.h>
@@ -40,7 +39,7 @@ class NodeI : public Node, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const WaitQueuePtr&, 
+    NodeI(const Ice::ObjectAdapterPtr&, NodeSessionManager&, const ActivatorPtr&, const IceUtil::TimerPtr&, 
           const TraceLevelsPtr&, const NodePrx&, const std::string&, const UserAccountMapperPrx&);
     virtual ~NodeI();
 
@@ -75,7 +74,7 @@ public:
 
     void destroy();
     
-    WaitQueuePtr getWaitQueue() const;
+    IceUtil::TimerPtr getTimer() const;
     Ice::CommunicatorPtr getCommunicator() const;
     Ice::ObjectAdapterPtr getAdapter() const;
     ActivatorPtr getActivator() const;
@@ -115,7 +114,7 @@ private:
     const Ice::ObjectAdapterPtr _adapter;
     NodeSessionManager& _sessions;
     const ActivatorPtr _activator;
-    const WaitQueuePtr _waitQueue;
+    const IceUtil::TimerPtr _timer;
     const TraceLevelsPtr _traceLevels;
     const std::string _name;
     const NodePrx _proxy;

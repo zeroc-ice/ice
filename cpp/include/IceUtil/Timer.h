@@ -28,7 +28,7 @@ typedef IceUtil::Handle<Timer> TimerPtr;
 // Extend the TimerTask class and override the run() method to execute
 // code at a specific time or repeatedly.
 //
-class ICE_UTIL_API TimerTask : public IceUtil::Shared
+class ICE_UTIL_API TimerTask : virtual public IceUtil::Shared
 {
 public:
 
@@ -85,20 +85,8 @@ private:
         IceUtil::Time scheduledTime;
         IceUtil::Time delay;
         TimerTaskPtr task;
-        
-        bool operator<(const Token& r) const
-        {
-            if(scheduledTime < r.scheduledTime)
-            {
-                return true;
-            }
-            else if(scheduledTime > r.scheduledTime)
-            {
-                return false;
-            }
-            
-            return task.get() < r.task.get();
-        }
+
+        inline bool operator<(const Token& r) const;
     };
 
     virtual void run();
@@ -107,8 +95,24 @@ private:
     bool _destroyed;
     std::set<Token> _tokens;
     std::map<TimerTaskPtr, IceUtil::Time> _tasks;
+    IceUtil::Time _wakeUpTime;
 };
 typedef IceUtil::Handle<Timer> TimerPtr;
+
+inline bool
+Timer::Token::operator<(const Timer::Token& r) const
+{
+    if(scheduledTime < r.scheduledTime)
+    {
+        return true;
+    }
+    else if(scheduledTime > r.scheduledTime)
+    {
+        return false;
+    }
+    
+    return task < r.task;
+}
 
 }
 

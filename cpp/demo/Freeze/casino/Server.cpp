@@ -266,11 +266,11 @@ CasinoServer::run(int argc, char* argv[])
         shutdownOnInterrupt();
         communicator()->waitForShutdown();
       
-        _betResolver.cancel();
+        _betResolver.destroy();
     }
     catch(...)
     {
-        _betResolver.cancel();
+        _betResolver.destroy();
         throw;
     }
     return 0;

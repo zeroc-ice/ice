@@ -47,6 +47,6 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/UUID.h>
 #include <IceUtil/Unicode.h>
-//#include <IceUtil/Timer.h> // Add back once reviewed and casino demo changed to use it.
+#include <IceUtil/Timer.h>
 
 #endif

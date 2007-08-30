@@ -38,7 +38,7 @@ AllocationRequest::pending()
 
     if(_timeout > 0)
     {
-        _session->getWaitQueue()->add(this, IceUtil::Time::milliSeconds(_timeout));
+        _session->getTimer()->schedule(this, IceUtil::Time::now() + IceUtil::Time::milliSeconds(_timeout));
     }
     _state = Pending;
     return true;
@@ -57,7 +57,7 @@ AllocationRequest::allocate(const AllocatablePtr& allocatable, const SessionIPtr
     case Pending:
         if(_timeout > 0)
         {
-            _session->getWaitQueue()->remove(this);
+            _session->getTimer()->cancel(this);
         }
         _session->removeAllocationRequest(this);
         break;
@@ -96,7 +96,7 @@ AllocationRequest::cancel(const AllocationException& ex)
     case Pending:
         if(_timeout > 0)
         {
-            _session->getWaitQueue()->remove(this);
+            _session->getTimer()->cancel(this);
         }
         _session->removeAllocationRequest(this);
         break;
@@ -107,7 +107,7 @@ AllocationRequest::cancel(const AllocationException& ex)
 }
 
 void
-AllocationRequest::expired(bool destroyed)
+AllocationRequest::run() // TimerTask::run() method implementation
 {
     Lock sync(*this);
     switch(_state)

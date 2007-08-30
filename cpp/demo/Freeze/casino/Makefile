@@ -23,7 +23,6 @@ SOBJS		= CasinoStore.o \
                   BetI.o \
                   PlayerI.o \
                   BetResolver.o \
-                  Timer.o \
 		  Server.o
 
 
