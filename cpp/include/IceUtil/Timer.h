@@ -86,6 +86,7 @@ private:
         IceUtil::Time delay;
         TimerTaskPtr task;
 
+        inline Token(const IceUtil::Time&, const IceUtil::Time&, const TimerTaskPtr&);
         inline bool operator<(const Token& r) const;
     };
 
@@ -98,6 +99,12 @@ private:
     IceUtil::Time _wakeUpTime;
 };
 typedef IceUtil::Handle<Timer> TimerPtr;
+
+inline 
+Timer::Token::Token(const IceUtil::Time& st, const IceUtil::Time& d, const TimerTaskPtr& t) :
+    scheduledTime(st), delay(d), task(t)
+{
+}
 
 inline bool
 Timer::Token::operator<(const Timer::Token& r) const

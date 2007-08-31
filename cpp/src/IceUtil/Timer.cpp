@@ -35,6 +35,7 @@ Timer::destroy()
         }
         _destroyed = true;
         _monitor.notify();
+        _tasks.clear();
         _tokens.clear();
     }
     getThreadControl().join();
@@ -49,22 +50,14 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& time)
         return;
     }
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    Token token;
-    token.scheduledTime = time;
-    token.task = task;
-#else
-    const Token token = { time, IceUtil::Time(), task };
-#endif
-
-    bool inserted = _tasks.insert(make_pair(task, token.scheduledTime)).second;
+    bool inserted = _tasks.insert(make_pair(task, time)).second;
     if(!inserted)
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "task is already schedulded");
     }
-    _tokens.insert(token);
+    _tokens.insert(Token(time, IceUtil::Time(), task));
 
-    if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
+    if(_wakeUpTime == IceUtil::Time() || time < _wakeUpTime)
     {
         _monitor.notify();
     }
@@ -79,15 +72,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
         return;
     }
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    Token token;
-    token.scheduledTime = IceUtil::Time::now() + delay;
-    token.delay = delay;
-    token.task = task;
-#else
-    Token token = { IceUtil::Time::now() + delay, delay, task };
-#endif
-
+    const Token token(IceUtil::Time::now() + delay, delay, task);
     bool inserted = _tasks.insert(make_pair(task, token.scheduledTime)).second;
     if(!inserted)
     {
@@ -105,29 +90,27 @@ bool
 Timer::cancel(const TimerTaskPtr& task)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+    if(_destroyed)
+    {
+        return false;
+    }
+
     map<TimerTaskPtr, IceUtil::Time>::iterator p = _tasks.find(task);
     if(p == _tasks.end())
     {
         return false;
     }
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    Token token;
-    token.scheduledTime = p->second;
-    token.task = p->first;
-#else
-    Token token = { p->second, IceUtil::Time(), p->first };
-#endif
-
-    _tokens.erase(token);
+    _tokens.erase(Token(p->second, IceUtil::Time(), p->first));
     _tasks.erase(p);
+
     return true;
 }
 
 void
 Timer::run()
 {
-    Token token;
+    Token token(IceUtil::Time(), IceUtil::Time(), 0);
     while(true)
     {
         {
@@ -149,7 +132,7 @@ Timer::run()
                         _tokens.insert(token);
                     }
                 }
-                token = Token();
+                token = Token(IceUtil::Time(), IceUtil::Time(), 0);
 
                 if(_tokens.empty())
                 {

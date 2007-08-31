@@ -69,7 +69,7 @@ public final class Instance
 
         return _referenceFactory;
     }
-
+    
     public synchronized ProxyFactory
     proxyFactory()
     {
@@ -156,6 +156,22 @@ public final class Instance
         }
 
         return _serverThreadPool;
+    }
+
+    synchronized public Timer
+    timer()
+    {
+        if(_state == StateDestroyed)
+        {
+            throw new Ice.CommunicatorDestroyedException();
+        }
+        
+        if(_timer == null) // Lazy initialization.
+        {
+            _timer = new Timer(this);
+        }
+
+        return _timer;
     }
 
     public boolean
@@ -460,6 +476,7 @@ public final class Instance
         IceUtil.Assert.FinalizerAssert(_objectAdapterFactory == null);
         IceUtil.Assert.FinalizerAssert(_clientThreadPool == null);
         IceUtil.Assert.FinalizerAssert(_serverThreadPool == null);
+        IceUtil.Assert.FinalizerAssert(_timer == null);
         IceUtil.Assert.FinalizerAssert(_routerManager == null);
         IceUtil.Assert.FinalizerAssert(_locatorManager == null);
         IceUtil.Assert.FinalizerAssert(_endpointFactoryManager == null);
@@ -585,7 +602,7 @@ public final class Instance
 
             if(_connectionMonitor != null)
             {
-                _connectionMonitor._destroy();
+                _connectionMonitor.destroy();
                 _connectionMonitor = null;
             }
 
@@ -601,6 +618,12 @@ public final class Instance
                 _clientThreadPool.destroy();
                 clientThreadPool = _clientThreadPool;
                 _clientThreadPool = null;
+            }
+
+            if(_timer != null)
+            {
+                _timer._destroy();
+                _timer = null;
             }
 
             if(_servantFactoryManager != null)
@@ -725,6 +748,7 @@ public final class Instance
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _clientThreadPool;
     private ThreadPool _serverThreadPool;
+    private Timer _timer;
     private final boolean _threadPerConnection;
     private final int _threadPerConnectionStackSize;
     private EndpointFactoryManager _endpointFactoryManager;
