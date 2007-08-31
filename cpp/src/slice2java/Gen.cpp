@@ -4670,15 +4670,17 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         {
             out << result;
         }
+        bool firstOutParam = true;
         for(q = paramList.begin(); q != paramList.end(); ++q)
         {
             if((*q)->isOutParam())
             {
-                if(ret || q != paramList.begin())
+                if(ret || !firstOutParam)
                 {
                     out << ", ";
                 }
                 out << fixKwd((*q)->name());
+                firstOutParam = false;
             }
         }
         out << ");";
