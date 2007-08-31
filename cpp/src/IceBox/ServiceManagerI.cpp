@@ -141,19 +141,23 @@ IceBox::ServiceManagerI::start()
     try
     {
         ServiceManagerPtr obj = this;
+        PropertiesPtr properties = _communicator->getProperties();
 
         //
         // Create an object adapter. Services probably should NOT share
         // this object adapter, as the endpoint(s) for this object adapter
         // will most likely need to be firewalled for security reasons.
         //
-        ObjectAdapterPtr adapter = _communicator->createObjectAdapter("IceBox.ServiceManager");
+        ObjectAdapterPtr adapter;
+        if(properties->getProperty("IceBox.ServiceManager.Endpoints") != "")
+        {
+            adapter = _communicator->createObjectAdapter("IceBox.ServiceManager");
 
-        PropertiesPtr properties = _communicator->getProperties();
-        Identity identity;
-        identity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-        identity.name = "ServiceManager";
-        adapter->add(obj, identity);
+            Identity identity;
+            identity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+            identity.name = "ServiceManager";
+            adapter->add(obj, identity);
+        }
 
         //
         // Parse the IceBox.LoadOrder property.
@@ -228,15 +232,18 @@ IceBox::ServiceManagerI::start()
             cout << bundleName << " ready" << endl;
         }
 
-        try
+        if(adapter)
         {
-            adapter->activate();
-        }
-        catch(const ObjectAdapterDeactivatedException&)
-        {
-            //
-            // Expected if the communicator has been shutdown.
-            //
+            try
+            {
+                adapter->activate();
+            }
+            catch(const ObjectAdapterDeactivatedException&)
+            {
+                //
+                // Expected if the communicator has been shutdown.
+                //
+            }
         }
     }
     catch(const FailureException& ex)

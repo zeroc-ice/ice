@@ -118,19 +118,23 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
     {
         try
         {
+            Ice.Properties properties = Ice.Application.communicator().getProperties();
+
             //
             // Create an object adapter. Services probably should NOT share
             // this object adapter, as the endpoint(s) for this object adapter
             // will most likely need to be firewalled for security reasons.
             //
-            Ice.ObjectAdapter adapter = Ice.Application.communicator().createObjectAdapter("IceBox.ServiceManager");
+            Ice.ObjectAdapter adapter = null;
+            if(!properties.getProperty("IceBox.ServiceManager.Endpoints").Equals(""))
+            {
+                adapter = Ice.Application.communicator().createObjectAdapter("IceBox.ServiceManager");
 
-            Ice.Properties properties = Ice.Application.communicator().getProperties();
-
-            Ice.Identity identity = new Ice.Identity();
-            identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-            identity.name = "ServiceManager";
-            adapter.add(this, identity);
+                Ice.Identity identity = new Ice.Identity();
+                identity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+                identity.name = "ServiceManager";
+                adapter.add(this, identity);
+            }
 
             //
             // Parse the IceBox.LoadOrder property.
@@ -211,15 +215,18 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
             //
             // Start request dispatching after we've started the services.
             //
-            try
+            if(adapter != null)
             {
-                adapter.activate();
-            }
-            catch(Ice.ObjectAdapterDeactivatedException)
-            {
-                //
-                // Expected if the communicator has been shutdown.
-                //
+                try
+                {
+                    adapter.activate();
+                }
+                catch(Ice.ObjectAdapterDeactivatedException)
+                {
+                    //
+                    // Expected if the communicator has been shutdown.
+                    //
+                }
             }
 
             Ice.Application.communicator().waitForShutdown();
