@@ -38,7 +38,7 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options] [file...]\n";
+    cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
         "Options:\n"
         "-h, --help           Show this message.\n"
@@ -77,6 +77,7 @@ Client::run(int argc, char* argv[])
     }
     if(!args.empty())
     {
+        cerr << argv[0] << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }

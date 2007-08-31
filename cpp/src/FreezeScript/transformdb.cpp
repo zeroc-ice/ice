@@ -409,6 +409,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     {
         dbEnvNameNew = args[2];
     }
+    if(args.size() > 3)
+    {
+        cerr << argv[0] << ": too many arguments" << endl;
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);
     FreezeScript::Destroyer<Slice::UnitPtr> oldD(oldUnit);

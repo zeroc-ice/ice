@@ -98,6 +98,7 @@ RegistryService::start(int argc, char* argv[])
 
     if(!args.empty())
     {
+        cerr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return false;
     }

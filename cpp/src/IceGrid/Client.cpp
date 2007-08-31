@@ -275,6 +275,7 @@ Client::run(int argc, char* argv[])
     }
     if(!args.empty())
     {
+        cerr << argv[0] << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -549,7 +550,7 @@ Client::run(int argc, char* argv[])
 
         {
             Lock sync(*this);
-            _parser = Parser::createParser(communicator(), session, admin, args.empty() && commands.empty());
+            _parser = Parser::createParser(communicator(), session, admin, commands.empty());
         }    
 
         if(!commands.empty()) // Commands were given
