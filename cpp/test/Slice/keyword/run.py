@@ -23,9 +23,6 @@ import TestUtil
 name = os.path.join("Slice", "keyword")
 testdir = os.path.join(toplevel, "test", name)
 
-cwd = os.getcwd()
-os.chdir(testdir)
-
 client = os.path.join(testdir, "client")
 
 print "starting client...",
