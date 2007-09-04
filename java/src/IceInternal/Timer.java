@@ -58,7 +58,7 @@ public final class Timer extends Thread
             return;
         }
 
-        final Token token = new Token(System.currentTimeMillis() + delay, ++_tokenId, 0, task);
+        final Token token = new Token(IceInternal.Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
         Object previous = _tasks.put(task, token);
         assert previous == null;
@@ -78,7 +78,7 @@ public final class Timer extends Thread
             return;
         }
 
-        final Token token = new Token(System.currentTimeMillis() + period, ++_tokenId, period, task);
+        final Token token = new Token(IceInternal.Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
         Object previous = _tasks.put(task, token);
         assert previous == null;
@@ -152,7 +152,7 @@ public final class Timer extends Thread
                     {
                         if(_tasks.containsKey(token.task))
                         {
-                            token.scheduledTime = System.currentTimeMillis() + token.delay;
+                            token.scheduledTime = IceInternal.Time.currentMonotonicTimeMillis() + token.delay;
                             _tokens.add(token);
                         }
                     }
@@ -187,7 +187,7 @@ public final class Timer extends Thread
                 
                 while(!_tokens.isEmpty() && _instance != null)
                 {
-                    long now = System.currentTimeMillis();
+                    long now = IceInternal.Time.currentMonotonicTimeMillis();
                     Token first = (Token)_tokens.first();
                     if(first.scheduledTime <= now)
                     {

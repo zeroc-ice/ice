@@ -137,8 +137,8 @@
     <target name="ice-compile" depends="generate">
         <mkdir dir="${lib.dir}"/>
         <mkdir dir="${cache.dir}"/>
-	<depend srcdir="${generated.dir}:${src.dir}:${ssl.src}" destdir="${lib.dir}" cache="${cache.dir}"/>
-	<javac srcdir="${generated.dir}:${src.dir}:${ssl.src}" destdir="${lib.dir}"
+	<depend srcdir="${generated.dir}:${src.dir}:${jdk.src.dir}" destdir="${lib.dir}" cache="${cache.dir}"/>
+	<javac srcdir="${generated.dir}:${src.dir}:${jdk.src.dir}" destdir="${lib.dir}"
 	    source="${jdk.version}" debug="${debug}"
 	    excludes="IceGridGUI/**"
 	    includes="**"

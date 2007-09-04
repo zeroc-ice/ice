@@ -31,8 +31,8 @@
 	<isset property="java2"/>
     </condition>
 
-    <!-- SSL source directory  -->
-    <condition property="ssl.src" value="ssl/jdk1.4" else="ssl/jdk1.5">
+    <!-- JDK specific source directory  -->
+    <condition property="jdk.src.dir" value="jdk/1.4" else="jdk/1.5">
 	<isset property="java2"/>
     </condition>
 
