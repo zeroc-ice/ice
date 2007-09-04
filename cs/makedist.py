@@ -14,13 +14,11 @@ import os, sys, shutil, fnmatch, re, fileinput
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] [tag]"
+    print "Usage: " + sys.argv[0] + " [options]"
     print
     print "Options:"
     print "-h    Show this message."
     print "-v    Be verbose."
-    print
-    print "If no tag is specified, HEAD is used."
 
 #
 # Find files matching a pattern.
@@ -69,10 +67,13 @@ def editMakefileMak(file):
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 
+if os.path.exists("../.git"):
+    print "Unable to run in repository! Exiting..."
+    sys.exit(1)
+
 #
 # Check arguments
 #
-tag = "HEAD"
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
@@ -85,8 +86,6 @@ for x in sys.argv[1:]:
         print
         usage()
         sys.exit(1)
-    else:
-        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -95,72 +94,67 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.mkdir(os.path.join(distdir, "icecs"))
-os.mkdir(os.path.join(distdir, "ice"))
 
 #
-# Export C# and C++ sources from git.
+# Get Ice version.
 #
-# NOTE: Assumes that the C++ and C# trees will use the same tag.
-#
-print "Checking out " + tag + "..."
+config = open(os.path.join("config", "Make.rules.cs"), "r")
+version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
+
+pcfg = open(os.path.join("lib", "pkgconfig", "icecs.pc"), "r")
+dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
+
+icever = "IceCS-" + version
+
+os.mkdir(os.path.join(distdir, icever))
+
 if verbose:
-    quiet = "-v"
+    quiet = "v"
 else:
     quiet = ""
-os.system("git archive " + quiet + " " + tag + " . | (cd dist/icecs && tar xf -)")
-os.chdir(os.path.join("..", "cpp"))
-os.system("git archive " + quiet + " " + tag + " . | (cd ../cs/dist/ice && tar xf -)")
-os.chdir(os.path.join("..", "cs"))
 
+print "Copying Slice directories..."
+os.system(" cd ../cpp && tar c" + quiet + " " + " slice -C ../cpp --exclude Makefile | (cd ../cs/dist/" + icever + " && tar xf -)")
+
+#
+# Remove files.
+#
+print "Creating exclusion file..."
+filesToRemove = [ "makedist.py", "allDemos.py", "dist", "exclusions" ]
+filesToRemove.extend(find(".", ".gitignore"))
+filesToRemove.extend(find(".", "expect.py"))
+
+exclusionFile = open("exclusions", "w")
+for x in filesToRemove:
+    exclusionFile.write("%s\n" % x)
+exclusionFile.close()
+
+os.system("tar c" + quiet + " -X exclusions . | ( cd " + os.path.join(distdir, icever) + " && tar xf - )")
 os.chdir(distdir)
 
 #
 # Copy Slice directories.
 #
-print "Copying Slice directories..."
-shutil.copytree(os.path.join("ice", "slice"), os.path.join("icecs", "slice"), 1)
-for file in find(os.path.join("icecs", "slice"), "Makefile.mak"):
+for file in find(os.path.join(icever, "slice"), "Makefile.mak"):
     editMakefileMak(file)
-shutil.rmtree(os.path.join("icecs", "slice", "IceSSL"))
-
-#
-# Makefiles found in the slice directories are removed later
-# on. 
-#
-shutil.rmtree("ice")
-
-#
-# Remove files.
-#
-print "Removing unnecessary files..."
-filesToRemove = [ \
-    os.path.join("icecs", "makedist.py"), \
-    ]
-filesToRemove.extend(find("icecs", ".gitignore"))
-filesToRemove.extend(find(os.path.join("icecs", "slice"), "Makefile"))
-for x in filesToRemove:
-    os.remove(x)
 
 #
 # Get Ice version.
 #
-config = open(os.path.join("icecs", "config", "Make.rules.cs"), "r")
+config = open(os.path.join(icever, "config", "Make.rules.cs"), "r")
 version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
-pcfg = open(os.path.join("icecs", "lib", "pkgconfig", "icecs.pc"), "r")
+pcfg = open(os.path.join(icever, "lib", "pkgconfig", "icecs.pc"), "r")
 dotnetversion = re.search("version[= \t]*([0-9\.]+)", pcfg.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("icecs", "README*"), version, dotnetversion)
-fixVersion(find("icecs", "INSTALL*"), version, dotnetversion)
+fixVersion(find(icever, "README*"), version, dotnetversion)
+fixVersion(find(icever, "INSTALL*"), version, dotnetversion)
 
 #
 # Create source archives.
 #
 print "Creating distribution archives..."
-icever = "IceCS-" + version
-os.rename("icecs", icever)
 if verbose:
     quiet = "v"
 else:

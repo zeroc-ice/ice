@@ -290,7 +290,7 @@ class FileSpecWorker:
         # 'convert to dos file format' name patterns. (These are
         # regex patterns, not patterns for filename globbing).
         #
-        textFiles = [".*README.*", ".*Makefile.mak", ".*LICENSE.*"]
+        textFiles = [".*README.*", ".*Makefile.mak", ".*LICENSE.*", "RELEASE_NOTES.txt"]
         textFileScanner = None
         expression = ""
         for p in textFiles:

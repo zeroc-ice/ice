@@ -58,25 +58,6 @@ class ExtProgramError:
     def __str__(self):
         return repr(self.msg)
 
-def gitarchive(archiveArgs = [], haltOnError = True):
-    '''git is a little different because the main command that we need,
-    `git archive', needs to be run from an actual repository.
-    Fortunately we most likely have one if we are running this script!
-    To run the archive, we need to cd into the directory where
-    makebindist.py resides and run the command while extracting the
-    results into the current directory'''
-    cwd = os.getcwd()
-    global repoDir
-    os.chdir(repoDir)
-    cmdString = "git archive " 
-    for a in archiveArgs:
-        cmdString = cmdString + " " + a
-    if getPlatform() == 'solaris':
-	runprog(cmdString + " | (cd %s && gtar xf -)" % cwd)
-    else:
-	runprog(cmdString + " | (cd %s && tar xf -)" % cwd)
-    os.chdir(cwd)
-
 def runprog(commandstring, haltOnError = True):
     #commandtuple = commandstring.split()
     #result = os.spawnvpe(os.P_WAIT, commandtuple[0], commandtuple, os.environ)
@@ -143,6 +124,11 @@ def getPlatformString():
                 return 'rhel-i386'
             else:
                 return 'sles-i586'
+    elif getPlatform() == "solaris":
+        if readcommand("uname -p") == "i386":
+            return "solaris-x86"
+        else:
+            return "solaris-sparc"
     else:
         return getPlatform()
 
@@ -162,20 +148,14 @@ def getMakeRulesSuffix():
     else:
         return None
 
-def getVersion(cvsTag, buildDir):
+def getVersion(buildDir):
     """Extracts a source file from the repository and gets the version number from it"""
     cwd = os.getcwd()
-    os.chdir(buildDir)
     if getPlatform() == 'aix':
         os.environ['LIBPATH'] = ''
-    gitarchive(["--prefix=cpp/", cvsTag, "include/IceUtil/Config.h"])
+    configFile = os.path.join(buildDir, "install", "Config.h")
+    result = [ getIceVersion(configFile), getIceSoVersion(configFile), getIceMMVersion(configFile) ]
 
-    result = [ getIceVersion('cpp/include/IceUtil/Config.h'), \
-               getIceSoVersion('cpp/include/IceUtil/Config.h'), \
-               getIceMMVersion('cpp/include/IceUtil/Config.h') ]
-
-    os.remove('cpp/include/IceUtil/Config.h')
-    os.removedirs('cpp/include/IceUtil')
     os.chdir(cwd)
     return result
 
@@ -188,25 +168,24 @@ def fixVersion(filename, version, mmVersion):
         print l
     f.close()
 
-def getInstallFiles(cvsTag, buildDir, version, mmVersion):
+def fixInstallFiles(buildDir, version, mmVersion):
     """Gets the install sources for this revision"""
     cwd = os.getcwd()
     try:
         os.chdir(buildDir)
-        runprog('rm -rf ' + os.path.join(buildDir, "ice", "install"))
-        gitarchive(['--prefix="cpp/"', cvsTag,  "install"])
-        fixVersion('cpp/install/common/README.DEMOS', version, mmVersion)
-        snapshot = os.walk('./cpp/install/unix')
+        fixVersion('install/common/README.DEMOS', version, mmVersion)
+        snapshot = os.walk('./install/unix')
         for dirInfo in snapshot:
             for f in dirInfo[2]:
                 fixVersion(os.path.join(dirInfo[0], f), version, mmVersion)
     finally:
         os.chdir(cwd)
-    return os.path.join(buildDir, "cpp", "install")
+    return os.path.join(buildDir, "install")
 
-def getInstallFilesFromLocalDirectory(cvsTag, buildDir, version, mmVersion):
-    '''Gets the install files from an existing CVS directory, has the
-    advantage of working even if CVS is down allowing the install-O to
+# XXX- I don't think this is needed any longer.
+def getInstallFilesFromLocalDirectory(buildDir, version, mmVersion):
+    '''Gets the install files from an existing repository, has the
+    advantage of working even if repository is down allowing the install-O to
     continue working!'''
     cwd = os.getcwd()
     try:
@@ -233,26 +212,6 @@ def readcommand(cmd):
     pipe_stdin.close()
     pipe_stdout.close()
     return lines[0].strip()
-
-def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
-    '''
-    The location for the source distributions is not supplied so we are
-    going to assume we are being called from a CVS tree and we are going
-    to go get them ourselves
-    '''
-    cwd = os.getcwd()
-    os.chdir(cwd + "/../" + cvsdir)
-    if len(tag) > 0:
-        print 'Making disribution ' + cvsdir + ' with tag ' + tag
-
-    # 
-    # The sources collected by the makebindist.py script are *NOT*
-    # suitable for release as they do not all contain the documentation.
-    #
-    runprog("./makedist.py " + tag)
-        
-    shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
-    os.chdir(cwd)
 
 def editMakeRulesCS(filename, version):
     '''
@@ -610,12 +569,31 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 
 def archiveDemoTree(buildDir, version, installFiles):
     cwd = os.getcwd()
-    os.chdir(os.path.join(buildDir, 'Ice-%s-demos' % version))
-    filesToRemove = ['certs/makecerts.py', 'certs/ImportKey.java', 'certs/ImportKey.class', 'certs/seed.dat',
-            'config/convertssl.py', 'config/upgradeicegrid.py', 'config/upgradeicestorm.py',
-            'config/icegrid-slice.3.1.ice.gz', 'config/PropertyNames.def', 'config/makeprops.py', 
-            'config/Makefile', 'config/Makefile.mak', 'config/TestUtil.py', 'config/IceGridAdmin.py', 
-            'config/ice_ca.cnf', 'config/icegridgui.pro']
+    os.chdir(os.path.join(buildDir, "Ice-%s-demos" % version))
+    filesToRemove = [
+        "certs/makecerts.py",
+        "certs/ImportKey.java",
+        "certs/ImportKey.class",
+        "certs/seed.dat",
+        "config/convertssl.py",
+        "config/upgradeicegrid.py",
+        "config/upgradeicestorm.py",
+        "config/icegrid-slice.3.1.ice.gz",
+        "config/PropertyNames.def",
+        "config/makeprops.py", 
+        "config/Makefile",
+        "config/Makefile.mak",
+        "config/TestUtil.py",
+        "config/IceGridAdmin.py", 
+        "config/ice_ca.cnf",
+        "config/findSliceFiles.py",
+        "config/IcecsKey.snk",
+        "config/icegridnode.cfg",
+        "config/icegridregistry.cfg",
+        "config/makeconfig.py",
+        "config/makedepend.py",
+        "config/makegitignore.py",
+        "config/icegridgui.pro"]
     obliterate(filesToRemove)
     os.chdir(buildDir)
     
@@ -659,9 +637,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
         
     if not os.path.exists(distro):
         filename = os.path.join(sources, distro + '.tar')
-        runprog('gzip -d %s.gz' % filename)
-        runprog('tar xf %s' % filename)
-        runprog('gzip -9 %s' % filename)
+        runprog('gzip -dc %s.gz | tar xf -' % filename)
         
     os.chdir(distro)
 
@@ -700,19 +676,34 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
             logging.info('PYTHON_HOME is not set, figuring it out and trying that')
             pyHome = sys.exec_prefix
             os.environ['PYTHON_HOME'] = pyHome
-
-    if getPlatform() == 'macosx':
-        make = "make"
-    else:
-        make = "gmake"
-        
+            
     # 
     # XXX- Optimizations need to be turned on for the release.
     #
+    
     try:
-        runprog(make + ' NOGAC=yes OPTIMIZE=yes prefix=%s embedded_runpath_prefix=/opt/Ice-%s install' % (installDir, mmVersion))
+
+        buildCommand = "gmake NOGAC=yes OPTIMIZE=yes prefix=%s embedded_runpath_prefix=/opt/Ice-%s install" % \
+            (installDir, mmVersion)
+        if getPlatform() == "solaris":
+            os.chdir(buildDir)
+            srcdir = os.path.join(buildDir, distro + "-64")
+            
+            if clean:
+                shutil.rmtree(srcdir, True)
+            if not os.path.exists(srcdir):
+                filename = os.path.join(sources, distro + '.tar')
+                runprog('gzip -dc %s.gz | tar xf -' % filename)
+                runprog("mv %s %s" % (distro, srcdir))
+        
+            os.chdir(srcdir)
+            runprog("LP64=yes && export LP64 && " + buildCommand)
+            os.chdir(os.path.join(buildDir, distro))
+
+        runprog("LP64=no && export LP64 && " + buildCommand)
+            
     except ExtProgramError:
-        print make + " failed for makeInstall(%s, %s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version, mmVersion) 
+        print "gmake failed for makeInstall(%s, %s, %s, %s, %s, %s, %s)" % (sources, buildDir, installDir, distro, str(clean), version, mmVersion) 
         raise
 
     runprog('rm -rf /opt/Ice-%s' % (mmVersion), False)
@@ -729,7 +720,12 @@ def makeInstall(sources, buildDir, installDir, distro, clean, version, mmVersion
 
         for a in assemblies:
             shutil.copy("bin/%s.dll" % a, "%s/bin/%s.dll" % (installDir, a))
+            if os.path.exists("bin/policy.%s.%s" % (mmVersion, a)):
+                shutil.copy("bin/policy.%s.%s" % (mmVersion, a), "%s/bin/policy.%s.%s" % (installDir, mmVersion, a))
+                shutil.copy("bin/policy.%s.%s.dll" % (mmVersion, a),
+                            "%s/bin/policy.%s.%s.dll" % (installDir, mmVersion, a))
             shutil.copy("lib/pkgconfig/%s.pc" % a, "%s/lib/pkgconfig" % installDir)
+        
 
     os.chdir(cwd)
     
@@ -766,7 +762,11 @@ def getDBfiles(dbLocation):
 
     findCmd = ''
     if getPlatform() == 'solaris':
-        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f -maxdepth 1'
+        #
+        # Removed the maxdepth limiter to pick up the 64 bit versions of the libraries.
+        #
+        findCmd = 'find lib -name "*'  + getPlatformLibExtension() + '" -type f'
+        
     elif getPlatform() == 'macosx':
         findCmd = 'find lib \( -name "*'  + getPlatformLibExtension() + '" -or -name "*jnilib" \) -type f '
     else:
@@ -879,13 +879,10 @@ def usage():
     print '                        the host and use this option to reference their'
     print '                        location.'
     print '-v, --verbose          Print verbose processing messages.'
-    print '-t, --tag              Specify the CVS version tag for the packages.'
     print '--noclean              Do not clean up current sources where'
     print '                       applicable (some bits will still be cleaned.'
     print '--nobuild              Run through the process but don\'t build'
     print '                       anything new.'
-    print '--userepos             Use contents of existing CVS directories'
-    print '                       to create binary package.'
     print 
     print 'The following options set the locations for third party libraries'
     print 'that may be required on your platform.  Alternatively, you can'
@@ -920,16 +917,14 @@ def main():
     buildEnvironment = dict()
     buildDir = None
     installDir = None
-    sources = None
+    sources = os.getcwd()
     installRoot = None
-    cvsTag = 'HEAD'
     clean = True
     build = True
     version = None
     mmVersion = None
     soVersion = 0
     verbose = False
-    cvsMode = False    # Use CVS directories.
     offline = False
 
     #
@@ -938,9 +933,9 @@ def main():
     try:
         optionList, args = getopt.getopt(sys.argv[1:], 'hvt:',
                                          [ 'build-dir=', 'install-dir=', 'install-root=', 'sources=',
-                                           'verbose', 'tag=', 'noclean', 'nobuild', 
+                                           'verbose', 'noclean', 'nobuild', 
                                            'stlporthome=', 'bzip2home=', 'dbhome=', 'sslhome=',
-                                           'expathome=', 'readlinehome=', 'userepos', 'offline', 'debug'])
+                                           'expathome=', 'readlinehome=', 'offline', 'debug'])
                
     except getopt.GetoptError:
         usage()
@@ -960,8 +955,6 @@ def main():
             sys.exit()
         elif o in ('-v', '--verbose'):
             verbose = True
-        elif o in ('-t', '--tag'):
-            cvsTag = a
         elif o == '--noclean':
             clean = False
         elif o == '--nobuild':
@@ -981,9 +974,25 @@ def main():
             buildEnvironment['READLINE_HOME'] = a
         elif o == '--offline':
             offline = True
-        elif o == '--userepos':
-            cvsMode = True
 
+    if sources == None or not os.path.exists(sources):
+        print "You must specify a valid location for the source distributions"
+        sys.exit(1)
+
+    #
+    # Determine location of binary distribution-only files.
+    #
+    distfiles = None
+    trypaths = [ sources, os.getcwd() ]
+    for f in trypaths:
+        if os.path.exists(os.path.join(f, "distfiles.tar.gz")):
+            distfiles = os.path.join(f, "distfiles.tar.gz")
+            break
+
+    if distfiles == None:
+        print "Unable to find distfiles.tar.gz."
+        sys.exit(1)
+            
     if verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
@@ -1011,10 +1020,7 @@ def main():
     if buildDir == None:
         print 'No build directory specified, defaulting to $HOME/tmp/icebuild'
         buildDir = os.path.join(os.environ.get('HOME'), "tmp", "icebuild")
-
-    if cvsMode:
-        print 'Using CVS mode'
-
+        
     if installDir == None:
         print 'No install directory specified, default to $HOME/tmp/iceinstall'
         installDir = os.path.join(os.environ.get('HOME'), "tmp", "iceinstall")
@@ -1028,35 +1034,25 @@ def main():
         if os.path.exists(installDir):
             shutil.rmtree(installDir, True)
 
-    #
-    # In CVS mode we are relying on the checked out CVS sources *are*
-    # the build sources.
-    #
-    if cvsMode:
-        directories = []
-    else:
-        directories = [buildDir, os.path.join(buildDir, "sources"), os.path.join(buildDir, "demotree")]
-
-    directories.append(installDir)
+    directories = [buildDir, os.path.join(buildDir, "sources"), os.path.join(buildDir, "demotree"),
+                   os.path.join(buildDir, "install"), installDir]
 
     for d in directories:
         initDirectory(d)
 
     #
-    # Determine location of binary distribution-only files.
+    # Unpack and update distribution files.
     #
+    # TODO: The updates performed here should be performed by the makedist script.
+    # 
     installFiles = None
-    configFile = os.path.join("include", "IceUtil", "Config.h")
+    os.system("gzip -dc " + distfiles + " | tar xf - -C " + os.path.join(buildDir, "install"))
+    configFile = os.path.join(buildDir, "install", "Config.h")
     version = getIceVersion(configFile)
     soVersion = getIceSoVersion(configFile)
     mmVersion = getIceMMVersion(configFile)
-    if cvsMode:
-        installFiles = 'install'
-    elif offline:
-        installFiles = getInstallFilesFromLocalDirectory(cvsTag, buildDir, version, mmVersion)
-    else:
-        version, soVersion, mmVersion = getVersion(cvsTag, buildDir)
-        installFiles = getInstallFiles(cvsTag, buildDir, version, mmVersion)
+    version, soVersion, mmVersion = getVersion(buildDir)
+    installFiles = fixInstallFiles(buildDir, version, mmVersion)
 
     if verbose:
         print 'Building binary distributions for Ice-' + version + ' on ' + getPlatformString()
@@ -1064,25 +1060,14 @@ def main():
         print 'Using install directory: ' + installDir
         print
 
+    #
+    # These last build directories will have to wait until we've got
+    # the version number for the distribution.
+    #
+    shutil.rmtree(buildDir + '/Ice-' + version + '-demos', True)
+    initDirectory(buildDir + '/Ice-' + version + '-demos/config')
 
-    if not cvsMode:
-        #
-        # These last build directories will have to wait until we've got
-        # the version number for the distribution.
-        #
-        shutil.rmtree(buildDir + '/Ice-' + version + '-demos', True)
-        initDirectory(buildDir + '/Ice-' + version + '-demos/config')
-
-    if build and not cvsMode:
-        collectSources = False
-        if sources == None:
-            if not getPlatform().startswith("linux"):
-                print "makedist.py is not supported on non-Linux platforms. Create the source"
-                print "distributions on a Linux box, copy them to a location on this host and"
-                print "specify their location with the --sources argument"
-            sources = buildDir + '/sources'
-            collectSources = clean
-
+    if build:
         #
         # Ice must be first or building the other source distributions will fail.
         #
@@ -1109,24 +1094,6 @@ def main():
 
         os.environ[dylibEnvironmentVar] = os.path.join(buildDir, "Ice-" + version, "lib") + os.pathsep + currentLibraryPath
         os.environ['PATH'] = os.path.join(buildDir, "Ice-" + version, "bin") + os.pathsep + os.environ['PATH']
-
-        #
-        # Collect all of the distributions first. This prevents having
-        # to go through costly builds before finding out that one of the
-        # distributions doesn't build.
-        #
-        if collectSources:
-            toCollect = list(sourceTarBalls)
-            toCollect.append(('vb', 'IceVB-' + version, 'vb'))
-            for cvs, tarball, demoDir in toCollect:
-                collectSourceDistributions(cvsTag, sources, cvs, tarball)
-
-        print '''
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
->>                                                                      <<
->>                   Sources have been collected!                       <<
->>                                                                      <<
->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'''
 
         #
         # Package up demo distribution.
@@ -1159,51 +1126,17 @@ def main():
         shutil.rmtree("IceJ-%s-java5" % version)
         os.chdir(prevDir)
 
-    elif cvsMode:
-        collectSources = False
-
-        #
-        # TODO: Sanity check to make sure that the script is being run
-        # from a location that it expects.
-        #
-        cvsDirs = [ 'cpp', 'java', 'php' ]
-        if getPlatform() == 'linux':
-            cvsDirs.append('cs', 'py', 'rb')
-
-        os.environ['ICE_HOME'] = os.getcwd()  
-        currentLibraryPath = None
-        try:
-            currentLibraryPath = os.environ[dylibEnvironmentVar] 
-        except KeyError:
-            currentLibraryPath = ''
-
-        os.environ[dylibEnvironmentVar] = installDir + '/Ice-' + version + '/lib:' + currentLibraryPath
-        os.environ['PATH'] = installDir + '/Ice-' + version + '/bin:' + os.environ['PATH']
-
-        for d in cvsDirs:
-            currentDir = os.getcwd()
-            os.chdir('../' + d)
-            print 'Going to directory ' + d
-            if d == 'java':
-                shutil.copy('lib/Ice.jar', installDir +'/Ice-' + version + '/lib')
-                shutil.copy('lib/IceGridGUI.jar', installDir +'/Ice-' + version + '/lib')
-                runprog('cp -pR ant ' + installDir + '/Ice-' + version)
-                initDirectory(os.path.join(installDir, 'help'))
-                runprog('cp -pR resources/IceGridAdmin ' + installDir + '/Ice-' + version + '/help')
-                runprog('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
-            else:
-                runprog('gmake prefix=' + installDir + '/Ice-' + version + ' install')
-            os.chdir(currentDir)
-
     #
     # Sources should have already been built and installed.  We
     # can pick the binaries up from the iceinstall directory.
     #
+    # TODO: What is this used for?
+    #
     binaries = glob.glob(installDir + '/Ice-' + version + '/bin/*')
     binaries.extend(glob.glob(installDir + '/Ice-' + version + '/lib/*' + shlibExtensions(version, soVersion)[0]))
+
     cwd = os.getcwd()
     os.chdir(installDir)
-
   
     #
     # Get third party libraries.
@@ -1238,6 +1171,12 @@ def main():
                     platform = 'RHEL'
                 else:
                     platform = 'SLES'
+            elif platform == "SunOS":
+                cpu = readcommand("uname -p")
+                if cpu == "i386":
+                    platform = platform + ".x86"
+                else:
+                    platform = platform + ".SPARC" 
         cf = os.path.join(installFiles, 'unix', psf + '.' + platform)
         if os.path.exists(cf):
             shutil.copy(cf, os.path.join('Ice-' + version, psf))
@@ -1258,6 +1197,9 @@ def main():
     #
     if getPlatform() == 'macosx':
         fixInstallNames(version, mmVersion)
+
+    shutil.copyfile(os.path.join(buildDir, "install", "RELEASE_NOTES.txt"), 
+                    os.path.join(installDir, "Ice-%s" % version, "RELEASE_NOTES.txt"))
 
     runprog('tar cf Ice-' + version + '-bin-' + getPlatformString() + '.tar Ice-' + version)
     runprog('gzip -9 Ice-' + version + '-bin-' + getPlatformString() + '.tar')

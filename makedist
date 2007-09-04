@@ -1,0 +1,270 @@
+#!/bin/bash
+# **********************************************************************
+#
+# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+# 
+#
+# **********************************************************************
+
+#
+# Error out on use of undefined variables.
+#
+set -u
+
+cleanup()
+{
+    [ "$KEEP" -eq "0" ] && echo "Cleaning up working files..." && cd $WORKINGDIR && rm -rf $LABEL
+}
+
+trap echo "Interrupt/break detected" && cleanup  INT TERM EXIT 
+
+BASEDIR=`pwd`
+
+#
+# Location where working archive is created.
+#
+WORKINGDIR=$HOME/tmp
+
+#
+# Used to naming the archive.
+#
+LABEL="HEAD" 
+
+#
+# The 'tree-ish' arg to the git-archive command.
+#
+REFSPEC="HEAD"
+
+#
+# Set to 1 to keep working files around.
+#
+KEEP=0
+
+#
+# Build the demo script distribution
+#
+SCRIPTARCHIVE=1
+
+usage()
+{
+    echo "makedist [-d working-directory] [-n archive-name] [-t tag] [-M] [-h] [-k]"
+    echo ""
+    echo " -d Indicate the working directory. 'makedist' will create"
+    echo "    the source archive in this directory. Defaults to "
+    echo "    \$HOME/tmp"
+    echo ""
+    echo " -n Specify a name and prefix for the source archive."
+    echo "    Defaults to HEAD"
+    echo ""
+    echo " -t Specify which branch or tag to base the archive on."
+    echo "    If 'tag' is a branch, the archive will be created from"
+    echo "    'tag'/HEAD. Defaults to HEAD of the current branch"
+    echo ""
+    echo " -M Skip running the makedist.py files."
+    echo ""
+    echo " -E Skip building the demo script archive"
+    echo ""
+    echo " -k Don't clean up working files when finished"
+    echo ""
+    echo " -h Display this message."
+    
+    return 0
+}
+
+validopts="d:n:t:hMkE"
+getopts $validopts curopt
+RUNMAKEDIST=1
+while [ ! "x$curopt" == "x:" ] ;
+do
+   case $curopt in
+   	d)
+	    WORKINGDIR=$OPTARG
+	    if [ ! -d $WORKINGDIR ];
+	    then
+		echo "ERROR: $WORKINGDIR does not exist!"
+		exit 1
+	    fi
+	;;
+
+	n)
+	    LABEL=$OPTARG
+	;;
+
+	t)
+	    REFSPEC=$OPTARG
+	;;
+
+	h)
+	   usage
+	   exit 0
+	;;
+
+	M)
+	   RUNMAKEDIST=0
+	;;
+
+	E)
+	   SCRIPTARCHIVE=0
+	;;
+	   
+	k)
+	   KEEP=1
+	;;
+   esac
+   getopts $validopts curopt
+   [ "$?" -gt 0 ] && break
+done
+
+echo "Creating $WORKINGDIR/$LABEL with $REFSPEC"
+
+[ -d $WORKINGDIR/$LABEL ] && rm -rf $LABEL
+git archive --prefix="$LABEL/" $REFSPEC | ( cd $WORKINGDIR && tar xf - )
+currentdir=`pwd`
+cd $WORKINGDIR/$LABEL
+
+ICEVER=`awk "/.*ICE_STRING_VERSION.*/ { print \\$3 }" cpp/include/IceUtil/Config.h | sed -e s/\"//g` # "
+
+SOURCEDIR="$BASEDIR/../dist-$ICEVER"
+[ ! -d $SOURCEDIR ] && mkdir -p $SOURCEDIR
+
+if [ "$RUNMAKEDIST" -eq "1" ];
+then
+    
+    echo "Walking directories and creating source distributions"
+    currentdir=`pwd`
+#
+# The person creating the source distribution must have:
+#   jdk 1.5 installed
+#   jdk 1.4 installed
+#   a utility named java_env to switch between the two
+#
+# There currently isn't a cross-platfrom standard java_env
+# utility. So it's up to the developer to have something suitable in
+# their path. A simple example follows:
+#
+# case $1 in
+#   1.4) JAVA_HOME=/usr/java/j2sdk1.4.2_13;;
+#   1.5) JAVA_HOME=/usr/java/jdk1.5.0_12 ;;
+#   *) echo "Unsupported" && exit 1;;
+# esac
+# export PATH=$JAVA_HOME/bin:$PATH
+# export JAVA_HOME
+#
+# Other options exist such as update-alternatives on linux and
+# java_select on MacOS X, but they require sudo or Administrator access,
+# which is not otherwise necessary for this process. The commands to
+# properly configure the relevant Java environments will depend on your
+# system.
+
+    source java_env 1.4
+    for f in `find . -maxdepth 1 -name "*" -type d` ;
+    do
+      #    
+      # Skip non-Ice distribution directories.
+      #
+      case "`basename $f`" in 
+
+          cppe|javae|perf)
+          continue
+          ;;
+
+      esac
+
+      if [ -f $currentdir/$f/makedist.py ];
+	  then
+	  cd $currentdir/$f 
+	  python makedist.py  
+          [ $? -eq 0 ] || { echo "ERROR: `pwd`/makedist.py failed"; exit 1; }
+	  cp dist/* $SOURCEDIR
+      fi
+    done
+
+    if [ -f $currentdir/java/makedist.py ];
+	then
+	source java_env 1.5
+	cd $currentdir/java
+	python makedist.py 
+        [ $? -eq 0 ] || { echo "ERROR: `pwd`/makedist.py failed (Java5)"; exit 1; }
+	cp dist/* $SOURCEDIR
+    fi
+fi
+
+cd $currentdir/cpp
+[ -e makebindist.py ] || { echo "ERROR: `pwd`/makebindist.py does not exist" ; exit 1; }
+cp makebindist.py $SOURCEDIR
+tar cfz $SOURCEDIR/distfiles.tar.gz -C ./install . -C ../include/IceUtil Config.h -C ../../.. `[ -e RELEASE_NOTES.txt ] && echo "RELEASE_NOTES.txt"` || { echo "ERROR: tar operation returned non-zero status" ; exit 1; }
+#
+# Consolidating demoscript archive.
+#
+TMPDIR=$WORKINGDIR/dscrpt/Ice-$ICEVER-demos
+cd $WORKINGDIR/$LABEL
+
+if [ "$SCRIPTARCHIVE" -eq "1" ];
+then
+    rm -rf $TMPDIR
+    mkdir -p $TMPDIR
+    for f in `find . -maxdepth 1 -name "*" -type d` ;
+    do
+	#
+	# Only continue processing this directory if there is an
+	# allDemos.py script there.
+	#
+	[ ! -e $f/allDemos.py ] && continue
+	
+	mappingdir=`basename $f`
+	case $mappingdir in
+	    cpp)
+		demoSuffix="cxx";
+		;;
+	    java)
+		demoSuffix="j";
+		;;
+	    py)
+		demoSuffix="py";
+		;;
+	    rb)
+		demoSuffix="rb";
+		;;
+	    cs)
+		demoSuffix="cs";
+		;;
+	    php)
+		demoSuffix="php";
+		;;
+	    vb)
+		demoSuffix="vb";
+		;;
+	    *)
+		continue;
+		;;
+	esac
+	currentdir=`pwd`
+        cd $mappingdir
+	tar cf - `find . -name "expect.py"` | tar xf - -C $TMPDIR
+	mv $TMPDIR/demo $TMPDIR/demo$demoSuffix
+	cp allDemos.py $TMPDIR/demo$demoSuffix
+	cd $currentdir
+    done
+
+    tar cf - -C $WORKINGDIR/$LABEL demoscript | tar xf - -C $TMPDIR
+
+    [ ! -d $TMPDIR/democxx ] && { echo "Failure in creating demo script archive. C++ mapping scripts missing." ; exit 1; }
+    mv $TMPDIR/democxx $TMPDIR/demo
+    currentdir=`pwd`
+    cd $TMPDIR/..
+
+    #
+    # XXX Additional error handling.
+    #
+    rm -f $SOURCEDIR/Ice-$ICEVER-demo-scripts.tar.gz
+    tar cf $SOURCEDIR/Ice-$ICEVER-demo-scripts.tar Ice-$ICEVER-demos
+    gzip -9 $SOURCEDIR/Ice-$ICEVER-demo-scripts.tar
+    cd $currentdir
+fi
+
+cleanup
+cd $BASEDIR
+echo "Source distributions can be found in $SOURCEDIR"

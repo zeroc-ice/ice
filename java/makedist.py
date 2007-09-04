@@ -14,15 +14,13 @@ import os, sys, shutil, fnmatch, re
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] [tag]"
+    print "Usage: " + sys.argv[0] + " [options]"
     print
     print "Options:"
     print "-h       Show this message."
     print "-t       Skip building translators and use the ones in PATH."
     print "-f       Keep going if precondition checks fail."
     print "-v       Be verbose."
-    print
-    print "If no tag is specified, HEAD is used."
 
 #
 # Taken from ice/config/TestUtil.py
@@ -31,13 +29,22 @@ def usage():
 # methods out into their own module.
 #
 def isHpUx():
-   return sys.platform == "hp-ux11"
+   if sys.platform == "hp-ux11":
+        return 1
+   else:
+        return 0
 
 def isDarwin():
-   return sys.platform == "darwin"
+   if sys.platform == "darwin":
+        return 1
+   else:
+        return 0
 
 def isAIX():
-   return sys.platform in ['aix4', 'aix5']
+   if sys.platform in ['aix4', 'aix5']:
+        return 1
+   else:
+        return 0
 
 #
 # Find files matching a pattern.
@@ -78,7 +85,6 @@ if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
 #
 # Check arguments
 #
-tag = "HEAD"
 skipTranslators = False 
 verbose = False 
 keepGoing = False
@@ -98,34 +104,41 @@ for x in sys.argv[1:]:
         print
         usage()
         sys.exit(1)
-    else:
-        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
 #
-distdir = "dist"
+distdir = os.path.join(os.getcwd(), "dist")
 
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.mkdir(os.path.join(distdir, "icej"))
-os.mkdir(os.path.join(distdir, "ice"))
+
+icedir = os.path.join(os.getcwd(), "..", "cpp")
 
 #
-# Export Java and C++ sources from git.
+# Get Ice version.
 #
-# NOTE: Assumes that the C++ and Java trees will use the same tag.
-#
-print "Checking out " + tag + "..."
+config = open(os.path.join("src", "IceUtil", "Version.java"), "r")
+version = re.search("ICE_STRING_VERSION = \"([0-9\.b]*)\"", config.read()).group(1)
+icejver = "IceJ-" + version + "-xxx"
+os.mkdir(os.path.join(distdir, icejver))
+
 if verbose:
-    quiet = "-v"
+    quiet = "v"
 else:
     quiet = ""
-os.system("git archive " + quiet + " " + tag + " . | (cd dist/icej && tar xf -)")
-os.chdir(os.path.join("..", "cpp"))
-os.system("git archive " + quiet + " " + tag + " . | (cd ../java/dist/ice && tar xf -)")
-os.chdir(os.path.join("..", "java"))
+
+print "Creating exclusion file..."
+filesToRemove = [ "makedist.py", "exclusions", "dist", "allDemos.py" ]
+filesToRemove.extend(find(".", ".gitignore"))
+filesToRemove.extend(find(".", "expect.py"))
+exclusionFile = open("exclusions", "w")
+for x in filesToRemove:
+    exclusionFile.write("%s\n" % x)
+exclusionFile.close()
+
+os.system("tar c" + quiet + " -X exclusions . | ( cd " + os.path.join(distdir, icejver) + " && tar xf - )")
 
 os.chdir(distdir)
 
@@ -136,7 +149,7 @@ os.chdir(distdir)
 # other problems. If any of the precondition checks fail, the script
 # terminates.
 #
-f = file(os.path.join("icej", "config", "build.properties"))
+f = file(os.path.join(icejver, "config", "build.properties"))
 buildProperties = f.readlines();
 f.close()
 
@@ -169,6 +182,43 @@ if errorOut:
     if not keepGoing:
         sys.exit(1)
 
+
+#
+# Build slice2java and slice2freezej.
+#
+if not skipTranslators:
+    print "Building translators..."
+    cwd = os.getcwd()
+    os.chdir(os.path.join(icedir, "src", "icecpp"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join(icedir, "src", "IceUtil"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join(icedir, "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join(icedir, "src", "slice2java"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join(icedir, "src", "slice2freezej"))
+    os.system("gmake")
+    os.chdir(cwd)
+
+    os.environ["PATH"] = os.path.join(icedir, "bin") + ":" + os.getenv("PATH", "")
+
+    if isHpUx():
+        os.environ["SHLIB_PATH"] = os.path.join(icedir, "lib") + ":" + os.getenv("SHLIB_PATH", "")
+    elif isDarwin():
+        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(icedir, "lib") + ":" + os.getenv("DYLD_LIBRARY_PATH", "")
+    elif isAIX():
+        os.environ["LIBPATH"] = os.path.join(icedir, "lib") + ":" + os.getenv("LIBPATH", "")
+    else:
+        os.environ["LD_LIBRARY_PATH"] = os.path.join(icedir, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+
+    if os.environ.has_key("ICE_HOME"):
+        del os.environ["ICE_HOME"]
+        
 #
 # Copy Slice directories.
 #
@@ -182,59 +232,11 @@ slicedirs = [
     "IceStorm",
     "IceGrid"
 ]
-os.mkdir(os.path.join("icej", "slice"))
+os.mkdir(os.path.join(icejver, "slice"))
 for x in slicedirs:
-    shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icej", "slice", x), 1)
+    shutil.copytree(os.path.join(icedir, "slice", x), os.path.join(icejver, "slice", x), 1)
 
-#
-# Build slice2java and slice2freezej.
-#
-if not skipTranslators:
-    print "Building translators..."
-    cwd = os.getcwd()
-    os.chdir(os.path.join("ice", "src", "icecpp"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "IceUtil"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "Slice"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2java"))
-    os.system("gmake")
-    os.chdir(cwd)
-    os.chdir(os.path.join("ice", "src", "slice2freezej"))
-    os.system("gmake")
-    os.chdir(cwd)
-
-    os.environ["PATH"] = os.path.join(cwd, "ice", "bin") + ":" + os.getenv("PATH", "")
-
-    if isHpUx():
-        os.environ["SHLIB_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("SHLIB_PATH", "")
-    elif isDarwin():
-        os.environ["DYLD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("DYLD_LIBRARY_PATH", "")
-    elif isAIX():
-        os.environ["LIBPATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LIBPATH", "")
-    else:
-        os.environ["LD_LIBRARY_PATH"] = os.path.join(cwd, "ice", "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
-
-    if os.environ.has_key("ICE_HOME"):
-        del os.environ["ICE_HOME"]
-
-#
-# Remove files.
-#
-print "Removing unnecessary files..."
-filesToRemove = [ \
-    os.path.join("icej", "makedist.py"), \
-    ]
-filesToRemove.extend(find("icej", ".gitignore"))
-for x in filesToRemove:
-    os.remove(x)
-
-cwd = os.getcwd()
-os.chdir("icej")
+os.chdir(os.path.join(distdir, icejver))
 
 #
 # Build sources.
@@ -281,28 +283,23 @@ for x in filesToRemove:
 #shutil.rmtree("admin")
 shutil.rmtree("depcache")
 
-os.chdir(cwd)
-
-#
-# Get Ice version.
-#
-config = open(os.path.join("icej", "src", "IceUtil", "Version.java"), "r")
-version = re.search("ICE_STRING_VERSION = \"([0-9\.b]*)\"", config.read()).group(1)
+os.chdir(distdir)
 
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("icej", "README*"), version)
-fixVersion(find("icej", "INSTALL*"), version)
+fixVersion(find(icejver, "README*"), version)
+fixVersion(find(icejver, "INSTALL*"), version)
 
 #
 # Create source archives.
 #
 print "Creating distribution archives..."
-icever = "IceJ-" + version + "-" + distroSuffix
-os.rename("icej", icever)
 if verbose:
     quiet = "v"
 else:
     quiet = ""
+icever = "IceJ-" + version + "-" + distroSuffix
+os.rename(icejver, icever)
+
 os.system("chmod -R u+rw,go+r-w . " + icever)
 os.system("find " + icever + " \\( -name \"*.java\" -or -name \"*.ice\" \\) -exec chmod a-x {} \\;")
 os.system("find " + icever + " \\( -name \"README*\" -or -name \"INSTALL*\" \\) -exec chmod a-x {} \\;")
@@ -326,5 +323,12 @@ shutil.copyfile(os.path.join(icever, "CHANGES"), "IceJ-" + version + "-CHANGES")
 #
 print "Cleaning up..."
 shutil.rmtree(icever)
-shutil.rmtree("ice")
+cwd = os.getcwd()
+os.chdir(icedir)
+
+#
+# For this to be 'nice' our clean rule has to be perfect.
+#
+os.system("gmake clean")
+os.chdir(cwd)
 print "Done."

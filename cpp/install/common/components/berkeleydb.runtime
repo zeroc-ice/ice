@@ -1,6 +1,7 @@
 f,build_windows/Release/db_archive.exe
 f,build_windows/Release/db_checkpoint.exe
 f,build_windows/Release/db_deadlock.exe
+f,build_windows/Release/db_hotbackup.exe
 f,build_windows/Release/db_dump.exe
 f,build_windows/Release/db_load.exe
 f,build_windows/Release/db_printlog.exe
@@ -8,5 +9,4 @@ f,build_windows/Release/db_recover.exe
 f,build_windows/Release/db_stat.exe
 f,build_windows/Release/db_upgrade.exe
 f,build_windows/Release/db_verify.exe
-f,build_windows/Release/db_hotbackup.exe
 f,build_windows/Release/libdb%(dbver)s.dll
