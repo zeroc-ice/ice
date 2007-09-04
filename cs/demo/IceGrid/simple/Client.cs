@@ -24,6 +24,12 @@ public class Client : Ice.Application
 
     public override int run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         HelloPrx hello = null;
         try
         {

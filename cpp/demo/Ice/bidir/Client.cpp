@@ -42,6 +42,12 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     CallbackSenderPrx server = 
         CallbackSenderPrx::checkedCast(communicator()->propertyToProxy("Callback.Client.CallbackServer"));
     if(!server)

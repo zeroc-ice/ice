@@ -31,8 +31,13 @@ main(int argc, char* argv[])
 
 int
 CasinoClient::run(int argc, char* argv[])
-
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     cout << "Retrieve bank and players... " << flush;
 
     Casino::BankPrx bank = Casino::BankPrx::uncheckedCast(communicator()->propertyToProxy("Bank.Proxy"));

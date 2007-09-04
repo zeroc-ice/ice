@@ -19,7 +19,7 @@ try:
     communicator = Ice.initialize(sys.argv)
     hello = Demo.HelloPrx.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"))
     if not hello:
-        print args[0] + ": invalid proxy"
+        print sys.argv[0] + ": invalid proxy"
         status = 1
     else:
         hello.sayHello()

@@ -14,6 +14,12 @@ public class Server : Ice.Application
 {
     public override int run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            System.Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
         CallbackSenderI sender = new CallbackSenderI(communicator());
         adapter.add(sender, communicator().stringToIdentity("sender"));

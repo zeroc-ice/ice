@@ -33,6 +33,12 @@ main(int argc, char* argv[])
 int
 HRServer::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     const string username = communicator()->getProperties()->getPropertyWithDefault("Oracle.Username", "scott");
     const string password = communicator()->getProperties()->getPropertyWithDefault("Oracle.Password", "password");
     const string connectString = communicator()->getProperties()->getProperty("Oracle.ConnectString");

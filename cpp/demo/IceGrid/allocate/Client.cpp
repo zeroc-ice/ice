@@ -93,6 +93,12 @@ main(int argc, char* argv[])
 int
 HelloClient::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     int status = EXIT_SUCCESS;
 
     //

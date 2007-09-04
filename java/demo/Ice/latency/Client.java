@@ -14,6 +14,12 @@ class Client extends Ice.Application
     public int
     run(String[] args)
     {
+        if(args.length > 0)
+        {
+            System.err.println(appName() + ": too many arguments");
+            return 1;
+        }
+
         PingPrx ping = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"));
         if(ping == null)
         {

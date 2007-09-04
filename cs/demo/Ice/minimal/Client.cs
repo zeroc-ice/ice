@@ -20,6 +20,11 @@ public class Client
         try
         {
             communicator = Ice.Util.initialize(ref args);
+            if(args.Length > 0)
+            {
+                System.Console.Error.WriteLine("too many arguments");
+                System.Environment.Exit(1);
+            }
             HelloPrx hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello:tcp -p 10000"));
             if(hello == null)
             {

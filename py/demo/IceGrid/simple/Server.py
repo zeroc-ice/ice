@@ -26,6 +26,10 @@ class HelloI(Demo.Hello):
 
 class Server(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         properties = self.communicator().getProperties()
         adapter = self.communicator().createObjectAdapter("Hello")
         id = self.communicator().stringToIdentity(properties.getProperty("Identity"))

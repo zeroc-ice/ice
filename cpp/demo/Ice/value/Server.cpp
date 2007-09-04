@@ -29,6 +29,12 @@ main(int argc, char* argv[])
 int
 ValueServer::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Value");
     adapter->add(new InitialI(adapter), communicator()->stringToIdentity("initial"));
     adapter->activate();

@@ -46,6 +46,11 @@ class Client < Ice::Application
     end
 
     def run(args)
+        if args.length > 0:
+            puts $0 + ": too many argumnets"
+            return 1
+        end
+
         #
         # Since this is an interactive demo we want the custom interrupt
         # callback to be called when the process is interrupted.

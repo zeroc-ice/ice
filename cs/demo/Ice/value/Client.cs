@@ -15,6 +15,12 @@ public class Client : Ice.Application
 {
     public override int run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         Ice.ObjectPrx @base = communicator().propertyToProxy("Value.Initial");
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         if(initial == null)

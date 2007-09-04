@@ -30,8 +30,14 @@ class ChatServer : public Ice::Application
 public:
 
     virtual int
-    run(int, char*[])
+    run(int argc, char* argv[])
     {
+        if(argc > 1)
+        {
+            cerr << appName() << ": too many arguments" << endl;
+            return EXIT_FAILURE;
+        }
+
         Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("ChatServer");
         
         adapter->add(new ChatSessionManagerI, communicator()->stringToIdentity("ChatSessionManager"));

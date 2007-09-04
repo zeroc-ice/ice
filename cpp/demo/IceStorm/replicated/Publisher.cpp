@@ -34,6 +34,12 @@ main(int argc, char* argv[])
 int
 Publisher::run(int argc, char* argv[])
 {
+    if(argc > 2)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     IceStorm::TopicManagerPrx manager = 

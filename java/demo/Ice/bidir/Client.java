@@ -14,6 +14,12 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+        if(args.length > 0)
+        {
+            System.err.println(appName() + ": too many arguments");
+            return 1;
+        }
+
         CallbackSenderPrx server = 
             CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
         if(server == null)

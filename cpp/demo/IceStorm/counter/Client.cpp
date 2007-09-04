@@ -34,6 +34,12 @@ main(int argc, char* argv[])
 int
 Client::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     const string proxyProperty = "Counter.Proxy";

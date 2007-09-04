@@ -14,6 +14,11 @@ Ice::loadSlice('Latency.ice')
 
 class Client < Ice::Application
     def run(args)
+        if args.length > 0:
+            puts $0 + ": too many argumnets"
+            return 1
+        end
+
         ping = Demo::PingPrx::checkedCast(Ice::Application::communicator().propertyToProxy('Latency.Ping'))
         if not ping
             puts "invalid proxy"

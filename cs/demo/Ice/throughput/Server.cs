@@ -12,6 +12,12 @@ public class Server : Ice.Application
     public override int
     run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            System.Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Throughput");
         adapter.add(new ThroughputI(), communicator().stringToIdentity("throughput"));
         adapter.activate();

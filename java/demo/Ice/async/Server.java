@@ -24,6 +24,12 @@ public class Server extends Ice.Application
     public int
     run(String[] args)
     {
+        if(args.length > 0)
+        {
+            System.err.println(appName() + ": too many arguments");
+            return 1;
+        }
+
         setInterruptHook(new ShutdownHook());
 
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Hello");

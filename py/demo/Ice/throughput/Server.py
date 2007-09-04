@@ -104,6 +104,10 @@ class ThroughputI(Demo.Throughput):
 
 class Server(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         adapter = self.communicator().createObjectAdapter("Throughput")
         adapter.add(ThroughputI(), self.communicator().stringToIdentity("throughput"))
         adapter.activate()
