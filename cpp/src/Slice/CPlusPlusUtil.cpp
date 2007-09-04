@@ -329,7 +329,7 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        return "const " + fixKwd(cl->scoped()) + "Ptr&";
+        return "const " + fixKwd(cl->scoped() + "Ptr&");
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -337,7 +337,7 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
     {
         if(findMetaData(st->getMetaData(), false) == "class")
         {
-            return "const " + fixKwd(st->scoped()) + "Ptr&";
+            return "const " + fixKwd(st->scoped() + "Ptr&");
         }
         return "const " + fixKwd(st->scoped()) + "&";
     }
@@ -345,7 +345,7 @@ Slice::inputTypeToString(const TypePtr& type, bool useWstring, const StringList&
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return "const " + fixKwd(proxy->_class()->scoped()) + "Prx&";
+        return "const " + fixKwd(proxy->_class()->scoped() + "Prx&");
     }
             
     EnumPtr en = EnumPtr::dynamicCast(type);
@@ -445,7 +445,7 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        return fixKwd(cl->scoped()) + "Ptr&";
+        return fixKwd(cl->scoped() + "Ptr&");
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -453,7 +453,7 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
     {
         if(findMetaData(st->getMetaData(), false) == "class")
         {
-            return fixKwd(st->scoped()) + "Ptr&";
+            return fixKwd(st->scoped() + "Ptr&");
         }
         return fixKwd(st->scoped()) + "&";
     }
@@ -461,7 +461,7 @@ Slice::outputTypeToString(const TypePtr& type, bool useWstring, const StringList
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return fixKwd(proxy->_class()->scoped()) + "Prx&";
+        return fixKwd(proxy->_class()->scoped() + "Prx&");
     }
             
     SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -525,6 +525,12 @@ lookupKwd(const string& name)
 {
     //
     // Keyword list. *Must* be kept in alphabetical order.
+    //
+    // Note that this keyword list unnecessarily contains C++ keywords
+    // that are illegal slice identifiers -- namely identifiers that
+    // contain underscores (and_eq, for example), and slice keywords
+    // (class, int, etc.). They have not been removed so that the
+    // keyword list is kept complete.
     //
     static const string keywordList[] = 
     {       

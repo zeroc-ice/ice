@@ -7,21 +7,18 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
-!include $(top_srcdir)/config/Make.rules.mak
+include $(top_srcdir)/config/Make.rules.cs
 
-SUBDIRS		= IceUtil \
-		  Slice \
-		  Ice \
-                  IceSSL \
-		  Glacier2 \
-		  Freeze \
-		  IceStorm \
-		  FreezeScript \
-		  IceGrid
+SUBDIRS		= keyword
 
 $(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+	@for subdir in $(SUBDIRS); \
+	do \
+	    echo "making $@ in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	done
+
+test::
+	@python $(top_srcdir)/allTests.py

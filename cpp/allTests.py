@@ -73,6 +73,7 @@ tests = [ \
     "IceUtil/uuid", \
     "IceUtil/timer", \
     "Slice/errorDetection", \
+    "Slice/keyword", \
     "Ice/proxy", \
     "Ice/operations", \
     "Ice/exceptions", \

@@ -9,6 +9,10 @@ Changes since version 3.2.X (binary incompatible)
   of the communicator's logger from properties. This plugin must
   implement a LoggerPlugin. See manual for more details.
 
+- Fixed a variety of bugs with slice2cpp where incorrect code
+  would be generated when C++ reserved words are used as Slice
+  identifiers.
+
 - It is no longer possible to provide input files on the 
   command line for icestormadmin nor icegridadmin.
 

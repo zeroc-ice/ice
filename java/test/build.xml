@@ -12,6 +12,7 @@
 <project name="test" default="all" basedir=".">
 
     <target name="all">
+        <ant dir="Slice"/>
         <ant dir="IceUtil"/>
         <ant dir="Ice"/>
         <ant dir="Freeze"/>
@@ -21,6 +22,7 @@
     </target>
 
     <target name="clean">
+        <ant dir="Slice" target="clean"/>
         <ant dir="IceUtil" target="clean"/>
         <ant dir="Ice" target="clean"/>
         <ant dir="Freeze" target="clean"/>

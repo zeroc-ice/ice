@@ -7,16 +7,25 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ..\..\..
+
+TARGETS		= client.exe
+
+C_SRCS		= Key.cs Client.cs
+
+GEN_SRCS	= $(GDIR)\Key.cs
+
+SDIR		= .
+
+GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.cs
 
-SUBDIRS		= Slice IceUtil Ice Glacier2 IceGrid IceSSL
+MCSFLAGS	= $(MCSFLAGS) -target:exe
 
-$(EVERYTHING)::
-	@for %i in ( $(SUBDIRS) ) do \
-	    @echo "making $@ in %i" && \
-	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $@" || exit 1
+SLICE2CSFLAGS	= $(SLICE2CSFLAGS) --stream
 
-test::
-	@python $(top_srcdir)/allTests.py
+client.exe: $(C_SRCS) $(GEN_SRCS)
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
+
+!include .depend

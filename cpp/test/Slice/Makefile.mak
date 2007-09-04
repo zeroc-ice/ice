@@ -7,19 +7,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ..\..
 
-!include $(top_srcdir)/config/Make.rules.mak
+!include $(top_srcdir)\config\Make.rules.mak
 
-SUBDIRS		= IceUtil \
-		  Slice \
-		  Ice \
-                  IceSSL \
-		  Glacier2 \
-		  Freeze \
-		  IceStorm \
-		  FreezeScript \
-		  IceGrid
+SUBDIRS		= keyword
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

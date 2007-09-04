@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed a code generation bug with slice2py where the proxy type
+  for a python reserved word would be incorrectly named. For example,
+  interface def would generate a proxy class named _defPrx, not the
+  correct class name defPrx.
+
 - LocalObject is now mapped to the Python base 'object' type. The
   class Ice.LocalObject is now deprecated.
 

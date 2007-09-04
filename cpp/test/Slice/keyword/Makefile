@@ -7,23 +7,26 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../../..
+
+CLIENT		= client
+
+TARGETS		= $(CLIENT)
+
+COBJS		= Client.o \
+		  Key.o
+
+SRCS		= $(COBJS:.o=.cpp)
+
+SLICE_SRCS	= Key.ice
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Slice \
-		  Ice \
-                  IceSSL \
-		  IceStorm \
-		  Freeze \
-		  FreezeScript \
-		  Glacier2 \
-		  IceGrid
+CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --stream $(SLICE2CPPFLAGS)
 
-$(EVERYTHING)::
-	@for subdir in $(SUBDIRS); \
-	do \
-	    echo "making $@ in $$subdir"; \
-	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
-	done
+$(CLIENT): $(COBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
+
+include .depend
