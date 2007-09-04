@@ -10,6 +10,7 @@
 #ifndef FREEZE_TRANSACTIONI_H
 #define FREEZE_TRANSACTIONI_H
 
+#include <Ice/CommunicatorF.h>
 #include <Freeze/Transaction.h>
 #include <db_cxx.h>
 
@@ -27,7 +28,6 @@ public:
 };
 typedef IceUtil::Handle<PostCompletionCallback> PostCompletionCallbackPtr;
 
-
 class TransactionI : public Transaction
 {
 public:
@@ -41,12 +41,11 @@ public:
     //
     // Custom refcounting implementation
     //
-    virtual void __incRef();
     virtual void __decRef();
 
     void setPostCompletionCallback(const PostCompletionCallbackPtr&);
 
-    TransactionI(ConnectionI*);
+    TransactionI(const ConnectionIPtr&);
     ~TransactionI();
     
     DbTxn*
@@ -55,23 +54,15 @@ public:
         return _txn;
     }
 
-    const ConnectionI*
-    getConnectionI() const
-    {
-        return _connection;
-    }
-
 private:
 
     friend class ConnectionI;
     
-    void internalIncRef();
-    void internalDecRef();
-    
     void postCompletion(bool, bool);
 
-    ConnectionI* const _connection;
-    Ice::Int _txTrace;
+    const Ice::CommunicatorPtr _communicator;
+    ConnectionIPtr _connection;
+    const Ice::Int _txTrace;
     DbTxn* _txn;
     PostCompletionCallbackPtr _postCompletionCallback;
 };

@@ -65,28 +65,27 @@ public:
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
+    const Ice::CommunicatorPtr _communicator;
     SharedDbEnvPtr _dbEnv;
-    std::string _envName;
-    TransactionI* _transaction;
+    const std::string _envName;
+    TransactionIPtr _transaction;
     std::list<MapHelperI*> _mapList;
-    Ice::Int _trace;
-    Ice::Int _txTrace;
-    bool _deadlockWarning;
+    const Ice::Int _trace;
+    const Ice::Int _txTrace;
+    const bool _deadlockWarning;
 };  
+typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 
 inline void
 ConnectionI::clearTransaction()
 {
-    TransactionI* tx = _transaction;
     _transaction = 0;
-    tx->internalDecRef();
 }
 
 inline DbTxn*
 ConnectionI::dbTxn() const
 {
-    if(_transaction == 0)
+    if(!_transaction)
     {
         return 0;
     }

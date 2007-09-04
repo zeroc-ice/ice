@@ -90,10 +90,8 @@ SharedDbEnvMap* sharedDbEnvMap;
 
 }
 
-
 Freeze::SharedDbEnvPtr 
-Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator,
-                         const string& envName, DbEnv* env)
+Freeze::SharedDbEnv::get(const CommunicatorPtr& communicator, const string& envName, DbEnv* env)
 {
     StaticMutex::Lock lock(_mapMutex);
 
@@ -243,7 +241,6 @@ Freeze::SharedDbEnv::createCurrent()
     return ctx;
 }
 
-
 Freeze::TransactionalEvictorContextPtr
 Freeze::SharedDbEnv::getCurrent()
 {
@@ -275,18 +272,18 @@ Freeze::SharedDbEnv::setCurrentTransaction(const Freeze::TransactionPtr& tx)
         //
         // Verify it points to the good DbEnv
         //
-        if(txi->getConnectionI() == 0 || txi->getConnectionI()->dbEnv() == 0)
+        ConnectionIPtr conn = ConnectionIPtr::dynamicCast(tx->getConnection());
+        if(!conn || conn->dbEnv() == 0)
         {
             throw DatabaseException(__FILE__, __LINE__, "invalid transaction");
         }
 
-        if(txi->getConnectionI()->dbEnv().get() != this)
+        if(conn->dbEnv().get() != this)
         {
             throw DatabaseException(__FILE__, __LINE__, "the given transaction is bound to environment '" +
-                                            txi->getConnectionI()->dbEnv()->_envName + "'");
+                                            conn->dbEnv()->_envName + "'");
         }
     }
-
 
     Freeze::TransactionalEvictorContextPtr ctx = getCurrent();
 
@@ -457,8 +454,6 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     _catalog = SharedDb::openCatalog(*this);
 }
 
-
-
 Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, Int trace) : 
     _dbEnv(dbEnv), 
     _done(false), 
@@ -480,7 +475,6 @@ Freeze::CheckpointThread::terminate()
     
     getThreadControl().join();
 }
-
 
 void 
 Freeze::CheckpointThread::run()

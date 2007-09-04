@@ -1376,7 +1376,6 @@ callback(Db* secondary, const Dbt* key, const Dbt* value, Dbt* result)
     return index->secondaryKeyCreate(secondary, key, value, result);
 }
 
-
 Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
                              DbTxn* txn, bool createDb, const MapIndexBasePtr& index) :
     _index(index)

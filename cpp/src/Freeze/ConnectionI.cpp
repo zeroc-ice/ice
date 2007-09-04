@@ -15,7 +15,6 @@ using namespace Ice;
 using namespace Freeze;
 using namespace std;
 
-
 Freeze::TransactionPtr
 Freeze::ConnectionI::beginTransaction()
 {
@@ -25,13 +24,12 @@ Freeze::ConnectionI::beginTransaction()
 Freeze::TransactionIPtr
 Freeze::ConnectionI::beginTransactionI()
 {
-    if(_transaction != 0)
+    if(_transaction)
     {
         throw TransactionAlreadyInProgressException(__FILE__, __LINE__);
     }
     closeAllIterators();
     _transaction = new TransactionI(this);
-    _transaction->internalIncRef();
     return _transaction;
 }
 
@@ -44,7 +42,7 @@ Freeze::ConnectionI::currentTransaction() const
 void
 Freeze::ConnectionI::close()
 {
-    if(_transaction != 0)
+    if(_transaction)
     {
         try
         {
@@ -56,7 +54,7 @@ Freeze::ConnectionI::close()
             // Ignored
             //
         }
-        assert(_transaction == 0);
+        assert(!_transaction);
     }
 
     while(!_mapList.empty())
@@ -65,7 +63,6 @@ Freeze::ConnectionI::close()
     }
     
     _dbEnv = 0;
- 
 }
     
 CommunicatorPtr
@@ -80,18 +77,15 @@ Freeze::ConnectionI::getName() const
     return _envName;
 }
 
-
 Freeze::ConnectionI::~ConnectionI()
 {
     close();
 }
 
-
 Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
     _communicator(dbEnv->getCommunicator()),
     _dbEnv(dbEnv),
     _envName(dbEnv->getEnvName()),
-    _transaction(0),
     _trace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
     _txTrace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
     _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
@@ -121,17 +115,14 @@ Freeze::ConnectionI::unregisterMap(MapHelperI* m)
 }
 
 Freeze::ConnectionPtr 
-Freeze::createConnection(const CommunicatorPtr& communicator,
-                         const string& envName)
+Freeze::createConnection(const CommunicatorPtr& communicator, const string& envName)
 {
     
     return new ConnectionI(SharedDbEnv::get(communicator, envName, 0));
 }
 
 Freeze::ConnectionPtr 
-Freeze::createConnection(const CommunicatorPtr& communicator,
-                         const string& envName,
-                         DbEnv& dbEnv)
+Freeze::createConnection(const CommunicatorPtr& communicator, const string& envName, DbEnv& dbEnv)
 {
     return new ConnectionI(SharedDbEnv::get(communicator, envName, &dbEnv));
 }

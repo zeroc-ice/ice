@@ -34,7 +34,6 @@ Freeze::TransactionalEvictorContext::TransactionalEvictorContext(const Transacti
     _tx->setPostCompletionCallback(this);
 }
 
-
 Freeze::TransactionalEvictorContext::~TransactionalEvictorContext()
 {
     for_each(_invalidateList.begin(), _invalidateList.end(), ToInvalidate::destroy);
@@ -57,7 +56,6 @@ Freeze::TransactionalEvictorContext::rollback()
         _tx->rollback();
     }
 }
-
 
 void 
 Freeze::TransactionalEvictorContext::postCompletion(bool committed, bool deadlock)
