@@ -51,8 +51,10 @@ SLICE_API std::string getPackageMetadata(const Slice::ContainedPtr&);
 // prepended to the definition's unqualified name. If the nameSuffix
 // is provided, it is appended to the containers name.
 //
-SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = std::string(),
-                                  const std::string& = std::string());
+// COMPILERFIX: MSVC 6 seems to have a problem with const std::string
+// = std::string(), const std::string = std::string().
+//
+SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = "", const std::string& = "");
 
 //
 // Emit a comment header.
