@@ -186,9 +186,9 @@ final class TcpTransceiver implements Transceiver
                     {
                         if(timeout > 0)
                         {
-                            long start = System.currentTimeMillis();
+                            long start = IceInternal.Time.currentMonotonicTimeMillis();
                             int n = _writeSelector.select(timeout);
-                            if(n == 0 && System.currentTimeMillis() >= start + timeout)
+                            if(n == 0 && IceInternal.Time.currentMonotonicTimeMillis() >= start + timeout)
                             {
                                 throw new Ice.TimeoutException();
                             }
@@ -286,9 +286,9 @@ final class TcpTransceiver implements Transceiver
                     {
                         if(timeout > 0)
                         {
-                            long start = System.currentTimeMillis();
+                            long start = IceInternal.Time.currentMonotonicTimeMillis();
                             int n = _readSelector.select(timeout);
-                            if(n == 0 && System.currentTimeMillis() >= start + timeout)
+                            if(n == 0 && IceInternal.Time.currentMonotonicTimeMillis() >= start + timeout)
                             {
                                 throw new Ice.TimeoutException();
                             }

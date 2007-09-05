@@ -29,7 +29,8 @@ public:
     // automatically generated copy constructor and assignment
     // operator do the right thing.
     
-    static Time now();
+    enum Clock { Realtime, Monotonic };
+    static Time now(Clock = Realtime);
     static Time seconds(Int64);
     static Time milliSeconds(Int64);
     static Time microSeconds(Int64);
@@ -194,6 +195,9 @@ private:
     Time(Int64);
 
     Int64 _usec;
+#ifdef _WIN32
+    static Int64 _frequency;
+#endif
 };
 
 ICE_UTIL_API std::ostream& operator<<(std::ostream&, const Time&);

@@ -39,7 +39,7 @@ ReplicaSessionI::ReplicaSessionI(const DatabasePtr& database,
     _internalRegistry(proxy),
     _info(info),
     _timeout(timeout),
-    _timestamp(IceUtil::Time::now()),
+    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic)),
     _destroy(false)
 {
     __setNoDelete(true);
@@ -79,7 +79,7 @@ ReplicaSessionI::keepAlive(const Ice::Current& current)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    _timestamp = IceUtil::Time::now();
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     if(_traceLevels->replica > 2)
     {

@@ -268,7 +268,7 @@ IceInternal::GC::collectGarbage()
 
     if(_statsCallback)
     {
-        t = Time::now();
+        t = Time::now(IceUtil::Time::Monotonic);
         stats.examined = static_cast<int>(gcObjects.size());
     }
 
@@ -367,7 +367,7 @@ IceInternal::GC::collectGarbage()
 
     if(_statsCallback)
     {
-        stats.time = Time::now() - t;
+        stats.time = Time::now(IceUtil::Time::Monotonic) - t;
         stats.collected = static_cast<int>(counts.size());
         _statsCallback(stats);
     }

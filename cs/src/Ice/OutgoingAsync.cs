@@ -224,7 +224,7 @@ namespace IceInternal
 
             if(absoluteTimeoutMillis > 0)
             {
-                return System.DateTime.Now.Ticks / 10000 >= absoluteTimeoutMillis;
+                return Time.currentMonotonicTimeMillis() >= absoluteTimeoutMillis;
             }
             else
             {
@@ -339,7 +339,7 @@ namespace IceInternal
                         {
                             if(con.timeout() >= 0)
                             {
-                                _absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + con.timeout();
+                                _absoluteTimeoutMillis = Time.currentMonotonicTimeMillis() + con.timeout();
                             }
                             else
                             {

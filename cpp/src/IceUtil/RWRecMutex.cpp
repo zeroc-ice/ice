@@ -89,10 +89,10 @@ IceUtil::RWRecMutex::timedReadLock(const Time& timeout) const
     // Wait while a writer holds the lock or while writers or an upgrader
     // are waiting to get the lock.
     //
-    Time end = Time::now() + timeout;
+    Time end = Time::now(Time::Monotonic) + timeout;
     while(_count < 0 || _waitingWriters != 0)
     {
-        Time remainder = end - Time::now();
+        Time remainder = end - Time::now(Time::Monotonic);
         if(remainder > Time())
         {
             if(_readers.timedWait(lock, remainder) == false)
@@ -200,10 +200,10 @@ IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
     // Wait for the lock to become available and increment the number
     // of waiting writers.
     //
-    Time end = Time::now() + timeout;
+    Time end = Time::now(Time::Monotonic) + timeout;
     while(_count != 0)
     {
-        Time remainder = end - Time::now();
+        Time remainder = end - Time::now(Time::Monotonic);
         if(remainder > Time())
         {
             ++_waitingWriters;
@@ -382,10 +382,10 @@ IceUtil::RWRecMutex::timedUpgrade(const Time& timeout) const
     // Wait to acquire the write lock.
     //
     _upgrading = true;
-    Time end = Time::now() + timeout;
+    Time end = Time::now(Time::Monotonic) + timeout;
     while(_count != 0)
     {
-        Time remainder = end - Time::now();
+        Time remainder = end - Time::now(Time::Monotonic);
         if(remainder > Time())
         {
             ++_waitingWriters;

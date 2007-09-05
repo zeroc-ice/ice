@@ -58,9 +58,9 @@ public:
             //
             if(computeInterval)
             {
-                IceUtil::Time start = IceUtil::Time::now();
+                IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic);
                 requeue = sub->flush();
-                interval = IceUtil::Time::now() - start;
+                interval = IceUtil::Time::now(IceUtil::Time::Monotonic) - start;
             }
             else
             {
@@ -350,7 +350,7 @@ SubscriberPool::dequeue(SubscriberPtr& subscriber, bool requeue, const IceUtil::
         //
         if(_workers.size() > _size)
         {
-            IceUtil::Time now = IceUtil::Time::now();
+            IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
             if(now - _lastStallCheck > _stallCheck)
             {
                 _lastStallCheck = now;
@@ -398,7 +398,7 @@ SubscriberPool::dequeue(SubscriberPtr& subscriber, bool requeue, const IceUtil::
         return;
     }
 
-    _lastDequeue = IceUtil::Time::now();
+    _lastDequeue = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     subscriber = _pending.front();
     _pending.pop_front();
@@ -475,7 +475,7 @@ SubscriberPool::check()
         return;
     }
 
-    IceUtil::Time now = IceUtil::Time::now();
+    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
     IceUtil::Time interval = now - _lastDequeue;
 /*
     if(_traceLevels->subscriberPool > 1)

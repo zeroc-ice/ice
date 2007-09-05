@@ -352,14 +352,14 @@ Glacier2::RequestQueue::run()
             {
                 if(_sleep)
                 {
-                    IceUtil::Time now = IceUtil::Time::now();
+                    IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
                     if(!timedWait(_sleepDuration))
                     {
                         _sleepDuration = IceUtil::Time();
                     }
                     else
                     {
-                        _sleepDuration -= IceUtil::Time::now() - now;
+                        _sleepDuration -= IceUtil::Time::now(IceUtil::Time::Monotonic) - now;
                     }
                     if(_sleepDuration <= IceUtil::Time())
                     {

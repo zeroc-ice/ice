@@ -57,7 +57,7 @@ ReapThread::run()
             {
                 try
                 {
-                    if((IceUtil::Time::now() - p->item->timestamp()) > p->timeout)
+                    if((IceUtil::Time::now(IceUtil::Time::Monotonic) - p->item->timestamp()) > p->timeout)
                     {
                         reap.push_back(*p);
                         p = _sessions.erase(p);

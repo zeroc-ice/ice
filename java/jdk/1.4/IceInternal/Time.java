@@ -11,7 +11,7 @@ package IceInternal;
 
 final public class Time
 {
-    static long
+    static public long
     currentMonotonicTimeMillis()
     {
         //

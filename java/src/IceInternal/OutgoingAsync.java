@@ -229,7 +229,7 @@ public abstract class OutgoingAsync
         //
         if(_absoluteTimeoutMillis > 0)
         {
-            return System.currentTimeMillis() >= _absoluteTimeoutMillis;
+            return IceInternal.Time.currentMonotonicTimeMillis() >= _absoluteTimeoutMillis;
         }
         else
         {
@@ -347,7 +347,7 @@ public abstract class OutgoingAsync
                     Ice.ConnectionI con = _delegate.__getConnection(comp);
                     if(con.timeout() >= 0)
                     {
-                        _absoluteTimeoutMillis = System.currentTimeMillis() + con.timeout();
+                        _absoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + con.timeout();
                     }
                     else
                     {

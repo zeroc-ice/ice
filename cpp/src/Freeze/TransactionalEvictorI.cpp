@@ -138,7 +138,7 @@ Freeze::TransactionalEvictorI::addFacet(const ObjectPtr& servant, const Identity
     checkIdentity(ident);
     DeactivateController::Guard deactivateGuard(_deactivateController);
    
-    Ice::Long currentTime = IceUtil::Time::now().toMilliSeconds();
+    Ice::Long currentTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
 
     Statistics stats = { currentTime };
     ObjectRecord rec;

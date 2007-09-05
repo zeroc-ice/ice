@@ -223,7 +223,7 @@ Cond::timedWaitImpl(const M& mutex, const Time& timeout) const
     LockState state;
     mutex.unlock(state);
     
-    timeval tv = Time::now() + timeout;
+    timeval tv = Time::now(Time::Monotonic) + timeout;
     timespec ts;
     ts.tv_sec = tv.tv_sec;
     ts.tv_nsec = tv.tv_usec * 1000;

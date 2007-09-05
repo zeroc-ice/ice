@@ -37,7 +37,7 @@ public:
     start()
     {
         _stopped = false;
-        _start = IceUtil::Time::now();
+        _start = IceUtil::Time::now(IceUtil::Time::Monotonic);
     }
 
     IceUtil::Time
@@ -46,7 +46,7 @@ public:
         if(!_stopped)
         {
             _stopped = true;
-            _stop = IceUtil::Time::now();
+            _stop = IceUtil::Time::now(IceUtil::Time::Monotonic);
         }
 
         return _stop - _start;

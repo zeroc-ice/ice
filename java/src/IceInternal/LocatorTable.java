@@ -41,7 +41,8 @@ final class LocatorTable
     synchronized void
     addAdapterEndpoints(String adapter, IceInternal.EndpointI[] endpoints)
     {
-        _adapterEndpointsTable.put(adapter, new EndpointTableEntry(System.currentTimeMillis(), endpoints));
+        _adapterEndpointsTable.put(adapter,
+                new EndpointTableEntry(IceInternal.Time.currentMonotonicTimeMillis(), endpoints));
     }
 
     synchronized IceInternal.EndpointI[]
@@ -70,7 +71,7 @@ final class LocatorTable
     synchronized void
     addProxy(Ice.Identity id, Ice.ObjectPrx proxy)
     {
-        _objectTable.put(id, new ProxyTableEntry(System.currentTimeMillis(), proxy));
+        _objectTable.put(id, new ProxyTableEntry(IceInternal.Time.currentMonotonicTimeMillis(), proxy));
     }
 
     synchronized Ice.ObjectPrx
@@ -90,7 +91,7 @@ final class LocatorTable
         }
         else
         {
-            return System.currentTimeMillis() - time <= ((long)ttl * 1000);
+            return IceInternal.Time.currentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
         }
     }
 

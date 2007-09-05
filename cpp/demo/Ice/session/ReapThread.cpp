@@ -39,7 +39,7 @@ ReapThread::run()
                     // real-world example. Therefore the current time
                     // is computed for each iteration.
                     //
-                    if((IceUtil::Time::now() - p->session->timestamp()) > _timeout)
+                    if((IceUtil::Time::now(IceUtil::Time::Monotonic) - p->session->timestamp()) > _timeout)
                     {
                         string name = p->proxy->getName();
                         p->proxy->destroy();

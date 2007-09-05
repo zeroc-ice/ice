@@ -42,7 +42,7 @@ private:
 
 SessionI::SessionI(const string& name) :
     _name(name),
-    _timestamp(IceUtil::Time::now()),
+    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic)),
     _nextId(0),
     _destroy(false)
 {
@@ -72,7 +72,7 @@ SessionI::refresh(const Ice::Current& c)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    _timestamp = IceUtil::Time::now();
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
 }
 
 string

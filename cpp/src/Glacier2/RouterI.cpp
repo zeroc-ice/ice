@@ -30,7 +30,7 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _session(session),
     _controlId(controlId),
     _sslContext(sslContext),
-    _timestamp(IceUtil::Time::now())
+    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic))
 {
     //
     // If Glacier2 will be used with pre 3.2 clients, then the client proxy must be set.
@@ -142,7 +142,7 @@ Glacier2::RouterI::addProxies(const ObjectProxySeq& proxies, const Current& curr
 {
     IceUtil::Mutex::Lock lock(*this);
 
-    _timestamp = IceUtil::Time::now();
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     return _clientBlobject->add(proxies, current);
 }
@@ -186,7 +186,7 @@ Glacier2::RouterI::getClientBlobject() const
 {
     IceUtil::Mutex::Lock lock(*this);
 
-    _timestamp = IceUtil::Time::now();
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     return _clientBlobject;
 }
@@ -219,7 +219,7 @@ Glacier2::RouterI::getTimestamp() const
     }
     else
     {
-        return IceUtil::Time::now();
+        return IceUtil::Time::now(IceUtil::Time::Monotonic);
     }
 }
 

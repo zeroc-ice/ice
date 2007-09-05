@@ -141,7 +141,7 @@ NodeSessionI::NodeSessionI(const DatabasePtr& database,
     _node(node),
     _info(info),
     _timeout(timeout),
-    _timestamp(IceUtil::Time::now()),
+    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic)),
     _load(load),
     _destroy(false)
 {
@@ -189,7 +189,7 @@ NodeSessionI::keepAlive(const LoadInfo& load, const Ice::Current& current)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    _timestamp = IceUtil::Time::now();
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
     _load = load;
 
     if(_traceLevels->node > 2)
