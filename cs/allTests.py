@@ -34,6 +34,9 @@ def isWin9x():
     else:
         return 0
 
+def isVista():
+    return isWin32() and sys.getwindowsversion()[0] == 6
+
 def runTests(args, tests, num = 0):
     #
     # Run each of the tests.
