@@ -38,7 +38,7 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options] [file...]\n";
+    cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
         "Options:\n"
         "-h, --help           Show this message.\n"
@@ -55,16 +55,12 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
-    string cpp("cpp");
     string commands;
     bool debug;
 
     IceUtil::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("e", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("d", "debug");
 
@@ -79,6 +75,12 @@ Client::run(int argc, char* argv[])
         usage();
         return EXIT_FAILURE;
     }
+    if(!args.empty())
+    {
+        cerr << argv[0] << ": too many arguments" << endl;
+        usage();
+        return EXIT_FAILURE;
+    }
 
     if(opts.isSet("help"))
     {
@@ -90,30 +92,6 @@ Client::run(int argc, char* argv[])
         cout << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
-    if(opts.isSet("D"))
-    {
-        vector<string> optargs = opts.argVec("D");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-        {
-            cpp += " -D" + *i;
-        }
-    }
-    if(opts.isSet("U"))
-    {
-        vector<string> optargs = opts.argVec("U");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-        {
-            cpp += " -U" + *i;
-        }
-    }
-    if(opts.isSet("I"))
-    {
-        vector<string> optargs = opts.argVec("I");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-        {
-            cpp += " -I" + *i;
-        }
-    }
     if(opts.isSet("e"))
     {
         vector<string> optargs = opts.argVec("e");
@@ -123,13 +101,6 @@ Client::run(int argc, char* argv[])
         }
     }
     debug = opts.isSet("debug");
-
-    if(!args.empty() && !commands.empty())
-    {
-        cerr << appName() << ": `-e' option cannot be used if input files are given" << endl;
-        usage();
-        return EXIT_FAILURE;
-    }
 
     // The complete set of Ice::Identity -> manager proxies.
     map<Ice::Identity, IceStorm::TopicManagerPrx> managers;
@@ -232,63 +203,22 @@ Client::run(int argc, char* argv[])
     ParserPtr p = Parser::createParser(communicator(), defaultManager, managers);
     int status = EXIT_SUCCESS;
 
-    if(args.empty()) // No files given
+    if(!commands.empty()) // Commands were given
     {
-        if(!commands.empty()) // Commands were given
+        int parseStatus = p->parse(commands, debug);
+        if(parseStatus == EXIT_FAILURE)
         {
-            int parseStatus = p->parse(commands, debug);
-            if(parseStatus == EXIT_FAILURE)
-            {
-                status = EXIT_FAILURE;
-            }
-        }
-        else // No commands, let's use standard input
-        {
-            p->showBanner();
-
-            int parseStatus = p->parse(stdin, debug);
-            if(parseStatus == EXIT_FAILURE)
-            {
-                status = EXIT_FAILURE;
-            }
+            status = EXIT_FAILURE;
         }
     }
-    else // Process files given on the command line
+    else // No commands, let's use standard input
     {
-        for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
-        {
-            ifstream test(i->c_str());
-            if(!test)
-            {
-                cerr << appName() << ": can't open `" << *i << "' for reading: " << strerror(errno) << endl;
-                return EXIT_FAILURE;
-            }
-            test.close();
-            
-            string cmd = cpp + " " + *i;
-#ifdef _WIN32
-            FILE* cppHandle = _popen(cmd.c_str(), "r");
-#else
-            FILE* cppHandle = popen(cmd.c_str(), "r");
-#endif
-            if(cppHandle == NULL)
-            {
-                cerr << appName() << ": can't run C++ preprocessor: " << strerror(errno) << endl;
-                return EXIT_FAILURE;
-            }
-            
-            int parseStatus = p->parse(cppHandle, debug);
-            
-#ifdef _WIN32
-            _pclose(cppHandle);
-#else
-            pclose(cppHandle);
-#endif
+        p->showBanner();
 
-            if(parseStatus == EXIT_FAILURE)
-            {
-                status = EXIT_FAILURE;
-            }
+        int parseStatus = p->parse(stdin, debug);
+        if(parseStatus == EXIT_FAILURE)
+        {
+            status = EXIT_FAILURE;
         }
     }
 

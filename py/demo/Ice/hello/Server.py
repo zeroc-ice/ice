@@ -24,11 +24,17 @@ class HelloI(Demo.Hello):
 
 class Server(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         adapter = self.communicator().createObjectAdapter("Hello")
         adapter.add(HelloI(), self.communicator().stringToIdentity("hello"))
         adapter.activate()
         self.communicator().waitForShutdown()
         return 0
 
+print "hello world"
+sys.stdout.flush()
 app = Server()
 sys.exit(app.main(sys.argv, "config.server"))

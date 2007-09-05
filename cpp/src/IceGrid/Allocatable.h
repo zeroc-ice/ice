@@ -14,8 +14,8 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Shared.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/Timer.h>
 
-#include <IceGrid/WaitQueue.h>
 #include <IceGrid/Session.h>
 
 #include <list>
@@ -30,7 +30,7 @@ typedef IceUtil::Handle<SessionI> SessionIPtr;
 class Allocatable;
 typedef IceUtil::Handle<Allocatable> AllocatablePtr;
 
-class AllocationRequest : public IceUtil::Mutex, public WaitItem
+class AllocationRequest : public IceUtil::Mutex, public IceUtil::TimerTask
 {
 public:
 
@@ -42,7 +42,7 @@ public:
     bool pending();
     bool allocate(const AllocatablePtr&, const SessionIPtr&);
     void cancel(const AllocationException&);
-    void expired(bool);
+    void run(); // Implementation of IceUtil::TimerTask::run()
 
     int getTimeout() const { return _timeout; }
     const SessionIPtr& getSession() const { return _session; }

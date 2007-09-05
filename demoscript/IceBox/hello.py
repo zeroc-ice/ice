@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys, demoscript
+import sys, demoscript
+import demoscript.pexpect as pexpect
 
 def runtests(client, server, secure):
     print "testing twoway",
@@ -54,20 +55,17 @@ def runtests(client, server, secure):
 def run(client, server):
     runtests(client, server, False)
 
-    print "repeating tests with SSL"
+    if not demoscript.Util.isMono():
+        print "repeating tests with SSL"
 
-    client.sendline('S')
+        client.sendline('S')
 
-    runtests(client, server, True)
+        runtests(client, server, True)
 
     client.sendline('x')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()
 
-    admin = demoscript.Util.spawn('iceboxadmin --IceBox.InstanceName=DemoIceBox --IceBox.ServiceManager.Endpoints="tcp -p 9998:ssl -p 9999" shutdown')
+    admin = demoscript.Util.spawn('iceboxadmin --IceBox.InstanceName=DemoIceBox --IceBox.ServiceManager.Endpoints="tcp -p 9998:ssl -p 9999" shutdown', language="C++")
 
-    admin.expect(pexpect.EOF)
-    assert admin.wait() == 0
-
-    server.expect(pexpect.EOF)
-    assert server.wait() == 0
+    admin.waitTestSuccess()
+    server.waitTestSuccess()

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -31,16 +31,21 @@ else:
     sys.exit(1)
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Ruby"
 
 cwd = os.getcwd()
 os.chdir('%s/demo/Ice/minimal' % (iceHome))
-server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
+server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady', language="C++")
 server.expect('.* ready')
 os.chdir(cwd)
 
 print "testing...",
 sys.stdout.flush()
 client = demoscript.Util.spawn('ruby Client.rb')
-client.expect(pexpect.EOF)
+client.waitTestSuccess()
 server.expect('Hello World!')
 print "ok"
+
+import signal
+server.kill(signal.SIGINT)
+server.waitTestSuccess()

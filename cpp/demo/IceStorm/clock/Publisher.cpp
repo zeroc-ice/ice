@@ -52,6 +52,13 @@ Publisher::run(int argc, char* argv[])
     catch(const IceUtil::BadOptException& e)
     {
         cerr << argv[0] << ": " << e.reason << endl;
+        usage(appName());
+        return EXIT_FAILURE;
+    }
+    if(remaining.size() > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        usage(appName());
         return EXIT_FAILURE;
     }
 

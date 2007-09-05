@@ -23,7 +23,7 @@ BetResolver::start()
     //
     for(int i = 0; i < 3; ++i)
     {
-        _timers.push_back(new Timer);
+        _timers.push_back(new IceUtil::Timer);
     }
 }
 
@@ -31,7 +31,7 @@ BetResolver::start()
 void
 BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
 {
-    class Task : public TimerTask
+    class Task : public IceUtil::TimerTask
     {
     public:
 
@@ -75,11 +75,11 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
 }
 
 void
-BetResolver::cancel()
+BetResolver::destroy()
 {
     for(size_t i = 0; i < _timers.size(); ++i)
     {
-        _timers[i]->cancel();
+        _timers[i]->destroy();
     }
 }
 

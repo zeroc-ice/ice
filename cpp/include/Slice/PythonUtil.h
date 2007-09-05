@@ -46,11 +46,15 @@ SLICE_API std::string fixIdent(const std::string&);
 SLICE_API std::string getPackageMetadata(const Slice::ContainedPtr&);
 
 //
-// Get the fully-qualified name of the given definition, including any package
-// defined via metadata. If a suffix is provided, it is prepended to the
-// definition's unqualified name.
+// Get the fully-qualified name of the given definition, including any
+// package defined via metadata. If a suffix is provided, it is
+// prepended to the definition's unqualified name. If the nameSuffix
+// is provided, it is appended to the containers name.
 //
-SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = std::string());
+// COMPILERFIX: MSVC 6 seems to have a problem with const std::string
+// = std::string(), const std::string = std::string().
+//
+SLICE_API std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = "", const std::string& = "");
 
 //
 // Emit a comment header.

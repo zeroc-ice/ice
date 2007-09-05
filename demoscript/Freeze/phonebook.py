@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
+import demoscript.pexpect as pexpect
 
 def dequote(s):
     cur = 0
@@ -87,4 +88,11 @@ def run(client, server):
     client.expect('current contact no longer exists')
     client.sendline('find foo')
     client.expect('number of contacts found: 0')
+
+    client.sendline('shutdown')
+    if client != server:
+        server.waitTestSuccess()
+    client.sendline('exit')
+    client.waitTestSuccess()
+
     print "ok"

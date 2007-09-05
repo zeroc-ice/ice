@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, signal, demoscript
+import sys, signal, demoscript
 
 def run(clientStr, server):
     print "adding client 1... ",
@@ -27,11 +27,20 @@ def run(clientStr, server):
     print "ok"
 
     print "removing client 2...",
+    sys.stdout.flush()
     client2.kill(signal.SIGINT)
+    client2.waitTestSuccess(timeout=20)
     server.expect('removing client')
     client1.expect('received callback #')
     print "ok"
+
     print "removing client 1...",
+    sys.stdout.flush()
     client1.kill(signal.SIGINT)
+    client1.waitTestSuccess()
     server.expect('removing client')
+
+    server.kill(signal.SIGINT)
+    server.waitTestSuccess()
+
     print "ok"

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Java"
 import demoscript.Glacier2.callback
 
 server = demoscript.Util.spawn('java Server --Ice.PrintAdapterReady')
@@ -30,7 +31,7 @@ server.expect('.* ready')
 sessionserver = demoscript.Util.spawn('java SessionServer --Ice.PrintAdapterReady')
 sessionserver.expect('.* ready')
 
-glacier2 = demoscript.Util.spawn('glacier2router --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5')
+glacier2 = demoscript.Util.spawn('glacier2router --Ice.Config=config.glacier2 --Ice.PrintAdapterReady --Glacier2.SessionTimeout=5', language='C++')
 glacier2.expect('Glacier2.Client ready')
 glacier2.expect('Glacier2.Server ready')
 

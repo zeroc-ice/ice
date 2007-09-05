@@ -30,6 +30,12 @@ menu()
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator1, const Ice::CommunicatorPtr& communicator2)
 {
+    if(argc > 1)
+    {
+        cerr << argv[0] << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     const string proxyProperty = "Echo.Proxy";
     EchoPrx echo1 = EchoPrx::checkedCast(communicator1->propertyToProxy(proxyProperty));
     if(!echo1)

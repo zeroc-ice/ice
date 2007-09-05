@@ -16,6 +16,12 @@ using namespace Demo;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    if(argc > 1)
+    {
+        fprintf(stderr, "%s: too many arguments\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
     Ice::PropertiesPtr properties = communicator->getProperties();
     const char* proxyProperty = "Latency.Proxy";
     string proxy = properties->getProperty(proxyProperty);

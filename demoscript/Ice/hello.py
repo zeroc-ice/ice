@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
+import demoscript.pexpect as pexpect
 
 def runtests(client, server, secure):
     print "testing twoway",
@@ -56,7 +57,13 @@ def runtests(client, server, secure):
     client.sendline('T')
     client.sendline('P')
     client.sendline('t')
-    client.expect('.*TimeoutException.*')
+    # With Java/C# under Windows the tcp connection shutdown takes
+    # longer than expected... hence we use a 6 second timeout instead
+    # of the expected ~4s.
+    #
+    # http://bugzilla/bugzilla/show_bug.cgi?id=2425
+    #
+    client.expect('.*TimeoutException.*', timeout=6)
     server.expect('Hello World!')
     server.expect('Hello World!') # second because op is idempotent
     client.sendline('P')
@@ -75,9 +82,7 @@ def run(client, server):
     runtests(client, server, True)
 
     client.sendline('s')
-    server.expect(pexpect.EOF)
-    assert server.wait() == 0
+    server.waitTestSuccess()
 
     client.sendline('x')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()

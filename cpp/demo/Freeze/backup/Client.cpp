@@ -31,6 +31,11 @@ main(int argc, char* argv[])
     initData.properties->load("config");
 
     Ice::CommunicatorPtr communicator = Ice::initialize(argc, argv, initData);
+    if(argc > 1)
+    {
+        cerr << argv[0] << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
 
     Freeze::ConnectionPtr connection = Freeze::createConnection(communicator, "backup");
     IntLongMap m(connection, "IntLongMap", true);

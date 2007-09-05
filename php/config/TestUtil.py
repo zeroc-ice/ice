@@ -331,6 +331,59 @@ else:
     #
     #php = "php -d extension_dir=\"" + os.path.abspath(os.path.join(toplevel, "lib")) + "\" -d extension=IcePHP.so"
 
+def clientTest(name, clientName):
+
+    #
+    # Write temporary INI file that contains the extension directives.
+    # This is a workaround for a limitation in PHP 5.1.x that prevents
+    # us from specifying the directives on PHP's command line.
+    #
+    # TODO: When we no longer support PHP 5.1.x, we can remove the extension
+    #       directives. We still need to generate the temporary file to
+    #       support ICE_HOME replacement.
+    #
+    tmpIniFile = "tmp.ini"
+    testdir = os.path.join(toplevel, "test", name)
+    client = php + " -c " + tmpIniFile + " -f " + clientName
+    #client = php + " -c . -f " + clientName
+
+    cwd = os.getcwd()
+    os.chdir(testdir)
+
+    #
+    # Replace all occurrences of ICE_HOME with the value of the environment variable.
+    #
+    iniLines = open("php.ini", "r").readlines()
+    for i in range(0,len(iniLines)):
+        iniLines[i] = iniLines[i].replace("ICE_HOME", ice_home)
+
+    iniFile = open(tmpIniFile, "w")
+    iniFile.writelines(iniLines)
+    iniFile.write("extension_dir=" + extensionDir + "\n")
+    iniFile.write("extension=" + extensionFile + "\n")
+    iniFile.close()
+
+    try:
+        print "starting " + clientName + "...",
+        clientCmd = client + " -- " + clientOptions
+        if debug:
+            print "(" + clientCmd + ")",
+        clientPipe = os.popen(clientCmd + " 2>&1")
+        print "ok"
+
+        printOutputFromPipe(clientPipe)
+
+        clientStatus = closePipe(clientPipe)
+        if clientStatus:
+            killServers()
+    finally:
+        os.remove(tmpIniFile)
+
+    if clientStatus:
+        sys.exit(1)
+
+    os.chdir(cwd)
+
 def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
                                         serverName, clientName):
 

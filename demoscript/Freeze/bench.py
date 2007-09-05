@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
 
 def run(client, isJava=False):
     if isJava:
@@ -63,6 +63,5 @@ def run(client, isJava=False):
     print "%s " % (client.before)
 
     print "IntIntMap with index (read test):"
-    client.expect(pexpect.EOF, timeout=200)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=200)
     print "%s " % (client.before)

@@ -30,6 +30,12 @@ main(int argc, char* argv[])
 int
 NestedServer::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Nested.Server");
     NestedPrx self = NestedPrx::uncheckedCast(adapter->createProxy(communicator()->stringToIdentity("nestedServer")));
     adapter->add(new NestedI(self), communicator()->stringToIdentity("nestedServer"));

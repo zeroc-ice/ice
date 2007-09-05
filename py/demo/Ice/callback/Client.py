@@ -34,6 +34,10 @@ class CallbackReceiverI(Demo.CallbackReceiver):
 
 class Client(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         base = self.communicator().propertyToProxy('Callback.CallbackServer')
         twoway = Demo.CallbackSenderPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
         if not twoway:

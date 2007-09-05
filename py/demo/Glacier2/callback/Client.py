@@ -33,6 +33,10 @@ class CallbackReceiverI(Demo.CallbackReceiver):
 
 class Client(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         defaultRouter = self.communicator().getDefaultRouter()
         if not defaultRouter:
             print self.appName() + ": no default router set"
@@ -135,6 +139,8 @@ class Client(Ice.Application):
 
         try:
             router.destroySession()
+        except Glacier2.SessionNotExistException, ex:
+            print ex
         except Ice.ConnectionLostException:
             # Expected: the router closed the connection.
             pass

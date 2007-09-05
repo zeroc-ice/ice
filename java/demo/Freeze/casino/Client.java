@@ -36,6 +36,12 @@ public class Client extends Ice.Application
     public int
     run(String[] args)
     {
+        if(args.length > 0)
+        {
+            System.err.println(appName() + ": too many arguments");
+            return 1;
+        }
+
         java.util.Random random = new java.util.Random();
 
         System.out.print("Retrieve bank and players... ");

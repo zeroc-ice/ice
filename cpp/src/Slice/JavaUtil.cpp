@@ -216,7 +216,7 @@ lookupKwd(const string& name)
     // NOTE: Any changes made to this list must also be made in BasicStream.java.
     //
     static const string keywordList[] = 
-    {       
+    {
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
         "double", "else", "enum", "equals", "extends", "false", "final", "finalize",

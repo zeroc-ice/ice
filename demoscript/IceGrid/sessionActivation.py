@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, demoscript
+import sys, demoscript
 
 def run(clientCmd):
     print "cleaning databases...",
@@ -49,8 +49,7 @@ def run(clientCmd):
     client.sendline('t')
     node.expect('says Hello World!')
     client.sendline('x')
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
     node.expect('detected termination of server')
 
     client = demoscript.Util.spawn(clientCmd)
@@ -63,15 +62,12 @@ def run(clientCmd):
     client.sendline('t')
     node.expect('says Hello World!')
     client.sendline('x')
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
     node.expect('detected termination of server')
 
     print "ok"
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')
-    admin.expect(pexpect.EOF)
-    assert admin.wait() == 0
-    node.expect(pexpect.EOF)
-    assert node.wait() == 0
+    admin.waitTestSuccess()
+    node.waitTestSuccess()

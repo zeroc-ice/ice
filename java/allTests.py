@@ -66,6 +66,7 @@ def runTests(args, tests, num = 0):
 # List of all basic tests.
 #
 tests = [ \
+    "Slice/keyword", \
     "IceUtil/inputUtil", \
     "Ice/proxy", \
     "Ice/operations", \

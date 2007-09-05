@@ -521,11 +521,11 @@ RegistryI::setupClientSessionFactory(const Ice::ObjectAdapterPtr& registryAdapte
                                      const IceGrid::LocatorPrx& locator,
                                      bool nowarn)
 {
-    _waitQueue = new WaitQueue(); // Used for for session allocation timeout.
-    _waitQueue->start();
-    
+
+    _timer = new IceUtil::Timer();  // Used for for session allocation timeout.
+
     assert(_reaper);
-    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _waitQueue, _reaper);
+    _clientSessionFactory = new ClientSessionFactory(sessionManagerAdapter, _database, _timer, _reaper);
 
     if(sessionManagerAdapter && _master) // Slaves don't support client session manager objects.
     {
@@ -635,10 +635,10 @@ RegistryI::stop()
         _reaper = 0;
     }
 
-    if(_waitQueue)
+    if(_timer)
     {
-        _waitQueue->destroy();
-        _waitQueue = 0;
+        _timer->destroy();
+        _timer = 0;
     }
 
     if(_iceStorm)

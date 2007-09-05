@@ -14,7 +14,6 @@
 #include <IceGrid/TraceLevels.h>
 #ifdef __BCPLUSPLUS__
 #  include <IceGrid/AdminSessionI.h>
-#  include <IceGrid/WaitQueue.h>
 #  include <IceGrid/ReapThread.h>
 #  include <IceGrid/Database.h>
 #  include <IceGrid/WellKnownObjectsManager.h>
@@ -99,6 +98,7 @@ RegistryService::start(int argc, char* argv[])
 
     if(!args.empty())
     {
+        cerr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return false;
     }

@@ -31,6 +31,10 @@ class SessionManagerI(Glacier2.SessionManager):
 
 class SessionServer(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         adapter = self.communicator().createObjectAdapter("SessionServer")
         adapter.add(DummyPermissionsVerifierI(), self.communicator().stringToIdentity("verifier"))
         adapter.add(SessionManagerI(), self.communicator().stringToIdentity("sessionmanager"))

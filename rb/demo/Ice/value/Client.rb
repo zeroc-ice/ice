@@ -56,6 +56,11 @@ class Ice::Application
     end
 
     def run(args)
+        if args.length > 0:
+            puts $0 + ": too many argumnets"
+            return 1
+        end
+
         #
         # Since this is an interactive demo we want the custom interrupt
         # callback to be called when the process is interrupted.
@@ -74,6 +79,7 @@ class Ice::Application
              "operations, and print its contents. No factory is ever required\n"\
              "for this.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         simple = initial.getSimple()
@@ -83,6 +89,7 @@ class Ice::Application
              "Yes, this worked. Now let's try to transfer an object for a class\n"\
              "with operations as type ::Demo::Printer.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
       
         printer, printerProxy = initial.getPrinter()
@@ -92,6 +99,7 @@ class Ice::Application
              "Cool, it worked! Let's try calling the printBackwards() method\n"\
              "on the object we just received locally.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         print "==> "
@@ -101,6 +109,7 @@ class Ice::Application
              "Now we call the same method, but on the remote object. Watch the\n"\
              "server's output.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         printerProxy.printBackwards()
@@ -111,6 +120,7 @@ class Ice::Application
              "and since we compiled the Slice definition for DerivedPrinter, the object\n"\
              "is not sliced.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         derived = initial.getDerivedPrinter()
@@ -121,6 +131,7 @@ class Ice::Application
              "However since we did not implement Demo::DerivedPrinter::printUppercase.\n"\
              "calling printUppercase on this object does not work.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         begin
@@ -134,6 +145,7 @@ class Ice::Application
         puts "\n"\
              "Now we install a factory for the derived class, and try again.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         Ice::Application::communicator().addObjectFactory(ObjectFactory.new, "::Demo::DerivedPrinter")
@@ -146,6 +158,7 @@ class Ice::Application
              "call the operation printUppercase() on the derived object\n"\
              "locally.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         puts "==> " + derived.derivedMessage
@@ -157,6 +170,7 @@ class Ice::Application
              "derived object, we throw an exception containing the derived\n"\
              "object.\n"\
              "[press enter]"
+	STDOUT.flush
         STDIN.readline
 
         begin

@@ -29,6 +29,12 @@ main(int argc, char* argv[])
 int
 ThroughputServer::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Throughput");
     adapter->add(new ThroughputI, communicator()->stringToIdentity("throughput"));
     adapter->activate();

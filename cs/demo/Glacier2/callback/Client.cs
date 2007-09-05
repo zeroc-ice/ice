@@ -30,6 +30,12 @@ public class Client : Ice.Application
 
     public override int run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         Ice.RouterPrx defaultRouter = communicator().getDefaultRouter();
         if(defaultRouter == null)
         {
@@ -208,6 +214,10 @@ public class Client : Ice.Application
         try
         {
             router.destroySession();
+        }
+        catch(Glacier2.SessionNotExistException ex)
+        {
+            Console.Error.WriteLine(ex);
         }
         catch(Ice.ConnectionLostException)
         {

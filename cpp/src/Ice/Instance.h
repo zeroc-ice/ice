@@ -13,6 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
+#include <IceUtil/Timer.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/StatsF.h>
@@ -64,6 +65,7 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory() const;
     ThreadPoolPtr clientThreadPool();
     ThreadPoolPtr serverThreadPool();
+    IceUtil::TimerPtr timer();
     bool threadPerConnection() const;
     size_t threadPerConnectionStackSize() const;
     EndpointFactoryManagerPtr endpointFactoryManager() const;
@@ -115,6 +117,7 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
+    IceUtil::TimerPtr _timer;
     const bool _threadPerConnection;
     const size_t _threadPerConnectionStackSize;
     EndpointFactoryManagerPtr _endpointFactoryManager;

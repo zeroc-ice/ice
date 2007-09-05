@@ -7,8 +7,8 @@ Operating System
 ----------------
 
 Ice is expected to build and run properly on Solaris 8, Solaris 9
-and Solaris 10 on SPARC and Intel/AMD64. However, Ice is officially
-supported only on Solaris 10 for SPARC.
+and Solaris 10 on SPARC and x86/x64. However, Ice is officially
+supported only on Solaris 10.
 
 You also need to have /dev/urandom installed. This is installed by
 default on Solaris 9 and Solaris 10; on Solaris 8, you need to install 
@@ -69,7 +69,7 @@ This kit is required to run the IceSSL tests successfully.
 GNU Make 3.80
 -------------
 
-GNU Make 3.80 is required to build Ice on SPARC/Solaris. GNU make is
+GNU Make 3.80 is required to build Ice on Solaris. GNU make is
 distributed on the "Solaris 10 OS Companion Software DVD":
 
 http://www.sun.com/software/solaris/freeware/
@@ -139,8 +139,8 @@ $ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
 To build Ice in 64-bit mode, you need to do the following:
 
 - Obtain or build all the third-party dependencies, and put the 64-bit
-  libraries in the "lib/sparcv9" directories. For example, put
-  Berkeley DB 64-bit libraries in $DB_HOME/lib/sparcv9.
+  libraries in the appropriate lib subdirectory (lib/sparcv9 on SPARC,
+  lib/amd64 on x64).
 
 - Set the environment variable LP64 to yes, as shown below:
 
@@ -163,5 +163,6 @@ When compiling Ice programs, you must pass the location of the
 location of the <prefix>/lib directory with the -L option.
 
 If you built in 64-bit mode, the libraries are installed in
-<prefix>/lib/sparcv9 and the binaries are installed in 
-<prefix>/bin/sparcv9. No other changes are necessary.
+<prefix>/lib/sparcv9 or <prefix>/lib/amd64, depending on your system's
+architecture. Executables are installed in <prefix>/bin/sparcv9 or
+<prefix>/bin/amd64. No other changes are necessary.

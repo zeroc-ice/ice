@@ -15,7 +15,6 @@ using namespace Ice;
 using namespace Freeze;
 using namespace std;
 
-
 Freeze::TransactionPtr
 Freeze::ConnectionI::beginTransaction()
 {
@@ -25,7 +24,7 @@ Freeze::ConnectionI::beginTransaction()
 Freeze::TransactionIPtr
 Freeze::ConnectionI::beginTransactionI()
 {
-    if(_transaction != 0)
+    if(_transaction)
     {
         throw TransactionAlreadyInProgressException(__FILE__, __LINE__);
     }
@@ -43,19 +42,19 @@ Freeze::ConnectionI::currentTransaction() const
 void
 Freeze::ConnectionI::close()
 {
-    if(_transaction != 0)
+    if(_transaction)
     {
         try
         {
             _transaction->rollback();
         }
-        catch(const  DatabaseException&)
+        catch(const DatabaseException&)
         {
             //
             // Ignored
             //
         }
-        assert(_transaction == 0);
+        assert(!_transaction);
     }
 
     while(!_mapList.empty())
@@ -64,7 +63,6 @@ Freeze::ConnectionI::close()
     }
     
     _dbEnv = 0;
- 
 }
     
 CommunicatorPtr
@@ -79,12 +77,10 @@ Freeze::ConnectionI::getName() const
     return _envName;
 }
 
-
 Freeze::ConnectionI::~ConnectionI()
 {
     close();
 }
-
 
 Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
     _communicator(dbEnv->getCommunicator()),
@@ -119,17 +115,14 @@ Freeze::ConnectionI::unregisterMap(MapHelperI* m)
 }
 
 Freeze::ConnectionPtr 
-Freeze::createConnection(const CommunicatorPtr& communicator,
-                         const string& envName)
+Freeze::createConnection(const CommunicatorPtr& communicator, const string& envName)
 {
     
     return new ConnectionI(SharedDbEnv::get(communicator, envName, 0));
 }
 
 Freeze::ConnectionPtr 
-Freeze::createConnection(const CommunicatorPtr& communicator,
-                         const string& envName,
-                         DbEnv& dbEnv)
+Freeze::createConnection(const CommunicatorPtr& communicator, const string& envName, DbEnv& dbEnv)
 {
     return new ConnectionI(SharedDbEnv::get(communicator, envName, &dbEnv));
 }

@@ -23,6 +23,12 @@ public class SessionServer : Ice.Application
 
     public override int run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
         adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
         adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,11 +23,12 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C#"
 import demoscript.Ice.nested
 
-server = demoscript.Util.spawn('%sserver.exe --Ice.PrintAdapterReady' % (demoscript.Util.mono()))
+server = demoscript.Util.spawn('server.exe --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = demoscript.Util.spawn('%sclient.exe --Ice.Override.Timeout=2000' % (demoscript.Util.mono()))
+client = demoscript.Util.spawn('client.exe --Ice.Override.Timeout=2000')
 client.expect('.*for exit:')
 
 demoscript.Ice.nested.run(client, server)

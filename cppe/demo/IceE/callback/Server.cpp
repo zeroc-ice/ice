@@ -16,6 +16,12 @@ using namespace Demo;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
+    if(argc > 1)
+    {
+        fprintf(stderr, "%s: too many arguments\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Callback.Server");
     adapter->add(new CallbackSenderI, communicator->stringToIdentity("callback"));
     adapter->activate();

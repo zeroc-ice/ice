@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,10 +23,11 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Python"
 import demoscript.Ice.throughput
 
-server = demoscript.Util.spawn('python Server.py --Ice.PrintAdapterReady')
+server = demoscript.Util.spawn('Server.py --Ice.PrintAdapterReady')
 server.expect('.* ready')
-client = demoscript.Util.spawn('python Client.py')
+client = demoscript.Util.spawn('Client.py')
 
 demoscript.Ice.throughput.run(client, server)

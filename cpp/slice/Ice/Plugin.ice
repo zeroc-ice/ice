@@ -10,6 +10,8 @@
 #ifndef ICE_PLUGIN_ICE
 #define ICE_PLUGIN_ICE
 
+#include <Ice/LoggerF.ice>
+
 module Ice
 {
 
@@ -38,6 +40,18 @@ local interface Plugin
      *
      **/
     void destroy();
+};
+
+/**
+ *
+ * Special communicator plugin used to set the logger.
+ * Can only be used in conjunction with Ice.Plugin.Logger
+ * property.
+ *
+ **/
+local interface LoggerPlugin extends Plugin
+{
+    Logger getLogger();
 };
 
 /**

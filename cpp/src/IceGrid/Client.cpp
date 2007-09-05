@@ -129,15 +129,11 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options] [file...]\n";
+    cerr << "Usage: " << appName() << " [options]\n";
     cerr <<     
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
-        "-DNAME               Define NAME as 1.\n"
-        "-DNAME=DEF           Define NAME as DEF.\n"
-        "-UNAME               Remove any definition for NAME.\n"
-        "-IDIR                Put DIR in the include file search path.\n"
         "-e COMMANDS          Execute COMMANDS.\n"
         "-d, --debug          Print debug messages.\n"
         "-s, --server         Start icegridadmin as a server (to parse XML files).\n"
@@ -252,16 +248,12 @@ Client::interrupted()
 int
 Client::run(int argc, char* argv[])
 {
-    string cpp("cpp");
     string commands;
     bool debug;
 
     IceUtil::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
-    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
-    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("e", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("u", "username", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
     opts.addOpt("p", "password", IceUtil::Options::NeedArg, "", IceUtil::Options::NoRepeat);
@@ -278,6 +270,12 @@ Client::run(int argc, char* argv[])
     catch(const IceUtil::BadOptException& e)
     {
         cerr << e.reason << endl;
+        usage();
+        return EXIT_FAILURE;
+    }
+    if(!args.empty())
+    {
+        cerr << argv[0] << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -305,30 +303,6 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    if(opts.isSet("D"))
-    {
-        vector<string> optargs = opts.argVec("D");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-        {
-            cpp += " -D" + *i;
-        }
-    }
-    if(opts.isSet("U"))
-    {
-        vector<string> optargs = opts.argVec("U");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-        {
-            cpp += " -U" + *i;
-        }
-    }
-    if(opts.isSet("I"))
-    {
-        vector<string> optargs = opts.argVec("I");
-        for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
-        {
-            cpp += " -I" + *i;
-        }
-    }
     if(opts.isSet("e"))
     {
         vector<string> optargs = opts.argVec("e");
@@ -338,13 +312,6 @@ Client::run(int argc, char* argv[])
         }
     }
     debug = opts.isSet("debug");
-
-    if(!args.empty() && !commands.empty())
-    {
-        cerr << appName() << ": `-e' option cannot be used if input files are given" << endl;
-        usage();
-        return EXIT_FAILURE;
-    }
 
     bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL");
     if(opts.isSet("ssl"))
@@ -583,49 +550,10 @@ Client::run(int argc, char* argv[])
 
         {
             Lock sync(*this);
-            _parser = Parser::createParser(communicator(), session, admin, args.empty() && commands.empty());
+            _parser = Parser::createParser(communicator(), session, admin, commands.empty());
         }    
 
-        if(!args.empty()) // Files given
-        {
-            // Process files given on the command line
-            for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
-            {
-                ifstream test(i->c_str());
-                if(!test)
-                {
-                    cerr << appName() << ": can't open `" << *i << "' for reading: " << strerror(errno) << endl;
-                    return EXIT_FAILURE;
-                }
-                test.close();
-            
-                string cmd = cpp + " " + *i;
-#ifdef _WIN32
-                FILE* cppHandle = _popen(cmd.c_str(), "r");
-#else
-                FILE* cppHandle = popen(cmd.c_str(), "r");
-#endif
-                if(cppHandle == NULL)
-                {
-                    cerr << appName() << ": can't run C++ preprocessor: " << strerror(errno) << endl;
-                    return EXIT_FAILURE;
-                }
-            
-                int parseStatus = _parser->parse(cppHandle, debug);
-            
-#ifdef _WIN32
-                _pclose(cppHandle);
-#else
-                pclose(cppHandle);
-#endif
-
-                if(parseStatus == EXIT_FAILURE)
-                {
-                    status = EXIT_FAILURE;
-                }
-            }
-        }
-        else if(!commands.empty()) // Commands were given
+        if(!commands.empty()) // Commands were given
         {
             int parseStatus = _parser->parse(commands, debug);
             if(parseStatus == EXIT_FAILURE)

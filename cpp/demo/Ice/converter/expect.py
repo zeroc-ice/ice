@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 
 server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect('.* ready')
@@ -43,9 +44,7 @@ client.expect('Received \\(LATIN-1\\): "Bonne journ\\\\351e"')
 print "ok"
 
 client.sendline('s')
-server.expect(pexpect.EOF)
-assert server.wait() == 0
+server.waitTestSuccess()
 
 client.sendline('x')
-client.expect(pexpect.EOF)
-assert client.wait() == 0
+client.waitTestSuccess()

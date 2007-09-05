@@ -18,9 +18,11 @@ class FilesystemClient : virtual public Ice::Application
 {
 public:
     virtual int run(int, char * []) {
-        // Terminate cleanly on receipt of a signal.
+        // Since this is an interactive demo we want the custom
+        // interrupt callback to be called when the process is
+        // interrupted.
         //
-        shutdownOnInterrupt();
+        callbackOnInterrupt();
 
         // Create a proxy for the root directory
         //
@@ -40,7 +42,23 @@ public:
 
         ParserPtr p = new Parser(rootDir);
         return p->parse();
-    };
+    }
+
+    virtual void interruptCallback(int) {
+        try
+        {
+            communicator()->destroy();
+        }
+        catch(const IceUtil::Exception& ex)
+        {
+            cerr << appName() << ": " << ex << endl;
+        }
+        catch(...)
+        {
+            cerr << appName() << ": unknown exception" << endl;
+        }
+        exit(EXIT_SUCCESS);
+    }
 };
 
 int

@@ -19,6 +19,11 @@ public class Server
         try
         {
             communicator = Ice.Util.initialize(ref args);
+            if(args.Length > 0)
+            {
+                Console.Error.WriteLine("too many arguments");
+                System.Environment.Exit(1);
+            }
             Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
             adapter.add(new HelloI(), communicator.stringToIdentity("hello"));
             adapter.activate();

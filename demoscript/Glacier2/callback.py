@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys, time
+import sys, time, signal
+import demoscript.pexpect as pexpect
 
 def run(client, server, sessionserver, glacier2):
     print "testing ",
@@ -77,3 +78,17 @@ def run(client, server, sessionserver, glacier2):
     glacier2.expect('expiring session')
     sessionserver.expect('destroying session for user')
     print "ok"
+
+    # SessionNotExist
+    client.sendline('x')
+    client.expect('SessionNotExistException')
+    client.waitTestSuccess()
+
+    sessionserver.kill(signal.SIGINT)
+    sessionserver.waitTestSuccess()
+
+    server.kill(signal.SIGINT)
+    server.waitTestSuccess()
+
+    glacier2.kill(signal.SIGINT)
+    glacier2.waitTestSuccess()

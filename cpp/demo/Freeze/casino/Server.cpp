@@ -30,7 +30,7 @@ private:
     map<string, string> createTypeMap(const string&);
     const string _envName;
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(__hpux) || (defined(_MSC_VER) && (_MSC_VER < 1300))
 //
 // Some compilers don't let local classes access private data members
 //
@@ -73,6 +73,12 @@ public:
 int
 CasinoServer::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     Ice::PropertiesPtr properties = communicator()->getProperties();
 
     _bankEdge = properties->getPropertyAsInt("Bank.Edge");
@@ -266,11 +272,11 @@ CasinoServer::run(int argc, char* argv[])
         shutdownOnInterrupt();
         communicator()->waitForShutdown();
       
-        _betResolver.cancel();
+        _betResolver.destroy();
     }
     catch(...)
     {
-        _betResolver.cancel();
+        _betResolver.destroy();
         throw;
     }
     return 0;

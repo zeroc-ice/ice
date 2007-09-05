@@ -46,6 +46,10 @@ class SessionRefreshThread(threading.Thread):
 
 class Client(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         while True:
             name = raw_input("Please enter your name ==> ").strip()
             if len(name) != 0:

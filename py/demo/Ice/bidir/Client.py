@@ -30,6 +30,10 @@ class CallbackReceiverI(Demo.CallbackReceiver):
 
 class Client(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         server = Demo.CallbackSenderPrx.checkedCast(self.communicator().propertyToProxy('Callback.Client.CallbackServer'))
         if not server:
             print self.appName() + ": invalid proxy"

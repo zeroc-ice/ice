@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,14 +23,19 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Python"
 
-server = demoscript.Util.spawn('python Server.py --Ice.PrintAdapterReady')
+server = demoscript.Util.spawn('Server.py --Ice.PrintAdapterReady')
 server.expect('.* ready')
 
 print "testing ping... ",
 sys.stdout.flush()
-client = demoscript.Util.spawn('python Client.py')
-client.expect(pexpect.EOF, timeout=100)
+client = demoscript.Util.spawn('Client.py')
+client.waitTestSuccess(timeout=100)
 print "ok"
+
+import signal
+server.kill(signal.SIGINT)
+server.waitTestSuccess()
 
 print client.before

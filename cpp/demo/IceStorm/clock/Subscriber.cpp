@@ -70,6 +70,12 @@ Subscriber::run(int argc, char* argv[])
         usage(appName());
         return EXIT_FAILURE;
     }
+    if(remaining.size() > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        usage(appName());
+        return EXIT_FAILURE;
+    }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
         communicator()->propertyToProxy("IceStorm.TopicManager.Proxy"));

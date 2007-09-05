@@ -29,6 +29,10 @@ class ObjectFactory(Ice.ObjectFactory):
 
 class Client(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         base = self.communicator().propertyToProxy('Value.Initial')
         initial = Demo.InitialPrx.checkedCast(base)
         if not initial:

@@ -43,6 +43,11 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
+        if(argc > 1)
+        {
+            cerr << argv[0] << ": too many arguments" << endl;
+            return EXIT_FAILURE;
+        }
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "tcp -p 10000");
         adapter->add(new HelloI, communicator->stringToIdentity("hello"));
         adapter->activate();

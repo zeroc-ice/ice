@@ -133,7 +133,7 @@ public final class PluginManagerI implements PluginManager
         // with the prefix "Ice.Plugin.". These properties should
         // have the following format:
         //
-        // Ice.Plugin.name=entry_point [args]
+        // Ice.Plugin.name[.<language>]=entry_point [args]
         //
         // If the Ice.PluginLoadOrder property is defined, load the
         // specified plugins in the specified order, then load any
@@ -156,11 +156,22 @@ public final class PluginManagerI implements PluginManager
                     throw ex;
                 }
 
-                final String key = "Ice.Plugin." + names[i];
-                if(plugins.containsKey(key))
+                String key = "Ice.Plugin." + names[i] + ".java";
+                boolean hasKey = plugins.containsKey(key);
+                if(hasKey)
+                {
+                    plugins.remove("Ice.Plugin." + names[i]);
+                }
+                else
+                {
+                    key = "Ice.Plugin." + names[i];
+                    hasKey = plugins.containsKey(key);
+                }
+                
+                if(hasKey)
                 {
                     final String value = (String)plugins.get(key);
-                    loadPlugin(names[i], value, cmdArgs, false);
+                    loadPlugin(names[i], value, cmdArgs);
                     plugins.remove(key);
                 }
                 else
@@ -175,22 +186,56 @@ public final class PluginManagerI implements PluginManager
         //
         // Load any remaining plugins that weren't specified in PluginLoadOrder.
         //
-        java.util.Iterator p = plugins.entrySet().iterator();
-        while(p.hasNext())
+        while(!plugins.isEmpty())
         {
+            java.util.Iterator p = plugins.entrySet().iterator();
             java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-            String name = ((String)entry.getKey()).substring(prefix.length());
-            String value = (String)entry.getValue();
-            loadPlugin(name, value, cmdArgs, false);
-        }
 
-        //
-        // Check for a Logger Plugin
-        //
-        String loggerStr = properties.getProperty("Ice.LoggerPlugin");
-        if(loggerStr.length() != 0)
-        {
-            loadPlugin("Logger", loggerStr, cmdArgs, true);
+            String name = ((String)entry.getKey()).substring(prefix.length());
+
+            int dotPos = name.lastIndexOf('.');
+            if(dotPos != -1)
+            {
+                String suffix = name.substring(dotPos + 1);
+                if(suffix.equals("cpp") || suffix.equals("clr"))
+                {
+                    //
+                    // Ignored
+                    //
+                    p.remove();
+                }
+                else if(suffix.equals("java"))
+                {
+                    name = name.substring(0, dotPos);
+                    String value = (String)entry.getValue();
+                    loadPlugin(name, value, cmdArgs);
+                    p.remove();
+                }
+                else
+                {
+                    //
+                    // Name is just a regular name that happens to contain a dot
+                    //
+                    dotPos = -1;
+                }
+            }
+            
+            if(dotPos == -1)
+            {
+                //
+                // Is there a .java entry?
+                //
+                String value = (String)entry.getValue();
+                p.remove();
+
+                String javaValue = (String)plugins.remove("Ice.Plugin." + name + ".java");
+                if(javaValue != null)
+                {
+                    value = javaValue;
+                }
+                
+                loadPlugin(name, value, cmdArgs);
+            }
         }
 
         //
@@ -205,7 +250,7 @@ public final class PluginManagerI implements PluginManager
     }
 
     private void
-    loadPlugin(String name, String pluginSpec, StringSeqHolder cmdArgs, boolean isLogger)
+    loadPlugin(String name, String pluginSpec, StringSeqHolder cmdArgs)
     {
         assert(_communicator != null);
 
@@ -247,27 +292,18 @@ public final class PluginManagerI implements PluginManager
         // Instantiate the class.
         //
         PluginFactory pluginFactory = null;
-        LoggerFactory loggerFactory = null;
         try
         {
             Class c = Class.forName(className);
             java.lang.Object obj = c.newInstance();
             try
             {
-                if(isLogger)
-                {
-                    loggerFactory = (LoggerFactory)obj;
-                }
-                else
-                {
-                    pluginFactory = (PluginFactory)obj;
-                }
+                pluginFactory = (PluginFactory)obj;
             }
             catch(ClassCastException ex)
             {
                 PluginInitializationException e = new PluginInitializationException();
-                e.reason = "class " + className + " does not implement " + 
-                           (isLogger ? "Ice.LoggerFactory" : "Ice.PluginFactory");
+                e.reason = "class " + className + " does not implement Ice.PluginFactory";
                 e.initCause(ex);
                 throw e;
             }
@@ -297,56 +333,48 @@ public final class PluginManagerI implements PluginManager
         //
         // Invoke the factory.
         //
-        if(isLogger)
+        Plugin plugin = null;
+        try
+        {
+            plugin = pluginFactory.create(_communicator, name, args);
+        }
+        catch(PluginInitializationException ex)
+        {
+            throw ex;
+        }
+        catch(Throwable ex)
+        {
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "exception in factory " + className;
+            e.initCause(ex);
+            throw e;
+        }
+
+        if(plugin == null)
+        {
+            PluginInitializationException e = new PluginInitializationException();
+            e.reason = "failure in factory " + className;
+            throw e;
+        }
+
+        if(name.equals("Logger"))
         {
             try
             {
-                _logger = loggerFactory.create(_communicator, args);
+                LoggerPlugin loggerPlugin = (LoggerPlugin)plugin;
+                _logger = loggerPlugin.getLogger();
             }
-            catch(Throwable ex)
+            catch(ClassCastException ex)
             {
                 PluginInitializationException e = new PluginInitializationException();
-                e.reason = "exception in factory " + className;
+                e.reason = "Ice.Plugin.Logger does not implement an Ice.LoggerPlugin";
                 e.initCause(ex);
                 throw e;
             }
-
-            if(_logger == null)
-            {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "failure in factory " + className;
-                throw e;
-            }
         }
-        else
-        {
-            Plugin plugin = null;
-            try
-            {
-                plugin = pluginFactory.create(_communicator, name, args);
-            }
-            catch(PluginInitializationException ex)
-            {
-                throw ex;
-            }
-            catch(Throwable ex)
-            {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "exception in factory " + className;
-                e.initCause(ex);
-                throw e;
-            }
 
-            if(plugin == null)
-            {
-                PluginInitializationException e = new PluginInitializationException();
-                e.reason = "failure in factory " + className;
-                throw e;
-            }
-
-            _plugins.put(name, plugin);
-            _initOrder.add(plugin);
-        }
+        _plugins.put(name, plugin);
+        _initOrder.add(plugin);
     }
 
     public Logger

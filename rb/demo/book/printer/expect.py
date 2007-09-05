@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -31,13 +31,18 @@ else:
     sys.exit(1)
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Ruby"
+import signal
 
-server = demoscript.Util.spawn('%s/demo/book/printer/server --Ice.PrintAdapterReady' % (iceHome))
+server = demoscript.Util.spawn('%s/demo/book/printer/server --Ice.PrintAdapterReady' % (iceHome), language="C++")
 server.expect('.* ready')
 
 print "testing...",
 sys.stdout.flush()
 client = demoscript.Util.spawn('ruby Client.rb')
-client.expect(pexpect.EOF)
+client.waitTestSuccess()
 server.expect('Hello World!')
+server.kill(signal.SIGTERM)
+server.wait()
+server.signalstatus == signal.SIGTERM
 print "ok"

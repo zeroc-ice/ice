@@ -8,7 +8,8 @@
 #
 # **********************************************************************
 
-import pexpect, sys, time, signal, demoscript
+import sys, time, signal, demoscript
+import demoscript.pexpect as pexpect
 
 def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
     print "testing pub%s/sub%s..." % (pubargs, subargs),
@@ -25,14 +26,10 @@ def runtest(icestorm, subCmd, subargs, pubCmd, pubargs):
     sub.expect('[0-9][0-9]/[0-9][0-9].*\r{1,2}\n[0-9][0-9]/[0-9][0-9]')
 
     pub.kill(signal.SIGINT)
-    pub.expect(pexpect.EOF)
-    status = pub.wait()
-    assert status == 0 or status == 130 or pub.signalstatus == signal.SIGINT
+    pub.waitTestSuccess()
 
     sub.kill(signal.SIGINT)
-    sub.expect(pexpect.EOF)
-    status = sub.wait()
-    assert status == 0 or status == 130 or sub.signalstatus == signal.SIGINT
+    sub.waitTestSuccess()
     try:
         icestorm.expect('Unsubscribe:')
     except pexpect.TIMEOUT:
@@ -50,7 +47,7 @@ def run(subCmd, pubCmd):
     else:
         args = ''
 
-    icestorm = demoscript.Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (demoscript.Util.getIceBox(), args))
+    icestorm = demoscript.Util.spawn('%s --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (demoscript.Util.getIceBox(), args), language="C++")
     icestorm.expect('.* ready')
 
     runtest(icestorm, subCmd, "", pubCmd, "")
@@ -62,8 +59,6 @@ def run(subCmd, pubCmd):
     for s in pubargs:
         runtest(icestorm, subCmd, "", pubCmd, s)
 
-    admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.icebox shutdown')
-    admin.expect(pexpect.EOF)
-    assert admin.wait() == 0
-    icestorm.expect(pexpect.EOF)
-    assert icestorm.wait() == 0
+    admin = demoscript.Util.spawn('iceboxadmin --Ice.Config=config.icebox shutdown', language="C++")
+    admin.waitTestSuccess()
+    icestorm.waitTestSuccess()

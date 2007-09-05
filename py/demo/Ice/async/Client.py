@@ -36,6 +36,10 @@ x: exit
 
 class Client(Ice.Application):
     def run(self, args):
+        if len(args) > 1:
+            print self.appName() + ": too many arguments"
+            return 1
+
         hello = Demo.HelloPrx.checkedCast(self.communicator().propertyToProxy('Hello.Proxy'))
         if not hello:
             print args[0] + ": invalid proxy"

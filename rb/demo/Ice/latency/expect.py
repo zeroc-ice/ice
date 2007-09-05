@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -31,17 +31,22 @@ else:
     sys.exit(1)
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Ruby"
 
 cwd = os.getcwd()
 os.chdir('%s/demo/Ice/latency' % (iceHome))
-server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
+server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady', language="C++")
 server.expect('.* ready')
 os.chdir(cwd)
 
 print "testing ping... ",
 sys.stdout.flush()
 client = demoscript.Util.spawn('ruby Client.rb')
-client.expect(pexpect.EOF, timeout=100)
+client.waitTestSuccess(timeout=100)
 print "ok"
+
+import signal
+server.kill(signal.SIGINT)
+server.waitTestSuccess()
 
 print client.before

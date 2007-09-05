@@ -16,6 +16,4 @@ exclude=**/Makefile.*
 exclude=**/*Makefile*
 exclude=**/Debug/**
 exclude=**/Release/**
-exclude=Freeze/backup/**
 exclude=Database/**
-

@@ -41,10 +41,9 @@ Parser::usage()
         "shutdown         Shut the phonebook server down.\n";
 }
 
-ParserPtr
-Parser::createParser(const PhoneBookPrx& phoneBook)
+Parser::Parser(const PhoneBookPrx& phoneBook) :
+    _phoneBook(phoneBook)
 {
-    return new Parser(phoneBook);
 }
 
 void
@@ -333,114 +332,73 @@ Parser::shutdown()
 void
 Parser::getInput(char* buf, int& result, int maxSize)
 {
-    if(!_commands.empty())
-    {
-        if(_commands == ";")
-        {
-            result = 0;
-        }
-        else
-        {
-#if defined(_MSC_VER) && !defined(_STLP_MSVC)
-            // COMPILERBUG: Stupid Visual C++ defines min and max as macros
-            result = _MIN(maxSize, static_cast<int>(_commands.length()));
-#else
-            result = min(maxSize, static_cast<int>(_commands.length()));
-#endif
-            strncpy(buf, _commands.c_str(), result);
-            _commands.erase(0, result);
-            if(_commands.empty())
-            {
-                _commands = ";";
-            }
-        }
-    }
-    else if(isatty(fileno(yyin)))
-    {
 #ifdef HAVE_READLINE
 
-        const char* prompt = parser->getPrompt();
-        char* line = readline(const_cast<char*>(prompt));
-        if(!line)
-        {
-            result = 0;
-        }
-        else
-        {
-            if(*line)
-            {
-                add_history(line);
-            }
-
-            result = strlen(line) + 1;
-            if(result > maxSize)
-            {
-                free(line);
-                error("input line too long");
-                result = 0;
-            }
-            else
-            {
-                strcpy(buf, line);
-                strcat(buf, "\n");
-                free(line);
-            }
-        }
-
-#else
-
-        cout << parser->getPrompt() << flush;
-
-        string line;
-        while(true)
-        {
-            char c = static_cast<char>(getc(yyin));
-            if(c == EOF)
-            {
-                if(line.size())
-                {
-                    line += '\n';
-                }
-                break;
-            }
-
-            line += c;
-
-            if(c == '\n')
-            {
-                break;
-            }
-        }
-        
-        result = static_cast<int>(line.length());
-        if(result > maxSize)
-        {
-            error("input line too long");
-            buf[0] = EOF;
-            result = 1;
-        }
-        else
-        {
-            strcpy(buf, line.c_str());
-        }
-
-#endif
+    const char* prompt = parser->getPrompt();
+    char* line = readline(const_cast<char*>(prompt));
+    if(!line)
+    {
+        result = 0;
     }
     else
     {
-        if(((result = static_cast<int>(fread(buf, 1, maxSize, yyin))) == 0) && ferror(yyin))
+        if(*line)
         {
-            error("input in flex scanner failed");
-            buf[0] = EOF;
-            result = 1;
+            add_history(line);
+        }
+
+        result = strlen(line) + 1;
+        if(result > maxSize)
+        {
+            free(line);
+            error("input line too long");
+            result = 0;
+        }
+        else
+        {
+            strcpy(buf, line);
+            strcat(buf, "\n");
+            free(line);
         }
     }
-}
 
-void
-Parser::nextLine()
-{
-    _currentLine++;
+#else
+
+    cout << parser->getPrompt() << flush;
+
+    string line;
+    while(true)
+    {
+        char c = static_cast<char>(getc(yyin));
+        if(c == EOF)
+        {
+            if(line.size())
+            {
+                line += '\n';
+            }
+            break;
+        }
+
+        line += c;
+
+        if(c == '\n')
+        {
+            break;
+        }
+    }
+
+    result = static_cast<int>(line.length());
+    if(result > maxSize)
+    {
+        error("input line too long");
+        buf[0] = EOF;
+        result = 1;
+    }
+    else
+    {
+        strcpy(buf, line.c_str());
+    }
+#endif
 }
 
 void
@@ -452,8 +410,6 @@ Parser::continueLine()
 const char*
 Parser::getPrompt()
 {
-    assert(_commands.empty() && isatty(fileno(yyin)));
-
     if(_continue)
     {
         _continue = false;
@@ -468,14 +424,7 @@ Parser::getPrompt()
 void
 Parser::error(const char* s)
 {
-    if(_commands.empty() && !isatty(fileno(yyin)))
-    {
-        cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
-    }
-    else
-    {
-        cerr << "error: " << s << endl;
-    }
+    cerr << "error: " << s << endl;
     _errors++;
 }
 
@@ -488,14 +437,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    if(_commands.empty() && !isatty(fileno(yyin)))
-    {
-        cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
-    }
-    else
-    {
-        cerr << "warning: " << s << endl;
-    }
+    cerr << "warning: " << s << endl;
 }
 
 void
@@ -505,7 +447,7 @@ Parser::warning(const string& s)
 }
 
 int
-Parser::parse(FILE* file, bool debug)
+Parser::parse(bool debug)
 {
     extern int yydebug;
     yydebug = debug ? 1 : 0;
@@ -514,14 +456,10 @@ Parser::parse(FILE* file, bool debug)
     parser = this;
 
     _errors = 0;
-    _commands.empty();
-    yyin = file;
+    yyin = stdin;
     assert(yyin);
 
-    _currentFile = "";
-    _currentLine = 0;
     _continue = false;
-    nextLine();
 
     _foundContacts.clear();
     _current = _foundContacts.end();
@@ -536,39 +474,3 @@ Parser::parse(FILE* file, bool debug)
     return status;
 }
 
-int
-Parser::parse(const string& commands, bool debug)
-{
-    extern int yydebug;
-    yydebug = debug ? 1 : 0;
-
-    assert(!parser);
-    parser = this;
-
-    _errors = 0;
-    _commands = commands;
-    assert(!_commands.empty());
-    yyin = 0;
-
-    _currentFile = "<command line>";
-    _currentLine = 0;
-    _continue = false;
-    nextLine();
-
-    _foundContacts.clear();
-    _current = _foundContacts.end();
-
-    int status = yyparse();
-    if(_errors)
-    {
-        status = EXIT_FAILURE;
-    }
-
-    parser = 0;
-    return status;
-}
-
-Parser::Parser(const PhoneBookPrx& phoneBook) :
-    _phoneBook(phoneBook)
-{
-}

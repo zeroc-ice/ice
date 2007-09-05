@@ -1738,6 +1738,11 @@ Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
         case IdentNormal:
             break;
         case IdentToUpper:
+            // Special case BEGIN & END for class/module names.
+            if(id == "BEGIN" || id == "END")
+            {
+                return id + "_";
+            }
             if(id[0] >= 'a' && id[0] <= 'z')
             {
                 id[0] += 'A' - 'a';

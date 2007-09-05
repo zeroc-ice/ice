@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys
+import sys
 
 def run(client, server):
     print "testing...",
@@ -36,9 +36,7 @@ def run(client, server):
     print "ok"
 
     client.sendline('s')
-    server.expect(pexpect.EOF)
-    assert server.wait() == 0
+    server.waitTestSuccess()
 
     client.sendline('x')
-    client.expect(pexpect.EOF)
-    assert client.wait() == 0
+    client.waitTestSuccess()

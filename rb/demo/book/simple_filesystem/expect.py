@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -31,13 +31,18 @@ else:
     sys.exit(1)
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Ruby"
+import signal
 
-server = demoscript.Util.spawn('%s/demo/book/simple_filesystem/server --Ice.PrintAdapterReady' % (iceHome))
+server = demoscript.Util.spawn('%s/demo/book/simple_filesystem/server --Ice.PrintAdapterReady' % (iceHome),
+                               language="C++")
 server.expect('.* ready')
 
 print "testing...",
 sys.stdout.flush()
 client = demoscript.Util.spawn('ruby Client.rb')
 client.expect('Contents of root directory:\r{1,2}\n.*Down to a sunless sea.')
-client.expect(pexpect.EOF)
+client.waitTestSuccess()
+server.kill(signal.SIGINT)
+server.waitTestSuccess()
 print "ok"

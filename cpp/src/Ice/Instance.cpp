@@ -232,6 +232,24 @@ IceInternal::Instance::serverThreadPool()
     return _serverThreadPool;
 }
 
+IceUtil::TimerPtr
+IceInternal::Instance::timer()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    if(!_timer) // Lazy initialization.
+    {
+        _timer = new IceUtil::Timer;
+    }
+
+    return _timer;
+}
+
 bool
 IceInternal::Instance::threadPerConnection() const
 {
@@ -710,6 +728,7 @@ IceInternal::Instance::~Instance()
     assert(!_objectAdapterFactory);
     assert(!_clientThreadPool);
     assert(!_serverThreadPool);
+    assert(!_timer);
     assert(!_routerManager);
     assert(!_locatorManager);
     assert(!_endpointFactoryManager);
@@ -890,6 +909,12 @@ IceInternal::Instance::destroy()
         {
             _clientThreadPool->destroy();
             std::swap(_clientThreadPool, clientThreadPool);
+        }
+
+        if(_timer)
+        {
+            _timer->destroy();
+            _timer = 0;
         }
 
         if(_servantFactoryManager)

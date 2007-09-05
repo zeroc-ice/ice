@@ -33,6 +33,9 @@ Changes since version 3.2.X (binary incompatible)
   is still supported with the "clr:DictionaryBase" metadata
   directive. Please see the manual for more details.
 
+- Setting IceBox.ServiceManager.Endpoints is no longer necessary
+  in order to run the IceBox service. If no endpoints are specified
+  the the ServiceManager interface is not created.
 
 - The property Ice.Trace.Location has been deprecated and replaced
   by Ice.Trace.Locator.

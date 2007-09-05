@@ -8,9 +8,9 @@
 #
 # **********************************************************************
 
-import pexpect, sys, demoscript
+import sys, demoscript
 
-def run(clientStr):
+def run(clientStr, desc = 'application'):
     print "cleaning databases...",
     sys.stdout.flush()
     demoscript.Util.cleanDbDir("db/node")
@@ -24,15 +24,16 @@ def run(clientStr):
 
     print "starting icegridnode...",
     sys.stdout.flush()
-    node = demoscript.Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args))
+    node = demoscript.Util.spawn('icegridnode --Ice.Config=config.grid --Ice.PrintAdapterReady %s' % (args),
+                                 language="C++")
     node.expect('IceGrid.Registry.Internal ready\r{1,2}\nIceGrid.Registry.Server ready\r{1,2}\nIceGrid.Registry.Client ready\r{1,2}\nIceGrid.Node ready')
     print "ok"
 
     print "deploying application...",
     sys.stdout.flush()
-    admin = demoscript.Util.spawn('icegridadmin --Ice.Config=config.grid')
+    admin = demoscript.Util.spawn('icegridadmin --Ice.Config=config.grid', language="C++")
     admin.expect('>>>')
-    admin.sendline("application add \'application.xml\'")
+    admin.sendline("application add \'%s.xml\'" %(desc))
     admin.expect('>>>')
     print "ok"
 
@@ -48,13 +49,12 @@ def run(clientStr):
     node.expect("detected termination of.*SimpleServer")
     client.sendline('x')
 
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
     print "ok"
 
     print "deploying template...", 
     sys.stdout.flush()
-    admin.sendline("application update \'application_with_template.xml\'")
+    admin.sendline("application update \'%s_with_template.xml\'" % (desc))
     admin.expect('>>>')
     print "ok"
 
@@ -70,20 +70,19 @@ def run(clientStr):
     node.expect("detected termination of.*SimpleServer-[123]")
     client.sendline('x')
 
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
     print "ok"
 
     print "deploying replicated version...", 
     sys.stdout.flush()
-    admin.sendline("application update \'application_with_replication.xml\'")
+    admin.sendline("application update \'%s_with_replication.xml\'" %(desc))
     admin.expect('>>> ')
     print "ok"
 
     print "testing client...", 
     sys.stdout.flush()
 
-    client = demoscript.Util.spawn(clientStr + ' --Ice.Default.Host=127.0.0.1')
+    client = demoscript.Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('t')
     node.expect("SimpleServer-1 says Hello World!")
@@ -92,10 +91,9 @@ def run(clientStr):
     client.sendline('s')
     node.expect("detected termination of.*SimpleServer-1")
     client.sendline('x')
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr + ' --Ice.Default.Host=127.0.0.1')
+    client = demoscript.Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('t')
     node.expect("SimpleServer-2 says Hello World!")
@@ -104,10 +102,9 @@ def run(clientStr):
     client.sendline('s')
     node.expect("detected termination of.*SimpleServer-2")
     client.sendline('x')
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
 
-    client = demoscript.Util.spawn(clientStr + ' --Ice.Default.Host=127.0.0.1')
+    client = demoscript.Util.spawn(clientStr)
     client.expect('==>')
     client.sendline('t')
     node.expect("SimpleServer-3 says Hello World!")
@@ -116,14 +113,11 @@ def run(clientStr):
     client.sendline('s')
     node.expect("detected termination of.*SimpleServer-3")
     client.sendline('x')
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
 
     print "ok"
 
     admin.sendline('registry shutdown Master')
     admin.sendline('exit')
-    admin.expect(pexpect.EOF)
-    assert admin.wait() == 0
-    node.expect(pexpect.EOF)
-    assert node.wait() == 0
+    admin.waitTestSuccess()
+    node.waitTestSuccess()

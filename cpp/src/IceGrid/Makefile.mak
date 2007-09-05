@@ -87,7 +87,6 @@ REGISTRY_OBJS	= RegistryI.obj \
 		  SessionServantLocatorI.obj \
 		  Topics.obj \
 		  QueryI.obj \
-		  WaitQueue.obj \
 		  FileUserAccountMapperI.obj \
 		  ReplicaSessionManager.obj \
 		  WellKnownObjectsManager.obj

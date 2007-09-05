@@ -296,7 +296,6 @@ generated from the section label.
         <property name="GC.Interval" />
         <property name="ImplicitContext" />
         <property name="InitPlugins" />
-        <property name="LoggerPlugin" />
         <property name="MessageSizeMax" />
         <property name="MonitorConnections" />
         <property name="Nohup" />

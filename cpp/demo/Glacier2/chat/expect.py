@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os, signal
 try:
     import demoscript
 except ImportError:
@@ -22,6 +22,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 
 server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect('.* ready')
@@ -61,11 +62,15 @@ client2.expect("bar says: hello")
 client1.expect("bar says: hello")
 
 client1.sendline("/quit")
-client1.expect(pexpect.EOF)
-assert client1.wait() == 0
+client1.waitTestSuccess()
 client2.expect("foo has left the chat room")
 
 client2.sendline("/quit")
-client2.expect(pexpect.EOF)
-assert client2.wait() == 0
+client2.waitTestSuccess()
 print "ok"
+
+server.kill(signal.SIGINT)
+server.waitTestSuccess()
+
+glacier2.kill(signal.SIGINT)
+glacier2.waitTestSuccess()

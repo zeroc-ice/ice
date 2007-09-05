@@ -12,6 +12,12 @@ public class Server extends Ice.Application
     public int
     run(String[] args)
     {
+        if(args.length > 0)
+        {
+            System.err.println(appName() + ": too many arguments");
+            return 1;
+        }
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Value");
         Ice.Object object = new InitialI(adapter);
         adapter.add(object, communicator().stringToIdentity("initial"));

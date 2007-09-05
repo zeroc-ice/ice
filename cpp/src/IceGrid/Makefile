@@ -81,7 +81,6 @@ REGISTRY_OBJS   = RegistryI.o \
 		  SessionServantLocatorI.o \
 		  Topics.o \
 		  QueryI.o \
-		  WaitQueue.o \
 		  FileUserAccountMapperI.o \
 		  ReplicaSessionManager.o \
 		  WellKnownObjectsManager.o

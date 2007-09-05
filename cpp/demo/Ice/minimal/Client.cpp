@@ -22,6 +22,11 @@ main(int argc, char* argv[])
     try
     {
         communicator = Ice::initialize(argc, argv);
+        if(argc > 1)
+        {
+            cerr << argv[0] << ": too many arguments" << endl;
+            return EXIT_FAILURE;
+        }
         HelloPrx hello = HelloPrx::checkedCast(communicator->stringToProxy("hello:tcp -p 10000"));
         if(!hello)
         {

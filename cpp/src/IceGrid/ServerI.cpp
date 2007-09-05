@@ -14,7 +14,6 @@
 #include <IceGrid/NodeI.h>
 #include <IceGrid/Util.h>
 #include <IceGrid/ServerAdapterI.h>
-#include <IceGrid/WaitQueue.h>
 #include <IceGrid/DescriptorHelper.h>
 
 #include <IcePatch2/Util.h>
@@ -187,18 +186,17 @@ descriptorWithoutRevisionEqual(const InternalServerDescriptorPtr& lhs, const Int
     return true;
 }
 
-class CommandTimeoutItem : public WaitItem
+class CommandTimeoutTimerTask : public IceUtil::TimerTask
 {
 public:
  
-    CommandTimeoutItem(const TimedServerCommandPtr& command) : 
-        WaitItem(), _command(command)
+    CommandTimeoutTimerTask(const TimedServerCommandPtr& command) : _command(command)
     {
     }
     
-    virtual void expired(bool destroyed)
+    virtual void run()
     {
-        _command->timeout(destroyed);
+        _command->timeout();
     }
 
 private:
@@ -206,7 +204,7 @@ private:
     const TimedServerCommandPtr _command;
 };
 
-class DelayedStart : public WaitItem
+class DelayedStart : public IceUtil::TimerTask
 {
 public:
  
@@ -216,24 +214,21 @@ public:
     {
     }
     
-    virtual void expired(bool destroyed)
+    virtual void run()
     {
-        if(!destroyed)
+        try
         {
-            try
-            {
-                _server->start(ServerI::Always);
-            }
-            catch(const ServerStartException& ex)
-            {
-                Ice::Error out(_traceLevels->logger);
-                out << "couldn't reactivate server `" << _server->getId() 
-                    << "' with `always' activation mode after failure:\n" 
-                    << ex.reason;
-            }
-            catch(const Ice::ObjectNotExistException&)
-            {
-            }
+            _server->start(ServerI::Always);
+        }
+        catch(const ServerStartException& ex)
+        {
+            Ice::Error out(_traceLevels->logger);
+            out << "couldn't reactivate server `" << _server->getId() 
+                << "' with `always' activation mode after failure:\n" 
+                << ex.reason;
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
         }
     }
 
@@ -342,25 +337,25 @@ ServerCommand::~ServerCommand()
 {
 }
 
-TimedServerCommand::TimedServerCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
-    ServerCommand(server), _waitQueue(waitQueue), _timeout(timeout)
+TimedServerCommand::TimedServerCommand(const ServerIPtr& server, const IceUtil::TimerPtr& timer, int timeout) : 
+    ServerCommand(server), _timer(timer), _timeout(timeout)
 {
 }
 
 void
 TimedServerCommand::startTimer()
 {
-    _timer = new CommandTimeoutItem(this);
-    _waitQueue->add(_timer, IceUtil::Time::seconds(_timeout));
+    _timerTask = new CommandTimeoutTimerTask(this);
+    _timer->schedule(_timerTask, IceUtil::Time::now() + IceUtil::Time::seconds(_timeout));
 }
 
 void
 TimedServerCommand::stopTimer()
 {
-    if(_timer)
+    if(_timerTask)
     {
-        _waitQueue->remove(_timer);
-        _timer = 0;
+        _timer->cancel(_timerTask);
+        _timerTask = 0;
     }
 }
 
@@ -526,8 +521,8 @@ PatchCommand::finished()
 {
 }
 
-StartCommand::StartCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
-    TimedServerCommand(server, waitQueue, timeout)
+StartCommand::StartCommand(const ServerIPtr& server, const IceUtil::TimerPtr& timer, int timeout) : 
+    TimedServerCommand(server, timer, timeout)
 {
 }
 
@@ -551,9 +546,9 @@ StartCommand::execute()
 }
 
 void
-StartCommand::timeout(bool destroyed)
+StartCommand::timeout()
 {
-    _server->activationFailed(destroyed);
+    _server->activationTimedOut();
 }
 
 void
@@ -585,8 +580,8 @@ StartCommand::finished()
     _startCB.clear();
 }
 
-StopCommand::StopCommand(const ServerIPtr& server, const WaitQueuePtr& waitQueue, int timeout) : 
-    TimedServerCommand(server, waitQueue, timeout)
+StopCommand::StopCommand(const ServerIPtr& server, const IceUtil::TimerPtr& timer, int timeout) : 
+    TimedServerCommand(server, timer, timeout)
 {
 }
 
@@ -616,7 +611,7 @@ StopCommand::execute()
 }
 
 void
-StopCommand::timeout(bool)
+StopCommand::timeout()
 {
     _server->kill();
 }
@@ -696,7 +691,7 @@ ServerI::stop_async(const AMD_Server_stopPtr& amdCB, const Ice::Current&)
 
         if(!_stop)
         {
-            _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
+            _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
         }
         if(amdCB)
         {
@@ -766,10 +761,10 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
         {
             _failureTime = IceUtil::Time();
             _activation = Disabled;
-            if(_timer)
+            if(_timerTask)
             {
-                _node->getWaitQueue()->remove(_timer);
-                _timer = 0;
+                _node->getTimer()->cancel(_timerTask);
+                _timerTask = 0;
             }
         }
         else
@@ -950,15 +945,15 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
             throw ServerStartException(_id, "The server is being destroyed.");
         }
 
-        if(_timer)
+        if(_timerTask)
         {
-            _node->getWaitQueue()->remove(_timer);
-            _timer = 0;
+            _node->getTimer()->cancel(_timerTask);
+            _timerTask = 0;
         }
 
         if(!_start)
         {
-            _start = new StartCommand(this, _node->getWaitQueue(), _activationTimeout);
+            _start = new StartCommand(this, _node->getTimer(), _activationTimeout);
         }
         if(amdCB)
         {
@@ -1012,7 +1007,7 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
     
     if(!StopCommand::isStopped(_state) && !_stop)
     {
-        _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
+        _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
     }
     if(!_load)
     {
@@ -1046,7 +1041,7 @@ ServerI::destroy(const AMD_Node_destroyServerPtr& amdCB, const string& uuid, int
 
     if(!StopCommand::isStopped(_state) && !_stop)
     {
-        _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
+        _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
     }
     if(!_destroy)
     {
@@ -1074,7 +1069,7 @@ ServerI::startPatch(bool shutdown)
             }
             else if(!_stop)
             {
-                _stop = new StopCommand(this, _node->getWaitQueue(), _deactivationTimeout);
+                _stop = new StopCommand(this, _node->getTimer(), _deactivationTimeout);
             }
         }
         if(!_patch)
@@ -1221,15 +1216,15 @@ ServerI::enableAfterFailure(bool force)
         _failureTime = IceUtil::Time();
     }
 
-    if(_timer)
+    if(_timerTask)
     {
-        _node->getWaitQueue()->remove(_timer);
-        _timer = 0;
+        _node->getTimer()->cancel(_timerTask);
+        _timerTask = 0;
     }
 }
 
 void
-ServerI::activationFailed(bool destroyed)
+ServerI::activationTimedOut()
 {
     ServerCommandPtr command;
     ServerAdapterDict adapters;
@@ -1240,26 +1235,12 @@ ServerI::activationFailed(bool destroyed)
             return;
         }
 
-        if(!destroyed)
-        {
-            setStateNoSync(ServerI::ActivationTimeout, "The server activation timed out.");
-        }
-        else
-        {
-            setStateNoSync(ServerI::ActivationTimeout, "The node is being shutdown.");
-        }
+        setStateNoSync(ServerI::ActivationTimeout, "The server activation timed out.");
 
         if(_node->getTraceLevels()->server > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-            if(!destroyed)
-            {
-                out << "server `" << _id << "' activation timed out";
-            }   
-            else
-            {
-                out << "server `" << _id << "' activation failed";
-            }
+            out << "server `" << _id << "' activation timed out";
         }
         adapters = _adapters;
         command = nextCommand();
@@ -1269,7 +1250,7 @@ ServerI::activationFailed(bool destroyed)
     {
         try
         {
-            p->second->activationFailed(destroyed ? "server destroyed" : "server activation timed out");
+            p->second->activationFailed("server activation timed out");
         }
         catch(const Ice::ObjectNotExistException&)
         {
@@ -1836,10 +1817,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
         _failureTime = IceUtil::Time();
     }
 
-    if(_timer)
+    if(_timerTask)
     {
-        _node->getWaitQueue()->remove(_timer);
-        _timer = 0;
+        _node->getTimer()->cancel(_timerTask);
+        _timerTask = 0;
     }   
 
     //
@@ -2469,8 +2450,8 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     {
         if(_activation == Always)
         {
-            _timer = new DelayedStart(this, _node->getTraceLevels());
-            _node->getWaitQueue()->add(_timer, IceUtil::Time::milliSeconds(500));
+            _timerTask = new DelayedStart(this, _node->getTraceLevels());
+            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now() + IceUtil::Time::milliSeconds(500));
         }
         else if(_activation == Disabled && _disableOnFailure > 0 && _failureTime != IceUtil::Time())
         {
@@ -2481,9 +2462,9 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             // server will be ready to be reactivated when the
             // callback is executed.  
             //
-            _timer = new DelayedStart(this, _node->getTraceLevels());
-            _node->getWaitQueue()->add(_timer, 
-                                       IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
+            _timerTask = new DelayedStart(this, _node->getTraceLevels());
+            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now() + IceUtil::Time::seconds(_disableOnFailure) + 
+                                        IceUtil::Time::milliSeconds(500));
         }
     }
 

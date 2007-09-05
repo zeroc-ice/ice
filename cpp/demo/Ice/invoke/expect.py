@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -24,6 +24,7 @@ except ImportError:
 
 import demoscript.Util
 import demoscript.Ice.invoke
+demoscript.Util.defaultLanguage = "C++"
 
 server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect('.* ready')

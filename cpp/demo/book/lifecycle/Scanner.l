@@ -40,10 +40,6 @@ NL	[\n]
     do
     {
 	c = yyinput();
-	if(c == '\n')
-	{
-	    parser->nextLine();
-	}
     }
     while(c != '\n' && c != EOF);
 }
@@ -53,11 +49,7 @@ NL	[\n]
     while(true)
     {
 	int c = yyinput();
-	if(c == '\n')
-	{
-	    parser->nextLine();
-	}
-	else if(c == '*')
+	if(c == '*')
 	{
 	    int next = yyinput();
 	    if(next == '/')
@@ -129,22 +121,10 @@ NL	[\n]
 	{
 	    parser->continueLine();
 	}
-	else if(yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
     }
 }
 
 {NL}|; {
-    size_t len = strlen(yytext);
-    for(size_t i = 0; i < len; ++i)
-    {
-	if(yytext[i] == '\n')
-	{
-	    parser->nextLine();
-	}
-    }
     return ';';
 }
 
@@ -162,11 +142,6 @@ NL	[\n]
 	{
 	    parser->warning("EOF in string");
 	    break;
-	}
-	else if(c == '\n')
-	{
-	    s += c;
-	    parser->nextLine();
 	}
 	else if(c == '\\')
 	{
@@ -241,11 +216,6 @@ NL	[\n]
 	{
 	    parser->warning("EOF in string");
 	    break;
-	}
-	else if(c == '\n')
-	{
-	    s += c;
-	    parser->nextLine();
 	}
 	else
 	{

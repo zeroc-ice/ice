@@ -55,6 +55,12 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     //
     // Since this is an interactive demo we want the custom interrupt
     // callback to be called when the process is interrupted.

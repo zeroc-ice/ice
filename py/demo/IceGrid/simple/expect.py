@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,21 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Python"
 import demoscript.IceGrid.simple
 
-demoscript.IceGrid.simple.run('python Client.py')
+def rewrite(namein, nameout):
+    fi = open(namein, "r")
+    fo = open(nameout, "w")
+    for l in fi:
+        if l.find('option') != -1:
+            fo.write('<option>-u</option>')
+        fo.write(l)
+    fi.close()
+    fo.close()
+
+rewrite('application.xml', 'tmp_application.xml')
+rewrite('application_with_template.xml', 'tmp_application_with_template.xml')
+rewrite('application_with_replication.xml', 'tmp_application_with_replication.xml')
+
+demoscript.IceGrid.simple.run('Client.py', 'tmp_application')

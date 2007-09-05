@@ -13,6 +13,12 @@ public class Client : Ice.Application
 {
     public override int run(string[] args)
     {
+        if(args.Length > 0)
+        {
+            System.Console.Error.WriteLine(appName() + ": too many arguments");
+            return 1;
+        }
+
         CallbackSenderPrx server = 
             CallbackSenderPrxHelper.checkedCast(communicator().propertyToProxy("Callback.Client.CallbackServer"));
         if(server == null)

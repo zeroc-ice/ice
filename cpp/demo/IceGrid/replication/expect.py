@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 
 import signal
 
@@ -73,8 +74,7 @@ def runtest():
     client.sendline('x')
     client.kill(signal.SIGINT)
 
-    client.expect(pexpect.EOF, timeout=1)
-    assert client.wait() == 0
+    client.waitTestSuccess(timeout=1)
 
 print "testing client...", 
 sys.stdout.flush()
@@ -85,31 +85,25 @@ print "testing replication...",
 sys.stdout.flush()
 admin.sendline('registry shutdown Replica1')
 admin.expect('>>>')
-replica1.expect(pexpect.EOF)
-assert replica1.wait() == 0
+replica1.waitTestSuccess()
 runtest()
 admin.sendline('registry shutdown Replica2')
 admin.expect('>>>')
-replica2.expect(pexpect.EOF)
-assert replica2.wait() == 0
+replica2.waitTestSuccess()
 runtest()
 print "ok"
 
 admin.sendline('node shutdown node1')
 admin.expect('>>>')
-node1.expect(pexpect.EOF)
-assert node1.wait() == 0
+node1.waitTestSuccess(timeout=120)
 
 admin.sendline('node shutdown node2')
 admin.expect('>>>')
-node2.expect(pexpect.EOF)
-assert node2.wait() == 0
+node2.waitTestSuccess(timeout=120)
 
 admin.sendline('registry shutdown Master')
 admin.expect('>>>')
-master.expect(pexpect.EOF)
-assert master.wait() == 0
+master.waitTestSuccess()
 
 admin.sendline('exit')
-admin.expect(pexpect.EOF)
-assert admin.wait() == 0
+admin.waitTestSuccess()

@@ -1,6 +1,11 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed a code generation bug with slice2py where the proxy type
+  for a python reserved word would be incorrectly named. For example,
+  interface def would generate a proxy class named _defPrx, not the
+  correct class name defPrx.
+
 - LocalObject is now mapped to the Python base 'object' type. The
   class Ice.LocalObject is now deprecated.
 
@@ -9,6 +14,12 @@ Changes since version 3.2.X (binary incompatible)
   update the published endpoints after change in the available local
   interfaces or after the PublishedEndpoints object adapter property
   has been changed by the user.
+
+Changes since version 3.2.1
+---------------------------
+
+- Fixed a bug in Ice.initialize that would cause a crash if the
+  configuration file specified by --Ice.Config was not found.
 
 Changes since version 3.2.0
 ---------------------------

@@ -37,7 +37,7 @@ CPP_COMPILER            = VC80
 # Set PYTHON_HOME to your Python installation directory.
 #
 
-PYTHON_HOME		= C:\Python25
+PYTHON_HOME		= C:\Python24
 
 #
 # STLPort is required if using MSVC++ 6.0. Change if STLPort

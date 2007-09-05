@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os
+import sys, os
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "Java"
 import demoscript.IceBox.hello
 
 if demoscript.Util.defaultHost:
@@ -30,7 +31,6 @@ if demoscript.Util.defaultHost:
 else:
     args = ''
 
-# TODO: This doesn't setup LD_LIBRARY_PATH
 server = demoscript.Util.spawn('java IceBox.Server --Ice.Config=config.icebox --Ice.PrintAdapterReady %s' % (args))
 server.expect('.* ready')
 client = demoscript.Util.spawn('java Client')

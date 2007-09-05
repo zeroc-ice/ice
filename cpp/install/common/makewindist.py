@@ -97,64 +97,35 @@ def environmentCheck(target):
         logging.error("Invalid environment. Please consult error log and repair environment/command line settings.")
         sys.exit(2)
 
-def maxVersion(a, b):
-    """Compares to version strings. The version strings should be trimmed of leading and trailing whitespace."""
-    if a == b:
-        return a
+def getIceVersion(file):
+    """Extract the ICE version string from a file."""
+    config = open(file, 'r')
+    return  re.search('ICE_STRING_VERSION \"([0-9\.b]*)\"', config.read()).group(1)
 
-    avalues = a.split('.')
-    bvalues = b.split('.')
+def checkSources(buildDir, sourceDir):
+    """Scans a directory for source distributions."""
 
-    diff = len(avalues) - len(bvalues)
-    if not diff == 0:
-        if diff < 0:
-            for f in range(0, abs(diff)):
-                avalues.append('0')
-        else:
-            for f in range(0, abs(diff)):
-                bvalues.append('0')
+    if not os.path.exists(os.path.join(sourceDir, "distfiles.tar.gz")):
+        print "Unable to locate distfiles.tar.gz"
+        sys.exit(1)
 
-    for i in range(0, len(avalues)):
-        if int(avalues[i]) > int(bvalues[i]):
-            return a
-        elif int(avalues[i]) < int(bvalues[i]):
-            return b
+    installFiles = os.path.join(buildDir, "install")
+    if not os.path.exists(installFiles):
+        os.mkdir(os.path.join(buildDir, "install"))
+    result = os.system("gzip -dc " + os.path.join(os.path.join(sourceDir, "distfiles.tar.gz")) + " | tar xf - -C " +
+                       installFiles)
+    if result != 0:
+        print "Unable to extract distfile.tar.gz"
+        sys.exit(1)
 
-    return a
-
-def testMaxVersion():
-    # Case format first, second, expected.
-    cases = [ ("1.0", "1.0.0", "1.0"), ("0.0", "0.1", "0.1"), ("2.1.0", "2.0.1", "2.1.0"),
-              ("2.1", "2.0.1", "2.1"), ("2.1.9", "2.1.12", "2.1.12")]
-    for a, b, expected in cases:
-        result = maxVersion(a, b)
-        if not expected == result:
-            print "Expected %s from %s and %s, got %s" % (expected, a, b, result)
-            assert(False)
-    print "testMaxVersion() succeeded"
-
-def checkSources(sourceDir):
-    """Scans a directory for source distributions. The version is keyed on the Ice for C++ distribution."""
-
-    icezip = glob.glob(os.path.join(sourceDir, "Ice-*.zip"))
-    if len(icezip) == 0:
-        msg = "Source directory %s does not contain a zip archive for any version of Ice for C++" % sourceDir
-        logging.error(msg)
-        raise DistEnvironmentError(msg)
-
-    keyVersion = '0.0.0'
-    exp = re.compile("Ice-([0-9.b]*).*.zip")
-    current = None
-    for d in icezip:
-        m = exp.match(os.path.split(d)[1])
-        if m == None:
-            print icezip
-        current = m.group(1)
-        keyVersion = maxVersion(keyVersion, current)
+    #
+    # Get current Ice version from Config.h in distfiles.
+    #
+    keyVersion = getIceVersion(os.path.join(installFiles, "Config.h"))
 
     print keyVersion
+    global DistPrefixes
     prefixes = list(DistPrefixes)
-    prefixes.remove("Ice-%s")
     for prefix in prefixes:
         pkg = prefix % keyVersion + ".zip"
         if not os.path.exists(os.path.join(sourceDir, pkg)):
@@ -704,7 +675,7 @@ def main():
 
         logging.debug(environToString(os.environ))
 
-        sourcesVersion = checkSources(os.environ['SOURCES'])
+        sourcesVersion = checkSources(buildDir, os.environ['SOURCES'])
 
         defaults = os.environ
         defaults['dbver'] = '45'
@@ -754,7 +725,10 @@ libraries."""
         # Screw clean rules, run the ultimate clean!
         #
         if clean:
-            shutil.rmtree(buildDir)
+            if os.path.exists(os.path.join(buildDir, "debug")):
+               shutil.rmtree(os.path.join(buildDir, "debug"))
+            if  os.path.exists(os.path.join(buildDir, "release")):
+               shutil.rmtree(os.path.join(buildDir, "release"))
 
         if not os.path.exists(buildDir):
             os.mkdir(buildDir)

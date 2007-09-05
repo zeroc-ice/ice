@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Timer.h>
 #include <Ice/Ice.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/ClientUtil.h>
@@ -15,7 +16,6 @@
 #include <IceGrid/ServerI.h>
 #include <IceGrid/ServerAdapterI.h>
 #include <IceGrid/Util.h>
-#include <IceGrid/WaitQueue.h>
 #include <IceGrid/TraceLevels.h>
 #include <IceGrid/NodeSessionManager.h>
 
@@ -192,7 +192,7 @@ private:
 NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
              NodeSessionManager& sessions,
              const ActivatorPtr& activator, 
-             const WaitQueuePtr& waitQueue,
+             const IceUtil::TimerPtr& timer,
              const TraceLevelsPtr& traceLevels,
              const NodePrx& proxy,
              const string& name,
@@ -201,7 +201,7 @@ NodeI::NodeI(const Ice::ObjectAdapterPtr& adapter,
     _adapter(adapter),
     _sessions(sessions),
     _activator(activator),
-    _waitQueue(waitQueue),
+    _timer(timer),
     _traceLevels(traceLevels),
     _name(name),
     _proxy(proxy),
@@ -702,10 +702,10 @@ NodeI::getActivator() const
     return _activator;
 }
 
-WaitQueuePtr
-NodeI::getWaitQueue() const
+IceUtil::TimerPtr
+NodeI::getTimer() const
 {
-    return _waitQueue;
+    return _timer;
 }
 
 TraceLevelsPtr

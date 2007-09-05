@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import pexpect, sys, os, signal
+import sys, os, signal
 
 try:
     import demoscript
@@ -23,6 +23,7 @@ except ImportError:
     import demoscript
 
 import demoscript.Util
+demoscript.Util.defaultLanguage = "C++"
 
 if demoscript.Util.isDarwin():
     print "This demo is not supported under MacOS."
@@ -38,22 +39,19 @@ server = demoscript.Util.spawn('./server --Ice.PrintAdapterReady')
 server.expect(".* ready", timeout=120)
 
 client = demoscript.Util.spawn('./client')
-client.expect(pexpect.EOF, timeout=200)
+client.waitTestSuccess(timeout=8 * 60)
 print client.before
 
 server.kill(signal.SIGINT)
-server.expect(pexpect.EOF, timeout=60)
-assert server.wait() == 0
+server.waitTestSuccess(timeout=60)
 
 print "testing simple evictor"
 server = demoscript.Util.spawn('./server simple --Ice.PrintAdapterReady')
 server.expect(".* ready")
 
 client = demoscript.Util.spawn('./client')
-client.expect(pexpect.EOF, timeout=200)
-assert client.wait() == 0
+client.waitTestSuccess(timeout=8*60)
 print client.before
 
 server.kill(signal.SIGINT)
-server.expect(pexpect.EOF, timeout=60)
-assert server.wait() == 0
+server.waitTestSuccess(timeout=60)

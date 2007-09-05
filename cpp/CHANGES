@@ -1,6 +1,21 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Setting IceBox.ServiceManager.Endpoints is no longer necessary
+  in order to run the IceBox service. If no endpoints are specified
+  the the ServiceManager interface is not created.
+
+- The property Ice.Plugin.Logger is now reserved to allow setting
+  of the communicator's logger from properties. This plugin must
+  implement a LoggerPlugin. See manual for more details.
+
+- Fixed a variety of bugs with slice2cpp where incorrect code
+  would be generated when C++ reserved words are used as Slice
+  identifiers.
+
+- It is no longer possible to provide input files on the 
+  command line for icestormadmin nor icegridadmin.
+
 - The thread stack size specified with the IceUtil::Thread::start()
   method parameter is now adjusted to PTHREAD_STACK_MIN if it's
   inferior to it. On Mac OS X, it's also adjusted to the next closest

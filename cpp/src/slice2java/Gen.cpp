@@ -372,7 +372,10 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
 
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     assert(constructed);
+    out << nl << "if(" << name << " != null)";
+    out << sb;
     out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+    out << eb;
 }
 
 void
@@ -4667,15 +4670,17 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         {
             out << result;
         }
+        bool firstOutParam = true;
         for(q = paramList.begin(); q != paramList.end(); ++q)
         {
             if((*q)->isOutParam())
             {
-                if(ret || q != paramList.begin())
+                if(ret || !firstOutParam)
                 {
                     out << ", ";
                 }
                 out << fixKwd((*q)->name());
+                firstOutParam = false;
             }
         }
         out << ");";

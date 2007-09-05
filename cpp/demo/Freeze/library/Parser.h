@@ -15,16 +15,6 @@
 #include <list>
 #include <stdio.h>
 
-#ifdef _WIN32
-#   include <io.h>
-#   ifdef _MSC_VER
-#     define isatty _isatty
-#     define fileno _fileno
-// '_isatty' : inconsistent dll linkage.  dllexport assumed.
-#       pragma warning( disable : 4273 )
-#   endif
-#endif
-
 //
 // Stuff for flex and bison
 //
@@ -57,7 +47,7 @@ class Parser : public IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Demo::LibraryPrx&);
+    Parser(const Demo::LibraryPrx&);
 
     void usage();
 
@@ -73,7 +63,6 @@ public:
     void shutdown();
 
     void getInput(char*, int&, int);
-    void nextLine();
     void continueLine();
     const char* getPrompt();
 
@@ -83,22 +72,16 @@ public:
     void warning(const char*);
     void warning(const std::string&);
 
-    int parse(FILE*, bool);
-    int parse(const std::string&, bool);
+    int parse(bool = false);
 
 private:
-
-    Parser(const Demo::LibraryPrx&);
 
     Demo::BookPrxSeq _foundBooks;
     Demo::BookPrxSeq::iterator _current;
 
-    std::string _commands;
     const Demo::LibraryPrx _library;
     bool _continue;
     int _errors;
-    int _currentLine;
-    std::string _currentFile;
 };
 
 extern Parser* parser; // The current parser for bison/flex

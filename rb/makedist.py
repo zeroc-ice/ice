@@ -14,13 +14,11 @@ import os, sys, shutil, fnmatch, re, glob
 # Show usage information.
 #
 def usage():
-    print "Usage: " + sys.argv[0] + " [options] [tag]"
+    print "Usage: " + sys.argv[0] + " [options]"
     print
     print "Options:"
     print "-h    Show this message."
     print "-v    Be verbose."
-    print
-    print "If no tag is specified, HEAD is used."
 
 #
 # Find files matching a pattern.
@@ -56,10 +54,13 @@ def fixVersion(files, version):
 #
 win32 = sys.platform.startswith("win") or sys.platform.startswith("cygwin")
 
+if os.path.exists("../.git"):
+    print "Unable to run in repository! Exiting..."
+    sys.exit(1)
+
 #
 # Check arguments
 #
-tag = "HEAD"
 verbose = 0
 for x in sys.argv[1:]:
     if x == "-h":
@@ -72,8 +73,6 @@ for x in sys.argv[1:]:
         print
         usage()
         sys.exit(1)
-    else:
-        tag = x
 
 #
 # Remove any existing "dist" directory and create a new one.
@@ -82,90 +81,79 @@ distdir = "dist"
 if os.path.exists(distdir):
     shutil.rmtree(distdir)
 os.mkdir(distdir)
-os.mkdir(os.path.join(distdir, "icerb"))
-os.mkdir(os.path.join(distdir, "ice"))
 
-#
-# Export Ruby and C++ sources from CVS.
-#
-# NOTE: Assumes that the C++ and Ruby trees will use the same tag.
-#
+icedir = os.path.join(os.getcwd(), "..", "cpp")
+config = open(os.path.join("config", "Make.rules"), "r")
+version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
+icerbver = "IceRuby-" + version
+
+os.mkdir(os.path.join(distdir, icerbver))
+
 if verbose:
-    quiet = "-v"
+    quiet = "v"
 else:
     quiet = ""
-print "Checking out sources " + tag + "..."
-os.system("git archive " + quiet + " " + tag + " . | (cd dist/icerb && tar xf -)")
-os.chdir(os.path.join("..", "cpp"))
-os.system("git archive " + quiet + " " + tag + " . | (cd ../rb/dist/ice && tar xf -)")
-os.chdir(os.path.join("..", "rb"))
+    
+#
+# Remove files.
+#
+print "Creating exclusion file..."
+filesToRemove = [ "makedist.py", "makebindist.py", "makewindist.py", "exclusions", "dist", "allDemos.py"]
+filesToRemove.extend(find(".", ".gitignore"))
+filesToRemove.extend(find(".", "expect.py"))
+
+exclusionFile = open("exclusions", "w")
+for x in filesToRemove:
+    exclusionFile.write("%s\n" % x)
+exclusionFile.close()
+
+os.system("tar c" + quiet + " -X exclusions . | ( cd " + os.path.join(distdir, icerbver) + " && tar xf - )")
 
 os.chdir(distdir)
 
 #
 # Copy Make.rules.Linux and Make.rules.msvc
 #
-shutil.copyfile(os.path.join("ice", "config", "Make.rules.Linux"),
-                os.path.join("icerb", "config", "Make.rules.Linux"))
+shutil.copyfile(os.path.join(icedir, "config", "Make.rules.Linux"),
+                os.path.join(icerbver, "config", "Make.rules.Linux"))
 
-shutil.copyfile(os.path.join("ice", "config", "Make.rules.msvc"),
-                os.path.join("icerb", "config", "Make.rules.msvc"))
+shutil.copyfile(os.path.join(icedir, "config", "Make.rules.msvc"),
+                os.path.join(icerbver, "config", "Make.rules.msvc"))
 
-#
-# Remove files.
-#
-print "Removing unnecessary files..."
-filesToRemove = [ \
-    os.path.join("icerb", "makedist.py"), \
-    os.path.join("icerb", "makebindist.py"), \
-    os.path.join("icerb", "makewindist.py"), \
-    ]
-filesToRemove.extend(find("icerb", ".gitignore"))
-for x in filesToRemove:
-    os.remove(x)
-
-#
-# Get Ice version.
-#
-config = open(os.path.join("icerb", "config", "Make.rules"), "r")
-version = re.search("VERSION[= \t]*([0-9\.b]+)", config.read()).group(1)
 
 print "Fixing version in README and INSTALL files..."
-fixVersion(find("icerb", "README*"), version)
-fixVersion(find("icerb", "INSTALL*"), version)
+fixVersion(find(icerbver, "README*"), version)
+fixVersion(find(icerbver, "INSTALL*"), version)
 
 #
 # Create source archives.
 #
 print "Creating distribution archives..."
-icever = "IceRuby-" + version
-os.rename("icerb", icever)
 if verbose:
     quiet = "v"
 else:
     quiet = ""
-os.system("chmod -R u+rw,go+r-w . " + icever)
-os.system("find " + icever + " \\( -name \"*.ice\" -or -name \"*.xml\" \\) -exec chmod a-x {} \\;")
-os.system("find " + icever + " \\( -name \"README*\" -or -name \"INSTALL*\" \\) -exec chmod a-x {} \\;")
-os.system("find " + icever + " -type d -exec chmod a+x {} \\;")
-os.system("find " + icever + " -perm +111 -exec chmod a+x {} \\;")
-os.system("tar c" + quiet + "f " + icever + ".tar " + icever)
-os.system("gzip -9 " + icever + ".tar")
+os.system("chmod -R u+rw,go+r-w . " + icerbver)
+os.system("find " + icerbver + " \\( -name \"*.ice\" -or -name \"*.xml\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icerbver + " \\( -name \"README*\" -or -name \"INSTALL*\" \\) -exec chmod a-x {} \\;")
+os.system("find " + icerbver + " -type d -exec chmod a+x {} \\;")
+os.system("find " + icerbver + " -perm +111 -exec chmod a+x {} \\;")
+os.system("tar c" + quiet + "f " + icerbver + ".tar " + icerbver)
+os.system("gzip -9 " + icerbver + ".tar")
 if verbose:
     quiet = ""
 else:
     quiet = "-q"
-os.system("zip -9 -r " + quiet + " " + icever + ".zip " + icever)
+os.system("zip -9 -r " + quiet + " " + icerbver + ".zip " + icerbver)
 
 #
 # Copy files (README, etc.).
 #
-shutil.copyfile(os.path.join(icever, "CHANGES"), "IceRuby-" + version + "-CHANGES")
+shutil.copyfile(os.path.join(icerbver, "CHANGES"), "IceRuby-" + version + "-CHANGES")
 
 #
 # Done.
 #
 print "Cleaning up..."
-shutil.rmtree(icever)
-shutil.rmtree("ice")
+shutil.rmtree(icerbver)
 print "Done."

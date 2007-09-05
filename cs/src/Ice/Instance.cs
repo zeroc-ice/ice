@@ -175,14 +175,32 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
                 
-                if(_serverThreadPool == null)
-                // Lazy initialization.
+                if(_serverThreadPool == null) // Lazy initialization.
                 {
                     int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
                     _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
                 }
                 
                 return _serverThreadPool;
+            }
+        }
+
+        public Timer
+        timer()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                if(_timer == null)
+                {
+                    _timer = new Timer(this);
+                }
+                
+                return _timer;
             }
         }
 
@@ -595,6 +613,12 @@ namespace IceInternal
                     clientThreadPool = _clientThreadPool;
                     _clientThreadPool = null;
                 }
+
+                if(_timer != null)
+                {
+                    _timer.destroy();
+                    _timer = null;
+                }
                 
                 if(_servantFactoryManager != null)
                 {
@@ -690,6 +714,7 @@ namespace IceInternal
         private ObjectAdapterFactory _objectAdapterFactory;
         private ThreadPool _clientThreadPool;
         private ThreadPool _serverThreadPool;
+        private Timer _timer;
         private bool _threadPerConnection;
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;

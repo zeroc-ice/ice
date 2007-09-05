@@ -85,6 +85,7 @@ SRCS		= Acceptor.cs \
 		  TcpTransceiver.cs \
 		  ThreadPool.cs \
 		  TieBase.cs \
+		  Timer.cs \
 		  TraceLevels.cs \
 		  TraceUtil.cs \
 		  Transceiver.cs \

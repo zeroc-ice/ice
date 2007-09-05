@@ -24,6 +24,12 @@ public class SessionServer
         public int
         run(String[] args)
         {
+            if(args.length > 0)
+            {
+                System.err.println(appName() + ": too many arguments");
+                return 1;
+            }
+
             Ice.ObjectAdapter adapter = communicator().createObjectAdapter("SessionServer");
             adapter.add(new DummyPermissionVerifierI(), communicator().stringToIdentity("verifier"));
             adapter.add(new SessionManagerI(), communicator().stringToIdentity("sessionmanager"));

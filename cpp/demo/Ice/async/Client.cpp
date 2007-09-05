@@ -49,6 +49,12 @@ main(int argc, char* argv[])
 int
 AsyncClient::run(int argc, char* argv[])
 {
+    if(argc > 1)
+    {
+        cerr << appName() << ": too many arguments" << endl;
+        return EXIT_FAILURE;
+    }
+
     callbackOnInterrupt();
 
     HelloPrx hello = HelloPrx::checkedCast(communicator()->propertyToProxy("Hello.Proxy"));

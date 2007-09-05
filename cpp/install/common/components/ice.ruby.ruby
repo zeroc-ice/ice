@@ -22,7 +22,6 @@ Ice/Locator.rb
 Ice/LocatorF.rb
 Ice/Logger.rb
 Ice/LoggerF.rb
-Ice/ObjectAdapter.rb
 Ice/ObjectAdapterF.rb
 Ice/ObjectFactory.rb
 Ice/ObjectFactoryF.rb
@@ -34,8 +33,6 @@ Ice/Properties.rb
 Ice/PropertiesF.rb
 Ice/Router.rb
 Ice/RouterF.rb
-Ice/ServantLocator.rb
-Ice/ServantLocatorF.rb
 Ice/SliceChecksumDict.rb
 Ice/Stats.rb
 Ice/StatsF.rb
