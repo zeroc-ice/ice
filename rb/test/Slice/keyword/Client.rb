@@ -9,8 +9,7 @@
 # **********************************************************************
 
 require 'Ice'
-#Ice::loadSlice('Key.ice')
-require 'Key'
+Ice::loadSlice('Key.ice')
 
 def test(b)
     if !b
