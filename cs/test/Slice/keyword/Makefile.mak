@@ -11,7 +11,7 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe
 
-C_SRCS		= Key.cs Client.cs
+C_SRCS		= Client.cs
 
 GEN_SRCS	= $(GDIR)\Key.cs
 
