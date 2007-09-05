@@ -109,7 +109,8 @@ namespace Ice
         }
 
         //
-        // Compare two collections for equality.
+        // Compare two collections for equality (as implemented by the Equals() method of its elements).
+        // Order is significant.
         //
         public static bool Equals(System.Collections.ICollection c1, System.Collections.ICollection c2)
         {

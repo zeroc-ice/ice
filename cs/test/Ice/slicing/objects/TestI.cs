@@ -216,6 +216,16 @@ public sealed class TestI : TestIntfDisp_
     
     public override SS sequenceTest(SS1 p1, SS2 p2, Ice.Current current)
     {
+    System.Console.WriteLine("p1.Count = " + p1);
+    System.Console.WriteLine("p2.Count = " + p2);
+    if(p1 != null)
+    {
+        System.Console.WriteLine("p1.s.Count = " + p1.s.Count);
+    }
+    if(p2 != null)
+    {
+        System.Console.WriteLine("p2.s.Count = " + p2.s.Count);
+    }
         SS ss = new SS();
         ss.c1 = p1;
         ss.c2 = p2;

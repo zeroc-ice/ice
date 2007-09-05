@@ -667,7 +667,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             out << "(ReadObjectCallback)";
                         }
-                        out << "new IceInternal.SequencePatcher(" << param << ", typeof(Ice.Object), ix__));";
+                        out << "new IceInternal.SequencePatcher<" << typeS << ">(" << param
+                            << ", typeof(Ice.Object), ix__));";
                     }
                     else
                     {
@@ -710,12 +711,27 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 typeS[0] = toupper(typeS[0]);
                 if(marshal)
                 {
-                    out << nl << stream << ".write" << typeS << "Seq(" << param;
-                    if(!isArray)
+                    out << nl << stream << ".write" << typeS << "Seq(";
+                    if(isGeneric)
                     {
-                        out << " == null ? null : " << param << ".ToArray()";
+                        switch(builtin->kind())
+                        {
+                            case Builtin::KindByte:
+                            case Builtin::KindBool:
+                                out << param << ");";
+                                break;
+                            default:
+                                out << param << ".Count, " << param << ");";
+                        }
                     }
-                    out << ");";
+                    else if(!isArray)
+                    {
+                        out << param << " == null ? null : " << param << ".ToArray());";
+                    }
+                    else
+                    {
+                        out << param << ");";
+                    }
                 }
                 else
                 {
@@ -725,9 +741,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     }
                     else if(isGeneric)
                     {
-                        // TODO: this won't work for nested sequences.
-                        out << nl << param << " = new _System.Collections.Generic." << genericType
-                            << "<" << typeToString(seq->type()) << ">(" << stream << ".read" << typeS << "Seq());";
+                        out << nl << stream << ".read" << typeS << "Seq(out " << param << ");";
                     }
                     else
                     {
@@ -786,8 +800,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << ';';
             out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
             out << sb;
-            out << nl << "IceInternal.SequencePatcher spx = new IceInternal.SequencePatcher("
-                << param << ", " << "typeof(" << typeS << "), ix__);";
+            out << nl << "IceInternal.SequencePatcher<" << typeS << "> spx = new IceInternal.SequencePatcher<"
+                << typeS << ">(" << param << ", " << "typeof(" << typeS << "), ix__);";
             out << nl << stream << ".readObject(";
             if(streamingAPI)
             {
@@ -1014,7 +1028,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         else if(isGeneric)
         {
-            out << "_System.Collections.Generic." << genericType << "<" << typeToString(seq->type()) << ">()";
+            out << "_System.Collections.Generic." << genericType << "<" << typeS << ">()";
         }
         else
         {

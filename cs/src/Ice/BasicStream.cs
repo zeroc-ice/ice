@@ -12,6 +12,7 @@ namespace IceInternal
 
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Reflection;
     using System.Runtime.InteropServices;
@@ -684,7 +685,76 @@ namespace IceInternal
                 _buf.put(v);
             }
         }
-        
+
+        public virtual void writeByteSeq(List<byte> v)
+        {
+            //
+            // Converting to an array and writing that
+            // is faster than using an enumerator.
+            //
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeByteSeq(v.ToArray());
+            }
+        }
+
+        public virtual void writeByteSeq(LinkedList<byte> v)
+        {
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeSize(v.Count);
+                if(v.Count != 0)
+                {
+                    expand(v.Count);
+                    IEnumerator<byte> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.put(i.Current);
+                    }
+                }
+            }
+        }
+
+        public virtual void writeByteSeq(Queue<byte> v)
+        {
+            //
+            // Converting to an array and writing that
+            // is faster than using an enumerator.
+            //
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeByteSeq(v.ToArray());
+            }
+        }
+
+        public virtual void writeByteSeq(Stack<byte> v)
+        {
+            //
+            // Converting to an array and writing that
+            // is faster than using an enumerator.
+            //
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeByteSeq(v.ToArray());
+            }
+        }
+
         public virtual byte readByte()
         {
             try
@@ -712,13 +782,57 @@ namespace IceInternal
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
-        
+
+        public virtual void readByteSeq(out List<byte> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is faster than constructing the list
+            // and adding to it one element at a time.
+            //
+            l = new List<byte>(readByteSeq());
+        }
+
+        public virtual void readByteSeq(out LinkedList<byte> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is faster than constructing the list
+            // and adding to it one element at a time.
+            //
+            l = new LinkedList<byte>(readByteSeq());
+        }
+
+        public virtual void readByteSeq(out Queue<byte> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // queue is faster than constructing the queue
+            // and adding to it one element at a time.
+            //
+            l = new Queue<byte>(readByteSeq());
+        }
+
+        public virtual void readByteSeq(out Stack<byte> l)
+        {
+            //
+            // Reverse the contents by copying into an array first
+            // because the stack is marshaled in top-to-bottom order.
+            //
+            byte[] array = readByteSeq();
+            l = new Stack<byte>(array.Length);
+            for(int i = array.Length - 1; i >= 0; --i)
+            {
+                l.Push(array[i]);
+            }
+        }
+
         public virtual void writeBool(bool v)
         {
             expand(1);
             _buf.put(v ? (byte)1 : (byte)0);
         }
-        
+
         public virtual void writeBoolSeq(bool[] v)
         {
             if(v == null)
@@ -732,6 +846,105 @@ namespace IceInternal
                 _buf.putBoolSeq(v);
             }
         }
+
+        public virtual void writeBoolSeq(List<bool> v)
+        {
+            //
+            // Converting to an array and writing that
+            // is faster than using an enumerator.
+            //
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeBoolSeq(v.ToArray());
+            }
+        }
+
+        public virtual void writeBoolSeq(LinkedList<bool> v)
+        {
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeSize(v.Count);
+                if(v.Count != 0)
+                {
+                    expand(v.Count);
+                    IEnumerator<bool> i = v.GetEnumerator();
+                    while(i.MoveNext())
+                    {
+                        _buf.putBool(i.Current);
+                    }
+                }
+            }
+        }
+
+        public virtual void writeBoolSeq(Queue<bool> v)
+        {
+            //
+            // Converting to an array and writing that
+            // is faster than using an enumerator.
+            //
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeBoolSeq(v.ToArray());
+            }
+        }
+
+        public virtual void writeBoolSeq(Stack<bool> v)
+        {
+            //
+            // Converting to an array and writing that
+            // is faster than using an enumerator.
+            //
+            if(v == null)
+            {
+                writeSize(0);
+            }
+            else
+            {
+                writeBoolSeq(v.ToArray());
+            }
+        }
+
+        /*
+        public virtual void writeBoolSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size);
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.put((bool)i.Current ? (byte)1 : (byte)0);
+                }
+            }
+        }
+
+        public virtual void writeBoolSeq(int size, IEnumerable<bool> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size);
+                IEnumerator<bool> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.put((bool)i.Current ? (byte)1 : (byte)0);
+                }
+            }
+        }
+        */
         
         public virtual bool readBool()
         {
@@ -760,6 +973,50 @@ namespace IceInternal
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
+
+        public virtual void readBoolSeq(out List<bool> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is faster than constructing the list
+            // and adding to it one element at a time.
+            //
+            l = new List<bool>(readBoolSeq());
+        }
+
+        public virtual void readBoolSeq(out LinkedList<bool> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is faster than constructing the list
+            // and adding to it one element at a time.
+            //
+            l = new LinkedList<bool>(readBoolSeq());
+        }
+
+        public virtual void readBoolSeq(out Queue<bool> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // queue is faster than constructing the queue
+            // and adding to it one element at a time.
+            //
+            l = new Queue<bool>(readBoolSeq());
+        }
+
+        public virtual void readBoolSeq(out Stack<bool> l)
+        {
+            //
+            // Reverse the contents by copying into an array first
+            // because the stack is marshaled in top-to-bottom order.
+            //
+            bool[] array = readBoolSeq();
+            l = new Stack<bool>(array.Length);
+            for(int i = array.Length - 1; i >= 0; --i)
+            {
+                l.Push(array[i]);
+            }
+        }
         
         public virtual void writeShort(short v)
         {
@@ -778,6 +1035,34 @@ namespace IceInternal
                 writeSize(v.Length);
                 expand(v.Length * 2);
                 _buf.putShortSeq(v);
+            }
+        }
+
+        public virtual void writeShortSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 2);
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putShort((short)i.Current);
+                }
+            }
+        }
+
+        public virtual void writeShortSeq(int size, IEnumerable<short> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 2);
+                IEnumerator<short> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putShort(i.Current);
+                }
             }
         }
         
@@ -828,6 +1113,34 @@ namespace IceInternal
                 _buf.putIntSeq(v);
             }
         }
+
+        public virtual void writeIntSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 4);
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putInt((int)i.Current);
+                }
+            }
+        }
+
+        public virtual void writeIntSeq(int size, IEnumerable<int> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 4);
+                IEnumerator<int> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putInt(i.Current);
+                }
+            }
+        }
         
         public virtual int readInt()
         {
@@ -856,6 +1169,72 @@ namespace IceInternal
                 throw new Ice.UnmarshalOutOfBoundsException(ex);
             }
         }
+
+        public virtual void readIntSeq(out List<int> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is faster than constructing the list
+            // and adding to it one element at a time.
+            //
+            l = new List<int>(readIntSeq());
+        }
+
+        public virtual void readIntSeq(out LinkedList<int> l)
+        {
+            try
+            {
+                int sz = readSize();
+                checkFixedSeq(sz, 4);
+                l = new LinkedList<int>();
+                for(int i = 0; i < sz; ++i)
+                {
+                    l.AddLast(_buf.getInt());
+                }
+            }
+            catch(InvalidOperationException ex)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException(ex);
+            }
+        }
+
+        public virtual void readIntSeq(out Queue<int> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // queue takes the same time as constructing the queue
+            // and adding to it one element at a time, so
+            // we avoid the copy.
+            //
+            try
+            {
+                int sz = readSize();
+                checkFixedSeq(sz, 4);
+                l = new Queue<int>(sz);
+                for(int i = 0; i < sz; ++i)
+                {
+                    l.Enqueue(_buf.getInt());
+                }
+            }
+            catch(InvalidOperationException ex)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException(ex);
+            }
+        }
+
+        public virtual void readIntSeq(out Stack<int> l)
+        {
+            //
+            // Reverse the contents by copying into an array first
+            // because the stack is marshaled in top-to-bottom order.
+            //
+            int[] array = readIntSeq();
+            l = new Stack<int>(array.Length);
+            for(int i = array.Length - 1; i >= 0; --i)
+            {
+                l.Push(array[i]);
+            }
+        }
         
         public virtual void writeLong(long v)
         {
@@ -874,6 +1253,34 @@ namespace IceInternal
                 writeSize(v.Length);
                 expand(v.Length * 8);
                 _buf.putLongSeq(v);
+            }
+        }
+
+        public virtual void writeLongSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 8);
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putLong((long)i.Current);
+                }
+            }
+        }
+
+        public virtual void writeLongSeq(int size, IEnumerable<long> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 8);
+                IEnumerator<long> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putLong(i.Current);
+                }
             }
         }
         
@@ -924,6 +1331,34 @@ namespace IceInternal
                 _buf.putFloatSeq(v);
             }
         }
+
+        public virtual void writeFloatSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 4);
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putFloat((float)i.Current);
+                }
+            }
+        }
+
+        public virtual void writeFloatSeq(int size, IEnumerable<float> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 4);
+                IEnumerator<float> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putFloat(i.Current);
+                }
+            }
+        }
         
         public virtual float readFloat()
         {
@@ -970,6 +1405,34 @@ namespace IceInternal
                 writeSize(v.Length);
                 expand(v.Length * 8);
                 _buf.putDoubleSeq(v);
+            }
+        }
+
+        public virtual void writeDoubleSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 8);
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putDouble((double)i.Current);
+                }
+            }
+        }
+
+        public virtual void writeDoubleSeq(int size, IEnumerable<double> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                expand(size * 8);
+                IEnumerator<double> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    _buf.putDouble(i.Current);
+                }
             }
         }
         
@@ -1032,6 +1495,32 @@ namespace IceInternal
             }
         }
 
+        public virtual void writeStringSeq(int size, IEnumerable e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                IEnumerator i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    writeString((string)i.Current);
+                }
+            }
+        }
+
+        public virtual void writeStringSeq(int size, IEnumerable<string> e)
+        {
+            writeSize(size);
+            if(size != 0)
+            {
+                IEnumerator<string> i = e.GetEnumerator();
+                while(i.MoveNext())
+                {
+                    writeString(i.Current);
+                }
+            }
+        }
+
         public virtual string readString()
         {
             int len = readSize();
@@ -1083,7 +1572,78 @@ namespace IceInternal
             endSeq(sz);
             return v;
         }
-        
+
+        public virtual void readStringSeq(out List<string> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is slower than constructing the list
+            // and adding to it one element at a time.
+            //
+            int sz = readSize();
+            startSeq(sz, 1);
+            l = new List<string>(sz);
+            for(int i = 0; i < sz; ++i)
+            {
+                l.Add(readString());
+                checkSeq();
+                endElement();
+            }
+            endSeq(sz);
+        }
+
+        public virtual void readStringSeq(out LinkedList<string> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // list is slower than constructing the list
+            // and adding to it one element at a time.
+            //
+            int sz = readSize();
+            startSeq(sz, 1);
+            l = new LinkedList<string>();
+            for(int i = 0; i < sz; ++i)
+            {
+                l.AddLast(readString());
+                checkSeq();
+                endElement();
+            }
+            endSeq(sz);
+        }
+
+        public virtual void readStringSeq(out Queue<string> l)
+        {
+            //
+            // Reading into an array and copy-constructing the
+            // queue is slower than constructing the queue
+            // and adding to it one element at a time.
+            //
+            int sz = readSize();
+            startSeq(sz, 1);
+            l = new Queue<string>();
+            for(int i = 0; i < sz; ++i)
+            {
+                l.Enqueue(readString());
+                checkSeq();
+                endElement();
+            }
+            endSeq(sz);
+        }
+
+        public virtual void readStringSeq(out Stack<string> l)
+        {
+            //
+            // Reverse the contents by copying into an array first
+            // because the stack is marshaled in top-to-bottom order.
+            //
+            string[] array = readStringSeq();
+            l = new Stack<string>(array.Length);
+            for(int i = array.Length - 1; i >= 0; --i)
+            {
+                l.Push(array[i]);
+            }
+        }
+
         public virtual void writeProxy(Ice.ObjectPrx v)
         {
             instance_.proxyFactory().proxyToStream(v, this);

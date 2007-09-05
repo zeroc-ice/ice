@@ -1556,147 +1556,47 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     emitAttributes(p);
     _out << nl << "public class " << name
-         << " : _System.Collections.CollectionBase, _System.ICloneable";
+         << " : Ice.CollectionBase<" << s << ">, _System.ICloneable";
     _out << sb;
 
     _out << sp << nl << "#region Constructors";
 
-    _out << sp << nl << "public " << name << "()";
+    _out << sp << nl << "public " << name << "() : base()";
     _out << sb;
     _out << eb;
 
-    _out << sp << nl << "public " << name << "(int capacity)";
+    _out << sp << nl << "public " << name << "(int capacity) : base(capacity)";
     _out << sb;
-    _out << nl << "InnerList.Capacity = capacity;";
     _out << eb;
 
-    _out << sp << nl << "public " << name << "(" << s << "[] a__)";
+    _out << sp << nl << "public " << name << "(" << s << "[] a__) : base(a__)";
     _out << sb;
-    _out << nl << "InnerList.AddRange(a__);";
+    _out << eb;
+
+    _out << sp << nl << "public " << name << "(_System.Collections.Generic.IEnumerable<" << s << "> l__) : base(l__)";
+    _out << sb;
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Constructors
 
-    _out << sp << nl << "#region Array copy and conversion";
+    _out << sp << nl << "#region Implicit conversion to generic List";
 
-    _out << sp << nl << "public void CopyTo(" << s << "[] a__)";
+    _out << sp << nl << "public static implicit operator _System.Collections.Generic.List<"
+         << s << ">(" << name << " s__)";
     _out << sb;
-    _out << nl << "InnerList.CopyTo(a__);";
+    _out << nl << "return s__.list_;";
     _out << eb;
 
-    _out << sp << nl << "public void CopyTo(" << s << "[] a__, int i__)";
-    _out << sb;
-    _out << nl << "InnerList.CopyTo(a__, i__);";
-    _out << eb;
+    _out << sp << nl << "#endregion"; // Implicit conversion to generic List
 
-    _out << sp << nl << "public void CopyTo(int i__, " << s << "[] a__, int ai__, int c__)";
-    _out << sb;
-    _out << nl << "InnerList.CopyTo(i__, a__, ai__, c__);";
-    _out << eb;
-
-    _out << sp << nl << "public " << s << "[] ToArray()";
-    _out << sb;
-    _out << nl << s << "[] a__ = new " << toArrayAlloc(s + "[]", "InnerList.Count") << ';';
-    _out << nl << "InnerList.CopyTo(a__, 0);";
-    _out << nl << "return a__;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Array copy and conversion
-
-    _out << sp << nl << "#region ArrayList members";
-
-    _out << sp << nl << "public virtual void TrimToSize()";
-    _out << sb;
-    _out << nl << "InnerList.TrimToSize();";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void Sort()";
-    _out << sb;
-    _out << nl << "InnerList.Sort();";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void Sort(_System.Collections.IComparer comparer)";
-    _out << sb;
-    _out << nl << "InnerList.Sort(comparer);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void Sort(int index, int count, _System.Collections.IComparer comparer)";
-    _out << sb;
-    _out << nl << "InnerList.Sort(index, count, comparer);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void Reverse()";
-    _out << sb;
-    _out << nl << "InnerList.Reverse();";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void Reverse(int index, int count)";
-    _out << sb;
-    _out << nl << "InnerList.Reverse(index, count);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual int BinarySearch(" << s << " value)";
-    _out << sb;
-    _out << nl << "return InnerList.BinarySearch(value);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual int BinarySearch(" << s << " value, _System.Collections.IComparer comparer)";
-    _out << sb;
-    _out << nl << "return InnerList.BinarySearch(value, comparer);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual int BinarySearch(int index, int count, " << s << " value, "
-         << "_System.Collections.IComparer comparer)";
-    _out << sb;
-    _out << nl << "return InnerList.BinarySearch(index, count, value, comparer);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void InsertRange(int index, " << name << " c)";
-    _out << sb;
-    _out << nl << "InnerList.InsertRange(index, c);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void InsertRange(int index, " << s << "[] c)";
-    _out << sb;
-    _out << nl << "InnerList.InsertRange(index, c);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void RemoveRange(int index, int count)";
-    _out << sb;
-    _out << nl << "InnerList.RemoveRange(index, count);";
-    _out << eb;
+    _out << sp << nl << "#region Operations returning a new sequence";
 
     _out << sp << nl << "public virtual " << name << " GetRange(int index, int count)";
     _out << sb;
-    _out << nl << "_System.Collections.ArrayList al = InnerList.GetRange(index, count);";
-    _out << nl << name << " r = new " << name << "(al.Count);";
-    _out << nl << "r.InnerList.AddRange(al);";
+    _out << nl << "_System.Collections.Generic.List<" << s << "> l = list_.GetRange(index, count);";
+    _out << nl << name << " r = new " << name << "(l.Count);";
+    _out << nl << "r.list_.AddRange(l);";
     _out << nl << "return r;";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void SetRange(int index, " << name << " c)";
-    _out << sb;
-    _out << nl << "InnerList.SetRange(index, c);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual void SetRange(int index, " << s << "[] c)";
-    _out << sb;
-    _out << nl << "InnerList.SetRange(index, c);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual int LastIndexOf(" << s << " value)";
-    _out << sb;
-    _out << nl << "return InnerList.LastIndexOf(value);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual int LastIndexOf(" << s << " value, int startIndex)";
-    _out << sb;
-    _out << nl << "return InnerList.LastIndexOf(value, startIndex);";
-    _out << eb;
-
-    _out << sp << nl << "public virtual int LastIndexOf(" << s << " value, int startIndex, int count)";
-    _out << sb;
-    _out << nl << "return InnerList.LastIndexOf(value, startIndex, count);";
     _out << eb;
 
     _out << sp << nl << "public static " << name << " Repeat(" << s << " value, int count)";
@@ -1709,210 +1609,14 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "return r;";
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // ArrayList members
-
-    _out << sp << nl << "#region AddRange members";
-
-    _out << sp << nl << "public void AddRange(" << name << " s__)";
-    _out << sb;
-    _out << nl << "InnerList.AddRange(s__);";
-    _out << eb;
-
-    _out << sp << nl << "public void AddRange(" << s << "[] a__)";
-    _out << sb;
-    _out << nl << "InnerList.AddRange(a__);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // AddRange members
-
-    _out << sp << nl << "#region ICollectionBase members";
-
-    _out << sp << nl << "public int Add(" << s << " value)";
-    _out << sb;
-    _out << nl << "return InnerList.Add(value);";
-    _out << eb;
-
-    _out << sp << nl << "public int IndexOf(" << s << " value)";
-    _out << sb;
-    _out << nl << "return InnerList.IndexOf(value);";
-    _out << eb;
-
-    _out << sp << nl << "public void Insert(int index, " << s << " value)";
-    _out << sb;
-    _out << nl << "InnerList.Insert(index, value);";
-    _out << eb;
-
-    _out << sp << nl << "public void Remove(" << s << " value)";
-    _out << sb;
-    _out << nl << "InnerList.Remove(value);";
-    _out << eb;
-
-    _out << sp << nl << "public bool Contains(" << s << " value)";
-    _out << sb;
-    _out << nl << "return InnerList.Contains(value);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICollectionBase members
-
-    _out << sp << nl << "#region ICollection members";
-
-    _out << sp << nl << "public bool IsSynchronized";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public object SyncRoot";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return this;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICollection members
-
-    _out << sp << nl << "#region IList members";
-
-    _out << sp << nl << "public bool IsFixedSize";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public bool IsReadOnly";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#region Indexer";
-
-    _out << sp << nl << "public " << s << " this[int index]";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return (" << s << ")InnerList[index];";
-    _out << eb;
-
-    _out << nl << "set";
-    _out << sb;
-    _out << nl << "InnerList[index] = value;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Indexer
-
-    _out << sp << nl << "#endregion"; // IList members
-
-    _out << sp << nl << "#region ICloneable members";
-
     _out << sp << nl << "public object Clone()";
     _out << sb;
     _out << nl << name << " s = new " << name << "(Count);";
-    _out << nl << "s.InnerList.AddRange(InnerList);";
+    _out << nl << "s.list_.AddRange(list_);";
     _out << nl << "return s;";
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // ICloneable members
-
-    _out << sp << nl << "#region Object members";
-
-    _out << sp << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "int hash = 0;";
-    _out << nl << "for(int i = 0; i < Count; ++i)";
-    _out << sb;
-    _out << nl;
-    if(isValue)
-    {
-        _out << s;
-    }
-    else
-    {
-        _out << "object";
-    }
-   _out << " v__ = ";
-    if(isValue)
-    {
-       _out << "(" << s << ")";
-    }
-    _out << "InnerList[i];";
-    if(!isValue)
-    {
-        _out << nl << "if(v__ != null)";
-        _out << sb;
-    }
-    _out << nl << "hash = 5 * hash + v__.GetHashCode();";
-    if(!isValue)
-    {
-        _out << eb;
-    }
-    _out << eb;
-    _out << nl << "return hash;";
-    _out << eb;
-
-    _out << sp << nl << "public override bool Equals(object other)";
-    _out << sb;
-    _out << nl << "if(object.ReferenceEquals(this, other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "if(!(other is " << name << "))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << "if(Count != ((" << name << ")other).Count)";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << "for(int i__ = 0; i__ < Count; ++i__)";
-    _out << sb;
-    if(!isValue)
-    {
-        _out << nl << "if(InnerList[i__] == null)";
-        _out << sb;
-        _out << nl << "if(((" << name << ")other)[i__] != null)";
-        _out << sb;
-        _out << nl << "return false;";
-        _out << eb;
-        _out << eb;
-        _out << nl << "else";
-        _out << sb;
-    }
-    _out << nl << "if(!((" << s << ")(InnerList[i__])).Equals(((" << name << ")other)[i__]))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    if(!isValue)
-    {
-        _out << eb;
-    }
-    _out << eb;
-    _out << nl << "return true;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Object members
-
-    _out << sp << nl << "#region Comparison members";
-
-    _out << sp << nl << "public static bool operator==(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return Equals(lhs__, rhs__);";
-    _out << eb;
-
-    _out << sp << nl << "public static bool operator!=(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return !Equals(lhs__, rhs__);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Comparison members
+    _out << sp << nl << "#endregion"; // Operations returning a new sequence
 
     _out << eb;
 }

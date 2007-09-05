@@ -47,9 +47,6 @@ struct Structure
 ["clr:collection"] sequence<MyEnum> MyEnumS;
 ["clr:collection"] sequence<MyClass*> MyClassS;
 
-["clr:generic:List"] sequence<int> IntGS;
-["clr:generic:List"] sequence<string> StringGS;
-
 ["clr:collection"] sequence<ByteS> ByteSS;
 ["clr:collection"] sequence<BoolS> BoolSS;
 ["clr:collection"] sequence<ShortS> ShortSS;
@@ -60,12 +57,6 @@ struct Structure
 ["clr:collection"] sequence<StringS> StringSS;
 ["clr:collection"] sequence<MyEnumS> MyEnumSS;
 ["clr:collection"] sequence<MyClassS> MyClassSS;
-
-["clr:generic:List"] sequence<IntS> IntGSS;
-["clr:generic:List"] sequence<IntGS> IntGSGS;
-
-["clr:generic:List"] sequence<StringS> StringGSS;
-["clr:generic:List"] sequence<StringGS> StringGSGS;
 
 sequence<StringSS> StringSSS;
 

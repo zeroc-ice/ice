@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
@@ -64,15 +64,34 @@ namespace IceInternal
         private string _expectedSliceType;
     }
 
-    public sealed class SequencePatcher : Patcher
+    public sealed class SequencePatcher<T> : Patcher
     {
-        public SequencePatcher(ICollection seq, System.Type type, int index) : base(type)
+        public SequencePatcher(Ice.CollectionBase<T> seq, System.Type type, int index) : base(type)
         {
-            _seq = seq;
+            _seqList = (List<T>)seq;
+            _stype = SeqType.IList;
             _index = index;
         }
-    
-        private static object dummyObject = new object();
+
+        public SequencePatcher(ICollection<T> seq, System.Type type, int index) : base(type)
+        {
+            if(seq is System.Array)
+            {
+                _seqArray = (T[])seq;
+                _stype = SeqType.Array;
+            }
+            else if(seq is IList<T>)
+            {
+                _seqList = (IList<T>)seq;
+                _stype = SeqType.IList;
+            }
+            else
+            {
+                _seqColl = seq;
+                _stype = SeqType.Collection;
+            }
+            _index = index;
+        }
 
         public override void patch(Ice.Object v)
         {
@@ -83,61 +102,51 @@ namespace IceInternal
                                                       " but received " + v.GetType().FullName); 
             }
 
-            try 
+            switch(_stype)
             {
-                if(_seq is CollectionBase)
+                case SeqType.IList:
                 {
-                    if(_index >= _seq.Count) // Need to grow the sequence.
+                    int count = _seqList.Count;
+                    if(_index >= count) // Need to grow the sequence.
                     {
-                        for(int i = _seq.Count; i <= _index; i++)
+                        for(int i = count; i < _index; i++)
                         {
-                            ((IList)_seq).Add(dummyObject); // Broken CollectionBase implementation
+                            _seqList.Add(default(T));
                         }
-                    }
-
-                    //
-                    // Ugly work-around for broken CollectionBase implementation:
-                    //
-                    // CollectionBase provides implementations of the IList.Add method
-                    // and indexer. However, these implementations do not permit
-                    // null to be added or assigned even though, according to the doc, this should work.
-                    // (Attempts to put a null into the collection raise ArgumentNullException.)
-                    // That's why the above code grows the sequence by adding a dummy object.
-                    //
-                    // Furthermore, CollectionBase.Add and the indexer are (incorrectly) non-virtual so,
-                    // when we treat _seq as an IList, we always dispatch into the CollectionBase
-                    // implementation, not into the implementation of the generated sequence type.
-                    // This makes it impossible to assign v to a sequence element if v is null.
-                    //
-                    // The ugly work-around is to use reflection to ensure that we get the
-                    // actual run-time type of the generated sequence, and then
-                    // use dynamic invocation to make sure that we dispatch to the generated indexer,
-                    // instead of the broken indexer provided by CollectionBase.
-                    //
-                    if(v == null)
-                    {
-                        object[] ov = new object[2];
-                        ov[0] = _index;
-                        ov[1] = null;
-                        _seq.GetType().GetProperty("Item").GetSetMethod().Invoke(_seq, ov);
+                        _seqList.Add((T)v);
                     }
                     else
                     {
-                        ((IList)_seq)[_index] = v;
+                        _seqList[_index] = (T)v;
                     }
+                    break;
                 }
-                else
+                case SeqType.Array:
                 {
-                    ((System.Array)_seq).SetValue(v, _index);
+                    _seqArray[_index] = (T)v;
+                    break;
                 }
-            }
-            catch(System.Exception ex)
-            {
-                throw new Ice.MarshalException("Unexpected failure during patching", ex);
+                case SeqType.Collection:
+                {
+                            // TODO
+                    break;
+                }
             }
         }
 
-        private ICollection _seq;
-        private int _index;
+        private enum SeqType { Array, IList , Collection };
+
+        private SeqType _stype;
+
+        //
+        // Conceptually, these three members are in a union. We use separate members
+        // here instead of a single member of base type to avoid a separate down-cast
+        // each time patch() is called.
+        //
+        private IList<T> _seqList;
+        private T[] _seqArray;
+        private ICollection<T> _seqColl;
+
+        private int _index; // The index at which to patch the sequence.
     }
 }
