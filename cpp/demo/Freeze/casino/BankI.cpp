@@ -109,7 +109,7 @@ BankI::createBet(int amount, int lifetime, const Ice::Current&)
     Ice::Identity ident = { IceUtil::generateUUID(), "bet" };
 #endif
 
-    Ice::Long closeTime = IceUtil::Time::now().toMilliSeconds() + lifetime;
+    Ice::Long closeTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds() + lifetime;
 
     outstandingChips += amount;
     Ice::ObjectPtr betI = new BetI(amount, closeTime, _prx, _betEvictor, _bankEdge);

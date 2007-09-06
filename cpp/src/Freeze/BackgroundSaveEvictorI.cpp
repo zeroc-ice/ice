@@ -269,7 +269,7 @@ Freeze::BackgroundSaveEvictorI::addFacet(const ObjectPtr& servant, const Identit
                     ObjectRecord& rec = element->rec;
 
                     rec.servant = servant;
-                    rec.stats.creationTime = IceUtil::Time::now().toMilliSeconds();
+                    rec.stats.creationTime = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
                     rec.stats.lastSaveTime = 0;
                     rec.stats.avgSaveTime = 0;
 
@@ -901,7 +901,7 @@ Freeze::BackgroundSaveEvictorI::run()
             
             deque<StreamedObject> streamedObjectQueue;
             
-            Long streamStart = IceUtil::Time::now().toMilliSeconds();
+            Long streamStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
             
             //
             // Stream each element
@@ -1051,7 +1051,7 @@ Freeze::BackgroundSaveEvictorI::run()
             
             if(_trace >= 1)
             {
-                Long now = IceUtil::Time::now().toMilliSeconds();
+                Long now = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
                 Trace out(_communicator->getLogger(), "Freeze.Evictor");
                 out << "streamed " << streamedObjectQueue.size() << " objects in " 
                     << static_cast<Int>(now - streamStart) << " ms";
@@ -1083,7 +1083,7 @@ Freeze::BackgroundSaveEvictorI::run()
                         txSize = streamedObjectQueue.size();
                     }
                     
-                    Long saveStart = IceUtil::Time::now().toMilliSeconds();
+                    Long saveStart = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
                     try
                     {
                         DbTxn* tx = 0;
@@ -1129,7 +1129,7 @@ Freeze::BackgroundSaveEvictorI::run()
                         
                         if(_trace >= 1)
                         {
-                            Long now = IceUtil::Time::now().toMilliSeconds();
+                            Long now = IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds();
                             Trace out(_communicator->getLogger(), "Freeze.Evictor");
                             out << "saved " << txSize << " objects in " 
                                 << static_cast<Int>(now - saveStart) << " ms";

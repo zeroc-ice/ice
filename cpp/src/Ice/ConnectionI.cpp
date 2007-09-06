@@ -216,7 +216,7 @@ Ice::ConnectionI::validate()
         
         if(_acmTimeout > 0)
         {
-            _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
         }
         
         //
@@ -407,7 +407,7 @@ Ice::ConnectionI::waitUntilFinished()
             if(_state != StateClosed && _endpoint->timeout() >= 0)
             {
                 IceUtil::Time timeout = IceUtil::Time::milliSeconds(_endpoint->timeout());
-                IceUtil::Time waitTime = _stateTime + timeout - IceUtil::Time::now();
+                IceUtil::Time waitTime = _stateTime + timeout - IceUtil::Time::now(IceUtil::Time::Monotonic);
                 
                 if(waitTime > IceUtil::Time())
                 {
@@ -477,7 +477,7 @@ Ice::ConnectionI::monitor()
     //
     for(map<Int, AsyncRequest>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
     {
-        if(p->second.t > IceUtil::Time() && p->second.t <= IceUtil::Time::now())
+        if(p->second.t > IceUtil::Time() && p->second.t <= IceUtil::Time::now(IceUtil::Time::Monotonic))
         {
             setState(StateClosed, TimeoutException(__FILE__, __LINE__));
             return;
@@ -492,7 +492,7 @@ Ice::ConnectionI::monitor()
        !_batchStreamInUse && _batchStream.b.empty() &&
        _dispatchCount == 0)
     {
-        if(IceUtil::Time::now() >= _acmAbsoluteTimeout)
+        if(IceUtil::Time::now(IceUtil::Time::Monotonic) >= _acmAbsoluteTimeout)
         {
             setState(StateClosing, ConnectionTimeoutException(__FILE__, __LINE__));
             return;
@@ -556,7 +556,7 @@ Ice::ConnectionI::sendRequest(BasicStream* os, Outgoing* out, bool compress)
                 
         if(_acmTimeout > 0)
         {
-            _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
         }
     }
 
@@ -715,14 +715,15 @@ Ice::ConnectionI::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out,
         asyncRequest.p = out;
         if(_endpoint->timeout() > 0)
         {
-            asyncRequest.t = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_endpoint->timeout());
+            asyncRequest.t = 
+                IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(_endpoint->timeout());
         }
         _asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
                                                    pair<const Int, AsyncRequest>(requestId, asyncRequest));
         
         if(_acmTimeout > 0)
         {
-            _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
         }
     }
 
@@ -1037,7 +1038,7 @@ Ice::ConnectionI::flushBatchRequestsInternal(bool ignoreInUse)
 
         if(_acmTimeout > 0)
         {
-            _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+            _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
         }
 
         //
@@ -1253,7 +1254,8 @@ Ice::ConnectionI::sendResponse(BasicStream* os, Byte compressFlag)
             
             if(_acmTimeout > 0)
             {
-                _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+                _acmAbsoluteTimeout = 
+                    IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
             }
         }
         catch(const LocalException& ex)
@@ -1596,7 +1598,7 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _batchMarker(0),
     _dispatchCount(0),
     _state(StateNotValidated),
-    _stateTime(IceUtil::Time::now())
+    _stateTime(IceUtil::Time::now(IceUtil::Time::Monotonic))
 {
     Int& acmTimeout = const_cast<Int&>(_acmTimeout);
     if(_endpoint->datagram())
@@ -1944,7 +1946,7 @@ Ice::ConnectionI::setState(State state)
     }
 
     _state = state;
-    _stateTime = IceUtil::Time::now();
+    _stateTime = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     notifyAll();
 
@@ -2184,7 +2186,7 @@ Ice::ConnectionI::parseMessage(BasicStream& stream, Int& invokeNum, Int& request
     
     if(_acmTimeout > 0)
     {
-        _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+        _acmAbsoluteTimeout = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_acmTimeout);
     }
     
     try

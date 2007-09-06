@@ -641,7 +641,7 @@ Glacier2::SessionRouterI::expireSessions()
         }
         
         assert(_sessionTimeout > IceUtil::Time());
-        IceUtil::Time minTimestamp = IceUtil::Time::now() - _sessionTimeout;
+        IceUtil::Time minTimestamp = IceUtil::Time::now(IceUtil::Time::Monotonic) - _sessionTimeout;
         
         map<ConnectionPtr, RouterIPtr>::iterator p = _routersByConnection.begin();
         

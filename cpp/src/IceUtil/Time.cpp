@@ -25,24 +25,58 @@ Time::Time() :
 {
 }
 
+#ifdef _WIN32
+Int64 IceUtil::Time::_frequency = -1;
+#endif
+
 Time
-IceUtil::Time::now()
+IceUtil::Time::now(Clock clock)
 {
+    if(clock == Realtime)
+    {
 #ifdef _WIN32
 #  if defined(_MSC_VER)
-    struct _timeb tb;
-    _ftime(&tb);
+        struct _timeb tb;
+        _ftime(&tb);
 #  elif defined(__BCPLUSPLUS__)
-    struct timeb tb;
-    ftime(&tb);
+        struct timeb tb;
+        ftime(&tb);
 #  endif
-    return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + 
-                tb.millitm * 1000);
+        return Time(static_cast<Int64>(tb.time) * ICE_INT64(1000000) + 
+                    tb.millitm * 1000);
 #else
-    struct timeval tv;
-    gettimeofday(&tv, 0);
-    return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
 #endif
+    }
+    else // Monotonic
+    {
+#if defined(_WIN32)
+        if(_frequency == -1)
+        {
+            //
+            // Frequency cannot change while machine is running so it
+            // only needs to be retrieved once.
+            //
+            QueryPerformanceFrequency((LARGE_INTEGER*)&_frequency);
+        }
+        Int64 count;
+        QueryPerformanceCounter((LARGE_INTEGER*)&count);
+        return Time((Int64)(1000000.0 / _frequency * count));
+#elif defined(__hpux) || defined(__APPLE__)
+        //
+        // HP/MacOS does not support CLOCK_MONOTONIC
+        //
+        struct timeval tv;
+        gettimeofday(&tv, 0);
+        return Time(tv.tv_sec * ICE_INT64(1000000) + tv.tv_usec);
+#else
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return Time(ts.tv_sec * ICE_INT64(1000000) + ts.tv_nsec / ICE_INT64(1000));
+#endif
+    }
 }
 
 Time

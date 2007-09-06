@@ -181,7 +181,7 @@ CPatchDlg::patchStart(const string& path, Ice::Long size, Ice::Long totalProgres
 {
     if(!_isPatch)
     {
-        _startTime = IceUtil::Time::now();
+        _startTime = IceUtil::Time::now(IceUtil::Time::Monotonic);
         _status->SetWindowText(CString(L" Patching..."));
         _speed->SetWindowText(CString(L" 0.0 KB/s"));
         _isPatch = true;
@@ -197,7 +197,7 @@ CPatchDlg::patchStart(const string& path, Ice::Long size, Ice::Long totalProgres
 bool
 CPatchDlg::patchProgress(Ice::Long, Ice::Long, Ice::Long totalProgress, Ice::Long totalSize)
 {
-    IceUtil::Time elapsed = IceUtil::Time::now() - _startTime;
+    IceUtil::Time elapsed = IceUtil::Time::now(IceUtil::Time::Monotonic) - _startTime;
     if(elapsed.toSeconds() > 0)
     {
         CString speed;

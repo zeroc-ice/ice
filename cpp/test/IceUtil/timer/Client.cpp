@@ -32,7 +32,7 @@ public:
     {
         Lock sync(*this);
         ++_count;
-        _run = IceUtil::Time::now();
+        _run = IceUtil::Time::now(IceUtil::Time::Monotonic);
         //cerr << "run: " << _scheduledTime.toMicroSeconds() << " " << _run.toMicroSeconds() << endl;
         notifyAll();
     }
@@ -99,14 +99,14 @@ int main(int argc, char* argv[])
 
         {
             TestTaskPtr task = new TestTask();
-            timer->schedule(task, IceUtil::Time::now());
+            timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic));
             task->waitForRun();
 	    while(true)
 	    {
-		timer->schedule(task, IceUtil::Time::now());
+		timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic));
 		try
 		{
-		    timer->schedule(task, IceUtil::Time::now());
+		    timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic));
 		    test(task->hasRun());
 		}
 		catch(const IceUtil::IllegalArgumentException&)
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
         {
             TestTaskPtr task = new TestTask();
             test(!timer->cancel(task));
-            timer->schedule(task, IceUtil::Time::now() + IceUtil::Time::seconds(1));
+            timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(1));
             test(!task->hasRun() && timer->cancel(task) && !task->hasRun());
             test(!timer->cancel(task));
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1100));
@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
 
         {
             vector<TestTaskPtr> tasks;
-            IceUtil::Time start = IceUtil::Time::now() + IceUtil::Time::milliSeconds(100);
+            IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(100);
             for(int i = 0; i < 100; ++i)
             {
                  tasks.push_back(new TestTask(start + IceUtil::Time::milliSeconds(i)));
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
                 (*p)->waitForRun();
             }            
 
-            test(IceUtil::Time::now() - start > IceUtil::Time::milliSeconds(99));
+            test(IceUtil::Time::now(IceUtil::Time::Monotonic) - start > IceUtil::Time::milliSeconds(99));
 
             sort(tasks.begin(), tasks.end());
             for(p = tasks.begin(); p + 1 != tasks.end(); ++p)

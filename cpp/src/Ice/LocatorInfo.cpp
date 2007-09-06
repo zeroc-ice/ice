@@ -144,11 +144,12 @@ IceInternal::LocatorTable::addAdapterEndpoints(const string& adapter, const vect
     
     if(p != _adapterEndpointsMap.end())
     {
-        p->second = make_pair(IceUtil::Time::now(), endpoints);
+        p->second = make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), endpoints);
     }
     else
     {
-        _adapterEndpointsMap.insert(make_pair(adapter, make_pair(IceUtil::Time::now(), endpoints)));
+        _adapterEndpointsMap.insert(
+            make_pair(adapter, make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), endpoints)));
     }
 }
 
@@ -199,11 +200,11 @@ IceInternal::LocatorTable::addProxy(const Identity& id, const ObjectPrx& proxy)
     
     if(p != _objectMap.end())
     {
-        p->second = make_pair(IceUtil::Time::now(), proxy);
+        p->second = make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), proxy);
     }
     else
     {
-        _objectMap.insert(make_pair(id, make_pair(IceUtil::Time::now(), proxy)));
+        _objectMap.insert(make_pair(id, make_pair(IceUtil::Time::now(IceUtil::Time::Monotonic), proxy)));
     }
 }
 
@@ -233,7 +234,7 @@ IceInternal::LocatorTable::checkTTL(const IceUtil::Time& time, int ttl) const
     }
     else
     {
-        return IceUtil::Time::now() - time <= IceUtil::Time::seconds(ttl);
+        return IceUtil::Time::now(IceUtil::Time::Monotonic) - time <= IceUtil::Time::seconds(ttl);
     }
 }
 

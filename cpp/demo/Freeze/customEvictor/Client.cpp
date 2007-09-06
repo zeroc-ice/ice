@@ -48,7 +48,7 @@ public:
         //
         // Measures how long it takes to read 'readCount' items at random
         //
-        IceUtil::Time start = IceUtil::Time::now();
+        IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
         try
         {
@@ -64,7 +64,8 @@ public:
                 ItemPrx item = ItemPrx::uncheckedCast(_anItem->ice_identity(identity));
                 item->getDescription();
             }
-            _requestsPerSecond = static_cast<int>(readCount / (IceUtil::Time::now() - start).toSecondsDouble());  
+            _requestsPerSecond = 
+                static_cast<int>(readCount / (IceUtil::Time::now(IceUtil::Time::Monotonic) - start).toSecondsDouble());
         }
         catch(const IceUtil::Exception& e)
         {
@@ -99,7 +100,7 @@ public:
         //
         // Measure how long it takes to write 'writeCount' items at random.
         //
-        IceUtil::Time start = IceUtil::Time::now();
+        IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
         try
         {
@@ -117,7 +118,8 @@ public:
 
                 item->adjustStock(1);
             }
-            _requestsPerSecond = static_cast<int>(writeCount / (IceUtil::Time::now() - start).toSecondsDouble());  
+            _requestsPerSecond = 
+                static_cast<int>(writeCount / (IceUtil::Time::now(IceUtil::Time::Monotonic) - start).toSecondsDouble());
         }
         catch(const IceUtil::Exception& e)
         {

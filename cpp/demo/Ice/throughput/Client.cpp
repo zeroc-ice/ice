@@ -152,7 +152,7 @@ ThroughputClient::run(int argc, char* argv[])
             cout << "==> ";
             cin >> c;
 
-            IceUtil::Time tm = IceUtil::Time::now();
+            IceUtil::Time tm = IceUtil::Time::now(IceUtil::Time::Monotonic);
             const int repetitions = 1000;
 
             if(c == '1' || c == '2' || c == '3' || c == '4')
@@ -379,7 +379,7 @@ ThroughputClient::run(int argc, char* argv[])
                     }
                 }
 
-                tm = IceUtil::Time::now() - tm;
+                tm = IceUtil::Time::now(IceUtil::Time::Monotonic) - tm;
                 cout << "time for " << repetitions << " sequences: " << tm * 1000 << "ms" << endl;
                 cout << "time per sequence: " << tm * 1000 / repetitions << "ms" << endl;
                 int wireSize = 0;

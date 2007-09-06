@@ -346,7 +346,7 @@ void
 TimedServerCommand::startTimer()
 {
     _timerTask = new CommandTimeoutTimerTask(this);
-    _timer->schedule(_timerTask, IceUtil::Time::now() + IceUtil::Time::seconds(_timeout));
+    _timer->schedule(_timerTask, IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_timeout));
 }
 
 void
@@ -654,7 +654,7 @@ ServerI::ServerI(const NodeIPtr& node, const ServerPrx& proxy, const string& ser
     _disableOnFailure(0),
     _state(ServerI::Inactive),
     _activation(ServerI::Disabled),
-    _failureTime(IceUtil::Time::now()), // Ensure that _activation gets initialized in updateImpl().
+    _failureTime(IceUtil::Time::now(IceUtil::Time::Monotonic)), // Ensure that _activation gets initialized in updateImpl().
     _pid(0)
 {
     assert(_node->getActivator());
@@ -895,7 +895,8 @@ ServerI::start(ServerActivation activation, const AMD_Server_startPtr& amdCB)
         if(_disableOnFailure > 0 && _failureTime != IceUtil::Time())
         {
             if(activation == Manual ||
-               (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))
+               (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < 
+                IceUtil::Time::now(IceUtil::Time::Monotonic)))
             {
                 _activation = _previousActivation;
                 _failureTime = IceUtil::Time();
@@ -1197,7 +1198,7 @@ ServerI::disableOnFailure()
     {
         _previousActivation = _activation;
         _activation = Disabled;
-        _failureTime = IceUtil::Time::now();
+        _failureTime = IceUtil::Time::now(IceUtil::Time::Monotonic);
     }
 }
 
@@ -1210,7 +1211,8 @@ ServerI::enableAfterFailure(bool force)
     }
 
     if(force ||
-       _disableOnFailure > 0 && (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now()))
+       _disableOnFailure > 0 && 
+       (_failureTime + IceUtil::Time::seconds(_disableOnFailure) < IceUtil::Time::now(IceUtil::Time::Monotonic)))
     {
         _activation = _previousActivation;
         _failureTime = IceUtil::Time();
@@ -2451,7 +2453,8 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         if(_activation == Always)
         {
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now() + IceUtil::Time::milliSeconds(500));
+            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now(IceUtil::Time::Monotonic) + 
+                                        IceUtil::Time::milliSeconds(500));
         }
         else if(_activation == Disabled && _disableOnFailure > 0 && _failureTime != IceUtil::Time())
         {
@@ -2463,8 +2466,8 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             // callback is executed.  
             //
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now() + IceUtil::Time::seconds(_disableOnFailure) + 
-                                        IceUtil::Time::milliSeconds(500));
+            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now(IceUtil::Time::Monotonic) +
+                                        IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
         }
     }
 

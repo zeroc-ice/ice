@@ -68,7 +68,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 {
                     if(_active)
                     {
-                        startTime = System.currentTimeMillis();
+                        startTime = IceInternal.Time.currentMonotonicTimeMillis();
                         wait(_timeout);
                     }
                     else
@@ -88,7 +88,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                     //
                     // Did we timeout?
                     //
-                    if(System.currentTimeMillis() - startTime >= _timeout)
+                    if(IceInternal.Time.currentMonotonicTimeMillis() - startTime >= _timeout)
                     {
                         _communicator.getLogger().error(_errorPrefix +
                                                         "Fatal error: streaming watch dog thread timed out.");
@@ -276,7 +276,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                                 ObjectRecord rec = element.rec;
                                 
                                 rec.servant = servant;
-                                rec.stats.creationTime = System.currentTimeMillis();
+                                rec.stats.creationTime = IceInternal.Time.currentMonotonicTimeMillis();
                                 rec.stats.lastSaveTime = 0;
                                 rec.stats.avgSaveTime = 0;
                                 
@@ -985,9 +985,9 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             }
                             else
                             {
-                                long preSave = System.currentTimeMillis();
+                                long preSave = IceInternal.Time.currentMonotonicTimeMillis();
                                 wait(_savePeriod);
-                                if(System.currentTimeMillis() > preSave + _savePeriod)
+                                if(IceInternal.Time.currentMonotonicTimeMillis() > preSave + _savePeriod)
                                 {
                                     break;
                                 }
@@ -1028,7 +1028,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 
                 java.util.List streamedObjectQueue = new java.util.ArrayList();
                 
-                long streamStart = System.currentTimeMillis();
+                long streamStart = IceInternal.Time.currentMonotonicTimeMillis();
                 
                 //
                 // Stream each element
@@ -1146,7 +1146,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                 
                 if(_trace >= 1)
                 {
-                    long now = System.currentTimeMillis();
+                    long now = IceInternal.Time.currentMonotonicTimeMillis();
                     _communicator.getLogger().trace("Freeze.Evictor", "streamed " + streamedObjectQueue.size() +
                                                     " objects in " + (now - streamStart) + " ms");
                 }
@@ -1178,7 +1178,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             txSize = streamedObjectQueue.size();
                         }
                         
-                        long saveStart = System.currentTimeMillis();
+                        long saveStart = IceInternal.Time.currentMonotonicTimeMillis();
                         String txnId = null;
 
                         try
@@ -1231,7 +1231,7 @@ class BackgroundSaveEvictorI extends EvictorI implements BackgroundSaveEvictor, 
                             
                             if(_trace >= 1)
                             {
-                                long now = System.currentTimeMillis();
+                                long now = IceInternal.Time.currentMonotonicTimeMillis();
                                 _communicator.getLogger().trace("Freeze.Evictor", "saved " + txSize + " objects in " +
                                                                 (now - saveStart) + " ms");
                             }

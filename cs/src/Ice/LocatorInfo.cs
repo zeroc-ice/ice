@@ -459,7 +459,8 @@ namespace IceInternal
         {
             lock(this)
             {
-                _adapterEndpointsTable[adapter] = new EndpointTableEntry(System.DateTime.Now.Ticks / 10000, endpoints);
+                _adapterEndpointsTable[adapter] =
+                    new EndpointTableEntry(Time.currentMonotonicTimeMillis(), endpoints);
             }
         }
         
@@ -495,7 +496,7 @@ namespace IceInternal
         {
             lock(this)
             {
-                _objectTable[id] = new ProxyTableEntry(System.DateTime.Now.Ticks / 10000, proxy);
+                _objectTable[id] = new ProxyTableEntry(Time.currentMonotonicTimeMillis(), proxy);
             }
         }
         
@@ -518,7 +519,7 @@ namespace IceInternal
             }
             else
             {
-                return System.DateTime.Now.Ticks / 10000 - time <= ((long)ttl * 1000);
+                return Time.currentMonotonicTimeMillis() - time <= ((long)ttl * 1000);
             }
         }
         

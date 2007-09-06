@@ -183,7 +183,7 @@ namespace Ice
             {
                 if(_acmTimeout > 0)
                 {
-                    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
+                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
                 }
                 
                 //
@@ -368,7 +368,7 @@ namespace Ice
                     if(_state != StateClosed && _endpoint.timeout() >= 0)
                     {
                         long absoluteWaitTime = _stateTime + _endpoint.timeout();
-                        int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10000);
+                        int waitTime = (int)(absoluteWaitTime - IceInternal.Time.currentMonotonicTimeMillis());
                         
                         if(waitTime > 0)
                         {
@@ -377,7 +377,7 @@ namespace Ice
                             // this connection.
                             //
                             Monitor.Wait(this, waitTime);
-                            if(System.DateTime.Now.Ticks / 10000 >= absoluteWaitTime)
+                            if(IceInternal.Time.currentMonotonicTimeMillis() >= absoluteWaitTime)
                             {
                                 setState(StateClosed, new CloseTimeoutException());
                             }
@@ -454,7 +454,7 @@ namespace Ice
                     !_batchStreamInUse && _batchStream.isEmpty() &&
                     _dispatchCount == 0)
                 {
-                    if(System.DateTime.Now.Ticks / 10000 >= _acmAbsoluteTimeoutMillis)
+                    if(IceInternal.Time.currentMonotonicTimeMillis() >= _acmAbsoluteTimeoutMillis)
                     {
                         setState(StateClosing, new ConnectionTimeoutException());
                         return;
@@ -588,7 +588,7 @@ namespace Ice
                 
                 if(_acmTimeout > 0)
                 {
-                    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
+                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
                 }
             }
             
@@ -697,7 +697,7 @@ namespace Ice
 
                 if(_acmTimeout > 0)
                 {
-                    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
+                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
                 }
             }
 
@@ -978,7 +978,7 @@ namespace Ice
                         
                 if(_acmTimeout > 0)
                 {
-                    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
+                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
                 }
 
                 //
@@ -1097,7 +1097,7 @@ namespace Ice
                 
                     if(_acmTimeout > 0)
                     {
-                        _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
+                        _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
                     }
                 }
                 catch(LocalException ex)
@@ -1446,7 +1446,7 @@ namespace Ice
             _batchRequestCompress = false;
             _dispatchCount = 0;
             _state = StateNotValidated;
-            _stateTime = System.DateTime.Now.Ticks / 10000;
+            _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
             
             if(_endpoint.datagram())
             {
@@ -1780,7 +1780,7 @@ namespace Ice
             }       
 
             _state = state;
-            _stateTime = System.DateTime.Now.Ticks / 10000;
+            _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
             Monitor.PulseAll(this);
             
@@ -1874,7 +1874,7 @@ namespace Ice
 
             if(_acmTimeout > 0)
             {
-                _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10000 + _acmTimeout * 1000;
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
 
             try

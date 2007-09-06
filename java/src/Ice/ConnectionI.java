@@ -195,7 +195,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         {
             if(_acmTimeout > 0)
             {
-                _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
             
             //
@@ -396,7 +396,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                     if(_state != StateClosed && _endpoint.timeout() >= 0)
                     {
                         long absoluteWaitTime = _stateTime + _endpoint.timeout();
-                        long waitTime = absoluteWaitTime - System.currentTimeMillis();
+                        long waitTime = absoluteWaitTime - IceInternal.Time.currentMonotonicTimeMillis();
                         
                         if(waitTime > 0)
                         {
@@ -405,7 +405,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
                             // connection.
                             //
                             wait(waitTime);
-                            if(System.currentTimeMillis() >= absoluteWaitTime)
+                            if(IceInternal.Time.currentMonotonicTimeMillis() >= absoluteWaitTime)
                             {
                                 setState(StateClosed, new CloseTimeoutException());
                             }
@@ -492,7 +492,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
            !_batchStreamInUse && _batchStream.isEmpty() &&
            _dispatchCount == 0)
         {
-            if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
+            if(IceInternal.Time.currentMonotonicTimeMillis() >= _acmAbsoluteTimeoutMillis)
             {
                 setState(StateClosing, new ConnectionTimeoutException());
                 return;
@@ -555,7 +555,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
             if(_acmTimeout > 0)
             {
-                _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
         }
 
@@ -703,7 +703,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
             if(_acmTimeout > 0)
             {
-                _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
         }
 
@@ -1022,7 +1022,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
             if(_acmTimeout > 0)
             {
-                _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+                _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
             }
 
             //
@@ -1161,7 +1161,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
                 if(_acmTimeout > 0)
                 {
-                    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+                    _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
                 }
             }
             catch(IceInternal.LocalExceptionWrapper ex) // Java-specific workaround in Transceiver.write().
@@ -1515,7 +1515,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         _batchRequestCompress = false;
         _dispatchCount = 0;
         _state = StateNotValidated;
-        _stateTime = System.currentTimeMillis();
+        _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
         if(_endpoint.datagram())
         {
@@ -1874,7 +1874,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         }
 
         _state = state;
-        _stateTime = System.currentTimeMillis();
+        _stateTime = IceInternal.Time.currentMonotonicTimeMillis();
 
         notifyAll();
 
@@ -2037,7 +2037,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 
         if(_acmTimeout > 0)
         {
-            _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+            _acmAbsoluteTimeoutMillis = IceInternal.Time.currentMonotonicTimeMillis() + _acmTimeout * 1000;
         }
 
         try

@@ -49,7 +49,7 @@ namespace IceInternal
                     return;
                 }
 
-                Token token = new Token(System.DateTime.Now.Ticks / 10000 + delay, ++_tokenId, 0, task);
+                Token token = new Token(Time.currentMonotonicTimeMillis() + delay, ++_tokenId, 0, task);
 
                 try
                 {
@@ -77,7 +77,7 @@ namespace IceInternal
                     return;
                 }
 
-                Token token = new Token(System.DateTime.Now.Ticks / 10000 + period, ++_tokenId, period, task);
+                Token token = new Token(Time.currentMonotonicTimeMillis() + period, ++_tokenId, period, task);
 
                 try
                 {
@@ -152,7 +152,7 @@ namespace IceInternal
                         {
                             if(_tasks.ContainsKey(token.task))
                             {
-                                token.scheduledTime = System.DateTime.Now.Ticks / 10000 + token.delay;
+                                token.scheduledTime = Time.currentMonotonicTimeMillis() + token.delay;
                                 _tokens.Add(token, null);
                             }
                         }
@@ -177,7 +177,7 @@ namespace IceInternal
                 
                     while(_tokens.Count > 0 && _instance != null)
                     {
-                        long now = System.DateTime.Now.Ticks / 10000;
+                        long now = Time.currentMonotonicTimeMillis();
 
                         Token first = null;
                         foreach(Token t in _tokens.Keys)

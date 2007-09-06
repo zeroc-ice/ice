@@ -169,7 +169,7 @@ class TransactionalEvictorContext implements Ice.DispatchInterceptorAsyncCallbac
                 {
                     if(!_readOnly && !_removed)
                     {
-                        EvictorI.updateStats(_rec.stats, System.currentTimeMillis());
+                        EvictorI.updateStats(_rec.stats, IceInternal.Time.currentMonotonicTimeMillis());
                         _store.update(_current.id, _rec, _tx);
 
                         if(_trace >= 3)

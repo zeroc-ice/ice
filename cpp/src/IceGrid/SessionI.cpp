@@ -74,7 +74,7 @@ BaseSessionI::BaseSessionI(const string& id,
     _database(database),
     _filters(filters),
     _destroyed(false),
-    _timestamp(IceUtil::Time::now())
+    _timestamp(IceUtil::Time::now(IceUtil::Time::Monotonic))
 {
     if(_traceLevels && _traceLevels->session > 0)
     {
@@ -98,7 +98,7 @@ BaseSessionI::keepAlive(const Ice::Current& current)
         throw ex;
     }
 
-    _timestamp = IceUtil::Time::now();
+    _timestamp = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     if(_traceLevels->session > 1)
     {

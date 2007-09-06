@@ -61,7 +61,7 @@ class TransactionalEvictorI extends EvictorI implements TransactionalEvictor
 	_deactivateController.lock();
 	try
 	{
-	    long currentTime = System.currentTimeMillis();
+	    long currentTime = IceInternal.Time.currentMonotonicTimeMillis();
 
 	    ObjectRecord rec = new ObjectRecord(servant, new Statistics(currentTime, 0, 0));
 	

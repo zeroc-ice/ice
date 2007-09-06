@@ -72,7 +72,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
         return;
     }
 
-    const Token token(IceUtil::Time::now() + delay, delay, task);
+    const Token token(IceUtil::Time::now(IceUtil::Time::Monotonic) + delay, delay, task);
     bool inserted = _tasks.insert(make_pair(task, token.scheduledTime)).second;
     if(!inserted)
     {
@@ -127,7 +127,7 @@ Timer::run()
                     map<TimerTaskPtr, IceUtil::Time>::iterator p = _tasks.find(token.task);
                     if(p != _tasks.end())
                     {
-                        token.scheduledTime = IceUtil::Time::now() + token.delay;
+                        token.scheduledTime = IceUtil::Time::now(IceUtil::Time::Monotonic) + token.delay;
                         p->second = token.scheduledTime;
                         _tokens.insert(token);
                     }
@@ -148,7 +148,7 @@ Timer::run()
             
             while(!_tokens.empty() && !_destroyed)
             {
-                const IceUtil::Time now = IceUtil::Time::now();
+                const IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
                 const Token& first = *(_tokens.begin());
                 if(first.scheduledTime <= now)
                 {

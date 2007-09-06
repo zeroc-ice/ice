@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, getopt
+import os, sys, getopt, re
 
 def isCygwin():
     # The substring on sys.platform is required because some cygwin
@@ -20,11 +20,12 @@ if sys.platform == "win32":
     sys.exit(1)
 
 def runDemos(args, demos, num = 0):
+
     rootPath = "demo"
     if not os.path.exists(rootPath):
         rootPath = "."
         
-    if not os.path.exists(os.path.join(rootPath, os.path.normpath(demos[0]))):
+    if len(demos) > 0 and not os.path.exists(os.path.join(rootPath, os.path.normpath(demos[0]))):
         print "Unable to locate first demo. Check directory structure and location of scripts"
         sys.exit(1)
 
@@ -56,29 +57,30 @@ def runDemos(args, demos, num = 0):
 #
 # List of all basic demos.
 #
-demos = [ "Ice/async",
-          "Ice/bidir",
-          "Ice/callback",
-          "Ice/hello",
-          "Ice/invoke",
-          "Ice/latency",
-          "Ice/minimal",
-          "Ice/nested",
-          "Ice/session",
-          "Ice/throughput",
-          "Ice/value",
-          "IceBox/hello",
-          "IceStorm/clock",
-          "IceGrid/simple",
-          "Glacier2/callback",
-          "Freeze/bench",
-          "Freeze/phonebook",
-          "Freeze/library",
-          "book/freeze_filesystem",
-          "book/simple_filesystem",
-          "book/printer",
-          "book/lifecycle",
-          ]
+demos = [
+    "Ice/async",
+    "Ice/bidir",
+    "Ice/callback",
+    "Ice/hello",
+    "Ice/invoke",
+    "Ice/latency",
+    "Ice/minimal",
+    "Ice/nested",
+    "Ice/session",
+    "Ice/throughput",
+    "Ice/value",
+    "IceBox/hello",
+    "IceStorm/clock",
+    "IceGrid/simple",
+    "Glacier2/callback",
+    "Freeze/bench",
+    "Freeze/phonebook",
+    "Freeze/library",
+    "book/freeze_filesystem",
+    "book/simple_filesystem",
+    "book/printer",
+    "book/lifecycle",
+]
 
 #
 # These demos are currently disabled on cygwin
@@ -87,59 +89,67 @@ if isCygwin() == 0:
     demos += [ ]
 
 def usage():
-    print "usage: " + sys.argv[0] + " --mode=debug|release --fast --trace --start=<demo> -l -r <regex> -R <regex> --debug --host host"
+    print "usage: %s " % (sys.argv[0])
+    print "  --start=<regex>         Start running the demos at the given demo."
+    print "  --start-after=<regex>   Start running the demos after the given demo."
+    print "  --loop                  Run the demos in a loop."
+    print "  --filter=<regex>        Run all the demos that match the given regex."
+    print "  --rfilter=<regex>       Run all the demos that do not match the given regex."
+    print "  --fast                  Run an abbreviated version of the demos."
+    print "  --debug                 Display debugging information on each demos."
+    print "  --trace                 Run the demos with tracing enabled."
+    print "  --host=host             Set --Ice.Default.Host=<host>."
+    print "  --mode=debug|release    Run the demos with debug or release mode builds (win32 only)."
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lr:R:", ["start=", "fast", "trace", "debug", "host=", "mode="])
+    opts, args = getopt.getopt(sys.argv[1:], "lr:R:", [
+            "filter=", "rfilter=", "start-after=", "start=", "loop", "fast", "trace", "debug", "host=", "mode="])
 except getopt.GetoptError:
     usage()
 
-if(args):
+# Extra args cause a usage error.
+if args:
     usage()
 
-loop = 0
-args = ""
+def index(l, re):
+    """Find the index of the first item in the list that matches the given re"""
+    for i in range(0, len(l)):
+        if re.search(l[i]):
+            return i
+    return -1
+
+loop = False
+arg = ""
 for o, a in opts:
-    if o == "-l":
-        loop = 1
-    if o == "-r" or o == '-R':
-        import re
+    if o in ("-l", "--loop"):
+        loop = True
+    elif o in ("-r", "-R", "--filter", '--rfilter'):
         regexp = re.compile(a)
-        if o == '-r':
-            def rematch(x): return regexp.search(x)
+        if o in ("--rfilter", "-R"):
+            demos = [ x for x in demos if not regexp.search(x) ]
         else:
-            def rematch(x): return not regexp.search(x)
-        demos = filter(rematch, demos)
-    if o == "--protocol":
-        if a not in ( "ssl", "tcp"):
-            usage()
-        args += " " + o + " " + a
-    if o == "--mode":
-        args += ' --mode ' + a
-    if o == "--host" :
-        args += " " + o + " " + a
-    if o in ( "--fast", "--trace", "--debug"):
-        args += " " + o 
-    if o == '--start':
-        import re
-        regexp = re.compile(a)
-        found = False
-        nt = []
-        for t in demos:
-            if not found and regexp.search(t):
-                found = True
-            if found:
-                nt.append(t)
-        if len(nt) == 0:
-            print "test %s not found. no demos to run" % (a)
+            demos = [ x for x in demos if regexp.search(x) ]
+    elif o in ("--host", "--fast", "--trace", "--debug", "--mode"):
+        if o == "--mode":
+            if a not in ( "debug", "release"):
+                usage()
+        arg += " " + o
+        if len(a) > 0:
+            arg += " " + a
+    elif o in ('--start', "--start-after"):
+        start = index(demos, re.compile(a))
+        if start == -1:
+            print "demo %s not found. no demos to run" % (a)
             sys.exit(2)
-        demos = nt
+        if o == "--start-after":
+            start += 1
+        demos = demos[start:]
         
 if loop:
     num = 1
     while 1:
-        runDemos(args, demos, num)
+        runDemos(arg, demos, num)
         num += 1
 else:
-    runDemos(args, demos)
+    runDemos(arg, demos)

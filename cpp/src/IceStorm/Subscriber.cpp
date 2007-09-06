@@ -613,7 +613,7 @@ SubscriberLink::queue(bool forwarded, const EventDataSeq& events)
         // forwarded argument an EventInfo thing where the queue-time
         // is lazy initialized.
         //
-        if(IceUtil::Time::now() < _next)
+        if(IceUtil::Time::now(IceUtil::Time::Monotonic) < _next)
         {
             return QueueStateNoFlush;
         }
@@ -713,7 +713,7 @@ SubscriberLink::offline(const Ice::Exception& e)
     IceUtil::Mutex::Lock sync(_mutex);
     assert(_state != SubscriberStateOffline);
 
-    _next = IceUtil::Time::now() + _instance->discardInterval();
+    _next = IceUtil::Time::now(IceUtil::Time::Monotonic) + _instance->discardInterval();
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(_warn)

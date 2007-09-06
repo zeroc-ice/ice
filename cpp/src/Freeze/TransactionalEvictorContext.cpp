@@ -223,7 +223,8 @@ Freeze::TransactionalEvictorContext::ServantHolder::~ServantHolder()
         {
             if(!_body.readOnly && !_body.removed)
             {
-                EvictorIBase::updateStats(_body.rec.stats, IceUtil::Time::now().toMilliSeconds());
+                EvictorIBase::updateStats(_body.rec.stats, 
+                                          IceUtil::Time::now(IceUtil::Time::Monotonic).toMilliSeconds());
                 _body.store->update(_body.current->id, _body.rec, ctx->_tx);
             }
         

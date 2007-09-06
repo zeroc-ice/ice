@@ -47,7 +47,7 @@ LatencyClient::run(int argc, char* argv[])
     // Initial ping to setup the connection.
     ping->ice_ping();
 
-    IceUtil::Time tm = IceUtil::Time::now();
+    IceUtil::Time tm = IceUtil::Time::now(IceUtil::Time::Monotonic);
 
     const int repetitions = 100000;
     cout << "pinging server " << repetitions << " times (this may take a while)" << endl;
@@ -56,7 +56,7 @@ LatencyClient::run(int argc, char* argv[])
         ping->ice_ping();
     }
 
-    tm = IceUtil::Time::now() - tm;
+    tm = IceUtil::Time::now(IceUtil::Time::Monotonic) - tm;
 
     cout << "time for " << repetitions << " pings: " << tm * 1000 << "ms" << endl;
     cout << "time per ping: " << tm * 1000 / repetitions << "ms" << endl;
