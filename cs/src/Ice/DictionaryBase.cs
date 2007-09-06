@@ -279,7 +279,14 @@ namespace Ice
 
         public void Add(KT key, VT value)
         {
-            dict_.Add(key, value);
+            try
+            {
+                dict_.Add(key, value);
+            }
+            catch(ArgumentException)
+            {
+                // Ignore.
+            }
         }
 
         public void Remove(KT key)
