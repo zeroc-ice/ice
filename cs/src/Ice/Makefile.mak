@@ -31,6 +31,7 @@ SRCS		= Acceptor.cs \
 		  ConnectionMonitor.cs \
 		  Connector.cs \
 		  DefaultsAndOverrides.cs \
+		  DictionaryBase.cs \
 		  Direct.cs \
 		  EndpointI.cs \
 		  EndpointFactory.cs \

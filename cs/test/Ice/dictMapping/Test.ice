@@ -19,16 +19,16 @@ dictionary<string, string> NR;
 dictionary<string, NV> NDV;
 dictionary<string, NR> NDR;
 
-["clr:DictionaryBase"] dictionary<int, int> OV;
-["clr:DictionaryBase"] dictionary<string, string> OR;
-["clr:DictionaryBase"] dictionary<string, OV> ODV;
-["clr:DictionaryBase"] dictionary<string, OR> ODR;
+["clr:collection"] dictionary<int, int> OV;
+["clr:collection"] dictionary<string, string> OR;
+["clr:collection"] dictionary<string, OV> ODV;
+["clr:collection"] dictionary<string, OR> ODR;
 
 dictionary<string, ODV> NODV;
 dictionary<string, ODR> NODR;
 
-["clr:DictionaryBase"] dictionary<string, NDV> ONDV;
-["clr:DictionaryBase"] dictionary<string, NDR> ONDR;
+["clr:collection"] dictionary<string, NDV> ONDV;
+["clr:collection"] dictionary<string, NDR> ONDR;
 
 sequence<int> AIS;
 ["clr:collection"] sequence<int> CIS;
@@ -46,13 +46,13 @@ dictionary<string, ASS> NDASS;
 dictionary<string, CSS> NDCSS;
 dictionary<string, GSS> NDGSS;
 
-["clr:DictionaryBase"] dictionary<string, AIS> ODAIS;
-["clr:DictionaryBase"] dictionary<string, CIS> ODCIS;
-["clr:DictionaryBase"] dictionary<string, GIS> ODGIS;
+["clr:collection"] dictionary<string, AIS> ODAIS;
+["clr:collection"] dictionary<string, CIS> ODCIS;
+["clr:collection"] dictionary<string, GIS> ODGIS;
 
-["clr:DictionaryBase"] dictionary<string, ASS> ODASS;
-["clr:DictionaryBase"] dictionary<string, CSS> ODCSS;
-["clr:DictionaryBase"] dictionary<string, GSS> ODGSS;
+["clr:collection"] dictionary<string, ASS> ODASS;
+["clr:collection"] dictionary<string, CSS> ODCSS;
+["clr:collection"] dictionary<string, GSS> ODGSS;
 
 ["ami"] class MyClass
 {

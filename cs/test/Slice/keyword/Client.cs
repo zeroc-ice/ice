@@ -9,6 +9,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 public class Server
 {
@@ -115,6 +116,8 @@ public class Server
         test(l != null);
         @abstract.@finally g = new @abstract.@finally();
         test(g != null);
+        Dictionary<string, @abstract.@break> g2 = new Dictionary<string, @abstract.@break>();
+        test(g2 != null);
         @abstract.@fixed h = new @abstract.@fixed();
         h.@for = 0;
         test(h != null);

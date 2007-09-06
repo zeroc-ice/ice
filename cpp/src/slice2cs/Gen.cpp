@@ -1208,7 +1208,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
         bool foundOld = false;
         for(DictionaryList::const_iterator i = dicts.begin(); i != dicts.end() && !foundOld; ++i)
         {
-            if((*i)->hasMetaData("clr:DictionaryBase"))
+            if((*i)->hasMetaData("clr:collection"))
             {
                 foundOld = true;
             }
@@ -2399,7 +2399,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    if(!p->hasMetaData("clr:DictionaryBase"))
+    if(!p->hasMetaData("clr:collection"))
     {
         return;
     }
@@ -2415,18 +2415,18 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     emitAttributes(p);
     _out << nl << "public class " << name
-         << " : _System.Collections.DictionaryBase, _System.ICloneable";
+         << " : Ice.DictionaryBase<" << ks << ", " << vs << ">, _System.ICloneable";
     _out << sb;
 
     _out << sp << nl << "#region " << name << " members";
 
     _out << sp << nl << "public void AddRange(" << name << " d__)";
     _out << sb;
-    _out << nl << "foreach(_System.Collections.DictionaryEntry e in d__)";
+    _out << nl << "foreach(_System.Collections.Generic.KeyValuePair<" << ks << ", " << vs << "> e in d__.dict_)";
     _out << sb;
     _out << nl << "try";
     _out << sb;
-    _out << nl << "InnerHashtable.Add(e.Key, e.Value);";
+    _out << nl << "dict_.Add(e.Key, e.Value);";
     _out << eb;
     _out << nl << "catch(_System.ArgumentException)";
     _out << sb;
@@ -2437,154 +2437,19 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "#endregion"; // <name> members
 
-    _out << sp << nl << "#region IDictionary members";
-
-    _out << sp << nl << "public bool IsFixedSize";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public bool IsReadOnly";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public _System.Collections.ICollection Keys";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return InnerHashtable.Keys;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public _System.Collections.ICollection Values";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return InnerHashtable.Values;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#region Indexer";
-
-    _out << sp << nl << "public " << vs << " this[" << ks << " key]";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return (" << vs << ")InnerHashtable[key];";
-    _out << eb;
-
-    _out << nl << "set";
-    _out << sb;
-    _out << nl << "InnerHashtable[key] = value;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Indexer
-
-    _out << sp << nl << "public void Add(" << ks << " key, " << vs << " value)";
-    _out << sb;
-    _out << nl << "InnerHashtable.Add(key, value);";
-    _out << eb;
-
-    _out << sp << nl << "public void Remove(" << ks << " key)";
-    _out << sb;
-    _out << nl << "InnerHashtable.Remove(key);";
-    _out << eb;
-
-    _out << sp << nl << "public bool Contains(" << ks << " key)";
-    _out << sb;
-    _out << nl << "return InnerHashtable.Contains(key);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // IDictionary members
-
-    _out << sp << nl << "#region ICollection members";
-
-    _out << sp << nl << "public bool IsSynchronized";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public object SyncRoot";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return this;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // ICollection members
-
     _out << sp << nl << "#region ICloneable members";
 
     _out << sp << nl << "public object Clone()";
     _out << sb;
     _out << nl << name << " d = new " << name << "();";
-    _out << nl << "foreach(_System.Collections.DictionaryEntry e in InnerHashtable)";
+    _out << nl << "foreach(_System.Collections.Generic.KeyValuePair<" << ks << ", " << vs <<"> e in dict_)";
     _out << sb;
-    _out << nl << "d.InnerHashtable.Add(e.Key, e.Value);";
+    _out << nl << "d.dict_.Add(e.Key, e.Value);";
     _out << eb;
     _out << nl << "return d;";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // ICloneable members
-
-    _out << sp << nl << "#region Object members";
-
-    _out << sp << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "int hash = 0;";
-    _out << nl << "foreach(_System.Collections.DictionaryEntry e in InnerHashtable)";
-    _out << sb;
-    _out << nl << "hash = 5 * hash + e.Key.GetHashCode();";
-    if(!valueIsValue)
-    {
-        _out << nl << "if(e.Value != null)";
-        _out << sb;
-    }
-    _out << nl << "hash = 5 * hash + e.Value.GetHashCode();";
-    if(!valueIsValue)
-    {
-        _out << eb;
-    }
-    _out << eb;
-    _out << nl << "return hash;";
-    _out << eb;
-
-    _out << sp << nl << "public override bool Equals(object other)";
-    _out << sb;
-    _out << nl << "if(!(other is " << name << "))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    _out << nl << "return Ice.CollectionComparer.Equals(this, (" << name << ")other);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Object members
-
-    _out << sp << nl << "#region Comparison members";
-
-    _out << sp << nl << "public static bool operator==(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return Equals(lhs__, rhs__);";
-    _out << eb;
-
-    _out << sp << nl << "public static bool operator!=(" << name << " lhs__, " << name << " rhs__)";
-    _out << sb;
-    _out << nl << "return !Equals(lhs__, rhs__);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Comparison members
 
     _out << eb;
 }
@@ -3469,7 +3334,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
-    bool isNewMapping = !p->hasMetaData("clr:DictionaryBase");
+    bool isNewMapping = !p->hasMetaData("clr:collection");
 
     string keyS = typeToString(key);
     string valueS = typeToString(value);

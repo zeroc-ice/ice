@@ -62,7 +62,7 @@ namespace Ice
             }
 
             //
-            // Compare both sets of keys. Keys are unique and non-null.
+            // Get and sort both sets of keys. Keys are unique and non-null.
             //
             System.Collections.ICollection keys1 = d1.Keys;
             System.Collections.ICollection keys2 = d2.Keys;
@@ -73,38 +73,27 @@ namespace Ice
             Array.Sort(ka1);
             Array.Sort(ka2);
 
-            System.Collections.IEnumerator e = ka2.GetEnumerator();
-            foreach(object o in ka1)
+            try
             {
-                e.MoveNext();
-                if(!o.Equals(e.Current))
+                System.Collections.IEnumerator e = ka2.GetEnumerator();
+                foreach(object o in ka1)
                 {
-                    return false;
+                    e.MoveNext();
+                    if(!o.Equals(e.Current))
+                    {
+                        return false;
+                    }
+                    if(!Equals(d1[o], d2[o]))
+                    {
+                        return false;
+                    }
                 }
+            }
+            catch(System.Exception)
+            {
+                return false;
             }
 
-            //
-            // Compare values.
-            //
-            foreach(object o in ka1)
-            {
-                object v1 = d1[o];
-                object v2 = d2[o];
-                if(v1 == null)
-                {
-                    if(v2 != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if(!v1.Equals(v2))
-                    {
-                        return false;
-                    }
-                }
-            }
             return true;
         }
 
@@ -124,7 +113,7 @@ namespace Ice
             foreach(object o in c1)
             {
                 e.MoveNext();
-                if(!o.Equals(e.Current))
+                if(!Equals(o, e.Current))
                 {
                     return false;
                 }

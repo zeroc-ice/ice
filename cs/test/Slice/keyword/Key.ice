@@ -39,6 +39,7 @@ class explicit extends delegate implements decimal, case
 {
 };
 ["clr:collection"] sequence<as> extern;
+dictionary<string, break> while;
 ["clr:collection"] dictionary<string, as> finally;
 
 exception fixed

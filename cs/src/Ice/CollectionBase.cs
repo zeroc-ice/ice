@@ -64,9 +64,9 @@ namespace Ice
             list_.CopyTo(a__, i__);
         }
 
-        public void CopyTo(int i__, T[] a__, int ai__, int c__)
+        public void CopyTo(int i__, T[] a__, int ai__, int _c_)
         {
-            list_.CopyTo(i__, a__, ai__, c__);
+            list_.CopyTo(i__, a__, ai__, _c_);
         }
 
         public T[] ToArray()
@@ -353,16 +353,16 @@ namespace Ice
 
         private class Comparer : IComparer<T>
         {
-            private System.Collections.IComparer c_;
+            private System.Collections.IComparer _c;
 
             public Comparer(System.Collections.IComparer c)
             {
-                c_ = c;
+                _c = c;
             }
 
             public virtual int Compare(T l, T r)
             {
-                return c_.Compare(l, r);
+                return _c.Compare(l, r);
             }
         }
     }

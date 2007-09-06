@@ -186,7 +186,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        if(!d->hasMetaData("clr:DictionaryBase"))
+        if(!d->hasMetaData("clr:collection"))
         {
             return "_System.Collections.Generic.Dictionary<"
                    + typeToString(d->keyType()) + ", " + typeToString(d->valueType()) + ">";
@@ -556,7 +556,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        if(!d->hasMetaData("clr:DictionaryBase"))
+        if(!d->hasMetaData("clr:collection"))
         {
             typeS = fixId(d->scoped());
         }
@@ -1271,7 +1271,7 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 }
                 else if(DictionaryPtr::dynamicCast(cont))
                 {
-                    if(s.substr(prefix.size()) == "DictionaryBase")
+                    if(s.substr(prefix.size()) == "collection")
                     {
                         continue;
                     }
