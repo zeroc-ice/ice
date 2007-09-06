@@ -117,7 +117,7 @@ Freeze::TransactionI::rollbackInternal(bool warning)
                 {
                     Warning warn(_communicator->getLogger());
                     warn << "Freeze.Transaction: rolled back transaction " << hex << txnId << dec
-                         << " due to destruction.\nApplication code should explicitely call rollback or commit.";
+                         << " due to destruction.\nApplication code should explicitly call rollback or commit.";
                 }
             }
             
