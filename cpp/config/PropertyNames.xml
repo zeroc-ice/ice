@@ -540,6 +540,7 @@ generated from the section label.
         <property name="Trace.Transaction" />
         <property name="Warn.CloseInFinalize" />
         <property name="Warn.Deadlocks" />
+        <property name="Warn.Rollback" />
     </section>
 
 </properties>

@@ -36,6 +36,7 @@ public:
 
     virtual void rollback();
 
+
     virtual ConnectionPtr getConnection() const;
     
     //
@@ -43,9 +44,10 @@ public:
     //
     virtual void __decRef();
 
+    void rollbackInternal(bool);
     void setPostCompletionCallback(const PostCompletionCallbackPtr&);
 
-    TransactionI(const ConnectionIPtr&);
+    TransactionI(ConnectionI*);
     ~TransactionI();
     
     DbTxn*
@@ -63,6 +65,7 @@ private:
     const Ice::CommunicatorPtr _communicator;
     ConnectionIPtr _connection;
     const Ice::Int _txTrace;
+    const Ice::Int _warnRollback;
     DbTxn* _txn;
     PostCompletionCallbackPtr _postCompletionCallback;
 };

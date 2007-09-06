@@ -35,6 +35,11 @@ public:
 
     virtual std::string getName() const;
 
+    //
+    // Custom refcounting implementation
+    //
+    virtual void __decRef();
+
     virtual ~ConnectionI();
 
     ConnectionI(const SharedDbEnvPtr&);

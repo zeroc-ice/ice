@@ -46,7 +46,7 @@ Freeze::ConnectionI::close()
     {
         try
         {
-            _transaction->rollback();
+            _transaction->rollbackInternal(true);
         }
         catch(const DatabaseException&)
         {
@@ -75,6 +75,19 @@ string
 Freeze::ConnectionI::getName() const
 {
     return _envName;
+}
+
+//
+// External refcount operations, from code holding a Connection[I]Ptr
+//
+void
+Freeze::ConnectionI::__decRef()
+{
+    if(__getRef() == 2 && _transaction && _transaction->__getRef() == 1)
+    {
+        close();
+    }
+    Shared::__decRef();
 }
 
 Freeze::ConnectionI::~ConnectionI()
