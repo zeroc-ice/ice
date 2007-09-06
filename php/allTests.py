@@ -73,6 +73,7 @@ tests = [
     "Ice/objects",
     "Ice/slicing/exceptions",
     "Ice/slicing/objects",
+    "Slice/keyword",
     ]
 
 def usage():
