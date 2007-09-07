@@ -77,18 +77,43 @@ Freeze::ConnectionI::getName() const
     return _envName;
 }
 
-//
-// External refcount operations, from code holding a Connection[I]Ptr
-//
+void
+Freeze::ConnectionI::__incRef()
+{
+    IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+    _refCount++;
+}
+
+
 void
 Freeze::ConnectionI::__decRef()
 {
-    if(__getRef() == 2 && _transaction && _transaction->__getRef() == 1)
+    IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+    if(--_refCount == 0)
     {
+        sync.release();
+        delete this;
+    }
+    else if(_refCount == 1 && _transaction != 0 && _transaction->dbTxn() != 0 && _transaction->__getRefNoSync() == 1)
+    {
+        sync.release();
         close();
     }
-    Shared::__decRef();
 }
+
+int
+Freeze::ConnectionI::__getRef() const
+{
+    IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+    return _refCount;
+}
+
+int
+Freeze::ConnectionI::__getRefNoSync() const
+{
+    return _refCount;
+}
+
 
 Freeze::ConnectionI::~ConnectionI()
 {
@@ -101,7 +126,9 @@ Freeze::ConnectionI::ConnectionI(const SharedDbEnvPtr& dbEnv) :
     _envName(dbEnv->getEnvName()),
     _trace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map")),
     _txTrace(_communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Transaction")),
-    _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0)
+    _deadlockWarning(_communicator->getProperties()->getPropertyAsInt("Freeze.Warn.Deadlocks") != 0),
+    _refCountMutex(new SharedMutex),
+    _refCount(0)
 {
 }
 
