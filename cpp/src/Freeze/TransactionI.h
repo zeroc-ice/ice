@@ -20,7 +20,7 @@ namespace Freeze
 class ConnectionI;
 typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 
-class SharedMutex;
+struct SharedMutex;
 typedef IceUtil::Handle<SharedMutex> SharedMutexPtr;
 
 class PostCompletionCallback : public virtual IceUtil::Shared
