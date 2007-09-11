@@ -1974,7 +1974,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                _out << nl << "this." << fixId((*q)->name()) << " = " << fixId((*q)->name()) << ';';
+                string name = fixId((*q)->name(), DotNet::ApplicationException, false);
+                _out << nl << "this." << name << " = " << name << ';';
             }
             _out << eb;
         }

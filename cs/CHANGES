@@ -1,5 +1,5 @@
-Changes since version 3.2.X (binary incompatible)
--------------------------------------------------
+Changes since version 3.2.X (binary incompatible) (TODO: if we don't do a 3.2.2, the changes listed for 3.2.1 below
+-------------------------------------------------  need to be merged into this section.)
 
 - Setting IceBox.ServiceManager.Endpoints is no longer necessary
   in order to run the IceBox service. If no endpoints are specified
@@ -50,6 +50,13 @@ Changes since version 3.2.X (binary incompatible)
 
 - Ice.LocalException and Ice.UserException now implement
   System.ICloneable.
+
+Changes since version 3.2.1
+---------------------------
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated for Slice exceptions
+  with data members that had the same name as one of the data members of
+  System.ApplicationException.
 
 Changes since version 3.2.0
 ---------------------------
