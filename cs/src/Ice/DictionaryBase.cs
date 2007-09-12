@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    public abstract class DictionaryBase<KT, VT>
+    public abstract class DictionaryBase<KT, VT> : System.Collections.IDictionary
     {
         protected Dictionary<KT, VT> dict_;
 
@@ -20,13 +20,6 @@ namespace Ice
         {
             dict_ = new Dictionary<KT, VT>();
         }
-
-        /* TODO
-        public static implicit operator Dictionary<T>(DictionaryBase<T> l)
-        {
-            return l.dict_;
-        }
-        */
 
         public int Count
         {
@@ -118,14 +111,7 @@ namespace Ice
                     {
                         return false;
                     }
-                }
-
-                //
-                // Compare values.
-                //
-                foreach(KT k1 in ka1)
-                {
-                    if(!Equals(dict_[k1], d2.dict_[k1]))
+                    if(!Equals(dict_[ka1[i]], d2.dict_[ka1[i]]))
                     {
                         return false;
                     }
@@ -298,6 +284,61 @@ namespace Ice
         {
             return dict_.ContainsKey(key);
         }
-    }
 
+        public void Add(object key, object value)
+        {
+            checkKeyType(key);
+            checkValueType(value);
+            Add((KT)key, (VT)value);
+        }
+
+        public void Remove(object key)
+        {
+            checkKeyType(key);
+            Remove((KT)key);
+        }
+
+        public bool Contains(object key)
+        {
+            return dict_.ContainsKey((KT)key);
+        }
+
+        System.Collections.IDictionaryEnumerator System.Collections.IDictionary.GetEnumerator()
+        {
+            return new CEnumerator(dict_.GetEnumerator());
+        }
+
+        public object this[object key]
+        {
+            get
+            {
+                checkKeyType(key);
+                return dict_[(KT)key];
+            }
+            set
+            {
+                checkKeyType(key);
+                checkValueType(value);
+                dict_[(KT)key] = (VT)value;
+            }
+        }
+
+        private void checkKeyType(object o)
+        {
+            if(o != null && !(o is KT))
+            {
+                throw new ArgumentException("Cannot use a key of type " + o.GetType().ToString()
+                                            + " for a dictionary with key type " + typeof(KT).ToString());
+            }
+        }
+
+        private void checkValueType(object o)
+        {
+            if(o != null && !(o is KT))
+            {
+                throw new ArgumentException("Cannot use a value of type " + o.GetType().ToString()
+                                            + " for a dictionary with value type " + typeof(VT).ToString());
+            }
+        }
+    }
 }

@@ -53,7 +53,7 @@ static const Node ICloneableNode =
 
 static const char* ExceptionNames[] =
                     {
-                        "GetBaseException", "GetObjectData", "HelpLink", "HResult", "InnerException",
+                        "Data", "GetBaseException", "GetObjectData", "HelpLink", "HResult", "InnerException",
                         "Message", "Source", "StackTrace", "TargetSite", 0
                     };
 static const Node* ExceptionParents[] =

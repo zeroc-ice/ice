@@ -12,7 +12,7 @@ using System.Collections.Generic;
 
 namespace Ice
 {
-    public abstract class CollectionBase<T>
+    public abstract class CollectionBase<T> : System.Collections.IList
     {
         protected List<T> list_;
 
@@ -363,6 +363,70 @@ namespace Ice
             public virtual int Compare(T l, T r)
             {
                 return _c.Compare(l, r);
+            }
+        }
+
+        public int Add(object o)
+        {
+            checkType(o);
+            return Add((T)o);
+        }
+
+        public bool Contains(object o)
+        {
+            checkType(o);
+            return Contains((T)o);
+        }
+
+        public int IndexOf(object o)
+        {
+            checkType(o);
+            return IndexOf((T)o);
+        }
+
+        public void Insert(int i, object o)
+        {
+            checkType(o);
+            Insert(i, (T)o);
+        }
+
+        public void Remove(object o)
+        {
+            checkType(o);
+            Remove((T)o);
+        }
+
+        object System.Collections.IList.this[int index]
+        {
+            get
+            {
+                return this[index];
+            }
+            set
+            {
+                checkType(value);
+                this[index] = (T)value;
+            }
+        }
+
+        public void CopyTo(Array a, int index)
+        {
+            Type t = a.GetType().GetElementType();
+            if(!t.IsAssignableFrom(typeof(T)))
+            {
+                throw new ArgumentException("a__", "Cannot assign " + typeof(T).ToString() + " to array of "
+                                            + t.ToString());
+            }
+            CopyTo((T[])a, index);
+        }
+
+        private void checkType(object o)
+        {
+
+            if(o != null && !(o is T))
+            {
+                throw new ArgumentException("Cannot use an object of type " + o.GetType().ToString()
+                                            + " with a collection of " + typeof(T).ToString());
             }
         }
     }
