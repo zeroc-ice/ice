@@ -20,6 +20,9 @@ namespace Freeze
 class ConnectionI;
 typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 
+struct SharedMutex;
+typedef IceUtil::Handle<SharedMutex> SharedMutexPtr;
+
 class PostCompletionCallback : public virtual IceUtil::Shared
 {
 public:
@@ -36,16 +39,20 @@ public:
 
     virtual void rollback();
 
+
     virtual ConnectionPtr getConnection() const;
     
     //
     // Custom refcounting implementation
     //
+    virtual void __incRef();
     virtual void __decRef();
+    virtual int __getRef() const;
 
+    void rollbackInternal(bool);
     void setPostCompletionCallback(const PostCompletionCallbackPtr&);
 
-    TransactionI(const ConnectionIPtr&);
+    TransactionI(ConnectionI*);
     ~TransactionI();
     
     DbTxn*
@@ -58,13 +65,18 @@ private:
 
     friend class ConnectionI;
     
+    int __getRefNoSync() const;
+  
     void postCompletion(bool, bool);
 
     const Ice::CommunicatorPtr _communicator;
     ConnectionIPtr _connection;
     const Ice::Int _txTrace;
+    const Ice::Int _warnRollback;
     DbTxn* _txn;
     PostCompletionCallbackPtr _postCompletionCallback;
+    SharedMutexPtr _refCountMutex;
+    int _refCount;
 };
 
 typedef IceUtil::Handle<TransactionI> TransactionIPtr;

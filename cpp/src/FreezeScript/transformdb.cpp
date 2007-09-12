@@ -837,6 +837,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             status = EXIT_FAILURE;
         }
     }
+    // Clear the transaction before closing the database environment.
+    txNew = 0;
+
     dbEnv.close(0);
     dbEnvNew.close(0);
 

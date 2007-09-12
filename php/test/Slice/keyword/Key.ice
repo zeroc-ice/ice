@@ -13,11 +13,23 @@ module and
     {
         as
     };
-    struct break
+    struct xor
     {
-        int case;
+        int abstract;
+        int clone;
+        int private;
+        int protected;
+        int public;
+        int this;
+        int throw;
+        int use;
+        int var;
     };
-    interface cfunction
+    interface break
+    {
+        void case(int catch, out int try);
+    };
+    interface function
     {
         void continue(int declare, int default);
     };
@@ -29,7 +41,7 @@ module and
     {
         void else(die* elseif, out int empty);
     };
-    class enddeclare extends echo implements die, cfunction
+    class enddeclare extends echo implements die, function
     {
     };
     sequence<array> endfor;
@@ -40,7 +52,7 @@ module and
 
     local interface for
     {
-        array foreach(break if, echo global, enddeclare require, cfunction* include,
+        array foreach(break if, echo global, enddeclare require, function* include,
 		      die* return, echo* isset, enddeclare* list, int new, int static)
             throws endif, endwhile;
     };

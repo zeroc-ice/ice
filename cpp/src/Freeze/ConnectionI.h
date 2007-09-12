@@ -21,6 +21,17 @@ namespace Freeze
 
 class MapHelperI;
 
+//
+// A mutex shared by a connection and all its transactions
+// (for refcounting thread-safety)
+//
+struct SharedMutex : public IceUtil::Shared
+{
+    IceUtil::Mutex mutex;
+};
+typedef IceUtil::Handle<SharedMutex> SharedMutexPtr;
+
+
 class ConnectionI : public Connection
 {
 public:
@@ -35,6 +46,13 @@ public:
 
     virtual std::string getName() const;
 
+    //
+    // Custom refcounting implementation
+    //
+    virtual void __incRef();
+    virtual void __decRef();
+    virtual int __getRef() const;
+ 
     virtual ~ConnectionI();
 
     ConnectionI(const SharedDbEnvPtr&);
@@ -65,6 +83,10 @@ public:
 
 private:
 
+    friend class TransactionI;
+
+    int __getRefNoSync() const;
+
     const Ice::CommunicatorPtr _communicator;
     SharedDbEnvPtr _dbEnv;
     const std::string _envName;
@@ -73,6 +95,8 @@ private:
     const Ice::Int _trace;
     const Ice::Int _txTrace;
     const bool _deadlockWarning;
+    SharedMutexPtr _refCountMutex;
+    int _refCount;
 };  
 typedef IceUtil::Handle<ConnectionI> ConnectionIPtr;
 

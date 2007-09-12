@@ -26,11 +26,12 @@ lookupKwd(const string& name)
     //
     static const string keywordList[] = 
     {       
-        "and", "array", "as", "break", "case", "cfunction", "class", "const", "continue", "declare", "default",
-        "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor", "endforeach", "endif", "endswitch",
-        "endwhile", "eval", "exit", "extends", "for", "foreach", "function", "global", "if", "include",
-        "include_once", "isset", "list", "new", "old_function", "or", "print", "require", "require_once", "return",
-        "static", "switch", "unset", "use", "var", "while", "xor"
+        "abstract", "and", "array", "as", "break", "case", "catch", "class", "clone", "const", "continue", "declare",
+        "default", "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor", "endforeach", "endif",
+        "endswitch", "endwhile", "eval", "exit", "extends", "final", "for", "foreach", "function", "global", "if",
+        "implements", "include", "include_once", "interface", "isset", "list", "new", "or", "print", "private",
+        "protected", "public", "require", "require_once", "return", "static", "switch", "this", "throw", "try",
+        "unset", "use", "var", "while", "xor"
     };
     bool found =  binary_search(&keywordList[0],
                                 &keywordList[sizeof(keywordList) / sizeof(*keywordList)],

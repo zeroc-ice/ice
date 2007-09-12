@@ -87,6 +87,22 @@ Freeze::TransactionI::commit()
 void
 Freeze::TransactionI::rollback()
 {
+    rollbackInternal(false);
+}
+
+Freeze::ConnectionPtr
+Freeze::TransactionI::getConnection() const
+{
+    if(_txn)
+    {
+        return _connection;
+    }
+    return 0;
+}
+
+void
+Freeze::TransactionI::rollbackInternal(bool warning)
+{
     if(_txn != 0)
     {
         long txnId = 0;
@@ -94,9 +110,15 @@ Freeze::TransactionI::rollback()
         {
             _connection->closeAllIterators();
             
-            if(_txTrace >= 1)
+            if(_txTrace >= 1 || (warning && _warnRollback))
             {
                 txnId = (_txn->id() & 0x7FFFFFFF) + 0x80000000L;
+                if(warning && _warnRollback)
+                {
+                    Warning warn(_communicator->getLogger());
+                    warn << "Freeze.Transaction: rolled back transaction " << hex << txnId << dec
+                         << " due to destruction.\nApplication code should explicitly call rollback or commit.";
+                }
             }
             
             _txn->abort();
@@ -139,32 +161,41 @@ Freeze::TransactionI::rollback()
     }
 }
 
-Freeze::ConnectionPtr
-Freeze::TransactionI::getConnection() const
+void
+Freeze::TransactionI::__incRef()
 {
-    return _connection;
+    IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+    _refCount++;
 }
 
-//
-// External refcount operations, from code holding a Transaction[I]Ptr
-//
+
 void
 Freeze::TransactionI::__decRef()
 {
-    // If dropping the second to last reference and there is still a
-    // transaction then this means the last reference is held by the
-    // connection. In this case we must rollback the transaction.
-    bool rb = false;
-    if(__getRef() == 2 && _txn)
+    IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+    if(--_refCount == 0)
     {
-        rb = true;
+        sync.release();
+        delete this;
     }
-    Shared::__decRef();
-    if(rb)
+    else if(_txn != 0 && _refCount == 1 && _connection->__getRefNoSync() == 1)
     {
-        rollback();
-        // After this the transaction is dead.
+        sync.release();
+        rollbackInternal(true);
     }
+}
+
+int
+Freeze::TransactionI::__getRef() const
+{
+    IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+    return _refCount;
+}
+
+int
+Freeze::TransactionI::__getRefNoSync() const
+{
+    return _refCount;
 }
 
 void
@@ -173,11 +204,20 @@ Freeze::TransactionI::setPostCompletionCallback(const Freeze::PostCompletionCall
     _postCompletionCallback = cb;
 }
     
-Freeze::TransactionI::TransactionI(const ConnectionIPtr& connection) :
+//
+// The constructor takes a ConnectionI* instead of a ConnectionIPtr
+// because we have to ensure there is no call to __decRef while the
+// transaction or the connection are not assigned to a Ptr in
+// user-code.
+//
+Freeze::TransactionI::TransactionI(ConnectionI* connection) :
     _communicator(connection->communicator()),
     _connection(connection),
     _txTrace(connection->txTrace()),
-    _txn(0)
+    _warnRollback(_communicator->getProperties()->getPropertyAsIntWithDefault("Freeze.Warn.Rollback", 1)),
+    _txn(0),
+    _refCountMutex(connection->_refCountMutex),
+    _refCount(0)
 {
     try
     {
@@ -207,18 +247,7 @@ Freeze::TransactionI::TransactionI(const ConnectionIPtr& connection) :
     
 Freeze::TransactionI::~TransactionI()
 {
-    if(_txn != 0)
-    {
-        try
-        {
-            rollback();
-        }
-        catch(const IceUtil::Exception& e)
-        {
-            Error error(_communicator->getLogger());
-            error << "transaction rollback raised :" << e;
-        }
-    }
+    assert(_txn == 0);
 }
 
 void
@@ -228,26 +257,21 @@ Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
     // calling both the post completion callback and
     // Connection::clearTransaction may alter the transaction
     // reference count which checks _txn.
-    _txn = 0;
+
+    {
+        //
+        // We synchronize here as _txn is checked (read) in the refcounting code
+        //
+        IceUtil::Mutex::Lock sync(_refCountMutex->mutex);
+        _txn = 0;
+    }
 
     if(_postCompletionCallback != 0)
     {
         _postCompletionCallback->postCompletion(committed, deadlock);
     }
 
-    // Its necessary here to copy the connection before calling
-    // clearTransaction because this may release the last reference. This specifically
-    // occurs in the following scenario:
-    //
-    // TransactionalEvictorContext holds the _tx. It calls
-    // _tx->commit(). This comes into this method, and calls
-    // _postCompletionCallback. This causes the context to drop the
-    // _tx reference (reference count is now 1). The
-    // connection->clearTransaction() is then called which drops its
-    // reference causing the transaction to be deleted.
-    //
-    ConnectionIPtr con = _connection;
-    _connection = 0; // Drop the connection
-    con->clearTransaction();
-    // At this point the transaction may be dead.
+    ConnectionIPtr connection = _connection;
+    _connection = 0;
+    connection->clearTransaction(); // may release the last _refCount
 }
