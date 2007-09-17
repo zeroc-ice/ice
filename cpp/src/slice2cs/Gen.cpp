@@ -4450,7 +4450,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            params = getParams((*r));
+            params = getParams(*r);
             args = getArgs(*r);
         }
 
@@ -4525,7 +4525,7 @@ Slice::Gen::TieVisitor::writeInheritedOperationsWithOpNames(const ClassDefPtr& p
         }
         else
         {
-            params = getParams((*r));
+            params = getParams(*r);
             args = getArgs(*r);
         }
 

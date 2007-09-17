@@ -30,7 +30,7 @@ Changes since version 3.2.X (binary incompatible) (TODO: if we don't do a 3.2.2,
   System.Collections.Generic.Dictionary<string, int> D;
 
   The previous mapping to the .NET 1.1 DictionaryBase class
-  is still supported with the "clr:DictionaryBase" metadata
+  is still supported with the "clr:collection" metadata
   directive. Please see the manual for more details.
 
 - Setting IceBox.ServiceManager.Endpoints is no longer necessary

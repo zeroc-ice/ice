@@ -30,7 +30,8 @@ SUBDIRS		= application \
 		  timeout \
 		  servantLocator \
 		  threads \
-                  dictMapping
+                  dictMapping \
+                  seqMapping
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
