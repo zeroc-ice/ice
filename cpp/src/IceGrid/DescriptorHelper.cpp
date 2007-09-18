@@ -1195,19 +1195,20 @@ ServiceHelper::ServiceHelper(const ServiceDescriptorPtr& descriptor) :
 }
 
 bool 
-ServiceHelper::operator==(const ServiceHelper& helper) const
+ServiceHelper::operator==(const CommunicatorHelper& h) const
 {
-    if(!CommunicatorHelper::operator==(helper))
+    const ServiceHelper* helper = dynamic_cast<const ServiceHelper*>(&h);
+    if(!helper || !CommunicatorHelper::operator==(h))
     {
         return false;
     }
 
-    if(_desc->name != helper._desc->name)
+    if(_desc->name != helper->_desc->name)
     {
         return false;
     }
 
-    if(_desc->entry != helper._desc->entry)
+    if(_desc->entry != helper->_desc->entry)
     {
         return false;
     }
@@ -1216,7 +1217,7 @@ ServiceHelper::operator==(const ServiceHelper& helper) const
 }
 
 bool
-ServiceHelper::operator!=(const ServiceHelper& helper) const
+ServiceHelper::operator!=(const CommunicatorHelper& helper) const
 {
     return !operator==(helper);
 }
@@ -1272,66 +1273,67 @@ ServerHelper::ServerHelper(const ServerDescriptorPtr& descriptor) :
 }
 
 bool 
-ServerHelper::operator==(const ServerHelper& helper) const
+ServerHelper::operator==(const CommunicatorHelper& h) const
 {
-    if(!CommunicatorHelper::operator==(helper))
+    const ServerHelper* helper = dynamic_cast<const ServerHelper*>(&h);
+    if(!helper || !CommunicatorHelper::operator==(h))
     {
         return false;
     }
 
-    if(_desc->id != helper._desc->id)
+    if(_desc->id != helper->_desc->id)
     {
         return false;
     }
 
-    if(_desc->exe != helper._desc->exe)
+    if(_desc->exe != helper->_desc->exe)
     {
         return false;
     }
 
-    if(_desc->pwd != helper._desc->pwd)
+    if(_desc->pwd != helper->_desc->pwd)
     {
         return false;
     }
 
     if(set<string>(_desc->options.begin(), _desc->options.end()) != 
-       set<string>(helper._desc->options.begin(), helper._desc->options.end()))
+       set<string>(helper->_desc->options.begin(), helper->_desc->options.end()))
     {
         return false;
     }
 
     if(set<string>(_desc->envs.begin(), _desc->envs.end()) != 
-       set<string>(helper._desc->envs.begin(), helper._desc->envs.end()))
+       set<string>(helper->_desc->envs.begin(), helper->_desc->envs.end()))
     {
         return false;
     }
 
-    if(_desc->activation != helper._desc->activation)
+    if(_desc->activation != helper->_desc->activation)
     {
         return false;
     }
 
-    if(_desc->activationTimeout != helper._desc->activationTimeout)
+    if(_desc->activationTimeout != helper->_desc->activationTimeout)
     {
         return false;
     }
 
-    if(_desc->deactivationTimeout != helper._desc->deactivationTimeout)
+    if(_desc->deactivationTimeout != helper->_desc->deactivationTimeout)
     {
         return false;
     }
 
-    if(_desc->distrib != helper._desc->distrib)
+    if(_desc->distrib != helper->_desc->distrib)
     {
         return false;
     }
 
-    if(_desc->allocatable != helper._desc->allocatable)
+    if(_desc->allocatable != helper->_desc->allocatable)
     {
         return false;
     }
 
-    if(_desc->user != helper._desc->user)
+    if(_desc->user != helper->_desc->user)
     {
         return false;
     }
@@ -1340,7 +1342,7 @@ ServerHelper::operator==(const ServerHelper& helper) const
 }
 
 bool
-ServerHelper::operator!=(const ServerHelper& helper) const
+ServerHelper::operator!=(const CommunicatorHelper& helper) const
 {
     return !operator==(helper);
 }
@@ -1483,14 +1485,15 @@ IceBoxHelper::IceBoxHelper(const IceBoxDescriptorPtr& descriptor) :
 }
 
 bool 
-IceBoxHelper::operator==(const IceBoxHelper& helper) const
+IceBoxHelper::operator==(const CommunicatorHelper& h) const
 {
-    if(!ServerHelper::operator==(helper))
+    const IceBoxHelper* helper = dynamic_cast<const IceBoxHelper*>(&h);
+    if(!helper || !ServerHelper::operator==(h))
     {
         return false;
     }
-        
-    if(_services != helper._services)
+
+    if(_services != helper->_services)
     {
         return false;
     }
@@ -1499,7 +1502,7 @@ IceBoxHelper::operator==(const IceBoxHelper& helper) const
 }
 
 bool
-IceBoxHelper::operator!=(const IceBoxHelper& helper) const
+IceBoxHelper::operator!=(const CommunicatorHelper& helper) const
 {
     return !operator==(helper);
 }
