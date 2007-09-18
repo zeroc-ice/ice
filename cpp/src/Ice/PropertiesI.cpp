@@ -15,6 +15,7 @@
 #include <Ice/PropertyNames.h>
 #include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Communicator.h>
 #include <fstream>
 
 using namespace std;
@@ -470,4 +471,45 @@ Ice::PropertiesI::loadConfig()
 
     PropertyValue pv(value, true);
     _properties["Ice.Config"] = pv;
+}
+
+
+//
+// PropertiesAdminI
+//
+
+
+Ice::PropertiesAdminI::PropertiesAdminI(const PropertiesPtr& properties) :
+    _properties(properties)
+{    
+}
+
+string 
+Ice::PropertiesAdminI::getProperty(const string& name, const Ice::Current&)
+{
+    return _properties->getProperty(name);
+}
+
+string 
+Ice::PropertiesAdminI::getPropertyWithDefault(const string& name, const string& dflt, const Ice::Current&)
+{
+    return _properties->getPropertyWithDefault(name, dflt);
+}
+
+Ice::Int
+Ice::PropertiesAdminI::getPropertyAsInt(const string& name, const Ice::Current&)
+{
+    return _properties->getPropertyAsInt(name);
+}
+
+Ice::Int
+Ice::PropertiesAdminI::getPropertyAsIntWithDefault(const string& name, Ice::Int dflt, const Ice::Current&)
+{
+    return _properties->getPropertyAsIntWithDefault(name, dflt);
+}
+
+Ice::PropertyDict 
+Ice::PropertiesAdminI::getPropertiesForPrefix(const string& prefix, const Ice::Current&)
+{
+    return _properties->getPropertiesForPrefix(prefix);
 }

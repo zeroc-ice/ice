@@ -1293,7 +1293,7 @@ namespace Ice
                 {
                     if(_processId == null)
                     {
-                        Process servant = new ProcessI(_communicator);
+                        Process servant = new IceInternal.ProcessI(_communicator);
                         _processId = addWithUUID(servant).ice_getIdentity();
                     }
                     locatorRegistry.setServerProcessProxy(serverId,
@@ -1365,39 +1365,6 @@ namespace Ice
             }
 
             return noProps;
-        }
-
-        private sealed class ProcessI : ProcessDisp_
-        {
-            public ProcessI(Communicator communicator)
-            {
-                _communicator = communicator;
-            }
-
-            public override void shutdown(Ice.Current current)
-            {
-                _communicator.shutdown();
-            }
-
-            public override void writeMessage(string message, int fd, Ice.Current current)
-            {
-                switch(fd)
-                {
-                    case 1:
-                    {
-                        System.Console.Out.WriteLine(message);
-                        break;
-                    }
-                    case 2:
-                    {
-                        System.Console.Error.WriteLine(message);
-                        break;
-                    }
-                }
-            }   
-
-
-            private Communicator _communicator;
         }
         
         private bool _deactivated;

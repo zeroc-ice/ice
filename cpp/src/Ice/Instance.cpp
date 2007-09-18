@@ -35,6 +35,9 @@
 #include <Ice/Initialize.h>
 #include <Ice/LoggerUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <Ice/PropertiesI.h>
+#include <IceUtil/UUID.h>
+#include <Ice/Communicator.h>
 
 #include <stdio.h>
 
@@ -483,6 +486,83 @@ IceInternal::Instance::identityToString(const Identity& ident) const
     }
 }
 
+
+Ice::ObjectPrx
+IceInternal::Instance::getAdmin() const
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    
+    if(_adminAdapter == 0)
+    {
+        return 0;
+    }
+    else
+    {
+        return _adminAdapter->createProxy(_adminIdentity);
+    }
+}
+
+void
+IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string& facet)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    if(_adminAdapter == 0)
+    {
+        if(_adminFacets.insert(FacetMap::value_type(facet, servant)).second == false)
+        {
+            throw AlreadyRegisteredException(__FILE__, __LINE__, "facet", facet);
+        }
+    }
+    else
+    {
+        _adminAdapter->addFacet(servant, _adminIdentity, facet);
+    }
+} 
+
+Ice::ObjectPtr
+IceInternal::Instance::removeAdminFacet(const string& facet)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+ 
+    if(_state == StateDestroyed)
+    {
+        throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
+    ObjectPtr result;
+
+    if(_adminAdapter == 0)
+    {
+        FacetMap::iterator p = _adminFacets.find(facet);
+        if(p == _adminFacets.end())
+        {
+            throw NotRegisteredException(__FILE__, __LINE__, "facet", facet);
+        }
+        else
+        {
+            result = p->second;
+            _adminFacets.erase(p);
+        }
+    }
+    else
+    {
+        result = _adminAdapter->removeFacet(_adminIdentity, facet);
+    }
+    return result;
+} 
+
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const InitializationData& initData) :
     _state(StateActive),
     _initData(initData),
@@ -702,6 +782,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             _initData.wstringConverter = new UnicodeWstringConverter();
         }
 
+        //
+        // Add Process and PropertiesAdmin facets
+        //
+        _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
+        _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
+
         __setNoDelete(false);
     }
     catch(...)
@@ -782,8 +868,8 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     _referenceFactory->setDefaultRouter(
         RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router")));
 
-    _referenceFactory->setDefaultLocator(
-        LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator")));
+    LocatorPrx defaultLocator = LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
+    _referenceFactory->setDefaultLocator(defaultLocator);
 
     //
     // Show process id if requested (but only once).
@@ -812,6 +898,61 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
 #endif
     }
 
+    //
+    // Create Admin object depending on configuration
+    // No-op unless Endpoints is set
+    //
+    const string adminOA = "Ice.Admin";
+    if(_initData.properties->getProperty(adminOA + ".Endpoints") != "")
+    {
+        string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
+        string instanceName = _initData.properties->getProperty("Ice.Admin.InstanceName");
+
+        if((defaultLocator != 0 && serverId != "") || instanceName != "")
+        {
+            _adminIdentity.name = "admin";
+            if(instanceName == "")
+            {
+                instanceName = IceUtil::generateUUID();
+            }
+            _adminIdentity.category = instanceName;
+
+            //
+            // Create OA
+            //
+            _adminAdapter = _objectAdapterFactory->createObjectAdapter(adminOA, "", 0);
+
+            //
+            // Add all facets to OA
+            //
+            for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
+            {
+                _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+            }
+            _adminFacets.clear();
+
+            //
+            // Activate OA
+            //
+            _adminAdapter->activate();
+            
+            if(defaultLocator != 0 && serverId != "")
+            {    
+                ProcessPrx process = ProcessPrx::uncheckedCast(
+                    _adminAdapter->createProxy(_adminIdentity)->ice_facet("Process"));
+
+                try
+                {
+                    defaultLocator->getRegistry()->setServerProcessProxy(serverId, process);
+                }
+                catch(const ServerNotFoundException&)
+                {
+                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" + serverId + "'");
+                }
+            }
+        }
+    }
+    
     //
     // Start connection monitor if necessary.
     //
@@ -960,6 +1101,9 @@ IceInternal::Instance::destroy()
         // No destroy function defined.
         // _dynamicLibraryList->destroy();
         _dynamicLibraryList = 0;
+        
+        _adminAdapter = 0;
+        _adminFacets.clear();
 
         _state = StateDestroyed;
     }
@@ -991,6 +1135,7 @@ IceInternal::Instance::destroy()
     }
     return true;
 }
+
 
 IceInternal::UTF8BufferI::UTF8BufferI() :
     _buffer(0),
@@ -1032,4 +1177,34 @@ IceInternal::UTF8BufferI::reset()
     free(_buffer);
     _buffer = 0;
     _offset = 0;
+}
+
+
+IceInternal::ProcessI::ProcessI(const CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
+}
+
+void
+IceInternal::ProcessI::shutdown(const Current&)
+{
+    _communicator->shutdown();
+}
+
+void
+IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current&)
+{
+    switch(fd)
+    {
+        case 1:
+        {
+            cout << message << endl;
+            break;
+        }
+        case 2:
+        {
+            cerr << message << endl;
+            break;
+        }
+    }
 }

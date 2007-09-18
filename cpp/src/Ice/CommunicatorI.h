@@ -63,6 +63,10 @@ public:
 
     virtual void flushBatchRequests();
 
+    virtual ObjectPrx getAdmin() const;
+    virtual void addAdminFacet(const ObjectPtr&, const std::string&);
+    virtual ObjectPtr removeAdminFacet(const std::string&);
+
 private:
 
     CommunicatorI(const InitializationData&);

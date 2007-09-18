@@ -173,6 +173,24 @@ public final class CommunicatorI implements Communicator
         _instance.flushBatchRequests();
     }
 
+    public ObjectPrx 
+    getAdmin()
+    {
+        return _instance.getAdmin();
+    }
+
+    public void 
+    addAdminFacet(Object servant, String facet)
+    {
+        _instance.addAdminFacet(servant, facet);
+    }
+
+    public Object 
+    removeAdminFacet(String facet)
+    {
+        return _instance.removeAdminFacet(facet);
+    }
+
     CommunicatorI(InitializationData initData)
     {
         _instance = new IceInternal.Instance(this, initData);

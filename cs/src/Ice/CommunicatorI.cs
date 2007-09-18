@@ -146,6 +146,25 @@ namespace Ice
             instance_.flushBatchRequests();
         }
         
+        public Ice.ObjectPrx 
+        getAdmin()
+        {
+            return instance_.getAdmin();
+        }
+        
+        public void 
+        addAdminFacet(Ice.Object servant, string facet)
+        {
+            instance_.addAdminFacet(servant, facet);
+        }
+        
+        public Ice.Object 
+        removeAdminFacet(string facet)
+        {
+            return instance_.removeAdminFacet(facet);
+        }
+
+
         internal CommunicatorI(InitializationData initData)
         {
             instance_ = new IceInternal.Instance(this, initData);

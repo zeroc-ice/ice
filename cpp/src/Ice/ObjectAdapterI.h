@@ -27,7 +27,6 @@
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/Exception.h>
-#include <Ice/Process.h>
 #include <Ice/BuiltinSequences.h>
 #include <list>
 
@@ -130,20 +129,6 @@ private:
     bool _threadPerConnection;
     size_t _threadPerConnectionStackSize;
     Identity _processId;
-
-    class ProcessI : public Process
-    {
-    public:
-
-        ProcessI(const CommunicatorPtr&);
-
-        virtual void shutdown(const Current&);
-        virtual void writeMessage(const std::string&, Int, const Current&);
-
-    private:
-
-        const CommunicatorPtr _communicator;
-    };
 };
 
 }

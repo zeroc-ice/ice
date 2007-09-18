@@ -320,7 +320,87 @@ namespace IceInternal
         {
             return Ice.Util.identityToString(ident);
         }
+
+        public Ice.ObjectPrx 
+        getAdmin()
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                if(_adminAdapter == null)
+                {
+                    return null;
+                }
+                else
+                {
+                    return _adminAdapter.createProxy(_adminIdentity);
+                }
+            }
+        }
         
+        public void 
+        addAdminFacet(Ice.Object servant, string facet)
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+            
+                if(_adminAdapter == null)
+                {
+                    if(_adminFacets.Contains(facet))
+                    {
+                        throw new Ice.AlreadyRegisteredException("facet", facet);
+                    }
+                    _adminFacets.Add(facet, servant);
+                }
+                else
+                {
+                    _adminAdapter.addFacet(servant, _adminIdentity, facet);
+                }
+            }
+        }
+
+
+        public Ice.Object 
+        removeAdminFacet(string facet)
+        {
+            lock(this)
+            {
+                if(_state == StateDestroyed)
+                {
+                    throw new Ice.CommunicatorDestroyedException();
+                }
+                
+                Ice.Object result = null;
+                if(_adminAdapter == null)
+                {
+                    result = (Ice.Object)_adminFacets[facet];
+                    
+                    if(result == null)
+                    {
+                        throw new Ice.NotRegisteredException("facet", facet);
+                    }
+                    else
+                    {
+                        _adminFacets.Remove(facet);
+                    }
+                }
+                else
+                {
+                    result = _adminAdapter.removeFacet(_adminIdentity, facet);
+                }
+                return result;
+            }
+        }
+
+
+
         //
         // Only for use by Ice.CommunicatorI
         //
@@ -457,6 +537,9 @@ namespace IceInternal
                 _servantFactoryManager = new ObjectFactoryManager();
                 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
+
+                _adminFacets.Add("Properties", new PropertiesAdminI(_initData.properties));
+                _adminFacets.Add("Process", new ProcessI(communicator));
             }
             catch(Ice.LocalException)
             {
@@ -486,8 +569,10 @@ namespace IceInternal
             _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
                 _proxyFactory.propertyToProxy("Ice.Default.Router")));
             
-            _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(
-                _proxyFactory.propertyToProxy("Ice.Default.Locator")));
+            Ice.LocatorPrx defaultLocator = Ice.LocatorPrxHelper.uncheckedCast(
+                _proxyFactory.propertyToProxy("Ice.Default.Locator"));
+
+            _referenceFactory.setDefaultLocator(defaultLocator);
             
             //
             // Show process id if requested (but only once).
@@ -501,6 +586,61 @@ namespace IceInternal
                         System.Console.WriteLine(p.Id);
                     }
                     _printProcessIdDone = true;
+                }
+            }
+
+             // 
+            // Create Admin object depending on configuration
+            // No-op unless Endpoints is set
+            //
+            string adminOA = "Ice.Admin";
+            if(_initData.properties.getProperty(adminOA + ".Endpoints").Length > 0)
+            {
+                string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+                string instanceName = _initData.properties.getProperty("Ice.Admin.InstanceName");
+                
+                if((defaultLocator != null && serverId.Length > 0) || instanceName.Length > 0)
+                {
+                    _adminIdentity.name = "admin";
+                    if(instanceName.Length == 0)
+                    {
+                        instanceName = Ice.Util.generateUUID();
+                    }
+                    _adminIdentity.category = instanceName;
+                    
+                    //
+                    // Create OA
+                    //
+                    _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, "", null);
+                    
+                    //
+                    // Add all facets to OA
+                    //
+                    foreach(DictionaryEntry entry in _adminFacets)
+                    {
+                        _adminAdapter.addFacet((Ice.Object)entry.Value, _adminIdentity, (string)entry.Key);
+                    }
+                    _adminFacets.Clear();
+                    
+                    //
+                    // Activate OA
+                    //
+                    _adminAdapter.activate();
+                    
+                    if(defaultLocator != null && serverId.Length > 0)
+                    {    
+                        Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(
+                            _adminAdapter.createProxy(_adminIdentity).ice_facet("Process"));
+                        
+                        try
+                        {
+                            defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
+                        }
+                        catch(Ice.ServerNotFoundException)
+                        {
+                            throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
+                        }
+                    }
                 }
             }
 
@@ -658,6 +798,9 @@ namespace IceInternal
                     _pluginManager.destroy();
                     _pluginManager = null;
                 }
+
+                _adminAdapter = null;
+                _adminFacets.Clear();
                 
                 _state = StateDestroyed;
             }
@@ -718,6 +861,11 @@ namespace IceInternal
         private EndpointFactoryManager _endpointFactoryManager;
         private Ice.PluginManager _pluginManager;
         private Ice.Context _defaultContext;
+        private Ice.ObjectAdapter _adminAdapter;
+        private Ice.FacetMap _adminFacets = new Ice.FacetMap();
+        private Ice.Identity _adminIdentity;
+
+
         private static Ice.Context _emptyContext = new Ice.Context();
         private static bool _printProcessIdDone = false;
 

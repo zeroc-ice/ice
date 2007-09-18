@@ -234,6 +234,20 @@ public class ServiceManagerI extends _ServiceManagerDisp
                 }
             }
 
+            //
+            // Register "this" as a facet to the Admin object
+            //
+            try
+            {
+                _server.communicator().addAdminFacet(this, "IceBox.ServiceManager");
+            }
+            catch(Ice.CommunicatorDestroyedException ex)
+            {
+                //
+                // Ignored
+                //
+            }
+
             _server.communicator().waitForShutdown();
             _server.defaultInterrupt();
 

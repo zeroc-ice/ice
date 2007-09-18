@@ -79,6 +79,7 @@ IceBox::IceBoxService::start(int argc, char* argv[])
     }
 
     _serviceManager = new ServiceManagerI(communicator(), argc, argv);
+
     return _serviceManager->start();
 }
 

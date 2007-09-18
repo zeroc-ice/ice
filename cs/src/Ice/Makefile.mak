@@ -60,6 +60,8 @@ SRCS		= Acceptor.cs \
 		  OutputStreamI.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
+                  ProcessI.cs \
+                  PropertiesAdminI.cs \
 		  PropertiesI.cs \
 		  Property.cs \
 		  PropertyNames.cs \

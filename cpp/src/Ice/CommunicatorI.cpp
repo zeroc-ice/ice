@@ -258,6 +258,24 @@ Ice::CommunicatorI::flushBatchRequests()
     _instance->flushBatchRequests();
 }
 
+ObjectPrx
+Ice::CommunicatorI::getAdmin() const
+{
+    return _instance->getAdmin();
+}
+
+void
+Ice::CommunicatorI::addAdminFacet(const Ice::ObjectPtr& servant, const string& facet)
+{
+    _instance->addAdminFacet(servant, facet);
+}
+
+Ice::ObjectPtr
+Ice::CommunicatorI::removeAdminFacet(const string& facet)
+{
+    return _instance->removeAdminFacet(facet);
+}
+
 Ice::CommunicatorI::CommunicatorI(const InitializationData& initData)
 {
     __setNoDelete(true);

@@ -23,7 +23,7 @@ module Ice
  * @see Properties::getPropertiesForPrefix
  *
  **/
-local dictionary<string, string> PropertyDict;
+dictionary<string, string> PropertyDict;
 
 /**
  *
@@ -186,6 +186,90 @@ local interface Properties
      *
      **/
     Properties clone();
+};
+
+/**
+ *
+ * The PropertiesAdmin interface provides remote access to the properties
+ * of a communicator.
+ *
+ **/
+interface PropertiesAdmin
+{
+     /**
+     *
+     * Get a property by key. If the property does not exist, an empty
+     * string is returned.
+     *
+     * @param key The property key.
+     *
+     * @return The property value.
+     *
+     * @see setProperty
+     *
+     **/
+    string getProperty(string key);
+
+    /**
+     *
+     * Get a property by key. If the property does not exist, the
+     * given default value is returned.
+     *
+     * @param key The property key.
+     *
+     * @param value The default value to use if the property does not
+     * exist.
+     *
+     * @return The property value or the default value.
+     *
+     * @see setProperty
+     *
+     **/
+    string getPropertyWithDefault(string key, string value);
+
+    /**
+     *
+     * Get a property as an integer. If the property does not exist, 0
+     * is returned.
+     *
+     * @param key The property key.
+     *
+     * @return The property value interpreted as an integer.
+     *
+     * @see setProperty
+     *
+     **/
+    int getPropertyAsInt(string key);
+
+    /**
+     *
+     * Get a property as an integer. If the property does not exist, the
+     * given default value is returned.
+     *
+     * @param key The property key.
+     *
+     * @param value The default value to use if the property does not
+     * exist.
+     *
+     * @return The property value interpreted as an integer, or the
+     * default value.
+     *
+     * @see setProperty
+     *
+     **/
+    int getPropertyAsIntWithDefault(string key, int value);
+
+    /**
+     *
+     * Get all properties whose keys begins with
+     * <em>prefix</em>. If
+     * <em>prefix</em> is an empty string,
+     * then all properties are returned.
+     *
+     * @return The matching property set.
+     *
+     **/
+    PropertyDict getPropertiesForPrefix(string prefix);    
 };
 
 };
