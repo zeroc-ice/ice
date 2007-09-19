@@ -152,8 +152,8 @@ Timer::run()
                 const Token& first = *(_tokens.begin());
                 if(first.scheduledTime <= now)
                 {
-                    _tokens.erase(_tokens.begin());
                     token = first;
+                    _tokens.erase(_tokens.begin());
                     if(token.delay == IceUtil::Time())
                     {
                         _tasks.erase(token.task);

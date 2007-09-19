@@ -273,5 +273,6 @@ Freeze::TransactionI::postCompletion(bool committed, bool deadlock)
 
     ConnectionIPtr connection = _connection;
     _connection = 0;
+
     connection->clearTransaction(); // may release the last _refCount
 }

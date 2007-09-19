@@ -86,8 +86,8 @@ public:
     CommunicatorHelper() { }
     virtual ~CommunicatorHelper() { }
 
-    bool operator==(const CommunicatorHelper&) const;
-    bool operator!=(const CommunicatorHelper&) const;
+    virtual bool operator==(const CommunicatorHelper&) const;
+    virtual bool operator!=(const CommunicatorHelper&) const;
 
     virtual void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
     virtual void getReplicaGroups(std::set<std::string>&) const;
@@ -115,8 +115,8 @@ public:
     ServiceHelper(const ServiceDescriptorPtr&);
     ServiceHelper() { }
 
-    bool operator==(const ServiceHelper&) const;
-    bool operator!=(const ServiceHelper&) const;    
+    virtual bool operator==(const CommunicatorHelper&) const;
+    virtual bool operator!=(const CommunicatorHelper&) const;    
 
     ServiceDescriptorPtr getDescriptor() const;
     ServiceDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
@@ -141,8 +141,8 @@ public:
     ServerHelper(const ServerDescriptorPtr&);
     ServerHelper() { }
 
-    bool operator==(const ServerHelper&) const;
-    bool operator!=(const ServerHelper&) const;    
+    virtual bool operator==(const CommunicatorHelper&) const;
+    virtual bool operator!=(const CommunicatorHelper&) const;    
 
     ServerDescriptorPtr getDescriptor() const;
     virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&,
@@ -203,8 +203,8 @@ public:
     IceBoxHelper(const IceBoxDescriptorPtr&);
     IceBoxHelper() { }
 
-    bool operator==(const IceBoxHelper&) const;
-    bool operator!=(const IceBoxHelper&) const;    
+    virtual bool operator==(const CommunicatorHelper&) const;
+    virtual bool operator!=(const CommunicatorHelper&) const;    
 
     virtual ServerDescriptorPtr instantiate(const Resolver&, const PropertyDescriptorSeq&, 
                                             const PropertySetDescriptorDict&) const;
@@ -267,8 +267,8 @@ public:
     NodeHelper(const std::string&, const NodeDescriptor&, const Resolver&, bool);
     virtual ~NodeHelper() { }
 
-    bool operator==(const NodeHelper&) const;
-    bool operator!=(const NodeHelper&) const;
+    virtual bool operator==(const NodeHelper&) const;
+    virtual bool operator!=(const NodeHelper&) const;
 
     NodeUpdateDescriptor diff(const NodeHelper&) const;
     NodeDescriptor update(const NodeUpdateDescriptor&, const Resolver&) const;

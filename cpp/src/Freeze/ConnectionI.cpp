@@ -44,17 +44,8 @@ Freeze::ConnectionI::close()
 {
     if(_transaction)
     {
-        try
-        {
-            _transaction->rollbackInternal(true);
-        }
-        catch(const DatabaseException&)
-        {
-            //
-            // Ignored
-            //
-        }
-        assert(!_transaction);
+        _transaction->rollbackInternal(true);
+        assert(_transaction == 0);
     }
 
     while(!_mapList.empty())
@@ -97,7 +88,13 @@ Freeze::ConnectionI::__decRef()
     else if(_refCount == 1 && _transaction != 0 && _transaction->dbTxn() != 0 && _transaction->__getRefNoSync() == 1)
     {
         sync.release();
-        close();
+        if(_transaction)
+        {
+            //
+            // This makes the transaction release the last refcount on the connection
+            //
+            _transaction->rollbackInternal(true);
+        }
     }
 }
 

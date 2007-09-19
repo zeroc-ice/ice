@@ -1313,6 +1313,7 @@ Freeze::MapHelperI::close()
 {
     if(_db != 0)
     {
+        closeAllIterators();
         _connection->unregisterMap(this);
     }
     _db = 0;

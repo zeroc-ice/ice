@@ -19,7 +19,7 @@
 namespace Ice
 {
 
-class ICE_API PropertiesI : public Properties, public IceUtil::Mutex
+class PropertiesI : public Properties, public IceUtil::Mutex
 {
 public:
     
@@ -68,6 +68,24 @@ private:
     };
     std::map<std::string, PropertyValue> _properties;
     const StringConverterPtr _converter;
+};
+
+
+class PropertiesAdminI : public PropertiesAdmin
+{
+public:
+    
+    PropertiesAdminI(const PropertiesPtr&);
+    
+    virtual std::string getProperty(const std::string&, const Current&);
+    virtual std::string getPropertyWithDefault(const std::string&, const std::string&, const Current&);
+    virtual Int getPropertyAsInt(const std::string&, const Current&);
+    virtual Int getPropertyAsIntWithDefault(const std::string&, Int, const Current&);
+    virtual PropertyDict getPropertiesForPrefix(const std::string&, const Current&);
+    
+private:
+
+    const PropertiesPtr _properties; 
 };
 
 }

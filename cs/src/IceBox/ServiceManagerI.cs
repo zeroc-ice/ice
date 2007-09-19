@@ -230,6 +230,20 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
                 }
             }
 
+            //
+            // Register "this" as a facet to the Admin object
+            //
+            try
+            {
+                Ice.Application.communicator().addAdminFacet(this, "IceBox.ServiceManager");
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                //
+                // Ignored
+                //
+            }
+
             Ice.Application.communicator().waitForShutdown();
             // XXX:
             //Ice.Application.defaultInterrupt();

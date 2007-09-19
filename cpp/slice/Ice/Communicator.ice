@@ -469,6 +469,43 @@ local interface Communicator
      *
      **/
     void flushBatchRequests();
+
+
+    /**
+     *
+     * Get a proxy to the main facet of the Admin object. Please note
+     * that the Admin object (and proxy) only become available at the end
+     * of the communicator initialization, after all plugins have initialized.
+     *
+     * @return The main ("") facet of the Admin object; a null proxy if no
+     * Admin object is configured.
+     *
+     **/
+    ["cpp:const"] Object* getAdmin();
+    
+    /**
+     *
+     * Add a new facet to the Admin object.
+     * Adding a servant with a facet that is already registered 
+     * throws [AlreadyRegisteredException].
+     *
+     * @param servant The servant that implements the new Admin facet.
+     * @param facet The new Admin facet.
+     *
+     **/
+    void addAdminFacet(Object servant, string facet);
+    
+    /**
+     *
+     * Remove the following facet to the Admin object.
+     * Removing a facet that was not previously registered throws 
+     * [NotRegisteredException].
+     *
+     * @param facet The Admin facet.
+     * @return The servant associated with this Admin facet
+     *
+     **/
+    Object removeAdminFacet(string facet);
 };
 
 };

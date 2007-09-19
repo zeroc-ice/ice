@@ -1284,7 +1284,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             {
                 if(_processId == null)
                 {
-                    Process servant = new ProcessI(_communicator);
+                    Process servant = new IceInternal.ProcessI(_communicator);
                     _processId = addWithUUID(servant).ice_getIdentity();
                 }
                 locatorRegistry.setServerProcessProxy(serverId, 
@@ -1360,40 +1360,6 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
 
         return noProps;
-    }
-
-    private static class ProcessI extends _ProcessDisp
-    {
-        ProcessI(Communicator communicator)
-        {
-            _communicator = communicator;
-        }
-
-        public void
-        shutdown(Ice.Current current)
-        {
-            _communicator.shutdown();
-        }
-
-        public void
-        writeMessage(String message, int fd, Ice.Current current)
-        {
-            switch(fd)
-            {
-                case 1:
-                {
-                    System.out.println(message);
-                    break;
-                }
-                case 2:
-                {
-                    System.err.println(message);
-                    break;
-                }
-            }
-        }
-
-        private Communicator _communicator;
     }
 
     private boolean _deactivated;

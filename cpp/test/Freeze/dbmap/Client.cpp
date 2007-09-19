@@ -851,6 +851,54 @@ main(int argc, char* argv[])
         status = EXIT_FAILURE;
     }
 
+
+    cout << "testing manual code... " << flush;
+
+    //
+    // From manual
+    //
+    
+    Freeze::ConnectionPtr connection =
+        Freeze::createConnection(communicator, envName);
+
+    // Instantiate the map.
+    //
+    ByteIntMap map(connection, "simple");
+
+    // Clear the map.
+    //
+    map.clear();
+
+    Ice::Int i;
+    ByteIntMap::iterator p;
+
+    // Populate the map.
+    //
+    for (i = 0; i < 26; i++) 
+    {
+        Ice::Byte key = static_cast<Ice::Byte>('a' + i);
+        map.insert(make_pair(key, i));
+    }
+
+    // Iterate over the map and change the values.
+    //
+    for (p = map.begin(); p != map.end(); ++p)
+    {
+        p.set(p->second + 1);
+    }
+
+    // Find and erase the last element.
+    //
+    p = map.find(static_cast<Ice::Byte>('z'));
+    assert(p != map.end());
+    map.erase(p);
+
+    // Clean up.
+    //
+    connection->close();
+
+    cout << "ok" << endl;
+
     try
     {
         communicator->destroy();

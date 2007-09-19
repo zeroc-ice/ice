@@ -862,36 +862,28 @@ CallbackClient::run(int argc, char* argv[])
             cout << "ok" << endl;
         }
 
-        ObjectPrx adminBase;
+        ObjectPrx processBase;
 
         {
-            cout << "testing stringToProxy for admin object... " << flush;
-            adminBase = communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
+            cout << "testing stringToProxy for admin process facet... " << flush;
+            processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
             cout << "ok" << endl;
         }
         
-/*
-        {
-            cout << "uninstalling router with admin object... " << flush;
-            adminBase->ice_router(0);
-            cout << "ok" << endl;
-        }
-*/
-
-        Glacier2::AdminPrx admin;
+        Ice::ProcessPrx process;
         
         {
-            cout << "testing checked cast for admin object... " << flush;
-            admin = Glacier2::AdminPrx::checkedCast(adminBase);
-            test(admin);
+            cout << "testing checked cast for process facet... " << flush;
+            process = Ice::ProcessPrx::checkedCast(processBase);
+            test(process);
             cout << "ok" << endl;
         }
 
         cout << "testing Glacier2 shutdown... " << flush;
-        admin->shutdown();
+        process->shutdown();
         try
         {
-            admin->ice_ping();
+            process->ice_ping();
             test(false);
         }
         catch(const Ice::LocalException&)

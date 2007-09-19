@@ -34,6 +34,8 @@
 #include <Ice/Initialize.h>
 #include <Ice/SharedContext.h>
 #include <Ice/ImplicitContextI.h>
+#include <Ice/FacetMap.h>
+#include <Ice/Process.h>
 #include <list>
 
 namespace Ice
@@ -78,8 +80,11 @@ public:
     void setDefaultContext(const ::Ice::Context&);
     SharedContextPtr getDefaultContext() const;
     Ice::Identity stringToIdentity(const std::string&) const;
-
     std::string identityToString(const Ice::Identity&) const;
+
+    Ice::ObjectPrx getAdmin() const;
+    void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
+    Ice::ObjectPtr removeAdminFacet(const std::string&);
     
     const Ice::ImplicitContextIPtr& getImplicitContext() const
     {
@@ -125,6 +130,9 @@ private:
     Ice::PluginManagerPtr _pluginManager;
     SharedContextPtr _defaultContext;
     const Ice::ImplicitContextIPtr _implicitContext;
+    Ice::ObjectAdapterPtr _adminAdapter;
+    Ice::FacetMap _adminFacets;
+    Ice::Identity _adminIdentity;
 };
 
 class UTF8BufferI : public Ice::UTF8Buffer
@@ -142,6 +150,21 @@ private:
 
     Ice::Byte* _buffer;
     size_t _offset;
+};
+
+
+class ProcessI : public Ice::Process
+{
+public:
+    
+    ProcessI(const Ice::CommunicatorPtr&);
+    
+    virtual void shutdown(const Ice::Current&);
+    virtual void writeMessage(const std::string&, Ice::Int, const Ice::Current&);
+    
+private:
+    
+    const Ice::CommunicatorPtr _communicator;
 };
 
 }
