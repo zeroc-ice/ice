@@ -24,7 +24,7 @@ SRCS		= Acceptor.cs \
 		  BasicStream.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
-		  CollecitonBase.cs \
+		  CollectionBase.cs \
 		  ConnectionI.cs \
 		  ConnectionFactory.cs \
 		  ConnectionMonitor.cs \
