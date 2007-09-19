@@ -19,6 +19,9 @@ sequence<byte> AByteS;
 ["clr:generic:LinkedList"] sequence<byte> KByteS;
 ["clr:generic:Queue"] sequence<byte> QByteS;
 ["clr:generic:Stack"] sequence<byte> SByteS;
+/*
+["clr:generic:Custom"] sequence<byte> CustomByteS;
+*/
 ["clr:collection"] sequence<byte> CByteS;
 
 sequence<bool> ABoolS;
@@ -127,6 +130,15 @@ sequence<En> AEnS;
 ["clr:generic:Stack"] sequence<En> SEnS;
 ["clr:collection"] sequence<En> CEnS;
 
+/*
+["clr:generic:Custom"] sequence<int> CustomIntS;
+["clr:generic:Custom"] sequence<Object> CustomObjectS;
+
+
+["clr:generic:Custom"] sequence<CustomIntS> CustomIntSeqSeq;
+["clr:generic:Custom"] sequence<CustomObjectS> CustomObjectSeqSeq;
+*/
+
 ["ami"] class MyClass
 {
     void shutdown();
@@ -136,6 +148,9 @@ sequence<En> AEnS;
     KByteS opKByteS(KByteS i, out KByteS o);
     QByteS opQByteS(QByteS i, out QByteS o);
     SByteS opSByteS(SByteS i, out SByteS o);
+    /*
+    CustomByteS opCustomByteS(CustomByteS i, out CustomByteS o);
+    */
     CByteS opCByteS(CByteS i, out CByteS o);
 
     ABoolS opABoolS(ABoolS i, out ABoolS o);

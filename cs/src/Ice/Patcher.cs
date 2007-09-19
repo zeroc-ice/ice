@@ -65,121 +65,186 @@ namespace IceInternal
         private string _expectedSliceType;
     }
 
-    /*
-    public sealed class SequencePatcher : Patcher
+    public sealed class CustomSeqPatcher<T> : Patcher
     {
-        public SequencePatcher(ICollection seq, System.Type type, int index) : base(type)
+        public CustomSeqPatcher(IEnumerable<T> seq, Type type, int index) : base(type)
         {
-            System.Console.WriteLine("Instanting patch for index " + index);
+           _seq = seq;
+           _index = index;
+
+           setInvokeInfo(seq);
+        }
+
+        public override void patch(Ice.Object v)
+        {
+            Debug.Assert(type_ != null);
+            if(v != null && !type_.IsInstanceOfType(v))
+            {
+                throw new InvalidCastException("expected element of type " + type() +
+                                                      " but received " + v.GetType().FullName);
+            }
+
+            InvokeInfo info = getInvokeInfo(typeof(T));
+            int count = info.getCount(_seq);
+            if(_index >= count) // Need to grow the sequence.
+            {
+                for(int i = count; i < _index; i++)
+                {
+                    info.invokeAdd(_seq, default(T));
+                }
+                info.invokeAdd(_seq, (T)v);
+            }
+            else
+            {
+                info.invokeSet(_seq, _index, (T)v);
+            }
+        }
+
+        private static InvokeInfo getInvokeInfo(Type t)
+        {
+            lock(_methodTable)
+            {
+                try
+                {
+                    return _methodTable[t];
+                }
+                catch(KeyNotFoundException)
+                {
+                    throw new Ice.MarshalException("No invoke record for type " + t.ToString());
+                }
+            }
+        }
+
+        private static void setInvokeInfo(IEnumerable<T> seq)
+        {
+            lock(_methodTable)
+            {
+                Type t = seq.GetType();
+                if(_methodTable.ContainsKey(t))
+                {
+                    return;
+                }
+
+                MethodInfo am = t.GetMethod("Add", _params);
+                if(am == null)
+                {
+                    throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
+                }
+
+                PropertyInfo pi = t.GetProperty("item");
+                if(pi == null)
+                {
+                    throw new Ice.MarshalException("Cannot patch a collection without an indexer");
+                }
+                MethodInfo sm = pi.GetSetMethod();
+                if(sm == null)
+                {
+                    throw new Ice.MarshalException("Cannot patch a collection without an indexer to set a value");
+                }
+
+                pi = t.GetProperty("Count");
+                if(pi == null)
+                {
+                    throw new Ice.MarshalException("Cannot patch a collection without a Count property");
+                }
+                MethodInfo cm = pi.GetGetMethod();
+                if(cm == null)
+                {
+                    throw new Ice.MarshalException("Cannot patch a collection without a readable Count property");
+                }
+
+                _methodTable.Add(t, new InvokeInfo(am, sm, cm));
+            }
+        }
+
+        private class InvokeInfo
+        {
+            public InvokeInfo(MethodInfo am, MethodInfo sm, MethodInfo cm)
+            {
+                _addMethod = am;
+                _setMethod = sm;
+                _countMethod = cm;
+            }
+
+            internal int getCount(System.Collections.IEnumerable seq)
+            {
+                try
+                {
+                    return (int)_countMethod.Invoke(seq, null);
+                }
+                catch(Exception ex)
+                {
+                    throw  new Ice.MarshalException("Could not read Count property during patching", ex);
+                }
+            }
+
+            internal void invokeAdd(System.Collections.IEnumerable seq, T v)
+            {
+                try
+                {
+                    object[] arg = new object[] { v };
+                    _addMethod.Invoke(seq, arg);
+                }
+                catch(Exception ex)
+                {
+                    throw  new Ice.MarshalException("Could not invoke Add method during patching", ex);
+                }
+            }
+
+            internal void invokeSet(System.Collections.IEnumerable seq, int index, T v)
+            {
+                try
+                {
+                    object[] args = new object[] { index, v };
+                    _setMethod.Invoke(seq, args);
+                }
+                catch(Exception ex)
+                {
+                    throw  new Ice.MarshalException("Could not call indexer during patching", ex);
+                }
+            }
+
+            private MethodInfo _addMethod;
+            private MethodInfo _setMethod;
+            private MethodInfo _countMethod;
+        }
+
+        private static Type[] _params = new Type[] { typeof(T) };
+        private static Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
+
+        private IEnumerable<T> _seq;
+        private int _index; // The index at which to patch the sequence.
+    }
+
+    public sealed class ArrayPatcher<T> : Patcher
+    {
+        public ArrayPatcher(T[] seq, Type type, int index) : base(type)
+        {
             _seq = seq;
             _index = index;
         }
 
         public override void patch(Ice.Object v)
         {
-            System.Console.WriteLine("Patch called");
             Debug.Assert(type_ != null);
             if(v != null && !type_.IsInstanceOfType(v))
             {
-                System.Console.WriteLine("Invalid Cast Exception");
-                throw new System.InvalidCastException("expected element of type " + type() +
+                throw new InvalidCastException("expected element of type " + type() +
                                                       " but received " + v.GetType().FullName);
             }
 
-            if(_seq is System.Array)
-            {
-                System.Console.WriteLine("Patching array at " + _index);
-                ((System.Array)_seq).SetValue(v, _index);
-            }
-            else
-            {
-                System.Console.WriteLine("About to patch collection at " + _index);
-                System.Console.WriteLine("Count = " + _seq.Count);
-                Type t = _seq.GetType();
-
-                if(_index >= _seq.Count)
-                {
-                    System.Console.WriteLine("Growing sequence");
-                    MethodInfo am = null;
-                    try
-                    {
-                        am = t.GetMethod("Add");
-                        if(am == null)
-                        {
-                            System.Console.WriteLine("No Add method found");
-                            throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
-                        }
-                    }
-                    catch(System.Exception ex)
-                    {
-                        System.Console.WriteLine(ex);
-                    }
-                    System.Console.WriteLine("Found Add method");
-                    object[] arg = new object[1];
-                    arg[0] = null;
-                    int count = _seq.Count;
-                    System.Console.WriteLine("Starting loop");
-                    for(int i = count; i <= _index; i++)
-                    {
-                        System.Console.WriteLine("Invoking Add");
-                        am.Invoke(_seq, arg);
-                    }
-                }
-
-                PropertyInfo pi = t.GetProperty("item");
-                if(pi != null)
-                {
-                    MethodInfo sm = pi.GetSetMethod();
-                    if(sm != null)
-                    {
-                        object[] args = new object[2];
-                        args[0] = _index;
-                        args[1] = v;
-                        System.Console.WriteLine("Patching collection at " + _index);
-                        sm.Invoke(_seq, args);
-                    }
-                }
-                else
-                {
-                    System.Console.WriteLine("THROWING!!!");
-                    throw new Ice.MarshalException("Cannot patch a collection without an indexer");
-                }
-
-            }
-
+            _seq[_index] = (T)v;
         }
 
-        private ICollection _seq;
-        private int _index; // The index at which to patch the sequence.
+        private T[] _seq;
+        private int _index; // The index at which to patch the array.
     }
-    */
 
     public sealed class SequencePatcher<T> : Patcher
     {
-        public SequencePatcher(Ice.CollectionBase<T> seq, System.Type type, int index) : base(type)
+        public SequencePatcher(Ice.CollectionBase<T> seq, Type type, int index) : base(type)
         {
-            _seqList = (List<T>)seq;
-            _stype = SeqType.IList;
-            _index = index;
-        }
-
-        public SequencePatcher(ICollection<T> seq, System.Type type, int index) : base(type)
-        {
-            if(seq is System.Array)
-            {
-                _seqArray = (T[])seq;
-                _stype = SeqType.Array;
-            }
-            else if(seq is IList<T>)
-            {
-                _seqList = (IList<T>)seq;
-                _stype = SeqType.IList;
-            }
-            else
-            {
-                _seqColl = seq;
-                _stype = SeqType.Collection;
-            }
+            _seq = seq;
             _index = index;
         }
 
@@ -188,55 +253,62 @@ namespace IceInternal
             Debug.Assert(type_ != null);
             if(v != null && !type_.IsInstanceOfType(v))
             {
-                throw new System.InvalidCastException("expected element of type " + type() +
+                throw new InvalidCastException("expected element of type " + type() +
                                                       " but received " + v.GetType().FullName);
             }
 
-            switch(_stype)
+            int count = _seq.Count;
+            if(_index >= count) // Need to grow the sequence.
             {
-                case SeqType.IList:
+                for(int i = count; i < _index; i++)
                 {
-                    int count = _seqList.Count;
-                    if(_index >= count) // Need to grow the sequence.
-                    {
-                        for(int i = count; i < _index; i++)
-                        {
-                            _seqList.Add(default(T));
-                        }
-                        _seqList.Add((T)v);
-                    }
-                    else
-                    {
-                        _seqList[_index] = (T)v;
-                    }
-                    break;
+                    _seq.Add(default(T));
                 }
-                case SeqType.Array:
-                {
-                    _seqArray[_index] = (T)v;
-                    break;
-                }
-                case SeqType.Collection:
-                {
-                            // TODO
-                    break;
-                }
+                _seq.Add((T)v);
+            }
+            else
+            {
+                _seq[_index] = (T)v;
             }
         }
 
-        private enum SeqType { Array, IList , Collection };
+        private Ice.CollectionBase<T> _seq;
+        private int _index; // The index at which to patch the sequence.
+    }
 
-        private SeqType _stype;
+    public sealed class ListPatcher<T> : Patcher
+    {
+        public ListPatcher(List<T> seq, Type type, int index) : base(type)
+        {
+            _seq = seq;
+            _index = index;
+        }
 
-        //
-        // Conceptually, these three members are in a union. We use separate members
-        // here instead of a single member of base type to avoid a separate down-cast
-        // each time patch() is called.
-        //
-        private IList<T> _seqList;
-        private T[] _seqArray;
-        private ICollection<T> _seqColl;
+        public override void patch(Ice.Object v)
+        {
+            Debug.Assert(type_ != null);
+            if(v != null && !type_.IsInstanceOfType(v))
+            {
+                throw new InvalidCastException("expected element of type " + type() +
+                                                      " but received " + v.GetType().FullName);
+            }
 
+            int count = _seq.Count;
+            if(_index >= count) // Need to grow the sequence.
+            {
+                for(int i = count; i < _index; i++)
+                {
+                    _seq.Add(default(T));
+                }
+                _seq.Add((T)v);
+            }
+            else
+            {
+                _seq[_index] = (T)v;
+            }
+        }
+
+        private List<T> _seq;
         private int _index; // The index at which to patch the sequence.
     }
 }

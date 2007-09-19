@@ -11,6 +11,34 @@ using System;
 using System.Collections.Generic;
 using Test;
 
+public class Custom<T> : IEnumerable<T>
+{
+    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return _list.GetEnumerator();
+    }
+
+    public IEnumerator<T> GetEnumerator()
+    {
+        return _list.GetEnumerator();
+    }
+
+    public int Count
+    {
+        get
+        {
+            return _list.Count;
+        }
+    }
+
+    public void Add(T elmt)
+    {
+        _list.Add(elmt);
+    }
+
+    private List<T> _list = new List<T>();
+}
+
 class Twoways
 {
     private static void test(bool b)

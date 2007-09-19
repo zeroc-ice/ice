@@ -176,8 +176,15 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
         string meta;
         if(seq->findMetaData(prefix, meta))
         {
-            return "_System.Collections.Generic." + meta.substr(prefix.size())
-                   + "<" + typeToString(seq->type()) + ">";
+            string type = meta.substr(prefix.size());
+            if(type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
+            {
+                return "_System.Collections.Generic." + type + "<" + typeToString(seq->type()) + ">";
+            }
+            else
+            {
+                return "global::" + type + "<" + typeToString(seq->type()) + ">";
+            }
         }
 
         return typeToString(seq->type()) + "[]";
@@ -711,6 +718,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             out << "Ice.Object[" << param << "_lenx];";
                         }
+                        else if(isCustom)
+                        {
+                            out << "global::" << genericType << "<Ice.Object>();";
+                        }
                         else if(isGeneric)
                         {
                             out << "_System.Collections.Generic." << genericType << "<Ice.Object>(";
@@ -731,7 +742,25 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             out << "(ReadObjectCallback)";
                         }
-                        out << "new IceInternal.SequencePatcher<" << typeS << ">(" << param << ", typeof(Ice.Object), ix__));";
+                        string patcherName;
+                        if(isCustom)
+                        {
+                            patcherName = "CustomSeq";
+                        }
+                        else if(isList)
+                        {
+                            patcherName = "List";
+                        }
+                        else if(isArray)
+                        {
+                            patcherName = "Array";
+                        }
+                        else
+                        {
+                            patcherName = "Sequence";
+                        }
+                        out << "new IceInternal." << patcherName << "Patcher<" << typeS << ">("
+                            << param << ", typeof(Ice.Object), ix__));";
                     }
                     else
                     {
@@ -803,6 +832,18 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     {
                         out << nl << param << " = " << stream << ".read" << typeS << "Seq();";
                     }
+                    else if(isCustom)
+                    {
+                        out << sb;
+                        out << nl << param << " = new " << "global::" << genericType << "<"
+                            << typeToString(type) << ">();";
+                        out << nl << "int szx__ = " << stream << ".readSize();";
+                        out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
+                        out << sb;
+                        out << nl << param << ".Add(" << stream << ".read" << typeS << "());";
+                        out << eb;
+                        out << eb;
+                    }
                     else if(isGeneric)
                     {
                         out << nl << stream << ".read" << typeS << "Seq(out " << param << ");";
@@ -873,6 +914,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << toArrayAlloc(typeS + "[]", "szx__");
             }
+            else if(isCustom)
+            {
+                out << "global::" << genericType << "<" << typeS << ">()";
+            }
             else if(isGeneric)
             {
                 out << "_System.Collections.Generic." << genericType << "<" << typeS << ">(";
@@ -889,8 +934,26 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << ';';
             out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
             out << sb;
-            out << nl << "IceInternal.SequencePatcher<" << typeS << "> spx = new IceInternal.SequencePatcher<" << typeS << ">("
-                << param << ", " << "typeof(" << typeS << "), ix__);";
+
+            string patcherName;
+            if(isCustom)
+            {
+                patcherName = "CustomSeq";
+            }
+            else if(isList)
+            {
+                patcherName = "List";
+            }
+            else if(isArray)
+            {
+                patcherName = "Array";
+            }
+            else
+            {
+                patcherName = "Sequence";
+            }
+            out << nl << "IceInternal." << patcherName << "Patcher<" << typeS << "> spx = new IceInternal."
+                << patcherName << "Patcher<" << typeS << ">(" << param << ", " << "typeof(" << typeS << "), ix__);";
             out << nl << stream << ".readObject(";
             if(streamingAPI)
             {
@@ -987,6 +1050,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             if(isArray)
             {
                 out << toArrayAlloc(typeS + "[]", "szx__") << ";";
+            }
+            else if(isCustom)
+            {
+                out << "global::" << genericType << "<" << typeS << ">();";
             }
             else if(isGeneric)
             {
@@ -1121,6 +1188,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 out << toArrayAlloc(typeS + "[]", "szx__") << ";";
             }
+            else if(isCustom)
+            {
+                out << "global::" << genericType << "<" << typeS << ">();";
+            }
             else if(isGeneric)
             {
                 out << "_System.Collections.Generic." << genericType << "<" << typeS << ">(";
@@ -1231,6 +1302,10 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         if(isArray)
         {
             out << toArrayAlloc(typeS + "[]", "szx__") << ";";
+        }
+        else if(isCustom)
+        {
+            out << "global::" << genericType << "<" << typeS << ">();";
         }
         else if(isGeneric)
         {

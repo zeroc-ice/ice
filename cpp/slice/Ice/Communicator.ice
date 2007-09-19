@@ -470,7 +470,6 @@ local interface Communicator
      **/
     void flushBatchRequests();
 
-
     /**
      *
      * Get a proxy to the main facet of the Admin object. Please note

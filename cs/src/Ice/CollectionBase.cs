@@ -212,7 +212,12 @@ namespace Ice
             }
         }
 
-        public System.Collections.IEnumerator GetEnumerator()
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return list_.GetEnumerator();
+        }
+
+        public IEnumerator<T> GetEnumerator()
         {
             return list_.GetEnumerator();
         }
