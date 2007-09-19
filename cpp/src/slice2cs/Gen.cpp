@@ -3336,13 +3336,25 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
 
+    string meta;
     bool isNewMapping = !p->hasMetaData("clr:collection");
+
+    string prefix = "clr:generic:";
+    string genericType;
+    if(!p->findMetaData(prefix, meta))
+    {
+        genericType = "Dictionary";
+    }
+    else
+    {
+        genericType = meta.substr(prefix.size());
+    }
 
     string keyS = typeToString(key);
     string valueS = typeToString(value);
     string name = isNewMapping
-                    ? "_System.Collections.Generic.Dictionary<" + keyS + ", " + valueS + ">"
-                    : fixId(p->name());
+                        ? "_System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">"
+                        : fixId(p->name());
 
     _out << sp << nl << "public sealed class " << p->name() << "Helper";
     _out << sb;

@@ -193,11 +193,24 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        if(!d->hasMetaData("clr:collection"))
+        if(d->hasMetaData("clr:collection"))
         {
-            return "_System.Collections.Generic.Dictionary<"
-                   + typeToString(d->keyType()) + ", " + typeToString(d->valueType()) + ">";
+            return fixId(d->scoped());
         }
+
+        string prefix = "clr:generic:";
+        string meta;
+        string typeName;
+        if(d->findMetaData(prefix, meta))
+        {
+            typeName = meta.substr(prefix.size());
+        }
+        else
+        {
+            typeName = "Dictionary";
+        }
+        return "_System.Collections.Generic." + typeName
+                + "<" + typeToString(d->keyType()) + ", " + typeToString(d->valueType()) + ">";
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
@@ -563,14 +576,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        if(!d->hasMetaData("clr:collection"))
-        {
-            typeS = fixId(d->scoped());
-        }
-        else
-        {
-            typeS = typeToString(type);
-        }
+        typeS = fixId(d->scope()) + d->name();
     }
     else
     {
@@ -1567,6 +1573,14 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                     if(s.substr(prefix.size()) == "collection")
                     {
                         continue;
+                    }
+                    if(s.substr(prefix.size(), 8) == "generic:")
+                    {
+                        string type = s.substr(prefix.size() + 8);
+                        if(type == "SortedDictionary" ||  type == "SortedList")
+                        {
+                            continue;
+                        }
                     }
                 }
                 cout << file << ":" << cont->line() << ": warning: " << msg << " `" << s << "'" << endl;
