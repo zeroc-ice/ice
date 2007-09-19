@@ -70,14 +70,9 @@ sequence<string> AStringS;
 ["clr:generic:Stack"] sequence<string> SStringS;
 ["clr:collection"] sequence<string> CStringS;
 
-/*
 sequence<Object> AObjectS;
 ["clr:generic:List"] sequence<Object> LObjectS;
-["clr:generic:LinkedList"] sequence<Object> KObjectS;
-["clr:generic:Queue"] sequence<Object> QObjectS;
-["clr:generic:Stack"] sequence<Object> SObjectS;
 ["clr:collection"] sequence<Object> CObjectS;
-*/
 
 sequence<Object*> AObjectPrxS;
 ["clr:generic:List"] sequence<Object*> LObjectPrxS;
@@ -103,14 +98,9 @@ class CV
     int i;
 };
 
-/*
 sequence<CV> ACVS;
 ["clr:generic:List"] sequence<CV> LCVS;
-["clr:generic:LinkedList"] sequence<CV> KCVS;
-["clr:generic:Queue"] sequence<CV> QCVS;
-["clr:generic:Stack"] sequence<CV> SCVS;
 ["clr:collection"] sequence<CV> CCVS;
-*/
 
 sequence<CV*> ACVPrxS;
 ["clr:generic:List"] sequence<CV*> LCVPrxS;
@@ -124,14 +114,9 @@ class CR
     CV v;
 };
 
-/*
 sequence<CR> ACRS;
 ["clr:generic:List"] sequence<CR> LCRS;
-["clr:generic:LinkedList"] sequence<CR> KCRS;
-["clr:generic:Queue"] sequence<CR> QCRS;
-["clr:generic:Stack"] sequence<CR> SCRS;
 ["clr:collection"] sequence<CR> CCRS;
-*/
 
 enum En { A, B, C };
 
@@ -202,14 +187,9 @@ sequence<En> AEnS;
     SStringS opSStringS(SStringS i, out SStringS o);
     CStringS opCStringS(CStringS i, out CStringS o);
 
-    /*
     AObjectS opAObjectS(AObjectS i, out AObjectS o);
     LObjectS opLObjectS(LObjectS i, out LObjectS o);
-    KObjectS opKObjectS(KObjectS i, out KObjectS o);
-    QObjectS opQObjectS(QObjectS i, out QObjectS o);
-    SObjectS opSObjectS(SObjectS i, out SObjectS o);
     CObjectS opCObjectS(CObjectS i, out CObjectS o);
-    */
 
     AObjectPrxS opAObjectPrxS(AObjectPrxS i, out AObjectPrxS o);
     LObjectPrxS opLObjectPrxS(LObjectPrxS i, out LObjectPrxS o);
@@ -225,21 +205,13 @@ sequence<En> AEnS;
     SStructS opSStructS(SStructS i, out SStructS o);
     CStructS opCStructS(CStructS i, out CStructS o);
 
-    /*
     ACVS opACVS(ACVS i, out ACVS o);
     LCVS opLCVS(LCVS i, out LCVS o);
-    KCVS opKCVS(KCVS i, out KCVS o);
-    QCVS opQCVS(QCVS i, out QCVS o);
-    SCVS opSCVS(SCVS i, out SCVS o);
     CCVS opCCVS(CCVS i, out CCVS o);
 
     ACRS opACRS(ACRS i, out ACRS o);
     LCRS opLCRS(LCRS i, out LCRS o);
-    KCRS opKCRS(KCRS i, out KCRS o);
-    QCRS opQCRS(QCRS i, out QCRS o);
-    SCRS opSCRS(SCRS i, out SCRS o);
     CCRS opCCRS(CCRS i, out CCRS o);
-    */
 
     AEnS opAEnS(AEnS i, out AEnS o);
     LEnS opLEnS(LEnS i, out LEnS o);

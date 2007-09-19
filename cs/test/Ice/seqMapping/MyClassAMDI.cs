@@ -259,6 +259,21 @@ public sealed class MyClassI : MyClass
         cb.ice_response(i, i);
     }
 
+    public override void opAObjectS_async(AMD_MyClass_opAObjectS cb, Ice.Object[] i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opLObjectS_async(AMD_MyClass_opLObjectS cb, List<Ice.Object> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCObjectS_async(AMD_MyClass_opCObjectS cb, CObjectS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
     public override void opAObjectPrxS_async(AMD_MyClass_opAObjectPrxS cb, Ice.ObjectPrx[] i, Ice.Current current)
     {
         cb.ice_response(i, i);
@@ -319,6 +334,21 @@ public sealed class MyClassI : MyClass
         cb.ice_response(i, i);
     }
 
+    public override void opACVS_async(AMD_MyClass_opACVS cb, CV[] i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opLCVS_async(AMD_MyClass_opLCVS cb, List<CV> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCCVS_async(AMD_MyClass_opCCVS cb, CCVS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
     public override void opACVPrxS_async(AMD_MyClass_opACVPrxS cb, CVPrx[] i, Ice.Current current)
     {
         cb.ice_response(i, i);
@@ -345,6 +375,21 @@ public sealed class MyClassI : MyClass
     }
 
     public override void opCCVPrxS_async(AMD_MyClass_opCCVPrxS cb, CCVPrxS i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opACRS_async(AMD_MyClass_opACRS cb, CR[] i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opLCRS_async(AMD_MyClass_opLCRS cb, List<CR> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCCRS_async(AMD_MyClass_opCCRS cb, CCRS i, Ice.Current current)
     {
         cb.ice_response(i, i);
     }

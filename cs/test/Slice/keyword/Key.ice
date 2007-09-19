@@ -53,6 +53,25 @@ exception foreach extends fixed
     int if;
 };
 
+exception BaseMethods
+{
+    int Data;
+    int HelpLink;
+    int InnerException;
+    int Message;
+    int Source;
+    int StackTrace;
+    int TargetSite;
+    int HResult;
+    int Equals;
+    int GetBaseException;
+    int GetHashCode;
+    int GetObjectData;
+    int GetType;
+    int ReferenceEquals;
+    int ToString;
+};
+
 local interface implicit
 {
     as in(break internal, delegate is, explicit lock, case* namespace, decimal* new, delegate* null,

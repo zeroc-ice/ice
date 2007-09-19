@@ -747,6 +747,72 @@ class Twoways
         }
 
         {
+            Ice.Object[] i = new CV[_length];
+            for(int c = 0; c < _length; ++c)
+            {
+                i[c] = new CV(c);
+            }
+            Ice.Object[] o;
+            Ice.Object[] r;
+
+            r = p.opAObjectS(i, out o);
+
+            System.Collections.IEnumerator eo = o.GetEnumerator();
+            System.Collections.IEnumerator er = r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.i == ((CV)eo.Current).i);
+                test(obj.i == ((CV)er.Current).i);
+            }
+        }
+
+        {
+            List<Ice.Object> i = new List<Ice.Object>(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CV(c));
+            }
+            List<Ice.Object> o;
+            List<Ice.Object> r;
+
+            r = p.opLObjectS(i, out o);
+
+            IEnumerator<Ice.Object> eo = o.GetEnumerator();
+            IEnumerator<Ice.Object> er = r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.i == ((CV)eo.Current).i);
+                test(obj.i == ((CV)er.Current).i);
+            }
+        }
+
+        {
+            CObjectS i = new CObjectS(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CV(c));
+            }
+            CObjectS o;
+            CObjectS r;
+
+            r = p.opCObjectS(i, out o);
+
+            IEnumerator<Ice.Object> eo = (IEnumerator<Ice.Object>)o.GetEnumerator();
+            IEnumerator<Ice.Object> er = (IEnumerator<Ice.Object>)r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.i == ((CV)eo.Current).i);
+                test(obj.i == ((CV)er.Current).i);
+            }
+        }
+
+        {
             Ice.ObjectPrx[] i = new Ice.ObjectPrx[_length];
             for(int c = 0; c < _length; ++c)
             {
@@ -925,6 +991,138 @@ class Twoways
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            CV[] i = new CV[_length];
+            for(int c = 0; c < _length; ++c)
+            {
+                i[c] = new CV(c);
+            }
+            CV[] o;
+            CV[] r;
+
+            r = p.opACVS(i, out o);
+
+            System.Collections.IEnumerator eo = o.GetEnumerator();
+            System.Collections.IEnumerator er = r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.i == ((CV)eo.Current).i);
+                test(obj.i == ((CV)er.Current).i);
+            }
+        }
+
+        {
+            List<CV> i = new List<CV>(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CV(c));
+            }
+            List<CV> o;
+            List<CV> r;
+
+            r = p.opLCVS(i, out o);
+
+            IEnumerator<CV> eo = o.GetEnumerator();
+            IEnumerator<CV> er = r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.i == ((CV)eo.Current).i);
+                test(obj.i == ((CV)er.Current).i);
+            }
+        }
+
+        {
+            CCVS i = new CCVS(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CV(c));
+            }
+            CCVS o;
+            CCVS r;
+
+            r = p.opCCVS(i, out o);
+
+            IEnumerator<CV> eo = (IEnumerator<CV>)o.GetEnumerator();
+            IEnumerator<CV> er = (IEnumerator<CV>)r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.i == ((CV)eo.Current).i);
+                test(obj.i == ((CV)er.Current).i);
+            }
+        }
+
+        {
+            CR[] i = new CR[_length];
+            for(int c = 0; c < _length; ++c)
+            {
+                i[c] = new CR(new CV(c));
+            }
+            CR[] o;
+            CR[] r;
+
+            r = p.opACRS(i, out o);
+
+            System.Collections.IEnumerator eo = o.GetEnumerator();
+            System.Collections.IEnumerator er = r.GetEnumerator();
+            foreach(CR obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.v.i == ((CR)eo.Current).v.i);
+                test(obj.v.i == ((CR)er.Current).v.i);
+            }
+        }
+
+        {
+            List<CR> i = new List<CR>(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CR(new CV(c)));
+            }
+            List<CR> o;
+            List<CR> r;
+
+            r = p.opLCRS(i, out o);
+
+            IEnumerator<CR> eo = o.GetEnumerator();
+            IEnumerator<CR> er = r.GetEnumerator();
+            foreach(CR obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.v.i == ((CR)eo.Current).v.i);
+                test(obj.v.i == ((CR)er.Current).v.i);
+            }
+        }
+
+        {
+            CCRS i = new CCRS(_length);
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CR(new CV(c)));
+            }
+            CCRS o;
+            CCRS r;
+
+            r = p.opCCRS(i, out o);
+
+            IEnumerator<CR> eo = (IEnumerator<CR>)o.GetEnumerator();
+            IEnumerator<CR> er = (IEnumerator<CR>)r.GetEnumerator();
+            foreach(CR obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                test(obj.v.i == ((CR)eo.Current).v.i);
+                test(obj.v.i == ((CR)er.Current).v.i);
+            }
         }
 
         {

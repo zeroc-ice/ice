@@ -306,7 +306,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    /*
     public override Ice.Object[] opAObjectS(Ice.Object[] i, out Ice.Object[] o, Ice.Current current)
     {
         o = i;
@@ -319,30 +318,11 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override LinkedList<Ice.Object> opKObjectS(LinkedList<Ice.Object> i, out LinkedList<Ice.Object> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override Queue<Ice.Object> opQObjectS(Queue<Ice.Object> i, out Queue<Ice.Object> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override Stack<Ice.Object> opSObjectS(Stack<Ice.Object> i, out Stack<Ice.Object> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override CObjectS opCObjectS(CObjectS i, out CObjectS o, Ice.Current current)
     {
         o = i;
         return i;
     }
-    */
 
     public override Ice.ObjectPrx[] opAObjectPrxS(Ice.ObjectPrx[] i, out Ice.ObjectPrx[] o, Ice.Current current)
     {
@@ -416,7 +396,6 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    /*
     public override CV[] opACVS(CV[] i, out CV[] o, Ice.Current current)
     {
         o = i;
@@ -424,24 +403,6 @@ public sealed class MyClassI : Test.MyClass
     }
 
     public override List<CV> opLCVS(List<CV> i, out List<CV> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override LinkedList<CV> opKCVS(LinkedList<CV> i, out LinkedList<CV> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override Queue<CV> opQCVS(Queue<CV> i, out Queue<CV> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override Stack<CV> opSCVS(Stack<CV> i, out Stack<CV> o, Ice.Current current)
     {
         o = i;
         return i;
@@ -465,30 +426,11 @@ public sealed class MyClassI : Test.MyClass
         return i;
     }
 
-    public override LinkedList<CR> opKCRS(LinkedList<CR> i, out LinkedList<CR> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override Queue<CR> opQCRS(Queue<CR> i, out Queue<CR> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
-    public override Stack<CR> opSCRS(Stack<CR> i, out Stack<CR> o, Ice.Current current)
-    {
-        o = i;
-        return i;
-    }
-
     public override CCRS opCCRS(CCRS i, out CCRS o, Ice.Current current)
     {
         o = i;
         return i;
     }
-    */
 
     public override En[] opAEnS(En[] i, out En[] o, Ice.Current current)
     {

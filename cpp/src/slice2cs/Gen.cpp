@@ -1546,6 +1546,16 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
+    //
+    // No need to generate anything for custom sequences.
+    //
+    string prefix = "clr:type:";
+    string meta;
+    if(p->findMetaData(prefix, meta))
+    {
+        return;
+    }
+
     string name = fixId(p->name());
     string s = typeToString(p->type());
     bool isValue = isValueType(p->type());
@@ -2481,7 +2491,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(_stream)
     {
-        _out << sp << nl << "public sealed class " << name << "Helper";
+        _out << sp << nl << "public sealed class " << p->name() << "Helper";
         _out << sb;
 
         _out << sp << nl << "public static void write(Ice.OutputStream outS__, " << scoped << " v__)";
@@ -3269,27 +3279,18 @@ Slice::Gen::HelperVisitor::visitClassDefEnd(const ClassDefPtr&)
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    bool seqIsArray = !p->hasMetaData("clr:collection");
-    if(p->isLocal() && !seqIsArray)
-    {
-        return;
-    }
-
-    string name = fixId(p->name());
-    string typeS = typeToString(p);
-    string typeE = typeToString(p->type());
-
-    _out << sp << nl << "public sealed class " << name << "Helper";
-    _out << sb;
-
     //
-    // Don't generate marshaling helpers for a sequence of a local type
+    // Don't generate helper for sequence of a local type.
     //
     if(p->isLocal())
     {
-        _out << eb;
         return;
     }
+
+    string typeS = typeToString(p);
+
+    _out << sp << nl << "public sealed class " << p->name() << "Helper";
+    _out << sb;
 
     _out << sp << nl << "public static void write(IceInternal.BasicStream os__, " << typeS << " v__)";
     _out << sb;
