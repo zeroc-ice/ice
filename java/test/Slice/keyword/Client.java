@@ -140,7 +140,7 @@ public class Client
         _abstract.defaultPrx p = _abstract.defaultPrxHelper.uncheckedCast(
             adapter.createProxy(communicator.stringToIdentity("test")));
         p._do();
-        System.out.println("ok!");
+        System.out.println("ok");
 
         return 0;
     }

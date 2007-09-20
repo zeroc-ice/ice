@@ -76,7 +76,7 @@ def testtypes():
     h._pass = 2
     i = printI()
     j = _and._lambda;
-    print "ok!"
+    print "ok"
 
 def run(args, communicator):
     communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000:udp")
@@ -88,7 +88,7 @@ def run(args, communicator):
     p = _and.execPrx.uncheckedCast(
         adapter.createProxy(communicator.stringToIdentity("test")));
     p._finally();
-    print "ok!"
+    print "ok"
 
     testtypes()
 

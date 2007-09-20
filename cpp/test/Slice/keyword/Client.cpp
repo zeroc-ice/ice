@@ -134,7 +134,7 @@ run(const Ice::CommunicatorPtr& communicator)
     _cpp_and::charPrx p = _cpp_and::charPrx::uncheckedCast(
         adapter->createProxy(communicator->stringToIdentity("test")));
     p->_cpp_explicit();
-    cout << "ok!" << endl;
+    cout << "ok" << endl;
 
     return EXIT_SUCCESS;
 }
