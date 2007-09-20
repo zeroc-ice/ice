@@ -224,6 +224,12 @@ Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& 
     return new InputStreamI(communicator, bytes);
 }
 
+InputStreamPtr
+Ice::createInputStream(const CommunicatorPtr& communicator, const pair<const Ice::Byte*, const Ice::Byte*>& bytes)
+{
+    return new InputStreamI(communicator, bytes);
+}
+
 OutputStreamPtr
 Ice::createOutputStream(const CommunicatorPtr& communicator)
 {

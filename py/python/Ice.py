@@ -73,6 +73,14 @@ class Object(object):
 class LocalObject(object):
     pass
 
+class Blobject(Object):
+    def ice_invoke(self, bytes, current):
+        pass
+
+class BlobjectAsync(Object):
+    def ice_invoke_async(self, cb, bytes, current):
+        pass
+
 #
 # Exceptions.
 #

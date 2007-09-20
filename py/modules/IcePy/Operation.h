@@ -29,7 +29,8 @@ public:
     virtual void deprecate(const std::string&) = 0;
     virtual Ice::OperationMode mode() const = 0;
 
-    virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
+    virtual void dispatch(PyObject*, const Ice::AMD_Array_Object_ice_invokePtr&,
+                          const std::pair<const Ice::Byte*, const Ice::Byte*>&,
                           const Ice::Current&) = 0;
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
@@ -37,6 +38,9 @@ typedef IceUtil::Handle<Operation> OperationPtr;
 bool initOperation(PyObject*);
 
 OperationPtr getOperation(PyObject*);
+
+// Blobject support.
+OperationPtr getIceInvokeOperation(bool);
 
 }
 

@@ -54,6 +54,7 @@ public:
 
     //InputStreamI(const IceInternal::InstancePtr&, const ::std::vector< ::Ice::Byte >&);
     InputStreamI(const Ice::CommunicatorPtr&, const ::std::vector< ::Ice::Byte >&);
+    InputStreamI(const Ice::CommunicatorPtr&, const ::std::pair< const ::Ice::Byte*, const ::Ice::Byte* >&);
     virtual ~InputStreamI();
 
     virtual Ice::CommunicatorPtr communicator() const;

@@ -4,6 +4,8 @@ Changes since version 3.2.X (binary incompatible)
 - Fixed a bug where returning an AMD servant from a ServantLocator
   would cause a deadlock in the IcePy extension.
 
+- Added support for blobjects.
+
 - Fixed a code generation bug with slice2py where the proxy type
   for a python reserved word would be incorrectly named. For example,
   interface def would generate a proxy class named _defPrx, not the

@@ -39,6 +39,13 @@ Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const 
     _is.i = _is.b.begin();
 }
 
+Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const pair<const Byte*, const Byte*>& data) :
+    _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this)
+{
+    _is.writeBlob(data.first, data.second - data.first);
+    _is.i = _is.b.begin();
+}
+
 Ice::InputStreamI::~InputStreamI()
 {
 }

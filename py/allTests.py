@@ -82,6 +82,7 @@ tests = [
     "Ice/retry",
     "Ice/timeout",
     "Ice/servantLocator",
+    "Ice/blobject",
     ]
 
 def usage():

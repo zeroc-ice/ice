@@ -83,6 +83,8 @@ ICE_API ICE_DEPRECATED_API CommunicatorPtr initializeWithPropertiesAndLogger(int
                                                                              Int = ICE_INT_VERSION);
 
 ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&, const ::std::vector< Byte >&);
+ICE_API InputStreamPtr createInputStream(const CommunicatorPtr&,
+                                         const ::std::pair< const Ice::Byte*, const Ice::Byte*>&);
 ICE_API OutputStreamPtr createOutputStream(const CommunicatorPtr&);
 
 ICE_API LoggerPtr getProcessLogger();

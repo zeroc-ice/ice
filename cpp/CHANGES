@@ -4,6 +4,8 @@ Changes since version 3.2.X (binary incompatible)
 - Fixed IceGrid bug where updates to IceBox services were not
   correctly sent to the IceGrid GUI or IceGrid registry slaves.
 
+- Added Ice::createInput(const CommunicatorPtr&, const pair< const Byte*, const Byte*>&);
+
 - Setting IceBox.ServiceManager.Endpoints is no longer necessary
   in order to run the IceBox service. If no endpoints are specified
   the the ServiceManager interface is not created.

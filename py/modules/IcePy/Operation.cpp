@@ -44,7 +44,22 @@ public:
 typedef IceUtil::Handle<ParamInfo> ParamInfoPtr;
 typedef vector<ParamInfoPtr> ParamInfoList;
 
-class OperationI : public Operation
+// TODO: Perhaps define AMI and AMD separate callback classes?
+class OperationAsync : public Operation
+{
+public:
+
+    virtual void responseAsync(PyObject*, bool, const pair<const Ice::Byte*, const Ice::Byte*>&,
+                               const Ice::CommunicatorPtr&) = 0;
+    virtual void responseAsyncException(PyObject*, PyObject*) = 0;
+
+    virtual void sendResponse(const Ice::AMD_Array_Object_ice_invokePtr&, PyObject*, const Ice::CommunicatorPtr&) = 0;
+    virtual void sendException(const Ice::AMD_Array_Object_ice_invokePtr&, PyException&,
+                               const Ice::CommunicatorPtr&) = 0;
+};
+typedef IceUtil::Handle<OperationAsync> OperationAsyncPtr;
+
+class OperationI : public OperationAsync
 {
 public:
 
@@ -55,14 +70,16 @@ public:
     virtual void deprecate(const string&);
     virtual Ice::OperationMode mode() const;
 
-    virtual void dispatch(PyObject*, const Ice::AMD_Object_ice_invokePtr&, const vector<Ice::Byte>&,
+    virtual void dispatch(PyObject*, const Ice::AMD_Array_Object_ice_invokePtr&,
+                          const pair<const Ice::Byte*, const Ice::Byte*>&,
                           const Ice::Current&);
 
-    void responseAsync(PyObject*, bool, const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
+    void responseAsync(PyObject*, bool, const pair<const Ice::Byte*, const Ice::Byte*>&,
+                       const Ice::CommunicatorPtr&);
     void responseAsyncException(PyObject*, PyObject*);
 
-    void sendResponse(const Ice::AMD_Object_ice_invokePtr&, PyObject*, const Ice::CommunicatorPtr&);
-    void sendException(const Ice::AMD_Object_ice_invokePtr&, PyException&, const Ice::CommunicatorPtr&);
+    void sendResponse(const Ice::AMD_Array_Object_ice_invokePtr&, PyObject*, const Ice::CommunicatorPtr&);
+    void sendException(const Ice::AMD_Array_Object_ice_invokePtr&, PyException&, const Ice::CommunicatorPtr&);
 
 private:
 
@@ -81,27 +98,27 @@ private:
     string _deprecateMessage;
 
     bool prepareRequest(const Ice::CommunicatorPtr&, PyObject*, bool, vector<Ice::Byte>&);
-    PyObject* unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
-    PyObject* unmarshalException(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
+    PyObject* unmarshalResults(const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::CommunicatorPtr&);
+    PyObject* unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::CommunicatorPtr&);
     bool validateException(PyObject*) const;
     void checkTwowayOnly(const Ice::ObjectPrx&) const;
     static void convertParams(PyObject*, ParamInfoList&, bool&);
 };
 typedef IceUtil::Handle<OperationI> OperationIPtr;
 
-class AMICallback : public Ice::AMI_Object_ice_invoke
+class AMICallback : public Ice::AMI_Array_Object_ice_invoke
 {
 public:
 
-    AMICallback(const OperationIPtr&, const Ice::CommunicatorPtr&, PyObject*);
+    AMICallback(const OperationAsyncPtr&, const Ice::CommunicatorPtr&, PyObject*);
     ~AMICallback();
 
-    virtual void ice_response(bool, const vector<Ice::Byte>&);
+    virtual void ice_response(bool, const pair<const Ice::Byte*, const Ice::Byte*>&);
     virtual void ice_exception(const Ice::Exception&);
 
 private:
 
-    OperationIPtr _op;
+    OperationAsyncPtr _op;
     Ice::CommunicatorPtr _communicator;
     PyObject* _callback;
 };
@@ -115,9 +132,9 @@ struct OperationObject
 struct AMDCallbackObject
 {
     PyObject_HEAD
-    OperationIPtr* op;
+    OperationAsyncPtr* op;
     Ice::CommunicatorPtr* communicator;
-    Ice::AMD_Object_ice_invokePtr* cb;
+    Ice::AMD_Array_Object_ice_invokePtr* cb;
 };
 
 extern PyTypeObject OperationType;
@@ -294,6 +311,7 @@ amdCallbackIceResponse(AMDCallbackObject* self, PyObject* args)
     }
     catch(const Ice::Exception& ex)
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->cb)->ice_exception(ex);
     }
     catch(...)
@@ -328,6 +346,7 @@ amdCallbackIceException(AMDCallbackObject* self, PyObject* args)
     }
     catch(const Ice::Exception& ex)
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->cb)->ice_exception(ex);
     }
     catch(...)
@@ -364,7 +383,7 @@ IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 //
 // AMICallback implementation.
 //
-IcePy::AMICallback::AMICallback(const OperationIPtr& op, const Ice::CommunicatorPtr& communicator,
+IcePy::AMICallback::AMICallback(const OperationAsyncPtr& op, const Ice::CommunicatorPtr& communicator,
                                 PyObject* callback) :
     _op(op), _communicator(communicator), _callback(callback)
 {
@@ -379,7 +398,7 @@ IcePy::AMICallback::~AMICallback()
 }
 
 void
-IcePy::AMICallback::ice_response(bool ok, const vector<Ice::Byte>& result)
+IcePy::AMICallback::ice_response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& result)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -502,7 +521,7 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
         //
         // Invoke the operation.
         //
-        Ice::ByteSeq result;
+        vector<Ice::Byte> result;
         bool status;
         {
             if(pyctx != Py_None)
@@ -540,7 +559,8 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
                 //
                 // Unmarshal a user exception.
                 //
-                PyObjectHandle ex = unmarshalException(result, communicator);
+                const pair<const Ice::Byte*, const Ice::Byte*> rb(&result[0], &result[0]+result.size());
+                PyObjectHandle ex = unmarshalException(rb, communicator);
 
                 //
                 // Set the Python exception.
@@ -554,7 +574,8 @@ IcePy::OperationI::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*
                 // Unmarshal the results. If there is more than one value to be returned, then return them
                 // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
                 //
-                PyObjectHandle results = unmarshalResults(result, communicator);
+                const pair<const Ice::Byte*, const Ice::Byte*> rb(&result[0], &result[0]+result.size());
+                PyObjectHandle results = unmarshalResults(rb, communicator);
                 if(!results.get())
                 {
                     return 0;
@@ -607,10 +628,11 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
         _deprecateMessage.clear(); // Only show the warning once.
     }
 
-    Ice::AMI_Object_ice_invokePtr cb = new AMICallback(this, communicator, callback);
+    Ice::AMI_Array_Object_ice_invokePtr cb = new AMICallback(this, communicator, callback);
     try
     {
         checkTwowayOnly(proxy);
+        pair<const Ice::Byte*, const Ice::Byte*> pparams(&params[0], &params[0]+params.size());
 
         //
         // Invoke the operation asynchronously.
@@ -631,16 +653,17 @@ IcePy::OperationI::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* callback, 
             }
 
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            proxy->ice_invoke_async(cb, _name, _sendMode, params, ctx);
+            proxy->ice_invoke_async(cb, _name, _sendMode, pparams, ctx);
         }
         else
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-            proxy->ice_invoke_async(cb, _name, _sendMode, params);
+            proxy->ice_invoke_async(cb, _name, _sendMode, pparams);
         }
     }
     catch(const Ice::Exception& ex)
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         cb->ice_exception(ex);
     }
 
@@ -668,8 +691,8 @@ IcePy::OperationI::mode() const
 }
 
 void
-IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokePtr& cb,
-                            const vector<Ice::Byte>& inBytes, const Ice::Current& current)
+IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Array_Object_ice_invokePtr& cb,
+                            const pair<const Ice::Byte*, const Ice::Byte*>& inBytes, const Ice::Current& current)
 {
     Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
 
@@ -733,9 +756,9 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
         {
             throwPythonException();
         }
-        obj->op = new OperationIPtr(this);
+        obj->op = new OperationAsyncPtr(this);
         obj->communicator = new Ice::CommunicatorPtr(communicator);
-        obj->cb = new Ice::AMD_Object_ice_invokePtr(cb);
+        obj->cb = new Ice::AMD_Array_Object_ice_invokePtr(cb);
         if(PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj) < 0) // PyTuple_SET_ITEM steals a reference.
         {
             Py_DECREF(obj);
@@ -778,7 +801,7 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
 }
 
 void
-IcePy::OperationI::responseAsync(PyObject* callback, bool ok, const vector<Ice::Byte>& results,
+IcePy::OperationI::responseAsync(PyObject* callback, bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& results,
                                  const Ice::CommunicatorPtr& communicator)
 {
     try
@@ -866,7 +889,7 @@ IcePy::OperationI::responseAsyncException(PyObject* callback, PyObject* ex)
 }
 
 void
-IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObject* args,
+IcePy::OperationI::sendResponse(const Ice::AMD_Array_Object_ice_invokePtr& cb, PyObject* args,
                                 const Ice::CommunicatorPtr& communicator)
 {
     //
@@ -946,9 +969,12 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
             os->writePendingObjects();
         }
 
-        Ice::ByteSeq outBytes;
-        os->finished(outBytes);
-        cb->ice_response(true, outBytes);
+        Ice::ByteSeq bytes;
+        os->finished(bytes);
+        pair<const Ice::Byte*, const Ice::Byte*> ob(&bytes[0], &bytes[0]+bytes.size());
+
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        cb->ice_response(true, ob);
     }
     catch(const AbortMarshaling&)
     {
@@ -957,7 +983,7 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
 }
 
 void
-IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyException& ex,
+IcePy::OperationI::sendException(const Ice::AMD_Array_Object_ice_invokePtr& cb, PyException& ex,
                                  const Ice::CommunicatorPtr& communicator)
 {
     try
@@ -1001,7 +1027,10 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyExce
 
                 Ice::ByteSeq bytes;
                 os->finished(bytes);
-                cb->ice_response(false, bytes);
+                pair<const Ice::Byte*, const Ice::Byte*> ob(&bytes[0], &bytes[0]+bytes.size());
+
+                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+                cb->ice_response(false, ob);
             }
         }
         else
@@ -1088,7 +1117,8 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
 }
 
 PyObject*
-IcePy::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
+IcePy::OperationI::unmarshalResults(const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
+                                    const Ice::CommunicatorPtr& communicator)
 {
     Py_ssize_t i = _returnType ? 1 : 0;
     Py_ssize_t numResults = static_cast<Py_ssize_t>(_outParams.size()) + i;
@@ -1122,7 +1152,8 @@ IcePy::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::C
 }
 
 PyObject*
-IcePy::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice::CommunicatorPtr& communicator)
+IcePy::OperationI::unmarshalException(const pair<const Ice::Byte*, const Ice::Byte*>& bytes,
+                                      const Ice::CommunicatorPtr& communicator)
 {
     Ice::InputStreamPtr is = Ice::createInputStream(communicator, bytes);
 
@@ -1380,4 +1411,479 @@ IcePy::getOperation(PyObject* p)
     assert(PyObject_IsInstance(p, reinterpret_cast<PyObject*>(&OperationType)) == 1);
     OperationObject* obj = reinterpret_cast<OperationObject*>(p);
     return *obj->op;
+}
+
+// For Blobject support.
+class OperationInvoke : public OperationAsync
+{
+public:
+
+    OperationInvoke(bool amd) : _amd(amd) { }
+
+    virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*);
+    virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*);
+
+    virtual void deprecate(const std::string&);
+    virtual Ice::OperationMode mode() const;
+
+    virtual void dispatch(PyObject*, const Ice::AMD_Array_Object_ice_invokePtr&,
+                          const pair<const Ice::Byte*, const Ice::Byte*>&,
+                          const Ice::Current&);
+
+    // AMI response methods.
+    void responseAsync(PyObject*, bool, const pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::CommunicatorPtr&);
+    void responseAsyncException(PyObject*, PyObject*);
+
+    // AMD response methods.
+    void sendResponse(const Ice::AMD_Array_Object_ice_invokePtr&, PyObject*, const Ice::CommunicatorPtr&);
+    void sendException(const Ice::AMD_Array_Object_ice_invokePtr&, PyException&, const Ice::CommunicatorPtr&);
+
+private:
+
+    const bool _amd;
+};
+
+PyObject*
+OperationInvoke::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*)
+{
+    char* operation;
+    PyObject* mode;
+    PyObject* inParams;
+    PyObject* operationModeType = lookupType("Ice.OperationMode");
+    PyObject* ctx = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("sO!O!|O!"), &operation, operationModeType, &mode, &PyBuffer_Type, &inParams,
+                         &PyDict_Type, &ctx))
+    {
+        return 0;
+    }
+
+    PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+    Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
+
+    const Ice::Byte* mem;
+    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
+        inParams, 0, reinterpret_cast<const char**>(&mem));
+    // Use the array API to avoid copying the data.
+    const pair<const ::Ice::Byte*, const ::Ice::Byte*> in(mem, mem+sz);
+
+    try
+    {
+        vector<Ice::Byte> out;
+
+        bool ok;
+        if(ctx == 0)
+        {
+            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+            ok = proxy->ice_invoke(operation, sendMode, in, out);
+        }
+        else
+        {
+            Ice::Context context;
+            if(!dictionaryToContext(ctx, context))
+            {
+                return 0;
+            }
+            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+            ok = proxy->ice_invoke(operation, sendMode, in, out, context);
+        }
+
+        // Prepare the result the tuple of the bool and out param
+        // buffer.
+        PyObjectHandle result = PyTuple_New(2);
+        if(!result.get())
+        {
+            throwPythonException();
+        }
+
+        if(PyTuple_SET_ITEM(result.get(), 0, ok ? getTrue() : getFalse()) < 0)
+        {
+            throwPythonException();
+        }
+
+        // Create the output buffer and copy in the outParams.
+        PyObjectHandle ip = PyBuffer_New(out.size());
+        if(!ip.get())
+        {
+            throwPythonException();
+        }
+        void* buf;
+        int sz;
+        if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
+        {
+            throwPythonException();
+        }
+        memcpy(buf, &out[0], sz);
+        
+        if(PyTuple_SET_ITEM(result.get(), 1, ip.get()) < 0)
+        {
+            throwPythonException();
+        }
+        ip.release(); // PyTuple_SET_ITEM steals a reference.
+
+        return result.release();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+}
+
+// Note that unlike the regular usage of invokeAsync the callback
+// object has to be removed from the arguments.
+PyObject*
+OperationInvoke::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*, PyObject*)
+{
+    Ice::CommunicatorPtr communicator = proxy->ice_getCommunicator();
+
+    char* operation;
+    PyObject* callback;
+    PyObject* mode;
+    PyObject* inParams;
+    PyObject* operationModeType = lookupType("Ice.OperationMode");
+    PyObject* ctx = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("OsO!O!|O!"), &callback, &operation, operationModeType, &mode,
+                         &PyBuffer_Type, &inParams, &PyDict_Type, &ctx))
+    {
+        return 0;
+    }
+
+    PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
+    Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
+
+    const Ice::Byte* mem;
+    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
+        inParams, 0, reinterpret_cast<const char**>(&mem));
+    // Use the array API to avoid copying the data.
+    const pair<const ::Ice::Byte*, const ::Ice::Byte*> in(mem, mem+sz);
+
+    Ice::AMI_Array_Object_ice_invokePtr cb = new AMICallback(this, communicator, callback);
+
+    try
+    {
+        if(ctx == 0)
+        {
+            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+            proxy->ice_invoke_async(cb, operation, sendMode, in);
+        }
+        else
+        {
+            Ice::Context context;
+            if(!dictionaryToContext(ctx, context))
+            {
+                return 0;
+            }
+            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
+            proxy->ice_invoke_async(cb, operation, sendMode, in, context);
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+        cb->ice_exception(ex);
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+void
+OperationInvoke::deprecate(const std::string&)
+{
+    assert(false);
+}
+
+Ice::OperationMode
+OperationInvoke::mode() const
+{
+    return Ice::Normal;
+}
+
+void
+OperationInvoke::dispatch(PyObject* servant, const Ice::AMD_Array_Object_ice_invokePtr& cb,
+                          const std::pair<const Ice::Byte*, const Ice::Byte*>&inBytes, const Ice::Current& current)
+{
+    Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
+
+    Py_ssize_t count = 2; // First is the inParams, second is the Ice::Current object.
+
+    Py_ssize_t start = 0;
+    if(_amd)
+    {
+        ++count; // Leave room for a leading AMD callback argument.
+        start = 1;
+    }
+
+    PyObjectHandle args = PyTuple_New(count);
+    if(!args.get())
+    {
+        throwPythonException();
+    }
+ 
+    PyObjectHandle ip;
+    // If using AMD we need to copy the bytes since the bytes may be
+    // accessed after this method is over, otherwise
+    // PyBuffer_FromMemory can be used which doesn't do a copy.
+    if(!_amd)
+    {
+        ip = PyBuffer_FromMemory((void*)inBytes.first, inBytes.second-inBytes.first);
+        if(!ip.get())
+        {
+            throwPythonException();
+        }
+    }
+    else
+    {
+        ip = PyBuffer_New(inBytes.second-inBytes.first);
+        if(!ip.get())
+        {
+            throwPythonException();
+        }
+        void* buf;
+        int sz;
+        if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
+        {
+            throwPythonException();
+        }
+        assert(sz == inBytes.second-inBytes.first);
+        memcpy(buf, inBytes.first, sz);
+    }
+
+    if(PyTuple_SET_ITEM(args.get(), start, ip.get()) < 0)
+    {
+        throwPythonException();
+    }
+    ++start;
+    ip.release(); // PyTuple_SET_ITEM steals a reference.
+
+    //
+    // Create an object to represent Ice::Current. We need to append
+    // this to the argument tuple.
+    //
+    PyObjectHandle curr = createCurrent(current);
+    if(PyTuple_SET_ITEM(args.get(), start, curr.get()) < 0)
+    {
+        throwPythonException();
+    }
+    curr.release(); // PyTuple_SET_ITEM steals a reference.
+
+    string dispatchName = "ice_invoke";
+    if(_amd)
+    {
+        dispatchName += "_async";
+        //
+        // Create the callback object and pass it as the first argument.
+        //
+        AMDCallbackObject* obj = amdCallbackNew(0);
+        if(!obj)
+        {
+            throwPythonException();
+        }
+        obj->op = new OperationAsyncPtr(this);
+        obj->communicator = new Ice::CommunicatorPtr(communicator);
+        obj->cb = new Ice::AMD_Array_Object_ice_invokePtr(cb);
+        if(PyTuple_SET_ITEM(args.get(), 0, (PyObject*)obj) < 0) // PyTuple_SET_ITEM steals a reference.
+        {
+            Py_DECREF(obj);
+            throwPythonException();
+        }
+    }
+
+    //
+    // Dispatch the operation.
+    //
+    PyObjectHandle method = PyObject_GetAttrString(servant, const_cast<char*>(dispatchName.c_str()));
+    if(!method.get())
+    {
+        ostringstream ostr;
+        ostr << "servant for identity " << communicator->identityToString(current.id)
+             << " does not define operation `" << dispatchName << "'";
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+        Ice::UnknownException ex(__FILE__, __LINE__);
+        ex.unknown = str;
+        throw ex;
+    }
+
+    PyObjectHandle result = PyObject_Call(method.get(), args.get(), 0);
+
+    //
+    // Check for exceptions.
+    //
+    if(PyErr_Occurred())
+    {
+        PyException ex; // Retrieve it before another Python API call clears it.
+        sendException(cb, ex, communicator);
+        return;
+    }
+
+    if(!_amd)
+    {
+        sendResponse(cb, result.get(), communicator);
+    }
+}
+
+void
+OperationInvoke::sendResponse(const Ice::AMD_Array_Object_ice_invokePtr& cb, PyObject* args,
+                              const Ice::CommunicatorPtr& communicator)
+{
+    //
+    // The return value is a bool, PyBuffer.
+    //
+    if(!PyTuple_Check(args) || PyTuple_GET_SIZE(args) != 2)
+    {
+        ostringstream ostr;
+        string name = "ice_invoke";
+        if(_amd)
+        {
+            name += "_async";
+        }
+        ostr << "operation `" << name << "' should return a tuple of length 2";
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+        throw Ice::MarshalException(__FILE__, __LINE__);
+    }
+
+    PyObject* arg = PyTuple_GET_ITEM(args, 0);
+    int isTrue = PyObject_IsTrue(arg);
+
+    arg = PyTuple_GET_ITEM(args, 1);
+    if(!PyBuffer_Check(arg))
+    {
+        ostringstream ostr;
+        ostr << "invalid return value for operation `ice_invoke'";
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+        throw Ice::MarshalException(__FILE__, __LINE__);
+    }
+
+    const Ice::Byte* mem;
+    Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, reinterpret_cast<const char**>(&mem));
+    const pair<const ::Ice::Byte*, const ::Ice::Byte*> bytes(mem, mem+sz);
+
+    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+    cb->ice_response(isTrue, bytes);
+}
+
+void
+OperationInvoke::sendException(const Ice::AMD_Array_Object_ice_invokePtr&, PyException& ex,
+                               const Ice::CommunicatorPtr&)
+{
+    //
+    // A servant that calls sys.exit() will raise the SystemExit exception.
+    // This is normally caught by the interpreter, causing it to exit.
+    // However, we have no way to pass this exception to the interpreter,
+    // so we act on it directly.
+    //
+    if(PyObject_IsInstance(ex.ex.get(), PyExc_SystemExit))
+    {
+        handleSystemExit(ex.ex.get()); // Does not return.
+    }
+    
+    ex.raise();
+}
+
+void
+OperationInvoke::responseAsync(PyObject* callback, bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& results,
+                               const Ice::CommunicatorPtr& communicator)
+{
+    try
+    {
+        // Prepare the args the tuple of the bool and out param
+        // buffer.
+        PyObjectHandle args = PyTuple_New(2);
+        if(!args.get())
+        {
+            assert(PyErr_Occurred());
+            PyErr_Print();
+            return;
+        }
+
+        if(PyTuple_SET_ITEM(args.get(), 0, ok ? getTrue() : getFalse()) < 0)
+        {
+            assert(PyErr_Occurred());
+            PyErr_Print();
+            return;
+        }
+
+        // Create the output buffer and copy in the outParams.
+        PyObjectHandle ip = PyBuffer_New(results.second - results.first);
+        if(!ip.get())
+        {
+            assert(PyErr_Occurred());
+            PyErr_Print();
+            return;
+        }
+
+        void* buf;
+        int sz;
+        if(PyObject_AsWriteBuffer(ip.get(), &buf, &sz))
+        {
+            assert(PyErr_Occurred());
+            PyErr_Print();
+            return;
+        }
+        assert(sz == results.second-results.first);
+        memcpy(buf, results.first, sz);
+
+        if(PyTuple_SET_ITEM(args.get(), 1, ip.get()) < 0)
+        {
+            assert(PyErr_Occurred());
+            PyErr_Print();
+            return;
+        }
+        ip.release(); // PyTuple_SET_ITEM steals a reference.
+
+        PyObjectHandle method = PyObject_GetAttrString(callback, STRCAST("ice_response"));
+        if(!method.get())
+        {
+            ostringstream ostr;
+            ostr << "AMI callback object for operation `ice_invoke_async' does not define ice_response()";
+            string str = ostr.str();
+            PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+        }
+        else
+        {
+            PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), 0);
+            if(PyErr_Occurred())
+            {
+                PyErr_Print();
+            }
+        }
+    }
+    catch(const Ice::Exception& ex)
+    {
+        ostringstream ostr;
+        ostr << "Exception raised by AMI callback for operation `ice_invoke_async':" << ex;
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+    }
+}
+
+void
+OperationInvoke::responseAsyncException(PyObject* callback, PyObject* ex)
+{
+    PyObjectHandle method = PyObject_GetAttrString(callback, STRCAST("ice_exception"));
+    if(!method.get())
+    {
+        ostringstream ostr;
+        ostr << "AMI callback object for operation `ice_invoke_async' does not define ice_exception()";
+        string str = ostr.str();
+        PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
+    }
+    else
+    {
+        PyObjectHandle args = Py_BuildValue(STRCAST("(O)"), ex);
+        PyObjectHandle tmp = PyObject_Call(method.get(), args.get(), 0);
+        if(PyErr_Occurred())
+        {
+            PyErr_Print();
+        }
+    }
+}
+
+OperationPtr
+IcePy::getIceInvokeOperation(bool async)
+{
+    return new OperationInvoke(async);
 }

@@ -51,25 +51,74 @@ struct ObjectAdapterObject
 //
 // Encapsulates a Python servant.
 //
-class ServantWrapper : public Ice::BlobjectAsync
+class ServantWrapper : public Ice::BlobjectArrayAsync
 {
 public:
 
     ServantWrapper(PyObject*);
     ~ServantWrapper();
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const vector<Ice::Byte>&, const Ice::Current&);
+    virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
+                                  const pair<const Ice::Byte*, const Ice::Byte*>&,
+                                  const Ice::Current&) = 0;
 
     PyObject* getObject();
 
-private:
+protected:
 
     PyObject* _servant;
+};
+typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
+
+class ConcreteServantWrapper : public ServantWrapper
+{
+public:
+
+    ConcreteServantWrapper(PyObject*);
+
+    virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
+                                  const pair<const Ice::Byte*, const Ice::Byte*>&,
+                                  const Ice::Current&);
+
+private:
+
     typedef map<string, OperationPtr> OperationMap;
     OperationMap _operationMap;
     OperationMap::iterator _lastOp;
 };
-typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
+
+class BlobjectServantWrapper : public ServantWrapper
+{
+public:
+
+    BlobjectServantWrapper(PyObject*, bool);
+
+    virtual void ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr&,
+                                  const pair<const Ice::Byte*, const Ice::Byte*>&,
+                                  const Ice::Current&);
+
+private:
+
+    const OperationPtr _op;
+};
+
+static ServantWrapperPtr
+createServantWrapper(PyObject* servant)
+{
+    ServantWrapperPtr wrapper;
+    PyObject* blobjectType = lookupType("Ice.Blobject");
+    PyObject* blobjectAsyncType = lookupType("Ice.BlobjectAsync");
+    if(PyObject_IsInstance(servant, blobjectType))
+    {
+        return new BlobjectServantWrapper(servant, false);
+    }
+    else if(PyObject_IsInstance(servant, blobjectAsyncType))
+    {
+        return new BlobjectServantWrapper(servant, true);
+    }
+
+    return new ConcreteServantWrapper(servant);
+}
 
 class ServantLocatorWrapper : public Ice::ServantLocator
 {
@@ -89,7 +138,8 @@ public:
 private:
 
     //
-    // This object is created in locate() and destroyed after finished().
+    // This object is created in locate() and destroyed after
+    // finished().
     //
     struct Cookie : public Ice::LocalObject
     {
@@ -113,7 +163,7 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
 // ServantWrapper implementation.
 //
 IcePy::ServantWrapper::ServantWrapper(PyObject* servant) :
-    _servant(servant), _lastOp(_operationMap.end())
+    _servant(servant)
 {
     Py_INCREF(_servant);
 }
@@ -125,9 +175,26 @@ IcePy::ServantWrapper::~ServantWrapper()
     Py_DECREF(_servant);
 }
 
+PyObject*
+IcePy::ServantWrapper::getObject()
+{
+    Py_INCREF(_servant);
+    return _servant;
+}
+
+
+//
+// ServantWrapper implementation.
+//
+IcePy::ConcreteServantWrapper::ConcreteServantWrapper(PyObject* servant) :
+    ServantWrapper(servant), _lastOp(_operationMap.end())
+{
+}
+
 void
-IcePy::ServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const vector<Ice::Byte>& inParams,
-                                        const Ice::Current& current)
+IcePy::ConcreteServantWrapper::ice_invoke_async(const Ice::AMD_Array_Object_ice_invokePtr& cb,
+                                                const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+                                                const Ice::Current& current)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -180,15 +247,24 @@ IcePy::ServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
     }
     catch(const Ice::Exception& ex)
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         cb->ice_exception(ex);
     }
 }
 
-PyObject*
-IcePy::ServantWrapper::getObject()
+IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant, bool async) :
+    ServantWrapper(servant),
+    _op(getIceInvokeOperation(async))
 {
-    Py_INCREF(_servant);
-    return _servant;
+}
+
+void
+IcePy::BlobjectServantWrapper::ice_invoke_async(
+    const Ice::AMD_Array_Object_ice_invokePtr& cb, const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
+    const Ice::Current& current)
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+    _op->dispatch(_servant, cb, inParams, current);
 }
 
 //
@@ -208,8 +284,9 @@ IcePy::ServantLocatorWrapper::~ServantLocatorWrapper()
 Ice::ObjectPtr
 IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
+    // Must instantiate before calling into the Python API.
     AdoptThread adoptThread;
-    CookiePtr c = new Cookie; // The Cookie constructor adopts this thread.
+    CookiePtr c = new Cookie;
     c->current = createCurrent(current);
     if(!c->current)
     {
@@ -217,9 +294,9 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
     }
 
     //
-    // Invoke locate on the Python object. We expect the object to return either
-    // the servant by itself, or the servant in a tuple with an optional cookie
-    // object.
+    // Invoke locate on the Python object. We expect the object to
+    // return either the servant by itself, or the servant in a tuple
+    // with an optional cookie object.
     //
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("locate"), STRCAST("O"), c->current);
     if(PyErr_Occurred())
@@ -264,7 +341,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
     //
     // Save state in our cookie and return a wrapper for the servant.
     //
-    c->servant = new ServantWrapper(servantObj);
+    c->servant = createServantWrapper(servantObj);
     c->cookie = cookieObj;
     Py_INCREF(c->cookie);
     cookie = c;
@@ -281,6 +358,7 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(c->servant);
     PyObjectHandle servantObj = wrapper->getObject();
 
+    AdoptThread adoptThread;
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("finished"), STRCAST("OOO"), c->current,
                                              servantObj.get(), c->cookie);
     if(PyErr_Occurred())
@@ -700,7 +778,7 @@ adapterAdd(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper = new ServantWrapper(servant);
+    ServantWrapperPtr wrapper= createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -743,7 +821,7 @@ adapterAddFacet(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper = new ServantWrapper(servant);
+    ServantWrapperPtr wrapper= createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -777,7 +855,7 @@ adapterAddWithUUID(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper = new ServantWrapper(servant);
+    ServantWrapperPtr wrapper= createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;
@@ -812,7 +890,7 @@ adapterAddFacetWithUUID(ObjectAdapterObject* self, PyObject* args)
         return 0;
     }
 
-    ServantWrapperPtr wrapper = new ServantWrapper(servant);
+    ServantWrapperPtr wrapper= createServantWrapper(servant);
     if(PyErr_Occurred())
     {
         return 0;

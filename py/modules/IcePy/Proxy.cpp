@@ -16,6 +16,7 @@
 #include <Communicator.h>
 #include <Connection.h>
 #include <Util.h>
+#include <Operation.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
@@ -1664,6 +1665,26 @@ proxyIceConnection(ProxyObject* self)
     return proxyIceGetConnection(self);
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceInvoke(ProxyObject* self, PyObject* args)
+{
+    OperationPtr op = getIceInvokeOperation(false);
+    return op->invoke(*self->proxy, args, 0);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyIceInvokeAsync(ProxyObject* self, PyObject* args)
+{
+    OperationPtr op = getIceInvokeOperation(true);
+    return op->invokeAsync(*self->proxy, args, 0, 0);
+}
+
 static PyObject*
 checkedCastImpl(ProxyObject* p, const string& id, PyObject* facet, PyObject* ctx, PyObject* type)
 {
@@ -2047,6 +2068,10 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR(STRCAST("ice_getConnection() -> Ice.Connection")) },
     { STRCAST("ice_getCachedConnection"), reinterpret_cast<PyCFunction>(proxyIceGetCachedConnection), METH_NOARGS,
         PyDoc_STR(STRCAST("ice_getCachedConnection() -> Ice.Connection")) },
+    { STRCAST("ice_invoke"), reinterpret_cast<PyCFunction>(proxyIceInvoke), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_invoke(operation, mode, inParams) -> bool, outParams")) },
+    { STRCAST("ice_invoke_async"), reinterpret_cast<PyCFunction>(proxyIceInvokeAsync), METH_VARARGS,
+        PyDoc_STR(STRCAST("ice_invoke_async(cb, operation, mode, inParams) -> void")) },
     { STRCAST("ice_checkedCast"), reinterpret_cast<PyCFunction>(proxyIceCheckedCast), METH_VARARGS | METH_CLASS,
         PyDoc_STR(STRCAST("ice_checkedCast(proxy, id[, facetOrCtx[, ctx]]) -> proxy")) },
     { STRCAST("ice_uncheckedCast"), reinterpret_cast<PyCFunction>(proxyIceUncheckedCast), METH_VARARGS | METH_CLASS,
