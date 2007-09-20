@@ -10,6 +10,11 @@
 
 import os, sys
 
+# Skip the test if we're using python 2.3 and we're not on Mac.
+if sys.version_info[1] == 3 and sys.platform != 'darwin':
+    print "Test skipped due to python 2.3"
+    sys.exit(0)
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -21,6 +26,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "blobject")
+
 
 print "tests with regular server."
 TestUtil.clientServerTest(name)
