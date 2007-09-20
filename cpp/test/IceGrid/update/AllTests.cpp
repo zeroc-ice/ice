@@ -148,10 +148,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->id = "Server";
         server->exe = properties->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
-        adapter.registerProcess = true;
+        adapter.registerProcess = false;
         addProperty(server, "Server.Endpoints", "default");
         ObjectDescriptor object;
         object.id = communicator->stringToIdentity("test");
@@ -211,10 +212,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->id = "${name}";
         server->exe = "${test.dir}/server";
         server->pwd = ".";
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         adapter = AdapterDescriptor();
         adapter.name = "Server";
         adapter.id = "${server}";
-        adapter.registerProcess = true;
+        adapter.registerProcess = false;
         addProperty(server, "Server.Endpoints", "default");
         object = ObjectDescriptor();
         object.id = communicator->stringToIdentity("${server}");
@@ -588,13 +590,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         AdapterDescriptor adapter;
         adapter.name = "${service}";
         adapter.id = "${server}.${service}";
-        adapter.registerProcess = true;
+        adapter.registerProcess = false;
         addProperty(service, "${service}.Endpoints", "default");
         service->adapters.push_back(adapter);
         
         IceBoxDescriptorPtr server = new IceBoxDescriptor();
         server->id = "IceBox";
         server->exe = properties->getProperty("IceDir") + "/bin/icebox";
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->services.resize(3);
         server->services[0].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
         service->name = "Service2";
@@ -1147,6 +1150,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-${index}");
         addProperty(server, "IceGrid.Node.Endpoints", "default");
         addProperty(server, "IceGrid.Node.PropertiesOverride", properties->getProperty("NodePropertiesOverride"));
+        
+
 
         nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
         nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
@@ -1201,9 +1206,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->id = "Server";
         server->exe = properties->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
-        adapter.registerProcess = true;
+        adapter.registerProcess = false;
         adapter.serverLifetime = true;
         server->adapters.push_back(adapter);
         addProperty(server, "Server.Endpoints", "default");

@@ -13,7 +13,7 @@
                          activation="${activation}" 
                          activation-timeout="${activation-timeout}" 
                          deactivation-timeout="${deactivation-timeout}">
-        <adapter name="TestAdapter" endpoints="default" register-process="true">
+        <adapter name="TestAdapter" endpoints="default">
 	  <object identity="${server}" type="Test"/>
 	  <allocatable identity="${server}" type="Test"/>
 	</adapter>
@@ -30,6 +30,7 @@
         <option>--nowarn</option>
         <adapter name="IceGrid.Node" endpoints="default" register-process="true" server-lifetime="false"/>
         <dbenv name="data"/>
+        <property name="Ice.Admin.Endpoints" value=""/>
         <property name="IceGrid.Node.Name" value="${server}"/>
         <property name="IceGrid.Node.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
         <property name="IceGrid.Node.PropertiesOverride"
@@ -52,12 +53,12 @@
       <server-instance template="Server" id="fail-on-startup" fail-on-startup="1"/>
 
       <server id="invalid-exe" exe="server2" activation="on-demand">
-        <adapter name="TestAdapter" endpoints="default" register-process="true">
+        <adapter name="TestAdapter" endpoints="default">
 	  <object identity="${server}" type="Test"/>
 	</adapter>
       </server>
       <server id="invalid-pwd" exe="./server" pwd="./bogus">
-        <adapter name="TestAdapter" endpoints="default" register-process="true">
+        <adapter name="TestAdapter" endpoints="default">
 	  <object identity="${server}" type="Test"/>
 	</adapter>
       </server>

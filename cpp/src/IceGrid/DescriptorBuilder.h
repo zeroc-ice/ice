@@ -258,6 +258,7 @@ public:
     ServerDescriptorBuilder(const Ice::CommunicatorPtr&);
 
     void init(const ServerDescriptorPtr&, const XmlAttributesHelper&);
+    virtual void finish();
 
     virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
     virtual ServiceInstanceDescriptorBuilder* createServiceInstance(const XmlAttributesHelper&);

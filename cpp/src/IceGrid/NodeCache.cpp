@@ -824,6 +824,9 @@ NodeEntry::finishedRegistration(const Ice::Exception& ex)
 InternalServerDescriptorPtr
 NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
 {
+    //
+    // Note that at this point all variables in info have been resolved
+    //
     assert(_session);
 
     InternalServerDescriptorPtr server = new InternalServerDescriptor();
@@ -846,7 +849,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     }
     server->options = info.descriptor->options;
     server->envs = info.descriptor->envs;
-    server->processRegistered = false; // Assigned for each communicator (see below)
+   
     // server->logs: assigned for each communicator (see below)
     // server->adapters: assigned for each communicator (see below)
     // server->dbEnvs: assigned for each communicator (see below)
@@ -857,7 +860,30 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
     //
     PropertyDescriptorSeq& props = server->properties["config"];
     props.push_back(createProperty("# Server configuration"));
-    props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
+    
+    //
+    // For newer versions of Ice, we generate Ice.Admin properties:
+    //
+    int iceVersion = 0;
+    if(info.descriptor->iceVersion != "")
+    {
+        iceVersion = getMMVersion(info.descriptor->iceVersion);
+    }
+
+    if(iceVersion == 0 || iceVersion >= 30300)
+    {
+        props.push_back(createProperty("Ice.Admin.ServerId", info.descriptor->id));
+
+        server->processRegistered =
+            getProperty(info.descriptor->propertySet.properties, "Ice.Admin.Endpoints") != "";
+    }
+    else
+    {
+        props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
+        server->processRegistered = false; // Assigned for each communicator (see below)
+    }
+
+    //  props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
 
     //
@@ -877,11 +903,22 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         }
         props.push_back(createProperty("IceBox.LoadOrder", servicesStr));
 
-	if(iceBox->adapters.empty() && 
-	   getProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess") != "0")
-	{
-  	    server->processRegistered = true;
-	}
+
+        if(iceVersion != 0 && iceVersion < 30300)
+        {
+            if(isSet(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess"))
+            {
+                if(getProperty(iceBox->propertySet.properties, "IceBox.ServiceManager.RegisterProcess") != "0")
+                {
+                    server->processRegistered = true;
+                }
+            }
+            else
+            {
+                props.push_back(createProperty("IceBox.ServiceManager.RegisterProcess", "1"));
+                server->processRegistered = true;
+            }
+        }
     }
 
     //

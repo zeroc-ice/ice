@@ -1291,6 +1291,11 @@ ServerHelper::operator==(const CommunicatorHelper& h) const
         return false;
     }
 
+    if(_desc->iceVersion != helper->_desc->iceVersion)
+    {
+        return false;
+    }
+
     if(_desc->pwd != helper->_desc->pwd)
     {
         return false;
@@ -1401,6 +1406,12 @@ ServerHelper::printImpl(const Ice::CommunicatorPtr& communicator, Output& out, c
         out << nl << "session id = `" << info.sessionId << "'";
     }
     out << nl << "exe = `" << _desc->exe << "'";
+
+    if(!_desc->iceVersion.empty())
+    {
+        out << nl << "ice version = `" << _desc->iceVersion << "'";
+    }
+
     if(!_desc->pwd.empty())
     {
         out << nl << "pwd = `" << _desc->pwd << "'";
@@ -1453,6 +1464,28 @@ ServerHelper::instantiateImpl(const ServerDescriptorPtr& instance,
 
     instance->id = resolve.asId(_desc->id, "id", false);
     instance->exe = resolve(_desc->exe, "executable", false);
+
+    instance->iceVersion = resolve(_desc->iceVersion, "ice version");
+    if(!instance->iceVersion.empty())
+    {
+        int version = getMMVersion(instance->iceVersion);
+        if(version < 0)
+        {
+            resolve.exception("invalid ice version: " + instance->iceVersion);
+        }
+        else if(version > ICE_INT_VERSION)
+        {
+            //resolve.exception("invalid ice version: " + instance->iceVersion + " is superior to the IceGrid \n"
+            //"registry version (" + ICE_STRING_VERSION + ")");
+            if(resolve.warningEnabled())
+            {
+                Ice::Warning out(resolve.getCommunicator()->getLogger());
+                out << "invalid ice version: " << instance->iceVersion << " is superior to the IceGrid ";
+                out << "registry version (" << ICE_STRING_VERSION << ")";
+            }
+        }
+    }
+    
     instance->pwd = resolve(_desc->pwd, "working directory path");
     instance->activation = resolve(_desc->activation, "activation");
     instance->applicationDistrib = _desc->applicationDistrib;

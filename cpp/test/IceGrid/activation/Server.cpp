@@ -36,7 +36,7 @@ Server::run(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
     TestI* test = new TestI(adapter);
     Ice::ObjectPtr obj = test;
-    adapter->add(test, communicator()->stringToIdentity(properties->getProperty("Ice.ServerId")));
+    adapter->add(test, communicator()->stringToIdentity(properties->getProperty("Ice.Admin.ServerId")));
 
     int delay = properties->getPropertyAsInt("ActivationDelay");
     if(delay > 0)

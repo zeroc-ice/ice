@@ -594,12 +594,12 @@ public final class Instance
             
             if((defaultLocator != null && serverId.length() > 0) || instanceName.length() > 0)
             {
-                _adminIdentity.name = "admin";
                 if(instanceName.length() == 0)
                 {
                     instanceName = Ice.Util.generateUUID();
                 }
-                _adminIdentity.category = instanceName;
+
+                _adminIdentity = new Ice.Identity("admin", instanceName);
                 
                 //
                 // Create OA

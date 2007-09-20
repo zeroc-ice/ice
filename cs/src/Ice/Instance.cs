@@ -602,12 +602,12 @@ namespace IceInternal
                 
                 if((defaultLocator != null && serverId.Length > 0) || instanceName.Length > 0)
                 {
-                    _adminIdentity.name = "admin";
                     if(instanceName.Length == 0)
                     {
                         instanceName = Ice.Util.generateUUID();
                     }
-                    _adminIdentity.category = instanceName;
+        
+                    _adminIdentity = new Ice.Identity("admin", instanceName);
                     
                     //
                     // Create OA
