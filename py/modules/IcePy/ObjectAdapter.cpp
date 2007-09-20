@@ -89,16 +89,13 @@ public:
 private:
 
     //
-    // This object is created in locate() and destroyed after finished(). Ice guarantees
-    // that these two functions are called in the same thread, therefore the AdoptThread
-    // member does "the right thing".
+    // This object is created in locate() and destroyed after finished().
     //
     struct Cookie : public Ice::LocalObject
     {
         Cookie();
         ~Cookie();
 
-        AdoptThread adoptThread;
         PyObject* current;
         ServantWrapperPtr servant;
         PyObject* cookie;
@@ -211,6 +208,7 @@ IcePy::ServantLocatorWrapper::~ServantLocatorWrapper()
 Ice::ObjectPtr
 IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
+    AdoptThread adoptThread;
     CookiePtr c = new Cookie; // The Cookie constructor adopts this thread.
     c->current = createCurrent(current);
     if(!c->current)
@@ -276,6 +274,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 void
 IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
 {
+    AdoptThread adoptThread;
     CookiePtr c = CookiePtr::dynamicCast(cookie);
     assert(c);
 
@@ -319,6 +318,7 @@ IcePy::ServantLocatorWrapper::Cookie::Cookie()
 
 IcePy::ServantLocatorWrapper::Cookie::~Cookie()
 {
+    AdoptThread adoptThread;
     Py_XDECREF(current);
     Py_XDECREF(cookie);
 }
