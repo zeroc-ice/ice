@@ -358,7 +358,6 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
     ServantWrapperPtr wrapper = ServantWrapperPtr::dynamicCast(c->servant);
     PyObjectHandle servantObj = wrapper->getObject();
 
-    AdoptThread adoptThread;
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("finished"), STRCAST("OOO"), c->current,
                                              servantObj.get(), c->cookie);
     if(PyErr_Occurred())
