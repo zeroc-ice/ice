@@ -1460,9 +1460,15 @@ OperationInvoke::invoke(const Ice::ObjectPrx& proxy, PyObject* args, PyObject*)
     PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
     Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
 
+#if PY_VERSION_HEX < 0x02050000
     const Ice::Byte* mem;
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
         inParams, 0, reinterpret_cast<const char**>(&mem));
+#else
+    Ice::Byte* mem;
+    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
+        inParams, 0, reinterpret_cast<char**>(&mem));
+#endif
     // Use the array API to avoid copying the data.
     const pair<const ::Ice::Byte*, const ::Ice::Byte*> in(mem, mem+sz);
 
@@ -1551,9 +1557,15 @@ OperationInvoke::invokeAsync(const Ice::ObjectPrx& proxy, PyObject* args, PyObje
     PyObjectHandle modeValue = PyObject_GetAttrString(mode, STRCAST("value"));
     Ice::OperationMode sendMode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
 
+#if PY_VERSION_HEX < 0x02050000
     const Ice::Byte* mem;
     Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
         inParams, 0, reinterpret_cast<const char**>(&mem));
+#else
+    Ice::Byte* mem;
+    Py_ssize_t sz = inParams->ob_type->tp_as_buffer->bf_getcharbuffer(
+        inParams, 0, reinterpret_cast<char**>(&mem));
+#endif
     // Use the array API to avoid copying the data.
     const pair<const ::Ice::Byte*, const ::Ice::Byte*> in(mem, mem+sz);
 
@@ -1757,8 +1769,13 @@ OperationInvoke::sendResponse(const Ice::AMD_Array_Object_ice_invokePtr& cb, PyO
         throw Ice::MarshalException(__FILE__, __LINE__);
     }
 
+#if PY_VERSION_HEX < 0x02050000
     const Ice::Byte* mem;
     Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, reinterpret_cast<const char**>(&mem));
+#else
+    Ice::Byte* mem;
+    Py_ssize_t sz = arg->ob_type->tp_as_buffer->bf_getcharbuffer(arg, 0, reinterpret_cast<char**>(&mem));
+#endif
     const pair<const ::Ice::Byte*, const ::Ice::Byte*> bytes(mem, mem+sz);
 
     AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
