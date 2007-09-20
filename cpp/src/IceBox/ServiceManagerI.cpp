@@ -427,7 +427,12 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             PropertiesPtr serviceProperties;
             if(properties->getPropertyAsInt("IceBox.InheritProperties") > 0)
             {
-                serviceProperties = createProperties(info.args, properties);
+                //
+                // Inherit all except Ice.Admin.Endpoints!
+                //
+                serviceProperties = properties->clone();
+                serviceProperties->setProperty("Ice.Admin.Endpoints", "");
+                serviceProperties = createProperties(info.args, serviceProperties);
             }
             else
             {

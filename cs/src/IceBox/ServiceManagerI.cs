@@ -468,7 +468,12 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
                     Ice.Properties serviceProperties;
                     if(properties.getPropertyAsInt("IceBox.InheritProperties") > 0)
                     {
-                        serviceProperties = Ice.Util.createProperties(ref info.args, properties);
+                        //
+                        // Inherit all except Ice.Admin.Endpoints!
+                        //
+                        serviceProperties = properties.ice_clone_();
+                        serviceProperties.setProperty("Ice.Admin.Endpoints", "");
+                        serviceProperties = Ice.Util.createProperties(ref info.args, serviceProperties);
                     }
                     else
                     {
