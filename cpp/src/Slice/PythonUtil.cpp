@@ -1103,16 +1103,24 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return _h % 0x7fffffff";
     _out.dec();
 
-    _out << sp << nl << "def __eq__(self, other):";
+    _out << sp << nl << "def __cmp__(self, other):";
     _out.inc();
+    _out << nl << "if other == None:";
+    _out.inc();
+    _out << nl << "return 1";
+    _out.dec();
     for(r = memberList.begin(); r != memberList.end(); ++r)
     {
-        _out << nl << "if not self." << r->fixedName << " == other." << r->fixedName << ':';
+        _out << nl << "if self." << r->fixedName << " < other." << r->fixedName << ':';
         _out.inc();
-        _out << nl << "return False";
+        _out << nl << "return -1";
+        _out.dec();
+        _out << nl << "elif self." << r->fixedName << " > other." << r->fixedName << ':';
+        _out.inc();
+        _out << nl << "return 1";
         _out.dec();
     }
-    _out << nl << "return True";
+    _out << nl << "return 0";
     _out.dec();
 
     //
