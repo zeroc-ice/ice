@@ -138,8 +138,7 @@ public:
 private:
 
     //
-    // This object is created in locate() and destroyed after
-    // finished().
+    // This object is created in locate() and destroyed after finished().
     //
     struct Cookie : public Ice::LocalObject
     {
@@ -182,9 +181,8 @@ IcePy::ServantWrapper::getObject()
     return _servant;
 }
 
-
 //
-// ServantWrapper implementation.
+// ConcreteServantWrapper implementation.
 //
 IcePy::ConcreteServantWrapper::ConcreteServantWrapper(PyObject* servant) :
     ServantWrapper(servant), _lastOp(_operationMap.end())
@@ -252,6 +250,9 @@ IcePy::ConcreteServantWrapper::ice_invoke_async(const Ice::AMD_Array_Object_ice_
     }
 }
 
+//
+// BlobjectServantWrapper implementation.
+//
 IcePy::BlobjectServantWrapper::BlobjectServantWrapper(PyObject* servant, bool async) :
     ServantWrapper(servant),
     _op(getIceInvokeOperation(async))
@@ -284,8 +285,8 @@ IcePy::ServantLocatorWrapper::~ServantLocatorWrapper()
 Ice::ObjectPtr
 IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObjectPtr& cookie)
 {
-    // Must instantiate before calling into the Python API.
-    AdoptThread adoptThread;
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
     CookiePtr c = new Cookie;
     c->current = createCurrent(current);
     if(!c->current)
@@ -351,7 +352,8 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 void
 IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
 {
-    AdoptThread adoptThread;
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
     CookiePtr c = CookiePtr::dynamicCast(cookie);
     assert(c);
 
