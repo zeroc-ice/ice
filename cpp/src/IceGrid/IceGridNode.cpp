@@ -385,7 +385,7 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the node object adapter.
     //
-    properties->setProperty("IceGrid.Node.RegisterProcess", "0");
+    properties->setProperty("IceGrid.Node.RegisterProcess", "");
     properties->setProperty("IceGrid.Node.AdapterId", "");
     _adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
@@ -480,13 +480,13 @@ NodeService::start(int argc, char* argv[])
     // Add a process servant to allow shutdown through the process
     // interface if a server id is set on the node.
     //
-    if(!properties->getProperty("Ice.ServerId").empty() && communicator()->getDefaultLocator())
+    if(!properties->getProperty("Ice.Admin.ServerId").empty() && communicator()->getDefaultLocator())
     {
         try
         {
             ProcessPrx proxy = ProcessPrx::uncheckedCast(_adapter->addWithUUID(new ProcessI(_activator)));
             LocatorRegistryPrx locatorRegistry = communicator()->getDefaultLocator()->getRegistry();
-            locatorRegistry->setServerProcessProxy(properties->getProperty("Ice.ServerId"), proxy);
+            locatorRegistry->setServerProcessProxy(properties->getProperty("Ice.Admin.ServerId"), proxy);
         }
         catch(const ServerNotFoundException&)
         {

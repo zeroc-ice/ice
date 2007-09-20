@@ -42,6 +42,8 @@ std::string toString(const std::vector<std::string>&, const std::string& = std::
 std::string toString(const Ice::Exception&);
 
 std::string getProperty(const PropertyDescriptorSeq&, const std::string&, const std::string& = std::string());
+bool isSet(const PropertyDescriptorSeq&, const std::string&);
+
 PropertyDescriptor createProperty(const std::string&, const std::string& = std::string());
 
 int getMMVersion(const std::string&);

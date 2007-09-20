@@ -62,8 +62,7 @@
     <server-template id="IceBox">
       <parameter name="id"/>
       <parameter name="replicaGroup"/>
-      <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
-        <adapter name="IceBox.ServiceManager" endpoints="tcp -h 127.0.0.1" register-process="true"/>
+      <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">
         <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}" priority="3"/>
         <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}" priority="2"/>
         <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}" priority="1"/>

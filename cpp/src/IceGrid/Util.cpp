@@ -63,14 +63,31 @@ IceGrid::toString(const Ice::Exception& exception)
 string
 IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
 {    
+    string result = def;
+
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
         if(q->name == name)
         {
-            return q->value;
+            result = q->value;
         }
     }
-    return def;
+    return result;
+}
+
+bool
+IceGrid::isSet(const PropertyDescriptorSeq& properties, const string& name)
+{    
+    bool result = false;
+
+    for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    {
+        if(q->name == name)
+        {
+            result = (q->value != "");
+        }
+    }
+    return result;
 }
 
 PropertyDescriptor
@@ -82,3 +99,75 @@ IceGrid::createProperty(const string& name, const string& value)
     return prop;
 }
 
+
+int
+IceGrid::getMMVersion(const string& o)
+{
+    //
+    // Strip the version
+    //
+    string::size_type beg = o.find_first_not_of(' ');
+    string::size_type end = o.find_last_not_of(' ');
+    string version = o.substr(beg == string::npos ? 0 : beg, end == string::npos ? o.length() - 1 : end - beg + 1);
+
+    string::size_type minorPos = version.find('.');
+    string::size_type patchPos = version.find('.', minorPos + 1);
+
+    if(minorPos != 1 && minorPos != 2)
+    {
+        return -1;
+    }
+
+    if(patchPos != string::npos)
+    { 
+        if((minorPos == 1 && patchPos != 3 && patchPos != 4) || (minorPos == 2 && patchPos != 4 && patchPos != 5))
+        {
+            return -1;
+        }
+        else if((version.size() - patchPos - 1) > 2)
+        {
+            return -1;
+        }
+    }
+    else if((version.size() - minorPos - 1) > 2)
+    {
+        return -1;
+    }
+
+    int v, ver;
+
+    istringstream major(version.substr(0, minorPos));
+    major >> v;
+    if(major.fail() || v > 99 || v < 1)
+    {
+        return -1;
+    }
+    ver = v;
+    ver *= 100;
+
+    istringstream minor(version.substr(minorPos + 1, patchPos != string::npos ? patchPos : version.size()));
+    minor >> v;
+    if(minor.fail() || v > 99 || v < 0)
+    {
+        return -1;
+    }
+    ver += v;
+    ver *= 100;
+
+    //
+    // No need to get the patch number, we're only interested in
+    // MAJOR.MINOR
+    //
+    //     if(patchPos != string::npos)
+    //     {
+    //      istringstream patch(version.substr(patchPos + 1));
+    //      patch >> v;
+    //      if(patch.fail() || v > 99 || v < 0)
+    //      {
+    //          return -1;
+    //      }
+    //      ver += v;
+    //     }
+    
+    return ver;
+}

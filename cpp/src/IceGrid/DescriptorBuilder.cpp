@@ -844,6 +844,17 @@ ServerDescriptorBuilder::init(const ServerDescriptorPtr& desc, const XmlAttribut
     _descriptor->applicationDistrib = attrs.asBool("application-distrib", true);
     _descriptor->allocatable = attrs.asBool("allocatable", false);
     _descriptor->user = attrs("user", "");
+    _descriptor->iceVersion = attrs("ice-version", "");
+}
+
+void
+ServerDescriptorBuilder::finish()
+{
+    if(!isSet(_descriptor->propertySet.properties, "Ice.Admin.Enpoints"))
+    {
+        _hiddenProperties.push_back(createProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
+    }
+    CommunicatorDescriptorBuilder::finish();
 }
 
 ServiceDescriptorBuilder*
@@ -913,22 +924,20 @@ IceBoxDescriptorBuilder::init(const IceBoxDescriptorPtr& desc, const XmlAttribut
 void
 IceBoxDescriptorBuilder::finish()
 {
-    if(getProperty(_descriptor->propertySet.properties, "IceBox.InstanceName").empty())
+    if(!isSet(_descriptor->propertySet.properties, "IceBox.InstanceName"))
     {
         _hiddenProperties.push_back(createProperty("IceBox.InstanceName", "${server}"));
     }
-    if(_descriptor->adapters.empty())
-    {
-        if(getProperty(_descriptor->propertySet.properties, "IceBox.ServiceManager.Endpoints").empty())
-        {
-            _hiddenProperties.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
-        }
-        if(getProperty(_descriptor->propertySet.properties, "IceBox.ServiceManager.RegisterProcess").empty())
-        {
-            _hiddenProperties.push_back(createProperty("IceBox.ServiceManager.RegisterProcess", "1"));
-        }
-    }
     
+    if(!isSet(_descriptor->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
+    {
+        _hiddenProperties.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
+    }
+
+    //
+    // The NodeCache takes care of setting RegisterProcess for old IceBox servers
+    //
+
     ServerDescriptorBuilder::finish();
 }
 

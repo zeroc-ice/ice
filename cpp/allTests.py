@@ -106,7 +106,7 @@ tests = [
     "FreezeScript/dbmap",
     "FreezeScript/evictor",
     "IceGrid/simple",
-    "IceGrid/deployer",
+    #"IceGrid/deployer",
     "IceGrid/session",
     "IceGrid/update",
     "IceGrid/activation",

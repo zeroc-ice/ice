@@ -15,8 +15,7 @@
          <adapter name="IcePatch2" endpoints="${endpoints}">
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
          </adapter>
-         <adapter name="IcePatch2.Admin" endpoints="tcp -h 127.0.0.1"
-                  register-process="true"/>
+         <adapter name="IcePatch2.Admin" endpoints="tcp -h 127.0.0.1"/>
          <properties>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
             <property name="IcePatch2.Directory" value="${directory}"/>
@@ -38,7 +37,7 @@
                        endpoints="default -p 12001"/>
 
       <server id="server-all" exe="${test.dir}/server" activation="on-demand">
-        <adapter name="Server" endpoints="default" register-process="true">
+        <adapter name="Server" endpoints="default">
 	  <object identity="${server}"/>
 	</adapter>
         <distrib/>
@@ -49,7 +48,7 @@
       </server>
 
       <server id="server-all-direct" exe="${test.dir}/server" activation="on-demand">
-        <adapter name="Server" endpoints="default" register-process="true">
+        <adapter name="Server" endpoints="default">
 	  <object identity="${server}"/>
 	</adapter>
         <distrib icepatch="IcePatch2-Direct/server:default -p 12001"/>
@@ -60,7 +59,7 @@
       </server>
 
       <server id="server-dir1" exe="${test.dir}/server" activation="on-demand">
-        <adapter name="Server" endpoints="default" register-process="true">
+        <adapter name="Server" endpoints="default">
 	  <object identity="${server}"/>
 	</adapter>
         <distrib>

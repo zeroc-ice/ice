@@ -72,6 +72,15 @@ private:
 };
 typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
 
+void 
+addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
+{
+    PropertyDescriptor prop;
+    prop.name = name;
+    prop.value = value;
+    communicator->propertySet.properties.push_back(prop);
+}
+
 void
 waitForServerState(const IceGrid::AdminPrx& admin, const std::string& server, bool up)
 {
@@ -914,11 +923,12 @@ allTests(const Ice::CommunicatorPtr& comm)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
-        adapter.registerProcess = true;
+        adapter.registerProcess = false;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
         property.value = "default";
@@ -1086,11 +1096,12 @@ allTests(const Ice::CommunicatorPtr& comm)
         server->id = "Server";
         server->exe = comm->getProperties()->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         server->activation = "on-demand";
         AdapterDescriptor adapter;
         adapter.name = "TestAdapter";
         adapter.id = "TestAdapter.Server";
-        adapter.registerProcess = true;
+        adapter.registerProcess = false;
         PropertyDescriptor property;
         property.name = "TestAdapter.Endpoints";
         property.value = "default";
@@ -1170,10 +1181,20 @@ allTests(const Ice::CommunicatorPtr& comm)
     }
     cout << "ok" << endl;
     
+    
+    cout << "Shutting down Node1... " << flush;
     slave1Admin->shutdownNode("Node1");
-    removeServer(admin, "Node1");
+    cout << "ok" << endl;
 
+    cout << "Removing Node1 server... " << flush;
+    removeServer(admin, "Node1");
+    cout << "ok" << endl;
+
+    cout << "Removing Slave2 server..." << flush;
     removeServer(admin, "Slave2");
+    cout << "ok" << endl;
+
+
     slave1Admin->shutdown();
     removeServer(admin, "Slave1");
     masterAdmin->shutdown();
