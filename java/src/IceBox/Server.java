@@ -24,8 +24,12 @@ public final class Server extends Ice.Application
     public static void
     main(String[] args)
     {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+
         Server server = new Server();
-        server.main("IceBox.Server", args);
+        server.main("IceBox.Server", args, initData);
     }
 
     public int

@@ -235,11 +235,13 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
 
             //
-            // Register "this" as a facet to the Admin object
+            // Register "this" as a facet to the Admin object and
+            // create Admin object
             //
             try
             {
                 _server.communicator().addAdminFacet(this, "IceBox.ServiceManager");
+                _server.communicator().getAdmin();
             }
             catch(Ice.CommunicatorDestroyedException ex)
             {

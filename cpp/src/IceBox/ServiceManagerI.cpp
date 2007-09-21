@@ -247,11 +247,13 @@ IceBox::ServiceManagerI::start()
         }
 
         //
-        // Register "this" as a facet to the Admin object
+        // Register "this" as a facet to the Admin object, and then create
+        // Admin object
         //
         try
         {
             _communicator->addAdminFacet(this, "IceBox.ServiceManager");
+            _communicator->getAdmin();
         }
         catch(const CommunicatorDestroyedException&)
         {

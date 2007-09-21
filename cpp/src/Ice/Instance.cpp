@@ -488,7 +488,7 @@ IceInternal::Instance::identityToString(const Identity& ident) const
 
 
 Ice::ObjectPrx
-IceInternal::Instance::getAdmin() const
+IceInternal::Instance::getAdmin()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
@@ -496,14 +496,97 @@ IceInternal::Instance::getAdmin() const
     {
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    
-    if(_adminAdapter == 0)
+
+    const string adminOA = "Ice.Admin";
+
+    if(_adminAdapter != 0)
+    {
+        return _adminAdapter->createProxy(_adminIdentity);
+    }
+    else if(_initData.properties->getProperty(adminOA + ".Endpoints") == "")
     {
         return 0;
     }
     else
     {
-        return _adminAdapter->createProxy(_adminIdentity);
+        string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
+        string instanceName = _initData.properties->getProperty("Ice.Admin.InstanceName");
+
+        Ice::LocatorPrx defaultLocator = _referenceFactory->getDefaultLocator();
+
+        if((defaultLocator != 0 && serverId != "") || instanceName != "")
+        {
+            if(_adminIdentity.name == "")
+            {
+                _adminIdentity.name = "admin";
+                if(instanceName == "")
+                {
+                    instanceName = IceUtil::generateUUID();
+                }
+                _adminIdentity.category = instanceName;
+
+                //
+                // Afterwards, _adminIdentity is read-only
+                //
+            }
+
+            //
+            // Create OA
+            //
+            _adminAdapter = _objectAdapterFactory->createObjectAdapter(adminOA, "", 0);
+
+            //
+            // Add all facets to OA
+            //
+            for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
+            {
+                _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+            }
+            _adminFacets.clear();
+
+            ObjectAdapterPtr adapter = _adminAdapter;
+            sync.release();
+
+            //
+            // Activate OA
+            //
+            try
+            {
+                adapter->activate();
+            }
+            catch(...)
+            {
+                //
+                // We cleanup _adminAdapter, however this error is not recoverable
+                // (can't call again getAdmin() after fixing the problem)
+                // since all the facets (servants) in the adapter are lost
+                //
+                sync.acquire();
+                _adminAdapter = 0;
+                adapter->destroy();
+                throw;
+            }
+            
+            if(defaultLocator != 0 && serverId != "")
+            {    
+                ProcessPrx process = ProcessPrx::uncheckedCast(
+                    adapter->createProxy(_adminIdentity)->ice_facet("Process"));
+                try
+                {
+                    defaultLocator->getRegistry()->setServerProcessProxy(serverId, process);
+                }
+                catch(const ServerNotFoundException&)
+                {
+                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" + serverId + "'");
+                }
+            }
+
+            return adapter->createProxy(_adminIdentity);
+        }
+        else
+        {
+            return 0;
+        }
     }
 }
 
@@ -868,9 +951,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     _referenceFactory->setDefaultRouter(
         RouterPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Router")));
 
-    LocatorPrx defaultLocator = LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator"));
-    _referenceFactory->setDefaultLocator(defaultLocator);
-
+    _referenceFactory->setDefaultLocator(
+        LocatorPrx::uncheckedCast(_proxyFactory->propertyToProxy("Ice.Default.Locator")));
+   
     //
     // Show process id if requested (but only once).
     //
@@ -897,62 +980,12 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
         cout << getpid() << endl;
 #endif
     }
-
-    //
-    // Create Admin object depending on configuration
-    // No-op unless Endpoints is set
-    //
-    const string adminOA = "Ice.Admin";
-    if(_initData.properties->getProperty(adminOA + ".Endpoints") != "")
-    {
-        string serverId = _initData.properties->getProperty("Ice.Admin.ServerId");
-        string instanceName = _initData.properties->getProperty("Ice.Admin.InstanceName");
-
-        if((defaultLocator != 0 && serverId != "") || instanceName != "")
-        {
-            _adminIdentity.name = "admin";
-            if(instanceName == "")
-            {
-                instanceName = IceUtil::generateUUID();
-            }
-            _adminIdentity.category = instanceName;
-
-            //
-            // Create OA
-            //
-            _adminAdapter = _objectAdapterFactory->createObjectAdapter(adminOA, "", 0);
-
-            //
-            // Add all facets to OA
-            //
-            for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
-            {
-                _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
-            }
-            _adminFacets.clear();
-
-            //
-            // Activate OA
-            //
-            _adminAdapter->activate();
-            
-            if(defaultLocator != 0 && serverId != "")
-            {    
-                ProcessPrx process = ProcessPrx::uncheckedCast(
-                    _adminAdapter->createProxy(_adminIdentity)->ice_facet("Process"));
-
-                try
-                {
-                    defaultLocator->getRegistry()->setServerProcessProxy(serverId, process);
-                }
-                catch(const ServerNotFoundException&)
-                {
-                    throw InitializationException(__FILE__, __LINE__, "Locator knows nothing about server '" + serverId + "'");
-                }
-            }
-        }
-    }
     
+    if(_initData.properties->getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
+    {
+        getAdmin();
+    }
+
     //
     // Start connection monitor if necessary.
     //
@@ -1135,7 +1168,6 @@ IceInternal::Instance::destroy()
     }
     return true;
 }
-
 
 IceInternal::UTF8BufferI::UTF8BufferI() :
     _buffer(0),

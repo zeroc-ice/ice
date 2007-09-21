@@ -82,7 +82,7 @@ public:
     Ice::Identity stringToIdentity(const std::string&) const;
     std::string identityToString(const Ice::Identity&) const;
 
-    Ice::ObjectPrx getAdmin() const;
+    Ice::ObjectPrx getAdmin();
     void addAdminFacet(const Ice::ObjectPtr&, const std::string&);
     Ice::ObjectPtr removeAdminFacet(const std::string&);
     

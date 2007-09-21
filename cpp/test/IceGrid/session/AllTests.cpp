@@ -619,7 +619,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             adminRouter1->ice_ping();
             break;
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
         }
@@ -1643,12 +1643,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 //      server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
 //      server->options.push_back("--nowarn");
 //      server->pwd = ".";
-//      AdapterDescriptor adapter;
-//      adapter.name = "IceGrid.Node";
-//      adapter.id = "IceGrid.Node.node-1";
-//      adapter.registerProcess = true;
-//      adapter.waitForActivation = false;
-//      server->adapters.push_back(adapter);
 //      addProperty(server, "IceGrid.Node.Name", "node-1");
 //      addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
 //      addProperty(server, "IceGrid.Node.Endpoints", "default");
@@ -1774,16 +1768,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
         server->options.push_back("--nowarn");
         server->pwd = ".";
-        AdapterDescriptor adapter;
-        adapter.name = "IceGrid.Node";
-        adapter.id = "IceGrid.Node.node-1";
-        adapter.registerProcess = true; // just to tell the node to expect a Process (supplied by node-1)
-        adapter.serverLifetime = false;
-        server->adapters.push_back(adapter);
         addProperty(server, "IceGrid.Node.Name", "node-1");
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-1");
         addProperty(server, "IceGrid.Node.Endpoints", "default");
-        // addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1"); // registering two processes doesn't work for some reason
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
       
         NodeDescriptor node;
         node.servers.push_back(server);
@@ -1829,6 +1817,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->id = "Server";
         server->exe = properties->getProperty("TestDir") + "/server";
         server->pwd = ".";
+        AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
         adapter.registerProcess = false;

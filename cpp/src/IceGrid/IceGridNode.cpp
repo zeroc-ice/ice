@@ -52,7 +52,7 @@ class ProcessI : public Process
 {
 public:
     
-    ProcessI(const ActivatorPtr&);
+    ProcessI(const ActivatorPtr&, const ProcessPtr&);
 
     virtual void shutdown(const Current&);
     virtual void writeMessage(const std::string&, Int, const Current&);
@@ -60,6 +60,7 @@ public:
 private:
     
     ActivatorPtr _activator;
+    ProcessPtr _origProcess;
 };
 
 
@@ -117,7 +118,9 @@ CollocatedRegistry::shutdown()
     _activator->shutdown();
 }
 
-ProcessI::ProcessI(const ActivatorPtr& activator) : _activator(activator)
+ProcessI::ProcessI(const ActivatorPtr& activator, const ProcessPtr& origProcess) : 
+    _activator(activator),
+    _origProcess(origProcess)
 {
 }
 
@@ -128,21 +131,9 @@ ProcessI::shutdown(const Current&)
 }
 
 void
-ProcessI::writeMessage(const string& message, Int fd, const Current&)
+ProcessI::writeMessage(const string& message, Int fd, const Current& current)
 {
-    switch(fd)
-    {
-        case 1:
-        {
-            cout << message << endl;
-            break;
-        }
-        case 2:
-        {
-            cerr << message << endl;
-            break;
-        }
-    }
+    _origProcess->writeMessage(message, fd, current);
 }
 
 NodeService::NodeService()
@@ -385,8 +376,6 @@ NodeService::start(int argc, char* argv[])
     //
     // Create the node object adapter.
     //
-    properties->setProperty("IceGrid.Node.RegisterProcess", "");
-    properties->setProperty("IceGrid.Node.AdapterId", "");
     _adapter = communicator()->createObjectAdapter("IceGrid.Node");
 
     //
@@ -477,22 +466,25 @@ NodeService::start(int argc, char* argv[])
     _sessions.create(_node);
 
     //
-    // Add a process servant to allow shutdown through the process
-    // interface if a server id is set on the node.
+    // In some tests, we deploy icegridnodes using IceGrid:
     //
-    if(!properties->getProperty("Ice.Admin.ServerId").empty() && communicator()->getDefaultLocator())
+    if(properties->getProperty("Ice.Admin.Endpoints") != "")
     {
+        //
+        // Replace Process facet and create Admin object
+        //
         try
         {
-            ProcessPrx proxy = ProcessPrx::uncheckedCast(_adapter->addWithUUID(new ProcessI(_activator)));
-            LocatorRegistryPrx locatorRegistry = communicator()->getDefaultLocator()->getRegistry();
-            locatorRegistry->setServerProcessProxy(properties->getProperty("Ice.Admin.ServerId"), proxy);
+            ProcessPtr origProcess = ProcessPtr::dynamicCast(communicator()->removeAdminFacet("Process"));
+            communicator()->addAdminFacet(new ProcessI(_activator, origProcess), "Process");
+            communicator()->getAdmin();
         }
-        catch(const ServerNotFoundException&)
+        catch(const Ice::NotRegisteredException&)
         {
-        }
-        catch(const LocalException&)
-        {
+            //
+            // Some plugin removed the Process facet, so we don't replace it.
+            // (unlikely error though)
+            // 
         }
     }
 
@@ -741,6 +733,11 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     //
     initData.properties->setProperty("Ice.ThreadPerConnection", "");
     initData.properties->setProperty("Ice.Default.CollocationOptimized", "0");
+
+    //
+    // Delay creation of Admin object:
+    //
+    initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
 
     return Service::initializeCommunicator(argc, argv, initData);
 }

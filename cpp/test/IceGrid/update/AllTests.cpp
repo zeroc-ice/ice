@@ -1139,19 +1139,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->exe = properties->getProperty("IceDir") + "/bin/icegridnode";
         server->pwd = ".";
         server->options.push_back("--nowarn");
-        AdapterDescriptor adapter;
-        adapter.name = "IceGrid.Node";
-        adapter.id = "IceGrid.Node.node-${index}";
-        adapter.registerProcess = true;
-        adapter.serverLifetime = false;
-        server->adapters.push_back(adapter);
-
+       
         addProperty(server, "IceGrid.Node.Name", "node-${index}");
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-${index}");
         addProperty(server, "IceGrid.Node.Endpoints", "default");
         addProperty(server, "IceGrid.Node.PropertiesOverride", properties->getProperty("NodePropertiesOverride"));
-        
-
+        addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
 
         nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
         nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
@@ -1207,6 +1200,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         server->exe = properties->getProperty("TestDir") + "/server";
         server->pwd = ".";
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
+        AdapterDescriptor adapter;
         adapter.name = "Server";
         adapter.id = "ServerAdapter";
         adapter.registerProcess = false;

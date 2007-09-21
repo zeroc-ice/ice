@@ -6,8 +6,8 @@
       <parameter name="id"/>
       <server id="${id}" exe="${ice.dir}/bin/icegridnode" activation="manual">
         <option>--nowarn</option>
-        <adapter name="IceGrid.Node" endpoints="default" register-process="true" server-lifetime="false"/>
         <dbenv name="data"/>
+        <property name="IceGrid.Node.Endpoints" value="default"/>
         <property name="IceGrid.InstanceName" value="TestIceGrid"/>
         <property name="IceGrid.Node.Name" value="${server}"/>
         <property name="IceGrid.Node.Data" value="${node.datadir}/servers/${server}/dbs/data"/>

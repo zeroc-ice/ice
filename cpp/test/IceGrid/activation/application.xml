@@ -28,9 +28,8 @@
       <parameter name="disable-on-failure" default="0"/>
       <server id="${id}" exe="${ice.dir}/bin/icegridnode" activation="manual">
         <option>--nowarn</option>
-        <adapter name="IceGrid.Node" endpoints="default" register-process="true" server-lifetime="false"/>
         <dbenv name="data"/>
-        <property name="Ice.Admin.Endpoints" value=""/>
+        <property name="IceGrid.Node.Endpoints" value="default"/>
         <property name="IceGrid.Node.Name" value="${server}"/>
         <property name="IceGrid.Node.Data" value="${node.datadir}/servers/${server}/dbs/data"/>
         <property name="IceGrid.Node.PropertiesOverride"
