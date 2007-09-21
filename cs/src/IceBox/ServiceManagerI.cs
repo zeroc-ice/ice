@@ -231,11 +231,12 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
             }
 
             //
-            // Register "this" as a facet to the Admin object
+            // Register "this" as a facet to the Admin object and create Admin object
             //
             try
             {
                 Ice.Application.communicator().addAdminFacet(this, "IceBox.ServiceManager");
+                Ice.Application.communicator().getAdmin();
             }
             catch(Ice.CommunicatorDestroyedException)
             {

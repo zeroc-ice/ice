@@ -43,8 +43,12 @@ public class Server : Ice.Application
 
     public static void Main(string[] args)
     {
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = Ice.Util.createProperties();
+        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+
         Server server = new Server();
-        int status = server.main(args);
+        int status = server.main(args, initData);
         if(status != 0)
         {
             System.Environment.Exit(status);

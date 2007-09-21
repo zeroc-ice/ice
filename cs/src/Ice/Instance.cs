@@ -325,21 +325,108 @@ namespace IceInternal
         public Ice.ObjectPrx 
         getAdmin()
         {
+            Ice.ObjectAdapter adapter = null;
+            string serverId = null;
+            Ice.LocatorPrx defaultLocator = null;
+
             lock(this)
             {
                 if(_state == StateDestroyed)
                 {
                     throw new Ice.CommunicatorDestroyedException();
                 }
-                if(_adminAdapter == null)
+                
+                string adminOA = "Ice.Admin";
+                
+                if(_adminAdapter != null)
+                {
+                    return _adminAdapter.createProxy(_adminIdentity);
+                }
+                else if(_initData.properties.getProperty(adminOA + ".Endpoints").Length == 0)
                 {
                     return null;
                 }
                 else
                 {
-                    return _adminAdapter.createProxy(_adminIdentity);
+                    serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+                    string instanceName = _initData.properties.getProperty("Ice.Admin.InstanceName");
+                    
+                    defaultLocator = _referenceFactory.getDefaultLocator();
+                    
+                    if((defaultLocator != null && serverId.Length > 0) || instanceName.Length > 0)
+                    {
+                        if(_adminIdentity == null)
+                        {
+                            if(instanceName.Length == 0)
+                            {
+                                instanceName = Ice.Util.generateUUID();
+                            }
+                            _adminIdentity = new Ice.Identity("admin", instanceName);
+                            //
+                            // Afterwards, _adminIdentity is read-only
+                            //
+                        }
+                        
+                        //
+                        // Create OA
+                        //
+                        _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, "", null);
+                
+                        //
+                        // Add all facets to OA
+                        //
+                        foreach(KeyValuePair<string, Ice.Object> entry in _adminFacets)
+                        {
+                            _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
+                        }
+                        _adminFacets.Clear();
+
+                        adapter = _adminAdapter;
+                    }
                 }
             }
+
+            if(adapter == null)
+            {
+                return null;
+            }
+            else
+            {
+                try
+                {
+                    adapter.activate();
+                }
+                catch(Ice.LocalException)
+                {
+                    //
+                    // We cleanup _adminAdapter, however this error is not recoverable
+                    // (can't call again getAdmin() after fixing the problem)
+                    // since all the facets (servants) in the adapter are lost
+                    //
+                    lock(this)
+                    {
+                        _adminAdapter = null;
+                        adapter.destroy();
+                    }
+                    throw;
+                }
+
+                if(defaultLocator != null && serverId.Length > 0)
+                {    
+                    Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(
+                        adapter.createProxy(_adminIdentity).ice_facet("Process"));
+                
+                    try
+                    {
+                        defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
+                    }
+                    catch(Ice.ServerNotFoundException)
+                    {
+                        throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
+                    }
+                }
+                return adapter.createProxy(_adminIdentity);
+            }    
         }
         
         public void 
@@ -589,60 +676,10 @@ namespace IceInternal
                     _printProcessIdDone = true;
                 }
             }
-
-             // 
-            // Create Admin object depending on configuration
-            // No-op unless Endpoints is set
-            //
-            string adminOA = "Ice.Admin";
-            if(_initData.properties.getProperty(adminOA + ".Endpoints").Length > 0)
+             
+            if(_initData.properties.getPropertyAsIntWithDefault("Ice.Admin.DelayCreation", 0) <= 0)
             {
-                string serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
-                string instanceName = _initData.properties.getProperty("Ice.Admin.InstanceName");
-                
-                if((defaultLocator != null && serverId.Length > 0) || instanceName.Length > 0)
-                {
-                    if(instanceName.Length == 0)
-                    {
-                        instanceName = Ice.Util.generateUUID();
-                    }
-        
-                    _adminIdentity = new Ice.Identity("admin", instanceName);
-                    
-                    //
-                    // Create OA
-                    //
-                    _adminAdapter = _objectAdapterFactory.createObjectAdapter(adminOA, "", null);
-                    
-                    //
-                    // Add all facets to OA
-                    //
-                    foreach(KeyValuePair<string, Ice.Object> entry in _adminFacets)
-                    {
-                        _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
-                    }
-                    _adminFacets.Clear();
-                    
-                    //
-                    // Activate OA
-                    //
-                    _adminAdapter.activate();
-                    
-                    if(defaultLocator != null && serverId.Length > 0)
-                    {    
-                        Ice.ProcessPrx process = Ice.ProcessPrxHelper.uncheckedCast(
-                            _adminAdapter.createProxy(_adminIdentity).ice_facet("Process"));
-                        
-                        try
-                        {
-                            defaultLocator.getRegistry().setServerProcessProxy(serverId, process);
-                        }
-                        catch(Ice.ServerNotFoundException)
-                        {
-                            throw new Ice.InitializationException("Locator knows nothing about server '" + serverId + "'");
-                        }
-                    }
-                }
+                getAdmin();
             }
 
             //
