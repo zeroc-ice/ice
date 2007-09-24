@@ -130,6 +130,21 @@ Slice::CsGenerator::fixId(const string& name, int baseTypes, bool mangleCasts)
 }
 
 string
+Slice::CsGenerator::fixId(const ContainedPtr& cont, int baseTypes, bool mangleCasts)
+{
+    ContainerPtr container = cont->container();
+    ContainedPtr contained = ContainedPtr::dynamicCast(container);
+    if(contained && contained->hasMetaData("clr:property"))
+    {
+        return cont->name() + "_prop";
+    }
+    else
+    {
+        return fixId(cont->name(), baseTypes, mangleCasts);
+    }
+}
+
+string
 Slice::CsGenerator::typeToString(const TypePtr& type)
 {
     if(!type)
@@ -519,7 +534,10 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         else
         {
             string typeS = typeToString(type);
-            out << nl << param << " = new " << typeS << "();";
+            if(param.size() < 6 || param.substr(param.size() - 5) != "_prop")
+            {
+                out << nl << param << " = new " << typeS << "();";
+            }
             if(streamingAPI)
             {
                 out << nl << param << ".ice_read(" << stream << ");";
