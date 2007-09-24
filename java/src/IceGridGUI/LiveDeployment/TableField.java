@@ -189,6 +189,14 @@ public class TableField extends JTable
         cr.setOpaque(false);    
     }
 
+    public void clear()
+    {
+        _model.setDataVector(new java.util.Vector(), _columnNames);
+        DefaultTableCellRenderer cr = (DefaultTableCellRenderer)
+            getDefaultRenderer(String.class);
+        cr.setOpaque(false);  
+    }
+
     private DefaultTableModel _model;
     private java.util.Vector _columnNames;
 }

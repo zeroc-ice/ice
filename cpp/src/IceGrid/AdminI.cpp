@@ -358,6 +358,21 @@ AdminI::getServerPid(const string& id, const Current&) const
     }
 }
 
+Ice::PropertyDict
+AdminI::getServerProperties(const string& id, const Current&) const
+{
+    ServerProxyWrapper proxy(_database, id);
+    try
+    {
+        return proxy->getProperties();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        proxy.handleException(ex);
+        return Ice::PropertyDict();
+    }
+}
+
 void
 AdminI::startServer(const string& id, const Current&)
 {

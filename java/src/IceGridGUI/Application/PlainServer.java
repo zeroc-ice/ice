@@ -303,6 +303,10 @@ class PlainServer extends Communicator implements Server
         {
             attributes.add(createAttribute("exe", descriptor.exe));
         }
+        if(descriptor.iceVersion.length() > 0)
+        {
+            attributes.add(createAttribute("ice-version", descriptor.iceVersion));
+        }
         if(descriptor.pwd.length() > 0)
         {
             attributes.add(createAttribute("pwd", descriptor.pwd));

@@ -742,6 +742,55 @@ ServerI::getPid(const Ice::Current&) const
     return _node->getActivator()->getServerPid(_id);
 }
 
+Ice::PropertyDict
+ServerI::getProperties(const Ice::Current&) const
+{
+    Ice::ProcessPrx process = 0;
+    {
+        Lock sync(*this);
+        checkDestroyed();
+
+        //
+        // Wait for _process to be set
+        //
+        while(_desc->processRegistered && _process == 0)
+        {
+            wait();
+            checkDestroyed();
+        }
+        process = _process;
+    }
+
+    if(process == 0)
+    {
+        throw ServerUnreachableException(_id, "no Admin object"); 
+    }
+
+    try
+    {
+        return Ice::PropertiesAdminPrx::uncheckedCast(process, "Properties")->getPropertiesForPrefix("");    
+    }
+    catch(const Ice::FacetNotExistException&)
+    {
+        //
+        // Probably an old server
+        //
+        throw ServerUnreachableException(_id, "no Properties facet"); 
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        //
+        // Looks like the server was shut down
+        //
+        throw ServerUnreachableException(_id, "no Admin object");
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        throw ServerUnreachableException(_id, ex.what());
+    }
+}
+
+
 void 
 ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 {
@@ -810,6 +859,7 @@ ServerI::setProcess_async(const AMD_Server_setProcessPtr& amdCB, const Ice::Proc
         checkDestroyed();
         _process = process;
         deact = _state == DeactivatingWaitForProcess;
+        notifyAll();
     }
     amdCB->ice_response();
     if(deact)
@@ -2355,6 +2405,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
     InternalServerState previous = _state;
     _state = st;
 
+   
     //
     // Check if some commands are done.
     //
@@ -2427,6 +2478,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             _destroy->finished();
             _destroy = 0;
         }
+        notifyAll(); // for getProperties()
         break;
     default:
         break;

@@ -199,6 +199,29 @@ exception NodeUnreachableException
 
 /**
  *
+ * This exception is raised if a server could not be reached.
+ *
+ **/
+exception ServerUnreachableException
+{
+    /**
+     *
+     * The id of the server that is not reachable.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The reason why the server couldn't be reached.
+     *
+     **/
+    string reason;
+};
+
+
+/**
+ *
  * This exception is raised if a registry could not be reached.
  *
  **/

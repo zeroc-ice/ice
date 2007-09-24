@@ -27,6 +27,58 @@ public class Utils
         }
     }
 
+    //
+    // Extract Ice version in the form XXYYZZ, e.g.  030201 (for 3.2.1)
+    // 0 == empty string
+    // -1 == error
+    //
+    static public int getIntVersion(String version)
+    {
+        int result = 0;
+        version = version.trim();
+        if(version.length() > 0)
+        {
+            try
+            {
+                int firstDotPos = version.indexOf('.');
+                
+                if(firstDotPos == -1)
+                {
+                    result = -1;
+                }
+                else
+                {
+                    result = Integer.parseInt(version.substring(0, firstDotPos));
+                    if(result == 0)
+                    {
+                        return -1;
+                    }
+                    result *= 100;
+               
+
+                    int secondDotPos = version.indexOf('.', firstDotPos + 1);
+                    if(secondDotPos == -1)
+                    {
+                        result += Integer.parseInt(version.substring(firstDotPos + 1));
+                        result *= 100;
+                    }
+                    else
+                    {
+                        result += Integer.parseInt(version.substring(firstDotPos + 1, secondDotPos));
+                        result *= 100;
+                        result += Integer.parseInt(version.substring(secondDotPos + 1));
+                    }
+                }
+            }
+            catch(NumberFormatException e)
+            {
+                result = -1;
+            }
+        }
+        return result;
+    }
+
+
     static public interface Stringifier
     {
         public String toString(Object obj);

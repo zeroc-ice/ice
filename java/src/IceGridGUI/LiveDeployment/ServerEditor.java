@@ -41,16 +41,17 @@ class ServerEditor extends CommunicatorEditor
         return _toolBar;
     }
 
-
     ServerEditor(Coordinator c)
     {
         _coordinator = c;
         _currentState.setEditable(false);
-        _currentPid.setEditable(false);
         _enabled.setEnabled(false);
+        _currentPid.setEditable(false);
+        _buildId.setEditable(false);
         
         _application.setEditable(false);
         _exe.setEditable(false);
+        _iceVersion.setEditable(false);
         _pwd.setEditable(false);
    
         _activation.setEditable(false);
@@ -64,6 +65,19 @@ class ServerEditor extends CommunicatorEditor
         _applicationDistrib.setEnabled(false);
         _icepatch.setEditable(false);
         _directories.setEditable(false);
+
+        Action refresh = new AbstractAction("Refresh")
+            {
+                public void actionPerformed(ActionEvent e) 
+                {
+                    _buildId.setText("Retrieving...");
+                    _properties.clear();
+                    _target.showRuntimeProperties();
+                }
+            };
+        refresh.putValue(Action.SHORT_DESCRIPTION, 
+                        "Reread the properties from the server");
+        _refreshButton = new JButton(refresh);
 
         Action gotoApplication = new AbstractAction(
             "", Utils.getIcon("/icons/16x16/goto.png"))
@@ -89,35 +103,63 @@ class ServerEditor extends CommunicatorEditor
         _target = server;
 
         ServerState state = server.getState();
+        ServerDescriptor descriptor = server.getServerDescriptor();
+        final Utils.Resolver resolver = server.getResolver();
+
         if(state == null)
         {
             _currentState.setText("Unknown");
-            _currentPid.setText("");
             _enabled.setSelected(false);
+            _currentPid.setText("");
+            _buildId.setText("Unknown");
+            _properties.clear();
+            _refreshButton.setEnabled(false);
         }
         else
         {
             _currentState.setText(state.toString());
+            _enabled.setSelected(server.isEnabled());
             int pid = server.getPid();
             if(pid == 0)
             {
                 _currentPid.setText("");
+                _buildId.setText("");
+                _properties.clear();
+                _refreshButton.setEnabled(false);
             }
             else
             {
                 _currentPid.setText(Integer.toString(pid));
+           
+                int iceIntVersion = Utils.getIntVersion(resolver.substitute(descriptor.iceVersion));
+
+                if(iceIntVersion == 0 || iceIntVersion >= 30300)
+                {
+                    _buildId.setText("Retrieving...");
+                    _properties.clear();
+                    
+                    //
+                    // Retrieve all properties in background
+                    //
+                    _target.showRuntimeProperties();
+                    _refreshButton.setEnabled(true);
+                }
+                else
+                {
+                    _buildId.setText("");
+                    _properties.clear();
+                    _refreshButton.setEnabled(false);
+                }
             }
-            _enabled.setSelected(server.isEnabled());
         }
 
-        ServerDescriptor descriptor = server.getServerDescriptor();
-        final Utils.Resolver resolver = server.getResolver();
-
+      
         _application.setText(resolver.find("application"));
 
         super.show(descriptor, server.getProperties(), resolver);
         
         _exe.setText(resolver.substitute(descriptor.exe));
+        _iceVersion.setText(resolver.substitute(descriptor.iceVersion));
         _pwd.setText(resolver.substitute(descriptor.pwd));
 
         Ice.StringHolder toolTipHolder = new Ice.StringHolder();
@@ -162,6 +204,41 @@ class ServerEditor extends CommunicatorEditor
         _directories.setToolTipText(toolTip);
     }
 
+    void setBuildId(String buildString, Server server)
+    {
+        //
+        // That's to report error messages
+        //
+
+        if(server == _target && _target.getPid() != 0)
+        {
+            _buildId.setText(buildString);
+        }
+        //
+        // Otherwise we've already moved to another server
+        //
+    }
+
+    void setRuntimeProperties(java.util.SortedMap map, Server server)
+    {
+        if(server == _target && _target.getPid() != 0)
+        {
+            _properties.setSortedMap(map);
+            
+            String buildString = (String)map.get("BuildId");
+            if(buildString == null)
+            {
+                _buildId.setText("");
+            }
+            else
+            {
+                _buildId.setText(buildString);
+            }
+        }
+        //
+        // Otherwise we've already moved to another server
+        //
+    }
 
     protected void appendProperties(DefaultFormBuilder builder)
     {
@@ -171,11 +248,32 @@ class ServerEditor extends CommunicatorEditor
         builder.append(_currentState, 3);
         builder.nextLine();
 
-        builder.append("Process ID");
+        builder.append("", _enabled);
+        builder.nextLine();
+
+        builder.append("Process Id");
         builder.append(_currentPid, 3);
         builder.nextLine();
-        
-        builder.append("", _enabled);
+
+        builder.append("Build Id");
+        builder.append(_buildId, _refreshButton);
+        builder.nextLine();
+
+        builder.append("Properties");
+        builder.nextLine();
+        builder.append("");
+        builder.nextLine();
+        builder.append("");
+
+        builder.nextLine();
+        builder.append("");
+
+        builder.nextRow(-6);
+        CellConstraints cc = new CellConstraints();
+        JScrollPane scrollPane = new JScrollPane(_properties);
+        builder.add(scrollPane, 
+                    cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
+        builder.nextRow(6);
         builder.nextLine();
         
         builder.appendSeparator("Configuration");
@@ -194,6 +292,9 @@ class ServerEditor extends CommunicatorEditor
         builder.append("Path to Executable");
         builder.append(_exe, 3);
         builder.nextLine();
+        builder.append("Ice Version");
+        builder.append(_iceVersion, 3);
+        builder.nextLine();
         builder.append("Working Directory");
         builder.append(_pwd, 3);
         builder.nextLine();
@@ -211,8 +312,7 @@ class ServerEditor extends CommunicatorEditor
         builder.nextLine();
         builder.append("");
         builder.nextRow(-6);
-        CellConstraints cc = new CellConstraints();
-        JScrollPane scrollPane = new JScrollPane(_envs);
+        scrollPane = new JScrollPane(_envs);
         builder.add(scrollPane, 
                     cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
@@ -274,13 +374,17 @@ class ServerEditor extends CommunicatorEditor
     private Server _target;
 
     private JTextField _currentState = new JTextField(20);
-    private JTextField _currentPid = new JTextField(20);
     private JCheckBox _enabled = new JCheckBox("Enabled");
+    private JTextField _currentPid = new JTextField(20);
+    private JTextField _buildId = new JTextField(20);
+    private JButton _refreshButton;
+    private TableField _properties = new TableField("Name", "Value");
 
     private JTextField _application = new JTextField(20);
     private JButton _gotoApplication;
 
     private JTextField _exe = new JTextField(20);
+    private JTextField _iceVersion = new JTextField(20);
     private JTextField _pwd = new JTextField(20);
     private JTextField _user = new JTextField(20);
    

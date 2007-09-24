@@ -23,8 +23,15 @@ public:
 int
 main(int argc, char* argv[])
 {
+    //
+    // Set the 'BuildId' property displayed in the IceGridAdmin GUI
+    //
+    Ice::InitializationData initData;
+    initData.properties = Ice::createProperties();
+    initData.properties->setProperty("BuildId", string("Ice ") + ICE_STRING_VERSION);
+
     Server app;
-    int status = app.main(argc, argv);
+    int status = app.main(argc, argv, initData);
     return status;
 }
 

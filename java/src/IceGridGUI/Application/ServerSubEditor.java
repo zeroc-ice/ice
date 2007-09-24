@@ -43,6 +43,11 @@ class ServerSubEditor extends CommunicatorSubEditor
                             + "myHelloServer<br>"
                             + "C:\\testbed\\hello\\server</html>");
 
+        _iceVersion.getDocument().addDocumentListener(
+            _mainEditor.getUpdateListener());
+        _iceVersion.setToolTipText("<html>The Ice version used by this server;<br>"
+                                   + "blank means 'same version as the IceGrid registry'.</html>");
+
         _pwd.getDocument().addDocumentListener(
             _mainEditor.getUpdateListener());
         _pwd.setToolTipText(
@@ -151,6 +156,9 @@ class ServerSubEditor extends CommunicatorSubEditor
         builder.append("Path to Executable");
         builder.append(_exe, 3);
         builder.nextLine();
+        builder.append("Ice Version");
+        builder.append(_iceVersion, 3);
+        builder.nextLine();
         builder.append("Working Directory");
         builder.append(_pwd, 3);
         builder.nextLine();
@@ -205,6 +213,7 @@ class ServerSubEditor extends CommunicatorSubEditor
         ServerDescriptor descriptor = getServerDescriptor();
         descriptor.id = _id.getText().trim();
         descriptor.exe = _exe.getText().trim();
+        descriptor.iceVersion = _iceVersion.getText().trim();
         descriptor.pwd = _pwd.getText().trim();
 
         descriptor.options = _options.getList();
@@ -272,6 +281,10 @@ class ServerSubEditor extends CommunicatorSubEditor
         _exe.setText(
             Utils.substitute(descriptor.exe, detailResolver));
         _exe.setEditable(isEditable);
+        _iceVersion.setText(
+            Utils.substitute(descriptor.iceVersion, detailResolver));
+        _iceVersion.setEditable(isEditable);
+
         _pwd.setText(
             Utils.substitute(descriptor.pwd, detailResolver));
         _pwd.setEditable(isEditable);
@@ -381,6 +394,7 @@ class ServerSubEditor extends CommunicatorSubEditor
 
     private JTextField _id = new JTextField(20);
     private JTextField _exe = new JTextField(20);
+    private JTextField _iceVersion = new JTextField(20);
     private JTextField _pwd = new JTextField(20);
     private ListTextField _options = new ListTextField(20);
     private JTextField _user = new JTextField(20);

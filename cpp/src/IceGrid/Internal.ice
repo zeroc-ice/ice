@@ -14,6 +14,7 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/ProcessF.ice>
 #include <Ice/Locator.ice>
+#include <Ice/Properties.ice>
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Admin.ice>
@@ -280,6 +281,15 @@ interface Server extends FileReader
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getPid();
+
+    
+    /**
+     *
+     * Get the server properties
+     *
+     **/
+    ["cpp:const"] idempotent Ice::PropertyDict getProperties() 
+        throws ServerUnreachableException;
 
     /**
      *

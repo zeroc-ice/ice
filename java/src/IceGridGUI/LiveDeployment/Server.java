@@ -16,6 +16,7 @@ import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -419,6 +420,88 @@ class Server extends ListArrayTreeNode
                 Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
         }
     }
+
+    public void showRuntimeProperties()
+    {
+         AMI_Admin_getServerProperties cb = new AMI_Admin_getServerProperties()
+            {
+                public void ice_response(final java.util.Map properties)
+                {
+                    SwingUtilities.invokeLater(new Runnable() 
+                        {
+                            public void run() 
+                            {
+                                _editor.setRuntimeProperties((java.util.SortedMap)properties, Server.this);
+                            }
+                        });
+                }
+
+                public void ice_exception(final Ice.UserException e)
+                {
+                    SwingUtilities.invokeLater(new Runnable() 
+                        {
+                            public void run() 
+                            {
+                                if(e instanceof IceGrid.ServerUnreachableException)
+                                {
+                                    _editor.setBuildId("Error: can't reach this server", Server.this);
+                                }
+                                else if(e instanceof IceGrid.NodeNotExistException)
+                                {
+                                    _editor.setBuildId(
+                                        "Error: this node is not known to this IceGrid Registry",
+                                        Server.this);
+                                }
+                                else if(e instanceof IceGrid.NodeUnreachableException)
+                                {
+                                    _editor.setBuildId("Error: cannot reach this node", Server.this);
+                                }
+                                else
+                                {
+                                    _editor.setBuildId("Error: " + e.toString(), Server.this);
+                                }
+                            }
+                        });
+                }             
+                
+                public void ice_exception(final Ice.LocalException e)
+                {
+                    SwingUtilities.invokeLater(new Runnable() 
+                        {
+                            public void run() 
+                            {
+                                _editor.setBuildId("Error: " + e.toString(), Server.this);
+                            }
+                        });
+                }
+            };
+
+        try
+        {   
+            getCoordinator().getMainFrame().setCursor(
+                Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            
+            IceGrid.AdminPrx admin = getCoordinator().getAdmin();
+            if(admin == null)
+            {
+                _editor.setBuildId("", this);
+            }
+            else
+            {
+                admin.getServerProperties_async(cb, _id);
+            }
+        }
+        catch(Ice.LocalException e)
+        {
+            _editor.setBuildId("Error: " + e.toString(), this);
+        }
+        finally
+        {
+            getCoordinator().getMainFrame().setCursor(
+                Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
 
     public JPopupMenu getPopupMenu()
     {
