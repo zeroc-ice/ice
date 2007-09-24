@@ -34,6 +34,7 @@ public:
 
 protected:
     static std::string fixId(const std::string&, int = 0, bool = false);
+    static std::string fixId(const ContainedPtr&, int = 0, bool = false);
     static std::string typeToString(const TypePtr&);
     static bool isValueType(const TypePtr&);
 

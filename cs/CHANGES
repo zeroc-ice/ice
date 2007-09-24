@@ -1,5 +1,13 @@
-Changes since version 3.2.X (binary incompatible) (TODO: if we don't do a 3.2.2, the changes listed for 3.2.1 below
--------------------------------------------------  need to be merged into this section.)
+Changes since version 3.2.1 (binary incompatible)
+-------------------------------------------------
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated for data
+  members of classes and structures that used the ["clr:property"] metadata
+  directive.
+
+- Fixed a bug in slice2cs that caused incorrect code to be generated for Slice exceptions
+  with data members that had the same name as one of the data members of
+  System.ApplicationException.
 
 - The metadata directive "cs:collection" is no longer valid.
   Use ["clr:collection"] instead.
@@ -78,13 +86,6 @@ Changes since version 3.2.X (binary incompatible) (TODO: if we don't do a 3.2.2,
 
 - Ice.LocalException and Ice.UserException now implement
   System.ICloneable.
-
-Changes since version 3.2.1
----------------------------
-
-- Fixed a bug in slice2cs that caused incorrect code to be generated for Slice exceptions
-  with data members that had the same name as one of the data members of
-  System.ApplicationException.
 
 Changes since version 3.2.0
 ---------------------------

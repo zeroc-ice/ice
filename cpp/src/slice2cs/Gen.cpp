@@ -633,8 +633,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
     _out << nl << "os__.startWriteSlice();";
     for(d = members.begin(); d != members.end(); ++d)
     {
-        writeMarshalUnmarshalCode(_out, (*d)->type(),
-                                  fixId((*d)->name(), DotNet::ICloneable, true),
+        writeMarshalUnmarshalCode(_out, (*d)->type(), fixId(*d, DotNet::ICloneable, true),
                                   true, false, false);
     }
     _out << nl << "os__.endWriteSlice();";
@@ -736,8 +735,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 patchParams << ", " << classMemberCount++;
             }
         }
-        writeMarshalUnmarshalCode(_out, (*d)->type(),
-                                  fixId((*d)->name(), DotNet::ICloneable, true),
+        writeMarshalUnmarshalCode(_out, (*d)->type(), fixId(*d, DotNet::ICloneable, true),
                                   false, false, false, patchParams.str());
     }
     _out << nl << "is__.endReadSlice();";
@@ -755,8 +753,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << nl << "outS__.startSlice();";
         for(d = members.begin(); d != members.end(); ++d)
         {
-            writeMarshalUnmarshalCode(_out, (*d)->type(),
-                                      fixId((*d)->name(), DotNet::ICloneable, true),
+            writeMarshalUnmarshalCode(_out, (*d)->type(), fixId(*d, DotNet::ICloneable, true),
                                       true, true, false);
         }
         _out << nl << "outS__.endSlice();";
@@ -782,8 +779,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                     patchParams << ", " << classMemberCount++;
                 }
             }
-            writeMarshalUnmarshalCode(_out, (*d)->type(),
-                                      fixId((*d)->name(), DotNet::ICloneable, true),
+            writeMarshalUnmarshalCode(_out, (*d)->type(), fixId(*d, DotNet::ICloneable, true),
                                       false, true, false, patchParams.str());
         }
         _out << nl << "inS__.endSlice();";
@@ -1859,8 +1855,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << nl << "os__.startWriteSlice();";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                      fixId((*q)->name(), DotNet::ApplicationException),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, DotNet::ApplicationException),
                                       true, false, false);
         }
         _out << nl << "os__.endWriteSlice();";
@@ -1967,8 +1962,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                     patchParams << ", " << classMemberCount++;
                 }
             }
-            writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                      fixId((*q)->name(), DotNet::ApplicationException),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::ApplicationException),
                                       false, false, false, patchParams.str());
         }
         _out << nl << "is__.endReadSlice();";
@@ -1986,8 +1980,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << nl << "outS__.startSlice();";
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                          fixId((*q)->name(), DotNet::ApplicationException),
+                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::ApplicationException),
                                           true, true, false);
             }
             _out << nl << "outS__.endSlice();";
@@ -2017,8 +2010,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                         patchParams << ", " << classMemberCount++;
                     }
                 }
-                writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                          fixId((*q)->name(), DotNet::ApplicationException),
+                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name(), DotNet::ApplicationException),
                                           false, true, false, patchParams.str());
             }
             _out << nl << "inS__.endSlice();";
@@ -2129,6 +2121,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << eb;
     }
 
+    bool propertyMapping = p->hasMetaData("clr:property");
+
     _out << sp << nl << "public " << name << spar;
     vector<string> paramDecl;
     vector<string> paramNames;
@@ -2143,7 +2137,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sb;
     for(vector<string>::const_iterator i = paramNames.begin(); i != paramNames.end(); ++i)
     {
-        _out << nl << "this." << *i << " = " << *i << ';';
+        _out << nl << "this." << *i;
+        if(propertyMapping)
+        {
+            _out << "_prop";
+        }
+        _out << " = " << *i << ';';
     }
     _out << eb;
 
@@ -2267,8 +2266,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sb;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                      fixId((*q)->name(), isClass ? DotNet::ICloneable : 0),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0),
                                       true, false, false);
         }
         _out << eb;
@@ -2360,8 +2358,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                     patchParams << ", " << classMemberCount++;
                 }
             }
-            writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                      fixId((*q)->name(), isClass ? DotNet::ICloneable : 0 ),
+            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0 ),
                                       false, false, false, patchParams.str());
         }
         _out << eb;
@@ -2372,8 +2369,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << sb;
             for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                          fixId((*q)->name(), isClass ? DotNet::ICloneable : 0),
+                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0),
                                           true, true, false);
             }
             _out << eb;
@@ -2393,8 +2389,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                         patchParams << ", " << classMemberCount++;
                     }
                 }
-                writeMarshalUnmarshalCode(_out, (*q)->type(),
-                                          fixId((*q)->name(), isClass ? DotNet::ICloneable : 0 ),
+                writeMarshalUnmarshalCode(_out, (*q)->type(), fixId(*q, isClass ? DotNet::ICloneable : 0 ),
                                           false, true, false, patchParams.str());
             }
             _out << eb;
