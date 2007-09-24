@@ -238,10 +238,10 @@ class ServiceManagerI : IceBox.ServiceManagerDisp_
                 Ice.Application.communicator().addAdminFacet(this, "IceBox.ServiceManager");
                 Ice.Application.communicator().getAdmin();
             }
-            catch(Ice.CommunicatorDestroyedException)
+            catch(Ice.ObjectAdapterDeactivatedException)
             {
                 //
-                // Ignored
+                // Expected if the communicator has been shutdown.
                 //
             }
 

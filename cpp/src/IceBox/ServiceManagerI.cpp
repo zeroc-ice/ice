@@ -255,10 +255,10 @@ IceBox::ServiceManagerI::start()
             _communicator->addAdminFacet(this, "IceBox.ServiceManager");
             _communicator->getAdmin();
         }
-        catch(const CommunicatorDestroyedException&)
+        catch(const ObjectAdapterDeactivatedException&)
         {
             //
-            // Ignored
+            // Expected if the communicator has been shutdown.
             //
         }
     }
