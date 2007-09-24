@@ -1558,7 +1558,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     string name = fixId(p->name());
     string s = typeToString(p->type());
-    bool isValue = isValueType(p->type());
 
     _out << sp;
 
@@ -2418,7 +2417,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     string name = fixId(p->name());
     string ks = typeToString(p->keyType());
     string vs = typeToString(p->valueType());
-    bool valueIsValue = isValueType(p->valueType());
 
     _out << sp;
 
