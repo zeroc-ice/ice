@@ -67,8 +67,8 @@ MT = "$(PDK_HOME)\bin\mt.exe"
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.2.0
-SOVERSION		= 32
+VERSION			= 3.3.0
+SOVERSION		= 33
 libdir			= $(top_srcdir)\python
 
 install_slicedir	= $(prefix)\slice

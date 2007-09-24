@@ -92,7 +92,7 @@ namespace FilesystemI
 
                 NodeDesc d = new NodeDesc();
                 d.name = name;
-                d.type = p is FileI?NodeType.FileType:NodeType.DirType;
+                d.type = p is FileI ? NodeType.FileType : NodeType.DirType;
                 d.proxy = NodePrxHelper.uncheckedCast(c.adapter.createProxy(p.id()));
                 return d;
             }

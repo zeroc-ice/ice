@@ -48,8 +48,8 @@ STLPORT_HOME            = C:\Ice-$(VERSION)-ThirdParty-VC60
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 3.2.0
-SOVERSION		= 32
+VERSION			= 3.3.0
+SOVERSION		= 33
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 

@@ -31,7 +31,7 @@ for s in sys.argv[2:]:
     for a in assemblies:
         f.write("        <dependentAssembly>\n");
         f.write('          <assemblyIdentity name="' + a + '" culture="neutral" publicKeyToken="1f998c50fec78381"/>\n');
-        f.write('          <codeBase version="3.2.0.0" href="' + top_srcdir + '/bin/' + a + '.dll"/>\n');
+        f.write('          <codeBase version="3.3.0.0" href="' + top_srcdir + '/bin/' + a + '.dll"/>\n');
         f.write('        </dependentAssembly>\n');
     f.write('    </assemblyBinding>\n');
     f.write('  </runtime>\n');

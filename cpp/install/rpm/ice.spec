@@ -7,7 +7,7 @@
 %define core_arches %{ix86} x86_64
 Summary: The Ice base runtime and services
 Name: ice
-Version: 3.2.1
+Version: 3.3.0
 Release: 1%{?dist}
 License: GPL
 Group:System Environment/Libraries
@@ -26,8 +26,8 @@ Source7:IceRuby-%{version}.tar.gz
 
 BuildRoot: /var/tmp/Ice-%{version}-1-buildroot
 
-%define soversion 32
-%define dotnetversion 3.2.1
+%define soversion 33
+%define dotnetversion 3.3.0
 %define dotnetmainversion 3.2
 
 %ifarch x86_64
