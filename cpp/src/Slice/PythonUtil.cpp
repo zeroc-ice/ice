@@ -644,12 +644,12 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << ", _ctx=None):";
             _out.inc();
-            _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
+            _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invoke(self, ((" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
             }
-            _out << "), _ctx)";
+            _out << "), _ctx))";
             _out.dec();
 
             if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
@@ -661,13 +661,13 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 _out << ", _ctx=None):";
                 _out.inc();
-                _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
+                _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, (_cb, ("
                      << inParams;
                 if(!inParams.empty() && inParams.find(',') == string::npos)
                 {
                     _out << ", ";
                 }
-                _out << "), _ctx)";
+                _out << "), _ctx))";
                 _out.dec();
             }
         }

@@ -11,36 +11,39 @@
 #define ICEPY_OPERATION_H
 
 #include <Config.h>
-#include <Ice/CommunicatorF.h>
 #include <Ice/Current.h>
 #include <Ice/Object.h>
 
 namespace IcePy
 {
 
-class Operation : public IceUtil::Shared
+bool initOperation(PyObject*);
+
+//
+// Blobject invocations.
+//
+PyObject* iceInvoke(const Ice::ObjectPrx&, PyObject*);
+PyObject* iceInvokeAsync(const Ice::ObjectPrx&, PyObject*);
+
+//
+// ServantWrapper handles dispatching to a Python servant.
+//
+class ServantWrapper : public Ice::BlobjectArrayAsync
 {
 public:
 
-    virtual ~Operation();
+    ServantWrapper(PyObject*);
+    ~ServantWrapper();
 
-    virtual PyObject* invoke(const Ice::ObjectPrx&, PyObject*, PyObject*) = 0;
-    virtual PyObject* invokeAsync(const Ice::ObjectPrx&, PyObject*, PyObject*, PyObject*) = 0;
-    virtual void deprecate(const std::string&) = 0;
-    virtual Ice::OperationMode mode() const = 0;
+    PyObject* getObject();
 
-    virtual void dispatch(PyObject*, const Ice::AMD_Array_Object_ice_invokePtr&,
-                          const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                          const Ice::Current&) = 0;
+protected:
+
+    PyObject* _servant;
 };
-typedef IceUtil::Handle<Operation> OperationPtr;
+typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 
-bool initOperation(PyObject*);
-
-OperationPtr getOperation(PyObject*);
-
-// Blobject support.
-OperationPtr getIceInvokeOperation(bool);
+ServantWrapperPtr createServantWrapper(PyObject*);
 
 }
 

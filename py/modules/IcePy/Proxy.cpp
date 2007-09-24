@@ -1671,8 +1671,7 @@ extern "C"
 static PyObject*
 proxyIceInvoke(ProxyObject* self, PyObject* args)
 {
-    OperationPtr op = getIceInvokeOperation(false);
-    return op->invoke(*self->proxy, args, 0);
+    return iceInvoke(*self->proxy, args);
 }
 
 #ifdef WIN32
@@ -1681,8 +1680,7 @@ extern "C"
 static PyObject*
 proxyIceInvokeAsync(ProxyObject* self, PyObject* args)
 {
-    OperationPtr op = getIceInvokeOperation(true);
-    return op->invokeAsync(*self->proxy, args, 0, 0);
+    return iceInvokeAsync(*self->proxy, args);
 }
 
 static PyObject*
