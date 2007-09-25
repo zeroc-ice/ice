@@ -42,7 +42,7 @@ Timer::destroy()
 }
 
 void
-Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& time)
+Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     if(_destroyed)
@@ -50,6 +50,7 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& time)
         return;
     }
 
+    IceUtil::Time time = IceUtil::Time::now(IceUtil::Time::Monotonic) + delay;
     bool inserted = _tasks.insert(make_pair(task, time)).second;
     if(!inserted)
     {

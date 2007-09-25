@@ -346,7 +346,7 @@ void
 TimedServerCommand::startTimer()
 {
     _timerTask = new CommandTimeoutTimerTask(this);
-    _timer->schedule(_timerTask, IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(_timeout));
+    _timer->schedule(_timerTask, IceUtil::Time::seconds(_timeout));
 }
 
 void
@@ -2453,8 +2453,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
         if(_activation == Always)
         {
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now(IceUtil::Time::Monotonic) + 
-                                        IceUtil::Time::milliSeconds(500));
+            _node->getTimer()->schedule(_timerTask, IceUtil::Time::milliSeconds(500));
         }
         else if(_activation == Disabled && _disableOnFailure > 0 && _failureTime != IceUtil::Time())
         {
@@ -2466,7 +2465,7 @@ ServerI::setStateNoSync(InternalServerState st, const std::string& reason)
             // callback is executed.  
             //
             _timerTask = new DelayedStart(this, _node->getTraceLevels());
-            _node->getTimer()->schedule(_timerTask, IceUtil::Time::now(IceUtil::Time::Monotonic) +
+            _node->getTimer()->schedule(_timerTask, 
                                         IceUtil::Time::seconds(_disableOnFailure) + IceUtil::Time::milliSeconds(500));
         }
     }
