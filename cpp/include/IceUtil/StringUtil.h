@@ -11,6 +11,7 @@
 #define ICE_STRING_UTIL_H
 
 #include <IceUtil/Config.h>
+#include <vector>
 
 namespace IceUtil
 {
@@ -25,6 +26,13 @@ ICE_UTIL_API std::string escapeString(const std::string&, const std::string&);
 // Remove escape sequences added by escapeString.
 //
 ICE_UTIL_API bool unescapeString(const std::string&, std::string::size_type, std::string::size_type, std::string&);
+
+
+//
+// Split a string using the given delimiters. Considers single and double quotes;
+// returns false for unbalanced quote, true otherwise.
+//
+ICE_UTIL_API bool splitString(const std::string&, const std::string&, std::vector<std::string>&);
 
 //
 // If a single or double quotation mark is found at the start

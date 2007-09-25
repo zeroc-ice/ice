@@ -24,11 +24,6 @@ namespace Ruby
 SLICE_API void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtil::Output&);
 
 //
-// Split up a string using whitespace delimiters.
-//
-SLICE_API bool splitString(const std::string&, std::vector<std::string>&, const std::string& = " \t\n\r");
-
-//
 // Check the given identifier against Ruby's list of reserved words. If it matches
 // a reserved word, then an escaped version is returned with a leading underscore.
 //

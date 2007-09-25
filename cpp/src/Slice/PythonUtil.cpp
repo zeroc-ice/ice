@@ -9,7 +9,7 @@
 
 #include <Slice/PythonUtil.h>
 #include <Slice/Checksum.h>
-#include <IceUtil/Functional.h>
+#include <IceUtil/IceUtil.h>
 #ifdef __BCPLUSPLUS__
 #  include <iterator>
 #endif
@@ -255,7 +255,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
                 if(!pkg.empty())
                 {
                     vector<string> v;
-                    splitString(pkg, v, ".");
+                    splitString(pkg, ".", v);
                     string mod;
                     for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
                     {
@@ -318,7 +318,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
             if(!pkg.empty())
             {
                 vector<string> v;
-                splitString(pkg, v, ".");
+                splitString(pkg, ".", v);
                 string mod;
                 for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
                 {
@@ -1863,48 +1863,6 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
     }
 
     out << nl; // Trailing newline.
-}
-
-bool
-Slice::Python::splitString(const string& str, vector<string>& args, const string& delim)
-{
-    string::size_type beg;
-    string::size_type end = 0;
-    while(true)
-    {
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
-        {
-            break;
-        }
-
-        //
-        // Check for quoted argument.
-        //
-        char ch = str[beg];
-        if(ch == '"' || ch == '\'')
-        {
-            beg++;
-            end = str.find(ch, beg);
-            if(end == string::npos)
-            {
-                return false;
-            }
-            args.push_back(str.substr(beg, end - beg));
-            end++; // Skip end quote.
-        }
-        else
-        {
-            end = str.find_first_of(delim + "'\"", beg);
-            if(end == string::npos)
-            {
-                end = str.length();
-            }
-            args.push_back(str.substr(beg, end - beg));
-        }
-    }
-
-    return true;
 }
 
 string

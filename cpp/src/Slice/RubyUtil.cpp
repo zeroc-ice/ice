@@ -1684,48 +1684,6 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, bool checksum, const vector<s
     out << nl; // Trailing newline.
 }
 
-bool
-Slice::Ruby::splitString(const string& str, vector<string>& args, const string& delim)
-{
-    string::size_type beg;
-    string::size_type end = 0;
-    while(true)
-    {
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
-        {
-            break;
-        }
-
-        //
-        // Check for quoted argument.
-        //
-        char ch = str[beg];
-        if(ch == '"' || ch == '\'')
-        {
-            beg++;
-            end = str.find(ch, beg);
-            if(end == string::npos)
-            {
-                return false;
-            }
-            args.push_back(str.substr(beg, end - beg));
-            end++; // Skip end quote.
-        }
-        else
-        {
-            end = str.find_first_of(delim + "'\"", beg);
-            if(end == string::npos)
-            {
-                end = str.length();
-            }
-            args.push_back(str.substr(beg, end - beg));
-        }
-    }
-
-    return true;
-}
-
 string
 Slice::Ruby::fixIdent(const string& ident, IdentStyle style)
 {

@@ -10,6 +10,7 @@
 #include <Ice/Communicator.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
+#include <IceUtil/IceUtil.h>
 #include <Glacier2/FilterManager.h>
 #include <Glacier2/FilterI.h>
 
@@ -23,71 +24,11 @@ using namespace Ice;
 static void 
 stringToSeq(const string& str, vector<string>& seq)
 {
-    string const ws = " \t";
-
+    IceUtil::splitString(str, " \t", seq);
+    
     //
-    // Eat white space.
+    // TODO: do something about unmatched quotes
     //
-    string::size_type current = str.find_first_not_of(ws, 0);
-    string::size_type end = 0;
-    while(current != string::npos)
-    {
-        switch(str[current])
-        {
-        case '"':
-        case '\'':
-        {
-            char quote = str[current];
-            end = current+1;
-            while(true)
-            {
-                end = str.find(quote, end);
-
-                if(end == string::npos)
-                {
-                    //
-                    // TODO: should this be an unmatched quote error?
-                    //
-                    seq.push_back(str.substr(current));
-                    break;
-                }
-
-                bool markString = true;
-                for(string::size_type r = end -1 ; r > current && str[r] == '\\' ; --r)
-                {
-                    markString = !markString;
-                }
-                //
-                // We don't want the quote so we skip that.
-                //
-                if(markString)
-                {
-                    ++current;
-                    seq.push_back(str.substr(current, end-current));
-                    break;
-                }
-                else
-                {
-                    ++end;
-                }
-            } 
-            if(end != string::npos)
-            {
-                ++end;
-            }
-            break;
-        }
-
-        default:
-        {
-            end = str.find_first_of(ws, current);
-            string::size_type len = (end == string::npos) ? string::npos : end - current;
-            seq.push_back(str.substr(current, len));
-            break;
-        }
-        }
-        current = str.find_first_not_of(ws, end);
-    }
 }
 
 static void

@@ -24,11 +24,6 @@ namespace Python
 SLICE_API void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtil::Output&);
 
 //
-// Split up a string using whitespace delimiters.
-//
-SLICE_API bool splitString(const std::string&, std::vector<std::string>&, const std::string& = " \t\n\r");
-
-//
 // Convert a scoped name into a Python name.
 //
 SLICE_API std::string scopedToName(const std::string&);

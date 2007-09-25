@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#include <IceUtil/Options.h>
+#include <IceUtil/IceUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
 
@@ -116,7 +116,7 @@ PackageVisitor::visitModuleStart(const ModulePtr& p)
         if(!package.empty())
         {
             vector<string> v;
-            if(!splitString(package, v, "."))
+            if(!IceUtil::splitString(package, ".", v))
             {
                 return false;
             }

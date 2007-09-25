@@ -308,6 +308,49 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
     }
 }
 
+bool
+IceUtil::splitString(const string& str, const string& delim, vector<string>& result)
+{
+    string::size_type beg;
+    string::size_type end = 0;
+    while(true)
+    {
+        beg = str.find_first_not_of(delim, end);
+        if(beg == string::npos)
+        {
+            break;
+        }
+
+        //
+        // Check for quoted argument.
+        //
+        char ch = str[beg];
+        if(ch == '"' || ch == '\'')
+        {
+            beg++;
+            end = str.find(ch, beg);
+            if(end == string::npos)
+            {
+                return false;
+            }
+            result.push_back(str.substr(beg, end - beg));
+            end++; // Skip end quote.
+        }
+        else
+        {
+            end = str.find_first_of(delim + "'\"", beg);
+            if(end == string::npos)
+            {
+                end = str.length();
+            }
+            result.push_back(str.substr(beg, end - beg));
+        }
+    }
+
+    return true;
+}
+
+
 //
 // If a single or double quotation mark is found at the start position,
 // then the position of the matching closing quote is returned. If no
