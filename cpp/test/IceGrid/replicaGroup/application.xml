@@ -52,7 +52,7 @@
       <parameter name="priority"/>
       <service name="${name}" entry="TestService:create">
         <adapter name="${service}" endpoints="default"
-      replica-group="${replicaGroup}" priority="${priority}" server-lifetime="false">
+                 replica-group="${replicaGroup}" priority="${priority}" server-lifetime="false">
           <object identity="${service}"/>
         </adapter>
         <property name="Identity" value="${replicaGroup}"/>
@@ -66,6 +66,14 @@
         <service-instance template="Service" name="Service1" replicaGroup="${replicaGroup}" priority="3"/>
         <service-instance template="Service" name="Service2" replicaGroup="${replicaGroup}" priority="2"/>
         <service-instance template="Service" name="Service3" replicaGroup="${replicaGroup}" priority="1"/>
+
+        <!-- Dummy service with server lifetime adapter to ensure all
+             the services are started when the server is marked as
+             Active -->
+        <service name="Dummy" entry="TestService:create">
+          <adapter name="${service}" endpoints="default" server-lifetime="true"/>
+          <property name="Identity" value="dummy"/>
+        </service>
       </icebox>
     </server-template>
 

@@ -68,7 +68,8 @@ BetResolver::add(const CasinoStore::PersistentBetPrx& bet, Ice::Long closeTime)
      
     };
 
-    _timers[IceUtil::random(_timers.size())]->schedule(new Task(*this, bet), IceUtil::Time::milliSeconds(closeTime));
+    IceUtil::Time timeLeft = IceUtil::Time::milliSeconds(closeTime) - IceUtil::Time::now();
+    _timers[IceUtil::random(_timers.size())]->schedule(new Task(*this, bet), timeLeft);
 
     IceUtil::Mutex::Lock sync(_mutex);
     _betCount++;
