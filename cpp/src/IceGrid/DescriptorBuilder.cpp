@@ -956,12 +956,7 @@ IceBoxDescriptorBuilder::createServiceInstance(const XmlAttributesHelper& attrs)
 void
 IceBoxDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
 {
-    if(attrs("name") != "IceBox.ServiceManager")
-    {
-        throw "<adapter> element can't be a child of an <icebox> element";
-    }
-
-    ServerDescriptorBuilder::addAdapter(attrs);
+    throw "<adapter> element can't be a child of an <icebox> element";
 }
 
 void
