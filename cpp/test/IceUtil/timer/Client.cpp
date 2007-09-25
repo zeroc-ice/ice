@@ -99,14 +99,14 @@ int main(int argc, char* argv[])
 
         {
             TestTaskPtr task = new TestTask();
-            timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic));
+            timer->schedule(task, IceUtil::Time());
             task->waitForRun();
 	    while(true)
 	    {
-		timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic));
+		timer->schedule(task, IceUtil::Time::milliSeconds(-10));
 		try
 		{
-		    timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic));
+		    timer->schedule(task, IceUtil::Time());
 		    test(task->hasRun());
 		}
 		catch(const IceUtil::IllegalArgumentException&)
@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
         {
             TestTaskPtr task = new TestTask();
             test(!timer->cancel(task));
-            timer->schedule(task, IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::seconds(1));
+            timer->schedule(task, IceUtil::Time::seconds(1));
             test(!task->hasRun() && timer->cancel(task) && !task->hasRun());
             test(!timer->cancel(task));
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1100));
@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
             IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(100);
             for(int i = 0; i < 100; ++i)
             {
-                 tasks.push_back(new TestTask(start + IceUtil::Time::milliSeconds(i)));
+                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(100 + i)));
             }
 
             random_shuffle(tasks.begin(), tasks.end());

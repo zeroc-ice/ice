@@ -59,6 +59,7 @@ Freeze::registerFatalErrorCallback(FatalErrorCallback cb)
 {
     IceUtil::StaticMutex::Lock lock(fatalErrorCallbackMutex);
     FatalErrorCallback result = fatalErrorCallback;
+    fatalErrorCallback = cb;
     return result;
 }
 
