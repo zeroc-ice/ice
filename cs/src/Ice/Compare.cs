@@ -61,34 +61,36 @@ namespace Ice
                 return result;
             }
 
-            //
-            // Get and sort both sets of keys. Keys are unique and non-null.
-            //
-            System.Collections.ICollection keys1 = d1.Keys;
-            System.Collections.ICollection keys2 = d2.Keys;
-            object[] ka1 = new object[d1.Count];
-            object[] ka2 = new object[d2.Count];
-            keys1.CopyTo(ka1, 0);
-            keys2.CopyTo(ka2, 0);
-            Array.Sort(ka1);
-            Array.Sort(ka2);
-
-            try
-            {
-                System.Collections.IEnumerator e = ka2.GetEnumerator();
-                foreach(object o in ka1)
-                {
-                    e.MoveNext();
-                    if(!o.Equals(e.Current))
-                    {
-                        return false;
-                    }
-                    if(!Equals(d1[o], d2[o]))
-                    {
-                        return false;
-                    }
-                }
-            }
+	    try
+	    {
+		System.Collections.ICollection keys1 = d1.Keys;
+		foreach(object k in keys1)
+		{
+		    if(d2.Contains(k))
+		    {
+			object v1 = d1[k];
+			object v2 = d2[k];
+			if(v1 == null)
+			{
+			    if(v2 != null)
+			    {
+				return false;
+			    }
+			}
+			else
+			{
+			    if(!v1.Equals(v2))
+			    {
+				return false;
+			    }
+			}
+		    }
+		    else
+		    {
+			return false;
+		    }
+		}
+	    }
             catch(System.Exception)
             {
                 return false;
