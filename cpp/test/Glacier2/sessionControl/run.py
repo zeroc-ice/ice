@@ -35,7 +35,8 @@ router = os.path.join(toplevel, "bin", "glacier2router")
 
 command = router + TestUtil.clientServerOptions + \
           r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          r' --Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' \
+          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+          r' --Ice.Admin.InstanceName=Glacier2' + \
           r' --Glacier2.Server.Endpoints="default -p 12349 -t 10000"' + \
           r' --Glacier2.SessionManager="SessionManager:tcp -h 127.0.0.1 -p 12010 -t 10000"' \
           r' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier"'

@@ -918,6 +918,10 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
                 props.push_back(createProperty("IceBox.ServiceManager.RegisterProcess", "1"));
                 server->processRegistered = true;
             }
+            if(!isSet(iceBox->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
+            {
+                props.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
+            }
         }
     }
 

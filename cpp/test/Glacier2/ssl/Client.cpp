@@ -120,9 +120,9 @@ CallbackClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     communicator()->setDefaultRouter(0);
-    Glacier2::AdminPrx admin = Glacier2::AdminPrx::checkedCast(
-        communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12349 -t 10000"));
-    admin->shutdown();
+    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(
+        communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12349 -t 10000"));
+    process->shutdown();
     
     return EXIT_SUCCESS;
 }

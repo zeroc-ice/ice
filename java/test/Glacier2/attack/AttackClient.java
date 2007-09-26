@@ -109,13 +109,13 @@ class AttackClient extends Ice.Application
         System.out.flush();
         backend.shutdown();
         communicator().setDefaultRouter(null);
-        Ice.ObjectPrx adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
-        Glacier2.AdminPrx admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
-        test(admin != null);
-        admin.shutdown();
+        Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+        Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
+        test(process != null);
+        process.shutdown();
         try
         {
-           admin.ice_ping();
+           process.ice_ping();
            test(false);
         }
         catch(Ice.LocalException ex)

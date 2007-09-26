@@ -152,25 +152,19 @@ AttackClient::run(int argc, char* argv[])
         test(false);
     }
 
+    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
+    test(process);
+    process->shutdown();
     try
     {
-        ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
-        Glacier2::AdminPrx admin = Glacier2::AdminPrx::checkedCast(adminBase);
-        test(admin);
-        admin->shutdown();
-        try
-        {
-            admin->ice_ping();
-            test(false);
-        }
-        catch(const Ice::LocalException&)
-        {
-        }
+        process->ice_ping();
+        test(false);
     }
     catch(const Ice::LocalException&)
     {
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
     return EXIT_SUCCESS;
 }

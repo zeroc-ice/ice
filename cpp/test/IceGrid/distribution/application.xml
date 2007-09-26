@@ -15,7 +15,6 @@
          <adapter name="IcePatch2" endpoints="${endpoints}">
            <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
          </adapter>
-         <adapter name="IcePatch2.Admin" endpoints="tcp -h 127.0.0.1"/>
          <properties>
             <property name="IcePatch2.InstanceName" value="${instance-name}"/>
             <property name="IcePatch2.Directory" value="${directory}"/>

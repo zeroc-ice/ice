@@ -929,13 +929,8 @@ IceBoxDescriptorBuilder::finish()
         _hiddenProperties.push_back(createProperty("IceBox.InstanceName", "${server}"));
     }
     
-    if(!isSet(_descriptor->propertySet.properties, "IceBox.ServiceManager.Endpoints"))
-    {
-        _hiddenProperties.push_back(createProperty("IceBox.ServiceManager.Endpoints", "tcp -h 127.0.0.1"));
-    }
-
     //
-    // The NodeCache takes care of setting RegisterProcess for old IceBox servers
+    // The NodeCache takes care of setting Endpoints and RegisterProcess for old IceBox servers
     //
 
     ServerDescriptorBuilder::finish();

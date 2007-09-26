@@ -99,13 +99,13 @@ SessionControlClient::run(int argc, char* argv[])
     session = Test::SessionPrx::uncheckedCast(router->createSession("userid", "abc123"));
     session->shutdown();
     communicator()->setDefaultRouter(0);
-    ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
-    Glacier2::AdminPrx admin = Glacier2::AdminPrx::checkedCast(adminBase);
-    test(admin);
-    admin->shutdown();
+    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
+    Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
+    test(process);
+    process->shutdown();
     try
     {
-        admin->ice_ping();
+        process->ice_ping();
         test(false);
     }
     catch(const Ice::LocalException&)

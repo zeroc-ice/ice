@@ -398,36 +398,36 @@ class CallbackClient extends Ice.Application
                 System.out.println("ok");
             }
             
-            Ice.ObjectPrx adminBase;
+            Ice.ObjectPrx processBase;
             
             {
-                System.out.print("testing stringToProxy for admin object... ");
-                adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
+                System.out.print("testing stringToProxy for process object... ");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
                 System.out.println("ok");
             }
             
 /*
             {
-                System.out.print("uninstalling router with admin object... ");
-                adminBase.ice_router(null);
+                System.out.print("uninstalling router with process object... ");
+                processBase.ice_router(null);
                 System.out.println("ok");
             }
 */
             
-            Glacier2.AdminPrx admin;
+            Ice.ProcessPrx process;
             
             {
                 System.out.print("testing checked cast for admin object... ");
-                admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
-                test(admin != null);
+                process = Ice.ProcessPrxHelper.checkedCast(processBase);
+                test(process != null);
                 System.out.println("ok");
             }
             
             System.out.print("testing Glacier2 shutdown... ");
-            admin.shutdown();
+            process.shutdown();
             try
             {
-                admin.ice_ping();
+                process.ice_ping();
                 test(false);
             }
             catch(Ice.LocalException ex)

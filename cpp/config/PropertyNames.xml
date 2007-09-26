@@ -275,6 +275,26 @@ generated from the section label.
         <suffix name="ThreadPool" class="threadpool" />
     </class>
 
+    <class name="deprecatedthreadpool" prefix-only="true">
+        <suffix name="Size" deprecated="true" />
+        <suffix name="SizeMax" deprecated="true" />
+        <suffix name="SizeWarn" deprecated="true" />
+        <suffix name="StackSize" deprecated="true" />
+    </class>
+
+    <class name="deprecatedobjectadapter" prefix-only="true">
+        <suffix name="AdapterId" deprecated="true" />
+        <suffix name="Endpoints" deprecated="true" />
+        <suffix name="Locator" deprecated="true" />
+        <suffix name="PublishedEndpoints" deprecated="true" />
+        <suffix name="RegisterProcess" deprecated="true" />
+        <suffix name="ReplicaGroupId" deprecated="true" />
+        <suffix name="Router" deprecated="true" />
+        <suffix name="ThreadPerConnection" deprecated="true" />
+        <suffix name="ThreadPerConnection.StackSize" deprecated="true"/>
+        <suffix name="ThreadPool" class="deprecatedthreadpool"/>
+    </class>
+
     <section name="Ice">
         <property name="ACM.Client" />
         <property name="ACM.Server" />
@@ -417,7 +437,7 @@ generated from the section label.
     
     <section name="IcePatch2">
         <property class="objectadapter" />
-        <property name="Admin" class="objectadapter" />
+        <property name="Admin" class="deprecatedobjectadapter" />
         <property name="ChunkSize" />
         <property name="Directory" />
         <property name="InstanceName" />
@@ -482,7 +502,7 @@ generated from the section label.
         <property name="AddSSLContext" />
         <property name="AddUserToAllowCategories" deprecated="true"
             deprecatedBy="Glacier2.Filter.Category.AcceptUser" />
-        <property name="Admin" class="objectadapter"/>
+        <property name="Admin" class="deprecatedobjectadapter" />
         <property name="AllowCategories" deprecated="true" deprecatedBy="Glacier2.Filter.Category.Accept" />
         <property name="Client" class="objectadapter"/>
         <property name="Client.AlwaysBatch" />

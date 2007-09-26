@@ -373,36 +373,36 @@ public class Client : Ice.Application
                 Console.Out.WriteLine("ok");
             }
             
-            Ice.ObjectPrx adminBase;
+            Ice.ObjectPrx processBase;
             
             {
                 Console.Out.Write("testing stringToProxy for admin object... ");
-                adminBase = communicator().stringToProxy("Glacier2/admin:tcp -h 127.0.0.1 -p 12348 -t 10000");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348 -t 10000");
                 Console.Out.WriteLine("ok");
             }
             
 /*
             {
-                Console.Out.Write("uninstalling router with admin object... ");
-                adminBase.ice_router(null);
+                Console.Out.Write("uninstalling router with process object... ");
+                processBase.ice_router(null);
                 Console.Out.WriteLine("ok");
             }
 */
             
-            Glacier2.AdminPrx admin;
+            Ice.ProcessPrx process;
             
             {
-                Console.Out.Write("testing checked cast for admin object... ");
-                admin = Glacier2.AdminPrxHelper.checkedCast(adminBase);
-                test(admin != null);
+                Console.Out.Write("testing checked cast for process object... ");
+                process = Ice.ProcessPrxHelper.checkedCast(processBase);
+                test(process != null);
                 Console.Out.WriteLine("ok");
             }
             
             Console.Out.Write("testing Glacier2 shutdown... ");
-            admin.shutdown();
+            process.shutdown();
             try
             {
-                admin.ice_ping();
+                process.ice_ping();
                 test(false);
             }
             catch(Ice.LocalException)
