@@ -38,8 +38,7 @@ AllocationRequest::pending()
 
     if(_timeout > 0)
     {
-        _session->getTimer()->schedule(this, IceUtil::Time::now(IceUtil::Time::Monotonic) +
-                                       IceUtil::Time::milliSeconds(_timeout));
+        _session->getTimer()->schedule(this, IceUtil::Time::milliSeconds(_timeout));
     }
     _state = Pending;
     return true;
