@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <TestCommon.h>
 #include <Test.h>
 
@@ -21,6 +22,26 @@ class EmptyI : virtual public Empty
 GPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    cout << "testing Ice.Admin.Facets property... " << flush;
+    test(communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets").empty());
+    communicator->getProperties()->setProperty("Ice.Admin.Facets", "foobar");
+    Ice::StringSeq facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    test(facetFilter.size() == 1 && facetFilter[0] == "foobar");
+    communicator->getProperties()->setProperty("Ice.Admin.Facets", "foo'bar");
+    facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    test(facetFilter.size() == 1 && facetFilter[0] == "foo'bar");
+    communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
+    facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    test(facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && facetFilter[2] == "titi");
+    communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
+    facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    test(facetFilter.size() == 2 && facetFilter[0] == "foo bar' toto" && facetFilter[1] == "titi");
+    // communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
+    // facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    // test(facetFilter.size() == 0);
+    communicator->getProperties()->setProperty("Ice.Admin.Facets", "");
+    cout << "ok" << endl;
+
     cout << "testing facet registration exceptions... " << flush;
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", "default");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");

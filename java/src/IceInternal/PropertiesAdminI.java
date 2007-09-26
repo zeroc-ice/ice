@@ -22,24 +22,6 @@ class PropertiesAdminI extends Ice._PropertiesAdminDisp
         return _properties.getProperty(name);
     }
     
-    public String
-    getPropertyWithDefault(String name, String dflt, Ice.Current current)
-    {
-        return _properties.getPropertyWithDefault(name, dflt);
-    }
-
-    public int
-    getPropertyAsInt(String name, Ice.Current current)
-    {
-        return _properties.getPropertyAsInt(name);
-    }
-
-    public int
-    getPropertyAsIntWithDefault(String name, int dflt, Ice.Current current)
-    {
-        return _properties.getPropertyAsIntWithDefault(name, dflt);
-    }
-
     public java.util.Map
     getPropertiesForPrefix(String name, Ice.Current current)
     {

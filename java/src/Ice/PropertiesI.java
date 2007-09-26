@@ -102,6 +102,50 @@ public final class PropertiesI implements Properties
         }
     }
 
+    public String[]
+    getPropertyAsList(String key)
+    {
+        return getPropertyAsListWithDefault(key, null);
+    }
+
+    public synchronized String[]
+    getPropertyAsListWithDefault(String key, String[] value)
+    {
+        if(value == null)
+        {
+            value = new String[0];
+        }
+
+        String result = null;
+        PropertyValue pv = (PropertyValue)_properties.get(key);
+        if(pv == null)
+        {
+            result = System.getProperty(key);
+            if(result == null)
+            {
+                return value;
+            }
+        }
+        else
+        {
+            pv.used = true;
+            result = pv.value;
+        }
+        
+        String[] arr = splitString(result, " \t\n");
+        if(arr == null)
+        {
+            Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
+                                                + "'s value, returning default value");
+            return value;
+        }
+        else
+        {
+            return arr;
+        }
+    }
+
+
     public synchronized java.util.Map
     getPropertiesForPrefix(String prefix)
     {
@@ -434,6 +478,63 @@ public final class PropertiesI implements Properties
         }
 
         _properties.put("Ice.Config", new PropertyValue(value, true));
+    }
+
+    //
+    // Split string helper; returns null for unmatched quotes
+    //
+    private String[] splitString(String str, String delim)
+    {
+        java.util.List l = new java.util.ArrayList();
+        char[] arr = new char[str.length()];
+        int pos = 0;
+        
+        while(pos < str.length())
+        {
+            int n = 0;
+            char quoteChar = '\0';
+            if(str.charAt(pos) == '"' || str.charAt(pos) == '\'')
+            {
+                quoteChar = str.charAt(pos);
+                ++pos;
+            }
+            while(pos < str.length())
+            {
+                if(quoteChar != '\0' && str.charAt(pos) == '\\' && pos + 1 < str.length() && str.charAt(pos + 1) == quoteChar)
+                {
+                    ++pos;
+                }
+                else if(quoteChar != '\0' && str.charAt(pos) == quoteChar)
+                {
+                    ++pos;
+                    quoteChar = '\0';
+                    break;
+                }
+                else if(delim.indexOf(str.charAt(pos)) != -1)
+                {
+                    if(quoteChar == '\0')
+                    {
+                        ++pos;
+                        break;
+                    }
+                }
+                
+                if(pos < str.length())
+                {
+                    arr[n++] = str.charAt(pos++);
+                }
+            }
+            if(quoteChar != '\0')
+            {
+                return null; // Unmatched quote.
+            }
+            if(n > 0)
+            {
+                l.add(new String(arr, 0, n));
+            }
+        }
+        
+        return (String[])l.toArray(new String[0]);
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();

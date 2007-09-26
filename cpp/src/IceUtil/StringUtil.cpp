@@ -311,42 +311,56 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
 bool
 IceUtil::splitString(const string& str, const string& delim, vector<string>& result)
 {
-    string::size_type beg;
-    string::size_type end = 0;
-    while(true)
-    {
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
-        {
-            break;
-        }
+    string::size_type pos = 0;
+    string::size_type length = str.length();
+    string elt;
 
-        //
-        // Check for quoted argument.
-        //
-        char ch = str[beg];
-        if(ch == '"' || ch == '\'')
+    while(pos < length)
+    {
+        char quoteChar = '\0';
+        if(str[pos] == '"' || str[pos] == '\'')
         {
-            beg++;
-            end = str.find(ch, beg);
-            if(end == string::npos)
-            {
-                return false;
-            }
-            result.push_back(str.substr(beg, end - beg));
-            end++; // Skip end quote.
+            quoteChar = str[pos];
+            ++pos;
         }
-        else
+        bool trim = true;
+        while(pos < length)
         {
-            end = str.find_first_of(delim + "'\"", beg);
-            if(end == string::npos)
+            if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < length && str[pos + 1] == quoteChar)
             {
-                end = str.length();
+                ++pos;
             }
-            result.push_back(str.substr(beg, end - beg));
+            else if(quoteChar != '\0' && str[pos] == quoteChar)
+            {
+                trim = false;
+                ++pos;
+                quoteChar = '\0';
+                break;
+            }
+            else if(delim.find(str[pos]) != string::npos)
+            {
+                if(quoteChar == '\0')
+                {
+                    ++pos;
+                    break;
+                }
+            }
+            
+            if(pos < length)
+            {
+               elt += str[pos++];
+            }
+        }
+        if(quoteChar != '\0')
+        {
+            return false; // Unmatched quote.
+        }
+        if(elt.length() > 0)
+        {
+            result.push_back(elt);
+            elt = "";
         }
     }
-
     return true;
 }
 

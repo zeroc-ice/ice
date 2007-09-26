@@ -18,6 +18,28 @@ class EmptyI(Test.Empty):
     pass
 
 def allTests(communicator):
+
+    print "testing Ice.Admin.Facets property... ",
+    test(len(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets")) == 0)
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    test(len(facetFilter) == 1 and facetFilter[0] == "foobar");
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "foo'bar");
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    test(len(facetFilter) == 1 and facetFilter[0] == "foo'bar");
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    test(len(facetFilter) == 3 and facetFilter[0] == "foo bar" and facetFilter[1] == "toto"
+         and facetFilter[2] == "titi");
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
+    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    test(len(facetFilter) == 2 and facetFilter[0] == "foo bar' toto" and facetFilter[1] == "titi");
+    # communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
+    # facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    # test(len(facetFilter) == 0);
+    communicator.getProperties().setProperty("Ice.Admin.Facets", "");
+    print "ok"
+
     print "testing facet registration exceptions... ",
     communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default")
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")

@@ -375,11 +375,20 @@ namespace IceInternal
                         //
                         // Add all facets to OA
                         //
+                        Dictionary<string, Ice.Object> filteredFacets = new Dictionary<string, Ice.Object>();
+
                         foreach(KeyValuePair<string, Ice.Object> entry in _adminFacets)
                         {
-                            _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
+                            if(_adminFacetFilter.Count == 0 || _adminFacetFilter.Contains(entry.Key))
+                            {
+                                _adminAdapter.addFacet(entry.Value, _adminIdentity, entry.Key);
+                            }
+                            else
+                            {
+                                filteredFacets.Add(entry.Key, entry.Value);
+                            }
                         }
-                        _adminFacets.Clear();
+                        _adminFacets = filteredFacets;
 
                         adapter = _adminAdapter;
                     }
@@ -439,7 +448,7 @@ namespace IceInternal
                     throw new Ice.CommunicatorDestroyedException();
                 }
             
-                if(_adminAdapter == null)
+                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     if(_adminFacets.ContainsKey(facet))
                     {
@@ -466,7 +475,7 @@ namespace IceInternal
                 }
                 
                 Ice.Object result = null;
-                if(_adminAdapter == null)
+                if(_adminAdapter == null || (_adminFacetFilter.Count == 0 && !_adminFacetFilter.Contains(facet)))
                 {
                     result = (Ice.Object)_adminFacets[facet];
                     
@@ -626,6 +635,14 @@ namespace IceInternal
                 
                 _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
 
+                string[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+                if(facetFilter.Length > 0)
+                {
+                    foreach(string s in facetFilter)
+                    {
+                        _adminFacetFilter.Add(s);
+                    }
+                }
                 _adminFacets.Add("Properties", new PropertiesAdminI(_initData.properties));
                 _adminFacets.Add("Process", new ProcessI(communicator));
             }
@@ -901,6 +918,7 @@ namespace IceInternal
         private Dictionary<string, string> _defaultContext;
         private Ice.ObjectAdapter _adminAdapter;
         private Dictionary<string, Ice.Object> _adminFacets = new Dictionary<string, Ice.Object>();
+        private IceUtil.Set _adminFacetFilter = new IceUtil.Set();
         private Ice.Identity _adminIdentity;
 
         private static Dictionary<string, string> _emptyContext = new Dictionary<string, string>();

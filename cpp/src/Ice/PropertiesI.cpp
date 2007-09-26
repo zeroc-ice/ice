@@ -84,6 +84,41 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
     return value;
 }
 
+Ice::StringSeq
+Ice::PropertiesI::getPropertyAsList(const string& key)
+{
+    return getPropertyAsListWithDefault(key, StringSeq());
+}
+
+Ice::StringSeq
+Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    map<string, PropertyValue>::iterator p = _properties.find(key);
+    if(p != _properties.end())
+    {
+        p->second.used = true;
+
+        StringSeq result;
+        if(!IceUtil::splitString(p->second.value, " \t\n", result))
+        {
+            Warning out(getProcessLogger());
+            out << "mismatched quotes in property " << key << "'s value, returning default value";
+        }
+        if(result.size() == 0)
+        {
+            result = value;
+        }
+        return result;
+    }
+    else
+    {
+        return value;
+    }
+}
+
+
 PropertyDict
 Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
 {
@@ -488,24 +523,6 @@ string
 Ice::PropertiesAdminI::getProperty(const string& name, const Ice::Current&)
 {
     return _properties->getProperty(name);
-}
-
-string 
-Ice::PropertiesAdminI::getPropertyWithDefault(const string& name, const string& dflt, const Ice::Current&)
-{
-    return _properties->getPropertyWithDefault(name, dflt);
-}
-
-Ice::Int
-Ice::PropertiesAdminI::getPropertyAsInt(const string& name, const Ice::Current&)
-{
-    return _properties->getPropertyAsInt(name);
-}
-
-Ice::Int
-Ice::PropertiesAdminI::getPropertyAsIntWithDefault(const string& name, Ice::Int dflt, const Ice::Current&)
-{
-    return _properties->getPropertyAsIntWithDefault(name, dflt);
 }
 
 Ice::PropertyDict 

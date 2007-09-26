@@ -24,24 +24,6 @@ namespace IceInternal
             return _properties.getProperty(name);
         }
         
-        public override string
-        getPropertyWithDefault(string name, string dflt, Ice.Current current)
-        {
-            return _properties.getPropertyWithDefault(name, dflt);
-        }
-        
-        public override int
-        getPropertyAsInt(string name, Ice.Current current)
-        {
-            return _properties.getPropertyAsInt(name);
-        }
-        
-        public override int
-        getPropertyAsIntWithDefault(string name, int dflt, Ice.Current current)
-        {
-            return _properties.getPropertyAsIntWithDefault(name, dflt);
-        }
-        
         public override Dictionary<string, string>
         getPropertiesForPrefix(string name, Ice.Current current)
         {

@@ -474,6 +474,12 @@ class PropertiesI(Properties):
     def getPropertyAsIntWithDefault(self, key, value):
         return self._impl.getPropertyAsIntWithDefault(key, value)
 
+    def getPropertyAsList(self, key):
+        return self._impl.getPropertyAsList(key)
+
+    def getPropertyAsListWithDefault(self, key, value):
+        return self._impl.getPropertyAsListWithDefault(key, value)
+
     def getPropertiesForPrefix(self, prefix):
         return self._impl.getPropertiesForPrefix(prefix)
 

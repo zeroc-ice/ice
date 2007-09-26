@@ -352,13 +352,22 @@ public final class Instance
                     //
                     // Add all facets to OA
                     //
+                    java.util.Map filteredFacets = new java.util.HashMap();
                     java.util.Iterator p = _adminFacets.entrySet().iterator();
                     while(p.hasNext())
                     {
                         java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
-                        _adminAdapter.addFacet((Ice.Object)entry.getValue(), _adminIdentity, (String)entry.getKey());
+
+                        if(_adminFacetFilter.isEmpty() || _adminFacetFilter.contains((String)entry.getKey()))
+                        {
+                            _adminAdapter.addFacet((Ice.Object)entry.getValue(), _adminIdentity, (String)entry.getKey());
+                        }
+                        else
+                        {
+                            filteredFacets.put(entry.getKey(), entry.getValue());
+                        }
                     }
-                    _adminFacets.clear();
+                    _adminFacets = filteredFacets;
                     
                     adapter = _adminAdapter;
                 }
@@ -416,7 +425,7 @@ public final class Instance
             throw new Ice.CommunicatorDestroyedException();
         }
         
-        if(_adminAdapter == null)
+        if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
             if(_adminFacets.get(facet) != null)
             {
@@ -439,7 +448,7 @@ public final class Instance
         }
         
         Ice.Object result = null;
-        if(_adminAdapter == null)
+        if(_adminAdapter == null || (!_adminFacetFilter.isEmpty() && !_adminFacetFilter.contains(facet)))
         {
             result = (Ice.Object)_adminFacets.remove(facet);
 
@@ -612,6 +621,15 @@ public final class Instance
             _servantFactoryManager = new ObjectFactoryManager();
 
             _objectAdapterFactory = new ObjectAdapterFactory(this, communicator);
+
+            //
+            // Add Process and Properties facets
+            //
+            String[] facetFilter = _initData.properties.getPropertyAsList("Ice.Admin.Facets");
+            if(facetFilter.length > 0)
+            {
+                _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
+            }
 
             _adminFacets.put("Properties", new PropertiesAdminI(_initData.properties));
             _adminFacets.put("Process", new ProcessI(communicator));
@@ -926,6 +944,7 @@ public final class Instance
 
     private Ice.ObjectAdapter _adminAdapter;
     private java.util.Map _adminFacets = new java.util.HashMap();
+    private java.util.Set _adminFacetFilter = new java.util.HashSet();
     private Ice.Identity _adminIdentity;
 
     private static java.util.Map _emptyContext = new java.util.HashMap();

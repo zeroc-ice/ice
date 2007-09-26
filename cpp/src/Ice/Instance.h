@@ -133,6 +133,7 @@ private:
     Ice::ObjectAdapterPtr _adminAdapter;
     Ice::FacetMap _adminFacets;
     Ice::Identity _adminIdentity;
+    std::set<std::string> _adminFacetFilter;
 };
 
 class UTF8BufferI : public Ice::UTF8Buffer

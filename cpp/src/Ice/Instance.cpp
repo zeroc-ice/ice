@@ -538,11 +538,20 @@ IceInternal::Instance::getAdmin()
             //
             // Add all facets to OA
             //
+            FacetMap filteredFacets;
+            
             for(FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
             {
-                _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+                if(_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
+                {
+                    _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+                }
+                else
+                {
+                    filteredFacets[p->first] = p->second;
+                } 
             }
-            _adminFacets.clear();
+            _adminFacets.swap(filteredFacets);
 
             ObjectAdapterPtr adapter = _adminAdapter;
             sync.release();
@@ -600,7 +609,7 @@ IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if(_adminAdapter == 0)
+    if(_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         if(_adminFacets.insert(FacetMap::value_type(facet, servant)).second == false)
         {
@@ -609,7 +618,7 @@ IceInternal::Instance::addAdminFacet(const Ice::ObjectPtr& servant, const string
     }
     else
     {
-        _adminAdapter->addFacet(servant, _adminIdentity, facet);
+        _adminAdapter->addFacet(servant, _adminIdentity, facet);  
     }
 } 
 
@@ -625,7 +634,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
 
     ObjectPtr result;
 
-    if(_adminAdapter == 0)
+    if(_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         FacetMap::iterator p = _adminFacets.find(facet);
         if(p == _adminFacets.end())
@@ -640,7 +649,7 @@ IceInternal::Instance::removeAdminFacet(const string& facet)
     }
     else
     {
-        result = _adminAdapter->removeFacet(_adminIdentity, facet);
+        result = _adminAdapter->removeFacet(_adminIdentity, facet);  
     }
     return result;
 } 
@@ -866,8 +875,19 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
         }
 
         //
-        // Add Process and PropertiesAdmin facets
+        // Add Process and Properties facets
         //
+
+        StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
+        
+        //
+        // TODO: port (ifdef) for old compilers!
+        //
+        if(!facetSeq.empty())
+        {
+            _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());
+        }
+
         _adminFacets.insert(FacetMap::value_type("Properties", new PropertiesAdminI(_initData.properties)));
         _adminFacets.insert(FacetMap::value_type("Process", new ProcessI(communicator)));
 

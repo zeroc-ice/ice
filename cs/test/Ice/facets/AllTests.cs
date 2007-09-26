@@ -23,6 +23,28 @@ public class AllTests
     
     public static GPrx allTests(Ice.Communicator communicator)
     {
+        
+        Console.Write("testing Ice.Admin.Facets property... ");
+        test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").Length == 0);
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
+        String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.Length == 1 && facetFilter[0].Equals("foobar"));
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "foo'bar");
+        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.Length == 1 && facetFilter[0].Equals("foo'bar"));
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
+        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.Length == 3 && facetFilter[0].Equals("foo bar") && facetFilter[1].Equals("toto")
+             && facetFilter[2].Equals("titi"));
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
+        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.Length == 2 && facetFilter[0].Equals("foo bar' toto") && facetFilter[1].Equals("titi"));
+        //  communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
+        // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        // test(facetFilter.Length == 0);
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "");
+        Console.WriteLine("ok");
+
         Console.Write("testing facet registration exceptions... ");
         communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");

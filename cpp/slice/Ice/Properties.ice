@@ -37,7 +37,7 @@ local interface Properties
 {
     /**
      *
-     * Get a property by key. If the property does not exist, an empty
+     * Get a property by key. If the property is not set, an empty
      * string is returned.
      *
      * @param key The property key.
@@ -51,7 +51,7 @@ local interface Properties
 
     /**
      *
-     * Get a property by key. If the property does not exist, the
+     * Get a property by key. If the property is not set, the
      * given default value is returned.
      *
      * @param key The property key.
@@ -68,7 +68,7 @@ local interface Properties
 
     /**
      *
-     * Get a property as an integer. If the property does not exist, 0
+     * Get a property as an integer. If the property is not set, 0
      * is returned.
      *
      * @param key The property key.
@@ -82,7 +82,7 @@ local interface Properties
 
     /**
      *
-     * Get a property as an integer. If the property does not exist, the
+     * Get a property as an integer. If the property is not set, the
      * given default value is returned.
      *
      * @param key The property key.
@@ -97,6 +97,48 @@ local interface Properties
      *
      **/
     int getPropertyAsIntWithDefault(string key, int value);
+
+    
+     /**
+     *
+     * Get a property as a list of strings. If the property is not set,
+     * an empty list is returned. The strings in the list can contain
+     * whitespace if they are enclosed in single or double quotes.
+     * If quotes are mismatched, an empty list is returned.
+     * Within single quotes or double-quotes, you can escape the
+     * quote in question with \, e.g. O'Reilly can be written as
+     * O'Reilly, "O'Reilly" or 'O\'Reilly'.
+     *
+     * @param key The property key.
+     *
+     * @return The property value interpreted as a list of strings.
+     *
+     * @see setProperty
+     *
+     **/
+    StringSeq getPropertyAsList(string key);
+
+    /**
+     *
+     * Get a property as a list of strings. If the property is not set,
+     * the default list is returned. The strings in the list can contain
+     * whitespace if they are enclosed in single or double quotes.
+     * If quotes are mismatched, the default list is returned.
+     * Within single quotes or double-quotes, you can escape the
+     * quote in question with \, e.g. O'Reilly can be written as
+     * O'Reilly, "O'Reilly" or 'O\'Reilly'.
+     *
+     * @param key The property key.
+     *
+     * @param value The default value to use if the property is not set.
+     *
+     * @return The property value interpreted as list of strings, or the
+     * default value.
+     *
+     * @see setProperty
+     *
+     **/
+    StringSeq getPropertyAsListWithDefault(string key, StringSeq value);
 
     /**
      *
@@ -196,68 +238,17 @@ local interface Properties
  **/
 interface PropertiesAdmin
 {
-     /**
+    /**
      *
-     * Get a property by key. If the property does not exist, an empty
+     * Get a property by key. If the property is not set, an empty
      * string is returned.
      *
      * @param key The property key.
      *
      * @return The property value.
      *
-     * @see setProperty
-     *
      **/
     string getProperty(string key);
-
-    /**
-     *
-     * Get a property by key. If the property does not exist, the
-     * given default value is returned.
-     *
-     * @param key The property key.
-     *
-     * @param value The default value to use if the property does not
-     * exist.
-     *
-     * @return The property value or the default value.
-     *
-     * @see setProperty
-     *
-     **/
-    string getPropertyWithDefault(string key, string value);
-
-    /**
-     *
-     * Get a property as an integer. If the property does not exist, 0
-     * is returned.
-     *
-     * @param key The property key.
-     *
-     * @return The property value interpreted as an integer.
-     *
-     * @see setProperty
-     *
-     **/
-    int getPropertyAsInt(string key);
-
-    /**
-     *
-     * Get a property as an integer. If the property does not exist, the
-     * given default value is returned.
-     *
-     * @param key The property key.
-     *
-     * @param value The default value to use if the property does not
-     * exist.
-     *
-     * @return The property value interpreted as an integer, or the
-     * default value.
-     *
-     * @see setProperty
-     *
-     **/
-    int getPropertyAsIntWithDefault(string key, int value);
 
     /**
      *

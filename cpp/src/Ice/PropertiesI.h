@@ -27,6 +27,9 @@ public:
     virtual std::string getPropertyWithDefault(const std::string&, const std::string&);
     virtual Ice::Int getPropertyAsInt(const std::string&);
     virtual Ice::Int getPropertyAsIntWithDefault(const std::string&, Ice::Int);
+    virtual Ice::StringSeq getPropertyAsList(const std::string&);
+    virtual Ice::StringSeq getPropertyAsListWithDefault(const std::string&, const Ice::StringSeq&);
+
     virtual PropertyDict getPropertiesForPrefix(const std::string&);
     virtual void setProperty(const std::string&, const std::string&);
     virtual StringSeq getCommandLineOptions();
@@ -78,9 +81,6 @@ public:
     PropertiesAdminI(const PropertiesPtr&);
     
     virtual std::string getProperty(const std::string&, const Current&);
-    virtual std::string getPropertyWithDefault(const std::string&, const std::string&, const Current&);
-    virtual Int getPropertyAsInt(const std::string&, const Current&);
-    virtual Int getPropertyAsIntWithDefault(const std::string&, Int, const Current&);
     virtual PropertyDict getPropertiesForPrefix(const std::string&, const Current&);
     
 private:

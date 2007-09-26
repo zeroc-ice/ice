@@ -143,6 +143,41 @@ IceRuby_Properties_getPropertyAsIntWithDefault(VALUE self, VALUE key, VALUE def)
 
 extern "C"
 VALUE
+IceRuby_Properties_getPropertyAsList(VALUE self, VALUE key)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::PropertiesPtr p = getProperties(self);
+        string k = getString(key);
+        Ice::StringSeq v = p->getPropertyAsList(k);
+        return stringSeqToArray(v);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_Properties_getPropertyAsListWithDefault(VALUE self, VALUE key, VALUE def)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::PropertiesPtr p = getProperties(self);
+        string k = getString(key);
+        Ice::StringSeq d;
+        if(!arrayToStringSeq(def, d))
+        {
+            throw RubyException(rb_eTypeError, "invalid array argument to Ice::getPropertyAsListWithDefault");
+        }
+        Ice::StringSeq v = p->getPropertyAsListWithDefault(k, d);
+        return stringSeqToArray(v);
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_Properties_getPropertiesForPrefix(VALUE self, VALUE prefix)
 {
     ICE_RUBY_TRY
@@ -294,6 +329,9 @@ IceRuby::initProperties(VALUE iceModule)
     rb_define_method(_propertiesClass, "getPropertyAsInt", CAST_METHOD(IceRuby_Properties_getPropertyAsInt), 1);
     rb_define_method(_propertiesClass, "getPropertyAsIntWithDefault",
                      CAST_METHOD(IceRuby_Properties_getPropertyAsIntWithDefault), 2);
+    rb_define_method(_propertiesClass, "getPropertyAsList", CAST_METHOD(IceRuby_Properties_getPropertyAsList), 1);
+    rb_define_method(_propertiesClass, "getPropertyAsListWithDefault",
+                     CAST_METHOD(IceRuby_Properties_getPropertyAsListWithDefault), 2);
     rb_define_method(_propertiesClass, "getPropertiesForPrefix",
                      CAST_METHOD(IceRuby_Properties_getPropertiesForPrefix), 1);
     rb_define_method(_propertiesClass, "setProperty", CAST_METHOD(IceRuby_Properties_setProperty), 2);

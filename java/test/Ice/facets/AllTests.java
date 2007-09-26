@@ -23,6 +23,27 @@ public class AllTests
     public static GPrx
     allTests(Ice.Communicator communicator)
     {
+        System.out.print("testing Ice.Admin.Facets property... ");
+        test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0);
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
+        String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.length == 1 && facetFilter[0].equals("foobar"));
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "foo'bar");
+        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.length == 1 && facetFilter[0].equals("foo'bar"));
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
+        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.length == 3 && facetFilter[0].equals("foo bar") && facetFilter[1].equals("toto")
+             && facetFilter[2].equals("titi"));
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
+        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        test(facetFilter.length == 2 && facetFilter[0].equals("foo bar' toto") && facetFilter[1].equals("titi"));
+        // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
+        // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        // test(facetFilter.length == 0);
+        communicator.getProperties().setProperty("Ice.Admin.Facets", "");
+        System.out.println("ok");
+
         System.out.print("testing facet registration exceptions... ");
         communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");

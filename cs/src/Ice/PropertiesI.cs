@@ -89,6 +89,45 @@ namespace Ice
             }
         }
         
+        public string[] getPropertyAsList(string key)
+        {
+            return getPropertyAsListWithDefault(key, null);
+        }
+        
+        public string[] getPropertyAsListWithDefault(string key, string[] val)
+        {
+            if(val == null)
+            {
+                val = new string[0];
+            }
+
+            lock(this)
+            {
+                PropertyValue pv = (PropertyValue)_properties[key];
+                if(pv == null)
+                {
+                    return val;
+                }
+                else
+                {
+                    pv.used = true;
+
+                    string[] result = splitString(pv.val, " \t\n");
+                    if(result == null)
+                    {
+                        Ice.Util.getProcessLogger().warning("mismatched quotes in property " + key 
+                                                            + "'s value, returning default value");
+                        return val;
+                    }
+                    else
+                    {
+                        return result;
+                    }
+                }
+            }
+        }
+
+
         public Dictionary<string, string> getPropertiesForPrefix(string prefix)
         {
             lock(this)
@@ -444,6 +483,65 @@ namespace Ice
             _properties["Ice.Config"] = new PropertyValue(val, true);
         }
         
+        //
+        // Split string helper; returns null for unmatched quotes
+        //
+        private string[] splitString(string str, string delim)
+        {
+            ArrayList l = new ArrayList();
+            char[] arr = new char[str.Length];
+            int pos = 0;
+
+            while(pos < str.Length)
+            {
+                int n = 0;
+                char quoteChar = '\0';
+                if(str[pos] == '"' || str[pos] == '\'')
+                {
+                    quoteChar = str[pos];
+                    ++pos;
+                }
+                while(pos < str.Length)
+                {
+                    if(quoteChar != '\0' && str[pos] == '\\' && pos + 1 < str.Length && str[pos + 1] == quoteChar)
+                    {
+                        ++pos;
+                    }
+                    else if(quoteChar != '\0' && str[pos] == quoteChar)
+                    {
+                        ++pos;
+                        quoteChar = '\0';
+                        break;
+                    }
+                    else if(delim.IndexOf(str[pos]) != -1)
+                    {
+                        if(quoteChar == '\0')
+                        {
+                            ++pos;
+                            break;
+                        }
+                    }
+                
+                    if(pos < str.Length)
+                    {
+                        arr[n++] = str[pos++];
+                    }
+                }
+                if(quoteChar != '\0')
+                {
+                    return null; // Unmatched quote.
+                }
+                if(n > 0)
+                {
+                    l.Add(new string(arr, 0, n));
+                }
+            }
+
+            return (string[])l.ToArray(typeof(string));
+        }
+
+        
+
         private Hashtable _properties;
     }
 }

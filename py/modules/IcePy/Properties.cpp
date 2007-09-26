@@ -280,6 +280,89 @@ propertiesGetPropertyAsIntWithDefault(PropertiesObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+propertiesGetPropertyAsList(PropertiesObject* self, PyObject* args)
+{
+    char* key;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &key))
+    {
+        return 0;
+    }
+
+    assert(self->properties);
+    Ice::StringSeq value;
+    try
+    {
+        value = (*self->properties)->getPropertyAsList(key);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObject* list = PyList_New(0);
+    if(!list)
+    {
+        return false;
+    }
+    if(!stringSeqToList(value, list))
+    {
+        return 0;
+    }
+
+    return list;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
+{
+    char* key;
+    PyObject* defList;
+    if(!PyArg_ParseTuple(args, STRCAST("sO!"), &key, &PyList_Type, &defList))
+    {
+        return 0;
+    }
+    
+    assert(self->properties);
+    Ice::StringSeq def;
+    if(!listToStringSeq(defList, def))
+    {
+        return 0;
+    }
+
+    Ice::StringSeq value;
+    try
+    {
+        value = (*self->properties)->getPropertyAsListWithDefault(key, def);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObject* list = PyList_New(0);
+    if(!list)
+    {
+        return false;
+    }
+    if(!stringSeqToList(value, list))
+    {
+        return 0;
+    }
+
+    return list;
+}
+
+
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 propertiesGetPropertiesForPrefix(PropertiesObject* self, PyObject* args)
 {
     char* prefix;
@@ -521,6 +604,10 @@ static PyMethodDef PropertyMethods[] =
         PyDoc_STR(STRCAST("getPropertyAsInt(key) -> int")) },
     { STRCAST("getPropertyAsIntWithDefault"), reinterpret_cast<PyCFunction>(propertiesGetPropertyAsIntWithDefault),
         METH_VARARGS, PyDoc_STR(STRCAST("getPropertyAsIntWithDefault(key, default) -> int")) },
+    { STRCAST("getPropertyAsList"), reinterpret_cast<PyCFunction>(propertiesGetPropertyAsList), METH_VARARGS,
+        PyDoc_STR(STRCAST("getPropertyAsList(key) -> list")) },
+    { STRCAST("getPropertyAsListWithDefault"), reinterpret_cast<PyCFunction>(propertiesGetPropertyAsListWithDefault),
+        METH_VARARGS, PyDoc_STR(STRCAST("getPropertyAsListWithDefault(key, default) -> list")) },
     { STRCAST("getPropertiesForPrefix"), reinterpret_cast<PyCFunction>(propertiesGetPropertiesForPrefix), METH_VARARGS,
         PyDoc_STR(STRCAST("getPropertiesForPrefix(prefix) -> dict")) },
     { STRCAST("setProperty"), reinterpret_cast<PyCFunction>(propertiesSetProperty), METH_VARARGS,
