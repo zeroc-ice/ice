@@ -375,6 +375,10 @@ generated from the section label.
         <property name="InheritProperties" />
     </section>
 
+    <section name="IceBoxAdmin">
+        <property name="ServiceManager.Proxy" class="proxy"/>
+    </section>
+
     <section name="IceGridAdmin">
         <property name="AuthenticateUsingSSL" />
         <property name="Username" />

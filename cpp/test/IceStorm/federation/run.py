@@ -28,14 +28,17 @@ iceBox = TestUtil.getIceBox(testdir)
 iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
 
-iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12010" --Ice.Default.Locator='
-
 iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
                   ' --IceStorm.TopicManager.Endpoints="default -p 12011"' + \
                   ' --IceStorm.Publish.Endpoints="default"' + \
                   " --IceBox.PrintServicesReady=IceStorm" + \
-                  " --IceBox.InheritProperties=1"
-iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager: default -p 12011"'
+                  " --IceBox.InheritProperties=1" + \
+                  ' --Ice.Admin.Endpoints="default -p 12010"' + \
+                  " --Ice.Admin.InstanceName=IceBox"
+
+serviceManagerProxy = ' --IceBoxAdmin.ServiceManager.Proxy="IceBox/admin -f IceBox.ServiceManager:default -p 12010"'
+
+iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager:default -p 12011"'
 
 def doTest(batch):
     global testdir
@@ -79,7 +82,7 @@ TestUtil.cleanDbDir(dbHome)
 iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
-command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+command = iceBox + TestUtil.clientServerOptions + iceStormService + iceStormDBEnv
 if TestUtil.debug:
     print "(" + command + ")",
 iceBoxPipe = os.popen(command + " 2>&1")
@@ -133,7 +136,7 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm service...",
-command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
+command = iceBoxAdmin + TestUtil.clientOptions + serviceManagerProxy + r' shutdown'
 if TestUtil.debug:
     print "(" + command + ")",
 iceBoxAdminPipe = os.popen(command + " 2>&1")

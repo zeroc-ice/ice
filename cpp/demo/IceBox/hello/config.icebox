@@ -1,13 +1,37 @@
 #
+# The IceBox ServiceManager object can be provided by configuring 
+# IceBox.ServiceManager.Endpoints (and optionally
+# IceBox.InstanceName), or as a facet of the Ice.Admin object
+# (or both if you like). Make sure to keep config.admin
+# synchronized with these settings.
+# 
+
+#
+# IceBox.ServiceManager configuration
+#
+
+#
 # The IceBox instance name is used to set the category field of the
 # IceBox ServiceManager identity.
 #
-IceBox.InstanceName=DemoIceBox
+#IceBox.InstanceName=DemoIceBox
 
 #
 # The IceBox server endpoint configuration
 #
-IceBox.ServiceManager.Endpoints=tcp -p 9998:ssl -p 9999
+#IceBox.ServiceManager.Endpoints=tcp -p 9998 -h 127.0.0.1
+
+
+#
+# Ice.Admin configuration
+#
+
+#
+# Enable Ice.Admin object:
+#
+Ice.Admin.InstanceName=DemoIceBox
+Ice.Admin.Endpoints=tcp -p 9996 -h 127.0.0.1
+
 
 #
 # The hello service
@@ -37,12 +61,3 @@ Ice.Warn.Connections=1
 #
 #Ice.Trace.Protocol=1
 
-#
-# SSL Configuration
-#
-Ice.Plugin.IceSSL=IceSSL:createIceSSL
-IceSSL.DefaultDir=../../../certs
-IceSSL.CertAuthFile=cacert.pem
-IceSSL.CertFile=s_rsa1024_pub.pem
-IceSSL.KeyFile=s_rsa1024_priv.pem
-#IceSSL.Trace.Security=2

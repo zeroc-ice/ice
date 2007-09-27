@@ -15,7 +15,7 @@ $ client
 
 To shut down IceBox, use iceboxadmin:
 
-$ iceboxadmin --Ice.Config=config.icebox shutdown
+$ iceboxadmin --Ice.Config=config.admin shutdown
 
 Unix Note:
 

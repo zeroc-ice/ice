@@ -9,4 +9,4 @@ $ java Client
 
 To shut down IceBox, use IceBox.Admin:
 
-$ java IceBox.Admin --Ice.Config=config.icebox shutdown
+$ java IceBox.Admin --Ice.Config=config.admin shutdown

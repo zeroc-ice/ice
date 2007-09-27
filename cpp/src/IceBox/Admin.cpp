@@ -84,40 +84,52 @@ Client::run(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    PropertiesPtr properties = communicator()->getProperties();
-    Identity managerIdentity;
-    managerIdentity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-    managerIdentity.name = "ServiceManager";
+  
+    ObjectPrx base = communicator()->propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
-    string managerProxy;
-    if(properties->getProperty("Ice.Default.Locator").empty())
+    if(base == 0)
     {
-        string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
-        if(managerEndpoints.empty())
+        //
+        // The old deprecated way to retrieve the service manager proxy
+        //
+
+        PropertiesPtr properties = communicator()->getProperties();
+
+        Identity managerIdentity;
+        managerIdentity.category = properties->getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+        managerIdentity.name = "ServiceManager";
+        
+        string managerProxy;
+        if(properties->getProperty("Ice.Default.Locator").empty())
         {
-            cerr << appName() << ": property `IceBox.ServiceManager.Endpoints' is not set" << endl;
-            return EXIT_FAILURE;
+            string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
+            if(managerEndpoints.empty())
+            {
+                cerr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
+                return EXIT_FAILURE;
+            }
+            
+            managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
+        }
+        else
+        {
+            string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
+            if(managerAdapterId.empty())
+            {
+                cerr << appName() << ": property `IceBoxAdmin.ServiceManager.Proxy' is not set" << endl;
+                return EXIT_FAILURE;
+            }
+            
+            managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
         }
 
-        managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" :" + managerEndpoints;
-    }
-    else
-    {
-        string managerAdapterId = properties->getProperty("IceBox.ServiceManager.AdapterId");
-        if(managerAdapterId.empty())
-        {
-            cerr << appName() << ": property `IceBox.ServiceManager.AdapterId' is not set" << endl;
-            return EXIT_FAILURE;
-        }
-
-        managerProxy = "\"" + communicator()->identityToString(managerIdentity) + "\" @" + managerAdapterId;
+        base = communicator()->stringToProxy(managerProxy);
     }
 
-    ObjectPrx base = communicator()->stringToProxy(managerProxy);
     IceBox::ServiceManagerPrx manager = IceBox::ServiceManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << appName() << ": `" << managerProxy << "' is not running" << endl;
+        cerr << appName() << ": `" << base << "' is not an IceBox::ServiceManager" << endl;
         return EXIT_FAILURE;
     }
 

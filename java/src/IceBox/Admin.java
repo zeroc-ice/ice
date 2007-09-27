@@ -59,41 +59,51 @@ public final class Admin
                 return 0;
             }
 
-            Ice.Properties properties = communicator().getProperties();
+            Ice.ObjectPrx base = communicator().propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
-            Ice.Identity managerIdentity = new Ice.Identity();
-            managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
-            managerIdentity.name = "ServiceManager";
-
-            String managerProxy;
-            if(properties.getProperty("Ice.Default.Locator").length() == 0)
+            if(base == null)
             {
-                String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
-                if(managerEndpoints.length() == 0)
+                //
+                // The old deprecated way to retrieve the service manager proxy
+                //
+
+                Ice.Properties properties = communicator().getProperties();
+                
+                Ice.Identity managerIdentity = new Ice.Identity();
+                managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
+                managerIdentity.name = "ServiceManager";
+                
+                String managerProxy;
+                if(properties.getProperty("Ice.Default.Locator").length() == 0)
                 {
-                    System.err.println(appName() + ": property `IceBox.ServiceManager.Endpoints' is not set");
-                    return 1;
+                    String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
+                    if(managerEndpoints.length() == 0)
+                    {
+                        System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
+                        return 1;
+                    }
+                    
+                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
                 }
-
-                managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
-            }
-            else
-            {
-                String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
-                if(managerAdapterId.length() == 0)
+                else
                 {
-                    System.err.println(appName() + ": property `IceBox.ServiceManager.AdapterId' is not set");
-                    return 1;
+                    String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
+                    if(managerAdapterId.length() == 0)
+                    {
+                        System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
+                        return 1;
+                    }
+                    
+                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
                 }
-
-                managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
+                
+                base = communicator().stringToProxy(managerProxy);
             }
 
-            Ice.ObjectPrx base = communicator().stringToProxy(managerProxy);
             IceBox.ServiceManagerPrx manager = IceBox.ServiceManagerPrxHelper.checkedCast(base);
             if(manager == null)
             {
-                System.err.println(appName() + ": `" + managerProxy + "' is not running");
+                System.err.println(appName() + ": `" + base.toString() + "' is not an IceBox::ServiceManager");
                 return 1;
             }
 

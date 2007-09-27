@@ -65,7 +65,7 @@ def run(client, server):
     client.sendline('x')
     client.waitTestSuccess()
 
-    admin = demoscript.Util.spawn('iceboxadmin --IceBox.InstanceName=DemoIceBox --IceBox.ServiceManager.Endpoints="tcp -p 9998:ssl -p 9999" shutdown', language="C++")
+    admin = demoscript.Util.spawn('iceboxadmin --IceBoxAdmin.ServiceManager.Proxy="DemoIceBox/admin -f IceBox.ServiceManager:tcp -p 9996 -h 127.0.0.1" shutdown', language="C++")
 
     admin.waitTestSuccess()
     server.waitTestSuccess()
