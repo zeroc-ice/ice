@@ -48,6 +48,21 @@ namespace IceSSL
             instance_.setCertificateVerifier(verifier);
         }
 
+        public override CertificateVerifier getCertificateVerifier()
+        {
+            return instance_.getCertificateVerifier();
+        }
+
+        public override void setPasswordCallback(PasswordCallback callback)
+        {
+            instance_.setPasswordCallback(callback);
+        }
+
+        public override PasswordCallback getPasswordCallback()
+        {
+            return instance_.getPasswordCallback();
+        }
+
         private Instance instance_;
     }
 }

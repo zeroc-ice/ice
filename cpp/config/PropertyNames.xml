@@ -454,6 +454,7 @@ generated from the section label.
         <property name="CertAuthDir" />
         <property name="CertAuthFile" />
         <property name="CertFile" />
+        <property name="CertVerifier" />
         <property name="CheckCertName" />
         <property name="CheckCRL" />
         <property name="Ciphers" />
@@ -467,6 +468,7 @@ generated from the section label.
         <property name="KeystorePassword" />
         <property name="KeystoreType" />
         <property name="Password" />
+        <property name="PasswordCallback" />
         <property name="PasswordRetryMax" />
         <property name="Protocols" />
         <property name="Random" />

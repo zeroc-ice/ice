@@ -11,95 +11,6 @@
 // NOTE: This test is not interoperable with other language mappings.
 //
 
-class CertificateVerifierI implements IceSSL.CertificateVerifier
-{
-    CertificateVerifierI()
-    {
-        reset();
-    }
-
-    public boolean
-    verify(IceSSL.ConnectionInfo info)
-    {
-        if(info.certs != null)
-        {
-            try
-            {
-                java.util.Collection subjectAltNames =
-                    ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
-                test(subjectAltNames != null);
-                java.util.ArrayList ipAddresses = new java.util.ArrayList();
-                java.util.ArrayList dnsNames = new java.util.ArrayList();
-                java.util.Iterator i = subjectAltNames.iterator();
-                while(i.hasNext())
-                {
-                    java.util.List l = (java.util.List)i.next();
-                    test(!l.isEmpty());
-                    Integer n = (Integer)l.get(0);
-                    if(n.intValue() == 7)
-                    {
-                        ipAddresses.add((String)l.get(1));
-                    }
-                    else if(n.intValue() == 2)
-                    {
-                        dnsNames.add((String)l.get(1));
-                    }
-                }
-
-                test(dnsNames.contains("server"));
-                test(ipAddresses.contains("127.0.0.1"));
-            }
-            catch(java.security.cert.CertificateParsingException ex)
-            {
-                test(false);
-            }
-        }
-
-        _hadCert = info.certs != null;
-        _invoked = true;
-        return _returnValue;
-    }
-
-    void
-    reset()
-    {
-        _returnValue = true;
-        _invoked = false;
-        _hadCert = false;
-    }
-
-    void
-    returnValue(boolean b)
-    {
-        _returnValue = b;
-    }
-
-    boolean
-    invoked()
-    {
-        return _invoked;
-    }
-
-    boolean
-    hadCert()
-    {
-        return _hadCert;
-    }
-
-    private static void
-    test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    private boolean _returnValue;
-    private boolean _invoked;
-    private boolean _hadCert;
-}
-
 public class AllTests
 {
     private static void
@@ -612,6 +523,21 @@ public class AllTests
             fact.destroyServer(server);
             comm.destroy();
         }
+        {
+            //
+            // Verify that verifier is installed via property.
+            //
+            Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            initData.properties.setProperty("IceSSL.Password", "password");
+            initData.properties.setProperty("IceSSL.Truststore", "cacert1.jks");
+            initData.properties.setProperty("IceSSL.CertVerifier", "CertificateVerifierI");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+            test(plugin != null);
+            test(plugin.getCertificateVerifier() != null);
+            comm.destroy();
+        }   
         System.out.println("ok");
 
         System.out.print("testing protocols... ");
@@ -784,15 +710,18 @@ public class AllTests
         }
         System.out.println("ok");
 
-        System.out.print("testing password failure... ");
+        System.out.print("testing passwords... ");
         System.out.flush();
-        {
+        {       
+            //  
+            // Test password failure.
+            //
             Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
             initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
             // Don't specify the password.
             //initData.properties.setProperty("IceSSL.Password", "password");
             try
-            {
+            {   
                 Ice.Util.initialize(args, initData);
                 test(false);
             }
@@ -804,6 +733,72 @@ public class AllTests
             {
                 test(false);
             }
+        }
+        {
+            //
+            // Test password failure with callback.
+            //
+            Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+            initData.properties.setProperty("Ice.InitPlugins", "0");
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            Ice.PluginManager pm = comm.getPluginManager();
+            IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+            test(plugin != null);
+            PasswordCallbackI cb = new PasswordCallbackI("bogus");
+            plugin.setPasswordCallback(cb);
+            try
+            {
+                pm.initializePlugins();
+                test(false);
+            }
+            catch(Ice.PluginInitializationException ex)
+            {
+                // Expected.
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            comm.destroy();
+        }
+        {
+            //
+            // Test installation of password callback.
+            //
+            Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+            initData.properties.setProperty("Ice.InitPlugins", "0");
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            Ice.PluginManager pm = comm.getPluginManager();
+            IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+            test(plugin != null);
+            PasswordCallbackI cb = new PasswordCallbackI();
+            plugin.setPasswordCallback(cb);
+            test(plugin.getPasswordCallback() == cb);
+            try
+            {
+                pm.initializePlugins();
+            }
+            catch(Ice.LocalException ex)
+            {
+                test(false);
+            }
+            comm.destroy();
+        }
+        {
+            //
+            // Test password callback property.
+            //
+            Ice.InitializationData initData = createClientProps(defaultDir, defaultHost, threadPool);
+            initData.properties.setProperty("IceSSL.Keystore", "c_rsa_ca1.jks");
+            initData.properties.setProperty("IceSSL.PasswordCallback", "PasswordCallbackI");
+            Ice.Communicator comm = Ice.Util.initialize(args, initData);
+            Ice.PluginManager pm = comm.getPluginManager();
+            IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+            test(plugin != null);
+            test(plugin.getPasswordCallback() != null);
+            comm.destroy();
         }
         System.out.println("ok");
 

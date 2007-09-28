@@ -16,47 +16,6 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-internal class CertificateVerifierI : IceSSL.CertificateVerifier
-{
-    internal CertificateVerifierI()
-    {
-        reset();
-    }
-
-    public bool verify(IceSSL.ConnectionInfo info)
-    {
-        hadCert_ = info.certs != null;
-        invoked_ = true;
-        return returnValue_;
-    }
-
-    internal void reset()
-    {
-        returnValue_ = true;
-        invoked_ = false;
-        hadCert_ = false;
-    }
-
-    internal void returnValue(bool b)
-    {
-        returnValue_ = b;
-    }
-
-    internal bool invoked()
-    {
-        return invoked_;
-    }
-
-    internal bool hadCert()
-    {
-        return hadCert_;
-    }
-
-    private bool returnValue_;
-    private bool invoked_;
-    private bool hadCert_;
-}
-
 public class AllTests
 {
     private static void test(bool b)
@@ -484,6 +443,21 @@ public class AllTests
 
                 comm.destroy();
             }
+            {
+                //
+                // Verify that verifier is installed via property.
+                //
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = createClientProps(testDir, defaultHost);
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                initData.properties.setProperty("IceSSL.Password", "password");
+                initData.properties.setProperty("IceSSL.CertVerifier", "CertificateVerifierI");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
+                test(plugin != null);
+                test(plugin.getCertificateVerifier() != null);
+                comm.destroy();
+            }
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing protocols... ");
@@ -653,9 +627,12 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing password failure... ");
+            Console.Out.Write("testing passwords... ");
             Console.Out.Flush();
             {
+                //
+                // Test password failure.
+                //
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = createClientProps(testDir, defaultHost);
                 initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
@@ -674,6 +651,75 @@ public class AllTests
                 {
                     test(false);
                 }
+            }
+            {
+                //
+                // Test password failure with callback.
+                //
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = createClientProps(testDir, defaultHost);
+                initData.properties.setProperty("Ice.InitPlugins", "0");
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.PluginManager pm = comm.getPluginManager();
+                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                test(plugin != null);
+                PasswordCallbackI cb = new PasswordCallbackI("bogus");
+                plugin.setPasswordCallback(cb);
+                try
+                {
+                    pm.initializePlugins();
+                    test(false);
+                }
+                catch(Ice.PluginInitializationException)
+                {
+                    // Expected.
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                comm.destroy();
+            }
+            {
+                //
+                // Test installation of password callback.
+                //
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = createClientProps(testDir, defaultHost);
+                initData.properties.setProperty("Ice.InitPlugins", "0");
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.PluginManager pm = comm.getPluginManager();
+                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                test(plugin != null);
+                PasswordCallbackI cb = new PasswordCallbackI();
+                plugin.setPasswordCallback(cb);
+                test(plugin.getPasswordCallback() == cb);
+                try
+                {
+                    pm.initializePlugins();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
+                comm.destroy();
+            }
+            {
+                //
+                // Test password callback property.
+                //
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = createClientProps(testDir, defaultHost);
+                initData.properties.setProperty("IceSSL.CertFile", defaultDir + "/c_rsa_nopass_ca1.pfx");
+                initData.properties.setProperty("IceSSL.PasswordCallback", "PasswordCallbackI");
+                Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
+                Ice.PluginManager pm = comm.getPluginManager();
+                IceSSL.Plugin plugin = (IceSSL.Plugin)pm.getPlugin("IceSSL");
+                test(plugin != null);
+                test(plugin.getPasswordCallback() != null);
+                comm.destroy();
             }
             Console.Out.WriteLine("ok");
 

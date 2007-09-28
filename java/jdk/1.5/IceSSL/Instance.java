@@ -90,6 +90,84 @@ class Instance
         //
         _verifyDepthMax = properties.getPropertyAsIntWithDefault(prefix + "VerifyDepthMax", 2);
 
+        //  
+        // Check for a certificate verifier.
+        //      
+        final String certVerifierClass = properties.getProperty(prefix + "CertVerifier");
+        if(certVerifierClass.length() > 0)
+        {   
+            if(_verifier != null)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: certificate verifier already installed";
+                throw e;
+            }
+
+            Class cls = null;
+            try
+            {
+                cls = Class.forName(certVerifierClass);
+            }
+            catch(Throwable ex)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: unable to load certificate verifier class " + certVerifierClass;
+                e.initCause(ex);
+                throw e;
+            }
+
+            try
+            {
+                _verifier = (CertificateVerifier)cls.newInstance();
+            }
+            catch(Throwable ex)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
+                e.initCause(ex);
+                throw e;
+            }
+        }
+
+        //
+        // Check for a password callback.
+        //
+        final String passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
+        if(passwordCallbackClass.length() > 0)
+        {
+            if(_passwordCallback != null)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: password callback already installed";
+                throw e;
+            }
+
+            Class cls = null;
+            try
+            {
+                cls = Class.forName(passwordCallbackClass);
+            }
+            catch(Throwable ex)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
+                e.initCause(ex);
+                throw e;
+            }
+
+            try
+            {
+                _passwordCallback = (PasswordCallback)cls.newInstance();
+            }
+            catch(Throwable ex)
+            {
+                Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                e.reason = "IceSSL: unable to instantiate password callback class " + passwordCallbackClass;
+                e.initCause(ex);
+                throw e;
+            }
+        }
+
         //
         // If the user doesn't supply an SSLContext, we need to create one based
         // on property settings.
@@ -179,12 +257,12 @@ class Instance
                 //
                 // The password for the keys.
                 //
-                final String password = properties.getProperty(prefix + "Password");
+                String password = properties.getProperty(prefix + "Password");
 
                 //
                 // The password for the keystore.
                 //
-                final String keystorePassword = properties.getProperty(prefix + "KeystorePassword");
+                String keystorePassword = properties.getProperty(prefix + "KeystorePassword");
 
                 //
                 // The default keystore type value is "JKS", but it can also be "PKCS12".
@@ -205,13 +283,14 @@ class Instance
                 //
                 // The password for the truststore.
                 //
-                final String truststorePassword = properties.getProperty(prefix + "TruststorePassword");
+                String truststorePassword = properties.getProperty(prefix + "TruststorePassword");
 
                 //
                 // The truststore type defaults to "JKS", but it can also be "PKCS12".
                 //
-                String truststoreType = properties.getPropertyWithDefault(prefix + "TruststoreType",
-                                                                          java.security.KeyStore.getDefaultType());
+                final String truststoreType =
+                    properties.getPropertyWithDefault(prefix + "TruststoreType",
+                                                      java.security.KeyStore.getDefaultType());
 
                 //
                 // Collect the key managers.
@@ -233,10 +312,20 @@ class Instance
                         {
                             passwordChars = keystorePassword.toCharArray();
                         }
+                        else if(_passwordCallback != null)
+                        {
+                            passwordChars = _passwordCallback.getKeystorePassword();
+                        }
 
                         java.io.BufferedInputStream bis =
                             new java.io.BufferedInputStream(new java.io.FileInputStream(keystorePath.value));
                         keys.load(bis, passwordChars);
+
+                        if(passwordChars != null)
+                        {
+                            java.util.Arrays.fill(passwordChars, '\0');
+                        }
+                        keystorePassword = null;
                     }
                     catch(java.io.IOException ex)
                     {
@@ -248,7 +337,21 @@ class Instance
 
                     String algorithm = javax.net.ssl.KeyManagerFactory.getDefaultAlgorithm();
                     javax.net.ssl.KeyManagerFactory kmf = javax.net.ssl.KeyManagerFactory.getInstance(algorithm);
-                    kmf.init(keys, password.toCharArray());
+                    char[] passwordChars = new char[0]; // This password cannot be null.
+                    if(password.length() > 0) 
+                    {
+                        passwordChars = password.toCharArray();
+                    }
+                    else if(_passwordCallback != null)
+                    {
+                        passwordChars = _passwordCallback.getPassword(alias);
+                    }
+                    kmf.init(keys, passwordChars);
+                    if(passwordChars.length > 0)
+                    {
+                        java.util.Arrays.fill(passwordChars, '\0');
+                    }
+                    password = null;
                     keyManagers = kmf.getKeyManagers();
 
                     //
@@ -291,10 +394,20 @@ class Instance
                         {
                             passwordChars = truststorePassword.toCharArray();
                         }
+                        else if(_passwordCallback != null)
+                        {
+                            passwordChars = _passwordCallback.getTruststorePassword();
+                        }
 
                         java.io.BufferedInputStream bis =
                             new java.io.BufferedInputStream(new java.io.FileInputStream(truststorePath.value));
                         ts.load(bis, passwordChars);
+
+                        if(passwordChars != null)
+                        {
+                            java.util.Arrays.fill(passwordChars, '\0');
+                        }
+                        truststorePassword = null;
                     }
                     catch(java.io.IOException ex)
                     {
@@ -368,6 +481,24 @@ class Instance
     setCertificateVerifier(CertificateVerifier verifier)
     {
         _verifier = verifier;
+    }
+
+    CertificateVerifier
+    getCertificateVerifier()
+    {
+        return _verifier;
+    }
+
+    void
+    setPasswordCallback(PasswordCallback callback)
+    {
+        _passwordCallback = callback;
+    }
+
+    PasswordCallback
+    getPasswordCallback()
+    {
+        return _passwordCallback;
     }
 
     Ice.Communicator
@@ -717,7 +848,7 @@ class Instance
         if(_verifier != null && !_verifier.verify(info))
         {
             String msg = (incoming ? "incoming" : "outgoing") + " connection rejected by certificate verifier\n" +
-            IceInternal.Network.fdToString(fd);
+                IceInternal.Network.fdToString(fd);
             
             if(_securityTraceLevel > 0)
             {
@@ -859,5 +990,6 @@ class Instance
     private boolean _checkCertName;
     private int _verifyDepthMax;
     private CertificateVerifier _verifier;
+    private PasswordCallback _passwordCallback;
     private TrustManager _trustManager;
 }

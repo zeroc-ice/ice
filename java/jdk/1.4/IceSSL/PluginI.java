@@ -46,5 +46,23 @@ class PluginI implements Plugin
         _instance.setCertificateVerifier(verifier);
     }
 
+    public CertificateVerifier
+    getCertificateVerifier()
+    {
+        return _instance.getCertificateVerifier();
+    }
+
+    public void
+    setPasswordCallback(PasswordCallback callback)
+    {
+        _instance.setPasswordCallback(callback);
+    }
+
+    public PasswordCallback
+    getPasswordCallback()
+    {
+        return _instance.getPasswordCallback();
+    }
+
     private Instance _instance;
 }

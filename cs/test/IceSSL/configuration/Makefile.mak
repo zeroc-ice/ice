@@ -11,7 +11,7 @@ top_srcdir	= ..\..\..
 
 TARGETS		= client.exe server.exe
 
-C_SRCS		= AllTests.cs Client.cs 
+C_SRCS		= AllTests.cs Client.cs CertificateVerifierI.cs PasswordCallbackI.cs
 S_SRCS		= TestI.cs Server.cs 
 
 GEN_SRCS	= $(GDIR)\Test.cs

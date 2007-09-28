@@ -13,6 +13,7 @@ namespace IceSSL
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
+    using System.Security;
     using System.Security.Authentication;
     using System.Security.Cryptography;
     using System.Security.Cryptography.X509Certificates;
@@ -90,6 +91,86 @@ namespace IceSSL
             checkCRL_ = properties.getPropertyAsIntWithDefault(prefix + "CheckCRL", 0) > 0;
 
             //
+            // Check for a certificate verifier.
+            //
+            string certVerifierClass = properties.getProperty(prefix + "CertVerifier");
+            if(certVerifierClass.Length > 0)
+            {
+                if(verifier_ != null)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                    e.reason = "IceSSL: certificate verifier already installed";
+                    throw e;
+                }
+
+                Type cls = IceInternal.AssemblyUtil.findType(certVerifierClass);
+                if(cls == null)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                    e.reason = "IceSSL: unable to load certificate verifier class " + certVerifierClass;
+                    throw e;
+                }
+
+                try
+                {
+                    verifier_ = (CertificateVerifier)IceInternal.AssemblyUtil.createInstance(cls);
+                }
+                catch(Exception ex)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+                    e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
+                    throw e;
+                }
+
+                if(verifier_ == null)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                    e.reason = "IceSSL: unable to instantiate certificate verifier class " + certVerifierClass;
+                    throw e;
+                }
+            }
+
+            //
+            // Check for a password callback.
+            //
+            string passwordCallbackClass = properties.getProperty(prefix + "PasswordCallback");
+            if(passwordCallbackClass.Length > 0)
+            {
+                if(passwordCallback_ != null)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                    e.reason = "IceSSL: password callback already installed";
+                    throw e;
+                }
+
+                Type cls = IceInternal.AssemblyUtil.findType(passwordCallbackClass);
+                if(cls == null)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                    e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
+                    throw e;
+                }
+
+                try
+                {
+                    passwordCallback_ = (PasswordCallback)IceInternal.AssemblyUtil.createInstance(cls);
+                }
+                catch(Exception ex)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException(ex);
+                    e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
+                    throw e;
+                }
+
+                if(passwordCallback_ == null)
+                {
+                    Ice.PluginInitializationException e = new Ice.PluginInitializationException();
+                    e.reason = "IceSSL: unable to load password callback class " + passwordCallbackClass;
+                    throw e;
+                }
+            }
+
+            //
             // If the user hasn't supplied a certificate collection, we need to examine
             // the property settings.
             //
@@ -102,7 +183,7 @@ namespace IceSSL
                 // TODO: tracing?
                 certs_ = new X509Certificate2Collection();
                 string certFile = properties.getProperty(prefix + "CertFile");
-                string password = properties.getProperty(prefix + "Password");
+                string passwordStr = properties.getProperty(prefix + "Password");
                 if(certFile.Length > 0)
                 {
                     if(!checkPath(ref certFile))
@@ -111,9 +192,28 @@ namespace IceSSL
                         e.reason = "IceSSL: certificate file not found: " + certFile;
                         throw e;
                     }
+
+                    SecureString password = null;
+                    if(passwordStr.Length > 0)
+                    {
+                        password = createSecureString(passwordStr);
+                    }
+                    else if(passwordCallback_ != null)
+                    {
+                        password = passwordCallback_.getPassword(certFile);
+                    }
+
                     try
                     {
-                        X509Certificate2 cert = new X509Certificate2(certFile, password);
+                        X509Certificate2 cert;
+                        if(password != null)
+                        {
+                            cert = new X509Certificate2(certFile, password);
+                        }
+                        else
+                        {
+                            cert = new X509Certificate2(certFile);
+                        }
                         certs_.Add(cert);
                     }
                     catch(CryptographicException ex)
@@ -173,6 +273,21 @@ namespace IceSSL
             verifier_ = verifier;
         }
 
+        internal CertificateVerifier getCertificateVerifier()
+        {
+            return verifier_;
+        }
+
+        internal void setPasswordCallback(PasswordCallback callback)
+        {
+            passwordCallback_ = callback;
+        }
+
+        internal PasswordCallback getPasswordCallback()
+        {
+            return passwordCallback_;
+        }
+
         internal Ice.Communicator communicator()
         {
             return facade_.getCommunicator();
@@ -201,11 +316,6 @@ namespace IceSSL
         internal string securityTraceCategory()
         {
             return securityTraceCategory_;
-        }
-
-        internal CertificateVerifier certificateVerifier()
-        {
-            return verifier_;
         }
 
         internal bool initialized()
@@ -398,10 +508,10 @@ namespace IceSSL
                 return;
             }
             string file = arr[0];
-            string password = null;
+            string passwordStr = null;
             if(arr.Length > 1)
             {
-                password = arr[1];
+                passwordStr = arr[1];
             }
 
             //
@@ -432,6 +542,16 @@ namespace IceSSL
                 Ice.PluginInitializationException e = new Ice.PluginInitializationException();
                 e.reason = "IceSSL: certificate file not found:\n" + file;
                 throw e;
+            }
+
+            SecureString password = null;
+            if(passwordStr != null)
+            {
+                password = createSecureString(passwordStr);
+            }
+            else if(passwordCallback_ != null)
+            {
+                password = passwordCallback_.getImportPassword(file);
             }
 
             //
@@ -731,6 +851,16 @@ namespace IceSSL
             return result;
         }
 
+        private static SecureString createSecureString(string s)
+        {
+            SecureString result = new SecureString();
+            foreach(char ch in s)
+            {
+                result.AppendChar(ch);
+            }
+            return result;
+        }
+
         private Ice.Logger logger_;
         private IceInternal.ProtocolPluginFacade facade_;
         private int securityTraceLevel_;
@@ -743,6 +873,7 @@ namespace IceSSL
         private bool checkCRL_;
         private X509Certificate2Collection certs_;
         private CertificateVerifier verifier_;
+        private PasswordCallback passwordCallback_;
         private TrustManager trustManager_;
     }
 }

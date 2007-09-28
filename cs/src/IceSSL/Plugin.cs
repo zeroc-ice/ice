@@ -9,6 +9,7 @@
 
 namespace IceSSL
 {
+    using System.Security;
     using System.Security.Cryptography.X509Certificates;
 
     //
@@ -22,6 +23,25 @@ namespace IceSSL
         // information, or false to reject the connection.
         //
         bool verify(ConnectionInfo info);
+    }
+
+    //
+    // A password callback is an alternate way of supplying the plugin with
+    // passwords that avoids using plaintext configuration properties.
+    //
+    public interface PasswordCallback
+    {
+        //
+        // Obtain the password necessary to access the private key associated with
+	// the certificate in the given file. Return null if no password is necessary.
+        //
+        SecureString getPassword(string file);
+
+	//
+	// Obtain a password for a certificate being imported via an IceSSL.ImportCert
+	// property. Return null if no password is necessary.
+        //
+        SecureString getImportPassword(string file);
     }
 
     abstract public class Plugin : Ice.Plugin
@@ -48,6 +68,24 @@ namespace IceSSL
         // done before any connections are established.
         //
         abstract public void setCertificateVerifier(CertificateVerifier verifier);
+
+        //
+        // Obtain the certificate verifier object. Returns null if no verifier
+        // is set.
+        //
+        abstract public CertificateVerifier getCertificateVerifier();
+
+        //
+        // Establish the password callback object. This should be
+        // done before the plugin is initialized.
+        //
+        abstract public void setPasswordCallback(PasswordCallback callback);
+
+        //
+        // Obtain the password callback object. Returns null if no callback
+        // is set.
+        //
+        abstract public PasswordCallback getPasswordCallback();
 
         //
         // This method is for internal use.

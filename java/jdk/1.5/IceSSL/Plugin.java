@@ -33,4 +33,22 @@ public interface Plugin extends Ice.Plugin
     // done before any connections are established.
     //
     void setCertificateVerifier(CertificateVerifier verifier);
+
+    //
+    // Obtain the certificate verifier object. Returns null if no
+    // verifier is set.
+    //
+    CertificateVerifier getCertificateVerifier();
+
+    //
+    // Establish the password callback object. This should be
+    // done before the plugin is initialized.
+    //
+    void setPasswordCallback(PasswordCallback callback);
+
+    //
+    // Obtain the password callback object. Returns null if no
+    // callback is set.
+    //
+    PasswordCallback getPasswordCallback();
 }
