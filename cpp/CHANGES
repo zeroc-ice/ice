@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Added a fix to prevent the IceGrid node from printing an annoying
+  thread pool size warning on startup.
+
 - Fixed IceGrid bug where updates to IceBox services were not
   correctly sent to the IceGrid GUI or IceGrid registry slaves.
 
