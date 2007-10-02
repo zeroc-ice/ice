@@ -54,10 +54,10 @@ HelloClient::run(int argc, char* argv[])
         cerr << argv[0] << ": invalid proxy" << endl;
         return EXIT_FAILURE;
     }
-    HelloPrx oneway = HelloPrx::uncheckedCast(twoway->ice_oneway());
-    HelloPrx batchOneway = HelloPrx::uncheckedCast(twoway->ice_batchOneway());
-    HelloPrx datagram = HelloPrx::uncheckedCast(twoway->ice_datagram());
-    HelloPrx batchDatagram = HelloPrx::uncheckedCast(twoway->ice_batchDatagram());
+    HelloPrx oneway = twoway->ice_oneway();
+    HelloPrx batchOneway = twoway->ice_batchOneway();
+    HelloPrx datagram = twoway->ice_datagram();
+    HelloPrx batchDatagram = twoway->ice_batchDatagram();
 
     bool secure = false;
     int timeout = -1;
@@ -121,9 +121,9 @@ HelloClient::run(int argc, char* argv[])
                     timeout = -1;
                 }
                 
-                twoway = HelloPrx::uncheckedCast(twoway->ice_timeout(timeout));
-                oneway = HelloPrx::uncheckedCast(oneway->ice_timeout(timeout));
-                batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_timeout(timeout));
+                twoway = twoway->ice_timeout(timeout);
+                oneway = oneway->ice_timeout(timeout);
+                batchOneway = batchOneway->ice_timeout(timeout);
                 
                 if(timeout == -1)
                 {
@@ -158,11 +158,11 @@ HelloClient::run(int argc, char* argv[])
             {
                 secure = !secure;
                 
-                twoway = HelloPrx::uncheckedCast(twoway->ice_secure(secure));
-                oneway = HelloPrx::uncheckedCast(oneway->ice_secure(secure));
-                batchOneway = HelloPrx::uncheckedCast(batchOneway->ice_secure(secure));
-                datagram = HelloPrx::uncheckedCast(datagram->ice_secure(secure));
-                batchDatagram = HelloPrx::uncheckedCast(batchDatagram->ice_secure(secure));
+                twoway = twoway->ice_secure(secure);
+                oneway = oneway->ice_secure(secure);
+                batchOneway = batchOneway->ice_secure(secure);
+                datagram = datagram->ice_secure(secure);
+                batchDatagram = batchDatagram->ice_secure(secure);
                 
                 if(secure)
                 {

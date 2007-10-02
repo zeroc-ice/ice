@@ -330,9 +330,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_context(java.util.Map newContext)
     {
-        ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-        proxy.setup(_reference.changeContext(newContext));
-        return proxy;
+        return newInstance(_reference.changeContext(newContext));
     }
 
     /**
@@ -350,9 +348,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
     public final ObjectPrx
     ice_defaultContext()
     {
-        ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-        proxy.setup(_reference.defaultContext());
-        return proxy;
+        return newInstance(_reference.defaultContext());
     }
 
     public final String
@@ -410,9 +406,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeAdapterId(newAdapterId));
-            return proxy;
+            return newInstance(_reference.changeAdapterId(newAdapterId));
         }
     }
 
@@ -442,9 +436,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         {
             IceInternal.EndpointI[] edpts = new IceInternal.EndpointI[newEndpoints.length];
             edpts = (IceInternal.EndpointI[])java.util.Arrays.asList(newEndpoints).toArray(edpts);
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeEndpoints(edpts));
-            return proxy;
+            return newInstance(_reference.changeEndpoints(edpts));
         }
     }
 
@@ -472,9 +464,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeLocatorCacheTimeout(newTimeout));
-            return proxy;
+            return newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
         }
     }
 
@@ -493,9 +483,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeCacheConnection(newCache));
-            return proxy;
+            return newInstance(_reference.changeCacheConnection(newCache));
         }
     }
 
@@ -514,9 +502,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeEndpointSelection(newType));
-            return proxy;
+            return newInstance(_reference.changeEndpointSelection(newType));
         }
     }
 
@@ -535,9 +521,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeSecure(b));
-            return proxy;
+            return newInstance(_reference.changeSecure(b));
         }
     }
 
@@ -556,9 +540,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changePreferSecure(b));
-            return proxy;
+            return newInstance(_reference.changePreferSecure(b));
         }
     }
 
@@ -579,9 +561,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
+            return newInstance(ref);
         }
     }
 
@@ -602,9 +582,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
+            return newInstance(ref);
         }
     }
 
@@ -632,9 +610,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeCollocationOptimization(b));
-            return proxy;
+            return newInstance(_reference.changeCollocationOptimization(b));
         }
     }
 
@@ -647,9 +623,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeMode(IceInternal.Reference.ModeTwoway));
-            return proxy;
+            return newInstance(_reference.changeMode(IceInternal.Reference.ModeTwoway));
         }
     }
 
@@ -668,9 +642,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeMode(IceInternal.Reference.ModeOneway));
-            return proxy;
+            return newInstance(_reference.changeMode(IceInternal.Reference.ModeOneway));
         }
     }
 
@@ -689,9 +661,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeMode(IceInternal.Reference.ModeBatchOneway));
-            return proxy;
+            return newInstance(_reference.changeMode(IceInternal.Reference.ModeBatchOneway));
         }
     }
 
@@ -710,9 +680,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeMode(IceInternal.Reference.ModeDatagram));
-            return proxy;
+            return newInstance(_reference.changeMode(IceInternal.Reference.ModeDatagram));
         }
     }
 
@@ -731,9 +699,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeMode(IceInternal.Reference.ModeBatchDatagram));
-            return proxy;
+            return newInstance(_reference.changeMode(IceInternal.Reference.ModeBatchDatagram));
         }
     }
 
@@ -753,9 +719,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
+            return newInstance(ref);
         }
     }
 
@@ -769,9 +733,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
+            return newInstance(ref);
         }
     }
 
@@ -785,9 +747,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
+            return newInstance(ref);
         }
     }
 
@@ -807,9 +767,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
         else
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(ref);
-            return proxy;
+            return newInstance(ref);
         }
     }
 
@@ -1107,6 +1065,33 @@ public class ObjectPrxHelperBase implements ObjectPrx
         assert(_delegate == null);
 
         _reference = ref;
+    }
+
+    private final ObjectPrxHelperBase
+    newInstance(IceInternal.Reference ref)
+    {
+        try
+        {
+            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)getClass().newInstance();
+            proxy.setup(ref);
+            return proxy;
+        }
+        catch(InstantiationException e)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
+        }
+        catch(IllegalAccessException e)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
+        }
     }
 
     protected static final java.util.Map _emptyContext = new java.util.HashMap();

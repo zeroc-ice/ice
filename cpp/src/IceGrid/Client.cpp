@@ -364,7 +364,9 @@ Client::run(int argc, char* argv[])
             // Use SSL if available.
             try
             {
-                router = Glacier2::RouterPrx::checkedCast(router->ice_secure(true));
+                Glacier2::RouterPrx secureRouter = router->ice_secure(true);
+                secureRouter->ice_ping();
+                router = secureRouter;
             }
             catch(const Ice::NoEndpointException&)
             {
@@ -484,7 +486,9 @@ Client::run(int argc, char* argv[])
             // Use SSL if available.
             try
             {
-                registry = RegistryPrx::checkedCast(registry->ice_secure(true));
+                RegistryPrx secureRegistry = registry->ice_secure(true);
+                secureRegistry->ice_ping();
+                registry = secureRegistry;
             }
             catch(const Ice::NoEndpointException&)
             {

@@ -69,10 +69,10 @@ public class Client extends Ice.Application
             System.err.println("invalid proxy");
             return 1;
         }
-        HelloPrx oneway = HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
-        HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
-        HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
-        HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
+        HelloPrx oneway = (HelloPrx)twoway.ice_oneway();
+        HelloPrx batchOneway = (HelloPrx)twoway.ice_batchOneway();
+        HelloPrx datagram = (HelloPrx)twoway.ice_datagram();
+        HelloPrx batchDatagram = (HelloPrx)twoway.ice_batchDatagram();
 
         boolean secure = false;
         int timeout = -1;
@@ -143,9 +143,9 @@ public class Client extends Ice.Application
                         timeout = -1;
                     }
 
-                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout));
-                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
-                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
+                    twoway = (HelloPrx)twoway.ice_timeout(timeout);
+                    oneway = (HelloPrx)oneway.ice_timeout(timeout);
+                    batchOneway = (HelloPrx)batchOneway.ice_timeout(timeout);
 
                     if(timeout == -1)
                     {
@@ -180,11 +180,11 @@ public class Client extends Ice.Application
                 {
                     secure = !secure;
 
-                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
-                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
-                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
-                    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
-                    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+                    twoway = (HelloPrx)twoway.ice_secure(secure);
+                    oneway = (HelloPrx)oneway.ice_secure(secure);
+                    batchOneway = (HelloPrx)batchOneway.ice_secure(secure);
+                    datagram = (HelloPrx)datagram.ice_secure(secure);
+                    batchDatagram = (HelloPrx)batchDatagram.ice_secure(secure);
 
                     if(secure)
                     {

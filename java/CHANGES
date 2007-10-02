@@ -1,6 +1,14 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- A number of proxy methods (ice_timeout(), ice_oneway() etc.) now
+  return a proxy of the same type as the target. This allows you to
+  cast the return proxy instead using uncheckedCast on the Helper.
+  For example, you can now write:
+    hello = (HelloPrx)hello.ice_oneway();
+  instead of:
+    hello = HelloPrxHelper.uncheckedCast(hello.ice_oneway());
+
 - Added support for a password callback in IceSSL. Also added new
   properties for specifying the name of a password callback class or
   certificate verifier class. See manual for more details.

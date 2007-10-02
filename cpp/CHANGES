@@ -1,6 +1,14 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- A number of proxy functions (ice_timeout(), ice_oneway() etc.) now
+  return a proxy of the same type as the target. This way, you don't
+  need to uncheckedCast the returned proxy. For example, you can now 
+  write:
+    hello = hello.ice_oneway();
+  instead of:
+    hello = HelloPrx::uncheckedCast(hello->ice_oneway());
+
 - Added a fix to prevent the IceGrid node from printing an annoying
   thread pool size warning on startup.
 

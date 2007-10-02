@@ -323,7 +323,7 @@ IceProxy::Ice::Object::ice_identity(const Identity& newIdentity) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = new Object;
         proxy->setup(_reference->changeIdentity(newIdentity));
         return proxy;
     }
@@ -344,7 +344,7 @@ IceProxy::Ice::Object::ice_getContext() const
 ObjectPrx
 IceProxy::Ice::Object::ice_context(const Context& newContext) const
 {
-    ObjectPrx proxy(new ::IceProxy::Ice::Object());
+    ObjectPrx proxy = __newInstance();
     proxy->setup(_reference->changeContext(newContext));
     return proxy;
 }
@@ -358,7 +358,7 @@ IceProxy::Ice::Object::ice_newContext(const Context& newContext) const
 ObjectPrx
 IceProxy::Ice::Object::ice_defaultContext() const
 {
-    ObjectPrx proxy(new ::IceProxy::Ice::Object());
+    ObjectPrx proxy = __newInstance();
     proxy->setup(_reference->defaultContext());
     return proxy;
 }
@@ -378,7 +378,7 @@ IceProxy::Ice::Object::ice_facet(const string& newFacet) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = new Object;
         proxy->setup(_reference->changeFacet(newFacet));
         return proxy;
     }
@@ -405,7 +405,7 @@ IceProxy::Ice::Object::ice_adapterId(const string& newAdapterId) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeAdapterId(newAdapterId));
         return proxy;
     }
@@ -444,7 +444,7 @@ IceProxy::Ice::Object::ice_endpoints(const EndpointSeq& newEndpoints) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeEndpoints(endpoints));
         return proxy;
     }
@@ -471,7 +471,7 @@ IceProxy::Ice::Object::ice_locatorCacheTimeout(Int newTimeout) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeLocatorCacheTimeout(newTimeout));
         return proxy;
     }
@@ -492,7 +492,7 @@ IceProxy::Ice::Object::ice_connectionCached(bool newCache) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeCacheConnection(newCache));
         return proxy;
     }
@@ -513,7 +513,7 @@ IceProxy::Ice::Object::ice_endpointSelection(EndpointSelectionType newType) cons
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeEndpointSelection(newType));
         return proxy;
     }
@@ -534,7 +534,7 @@ IceProxy::Ice::Object::ice_secure(bool b) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeSecure(b));
         return proxy;
     }
@@ -555,7 +555,7 @@ IceProxy::Ice::Object::ice_preferSecure(bool b) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changePreferSecure(b));
         return proxy;
     }
@@ -578,7 +578,7 @@ IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(ref);
         return proxy;
     }
@@ -601,7 +601,7 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(ref);
         return proxy;
     }
@@ -628,7 +628,7 @@ IceProxy::Ice::Object::ice_collocationOptimized(bool b) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeCollocationOptimization(b));
         return proxy;
     }
@@ -643,7 +643,7 @@ IceProxy::Ice::Object::ice_twoway() const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeMode(Reference::ModeTwoway));
         return proxy;
     }
@@ -664,7 +664,7 @@ IceProxy::Ice::Object::ice_oneway() const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeMode(Reference::ModeOneway));
         return proxy;
     }
@@ -685,7 +685,7 @@ IceProxy::Ice::Object::ice_batchOneway() const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeMode(Reference::ModeBatchOneway));
         return proxy;
     }
@@ -706,7 +706,7 @@ IceProxy::Ice::Object::ice_datagram() const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeMode(Reference::ModeDatagram));
         return proxy;
     }
@@ -727,7 +727,7 @@ IceProxy::Ice::Object::ice_batchDatagram() const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(_reference->changeMode(Reference::ModeBatchDatagram));
         return proxy;
     }
@@ -749,7 +749,7 @@ IceProxy::Ice::Object::ice_compress(bool b) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(ref);
         return proxy;
     }
@@ -765,7 +765,7 @@ IceProxy::Ice::Object::ice_timeout(int t) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(ref);
         return proxy;
     }
@@ -781,7 +781,7 @@ IceProxy::Ice::Object::ice_connectionId(const string& id) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(ref);
         return proxy;
     }
@@ -803,7 +803,7 @@ IceProxy::Ice::Object::ice_threadPerConnection(bool b) const
     }
     else
     {
-        ObjectPrx proxy(new ::IceProxy::Ice::Object());
+        ObjectPrx proxy = __newInstance();
         proxy->setup(ref);
         return proxy;
     }
@@ -1086,6 +1086,12 @@ Handle< ::IceDelegateD::Ice::Object>
 IceProxy::Ice::Object::__createDelegateD()
 {
     return Handle< ::IceDelegateD::Ice::Object>(new ::IceDelegateD::Ice::Object);
+}
+
+IceProxy::Ice::Object*
+IceProxy::Ice::Object::__newInstance() const
+{
+    return new Object;
 }
 
 void

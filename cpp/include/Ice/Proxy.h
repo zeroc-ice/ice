@@ -253,6 +253,8 @@ protected:
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
     virtual ::IceInternal::Handle< ::IceDelegateD::Ice::Object> __createDelegateD();
 
+    virtual Object* __newInstance() const;
+
 private:
 
     bool ice_isA(const ::std::string&, const ::Ice::Context*);
