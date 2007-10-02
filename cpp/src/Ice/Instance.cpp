@@ -880,9 +880,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
         StringSeq facetSeq = _initData.properties->getPropertyAsList("Ice.Admin.Facets");
         
-        //
-        // TODO: port (ifdef) for old compilers!
-        //
         if(!facetSeq.empty())
         {
             _adminFacetFilter.insert(facetSeq.begin(), facetSeq.end());

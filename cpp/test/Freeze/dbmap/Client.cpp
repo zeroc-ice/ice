@@ -877,7 +877,7 @@ main(int argc, char* argv[])
     for (i = 0; i < 26; i++) 
     {
         Ice::Byte key = static_cast<Ice::Byte>('a' + i);
-        map.insert(make_pair(key, i));
+        map.insert(pair<const Byte, const int>(key, i));
     }
 
     // Iterate over the map and change the values.
