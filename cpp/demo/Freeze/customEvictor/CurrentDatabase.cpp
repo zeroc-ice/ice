@@ -25,10 +25,14 @@ using namespace IceUtil;
 namespace
 {
 
+#ifdef __HP_aCC
 //
-// We keep a db on each thread.
+// Strange HP aCC (or linker) bug, so we use directly the pthread calls
 //
+pthread_key_t dbKey;
+#else
 __thread Database* db = 0;
+#endif
 
 }
 
@@ -37,6 +41,10 @@ CurrentDatabase::CurrentDatabase(const Ice::CommunicatorPtr& comm, const string&
     _envName(envName),
     _dbName(dbName)
 {
+#ifdef __HP_aCC
+    int rs = pthread_key_create(&dbKey, 0);
+    assert(rs == 0);
+#endif
 }
 
 CurrentDatabase::~CurrentDatabase()
@@ -50,6 +58,10 @@ CurrentDatabase::~CurrentDatabase()
 Database&
 CurrentDatabase::get()
 {
+#ifdef __HP_aCC
+    Database* db = static_cast<Database*>(pthread_getspecific(dbKey));
+#endif
+
     if(db == 0)
     {
         Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
@@ -57,6 +69,10 @@ CurrentDatabase::get()
 
         Mutex::Lock sync(_dbListMutex);
         _dbList.push_back(db);
+#ifdef __HP_aCC
+	int rs = pthread_setspecific(dbKey, db);
+	assert(rs == 0);
+#endif
     }
     return *db;
 }
