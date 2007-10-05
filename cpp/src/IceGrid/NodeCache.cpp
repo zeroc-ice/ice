@@ -883,7 +883,6 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         server->processRegistered = false; // Assigned for each communicator (see below)
     }
 
-    //  props.push_back(createProperty("Ice.ServerId", info.descriptor->id));
     props.push_back(createProperty("Ice.ProgramName", info.descriptor->id));
 
     //
