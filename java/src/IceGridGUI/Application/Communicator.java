@@ -753,7 +753,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             
             TreeNode newChild = createChild(descriptor);
             _children.set(listIndex, newChild);
-            getRoot().getTreeModel().nodeChanged(newChild);
+            getRoot().getTreeModel().nodeStructureChanged(newChild);
             
             getEnclosingEditable().markModified();
         }
