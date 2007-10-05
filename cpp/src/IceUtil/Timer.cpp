@@ -180,8 +180,7 @@ Timer::run()
             }
             catch(const std::exception& e)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception: ";
-                cerr << e.what() << endl;
+                cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
             } 
             catch(...)
             {
