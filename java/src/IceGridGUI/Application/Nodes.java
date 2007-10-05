@@ -11,6 +11,7 @@ package IceGridGUI.Application;
 import java.awt.Component;
 
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 
@@ -63,7 +64,46 @@ class Nodes extends ListTreeNode
     public void paste()
     {
         Object descriptor = getCoordinator().getClipboard();
-        newNode(Node.copyDescriptor((NodeDescriptor)descriptor));
+        NodeDescriptor nd = Node.copyDescriptor((NodeDescriptor)descriptor);
+        
+        //
+        // Verify / fix all template instances
+        //
+        
+        java.util.Iterator p = nd.serverInstances.iterator();
+        while(p.hasNext())
+        {
+            ServerInstanceDescriptor sid = (ServerInstanceDescriptor)p.next();
+            TemplateDescriptor td = getRoot().findServerTemplateDescriptor(sid.template);
+            if(td == null)
+            {
+                JOptionPane.showMessageDialog(
+                    getCoordinator().getMainFrame(),
+                    "Descriptor refers to undefined server template '" + sid.template + "'",
+                    "Cannot paste",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            else
+            {
+                sid.parameterValues.keySet().retainAll(td.parameters);
+            }
+        }
+
+        p = nd.servers.iterator();
+        while(p.hasNext())
+        {
+            ServerDescriptor sd = (ServerDescriptor)p.next();
+            if(sd instanceof IceBoxDescriptor)
+            {
+                if(!getRoot().pasteIceBox((IceBoxDescriptor)sd))
+                {
+                    return;
+                }
+            }
+        }
+
+        newNode(nd);
     }
     
     public void newNode()
