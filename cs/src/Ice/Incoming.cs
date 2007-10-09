@@ -35,8 +35,28 @@ namespace IceInternal
         
         protected internal IncomingBase(IncomingBase inc) // Adopts the argument. It must not be used afterwards.
         {
-            current_ = inc.current_;
+            adopt(inc);
+
+            //
+            // Deep copy
+            //
+            if(inc.interceptorAsyncCallbackList_ != null)
+            {
+                //
+                // Copy, not just reference
+                //
+                interceptorAsyncCallbackList_ = new List<Ice.DispatchInterceptorAsyncCallback>(inc.interceptorAsyncCallbackList_);
+            }
             
+            //
+            // We don't change _current as it's exposed by Ice::Request
+            //
+            current_ = inc.current_;
+        }
+
+        internal void
+        adopt(IncomingBase inc)
+        {
             servant_ = inc.servant_;
             inc.servant_ = null;
             
@@ -54,7 +74,7 @@ namespace IceInternal
             
             os_ = inc.os_;
             inc.os_ = null;
-            
+
             connection_ = inc.connection_;
             inc.connection_ = null;
         }
@@ -348,9 +368,11 @@ namespace IceInternal
         protected internal BasicStream os_;
         
         protected Ice.ConnectionI connection_;
+
+        protected List<Ice.DispatchInterceptorAsyncCallback> interceptorAsyncCallbackList_;
     }
         
-    sealed public class Incoming : IncomingBase
+    sealed public class Incoming : IncomingBase, Ice.Request
     {
         public Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
                         bool response, byte compress, int requestId)
@@ -360,11 +382,29 @@ namespace IceInternal
         }
 
         //
+        // Request implementation
+        //
+        public bool
+        isCollocated()
+        {
+            return false;
+        }
+
+        public Ice.Current
+        getCurrent()
+        {
+            return current_;
+        }
+
+        //
         // These functions allow this object to be reused, rather than reallocated.
         //
         public override void reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
                                    bool response, byte compress, int requestId)
         {
+            _cb = null;
+            _inParamPos = -1;
+
             if(_is == null)
             {
                 _is = new BasicStream(instance);
@@ -375,6 +415,8 @@ namespace IceInternal
         
         public override void reclaim()
         {
+            _cb = null;
+            _inParamPos = -1;
             if(_is != null)
             {
                 _is.reset();
@@ -409,15 +451,12 @@ namespace IceInternal
 
             current_.operation = _is.readString();
             current_.mode = (Ice.OperationMode)(int)_is.readByte();
+            current_.ctx = new Dictionary<string, string>();
             int sz = _is.readSize();
             while(sz-- > 0)
             {
                 string first = _is.readString();
                 string second = _is.readString();
-                if(current_.ctx == null)
-                {
-                    current_.ctx = new Dictionary<string, string>();
-                }
                 current_.ctx[first] = second;
             }
             
@@ -426,7 +465,7 @@ namespace IceInternal
             if(response_)
             {
                 Debug.Assert(os_.size() == Protocol.headerSize + 4); // Reply status position.
-                os_.writeByte((byte)0);
+                os_.writeByte(ReplyStatus.replyOK);
                 os_.startWriteEncaps();
             }
             
@@ -569,9 +608,91 @@ namespace IceInternal
             return os_;
         }
         
+
+        public void
+        push(Ice.DispatchInterceptorAsyncCallback cb)
+        {
+            if(interceptorAsyncCallbackList_ == null)
+            {
+                interceptorAsyncCallbackList_ = new List<Ice.DispatchInterceptorAsyncCallback>();
+            }
+            
+            interceptorAsyncCallbackList_.Insert(0, cb);
+        }
+        
+        public void
+        pop()
+        {
+            Debug.Assert(interceptorAsyncCallbackList_ != null);
+            interceptorAsyncCallbackList_.RemoveAt(0);
+        }
+                
+        public void 
+        startOver()
+        {
+            if(_inParamPos == -1)
+            {
+                //
+                // That's the first startOver, so almost nothing to do
+                //
+                _inParamPos = _is.pos() - 6; // 6 bytes for the start of the encaps
+            }
+            else
+            {
+                killAsync();
+                
+                //
+                // Let's rewind _is and clean-up _os
+                //
+                _is.endReadEncaps();
+                _is.pos(_inParamPos);
+                _is.startReadEncaps();
+                
+                if(response_)
+                {
+                    os_.endWriteEncaps();
+                    os_.resize(Protocol.headerSize + 4, false); 
+                    os_.writeByte(ReplyStatus.replyOK);
+                    os_.startWriteEncaps();
+                }
+            }
+        }
+        
+        public void
+        killAsync()
+        {
+            //
+            // Always runs in the dispatch thread
+            //
+            if(_cb != null)
+            {
+                //
+                // May raise ResponseSentException
+                //
+                _cb.deactivate__(this);
+                _cb = null;
+            }
+        }
+        
+        internal void
+        setActive(IncomingAsync cb)
+        {
+            Debug.Assert(_cb == null);
+            _cb = cb;
+        }
+        
+        internal bool 
+        isRetriable()
+        {
+            return _inParamPos != -1;
+        }
+    
         public Incoming next; // For use by Connection.
         
         private BasicStream _is;
+        
+        private IncomingAsync _cb;
+        private int _inParamPos = -1;
     }
 
 }

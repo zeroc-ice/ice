@@ -1207,17 +1207,24 @@ namespace Ice
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_isA", OperationMode.Nonmutating, context__);
-            while(true)
+
+            bool result__ = false;
+            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
             {
-                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
-                try
-                {
-                    return direct__.servant().ice_isA(id__, current__);
-                }
-                finally
-                {
-                    direct__.destroy();
-                }
+                result__ = servant__.ice_isA(id__, current__);
+                return Ice.DispatchStatus.DispatchOK;
+            };
+            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+            
+            try
+            {
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                Debug.Assert(status__ == DispatchStatus.DispatchOK);
+                return result__;
+            }
+            finally
+            {
+                direct__.destroy();
             }
         }
         
@@ -1225,18 +1232,22 @@ namespace Ice
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_ping", OperationMode.Nonmutating, context__);
-            while(true)
+         
+            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
             {
-                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
-                try
-                {
-                    direct__.servant().ice_ping(current__);
-                    return;
-                }
-                finally
-                {
-                    direct__.destroy();
-                }
+                servant__.ice_ping(current__);
+                return Ice.DispatchStatus.DispatchOK;
+            };
+            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+            
+            try
+            {
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                Debug.Assert(status__ == DispatchStatus.DispatchOK);
+            }
+            finally
+            {
+                direct__.destroy();
             }
         }
         
@@ -1244,17 +1255,24 @@ namespace Ice
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_ids", OperationMode.Nonmutating, context__);
-            while(true)
+
+            string[] result__ = null;
+            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
             {
-                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
-                try
-                {
-                    return direct__.servant().ice_ids(current__);
-                }
-                finally
-                {
-                    direct__.destroy();
-                }
+                result__ = servant__.ice_ids(current__);
+                return Ice.DispatchStatus.DispatchOK;
+            };
+            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+            
+            try
+            {
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                Debug.Assert(status__ == DispatchStatus.DispatchOK);
+                return result__;
+            }
+            finally
+            {
+                direct__.destroy();
             }
         }
         
@@ -1262,17 +1280,24 @@ namespace Ice
         {
             Current current__ = new Current();
             initCurrent__(ref current__, "ice_id", OperationMode.Nonmutating, context__);
-            while(true)
+            
+            string result__ = null;
+            IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object servant__)
             {
-                IceInternal.Direct direct__ = new IceInternal.Direct(current__);
-                try
-                {
-                    return direct__.servant().ice_id(current__);
-                }
-                finally
-                {
-                    direct__.destroy();
-                }
+                result__ = servant__.ice_id(current__);
+                return Ice.DispatchStatus.DispatchOK;
+            };
+            IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);
+            
+            try
+            {
+                DispatchStatus status__ = direct__.servant().collocDispatch__(direct__); 
+                Debug.Assert(status__ == DispatchStatus.DispatchOK);
+                return result__;
+            }
+            finally
+            {
+                direct__.destroy();
             }
         }
         

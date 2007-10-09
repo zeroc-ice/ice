@@ -17,7 +17,34 @@ namespace IceInternal
         public IncomingAsync(Incoming inc)
             : base(inc)
         {
+            _retriable = inc.isRetriable();
+            if(_retriable)
+            {
+                inc.setActive(this);
+                _active = true;
+            }
         }
+
+        internal void
+        deactivate__(Incoming inc)
+        {
+            Debug.Assert(_retriable);
+            
+            lock(this)
+            {
+                if(!_active)
+                {
+                    //
+                    // Since __deactivate can only be called on an active object,
+                    // this means the response has already been sent (see validateXXX below)
+                    //
+                    throw new Ice.ResponseSentException();
+                }
+                _active = false;
+            }
+            inc.adopt(this);
+        }
+
 
         protected void response__(bool ok)
         {
@@ -97,6 +124,98 @@ namespace IceInternal
                 return false;
             }
         }
+
+        
+        protected bool 
+        validateResponse__(bool ok)
+        {
+            if(!_retriable)
+            {
+                return true;
+            }
+            
+            try
+            {
+                if(interceptorAsyncCallbackList_ != null)
+                {
+                    foreach(Ice.DispatchInterceptorAsyncCallback cb in  interceptorAsyncCallbackList_)
+                    {
+                        if(cb.response(ok) == false)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch(System.Exception)
+            {
+                return false;
+            }
+            
+            //
+            // interceptorAsyncCallbackList is null or all its elements returned OK
+            // 
+            
+            lock(this)
+            {   
+                if(_active)
+                {
+                    _active = false;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+        
+        protected bool 
+        validateException__(System.Exception exc)
+        {
+            if(!_retriable)
+            {
+                return true;
+            }
+            
+            try
+            {
+                if(interceptorAsyncCallbackList_ != null)
+                {
+                    foreach(Ice.DispatchInterceptorAsyncCallback cb in  interceptorAsyncCallbackList_)
+                    {
+                        if(cb.exception(exc) == false)
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            catch(System.Exception)
+            {
+                return false;
+            }
+
+            //
+            // interceptorAsyncCallbackList is null or all its elements returned OK
+            // 
+            
+            lock(this)
+            {
+                if(_active)
+                {
+                    _active = false;
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
+
+        private readonly bool _retriable;
+        private bool _active = false; // only meaningful when _retriable == true
     }
 }
 

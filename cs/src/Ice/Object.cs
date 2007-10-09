@@ -17,7 +17,19 @@ namespace Ice
         DispatchOK,
         DispatchUserException,
         DispatchAsync
-    };
+    }
+
+    public interface DispatchInterceptorAsyncCallback
+    {
+        bool response(bool ok);
+        bool exception(System.Exception ex);
+    }
+
+    public interface Request
+    {   
+        bool isCollocated();
+        Current getCurrent();
+    }
 
     public interface Object : System.ICloneable
     {
@@ -38,7 +50,11 @@ namespace Ice
         void ice_preMarshal();
         void ice_postUnmarshal();
 
+        DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb);
+
         DispatchStatus dispatch__(IceInternal.Incoming inc, Current current);
+
+        DispatchStatus collocDispatch__(IceInternal.Direct request);
 
         void write__(IceInternal.BasicStream os__);
         void read__(IceInternal.BasicStream is__, bool rid__);
@@ -158,6 +174,35 @@ namespace Ice
             "ice_id", "ice_ids", "ice_isA", "ice_ping"
         };
         
+
+        public virtual DispatchStatus ice_dispatch(Request request, DispatchInterceptorAsyncCallback cb)
+        {
+            if(request.isCollocated())
+            {
+                return collocDispatch__((IceInternal.Direct)request);
+            }
+            else
+            {
+                IceInternal.Incoming inc = (IceInternal.Incoming)request;
+                if(cb != null)
+                {
+                    inc.push(cb);
+                }
+                try
+                {
+                    inc.startOver(); // may raise ResponseSentException
+                    return dispatch__(inc, inc.getCurrent());
+                }
+                finally
+                {
+                    if(cb != null)
+                    {
+                        inc.pop();
+                    }
+                }
+            }
+        }
+
         public virtual DispatchStatus dispatch__(IceInternal.Incoming inc, Current current)
         {
             int pos = System.Array.BinarySearch(all__, current.operation);
@@ -189,7 +234,12 @@ namespace Ice
             Debug.Assert(false);
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
         }
-        
+
+        public virtual DispatchStatus collocDispatch__(IceInternal.Direct request)
+        {
+            return request.run(this);
+        }
+
         public virtual void write__(IceInternal.BasicStream os__)
         {
             os__.writeTypeId(ice_staticId());

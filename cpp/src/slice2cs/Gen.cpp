@@ -962,6 +962,63 @@ Slice::CsVisitor::emitAttributes(const ContainedPtr& p)
     }
 }
 
+string
+Slice::CsVisitor::writeValue(const TypePtr& type)
+{
+    assert(type);
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                return "false";
+                break;
+            }
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                return "0";
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                return "0.0f";
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                return "0.0";
+                break;
+            }
+            default:
+            {
+                return "null";
+                break;
+            }
+        }
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        return fixId(en->scoped()) + "." + fixId((*en->getEnumerators().begin())->name());
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        return st->hasMetaData("clr:class") ? string("null") : "new " + fixId(st->scoped()) + "()";
+    }
+
+    return "null";
+}
+
+
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& dir,
                 bool impl, bool implTie, bool stream)
     : _includePaths(includePaths),
@@ -3844,6 +3901,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         string retS = typeToString(ret);
         ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
 
+        ExceptionList throws = op->throws();
+
         vector<string> params = getParams(op);
         vector<string> args = getArgs(op);
 
@@ -3861,24 +3920,103 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "initCurrent__(ref current__, \"" << op->name() << "\", " 
                  << sliceModeToIceMode(op->sendMode())
                  << ", context__);";
-            _out << nl << "while(true)";
+            
+          
+            //
+            // Create out holders and delArgs
+            //
+            vector<string> delArgs;
+            vector<string> outHolders;
+
+            const ParamDeclList paramList = op->parameters();
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                string arg = fixId((*q)->name());
+                if((*q)->isOutParam())
+                {
+                    _out << nl << typeToString((*q)->type()) << " " << arg << "Holder__ = " << writeValue((*q)->type()) << ";";
+                    outHolders.push_back(arg);
+                    arg = "out " + arg + "Holder__";
+                }
+                delArgs.push_back(arg);
+            }
+            
+            if(ret)
+            {
+                _out << nl << retS << " result__ = " << writeValue(ret) << ";";
+            }
+       
+            if(!throws.empty())
+            {
+                _out << nl << "Ice.UserException userException__ = null;";
+            }
+
+            _out << nl << "IceInternal.Direct.RunDelegate run__ = delegate(Ice.Object obj__)";
             _out << sb;
-            _out << nl << "IceInternal.Direct direct__ = new IceInternal.Direct(current__);";
-            _out << nl << "object servant__ = direct__.servant();";
-            _out << nl << "if(servant__ is " << fixId(name) << ")";
-            _out << sb;
+            _out << nl << fixId(name) << " servant__ = null;";
             _out << nl << "try";
             _out << sb;
+            _out << nl << "servant__ = (" << fixId(name) << ")obj__;";
+            _out << eb;
+            _out << nl << "catch(_System.InvalidCastException)";
+            _out << sb;
+            _out << nl << "throw new Ice.OperationNotExistException(current__.id, current__.facet, current__.operation);";
+            _out << eb;
+
+            if(!throws.empty())
+            {
+                _out << nl << "try";
+                _out << sb;
+            }
+
             _out << nl;
             if(ret)
             {
-                _out << "return ";
+                _out << "result__ = ";
             }
-            _out << "((" << fixId(containingClass->scoped()) << ")servant__)."
-                 << opName << spar << args << "current__" << epar << ';';
-            if(!ret)
+           
+            _out << "servant__." << opName << spar << delArgs << "current__" << epar << ';';
+            _out << nl << "return Ice.DispatchStatus.DispatchOK;";
+            
+            if(!throws.empty())
             {
-                _out << nl << "return;";
+                _out << eb;
+                _out << nl << "catch(Ice.UserException ex__)";
+                _out << sb;
+                _out << nl << "userException__ = ex__;";
+                _out << nl << "return Ice.DispatchStatus.DispatchUserException;";
+                _out << eb;
+            }
+
+            _out << eb;
+            _out << ";";
+
+            _out << nl << "IceInternal.Direct direct__ = new IceInternal.Direct(current__, run__);";
+
+            _out << nl << "try";
+            _out << sb;
+            _out << nl << "Ice.DispatchStatus status__ = direct__.servant().collocDispatch__(direct__);";
+            if(!throws.empty())
+            {
+                _out << nl << "if(status__ == Ice.DispatchStatus.DispatchUserException)";
+                _out << sb;
+                _out << nl << "throw userException__;";
+                _out << eb;
+            }
+            _out << nl << "_System.Diagnostics.Debug.Assert(status__ == Ice.DispatchStatus.DispatchOK);";
+
+            //
+            // Set out parameters
+            //
+
+            for(vector<string>::iterator q = outHolders.begin(); q != outHolders.end(); ++q)
+            {
+                _out << nl << (*q) << " = " << (*q) << "Holder__;";
+            }
+
+            if(ret)
+            {
+                _out << nl << "return result__;";
             }
             _out << eb;
             _out << nl << "catch(Ice.LocalException ex__)";
@@ -3888,17 +4026,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl << "finally";
             _out << sb;
             _out << nl << "direct__.destroy();";
-            _out << eb;
-            _out << eb;
-            _out << nl << "else";
-            _out << sb;
-            _out << nl << "direct__.destroy();";
-            _out << nl << "Ice.OperationNotExistException opEx__ = new Ice.OperationNotExistException();";
-            _out << nl << "opEx__.id = current__.id;";
-            _out << nl << "opEx__.facet = current__.facet;";
-            _out << nl << "opEx__.operation = current__.operation;";
-            _out << nl << "throw opEx__;";
-            _out << eb;
             _out << eb;
         }
         _out << eb;
@@ -4266,6 +4393,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         _out << sp << nl << "public void ice_response" << spar << paramsAMD << epar;
         _out << sb;
+        _out << nl << "if(validateResponse__(true))";
+        _out << sb;
         if(ret || !outParams.empty())
         {
             _out << nl << "try";
@@ -4293,12 +4422,16 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         }
         _out << nl << "response__(true);";
         _out << eb;
+        _out << eb;
 
         _out << sp << nl << "public void ice_exception(_System.Exception ex)";
         _out << sb;
         if(throws.empty())
         {
+            _out << nl << "if(validateException__(ex))";
+            _out << sb;
             _out << nl << "exception__(ex);";
+            _out << eb;
         }
         else
         {
@@ -4312,8 +4445,11 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
                 string exS = fixId((*r)->scoped());
                 _out << nl << "catch(" << exS << " ex__)";
                 _out << sb;
+                _out << nl << "if(validateResponse__(false))";
+                _out << sb;
                 _out << nl << "os__().writeUserException(ex__);";
                 _out << nl << "response__(false);";
+                _out << eb;
                 _out << eb;
             }
             _out << nl << "catch(_System.Exception ex__)";
@@ -4677,61 +4813,6 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
     }
 }
 
-string
-Slice::Gen::BaseImplVisitor::writeValue(const TypePtr& type)
-{
-    assert(type);
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindBool:
-            {
-                return "false";
-                break;
-            }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                return "0";
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                return "0.0f";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                return "0.0";
-                break;
-            }
-            default:
-            {
-                return "null";
-                break;
-            }
-        }
-    }
-
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        return fixId(en->scoped()) + "." + fixId((*en->getEnumerators().begin())->name());
-    }
-
-    StructPtr st = StructPtr::dynamicCast(type);
-    if(st)
-    {
-        return st->hasMetaData("clr:class") ? string("null") : "new " + fixId(st->scoped()) + "()";
-    }
-
-    return "null";
-}
 
 Slice::Gen::ImplVisitor::ImplVisitor(IceUtil::Output& out)
     : BaseImplVisitor(out)

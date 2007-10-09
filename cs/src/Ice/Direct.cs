@@ -12,11 +12,29 @@ namespace IceInternal
 
     using System.Diagnostics;
 
-    public sealed class Direct
+    public class Direct : Ice.Request
     {
-        public Direct(Ice.Current current)
+        public delegate Ice.DispatchStatus RunDelegate(Ice.Object target);
+
+        public bool isCollocated()
+        {
+            return true;
+        }
+
+        public Ice.Current getCurrent()
+        {
+            return _current;
+        }
+
+        public Ice.DispatchStatus run(Ice.Object target)
+        {
+            return _run(target);
+        }
+
+        public Direct(Ice.Current current, RunDelegate run)
         {
             _current = current;
+            _run = run;
             
             Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
             Debug.Assert(adapter != null);
@@ -108,7 +126,8 @@ namespace IceInternal
             return _servant;
         }
         
-        private Ice.Current _current;
+        private readonly Ice.Current _current;
+        private readonly RunDelegate _run;
         private Ice.Object _servant;
         private Ice.ServantLocator _locator;
         private System.Object _cookie;

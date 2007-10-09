@@ -33,6 +33,7 @@ SRCS		= Acceptor.cs \
 		  DefaultsAndOverrides.cs \
                   DictionaryBase.cs \
 		  Direct.cs \
+                  DispatchInterceptor.cs \
 		  EndpointI.cs \
 		  EndpointFactory.cs \
 		  EndpointFactoryManager.cs \

@@ -37,6 +37,8 @@ protected:
     void emitAttributes(const ContainedPtr&);
     ::std::string getParamAttributes(const ParamDeclPtr&);
 
+    ::std::string writeValue(const TypePtr&);
+
     ::IceUtil::Output& _out;
 };
 
@@ -247,10 +249,6 @@ private:
     protected:
 
         void writeOperation(const OperationPtr&, bool, bool);
-
-    private:
-
-        ::std::string writeValue(const TypePtr&);
     };
 
     class ImplVisitor : public BaseImplVisitor
