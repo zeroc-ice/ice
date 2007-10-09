@@ -87,6 +87,7 @@ tests = [ \
     "Ice/retry", \
     "Ice/timeout", \
     "Ice/servantLocator", \
+    "Ice/interceptor", \
     "Ice/dictMapping", \
     "IceSSL/configuration", \
     "Ice/threads", \

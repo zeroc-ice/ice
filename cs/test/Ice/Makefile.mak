@@ -29,6 +29,7 @@ SUBDIRS         = application \
                   retry \
                   timeout \
 		  servantLocator \
+                  interceptor \
 		  threads \
                   dictMapping \
                   seqMapping
