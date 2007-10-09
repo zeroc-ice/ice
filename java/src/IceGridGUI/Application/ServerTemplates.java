@@ -79,7 +79,16 @@ class ServerTemplates extends Templates
     public void paste()
     {
         Object descriptor =  getCoordinator().getClipboard();
-        TemplateDescriptor td = (TemplateDescriptor)descriptor;
+        TemplateDescriptor td = ServerTemplate.copyDescriptor((TemplateDescriptor)descriptor);
+
+        if(td.descriptor instanceof IceBoxDescriptor)
+        {
+            if(!getRoot().pasteIceBox((IceBoxDescriptor)td.descriptor))
+            {
+                return;
+            }
+        }
+      
         newServerTemplate(td);
     }
 

@@ -33,7 +33,7 @@ public:
         Lock sync(*this);
         ++_count;
         _run = IceUtil::Time::now(IceUtil::Time::Monotonic);
-        //cerr << "run: " << _scheduledTime.toMicroSeconds() << " " << _run.toMicroSeconds() << endl;
+        //cerr << "run: " << _scheduledTime.toMilliSeconds() << " " << _run.toMilliSeconds() << endl;
         notifyAll();
     }
 
@@ -130,13 +130,12 @@ int main(int argc, char* argv[])
         {
             vector<TestTaskPtr> tasks;
             IceUtil::Time start = IceUtil::Time::now(IceUtil::Time::Monotonic) + IceUtil::Time::milliSeconds(100);
-            for(int i = 0; i < 100; ++i)
+            for(int i = 0; i < 20; ++i)
             {
-                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(100 + i)));
+                tasks.push_back(new TestTask(IceUtil::Time::milliSeconds(100 + i * 5)));
             }
 
             random_shuffle(tasks.begin(), tasks.end());
-            
 	    vector<TestTaskPtr>::const_iterator p;
             for(p = tasks.begin(); p != tasks.end(); ++p)
             {
@@ -148,7 +147,7 @@ int main(int argc, char* argv[])
                 (*p)->waitForRun();
             }            
 
-            test(IceUtil::Time::now(IceUtil::Time::Monotonic) - start > IceUtil::Time::milliSeconds(99));
+            test(IceUtil::Time::now(IceUtil::Time::Monotonic) > start);
 
             sort(tasks.begin(), tasks.end());
             for(p = tasks.begin(); p + 1 != tasks.end(); ++p)

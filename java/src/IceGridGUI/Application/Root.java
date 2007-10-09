@@ -1409,6 +1409,36 @@ public class Root extends ListTreeNode
         return _replicaGroups;
     }
 
+    boolean pasteIceBox(IceBoxDescriptor ibd)
+    {
+        //
+        // During paste, check that all service instances refer to existing services,
+        // and remove any extra template parameters
+        //
+        java.util.Iterator p = ibd.services.iterator();
+        while(p.hasNext())
+        {
+            ServiceInstanceDescriptor sid = (ServiceInstanceDescriptor)p.next();
+            if(sid.template.length() > 0)
+            {
+                TemplateDescriptor td = findServiceTemplateDescriptor(sid.template);
+
+                if(td == null)
+                {
+                    JOptionPane.showMessageDialog(
+                        _coordinator.getMainFrame(),
+                        "Descriptor refers to undefined service template '" + sid.template + "'",
+                        "Cannot paste",
+                        JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+
+                sid.parameterValues.keySet().retainAll(td.parameters);
+            }
+        }
+        return true;
+    }
+
     public Root getRoot()
     {
         return this;

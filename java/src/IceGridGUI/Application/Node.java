@@ -305,11 +305,31 @@ class Node extends TreeNode implements PropertySetParent
         }
         else if(descriptor instanceof ServerInstanceDescriptor)
         {
-            newServer(ServerInstance.copyDescriptor((ServerInstanceDescriptor)descriptor));
+            //
+            // Remove any extra parameters
+            //
+            ServerInstanceDescriptor sid = ServerInstance.copyDescriptor((ServerInstanceDescriptor)descriptor);
+            
+            TemplateDescriptor td = getRoot().findServerTemplateDescriptor(sid.template);
+                                                                         
+            if(td != null)
+            {
+                sid.parameterValues.keySet().retainAll(td.parameters);
+            }
+
+            newServer(sid);
         }
         else
         {
-            newServer(PlainServer.copyDescriptor(((ServerDescriptor)descriptor)));
+            ServerDescriptor sd = PlainServer.copyDescriptor((ServerDescriptor)descriptor);
+            if(sd instanceof IceBoxDescriptor)
+            {
+                if(!getRoot().pasteIceBox((IceBoxDescriptor)sd))
+                {
+                    return;
+                }
+            }
+            newServer(sd);          
         }
     }
     

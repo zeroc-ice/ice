@@ -679,18 +679,18 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             ServiceInstanceDescriptor descriptor = (ServiceInstanceDescriptor)o;
 
             if(descriptor.descriptor == null)
-            {
-                TemplateDescriptor templateDescriptor 
-                    = getRoot().findServiceTemplateDescriptor(descriptor.template);
-                
-                assert templateDescriptor != null;
-                
+            { 
                 String serviceName = null;
                 String displayString = null;
                 Utils.Resolver serviceResolver = null;
 
                 if(Communicator.this instanceof PlainServer)
                 {
+                    TemplateDescriptor templateDescriptor 
+                        = getRoot().findServiceTemplateDescriptor(descriptor.template);
+                    
+                    assert templateDescriptor != null;
+
                     serviceResolver = new Utils.Resolver(getResolver(), 
                                                          descriptor.parameterValues,
                                                          templateDescriptor.parameterDefaults);
@@ -753,7 +753,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
             
             TreeNode newChild = createChild(descriptor);
             _children.set(listIndex, newChild);
-            getRoot().getTreeModel().nodeChanged(newChild);
+            getRoot().getTreeModel().nodeStructureChanged(newChild);
             
             getEnclosingEditable().markModified();
         }
@@ -863,6 +863,8 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
 
     void removeServiceInstances(String template)
     {   
+        boolean updated = false;
+
         java.util.Iterator p = _services.iterator();
         while(p.hasNext())
         {
@@ -877,8 +879,13 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                     p.remove();
                     _services.removeDescriptor(d);
                     getEnclosingEditable().markModified();
+                    updated = true;
                 }
             }
+        }
+        if(updated)
+        {
+            getRoot().getTreeModel().nodeStructureChanged(this);
         }
     }
 
