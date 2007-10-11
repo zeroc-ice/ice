@@ -1,6 +1,10 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
+- Fixed a bug that cause a NullPointer exception when marshaling
+  a struct containing reference types if that was nested inside
+  a data type, such as another exception or struct.
+
 - Added support for a password callback in IceSSL. Also added new
   properties for specifying the name of a password callback class or
   certificate verifier class. See manual for more details.
