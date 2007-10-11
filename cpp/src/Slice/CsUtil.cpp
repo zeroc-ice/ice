@@ -522,21 +522,40 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         if(marshal)
         {
-            if(streamingAPI)
+            if(!isValueType(st))
             {
-                out << nl << param << ".ice_write(" << stream << ");";
+                out << nl << "if(" << param << " == null)";
+                out << sb;
+                string typeS = typeToString(st);
+                out << nl << typeS << " " << "tmp__ = new " << typeS << "();";
+                out << nl << "tmp__.";
+                out << (streamingAPI ? "ice_write" : "write__") << "(" << stream << ");";
+                out << eb;
+                out << nl << "else";
+                out << sb;
+                out << nl << param << "." << (streamingAPI ? "ice_write" : "write__") << "(" << stream << ");";
+                out << eb;
             }
             else
             {
-                out << nl << param << ".write__(" << stream << ");";
+                if(streamingAPI)
+                {
+                    out << nl << param << ".ice_write(" << stream << ");";
+                }
+                else
+                {
+                    out << nl << param << ".write__(" << stream << ");";
+                }
             }
         }
         else
         {
-            string typeS = typeToString(type);
-            if(param.size() < 6 || param.substr(param.size() - 5) != "_prop")
+            if(!isValueType(st))
             {
-                out << nl << param << " = new " << typeS << "();";
+                out << nl << "if(" << param << " == null)";
+                out << sb;
+                out << nl << param << " = new " << typeToString(type) << "();";
+                out << eb;
             }
             if(streamingAPI)
             {
