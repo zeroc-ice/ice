@@ -1214,6 +1214,13 @@ public class Coordinator
             initData.properties.setProperty("IceSSL.TruststorePassword", new String(info.truststorePassword));
         }
 
+      
+        //
+        // Clear Ice.Default.Router
+        // (when info.routed, we don't want to route the router)
+        //
+        initData.properties.setProperty("Ice.Default.Router", "");
+
         try
         {
             _communicator = Ice.Util.initialize(initData);
