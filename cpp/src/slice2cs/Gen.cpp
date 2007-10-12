@@ -326,9 +326,17 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 if(!isClass)
                 {
                     _out << nl << typeS << ' ' << param << ';';
-                    if(StructPtr::dynamicCast(q->first) && !isValueType(q->first))
+                    StructPtr st = StructPtr::dynamicCast(q->first);
+                    if(st)
                     {
-                        _out << nl << param << " = null;";
+                        if(isValueType(q->first))
+                        {
+                            _out << nl << param << " = new " << typeS << "();";
+                        }
+                        else
+                        {
+                            _out << nl << param << " = null;";
+                        }
                     }
                 }
                 writeMarshalUnmarshalCode(_out, q->first, param, false, false, true);
@@ -453,9 +461,17 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
                 if(!isClass)
                 {
                     _out << nl << typeS << ' ' << param << ';';
-                    if(StructPtr::dynamicCast(q->first) && !isValueType(q->first))
+                    StructPtr st = StructPtr::dynamicCast(q->first);
+                    if(st)
                     {
-                        _out << nl << param << " = null;";
+                        if(isValueType(q->first))
+                        {
+                            _out << nl << param << " = new " << typeS << "();";
+                        }
+                        else
+                        {
+                            _out << nl << param << " = null;";
+                        }
                     }
                 }
                 writeMarshalUnmarshalCode(_out, q->first, fixId(q->second), false, false, true);
