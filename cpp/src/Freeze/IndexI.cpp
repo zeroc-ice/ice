@@ -318,13 +318,41 @@ Freeze::IndexI::associate(ObjectStoreBase* store, DbTxn* txn,
     _db->set_flags(DB_DUP | DB_DUPSORT);
     _db->set_app_private(this);
 
+    _dbName = EvictorIBase::indexPrefix + store->dbName() + "." + _index.name();
+
+    Ice::PropertiesPtr properties = store->communicator()->getProperties();
+    string propPrefix = "Freeze.Evictor." + store->evictor()->filename() + ".";
+
+    int btreeMinKey = properties->getPropertyAsInt(propPrefix + _dbName + ".BtreeMinKey");
+    if(btreeMinKey > 2)
+    {
+        if(store->evictor()->trace() >= 1)
+        {
+            Trace out(store->evictor()->communicator()->getLogger(), "Freeze.Evictor");
+            out << "Setting \"" << store->evictor()->filename() + "." + _dbName << "\"'s btree minkey to " << btreeMinKey;
+        }
+        _db->set_bt_minkey(btreeMinKey);
+    }
+        
+    bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
+    if(checksum)
+    {
+        //
+        // No tracing on purpose
+        //
+
+        _db->set_flags(DB_CHKSUM);
+    }
+    
+    //
+    // pagesize can't change
+    //
+
     u_int32_t flags = 0;
     if(createDb)
     {
         flags = DB_CREATE;
     }
-
-    _dbName = EvictorIBase::indexPrefix + store->dbName() + "." + _index.name();
 
     _db->open(txn, store->evictor()->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 

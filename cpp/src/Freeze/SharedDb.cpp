@@ -276,13 +276,57 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
         _key = key;
         _value = value;
     }
-
-    set_app_private(this);
-    if(_keyCompare->compareEnabled())
+    
+    try
     {
-        set_bt_compare(&customCompare);
-    }
+        set_app_private(this);
+        if(_keyCompare->compareEnabled())
+        {
+            set_bt_compare(&customCompare);
+        }
+        
+        Ice::PropertiesPtr properties = _mapKey.communicator->getProperties();
+        string propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
+        
+        int btreeMinKey = properties->getPropertyAsInt(propPrefix + "BtreeMinKey");
+        if(btreeMinKey > 2)
+        {
+            if(_trace >= 1)
+            {
+                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                out << "Setting \"" << _mapKey.dbName << "\"'s btree minkey to " << btreeMinKey;
+            }
+            set_bt_minkey(btreeMinKey);
+        }
+        
+        bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
+        if(checksum)
+        {
+            if(_trace >= 1)
+            {
+                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                out << "Turning checksum on for \"" << _mapKey.dbName << "\"";
+            }
 
+            set_flags(DB_CHKSUM);
+        }
+        
+        int pageSize = properties->getPropertyAsInt(propPrefix + "PageSize");
+        if(pageSize > 0)
+        {
+            if(_trace >= 1)
+            {
+                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                out << "Setting \"" << _mapKey.dbName << "\"'s pagesize to " << pageSize;
+            }
+            set_pagesize(pageSize);
+        }
+    }
+    catch(const ::DbException& dx)
+    {
+        throw DatabaseException(__FILE__, __LINE__, dx.what());
+    }
+    
     try
     {
         TransactionPtr tx = catalogConnection->beginTransaction();
@@ -385,12 +429,49 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey, DbEnv* env) :
 
     if(_trace >= 1)
     {
-        Trace out(_mapKey.communicator->getLogger(), "Freeze.Db");
+        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
         out << "opening Db \"" << _mapKey.dbName << "\"";
     }
 
     try
     {
+        Ice::PropertiesPtr properties = _mapKey.communicator->getProperties();
+        string propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
+        
+        int btreeMinKey = properties->getPropertyAsInt(propPrefix + "BtreeMinKey");
+        if(btreeMinKey > 2)
+        {
+            if(_trace >= 1)
+            {
+                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                out << "Setting \"" << _mapKey.dbName << "\"'s btree minkey to " << btreeMinKey;
+            }
+            set_bt_minkey(btreeMinKey);
+        }
+        
+        bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
+        if(checksum)
+        {
+            if(_trace >= 1)
+            {
+                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                out << "Turning checksum on for \"" << _mapKey.dbName << "\"";
+            }
+
+            set_flags(DB_CHKSUM);
+        }
+        
+        int pageSize = properties->getPropertyAsInt(propPrefix + "PageSize");
+        if(pageSize > 0)
+        {
+            if(_trace >= 1)
+            {
+                Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                out << "Setting \"" << _mapKey.dbName << "\"'s pagesize to " << pageSize;
+            }
+            set_pagesize(pageSize);
+        }
+
         u_int32_t flags = DB_THREAD | DB_CREATE | DB_AUTO_COMMIT;
         open(0, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
     }

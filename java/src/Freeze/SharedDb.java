@@ -181,19 +181,58 @@ class SharedDb
                 _value = value;
             }
             
+            com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+           
+           
+            config.setAllowCreate(createDb);
+            config.setType(com.sleepycat.db.DatabaseType.BTREE);
+
+            if(comparator != null)
+            {
+                config.setBtreeComparator(comparator);
+            }
+            Ice.Properties properties = _mapKey.communicator.getProperties();
+            String propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
+                
+            int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
+            if(btreeMinKey > 2)
+            {
+                if(_trace >= 1)
+                {
+                    _mapKey.communicator.getLogger().trace(
+                        "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s btree minkey to " + btreeMinKey);
+                }
+                config.setBtreeMinKey(btreeMinKey);
+            }
+                
+            boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
+            if(checksum)
+            {
+                if(_trace >= 1)
+                {
+                    _mapKey.communicator.getLogger().trace(
+                        "Freeze.Map", "Turning checksum on for \"" + _mapKey.dbName + "\"");
+                }
+                    
+                config.setChecksum(true);
+            }
+                
+            int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
+            if(pageSize > 0)
+            {
+                if(_trace >= 1)
+                {
+                    _mapKey.communicator.getLogger().trace(
+                        "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s pagesize to " + pageSize);
+                }
+                config.setPageSize(pageSize);
+            }
+
             try
             {
                 Transaction tx = catalogConnection.beginTransaction();
                 com.sleepycat.db.Transaction txn = Util.getTxn(tx);
-
-                com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
-                config.setAllowCreate(createDb);
-                config.setType(com.sleepycat.db.DatabaseType.BTREE);
-                if(comparator != null)
-                {
-                    config.setBtreeComparator(comparator);
-                }
-
+    
                 if(_trace >= 1)
                 {
                     _mapKey.communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _mapKey.dbName + "\"");
@@ -286,6 +325,44 @@ class SharedDb
         config.setAllowCreate(true);
         config.setType(com.sleepycat.db.DatabaseType.BTREE);
         config.setTransactional(true);
+
+        Ice.Properties properties = _mapKey.communicator.getProperties();
+        String propPrefix = "Freeze.Map." + _mapKey.dbName + ".";
+                
+        int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
+        if(btreeMinKey > 2)
+        {
+            if(_trace >= 1)
+            {
+                _mapKey.communicator.getLogger().trace(
+                    "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s btree minkey to " + btreeMinKey);
+            }
+            config.setBtreeMinKey(btreeMinKey);
+        }
+                
+        boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
+        if(checksum)
+        {
+            if(_trace >= 1)
+            {
+                _mapKey.communicator.getLogger().trace(
+                    "Freeze.Map", "Turning checksum on for \"" + _mapKey.dbName + "\"");
+            }
+                    
+            config.setChecksum(true);
+        }
+                
+        int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
+        if(pageSize > 0)
+        {
+            if(_trace >= 1)
+            {
+                _mapKey.communicator.getLogger().trace(
+                    "Freeze.Map", "Setting \"" + _mapKey.dbName + "\"'s pagesize to " + pageSize);
+            }
+            config.setPageSize(pageSize);
+        }
+
 
         try
         {

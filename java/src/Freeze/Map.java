@@ -1084,6 +1084,43 @@ public abstract class Map extends java.util.AbstractMap
             }
             config.setKeyCreator(this);
 
+            Ice.Properties properties = _connection.communicator().getProperties();
+            String propPrefix = "Freeze.Map." + _dbName + ".";
+                
+            int btreeMinKey = properties.getPropertyAsInt(propPrefix + "BtreeMinKey");
+            if(btreeMinKey > 2)
+            {
+                if(_trace >= 1)
+                {
+                    _connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Setting \"" + _dbName + "\"'s btree minkey to " + btreeMinKey);
+                }
+                config.setBtreeMinKey(btreeMinKey);
+            }
+                
+            boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
+            if(checksum)
+            {
+                if(_trace >= 1)
+                {
+                   _connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Turning checksum on for \"" + _dbName + "\"");
+                }
+                    
+                config.setChecksum(true);
+            }
+                
+            int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
+            if(pageSize > 0)
+            {
+                if(_trace >= 1)
+                {
+                    _connection.communicator().getLogger().trace(
+                        "Freeze.Map", "Setting \"" + _dbName + "\"'s pagesize to " + pageSize);
+                }
+                config.setPageSize(pageSize);
+            }
+
             _db = _connection.dbEnv().getEnv().openSecondaryDatabase(txn, _dbName, null, db, config);
         }
         

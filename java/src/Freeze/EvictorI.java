@@ -468,11 +468,10 @@ abstract class EvictorI implements Evictor
         return _deadlockWarning;
     }    
 
-
-    private void
-    init(String envName, com.sleepycat.db.Environment dbEnv, java.util.Map facetTypes, Index[] indices)
+    final int
+    trace()
     {
-        
+        return _trace;
     }
 
     private java.util.List

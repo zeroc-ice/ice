@@ -332,6 +332,33 @@ public abstract class Index implements com.sleepycat.db.SecondaryKeyCreator
         config.setType(com.sleepycat.db.DatabaseType.BTREE);
         config.setKeyCreator(this);
 
+        Ice.Properties properties = store.evictor().communicator().getProperties();
+        String propPrefix = "Freeze.Evictor." + store.evictor().filename() + ".";
+                
+        int btreeMinKey = properties.getPropertyAsInt(propPrefix + _dbName + ".BtreeMinKey");
+        if(btreeMinKey > 2)
+        {
+            if(store.evictor().trace() >= 1)
+            {
+                store.evictor().communicator().getLogger().trace(
+                    "Freeze.Evictor", "Setting \"" + store.evictor().filename() + "." + _dbName + "\"'s btree minkey to " + btreeMinKey);
+            }
+            config.setBtreeMinKey(btreeMinKey);
+        }
+                
+        boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
+        if(checksum)
+        {
+            //
+            // No tracing
+            //
+            config.setChecksum(true);
+        }
+                
+        //
+        // Can't change page size
+        //
+
         _db = _store.evictor().dbEnv().getEnv().openSecondaryDatabase(txn, _store.evictor().filename(), _dbName,
                                                                       _store.db(), config);
     }

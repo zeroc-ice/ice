@@ -71,6 +71,46 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
     {
         _db.reset(new Db(dbEnv, 0));
 
+        Ice::PropertiesPtr properties = evictor->communicator()->getProperties();
+        string propPrefix = "Freeze.Evictor." + evictor->filename() + ".";
+
+        int btreeMinKey = properties->getPropertyAsInt(propPrefix + _dbName + ".BtreeMinKey");
+        if(btreeMinKey > 2)
+        {
+            if(evictor->trace() >= 1)
+            {
+                Trace out(evictor->communicator()->getLogger(), "Freeze.Evictor");
+                out << "Setting \"" << evictor->filename() + "." + _dbName << "\"'s btree minkey to " << btreeMinKey;
+            }
+
+            _db->set_bt_minkey(btreeMinKey);
+        }
+        
+        bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
+        if(checksum)
+        {
+            if(evictor->trace() >= 1)
+            {
+                Trace out(evictor->communicator()->getLogger(), "Freeze.Evictor");
+                out << "Turning checksum on for \"" << evictor->filename() << "\"";
+            }
+
+            _db->set_flags(DB_CHKSUM);
+        }
+        
+        int pageSize = properties->getPropertyAsInt(propPrefix + "PageSize");
+        if(pageSize > 0)
+        {
+            if(evictor->trace() >= 1)
+            {
+                Trace out(evictor->communicator()->getLogger(), "Freeze.Evictor");
+                out << "Setting \"" << evictor->filename() << "\"'s pagesize to " << pageSize;
+            }
+
+            _db->set_pagesize(pageSize);
+        }
+        
+
         TransactionPtr tx = catalogConnection->beginTransaction();
         DbTxn* txn = getTxn(tx);
 
@@ -79,6 +119,7 @@ Freeze::ObjectStoreBase::ObjectStoreBase(const string& facet, const string& face
         {
             flags |= DB_CREATE;
         }
+
         _db->open(txn, evictor->filename().c_str(), _dbName.c_str(), DB_BTREE, flags, FREEZE_DB_MODE);
 
         for(size_t i = 0; i < _indices.size(); ++i)

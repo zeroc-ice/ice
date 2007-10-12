@@ -63,17 +63,56 @@ class ObjectStore implements IceUtil.Store
             
             com.sleepycat.db.Environment dbEnv = evictor.dbEnv().getEnv();
             
+            //
+            // TODO: FREEZE_DB_MODE
+            //
+            com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
+            config.setType(com.sleepycat.db.DatabaseType.BTREE);
+            config.setAllowCreate(createDb);
+
+            Ice.Properties properties = _evictor.communicator().getProperties();
+            String propPrefix = "Freeze.Evictor." + _evictor.filename() + ".";
+                
+            int btreeMinKey = properties.getPropertyAsInt(propPrefix + _dbName + ".BtreeMinKey");
+            if(btreeMinKey > 2)
+            {
+                if(_evictor.trace() >= 1)
+                {
+                    _evictor.communicator().getLogger().trace(
+                        "Freeze.Evictor", "Setting \"" + _evictor.filename() + "." + _dbName + "\"'s btree minkey to " + btreeMinKey);
+                }
+                config.setBtreeMinKey(btreeMinKey);
+            }
+                
+            boolean checksum = properties.getPropertyAsInt(propPrefix + "Checksum") > 0;
+            if(checksum)
+            {
+                if(_evictor.trace() >= 1)
+                {
+                   _evictor.communicator().getLogger().trace(
+                        "Freeze.Evictor", "Turning checksum on for \"" + _evictor.filename()  + "\"");
+                }
+                    
+                config.setChecksum(true);
+            }
+                
+            int pageSize = properties.getPropertyAsInt(propPrefix + "PageSize");
+            if(pageSize > 0)
+            {
+                if(_evictor.trace() >= 1)
+                {
+                    _evictor.communicator().getLogger().trace(
+                        "Freeze.Evictor", "Setting \"" + _evictor.filename() + "\"'s pagesize to " + pageSize);
+                }
+                config.setPageSize(pageSize);
+            }
+
+
             try
             {       
                 Transaction tx = connection.beginTransaction();
                 com.sleepycat.db.Transaction txn = Util.getTxn(tx);
 
-                //
-                // TODO: FREEZE_DB_MODE
-                //
-                com.sleepycat.db.DatabaseConfig config = new com.sleepycat.db.DatabaseConfig();
-                config.setType(com.sleepycat.db.DatabaseType.BTREE);
-                config.setAllowCreate(createDb);
                 _db = dbEnv.openDatabase(txn, evictor.filename(), _dbName, config);
 
                 java.util.Iterator p = _indices.iterator();

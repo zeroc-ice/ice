@@ -1385,8 +1385,7 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
     
     _db.reset(new Db(connection->dbEnv()->getEnv(), 0));
     _db->set_flags(DB_DUP | DB_DUPSORT);
-    _db->set_app_private(this);
-
+    
     u_int32_t flags = 0;
     if(createDb)
     {
@@ -1402,6 +1401,44 @@ Freeze::MapIndexI::MapIndexI(const ConnectionIPtr& connection, SharedDb& db,
         _db->set_bt_compare(&customIndexCompare);
     }
 
+    Ice::PropertiesPtr properties = connection->communicator()->getProperties();
+    string propPrefix = "Freeze.Map." + _dbName + ".";
+    int btreeMinKey = properties->getPropertyAsInt(propPrefix + "BtreeMinKey");
+    if(btreeMinKey > 2)
+    {
+        if(connection->trace() >= 1)
+        {
+            Trace out(connection->communicator()->getLogger(), "Freeze.Map");
+            out << "Setting \"" << _dbName << "\"'s btree minkey to " << btreeMinKey;
+        }
+
+        _db->set_bt_minkey(btreeMinKey);
+    }
+    
+    bool checksum = properties->getPropertyAsInt(propPrefix + "Checksum") > 0;
+    if(checksum)
+    {
+        if(connection->trace() >= 1)
+        {
+            Trace out(connection->communicator()->getLogger(), "Freeze.Map");
+            out << "Turning checksum on for \"" << _dbName << "\"";
+        }
+
+        _db->set_flags(DB_CHKSUM);
+    }
+    
+    int pageSize = properties->getPropertyAsInt(propPrefix + "PageSize");
+    if(pageSize > 0)
+    {
+        if(connection->trace() >= 1)
+        {
+            Trace out(connection->communicator()->getLogger(), "Freeze.Map");
+            out << "Setting \"" << _dbName << "\"'s pagesize to " << pageSize;
+        }
+
+        _db->set_pagesize(pageSize);
+    }
+    
     _db->open(txn, _dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
     //
