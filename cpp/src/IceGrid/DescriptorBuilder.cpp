@@ -155,12 +155,6 @@ PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() :
 {
 }
 
-PropertySetDescriptorBuilder::PropertySetDescriptorBuilder(const PropertySetDescriptor& desc) :
-    _descriptor(desc),
-    _inPropertySetRef(false)
-{
-}
-
 void
 PropertySetDescriptorBuilder::setId(const string& id)
 {
@@ -639,7 +633,7 @@ CommunicatorDescriptorBuilder::addProperty(const XmlAttributesHelper& attrs)
 PropertySetDescriptorBuilder*
 CommunicatorDescriptorBuilder::createPropertySet() const
 {
-    return new PropertySetDescriptorBuilder(_descriptor->propertySet);
+    return new PropertySetDescriptorBuilder();
 }
 
 void
@@ -804,7 +798,7 @@ ServiceInstanceDescriptorBuilder::ServiceInstanceDescriptorBuilder(const XmlAttr
 PropertySetDescriptorBuilder*
 ServiceInstanceDescriptorBuilder::createPropertySet() const
 {
-    return new PropertySetDescriptorBuilder(_descriptor.propertySet);
+    return new PropertySetDescriptorBuilder();
 }
 
 void
