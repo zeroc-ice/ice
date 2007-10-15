@@ -2203,25 +2203,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << "s";
         _out << sp << nl << "public " << name << "()";
         _out << sb;
-        /*
-        if(!p->isLocal())
-        {
-            for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-            {
-                if(!isValueType((*q)->type()))
-                {
-                    string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-                    string memberType = typeToString((*q)->type());
-                    _out << nl << "this." << memberName;
-                    if(propertyMapping)
-                    {
-                        _out << "_prop";
-                    }
-                    _out << " = new " << memberType << "();";
-                }
-            }
-        }
-        */
         _out << eb;
     }
 
