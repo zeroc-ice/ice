@@ -411,9 +411,7 @@ namespace Ice
 
         public ObjectPrx ice_context(Dictionary<string, string> newContext)
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.changeContext(newContext));
-            return proxy;
+            return newInstance(_reference.changeContext(newContext));
         }
 
         public ObjectPrx ice_newContext(Dictionary<string, string> newContext)
@@ -423,9 +421,7 @@ namespace Ice
 
         public ObjectPrx ice_defaultContext()
         {
-            ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.setup(_reference.defaultContext());
-            return proxy;
+            return newInstance(_reference.defaultContext());
         }
 
         public string ice_getFacet()
@@ -475,9 +471,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeAdapterId(newAdapterId));
-                return proxy;
+                return newInstance(_reference.changeAdapterId(newAdapterId));
             }
         }
 
@@ -499,11 +493,9 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
                 ArrayList arr = ArrayList.Adapter(newEndpoints);
                 IceInternal.EndpointI[] endpts = (IceInternal.EndpointI[])arr.ToArray(typeof(IceInternal.EndpointI));
-                proxy.setup(_reference.changeEndpoints(endpts));
-                return proxy;
+                return newInstance(_reference.changeEndpoints(endpts));
             }
         }
 
@@ -525,9 +517,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeLocatorCacheTimeout(newTimeout));
-                return proxy;
+                return newInstance(_reference.changeLocatorCacheTimeout(newTimeout));
             }
         }
 
@@ -544,9 +534,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeCacheConnection(newCache));
-                return proxy;
+                return newInstance(_reference.changeCacheConnection(newCache));
             }
         }
 
@@ -563,9 +551,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeEndpointSelection(newType));
-                return proxy;
+                return newInstance(_reference.changeEndpointSelection(newType));
             }
         }
 
@@ -582,9 +568,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeSecure(b));
-                return proxy;
+                return newInstance(_reference.changeSecure(b));
             }
         }
 
@@ -601,9 +585,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changePreferSecure(b));
-                return proxy;
+                return newInstance(_reference.changePreferSecure(b));
             }
         }
 
@@ -622,9 +604,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
+                return newInstance(@ref);
             }
         }
 
@@ -643,9 +623,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
+                return newInstance(@ref);
             }
         }
 
@@ -667,9 +645,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeCollocationOptimization(b));
-                return proxy;
+                return newInstance(_reference.changeCollocationOptimization(b));
             }
         }
 
@@ -681,9 +657,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeTwoway));
-                return proxy;
+                return newInstance(_reference.changeMode(IceInternal.Reference.Mode.ModeTwoway));
             }
         }
 
@@ -700,9 +674,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeOneway));
-                return proxy;
+                return newInstance(_reference.changeMode(IceInternal.Reference.Mode.ModeOneway));
             }
         }
 
@@ -719,9 +691,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeBatchOneway));
-                return proxy;
+                return newInstance(_reference.changeMode(IceInternal.Reference.Mode.ModeBatchOneway));
             }
         }
 
@@ -738,9 +708,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeDatagram));
-                return proxy;
+                return newInstance(_reference.changeMode(IceInternal.Reference.Mode.ModeDatagram));
             }
         }
 
@@ -757,9 +725,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(_reference.changeMode(IceInternal.Reference.Mode.ModeBatchDatagram));
-                return proxy;
+                return newInstance(_reference.changeMode(IceInternal.Reference.Mode.ModeBatchDatagram));
             }
         }
 
@@ -777,9 +743,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
+                return newInstance(@ref);
             }
         }
 
@@ -792,9 +756,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
+                return newInstance(@ref);
             }
         }
 
@@ -807,9 +769,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
+                return newInstance(@ref);
             }
         }
 
@@ -827,9 +787,7 @@ namespace Ice
             }
             else
             {
-                ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-                proxy.setup(@ref);
-                return proxy;
+                return newInstance(@ref);
             }
         }
 
@@ -1109,6 +1067,13 @@ namespace Ice
             Debug.Assert(_delegate == null);
 
             _reference = @ref;
+        }
+
+        private ObjectPrxHelperBase newInstance(IceInternal.Reference @ref)
+        {
+            ObjectPrxHelperBase proxy = (ObjectPrxHelperBase)Activator.CreateInstance(GetType());
+            proxy.setup(@ref);
+            return proxy;
         }
 
         protected static Dictionary<string, string> emptyContext_ = new Dictionary<string, string>();

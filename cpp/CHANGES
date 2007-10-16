@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Fixed an IceGrid descriptor bug where re-opening an unnamed property
+  set would cause multiple property definitions.
+
 - A number of proxy functions (ice_timeout(), ice_oneway() etc.) now
   return a proxy of the same type as the target. This way, you don't
   need to uncheckedCast the returned proxy. For example, you can now 

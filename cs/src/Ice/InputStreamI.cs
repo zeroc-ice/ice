@@ -123,7 +123,7 @@ namespace Ice
             return _is.readProxy();
         }
 
-        private class Patcher : IceInternal.Patcher
+        private class Patcher<T> : IceInternal.Patcher<T>
         {
             public Patcher(ReadObjectCallback cb)
             {
@@ -145,7 +145,7 @@ namespace Ice
 
         public void readObject(ReadObjectCallback cb)
         {
-            _is.readObject(new Patcher(cb));
+            _is.readObject(new Patcher<Ice.Object>(cb));
         }
 
         public string readTypeId()

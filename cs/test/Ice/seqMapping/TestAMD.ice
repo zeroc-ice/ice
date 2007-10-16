@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef TESTAMD_ICE
-#define TESTAMD_ICE
+#ifndef TEST_ICE
+#define TEST_ICE
 
 
 module Test
@@ -127,7 +127,13 @@ sequence<En> AEnS;
 ["clr:generic:Stack"] sequence<En> SEnS;
 ["clr:collection"] sequence<En> CEnS;
 
-[ "amd", "ami"] class MyClass
+["clr:generic:Custom"] sequence<int> CustomIntS;
+["clr:generic:Custom"] sequence<CV> CustomCVS;
+
+["clr:generic:Custom"] sequence<CustomIntS> CustomIntSS;
+["clr:generic:Custom"] sequence<CustomCVS> CustomCVSS;
+
+["ami", "amd"] class MyClass
 {
     void shutdown();
 
@@ -226,6 +232,12 @@ sequence<En> AEnS;
     QCVPrxS opQCVPrxS(QCVPrxS i, out QCVPrxS o);
     SCVPrxS opSCVPrxS(SCVPrxS i, out SCVPrxS o);
     CCVPrxS opCCVPrxS(CCVPrxS i, out CCVPrxS o);
+
+    CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
+    CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
+
+    CustomIntSS opCustomIntSS(CustomIntSS i, out CustomIntSS o);
+    CustomCVSS opCustomCVSS(CustomCVSS i, out CustomCVSS o);
 
 };
 

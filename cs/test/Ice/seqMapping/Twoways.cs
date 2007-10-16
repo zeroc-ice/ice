@@ -11,34 +11,6 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public class Custom<T> : IEnumerable<T>
-{
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
-
-    public IEnumerator<T> GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
-
-    public int Count
-    {
-        get
-        {
-            return _list.Count;
-        }
-    }
-
-    public void Add(T elmt)
-    {
-        _list.Add(elmt);
-    }
-
-    private List<T> _list = new List<T>();
-}
-
 class Twoways
 {
     private static void test(bool b)
@@ -1060,8 +1032,8 @@ class Twoways
             {
                 eo.MoveNext();
                 er.MoveNext();
-                test(obj.i == ((CV)eo.Current).i);
-                test(obj.i == ((CV)er.Current).i);
+                test(obj.i == eo.Current.i);
+                test(obj.i == er.Current.i);
             }
         }
 
@@ -1082,8 +1054,8 @@ class Twoways
             {
                 eo.MoveNext();
                 er.MoveNext();
-                test(obj.i == ((CV)eo.Current).i);
-                test(obj.i == ((CV)er.Current).i);
+                test(obj.i == eo.Current.i);
+                test(obj.i == er.Current.i);
             }
         }
 
@@ -1126,8 +1098,8 @@ class Twoways
             {
                 eo.MoveNext();
                 er.MoveNext();
-                test(obj.v.i == ((CR)eo.Current).v.i);
-                test(obj.v.i == ((CR)er.Current).v.i);
+                test(obj.v.i == eo.Current.v.i);
+                test(obj.v.i == er.Current.v.i);
             }
         }
 
@@ -1148,8 +1120,8 @@ class Twoways
             {
                 eo.MoveNext();
                 er.MoveNext();
-                test(obj.v.i == ((CR)eo.Current).v.i);
-                test(obj.v.i == ((CR)er.Current).v.i);
+                test(obj.v.i == eo.Current.v.i);
+                test(obj.v.i == er.Current.v.i);
             }
         }
 
@@ -1331,6 +1303,114 @@ class Twoways
 
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            Custom<int> i = new Custom<int>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(c);
+            }
+            Custom<int> o;
+            Custom<int> r;
+
+            r = p.opCustomIntS(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            Custom<CV> i = new Custom<CV>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CV(c));
+            }
+            i.Add(null);
+            Custom<CV> o;
+            Custom<CV> r;
+
+            r = p.opCustomCVS(i, out o);
+
+            IEnumerator<CV> eo = (IEnumerator<CV>)o.GetEnumerator();
+            IEnumerator<CV> er = (IEnumerator<CV>)r.GetEnumerator();
+            foreach(CV obj in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                if(obj == null)
+                {
+                    test(eo.Current == null);
+                    test(er.Current == null);
+                }
+                else
+                {
+                    test(obj.i == eo.Current.i);
+                    test(obj.i == er.Current.i);
+                }
+            }
+        }
+
+        {
+            Custom<Custom<int>> i = new Custom<Custom<int>>();
+            for(int c = 0; c < _length; ++c)
+            {
+                Custom<int> inner = new Custom<int>();
+                for(int j = 0; j < c; ++j)
+                {
+                    inner.Add(j);
+                }
+                i.Add(inner);
+            }
+            Custom<Custom<int>> o;
+            Custom<Custom<int>> r;
+
+            r = p.opCustomIntSS(i, out o);
+
+            test(Ice.CollectionComparer.Equals(i, o));
+            test(Ice.CollectionComparer.Equals(i, r));
+        }
+
+        {
+            Custom<Custom<CV>> i = new Custom<Custom<CV>>();
+            for(int c = 0; c < _length; ++c)
+            {
+                Custom<CV> inner = new Custom<CV>();
+                for(int j = 0; j < c; ++j)
+                {
+                    inner.Add(new CV(j));
+                }
+                i.Add(inner);
+            }
+            Custom<Custom<CV>> o;
+            Custom<Custom<CV>> r;
+
+            r = p.opCustomCVSS(i, out o);
+
+            IEnumerator<Custom<CV>> eo = (IEnumerator<Custom<CV>>)o.GetEnumerator();
+            IEnumerator<Custom<CV>> er = (IEnumerator<Custom<CV>>)r.GetEnumerator();
+            foreach(Custom<CV> s in i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                IEnumerator<CV> io = (IEnumerator<CV>)eo.Current.GetEnumerator();
+                IEnumerator<CV> ir = (IEnumerator<CV>)er.Current.GetEnumerator();
+                foreach(CV obj in s)
+                {
+                    io.MoveNext();
+                    ir.MoveNext();
+                    if(obj == null)
+                    {
+                        test(io.Current == null);
+                        test(ir.Current == null);
+                    }
+                    else
+                    {
+                        test(obj.i == io.Current.i);
+                        test(obj.i == ir.Current.i);
+                    }
+                }
+            }
         }
     }
 }

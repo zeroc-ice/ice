@@ -503,4 +503,30 @@ public sealed class MyClassI : Test.MyClass
         o = i;
         return i;
     }
+
+    public override Custom<int> opCustomIntS(Custom<int> i, out Custom<int> o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Custom<CV> opCustomCVS(Custom<CV> i, out Custom<CV> o, Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Custom<Custom<int>> opCustomIntSS(Custom<Custom<int>> i, out Custom<Custom<int>> o,
+                                                     Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
+
+    public override Custom<Custom<CV>> opCustomCVSS(Custom<Custom<CV>> i, out Custom<Custom<CV>> o,
+                                                     Ice.Current current)
+    {
+        o = i;
+        return i;
+    }
 }

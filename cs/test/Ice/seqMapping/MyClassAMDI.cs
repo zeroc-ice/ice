@@ -423,4 +423,24 @@ public sealed class MyClassI : MyClass
     {
         cb.ice_response(i, i);
     }
+
+    public override void opCustomIntS_async(AMD_MyClass_opCustomIntS cb, Custom<int> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCustomCVS_async(AMD_MyClass_opCustomCVS cb, Custom<CV> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCustomIntSS_async(AMD_MyClass_opCustomIntSS cb, Custom<Custom<int>> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
+
+    public override void opCustomCVSS_async(AMD_MyClass_opCustomCVSS cb, Custom<Custom<CV>> i, Ice.Current current)
+    {
+        cb.ice_response(i, i);
+    }
 }

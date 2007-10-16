@@ -14,77 +14,64 @@ using System.Diagnostics;
 
 namespace IceInternal
 {
-    public abstract class Patcher : Ice.ReadObjectCallback
+    public interface IPatcher
     {
-        public Patcher()
-        {
-        }
+        void patch(Ice.Object v);
+        string type();
+    }
 
-        public Patcher(Type type)
-        {
-            type_ = type;
-        }
-
+    public abstract class Patcher<T> : IPatcher, Ice.ReadObjectCallback
+    {
         public abstract void patch(Ice.Object v);
 
         public virtual string type()
         {
-            Debug.Assert(type_ != null);
-            return type_.FullName;
+            return typeof(T).FullName;
         }
 
         public virtual void invoke(Ice.Object v)
         {
             patch(v);
         }
-
-        protected Type type_;
     }
 
-    public sealed class ParamPatcher : Patcher
+    public sealed class ParamPatcher<T> : Patcher<T>
     {
-        public ParamPatcher(Type type, string expectedSliceType) : base(type)
-        {
-            _expectedSliceType = expectedSliceType;
-        }
-
         public override void patch(Ice.Object v)
         {
-            Debug.Assert(type_ != null);
-            if(v != null && !type_.IsInstanceOfType(v))
+            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new Ice.UnexpectedObjectException(
-                        "unexpected class instance of type `" + v.ice_id()
-                            + "'; expected instance of type '" + _expectedSliceType + "'",
-                        v.ice_id(), _expectedSliceType);
+                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
+                                                        " but received " + typeof(T).FullName,
+                                                        v.GetType().FullName, type());
             }
             value = v;
         }
 
         public Ice.Object value;
-        private string _expectedSliceType;
     }
 
-    public sealed class CustomSeqPatcher<T> : Patcher
+    public sealed class CustomSeqPatcher<T> : Patcher<T>
     {
-        public CustomSeqPatcher(IEnumerable<T> seq, Type type, int index) : base(type)
+        public CustomSeqPatcher(IEnumerable<T> seq, int index)
         {
            _seq = seq;
+           _seqType = seq.GetType();
            _index = index;
 
-           setInvokeInfo(seq);
+           setInvokeInfo(_seqType);
         }
 
         public override void patch(Ice.Object v)
         {
-            Debug.Assert(type_ != null);
-            if(v != null && !type_.IsInstanceOfType(v))
+            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new InvalidCastException("expected element of type " + type() +
-                                                      " but received " + v.GetType().FullName);
+                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
+                                                        " but received " + typeof(T).FullName,
+                                                        v.GetType().FullName, type());
             }
 
-            InvokeInfo info = getInvokeInfo(typeof(T));
+            InvokeInfo info = getInvokeInfo(_seqType);
             int count = info.getCount(_seq);
             if(_index >= count) // Need to grow the sequence.
             {
@@ -115,11 +102,10 @@ namespace IceInternal
             }
         }
 
-        private static void setInvokeInfo(IEnumerable<T> seq)
+        private static void setInvokeInfo(Type t)
         {
             lock(_methodTable)
             {
-                Type t = seq.GetType();
                 if(_methodTable.ContainsKey(t))
                 {
                     return;
@@ -131,7 +117,7 @@ namespace IceInternal
                     throw new Ice.MarshalException("Cannot patch a collection without an Add() method");
                 }
 
-                PropertyInfo pi = t.GetProperty("item");
+                PropertyInfo pi = t.GetProperty("Item");
                 if(pi == null)
                 {
                     throw new Ice.MarshalException("Cannot patch a collection without an indexer");
@@ -213,12 +199,13 @@ namespace IceInternal
         private static Dictionary<Type, InvokeInfo> _methodTable = new Dictionary<Type, InvokeInfo>();
 
         private IEnumerable<T> _seq;
+        private Type _seqType;
         private int _index; // The index at which to patch the sequence.
     }
 
-    public sealed class ArrayPatcher<T> : Patcher
+    public sealed class ArrayPatcher<T> : Patcher<T>
     {
-        public ArrayPatcher(T[] seq, Type type, int index) : base(type)
+        public ArrayPatcher(T[] seq, int index)
         {
             _seq = seq;
             _index = index;
@@ -226,11 +213,11 @@ namespace IceInternal
 
         public override void patch(Ice.Object v)
         {
-            Debug.Assert(type_ != null);
-            if(v != null && !type_.IsInstanceOfType(v))
+            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new InvalidCastException("expected element of type " + type() +
-                                                      " but received " + v.GetType().FullName);
+                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
+                                                        " but received " + typeof(T).FullName,
+                                                        v.GetType().FullName, type());
             }
 
             _seq[_index] = (T)v;
@@ -240,9 +227,9 @@ namespace IceInternal
         private int _index; // The index at which to patch the array.
     }
 
-    public sealed class SequencePatcher<T> : Patcher
+    public sealed class SequencePatcher<T> : Patcher<T>
     {
-        public SequencePatcher(Ice.CollectionBase<T> seq, Type type, int index) : base(type)
+        public SequencePatcher(Ice.CollectionBase<T> seq, int index)
         {
             _seq = seq;
             _index = index;
@@ -250,11 +237,11 @@ namespace IceInternal
 
         public override void patch(Ice.Object v)
         {
-            Debug.Assert(type_ != null);
-            if(v != null && !type_.IsInstanceOfType(v))
+            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new InvalidCastException("expected element of type " + type() +
-                                                      " but received " + v.GetType().FullName);
+                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
+                                                        " but received " + typeof(T).FullName,
+                                                        v.GetType().FullName, type());
             }
 
             int count = _seq.Count;
@@ -276,9 +263,9 @@ namespace IceInternal
         private int _index; // The index at which to patch the sequence.
     }
 
-    public sealed class ListPatcher<T> : Patcher
+    public sealed class ListPatcher<T> : Patcher<T>
     {
-        public ListPatcher(List<T> seq, Type type, int index) : base(type)
+        public ListPatcher(List<T> seq, int index)
         {
             _seq = seq;
             _index = index;
@@ -286,11 +273,11 @@ namespace IceInternal
 
         public override void patch(Ice.Object v)
         {
-            Debug.Assert(type_ != null);
-            if(v != null && !type_.IsInstanceOfType(v))
+            if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new InvalidCastException("expected element of type " + type() +
-                                                      " but received " + v.GetType().FullName);
+                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
+                                                        " but received " + typeof(T).FullName,
+                                                        v.GetType().FullName, type());
             }
 
             int count = _seq.Count;

@@ -673,7 +673,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         {
             _out << "new ";
         }
-        _out << "class Patcher__ : IceInternal.Patcher";
+        _out << "class Patcher__ : IceInternal.Patcher<" << name << ">";
         _out << sb;
         _out << sp << nl << "internal Patcher__(Ice.ObjectImpl instance";
         if(allClassMembers.size() > 1)
@@ -709,9 +709,8 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             }
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
             string memberType = typeToString((*d)->type());
-            _out << nl << "type_ = typeof(" << memberType << ");";
             _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-            _out << nl << "_typeId = \"" << (*d)->type()->typeId() << "\";";
+            _out << nl << "_typeId = \"" << memberType << "\";";
             if(allClassMembers.size() > 1)
             {
                 _out << nl << "break;";
@@ -1330,7 +1329,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp << nl << "public " << name << "Helper(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << "_in = inS__;";
-        _out << nl << "_pp = new IceInternal.ParamPatcher(typeof(" << scoped << "), \"" << p->scoped() << "\");";
+        _out << nl << "_pp = new IceInternal.ParamPatcher<" << scoped << ">();";
         _out << eb;
 
         _out << sp << nl << "public static void write(Ice.OutputStream outS__, " << fixId(name) << " v__)";
@@ -1352,7 +1351,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << eb;
 
         _out << sp << nl << "private Ice.InputStream _in;";
-        _out << nl << "private IceInternal.ParamPatcher _pp;";
+        _out << nl << "private IceInternal.ParamPatcher<" << scoped << "> _pp;";
 
         _out << eb;
     }
@@ -1956,7 +1955,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 _out << "new ";
             }
-            _out << "class Patcher__ : IceInternal.Patcher";
+            _out << "class Patcher__ : IceInternal.Patcher<" << name << ">";
             _out << sb;
             _out << sp << nl << "internal Patcher__(Ice.Exception instance";
             if(allClassMembers.size() > 1)
@@ -1992,9 +1991,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 }
                 string memberName = fixId((*q)->name(), DotNet::ApplicationException);
                 string memberType = typeToString((*q)->type());
-                _out << nl << "type_ = typeof(" << memberType << ");";
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                _out << nl << "_typeId = \"" << (*q)->type()->typeId() << "\";";
+                _out << nl << "_typeId = \"" << memberType << "\";";
                 if(allClassMembers.size() > 1)
                 {
                     _out << nl << "break;";
@@ -2357,7 +2355,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         if(isClass && classMembers.size() != 0)
         {
-            _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher";
+            _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << name << ">";
             _out << sb;
             _out << sp << nl << "internal Patcher__(" << name << " instance";
             if(classMembers.size() > 1)
@@ -2393,9 +2391,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 }
                 string memberType = typeToString((*q)->type());
                 string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
-                _out << nl << "type_ = typeof(" << memberType << ");";
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                _out << nl << "_typeId = \"" << (*q)->type()->typeId() << "\";";
+                _out << nl << "_typeId = \"" << memberType<< "\";";
                 if(classMembers.size() > 1)
                 {
                     _out << nl << "break;";
@@ -3396,6 +3393,39 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     }
 
     _out << eb;
+
+    string prefix = "clr:generic:";
+    string meta;
+    if(p->findMetaData(prefix, meta))
+    {
+        string type = meta.substr(prefix.size());
+        if(type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
+        {
+            return;
+        }
+        BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+        bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
+                        || ClassDeclPtr::dynamicCast(p->type());
+
+        if(!isClass)
+        {
+            return;
+        }
+
+        //
+        // The sequence is a custom sequence with elements of class type.
+        // Emit a dummy class that causes a compile-time error if the
+        // custom sequence type does not implement an indexer.
+        //
+        _out << sp << nl << "public class " << p->name() << "_Tester";
+        _out << sb;
+        _out << nl << p->name() << "_Tester()";
+        _out << sb;
+        _out << nl << typeS << " test = new " << typeS << "();";
+        _out << nl << "test[0] = null;";
+        _out << eb;
+        _out << eb;
+    }
 }
 
 void
@@ -3471,7 +3501,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-        _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher";
+        _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << name << ">";
         _out << sb;
         _out << sp << nl << "internal Patcher__(" << name << " m, " << keyS << " key)";
         _out << sb;
@@ -3481,7 +3511,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
         _out << sp << nl << "public override void" << nl << "patch(Ice.Object v)";
         _out << sb;
-        _out << nl << "type_ = typeof(" << typeToString(p->valueType()) << ");";
         _out << nl << "try";
         _out << sb;
         _out << nl << "_m[_key] = (" << valueS << ")v;";
@@ -3489,8 +3518,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _out << nl << "catch(System.InvalidCastException)";
         _out << sb;
         _out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-        _out << nl << "_e.type = v.ice_id();";
-        _out << nl << "_e.expectedType = \"" << value->typeId() << "\";";
+        _out << nl << "_e.type = v.GetType().FullName;";
+        _out << nl << "_e.expectedType = \"" << typeToString(p->valueType()) << "\";";
         _out << nl << "throw _e;";
         _out << eb;
         _out << eb;
@@ -3865,8 +3894,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << nl << retS << " ret__;";
                 ContainedPtr contained = ContainedPtr::dynamicCast(ret);
-                _out << nl << "IceInternal.ParamPatcher ret___PP = new IceInternal.ParamPatcher(typeof("
-                    << retS << "), \"" << (contained? contained->scoped() : string("::Ice::Object")) << "\");";
+                _out << nl << "IceInternal.ParamPatcher<" << retS << "> ret___PP = new IceInternal.ParamPatcher<"
+                     << retS << ">();";
                 _out << nl << "is__.readObject(ret___PP);";
             }
             else

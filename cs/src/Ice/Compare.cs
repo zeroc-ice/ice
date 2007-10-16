@@ -55,14 +55,14 @@ namespace Ice
         //
         public static bool Equals(System.Collections.IDictionary d1, System.Collections.IDictionary d2)
         {
-            bool result;
-            if(cheapComparison(d1, d2, out result))
-            {
-                return result;
-            }
-
 	    try
 	    {
+                bool result;
+                if(cheapComparison(d1, d2, out result))
+                {
+                    return result;
+                }
+
 		System.Collections.ICollection keys1 = d1.Keys;
 		foreach(object k in keys1)
 		{
@@ -105,22 +105,81 @@ namespace Ice
         //
         public static bool Equals(System.Collections.ICollection c1, System.Collections.ICollection c2)
         {
-            bool result;
-            if(cheapComparison(c1, c2, out result))
+            try
             {
-                return result;
-            }
-
-            System.Collections.IEnumerator e = c2.GetEnumerator();
-            foreach(object o in c1)
-            {
-                e.MoveNext();
-                if(!Equals(o, e.Current))
+                bool result;
+                if(cheapComparison(c1, c2, out result))
                 {
-                    return false;
+                    return result;
                 }
+
+                System.Collections.IEnumerator e = c2.GetEnumerator();
+                foreach(object o in c1)
+                {
+                    e.MoveNext();
+                    if(!Equals(o, e.Current))
+                    {
+                        return false;
+                    }
+                }
+                return true;
             }
-            return true;
+            catch(System.Exception)
+            {
+                return false;
+            }
+        }
+
+        //
+        // Compare two collections for equality (as implemented by the Equals() method of its elements).
+        // Order is significant.
+        //
+        public static bool Equals(System.Collections.IEnumerable c1, System.Collections.IEnumerable c2)
+        {
+            try
+            {
+                if(object.ReferenceEquals(c1, c2))
+                {
+                    return true; // Equal references means the collections are equal.
+                }
+                if(c1 == null || c2 == null)
+                {
+                    return false; // The references are not equal and one of them is null, so c1 and c2 are not equal.
+                }
+
+                System.Collections.IEnumerator e1 = c1.GetEnumerator();
+                System.Collections.IEnumerator e2 = c2.GetEnumerator();
+                while(e1.MoveNext())
+                {
+                    if(!e2.MoveNext())
+                    {
+                        return false; // c2 has fewer elements than c1.
+                    }
+                    if(e1.Current == null)
+                    {
+                        if(e2.Current != null)
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        if(!e1.Current.Equals(e2.Current))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                if(e2.MoveNext())
+                {
+                    return false; // c2 has more elements than c1.
+                }
+                return true;
+            }
+            catch(System.Exception)
+            {
+                return false;
+            }
         }
     }
 }

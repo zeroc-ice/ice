@@ -415,8 +415,8 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     if(isOutParam)
                     {
-                        out << nl << "IceInternal.ParamPatcher " << param
-                            << "_PP = new IceInternal.ParamPatcher(typeof(Ice.Object), \"::Ice::Object\");";
+                        out << nl << "IceInternal.ParamPatcher<Ice.Object> " << param
+                            << "_PP = new IceInternal.ParamPatcher<Ice.Object>();";
                         out << nl << stream << ".readObject(";
                         if(streamingAPI)
                         {
@@ -495,8 +495,8 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
             if(isOutParam)
             {
                 ContainedPtr contained = ContainedPtr::dynamicCast(type);
-                out << nl << "IceInternal.ParamPatcher " << param
-                    << "_PP = new IceInternal.ParamPatcher(typeof(" << typeToString(type) << "), \"" << contained->scoped() << "\");";
+                out << nl << "IceInternal.ParamPatcher<" << typeToString(type) << ">" << param
+                    << "_PP = new IceInternal.ParamPatcher<" << typeToString(type) << ">();";
                 out << nl << stream << ".readObject(";
                 if(streamingAPI)
                 {
@@ -802,8 +802,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             patcherName = "Sequence";
                         }
-                        out << "new IceInternal." << patcherName << "Patcher<" << typeS << ">("
-                            << param << ", typeof(Ice.Object), ix__));";
+                        out << "new IceInternal." << patcherName << "Patcher<Ice.Object>(" << param << ", ix__));";
                     }
                     else
                     {
@@ -996,7 +995,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 patcherName = "Sequence";
             }
             out << nl << "IceInternal." << patcherName << "Patcher<" << typeS << "> spx = new IceInternal."
-                << patcherName << "Patcher<" << typeS << ">(" << param << ", " << "typeof(" << typeS << "), ix__);";
+                << patcherName << "Patcher<" << typeS << ">(" << param << ", ix__);";
             out << nl << stream << ".readObject(";
             if(streamingAPI)
             {
