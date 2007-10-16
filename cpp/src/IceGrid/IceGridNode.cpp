@@ -537,16 +537,7 @@ NodeService::start(int argc, char* argv[])
                 throw "invalid registry";
             }
         
-            //
-            // Use SSL if available.
-            //
-            try
-            {
-                registry = RegistryPrx::checkedCast(registry->ice_secure(true));
-            }
-            catch(const Ice::NoEndpointException&)
-            {
-            }
+            registry = registry->ice_preferSecure(true); // Use SSL if available.
             
             IceGrid::AdminSessionPrx session;
             if(communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))

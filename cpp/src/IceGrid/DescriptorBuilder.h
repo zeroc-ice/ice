@@ -60,7 +60,6 @@ class PropertySetDescriptorBuilder : DescriptorBuilder
 public:
     
     PropertySetDescriptorBuilder();
-    PropertySetDescriptorBuilder(const PropertySetDescriptor&);
     
     void setId(const std::string&);
     void setService(const std::string&);

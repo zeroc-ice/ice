@@ -360,17 +360,8 @@ Client::run(int argc, char* argv[])
                 cerr << argv[0] << ": could not contact the default router:" << endl << ex << endl;
                 return EXIT_FAILURE;                
             }
-
-            // Use SSL if available.
-            try
-            {
-                Glacier2::RouterPrx secureRouter = router->ice_secure(true);
-                secureRouter->ice_ping();
-                router = secureRouter;
-            }
-            catch(const Ice::NoEndpointException&)
-            {
-            }
+            
+            router = router->ice_preferSecure(true); // Use SSL if available.
 
             if(ssl)
             {
@@ -483,16 +474,7 @@ Client::run(int argc, char* argv[])
                 }
             }
 
-            // Use SSL if available.
-            try
-            {
-                RegistryPrx secureRegistry = registry->ice_secure(true);
-                secureRegistry->ice_ping();
-                registry = secureRegistry;
-            }
-            catch(const Ice::NoEndpointException&)
-            {
-            }
+            registry = registry->ice_preferSecure(true); // Use SSL if available.
 
             if(ssl)
             {
