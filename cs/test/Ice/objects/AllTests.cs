@@ -178,8 +178,8 @@ public class AllTests
             }
             catch(Ice.UnexpectedObjectException ex)
             {
-                test(ex.type.Equals("::Test::AlsoEmpty"));
-                test(ex.expectedType.Equals("::Test::Empty"));
+                test(ex.type.Equals("Test.AlsoEmpty"));
+                test(ex.expectedType.Equals("Test.Empty"));
             }
             catch(System.Exception ex)
             {

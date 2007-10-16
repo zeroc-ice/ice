@@ -19,9 +19,6 @@ sequence<byte> AByteS;
 ["clr:generic:LinkedList"] sequence<byte> KByteS;
 ["clr:generic:Queue"] sequence<byte> QByteS;
 ["clr:generic:Stack"] sequence<byte> SByteS;
-/*
-["clr:generic:Custom"] sequence<byte> CustomByteS;
-*/
 ["clr:collection"] sequence<byte> CByteS;
 
 sequence<bool> ABoolS;
@@ -130,14 +127,11 @@ sequence<En> AEnS;
 ["clr:generic:Stack"] sequence<En> SEnS;
 ["clr:collection"] sequence<En> CEnS;
 
-/*
 ["clr:generic:Custom"] sequence<int> CustomIntS;
-["clr:generic:Custom"] sequence<Object> CustomObjectS;
+["clr:generic:Custom"] sequence<CV> CustomCVS;
 
-
-["clr:generic:Custom"] sequence<CustomIntS> CustomIntSeqSeq;
-["clr:generic:Custom"] sequence<CustomObjectS> CustomObjectSeqSeq;
-*/
+["clr:generic:Custom"] sequence<CustomIntS> CustomIntSS;
+["clr:generic:Custom"] sequence<CustomCVS> CustomCVSS;
 
 ["ami"] class MyClass
 {
@@ -148,9 +142,6 @@ sequence<En> AEnS;
     KByteS opKByteS(KByteS i, out KByteS o);
     QByteS opQByteS(QByteS i, out QByteS o);
     SByteS opSByteS(SByteS i, out SByteS o);
-    /*
-    CustomByteS opCustomByteS(CustomByteS i, out CustomByteS o);
-    */
     CByteS opCByteS(CByteS i, out CByteS o);
 
     ABoolS opABoolS(ABoolS i, out ABoolS o);
@@ -241,6 +232,12 @@ sequence<En> AEnS;
     QCVPrxS opQCVPrxS(QCVPrxS i, out QCVPrxS o);
     SCVPrxS opSCVPrxS(SCVPrxS i, out SCVPrxS o);
     CCVPrxS opCCVPrxS(CCVPrxS i, out CCVPrxS o);
+
+    CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
+    CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
+
+    CustomIntSS opCustomIntSS(CustomIntSS i, out CustomIntSS o);
+    CustomCVSS opCustomCVSS(CustomCVSS i, out CustomCVSS o);
 
 };
 

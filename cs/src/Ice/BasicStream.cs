@@ -718,7 +718,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count);
+                foreach(byte b in v)
+                {
+                    _buf.put(b);
+                }
             }
         }
 
@@ -833,7 +838,7 @@ namespace IceInternal
                 IEnumerator<bool> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    _buf.putBool(i.Current);
+                    writeBool(i.Current);
                 }
             }
             else if(v is Queue<bool>)
@@ -846,7 +851,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count);
+                foreach(bool b in v)
+                {
+                    writeBool(b);
+                }
             }
         }
 
@@ -974,7 +984,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count * 2);
+                foreach(short s in v)
+                {
+                    writeShort(s);
+                }
             }
         }
 
@@ -1102,7 +1117,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count * 4);
+                foreach(int i in v)
+                {
+                    writeInt(i);
+                }
             }
         }
         
@@ -1252,7 +1272,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count * 8);
+                foreach(long l in v)
+                {
+                    writeLong(l);
+                }
             }
         }
 
@@ -1402,7 +1427,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count * 4);
+                foreach(float f in v)
+                {
+                    writeFloat(f);
+                }
             }
         }
 
@@ -1552,7 +1582,12 @@ namespace IceInternal
             }
             else
             {
-                // TODO: custom types here
+                writeSize(count);
+                expand(count * 8);
+                foreach(double d in v)
+                {
+                    writeDouble(d);
+                }
             }
         }
         
@@ -1686,10 +1721,9 @@ namespace IceInternal
             writeSize(size);
             if(size != 0)
             {
-                IEnumerator<string> i = e.GetEnumerator();
-                while(i.MoveNext())
+                foreach(string s in e)
                 {
-                    writeString(i.Current);
+                    writeString(s);
                 }
             }
         }
@@ -1880,7 +1914,7 @@ namespace IceInternal
             }
         }
         
-        public virtual void readObject(IceInternal.Patcher patcher)
+        public virtual void readObject(IceInternal.IPatcher patcher)
         {
             Ice.Object v = null;
             
@@ -2253,7 +2287,7 @@ namespace IceInternal
             //
             // Patch all references that refer to the instance.
             //
-            foreach(IceInternal.Patcher patcher in patchlist)
+            foreach(IceInternal.IPatcher patcher in patchlist)
             {
                 try
                 {

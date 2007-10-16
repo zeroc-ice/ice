@@ -89,6 +89,7 @@ tests = [ \
     "Ice/servantLocator", \
     "Ice/interceptor", \
     "Ice/dictMapping", \
+    "Ice/seqMapping", \
     "IceSSL/configuration", \
     "Ice/threads", \
     "Glacier2/router", \

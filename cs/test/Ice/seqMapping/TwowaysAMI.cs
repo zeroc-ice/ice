@@ -2392,6 +2392,156 @@ public class TwowaysAMI
         private Callback callback = new Callback();
     }
 
+    private class AMI_MyClass_opCustomIntSI : Test.AMI_MyClass_opCustomIntS
+    {
+        public AMI_MyClass_opCustomIntSI(Custom<int> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(Custom<int> r, Custom<int> o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Custom<int> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opCustomCVSI : Test.AMI_MyClass_opCustomCVS
+    {
+        public AMI_MyClass_opCustomCVSI(Custom<CV> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(Custom<CV> r, Custom<CV> o)
+        {
+            IEnumerator<CV> eo = (IEnumerator<CV>)o.GetEnumerator();
+            IEnumerator<CV> er = (IEnumerator<CV>)r.GetEnumerator();
+            foreach(CV obj in _i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                if(obj == null)
+                {
+                    test(eo.Current == null);
+                    test(er.Current == null);
+                }
+                else
+                {
+                    test(obj.i == ((CV)eo.Current).i);
+                    test(obj.i == ((CV)er.Current).i);
+                }
+            }
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Custom<CV> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opCustomIntSSI : Test.AMI_MyClass_opCustomIntSS
+    {
+        public AMI_MyClass_opCustomIntSSI(Custom<Custom<int>> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(Custom<Custom<int>> r, Custom<Custom<int>> o)
+        {
+            test(Ice.CollectionComparer.Equals(_i, o));
+            test(Ice.CollectionComparer.Equals(_i, r));
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Custom<Custom<int>> _i;
+        private Callback callback = new Callback();
+    }
+
+    private class AMI_MyClass_opCustomCVSSI : Test.AMI_MyClass_opCustomCVSS
+    {
+        public AMI_MyClass_opCustomCVSSI(Custom<Custom<CV>> i)
+        {
+            _i = i;
+        }
+
+        public override void ice_response(Custom<Custom<CV>> r, Custom<Custom<CV>> o)
+        {
+            IEnumerator<Custom<CV>> eo = (IEnumerator<Custom<CV>>)o.GetEnumerator();
+            IEnumerator<Custom<CV>> er = (IEnumerator<Custom<CV>>)r.GetEnumerator();
+            foreach(Custom<CV> s in _i)
+            {
+                eo.MoveNext();
+                er.MoveNext();
+                IEnumerator<CV> io = (IEnumerator<CV>)eo.Current.GetEnumerator();
+                IEnumerator<CV> ir = (IEnumerator<CV>)er.Current.GetEnumerator();
+                foreach(CV obj in s)
+                {
+                    io.MoveNext();
+                    ir.MoveNext();
+                    if(obj == null)
+                    {
+                        test(io.Current == null);
+                        test(ir.Current == null);
+                    }
+                    else
+                    {
+                        test(obj.i == io.Current.i);
+                        test(obj.i == ir.Current.i);
+                    }
+                }
+            }
+            callback.called();
+        }
+
+        public override void ice_exception(Ice.Exception ex)
+        {
+            test(false);
+        }
+
+        public virtual bool check()
+        {
+            return callback.check();
+        }
+
+        private Custom<Custom<CV>> _i;
+        private Callback callback = new Callback();
+    }
+
+
     static int _length = 100;
 
     internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
@@ -3365,6 +3515,64 @@ public class TwowaysAMI
 
             AMI_MyClass_opCEnSI cb = new AMI_MyClass_opCEnSI(i);
             p.opCEnS_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Custom<int> i = new Custom<int>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(c);
+            }
+
+            AMI_MyClass_opCustomIntSI cb = new AMI_MyClass_opCustomIntSI(i);
+            p.opCustomIntS_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Custom<CV> i = new Custom<CV>();
+            for(int c = 0; c < _length; ++c)
+            {
+                i.Add(new CV(c));
+            }
+
+            AMI_MyClass_opCustomCVSI cb = new AMI_MyClass_opCustomCVSI(i);
+            p.opCustomCVS_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Custom<Custom<int>> i = new Custom<Custom<int>>();
+            for(int c = 0; c < _length; ++c)
+            {
+                Custom<int> inner = new Custom<int>();
+                for(int j = 0; j < c; ++j)
+                {
+                    inner.Add(j);
+                }
+                i.Add(inner);
+            }
+
+            AMI_MyClass_opCustomIntSSI cb = new AMI_MyClass_opCustomIntSSI(i);
+            p.opCustomIntSS_async(cb, i);
+            test(cb.check());
+        }
+
+        {
+            Custom<Custom<CV>> i = new Custom<Custom<CV>>();
+            for(int c = 0; c < _length; ++c)
+            {
+                Custom<CV> inner = new Custom<CV>();
+                for(int j = 0; j < c; ++j)
+                {
+                    inner.Add(new CV(j));
+                }
+                i.Add(inner);
+            }
+
+            AMI_MyClass_opCustomCVSSI cb = new AMI_MyClass_opCustomCVSSI(i);
+            p.opCustomCVSS_async(cb, i);
             test(cb.check());
         }
     }
