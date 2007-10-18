@@ -1034,7 +1034,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         out << eb;
         out << nl << "catch(ClassCastException ex)";
         out << sb;
-        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
+        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
         out << eb;
         out << eb;
 
@@ -2079,7 +2079,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
             out << nl << "catch(ClassCastException ex)";
             out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
             out << eb;
             out << eb;
 
@@ -2485,7 +2485,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             out << eb;
             out << nl << "catch(ClassCastException ex)";
             out << sb;
-            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
             out << eb;
             out << eb;
 
@@ -3223,7 +3223,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
                 out << eb;
                 out << nl << "catch(ClassCastException ex)";
                 out << sb;
-                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
+                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
                 out << eb;
                 out << eb;
 
