@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-class Ex
+public class Ex
 {
     public static void throwUOE(String expectedType, String actualType)
     {

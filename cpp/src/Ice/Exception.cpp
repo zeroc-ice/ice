@@ -18,6 +18,25 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace IceInternal
+{
+
+namespace Ex
+{
+
+void
+throwUOE(const string& expectedType, const string& actualType)
+{
+    throw Ice::UnexpectedObjectException(__FILE__, __LINE__,
+                                         "expected element of type `" + expectedType + "' but received '" + actualType,
+                                         actualType, expectedType);
+}
+
+}
+
+}
+
+
 bool
 Ice::UserException::__usesClasses() const
 {
