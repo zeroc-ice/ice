@@ -675,12 +675,12 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         }
         _out << "class Patcher__ : IceInternal.Patcher<" << name << ">";
         _out << sb;
-        _out << sp << nl << "internal Patcher__(Ice.ObjectImpl instance";
+        _out << sp << nl << "internal Patcher__(string type, Ice.ObjectImpl instance";
         if(allClassMembers.size() > 1)
         {
             _out << ", int member";
         }
-        _out << ")";
+        _out << ") : base(type)";
         _out << sb;
         _out << nl << "_instance = (" << name << ")instance;";
         if(allClassMembers.size() > 1)
@@ -710,7 +710,9 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
             string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
             string memberType = typeToString((*d)->type());
             _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-            _out << nl << "_typeId = \"" << memberType << "\";";
+            ContainedPtr contained = ContainedPtr::dynamicCast((*d)->type());
+            string sliceId = contained ? contained->scoped() : "::Ice::Object";
+            _out << nl << "_typeId = \"" << sliceId << "\";";
             if(allClassMembers.size() > 1)
             {
                 _out << nl << "break;";
@@ -724,10 +726,7 @@ Slice::CsVisitor::writeDispatchAndMarshalling(const ClassDefPtr& p, bool stream)
         _out << eb;
         _out << nl << "catch(System.InvalidCastException)";
         _out << sb;
-        _out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-        _out << nl << "_e.type = v.ice_id();";
-        _out << nl << "_e.expectedType = _typeId;";
-        _out << nl << "throw _e;";
+        _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
         _out << eb;
         _out << eb;
 
@@ -1329,7 +1328,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << sp << nl << "public " << name << "Helper(Ice.InputStream inS__)";
         _out << sb;
         _out << nl << "_in = inS__;";
-        _out << nl << "_pp = new IceInternal.ParamPatcher<" << scoped << ">();";
+        _out << nl << "_pp = new IceInternal.ParamPatcher<" << scoped << ">(\"" << p->scoped() << "\");";
         _out << eb;
 
         _out << sp << nl << "public static void write(Ice.OutputStream outS__, " << fixId(name) << " v__)";
@@ -1957,12 +1956,12 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             }
             _out << "class Patcher__ : IceInternal.Patcher<" << name << ">";
             _out << sb;
-            _out << sp << nl << "internal Patcher__(Ice.Exception instance";
+            _out << sp << nl << "internal Patcher__(string type, Ice.Exception instance";
             if(allClassMembers.size() > 1)
             {
                 _out << ", int member";
             }
-            _out << ")";
+            _out << ") : base(type)";
             _out << sb;
             _out << nl << "_instance = (" << name << ")instance;";
             if(allClassMembers.size() > 1)
@@ -1992,7 +1991,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 string memberName = fixId((*q)->name(), DotNet::ApplicationException);
                 string memberType = typeToString((*q)->type());
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                _out << nl << "_typeId = \"" << memberType << "\";";
+                ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
+                string sliceId = contained ? contained->scoped() : "::Ice::Object";
+                _out << nl << "_typeId = \"" << sliceId << "\";";
                 if(allClassMembers.size() > 1)
                 {
                     _out << nl << "break;";
@@ -2006,10 +2007,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << eb;
             _out << nl << "catch(System.InvalidCastException)";
             _out << sb;
-            _out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-            _out << nl << "_e.type = v.ice_id();";
-            _out << nl << "_e.expectedType = _typeId;";
-            _out << nl << "throw _e;";
+            _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
             _out << eb;
             _out << eb;
 
@@ -2376,12 +2374,12 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         {
             _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << name << ">";
             _out << sb;
-            _out << sp << nl << "internal Patcher__(" << name << " instance";
+            _out << sp << nl << "internal Patcher__(string type, " << name << " instance";
             if(classMembers.size() > 1)
             {
                 _out << ", int member";
             }
-            _out << ")";
+            _out << ") : base(type)";
             _out << sb;
             _out << nl << "_instance = instance;";
             if(classMembers.size() > 1)
@@ -2411,7 +2409,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 string memberType = typeToString((*q)->type());
                 string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
                 _out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
-                _out << nl << "_typeId = \"" << memberType<< "\";";
+                ContainedPtr contained = ContainedPtr::dynamicCast((*q)->type());
+                string sliceId = contained ? contained->scoped() : "::Ice::Object";
+                _out << nl << "_typeId = \"" << sliceId << "\";";
                 if(classMembers.size() > 1)
                 {
                     _out << nl << "break;";
@@ -2425,10 +2425,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             _out << eb;
             _out << nl << "catch(System.InvalidCastException)";
             _out << sb;
-            _out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-            _out << nl << "_e.type = v.ice_id();";
-            _out << nl << "_e.expectedType = _typeId;";
-            _out << nl << "throw _e;";
+            _out << nl << "IceInternal.Ex.throwUOE(_typeId, v.ice_id());";
             _out << eb;
             _out << eb;
 
@@ -3520,9 +3517,10 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-        _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << name << ">";
+        string expectedType = ContainedPtr::dynamicCast(value)->scoped();
+        _out << sp << nl << "public sealed class Patcher__ : IceInternal.Patcher<" << valueS << ">";
         _out << sb;
-        _out << sp << nl << "internal Patcher__(" << name << " m, " << keyS << " key)";
+        _out << sp << nl << "internal Patcher__(string type, " << name << " m, " << keyS << " key) : base(type)";
         _out << sb;
         _out << nl << "_m = m;";
         _out << nl << "_key = key;";
@@ -3536,10 +3534,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         _out << eb;
         _out << nl << "catch(System.InvalidCastException)";
         _out << sb;
-        _out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-        _out << nl << "_e.type = v.GetType().FullName;";
-        _out << nl << "_e.expectedType = \"" << typeToString(p->valueType()) << "\";";
-        _out << nl << "throw _e;";
+        _out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
         _out << eb;
         _out << eb;
 
@@ -3913,8 +3908,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << nl << retS << " ret__;";
                 ContainedPtr contained = ContainedPtr::dynamicCast(ret);
+                string sliceId = contained ? contained->scoped() : "::Ice::Object";
                 _out << nl << "IceInternal.ParamPatcher<" << retS << "> ret___PP = new IceInternal.ParamPatcher<"
-                     << retS << ">();";
+                     << retS << ">(\"" << sliceId << "\");";
                 _out << nl << "is__.readObject(ret___PP);";
             }
             else
@@ -3951,10 +3947,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                     _out << eb;
                     _out << nl << "catch(System.InvalidCastException)";
                     _out << sb;
-                    _out << nl << "Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException();";
-                    _out << nl << "ex.type = " << param << "_PP.value.ice_id();";
-                    _out << nl << "ex.expectedType = \"" << q->first->typeId() << "\";";
-                    _out << nl << "throw ex;";
+                    _out << nl << param << " = null;";
+                    _out << nl << "IceInternal.Ex.throwUOE(" << param << "_PP.type(), "
+                         << param << "_PP.value.ice_id());";
                     _out << eb;
                 }
             }
@@ -3970,10 +3965,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << eb;
                 _out << nl << "catch(System.InvalidCastException)";
                 _out << sb;
-                _out << nl << "Ice.UnexpectedObjectException ex = new Ice.UnexpectedObjectException();";
-                _out << nl << "ex.type = ret___PP.value.ice_id();";
-                _out << nl << "ex.expectedType = \"" << ret->typeId() << "\";";
-                _out << nl << "throw ex;";
+                _out << nl << "ret__ = null;";
+                _out << nl << "IceInternal.Ex.throwUOE(ret___PP.type(), ret___PP.value.ice_id());";
                 _out << eb;
             }
             _out << nl << "return ret__;";

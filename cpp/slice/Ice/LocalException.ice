@@ -818,14 +818,14 @@ local exception UnexpectedObjectException extends MarshalException
 {
     /**
      *
-     * The type of the class instance that was unmarshaled.
+     * The Slice type ID of the class instance that was unmarshaled.
      *
      **/
     string type;
 
     /**
      *
-     * The type that was excepted by the receiving operation.
+     * The Slice type ID that was expected by the receiving operation.
      *
      **/
     string expectedType;

@@ -125,7 +125,7 @@ namespace Ice
 
         private class Patcher<T> : IceInternal.Patcher<T>
         {
-            public Patcher(ReadObjectCallback cb)
+            public Patcher(ReadObjectCallback cb) : base("unknown")
             {
                 _cb = cb;
             }
@@ -133,11 +133,6 @@ namespace Ice
             public override void patch(Ice.Object v)
             {
                 _cb.invoke(v);
-            }
-
-            public override string type()
-            {
-                return "unknown";
             }
 
             ReadObjectCallback _cb;

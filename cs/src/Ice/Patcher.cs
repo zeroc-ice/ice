@@ -22,28 +22,37 @@ namespace IceInternal
 
     public abstract class Patcher<T> : IPatcher, Ice.ReadObjectCallback
     {
+        public Patcher(string type)
+        {
+            _type = type;
+        }
+
         public abstract void patch(Ice.Object v);
 
         public virtual string type()
         {
-            return typeof(T).FullName;
+            return _type;
         }
 
         public virtual void invoke(Ice.Object v)
         {
             patch(v);
         }
+
+        private string _type;
     }
 
     public sealed class ParamPatcher<T> : Patcher<T>
     {
+        public ParamPatcher(string type) : base(type)
+        {
+        }
+
         public override void patch(Ice.Object v)
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
-                                                        " but received " + typeof(T).FullName,
-                                                        v.GetType().FullName, type());
+                IceInternal.Ex.throwUOE(type(), v.ice_id());
             }
             value = v;
         }
@@ -53,7 +62,7 @@ namespace IceInternal
 
     public sealed class CustomSeqPatcher<T> : Patcher<T>
     {
-        public CustomSeqPatcher(IEnumerable<T> seq, int index)
+        public CustomSeqPatcher(string type, IEnumerable<T> seq, int index) : base(type)
         {
            _seq = seq;
            _seqType = seq.GetType();
@@ -66,9 +75,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
-                                                        " but received " + typeof(T).FullName,
-                                                        v.GetType().FullName, type());
+                IceInternal.Ex.throwUOE(type(), v.ice_id());
             }
 
             InvokeInfo info = getInvokeInfo(_seqType);
@@ -205,7 +212,7 @@ namespace IceInternal
 
     public sealed class ArrayPatcher<T> : Patcher<T>
     {
-        public ArrayPatcher(T[] seq, int index)
+        public ArrayPatcher(string type, T[] seq, int index) : base(type)
         {
             _seq = seq;
             _index = index;
@@ -215,9 +222,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
-                                                        " but received " + typeof(T).FullName,
-                                                        v.GetType().FullName, type());
+                IceInternal.Ex.throwUOE(type(), v.ice_id());
             }
 
             _seq[_index] = (T)v;
@@ -229,7 +234,7 @@ namespace IceInternal
 
     public sealed class SequencePatcher<T> : Patcher<T>
     {
-        public SequencePatcher(Ice.CollectionBase<T> seq, int index)
+        public SequencePatcher(string type, Ice.CollectionBase<T> seq, int index) : base(type)
         {
             _seq = seq;
             _index = index;
@@ -239,9 +244,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
-                                                        " but received " + typeof(T).FullName,
-                                                        v.GetType().FullName, type());
+                IceInternal.Ex.throwUOE(type(), v.ice_id());
             }
 
             int count = _seq.Count;
@@ -265,7 +268,7 @@ namespace IceInternal
 
     public sealed class ListPatcher<T> : Patcher<T>
     {
-        public ListPatcher(List<T> seq, int index)
+        public ListPatcher(string type, List<T> seq, int index) : base(type)
         {
             _seq = seq;
             _index = index;
@@ -275,9 +278,7 @@ namespace IceInternal
         {
             if(v != null && !typeof(T).IsAssignableFrom(v.GetType()))
             {
-                throw new Ice.UnexpectedObjectException("expected element of type " + type() +
-                                                        " but received " + typeof(T).FullName,
-                                                        v.GetType().FullName, type());
+                IceInternal.Ex.throwUOE(type(), v.ice_id());
             }
 
             int count = _seq.Count;

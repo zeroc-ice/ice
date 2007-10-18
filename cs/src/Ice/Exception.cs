@@ -9,6 +9,19 @@
 
 using System.Diagnostics;
 
+namespace IceInternal
+{
+    public class Ex
+    {
+        public static void throwUOE(string expectedType, string actualType)
+        {
+            throw new Ice.UnexpectedObjectException(
+                        "expected element of type `" + expectedType + "' but received '" + actualType,
+                        actualType, expectedType);
+        }
+    }
+}
+
 namespace Ice
 {
 
