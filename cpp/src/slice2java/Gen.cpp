@@ -1034,10 +1034,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         out << eb;
         out << nl << "catch(ClassCastException ex)";
         out << sb;
-        out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-        out << nl << "_e.type = v.ice_id();";
-        out << nl << "_e.expectedType = type();";
-        out << nl << "throw _e;";
+        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
         out << eb;
         out << eb;
 
@@ -2082,10 +2079,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
             out << nl << "catch(ClassCastException ex)";
             out << sb;
-            out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-            out << nl << "_e.type = v.ice_id();";
-            out << nl << "_e.expectedType = type();";
-            out << nl << "throw _e;";
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
             out << eb;
             out << eb;
 
@@ -2491,10 +2485,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             out << eb;
             out << nl << "catch(ClassCastException ex)";
             out << sb;
-            out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-            out << nl << "_e.type = v.ice_id();";
-            out << nl << "_e.expectedType = type();";
-            out << nl << "throw _e;";
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
             out << eb;
             out << eb;
 
@@ -3232,10 +3223,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
                 out << eb;
                 out << nl << "catch(ClassCastException ex)";
                 out << sb;
-                out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-                out << nl << "_e.type = v.ice_id();";
-                out << nl << "_e.expectedType = type();";
-                out << nl << "throw _e;";
+                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());
                 out << eb;
                 out << eb;
 
