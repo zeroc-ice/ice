@@ -10,7 +10,6 @@
 Imports System.Diagnostics
 
 Public Class ObjectFactory
-    Inherits Ice.LocalObjectImpl
     Implements Ice.ObjectFactory
 
     Public Overloads Function create(ByVal type As String) As Ice.Object Implements Ice.ObjectFactory.create

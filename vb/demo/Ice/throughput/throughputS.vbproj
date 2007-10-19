@@ -70,21 +70,13 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="icecs">
-      <Name>icecs</Name>
+    <Reference Include="icecs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\icecs.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
-    <ProjectReference Include="throughputCommon.vbproj">
-      <Name>throughputCommon</Name>
-      <Project>{93030D8A-FD38-4445-80BE-13BDCA62349F}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -99,6 +91,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="throughputSlice.csproj">
+      <Project>{992E54B2-1EB6-4EA8-A73D-4B02E501CD81}</Project>
+      <Name>throughputSlice</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

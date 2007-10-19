@@ -81,11 +81,6 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <ProjectReference Include="helloIceBoxCommon.vbproj">
-      <Name>helloIceBoxCommon</Name>
-      <Project>{54B6C934-DFDD-453F-AD83-98556D36B69B}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -100,6 +95,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="helloIceBoxSlice.csproj">
+      <Project>{9D898733-2836-4D69-854E-7C93C8C1CFAF}</Project>
+      <Name>helloIceBoxSlice</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

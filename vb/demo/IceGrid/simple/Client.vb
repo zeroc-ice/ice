@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports SimpleIceGrid.Demo
+Imports Demo
 
 Module SimpleIceGridC
 

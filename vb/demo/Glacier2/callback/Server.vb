@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Imports glacier2demo.Demo
+Imports Demo
 
 Module Glacier2callbackS
     Class Server

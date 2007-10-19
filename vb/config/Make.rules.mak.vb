@@ -57,32 +57,44 @@ VBCFLAGS = -warnaserror
 VBCFLAGS 		= $(VBCFLAGS) -debug+ -define:DEBUG=yes
 !endif
 
-!if "$(OPTIMIZE)" == "yes"
-VBCFLAGS 		= $(VBCFLAGS) -optimize+
+MCS			= csc -nologo
+
+MCSFLAGS = -warnaserror -d:MAKEFILE_BUILD
+!if "$(DEBUG)" == "yes"
+MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 !endif
 
-SLICE2VB		= "$(ICE_HOME)\bin\slice2vb"
+!if "$(OPTIMIZE)" == "yes"
+MCSFLAGS 		= $(MCSFLAGS) -optimize+
+!endif
+
+SLICE2CS		= "$(ICE_HOME)\bin\slice2cs"
 
 EVERYTHING		= all clean depend config
 
 .SUFFIXES:
-.SUFFIXES:		.vb .ice
+.SUFFIXES:		.cs .vb .ice
 
-.ice.vb:
-	$(SLICE2VB) $(SLICE2VBFLAGS) $<
+.ice.cs:
+	$(SLICE2CS) $(SLICE2CSFLAGS) $<
 
-{$(SDIR)\}.ice{$(GDIR)}.vb:
-	$(SLICE2VB) --output-dir $(GDIR) $(SLICE2VBFLAGS) $<
+{$(SDIR)\}.ice{$(GDIR)}.cs:
+	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
 
-all:: $(TARGETS)
+all:: $(TARGETS) $(SLICE_ASSEMBLY)
+
+!if "$(SLICE_ASSEMBLY)" != ""
+$(SLICE_ASSEMBLY): $(GEN_SRCS)
+        $(MCS) -target:library -out:$@ -r:$(csbindir)\icecs.dll $(GEN_SRCS)
+!endif
 
 clean::
-	del /q $(TARGETS) *.pdb
+	del /q $(TARGETS) $(SLICE_ASSEMBLY) *.pdb
 
 
 !if "$(SLICE_SRCS)" != ""
 depend::
-	$(SLICE2VB) --depend $(SLICE2VBFLAGS) $(SLICE_SRCS) | python $(top_srcdir)\config\makedepend.py > .depend
+	$(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | python $(top_srcdir)\config\makedepend.py > .depend
 !else
 depend::
 !endif

@@ -6,7 +6,7 @@
 ' ICE_LICENSE file included in this distribution.
 '
 ' **********************************************************************
-Imports Minimal.Demo
+Imports Demo
 
 Public NotInheritable Class HelloI
     Inherits HelloDisp_

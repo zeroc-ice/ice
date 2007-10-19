@@ -14,9 +14,11 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.vb
 S_SRCS		= HelloI.vb ReapThread.vb Server.vb SessionFactoryI.vb SessionI.vb
 
-GEN_SRCS	= $(GDIR)\Session.vb
+GEN_SRCS	= $(GDIR)\Session.cs
 
 SLICE_SRCS	= $(SDIR)/Session.ice
+
+SLICE_ASSEMBLY  = sessionSlice.dll
 
 SDIR		= .
 
@@ -26,10 +28,10 @@ GDIR		= generated
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:SessionDemo
 
-client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
-server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(S_SRCS) $(GEN_SRCS)
+server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend

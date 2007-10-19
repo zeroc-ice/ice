@@ -70,21 +70,13 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="icecs">
-      <Name>icecs</Name>
+    <Reference Include="icecs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\icecs.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
-    <ProjectReference Include="minimalCommon.vbproj">
-      <Name>minimalCommon</Name>
-      <Project>{1CAE2E1F-5089-4026-93A8-AFCF8183539D}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -99,6 +91,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="minimalSlice.csproj">
+      <Project>{88969902-914A-4FB0-A7A4-72AD07EA102F}</Project>
+      <Name>minimalSlice</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

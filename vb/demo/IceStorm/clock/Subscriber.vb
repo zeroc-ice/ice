@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports System.Collections
+Imports System.Collections.Generic
 Imports Demo
 
 Public Class ClockI
@@ -88,7 +88,7 @@ Module ClockS
 
             Dim subscriber As Ice.ObjectPrx = adapter.addWithUUID(New ClockI)
 
-            Dim qos As IceStorm.Qos = New IceStorm.Qos
+            Dim qos As Dictionary(Of String, String) = New Dictionary(Of String, String)()
 
 	    '
 	    ' Set up the proxy.

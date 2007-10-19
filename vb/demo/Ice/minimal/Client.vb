@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports Minimal.Demo
+Imports Demo
 
 Module MinimalC
 

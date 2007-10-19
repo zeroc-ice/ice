@@ -14,9 +14,11 @@ TARGETS		= client.exe helloservice.dll
 C_SRCS		= Client.vb
 S_SRCS		= HelloI.vb HelloServiceI.vb
 
-GEN_SRCS	= $(GDIR)\Hello.vb
+GEN_SRCS	= $(GDIR)\Hello.cs
 
 SLICE_SRCS	= $(SDIR)/Hello.ice
+
+SLICE_ASSEMBLY  = helloIceBoxSlice.dll
 
 SDIR		= .
 
@@ -26,11 +28,11 @@ GDIR		= generated
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:HelloIceBox
 
-client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
-helloservice.dll: $(S_SRCS) $(GEN_SRCS)
+helloservice.dll: $(S_SRCS) $(SLICE_ASSEMBLY)
 	$(VBC) $(VBCFLAGS) -target:library -out:$@ -r:$(csbindir)\iceboxcs.dll -r:$(csbindir)\icecs.dll \
-		$(S_SRCS) $(GEN_SRCS)
+		-r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend

@@ -77,14 +77,6 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
-    <ProjectReference Include="printerCommon.vbproj">
-      <Name>printerCommon</Name>
-      <Project>{5F9AA7BE-B1C1-488F-AB67-6E742F2FCCBE}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -96,6 +88,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="printerSlice.csproj">
+      <Project>{5114D39A-6EC0-4869-B43A-A85FDF899D12}</Project>
+      <Name>printerSlice</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

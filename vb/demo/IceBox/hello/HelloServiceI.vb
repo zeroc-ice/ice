@@ -10,12 +10,11 @@
 Module HelloIceBoxS
 
     Public Class HelloServiceI
-        Inherits Ice.LocalObjectImpl
         Implements IceBox.Service
 
         Public Overridable Sub start(ByVal name As String, ByVal communicator As Ice.Communicator, ByVal args() As String) Implements IceBox.Service.start
             _adapter = communicator.createObjectAdapter(name)
-            _adapter.add(new HelloI(), communicator.stringToIdentity("hello"))
+            _adapter.add(New HelloI(), communicator.stringToIdentity("hello"))
             _adapter.activate()
         End Sub
 

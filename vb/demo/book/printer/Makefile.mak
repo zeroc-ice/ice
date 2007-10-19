@@ -14,9 +14,11 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.vb
 S_SRCS		= Server.vb
 
-GEN_SRCS	= $(GDIR)\Printer.vb
+GEN_SRCS	= $(GDIR)\Printer.cs
 
 SLICE_SRCS	= $(SDIR)/Printer.ice
+
+SLICE_ASSEMBLY  = printerSlice.dll
 
 SDIR		= .
 
@@ -24,12 +26,12 @@ GDIR		= generated
 
 !include $(top_srcdir)\config\Make.rules.mak.vb
 
-VBCFLAGS	= $(VBCFLAGS) -target:exe -rootnamespace:PrinterDemo
+VBCFLAGS	= $(VBCFLAGS) -target:exe
 
-client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
-server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(S_SRCS) $(GEN_SRCS)
+server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend

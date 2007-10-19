@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Imports SimpleIceGrid.Demo
+Imports Demo
 
 Public Class HelloI
     Inherits HelloDisp_

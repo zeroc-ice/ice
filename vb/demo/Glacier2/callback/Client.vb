@@ -7,9 +7,9 @@
 '
 ' **********************************************************************
 
-Imports glacier2demo.Demo
+Imports Demo
 Imports System
-Imports System.Collections
+Imports System.Collections.Generic
 
 Module Glacier2callbackC
     Class Client
@@ -100,21 +100,21 @@ Module Glacier2callbackC
                         Exit Do
                     End If
                     If line.Equals("t") Then
-                        Dim context As Ice.Context = New Ice.Context
+                        Dim context As Dictionary(Of String, String) = New Dictionary(Of String, String)()
                         context("_fwd") = "t"
                         If Not override Is Nothing Then
                             context("_ovrd") = override
                         End If
                         twoway.initiateCallback(twowayR, context)
                     ElseIf line.Equals("o") Then
-                        Dim context As Ice.Context = New Ice.Context
+                        Dim context As Dictionary(Of String, String) = New Dictionary(Of String, String)()
                         context("_fwd") = "o"
                         If override Is Nothing Then
                             context("_ovrd") = override
                         End If
                         oneway.initiateCallback(onewayR, context)
                     ElseIf line.Equals("O") Then
-                        Dim context As Ice.Context = New Ice.Context
+                        Dim context As Dictionary(Of String, String) = New Dictionary(Of String, String)()
                         context("_fwd") = "O"
                         If Not override Is Nothing Then
                             context("_ovrd") = override

@@ -77,14 +77,6 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <Reference Include="System.Data">
-      <Name>System.Data</Name>
-    </Reference>
-    <ProjectReference Include="valueCommon.vbproj">
-      <Name>valueCommon</Name>
-      <Project>{801CAF98-F8CF-42E2-98AD-1373A8ABA749}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -105,6 +97,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="valueSlice.csproj">
+      <Project>{CAE58DC4-A0E6-4CCE-A1DA-64AA8D77B4AC}</Project>
+      <Name>valueSlice</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

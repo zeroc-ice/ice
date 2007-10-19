@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports HelloIceBox.Demo
+Imports Demo
 
 Module HelloIceBoxC
 

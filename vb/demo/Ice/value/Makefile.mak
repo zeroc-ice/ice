@@ -14,9 +14,11 @@ TARGETS		= client.exe server.exe
 C_SRCS		= Client.vb DerivedPrinterI.vb ObjectFactory.vb PrinterI.vb
 S_SRCS		= DerivedPrinterI.vb InitialI.vb PrinterI.vb Server.vb
 
-GEN_SRCS	= $(GDIR)\Value.vb
+GEN_SRCS	= $(GDIR)\Value.cs
 
 SLICE_SRCS	= $(SDIR)/Value.ice
+
+SLICE_ASSEMBLY  = valueSlice.dll
 
 SDIR		= .
 
@@ -26,10 +28,10 @@ GDIR		= generated
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
 
-client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(C_SRCS) $(GEN_SRCS)
+client.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
-server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll $(S_SRCS) $(GEN_SRCS)
+server.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend
