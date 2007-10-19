@@ -1,6 +1,13 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- slice2vb has been removed from the distribution and is no longer supported.
+  To use Visual Basic .NET with Ice, use slice2cs to generate C# code from
+  Slice definitions, and then use a C# compiler to create a DLL from the
+  generated code. Then link against that DLL in your Visual Basic project.
+
+  See the manual and the Visual Basic demos for more information.
+
 - Fixed an IceGrid descriptor bug where re-opening an unnamed property
   set would cause multiple property definitions.
 
