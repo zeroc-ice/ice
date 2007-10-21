@@ -1,4 +1,13 @@
-﻿using System;
+﻿// **********************************************************************
+//
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
