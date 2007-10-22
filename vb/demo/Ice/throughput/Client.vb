@@ -37,6 +37,11 @@ Module ThroughputC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim throughput As ThroughputPrx = ThroughputPrxHelper.checkedCast(communicator.propertyToProxy("Throughput.Throughput"))
             If throughput Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")

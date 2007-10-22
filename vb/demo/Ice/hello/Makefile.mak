@@ -16,7 +16,7 @@ S_SRCS		= HelloI.vb Server.vb
 
 GEN_SRCS	= $(GDIR)\Hello.cs
 
-SLICE_SRCS	= $(SDIR)/Hello.vb
+SLICE_SRCS	= $(SDIR)/Hello.ice
 
 SLICE_ASSEMBLY  = helloSlice.dll
 

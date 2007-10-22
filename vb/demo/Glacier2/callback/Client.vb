@@ -29,6 +29,11 @@ Module Glacier2callbackC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim defaultRouter As Ice.RouterPrx = communicator().getDefaultRouter()
             If defaultRouter Is Nothing Then
                 Console.Error.WriteLine("no default router set")
@@ -156,6 +161,13 @@ Module Glacier2callbackC
                     Console.Error.WriteLine(ex)
                 End Try
             Loop While Not line.Equals("x")
+
+            Try
+            Catch ex As Glacier2.SessionNotExistException
+                Console.Error.WriteLine(ex)
+            Catch ex As Ice.ConnectionLostException
+                ' Expected: the router closed the connection.
+            End Try
 
             Return 0
         End Function

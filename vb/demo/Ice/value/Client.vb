@@ -16,6 +16,11 @@ Module ValueC
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim initial As InitialPrx = InitialPrxHelper.checkedCast(communicator().propertyToProxy("Value.Initial"))
             If initial Is Nothing Then
                 Console.Error.WriteLine("invalid object reference")
@@ -88,7 +93,7 @@ Module ValueC
             Console.In.ReadLine()
 
             Dim derivedAsBase As printer = initial.getDerivedPrinter()
-            Console.Out.WriteLine("The type ID of the received object is """ & derivedAsBase.ice_id() & """")
+            Console.Out.WriteLine("==> The type ID of the received object is """ & derivedAsBase.ice_id() & """")
             Debug.Assert(derivedAsBase.ice_id().Equals("::Demo::Printer"))
 
             Console.Out.WriteLine()
@@ -104,7 +109,7 @@ Module ValueC
             Dim derived As DerivedPrinter = CType(derivedAsBase, DerivedPrinter)
 
             Console.Out.WriteLine("==> class cast to derived object succeded")
-            Console.Out.WriteLine("The type ID of the received object is """ & derived.ice_id() & """")
+            Console.Out.WriteLine("==> The type ID of the received object is """ & derived.ice_id() & """")
 
             Console.Out.WriteLine()
             Console.Out.WriteLine("Let's print the message contained in the derived object, and")

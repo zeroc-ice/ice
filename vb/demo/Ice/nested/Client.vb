@@ -16,6 +16,11 @@ Module NestedC
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim nested As NestedPrx = NestedPrxHelper.checkedCast(communicator().propertyToProxy("Nested.NestedServer"))
             If nested Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")

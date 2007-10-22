@@ -13,7 +13,8 @@ Imports System.Collections
 Class CallbackSenderI
     Inherits CallbackSenderDisp_
 
-    Public Sub New()
+    Public Sub New(ByVal communicator As Ice.Communicator)
+        _communicator = communicator
         _destroy = False
         _clients = New ArrayList
     End Sub
@@ -56,6 +57,7 @@ Class CallbackSenderI
                     Try
                         c.callback(num)
                     Catch ex As Ice.LocalException
+                        System.Console.Out.WriteLine("removing client `" & _communicator.identityToString(c.ice_getIdentity()) & "'")
                         SyncLock Me
                             _clients.Remove(c)
                         End SyncLock
@@ -65,6 +67,7 @@ Class CallbackSenderI
         End While
     End Sub
 
+    Private _communicator As Ice.Communicator
     Private _destroy As Boolean
     Private _clients As ArrayList
 

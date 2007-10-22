@@ -13,6 +13,11 @@ Imports Demo
 Module MinimalC
 
     Public Sub Main(ByVal args() As String)
+        If args.Length > 0 Then
+            Console.Error.WriteLine("too many arguments")
+            System.Environment.Exit(1)
+        End If
+
         Dim status As Integer = 0
         Dim communicator As Ice.Communicator = Nothing
 

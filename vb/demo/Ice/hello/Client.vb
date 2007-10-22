@@ -34,6 +34,11 @@ Module HelloC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Try
                 communicator().getPluginManager().getPlugin("IceSSL")
                 _haveSSL = True

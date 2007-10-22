@@ -33,6 +33,11 @@ Module InvokeC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim obj As Ice.ObjectPrx = communicator().propertyToProxy("Printer.Proxy")
 
             menu()
