@@ -38,6 +38,7 @@ SUBDIRS		= $(SUBDIRS) IceUtil \
 		  FreezeScript \
 		  IceStorm \
 		  IceGrid \
+                  iceserviceinstall \
 		  ca
 
 $(EVERYTHING)::
