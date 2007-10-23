@@ -21,8 +21,13 @@
 
 #include <Aclapi.h>
 #include <AccCtrl.h>
-#include <Sddl.h>
 
+#if defined(_MSC_VER) && _MSC_VERSION >= 1300
+//
+// The VC6 headers don't include Sddl.h
+//
+#include <Sddl.h>
+#endif
 using namespace std;
 using namespace Ice;
 
@@ -123,11 +128,11 @@ Install::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    for(int i = 0; i < propCount; ++i)
+    for(int j = 0; j < propCount; ++j)
     {
-        if(opts.isSet(propNames[i]))
+        if(opts.isSet(propNames[j]))
         {
-            properties->setProperty(propNames[i], opts.optArg(propNames[i]));
+            properties->setProperty(propNames[j], opts.optArg(propNames[j]));
         }
     }
 
@@ -218,7 +223,7 @@ Install::run(int argc, char* argv[])
             throw imagePath + ": not found";
         }
 
-        string dependencies = "netprofm";
+	string dependency;
 
         if(service == "icegridregistry")
         {
@@ -255,7 +260,7 @@ Install::run(int argc, char* argv[])
 
             if(properties->getPropertyAsInt("DependOnRegistry") != 0)
             {
-                dependencies = "icegridregistry." + _icegridInstanceName;
+                dependency = "icegridregistry." + _icegridInstanceName;
             }
         }
         else if(service == "glacier2router")
@@ -267,15 +272,14 @@ Install::run(int argc, char* argv[])
                     throw string("Ice.Default.Locator must be set in " + configFile
                                  + " when DependOnRegistry is not zero");
                 }
-                dependencies = "icegridregistry." + _icegridInstanceName;
+                dependency = "icegridregistry." + _icegridInstanceName;
             }
         }
-        dependencies += '\0'; // must be double-null terminated
 
         grantPermissions(configFile);
 
         installService(serviceName, imagePath, configFile, displayName, description,
-                       dependencies, properties->getProperty("Password"));
+                       dependency, properties->getProperty("Password"));
     }
     catch(const string& msg)
     {
@@ -369,6 +373,18 @@ Install::initializeSid(const string& name)
     //
     // Now store in _sidName a 'normalized' name (for the CreateService call)
     //
+
+    if(name.find('\\') != string::npos)
+    {
+        //
+        // Keep this name; otherwise on XP, the localized name
+        // ("NT AUTHORITY\LOCAL SERVICE" in English) shows up in the Services
+        // snap-in instead of 'Local Service' (which is also a localized name,
+        // but looks nicer).
+        //
+        _sidName = name;
+    }
+    else
     {
         char accountName[1024];
         DWORD accountNameLen = 1024;
@@ -381,7 +397,7 @@ Install::initializeSid(const string& name)
                             &domainLen, &nameUse) == false)
         {
             DWORD res = GetLastError();
-            throw string("Could not retrieve 'normalized' account name for ") + name + ": "
+            throw string("Could not retrieve full account name for ") + name + ": "
                 + formatMessage(res);
         }
 
@@ -389,14 +405,16 @@ Install::initializeSid(const string& name)
     }
 
     if(_debug)
-    {
-        char* sidString = 0;
+      {
+	Trace trace(communicator()->getLogger(), appName());
+
+#if defined(_MSC_VER) && _MSC_VERSION >= 1300
+	char* sidString = 0;
         ConvertSidToStringSid(_sid, &sidString);
-
-        Trace trace(communicator()->getLogger(), appName());
-        trace << "SID: " << sidString << "; Normalized name: " << _sidName;
-
-        LocalFree(sidString);
+	trace << "SID: " << sidString << "; ";
+	LocalFree(sidString);
+#endif
+	trace << "Full name: " << _sidName;
     }
 }
 
@@ -667,10 +685,9 @@ Install::uninstallService(const string& serviceName) const
 void
 Install::installService(const string& serviceName, const string& imagePath,
                         const string& configFile, const string& displayName,
-                        const string& description, const string& dependencies,
+                        const string& description, const string& dependency,
                         const string& password) const
 {
-
     addEventLogKey(serviceName, getIceDLLPath(imagePath));
 
     SC_HANDLE scm = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS);
@@ -680,8 +697,39 @@ Install::installService(const string& serviceName, const string& imagePath,
         throw string("Cannot open SCM: ") + formatMessage(res);
     }
 
+    string deps = dependency;
+
+    if(deps.empty())
+    {
+        const string candidates[] = { "netprofm",  "Nla" };
+        const int candidatesLen = 2;
+
+        for(int i = 0; i < candidatesLen; ++i)
+        {
+            SC_HANDLE service = OpenService(scm, candidates[i].c_str(), GENERIC_READ);
+            if(service != 0)
+            {
+                deps = candidates[i];
+                CloseServiceHandle(service);
+                break; // for
+            }
+        }
+    }
+
+    deps += '\0'; // must be double-null terminated
+
+    //
+    // Get the full path of config file
+    //
+    char fullPath[MAX_PATH];
+    if(GetFullPathName(configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
+    {
+        throw string("Could not compute the full path of ") + configFile;
+    }
+
+
     string command = "\"" + imagePath + "\" --service " + serviceName
-        + " --Ice.Config=\"" + configFile + "\"";
+        + " --Ice.Config=\"" + fullPath + "\"";
 
     SC_HANDLE service = CreateService(
         scm,
@@ -694,7 +742,7 @@ Install::installService(const string& serviceName, const string& imagePath,
         command.c_str(),
         0,
         0,
-        dependencies.c_str(),
+        deps.c_str(),
         _sidName.c_str(),
         password.c_str());
 

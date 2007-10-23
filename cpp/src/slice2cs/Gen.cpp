@@ -4150,9 +4150,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             // Set out parameters
             //
 
-            for(vector<string>::iterator q = outHolders.begin(); q != outHolders.end(); ++q)
+            for(vector<string>::iterator s = outHolders.begin(); s != outHolders.end(); ++s)
             {
-                _out << nl << (*q) << " = " << (*q) << "Holder__;";
+                _out << nl << (*s) << " = " << (*s) << "Holder__;";
             }
 
             if(ret)
