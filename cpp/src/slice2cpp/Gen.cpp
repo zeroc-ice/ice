@@ -3808,7 +3808,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "*p = " << scope << name << "Ptr::dynamicCast(v);";
         C << nl << "if(v && !*p)";
         C << sb;
-        C << nl << "IceInternal::Ex::throwUOE(" << scope << name << "::ice_staticId(), v->ice_id());";
+        C << nl << "IceInternal::Ex::throwUOE(" << scoped << "::ice_staticId(), v->ice_id());";
         C << eb;
         C << eb;
 
