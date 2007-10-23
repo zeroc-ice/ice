@@ -39,6 +39,9 @@ public:
     Install();
     virtual ~Install();
 
+    bool pauseEnabled() const;
+    bool debug() const;
+
 private:
 
     void usage() const;
@@ -69,6 +72,7 @@ private:
     SID* _sid;
     string _sidName;
 
+    bool _pauseEnabled;
     bool _debug;
 };
 
@@ -78,7 +82,10 @@ main(int argc, char* argv[])
     Install app;
     int status = app.main(argc, argv);
 
-    system("pause");
+    if(app.pauseEnabled() && (app.debug() || status != 0))
+    {
+        system("pause");
+    }
 
     return status;
 }
@@ -90,6 +97,7 @@ Install::run(int argc, char* argv[])
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("u", "uninstall");
+    opts.addOpt("n", "nopause");
     opts.addOpt("", "debug");
 
     const string propNames[] = { "ImagePath", "DisplayName", "ObjectName", "Password",
@@ -125,6 +133,8 @@ Install::run(int argc, char* argv[])
     }
 
     _debug = opts.isSet("debug");
+
+    _pauseEnabled = !opts.isSet("nopause");
 
     PropertiesPtr properties = communicator()->getProperties();
 
@@ -304,6 +314,18 @@ Install::~Install()
     free(_sid);
 }
 
+bool
+Install::pauseEnabled() const
+{
+    return _pauseEnabled;
+}
+
+bool
+Install::debug() const
+{
+    return _debug;
+}
+
 void
 Install::usage() const
 {
@@ -312,6 +334,7 @@ Install::usage() const
     cerr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
+        "-n, --nopause        Do not call pause after displaying a message.\n"
         "-v, --version        Display the Ice version.\n"
         "-u, --uninstall      Uninstall the Windows service.\n"
         "\n"
