@@ -838,7 +838,7 @@ namespace IceInternal
                 IEnumerator<bool> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    writeBool(i.Current);
+                    _buf.put(i.Current ? (byte)1 : (byte)0);
                 }
             }
             else if(v is Queue<bool>)
@@ -855,7 +855,7 @@ namespace IceInternal
                 expand(count);
                 foreach(bool b in v)
                 {
-                    writeBool(b);
+                    _buf.put(b ? (byte)1 : (byte)0);
                 }
             }
         }
@@ -1121,7 +1121,7 @@ namespace IceInternal
                 expand(count * 4);
                 foreach(int i in v)
                 {
-                    writeInt(i);
+                    _buf.putInt(i);
                 }
             }
         }
@@ -1276,7 +1276,7 @@ namespace IceInternal
                 expand(count * 8);
                 foreach(long l in v)
                 {
-                    writeLong(l);
+                    _buf.putLong(l);
                 }
             }
         }
@@ -1431,7 +1431,7 @@ namespace IceInternal
                 expand(count * 4);
                 foreach(float f in v)
                 {
-                    writeFloat(f);
+                    _buf.putFloat(f);
                 }
             }
         }
@@ -1586,7 +1586,7 @@ namespace IceInternal
                 expand(count * 8);
                 foreach(double d in v)
                 {
-                    writeDouble(d);
+                    _buf.putDouble(d);
                 }
             }
         }
