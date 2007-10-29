@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,6 +58,26 @@ void
 TestI::unknownExceptionWithServantException(const Current&)
 {
     throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+}
+
+string
+TestI::intfUserException(const Current&)
+{
+    //
+    // Return a value so we can be sure that the stream position
+    // is reset correctly if finished() throws.
+    //
+    return "Hello";
+}
+
+string
+TestI::impossibleException(const Current&)
+{
+    //
+    // Return a value so we can be sure that the stream position
+    // is reset correctly if finished() throws.
+    //
+    return "Hello";
 }
 
 void

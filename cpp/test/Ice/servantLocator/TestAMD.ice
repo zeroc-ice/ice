@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,6 +17,10 @@ exception TestIntfUserException
 {
 };
 
+exception TestImpossibleException
+{
+};
+
 ["amd"] interface TestIntf
 {
     void requestFailedException();
@@ -27,8 +31,12 @@ exception TestIntfUserException
     void userException();
     void stdException();
     void cppException();
-    
+
     void unknownExceptionWithServantException();
+
+    string intfUserException() throws TestIntfUserException;
+
+    string impossibleException() throws TestIntfUserException;
 
     void shutdown();
 };

@@ -138,7 +138,31 @@ IceInternal::IncomingAsync::__servantLocatorFinished()
     {
         if(_locator && _servant)
         {
-            _locator->finished(_current, _servant, _cookie);
+            try
+            {
+                _locator->finished(_current, _servant, _cookie);
+            }
+            catch(const UserException& ex)
+            {
+                //
+                // The operation may have already marshaled a reply; we must overwrite that reply.
+                //
+                if(_response)
+                {
+                    _os.endWriteEncaps();
+                    _os.b.resize(headerSize + 4); // Reply status position.
+                    _os.write(replyUserException);
+                    _os.startWriteEncaps();
+                    _os.write(ex);
+                    _os.endWriteEncaps();
+                    _connection->sendResponse(&_os, _compress);
+                }
+                else
+                {
+                    _connection->sendNoResponse();
+                }
+                return false;
+            }
         }
         return true;
     }
