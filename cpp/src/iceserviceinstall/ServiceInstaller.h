@@ -50,10 +50,14 @@ private:
     bool mkdir(const std::string&) const;
     std::string formatMessage(DWORD) const;
 
-    void addEventLogKey(const std::string&, const std::string&) const;
-    void removeEventLogKey(const std::string&) const;
-    std::string mangleKey(const std::string&) const;
-    std::string createEventLogKey(const std::string&) const;
+    void addLog(const std::string&) const;
+    void removeLog(const std::string&) const;
+    std::string createLog(const std::string&) const;
+    void addSource(const std::string&, const std::string&, const std::string&) const;
+    std::string removeSource(const std::string&) const;
+    std::string mangleSource(const std::string&) const;
+    std::string createSource(const std::string&, const std::string&) const;
+
     std::string getIceDLLPath(const std::string&) const;
 
     int _serviceType;

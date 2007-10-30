@@ -140,9 +140,9 @@ class SMEventLoggerI : public Ice::Logger
 {
 public:
 
-    SMEventLoggerI(const string& service)
+    SMEventLoggerI(const string& source)
     {
-        _source = RegisterEventSource(0, mangleService(service).c_str());
+        _source = RegisterEventSource(0, mangleSource(source).c_str());
         if(_source == 0)
         {
             SyscallException ex(__FILE__, __LINE__);
@@ -156,13 +156,13 @@ public:
         assert(_source != 0);
         DeregisterEventSource(_source);
     }
-    
+
     static void
-    addKeys(const string& service)
+    addKeys(const string& source)
     {
         HKEY hKey;
         DWORD d;
-        LONG err = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createKey(service).c_str(), 0, "REG_SZ",
+        LONG err = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createKey(source).c_str(), 0, "REG_SZ",
                                   REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &hKey, &d);
         if(err != ERROR_SUCCESS)
         {
@@ -189,7 +189,7 @@ public:
         // the "EventMessageFile" key should contain the path to this
         // DLL.
         //
-        err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+        err = RegSetValueEx(hKey, "EventMessageFile", 0, REG_EXPAND_SZ,
                             reinterpret_cast<unsigned char*>(path), static_cast<DWORD>(strlen(path) + 1));
         if(err == ERROR_SUCCESS)
         {
@@ -213,9 +213,9 @@ public:
     }
 
     static void
-    removeKeys(const string& theService)
+    removeKeys(const string& source)
     {
-        LONG err = RegDeleteKey(HKEY_LOCAL_MACHINE, createKey(theService).c_str());
+        LONG err = RegDeleteKey(HKEY_LOCAL_MACHINE, createKey(source).c_str());
         if(err != ERROR_SUCCESS)
         {
             SyscallException ex(__FILE__, __LINE__);
@@ -285,14 +285,14 @@ public:
     {
         _module = module;
     }
-    
+
 private:
 
     static string
-    mangleService(string name)
+    mangleSource(string name)
     {
         //
-        // The service name cannot contain backslashes.
+        // The source name cannot contain backslashes.
         //
         string::size_type pos = 0;
         while((pos = name.find('\\', pos)) != string::npos)
@@ -310,7 +310,7 @@ private:
         //
         // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
         //
-        return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleService(name);
+        return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleSource(name);
     }
 
 
@@ -379,15 +379,32 @@ Ice::Service::interrupt()
 }
 
 int
-Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
+Ice::Service::main(int& argc, char* argv[], const InitializationData& initializationData)
 {
     _name = argv[0];
 
 #ifdef _WIN32
+
+    //
+    // On Windows, we parse the properties here to extract Ice.EventLog.Source
+    //
+    InitializationData initData = initializationData;
+    if(initData.properties == 0)
+    {
+        initData.properties = createProperties(argc, argv, initData.properties, initData.stringConverter);
+    }
+    else
+    {
+        StringSeq options = argsToStringSeq(argc, argv);
+        options = initData.properties->parseIceCommandLineOptions(options);
+        stringSeqToArgs(options, argc, argv);
+    }
+
     //
     // First check for the --service option.
     //
     string name;
+    string eventLogSource;
     int idx = 1;
     while(idx < argc)
     {
@@ -408,7 +425,9 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
             _logger = getProcessLogger();
             if(LoggerIPtr::dynamicCast(_logger))
             {
-                _logger = new SMEventLoggerI(name);
+                string eventLogSource = initData.properties->
+                    getPropertyWithDefault("Ice.EventLog.Source", name);
+                _logger = new SMEventLoggerI(eventLogSource);
                 setProcessLogger(_logger);
             }
 
@@ -584,6 +603,9 @@ Ice::Service::main(int& argc, char* argv[], const InitializationData& initData)
     //
     // Check for --daemon, --noclose, --nochdir and --pidfile.
     //
+
+    const InitializationData& initData = initializationData;
+
     bool daemonize = false;
     bool closeFiles = true;
     bool changeDirectory = true;
@@ -1939,7 +1961,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 assert(fd == 2);
             }
         }
-        
+
         //
         // Write PID
         //

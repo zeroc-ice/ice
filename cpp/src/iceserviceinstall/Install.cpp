@@ -188,12 +188,15 @@ Install::usage() const
         "                     <directory of " << appName() << ">\\<service>.exe\n"
         "DisplayName          Display name for the service\n"
         "Description          Description for the service\n"
+        "AutoStart            When non 0, the service is started automatically when\n"
+        "                     the computer starts up. The default value is 1\n"
         "ObjectName           Account used to run the service. Defaults to\n"
         "                     NT Authority\\LocalService\n"
         "Password             Password for ObjectName\n"
         "DependOnRegistry     When non 0, the service depends on the IceGrid registry\n"
         "                     service (the IceGrid registry service name is computed\n"
         "                     using Ice.Default.Locator in <config-file>).\n"
+        "EventLog             The name of the EventLog used by this service;\n"
+        "                     the default is Application\n"
         ;
 }
-
