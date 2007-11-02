@@ -24,10 +24,19 @@ class ICE_SERVICE_INSTALLER_API IceServiceInstaller
 {
 public:
 
+#if defined(_MSC_VER) && _MSC_VER < 1300
+    enum { 
+        icegridregistry = 0, 
+        icegridnode = 1,
+        glacier2router = 2,
+        serviceCount = 3
+    };
+#else
     static const int icegridregistry = 0;
     static const int icegridnode = 1;
     static const int glacier2router = 2;
     static const int serviceCount = 3;
+#endif
 
     IceServiceInstaller(int, const std::string&, const Ice::CommunicatorPtr&);
     ~IceServiceInstaller();

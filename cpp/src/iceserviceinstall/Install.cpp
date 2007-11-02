@@ -94,11 +94,11 @@ Install::run(int argc, char* argv[])
     }
 
     int serviceType = -1;
-    for(int i = 0; i < IceServiceInstaller::serviceCount; ++i)
+    for(int j = 0; j < IceServiceInstaller::serviceCount; ++j)
     {
-        if(commands[0] == IceServiceInstaller::serviceTypeToLowerString(i))
+        if(commands[0] == IceServiceInstaller::serviceTypeToLowerString(j))
         {
-            serviceType = i;
+            serviceType = j;
             break; // for
         }
     }
