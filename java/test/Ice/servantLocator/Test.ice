@@ -17,6 +17,10 @@ exception TestIntfUserException
 {
 };
 
+exception TestImpossibleException
+{
+};
+
 interface TestIntf
 {
     void requestFailedException();
@@ -26,6 +30,9 @@ interface TestIntf
     void localException();
     //void userException();
     void javaException();
+
+    string impossibleException(bool throw) throws TestImpossibleException;
+    string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
 
     void shutdown();
 };

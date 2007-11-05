@@ -61,8 +61,12 @@ TestI::unknownExceptionWithServantException(const Current&)
 }
 
 string
-TestI::intfUserException(const Current&)
+TestI::impossibleException(bool _cpp_throw, const Current&)
 {
+    if(_cpp_throw)
+    {
+        throw Test::TestImpossibleException();
+    }
     //
     // Return a value so we can be sure that the stream position
     // is reset correctly if finished() throws.
@@ -71,8 +75,12 @@ TestI::intfUserException(const Current&)
 }
 
 string
-TestI::impossibleException(const Current&)
+TestI::intfUserException(bool _cpp_throw, const Current&)
 {
+    if(_cpp_throw)
+    {
+        throw Test::TestIntfUserException();
+    }
     //
     // Return a value so we can be sure that the stream position
     // is reset correctly if finished() throws.

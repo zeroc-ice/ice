@@ -145,6 +145,10 @@ IceInternal::Direct::destroy()
     }
 
     adapter->decDirectCount();
+    if(_userException.get())
+    {
+        _userException->ice_throw();
+    }
 }
 
 const ObjectPtr&
@@ -152,4 +156,3 @@ IceInternal::Direct::servant()
 {
     return _servant;
 }
-

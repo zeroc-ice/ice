@@ -36,6 +36,15 @@ local interface ServantLocator
      * the returned servant into its active servant map. This must be
      * done by the servant locator implementation, if this is desired.
      *
+     * [locate] can throw any user exception. If it does, that exception
+     * is marshaled back to the client. If the Slice definition for the
+     * corresponding operation includes that user exception, the client
+     * receives that user exception; otherwise, the client receives
+     * [UnknownUserException].
+     *
+     * If [locate] throws any exception, the Ice run time does <EM>not</EM>
+     * call [finished].
+     *
      * <p class="Note">If you call [locate] from your own code, you
      * must also call [finished] when you have finished using the
      * servant, provided that [locate] returned a non-null servant;
@@ -55,7 +64,7 @@ local interface ServantLocator
      * @see finished
      *
      **/
-    Object locate(Current curr, out LocalObject cookie);
+    ["UserException"] Object locate(Current curr, out LocalObject cookie);
 
     /**
      *
@@ -63,6 +72,15 @@ local interface ServantLocator
      * made. This operation is only called if [locate] was called
      * prior to the request and returned a non-null servant. This
      * operation can be used for cleanup purposes after a request.
+     *
+     * [finished] can throw any user exception. If it does, that exception
+     * is marshaled back to the client. If the Slice definition for the
+     * corresponding operation includes that user exception, the client
+     * receives that user exception; otherwise, the client receives
+     * [UnknownUserException].
+     *
+     * If both the operation and [finished] throw an exception, the
+     * exception thrown by [finished] is marshaled back to the client.
      *
      * @param curr Information about the current operation call for
      * which a servant was located by [locate].
@@ -76,7 +94,7 @@ local interface ServantLocator
      * @see locate
      *
      **/
-    void finished(Current curr, Object servant, LocalObject cookie);
+    ["UserException"] void finished(Current curr, Object servant, LocalObject cookie);
 
     /**
      *

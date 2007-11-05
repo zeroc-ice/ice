@@ -45,6 +45,36 @@ public final class TestI extends _TestIntfDisp
     javaException(Ice.Current current)
     {
     }
+
+    public String
+    impossibleException(boolean _throw, Ice.Current current) throws TestImpossibleException
+    {
+        if(_throw)
+        {
+            throw new TestImpossibleException();
+        }
+
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        return "Hello";
+    }
+
+    public String
+    intfUserException(boolean _throw, Ice.Current current) throws TestIntfUserException, TestImpossibleException
+    {
+        if(_throw)
+        {
+            throw new TestIntfUserException();
+        }
+
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        return "Hello";
+    }
     
     public void
     shutdown(Ice.Current current)

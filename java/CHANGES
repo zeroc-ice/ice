@@ -1,6 +1,9 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Changed servant locators so both locate() and finished() can
+  throw user exceptions. (See the manual for details.)
+
 - A number of proxy methods (ice_timeout(), ice_oneway() etc.) now
   return a proxy of the same type as the target. This allows you to
   cast the return proxy instead using uncheckedCast on the Helper.

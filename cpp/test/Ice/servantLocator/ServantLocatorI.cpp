@@ -111,12 +111,12 @@ ServantLocatorI::exception(const Ice::Current& current)
     {
         throw UnknownException(__FILE__, __LINE__, "reason");
     }
-    else if(current.operation == "intfUserException")
-    {
-        throw TestIntfUserException();
-    }
     else if(current.operation == "impossibleException")
     {
-        throw TestImpossibleException();
+        throw TestIntfUserException(); // Yes, it really is meant to be TestIntfUserException.
+    }
+    else if(current.operation == "intfUserException")
+    {
+        throw TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
     }
 }

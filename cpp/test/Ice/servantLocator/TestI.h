@@ -27,9 +27,8 @@ public:
 
     virtual void unknownExceptionWithServantException(const Ice::Current&);
 
-    virtual ::std::string intfUserException(const Ice::Current&);
-
-    virtual ::std::string impossibleException(const Ice::Current&);
+    virtual ::std::string impossibleException(bool, const Ice::Current&);
+    virtual ::std::string intfUserException(bool, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

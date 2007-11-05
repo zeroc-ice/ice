@@ -69,23 +69,38 @@ TestAMDI::unknownExceptionWithServantException_async(const Test::AMD_TestIntf_un
 }
 
 void
-TestAMDI::intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr& cb, const Current&)
+TestAMDI::impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr& cb, bool _cpp_throw,
+                                    const Current&)
 {
-    //
-    // Return a value so we can be sure that the stream position
-    // is reset correctly if finished() throws.
-    //
-    cb->ice_response("Hello");
+    if(_cpp_throw)
+    {
+        cb->ice_exception(Test::TestImpossibleException());
+    }
+    else
+    {
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        cb->ice_response("Hello");
+    }
 }
 
 void
-TestAMDI::impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr& cb, const Current&)
+TestAMDI::intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr& cb, bool _cpp_throw, const Current&)
 {
-    //
-    // Return a value so we can be sure that the stream position
-    // is reset correctly if finished() throws.
-    //
-    cb->ice_response("Hello");
+    if(_cpp_throw)
+    {
+        cb->ice_exception(Test::TestIntfUserException());
+    }
+    else
+    {
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        cb->ice_response("Hello");
+    }
 }
 
 void

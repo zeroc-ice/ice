@@ -20,7 +20,10 @@ public class _ObjectDelD implements _ObjectDel
         
         final BooleanHolder __result = new BooleanHolder();
 
-        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+        IceInternal.Direct __direct = null;
+        try
+        {
+            __direct = new IceInternal.Direct(__current)
             {
                 public DispatchStatus run(Ice.Object __servant)
                 {
@@ -28,6 +31,11 @@ public class _ObjectDelD implements _ObjectDel
                     return DispatchStatus.DispatchOK;
                 }
             };
+        }
+        catch(Throwable __ex)
+        {
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+        }
         
         try
         {
@@ -35,14 +43,22 @@ public class _ObjectDelD implements _ObjectDel
             assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
-        catch(Ice.LocalException __ex)
+        catch(java.lang.Throwable __ex)
         {
-            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
         }
         finally
         {
-            __direct.destroy();
+            try
+            {
+                __direct.destroy();
+            }
+            catch(Throwable __ex)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            }
         }
+        return false; // Keep compiler happy.
     }
 
     public void
@@ -52,7 +68,10 @@ public class _ObjectDelD implements _ObjectDel
         final Current __current = new Current();
         __initCurrent(__current, "ice_ping", OperationMode.Nonmutating, __context);
        
-        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+        IceInternal.Direct __direct = null;
+        try
+        {
+            __direct = new IceInternal.Direct(__current)
             {
                 public DispatchStatus run(Ice.Object __servant)
                 {
@@ -60,19 +79,31 @@ public class _ObjectDelD implements _ObjectDel
                     return DispatchStatus.DispatchOK;
                 }
             };
+        }
+        catch(Ice.UserException __ex)
+        {
+            throw new IceInternal.LocalExceptionWrapper(new Ice.UnknownUserException(__ex.toString()), false);
+        }
                 
         try
         {
             DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
         }
-        catch(Ice.LocalException __ex)
+        catch(Throwable __ex)
         {
-            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
         }
         finally
         {
-            __direct.destroy();
+            try
+            {
+                __direct.destroy();
+            }
+            catch(Throwable __ex)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            }
         }
     }
 
@@ -85,28 +116,46 @@ public class _ObjectDelD implements _ObjectDel
 
         final Ice.StringSeqHolder __result = new Ice.StringSeqHolder();
 
-        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+        IceInternal.Direct __direct = null;
+        try
+        {
+            __direct = new IceInternal.Direct(__current)
             {
+
                 public DispatchStatus run(Ice.Object __servant)
                 {
                     __result.value = __servant.ice_ids(__current);
                     return DispatchStatus.DispatchOK;
                 }
             };
+        }
+        catch(Throwable __ex)
+        {
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+        }
+
         try
         {
             DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
-        catch(Ice.LocalException __ex)
+        catch(Throwable __ex)
         {
-            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
         }
         finally
         {
-            __direct.destroy();
+            try
+            {
+                __direct.destroy();
+            }
+            catch(Throwable __ex)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            }
         }
+        return __result.value; // Keep compiler happy.
     }
 
     public String
@@ -118,7 +167,10 @@ public class _ObjectDelD implements _ObjectDel
         
         final Ice.StringHolder __result = new Ice.StringHolder();
 
-        IceInternal.Direct __direct = new IceInternal.Direct(__current)
+        IceInternal.Direct __direct = null;
+        try
+        {
+            __direct = new IceInternal.Direct(__current)
             {
                 public DispatchStatus run(Ice.Object __servant)
                 {
@@ -126,20 +178,34 @@ public class _ObjectDelD implements _ObjectDel
                     return DispatchStatus.DispatchOK;
                 }
             };
+        }
+        catch(Throwable __ex)
+        {
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+        }
+
         try
         {
             DispatchStatus __status = __direct.servant().__collocDispatch(__direct); 
             assert __status == DispatchStatus.DispatchOK;
             return __result.value;
         }
-        catch(Ice.LocalException __ex)
+        catch(Throwable __ex)
         {
-            throw new IceInternal.LocalExceptionWrapper(__ex, false);
+            IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
         }
         finally
         {
-            __direct.destroy();
+            try
+            {
+                __direct.destroy();
+            }
+            catch(Throwable __ex)
+            {
+                IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);
+            }
         }
+        return __result.value; // Keep compiler happy.
     }
 
     public boolean

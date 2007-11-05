@@ -28,8 +28,8 @@ public:
     virtual void unknownExceptionWithServantException_async(
                             const Test::AMD_TestIntf_unknownExceptionWithServantExceptionPtr&, const Ice::Current&);
 
-    virtual void intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr&, const Ice::Current&);
-    virtual void impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr&, const Ice::Current&);
+    virtual void impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr&, bool, const Ice::Current&);
+    virtual void intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr&, bool, const Ice::Current&);
 
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&, const Ice::Current&);
 };

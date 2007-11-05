@@ -34,9 +34,8 @@ interface TestIntf
 
     void unknownExceptionWithServantException();
 
-    string intfUserException() throws TestIntfUserException;
-
-    string impossibleException() throws TestIntfUserException;
+    string impossibleException(bool throw) throws TestImpossibleException;
+    string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
     
     void shutdown();
 };

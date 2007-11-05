@@ -33,6 +33,10 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
             test(ex.operation == "requestFailedException");
         }
     }
+    catch(...)
+    {
+        test(false);
+    }
 
     try
     {
@@ -42,6 +46,10 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     catch(const UnknownUserException& ex)
     {
         test(ex.unknown == "reason");
+    }
+    catch(...)
+    {
+        test(false);
     }
 
     try
@@ -71,13 +79,11 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownUserException& ex)
     {
-        //cerr << ex.unknown << endl;
-        test(!collocated);
         test(ex.unknown == "Test::TestIntfUserException");
     }
-    catch(const TestIntfUserException&)
+    catch(...)
     {
-        test(collocated);
+        test(false);
     }
 
     try
@@ -87,13 +93,16 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownLocalException& ex)
     {
-        //cerr << ex.unknown << endl;
         test(!collocated);
         test(ex.unknown.find("Ice::SocketException:\nsocket exception: unknown error") != string::npos);
     }
     catch(const SocketException&)
     {
         test(collocated);
+    }
+    catch(...)
+    {
+        test(false);
     }
 
     try
@@ -103,13 +112,11 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownException& ex)
     {
-        //cerr << ex.unknown << endl;
-        test(!collocated);
         test(ex.unknown == "std::exception: Hello");
     }
-    catch(const std::runtime_error&)
+    catch(...)
     {
-        test(collocated);
+        test(false);
     }
 
     try
@@ -119,13 +126,11 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     }
     catch(const UnknownException& ex)
     {
-        //cerr << ex.unknown << endl;
-        test(!collocated);
         test(ex.unknown == "unknown c++ exception");
     }
-    catch(const int&)
+    catch(...)
     {
-        test(collocated);
+        test(false);
     }
     
     try
@@ -137,14 +142,19 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
     {
         test(ex.unknown == "reason");
     }
+    catch(...)
+    {
+        test(false);
+    }
 
     try
     {
-        obj->intfUserException();
+        obj->impossibleException(false);
         test(false);
     }
-    catch(const TestIntfUserException&)
+    catch(const UnknownUserException&)
     {
+        // Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
     }
     catch(...)
     {
@@ -153,22 +163,45 @@ testExceptions(const TestIntfPrx& obj, bool collocated)
 
     try
     {
-        obj->impossibleException();
+        obj->impossibleException(true);
+        test(false);
+    }
+    catch(const UnknownUserException&)
+    {
+        // Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        obj->intfUserException(false);
         test(false);
     }
     catch(const TestImpossibleException&)
     {
-        test(collocated);
-    }
-    catch(const UnknownUserException&)
-    {
-        test(!collocated);
+        // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
     }
     catch(...)
     {
         test(false);
     }
 
+    try
+    {
+        obj->intfUserException(true);
+        test(false);
+    }
+    catch(const TestImpossibleException&)
+    {
+        // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
+    }
+    catch(...)
+    {
+        test(false);
+    }
 }
 
 TestIntfPrx

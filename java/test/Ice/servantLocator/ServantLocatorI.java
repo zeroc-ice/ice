@@ -36,7 +36,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     }
 
     public Ice.Object
-    locate(Ice.Current current, Ice.LocalObjectHolder cookie)
+    locate(Ice.Current current, Ice.LocalObjectHolder cookie) throws Ice.UserException
     {
         synchronized(this)
         {
@@ -62,7 +62,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     }
 
     public void
-    finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie)
+    finished(Ice.Current current, Ice.Object servant, java.lang.Object cookie) throws Ice.UserException
     {
         synchronized(this)
         {
@@ -93,7 +93,7 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
     }
 
     private void
-    exception(Ice.Current current)
+    exception(Ice.Current current) throws Ice.UserException
     {
         if(current.operation.equals("requestFailedException"))
         {
@@ -126,6 +126,14 @@ public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.Se
         else if(current.operation.equals("javaException"))
         {
             throw new java.lang.RuntimeException("message");
+        }
+        else if(current.operation.equals("impossibleException"))
+        {
+            throw new TestIntfUserException(); // Yes, it really is meant to be TestIntfUserException.
+        }
+        else if(current.operation.equals("intfUserException"))
+        {
+            throw new TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
         }
     }
 

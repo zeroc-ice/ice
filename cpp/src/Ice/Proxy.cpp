@@ -1354,16 +1354,29 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context* context)
         {
             __direct.servant()->__collocDispatch(__direct);
         }
+        catch(const ::std::exception& __ex)
+        {
+            __direct.destroy();
+            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        }
         catch(...)
         {
             __direct.destroy();
-            throw;
+            throw UnknownException(__FILE__, __LINE__, "unknown c++ exception");
         }
         __direct.destroy();
     }
-    catch(const LocalException& __ex)
+    catch(const LocalExceptionWrapper&)
     {
-        throw LocalExceptionWrapper(__ex, false);
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw LocalExceptionWrapper(UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
     }
     return __result;
 }
@@ -1399,16 +1412,29 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context* context)
         {
             __direct.servant()->__collocDispatch(__direct);
         }
+        catch(const ::std::exception& __ex)
+        {
+            __direct.destroy();
+            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        }
         catch(...)
         {
             __direct.destroy();
-            throw;
+            throw UnknownException(__FILE__, __LINE__, "unknown c++ exception");
         }
         __direct.destroy();
     }
-    catch(const LocalException& __ex)
+    catch(const LocalExceptionWrapper&)
     {
-        throw LocalExceptionWrapper(__ex, false);
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw LocalExceptionWrapper(UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
     }
 }
 
@@ -1449,16 +1475,29 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context* context)
         {
             __direct.servant()->__collocDispatch(__direct);
         }
+        catch(const ::std::exception& __ex)
+        {
+            __direct.destroy();
+            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        }
         catch(...)
         {
             __direct.destroy();
-            throw;
+            throw UnknownException(__FILE__, __LINE__, "unknown c++ exception");
         }
         __direct.destroy();
     }
-    catch(const LocalException& __ex)
+    catch(const LocalExceptionWrapper&)
     {
-        throw LocalExceptionWrapper(__ex, false);
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw LocalExceptionWrapper(UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
     }
     return __result;
 }
@@ -1500,16 +1539,29 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context* context)
         {
             __direct.servant()->__collocDispatch(__direct);
         }
+        catch(const ::std::exception& __ex)
+        {
+            __direct.destroy();
+            LocalExceptionWrapper::throwUnknownWrapper(__ex);
+        }
         catch(...)
         {
             __direct.destroy();
-            throw;
+            throw UnknownException(__FILE__, __LINE__, "unknown c++ exception");
         }
         __direct.destroy();
     }
-    catch(const LocalException& __ex)
+    catch(const LocalExceptionWrapper&)
     {
-        throw LocalExceptionWrapper(__ex, false);
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        LocalExceptionWrapper::throwUnknownWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw LocalExceptionWrapper(UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
     }
     return __result;
 }

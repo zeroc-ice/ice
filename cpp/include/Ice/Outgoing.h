@@ -49,6 +49,8 @@ public:
     //
     bool retry() const;
 
+    static void throwUnknownWrapper(const ::std::exception&);
+
 private:
 
     const LocalExceptionWrapper& operator=(const LocalExceptionWrapper&);
