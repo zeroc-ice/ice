@@ -409,6 +409,29 @@ private:
 };
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
+//
+// ExceptionWriter wraps a Python user exception for marshaling.
+//
+class ExceptionWriter : public Ice::UserExceptionWriter
+{
+public:
+
+    ExceptionWriter(const Ice::CommunicatorPtr&, const PyObjectHandle&);
+    ~ExceptionWriter() throw();
+
+    virtual void write(const Ice::OutputStreamPtr&) const;
+    virtual bool usesClasses() const;
+
+    virtual std::string ice_name() const;
+    virtual Ice::Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+private:
+
+    PyObjectHandle _ex;
+    ExceptionInfoPtr _info;
+};
+
 ClassInfoPtr lookupClassInfo(const std::string&);
 ExceptionInfoPtr lookupExceptionInfo(const std::string&);
 

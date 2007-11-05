@@ -17,6 +17,10 @@ exception TestIntfUserException
 {
 };
 
+exception TestImpossibleException
+{
+};
+
 interface TestIntf
 {
     void requestFailedException();
@@ -27,6 +31,11 @@ interface TestIntf
     void userException();
     void pythonException();
 
+    void unknownExceptionWithServantException();
+
+    string impossibleException(bool throw) throws TestImpossibleException;
+    string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
+    
     void shutdown();
 };
 

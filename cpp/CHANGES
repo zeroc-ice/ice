@@ -4,10 +4,11 @@ Changes since version 3.2.X (binary incompatible)
 - Changed servant locators so both locate() and finished() can
   throw user exceptions. (See the manual for details.)
 
-- slice2vb has been removed from the distribution and is no longer supported.
-  To use Visual Basic .NET with Ice, use slice2cs to generate C# code from
-  Slice definitions, and then use a C# compiler to create a DLL from the
-  generated code. Then link against that DLL in your Visual Basic project.
+- slice2vb has been removed from the distribution and is no longer
+  supported. To use Visual Basic .NET with Ice, use slice2cs to
+  generate C# code from Slice definitions, and then use a C# compiler
+  to create a DLL from the generated code. Then link against that DLL
+  in your Visual Basic project.
 
   See the manual and the Visual Basic demos for more information.
 
@@ -18,8 +19,11 @@ Changes since version 3.2.X (binary incompatible)
   return a proxy of the same type as the target. This way, you don't
   need to uncheckedCast the returned proxy. For example, you can now 
   write:
-    hello = hello.ice_oneway();
+
+    hello = hello->ice_oneway();
+
   instead of:
+
     hello = HelloPrx::uncheckedCast(hello->ice_oneway());
 
 - Added a fix to prevent the IceGrid node from printing an annoying
@@ -28,11 +32,15 @@ Changes since version 3.2.X (binary incompatible)
 - Fixed IceGrid bug where updates to IceBox services were not
   correctly sent to the IceGrid GUI or IceGrid registry slaves.
 
-- Added Ice::createInput(const CommunicatorPtr&, const pair< const Byte*, const Byte*>&);
+- Added a new overloading of the Ice::createInputStream method:
+
+  Ice::InputStreamPtr createInputStream(
+      const CommunicatorPtr&,
+      const pair< const Byte*, const Byte*>&);
 
 - Setting IceBox.ServiceManager.Endpoints is no longer necessary
   in order to run the IceBox service. If no endpoints are specified
-  the the ServiceManager interface is not created.
+  then the ServiceManager interface is not created.
 
 - The property Ice.Plugin.Logger is now reserved to allow setting
   of the communicator's logger from properties. This plugin must
@@ -42,8 +50,8 @@ Changes since version 3.2.X (binary incompatible)
   would be generated when C++ reserved words are used as Slice
   identifiers.
 
-- It is no longer possible to provide input files on the 
-  command line for icestormadmin nor icegridadmin.
+- It is no longer possible to provide input files on the command line
+  for icestormadmin or icegridadmin.
 
 - The thread stack size specified with the IceUtil::Thread::start()
   method parameter is now adjusted to PTHREAD_STACK_MIN if it's
@@ -70,11 +78,12 @@ Changes since version 3.2.X (binary incompatible)
   present when the adapter was created.
 
 - Freeze evictor update:
+
   - the existing evictor was renamed BackgroundSaveEvictor
   - added new TransactionalEvictor
 
 - Fixed a bug in the encoding of user exceptions with a class
-  attribute and returned by AMD dispatched invocations. An extra byte
+  attribute and returned by AMD-dispatched invocations. An extra byte
   was encoded at the end. This fix doesn't affect on the wire
   compatibility with old Ice clients.
 

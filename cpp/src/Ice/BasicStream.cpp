@@ -33,6 +33,7 @@ using namespace IceInternal;
 IceInternal::BasicStream::BasicStream(Instance* instance, bool unlimited) :
     IceInternal::Buffer(instance->messageSizeMax()),
     _instance(instance),
+    _closure(0),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _traceSlicing(-1),
@@ -73,12 +74,28 @@ IceInternal::BasicStream::clear()
     delete _objectList;
 }
 
+void*
+IceInternal::BasicStream::closure() const
+{
+    return _closure;
+}
+
+void*
+IceInternal::BasicStream::closure(void* p)
+{
+    void* prev = _closure;
+    _closure = p;
+    return prev;
+}
+
 void
 IceInternal::BasicStream::swap(BasicStream& other)
 {
     assert(_instance == other._instance);
 
     Buffer::swap(other);
+
+    std::swap(_closure, other._closure);
 
     //
     // Swap is never called for BasicStreams that have more than one

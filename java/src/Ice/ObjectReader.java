@@ -22,7 +22,7 @@ public abstract class ObjectReader extends ObjectImpl
     public void
     __read(IceInternal.BasicStream is, boolean rid)
     {
-        IceInternal.BasicInputStream bis = (IceInternal.BasicInputStream)is;
-        read(bis._in, rid);
+        InputStream stream = (InputStream)is.closure();
+        read(stream, rid);
     }
 }

@@ -97,6 +97,9 @@ public:
     //
     Instance* instance() const { return _instance; } // Inlined for performance reasons.
 
+    void* closure() const;
+    void* closure(void*);
+
     void swap(BasicStream&);
 
     void resize(Container::size_type sz)
@@ -593,6 +596,11 @@ private:
     // stack-allocated BasicStream still holds it.
     //
     Instance* _instance;
+
+    //
+    // The public stream API needs to attach data to a stream.
+    //
+    void* _closure;
 
     class ICE_API ReadEncaps : private ::IceUtil::noncopyable
     {

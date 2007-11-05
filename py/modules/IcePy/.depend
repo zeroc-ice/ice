@@ -4,7 +4,7 @@ Current$(OBJEXT): Current.cpp ./Current.h ./Config.h ./Connection.h ./ObjectAdap
 ImplicitContext$(OBJEXT): ImplicitContext.cpp ./ImplicitContext.h ./Config.h ./ObjectAdapter.h ./Proxy.h ./Util.h
 Init$(OBJEXT): Init.cpp ./Communicator.h ./Config.h ./Connection.h ./Current.h ./ImplicitContext.h ./Logger.h ./Util.h ./ObjectAdapter.h ./Operation.h ./Properties.h ./Proxy.h ./Slice.h ./Types.h
 Logger$(OBJEXT): Logger.cpp ./Logger.h ./Config.h ./Util.h
-ObjectAdapter$(OBJEXT): ObjectAdapter.cpp ./ObjectAdapter.h ./Config.h ./Communicator.h ./Current.h ./Operation.h ./Proxy.h ./Util.h
+ObjectAdapter$(OBJEXT): ObjectAdapter.cpp ./ObjectAdapter.h ./Config.h ./Communicator.h ./Current.h ./Operation.h ./Proxy.h ./Types.h ./Util.h
 ObjectFactory$(OBJEXT): ObjectFactory.cpp ./ObjectFactory.h ./Config.h ./Types.h ./Util.h
 Operation$(OBJEXT): Operation.cpp ./Operation.h ./Config.h ./Current.h ./Proxy.h ./Types.h ./Util.h
 Properties$(OBJEXT): Properties.cpp ./Properties.h ./Config.h ./Util.h

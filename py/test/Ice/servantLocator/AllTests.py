@@ -18,72 +18,117 @@ def testExceptions(obj, collocated):
 
     try:
         obj.requestFailedException()
-        test(false)
+        test(False)
     except Ice.ObjectNotExistException, ex:
         if not collocated:
             test(ex.id == obj.ice_getIdentity())
             test(ex.facet == obj.ice_getFacet())
             test(ex.operation == "requestFailedException")
+    except:
+        test(False)
 
     try:
         obj.unknownUserException()
-        test(false)
+        test(False)
     except Ice.UnknownUserException, ex:
         test(ex.unknown == "reason")
         pass
+    except:
+        test(False)
 
     try:
         obj.unknownLocalException()
-        test(false)
+        test(False)
     except Ice.UnknownLocalException, ex:
         test(ex.unknown == "reason")
         pass
 
     try:
         obj.unknownException()
-        test(false)
+        test(False)
     except Ice.UnknownException, ex:
         test(ex.unknown == "reason")
         pass
 
     try:
         obj.userException()
-        test(false)
+        test(False)
     except Ice.UnknownUserException, ex:
-        #print ex.unknown
-        test(not collocated)
-        test(ex.unknown.find("Test.TestIntfUserException") >= 0)
-    except Test.TestIntfUserException:
-        test(collocated)
+        test(ex.unknown.find("Test::TestIntfUserException") >= 0)
+    except:
+        test(False)
 
     try:
         obj.localException()
-        test(false)
+        test(False)
     except Ice.UnknownLocalException, ex:
-        #print ex.unknown
         test(not collocated)
         test(ex.unknown.find("Ice.SocketException") >= 0)
     except SocketException:
         test(collocated)
+    except:
+        test(False)
 
     try:
         obj.pythonException()
-        test(false)
+        test(False)
     except Ice.UnknownException, ex:
-        #print ex.unknown
-        test(not collocated)
         test(ex.unknown.find("RuntimeError: message") >= 0)
-    except RuntimeError:
-        test(collocated)
+    except:
+        test(False)
+
+    try:
+        obj.unknownExceptionWithServantException()
+        test(False)
+    except Ice.UnknownException, ex:
+        test(ex.unknown == "reason")
+    except:
+        test(False)
+
+    try:
+        obj.impossibleException(False)
+        test(False)
+    except Ice.UnknownUserException:
+        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        pass
+    except:
+        test(False)
+
+    try:
+        obj.impossibleException(True)
+        test(False)
+    except Ice.UnknownUserException:
+        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        pass
+    except:
+        test(False)
+
+    try:
+        obj.intfUserException(False)
+        test(False)
+    except Test.TestImpossibleException:
+        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        pass
+    except:
+        test(False)
+
+    try:
+        obj.intfUserException(True)
+        test(False)
+    except Test.TestImpossibleException:
+        # Operation doesn't throw, but locate() and finshed() throw TestIntfUserException.
+        pass
+    except:
+        test(False)
 
 def allTests(communicator, collocated):
-    print "testing stringToProxy... ",
+    print "testing stringToProxy...",
     sys.stdout.flush()
     base = communicator.stringToProxy("asm:default -p 12010 -t 10000")
     test(base)
     print "ok"
 
-    print "testing checked cast... ",
+    print "testing checked cast...",
     sys.stdout.flush()
     obj = Test.TestIntfPrx.checkedCast(base)
     test(obj)
@@ -116,14 +161,14 @@ def allTests(communicator, collocated):
         pass
     print "ok"
 
-    print "testing locate exceptions... ",
+    print "testing locate exceptions...",
     sys.stdout.flush()
     base = communicator.stringToProxy("category/locate:default -p 12010 -t 10000")
     obj = Test.TestIntfPrx.checkedCast(base)
     testExceptions(obj, collocated)
     print "ok"
 
-    print "testing finished exceptions... ",
+    print "testing finished exceptions...",
     sys.stdout.flush()
     base = communicator.stringToProxy("category/finished:default -p 12010 -t 10000")
     obj = Test.TestIntfPrx.checkedCast(base)

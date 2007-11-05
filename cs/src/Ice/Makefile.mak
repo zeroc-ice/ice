@@ -19,8 +19,6 @@ SRCS		= Acceptor.cs \
 		  AssemblyInfo.cs \
 		  AssemblyUtil.cs \
                   Base64.cs \
-		  BasicInputStream.cs \
-		  BasicOutputStream.cs \
 		  BasicStream.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
@@ -42,8 +40,6 @@ SRCS		= Acceptor.cs \
 		  ImplicitContextI.cs \
 		  IncomingAsync.cs \
 		  Incoming.cs \
-		  InputStream.cs \
-		  InputStreamI.cs \
 		  Instance.cs \
 		  LinkedList.cs \
 		  LocalObject.cs \
@@ -54,14 +50,10 @@ SRCS		= Acceptor.cs \
 		  ObjectAdapterI.cs \
 		  Object.cs \
 		  ObjectFactoryManager.cs \
-		  ObjectReader.cs \
-		  ObjectWriter.cs \
 		  Options.cs \
 		  OutgoingAsync.cs \
 		  Outgoing.cs \
 		  OutputBase.cs \
-		  OutputStream.cs \
-		  OutputStreamI.cs \
 		  Patcher.cs \
 		  PluginManagerI.cs \
                   ProcessI.cs \
@@ -74,7 +66,6 @@ SRCS		= Acceptor.cs \
 		  Proxy.cs \
 		  ProxyFactory.cs \
 		  ProxyIdentityKey.cs \
-		  ReadObjectCallback.cs \
 		  Reference.cs \
 		  ReferenceFactory.cs \
                   ReplyStatus.cs \
@@ -82,6 +73,8 @@ SRCS		= Acceptor.cs \
 		  ServantManager.cs \
 		  Set.cs \
 		  SliceChecksums.cs \
+		  Stream.cs \
+		  StreamI.cs \
 		  StringUtil.cs \
 		  SysLoggerI.cs \
 		  TcpAcceptor.cs \

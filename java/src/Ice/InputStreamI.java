@@ -16,7 +16,8 @@ public class InputStreamI implements InputStream
     {
         _communicator = communicator;
 
-        _is = new IceInternal.BasicInputStream(Util.getInstance(communicator), this);
+        _is = new IceInternal.BasicStream(Util.getInstance(communicator));
+        _is.closure(this);
         _is.resize(data.length, true);
         java.nio.ByteBuffer buf = _is.prepareRead();
         buf.position(0);
@@ -231,5 +232,5 @@ public class InputStreamI implements InputStream
     }
 
     private Communicator _communicator;
-    private IceInternal.BasicInputStream _is;
+    private IceInternal.BasicStream _is;
 }
