@@ -1317,14 +1317,11 @@ Freeze::MapHelperI::close()
         _connection->unregisterMap(this);
     }
     _db = 0;
-    
-    for(IndexMap::iterator p = _indices.begin(); p != _indices.end(); ++p)
-    {
-        MapIndexBasePtr& indexBase = p->second;
 
-        indexBase->_impl = 0;
-        indexBase->_map = 0;
-    }
+    //
+    // We can't clear the indexBase as MapIndexI is using
+    // the first map's indexBase objects
+    //
     _indices.clear();
 }
 

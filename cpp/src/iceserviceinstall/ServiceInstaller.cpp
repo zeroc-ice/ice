@@ -65,12 +65,12 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
         {
             if(_icegridInstanceName == "")
             {
-                throw string("Ice.Default.Locator must be set in " + _configFile);
+                throw "Ice.Default.Locator must be set in " + _configFile;
             }
             _nodeName = _serviceProperties->getProperty("IceGrid.Node.Name");
             if(_nodeName == "")
             {
-                throw string("IceGrid.Node.Name must be set in " + _configFile);
+                throw "IceGrid.Node.Name must be set in " + _configFile;
             }
             _serviceName = serviceTypeToLowerString(_serviceType) + "." + _icegridInstanceName + "." + _nodeName;
         }
@@ -83,7 +83,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
         }
         else
         {
-            throw string("Unknown service type");
+            throw "Unknown service type";
         }
     }
 }
@@ -104,9 +104,9 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     const string defaultDisplayName[] =
     {
-        string("IceGrid registry (") + _icegridInstanceName + ")",
-        string("IceGrid node (") + _nodeName + " within " +  _icegridInstanceName + ")",
-        string("Glacier2 router (") + _glacier2InstanceName + ")"
+        "IceGrid registry (" + _icegridInstanceName + ")",
+        "IceGrid node (" + _nodeName + " within " +  _icegridInstanceName + ")",
+        "Glacier2 router (" + _glacier2InstanceName + ")"
     };
 
     const string defaultDescription[] =
@@ -133,7 +133,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             throw "Can't get full path to self: " + formatMessage(GetLastError());
         }
         imagePath = string(buffer, size);
-        imagePath.replace(imagePath.rfind('\\'), string::npos, string("\\")
+        imagePath.replace(imagePath.rfind('\\'), string::npos, "\\"
                           + serviceTypeToLowerString(_serviceType) + ".exe");
     }
     if(!fileExists(imagePath))
@@ -147,13 +147,13 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         if(properties->getPropertyAsInt("DependOnRegistry") != 0)
         {
-            throw string("The IceGrid registry service can't depend on itself");
+            throw "The IceGrid registry service can't depend on itself";
         }
 
         string registryDataDir = _serviceProperties->getProperty("IceGrid.Registry.Data");
         if(registryDataDir == "")
         {
-            throw string("IceGrid.Registry.Data must be set in " + _configFile);
+            throw "IceGrid.Registry.Data must be set in " + _configFile;
         }
         if(!mkdir(registryDataDir))
         {
@@ -165,7 +165,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         string nodeDataDir = _serviceProperties->getProperty("IceGrid.Node.Data");
         if(nodeDataDir == "")
         {
-            throw string("IceGrid.Node.Data must be set in " + _configFile);
+            throw "IceGrid.Node.Data must be set in " + _configFile;
         }
         if(!mkdir(nodeDataDir))
         {
@@ -187,8 +187,8 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         {
             if(_icegridInstanceName == "")
             {
-                throw string("Ice.Default.Locator must be set in " + _configFile
-                             + " when DependOnRegistry is not zero");
+                throw"Ice.Default.Locator must be set in " + _configFile
+                             + " when DependOnRegistry is not zero";
             }
             dependency = "icegridregistry." + _icegridInstanceName;
         }
@@ -196,13 +196,25 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     grantPermissions(_configFile);
 
-    addEventLogKey(_serviceName, getIceDLLPath(imagePath));
+    string eventLog = properties->getProperty("EventLog");
+    if(eventLog == "")
+    {
+        eventLog = "Application";
+    }
+    else
+    {
+        addLog(eventLog);
+    }
+
+    string eventLogSource = _serviceProperties->getPropertyWithDefault("Ice.EventLog.Source", _serviceName);
+
+    addSource(eventLogSource, eventLog, getIceDLLPath(imagePath));
 
     SC_HANDLE scm = OpenSCManager(0, 0, SC_MANAGER_ALL_ACCESS);
     if(scm == 0)
     {
         DWORD res = GetLastError();
-        throw string("Cannot open SCM: ") + formatMessage(res);
+        throw "Cannot open SCM: " + formatMessage(res);
     }
 
     string deps = dependency;
@@ -232,12 +244,13 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     char fullPath[MAX_PATH];
     if(GetFullPathName(_configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
     {
-        throw string("Could not compute the full path of ") + _configFile;
+        throw "Could not compute the full path of " + _configFile;
     }
 
     string command = "\"" + imagePath + "\" --service " + _serviceName
         + " --Ice.Config=\"" + fullPath + "\"";
 
+    bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) != 0;
     string password = properties->getProperty("Password");
 
     SC_HANDLE service = CreateService(
@@ -246,7 +259,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         displayName.c_str(),
         SERVICE_ALL_ACCESS,
         SERVICE_WIN32_OWN_PROCESS,
-        SERVICE_AUTO_START,
+        autoStart ? SERVICE_AUTO_START : SERVICE_DEMAND_START,
         SERVICE_ERROR_NORMAL,
         command.c_str(),
         0,
@@ -259,7 +272,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw string("Cannot create service") + _serviceName + ": " + formatMessage(res);
+        throw "Cannot create service" + _serviceName + ": " + formatMessage(res);
     }
 
     //
@@ -273,7 +286,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw string("Cannot set description for service") + _serviceName + ": "
+        throw "Cannot set description for service" + _serviceName + ": "
             + formatMessage(res);
     }
 
@@ -288,7 +301,7 @@ IceServiceInstaller::uninstall()
     if(scm == 0)
     {
         DWORD res = GetLastError();
-        throw string("Cannot open SCM: ") + formatMessage(res);
+        throw "Cannot open SCM: " + formatMessage(res);
     }
 
     SC_HANDLE service = OpenService(scm, _serviceName.c_str(), SERVICE_ALL_ACCESS);
@@ -296,7 +309,22 @@ IceServiceInstaller::uninstall()
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw string("Cannot open service") + _serviceName + ": " + formatMessage(res);
+        throw "Cannot open service '" + _serviceName + "': " + formatMessage(res);
+    }
+
+    //
+    // Stop service first
+    //
+    SERVICE_STATUS serviceStatus;
+    if(!ControlService(service, SERVICE_CONTROL_STOP, &serviceStatus))
+    {
+        DWORD res = GetLastError();
+        if(res != ERROR_SERVICE_NOT_ACTIVE)
+        {
+            CloseServiceHandle(scm);
+            CloseServiceHandle(service);
+            throw "Cannot stop service '" + _serviceName + "': " + formatMessage(res);
+        }
     }
 
     if(!DeleteService(service))
@@ -304,22 +332,28 @@ IceServiceInstaller::uninstall()
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw string("Cannot delete service") + _serviceName + ": " + formatMessage(res);
+        throw "Cannot delete service '" + _serviceName + "': " + formatMessage(res);
     }
 
     CloseServiceHandle(scm);
     CloseServiceHandle(service);
 
-    removeEventLogKey(_serviceName);
+    string eventLogSource = _serviceProperties->getPropertyWithDefault("Ice.EventLog.Source", _serviceName);
+    string eventLog = removeSource(eventLogSource);
+
+    if(eventLog != "Application")
+    {
+        removeLog(eventLog);
+    }
 }
 
 /* static */ vector<string>
 IceServiceInstaller::getPropertyNames()
 {
     static const string propertyNames[] = { "ImagePath", "DisplayName", "ObjectName", "Password",
-                                            "Description", "DependOnRegistry", "Debug" };
+                                            "Description", "DependOnRegistry", "Debug", "AutoStart", "EventLog" };
 
-    vector<string> result(propertyNames, propertyNames + 7);
+    vector<string> result(propertyNames, propertyNames + 9);
 
     return result;
 }
@@ -384,7 +418,7 @@ IceServiceInstaller::initializeSid(const string& name)
                 _sid = 0;
                 free(domainName);
 
-                throw string("Could not retrieve Security ID for ") + name + ": "
+                throw "Could not retrieve Security ID for " + name + ": "
                     + formatMessage(res);
             }
         }
@@ -418,7 +452,7 @@ IceServiceInstaller::initializeSid(const string& name)
                             &domainLen, &nameUse) == false)
         {
             DWORD res = GetLastError();
-            throw string("Could not retrieve full account name for ") + name + ": "
+            throw "Could not retrieve full account name for " + name + ": "
                 + formatMessage(res);
         }
 
@@ -462,7 +496,7 @@ IceServiceInstaller::fileExists(const string& path) const
         else
         {
             const char* msg = strerror(errno);
-            throw string("Problem with ") + path + ": " + msg;
+            throw "Problem with " + path + ": " + msg;
         }
     }
 }
@@ -481,7 +515,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
                                      0, 0, &acl, 0, &sd);
     if(res != ERROR_SUCCESS)
     {
-        throw string("Could not retrieve securify info for ") + path + ": "
+        throw "Could not retrieve securify info for " + path + ": "
             + formatMessage(res);
     }
 
@@ -498,7 +532,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 
         if(res != ERROR_SUCCESS)
         {
-            throw string("Could not retrieve effective rights for ") + _sidName
+            throw "Could not retrieve effective rights for " + _sidName
                 + " on " + path + ": " + formatMessage(res);
         }
 
@@ -559,7 +593,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             res = SetEntriesInAcl(1, &ea, acl, &newAcl);
             if(res != ERROR_SUCCESS)
             {
-                throw string("Could not modify ACL for ") + path + ": " + formatMessage(res);
+                throw "Could not modify ACL for " + path + ": " + formatMessage(res);
             }
 
             res = SetNamedSecurityInfo(const_cast<char*>(path.c_str()), type,
@@ -567,7 +601,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
                                        0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
             {
-                throw string("Could not grant access to ") + _sidName
+                throw "Could not grant access to " + _sidName
                     + " on " + path + ": " + formatMessage(res);
             }
 
@@ -647,16 +681,55 @@ IceServiceInstaller::formatMessage(DWORD err) const
 }
 
 void
-IceServiceInstaller::addEventLogKey(const string& serviceName, const string& resourceFile) const
+IceServiceInstaller::addLog(const string& log) const
+{
+    //
+    // Create or open the corresponding registry key
+    //
+
+    HKEY key = 0;
+    DWORD disposition = 0;
+    LONG res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createLog(log).c_str(),
+                              0, "REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
+                              &key, &disposition);
+
+    if(res != ERROR_SUCCESS)
+    {
+        throw "Could not create new Event Log '" + log + "': " + formatMessage(res);
+    }
+
+    res = RegCloseKey(key);
+    if(res != ERROR_SUCCESS)
+    {
+        throw "Could not close registry key handle: " + formatMessage(res);
+    }
+}
+
+void
+IceServiceInstaller::removeLog(const string& log) const
+{
+    LONG res = RegDeleteKey(HKEY_LOCAL_MACHINE, createLog(log).c_str());
+
+    //
+    // We get ERROR_ACCESS_DENIED when the log is shared by several sources
+    //
+    if(res != ERROR_SUCCESS && res != ERROR_ACCESS_DENIED)
+    {
+        throw "Could not remove registry key '" + createLog(log) + "': " + formatMessage(res);
+    }
+}
+
+void
+IceServiceInstaller::addSource(const string& source, const string& log, const string& resourceFile) const
 {
     HKEY key = 0;
     DWORD disposition = 0;
-    LONG res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createEventLogKey(serviceName).c_str(),
+    LONG res = RegCreateKeyEx(HKEY_LOCAL_MACHINE, createSource(source, log).c_str(),
                               0, "REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0,
                               &key, &disposition);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not create Event Log key in registry: " + formatMessage(res);
+        throw "Could not create Event Log source in registry: " + formatMessage(res);
     }
 
     //
@@ -693,22 +766,76 @@ IceServiceInstaller::addEventLogKey(const string& serviceName, const string& res
     }
 }
 
-void
-IceServiceInstaller::removeEventLogKey(const string& serviceName) const
+string
+IceServiceInstaller::removeSource(const string& source) const
 {
-    LONG res = RegDeleteKey(HKEY_LOCAL_MACHINE, createEventLogKey(serviceName).c_str());
+    //
+    // Find the source and return the log
+    //
+
+    HKEY key = 0;
+
+    LONG res = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Services\\EventLog", 0,
+                            KEY_ENUMERATE_SUB_KEYS, &key);
+
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not remove registry key: " + formatMessage(res);
+        throw "Could not open EventLog key: " + formatMessage(res);
+    }
+
+    DWORD index = 0;
+    do
+    {
+        char subkey[4096];
+        DWORD subkeySize = 4096;
+
+        res = RegEnumKeyEx(key, index, subkey, &subkeySize, 0, 0, 0, 0);
+
+        if(res == ERROR_SUCCESS)
+        {
+            //
+            // Check if we can delete the source sub-key
+            //
+            LONG delRes = RegDeleteKey(HKEY_LOCAL_MACHINE, createSource(source, subkey).c_str());
+            if(delRes == ERROR_SUCCESS)
+            {
+                res = RegCloseKey(key);
+                if(res != ERROR_SUCCESS)
+                {
+                    throw "Could not close registry key handle: " + formatMessage(res);
+                }
+                return subkey;
+            }
+
+            ++index;
+        }
+    } while(res == ERROR_SUCCESS);
+
+
+    if(res == ERROR_NO_MORE_ITEMS)
+    {
+        RegCloseKey(key);
+        throw "Could not locate EventLog with source '" + source + "'";
+    }
+    else
+    {
+        RegCloseKey(key);
+        throw "Error while searching EventLog with source '" + source + "': " + formatMessage(res);
+    }
+
+    res = RegCloseKey(key);
+    if(res != ERROR_SUCCESS)
+    {
+        throw "Could not close registry key handle: " + formatMessage(res);
     }
 }
 
 string
-IceServiceInstaller::mangleKey(const string& name) const
+IceServiceInstaller::mangleSource(const string& name) const
 {
     string result = name;
     //
-    // The service name cannot contain backslashes.
+    // The source cannot contain backslashes.
     //
     string::size_type pos = 0;
     while((pos = result.find('\\', pos)) != string::npos)
@@ -719,14 +846,20 @@ IceServiceInstaller::mangleKey(const string& name) const
 }
 
 string
-IceServiceInstaller::createEventLogKey(const string& name) const
+IceServiceInstaller::createLog(const string& log) const
 {
     //
     // The registry key is:
     //
-    // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
+    // HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\<log>.
     //
-    return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\Application\\" + mangleKey(name);
+    return "SYSTEM\\CurrentControlSet\\Services\\EventLog\\" + log;
+}
+
+string
+IceServiceInstaller::createSource(const string& name, const string& log) const
+{
+    return createLog(log) + "\\" + mangleSource(name);
 }
 
 string
@@ -769,7 +902,7 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
         }
         else
         {
-            throw string("Could not find Ice DLL");
+            throw "Could not find Ice DLL";
         }
     }
 }

@@ -24,10 +24,19 @@ class ICE_SERVICE_INSTALLER_API IceServiceInstaller
 {
 public:
 
+#if defined(_MSC_VER) && _MSC_VER < 1300
+    enum { 
+        icegridregistry = 0, 
+        icegridnode = 1,
+        glacier2router = 2,
+        serviceCount = 3
+    };
+#else
     static const int icegridregistry = 0;
     static const int icegridnode = 1;
     static const int glacier2router = 2;
     static const int serviceCount = 3;
+#endif
 
     IceServiceInstaller(int, const std::string&, const Ice::CommunicatorPtr&);
     ~IceServiceInstaller();
@@ -50,10 +59,14 @@ private:
     bool mkdir(const std::string&) const;
     std::string formatMessage(DWORD) const;
 
-    void addEventLogKey(const std::string&, const std::string&) const;
-    void removeEventLogKey(const std::string&) const;
-    std::string mangleKey(const std::string&) const;
-    std::string createEventLogKey(const std::string&) const;
+    void addLog(const std::string&) const;
+    void removeLog(const std::string&) const;
+    std::string createLog(const std::string&) const;
+    void addSource(const std::string&, const std::string&, const std::string&) const;
+    std::string removeSource(const std::string&) const;
+    std::string mangleSource(const std::string&) const;
+    std::string createSource(const std::string&, const std::string&) const;
+
     std::string getIceDLLPath(const std::string&) const;
 
     int _serviceType;
