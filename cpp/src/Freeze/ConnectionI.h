@@ -40,6 +40,8 @@ public:
 
     virtual TransactionPtr currentTransaction() const;
 
+    virtual void removeMapIndex(const std::string&, const std::string&);
+
     virtual void close();
     
     virtual Ice::CommunicatorPtr getCommunicator() const;

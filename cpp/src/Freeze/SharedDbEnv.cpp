@@ -136,9 +136,10 @@ Freeze::SharedDbEnv::~SharedDbEnv()
     }
 
     //
-    // Release catalog (to close it)
+    // Release catalogs (to close it)
     //
     _catalog = 0;
+    _catalogIndexList = 0;
 
     //
     // First terminate checkpointing thread
@@ -449,9 +450,9 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     }
 
     //
-    // Get catalog
+    // Get catalogs
     //
-    _catalog = SharedDb::openCatalog(*this);
+    SharedDb::openCatalogs(*this, _catalog, _catalogIndexList);
 }
 
 Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, Int trace) : 

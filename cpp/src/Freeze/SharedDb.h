@@ -77,7 +77,7 @@ public:
                            const KeyCompareBasePtr&,
                            const std::vector<MapIndexBasePtr>&, bool);
 
-    static SharedDbPtr openCatalog(SharedDbEnv&);
+    static void openCatalogs(SharedDbEnv&, SharedDbPtr&, SharedDbPtr&);
 
     ~SharedDb();
 
@@ -125,7 +125,7 @@ private:
              const ConnectionIPtr&, const KeyCompareBasePtr&,
              const std::vector<MapIndexBasePtr>&, bool);
     
-    SharedDb(const MapKey&, DbEnv*);
+    SharedDb(const MapKey&, const std::string&, const std::string&, DbEnv*);
     
     void connectIndices(const std::vector<MapIndexBasePtr>&) const;
     void cleanup(bool);

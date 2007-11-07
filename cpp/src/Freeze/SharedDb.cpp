@@ -12,6 +12,8 @@
 #include <Freeze/Exception.h>
 #include <Freeze/Util.h>
 #include <Freeze/Catalog.h>
+#include <Freeze/CatalogIndexList.h>
+#include <algorithm>
 
 using namespace std;
 using namespace IceUtil;
@@ -25,6 +27,7 @@ StaticMutex _mapMutex = ICE_STATIC_MUTEX_INITIALIZER;
 StaticMutex _refCountMutex = ICE_STATIC_MUTEX_INITIALIZER;  
 
 const string _catalogName = "__catalog";
+const string _catalogIndexListName = "__catalogIndexList";
 
 inline void
 checkTypes(const SharedDb& sharedDb, const string& key, const string& value)
@@ -85,6 +88,12 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
         checkTypes(*result, key, value);
         return result;
     }
+    else if(dbName == _catalogIndexListName)
+    {
+        SharedDbPtr result = connection->dbEnv()->getCatalogIndexList();
+        checkTypes(*result, key, value);
+        return result;
+    }
     
     StaticMutex::Lock lock(_mapMutex);
 
@@ -124,8 +133,8 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     return result.release();
 }
 
-Freeze::SharedDbPtr 
-Freeze::SharedDb::openCatalog(SharedDbEnv& dbEnv)
+void
+Freeze::SharedDb::openCatalogs(SharedDbEnv& dbEnv, SharedDbPtr& catalog, SharedDbPtr& catalogIndexList)
 {
     StaticMutex::Lock lock(_mapMutex);
 
@@ -139,26 +148,41 @@ Freeze::SharedDb::openCatalog(SharedDbEnv& dbEnv)
     mapKey.communicator = dbEnv.getCommunicator();
     mapKey.dbName = _catalogName;
 
-    auto_ptr<SharedDb> result(new SharedDb(mapKey, dbEnv.getEnv()));
+
+    auto_ptr<SharedDb> newCatalog(new SharedDb(mapKey, CatalogKeyCodec::typeId(),
+                                               CatalogValueCodec::typeId(), dbEnv.getEnv()));
 
     //
     // Insert it into the map
     //
     pair<SharedDbMap::iterator, bool> insertResult 
-        = sharedDbMap->insert(SharedDbMap::value_type(mapKey, result.get()));
+        = sharedDbMap->insert(SharedDbMap::value_type(mapKey, newCatalog.get()));
     
     if(!insertResult.second)
     {
         //
-        // That's very wrong: the catalog is associated with another env
+        // That's very wrong
         //
         assert(0);
-        DatabaseException ex(__FILE__, __LINE__);
-        ex.message = "Catalog already opened";
-        throw ex;
+        throw DatabaseException(__FILE__, __LINE__, "Catalog already opened");
     }
+
+    mapKey.dbName = _catalogIndexListName;
+
+    auto_ptr<SharedDb> newCatalogIndexList(new SharedDb(mapKey, CatalogIndexListKeyCodec::typeId(),
+                                                        CatalogIndexListValueCodec::typeId(), dbEnv.getEnv()));
+
+    insertResult 
+        = sharedDbMap->insert(SharedDbMap::value_type(mapKey, newCatalogIndexList.get()));
     
-    return result.release();
+    if(!insertResult.second)
+    {
+        assert(0);
+        throw DatabaseException(__FILE__, __LINE__, "CatalogIndexList already opened");
+    }
+
+    catalog = newCatalog.release();
+    catalogIndexList = newCatalogIndexList.release();
 }
 
 
@@ -255,7 +279,7 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
     ConnectionPtr catalogConnection = 
         createConnection(_mapKey.communicator, connection->dbEnv()->getEnvName());
     Catalog catalog(catalogConnection, _catalogName);
-    
+  
     Catalog::iterator ci = catalog.find(_mapKey.dbName);
     
     if(ci != catalog.end())
@@ -339,6 +363,22 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
         }
         open(txn, _mapKey.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
+
+        Ice::StringSeq oldIndices;
+        Ice::StringSeq newIndices;
+        size_t oldSize = 0;
+        CatalogIndexList catalogIndexList(catalogConnection, _catalogIndexListName);
+       
+        if(createDb)
+        {
+            CatalogIndexList::iterator cil = catalogIndexList.find(_mapKey.dbName);
+            if(cil != catalogIndexList.end())
+            {
+                oldIndices = cil->second;
+                oldSize = oldIndices.size();
+            }
+        } 
+        
         for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
             p != indices.end(); ++p)
         {
@@ -356,6 +396,12 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
             assert(inserted);
             
             indexBase->_impl = indexI.release();
+
+            if(createDb)
+            {
+                newIndices.push_back(indexBase->name());
+                oldIndices.erase(std::remove(oldIndices.begin(), oldIndices.end(), indexBase->name()), oldIndices.end());
+            }
         }
 
         if(ci == catalog.end())
@@ -365,6 +411,61 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
             catalogData.key = key;
             catalogData.value = value;
             catalog.put(Catalog::value_type(_mapKey.dbName, catalogData));
+        }
+
+        if(createDb)
+        {
+            //
+            // Remove old indices and write the new ones
+            //
+            for(Ice::StringSeq::const_iterator q = oldIndices.begin(); q != oldIndices.end(); ++q)
+            {
+                const string& index = *q;
+
+                if(_trace >= 1)
+                {
+                    Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                    out << "removing old index \"" << index << "\" on Db \"" << _mapKey.dbName << "\"";
+                }
+
+                try
+                {
+                    catalogConnection->removeMapIndex(_mapKey.dbName, *q);
+                }
+                catch(const IndexNotFoundException&)
+                {
+                    // Ignored
+
+                    if(_trace >= 1)
+                    {
+                        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                        out << "index \"" << index << "\" on Db \"" << _mapKey.dbName << "\" does not exist";
+                    }
+                }
+            }
+
+            if(oldSize != newIndices.size())
+            {
+                if(newIndices.size() == 0)
+                {
+                    catalogIndexList.erase(_mapKey.dbName);
+                    if(_trace >= 1)
+                    {
+                        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                        out << "Removed catalogIndexList entry for Db \"" << _mapKey.dbName << "\"";
+                    }
+
+                }
+                else
+                {
+                    catalogIndexList.put(CatalogIndexList::value_type(_mapKey.dbName, newIndices));
+                    if(_trace >= 1)
+                    {
+                        Trace out(_mapKey.communicator->getLogger(), "Freeze.Map");
+                        out << "Updated catalogIndexList entry for Db \"" << _mapKey.dbName << "\"";
+                    }
+                }
+            }
         }
         
         tx->commit();
@@ -418,11 +519,11 @@ Freeze::SharedDb::SharedDb(const MapKey& mapKey,
 }
 
 
-Freeze::SharedDb::SharedDb(const MapKey& mapKey, DbEnv* env) :
+Freeze::SharedDb::SharedDb(const MapKey& mapKey, const string& keyTypeId, const string& valueTypeId, DbEnv* env) :
     Db(env, 0),
     _mapKey(mapKey),
-    _key(CatalogKeyCodec::typeId()),
-    _value(CatalogValueCodec::typeId()),
+    _key(keyTypeId),
+    _value(valueTypeId),
     _refCount(0)
 {
     _trace = _mapKey.communicator->getProperties()->getPropertyAsInt("Freeze.Trace.Map");

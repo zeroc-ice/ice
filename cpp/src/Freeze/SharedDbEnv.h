@@ -55,6 +55,7 @@ public:
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
     const SharedDbPtr& getCatalog() const;
+    const SharedDbPtr& getCatalogIndexList() const;
 
 private:
     SharedDbEnv(const std::string&, const Ice::CommunicatorPtr&, DbEnv* env);
@@ -64,6 +65,7 @@ private:
     const std::string _envName;
     const Ice::CommunicatorPtr _communicator;
     SharedDbPtr _catalog;
+    SharedDbPtr _catalogIndexList;
 
     int _refCount;
     int _trace;
@@ -99,6 +101,12 @@ inline const SharedDbPtr&
 SharedDbEnv::getCatalog() const
 {
     return _catalog;
+}
+
+inline const SharedDbPtr&
+SharedDbEnv::getCatalogIndexList() const
+{
+    return _catalogIndexList;
 }
 
 

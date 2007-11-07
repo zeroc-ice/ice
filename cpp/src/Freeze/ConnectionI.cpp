@@ -40,6 +40,39 @@ Freeze::ConnectionI::currentTransaction() const
 }
 
 void
+Freeze::ConnectionI::removeMapIndex(const string& mapName, const string& indexName)
+{
+    if(_dbEnv == 0)
+    {
+        throw DatabaseException(__FILE__, __LINE__, "Closed connection");
+    }
+
+    string filename = mapName + "." + indexName;
+
+    DbTxn* txn = dbTxn();
+    try
+    {
+        _dbEnv->getEnv()->dbremove(txn, filename.c_str(), 0, txn != 0 ? 0 : DB_AUTO_COMMIT);
+    }
+    catch(const DbDeadlockException& dx)
+    {
+        throw DeadlockException(__FILE__, __LINE__, dx.what());
+    }
+    catch(const DbException& dx)
+    {
+        if(dx.get_errno() == ENOENT)
+        {
+            throw IndexNotFoundException(__FILE__, __LINE__, mapName, indexName);
+        }
+        else
+        {
+            throw DatabaseException(__FILE__, __LINE__, dx.what());
+        }
+    }
+}
+
+
+void
 Freeze::ConnectionI::close()
 {
     if(_transaction)

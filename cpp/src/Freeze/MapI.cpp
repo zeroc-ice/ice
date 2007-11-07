@@ -1671,3 +1671,10 @@ Freeze::InvalidPositionException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\ninvalid position";
 }
+
+void
+Freeze::IndexNotFoundException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\ncould not find index \"" << indexName << "\" on map \"" << mapName << "\"";
+}

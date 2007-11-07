@@ -61,6 +61,16 @@ local exception InvalidPositionException
 {
 };
 
+/**
+ *
+ * Exception raised when Freeze fails to locate an index
+ *
+ **/
+local exception IndexNotFoundException
+{
+    string mapName;
+    string indexName;
+};
 
 };
 

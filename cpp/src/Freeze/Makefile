@@ -20,6 +20,7 @@ OBJS		= BackgroundSaveEvictor.o \
                   BackgroundSaveEvictorI.o \
                   CatalogData.o \
                   Catalog.o \
+	          CatalogIndexList.o \
 		  ConnectionI.o \
                   Connection.o \
 		  DB.o \
@@ -77,6 +78,15 @@ $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 
 clean::
 	-rm -f $(HDIR)/Catalog.h Catalog.cpp
+
+$(HDIR)/CatalogIndexList.h CatalogIndexList.cpp: $(SLICE2FREEZE) $(slicedir)/Ice/BuiltinSequences.ice
+	rm -f  $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp
+	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::CatalogIndexList,string,Ice::StringSeq \
+	CatalogIndexList ../../slice/Ice/BuiltinSequences.ice
+	mv CatalogIndexList.h $(HDIR)/CatalogIndexList.h
+
+clean::
+	-rm -f $(HDIR)/CatalogIndexList.h CatalogIndexList.cpp
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
