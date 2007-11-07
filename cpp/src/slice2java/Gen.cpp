@@ -4447,9 +4447,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "__direct.destroy();";
             out << eb;
-            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+            for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
             {
-                string exS = getAbsolute(*t, package);
+                string exS = getAbsolute(*k, package);
                 out << nl << "catch(" << exS << " __ex)";
                 out << sb;
                 out << nl << "throw __ex;";
