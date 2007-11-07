@@ -20,8 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Freeze", "dbmap")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
@@ -29,7 +28,8 @@ TestUtil.cleanDbDir(dbdir)
 client = os.path.join(testdir, "client")
 
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " --Freeze.Warn.Rollback=0 " + testdir + " 2>&1")
+clientPipe = os.popen(TestUtil.getCommandLine(client, TestUtil.DriverConfig("client")) + " --Freeze.Warn.Rollback=0 " +
+        testdir + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

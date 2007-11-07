@@ -22,10 +22,10 @@ import TestUtil
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "replicaGroup")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 TestUtil.addLdPath(testdir)
 
-IceGridAdmin.iceGridTest(name, "application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", \
+IceGridAdmin.iceGridTest(testdir, name, "application.xml", "--Ice.RetryIntervals=\"0 50 100 250\"", \
                          "icebox.exe=" + TestUtil.getIceBox(testdir))
 sys.exit(0)

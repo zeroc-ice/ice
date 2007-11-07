@@ -20,10 +20,10 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-client = os.path.join(toplevel, "test", "Ice", "stream", "client")
+client = os.path.join(os.path.dirname(os.path.abspath(__file__)), "client")
 
 print "starting test...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " 2>&1")
+clientPipe = os.popen(TestUtil.getCommandLine(client, TestUtil.DriverConfig("client")) + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

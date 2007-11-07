@@ -28,7 +28,7 @@ if not TestUtil.isWin32() and os.getuid() == 0:
     sys.exit(0)
 
 name = os.path.join("IceGrid", "session")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 node1Dir = os.path.join(testdir, "db", "node-1")
 if not os.path.exists(node1Dir):
@@ -37,10 +37,7 @@ else:
     IceGridAdmin.cleanDbDir(node1Dir)
 
 print "starting admin permissions verifier...",
-serverCmd = os.path.join(testdir, "verifier") + TestUtil.commonServerOptions + TestUtil.defaultHost
-if TestUtil.debug:
-    print "(" + serverCmd + ")",
-verifierPipe = os.popen(serverCmd + " 2>&1")
+verifierPipe = TestUtil.startServer(os.path.join(testdir, "verifier"), " 2>&1")
 TestUtil.getServerPid(verifierPipe)
 TestUtil.getAdapterReady(verifierPipe)
 print "ok"
@@ -51,9 +48,10 @@ IceGridAdmin.registryOptions += \
                              r' --IceGrid.Registry.AdminPermissionsVerifier="AdminPermissionsVerifier:tcp -p 12002"'+ \
                              r' --IceGrid.Registry.SSLPermissionsVerifier="SSLPermissionsVerifier"'
 
-IceGridAdmin.iceGridTest(name, "application.xml", \
-                         "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
-                         '\\"properties-override=' + TestUtil.clientServerOptions.replace("--", "") + '\\"')
+IceGridAdmin.iceGridTest(testdir, name, "application.xml", \
+                         "--IceDir=\"" + TestUtil.getMappingDir(__file__) + "\" --TestDir=\"" + testdir + "\"", \
+                         '\\"properties-override=' + \
+                         TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + '\\"')
 
 status = TestUtil.closePipe(verifierPipe)
 

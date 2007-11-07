@@ -21,13 +21,13 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "gc")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 client = os.path.join(testdir, "client")
 
 print "starting client...",
 seedfile = testdir + "/seed"
-clientPipe = os.popen(client + TestUtil.clientOptions + " " + seedfile + " 2>&1")
+clientPipe = os.popen(TestUtil.getCommandLine(client, TestUtil.DriverConfig("client"), TestUtil.getTestEnv()) + " " + seedfile + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

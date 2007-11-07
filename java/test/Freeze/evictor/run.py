@@ -10,7 +10,7 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -21,13 +21,13 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Freeze", "evictor")
-testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
+testdir = os.path.dirname(os.path.abspath(__file__))
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 testOptions = " --Freeze.Warn.Deadlocks=0 --Freeze.DbEnv.db.DbHome=" + testdir + "/db" + " --Ice.Config=" + testdir + "/config ";
 
-TestUtil.clientServerTestWithOptions(testOptions, testOptions)
+TestUtil.clientServerTestWithOptions(testdir, testOptions, testOptions)
 sys.exit(0)

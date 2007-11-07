@@ -46,7 +46,7 @@ Ice.ACM.Server=10
 #
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
 Ice.ThreadPerConnection=1
-IceSSL.DefaultDir=../../../certs
+IceSSL.DefaultDir=../../../../certs
 IceSSL.Keystore=server.jks
 IceSSL.Password=password
 IceSSL.Truststore=certs.jks

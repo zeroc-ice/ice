@@ -10,29 +10,15 @@
 
 import os, sys, re, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
+    toplevel = os.path.abspath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-def isCygwin():
-
-    # The substring on sys.platform is required because some cygwin
-    # versions return variations like "cygwin_nt-4.01".
-    return sys.platform[:6] == "cygwin"
-
-def isWin32():
-
-    return sys.platform == "win32" or isCygwin()
-
-def isWin9x():
-
-    if isWin32():
-        return not (os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT")
-    else:
-        return 0
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
 
 def runTests(args, tests, num = 0):
     #
@@ -41,7 +27,7 @@ def runTests(args, tests, num = 0):
     for i in tests:
 
         i = os.path.normpath(i)
-        dir = os.path.join(toplevel, "test", i)
+        dir = os.path.join(TestUtil.getMappingDir(__file__), "test", i)
 
         print
         if num > 0:
@@ -49,7 +35,7 @@ def runTests(args, tests, num = 0):
         print "*** running tests in " + dir,
         print
 
-        if isWin9x():
+        if TestUtil.isWin9x():
             status = os.system("python " + os.path.join(dir, "run.py " + args))
         else:
             status = os.system(os.path.join(dir, "run.py " + args))
@@ -92,13 +78,18 @@ def usage():
     print "  --protocol=tcp|ssl      Run with the given protocol."
     print "  --compress              Run the tests with protocol compression."
     print "  --host=host             Set --Ice.Default.Host=<host>."
-    print "  --threadPerConnection   Run with thread-per-connection concurrency model."
+
+    if not TestUtil.isWin32():
+        print "  --threadPerConnection   Run with thread-per-connection concurrency model."
+
     sys.exit(2)
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lr:R:",
-        ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug", "protocol=",
-         "compress", "host=", "threadPerConnection"])
+    validArgs = ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug", "protocol=",
+         "compress", "host="]
+    if not TestUtil.isWin32():
+        validArgs.append("threadPerConnection")
+    opts, args = getopt.getopt(sys.argv[1:], "lr:R:", validArgs)
 except getopt.GetoptError:
     usage()
 
@@ -152,6 +143,8 @@ if all:
     for protocol in ["ssl", "tcp"]:
         for compress in [0, 1]:
             for threadPerConnection in [0, 1]:
+                if TestUtil.isWin32() and threadPerConnection == 1:
+                    continue
                 arg = ""
                 if compress:
                     arg += "--compress"

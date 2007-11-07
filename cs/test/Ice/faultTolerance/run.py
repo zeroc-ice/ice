@@ -10,7 +10,7 @@
 
 import os, sys, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -21,7 +21,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "faultTolerance")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
@@ -38,7 +38,7 @@ for i in range(0, num):
     msg = "server"
     msg += " #%d..." % (i + 1)
     print msg,
-    serverPipe = os.popen(TestUtil.createCmd(server) + TestUtil.serverOptions + " %d" % (base + i))
+    serverPipe = TestUtil.startServer(server, " %d" % (base + i))
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     print "ok"
@@ -47,8 +47,8 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 
-print TestUtil.createMsg("client"),
-clientPipe = os.popen(TestUtil.createCmd(client) + TestUtil.clientOptions + " " + ports)
+print "starting client...",
+clientPipe = TestUtil.startClient(client, ports)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

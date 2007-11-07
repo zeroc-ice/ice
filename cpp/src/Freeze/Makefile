@@ -73,7 +73,7 @@ LINKWITH	:= $(BZIP2_RPATH_LINK) -lIce -lIceUtil $(DB_LIBS)
 $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 	rm -f  $(HDIR)/Catalog.h Catalog.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
-	Catalog ../../slice/Freeze/CatalogData.ice
+	Catalog $(slicedir)/Freeze/CatalogData.ice
 	mv Catalog.h $(HDIR)/Catalog.h
 
 clean::

@@ -20,30 +20,28 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Glacier2", "dynamicFiltering")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 server = os.path.join(testdir, "server")
 
 print "starting server...",
-serverPipe = os.popen(server + TestUtil.clientServerOptions + " ")
+serverPipe = TestUtil.startServer(server, "")
 TestUtil.getServerPid(serverPipe)
 TestUtil.getAdapterReady(serverPipe, True, 3)
 print "ok"
 
-router = os.path.join(toplevel, "bin", "glacier2router")
+router = os.path.join(TestUtil.getBinDir(__file__), "glacier2router")
 
-command = router + TestUtil.clientServerOptions + \
-          r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
-          r' --Ice.Admin.InstanceName=Glacier2' + \
-          r' --Glacier2.Server.Endpoints="default -p 12349 -t 10000"' + \
-          r' --Glacier2.SessionManager="SessionManager:tcp -h 127.0.0.1 -p 12010 -t 10000"' + \
-          r' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier"' + \
-          r' --Ice.Default.Locator="locator:default -h 127.0.0.1 -p 12012 -t 10000"'
+args = r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
+        r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+        r' --Ice.Admin.InstanceName=Glacier2' + \
+        r' --Glacier2.Server.Endpoints="default -p 12349 -t 10000"' + \
+        r' --Glacier2.SessionManager="SessionManager:tcp -h 127.0.0.1 -p 12010 -t 10000"' + \
+        r' --Glacier2.PermissionsVerifier="Glacier2/NullPermissionsVerifier"' + \
+        r' --Ice.Default.Locator="locator:default -h 127.0.0.1 -p 12012 -t 10000"'
 
 print "starting router...",
-starterPipe = os.popen(command + " 2>&1")
+starterPipe = TestUtil.startServer(router, args) 
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
@@ -51,7 +49,7 @@ print "ok"
 client = os.path.join(testdir, "client")
 
 print "starting client...",
-clientPipe = os.popen(client + TestUtil.clientServerOptions + " 2>&1")
+clientPipe = TestUtil.startClient(client, " 2>&1")
 TestUtil.ignorePid(clientPipe)
 print "ok"
 
@@ -61,6 +59,8 @@ if clientStatus:
     TestUtil.killServers()
 
 if clientStatus or TestUtil.serverStatus():
+    print >>sys.stderr, "Client status:", clientStatus
+    print >>sys.stderr, "Server status:", TestUtil.serverStatus()
     sys.exit(1)
 
 sys.exit(0)

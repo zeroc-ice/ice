@@ -10,7 +10,7 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -21,9 +21,10 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "checksum")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
-TestUtil.clientServerTestWithClasspath(os.path.join(testdir, "server", "classes"),
-                                       os.path.join(testdir, "client", "classes"))
+TestUtil.clientServerTestWithClasspath(name, 
+        os.path.join(testdir, "server", "classes"),
+        os.path.join(testdir, "client", "classes"))
 
 sys.exit(0)

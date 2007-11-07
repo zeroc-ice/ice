@@ -24,7 +24,7 @@ all::
 
 reference\index.html: $(SLICEFILES)
 	@$(MAKE) -nologo -f Makefile.mak clean
-	$(bindir)\slice2html --ice -I..\slice --hdr=htmlHeader --indexhdr=indexHeader --indexftr=indexFooter \
+	$(bindir)\slice2html --ice -I$(slicedir) --hdr=htmlHeader --indexhdr=indexHeader --indexftr=indexFooter \
 	    --image-dir=images --logo-url="http://www.zeroc.com" --output-dir=reference --index=3 \
 	    --summary=120 $(SLICEFILES)
 	-mkdir reference\$(IMAGES)

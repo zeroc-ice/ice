@@ -10,7 +10,7 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -20,8 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("IceUtil", "condvar")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 workqueue = os.path.join(testdir, "workqueue")
 

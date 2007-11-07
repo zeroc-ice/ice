@@ -2999,9 +2999,9 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         C << eb;
         C << nl << "__direct.destroy();";
         C << eb;
-        for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+        for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
         {
-            C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
+            C << nl << "catch(const " << fixKwd((*k)->scoped()) << "&)";
             C << sb;
             C << nl << "throw;";
             C << eb;
