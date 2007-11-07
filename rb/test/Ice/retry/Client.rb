@@ -31,6 +31,8 @@ if ENV.has_key?('ICERB_HOME') and Pathname.new(ENV['ICERB_HOME']).join("slice").
     slice_dir = ENV['ICERB_HOME'] + '/slice'
 elsif ENV.has_key?('ICE_HOME') and Pathname.new(ENV['ICE_HOME']).join("slice").directory?
     slice_dir = ENV['ICE_HOME'] + '/slice'
+elsif Pathname.new(toplevel + '/../slice').directory?
+    slice_dir = toplevel + '/../slice' 
 else
     puts $0 + ': Slice directory not found. Define ICERB_HOME or ICE_HOME.'
     exit(1)

@@ -21,7 +21,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Freeze", "evictor")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)

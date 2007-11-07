@@ -14,19 +14,17 @@
 #
 set -u
 
-cleanup()
-{
-    [ "$KEEP" -eq "0" ] && echo "Cleaning up working files..." && cd $WORKINGDIR && rm -rf $LABEL
-}
-
-trap echo "Interrupt/break detected" && cleanup  INT TERM EXIT 
-
-BASEDIR=`pwd`
+#
+# Set to 1 to keep working files around.
+#
+KEEP=0
 
 #
 # Location where working archive is created.
 #
 WORKINGDIR=$HOME/tmp
+
+BASEDIR=`pwd`
 
 #
 # Used to naming the archive.
@@ -37,11 +35,6 @@ LABEL="HEAD"
 # The 'tree-ish' arg to the git-archive command.
 #
 REFSPEC="HEAD"
-
-#
-# Set to 1 to keep working files around.
-#
-KEEP=0
 
 #
 # Build the demo script distribution
@@ -63,8 +56,6 @@ usage()
     echo "    If 'tag' is a branch, the archive will be created from"
     echo "    'tag'/HEAD. Defaults to HEAD of the current branch"
     echo ""
-    echo " -M Skip running the makedist.py files."
-    echo ""
     echo " -E Skip building the demo script archive"
     echo ""
     echo " -k Don't clean up working files when finished"
@@ -74,9 +65,8 @@ usage()
     return 0
 }
 
-validopts="d:n:t:hMkE"
-getopts $validopts curopt
-RUNMAKEDIST=1
+validopts="d:n:t:hkE"
+getopts $validopts curopt 
 while [ ! "x$curopt" == "x:" ] ;
 do
    case $curopt in
@@ -102,10 +92,6 @@ do
 	   exit 0
 	;;
 
-	M)
-	   RUNMAKEDIST=0
-	;;
-
 	E)
 	   SCRIPTARCHIVE=0
 	;;
@@ -118,84 +104,207 @@ do
    [ "$?" -gt 0 ] && break
 done
 
+
+cleanup()
+{
+    [ "$KEEP" -eq "0" ] && echo "Cleaning up working files..." && cd $WORKINGDIR && rm -rf $LABEL
+}
+
+trap "{ cleanup ; exit 255; }" INT TERM EXIT 
+
+function fquery()
+{
+    query=""
+    for spec in $*
+    do
+        [ -z "$spec" ] && continue
+        if [ -z "$query" ] 
+        then
+            query="-name $spec"
+        else
+            query="$query -or -name $spec"
+        fi
+    done
+    echo "$query"
+}
+
+#
+# From here on in we halt by default if a simple command returns a non zero
+# error code.
+#
+set -e
+
 echo "Creating $WORKINGDIR/$LABEL with $REFSPEC"
 
 [ -d $WORKINGDIR/$LABEL ] && rm -rf $LABEL
 git archive --prefix="$LABEL/" $REFSPEC | ( cd $WORKINGDIR && tar xf - )
 currentdir=`pwd`
+
 cd $WORKINGDIR/$LABEL
 
+#
+# Lists of files to exclude from the source distribuion. 
+#
+
+#
+# Files common to all language mappings.
+#
+cat > common.exclude.file.list << COMMON_RM_FILES
+makedist.py
+allDemos.py
+COMMON_RM_FILES
+
+#
+# Mapping specific file lists here.
+#
+cat > cpp.exclude.file.list << CPP_RM_FILES
+cpp/makebindist.py
+cpp/iceemakedist.py
+cpp/RPMTools.py
+cpp/fixCopyright.py
+cpp/fixVersion.py
+cpp/icee.dsw
+cpp/icee.dsp
+cpp/config/makegitignore.py
+cpp/config/Make.rules.icee
+cpp/config/Make.rules.mak.icee
+cpp/src/icecpp/icecppe.dsp
+cpp/src/IceUtil/iceutile.dsp
+cpp/src/Slice/slicee.dsp
+cpp/install
+cpp/src/slice2cppe
+cpp/src/slice2javae
+CPP_RM_FILES
+
+#
+# We only need to query the Ice version from one location. We'll use the C++
+# mapping/core runtime as the source.
+#
 ICEVER=`awk "/.*ICE_STRING_VERSION.*/ { print \\$3 }" cpp/include/IceUtil/Config.h | sed -e s/\"//g` # "
+ICEMMVER=`echo $ICEVER | sed -e 's/\.[0-9A-Za-z]*$//' | sed -e 's/\.//g'`
 
 SOURCEDIR="$BASEDIR/../dist-$ICEVER"
 [ ! -d $SOURCEDIR ] && mkdir -p $SOURCEDIR
 
-if [ "$RUNMAKEDIST" -eq "1" ];
-then
-    
-    echo "Walking directories and creating source distributions"
-    currentdir=`pwd`
 #
-# The person creating the source distribution must have:
-#   jdk 1.5 installed
-#   jdk 1.4 installed
-#   a utility named java_env to switch between the two
+# DISTRIBUTION is the base directory for the actual source distribution contents. 
 #
-# There currently isn't a cross-platfrom standard java_env
-# utility. So it's up to the developer to have something suitable in
-# their path. A simple example follows:
-#
-# case $1 in
-#   1.4) JAVA_HOME=/usr/java/j2sdk1.4.2_13;;
-#   1.5) JAVA_HOME=/usr/java/jdk1.5.0_12 ;;
-#   *) echo "Unsupported" && exit 1;;
-# esac
-# export PATH=$JAVA_HOME/bin:$PATH
-# export JAVA_HOME
-#
-# Other options exist such as update-alternatives on linux and
-# java_select on MacOS X, but they require sudo or Administrator access,
-# which is not otherwise necessary for this process. The commands to
-# properly configure the relevant Java environments will depend on your
-# system.
+DISTRIBUTION="$WORKINGDIR/Ice-$ICEVER"
+[ -d $DISTRIBUTION ] && rm -rf $DISTRIBUTION
+mkdir -p $DISTRIBUTION
 
-    source java_env 1.4
-    for f in `find . -maxdepth 1 -name "*" -type d` ;
-    do
-      #    
-      # Skip non-Ice distribution directories.
+echo "Walking directories and creating source distributions"
+currentdir=`pwd`
+for f in `find . -maxdepth 1 -name "*" -type d` ;
+do
+    #    
+    # Skip non-Ice distribution directories.
+    #
+    mappingdir=`basename $f`
+    case "$mappingdir" in 
+      cpp|java|cs|php|py|vb|rb)
+      # 
+      # No-op. We are looking to continue if the path doesn't match any of
+      # those specified.
       #
-      case "`basename $f`" in 
+      ;;
+      *)
+      continue
+      ;;
+    esac
 
-          cppe|javae|perf)
-          continue
-          ;;
-
-      esac
-
-      if [ -f $currentdir/$f/makedist.py ];
-	  then
-	  cd $currentdir/$f 
-	  python makedist.py  
-          [ $? -eq 0 ] || { echo "ERROR: `pwd`/makedist.py failed"; exit 1; }
-	  cp dist/* $SOURCEDIR
-      fi
+    #
+    # Construct base exclusion file out of common filenames and language mapping filenames.
+    #
+    echo "exclusions.dat" > exclusions.dat
+    cat common.exclude.file.list | \
+    while read line 
+    do
+        [ -n "$line" ] && { echo "$mappingdir/$line" >> exclusions.dat; }
     done
+    [ -e $mappingdir.exclude.file.list ] && cat $mappingdir.exclude.file.list >> exclusions.dat
 
-    if [ -f $currentdir/java/makedist.py ];
-	then
-	source java_env 1.5
-	cd $currentdir/java
-	python makedist.py 
-        [ $? -eq 0 ] || { echo "ERROR: `pwd`/makedist.py failed (Java5)"; exit 1; }
-	cp dist/* $SOURCEDIR
+    #
+    # Now append wildcard matched exclusions! Scan path, add exclusions for
+    # each instance of the provided file specs
+    #
+    find $mappingdir `fquery .gitignore expect.py` | (tee -a exclusions.dat &&\
+    if [ `wc -l` == 0 ]  
+    then 
+        echo "'find' no results" >2 
+        exit 1 
+    fi) 
+
+    #
+    # Use tar + the exclusion file to copy the archive to a staging location.
+    # We don't want to work on the archive in place because it makes it
+    # difficult to resolve distribution related issues.
+    #
+    tar c $mappingdir -X exclusions.dat | tar xf - -C $DISTRIBUTION
+done
+
+echo "Fixing version markup..."
+
+cd $DISTRIBUTION
+
+for f in "cpp/config/glacier2router.cfg cpp/config/icegridregistry.cfg" 
+do
+    sed -i -e "s/@ver@/$ICEVER/g" -e "s/@mmver@/$ICEMMVER/g" $f
+done
+
+for f in `find . -name "INSTALL*" -or -name "README*" -type f` 
+do 
+    sed -i -e "s/@ver@/$ICEVER/g" -e "s/@mmver@/$ICEMMVER/g" $f 
+done
+
+for f in `find . -name "*.y"`
+do
+    cd $DISTRIBUTION/`dirname $f`
+    base=`basename $f .y`
+
+    #
+    # XXX: Comment out bison/yacc rules.
+    #
+    if test `basename $f` == "cexp.y"
+    then
+        gmake cexp.c
+        
+    else
+        gmake $base.cpp
     fi
-fi
+done
 
-cd $currentdir/cpp
-[ -e makebindist.py ] || { echo "ERROR: `pwd`/makebindist.py does not exist" ; exit 1; }
-cp makebindist.py $SOURCEDIR
-tar cfz $SOURCEDIR/distfiles.tar.gz -C ./install . -C ../include/IceUtil Config.h -C ../../.. `[ -e RELEASE_NOTES.txt ] && echo "RELEASE_NOTES.txt"` || { echo "ERROR: tar operation returned non-zero status" ; exit 1; }
+cd $DISTRIBUTION
+
+# 
+# Update permissions
+chmod -R u+rw,go+r-w . 
+find . `fquery *.cpp *.h *.ice README* INSTALL* *.xml *.java *.cs *.csproj *.vb *.vbproj *.php *.mc Makefile*.* *.dsp` \
+    | xargs chmod a-x 
+find . -type d -exec chmod a+x {} \;
+find . -perm +111 -exec chmod a+x {} \;
+
+#
+# Should be all ready to go, so we archive it up and blow away the working
+# directory (if required).
+#
+cd $WORKINGDIR
+tar cfz $SOURCEDIR/Ice-$ICEVER.tar.gz Ice-$ICEVER
+zip -9r $SOURCEDIR/Ice-$ICEVER.zip Ice-$ICEVER
+[ $KEEP -eq 0 ] && rm -rf Ice-$ICEVER
+
+cd $currentdir
+
+#
+# Copy binary distribution scripts into sources directory.
+#
+for f in distribution/bin/makebindist.py distribution/bin/makemsi.py;
+do
+    [ -e $f ] || { echo "ERROR: `pwd`/$f does not exist" ; exit 1; }
+    cp $f $SOURCEDIR
+done
+tar cfz $SOURCEDIR/distfiles.tar.gz distribution --exclude distribution/bin -C cpp/include/IceUtil Config.h -C ../../.. `[ -e RELEASE_NOTES.txt ] && echo "RELEASE_NOTES.txt"` || { echo "ERROR: tar operation returned non-zero status" ; exit 1; }
+
 #
 # Consolidating demoscript archive.
 #
@@ -256,9 +365,6 @@ then
     currentdir=`pwd`
     cd $TMPDIR/..
 
-    #
-    # XXX Additional error handling.
-    #
     rm -f $SOURCEDIR/Ice-$ICEVER-demo-scripts.tar.gz
     tar cf $SOURCEDIR/Ice-$ICEVER-demo-scripts.tar Ice-$ICEVER-demos
     gzip -9 $SOURCEDIR/Ice-$ICEVER-demo-scripts.tar
@@ -268,3 +374,4 @@ fi
 cleanup
 cd $BASEDIR
 echo "Source distributions can be found in $SOURCEDIR"
+exit 1

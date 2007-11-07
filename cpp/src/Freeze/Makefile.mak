@@ -70,7 +70,7 @@ $(DLLNAME): $(OBJS)
 $(HDIR)/Catalog.h Catalog.cpp: $(SLICE2FREEZE) $(SDIR)/CatalogData.ice
 	del /q $(HDIR)\Catalog.h Catalog.cpp
 	$(SLICE2FREEZE) $(SLICE2CPPFLAGS) --dict Freeze::Catalog,string,Freeze::CatalogData \
-	Catalog ../../slice/Freeze/CatalogData.ice
+	Catalog $(slicedir)/Freeze/CatalogData.ice
 	move Catalog.h $(HDIR)
 
 clean::

@@ -23,5 +23,5 @@ import IceGridAdmin
 
 name = os.path.join("IceGrid", "allocation")
 
-IceGridAdmin.iceGridTest(name, "application.xml")
+IceGridAdmin.iceGridTest(os.path.dirname(os.path.abspath(__file__)), name, "application.xml")
 sys.exit(0)

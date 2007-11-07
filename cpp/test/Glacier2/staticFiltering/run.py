@@ -202,7 +202,7 @@ elif len(testcases) < 6:
     print "WARNING: The network configuration for this host does not permit all "
     print "         tests to run correctly, some tests have been disabled."
 
-router = os.path.join(toplevel, "bin", "glacier2router")
+router = os.path.join(TestUtil.getBinDir(__file__), "glacier2router")
 
 def pingProgress():
     sys.stdout.write('.')
@@ -211,8 +211,7 @@ def pingProgress():
 for testcase in testcases:
     description, args, attacks, xtraConfig = testcase
     acceptFilter, rejectFilter, maxEndpoints, categoryFilter, idFilter, adapterFilter = args
-    testdir = os.path.join(toplevel, 'test', 'Glacier2', 'staticFiltering')
-
+    testdir = os.path.dirname(os.path.abspath(__file__))
     #
     # The test client performs multiple tests during one 'run'. We could
     # use command line arguments to pass the test cases in, but a
@@ -245,23 +244,21 @@ for testcase in testcases:
     # warnings if we use the default test flags. So we need to define
     # our own.
     #
-    commonClientOptions = " --Ice.NullHandleAbort=1 --Ice.PrintProcessId=1" + hostArg
+    commonClientOptions = " --Ice.NullHandleAbort=1 --Ice.PrintProcessId=1 --Ice.Warn.Connections=0 " + hostArg
     commonServerOptions = r' --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort=1' + \
             r' --Ice.ServerIdleTime=600 --Ice.ThreadPool.Server.Size=2 --Ice.ThreadPool.Server.SizeMax=10' + \
-            r' --Glacier2.RoutingTable.MaxSize=10 ' + hostArg
+            r' --Glacier2.RoutingTable.MaxSize=10 --Ice.Warn.Connections=0 ' + hostArg
 
     # 
     # We cannot use the TestUtil options because they use localhost as the default host which doesn't really work for
     # these tests.
     #
-    clientOptions = TestUtil.clientProtocol + commonClientOptions 
-    serverOptions = TestUtil.serverProtocol + commonServerOptions
 
-    routerCmd = router + serverOptions + " --Ice.Config=%s" % os.path.join(testdir, "router.cfg") + \
+    routerArgs = " --Ice.Config=" + os.path.join(testdir, "router.cfg") + \
           r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
           r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
           r' --Ice.Admin.InstanceName=Glacier2' + \
-          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/staticFiltering/passwords"' 
+          r' --Glacier2.CryptPasswords="'  + os.path.dirname(os.path.abspath(__file__)) + r'/passwords"' 
 
     routerConfig = file(os.path.join(testdir, "router.cfg"), "w")
 
@@ -292,23 +289,34 @@ for testcase in testcases:
 
     routerConfig.close()
 
-    if TestUtil.debug:
-        print "(" + routerCmd + ")",
-    starterPipe = os.popen(routerCmd + " 2>&1")
+    #
+    # We need to override the test driver defaults for the Ice.Default.Host if
+    # it is set to loopback.
+    #
+    routerDriver = TestUtil.DriverConfig("server")
+    if routerDriver.host == "127.0.0.1":
+        routerDriver.host = None
+    routerDriver.overrides = commonServerOptions + routerArgs
+    
+    starterPipe = TestUtil.startServer(router, " 2>&1", routerDriver)
     TestUtil.getServerPid(starterPipe)
     TestUtil.getAdapterReady(starterPipe)
     pingProgress()
 
     if TestUtil.protocol != "ssl":
         serverConfig = file(os.path.join(testdir, "server.cfg"), "w")
-        serverOptions = ' --Ice.Config=' + os.path.join(testdir, "server.cfg") + " " + serverOptions
+        serverOptions = ' --Ice.Config=' + os.path.join(testdir, "server.cfg") + " " 
         serverConfig.write("BackendAdapter.Endpoints=tcp -p 12010 -t 20000\n")
         serverConfig.close()
+    else:
+        serverOptions = ""
 
-    serverCmd = os.path.join(testdir, 'server') + serverOptions
-    if TestUtil.debug:
-        print "(" + serverCmd + ")",
-    serverPipe = os.popen(serverCmd + " 2>&1")
+    serverCmd = os.path.join(testdir, 'server')
+    serverDriver = TestUtil.DriverConfig("server")
+    if serverDriver.host == "127.0.0.1":
+        serverDriver.host = None
+    serverDriver.overrides = commonServerOptions
+    serverPipe = TestUtil.startServer(serverCmd, serverOptions + "  2>&1", serverDriver)
     TestUtil.getServerPid(serverPipe)
     TestUtil.getAdapterReady(serverPipe)
     pingProgress()
@@ -320,11 +328,13 @@ for testcase in testcases:
     # The client is responsible for reporting success or failure. A test
     # failure will result in an assertion and the test will abort.
     #
-    clientCmd = os.path.join(testdir, 'client') + clientOptions + \
-                " --Ice.Config=" + os.path.join(testdir, 'attack.cfg') + " "
-    if TestUtil.debug:
-        print "(" + clientCmd + ")",
-    clientPipe = os.popen(clientCmd + " 2>&1")
+    clientCmd = os.path.join(testdir, 'client')
+    clientDriver = TestUtil.DriverConfig("client")
+    if clientDriver.host == "127.0.0.1":
+        clientDriver.host = None
+    clientDriver.host = commonClientOptions
+    clientArgs = " --Ice.Config=" + os.path.join(testdir, 'attack.cfg') + " "
+    clientPipe = TestUtil.startClient(clientCmd, clientArgs + " 2>&1", clientDriver)
     TestUtil.ignorePid(clientPipe)
 
     TestUtil.printOutputFromPipe(clientPipe)

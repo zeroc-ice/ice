@@ -22,17 +22,17 @@ import TestUtil
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "deployer")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 TestUtil.addLdPath(testdir)
 
 iceBox = TestUtil.getIceBox(testdir)
 
-IceGridAdmin.iceGridTest(name, "application.xml", "--TestDir=\"" + testdir + "\"", \
+IceGridAdmin.iceGridTest(testdir, name, "application.xml", "--TestDir=\"" + testdir + "\"", \
                          '"icebox.exe=' + TestUtil.getIceBox(testdir) + '"')
 
 # Tests with targets
-IceGridAdmin.iceGridTest(name, "application.xml", "-t --TestDir=\"" + testdir + "\"", \
+IceGridAdmin.iceGridTest(testdir, name, "application.xml", "-t --TestDir=\"" + testdir + "\"", \
                          "icebox.exe=" + TestUtil.getIceBox(testdir) + \
                          " moreservers moreservices moreproperties")
 
