@@ -149,22 +149,6 @@ final public class Incoming extends IncomingBase implements Ice.Request
                             }
                         }
                     }
-                    if(_servant == null)
-                    {
-                        _locator = servantManager.findServantLocator("");
-                        if(_locator != null)
-                        {
-                            try
-                            {
-                                _servant = _locator.locate(_current, _cookie);
-                            }
-                            catch(Ice.UserException ex)
-                            {
-                                _os.writeUserException(ex);
-                                replyStatus = ReplyStatus.replyUserException;
-                            }
-                        }
-                    }
                 }
                 if(replyStatus == ReplyStatus.replyOK)
                 {

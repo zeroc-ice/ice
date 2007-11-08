@@ -7,9 +7,9 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..\..
+root_dir	= ..\..
 
-!include $(top_srcdir)/config/Make.rules.mak
+!include $(root_dir)/config/Make.rules.mak
 
 install::
 	@if not exist $(install_slicedir)\Ice \

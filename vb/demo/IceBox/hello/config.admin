@@ -1,0 +1,12 @@
+#
+# The IceBox instance name is used to set the category field of the
+# IceBox ServiceManager identity.
+#
+IceBox.InstanceName=DemoIceBox
+
+#
+# The IceBox server endpoint configuration
+#
+IceBox.ServiceManager.Endpoints=tcp -p 9998
+
+

@@ -182,7 +182,7 @@ IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZE)
 	del /q IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
 	--dict-index IceGrid::IdentityObjectInfoDict,type \
-	IdentityObjectInfoDict ..\..\slice\Ice\Identity.ice Internal.ice
+	IdentityObjectInfoDict $(slicedir)\Ice\Identity.ice Internal.ice
 
 StringAdapterInfoDict.h StringAdapterInfoDict.cpp: $(SLICE2FREEZE)
 	del /q StringAdapterInfoDict.h StringAdapterInfoDict.cpp

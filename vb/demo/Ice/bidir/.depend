@@ -1,0 +1,1 @@
+Callback.vb: ./Callback.ice $(slicedir)/Ice/Identity.ice

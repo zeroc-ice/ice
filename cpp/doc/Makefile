@@ -11,14 +11,14 @@ top_srcdir	= ..
 
 TARGETS		= reference/index.html
 
-SLICEFILES	= $(wildcard ../slice/Ice/*.ice) \
-		  $(wildcard ../slice/Freeze/*.ice) \
-		  $(wildcard ../slice/IceBox/*.ice) \
-		  $(wildcard ../slice/IceGrid/*.ice) \
-		  $(wildcard ../slice/Glacier2/*.ice) \
-		  $(wildcard ../slice/IceSSL/*.ice) \
-		  $(wildcard ../slice/IceStorm/*.ice) \
-		  $(wildcard ../slice/IcePatch2/*.ice)
+SLICEFILES	= $(wildcard ../../slice/Ice/*.ice) \
+		  $(wildcard ../../slice/Freeze/*.ice) \
+		  $(wildcard ../../slice/IceBox/*.ice) \
+		  $(wildcard ../../slice/IceGrid/*.ice) \
+		  $(wildcard ../../slice/Glacier2/*.ice) \
+		  $(wildcard ../../slice/IceSSL/*.ice) \
+		  $(wildcard ../../slice/IceStorm/*.ice) \
+		  $(wildcard ../../slice/IcePatch2/*.ice)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -27,7 +27,7 @@ JAVASCRIPT	= symboltree.js
 
 reference/index.html: $(SLICEFILES)
 	$(MAKE) clean
-	$(bindir)/slice2html --ice -I../slice --hdr=htmlHeader --ftr=htmlFooter \
+	$(bindir)/slice2html --ice -I$(slicedir) --hdr=htmlHeader --ftr=htmlFooter \
 	    --indexhdr=indexHeader --indexftr=indexFooter \
 	    --image-dir=images --logo-url="http://www.zeroc.com" --search="/cgi-bin/swish.cgi" \
 	    --output-dir=reference --index=3 --summary=120 $(SLICEFILES)

@@ -515,11 +515,11 @@ sslConfigTree = {
             "colloc" : " --IceSSL.Keystore=client.jks"
             },
         "cs" : {
-            "plugin" : " --Ice.Plugin.IceSSL=%(bindir)s/icesslcs.dll:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
-            " -IceSSL.Password=password",
-            "client" : " --IceSSL.CertFile=%(certsdir)/c_rsa1024.pfx --IceSSL.CheckCertName=0",
-            "server" : " --IceSSL.CertFile=%(certsdir)/s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=%(certsdir)/cacert.pem",
-            "colloc" : " --IceSSL.CertFile=%(certsdir)/c_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=%(certsdir)/cacert.pem --IceSSL.CheckCertName=0"
+            "plugin" : " --Ice.Plugin.IceSSL=%(bindir)s\\icesslcs.dll:IceSSL.PluginFactory --Ice.Default.Protocol=ssl" +
+            " --IceSSL.Password=password --IceSSL.DefaultDir=%(certsdir)s",
+            "client" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.CheckCertName=0",
+            "server" : " --IceSSL.CertFile=s_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem",
+            "colloc" : " --IceSSL.CertFile=c_rsa1024.pfx --IceSSL.ImportCert.CurrentUser.Root=cacert.pem --IceSSL.CheckCertName=0"
             },
         }
 
@@ -550,12 +550,16 @@ def getDefaultMapping(currentDir = ""):
     sys.exit(1)
 
 def getTestEnv():
-    # 
-    #  XXX: These values *could* be relative to __file__, e.g.
-    #  os.path.join(__file__, "..", "cpp")
-    #
-    return { "bindir"   : os.path.join(os.path.abspath(findTopLevel()), "cpp", "bin"),
-             "certsdir" : os.path.join(os.path.abspath(findTopLevel()), "certs")}
+    env = {}
+
+    lang = getDefaultMapping()
+    if lang == "cs":
+        env["bindir"] = os.path.splitdrive(os.path.join(os.path.abspath(findTopLevel()), "cs", "bin"))[1]
+        env["certsdir"] = os.path.splitdrive(os.path.join(os.path.abspath(findTopLevel()), "certs"))[1]
+    else:
+        env["certsdir"] = os.path.join(os.path.abspath(findTopLevel()), "certs")
+        env["bindir"] = os.path.join(os.path.abspath(findTopLevel()), "cpp", "bin")
+    return env 
 
 class DriverConfig:
     lang = None
@@ -609,6 +613,11 @@ def getCommandLine(exe, config, env = getTestEnv()):
     components = ["--Ice.NullHandleAbort", "--Ice.Warn.Connections"]
 
     #
+    # Turn on network tracing.
+    #
+    # components.append("--Ice.Trace.Network=3")
+
+    #
     # Now we add additional components dependent on the desired
     # configuration.
     #
@@ -621,8 +630,12 @@ def getCommandLine(exe, config, env = getTestEnv()):
     if config.threadPerConnection:
         components.append("--Ice.ThreadPerConnection")
     elif config.type == "server":
-        components.append("--Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=10")
-        components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
+        components.append("--Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30")
+        if not (config.protocol == "ssl" and config.lang == "cs"):
+            components.append("--Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3 --Ice.ThreadPool.Server.SizeWarn=0")
+
+    if config.protocol == "ssl" and config.lang == "cs":
+        components.append("--Ice.ThreadPerConnection=1")
 
     if config.host != None and len(config.host) != 0:
         components.append("--Ice.Default.Host=%s" % config.host)
@@ -810,7 +823,6 @@ def clientServerTestWithClasspath(name, serverClasspath, clientClasspath):
         killServers()
         sys.exit(1)
 
-
 def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     testdir = os.path.join(findTopLevel(), getDefaultMapping(), "test", name)
@@ -883,9 +895,6 @@ def collocatedTest(name):
     collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
-    #
-    # XXX why isn't this the same as cpp/IceGridAdmin's cleanDbDir?
-    #
     for filename in [ os.path.join(path, f) for f in os.listdir(path) if f != ".gitignore" and f != "DB_CONFIG" ]:
 	os.remove(filename)
 
@@ -920,14 +929,7 @@ def getMappingDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), getDefaultMapping(currentDir)))
 
 def getBinDir(currentDir):
-#
-# XXX needs to handle directories that the bin dir isn't in the mapping
-# dir. e.g. Python.
-#
     return os.path.abspath(os.path.join(getMappingDir(currentDir), "bin"))
 
 def getCertsDir(currentDir):
-#
-# XXX- this will change when I move the certs directory.
-#
     return os.path.abspath(os.path.join(findTopLevel(), "certs"))
