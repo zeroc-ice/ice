@@ -7,15 +7,23 @@
 #
 # **********************************************************************
 
-root_dir	= ..\..
+root_dir	= .
 
 !include $(root_dir)/config/Make.rules.mak
 
-install::
-	@if not exist $(install_slicedir)\IceGrid \
-	    @echo "Creating $(install_slicedir)\IceGrid..." && \
-	    mkdir $(install_slicedir)\IceGrid
+SUBDIRS		= slice cpp java
 
-	@for %i in ( *.ice ) do \
-	    @echo Installing %i && \
-	    copy %i $(install_slicedir)\IceGrid
+!if "$(CPP_COMPILER)" == "VC60"
+SUBDIRS		= $(SUBDIRS) php rb
+!endif
+
+!if "$(CPP_COMPILER)" == "VC80"
+SUBDIRS		= $(SUBDIRS) cs py vb
+!endif
+
+$(EVERYTHING)::
+	@for %i in ( $(SUBDIRS) ) do \
+	    @echo "making $@ in %i" && \
+	    cmd /c "cd %i && $(MAKE) -nologo -f Makefile.mak $(MAKEFLAGS) $@" || exit 1
+
+

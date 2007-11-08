@@ -7,9 +7,9 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
+root_dir	= ../..
 
-include $(top_srcdir)/config/Make.rules
+include $(root_dir)/config/Make.rules
 
 install::
 	@if test ! -d $(install_slicedir)/Freeze ; \

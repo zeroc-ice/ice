@@ -7,15 +7,11 @@
 #
 # **********************************************************************
 
-root_dir	= ..\..
+all:
+	ant -emacs
 
-!include $(root_dir)/config/Make.rules.mak
+clean:
+	ant -emacs clean
 
-install::
-	@if not exist $(install_slicedir)\IceGrid \
-	    @echo "Creating $(install_slicedir)\IceGrid..." && \
-	    mkdir $(install_slicedir)\IceGrid
-
-	@for %i in ( *.ice ) do \
-	    @echo Installing %i && \
-	    copy %i $(install_slicedir)\IceGrid
+test::
+	@python .\allTests.py

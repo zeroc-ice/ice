@@ -7,15 +7,15 @@
 #
 # **********************************************************************
 
-root_dir	= ..\..
+root_dir	= .
 
-!include $(root_dir)/config/Make.rules.mak
+include $(root_dir)/config/Make.rules
 
-install::
-	@if not exist $(install_slicedir)\IceGrid \
-	    @echo "Creating $(install_slicedir)\IceGrid..." && \
-	    mkdir $(install_slicedir)\IceGrid
+SUBDIRS		= slice cpp java cs php py rb 
 
-	@for %i in ( *.ice ) do \
-	    @echo Installing %i && \
-	    copy %i $(install_slicedir)\IceGrid
+$(EVERYTHING)::
+	@for subdir in $(SUBDIRS); \
+	do \
+	    echo "making $@ in $$subdir"; \
+	    ( cd $$subdir && $(MAKE) $@ ) || exit 1; \
+	done

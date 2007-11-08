@@ -7,9 +7,9 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+root_dir	= ..
 
-include $(top_srcdir)/config/Make.rules
+include $(root_dir)/config/Make.rules
 
 SUBDIRS		= Freeze \
 		  Glacier2 \
