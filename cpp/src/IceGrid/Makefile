@@ -172,7 +172,7 @@ $(LOCAL_HDIR)/IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp: $(SLICE2FREEZ
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
 	$(SLICE2FREEZECMD) --dict IceGrid::IdentityObjectInfoDict,Ice::Identity,IceGrid::ObjectInfo \
 	--dict-index IceGrid::IdentityObjectInfoDict,type \
-	IdentityObjectInfoDict ../../slice/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
+	IdentityObjectInfoDict $(slicedir)/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
 
 clean::
 	rm -f IdentityObjectInfoDict.h IdentityObjectInfoDict.cpp
