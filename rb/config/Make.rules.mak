@@ -8,7 +8,10 @@
 # **********************************************************************
 
 !if "$(ICE_HOME)" == ""
-!error ICE_HOME is not defined
+ICE_DIR		= $(top_srcdir)\..
+USE_SRC_DIR	= 1
+!else
+ICE_DIR 	= $(ICE_HOME)
 !endif
 
 #
@@ -64,10 +67,10 @@ THIRDPARTY_HOME         = $(STLPORT_HOME)
 !error Invalid setting for CPP_COMPILER: $(CPP_COMPILER)
 !endif
 
-!if exist ($(top_srcdir)\config\Make.rules.msvc)
-!include $(top_srcdir)\config\Make.rules.msvc
+!if exist ($(ICE_DIR)\config\Make.rules.msvc)
+!include $(ICE_DIR)\config\Make.rules.msvc
 !else
-!include $(ICE_HOME)\config\Make.rules.msvc
+!include $(ICE_DIR)\cpp\config\Make.rules.msvc
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
@@ -76,14 +79,15 @@ LIBSUFFIX       = $(LIBSUFFIX)d
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
-ICE_CPPFLAGS		= -I"$(ICE_HOME)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_HOME)\lib"
-
-!if exist ($(top_srcdir)\slice)
-slicedir		= $(top_srcdir)\slice
+!if "$(USE_SRC_DIR)" == "1"
+ICE_CPPFLAGS		= -I"$(ICE_DIR)\cpp\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\cpp\lib"
 !else
-slicedir		= $(ICE_HOME)\slice
+ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
 !endif
+
+slicedir		= $(ICE_DIR)\slice
 
 RUBY_CPPFLAGS		= -I"$(RUBY_HOME)\lib\ruby\1.8\i386-mswin32"
 RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"
@@ -92,7 +96,11 @@ RUBY_LIBS		= msvcrt-ruby18.lib
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2RBFLAGS		= $(ICECPPFLAGS)
 
-SLICE2RB		= "$(ICE_HOME)\bin\slice2rb.exe"
+!if "$(USE_SRC_DIR)" == "1"
+SLICE2RB		= "$(ICE_DIR)\cpp\bin\slice2rb.exe"
+!else
+SLICE2RB		= "$(ICE_DIR)\bin\slice2rb.exe"
+!endif
 
 EVERYTHING		= all clean install
 

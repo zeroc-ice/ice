@@ -17,20 +17,21 @@ for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."
 else:
     raise "can't find toplevel directory!"
 
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+import IceGridAdmin
+
 ice_home = None
 if not os.environ.has_key('ICE_HOME'):
     relPath = os.path.join(TestUtil.findTopLevel(), "cpp", "bin") 
-    if os.path.exists(os.path.join(relPath, "icegridregistry")):
+    if os.path.exists(os.path.join(relPath, "icegridregistry")) or \
+        os.path.exists(os.path.join(relPath, "icegridregistry.exe")):
         ice_home = os.path.dirname(relPath) 
     else:
         print "ICE_HOME is not defined."
         sys.exit(0)
 else:
     ice_home = os.environ['ICE_HOME']
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-import IceGridAdmin
 
 name = os.path.join("IceGrid", "simple")
 testdir = os.path.dirname(os.path.abspath(__file__))

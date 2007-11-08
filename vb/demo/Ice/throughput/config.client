@@ -1,0 +1,3 @@
+Throughput.Throughput=throughput:default -p 10000 -h 127.0.0.1
+
+Ice.ACM.Client=0
