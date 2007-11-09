@@ -21,6 +21,7 @@ threadPerConnection = 0         # Set to 1 to have tests use thread per connecti
 host = "127.0.0.1"              # Default to loopback.
 debug = 0                       # Set to 1 to enable test suite debugging.
 mono =  0                       # Set to 1 to use Mono as the default .NET CLR.
+keepGoing = 0                   # Set to 1 to have the tests continue on failure.
 
 javaCmd = "java"                # Default java loader
 phpCmd = "php"                  # Name of default php binary (usually php or php5)
@@ -37,8 +38,25 @@ phpCmd = "php"                  # Name of default php binary (usually php or php
 #
 defaultMapping = None
 
+testErrors = []
+
 import sys, os, re, errno, getopt, time, StringIO
 from threading import Thread
+
+usageMessage = "usage: " + sys.argv[0] + """
+  --all                   Run all permutations of the tests."
+  --start=<regex>         Start running the tests at the given test."
+  --start-after=<regex>   Start running the tests after the given test.
+  --loop                  Run the tests in a loop.
+  --filter=<regex>        Run all the tests that match the given regex.
+  --rfilter=<regex>       Run all the tests that do not match the given regex.
+  --debug                 Display debugging information on each test.
+  --protocol=tcp|ssl      Run with the given protocol.
+  --compress              Run the tests with protocol compression.
+  --host=host             Set --Ice.Default.Host=<host>.
+  --threadPerConnection   Run with thread-per-connection concurrency model.
+  --continue              Keep running when a test fails
+"""
 
 def configurePaths():
     toplevel = findTopLevel()
@@ -101,50 +119,88 @@ def isAIX():
 def isDarwin():
    return sys.platform == "darwin"
 
-usageMessage = "usage: " + sys.argv[0] + """
-  --all                   Run all permutations of the tests."
-  --start=<regex>         Start running the tests at the given test."
-  --start-after=<regex>   Start running the tests after the given test.
-  --loop                  Run the tests in a loop.
-  --filter=<regex>        Run all the tests that match the given regex.
-  --rfilter=<regex>       Run all the tests that do not match the given regex.
-  --debug                 Display debugging information on each test.
-  --protocol=tcp|ssl      Run with the given protocol.
-  --compress              Run the tests with protocol compression.
-  --host=host             Set --Ice.Default.Host=<host>.
-  --threadPerConnection   Run with thread-per-connection concurrency model.
-"""
-
 def usage():
     global usageMessage
     print usageMessage
     sys.exit(2)
 
+def index(l, re):
+    """Find the index of the first item in the list that matches the given re"""
+    for i in range(0, len(l)):
+        if re.search(l[i]):
+            return i
+    return -1
 
-validShortArgs = "lr:R:"
-validLongArgs = ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug", "protocol=",
-                 "compress", "host=", "threadPerConnection"]
+def getTestSet(tests):
+    resultSet = tests[start:] 
+    if testFilter != None:
+        if removeFilter:
+            resultSet = [ x for x in tests if not testFilter.search(x) ]
+        else:
+            resultSet = [ x for x in tests if testFilter.search(x) ]
+    return resultSet
 
-try:
-    opts, args = getopt.getopt(sys.argv[1:], validShortArgs,  validLongArgs)
-except getopt.GetoptError:
-    usage()
+def run(tests):
+    global arg
+    testset = getTestSet(tests)
+    args =  []
+    if all:
+        for protocol in ["ssl", "tcp"]:
+            for compress in [0, 1]:
+                for threadPerConnection in [0, 1]:
+                    testarg = ""
+                    if compress:
+                        testarg += "--compress"
+                    if threadPerConnection:
+                        testarg += " --threadPerConnection"
+                    testarg += " --protocol %s" % (protocol)
+                    args.append(testarg)
+    else:
+        args.append(arg)
 
-for o, a in opts:
-    if o == "--debug":
-        debug = 1
-    if o == "--protocol":
-        if a not in ( "tcp", "ssl"):
-            usage()
-        protocol = a
-    if o in ["-m", "--mono"]:
-        mono = 1
-    if o == "--compress":
-        compress = 1
-    if o == "--threadPerConnection":
-        threadPerConnection = 1
-    if o == "--host":
-        host = a
+    if loop:
+        num = 1
+        while 1:
+            for arg in args:
+                runTests(arg, [ os.path.join(getDefaultMapping(), "test", x) for x in testset ], num)
+            num += 1
+    else:
+        for arg in args:
+            runTests(arg, [ os.path.join(getDefaultMapping(), "test", x) for x in testset ])
+
+    global testErrors
+    if len(testErrors) > 0:
+        print "The following errors occurred:"
+        for x in testErrors:
+            print x
+
+def rootRun(tests):
+    global arg
+    if loop:
+        print "Looping is currently disabled for running all tests from the root!"
+    else:
+        if all:
+            for protocol in ["ssl", "tcp"]:
+                for compress in [0, 1]:
+                    for threadPerConnection in [0, 1]:
+                        testarg = ""
+                        if compress:
+                            testarg += "--compress"
+                        if threadPerConnection:
+                            testarg += " --threadPerConnection"
+                        testarg += " --protocol %s" % (protocol)
+                        args.append(testarg)
+        else:
+            args.append(arg)
+
+        for arg in args:
+            runTests(arg, tests)
+
+    global testErrors
+    if len(testErrors) > 0:
+        print "The following errors occurred:"
+        for x in testErrors:
+            print x
 
 if not isWin32():
     mono = 1
@@ -457,19 +513,15 @@ def commonInit():
 
 def javaInit():
     commonInit()
-    pass
 
 def cppInit():
     commonInit()
-    pass
 
 def pythonInit():
     commonInit()
-    pass
 
 def rubyInit():
     commonInit()
-    pass
 
 def dotnetInit():
     global usageMessage
@@ -484,7 +536,7 @@ def dotnetInit():
     commonInit()
 
 def phpInit():
-    pass
+    commonInit()
 
 class InvalidSelectorString(Exception):
     def __init__(self, value):
@@ -546,8 +598,8 @@ def getDefaultMapping(currentDir = ""):
         if p in ["cpp", "cs", "java", "php", "py", "rb", "tmp"]:
             return p
 
-    print >>sys.stderr, "Unable to determine default mapping" 
-    sys.exit(1)
+    #  Default to C++
+    return "cpp"
 
 def getTestEnv():
     env = {}
@@ -678,16 +730,41 @@ def getCommandLine(exe, config, env = getTestEnv()):
 
     return commandline
 
-def checkFiles(filelist):
-    pass
-#
-#    if getDefaultMapping() == "java":
-#        # We skip checking for the file in Java since the 'file' is actually a class somewhere in the classpath.
-#        return
-#    for f in filelist:
-#        if not (os.path.exists(f) and os.path.isfile(f)):
-#            print >>sys.stderr, "File %s does not exist or is not executable" % f
-#            sys.exit(1)
+def runTests(args, tests, num = 0):
+    global testErrors
+    global keepGoing
+
+    #
+    # Run each of the tests.
+    #
+    for i in tests:
+
+        i = os.path.normpath(i)
+        dir = os.path.join(toplevel, i)
+
+        print
+        if num > 0:
+            print "[" + str(num) + "]",
+        print "*** running tests in " + dir,
+        print
+
+        os.chdir(dir)
+
+        if isWin9x():
+            status = os.system("python " + os.path.join(dir, "run.py " + args))
+        else:
+            status = os.system(os.path.join(dir, "run.py " + args))
+
+        if status:
+            if(num > 0):
+                print "[" + str(num) + "]",
+            message = "test in " + os.path.abspath(dir) + " failed with exit status", status,
+            print message
+            if keepGoing == 0:
+                sys.exit(status)
+            else:
+                print " ** Error logged and will be displayed again when suite is completed **"
+                testErrors.append(message)
 
 def getDefaultServerFile():
     lang = getDefaultMapping()
@@ -739,8 +816,6 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
             server = os.path.join(testdir, serverName)
         client = os.path.join(testdir, clientName)
     
-        checkFiles([server, client])
-
     print "starting " + serverName + "...",
     serverCfg = DriverConfig("server")
     if lang in ["rb", "php"]:
@@ -832,7 +907,6 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     if lang != "java":
         server = os.path.join(testdir, server)
         client = os.path.join(testdir, client)
-        checkFiles([server, client])
 
     print "starting server...",
     serverCmd = getCommandLine(server, DriverConfig("server")) + additionalServerOptions
@@ -874,7 +948,6 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocated = getDefaultCollocatedFile()
     if lang != "java":
         collocated = os.path.join(testdir, collocated) 
-        checkFiles([collocated])
 
     print "starting collocated...",
     command = getCommandLine(collocated, DriverConfig("colloc")) + ' ' + additionalOptions 
@@ -933,3 +1006,69 @@ def getBinDir(currentDir):
 
 def getCertsDir(currentDir):
     return os.path.abspath(os.path.join(findTopLevel(), "certs"))
+
+validShortArgs = "lr:R:"
+validLongArgs = ["start=", "start-after=", "filter=", "rfilter=", "all", "loop", "debug", "protocol=",
+                 "compress", "host=", "threadPerConnection", "continue"]
+
+opts = []
+args = []
+loop = False
+arg = ""
+all = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], validShortArgs,  validLongArgs)
+except getopt.GetoptError:
+    usage()
+
+if args:
+    usage()
+
+testFilter = None
+removeFilter = False
+start = 0
+
+for o, a in opts:
+    if o in ["-m", "--mono"]:
+        mono = 1
+    elif o == "--continue":
+        keepGoing = 1
+    elif o == "--compress":
+        compress = 1
+    elif o == "--threadPerConnection":
+        threadPerConnection = 1
+    elif o == "--host":
+        host = a
+    elif o in ("-l", "--loop"):
+        loop = True
+    elif o in ("-r", "-R", "--filter", '--rfilter'):
+        testFilter = re.compile(a)
+        if o in ("--rfilter", "-R"):
+            removeFilter = True
+    elif o == "--all" :
+        all = True
+    elif o in ( "--protocol", "--host", "--debug", "--compress", "--threadPerConnection" ):
+        if o == "--protocol":
+            if a not in ( "ssl", "tcp"):
+                usage()
+            protocol = a
+        arg += " " + o
+
+        if o == "--debug":
+            debug = 1
+
+        if len(a) > 0:
+            arg += " " + a
+    elif o in ('--start', "--start-after"):
+        start = index(tests, re.compile(a))
+        if start == -1:
+            print "test %s not found. no tests to run" % (a)
+            sys.exit(2)
+        if o == "--start-after":
+            start += 1
+        tests = tests[start:]
+
+if all and len(arg) > 0:
+    usage()
+
