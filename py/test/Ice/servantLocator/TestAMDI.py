@@ -109,7 +109,9 @@ class ServantLocatorI(Ice.ServantLocator):
         self._deactivated = True
 
     def exception(self, current):
-        if current.operation == "requestFailedException":
+        if current.operation == "ice_ids":
+            raise Test.TestIntfUserException()
+        elif current.operation == "requestFailedException":
             raise Ice.ObjectNotExistException()
         elif current.operation == "unknownUserException":
             raise Ice.UnknownUserException("reason")

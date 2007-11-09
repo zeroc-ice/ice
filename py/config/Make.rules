@@ -13,6 +13,8 @@
 #
 USE_ICE_RPM ?= 0
 
+USE_SRC_DIST = 0
+
 ifneq ($(ICE_HOME),)
     ifeq ($(USE_ICE_RPM), 1)
 $(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
@@ -20,14 +22,14 @@ $(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
 
     ICE_DIR = $(ICE_HOME)
 
-    ifeq ($(shell test -f $(ICE_DIR)/bin/slice2py && echo 0),0)
+    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2py && echo 0),0)
 $(error Unable to locate slice2py in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
     endif
 else
     ifeq ($(USE_ICE_RPM),1)
         ICE_DIR=/usr
 
-        ifeq ($(shell test -f $(ICE_DIR)/bin/slice2py && echo 0),0)
+        ifneq ($(shell test -f $(ICE_DIR)/bin/slice2py && echo 0),0)
 $(error Unable to locate slice2py in $(ICE_DIR). Please verify that the required Ice RPMs are properly installed.) 
         endif
     else
@@ -173,7 +175,11 @@ endif
 ifneq ($(USE_ICE_RPM),0)
     slicedir		= /usr/share/Ice-$(VERSION)/slice
 else
-    slicedir		= $(ICE_DIR)/slice
+    ifeq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+        slicedir		= $(ICE_DIR)/slice
+    else
+        slicedir		= $(ICE_DIR)/../slice
+    endif
 endif
 
 install_libdir	        = $(prefix)/python
@@ -264,7 +270,7 @@ EVERYTHING		= all depend clean install
 
 all:: $(SRCS)
 
-%_ice.py: $(SDIR)/%.ice
+%_ice.py: $(slicedir)/%.ice
 	rm -f $(*F).py
 	$(SLICE2PY) $(SLICE2PYFLAGS) $<
 

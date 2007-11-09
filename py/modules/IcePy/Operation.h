@@ -20,6 +20,14 @@ namespace IcePy
 bool initOperation(PyObject*);
 
 //
+// Builtin operations.
+//
+PyObject* iceIsA(const Ice::ObjectPrx&, PyObject*);
+PyObject* icePing(const Ice::ObjectPrx&, PyObject*);
+PyObject* iceIds(const Ice::ObjectPrx&, PyObject*);
+PyObject* iceId(const Ice::ObjectPrx&, PyObject*);
+
+//
 // Blobject invocations.
 //
 PyObject* iceInvoke(const Ice::ObjectPrx&, PyObject*);
