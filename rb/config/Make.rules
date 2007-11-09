@@ -13,6 +13,8 @@
 #
 USE_ICE_RPM ?= 0
 
+USE_SRC_DIST = 0
+
 ifneq ($(ICE_HOME),)
     ifeq ($(USE_ICE_RPM), 1)
 $(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
@@ -20,14 +22,14 @@ $(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
 
     ICE_DIR = $(ICE_HOME)
 
-    ifeq ($(shell test -f $(ICE_DIR)/bin/slice2rb && echo 0),0)
+    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2rb && echo 0),0)
 $(error Unable to locate slice2rb in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
     endif
 else
     ifeq ($(USE_ICE_RPM),1)
         ICE_DIR=/usr
 
-        ifeq ($(shell test -f $(ICE_DIR)/bin/slice2rb && echo 0),0)
+        ifneq ($(shell test -f $(ICE_DIR)/bin/slice2rb && echo 0),0)
 $(error Unable to locate slice2rb in $(ICE_DIR). Please verify that the required Ice RPMs are properly installed.) 
         endif
 
@@ -105,7 +107,11 @@ rubydir			= $(top_srcdir)/ruby
 ifneq ($(USE_ICE_RPM),0)
     slicedir		= /usr/share/Ice-$(VERSION)/slice
 else
-    slicedir		= $(ICE_DIR)/slice
+    ifeq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+        slicedir		= $(ICE_DIR)/slice
+    else
+        slicedir		= $(ICE_DIR)/../slice
+    endif
 endif
 
 install_bindir		= $(prefix)/bin
@@ -149,6 +155,7 @@ ICE_LIBS		= $(ICE_LIB_DIRS) -lIce -lSlice -lIceUtil
 
 ifneq ($(ICE_DIR),)
     ifneq ($(USE_SRC_DIST),0)
+$(error Why is this happening?)
         ICE_FLAGS       = -I$(ICE_DIR)/cpp/include
     else
         ICE_FLAGS	= -I$(ICE_DIR)/include
