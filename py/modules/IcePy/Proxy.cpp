@@ -222,46 +222,18 @@ static PyObject*
 proxyIceIsA(ProxyObject* self, PyObject* args)
 {
     char* type;
-    PyObject* ctx = 0;
+    PyObject* ctx = Py_None;
     if(!PyArg_ParseTuple(args, STRCAST("s|O!"), &type, &PyDict_Type, &ctx))
     {
         return 0;
     }
 
-    assert(self->proxy);
+    //
+    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
+    //
+    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((O), O)"), type, ctx);
 
-    bool b;
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        if(ctx)
-        {
-            Ice::Context context;
-            if(!dictionaryToContext(ctx, context))
-            {
-                return 0;
-            }
-            b = (*self->proxy)->ice_isA(type, context);
-        }
-        else
-        {
-            b = (*self->proxy)->ice_isA(type);
-        }
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    if(b)
-    {
-        PyRETURN_TRUE;
-    }
-    else
-    {
-        PyRETURN_FALSE;
-    }
+    return iceIsA(*self->proxy, newArgs.get());
 }
 
 #ifdef WIN32
@@ -270,39 +242,18 @@ extern "C"
 static PyObject*
 proxyIcePing(ProxyObject* self, PyObject* args)
 {
-    PyObject* ctx = 0;
+    PyObject* ctx = Py_None;
     if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
     {
         return 0;
     }
 
-    assert(self->proxy);
+    //
+    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
+    //
+    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((), O)"), ctx);
 
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        if(ctx)
-        {
-            Ice::Context context;
-            if(!dictionaryToContext(ctx, context))
-            {
-                return 0;
-            }
-            (*self->proxy)->ice_ping(context);
-        }
-        else
-        {
-            (*self->proxy)->ice_ping();
-        }
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return icePing(*self->proxy, newArgs.get());
 }
 
 #ifdef WIN32
@@ -311,45 +262,18 @@ extern "C"
 static PyObject*
 proxyIceIds(ProxyObject* self, PyObject* args)
 {
-    PyObject* ctx = 0;
+    PyObject* ctx = Py_None;
     if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
     {
         return 0;
     }
 
-    assert(self->proxy);
+    //
+    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
+    //
+    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((), O)"), ctx);
 
-    Ice::StringSeq ids;
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        if(ctx)
-        {
-            Ice::Context context;
-            if(!dictionaryToContext(ctx, context))
-            {
-                return 0;
-            }
-            ids = (*self->proxy)->ice_ids(context);
-        }
-        else
-        {
-            ids = (*self->proxy)->ice_ids();
-        }
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    PyObject* list = PyList_New(0);
-    if(!list || !stringSeqToList(ids, list))
-    {
-        return 0;
-    }
-
-    return list;
+    return iceIds(*self->proxy, newArgs.get());
 }
 
 #ifdef WIN32
@@ -358,39 +282,18 @@ extern "C"
 static PyObject*
 proxyIceId(ProxyObject* self, PyObject* args)
 {
-    PyObject* ctx = 0;
+    PyObject* ctx = Py_None;
     if(!PyArg_ParseTuple(args, STRCAST("|O!"), &PyDict_Type, &ctx))
     {
         return 0;
     }
 
-    assert(self->proxy);
+    //
+    // We need to reformat the arguments to match what is used by the generated code: ((params...), ctx|None)
+    //
+    PyObjectHandle newArgs = Py_BuildValue(STRCAST("((), O)"), ctx);
 
-    string id;
-    try
-    {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-        if(ctx)
-        {
-            Ice::Context context;
-            if(!dictionaryToContext(ctx, context))
-            {
-                return 0;
-            }
-            id = (*self->proxy)->ice_id(context);
-        }
-        else
-        {
-            id = (*self->proxy)->ice_id();
-        }
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return 0;
-    }
-
-    return Py_BuildValue(STRCAST("s"), id.c_str());
+    return iceId(*self->proxy, newArgs.get());
 }
 
 #ifdef WIN32
