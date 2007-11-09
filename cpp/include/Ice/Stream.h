@@ -198,6 +198,30 @@ private:
     void* _arg;
 };
 
+class ICE_API UserExceptionWriter : public UserException
+{
+public:
+
+    UserExceptionWriter(const Ice::CommunicatorPtr&);
+    ~UserExceptionWriter() throw();
+
+    virtual void write(const OutputStreamPtr&) const = 0;
+    virtual bool usesClasses() const = 0;
+
+    virtual std::string ice_name() const = 0;
+    virtual Ice::Exception* ice_clone() const = 0;
+    virtual void ice_throw() const = 0;
+
+    virtual void __write(IceInternal::BasicStream*) const;
+    virtual void __read(IceInternal::BasicStream*, bool);
+
+    virtual bool __usesClasses() const;
+
+protected:
+
+    Ice::CommunicatorPtr _communicator;
+};
+
 }
 
 #endif

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <ServantLocatorI.h>
+#include <Test.h>
 #include <TestCommon.h>
 
 #include <stdexcept>
@@ -109,5 +110,13 @@ ServantLocatorI::exception(const Ice::Current& current)
     else if(current.operation == "unknownExceptionWithServantException")
     {
         throw UnknownException(__FILE__, __LINE__, "reason");
+    }
+    else if(current.operation == "impossibleException")
+    {
+        throw TestIntfUserException(); // Yes, it really is meant to be TestIntfUserException.
+    }
+    else if(current.operation == "intfUserException")
+    {
+        throw TestImpossibleException(); // Yes, it really is meant to be TestImpossibleException.
     }
 }

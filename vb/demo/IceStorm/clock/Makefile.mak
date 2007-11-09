@@ -14,9 +14,11 @@ TARGETS		= publisher.exe subscriber.exe
 C_SRCS		= Publisher.vb
 S_SRCS		= Subscriber.vb
 
-GEN_SRCS	= $(GDIR)\Clock.vb
+GEN_SRCS	= $(GDIR)\Clock.cs
 
 SLICE_SRCS	= $(SDIR)/Clock.ice
+
+SLICE_ASSEMBLY  = clockSlice.dll
 
 SDIR		= .
 
@@ -26,10 +28,10 @@ GDIR		= generated
 
 VBCFLAGS	= $(VBCFLAGS) -target:exe
 
-publisher.exe: $(C_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\icestormcs.dll $(C_SRCS) $(GEN_SRCS)
+publisher.exe: $(C_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\icestormcs.dll -r:$(SLICE_ASSEMBLY) $(C_SRCS)
 
-subscriber.exe: $(S_SRCS) $(GEN_SRCS)
-	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\icestormcs.dll $(S_SRCS) $(GEN_SRCS)
+subscriber.exe: $(S_SRCS) $(SLICE_ASSEMBLY)
+	$(VBC) $(VBCFLAGS) -out:$@ -r:$(csbindir)\icecs.dll -r:$(csbindir)\icestormcs.dll -r:$(SLICE_ASSEMBLY) $(S_SRCS)
 
 !include .depend

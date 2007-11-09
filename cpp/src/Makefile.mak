@@ -19,7 +19,6 @@ SUBDIRS		= $(SUBDIRS) IceUtil \
 		  Slice \
 		  slice2cpp \
 		  slice2cs \
-		  slice2vb \
 		  slice2freeze \
 		  slice2freezej \
 		  slice2docbook \
@@ -39,6 +38,7 @@ SUBDIRS		= $(SUBDIRS) IceUtil \
 		  FreezeScript \
 		  IceStorm \
 		  IceGrid \
+                  iceserviceinstall \
 		  ca
 
 $(EVERYTHING)::

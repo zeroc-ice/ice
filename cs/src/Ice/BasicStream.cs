@@ -59,6 +59,7 @@ namespace IceInternal
         private void initialize(IceInternal.Instance instance, bool unlimited)
         {
             instance_ = instance;
+            _closure = null;
             _unlimited = unlimited;
             allocate(1500);
             _capacity = _buf.capacity();
@@ -109,11 +110,27 @@ namespace IceInternal
         {
             return instance_;
         }
-        
+
+        public virtual object closure()
+        {
+            return _closure;
+        }
+
+        public virtual object closure(object p)
+        {
+            object prev = _closure;
+            _closure = p;
+            return prev;
+        }
+
         public virtual void swap(BasicStream other)
         {
             Debug.Assert(instance_ == other.instance_);
             
+            object tmpClosure = other._closure;
+            other._closure = _closure;
+            _closure = tmpClosure;
+
             ByteBuffer tmpBuf = other._buf;
             other._buf = _buf;
             _buf = tmpBuf;
@@ -838,7 +855,7 @@ namespace IceInternal
                 IEnumerator<bool> i = v.GetEnumerator();
                 while(i.MoveNext())
                 {
-                    writeBool(i.Current);
+                    _buf.put(i.Current ? (byte)1 : (byte)0);
                 }
             }
             else if(v is Queue<bool>)
@@ -855,7 +872,7 @@ namespace IceInternal
                 expand(count);
                 foreach(bool b in v)
                 {
-                    writeBool(b);
+                    _buf.put(b ? (byte)1 : (byte)0);
                 }
             }
         }
@@ -1121,7 +1138,7 @@ namespace IceInternal
                 expand(count * 4);
                 foreach(int i in v)
                 {
-                    writeInt(i);
+                    _buf.putInt(i);
                 }
             }
         }
@@ -1276,7 +1293,7 @@ namespace IceInternal
                 expand(count * 8);
                 foreach(long l in v)
                 {
-                    writeLong(l);
+                    _buf.putLong(l);
                 }
             }
         }
@@ -1431,7 +1448,7 @@ namespace IceInternal
                 expand(count * 4);
                 foreach(float f in v)
                 {
-                    writeFloat(f);
+                    _buf.putFloat(f);
                 }
             }
         }
@@ -1586,7 +1603,7 @@ namespace IceInternal
                 expand(count * 8);
                 foreach(double d in v)
                 {
-                    writeDouble(d);
+                    _buf.putDouble(d);
                 }
             }
         }
@@ -2727,6 +2744,7 @@ namespace IceInternal
         }
 
         private IceInternal.Instance instance_;
+        private object _closure;
         private ByteBuffer _buf;
         private int _capacity; // Cache capacity to avoid excessive method calls.
         private int _limit; // Cache limit to avoid excessive method calls.

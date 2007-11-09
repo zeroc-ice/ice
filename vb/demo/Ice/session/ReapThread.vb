@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Imports sessionDemo.Demo
+Imports Demo
 Imports System
 Imports System.Threading
 Imports System.Collections

@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak.vb
 
-SUBDIRS		= generate demo
+SUBDIRS		= demo
 
 $(EVERYTHING)::
 	@for %i in ( $(SUBDIRS) ) do \

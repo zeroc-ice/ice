@@ -300,7 +300,7 @@ namespace IceInternal
             return this;
         }
 
-        public unsafe ByteBuffer putShortSeq(short[] seq)
+        public ByteBuffer putShortSeq(short[] seq)
         {
             int len = Buffer.ByteLength(seq);
             checkOverflow(len);

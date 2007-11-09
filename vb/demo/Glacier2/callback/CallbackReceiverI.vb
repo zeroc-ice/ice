@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Imports glacier2demo.Demo
+Imports Demo
 Imports System
 
 Public NotInheritable Class CallbackReceiverI

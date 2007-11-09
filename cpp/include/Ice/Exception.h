@@ -19,6 +19,13 @@ namespace IceInternal
 
 class BasicStream;
 
+namespace Ex
+{
+
+ICE_API void throwUOE(const ::std::string&, const ::std::string&);
+
+}
+
 }
 
 namespace Ice

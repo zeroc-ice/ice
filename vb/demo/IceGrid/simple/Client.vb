@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports SimpleIceGrid.Demo
+Imports Demo
 
 Module SimpleIceGridC
 
@@ -24,6 +24,11 @@ Module SimpleIceGridC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim hello As HelloPrx = Nothing
             Try
                 hello = HelloPrxHelper.checkedCast(communicator().stringToProxy("hello"))

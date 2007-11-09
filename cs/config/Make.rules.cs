@@ -8,6 +8,40 @@
 # **********************************************************************
 
 #
+# Set value to 1 if you are building Ice for Ruby against an RPM installation
+# of Ice.
+#
+USE_ICE_RPM ?= 0
+
+#
+# Checks for ICE_HOME environment variable.  If it isn't present,
+# attempt to find an Ice installation in /usr or the default install
+# location.
+#
+ifneq ($(ICE_HOME),)
+    ifeq ($(USE_ICE_RPM), 1)
+$(error Ambiguous directives. Both ICE_HOME and USE_ICE_RPM are defined.)
+    endif
+
+    ICE_DIR = $(ICE_HOME)
+
+    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
+$(error Unable to locate slice2cs in $(ICE_DIR). Please verify ICE_HOME is properly configured and Ice is correctly installed.)
+    endif
+else
+    ifeq ($(USE_ICE_RPM),1)
+        ICE_DIR=/usr
+    
+	ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
+$(error Unable to locate slice2cs in $(ICE_DIR). Please verify that the required RPMS are properly installed.)
+	endif
+    else
+        ICE_DIR = $(top_srcdir)/..
+        USE_SRC_DIST = 1
+    endif
+endif
+
+#
 # If you are compiling with MONO you must define this symbol.
 #
 MONO = yes
@@ -52,37 +86,20 @@ endif
 SHELL			= /bin/sh
 VERSION			= 3.3.0
 
-#
-# Checks for ICE_HOME environment variable.  If it isn't present,
-# attempt to find an Ice installation in /usr or the default install
-# location.
-#
-ifeq ($(ICE_HOME),)
-    ICE_DIR = /usr
-    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-	NEXTDIR = /opt/Ice-$(VERSION)
-	ifneq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
-$(error Unable to locate Ice distribution, please set ICE_HOME!)
-	else
-	    ICE_DIR = $(NEXTDIR)
-	endif
+ifneq ($(ICE_DIR),)
+    ifneq ($(USE_SRC_DIST),0)
+        ifeq ($(LP64),yes)
+            export LD_LIBRARY_PATH := $(ICE_DIR)/cpp/lib64:$(LD_LIBRARY_PATH)
+        else
+            export LD_LIBRARY_PATH := $(ICE_DIR)/cpp/lib:$(LD_LIBRARY_PATH)
+        endif
     else
-	NEXTDIR = /opt/IceCS-$(VERSION)
-	ifeq ($(shell test -f $(NEXTDIR)/bin/slice2cs && echo 0),0)
-$(warning Ice distribution found in /usr and $(NEXTDIR)! Installation in "/usr" will be used by default. Use ICE_HOME to specify alternate Ice installation.)
-	endif
+        ifeq ($(LP64),yes)
+            export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
+        else
+            export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
+        endif
     endif
-else
-    ICE_DIR = $(ICE_HOME)
-    ifneq ($(shell test -f $(ICE_DIR)/bin/slice2cs && echo 0),0)
-$(error Ice distribution not found in $(ICE_DIR), please verify ICE_HOME location!)
-    endif
-endif
-
-ifeq ($(LP64),yes)
-    export LD_LIBRARY_PATH := $(ICE_DIR)/lib64:$(LD_LIBRARY_PATH)
-else
-    export LD_LIBRARY_PATH := $(ICE_DIR)/lib:$(LD_LIBRARY_PATH)
 endif
 
 bindir			= $(top_srcdir)/bin
@@ -92,15 +109,13 @@ libdir			= $(top_srcdir)/lib
 # If a slice directory is contained along with this distribution -- use it. 
 # Otherwise use paths relative to $(ICE_DIR).
 #
-ifneq ($(shell test -d $(top_srcdir)/slice && echo 0),0)
-    ifeq ($(ICE_DIR),/usr)
-	slicedir = $(ICE_DIR)/share/Ice-$(VERSION)/slice
-    else
-	slicedir = $(ICE_DIR)/slice
-    endif
+ifneq ($(USE_ICE_RPM),0)
+    slicedir		= /usr/share/Ice-$(VERSION)/slice
 else
-    slicedir = $(top_srcdir)/slice
+    slicedir		= $(ICE_DIR)/slice
 endif
+
+
 
 install_bindir		= $(prefix)/bin
 install_libdir		= $(prefix)/lib
@@ -160,7 +175,11 @@ ifeq ($(mkdir),)
 			  chmod a+rx $(1)
 endif
 
-SLICE2CS		= $(ICE_DIR)/bin/slice2cs
+ifneq ($(USE_SRC_DIST),0)
+    SLICE2CS		= $(ICE_DIR)/cpp/bin/slice2cs
+else
+    SLICE2CS		= $(ICE_DIR)/bin/slice2cs
+endif
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))

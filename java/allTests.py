@@ -11,28 +11,14 @@
 import os, sys, re, getopt
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
+    toplevel = os.path.abspath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-def isCygwin():
-
-    # The substring on sys.platform is required because some cygwin
-    # versions return variations like "cygwin_nt-4.01".
-    return sys.platform[:6] == "cygwin"
-
-def isWin32():
-
-    return sys.platform == "win32" or isCygwin()
-
-def isWin9x():
-
-    if isWin32():
-        return not (os.environ.has_key("OS") and os.environ["OS"] == "Windows_NT")
-    else:
-        return 0
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
 
 def runTests(args, tests, num = 0):
     #
@@ -41,7 +27,7 @@ def runTests(args, tests, num = 0):
     for i in tests:
 
         i = os.path.normpath(i)
-        dir = os.path.join(toplevel, "test", i)
+        dir = os.path.join(toplevel, TestUtil.getDefaultMapping(), "test", i)
 
         print
         if num > 0:
@@ -49,7 +35,7 @@ def runTests(args, tests, num = 0):
         print "*** running tests in " + dir,
         print
 
-        if isWin9x():
+        if TestUtil.isWin9x():
             status = os.system("python " + os.path.join(dir, "run.py " + args))
         else:
             status = os.system(os.path.join(dir, "run.py " + args))

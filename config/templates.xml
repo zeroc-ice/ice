@@ -1,0 +1,105 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<icegrid>
+  <application name="Templates">
+
+    <server-template id="IcePatch2">
+
+       <parameter name="instance-name" default="${application}.IcePatch2"/>
+       <parameter name="endpoints" default="default"/>
+       <parameter name="directory"/>
+
+       <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="on-demand">
+
+         <adapter name="IcePatch2" endpoints="${endpoints}">
+           <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
+         </adapter>
+
+         <properties>
+            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
+            <property name="IcePatch2.Directory" value="${directory}"/>
+         </properties>
+       </server>
+
+    </server-template>
+
+
+    <server-template id="Glacier2">
+        
+      <parameter name="instance-name" default="${application}.Glacier2"/>
+      <parameter name="client-endpoints"/>   
+      <parameter name="server-endpoints"/>
+      <parameter name="session-timeout" default="0"/>
+    
+      <server id="${instance-name}" exe="glacier2router">
+         <properties>
+            <property name="Glacier2.Client.Endpoints" value="${client-endpoints}"/>
+            <property name="Glacier2.Server.Endpoints" value="${server-endpoints}"/>
+            <property name="Glacier2.InstanceName" value="${instance-name}"/>
+            <property name="Glacier2.SessionTimeout" value="${session-timeout}"/>
+         </properties>
+      </server>
+
+    </server-template>
+
+
+    <service-template id="IceStorm">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="index" default=""/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+
+      <service name="IceStorm${index}" entry="IceStormService,33:createIceStorm">
+
+        <dbenv name="${service}"/>
+
+        <adapter name="${service}.TopicManager"
+		 id="${instance-name}.TopicManager" 
+		 endpoints="${topic-manager-endpoints}">
+          <object identity="${instance-name}/TopicManager" type="::IceStorm::TopicManager"/>
+	</adapter>
+
+	<adapter name="${service}.Publish" 
+		 id="${instance-name}.Publish" 
+		 endpoints="${publish-endpoints}"/>
+
+        <properties>
+           <property name="${service}.InstanceName" value="${instance-name}"/>
+           <property name="${service}.Flush.Timeout" value="${flush-timeout}"/>
+        </properties>
+      </service>
+
+    </service-template>
+
+   
+    <server-template id="IceStorm">
+
+      <parameter name="instance-name" default="${application}.IceStorm"/>
+      <parameter name="topic-manager-endpoints" default="default"/>
+      <parameter name="publish-endpoints" default="default"/>
+      <parameter name="flush-timeout" default="1000"/>
+
+      <icebox id="${instance-name}" exe="icebox" activation="on-demand">
+        <service-instance template="IceStorm"
+			  instance-name="${instance-name}" 
+			  topic-manager-endpoints="${topic-manager-endpoints}"
+			  publish-endpoints="${publish-endpoints}"
+			  flush-timeout="${flush-timeout}"/>
+      </icebox>
+
+    </server-template>
+
+  </application>
+</icegrid>
+

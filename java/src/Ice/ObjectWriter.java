@@ -16,8 +16,8 @@ public abstract class ObjectWriter extends ObjectImpl
     public void
     __write(IceInternal.BasicStream os)
     {
-        IceInternal.BasicOutputStream bos = (IceInternal.BasicOutputStream)os;
-        write(bos._out);
+        OutputStream stream = (OutputStream)os.closure();
+        write(stream);
     }
 
     public void

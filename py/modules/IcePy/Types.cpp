@@ -2308,8 +2308,6 @@ IcePy::ExceptionInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         throw AbortMarshaling();
     }
 
-    os->writeBool(usesClasses);
-
     ExceptionInfoPtr info = this;
     while(info)
     {
@@ -2415,6 +2413,53 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtil::Output& out, PrintO
             member->type->print(attr.get(), out, history);
         }
     }
+}
+
+//
+// ExceptionWriter implementation.
+//
+IcePy::ExceptionWriter::ExceptionWriter(const Ice::CommunicatorPtr& communicator, const PyObjectHandle& ex) :
+    Ice::UserExceptionWriter(communicator), _ex(ex)
+{
+    PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("ice_type"));
+    assert(iceType.get());
+    _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
+    assert(_info);
+}
+
+IcePy::ExceptionWriter::~ExceptionWriter() throw()
+{
+}
+
+void
+IcePy::ExceptionWriter::write(const Ice::OutputStreamPtr& os) const
+{
+    ObjectMap objectMap;
+    _info->marshal(_ex.get(), os, &objectMap);
+}
+
+bool
+IcePy::ExceptionWriter::usesClasses() const
+{
+    return _info->usesClasses;
+}
+
+string
+IcePy::ExceptionWriter::ice_name() const
+{
+    return _info->id;
+}
+
+Ice::Exception*
+IcePy::ExceptionWriter::ice_clone() const
+{
+    return new ExceptionWriter(*this);
+}
+
+void
+IcePy::ExceptionWriter::ice_throw() const
+{
+    throw *this;
 }
 
 //

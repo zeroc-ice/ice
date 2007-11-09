@@ -71,18 +71,17 @@
     <DebugType>none</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="icecs">
-      <Name>icecs</Name>
+    <Reference Include="iceboxcs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\iceboxcs.dll</HintPath>
+    </Reference>
+    <Reference Include="icecs, Version=0.0.0.0, Culture=neutral, PublicKeyToken=1f998c50fec78381, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\bin\icecs.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <ProjectReference Include="helloIceBoxCommon.vbproj">
-      <Name>helloIceBoxCommon</Name>
-      <Project>{54B6C934-DFDD-453F-AD83-98556D36B69B}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -94,6 +93,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="helloIceBoxSlice.csproj">
+      <Project>{9D898733-2836-4D69-854E-7C93C8C1CFAF}</Project>
+      <Name>helloIceBoxSlice</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

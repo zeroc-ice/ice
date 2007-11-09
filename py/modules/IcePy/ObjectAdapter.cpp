@@ -15,6 +15,7 @@
 #include <Current.h>
 #include <Operation.h>
 #include <Proxy.h>
+#include <Types.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
@@ -120,7 +121,23 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("locate"), STRCAST("O"), c->current);
     if(PyErr_Occurred())
     {
-        throwPythonException();
+        PyException ex; // Retrieve the exception before another Python API call clears it.
+
+        //
+        // A locator that calls sys.exit() will raise the SystemExit exception.
+        // This is normally caught by the interpreter, causing it to exit.
+        // However, we have no way to pass this exception to the interpreter,
+        // so we act on it directly.
+        //
+        ex.checkSystemExit();
+
+        PyObject* userExceptionType = lookupType("Ice.UserException");
+        if(PyObject_IsInstance(ex.ex.get(), userExceptionType))
+        {
+            throw ExceptionWriter(current.adapter->getCommunicator(), ex.ex);
+        }
+
+        ex.raise();
     }
 
     if(res.get() == Py_None)
@@ -168,7 +185,8 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 }
 
 void
-IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr& cookie)
+IcePy::ServantLocatorWrapper::finished(const Ice::Current& current, const Ice::ObjectPtr&,
+                                       const Ice::LocalObjectPtr& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -182,7 +200,23 @@ IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr
                                              servantObj.get(), c->cookie);
     if(PyErr_Occurred())
     {
-        throwPythonException();
+        PyException ex; // Retrieve the exception before another Python API call clears it.
+
+        //
+        // A locator that calls sys.exit() will raise the SystemExit exception.
+        // This is normally caught by the interpreter, causing it to exit.
+        // However, we have no way to pass this exception to the interpreter,
+        // so we act on it directly.
+        //
+        ex.checkSystemExit();
+
+        PyObject* userExceptionType = lookupType("Ice.UserException");
+        if(PyObject_IsInstance(ex.ex.get(), userExceptionType))
+        {
+            throw ExceptionWriter(current.adapter->getCommunicator(), ex.ex);
+        }
+
+        ex.raise();
     }
 }
 
@@ -194,7 +228,17 @@ IcePy::ServantLocatorWrapper::deactivate(const string& category)
     PyObjectHandle res = PyObject_CallMethod(_locator, STRCAST("deactivate"), STRCAST("s"), category.c_str());
     if(PyErr_Occurred())
     {
-        throwPythonException();
+        PyException ex; // Retrieve the exception before another Python API call clears it.
+
+        //
+        // A locator that calls sys.exit() will raise the SystemExit exception.
+        // This is normally caught by the interpreter, causing it to exit.
+        // However, we have no way to pass this exception to the interpreter,
+        // so we act on it directly.
+        //
+        ex.checkSystemExit();
+
+        ex.raise();
     }
 
     Py_DECREF(_locator);

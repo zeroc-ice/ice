@@ -1,6 +1,13 @@
 Changes since version 3.1.1
 ---------------------------     
 
+- slice2vb is no longer supported. To use Visual Basic .NET with Ice,
+  use slice2cs to generate the stubs and skeletons in C#, and use
+  a C# compiler to compile these into a DLL. Then reference that DLL
+  from the Visual Basic project.
+
+  See the manual and the demo directory for more details.
+
 - createObjectAdapter() and propertyToProxy() print warnings if
   unknown properties are found during creation of the adapter or
   proxy. These warnings can be disabled by setting the property

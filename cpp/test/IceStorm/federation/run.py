@@ -22,11 +22,11 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("IceStorm", "federation")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 iceBox = TestUtil.getIceBox(testdir)
-iceBoxAdmin = os.path.join(toplevel, "bin", "iceboxadmin")
-iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
+iceBoxAdmin = os.path.join(TestUtil.getBinDir(__file__), "iceboxadmin")
+iceStormAdmin = os.path.join(TestUtil.getBinDir(__file__), "icestormadmin")
 
 iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceSoVersion() + ":createIceStorm" + \
                   ' --IceStorm.TopicManager.Endpoints="default -p 12011"' + \
@@ -54,10 +54,7 @@ def doTest(batch):
         name = "subscriber"
         batchOptions = ""
 
-    command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference
-    if TestUtil.debug:
-        print "(" + command + ")",
-    subscriberPipe = os.popen(command + " 2>&1")
+    subscriberPipe = TestUtil.startServer(subscriber, batchOptions + iceStormReference + " 2>&1")
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe)
 
@@ -65,10 +62,7 @@ def doTest(batch):
     # Start the publisher. This should publish events which eventually
     # causes subscriber to terminate.
     #
-    command = publisher + TestUtil.clientOptions + iceStormReference
-    if TestUtil.debug:
-        print "(" + command + ")",
-    publisherPipe = os.popen(command + " 2>&1")
+    publisherPipe = TestUtil.startClient(publisher, iceStormReference + " 2>&1")
 
     TestUtil.printOutputFromPipe(publisherPipe)
 
@@ -82,20 +76,14 @@ TestUtil.cleanDbDir(dbHome)
 iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
-command = iceBox + TestUtil.clientServerOptions + iceStormService + iceStormDBEnv
-if TestUtil.debug:
-    print "(" + command + ")",
-iceBoxPipe = os.popen(command + " 2>&1")
+iceBoxPipe = TestUtil.startServer(iceBox, iceStormService + iceStormDBEnv + " 2>&1")
 TestUtil.getServerPid(iceBoxPipe)
 TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "setting up topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + \
-    r' -e "create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5"'
-if TestUtil.debug:
-    print "(" + command + ")",
-iceStormAdminPipe = os.popen(command + " 2>&1")
+iceStormAdminPipe = TestUtil.startClient(iceStormAdmin, iceStormReference + \
+        r' -e "create fed1 fed2 fed3; link fed1 fed2 10; link fed2 fed3 5" 2>&1')
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -122,10 +110,7 @@ print "ok"
 # Destroy the topics.
 #
 print "destroying topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"'
-if TestUtil.debug:
-    print "(" + command + ")",
-iceStormAdminPipe = os.popen(command + " 2>&1")
+iceStormAdminPipe = TestUtil.startClient(iceStormAdmin, iceStormReference + r' -e "destroy fed1 fed2 fed3" 2>&1')
 iceStormAdminStatus = TestUtil.closePipe(iceStormAdminPipe)
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -136,10 +121,7 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm service...",
-command = iceBoxAdmin + TestUtil.clientOptions + serviceManagerProxy + r' shutdown'
-if TestUtil.debug:
-    print "(" + command + ")",
-iceBoxAdminPipe = os.popen(command + " 2>&1")
+iceBoxAdminPipe = TestUtil.startClient(iceBoxAdmin,  serviceManagerProxy + r' shutdown 2>&1')
 iceBoxAdminStatus = TestUtil.closePipe(iceBoxAdminPipe)
 if iceBoxAdminStatus:
     TestUtil.killServers()

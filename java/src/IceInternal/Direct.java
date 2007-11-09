@@ -25,7 +25,7 @@ public abstract class Direct implements Ice.Request
 
 
     public
-    Direct(Ice.Current current)
+    Direct(Ice.Current current) throws Ice.UserException
     {
         _current = current;
 
@@ -57,7 +57,15 @@ public abstract class Direct implements Ice.Request
                 if(_locator != null)
                 {
                     _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
-                    _servant = _locator.locate(_current, _cookie);
+                    try
+                    {
+                        _servant = _locator.locate(_current, _cookie);
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        adapter.decDirectCount();
+                        throw ex;
+                    }
                 }
             }
             if(_servant == null)
@@ -98,7 +106,7 @@ public abstract class Direct implements Ice.Request
     }
 
     public void
-    destroy()
+    destroy() throws Ice.UserException
     {
         Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
         assert(adapter != null);

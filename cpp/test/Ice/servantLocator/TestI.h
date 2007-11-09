@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,6 +26,9 @@ public:
     virtual void cppException(const Ice::Current&);
 
     virtual void unknownExceptionWithServantException(const Ice::Current&);
+
+    virtual ::std::string impossibleException(bool, const Ice::Current&);
+    virtual ::std::string intfUserException(bool, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 };

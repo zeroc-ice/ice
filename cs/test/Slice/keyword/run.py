@@ -10,7 +10,7 @@
 
 import os, sys, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -21,11 +21,11 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Slice", "keyword")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 client = os.path.join(testdir, "client")
 
-print TestUtil.createMsg("client"),
-clientPipe = os.popen(TestUtil.createCmd(client))
+print "starting client...", 
+clientPipe = os.popen(client) 
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

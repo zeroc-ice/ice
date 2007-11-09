@@ -14,8 +14,15 @@ public class OutputStreamI implements OutputStream
     public
     OutputStreamI(Communicator communicator)
     {
+        this(communicator, new IceInternal.BasicStream(Util.getInstance(communicator)));
+    }
+
+    public
+    OutputStreamI(Communicator communicator, IceInternal.BasicStream os)
+    {
         _communicator = communicator;
-        _os = new IceInternal.BasicOutputStream(Util.getInstance(communicator), this);
+        _os = os;
+        _os.closure(this);
     }
 
     public Communicator
@@ -200,5 +207,5 @@ public class OutputStreamI implements OutputStream
     }
 
     private Communicator _communicator;
-    private IceInternal.BasicOutputStream _os;
+    private IceInternal.BasicStream _os;
 }

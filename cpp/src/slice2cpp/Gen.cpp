@@ -2926,7 +2926,11 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
         if(!throws.empty())
         {
             C << eb;
-
+            C << nl << "catch(const ::Ice::UserException& __ex)";
+            C << sb;
+            C << nl << "setUserException(__ex);";
+            C << nl << "return ::Ice::DispatchUserException;";
+            C << eb;
             throws.sort();
             throws.unique();
 #if defined(__SUNPRO_CC)
@@ -2935,14 +2939,6 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
             throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-            for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
-            {
-                C << nl << "catch(const " << fixKwd((*i)->scoped()) << "& e)";
-                C << sb;
-                C << nl << "setUserException(e);";
-                C << nl << "return ::Ice::DispatchUserException;";
-                C << eb;
-            }
         }
 
         C << eb;
@@ -2989,28 +2985,39 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 
         C << nl << "try";
         C << sb;
-        if(!throws.empty())
-        {
-            C << nl << "if(__direct.servant()->__collocDispatch(__direct) == ::Ice::DispatchUserException)";
-            C << sb;
-            C << nl << "__direct.throwUserException();";
-            C << eb;
-        }
-        else
-        {
-            C << nl << "__direct.servant()->__collocDispatch(__direct);";
-        }
+        C << nl << "__direct.servant()->__collocDispatch(__direct);";
+        C << eb;
+        C << nl << "catch(const ::std::exception& __ex)";
+        C << sb;
+        C << nl << "__direct.destroy();";
+        C << nl << "::IceInternal::LocalExceptionWrapper::throwUnknownWrapper(__ex);";
         C << eb;
         C << nl << "catch(...)";
         C << sb;
         C << nl << "__direct.destroy();";
-        C << nl << "throw;";
+        C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__, \"unknown c++ exception\");";
         C << eb;
         C << nl << "__direct.destroy();";
         C << eb;
-        C << nl << "catch(const ::Ice::LocalException& __ex)";
+        for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
+        {
+            C << nl << "catch(const " << fixKwd((*k)->scoped()) << "&)";
+            C << sb;
+            C << nl << "throw;";
+            C << eb;
+        }
+        C << nl << "catch(const ::IceInternal::LocalExceptionWrapper&)";
         C << sb;
-        C << nl << "throw ::IceInternal::LocalExceptionWrapper(__ex, false);";
+        C << nl << "throw;";
+        C << eb;
+        C << nl << "catch(const ::std::exception& __ex)";
+        C << sb;
+        C << nl << "::IceInternal::LocalExceptionWrapper::throwUnknownWrapper(__ex);";
+        C << eb;
+        C << nl << "catch(...)";
+        C << sb;
+        C << nl << "throw ::IceInternal::LocalExceptionWrapper("
+          << "::Ice::UnknownException(__FILE__, __LINE__, \"unknown c++ exception\"), false);";
         C << eb;
         if(ret)
         {
@@ -3808,10 +3815,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "*p = " << scope << name << "Ptr::dynamicCast(v);";
         C << nl << "if(v && !*p)";
         C << sb;
-        C << nl << "::Ice::UnexpectedObjectException e(__FILE__, __LINE__);";
-        C << nl << "e.type = v->ice_id();";
-        C << nl << "e.expectedType = " << scope << fixKwd(name) << "::ice_staticId();";
-        C << nl << "throw e;";
+        C << nl << "IceInternal::Ex::throwUOE(" << scoped << "::ice_staticId(), v->ice_id());";
         C << eb;
         C << eb;
 
@@ -5618,6 +5622,18 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
     {
         ami = true;
     }
+
+    if(p->hasMetaData("UserException"))
+    {
+        if(!cl->isLocal())
+        {
+            cout << p->definitionContext()->filename() << ":" << p->line()
+                 << ": warning: metadata directive `UserException' applies only to local operations "
+                 << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
+                 << "' is not local" << endl;
+        }
+    }
+
     StringList metaData = p->getMetaData();
     metaData.remove("cpp:const");
 

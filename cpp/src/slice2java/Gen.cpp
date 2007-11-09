@@ -540,7 +540,16 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         {
             out << sp << nl << "public final " << typeToString(ret, TypeModeReturn, package, op->getMetaData())
                 << nl << opName << spar << params << epar;
-            writeThrowsClause(package, throws);
+            if(op->hasMetaData("UserException"))
+            {
+                out.inc();
+                out << nl << "throws Ice.UserException";
+                out.dec();
+            }
+            else
+            {
+                writeThrowsClause(package, throws);
+            }
             out << sb << nl;
             if(ret)
             {
@@ -1034,10 +1043,7 @@ Slice::JavaVisitor::writeDispatchAndMarshalling(Output& out, const ClassDefPtr& 
         out << eb;
         out << nl << "catch(ClassCastException ex)";
         out << sb;
-        out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-        out << nl << "_e.type = v.ice_id();";
-        out << nl << "_e.expectedType = type();";
-        out << nl << "throw _e;";
+        out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
         out << eb;
         out << eb;
 
@@ -1433,7 +1439,16 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
             out << "Ice.Current __current";
         }
         out << epar;
-        writeThrowsClause(package, throws);
+        if(op->hasMetaData("UserException"))
+        {
+            out.inc();
+            out << nl << "throws Ice.UserException";
+            out.dec();
+        }
+        else
+        {
+            writeThrowsClause(package, throws);
+        }
         out << ';';
     }
 
@@ -1598,10 +1613,19 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << epar;
 
-        ExceptionList throws = (*r)->throws();
-        throws.sort();
-        throws.unique();
-        writeThrowsClause(package, throws);
+        if((*r)->hasMetaData("UserException"))
+        {
+            out.inc();
+            out << nl << "throws Ice.UserException";
+            out.dec();
+        }
+        else
+        {
+            ExceptionList throws = (*r)->throws();
+            throws.sort();
+            throws.unique();
+            writeThrowsClause(package, throws);
+        }
         out << sb;
         out << nl;
         if(ret && !hasAMD)
@@ -2082,10 +2106,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
             out << nl << "catch(ClassCastException ex)";
             out << sb;
-            out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-            out << nl << "_e.type = v.ice_id();";
-            out << nl << "_e.expectedType = type();";
-            out << nl << "throw _e;";
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
             out << eb;
             out << eb;
 
@@ -2491,10 +2512,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             out << eb;
             out << nl << "catch(ClassCastException ex)";
             out << sb;
-            out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-            out << nl << "_e.type = v.ice_id();";
-            out << nl << "_e.expectedType = type();";
-            out << nl << "throw _e;";
+            out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
             out << eb;
             out << eb;
 
@@ -3232,10 +3250,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
                 out << eb;
                 out << nl << "catch(ClassCastException ex)";
                 out << sb;
-                out << nl << "Ice.UnexpectedObjectException _e = new Ice.UnexpectedObjectException();";
-                out << nl << "_e.type = v.ice_id();";
-                out << nl << "_e.expectedType = type();";
-                out << nl << "throw _e;";
+                out << nl << "IceInternal.Ex.throwUOE(type(), v.ice_id());";
                 out << eb;
                 out << eb;
 
@@ -4337,7 +4352,10 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "final " << resultTypeHolder << " __result = new " << resultTypeHolder << "();";
             }
             
-            out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current)";
+            out << nl << "IceInternal.Direct __direct = null;";
+            out << nl << "try";
+            out << sb;
+            out << nl << "__direct = new IceInternal.Direct(__current)";
             out << sb;
             out << nl << "public Ice.DispatchStatus run(Ice.Object __obj)";
             out << sb;
@@ -4364,7 +4382,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << "__servant." << opName << spar << args << "__current" << epar << ';';
             out << nl << "return Ice.DispatchStatus.DispatchOK;";
-            
             if(!throws.empty())
             {
                 out << eb;
@@ -4374,50 +4391,80 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
                 out << nl << "return Ice.DispatchStatus.DispatchUserException;";
                 out << eb;
             }
+
             out << eb;
             out << eb;
             out << ";";
           
-            out << nl << "try";
+            out << sp << nl << "Ice.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
+            out << nl << "if(__status == Ice.DispatchStatus.DispatchUserException)";
             out << sb;
-            out << nl << "Ice.DispatchStatus __status = __direct.servant().__collocDispatch(__direct);";
-            if(!throws.empty())
-            {
-                out << nl << "if(__status == Ice.DispatchStatus.DispatchUserException)";
-                out << sb;
-                out << nl << "try";
-                out << sb;
-                out << nl << "__direct.throwUserException();";
-                out << eb;
-                for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
-                {
-                    string exS = getAbsolute(*t, package);
-                    out << nl << "catch(" << exS << " __ex)";
-                    out << sb;
-                    out << nl << "throw __ex;";
-                    out << eb;
-                }
-                out << nl << "catch(Ice.UserException __ex)";
-                out << sb;
-                out << nl << "assert false;";
-                out << nl << "throw new Ice.UnknownUserException(__ex.toString());";
-                out << eb;
-                out << eb;
-            }
+            out << nl << "__direct.throwUserException();";
+            out << eb;
             out << nl << "assert __status == Ice.DispatchStatus.DispatchOK;";
             if(ret)
             {
                 out << nl << "return __result.value;";
             }
+
+            out << eb;
+            for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
+            {
+                string exS = getAbsolute(*t, package);
+                out << nl << "catch(" << exS << " __ex)";
+                out << sb;
+                out << nl << "throw __ex;";
+                out << eb;
+            }
+
+            //
+            // Next two catch handlers keep local exceptions non-transparent.
+            //
+            out << nl << "catch(Ice.UserException __ex)";
+            out << sb;
+            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
             out << eb;
             out << nl << "catch(Ice.LocalException __ex)";
             out << sb;
-            out << nl << "throw new IceInternal.LocalExceptionWrapper(__ex, false);";
+            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
             out << eb;
+
+            /*
+            //
+            // Commented-out code makes local exceptions fully location transparent,
+            // but the Freeze evictor relies on them being non-transparent.
+            //
+            out << nl << "catch(Ice.LocalException __ex)";
+            out << sb;
+            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
+            out << eb;
+            */
             out << nl << "finally";
+            out << sb;
+            out << nl << "if(__direct != null)";
+            out << sb;
+            out << nl << "try";
             out << sb;
             out << nl << "__direct.destroy();";
             out << eb;
+            for(ExceptionList::const_iterator k = throws.begin(); k != throws.end(); ++k)
+            {
+                string exS = getAbsolute(*k, package);
+                out << nl << "catch(" << exS << " __ex)";
+                out << sb;
+                out << nl << "throw __ex;";
+                out << eb;
+            }
+            out << nl << "catch(java.lang.Throwable __ex)";
+            out << sb;
+            out << nl << "IceInternal.LocalExceptionWrapper.throwUnknownWrapper(__ex);";
+            out << eb;
+            out << eb;
+            out << eb;
+        }
+        if(ret && !cl->hasMetaData("amd") && !op->hasMetaData("amd"))
+        {
+            out << nl << "return __result.value;";
         }
         out << eb;
     }
@@ -4700,7 +4747,16 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         throws.sort();
         throws.unique();
 
-        writeThrowsClause(package, throws);
+        if(op->hasMetaData("UserException"))
+        {
+            out.inc();
+            out << nl << "throws Ice.UserException";
+            out.dec();
+        }
+        else
+        {
+            writeThrowsClause(package, throws);
+        }
 
         out << sb;
 

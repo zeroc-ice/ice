@@ -1,0 +1,138 @@
+#!/bin/sh
+# **********************************************************************
+#
+# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# This script creates the required CA key and certificate (if they do not
+# already exist) and server certificate/key pairs.
+#
+# Remove cakey.pem and dsaparam1024.pem to regenerate everything.
+#
+# NOTE: Make sure that ICE_HOME is set correctly before you start!
+
+#
+# Note: If you want private keys passphrase protected, comment this out.
+#
+PASSPHRASE=-nodes
+
+CERTS=.
+CA_HOME=$CERTS/openssl/ca
+
+#
+# Generate RSA certificates and keys.
+#
+if ! [ -f $CERTS/cakey.pem ]; then
+
+    if [ -d $CA_HOME ]; then
+	rm -rf $CA_HOME
+    fi
+    mkdir $CA_HOME
+    echo '01' > $CA_HOME/serial
+    touch $CA_HOME/index.txt
+
+    #
+    # Generate our CA certificate and key if they do not already exist.
+    #
+    if test -z "$PASSPHRASE" ; then
+	echo "You will be prompted for a passphrase that protects the CA signing authority key."
+    fi
+    openssl req -config $CERTS/openssl/ice_ca.cnf -x509 -days 1825 -newkey rsa -out $CA_HOME/cacert.pem \
+	-outform PEM $PASSPHRASE
+    cp $CA_HOME/cacert.pem $CERTS
+    cp $CA_HOME/cakey.pem $CERTS
+
+    #
+    # Create our server certificate and key.
+    #
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $CERTS/openssl/server.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
+    if test -z "$PASSPHRASE" ; then
+	echo "You will be prompted for a passphrase to sign the new server Certificate."
+	echo "Enter the passphrase for the CA signing authority."
+    fi
+    openssl ca -config $CERTS/openssl/server.cnf -batch -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $CERTS/s_rsa1024_priv.pem
+    cp $CA_HOME/$CERT_NAME $CERTS/s_rsa1024_pub.pem
+    rm $CA_HOME/req.pem
+
+    #
+    # Create our client certificate and key.
+    #
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $CERTS/openssl/client.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME \
+        -keyform PEM -out $CA_HOME/req.pem
+    if test -z "$PASSPHRASE" ; then
+	echo "You will be prompted for a passphrase to sign the new client Certificate."
+	echo "Enter the passphrase for the CA signing authority."
+    fi
+    openssl ca -config $CERTS/openssl/client.cnf -batch -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $CERTS/c_rsa1024_priv.pem
+    cp $CA_HOME/$CERT_NAME $CERTS/c_rsa1024_pub.pem
+    rm $CA_HOME/req.pem
+
+    rm -f dsaparam1024.pem
+fi
+
+#
+# Generate DSA parameters and keys.
+#
+if ! [ -f dsaparam1024.pem ]; then
+
+    if [ -d $CA_HOME ]; then
+	rm -rf $CA_HOME
+    fi
+    mkdir $CA_HOME
+    echo '01' > $CA_HOME/serial
+    touch $CA_HOME/index.txt
+
+    openssl dsaparam -out dsaparam1024.pem -outform PEM 1024
+
+    #
+    # Create our server certificate and key.
+    #
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $CERTS/openssl/server.cnf -newkey dsa:dsaparam1024.pem $PASSPHRASE \
+	-keyout $CA_HOME/$KEY_NAME -keyform PEM -out $CA_HOME/req.pem
+    if test -z "$PASSPHRASE" ; then
+	echo "You will be prompted for a passphrase to sign the new server Certificate."
+	echo "Enter the passphrase for the CA signing authority."
+    fi
+    openssl ca -config $CERTS/openssl/server.cnf -batch -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $CERTS/s_dsa1024_priv.pem
+    cp $CA_HOME/$CERT_NAME $CERTS/s_dsa1024_pub.pem
+    rm $CA_HOME/req.pem
+
+    #
+    # Create our client certificate and key.
+    #
+    SERIAL=`cat $CA_HOME/serial`
+    KEY_NAME=`echo $SERIAL`_key.pem
+    CERT_NAME=`echo $SERIAL`_cert.pem
+    openssl req -config $CERTS/openssl/client.cnf -newkey dsa:dsaparam1024.pem $PASSPHRASE \
+	-keyout $CA_HOME/$KEY_NAME -keyform PEM -out $CA_HOME/req.pem
+    if test -z "$PASSPHRASE" ; then
+	echo "You will be prompted for a passphrase to sign the new client Certificate."
+	echo "Enter the passphrase for the CA signing authority."
+    fi
+    openssl ca -config $CERTS/openssl/client.cnf -batch -in $CA_HOME/req.pem
+    mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
+    cp $CA_HOME/$KEY_NAME  $CERTS/c_dsa1024_priv.pem
+    cp $CA_HOME/$CERT_NAME $CERTS/c_dsa1024_pub.pem
+    rm $CA_HOME/req.pem
+fi

@@ -27,6 +27,7 @@ public class BasicStream
     initialize(IceInternal.Instance instance, boolean unlimited)
     {
         _instance = instance;
+        _closure = null;
         _unlimited = unlimited;
         allocate(1500);
         _capacity = _buf.capacity();
@@ -80,10 +81,28 @@ public class BasicStream
         return _instance;
     }
 
+    public Object
+    closure()
+    {
+        return _closure;
+    }
+
+    public Object
+    closure(Object p)
+    {
+        Object prev = _closure;
+        _closure = p;
+        return prev;
+    }
+
     public void
     swap(BasicStream other)
     {
         assert(_instance == other._instance);
+
+        Object tmpClosure = other._closure;
+        other._closure = _closure;
+        _closure = tmpClosure;
 
         java.nio.ByteBuffer tmpBuf = other._buf;
         other._buf = _buf;
@@ -2294,6 +2313,7 @@ public class BasicStream
     }
 
     private IceInternal.Instance _instance;
+    private Object _closure;
     private java.nio.ByteBuffer _buf;
     private int _capacity; // Cache capacity to avoid excessive method calls.
     private int _limit; // Cache limit to avoid excessive method calls.

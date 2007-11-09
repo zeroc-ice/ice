@@ -22,10 +22,11 @@ import TestUtil
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "replication")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 TestUtil.addLdPath(testdir)
 
-IceGridAdmin.iceGridTest(name, "application.xml", "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
-                         ' \\"properties-override=' + TestUtil.clientServerOptions.replace("--", "") + '\\"')
+IceGridAdmin.iceGridTest(testdir, name, "application.xml", "--IceDir=\"" + toplevel + "\" --TestDir=\"" + testdir + "\"", \
+                         ' \\"properties-override=' + \
+                         TestUtil.getCommandLine("", TestUtil.DriverConfig("server")).replace("--", "") + '\\"')
 sys.exit(0)

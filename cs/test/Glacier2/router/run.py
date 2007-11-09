@@ -10,7 +10,7 @@
 
 import os, sys, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -20,30 +20,36 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+ice_home = None
 if not os.environ.has_key('ICE_HOME'):
-    print "ICE_HOME is not defined."
-    sys.exit(0)
-
-ice_home = os.environ['ICE_HOME']
+    relPath = os.path.join(TestUtil.findTopLevel(), "cpp", "bin") 
+    if os.path.exists(os.path.join(relPath, "glacier2router")):
+        ice_home = os.path.dirname(relPath) 
+    else:
+        print "ICE_HOME is not defined."
+        sys.exit(0)
+else:
+    ice_home = os.environ['ICE_HOME']
 
 router = os.path.join(ice_home, "bin", "glacier2router")
+name = os.path.join("Glacier2", "router")
+testdir = os.path.dirname(os.path.abspath(__file__))
 
-command = router + TestUtil.cppClientServerOptions + \
-          r' --Ice.Warn.Dispatch=0' + \
-          r' --Ice.Warn.Connections=0' + \
-          r' --Glacier2.Filter.Category.Accept="c1 c2"' + \
-          r' --Glacier2.Filter.Category.AcceptUser="2"' + \
-          r' --Glacier2.SessionTimeout="30"' + \
-          r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
-          r' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
-          r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
-          r' --Ice.Admin.InstanceName=Glacier2' + \
-          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"'
+args = r' --Ice.Warn.Dispatch=0' + \
+        r' --Ice.Warn.Connections=0' + \
+        r' --Glacier2.Filter.Category.Accept="c1 c2"' + \
+        r' --Glacier2.Filter.Category.AcceptUser="2"' + \
+        r' --Glacier2.SessionTimeout="30"' + \
+        r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
+        r' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
+        r' --Ice.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
+        r' --Ice.Admin.InstanceName=Glacier2' + \
+        r' --Glacier2.CryptPasswords="' + os.path.join(testdir, "passwords") + '"'
 
 print "starting router...",
-if TestUtil.debug:
-    print "(" + command + ")",
-starterPipe = os.popen(command)
+routerConfig = TestUtil.DriverConfig("server")
+routerConfig.lang = "cpp"
+starterPipe = TestUtil.startServer(router, args, routerConfig) 
 TestUtil.getServerPid(starterPipe)
 #
 # For this test we don't want to add the router to the server threads
@@ -54,9 +60,6 @@ TestUtil.getAdapterReady(starterPipe, False)
 print "ok"
 starterThread = TestUtil.ReaderThread(starterPipe);
 starterThread.start()
-
-name = os.path.join("Glacier2", "router")
-testdir = os.path.join(toplevel, "test", name)
 
 TestUtil.mixedClientServerTest(name)
 

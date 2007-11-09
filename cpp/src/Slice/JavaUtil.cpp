@@ -3442,6 +3442,17 @@ Slice::JavaGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
+    if(p->hasMetaData("UserException"))
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
+        if(!cl->isLocal())
+        {
+            cout << p->definitionContext()->filename() << ":" << p->line()
+                 << ": warning: metadata directive `UserException' applies only to local operations "
+                 << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
+                 << "' is not local" << endl;
+        }
+    }
     StringList metaData = getMetaData(p);
     TypePtr returnType = p->returnType();
     if(!metaData.empty())

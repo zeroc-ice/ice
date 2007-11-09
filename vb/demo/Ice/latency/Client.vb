@@ -16,6 +16,11 @@ Module LatencyC
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim ping As PingPrx = PingPrxHelper.checkedCast(communicator().propertyToProxy("Latency.Ping"))
             If ping Is Nothing Then
                 Console.Error.WriteLine("invalid proxy")

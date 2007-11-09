@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -66,6 +66,41 @@ void
 TestAMDI::unknownExceptionWithServantException_async(const Test::AMD_TestIntf_unknownExceptionWithServantExceptionPtr& cb, const Current&)
 {
     cb->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));
+}
+
+void
+TestAMDI::impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr& cb, bool _cpp_throw,
+                                    const Current&)
+{
+    if(_cpp_throw)
+    {
+        cb->ice_exception(Test::TestImpossibleException());
+    }
+    else
+    {
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        cb->ice_response("Hello");
+    }
+}
+
+void
+TestAMDI::intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr& cb, bool _cpp_throw, const Current&)
+{
+    if(_cpp_throw)
+    {
+        cb->ice_exception(Test::TestIntfUserException());
+    }
+    else
+    {
+        //
+        // Return a value so we can be sure that the stream position
+        // is reset correctly if finished() throws.
+        //
+        cb->ice_response("Hello");
+    }
 }
 
 void

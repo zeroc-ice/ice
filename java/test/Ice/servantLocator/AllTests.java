@@ -119,6 +119,82 @@ public class AllTests
         {
             test(collocated);
         }
+
+        try
+        {
+            obj.impossibleException(false);
+            test(false);
+        }
+        catch(TestImpossibleException ex)
+        {
+            test(false);
+        }
+        catch(UnknownUserException ex)
+        {
+            // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
+        }
+        catch(RuntimeException ex)
+        {
+            //System.err.println(ex);
+            test(false);
+        }
+
+        try
+        {
+            obj.impossibleException(true);
+            test(false);
+        }
+        catch(TestImpossibleException ex)
+        {
+            test(false);
+        }
+        catch(UnknownUserException ex)
+        {
+            // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
+        }
+        catch(RuntimeException ex)
+        {
+            //System.err.println(ex);
+            test(false);
+        }
+
+        try
+        {
+            obj.intfUserException(false);
+            test(false);
+        }
+        catch(TestImpossibleException ex)
+        {
+            // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
+        }
+        catch(TestIntfUserException ex)
+        {
+            test(false);
+        }
+        catch(RuntimeException ex)
+        {
+            //System.err.println(ex);
+            test(false);
+        }
+
+        try
+        {
+            obj.intfUserException(true);
+            test(false);
+        }
+        catch(TestImpossibleException ex)
+        {
+            // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
+        }
+        catch(TestIntfUserException ex)
+        {
+            test(false);
+        }
+        catch(RuntimeException ex)
+        {
+            //System.err.println(ex);
+            test(false);
+        }
     }
 
     public static TestIntfPrx

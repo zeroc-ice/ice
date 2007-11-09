@@ -416,7 +416,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                     if(isOutParam)
                     {
                         out << nl << "IceInternal.ParamPatcher<Ice.Object> " << param
-                            << "_PP = new IceInternal.ParamPatcher<Ice.Object>();";
+                            << "_PP = new IceInternal.ParamPatcher<Ice.Object>(\"::Ice::Object\");";
                         out << nl << stream << ".readObject(";
                         if(streamingAPI)
                         {
@@ -431,7 +431,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                         {
                             out <<  "(Ice.ReadObjectCallback)";
                         }
-                        out << "new Patcher__(" << patchParams << "));";
+                        out << "new Patcher__(\"::Ice::Object\", " << patchParams << "));";
                     }
                 }
                 break;
@@ -494,9 +494,9 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(isOutParam)
             {
-                ContainedPtr contained = ContainedPtr::dynamicCast(type);
                 out << nl << "IceInternal.ParamPatcher<" << typeToString(type) << ">" << param
-                    << "_PP = new IceInternal.ParamPatcher<" << typeToString(type) << ">();";
+                    << "_PP = new IceInternal.ParamPatcher<" << typeToString(type) << ">(\""
+                    << cl->scoped() << "\");";
                 out << nl << stream << ".readObject(";
                 if(streamingAPI)
                 {
@@ -511,7 +511,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
                     out << "(Ice.ReadObjectCallback)";
                 }
-                out << "new Patcher__(" << patchParams << "));";
+                out << "new Patcher__(\"" << cl->scoped() << "\", " << patchParams << "));";
             }
         }
         return;
@@ -802,7 +802,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         {
                             patcherName = "Sequence";
                         }
-                        out << "new IceInternal." << patcherName << "Patcher<Ice.Object>(" << param << ", ix__));";
+                        out << "new IceInternal." << patcherName << "Patcher<Ice.Object>(\"::Ice::Object\", "
+                            << param << ", ix__));";
                     }
                     else
                     {
@@ -994,8 +995,9 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             {
                 patcherName = "Sequence";
             }
+            string scoped = ContainedPtr::dynamicCast(type)->scoped();
             out << nl << "IceInternal." << patcherName << "Patcher<" << typeS << "> spx = new IceInternal."
-                << patcherName << "Patcher<" << typeS << ">(" << param << ", ix__);";
+                << patcherName << "Patcher<" << typeS << ">(\"" << scoped << "\", " << param << ", ix__);";
             out << nl << stream << ".readObject(";
             if(streamingAPI)
             {

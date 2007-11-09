@@ -7,14 +7,14 @@
 '
 ' **********************************************************************
 
-Imports glacier2demo.Demo
+Imports Demo
 Imports System
 
 Public NotInheritable Class CallbackI
     Inherits CallbackDisp_
 
     Public Overloads Overrides Sub initiateCallback(ByVal proxy As CallbackReceiverPrx, ByVal current As Ice.Current)
-        Console.WriteLine("initiating callback")
+        Console.WriteLine("initiating callback to: " + current.adapter.getCommunicator().proxyToString(proxy))
         Try
             proxy.callback(current.ctx)
         Catch ex As System.Exception

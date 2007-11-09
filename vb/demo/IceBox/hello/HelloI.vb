@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Imports HelloIceBox.Demo
+Imports Demo
 
 Public Class HelloI
     Inherits HelloDisp_

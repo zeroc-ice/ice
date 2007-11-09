@@ -10,7 +10,7 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -22,7 +22,8 @@ import TestUtil
 
 name = os.path.join("Freeze", "complex")
 testdir = os.path.join(toplevel, "test", name)
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
+testdir = os.path.dirname(os.path.abspath(__file__))
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + os.getenv("CLASSPATH", "")
 
 #
 # Clean the contents of the database directory.
@@ -30,10 +31,9 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-client = TestUtil.javaCmd + " -ea Client"
 
 print "starting populate...",
-populatePipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " populate" + " 2>&1")
+populatePipe = TestUtil.startClient("Client", " --dbdir " + testdir + " populate" + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(populatePipe)
@@ -44,7 +44,7 @@ if populateStatus:
     sys.exit(1)
 
 print "starting verification client...",
-clientPipe = os.popen(client + TestUtil.clientOptions + " --dbdir " + testdir + " validate" + " 2>&1")
+clientPipe = TestUtil.startClient("Client", " --dbdir " + testdir + " validate" + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

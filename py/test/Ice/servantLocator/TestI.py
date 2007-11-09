@@ -38,6 +38,27 @@ class TestI(Test.TestIntf):
     def pythonException(self, current=None):
         pass
 
+    def unknownExceptionWithServantException(self, current=None):
+        raise Ice.ObjectNotExistException()
+
+    def impossibleException(self, throw, current=None):
+        if throw:
+            raise Test.TestImpossibleException()
+        #
+        # Return a value so we can be sure that the stream position
+        # is reset correctly if finished() throws.
+        #
+        return "Hello"
+
+    def intfUserException(self, throw, current=None):
+        if throw:
+            raise Test.TestIntfUserException()
+        #
+        # Return a value so we can be sure that the stream position
+        # is reset correctly if finished() throws.
+        #
+        return "Hello"
+
     def shutdown(self, current=None):
         current.adapter.deactivate()
 
@@ -88,22 +109,20 @@ class ServantLocatorI(Ice.ServantLocator):
         if current.operation == "requestFailedException":
             raise Ice.ObjectNotExistException()
         elif current.operation == "unknownUserException":
-            ex = Ice.UnknownUserException()
-            ex.unknown = "reason"
-            raise ex
+            raise Ice.UnknownUserException("reason")
         elif current.operation == "unknownLocalException":
-            ex = Ice.UnknownLocalException()
-            ex.unknown = "reason"
-            raise ex
+            raise Ice.UnknownLocalException("reason")
         elif current.operation == "unknownException":
-            ex = Ice.UnknownException()
-            ex.unknown = "reason"
-            raise ex
+            raise Ice.UnknownException("reason")
         elif current.operation == "userException":
             raise Test.TestIntfUserException()
         elif current.operation == "localException":
-            ex = Ice.SocketException()
-            ex.error = 0
-            raise ex
+            raise Ice.SocketException(0)
         elif current.operation == "pythonException":
             raise RuntimeError("message")
+        elif current.operation == "unknownExceptionWithServantException":
+            raise Ice.UnknownException("reason")
+        elif current.operation == "impossibleException":
+            raise Test.TestIntfUserException() # Yes, it really is meant to be TestIntfUserException.
+        elif current.operation == "intfUserException":
+            raise Test.TestImpossibleException() # Yes, it really is meant to be TestImpossibleException.

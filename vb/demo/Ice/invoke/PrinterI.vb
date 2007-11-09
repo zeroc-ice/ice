@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports System.Collections
+Imports System.Collections.Generic
 Imports InvokeDemo
 
 Public Class PrinterI
@@ -43,11 +43,11 @@ Public Class PrinterI
             Console.WriteLine("}")
             Return True
         ElseIf current.operation.Equals("printDictionary") Then
-            Dim dict As StringDict = StringDictHelper.read(inStream)
+            Dim dict As Dictionary(Of String, String) = StringDictHelper.read(inStream)
             inStream.destroy()
             Console.Write("Printing dictionary {")
             Dim first As Boolean = True
-            For Each e As DictionaryEntry In dict
+            For Each e As KeyValuePair(Of String, String) In dict
                 If Not first Then
                     Console.Write(", ")
                 End If

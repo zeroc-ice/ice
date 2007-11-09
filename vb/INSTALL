@@ -9,11 +9,7 @@ The code has been built and tested with:
 Unpack the archive. The sources will be contained in the IceVB-@ver@
 subdirectory.
 
-You can either build the slice2vb compiler from the Ice for C++ source
-distribution, or you can download the Ice binary installer for
-Windows, which contains a compiled version of slice2vb. 
-
-Add the directory containing slice2vb to the list of "Executable
+Add the directory containing slice2cs to the list of "Executable
 files" directories in Visual Studio:
 
 - In the IDE, choose Tools->Options->Projects->VC++ Directories
@@ -25,8 +21,8 @@ files" directories in Visual Studio:
 Alternatively, you can set the environment variable ICE_HOME to the
 location of your Ice installation root directory.
 
-Ice for Visual Basic is a language mapping on top of Ice for C# -- the
-actual run-time support is provided by the Ice for C# assembly
+To use Visual Basic (or other .NET languages) with Ice, you need
+the run-time support provided by the Ice for C# assembly
 (icecs.dll). The Ice for Visual Basic build environment expects
 icecs.dll to be installed in $(solutiondir)\..\IceCS-@ver@\bin.
 Alternatively, you can install icecs.dll in the Global Assembly Cache
@@ -35,6 +31,13 @@ the icecs.dll assembly has already been installed in the GAC. If you
 prefer to install the assembly in the GAC yourself, refer to the
 INSTALL file included with the Ice for C# source distribution for
 instructions.
+
+To compile your Slice definitions, you need to use slice2cs to generate
+C# source code and use a C# compiler to compile the generated code into
+a DLL. Then reference that DLL from your Visual Basic project.
+
+See the Ice Manual and the makefiles and Visual Studio projects included
+with the demos for more information.
 
 
 Building with Visual Basic 2005

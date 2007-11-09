@@ -11,7 +11,7 @@ top_srcdir	= .
 
 !include $(top_srcdir)/config/Make.rules.mak
 
-SUBDIRS		= config src include test demo slice doc
+SUBDIRS		= config src include test demo doc
 
 INSTALL_SUBDIRS	= $(install_bindir) $(install_libdir) $(install_includedir) $(install_slicedir) $(install_docdir)
 

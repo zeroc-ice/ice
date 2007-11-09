@@ -52,6 +52,40 @@ public final class TestI extends _TestIntfDisp
     {
         cb.ice_response();
     }
+
+    public void
+    impossibleException_async(AMD_TestIntf_impossibleException cb, boolean _throw, Ice.Current current)
+    {
+        if(_throw)
+        {
+            cb.ice_exception(new TestImpossibleException());
+        }
+        else
+        {
+            //
+            // Return a value so we can be sure that the stream position
+            // is reset correctly if finished() throws.
+            //
+            cb.ice_response("Hello");
+        }
+    }
+
+    public void
+    intfUserException_async(AMD_TestIntf_intfUserException cb, boolean _throw, Ice.Current current)
+    {
+        if(_throw)
+        {
+            cb.ice_exception(new TestIntfUserException());
+        }
+        else
+        {
+            //
+            // Return a value so we can be sure that the stream position
+            // is reset correctly if finished() throws.
+            //
+            cb.ice_response("Hello");
+        }
+    }
     
     public void
     shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)

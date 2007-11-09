@@ -406,6 +406,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 
     try
     {
+        bool finishedException = false;
         try
         {
             if(servantManager)
@@ -420,27 +421,38 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
                     }
                     if(_locator)
                     {
-                        _servant = _locator->locate(_current, _cookie);
+                        try
+                        {
+                            _servant = _locator->locate(_current, _cookie);
+                        }
+                        catch(const UserException& ex)
+                        {
+                            _os.write(ex);
+                            replyStatus = replyUserException;
+                        }
                     }
                 }
             }
-            if(!_servant)
+            if(replyStatus == replyOK)
             {
-                if(servantManager && servantManager->hasServant(_current.id))
+                if(!_servant)
                 {
-                    replyStatus = replyFacetNotExist;
+                    if(servantManager && servantManager->hasServant(_current.id))
+                    {
+                        replyStatus = replyFacetNotExist;
+                    }
+                    else
+                    {
+                        replyStatus = replyObjectNotExist;
+                    }
                 }
                 else
                 {
-                    replyStatus = replyObjectNotExist;
-                }
-            }
-            else
-            {
-                dispatchStatus = _servant->__dispatch(*this, _current);
-                if(dispatchStatus == DispatchUserException)
-                {
-                    replyStatus = replyUserException;
+                    dispatchStatus = _servant->__dispatch(*this, _current);
+                    if(dispatchStatus == DispatchUserException)
+                    {
+                        replyStatus = replyUserException;
+                    }
                 }
             }
         }
@@ -448,15 +460,50 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
         {
             if(_locator && _servant && dispatchStatus != DispatchAsync)
             {
-                _locator->finished(_current, _servant, _cookie);
+                try
+                {
+                    _locator->finished(_current, _servant, _cookie);
+                }
+                catch(const UserException& ex)
+                {
+                    //
+                    // The operation may have already marshaled a reply; we must overwrite that reply.
+                    //
+                    _os.endWriteEncaps();
+                    _os.b.resize(headerSize + 5); // Byte following reply status.
+                    _os.startWriteEncaps();
+                    _os.write(ex);
+                    replyStatus = replyUserException; // Code below inserts the reply status.
+                    finishedException = true;
+                }
+                catch(...)
+                {
+                    throw;
+                }
             }
-
-            throw;
+            if(!finishedException)
+            {
+                throw;
+            }
         }
         
-        if(_locator && _servant && dispatchStatus != DispatchAsync)
+        if(!finishedException && _locator && _servant && dispatchStatus != DispatchAsync)
         {
-            _locator->finished(_current, _servant, _cookie);
+            try
+            {
+                _locator->finished(_current, _servant, _cookie);
+            }
+            catch(const UserException& ex)
+            {
+                //
+                // The operation may have already marshaled a reply; we must overwrite that reply.
+                //
+                _os.endWriteEncaps();
+                _os.b.resize(headerSize + 5); // Byte following reply status.
+                _os.startWriteEncaps();
+                _os.write(ex);
+                replyStatus = replyUserException; // Code below inserts the reply status.
+            }
         }
     }
     catch(const std::exception& ex)

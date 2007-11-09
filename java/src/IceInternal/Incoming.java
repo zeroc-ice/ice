@@ -138,35 +138,38 @@ final public class Incoming extends IncomingBase implements Ice.Request
                         }
                         if(_locator != null)
                         {
-                            _servant = _locator.locate(_current, _cookie);
-                        }
-                    }
-                    if(_servant == null)
-                    {
-                        _locator = servantManager.findServantLocator("");
-                        if(_locator != null)
-                        {
-                            _servant = _locator.locate(_current, _cookie);
+                            try
+                            {
+                                _servant = _locator.locate(_current, _cookie);
+                            }
+                            catch(Ice.UserException ex)
+                            {
+                                _os.writeUserException(ex);
+                                replyStatus = ReplyStatus.replyUserException;
+                            }
                         }
                     }
                 }
-                if(_servant == null)
+                if(replyStatus == ReplyStatus.replyOK)
                 {
-                    if(servantManager != null && servantManager.hasServant(_current.id))
+                    if(_servant == null)
                     {
-                        replyStatus = ReplyStatus.replyFacetNotExist;
+                        if(servantManager != null && servantManager.hasServant(_current.id))
+                        {
+                            replyStatus = ReplyStatus.replyFacetNotExist;
+                        }
+                        else
+                        {
+                            replyStatus = ReplyStatus.replyObjectNotExist;
+                        }
                     }
                     else
                     {
-                        replyStatus = ReplyStatus.replyObjectNotExist;
-                    }
-                }
-                else
-                {
-                    dispatchStatus = _servant.__dispatch(this, _current);
-                    if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
-                    {
-                        replyStatus = ReplyStatus.replyUserException;
+                        dispatchStatus = _servant.__dispatch(this, _current);
+                        if(dispatchStatus == Ice.DispatchStatus.DispatchUserException)
+                        {
+                            replyStatus = ReplyStatus.replyUserException;
+                        }
                     }
                 }
             }
@@ -174,16 +177,24 @@ final public class Incoming extends IncomingBase implements Ice.Request
             {
                 if(_locator != null && _servant != null && dispatchStatus != Ice.DispatchStatus.DispatchAsync)
                 {
-                    _locator.finished(_current, _servant, _cookie.value);
+                    try
+                    {
+                        _locator.finished(_current, _servant, _cookie.value);
+                    }
+                    catch(Ice.UserException ex)
+                    {
+                        //
+                        // The operation may have already marshaled a reply; we must overwrite that reply.
+                        //
+                        _os.endWriteEncaps();
+                        _os.resize(Protocol.headerSize + 5, false); // Byte following reply status.
+                        _os.startWriteEncaps();
+                        _os.writeUserException(ex);
+                        replyStatus = ReplyStatus.replyUserException; // Code below inserts the reply status.
+                    }
                 }
             }
         }
-        /* Not possible in Java - UserExceptions are checked exceptions
-        catch(Ice.UserException ex)
-        {
-        // ...
-        }
-        */
         catch(java.lang.Exception ex)
         {
             _is.endReadEncaps();

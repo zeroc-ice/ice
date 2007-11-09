@@ -22,15 +22,16 @@ import TestUtil
 import IceGridAdmin
 
 name = os.path.join("IceGrid", "simple")
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 #
 # Test client/server without on demand activation.
 #
-IceGridAdmin.iceGridClientServerTest(name, "", "--TestAdapter.Endpoints=default" + \
-                                               " --TestAdapter.AdapterId=TestAdapter")
+IceGridAdmin.iceGridClientServerTest(testdir, name, "", "--TestAdapter.Endpoints=default" + \
+                                     " --TestAdapter.AdapterId=TestAdapter")
 
 #
 # Test client/server with on demand activation.
 #
-IceGridAdmin.iceGridTest(name, "simple_server.xml", "--with-deploy")
+IceGridAdmin.iceGridTest(testdir, name, "simple_server.xml", "--with-deploy")
 sys.exit(0)

@@ -10,7 +10,7 @@
 
 import os, sys
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -21,21 +21,21 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 name = os.path.join("Ice", "operations")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 nameAMD = os.path.join("Ice", "operationsAMD")
-testdirAMD = os.path.join(toplevel, "test", nameAMD)
+testdirAMD = testdir + "AMD" 
 
 print "tests with regular server."
 classpath = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-TestUtil.clientServerTest()
+os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + os.pathsep + classpath
+TestUtil.clientServerTest(name)
 
 print "tests with AMD server."
-TestUtil.clientServerTestWithClasspath(\
-    os.path.join(testdirAMD, "classes") + TestUtil.sep + classpath,\
-    os.path.join(testdir, "classes") + TestUtil.sep + classpath)
+TestUtil.clientServerTestWithClasspath(name, \
+    os.path.join(testdirAMD, "classes") + os.pathsep + classpath,\
+    os.path.join(testdir, "classes") + os.pathsep + classpath)
 
 print "tests with collocated server."
-TestUtil.collocatedTest()
+TestUtil.collocatedTest(name)
 
 sys.exit(0)

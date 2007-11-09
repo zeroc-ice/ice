@@ -58,7 +58,7 @@ IcePy::PyObjectHandle::operator=(const PyObjectHandle& p)
 }
 
 PyObject*
-IcePy::PyObjectHandle::get()
+IcePy::PyObjectHandle::get() const
 {
     return _p;
 }
@@ -149,6 +149,15 @@ IcePy::PyException::raise()
             e.unknown = ostr.str();
         }
         throw e;
+    }
+}
+
+void
+IcePy::PyException::checkSystemExit()
+{
+    if(PyObject_IsInstance(ex.get(), PyExc_SystemExit))
+    {
+        handleSystemExit(ex.get()); // Does not return.
     }
 }
 

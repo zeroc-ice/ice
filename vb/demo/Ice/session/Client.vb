@@ -7,7 +7,7 @@
 '
 ' **********************************************************************
 
-Imports sessionDemo.Demo
+Imports Demo
 Imports System
 Imports System.Threading
 Imports System.Collections
@@ -55,6 +55,11 @@ Module SessionC
         End Class
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim name As String = Nothing
             Do
                 Console.Out.Write("Please enter your name ==> ")

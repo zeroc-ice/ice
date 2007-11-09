@@ -119,6 +119,8 @@ class spawn(pexpect.spawn):
                 command = "./" + command
         if self.language == "Python":
             command = python() + command
+        if self.language == "VB":
+            command = "./" + command
         pexpect.spawn.__init__(self, command, logfile = logfile)
 
     def expect(self, pattern, timeout = defaultTimeout, searchwindowsize=None):
@@ -154,7 +156,7 @@ class spawn(pexpect.spawn):
         else:
             self.expect(pexpect.EOF, timeout)
         status = self.wait()
-        if self.language == "C++" or self.language == "Python" or self.language == "Ruby" or self.language == "PHP":
+        if self.language == "C++" or self.language == "Python" or self.language == "Ruby" or self.language == "PHP" or self.language == "VB":
             if isCygwin() and self.sentKill:
                 assert self.signalstatus == self.sentKill
             else:

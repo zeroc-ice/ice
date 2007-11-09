@@ -82,11 +82,6 @@
     <Reference Include="System">
       <Name>System</Name>
     </Reference>
-    <ProjectReference Include="simpleIceGridCommon.vbproj">
-      <Name>simpleIceGridCommon</Name>
-      <Project>{4F91E9BD-6EF1-47AD-AB67-E5357AE83696}</Project>
-      <Package>{F184B08F-C81C-45F6-A57F-5ABD9991F28F}</Package>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Import Include="System" />
@@ -98,6 +93,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="README" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="simpleIceGridSlice.csproj">
+      <Project>{DB73D8A1-E1DB-4E43-AB42-1AE93E04EEAC}</Project>
+      <Name>simpleIceGridSlice</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="My Project\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>

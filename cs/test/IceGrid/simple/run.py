@@ -10,35 +10,43 @@
 
 import os, sys, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
 
-if not os.environ.has_key('ICE_HOME'):
-    print "ICE_HOME is not defined."
-    sys.exit(0)
-
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 import IceGridAdmin
 
+ice_home = None
+if not os.environ.has_key('ICE_HOME'):
+    relPath = os.path.join(TestUtil.findTopLevel(), "cpp", "bin") 
+    if os.path.exists(os.path.join(relPath, "icegridregistry")) or \
+        os.path.exists(os.path.join(relPath, "icegridregistry.exe")):
+        ice_home = os.path.dirname(relPath) 
+    else:
+        print "ICE_HOME is not defined."
+        sys.exit(0)
+else:
+    ice_home = os.environ['ICE_HOME']
+
 name = os.path.join("IceGrid", "simple")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.dirname(os.path.abspath(__file__))
 
 #
 # Test client/server without on demand activation.
 #
-IceGridAdmin.iceGridClientServerTest(name, "", "--TestAdapter.Endpoints=default" + \
-                                               " --TestAdapter.AdapterId=TestAdapter")
+IceGridAdmin.iceGridClientServerTest(testdir, name, "", "--TestAdapter.Endpoints=default" + \
+        " --TestAdapter.AdapterId=TestAdapter")
 
 #
 # Test client/server with on demand activation.
 #
 if TestUtil.mono:
-    IceGridAdmin.iceGridTest(name, "simple_mono_server.xml", "--with-deploy")
+    IceGridAdmin.iceGridTest(testdir, name, "simple_mono_server.xml", "--with-deploy")
 else:
-    IceGridAdmin.iceGridTest(name, "simple_server.xml", "--with-deploy")    
+    IceGridAdmin.iceGridTest(testdir, name, "simple_server.xml", "--with-deploy")    
 sys.exit(0)

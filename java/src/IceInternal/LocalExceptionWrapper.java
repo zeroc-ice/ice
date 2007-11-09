@@ -44,6 +44,41 @@ public class LocalExceptionWrapper extends Exception
         return _retry;
     }
 
+    public static void
+    throwUnknownWrapper(java.lang.Throwable ex) throws LocalExceptionWrapper
+    {
+        if(ex instanceof Ice.UserException)
+        {
+            throw new LocalExceptionWrapper(new Ice.UnknownUserException(ex.toString()), false);
+        }
+        if(ex instanceof Ice.LocalException)
+        {
+            /*
+            //
+            // Commented-out code makes local exceptions fully location transparent,
+            // but the Freeze evictor relies on them not being transparent.
+            //
+            if(ex instanceof Ice.UnknownException ||
+               ex instanceof Ice.ObjectNotExistException ||
+               ex instanceof Ice.OperationNotExistException ||
+               ex instanceof Ice.FacetNotExistException)
+            {
+                throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
+            }
+            throw new LocalExceptionWrapper(new Ice.UnknownLocalException(ex.toString()), false);
+            */
+            throw new LocalExceptionWrapper((Ice.LocalException)ex, false);
+        }
+        /*
+        throw new LocalExceptionWrapper(new Ice.UnknownException(ex.toString()), false);
+        */
+
+        if(ex instanceof RuntimeException)
+        {
+            throw (RuntimeException)ex;
+        }
+    }
+
     private Ice.LocalException _ex;
     private boolean _retry;
 }

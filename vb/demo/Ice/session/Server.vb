@@ -15,6 +15,11 @@ Module SessionS
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("SessionFactory")
 
             Dim reaper As ReapThread = New ReapThread

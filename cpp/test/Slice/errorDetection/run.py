@@ -23,8 +23,8 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-directory = os.path.join(toplevel, "test", "Slice", "errorDetection")
-slice2cpp = os.path.join(toplevel, "bin", "slice2cpp")
+directory = os.path.dirname(os.path.abspath(__file__))
+slice2cpp = os.path.join(TestUtil.getBinDir(__file__), "slice2cpp")
 
 regex1 = re.compile(r"\.ice$", re.IGNORECASE)
 files = []

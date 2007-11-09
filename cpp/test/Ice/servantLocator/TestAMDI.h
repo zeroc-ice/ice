@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2006 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,7 +25,11 @@ public:
     virtual void stdException_async(const Test::AMD_TestIntf_stdExceptionPtr&, const Ice::Current&);
     virtual void cppException_async(const Test::AMD_TestIntf_cppExceptionPtr&, const Ice::Current&);
 
-    virtual void unknownExceptionWithServantException_async(const Test::AMD_TestIntf_unknownExceptionWithServantExceptionPtr&, const Ice::Current&);
+    virtual void unknownExceptionWithServantException_async(
+                            const Test::AMD_TestIntf_unknownExceptionWithServantExceptionPtr&, const Ice::Current&);
+
+    virtual void impossibleException_async(const Test::AMD_TestIntf_impossibleExceptionPtr&, bool, const Ice::Current&);
+    virtual void intfUserException_async(const Test::AMD_TestIntf_intfUserExceptionPtr&, bool, const Ice::Current&);
 
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&, const Ice::Current&);
 };

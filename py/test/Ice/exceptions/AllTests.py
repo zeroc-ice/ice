@@ -288,7 +288,7 @@ class AMI_WrongOperation_noSuchOperationI(CallbackBase):
         self.called()
 
 def allTests(communicator):
-    print "testing servant registration exceptions... ",
+    print "testing servant registration exceptions...",
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
@@ -309,7 +309,7 @@ def allTests(communicator):
     adapter.deactivate()
     print "ok"
 
-    print "testing servant locator registrations exceptions... ",
+    print "testing servant locator registrations exceptions...",
     communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default")
     adapter = communicator.createObjectAdapter("TestAdapter2")
     loc = ServantLocatorI()
@@ -323,7 +323,7 @@ def allTests(communicator):
     adapter.deactivate()
     print "ok"
 
-    print "testing object factory registration exception... ",
+    print "testing object factory registration exception...",
     of = ObjectFactoryI()
     communicator.addObjectFactory(of, "x")
     try:
@@ -333,19 +333,19 @@ def allTests(communicator):
         pass
     print "ok"
 
-    print "testing stringToProxy... ",
+    print "testing stringToProxy...",
     ref = "thrower:default -p 12010 -t 10000"
     base = communicator.stringToProxy(ref)
     test(base)
     print "ok"
 
-    print "testing checked cast... ",
+    print "testing checked cast...",
     thrower = Test.ThrowerPrx.checkedCast(base)
     test(thrower)
     test(thrower == base)
     print "ok"
 
-    print "catching exact types... ",
+    print "catching exact types...",
 
     try:
         thrower.throwAasA(1)
@@ -412,7 +412,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching base types... ",
+    print "catching base types...",
 
     try:
         thrower.throwBasB(1, 2)
@@ -449,7 +449,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching derived types... ",
+    print "catching derived types...",
 
     try:
         thrower.throwBasA(1, 2)
@@ -486,16 +486,12 @@ def allTests(communicator):
     print "ok"
 
     if thrower.supportsUndeclaredExceptions():
-        print "catching unknown user exception... ",
+        print "catching unknown user exception...",
 
         try:
             thrower.throwUndeclaredA(1)
             test(False)
         except Ice.UnknownUserException:
-            #
-            # We get an unknown user exception without collocation
-            # optimization.
-            #
             pass
         except:
             print sys.exc_info()
@@ -505,10 +501,6 @@ def allTests(communicator):
             thrower.throwUndeclaredB(1, 2)
             test(False)
         except Ice.UnknownUserException:
-            #
-            # We get an unknown user exception without collocation
-            # optimization.
-            #
             pass
         except:
             print sys.exc_info()
@@ -518,10 +510,6 @@ def allTests(communicator):
             thrower.throwUndeclaredC(1, 2, 3)
             test(False)
         except Ice.UnknownUserException:
-            #
-            # We get an unknown user exception without
-            # collocation optimization.
-            #
             pass
         except:
             print sys.exc_info()
@@ -529,7 +517,7 @@ def allTests(communicator):
 
         print "ok"
 
-    print "catching object not exist exception... ",
+    print "catching object not exist exception...",
 
     id = communicator.stringToIdentity("does not exist")
     try:
@@ -545,7 +533,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching facet not exist exception... ",
+    print "catching facet not exist exception...",
 
     try:
         thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
@@ -560,7 +548,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching operation not exist exception... ",
+    print "catching operation not exist exception...",
 
     try:
         thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower)
@@ -574,16 +562,12 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching unknown local exception... ",
+    print "catching unknown local exception...",
 
     try:
         thrower.throwLocalException()
         test(False)
     except Ice.UnknownLocalException:
-        #
-        # We get an unknown local exception without collocation
-        # optimization.
-        #
         pass
     except:
         print sys.exc_info()
@@ -591,16 +575,12 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching unknown non-Ice exception... ",
+    print "catching unknown non-Ice exception...",
 
     try:
         thrower.throwNonIceException()
         test(False)
     except Ice.UnknownException:
-        #
-        # We get an unknown exception without collocation
-        # optimization.
-        #
         pass
     except:
         print sys.exc_info()
@@ -608,7 +588,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching exact types with AMI... ",
+    print "catching exact types with AMI...",
 
     cb = AMI_Thrower_throwAasAI()
     thrower.throwAasA_async(cb, 1)
@@ -642,7 +622,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching derived types... ",
+    print "catching derived types...",
 
     cb = AMI_Thrower_throwBasAI()
     thrower.throwBasA_async(cb, 1, 2)
@@ -659,7 +639,7 @@ def allTests(communicator):
     print "ok"
 
     if thrower.supportsUndeclaredExceptions():
-        print "catching unknown user exception with AMI... ",
+        print "catching unknown user exception with AMI...",
 
         cb = AMI_Thrower_throwUndeclaredAI()
         thrower.throwUndeclaredA_async(cb, 1)
@@ -675,7 +655,7 @@ def allTests(communicator):
 
         print "ok"
 
-    print "catching object not exist exception with AMI... ",
+    print "catching object not exist exception with AMI...",
 
     id = communicator.stringToIdentity("does not exist")
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_identity(id))
@@ -685,7 +665,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching facet not exist exception with AMI... ",
+    print "catching facet not exist exception with AMI...",
 
     thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
     cb = AMI_Thrower_throwAasAFacetNotExistI()
@@ -694,7 +674,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching operation not exist exception with AMI... ",
+    print "catching operation not exist exception with AMI...",
 
     cb = AMI_WrongOperation_noSuchOperationI()
     thrower4 = Test.WrongOperationPrx.uncheckedCast(thrower)
@@ -703,7 +683,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching unknown local exception with AMI... ",
+    print "catching unknown local exception with AMI...",
 
     cb = AMI_Thrower_throwLocalExceptionI()
     thrower.throwLocalException_async(cb)
@@ -711,7 +691,7 @@ def allTests(communicator):
 
     print "ok"
 
-    print "catching unknown non-Ice exception with AMI... ",
+    print "catching unknown non-Ice exception with AMI...",
 
     cb = AMI_Thrower_throwNonIceExceptionI()
     thrower.throwNonIceException_async(cb)

@@ -10,7 +10,7 @@
 
 import os, sys, getopt
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+for toplevel in [".", "..", "../..", "../../..", "../../../..", "../../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
@@ -22,6 +22,11 @@ import TestUtil
 
 name = os.path.join("IceSSL", "configuration")
 
-testdir = os.path.join(toplevel, "test", name)
-TestUtil.clientServerTestWithOptions(name, "", " " + testdir)
+testdir = os.path.dirname(os.path.abspath(__file__))
+
+#
+# The drive letter needs to be removed on Windows or loading the SSL
+# plugin will not work.
+#
+TestUtil.clientServerTestWithOptions(name, "", " " + os.path.splitdrive(testdir)[1])
 sys.exit(0)

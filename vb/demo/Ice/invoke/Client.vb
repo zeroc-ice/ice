@@ -8,6 +8,7 @@
 ' **********************************************************************
 
 Imports System
+Imports System.Collections.Generic
 Imports InvokeDemo
 
 Module InvokeC
@@ -32,6 +33,11 @@ Module InvokeC
         End Sub
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim obj As Ice.ObjectPrx = communicator().propertyToProxy("Printer.Proxy")
 
             menu()
@@ -84,7 +90,7 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
-                        Dim dict As StringDict = New StringDict
+                        Dim dict As Dictionary(Of String, String) = New Dictionary(Of String, String)()
                         dict("The") = "streaming"
                         dict("API") = "works!"
                         StringDictHelper.write(outStream, dict)
@@ -161,7 +167,7 @@ Module InvokeC
                         ' Marshal the in parameter.
                         '
                         Dim outStream As Ice.OutputStream = Ice.Util.createOutputStream(communicator)
-                        Dim C As InvokeDemo.C = New InvokeDemo.C
+                        Dim C As C = New C
                         C.s = New [Structure]
                         C.s.name = "blue"
                         C.s.value = Color.blue
@@ -194,7 +200,7 @@ Module InvokeC
                         Dim str As String = inStream.readString()
                         inStream.readPendingObjects()
                         inStream.destroy()
-                        Dim C As InvokeDemo.C = ch.value
+                        Dim C As C = ch.value
                         Console.Error.WriteLine("Got string `" & str & "' and class: s.name=" & C.s.name & _
                                                 ", s.value=" & C.s.value)
                     ElseIf line.Equals("9") Then

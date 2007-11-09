@@ -1,0 +1,85 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2007 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+#
+# ZeroC base OpenSSL configuration file.
+#
+
+###############################################################################
+###  CA Configuration
+###############################################################################
+
+[ ca ]
+default_ca = ice
+
+
+[ ice ]
+dir              = openssl/ca  # Where everything is kept.
+private_key      = cakey.pem   # The CA Private Key.
+certificate      = cacert.pem  # The CA Certificate.
+database         = $dir/index.txt           # Database index file.
+new_certs_dir    = $dir                     # Default loc for new certs.
+serial           = $dir/serial              # The current serial number.
+
+certs            = $dir                     # Where issued certs are kept.
+RANDFILE         = $dir/.rand               # Private random number file.
+
+default_days     = 1825                     # How long certs are valid.
+default_md       = md5                      # The Message Digest type.
+preserve         = yes                      # Keep passed DN ordering?
+
+policy           = ca_policy
+x509_extensions  = certificate_extensions
+
+
+[ ca_policy ]
+countryName            = match
+stateOrProvinceName    = match
+organizationName       = match
+organizationalUnitName = optional
+emailAddress           = optional
+commonName             = supplied
+
+
+[ certificate_extensions ]
+basicConstraints = CA:false
+
+# PKIX recommendation.
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+
+subjectAltName = DNS:client, IP:127.0.0.1
+
+[ req ]
+default_bits        = 1024
+default_keyfile     = c_rsa1024_priv.pem
+default_md          = md5
+prompt              = no
+distinguished_name  = root_ca_distinguished_name
+x509_extensions     = root_ca_extensions
+
+
+[ root_ca_distinguished_name ]
+countryName            = US
+stateOrProvinceName    = Florida
+localityName           = Palm Beach Gardens
+organizationName       = ZeroC, Inc.
+organizationalUnitName = Ice
+commonName             = Client
+emailAddress           = info@zeroc.com
+
+
+[ root_ca_extensions ]
+basicConstraints = CA:false
+
+# PKIX recommendation.
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer:always
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+

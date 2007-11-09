@@ -68,42 +68,15 @@
             <not>
                 <isset property="ice.dir"/>
 	    </not>
-	</and>
-    </condition>
-
-    <pathconvert property="ice.top.dir.distrib">
-        <!-- We use the path location attribute to ensure that the
-             resulting ice.dir directory will be relative to the
-             project base directory. --> 
-        <path location="${top.dir}"/>
-    </pathconvert>
-    <condition property="ice.dir" value="${ice.top.dir.distrib}">
-	<and>
-	    <available file="${ice.top.dir.distrib}/slice"/>
             <not>
-                <isset property="ice.dir"/>
-            </not>
-	</and>
-    </condition>
-
-
-    <pathconvert property="ice.top.dir.repository">
-        <!-- We use the path location attribute to ensure that the
-             resulting ice.dir directory will be relative to the
-             project base directory. --> 
-	<path location="${top.dir}/../cpp"/>
-    </pathconvert>
-    <condition property="ice.dir" value="${ice.top.dir.repository}">
-	<and>
-	    <available file="${ice.top.dir.repository}/slice"/>
-            <not>
-                <isset property="ice.dir"/>
+                <equals arg1="use.ice.rpm" arg2="yes" />
             </not>
 	</and>
     </condition>
 
     <condition property="ice.dir" value="/usr">
-	<and>
+        <and>
+            <equals arg1="use.ice.rpm" arg2="yes" />
 	    <available file="/usr/share/Ice-${ice.version}/slice"/>
             <not>
                 <isset property="ice.dir"/>
@@ -111,33 +84,52 @@
 	</and>
     </condition>
 
-    <condition property="ice.dir" value="/opt/Ice-${ice.version}">
+    <pathconvert property="ice.top.dir.repository">
+        <!-- We use the path location attribute to ensure that the
+             resulting ice.dir directory will be relative to the
+             project base directory. --> 
+	<path location="${top.dir}/.."/>
+    </pathconvert>
+    <condition property="use.src.dir">
 	<and>
-	    <available file="/opt/Ice-${ice.version}/slice" />
-	    <not>
-		<isset property="ice.dir"/>
-	    </not>
+	    <available file="${ice.top.dir.repository}/slice"/>
+            <not>
+                <isset property="ice.dir"/>
+            </not>
+            <not>
+                <equals arg1="use.ice.rpm" arg2="yes" />
+            </not>
 	</and>
+    </condition>
+
+    <condition property="ice.dir" value="${ice.top.dir.repository}">
+        <isset property="use.src.dir" />
     </condition>
 
     <!-- We set ice.home if we know that the translators are in ice.dir. --> 
     <condition property="ice.home" value="${ice.dir}">
-	<or>
-	    <available file="${ice.dir}/bin/slice2java"/>
-	    <available file="${ice.dir}/bin/slice2java.exe"/>
-	</or>
+        <and>
+            <or>
+                <available file="${ice.dir}/bin/slice2java"/>
+                <available file="${ice.dir}/bin/slice2java.exe"/>
+            </or>
+            <not>
+                <isset property="use.src.dir" />
+            </not>
+        </and>
+    </condition>
+
+    <condition property="ice.home" value="${ice.dir}/cpp">
+        <isset property="use.src.dir" />
     </condition>
 
     <!-- Detect Ice for Java location -->
 
     <!-- A slice directory in ${top.dir} indicates a source distribution build. 
          A makedist.py script indicates a CVS checkout. -->
-    <condition property="icej.dir" value="${top.dir}">
-	<or>
-	    <available file="${top.dir}/makedist.py"/>
-	    <available file="${top.dir}/slice"/>
-	    <equals arg1="${ice.dir}" arg2="${ice.top.dir.repository}"/>
-	</or>
+
+     <condition property="icej.dir" value="${top.dir}/../java">
+        <isset property="use.src.dir" />
     </condition>
 
     <!-- The following conditions should only occur when building the demo 
@@ -155,32 +147,16 @@
 
     <!-- RPM -->
     <condition property="icej.dir" value="/usr">
-	<and>
-	    <available file="/usr/lib/Ice-${ice.version}/Ice.jar"/>
-	    <not>
-		<isset property="icej.dir"/>
-	    </not>
-	</and>
+        <equals arg1="use.ice.rpm" arg2="yes" />
     </condition>
 
     <!-- In RPM installs, files are located in different relative locations
          than other install types. Use 'with-rpm' later on to make decisions
          about the locations of slice, docs, jars, etc. --> 
-    <condition property="with-rpm" value="true">
-	<and>
-	    <equals arg1="${icej.dir}" arg2="/usr"/>
-	</and>
+     <condition property="with-rpm" value="true">
+        <equals arg1="use.ice.rpm" arg2="yes" />
     </condition>
 
-    <!-- Catch all for development tree purposes. If none of the above
-	 checks work, assume the developer knows what they are doing and the
-	 current top.dir is the ice dir. -->
-    <condition property="icej.dir" value="${top.dir}">
-	<not>
-	    <isset property="icej.dir"/>
-	</not>
-    </condition>
-    
     <fail message="Unable to detect a valid Ice installation." unless="ice.dir" />
     <fail message="Unable to detect a valid Ice for Java installation." unless="icej.dir"/>
 
@@ -204,8 +180,6 @@
 
     <target name="config-init">
 
-	<!-- In C++, RPM installs have precedence over installs in the default Ice location 
-	     (i.e. /opt/Ice-${ice.version}) so the same will be done here. -->
 	<condition property="lib.dir" 
 	    value="/usr/lib/Ice-${ice.version}"
 	    else="${icej.dir}/lib">

@@ -61,7 +61,7 @@ public:
     void operator=(PyObject*);
     void operator=(const PyObjectHandle&);
 
-    PyObject* get();
+    PyObject* get() const;
     PyObject* release();
 
 private:
@@ -90,6 +90,11 @@ public:
     // Convert the Python exception to its C++ equivalent.
     //
     void raise();
+
+    //
+    // If the Python exception is SystemExit, act on it. May not return.
+    //
+    void checkSystemExit();
 
     PyObjectHandle ex;
 

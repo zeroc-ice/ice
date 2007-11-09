@@ -8,7 +8,10 @@
 # **********************************************************************
 
 !if "$(ICE_HOME)" == ""
-!error ICE_HOME is not defined
+ICE_DIR		= $(top_srcdir)\..
+USE_SRC_DIR	= 1
+!else
+ICE_DIR 	= $(ICE_HOME)
 !endif
 
 #
@@ -53,11 +56,7 @@ SOVERSION		= 33
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 
-!if exist ($(top_srcdir)\slice)
-slicedir		= $(top_srcdir)\slice
-!else
-slicedir		= $(ICE_HOME)\slice
-!endif
+slicedir		= $(ICE_DIR)\slice
 
 install_libdir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
@@ -66,10 +65,10 @@ install_slicedir        = $(prefix)\slice
 THIRDPARTY_HOME         = $(STLPORT_HOME)
 CPP_COMPILER		= VC60
 
-!if exist ($(top_srcdir)\config\Make.rules.msvc)
-!include $(top_srcdir)\config\Make.rules.msvc
+!if exist ($(ICE_DIR)\config\Make.rules.msvc)
+!include $(ICE_DIR)\config\Make.rules.msvc
 !else
-!include $(ICE_HOME)\config\Make.rules.msvc
+!include $(ICE_DIR)\cpp\config\Make.rules.msvc
 !endif
 
 !if "$(OPTIMIZE)" != "yes"
@@ -78,8 +77,13 @@ LIBSUFFIX       = $(LIBSUFFIX)d
 
 ICE_LIBS		= ice$(LIBSUFFIX).lib iceutil$(LIBSUFFIX).lib slice$(LIBSUFFIX).lib
 
-ICE_CPPFLAGS		= -I"$(ICE_HOME)\include"
-ICE_LDFLAGS		= /LIBPATH:"$(ICE_HOME)\lib"
+!if "$(USE_SRC_DIR)" == "1"
+ICE_CPPFLAGS		= -I"$(ICE_DIR)\cpp\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\cpp\lib"
+!else
+ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
+ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
+!endif
 
 PHP_CPPFLAGS		= -I"$(PHP_HOME)" -I"$(PHP_HOME)\main" -I"$(PHP_HOME)\TSRM" -I"$(PHP_HOME)\Zend" -DPHP_WIN32 -DZEND_WIN32 -DZEND_DEBUG=0 -DZTS
 PHP_LDFLAGS		= /LIBPATH:"$(PHP_BIN_HOME)\dev"

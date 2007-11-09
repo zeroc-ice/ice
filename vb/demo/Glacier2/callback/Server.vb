@@ -7,13 +7,18 @@
 '
 ' **********************************************************************
 
-Imports glacier2demo.Demo
+Imports Demo
 
 Module Glacier2callbackS
     Class Server
         Inherits Ice.Application
 
         Public Overloads Overrides Function run(ByVal args() As String) As Integer
+            If args.Length > 0 Then
+                Console.Error.WriteLine(appName() & ": too many arguments")
+                Return 1
+            End If
+
             Dim adapter As Ice.ObjectAdapter = communicator().createObjectAdapter("Callback.Server")
             adapter.add(New CallbackI, communicator().stringToIdentity("callback"))
             adapter.activate()

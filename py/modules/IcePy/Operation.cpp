@@ -1799,10 +1799,7 @@ IcePy::TypedUpcall::exception(PyException& ex)
             // However, we have no way to pass this exception to the interpreter,
             // so we act on it directly.
             //
-            if(PyObject_IsInstance(ex.ex.get(), PyExc_SystemExit))
-            {
-                handleSystemExit(ex.ex.get()); // Does not return.
-            }
+            ex.checkSystemExit();
 
             PyObject* userExceptionType = lookupType("Ice.UserException");
 
@@ -1822,6 +1819,9 @@ IcePy::TypedUpcall::exception(PyException& ex)
                 else
                 {
                     Ice::OutputStreamPtr os = Ice::createOutputStream(_communicator);
+
+                    os->writeBool(info->usesClasses);
+
                     ObjectMap objectMap;
                     info->marshal(ex.ex.get(), os, &objectMap);
 
@@ -2058,10 +2058,7 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
         // However, we have no way to pass this exception to the interpreter,
         // so we act on it directly.
         //
-        if(PyObject_IsInstance(ex.ex.get(), PyExc_SystemExit))
-        {
-            handleSystemExit(ex.ex.get()); // Does not return.
-        }
+        ex.checkSystemExit();
 
         ex.raise();
     }

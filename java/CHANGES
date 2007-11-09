@@ -1,12 +1,18 @@
 Changes since version 3.2.X (binary incompatible)
 -------------------------------------------------
 
+- Changed servant locators so both locate() and finished() can
+  throw user exceptions. (See the manual for details.)
+
 - A number of proxy methods (ice_timeout(), ice_oneway() etc.) now
   return a proxy of the same type as the target. This allows you to
   cast the return proxy instead using uncheckedCast on the Helper.
   For example, you can now write:
+
     hello = (HelloPrx)hello.ice_oneway();
+
   instead of:
+
     hello = HelloPrxHelper.uncheckedCast(hello.ice_oneway());
 
 - Added support for a password callback in IceSSL. Also added new
@@ -15,7 +21,7 @@ Changes since version 3.2.X (binary incompatible)
 
 - Setting IceBox.ServiceManager.Endpoints is no longer necessary
   in order to run the IceBox service. If no endpoints are specified
-  the the ServiceManager interface is not created.
+  then the ServiceManager interface is not created.
 
 - The property Ice.Plugin.Logger is now reserved to allow setting
   of the communicator's logger from properties. This plugin must
@@ -47,6 +53,7 @@ Changes since version 3.2.X (binary incompatible)
   present when the adapter was created.
 
 - Freeze evictor update:
+
   - the existing evictor was renamed BackgroundSaveEvictor
   - added new TransactionalEvictor
 

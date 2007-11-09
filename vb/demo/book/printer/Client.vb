@@ -8,7 +8,7 @@
 ' **********************************************************************
 
 Imports System
-Imports printerDemo.Demo
+Imports Demo
 
 Module Client
 
