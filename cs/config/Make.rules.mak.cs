@@ -57,7 +57,12 @@ libdir			= $(top_srcdir)\lib
 #
 # If a slice directory is contained along with this distribution -- use it. 
 #
+
+!if exist("$(ICE_DIR)\slice")
 slicedir 		= $(ICE_DIR)\slice
+!else
+slicedir                = $(ICE_DIR)\..\slice
+!endif
 
 install_bindir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib

@@ -8,7 +8,10 @@
 # **********************************************************************
 
 !if "$(ICE_HOME)" == ""
-!error ICE_HOME is not defined
+ICE_DIR		= $(top_srcdir)\..
+USE_SRC_DIR	= 1
+!else
+ICE_DIR 	= $(ICE_HOME)
 !endif
 
 #
@@ -34,8 +37,8 @@ VERSION			= 3.3.0
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 
-!if exist ($(ICE_HOME)\bin\icecs.dll)
-csbindir	 	= $(ICE_HOME)\bin
+!if exist ("$(ICE_DIR)\bin\icecs.dll")
+csbindir	 	= $(ICE_DIR)\bin
 !else
 csbindir 		= $(top_srcdir)\..\cs\bin
 !endif
@@ -44,10 +47,11 @@ csbindir 		= $(top_srcdir)\..\cs\bin
 # If a slice directory is contained along with this distribution -- use it. 
 # Otherwise use paths relative to $(ICE_HOME).
 #
-!if exist ($(top_srcdir)\slice)
-slicedir 		= $(top_srcdir)\slice
+
+!if exist ("$(ICE_DIR)\slice")
+slicedir 		= $(ICE_DIR)\slice
 !else
-slicedir 		= $(ICE_HOME)\slice
+slicedir                = $(ICE_DIR)\..\slice
 !endif
 
 VBC			= vbc -nologo /r:system.dll
@@ -68,7 +72,11 @@ MCSFLAGS 		= $(MCSFLAGS) -debug -define:DEBUG
 MCSFLAGS 		= $(MCSFLAGS) -optimize+
 !endif
 
-SLICE2CS		= "$(ICE_HOME)\bin\slice2cs"
+!if "$(USE_SRC_DIR)" == "1"
+SLICE2CS		= "$(ICE_DIR)\cpp\bin\slice2cs.exe"
+!else
+SLICE2CS		= "$(ICE_DIR)\bin\slice2cs.exe"
+!endif
 
 EVERYTHING		= all clean depend config
 
