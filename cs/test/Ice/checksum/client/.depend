@@ -1,2 +1,2 @@
-Test.cs: ./Test.ice $(slicedir)/Ice/SliceChecksumDict.ice
+Test.cs: ./Test.ice
 Types.cs: ./Types.ice

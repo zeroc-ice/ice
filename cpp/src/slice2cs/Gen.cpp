@@ -1073,8 +1073,22 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
 
     _out << nl << "// Generated from file `" << fileBase << ".ice'";
 
+    //
+    // TODO: Remove the work-around for Mono once global:: works correctly with generics.
+    //
+    _out.zeroIndent();
+    _out << sp << nl << "#if __MonoCS__";
+    _out.restoreIndent();
+    _out << sp << nl << "using _System = System;";
+    _out << nl << "using _Microsoft = Microsoft;";
+    _out.zeroIndent();
+    _out << nl << "#else";
+    _out.restoreIndent();
     _out << sp << nl << "using _System = global::System;";
     _out << nl << "using _Microsoft = global::Microsoft;";
+    _out.zeroIndent();
+    _out << nl << "#endif";
+    _out.restoreIndent();
 
     if(impl || implTie)
     {
