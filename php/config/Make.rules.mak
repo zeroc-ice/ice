@@ -56,7 +56,11 @@ SOVERSION		= 33
 bindir			= $(top_srcdir)\bin
 libdir			= $(top_srcdir)\lib
 
-slicedir		= $(ICE_DIR)\slice
+!if exist ("$(ICE_DIR)\slice")
+slicedir 		= $(ICE_DIR)\slice
+!else
+slicedir                = $(ICE_DIR)\..\slice
+!endif
 
 install_libdir		= $(prefix)\bin
 install_libdir		= $(prefix)\lib
