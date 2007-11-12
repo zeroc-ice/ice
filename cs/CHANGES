@@ -1,7 +1,11 @@
 Changes since version 3.2.1 (binary incompatible)
 -------------------------------------------------
 
-- Fixed a bug that cause a NullPointer exception when marshaling
+- Fixed a bug that caused a NullPointer exception for sequences
+  of structs if the structs used the class mapping and the sequence
+  contained null elements.
+
+- Fixed a bug that caused a NullPointer exception when marshaling
   a struct containing reference types if that was nested inside
   a data type, such as another exception or struct.
 

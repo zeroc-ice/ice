@@ -47,12 +47,14 @@ tests = [ \
     "Ice/interceptor", \
     "Ice/dictMapping", \
     "Ice/seqMapping", \
-    "IceSSL/configuration", \
     "Ice/threads", \
     "Glacier2/router", \
     "Glacier2/attack", \
     "IceGrid/simple" \
     ]
+
+if not TestUtil.mono:
+    tests += ["IceSSL/configuration"]
 
 if __name__ == "__main__":
     TestUtil.run(tests)

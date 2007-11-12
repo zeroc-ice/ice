@@ -1066,21 +1066,49 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             string call;
             if(isGeneric && !isList && !isStack)
             {
-                call = "e__.Current.";
-                call += streamingAPI ? "ice_write" : "write__";
-                call += "(" + stream + ");";
+                if(isValueType(type))
+                {
+                    call = "e__.Current";
+                }
+                else
+                {
+                    call = "(e__.Current == null ? new ";
+                    call += typeS + "() : e__.Current)";
+                }
             }
             else
             {
-                call = param;
-                if(isStack)
+                if(isValueType(type))
                 {
-                    call += "_tmp";
+                    call = param;
+                    if(isStack)
+                    {
+                        call += "_tmp";
+                    }
                 }
-                call += "[ix__].";
-                call += streamingAPI ? "ice_write" : "write__";
-                call += "(" + stream + ");";
+                else
+                {
+                    call = "(";
+                    call += param;
+                    if(isStack)
+                    {
+                        call += "_tmp";
+                    }
+                    call += " == null ? new " + typeS + "() : " + param;
+                    if(isStack)
+                    {
+                        call += "_tmp";
+                    }
+                }
+                call += "[ix__]";
+                if(!isValueType(type))
+                {
+                    call += ")";
+                }
             }
+            call += ".";
+            call += streamingAPI ? "ice_write" : "write__";
+            call += "(" + stream + ");";
             out << nl << call;
             out << eb;
             out << eb;
