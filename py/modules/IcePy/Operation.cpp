@@ -298,6 +298,14 @@ extern PyTypeObject AMDCallbackType;
 
 }
 
+static OperationPtr
+getOperation(PyObject* p)
+{
+    assert(PyObject_IsInstance(p, reinterpret_cast<PyObject*>(&OperationType)) == 1);
+    OperationObject* obj = reinterpret_cast<OperationObject*>(p);
+    return *obj->op;
+}
+
 #ifdef WIN32
 extern "C"
 #endif
@@ -2067,6 +2075,66 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
         AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         _callback->ice_exception(ex);
     }
+}
+
+PyObject*
+IcePy::iceIsA(const Ice::ObjectPrx& prx, PyObject* args)
+{
+    PyObject* objectType = lookupType("Ice.Object");
+    assert(objectType);
+    PyObjectHandle obj = PyObject_GetAttrString(objectType, "_op_ice_isA");
+    assert(obj.get());
+
+    OperationPtr op = getOperation(obj.get());
+    assert(op);
+
+    InvocationPtr i = new SyncTypedInvocation(prx, op);
+    return i->invoke(args);
+}
+
+PyObject*
+IcePy::icePing(const Ice::ObjectPrx& prx, PyObject* args)
+{
+    PyObject* objectType = lookupType("Ice.Object");
+    assert(objectType);
+    PyObjectHandle obj = PyObject_GetAttrString(objectType, "_op_ice_ping");
+    assert(obj.get());
+
+    OperationPtr op = getOperation(obj.get());
+    assert(op);
+
+    InvocationPtr i = new SyncTypedInvocation(prx, op);
+    return i->invoke(args);
+}
+
+PyObject*
+IcePy::iceIds(const Ice::ObjectPrx& prx, PyObject* args)
+{
+    PyObject* objectType = lookupType("Ice.Object");
+    assert(objectType);
+    PyObjectHandle obj = PyObject_GetAttrString(objectType, "_op_ice_ids");
+    assert(obj.get());
+
+    OperationPtr op = getOperation(obj.get());
+    assert(op);
+
+    InvocationPtr i = new SyncTypedInvocation(prx, op);
+    return i->invoke(args);
+}
+
+PyObject*
+IcePy::iceId(const Ice::ObjectPrx& prx, PyObject* args)
+{
+    PyObject* objectType = lookupType("Ice.Object");
+    assert(objectType);
+    PyObjectHandle obj = PyObject_GetAttrString(objectType, "_op_ice_id");
+    assert(obj.get());
+
+    OperationPtr op = getOperation(obj.get());
+    assert(op);
+
+    InvocationPtr i = new SyncTypedInvocation(prx, op);
+    return i->invoke(args);
 }
 
 PyObject*

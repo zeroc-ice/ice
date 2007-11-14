@@ -87,7 +87,11 @@ ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
 !endif
 
-slicedir		= $(ICE_DIR)\slice
+!if exist ("$(ICE_DIR)\slice")
+slicedir 		= $(ICE_DIR)\slice
+!else
+slicedir                = $(ICE_DIR)\..\slice
+!endif
 
 RUBY_CPPFLAGS		= -I"$(RUBY_HOME)\lib\ruby\1.8\i386-mswin32"
 RUBY_LDFLAGS		= /LIBPATH:"$(RUBY_HOME)\lib"

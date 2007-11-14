@@ -26,6 +26,16 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
+//
+// TODO: Temporary work-around for Mono compiler bug: "global::" does not work for generic classes.
+//
+
+static string
+global()
+{
+    return "\n#if !__MonoCS__    \nglobal::\n#endif\n";
+}
+
 static string
 lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
 {
@@ -198,7 +208,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
             }
             else
             {
-                return "global::" + type + "<" + typeToString(seq->type()) + ">";
+                return global() + type + "<" + typeToString(seq->type()) + ">";
             }
         }
 
@@ -763,7 +773,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                         else if(isCustom)
                         {
-                            out << "global::" << genericType << "<Ice.Object>();";
+                            out << global() << genericType << "<Ice.Object>();";
                         }
                         else if(isGeneric)
                         {
@@ -878,7 +888,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                     else if(isCustom)
                     {
                         out << sb;
-                        out << nl << param << " = new " << "global::" << genericType << "<"
+                        out << nl << param << " = new " << global() << genericType << "<"
                             << typeToString(type) << ">();";
                         out << nl << "int szx__ = " << stream << ".readSize();";
                         out << nl << "for(int ix__ = 0; ix__ < szx__; ++ix__)";
@@ -959,7 +969,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else if(isCustom)
             {
-                out << "global::" << genericType << "<" << typeS << ">()";
+                out << global() << genericType << "<" << typeS << ">()";
             }
             else if(isGeneric)
             {
@@ -1056,21 +1066,49 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             string call;
             if(isGeneric && !isList && !isStack)
             {
-                call = "e__.Current.";
-                call += streamingAPI ? "ice_write" : "write__";
-                call += "(" + stream + ");";
+                if(isValueType(type))
+                {
+                    call = "e__.Current";
+                }
+                else
+                {
+                    call = "(e__.Current == null ? new ";
+                    call += typeS + "() : e__.Current)";
+                }
             }
             else
             {
-                call = param;
-                if(isStack)
+                if(isValueType(type))
                 {
-                    call += "_tmp";
+                    call = param;
+                    if(isStack)
+                    {
+                        call += "_tmp";
+                    }
                 }
-                call += "[ix__].";
-                call += streamingAPI ? "ice_write" : "write__";
-                call += "(" + stream + ");";
+                else
+                {
+                    call = "(";
+                    call += param;
+                    if(isStack)
+                    {
+                        call += "_tmp";
+                    }
+                    call += " == null ? new " + typeS + "() : " + param;
+                    if(isStack)
+                    {
+                        call += "_tmp";
+                    }
+                }
+                call += "[ix__]";
+                if(!isValueType(type))
+                {
+                    call += ")";
+                }
             }
+            call += ".";
+            call += streamingAPI ? "ice_write" : "write__";
+            call += "(" + stream + ");";
             out << nl << call;
             out << eb;
             out << eb;
@@ -1097,7 +1135,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else if(isCustom)
             {
-                out << "global::" << genericType << "<" << typeS << ">();";
+                out << global() << genericType << "<" << typeS << ">();";
             }
             else if(isGeneric)
             {
@@ -1234,7 +1272,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             }
             else if(isCustom)
             {
-                out << "global::" << genericType << "<" << typeS << ">();";
+                out << global() << genericType << "<" << typeS << ">();";
             }
             else if(isGeneric)
             {
@@ -1349,7 +1387,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         }
         else if(isCustom)
         {
-            out << "global::" << genericType << "<" << typeS << ">();";
+            out << global() << genericType << "<" << typeS << ">();";
         }
         else if(isGeneric)
         {

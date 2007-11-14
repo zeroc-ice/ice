@@ -13,6 +13,8 @@
 #
 USE_ICE_RPM ?= 0
 
+USE_SRC_DIST = 0
+
 #
 # Checks for ICE_HOME environment variable.  If it isn't present,
 # attempt to find an Ice installation in /usr or the default install
@@ -112,7 +114,11 @@ libdir			= $(top_srcdir)/lib
 ifneq ($(USE_ICE_RPM),0)
     slicedir		= /usr/share/Ice-$(VERSION)/slice
 else
-    slicedir		= $(ICE_DIR)/slice
+    ifeq ($(shell test -d $(ICE_DIR)/slice && echo 0),0)
+        slicedir		= $(ICE_DIR)/slice
+    else
+        slicedir		= $(ICE_DIR)/../slice
+    endif
 endif
 
 
@@ -175,11 +181,7 @@ ifeq ($(mkdir),)
 			  chmod a+rx $(1)
 endif
 
-ifneq ($(USE_SRC_DIST),0)
-    SLICE2CS		= $(ICE_DIR)/cpp/bin/slice2cs
-else
-    SLICE2CS		= $(ICE_DIR)/bin/slice2cs
-endif
+SLICE2CS		= $(ICE_DIR)/bin/slice2cs
 
 GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
 CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))

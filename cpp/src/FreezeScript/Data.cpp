@@ -1186,6 +1186,7 @@ void
 FreezeScript::StringData::setValue(const string& v)
 {
     _value = v;
+    _length = IntegerDataPtr::dynamicCast(_factory->createInteger(static_cast<Ice::Long>(_value.size()), true));
 }
 
 //

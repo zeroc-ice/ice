@@ -106,7 +106,11 @@ ICE_CPPFLAGS		= -I"$(ICE_DIR)\include"
 ICE_LDFLAGS		= /LIBPATH:"$(ICE_DIR)\lib"
 !endif
 
-slicedir		= $(ICE_DIR)\slice
+!if exist ("$(ICE_DIR)\slice")
+slicedir 		= $(ICE_DIR)\slice
+!else
+slicedir                = $(ICE_DIR)\..\slice
+!endif
 
 PYTHON_CPPFLAGS		= -I"$(PYTHON_HOME)\include"
 PYTHON_LDFLAGS		= /LIBPATH:"$(PYTHON_HOME)\libs"

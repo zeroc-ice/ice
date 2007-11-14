@@ -25,7 +25,7 @@ testdir = os.path.dirname(os.path.abspath(__file__))
 client = os.path.join(testdir, "client")
 
 print "starting client...", 
-clientPipe = os.popen(client) 
+clientPipe = TestUtil.startClient(client, "")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
